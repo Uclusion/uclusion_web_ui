@@ -26,3 +26,5 @@ firebase-debug.log
 
 #codecov
 codecov.yml
+
+.idea

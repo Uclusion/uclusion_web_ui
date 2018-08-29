@@ -4,6 +4,8 @@ import Button from '@material-ui/core/Button'
 import { injectIntl, intlShape } from 'react-intl'
 import { GitHubIcon } from 'rmw-shell/lib/components/Icons'
 import { Activity } from 'rmw-shell'
+import { Grid } from '@material-ui/core'
+import { Card } from '@material-ui/core'
 import { withTheme } from '@material-ui/core/styles'
 import { Line, Bar, Doughnut } from 'react-chartjs-2'
 import { withFirebase } from 'firekit-provider'
@@ -196,6 +198,10 @@ class Dashboard extends Component {
 
             </div>
           </div>
+        <Grid spacing="24">
+          <Card raised="true">Uclusion Test Card</Card>
+          <Card raised="true">Uclusion TEst Card 2</Card>
+        </Grid>
         </Scrollbar>
       </Activity >
     )

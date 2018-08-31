@@ -1,18 +1,17 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Button from '@material-ui/core/Button'
+
 import { injectIntl, intlShape } from 'react-intl'
 import { GitHubIcon } from 'rmw-shell/lib/components/Icons'
 import { Activity } from 'rmw-shell'
-import { Grid } from '@material-ui/core'
-import { Card } from '@material-ui/core'
 import { withTheme } from '@material-ui/core/styles'
 import { Line, Bar, Doughnut } from 'react-chartjs-2'
 import { withFirebase } from 'firekit-provider'
 import CountUp from 'react-countup'
 import Icon from '@material-ui/core/Icon'
 import Scrollbar from 'rmw-shell/lib/components/Scrollbar/Scrollbar'
-
+import ItemList from '../../components/ItemList'
 const currentYear = new Date().getFullYear()
 const daysPath = `/user_registrations_per_day/${currentYear}/${new Date().toISOString().slice(5, 7)}`
 const monthsPath = `/user_registrations_per_month/${currentYear}`
@@ -132,6 +131,7 @@ class Dashboard extends Component {
       }]
     }
 
+    const items = [{summaryText: "Foobar", expandedText:"My expanded value is awesome"}, {summaryText: "Item2", expandedText:"ExpandedTEst text"}];
     return (
       <Activity
         iconElementRight={
@@ -169,39 +169,8 @@ class Dashboard extends Component {
           </div>
 
           <br />
-          <div style={{ margin: 5, display: 'flex', flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}>
 
-            <div style={{ flexGrow: 1, flexShrink: 1, maxWidth: 600 }}>
-              <Doughnut
-                data={providersComponentData}
-              />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', margin: 30 }}>
-              <CountUp
-                style={{
-                  fontSize: 100,
-                  color: theme.palette.primary.main,
-                  fontFamily: theme.fontFamily
-                }}
-                start={0}
-                end={usersCount}
-              />
-              <div>
-                <Icon
-                  color='secondary'
-                  className='material-icons'
-                  style={{ fontSize: 70, marginLeft: 16 }}>
-                  group
-              </Icon>
-              </div>
-
-            </div>
-          </div>
-        <Grid spacing="24">
-          <Card raised="true">Uclusion Test Card</Card>
-          <Card raised="true">Uclusion TEst Card 2</Card>
-        </Grid>
+          <ItemList title="My Item List" items={items}/>
         </Scrollbar>
       </Activity >
     )

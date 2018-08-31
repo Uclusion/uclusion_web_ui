@@ -106,9 +106,9 @@ const getMenuItems = (props) => {
       leftIcon: <Icon className='material-icons' >business</Icon>
     },
     {
-      value: '/tasks',
+      value: '/investibles',
       visible: isAuthorised,
-      primaryText: intl.formatMessage({ id: 'tasks' }),
+      primaryText: intl.formatMessage({ id: 'investibles' }),
       leftIcon: <Icon className='material-icons' >list</Icon>
     },
     {

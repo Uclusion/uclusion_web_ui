@@ -1,4 +1,4 @@
-import { defineMessages } from 'react-intl';
+import { defineMessages } from 'react-intl'
 
 const messages = defineMessages({
   app_name: 'React Most Wanted',
@@ -56,7 +56,7 @@ const messages = defineMessages({
   email_verified: 'E-Mail is verified',
   send_verification_email: 'Send verification E-Mail',
   send_verification_email_again: 'Send verification E-Mail again',
-  tasks: 'Tasks',
+  investibles: 'Investibles',
   create_task: 'Create task',
   edit_task: 'Edit task',
   users: 'Users',
@@ -144,8 +144,8 @@ const messages = defineMessages({
   user_label_search: 'Search user',
   document: 'Document',
   collection: 'Collection',
-  infinitelist: 'Infinitelist',
+  infinitelist: 'Infinitelist'
 
-});
+})
 
-export default messages;
+export default messages

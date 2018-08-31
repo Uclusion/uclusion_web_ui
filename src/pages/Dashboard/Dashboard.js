@@ -169,35 +169,7 @@ class Dashboard extends Component {
           </div>
 
           <br />
-          <div style={{ margin: 5, display: 'flex', flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}>
 
-            <div style={{ flexGrow: 1, flexShrink: 1, maxWidth: 600 }}>
-              <Doughnut
-                data={providersComponentData}
-              />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', margin: 30 }}>
-              <CountUp
-                style={{
-                  fontSize: 100,
-                  color: theme.palette.primary.main,
-                  fontFamily: theme.fontFamily
-                }}
-                start={0}
-                end={usersCount}
-              />
-              <div>
-                <Icon
-                  color='secondary'
-                  className='material-icons'
-                  style={{ fontSize: 70, marginLeft: 16 }}>
-                  group
-              </Icon>
-              </div>
-
-            </div>
-          </div>
           <ItemList title="My Item List" items={items}/>
         </Scrollbar>
       </Activity >

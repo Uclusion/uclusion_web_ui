@@ -4,6 +4,16 @@ import routes from './routes'
 import themes from './themes'
 import grants from './grants'
 
+function TokenAuthorizer () {
+  this.authorize = (resolve, reject) => {
+    return new Promise((resolve, reject) => {
+      resolve('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoidXNlciIsInBlcm1pc3Npb25zIjpbImxvZ2luIl0sImFwaV9rZXkiOiI5NGZhOTIyYS1kMjI2LTQ1YjctOTZhYS1jNDRlZWVlOWE3MzciLCJleHAiOjE1MzU4MTM3NDEuMTEyMjMzOSwiaWQiOiI4MzkyM2ZhMC00ZjEwLTRhZTgtODA1YS02NDA0MGMzM2Q0NDAifQ.HbNrygJ6SUXHQi67lapy-4PXiL4w33P06H_wanOD3WQ')
+    })
+  }
+}
+
+const authorizer = new TokenAuthorizer()
+
 const config = {
   firebase_config: {
     apiKey: 'AIzaSyBQAmNJ2DbRyw8PqdmNWlePYtMP0hUcjpY',
@@ -43,6 +53,10 @@ const config = {
   routes,
   getMenuItems,
   firebaseLoad: () => import('./firebase'),
+  api_configuration: {
+    baseURL: 'https://dev.api.uclusion.com/v1',
+    authorizer: authorizer
+  }
 }
 
 export default config

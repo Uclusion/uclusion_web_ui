@@ -28,7 +28,8 @@ export const fetchInvestibles = (params = {}) => (dispatch) => {
   }
 
   return promise.then(response => dispatch(receiveInvestibles(response)))
-    .catch(() => {
+    .catch((error) => {
+      console.log(error);
       dispatch(receiveInvestibles([]))
     })
 }

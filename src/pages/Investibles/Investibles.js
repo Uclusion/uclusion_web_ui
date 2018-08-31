@@ -19,7 +19,7 @@ class Investibles extends Component {
   }
 
   componentDidUpdate () {
-    this.readTrendingInvestibles()
+    // this.readTrendingInvestibles()
   }
 
   readTrendingInvestibles () {
@@ -69,8 +69,8 @@ Investibles.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
-  loading: getInvestiblesFetching(state.investibles),
-  investibles: getInvestibles(state.investibles)
+  loading: getInvestiblesFetching(state.investiblesReducer),
+  investibles: getInvestibles(state.investiblesReducer)
 })
 
 function mapDispatchToProps (dispatch) {

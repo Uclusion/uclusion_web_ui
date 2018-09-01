@@ -7,7 +7,7 @@ import grants from './grants'
 function TokenAuthorizer () {
   this.authorize = (resolve, reject) => {
     return new Promise((resolve, reject) => {
-      resolve('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoidXNlciIsInBlcm1pc3Npb25zIjpbImxvZ2luIl0sImFwaV9rZXkiOiI5NGZhOTIyYS1kMjI2LTQ1YjctOTZhYS1jNDRlZWVlOWE3MzciLCJleHAiOjE1MzU4MTM3NDEuMTEyMjMzOSwiaWQiOiI4MzkyM2ZhMC00ZjEwLTRhZTgtODA1YS02NDA0MGMzM2Q0NDAifQ.HbNrygJ6SUXHQi67lapy-4PXiL4w33P06H_wanOD3WQ')
+      resolve('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoidXNlciIsInBlcm1pc3Npb25zIjpbImxvZ2luIl0sImFwaV9rZXkiOiI5NGZhOTIyYS1kMjI2LTQ1YjctOTZhYS1jNDRlZWVlOWE3MzciLCJleHAiOjE1MzU5MDU5NDYuMDQ1MDY3MywiaWQiOiI4MzkyM2ZhMC00ZjEwLTRhZTgtODA1YS02NDA0MGMzM2Q0NDAifQ.kuboLDSiLPybMrC_SiAB-Ge9hAghv2GRFUFu4h4z1iI')
     })
   }
 }

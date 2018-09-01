@@ -4,13 +4,14 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 
-import { fetchInvestibles } from '../../containers/Investibles/actions'
+import { fetchInvestibles, fetchCategoriesInvestibles } from '../../containers/Investibles/actions'
 import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../../containers/Investibles/reducer'
 import InvestiblesList from './InvestiblesList'
 
 class Investibles extends Component {
   constructor (props) {
     super(props)
+    // https://medium.freecodecamp.org/react-binding-patterns-5-approaches-for-handling-this-92c651b5af56
     this.readTrendingInvestibles = this.readTrendingInvestibles.bind(this)
   }
 
@@ -24,17 +25,21 @@ class Investibles extends Component {
 
   readTrendingInvestibles () {
     const { dispatch } = this.props
-    dispatch(fetchInvestibles({}))
+    dispatch(fetchInvestibles({
+      market_id: 'slack_TB424K1GD',
+      trending_window_date: '2015-01-22T03:23:26Z'
+    }))
   }
 
-  /* readCategoriesInvestibles(page) {
+  readCategoriesInvestibles (page, categoryName) {
     const { dispatch } = this.props
     dispatch(fetchCategoriesInvestibles({
-      category: this.props.match.params.categId,
+      market_id: 'slack_TB424K1GD',
+      category: categoryName,
       page,
       per_page: 20
     }))
-  } */
+  }
 
   render () {
     const { loading, investibles } = this.props

@@ -1,5 +1,4 @@
 import AppBar from '@material-ui/core/AppBar'
-import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import LockIcon from '@material-ui/icons/Lock'
 import React, { Component } from 'react'
@@ -73,11 +72,9 @@ const styles = theme => ({
     marginTop: theme.spacing.unit * 3
   },
   logo: {
-    color: 'red',
-    margin: `${theme.spacing.unit * 3}px 0 ${theme.spacing.unit * 4}px`,
-    width: '100%',
-    height: '40vw',
-    maxHeight: 250
+    marginLeft: '37%',
+    width: '25%',
+    height: '25%'
   },
   steps: {
     maxWidth: theme.spacing.unit * 130,
@@ -161,7 +158,7 @@ class LandingPage extends Component {
           <meta name="theme-color" content={theme.palette.primary.main} />
           <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
           <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
-          <title>REACT MOST WANTED</title>
+          <title>UCLUSION MOST WANTED</title>
         </Helmet>
         <AppBar position='static'>
           <Toolbar disableGutters>
@@ -194,13 +191,11 @@ class LandingPage extends Component {
         </AppBar>
 
         <div className={classes.root}>
-
-
           <div className={classes.hero}>
             <div className={classes.content}>
               <img
-                src='/rmw.svg'
-                alt='Material-UI Logo'
+                src='/uclusion_ulogo.jpg'
+                alt='Uclusion Logo'
                 className={classes.logo}
               />
               <div className={classes.text}>
@@ -223,21 +218,11 @@ class LandingPage extends Component {
                 >
                   {'Uclusion Starter-Kit with all Most Wanted features.'}
                 </Typography>
-                <Button
-                  onClick={() => { history.push('/signin') }}
-                  className={classes.button}
-                  variant='outlined'
-                  color='primary'
-                >
-                  {'Get Started'}
-                </Button>
               </div>
 
               <div className={classes.cardsContent}>
                 <Card className={classes.card}>
                   <CardContent>
-                    <Typography variant="headline" component="h2">Installation</Typography>
-                    <br />
                     <Typography  >{`Try Uclusion Slack integration:`}</Typography>
                     <br />
                     <a href="https://slack.com/oauth/authorize?scope=commands,bot&client_id=378072647557.383178544246&redirect_uri=https://t5e5r3c2ld.execute-api.us-west-2.amazonaws.com/dev/signup">
@@ -249,8 +234,6 @@ class LandingPage extends Component {
                 </Card>
                 <Card className={classes.card}>
                   <CardContent>
-                    <Typography variant="headline" component="h2">Login</Typography>
-                    <br />
                     <Typography  >{`Login with Slack:`}</Typography>
                     <br />
                     <a href={'https://slack.com/oauth/authorize?scope=identity.basic&client_id=378072647557.383178544246&state='
@@ -262,18 +245,9 @@ class LandingPage extends Component {
                 </Card>
                 <Card className={classes.card}>
                   <CardContent>
-                    <Typography variant="headline" component="h2">What is this?</Typography>
-                    <Typography noWrap={false} color="textSecondary">
-                      {`This is a OPEN SOURCE demo application that demonstartes the usage of the rmw-shell library 
-                    with react, Material-UI and firebase.  `}
+                    <Typography variant="headline" component="h2">Login with Email Address</Typography>
                       <br />
-                      {` This demo has no purpose to do something as an app. 
-                    It is here just to show how everthing works together. `}
-                    </Typography>
                   </CardContent>
-                  <CardActions>
-                    <Button size="small" onClick={() => { history.push('/signin') }} >Get started</Button>
-                  </CardActions>
                 </Card>
               </div>
             </div>

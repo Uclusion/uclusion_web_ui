@@ -65,13 +65,22 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
+  "browserslist": {
+    "development": [
+      "last 1 chrome versions"
+    ],
+    "production": [
+      "last 1 chrome versions"
+    ]
+  },
   "devDependencies": {
     "enzyme": "^3.5.0",
-    "react-scripts": "^1.1.5",
+    "react-scripts": "2.0.0-next.a671462c",
     "redux-logger": "^3.0.6",
     "redux-testkit": "^1.0.6",
     "selenium-webdriver": "^4.0.0-alpha.1",
     "source-map-explorer": "^1.6.0",
-    "standard": "^11.0.1"
+    "standard": "^11.0.1",
+    "query-string": "^4.3.4"
   }
 }

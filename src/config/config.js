@@ -7,8 +7,21 @@ import grants from './grants'
 function TokenAuthorizer () {
   this.authorize = (resolve, reject) => {
     return new Promise((resolve, reject) => {
-      resolve('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoidXNlciIsInBlcm1pc3Npb25zIjpbImxvZ2luIl0sImFwaV9rZXkiOiI5NGZhOTIyYS1kMjI2LTQ1YjctOTZhYS1jNDRlZWVlOWE3MzciLCJleHAiOjE1MzU5MDU5NDYuMDQ1MDY3MywiaWQiOiI4MzkyM2ZhMC00ZjEwLTRhZTgtODA1YS02NDA0MGMzM2Q0NDAifQ.kuboLDSiLPybMrC_SiAB-Ge9hAghv2GRFUFu4h4z1iI')
+      try {
+        const key = Object.keys(localStorage).find(e => e.match(/uclusion:root/))
+        const data = JSON.parse(localStorage.getItem(key))
+        resolve(data.auth)
+      } catch (ex) {
+        reject(ex)
+      }
     })
+  }
+  this.setAuthorization = (token) => {
+    try {
+      localStorage.setItem('uclusion:root', JSON.stringify({'auth': token}));
+    } catch (ex) {
+      console.error(ex)
+    }
   }
 }
 

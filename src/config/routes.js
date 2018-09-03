@@ -12,6 +12,7 @@ const AsyncInvestible = MyLoadable({ loader: () => import('../pages/Investibles/
 const AsyncInvestibles = MyLoadable({ loader: () => import('../pages/Investibles/Investibles') }, [AsyncInvestible])
 const AsyncDocument = MyLoadable({ loader: () => import('../pages/Document') })
 const AsyncCollection = MyLoadable({ loader: () => import('../pages/Collection') })
+const AsyncLogin = MyLoadable({ loader: () => import('../pages/Login') })
 
 const routes = [
   <RestrictedRoute type='private' path="/" exact component={AsyncDashboard} />,
@@ -24,6 +25,7 @@ const routes = [
   <RestrictedRoute type='private' path="/investibles/edit/:uid" exact component={AsyncInvestible} />,
   <RestrictedRoute type='private' path="/document" exact component={AsyncDocument} />,
   <RestrictedRoute type='private' path="/collection" exact component={AsyncCollection} />,
+  <RestrictedRoute type='public' path="/login" exact component={AsyncLogin} />
 ]
 
 

@@ -212,7 +212,7 @@ class LandingPage extends Component {
                   gutterBottom
                   className={classes.title}
                 >
-                  {'REACT MOST WANTED'}
+                  {'UCLUSION MOST WANTED'}
                 </Typography>
                 <Typography
                   variant='headline'
@@ -221,7 +221,7 @@ class LandingPage extends Component {
                   gutterBottom
                   className={classes.headline}
                 >
-                  {'React Starter-Kit with all Most Wanted features.'}
+                  {'Uclusion Starter-Kit with all Most Wanted features.'}
                 </Typography>
                 <Button
                   onClick={() => { history.push('/signin') }}
@@ -238,34 +238,26 @@ class LandingPage extends Component {
                   <CardContent>
                     <Typography variant="headline" component="h2">Installation</Typography>
                     <br />
-                    <Typography  >{`Just run this script to start:`}</Typography>
+                    <Typography  >{`Try Uclusion Slack integration:`}</Typography>
                     <br />
-                    <Typography className={classes.pos} color="textSecondary"> npx create-react-app test-app --scripts-version rmw-react-scripts   </Typography>
+                    <a href="https://slack.com/oauth/authorize?scope=commands,bot&client_id=378072647557.383178544246&redirect_uri=https://t5e5r3c2ld.execute-api.us-west-2.amazonaws.com/dev/signup">
+                      <img alt="Add to Slack" height="40" width="139"
+                           src="https://platform.slack-edge.com/img/add_to_slack.png"
+                           srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"/>
+                    </a>
                   </CardContent>
-                  <CardActions>
-                    <Button size="small" onClick={() => {
-                      var win = window.open('https://github.com/TarikHuber/rmw-shell', '_blank')
-                      win.focus();
-                    }} >Learn More</Button>
-                  </CardActions>
                 </Card>
                 <Card className={classes.card}>
                   <CardContent>
-                    <Typography variant="headline" component="h2">Usage</Typography>
+                    <Typography variant="headline" component="h2">Login</Typography>
                     <br />
-                    <Typography  >{`Set your configuration to the App component:`}</Typography>
+                    <Typography  >{`Login with Slack:`}</Typography>
                     <br />
-                    <Typography className={classes.pos} color="textSecondary">
-                      {`import App from 'rmw-shell'`}
-                      <br />
-                      {`<App appConfig={{ configureStore, ...config }} />`}
-                    </Typography>
+                    <a href={'https://slack.com/oauth/authorize?scope=identity.basic&client_id=378072647557.383178544246&state='
+                    +window.location.href+'&redirect_uri=https://t5e5r3c2ld.execute-api.us-west-2.amazonaws.com/dev/login'}>
+                      <img alt="Login with Slack" src="https://api.slack.com/img/sign_in_with_slack.png" /></a>
                   </CardContent>
                   <CardActions>
-                    <Button size="small" onClick={() => {
-                      var win = window.open('https://github.com/TarikHuber/react-most-wanted', '_blank')
-                      win.focus();
-                    }} >Learn More</Button>
                   </CardActions>
                 </Card>
                 <Card className={classes.card}>

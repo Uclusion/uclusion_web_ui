@@ -21,8 +21,8 @@ const routes = [
   <RestrictedRoute type='private' path="/companies" exact component={AsyncCompanies} />,
   <RestrictedRoute type='private' path="/companies/edit/:uid" exact component={AsyncCompany} />,
   <RestrictedRoute type='private' path="/companies/create" exact component={AsyncCompany} />,
-  <RestrictedRoute type='private' path="/investibles" exact component={AsyncInvestibles} />,
-  <RestrictedRoute type='private' path="/investibles/edit/:uid" exact component={AsyncInvestible} />,
+  <RestrictedRoute type='public' path="/investibles" exact component={AsyncInvestibles} />,
+  <RestrictedRoute type='public' path="/investibles/edit/:uid" exact component={AsyncInvestible} />,
   <RestrictedRoute type='private' path="/document" exact component={AsyncDocument} />,
   <RestrictedRoute type='private' path="/collection" exact component={AsyncCollection} />,
   <RestrictedRoute type='public' path="/login" exact component={AsyncLogin} />

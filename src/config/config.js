@@ -23,6 +23,21 @@ function TokenAuthorizer () {
       console.error(ex)
     }
   }
+
+  this.isAuthorized = () => {
+    try {
+      const key = Object.keys(localStorage).find(e => e.match(/uclusion:root/))
+      if (key) {
+        const data = JSON.parse(localStorage.getItem(key))
+        if (data) {
+          return data.auth
+        }
+      }
+    } catch (ex) {
+      console.error(ex)
+    }
+    return false
+  }
 }
 
 const authorizer = new TokenAuthorizer()

@@ -1,8 +1,7 @@
 import config from '../config'
-import { isAuthorised } from 'rmw-shell/lib/utils/auth'
 
 export const initState = {
-  auth: { isAuthorised: isAuthorised() },
+  auth: { isAuthorised: config.api_configuration.authorizer.isAuthorized() },
   ...config.initial_state
 }
 

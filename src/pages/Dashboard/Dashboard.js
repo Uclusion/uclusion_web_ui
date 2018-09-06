@@ -131,7 +131,8 @@ class Dashboard extends Component {
       }]
     }
 
-    const items = [{summaryText: "Foobar", expandedText:"My expanded value is awesome"}, {summaryText: "Item2", expandedText:"ExpandedTEst text"}];
+    const items = [{summaryText: "Foobar", expandedText:"My expanded value is awesome", actions: [<Button key="cacnel1" size="small">Cancel</Button>, <Button key="save1" size="small" color="primary"> Save </Button>]},
+    {summaryText: "Item2", expandedText:"ExpandedTEst text"}];
     return (
       <Activity
         iconElementRight={
@@ -170,7 +171,7 @@ class Dashboard extends Component {
 
           <br />
 
-          <ItemList title="My Item List" items={items}/>
+          <ItemList title="My Item List" items={items} headerActions={[<Button key="Button1" variant="outlined">Test Button 1</Button>, <Button key="Button2" variant="outlined">Test Button 2</Button>]}/>
         </Scrollbar>
       </Activity >
     )

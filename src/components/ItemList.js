@@ -1,12 +1,9 @@
 import React from 'react'
 import {
-  ExpansionPanel,
-  ExpansionPanelDetails,
-  ExpansionPanelSummary,
-  ExpansionPanelActions,
+
   GridList,
-  Typography,
-  Button
+  Typography
+
 } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { withStyles } from '@material-ui/core/styles'
@@ -19,7 +16,7 @@ const styles = (theme) => ({
   },
 
   headerTitle: {
-    float: 'left'
+    float: 'left',
   },
 
   headerButton: {
@@ -28,6 +25,11 @@ const styles = (theme) => ({
 
   headerBottom: {
     clear: 'both'
+  },
+
+  mainGrid: {
+    padding: theme.spacing.unit * 2,
+    justifyContent: 'flex-end'
   }
 
 })
@@ -36,16 +38,16 @@ class ItemList extends React.Component {
 
   //TODO: this may need to change to pasing in the panels, sice we probably want to customize the entire list (e.g. just render the children in the list
   render () {
-    const { classes, title, items } = this.props;
-    return(<GridList cols={1} cellHeight="auto">
+    const { classes, title, items, headerActions } = this.props;
+    const positionedHeaderActions = headerActions.map((element, index) => <div key={index} className={classes.headerButton}>{element}</div>)
+    return(<GridList cols={1} cellHeight="auto" className={classes.mainGrid}>
       <div classname={classes.headerBox}>
       <Typography variant="display1" className={classes.headerTitle} gutterBottom>
         {title}
       </Typography>
-        <Button size="small" className={classes.headerButton}> TestRight </Button>
+        {positionedHeaderActions}
       </div>
       <div className={classes.headerBottom}></div>
-      
       {items.map((item) =>
         <ExpansionPanel>
           <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
@@ -59,10 +61,7 @@ class ItemList extends React.Component {
           <ExpansionPanelDetails>{item.expandedText}</ExpansionPanelDetails>
           Some more text that I can use
           <ExpansionPanelActions>
-            <Button size="small">Cancel</Button>
-            <Button size="small" color="primary">
-              Save
-            </Button>
+            {item.actions}
           </ExpansionPanelActions>
         </ExpansionPanel>)
       }

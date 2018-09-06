@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { investiblePropType } from '../../containers/Investibles/reducer'
-import InvestibleCard from './InvestibleCard'
+import InvestibleListItem from './InvestibleListItem'
 
 class InvestiblesList extends Component {
   render () {
     const list = this.props.investibles.map(element => (
-      <InvestibleCard
+      <InvestibleListItem
         key={element.id}
         id={element.id}
         description={element.description}

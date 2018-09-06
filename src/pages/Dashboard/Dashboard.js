@@ -11,7 +11,6 @@ import { withFirebase } from 'firekit-provider'
 import CountUp from 'react-countup'
 import Icon from '@material-ui/core/Icon'
 import Scrollbar from 'uclusion-react-scripts/lib/components/Scrollbar/Scrollbar'
-import ItemList from '../../components/ItemList'
 const currentYear = new Date().getFullYear()
 const daysPath = `/user_registrations_per_day/${currentYear}/${new Date().toISOString().slice(5, 7)}`
 const monthsPath = `/user_registrations_per_month/${currentYear}`
@@ -170,8 +169,6 @@ class Dashboard extends Component {
           </div>
 
           <br />
-
-          <ItemList title="My Item List" items={items} headerActions={[<Button key="Button1" variant="outlined">Test Button 1</Button>, <Button key="Button2" variant="outlined">Test Button 2</Button>]}/>
         </Scrollbar>
       </Activity >
     )

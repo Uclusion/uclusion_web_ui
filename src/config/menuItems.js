@@ -10,6 +10,13 @@ import SettingsIcon from '@material-ui/icons/SettingsApplications'
 import VerticalAlignBottomIcon from '@material-ui/icons/VerticalAlignBottom'
 import AccountBoxIcon from '@material-ui/icons/AccountBox'
 import LockIcon from '@material-ui/icons/Lock'
+import ListIcon from '@material-ui/icons/List'
+import DashboardIcon from '@material-ui/icons/Dashboard'
+import ChatIcon from '@material-ui/icons/Chat'
+import BusinessIcon from '@material-ui/icons/Business'
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
+import SecurityIcon from '@material-ui/icons/Security'
+import GroupIcon from '@material-ui/icons/Group'
 
 const getMenuItems = (props) => {
   const {
@@ -19,7 +26,7 @@ const getMenuItems = (props) => {
     updateLocale,
     intl,
     themeSource,
-    auth,
+    // auth,
     isGranted,
     deferredPrompt,
     isAppInstallable,
@@ -28,7 +35,8 @@ const getMenuItems = (props) => {
     handleSignOut
   } = props
 
-  const isAuthorised = auth.isAuthorised
+  // const isAuthorised = auth.isAuthorised
+  const isAuthorised = true
 
   const themeItems = allThemes.map((t) => {
     return {
@@ -71,13 +79,13 @@ const getMenuItems = (props) => {
       value: '/dashboard',
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'dashboard' }),
-      leftIcon: <Icon className='material-icons' >dashboard</Icon>
+      leftIcon: <DashboardIcon />
     },
     {
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'chats' }),
       primaryTogglesNestedList: true,
-      leftIcon: <Icon className='material-icons' >chats</Icon>,
+      leftIcon: <ChatIcon />,
       nestedItems: [
         {
           value: '/chats',
@@ -103,55 +111,37 @@ const getMenuItems = (props) => {
       value: '/companies',
       visible: isGranted('read_companies'),
       primaryText: intl.formatMessage({ id: 'companies' }),
-      leftIcon: <Icon className='material-icons' >business</Icon>
+      leftIcon: <BusinessIcon />
     },
     {
       value: '/investibles',
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'investibles' }),
-      leftIcon: <Icon className='material-icons' >list</Icon>
-    },
-    {
-      visible: isAuthorised,
-      primaryTogglesNestedList: true,
-      primaryText: intl.formatMessage({ id: 'firestore' }),
-      leftIcon: <Icon className='material-icons' >flash_on</Icon>,
-      nestedItems: [
-        {
-          value: '/document',
-          primaryText: intl.formatMessage({ id: 'document' }),
-          leftIcon: <Icon className='material-icons' >flash_on</Icon>
-        },
-        {
-          value: '/collection',
-          primaryText: intl.formatMessage({ id: 'collection' }),
-          leftIcon: <Icon className='material-icons' >flash_on</Icon>
-        }
-      ]
+      leftIcon: <ListIcon />,
     },
     {
       value: '/about',
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'about' }),
-      leftIcon: <Icon className='material-icons' >info_outline</Icon>
+      leftIcon: <InfoOutlinedIcon />
     },
     {
       visible: isAuthorised, // In prod: isGranted('administration'),
       primaryTogglesNestedList: true,
       primaryText: intl.formatMessage({ id: 'administration' }),
-      leftIcon: <Icon className='material-icons' >security</Icon>,
+      leftIcon: <SecurityIcon />,
       nestedItems: [
         {
           value: '/users',
           visible: isAuthorised, // In prod: isGranted('read_users'),
           primaryText: intl.formatMessage({ id: 'users' }),
-          leftIcon: <Icon className='material-icons' >group</Icon>
+          leftIcon: <GroupIcon />
         },
         {
           value: '/roles',
           visible: isGranted('read_roles'),
           primaryText: intl.formatMessage({ id: 'roles' }),
-          leftIcon: <Icon className='material-icons' >account_box</Icon>
+          leftIcon: <AccountBoxIcon />
         }
       ]
     },

@@ -3,10 +3,12 @@ import { bindActionCreators } from 'redux'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import _ from 'lodash'
-
+import { withTheme } from '@material-ui/core/styles'
 import { fetchInvestibles, fetchCategoriesInvestibles } from '../../containers/Investibles/actions'
 import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../../containers/Investibles/reducer'
 import InvestiblesList from './InvestiblesList'
+import { injectIntl } from 'react-intl'
+import { Activity } from 'uclusion-react-scripts'
 
 class Investibles extends Component {
   constructor (props) {
@@ -42,7 +44,7 @@ class Investibles extends Component {
   }
 
   render () {
-    const { loading, investibles } = this.props
+    const { intl, loading, investibles } = this.props
 
     if (loading === 1 && investibles.length === 0) {
       return (
@@ -59,10 +61,14 @@ class Investibles extends Component {
     }
 
     return (
-      <InvestiblesList
-        investibles={_.orderBy(investibles, ['quantity'], ['desc'])}
-        title={investibles[0].categories[0]}
-      />
+      <Activity
+        isLoading={investibles === undefined}
+        containerStyle={{ overflow: 'hidden' }}
+        title={intl.formatMessage({ id: 'investibles' })}>
+        <InvestiblesList
+          investibles={_.orderBy(investibles, ['quantity'], ['desc'])}
+        />
+      </Activity>
     )
   }
 }
@@ -85,4 +91,4 @@ function mapDispatchToProps (dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Investibles)
+)(injectIntl(withTheme()((Investibles))))

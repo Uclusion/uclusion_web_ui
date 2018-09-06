@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { injectIntl, intlShape } from 'react-intl'
-import { Activity } from 'rmw-shell'
+import { Activity } from 'uclusion-react-scripts'
 import Button from '@material-ui/core/Button'
 import { withFirebase } from 'firekit-provider';
 import TextField from '@material-ui/core/TextField'

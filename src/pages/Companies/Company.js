@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { injectIntl, intlShape } from 'react-intl';
-import { Activity } from 'rmw-shell'
+import { Activity } from 'uclusion-react-scripts'
 //import { ResponsiveMenu } from 'material-ui-responsive-menu';
 import { withTheme, withStyles } from '@material-ui/core/styles'
-import { setDialogIsOpen } from 'rmw-shell/lib/store/dialogs/actions'
+import { setDialogIsOpen } from 'uclusion-react-scripts/lib/store/dialogs/actions'
 import CompanyForm from '../../components/Forms/Company';
 import { withRouter } from 'react-router-dom';
 import Icon from '@material-ui/core/Icon';
@@ -19,7 +19,7 @@ import { withFirebase } from 'firekit-provider'
 import FireForm from 'fireform'
 import { isLoading } from 'firekit'
 import { change, submit } from 'redux-form';
-import isGranted from 'rmw-shell/lib/utils/auth';
+import isGranted from 'uclusion-react-scripts/lib/utils/auth';
 import IconButton from '@material-ui/core/IconButton';
 
 const path = '/companies/';

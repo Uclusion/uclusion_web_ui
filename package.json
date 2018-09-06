@@ -52,9 +52,8 @@
     "redux-form-material-ui": "^5.0.0-beta.3",
     "redux-persist": "^5.10.0",
     "redux-thunk": "^2.3.0",
-    "rmw-react-scripts": "1.1.11",
-    "rmw-shell": "^4.0.16",
-    "uclusion_sdk": "file:../javascript_sdk"
+    "uclusion_sdk": "file:../javascript_sdk",
+    "uclusion-react-scripts": "file:../uclusion-react-scripts"
   },
   "scripts": {
     "check": "npm-check -s -u",
@@ -77,7 +76,7 @@
   "devDependencies": {
     "enzyme": "^3.6.0",
     "query-string": "^4.3.4",
-    "react-scripts": "2.0.0-next.a671462c",
+    "react-scripts": "^1.1.5",
     "redux-logger": "^3.0.6",
     "redux-testkit": "^1.0.6",
     "selenium-webdriver": "^4.0.0-alpha.1",

@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { REQUEST_INVESTIBLES, RECEIVE_INVESTIBLES } from './actions'
 
 export const investiblePropType = PropTypes.shape({
-  id: PropTypes.number.isRequired,
+  id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   market_id: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,

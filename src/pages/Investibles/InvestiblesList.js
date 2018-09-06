@@ -18,7 +18,6 @@ class InvestiblesList extends Component {
 
     return (
       <div>
-        <div>{this.props.title}</div>
         {list}
       </div>
     )
@@ -26,8 +25,7 @@ class InvestiblesList extends Component {
 }
 
 InvestiblesList.propTypes = {
-  investibles: PropTypes.arrayOf(investiblePropType).isRequired,
-  title: PropTypes.string.isRequired
+  investibles: PropTypes.arrayOf(investiblePropType).isRequired
 }
 
 export default InvestiblesList

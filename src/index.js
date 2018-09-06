@@ -1,9 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import Loadable from 'react-loadable'
-import LoadingComponent from 'rmw-shell/lib/components/LoadingComponent'
+import LoadingComponent from 'uclusion-react-scripts/lib/components/LoadingComponent'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
-import registerServiceWorker from 'rmw-shell/lib/utils/registerServiceWorker'
+import registerServiceWorker from 'uclusion-react-scripts/lib/utils/registerServiceWorker'
 import A2HSProvider from 'a2hs'
 
 const MainAsync = Loadable({

@@ -27,18 +27,35 @@ const baseFetchInvestibles = (params, dispatch, aFunction) => {
     })
 }
 
+const formatInvestible = (investible) => {
+  investible.created_at = new Date(investible.created_at)
+  investible.updated_at = new Date(investible.updated_at)
+  investible.last_investment_at = new Date(investible.last_investment_at)
+  return investible
+}
+
+const formatInvestibles = (investibles) => {
+  investibles.forEach((investible) => {
+    formatInvestible(investible)
+  })
+  return investibles
+}
+
 export const fetchInvestibles = (params = {}) => (dispatch) => {
   return baseFetchInvestibles(params, dispatch, (params, promise) => {
     if (params && params.id) {
-      promise = promise.then((client) => {
+      return promise.then((client) => {
         return client.markets.getMarketInvestible(params.market_id, params.id)
+      }).then((investible) => {
+        return formatInvestible(investible)
       })
     } else {
-      promise = promise.then((client) => {
+      return promise.then((client) => {
         return client.markets.listTrending(params.market_id, params.trending_window_date)
+      }).then((investibles) => {
+        return formatInvestibles(investibles)
       })
     }
-    return promise
   })
 }
 

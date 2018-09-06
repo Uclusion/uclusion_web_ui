@@ -8,7 +8,7 @@ const AsyncDashboard = MyLoadable({ loader: () => import('../pages/Dashboard') }
 const AsyncAbout = MyLoadable({ loader: () => import('../pages/About') })
 const AsyncCompany = MyLoadable({ loader: () => import('../pages/Companies/Company') })
 const AsyncCompanies = MyLoadable({ loader: () => import('../pages/Companies/Companies') }, [AsyncCompany])
-const AsyncInvestible = MyLoadable({ loader: () => import('../pages/Investibles/InvestibleCard') })
+const AsyncInvestible = MyLoadable({ loader: () => import('../pages/Investibles/InvestibleListItem') })
 const AsyncInvestibles = MyLoadable({ loader: () => import('../pages/Investibles/Investibles') }, [AsyncInvestible])
 const AsyncDocument = MyLoadable({ loader: () => import('../pages/Document') })
 const AsyncCollection = MyLoadable({ loader: () => import('../pages/Collection') })

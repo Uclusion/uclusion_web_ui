@@ -52,8 +52,9 @@
     "redux-form-material-ui": "^5.0.0-beta.3",
     "redux-persist": "^5.10.0",
     "redux-thunk": "^2.3.0",
-    "uclusion_sdk": "file:../javascript_sdk",
-    "uclusion-react-scripts": "file:../uclusion-react-scripts"
+    "uclusion_sdk": "file:../uclusion_sdk",
+    "rmw-react-scripts": "1.1.11",
+    "uclusion-shell": "file:../uclusion-shell"
   },
   "scripts": {
     "check": "npm-check -s -u",

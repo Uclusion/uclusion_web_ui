@@ -9,6 +9,7 @@ import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../.
 import InvestiblesList from './InvestiblesList'
 import { injectIntl } from 'react-intl'
 import { Activity } from 'uclusion-shell'
+import { getCurrentMarketId } from '../../containers/Markets/reducer'
 
 class Investibles extends Component {
   constructor (props) {
@@ -23,20 +24,21 @@ class Investibles extends Component {
 
   componentDidUpdate () {
     // this.readTrendingInvestibles()
+    // TODO figure this out and flip return and branch below (see drawer example) to dedup Activity
   }
 
   readTrendingInvestibles () {
-    const { dispatch } = this.props
+    const { dispatch, marketId } = this.props
     dispatch(fetchInvestibles({
-      market_id: 'slack_TB424K1GD',
+      market_id: marketId,
       trending_window_date: '2015-01-22T03:23:26Z'
     }))
   }
 
   readCategoriesInvestibles (page, categoryName) {
-    const { dispatch } = this.props
+    const { dispatch, marketId } = this.props
     dispatch(fetchCategoriesInvestibles({
-      market_id: 'slack_TB424K1GD',
+      market_id: marketId,
       category: categoryName,
       page,
       per_page: 20
@@ -48,15 +50,25 @@ class Investibles extends Component {
 
     if (loading === 1 && investibles.length === 0) {
       return (
-        <div>
+        <Activity
+          isLoading={investibles === undefined}
+          containerStyle={{ overflow: 'hidden' }}
+          title={intl.formatMessage({ id: 'investibles' })}>
+          <div>
           Loading
-        </div>
+          </div>
+        </Activity>
       )
     }
 
     if (investibles.length === 0) {
       return (
-        <div><p>No investibles found.</p></div>
+        <Activity
+          isLoading={investibles === undefined}
+          containerStyle={{ overflow: 'hidden' }}
+          title={intl.formatMessage({ id: 'investibles' })}>
+          <div><p>No investibles found.</p></div>
+        </Activity>
       )
     }
 
@@ -76,12 +88,14 @@ class Investibles extends Component {
 Investibles.propTypes = {
   dispatch: PropTypes.func.isRequired,
   loading: PropTypes.number.isRequired,
-  investibles: PropTypes.arrayOf(investiblePropType).isRequired
+  investibles: PropTypes.arrayOf(investiblePropType).isRequired,
+  marketId: PropTypes.string.isRequired
 }
 
 const mapStateToProps = (state) => ({
   loading: getInvestiblesFetching(state.investiblesReducer),
-  investibles: getInvestibles(state.investiblesReducer)
+  investibles: getInvestibles(state.investiblesReducer),
+  marketId: getCurrentMarketId(state.marketsReducer)
 })
 
 function mapDispatchToProps (dispatch) {

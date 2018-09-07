@@ -1,10 +1,10 @@
-import App from 'uclusion-react-scripts'
+import App from 'uclusion-shell'
 import React, { Component } from 'react'
 import config from '../../config'
 import configureStore from '../../store'
 import locales from '../../config/locales'
 import { Helmet } from 'react-helmet'
-import { addLocalizationData } from 'uclusion-react-scripts/lib/config/locales'
+import { addLocalizationData } from 'uclusion-shell/lib/config/locales'
 import { withA2HS } from 'a2hs'
 
 addLocalizationData(locales)

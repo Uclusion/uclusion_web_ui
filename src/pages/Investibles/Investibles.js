@@ -8,7 +8,7 @@ import { fetchInvestibles, fetchCategoriesInvestibles } from '../../containers/I
 import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../../containers/Investibles/reducer'
 import InvestiblesList from './InvestiblesList'
 import { injectIntl } from 'react-intl'
-import { Activity } from 'uclusion-react-scripts'
+import { Activity } from 'uclusion-shell'
 
 class Investibles extends Component {
   constructor (props) {

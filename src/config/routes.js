@@ -1,6 +1,6 @@
 import React from 'react'
-import makeLoadable from 'uclusion-react-scripts/lib/containers/MyLoadable'
-import RestrictedRoute from 'uclusion-react-scripts/lib/containers/RestrictedRoute'
+import makeLoadable from 'uclusion-shell/lib/containers/MyLoadable'
+import RestrictedRoute from 'uclusion-shell/lib/containers/RestrictedRoute'
 
 const MyLoadable = (opts, preloadComponents) => makeLoadable({ ...opts, firebase: () => import('./firebase') }, preloadComponents)
 

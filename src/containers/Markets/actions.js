@@ -28,7 +28,7 @@ export const fetchMarket = (params = {}) => (dispatch) => {
   // TODO either constructClient must cache the client or we have to at the upper level
   uclusion.constructClient(config.api_configuration).then((client) => {
     return client.markets.getMarket(params.market_id)
-  }).then(market => dispatch(receiveMarket(formatMarket(market))))
+  }).then(market => dispatch(receiveMarket(market)))
     .catch((error) => {
       console.log(error)
       dispatch(receiveMarket([]))
@@ -39,4 +39,11 @@ const formatMarket = (market) => {
   market.created_at = new Date(market.created_at)
   market.updated_at = new Date(market.updated_at)
   return market
+}
+
+export const formatMarkets = (markets) => {
+  markets.forEach((market) => {
+    formatMarket(market)
+  })
+  return markets
 }

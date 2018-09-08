@@ -9,7 +9,7 @@ import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../.
 import InvestiblesList from './InvestiblesList'
 import { injectIntl } from 'react-intl'
 import { Activity } from 'uclusion-shell'
-import { getCurrentMarketId } from '../../containers/Markets/reducer'
+import { getCurrentMarketId, getMarketsFetching } from '../../containers/Markets/reducer'
 
 class Investibles extends Component {
   constructor (props) {
@@ -22,9 +22,11 @@ class Investibles extends Component {
     this.readTrendingInvestibles()
   }
 
-  componentDidUpdate () {
-    // this.readTrendingInvestibles()
-    // TODO figure this out and flip return and branch below (see drawer example) to dedup Activity
+  componentDidUpdate (prevProps) {
+    if (this.props.marketId !== prevProps.marketId) {
+      this.readTrendingInvestibles()
+    }
+    // TODO flip return and branch below (see drawer example) to dedup Activity
   }
 
   readTrendingInvestibles () {
@@ -48,7 +50,7 @@ class Investibles extends Component {
   render () {
     const { intl, loading, investibles } = this.props
 
-    if (loading === 1 && investibles.length === 0) {
+    if (loading > 0 && investibles.length === 0) {
       return (
         <Activity
           isLoading={investibles === undefined}
@@ -93,7 +95,7 @@ Investibles.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
-  loading: getInvestiblesFetching(state.investiblesReducer),
+  loading: getInvestiblesFetching(state.investiblesReducer) + getMarketsFetching(state.marketsReducer),
   investibles: getInvestibles(state.investiblesReducer),
   marketId: getCurrentMarketId(state.marketsReducer)
 })

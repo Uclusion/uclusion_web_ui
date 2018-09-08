@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { REQUEST_MARKET, RECEIVE_MARKET, SELECT_MARKET } from './actions'
+import { REQUEST_MARKET, RECEIVE_MARKET, SELECT_MARKET, formatMarkets } from './actions'
 
 export const marketPropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -52,7 +52,7 @@ const currentMarket = (state = null, action) => {
 }
 
 export const getMarkets = (state) => {
-  return state.marketItems
+  return formatMarkets(state.marketItems)
 }
 
 export const getMarketsFetching = state => state.isMarketFetching

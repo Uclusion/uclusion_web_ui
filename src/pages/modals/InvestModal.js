@@ -56,6 +56,7 @@ class InvestModal extends React.Component {
     const {classes} = this.props
     return (
       <Modal open={this.props.investOpen} onClose={this.props.onClose}>
+        <div>
         <Typography>
           Some text with the quanity available and minimum investment amount
         </Typography>
@@ -72,6 +73,7 @@ class InvestModal extends React.Component {
           <Button onClick={this.handleInvest}>i18nInvest</Button>
           <Button>i18nCancel</Button>
         </form>
+        </div>
       </Modal>
     )
   }

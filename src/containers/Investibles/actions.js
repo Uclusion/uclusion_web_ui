@@ -14,6 +14,7 @@ export const receiveInvestibles = investibles => ({
 })
 
 const baseFetchInvestibles = (params, dispatch, aFunction) => {
+  if (!params.market_id) { return }
   dispatch(requestInvestibles())
 
   // TODO either constructClient must cache the client or we have to at the upper level
@@ -34,7 +35,7 @@ const formatInvestible = (investible) => {
   return investible
 }
 
-const formatInvestibles = (investibles) => {
+export const formatInvestibles = (investibles) => {
   investibles.forEach((investible) => {
     formatInvestible(investible)
   })
@@ -46,14 +47,10 @@ export const fetchInvestibles = (params = {}) => (dispatch) => {
     if (params && params.id) {
       return promise.then((client) => {
         return client.markets.getMarketInvestible(params.market_id, params.id)
-      }).then((investible) => {
-        return formatInvestible(investible)
       })
     } else {
       return promise.then((client) => {
         return client.markets.listTrending(params.market_id, params.trending_window_date)
-      }).then((investibles) => {
-        return formatInvestibles(investibles)
       })
     }
   })
@@ -61,9 +58,8 @@ export const fetchInvestibles = (params = {}) => (dispatch) => {
 
 export const fetchCategoriesInvestibles = (params = {}) => (dispatch) => {
   return baseFetchInvestibles(params, dispatch, (params, promise) => {
-    promise = promise.then((client) => {
+    return promise.then((client) => {
       return client.markets.listCategoriesInvestibles(params.market_id, params.category, params.page, params.per_page)
     })
-    return promise
   })
 }

@@ -5,36 +5,37 @@ import { ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Expansion
 import InvestModal from '../modals/InvestModal'
 
 class InvestibleListItem extends Component {
+  constructor (props) {
+    super(props)
 
-  constructor(props) {
-    super(props);
-
-    this.state = { investOpen: false };
+    this.state = { investOpen: false }
+    this.investOnClick = this.investOnClick.bind(this)
+    this.handleInvestModalClose = this.handleInvestModalClose.bind(this)
   }
 
-  investOnClick = () => {
-    this.setState({ investOpen: true });
+  investOnClick () {
+    this.setState({ investOpen: true })
   }
 
-  handleInvestModalClose = () => {
-    this.setState({ investOpen: false });
+  handleInvestModalClose () {
+    this.setState({ investOpen: false })
   }
-
 
   render () {
+    const { name, description, quantity } = this.props
     return (
       <ExpansionPanel>
-        <InvestModal name={this.props.name} description={this.props.description}
-                     minInvestment={100} //TODO replace this
-                     quantity={this.props.quantity} show={this.state.investOpen}
-                     investOpen={this.state.investOpen} onClose={this.handleInvestModalClose}/>
+        <InvestModal name={name} description={description}
+          minInvestment={100} // TODO replace this
+          quantity={quantity} show={this.state.investOpen}
+          investOpen={this.state.investOpen} onClose={this.handleInvestModalClose} />
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
           <Typography>
-            {this.props.name}
+            {name}
           </Typography>
 
         </ExpansionPanelSummary>
-        <ExpansionPanelDetails>{this.props.description}</ExpansionPanelDetails>
+        <ExpansionPanelDetails>{description}</ExpansionPanelDetails>
         <ExpansionPanelActions>
           <Button onClick={() => this.investOnClick()}>i18nInvest</Button>
           <Button>i18nMoreDetails</Button>

@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { REQUEST_INVESTIBLES, RECEIVE_INVESTIBLES } from './actions'
+import { REQUEST_INVESTIBLES, RECEIVE_INVESTIBLES, formatInvestibles } from './actions'
 
 export const investiblePropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -44,7 +44,7 @@ const isFetching = (state = 0, action) => {
 }
 
 export const getInvestibles = (state) => {
-  return state.items
+  return formatInvestibles(state.items)
 }
 
 export const getInvestiblesFetching = state => state.isFetching

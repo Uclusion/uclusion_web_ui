@@ -2,7 +2,8 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { investiblePropType } from '../../containers/Investibles/reducer'
 import InvestibleListItem from './InvestibleListItem'
-
+import ItemList from '../../components/ItemList'
+import {Button} from '@material-ui/core'
 class InvestiblesList extends Component {
   render () {
     const list = this.props.investibles.map(element => (
@@ -18,7 +19,7 @@ class InvestiblesList extends Component {
 
     return (
       <div>
-        {list}
+        <ItemList title="i18nInvestibles" items={list} headerActions={[<Button>Test Button</Button>]}/>
       </div>
     )
   }

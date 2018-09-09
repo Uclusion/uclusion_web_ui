@@ -79,6 +79,7 @@ class Investibles extends Component {
         isLoading={investibles === undefined}
         containerStyle={{ overflow: 'hidden' }}
         title={intl.formatMessage({ id: 'investibles' })}>
+
         <InvestiblesList
           investibles={_.orderBy(investibles, ['quantity'], ['desc'])}
         />

@@ -8,6 +8,16 @@ import TextField from '@material-ui/core/TextField'
 
 
 const styles = theme => ({
+  paper: {
+    position: 'absolute',
+    width: theme.spacing.unit * 50,
+    top: '50%',
+    left: '50%',
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing.unit * 4,
+  },
+
   container: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -22,24 +32,17 @@ const styles = theme => ({
 class InvestModal extends React.Component {
 
   constructor (props) {
-    super(props)
-    this.state = {
-      quantityToInvest: this.props.minInvestment
-    }
+    super(props);
+    this.state = {...props};
+
   }
 
   handleInvest = () => {
     //do something smart
   }
 
-  handleCancel = () => {
-    this.props.onClose()
-  }
 
   validateQuantityToInvest = (quantity) => {
-    if (quantity < this.props.minInvestment) {
-      return false
-    }
     return quantity <= this.props.sharesAvailable
   }
 
@@ -55,10 +58,10 @@ class InvestModal extends React.Component {
   render () {
     const {classes} = this.props
     return (
-      <Modal open={this.props.investOpen} onClose={this.props.onClose}>
-        <div>
+      <Modal open={this.props.open} onClose={this.props.onClose}>
+        <div className={classes.paper}>
         <Typography>
-          Some text with the quanity available and minimum investment amount
+          Some text with the quantity available and minimum investment amount
         </Typography>
         <form className={classes.container} noValidate autoComplete="off">
           <TextField
@@ -71,7 +74,7 @@ class InvestModal extends React.Component {
             margin="normal"
           />
           <Button onClick={this.handleInvest}>i18nInvest</Button>
-          <Button>i18nCancel</Button>
+          <Button onClick={this.props.onClose}>i18nCancel</Button>
         </form>
         </div>
       </Modal>

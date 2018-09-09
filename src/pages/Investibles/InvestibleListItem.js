@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, ExpansionPanelActions, Typography, Button } from '@material-ui/core'
-import InvestModal from '../modals/InvestModal'
+import InvestModal from '../Modals/InvestModal'
 
 class InvestibleListItem extends Component {
   constructor (props) {
@@ -26,9 +26,7 @@ class InvestibleListItem extends Component {
     return (
       <ExpansionPanel>
         <InvestModal name={name} description={description}
-          minInvestment={100} // TODO replace this
-          quantity={quantity} show={this.state.investOpen}
-          investOpen={this.state.investOpen} onClose={this.handleInvestModalClose} />
+          quantity={quantity} onClose={this.handleInvestModalClose} open={this.state.investOpen}/>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
           <Typography>
             {name}

@@ -14,6 +14,7 @@ class InvestiblesList extends Component {
         name={element.name}
         quantity={element.quantity}
         categories={element.categories}
+        marketId={element.market_id}
       />
     ))
 

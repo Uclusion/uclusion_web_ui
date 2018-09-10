@@ -5,6 +5,7 @@ export const REQUEST_MARKET = 'REQUEST_MARKET'
 export const RECEIVE_MARKET = 'RECEIVE_MARKET'
 export const SELECT_MARKET = 'SELECT_MARKET'
 
+
 export const requestMarket = () => ({
   type: REQUEST_MARKET
 })

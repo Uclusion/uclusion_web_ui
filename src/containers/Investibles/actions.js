@@ -3,6 +3,8 @@ import uclusion from 'uclusion_sdk'
 
 export const REQUEST_INVESTIBLES = 'REQUEST_INVESTIBLES'
 export const RECEIVE_INVESTIBLES = 'RECEIVE_INVESTIBLES'
+export const INVEST_INVESTIBLE = 'INVEST_INVESTIBLE'
+export const INVESTMENT_CREATED = 'INVESTMENT_CREATED'
 
 export const requestInvestibles = () => ({
   type: REQUEST_INVESTIBLES
@@ -12,6 +14,21 @@ export const receiveInvestibles = investibles => ({
   type: RECEIVE_INVESTIBLES,
   investibles
 })
+
+
+export const investInInvestible = (marketId, investibleId, quantity) => ({
+  type: INVEST_INVESTIBLE,
+  investibleId,
+  quantity,
+  marketId
+})
+
+export const investmentCreated = (investment) => ({
+  type: INVESTMENT_CREATED,
+  investment
+})
+
+
 
 const baseFetchInvestibles = (params, dispatch, aFunction) => {
   if (!params.market_id) { return }
@@ -63,3 +80,16 @@ export const fetchCategoriesInvestibles = (params = {}) => (dispatch) => {
     })
   })
 }
+
+
+export const createInvestment = (params = {}) => (dispatch) => {
+  dispatch(investInInvestible(params.marketId, params.investibleId, params.quantity))
+  uclusion.constructClient(config.api_configuration).then((client) => {
+    return client.markets.createInvestment(params.marketId, params.investibleId, params.quantity)
+  }).then(investment => dispatch(investmentCreated(investment)))
+    .catch((error) => {
+      console.log(error)
+      dispatch(investmentCreated([]))
+    })
+}
+

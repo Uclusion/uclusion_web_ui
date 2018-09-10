@@ -5,6 +5,10 @@ import Typography from '@material-ui/core/Typography'
 import Modal from '@material-ui/core/Modal'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
+import { connect } from 'react-redux'
+import { injectIntl } from 'react-intl'
+import { bindActionCreators } from 'redux'
+import { createInvestment } from '../../containers/Investibles/actions'
 
 
 const styles = theme => ({
@@ -34,11 +38,19 @@ class InvestModal extends React.Component {
   constructor (props) {
     super(props);
     this.state = {...props};
-
+    this.handleInvest = this.handleInvest.bind(this);
+    this.validateQuantityToInvest = this.validateQuantityToInvest.bind(this);
   }
 
   handleInvest = () => {
-    //do something smart
+    const {investibleId, marketId, onClose} = this.props;
+    let quantity = parseInt(this.state['quantityToInvest']);
+    this.props.dispatch(createInvestment({
+      investibleId,
+      marketId,
+      quantity
+    }))
+    onClose();
   }
 
 
@@ -47,18 +59,17 @@ class InvestModal extends React.Component {
   }
 
   handleChange = (name) => (event) => {
-    let value = event.target.value
-    this.validateQuantityToInvest(value)
-    //do some UI stuff here to handle erroneous input
-    this.setState({
-      [name]: event.target.value,
-    })
+    //let value = event.target.value
+      //do some UI stuff here to handle erroneous input
+      this.setState({
+        [name]: event.target.value,
+      })
   }
 
   render () {
-    const {classes} = this.props
+    const {classes, open, onClose} = this.props
     return (
-      <Modal open={this.props.open} onClose={this.props.onClose}>
+      <Modal open={open} onClose={onClose}>
         <div className={classes.paper}>
         <Typography>
           Some text with the quantity available and minimum investment amount
@@ -68,13 +79,13 @@ class InvestModal extends React.Component {
             id="quantityToInvest"
             label="i18n Quantity to Invest"
             className={classes.textField}
-            value={this.state.name}
+            value={this.state.quantityToInvest}
             onChange={this.handleChange('quantityToInvest')}
             type="number"
             margin="normal"
           />
           <Button onClick={this.handleInvest}>i18nInvest</Button>
-          <Button onClick={this.props.onClose}>i18nCancel</Button>
+          <Button onClick={onClose}>i18nCancel</Button>
         </form>
         </div>
       </Modal>
@@ -84,6 +95,12 @@ class InvestModal extends React.Component {
 
 InvestModal.propTypes = {
   classes: PropTypes.object.isRequired,
+  investibleId: PropTypes.string.isRequired,
+  marketId: PropTypes.string.isRequired
 }
 
-export default withStyles(styles)(InvestModal);
+function mapDispatchToProps (dispatch) {
+  return Object.assign({ dispatch }, bindActionCreators({ createInvestment }, dispatch))
+}
+
+export default connect(mapDispatchToProps)(injectIntl(withStyles(styles)(InvestModal)));

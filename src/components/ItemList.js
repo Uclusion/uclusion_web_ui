@@ -40,7 +40,7 @@ class ItemList extends React.Component {
     const positionedHeaderActions = headerActions.map((element, index) => <div key={index}
                                                                                className={classes.headerButton}>{element}</div>)
     return (<List className={classes.mainGrid}>
-      <div classname={classes.headerBox}>
+      <div className={classes.headerBox}>
         <Typography variant="display1" className={classes.headerTitle} gutterBottom>
           {title}
         </Typography>

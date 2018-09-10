@@ -69,7 +69,7 @@ class Investibles extends Component {
           isLoading={investibles === undefined}
           containerStyle={{ overflow: 'hidden' }}
           title={intl.formatMessage({ id: 'investibles' })}>
-          <div><p>No investibles found.</p></div>
+          <div><p>{intl.formatMessage({ id: 'investibleListNotFound'})}</p></div>
         </Activity>
       )
     }

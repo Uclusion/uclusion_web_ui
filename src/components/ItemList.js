@@ -4,7 +4,7 @@ import {
   Typography
 
 } from '@material-ui/core'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+
 import { withStyles } from '@material-ui/core/styles'
 
 const styles = (theme) => ({

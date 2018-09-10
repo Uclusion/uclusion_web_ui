@@ -44,7 +44,7 @@ class InvestModal extends React.Component {
 
   handleInvest = () => {
     const {investibleId, marketId, onClose} = this.props;
-    let quantity = parseInt(this.state['quantityToInvest']);
+    let quantity = parseInt(this.state['quantityToInvest'], 10);
     this.props.dispatch(createInvestment({
       investibleId,
       marketId,
@@ -67,25 +67,25 @@ class InvestModal extends React.Component {
   }
 
   render () {
-    const {classes, open, onClose} = this.props
+    const {classes, open, onClose, intl} = this.props
     return (
       <Modal open={open} onClose={onClose}>
         <div className={classes.paper}>
         <Typography>
-          Some text with the quantity available and minimum investment amount
+          {intl.formatMessage({id:'investModalText'})}
         </Typography>
         <form className={classes.container} noValidate autoComplete="off">
           <TextField
             id="quantityToInvest"
-            label="i18n Quantity to Invest"
+            label={intl.formatMessage({id: 'investModalQuantityLabel'})}
             className={classes.textField}
             value={this.state.quantityToInvest}
             onChange={this.handleChange('quantityToInvest')}
             type="number"
             margin="normal"
           />
-          <Button onClick={this.handleInvest}>i18nInvest</Button>
-          <Button onClick={onClose}>i18nCancel</Button>
+          <Button onClick={this.handleInvest}>{intl.formatMessage({id:'investButton'})}</Button>
+          <Button onClick={onClose}>{intl.formatMessage({id:'cancelButton'})}</Button>
         </form>
         </div>
       </Modal>

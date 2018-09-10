@@ -144,8 +144,16 @@ const messages = defineMessages({
   user_label_search: 'Search user',
   document: 'Document',
   collection: 'Collection',
-  infinitelist: 'Infinitelist'
+  infinitelist: 'Infinitelist',
 
+  investibleListNotFound: 'No Investibles Found.',
+  investibleListHeader: 'Investibles',
+  investModalText: 'Please enter the quantity of idea shares to invest:',
+  investModalQuantityLabel: 'Quantity',
+  investButton: 'Invest',
+  cancelButton: 'Cancel',
+
+  moreDetailsButton: 'More Details'
 })
 
 export default messages

@@ -75,7 +75,11 @@ class InvestibleListItem extends Component {
           </div>
 
         </ExpansionPanelSummary>
-        <ExpansionPanelDetails>{description}</ExpansionPanelDetails>
+        <ExpansionPanelDetails>
+          <Typography>
+          {description}
+          </Typography>
+        </ExpansionPanelDetails>
         <ExpansionPanelActions>
           <Button onClick={() => this.investOnClick(id)}>{intl.formatMessage({id: 'investButton'})}</Button>
           <Button>{intl.formatMessage({id: 'moreDetailsButton'})}</Button>

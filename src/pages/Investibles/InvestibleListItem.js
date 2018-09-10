@@ -62,7 +62,9 @@ class InvestibleListItem extends Component {
     return (
       <ExpansionPanel>
         <InvestModal name={name} description={description}
-          quantity={quantity} onClose={this.handleInvestModalClose} investibleId={id} marketId={marketId} open={this.state.investOpen}/>
+          quantity={quantity} onClose={this.handleInvestModalClose} investibleId={id} marketId={marketId} open={this.state.investOpen}
+          sharesAvailable={100}
+        />
         <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon />}>
           <Typography className={classes.column}>
             {name}
@@ -77,7 +79,7 @@ class InvestibleListItem extends Component {
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
           <Typography>
-          {description}
+            {description}
           </Typography>
         </ExpansionPanelDetails>
         <ExpansionPanelActions>

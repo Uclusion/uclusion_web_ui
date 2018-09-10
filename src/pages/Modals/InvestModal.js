@@ -10,6 +10,7 @@ import { injectIntl } from 'react-intl'
 import { bindActionCreators } from 'redux'
 import { createInvestment } from '../../containers/Investibles/actions'
 
+import FormControl from '@material-ui/core/FormControl';
 
 const styles = theme => ({
   paper: {
@@ -37,7 +38,7 @@ class InvestModal extends React.Component {
 
   constructor (props) {
     super(props);
-    this.state = {...props};
+    this.state = {...props, quantityToInvest: 0};
     this.handleInvest = this.handleInvest.bind(this);
     this.validateQuantityToInvest = this.validateQuantityToInvest.bind(this);
   }
@@ -55,15 +56,21 @@ class InvestModal extends React.Component {
 
 
   validateQuantityToInvest = (quantity) => {
-    return quantity <= this.props.sharesAvailable
+    return (quantity <= this.props.sharesAvailable) && (quantity > 0) && (Math.floor(quantity) == quantity);
   }
 
   handleChange = (name) => (event) => {
-    //let value = event.target.value
-      //do some UI stuff here to handle erroneous input
+    let value = event.target.value;
+    let valid = false;
+    if(name === 'quantityToInvest'){
+      valid = this.validateQuantityToInvest(value);
+    }
+
+    if(valid) {
       this.setState({
-        [name]: event.target.value,
+        [name]: value,
       })
+    }
   }
 
   render () {
@@ -75,15 +82,17 @@ class InvestModal extends React.Component {
           {intl.formatMessage({id:'investModalText'})}
         </Typography>
         <form className={classes.container} noValidate autoComplete="off">
-          <TextField
-            id="quantityToInvest"
-            label={intl.formatMessage({id: 'investModalQuantityLabel'})}
-            className={classes.textField}
-            value={this.state.quantityToInvest}
-            onChange={this.handleChange('quantityToInvest')}
-            type="number"
-            margin="normal"
-          />
+          <FormControl>
+            <TextField
+              id="quantityToInvest"
+              label={intl.formatMessage({id: 'investModalQuantityLabel'})}
+              className={classes.textField}
+              value={this.state.quantityToInvest}
+              onChange={this.handleChange('quantityToInvest')}
+              type="number"
+              margin="normal"
+            />
+          </FormControl>
           <Button onClick={this.handleInvest}>{intl.formatMessage({id:'investButton'})}</Button>
           <Button onClick={onClose}>{intl.formatMessage({id:'cancelButton'})}</Button>
         </form>
@@ -96,7 +105,8 @@ class InvestModal extends React.Component {
 InvestModal.propTypes = {
   classes: PropTypes.object.isRequired,
   investibleId: PropTypes.string.isRequired,
-  marketId: PropTypes.string.isRequired
+  marketId: PropTypes.string.isRequired,
+  sharesAvailable: PropTypes.number.isRequired
 }
 
 function mapDispatchToProps (dispatch) {

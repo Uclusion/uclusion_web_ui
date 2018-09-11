@@ -1,5 +1,6 @@
 import config from '../../config/config'
 import uclusion from 'uclusion_sdk'
+import { fetchUser } from '../Users/actions'
 
 export const REQUEST_INVESTIBLES = 'REQUEST_INVESTIBLES'
 export const RECEIVE_INVESTIBLES = 'RECEIVE_INVESTIBLES'
@@ -86,10 +87,13 @@ export const createInvestment = (params = {}) => (dispatch) => {
   dispatch(investInInvestible(params.marketId, params.investibleId, params.quantity))
   uclusion.constructClient(config.api_configuration).then((client) => {
     return client.markets.createInvestment(params.marketId, params.investibleId, params.quantity)
-  }).then(investment => dispatch(investmentCreated(investment)))
-    .catch((error) => {
+  }).then(investment => {
+    dispatch(investmentCreated(investment))
+    dispatch(fetchUser())
+  }).catch((error) => {
       console.log(error)
       dispatch(investmentCreated([]))
-    })
+      dispatch(fetchUser())
+  })
 }
 

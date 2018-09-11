@@ -4,7 +4,7 @@ import { fetchMarket } from '../Markets/actions'
 
 export const REQUEST_USER = 'REQUEST_USER'
 export const RECEIVE_USER = 'RECEIVE_USER'
-export const SELECT_USER = 'SELECT_USER'
+export const RECEIVE_CURRENT_USER = 'RECEIVE_CURRENT_USER'
 
 export const requestUser = () => ({
   type: REQUEST_USER
@@ -15,9 +15,9 @@ export const receiveUser = user => ({
   user
 })
 
-export const selectUser = userId => ({
-  type: SELECT_USER,
-  userId
+export const receiveCurrentUser = user => ({
+  type: RECEIVE_CURRENT_USER,
+  user
 })
 
 export const fetchUser = (params = {}) => (dispatch) => {
@@ -27,7 +27,7 @@ export const fetchUser = (params = {}) => (dispatch) => {
     return client.users.get(params.user_id)
   }).then((user) => {
     if (!params.user_id) {
-      dispatch(selectUser(user.id))
+      dispatch(receiveCurrentUser(user))
     }
     if (params.dispatchFirstMarketId && user.market_presences.length > 0) {
       dispatch(fetchMarket({market_id: user.market_presences[0].market_id, isSelected: true}))

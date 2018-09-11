@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { REQUEST_USER, RECEIVE_USER, SELECT_USER, formatUsers } from './actions'
+import { REQUEST_USER, RECEIVE_USER, RECEIVE_CURRENT_USER, formatUsers } from './actions'
 
 export const userPropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -26,27 +26,27 @@ const userItems = (state = [], action) => {
       let user = [action.user]
       return _.unionBy(user, state, 'id')
     default:
-      return state
+      return state;
   }
 }
 
 const isUserFetching = (state = 0, action) => {
   switch (action.type) {
     case REQUEST_USER:
-      return state + 1
+      return state + 1;
     case RECEIVE_USER:
-      return state - 1
+      return state - 1;
     default:
-      return state
+      return state;
   }
 }
 
 const currentUser = (state = null, action) => {
   switch (action.type) {
-    case SELECT_USER:
-      return action.userId
+    case RECEIVE_CURRENT_USER:
+      return action.user;
     default:
-      return state
+      return state;
   }
 }
 

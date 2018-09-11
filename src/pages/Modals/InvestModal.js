@@ -74,7 +74,7 @@ class InvestModal extends React.Component {
   }
 
   render () {
-    const {classes, open, onClose, intl} = this.props
+    const {classes, open, onClose, intl, sharesAvailable} = this.props
     return (
       <Modal open={open} onClose={onClose}>
         <div className={classes.paper}>
@@ -93,6 +93,7 @@ class InvestModal extends React.Component {
               margin="normal"
             />
           </FormControl>
+          You have {sharesAvailable} to invest
           <Button onClick={this.handleInvest}>{intl.formatMessage({id:'investButton'})}</Button>
           <Button onClick={onClose}>{intl.formatMessage({id:'cancelButton'})}</Button>
         </form>

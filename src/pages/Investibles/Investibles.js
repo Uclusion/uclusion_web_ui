@@ -49,7 +49,7 @@ class Investibles extends Component {
   }
 
   render () {
-    const { intl, loading, investibles, marketId } = this.props
+    const { intl, loading, investibles, marketId, user } = this.props
 
     if (loading > 0 && investibles.length === 0) {
       return (
@@ -82,7 +82,7 @@ class Investibles extends Component {
         title={intl.formatMessage({ id: 'investibles' })}>
 
         <InvestiblesList
-          investibles={_.orderBy(investibles, ['quantity'], ['desc'])} marketId={marketId}
+          investibles={_.orderBy(investibles, ['quantity'], ['desc'])} marketId={marketId} user={user}
         />
       </Activity>
     )
@@ -97,10 +97,10 @@ Investibles.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
-  loading: getInvestiblesFetching(state.investiblesReducer) + getMarketsFetching(state.marketsReducer) + getUsersFetching(state.userReducer),
+  loading: getInvestiblesFetching(state.investiblesReducer) + getMarketsFetching(state.marketsReducer) + getUsersFetching(state.usersReducer),
   investibles: getInvestibles(state.investiblesReducer),
   marketId: getCurrentMarketId(state.marketsReducer),
-  user: getCurrentUser(state.userReducer)
+  user: getCurrentUser(state.usersReducer)
 })
 
 function mapDispatchToProps (dispatch) {

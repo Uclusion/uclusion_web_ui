@@ -56,7 +56,7 @@ export const getUsers = (state) => {
 
 export const getUsersFetching = state => state.isUserFetching
 
-export const getCurrentUserId = (state) => {
+export const getCurrentUser = (state) => {
   return state.currentUser
 }
 

@@ -10,6 +10,7 @@ import InvestiblesList from './InvestiblesList'
 import { injectIntl } from 'react-intl'
 import { Activity } from 'uclusion-shell'
 import { getCurrentMarketId, getMarketsFetching } from '../../containers/Markets/reducer'
+import { getUsersFetching, getCurrentUser } from '../../containers/Users/reducer';
 
 class Investibles extends Component {
   constructor (props) {
@@ -48,7 +49,7 @@ class Investibles extends Component {
   }
 
   render () {
-    const { intl, loading, investibles } = this.props
+    const { intl, loading, investibles, marketId } = this.props
 
     if (loading > 0 && investibles.length === 0) {
       return (
@@ -81,7 +82,7 @@ class Investibles extends Component {
         title={intl.formatMessage({ id: 'investibles' })}>
 
         <InvestiblesList
-          investibles={_.orderBy(investibles, ['quantity'], ['desc'])}
+          investibles={_.orderBy(investibles, ['quantity'], ['desc'])} marketId={marketId}
         />
       </Activity>
     )
@@ -96,9 +97,10 @@ Investibles.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
-  loading: getInvestiblesFetching(state.investiblesReducer) + getMarketsFetching(state.marketsReducer),
+  loading: getInvestiblesFetching(state.investiblesReducer) + getMarketsFetching(state.marketsReducer) + getUsersFetching(state.userReducer),
   investibles: getInvestibles(state.investiblesReducer),
-  marketId: getCurrentMarketId(state.marketsReducer)
+  marketId: getCurrentMarketId(state.marketsReducer),
+  user: getCurrentUser(state.userReducer)
 })
 
 function mapDispatchToProps (dispatch) {

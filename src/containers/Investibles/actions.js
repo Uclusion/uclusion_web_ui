@@ -94,6 +94,6 @@ export const createInvestment = (params = {}) => (dispatch) => {
       console.log(error)
       dispatch(investmentCreated([]))
       dispatch(fetchUser())
-  })
+   })
 }
 

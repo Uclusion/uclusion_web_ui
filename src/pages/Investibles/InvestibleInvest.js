@@ -2,7 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import Modal from '@material-ui/core/Modal'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import { connect } from 'react-redux'
@@ -13,15 +12,6 @@ import { createInvestment } from '../../containers/Investibles/actions'
 import FormControl from '@material-ui/core/FormControl';
 
 const styles = theme => ({
-  paper: {
-    position: 'absolute',
-    width: theme.spacing.unit * 50,
-    top: '50%',
-    left: '50%',
-    backgroundColor: theme.palette.background.paper,
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing.unit * 4,
-  },
 
   container: {
     display: 'flex',
@@ -34,7 +24,7 @@ const styles = theme => ({
   }
 });
 
-class InvestModal extends React.Component {
+class InvestibleInvest extends React.Component {
 
   constructor (props) {
     super(props);
@@ -44,14 +34,13 @@ class InvestModal extends React.Component {
   }
 
   handleInvest = () => {
-    const {investibleId, marketId, onClose} = this.props;
+    const {investibleId, marketId} = this.props;
     let quantity = parseInt(this.state['quantityToInvest'], 10);
     this.props.dispatch(createInvestment({
       investibleId,
       marketId,
       quantity
-    }))
-    onClose();
+    }));
   }
 
 
@@ -68,18 +57,17 @@ class InvestModal extends React.Component {
 
     if(valid) {
       this.setState({
-        [name]: value,
+        [name]: value
       })
     }
   }
 
   render () {
-    const {classes, open, onClose, intl, sharesAvailable} = this.props
+    const {classes, intl, sharesAvailable} = this.props
     return (
-      <Modal open={open} onClose={onClose}>
-        <div className={classes.paper}>
+      <div>
         <Typography>
-          {intl.formatMessage({id:'investModalText'})}
+          {intl.formatMessage({id: 'investModalText'})}
         </Typography>
         <form className={classes.container} noValidate autoComplete="off">
           <FormControl>
@@ -94,16 +82,14 @@ class InvestModal extends React.Component {
             />
           </FormControl>
           You have {sharesAvailable} to invest
-          <Button onClick={this.handleInvest}>{intl.formatMessage({id:'investButton'})}</Button>
-          <Button onClick={onClose}>{intl.formatMessage({id:'cancelButton'})}</Button>
+          <Button onClick={this.handleInvest}>{intl.formatMessage({id: 'investButton'})}</Button>
         </form>
-        </div>
-      </Modal>
+      </div>
     )
   }
 }
 
-InvestModal.propTypes = {
+InvestibleInvest.propTypes = {
   classes: PropTypes.object.isRequired,
   investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
@@ -114,4 +100,4 @@ function mapDispatchToProps (dispatch) {
   return Object.assign({ dispatch }, bindActionCreators({ createInvestment }, dispatch))
 }
 
-export default connect(mapDispatchToProps)(injectIntl(withStyles(styles)(InvestModal)));
+export default connect(mapDispatchToProps)(injectIntl(withStyles(styles)(InvestibleInvest)));

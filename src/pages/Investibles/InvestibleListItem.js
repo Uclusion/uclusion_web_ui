@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, ExpansionPanelActions, Typography, Button } from '@material-ui/core'
-import InvestModal from '../Modals/InvestModal'
+import { ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Typography } from '@material-ui/core'
+import InvestibleListItemTabs from './InvestibleListItemTabs'
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
@@ -25,19 +25,19 @@ const styles = (theme) => ({
     flexBasis: '33.33%',
   },
 
-  headerButton: {
-    float: 'right'
-  },
-
-  headerBottom: {
-    clear: 'both'
-  },
-
   mainGrid: {
     padding: theme.spacing.unit * 2,
     justifyContent: 'flex-end'
-  }
+  },
 
+  tabSection: {
+    borderTop: `2px solid ${theme.palette.divider}`,
+    display: 'block'
+  },
+
+  wholeWidth: {
+    flexBasis: '100%'
+  }
 })
 
 class InvestibleListItem extends Component {
@@ -58,14 +58,10 @@ class InvestibleListItem extends Component {
   }
 
   render () {
-    const { name, description, quantity, id, sharesAvailable, marketId, classes, intl } = this.props
+    const {name, description, quantity, id, sharesAvailable, marketId, classes, intl} = this.props
     return (
       <ExpansionPanel>
-        <InvestModal name={name} description={description}
-          quantity={quantity} onClose={this.handleInvestModalClose} investibleId={id} marketId={marketId} open={this.state.investOpen}
-          sharesAvailable={sharesAvailable}
-        />
-        <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon />}>
+        <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon/>}>
           <Typography className={classes.column}>
             {name}
           </Typography>
@@ -75,17 +71,21 @@ class InvestibleListItem extends Component {
               Placeholder for buttons
             </Typography>
           </div>
-
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
-          <Typography>
-            {description}
-          </Typography>
+          <div className={classes.wholeWidth}>
+            <Typography>
+              {description}
+            </Typography>
+
+            <div className={classes.tabSection}>
+              <InvestibleListItemTabs name={name}
+                                      quantity={quantity} investibleId={id} marketId={marketId}
+                                      sharesAvailable={sharesAvailable}
+              />
+            </div>
+          </div>
         </ExpansionPanelDetails>
-        <ExpansionPanelActions>
-          <Button onClick={() => this.investOnClick(id)}>{intl.formatMessage({id: 'investButton'})}</Button>
-          <Button>{intl.formatMessage({id: 'moreDetailsButton'})}</Button>
-        </ExpansionPanelActions>
       </ExpansionPanel>
     )
   }

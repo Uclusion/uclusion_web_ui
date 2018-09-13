@@ -151,6 +151,7 @@ const messages = defineMessages({
   investModalText: 'Please enter the quantity of idea shares to invest:',
   investModalQuantityLabel: 'Quantity',
   investButton: 'Invest',
+  investTab: 'Invest',
   cancelButton: 'Cancel',
 
   moreDetailsButton: 'More Details'

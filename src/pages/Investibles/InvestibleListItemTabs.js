@@ -44,9 +44,11 @@ class InvestibleListItemTabs extends React.Component {
                 indicatorColor="primary"
                 textColor="primary"
           >
-            <Tab label={intl.formatMessage({id: 'investButton'})}/>
+            <Tab label={intl.formatMessage({id: 'investTab'})}/>
+            <Tab label="TestTab2"/>
           </Tabs>
         {value == 0 && <InvestibleInvest marketId={marketId} sharesAvailable={sharesAvailable} investibleId={investibleId}/>}
+        {value == 1 && <div/>}
       </div>
     )
   }

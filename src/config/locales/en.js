@@ -154,7 +154,8 @@ const messages = defineMessages({
   investTab: 'Invest',
   cancelButton: 'Cancel',
 
-  moreDetailsButton: 'More Details'
+  moreDetailsButton: 'More Details',
+  currentInvestmentChip: 'Î{shares} invested'
 })
 
 export default messages

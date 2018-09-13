@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Typography } from '@material-ui/core'
+import { ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Typography} from '@material-ui/core'
+import Chip from '@material-ui/core/Chip'
 import InvestibleListItemTabs from './InvestibleListItemTabs'
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles'
@@ -17,7 +18,6 @@ const styles = (theme) => ({
   },
 
   helper: {
-    borderLeft: `2px solid ${theme.palette.divider}`,
     padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
   },
 
@@ -58,7 +58,7 @@ class InvestibleListItem extends Component {
   }
 
   render () {
-    const {name, description, quantity, id, sharesAvailable, marketId, classes, intl} = this.props
+    const {name, description, quantity, id, sharesAvailable, marketId, classes, currentInvestment, intl} = this.props
     return (
       <ExpansionPanel>
         <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon/>}>
@@ -67,9 +67,7 @@ class InvestibleListItem extends Component {
           </Typography>
           <div className={classes.column}/>
           <div className={classNames(classes.column, classes.helper)}>
-            <Typography>
-              Placeholder for buttons
-            </Typography>
+            {currentInvestment > 0 && <Chip label={intl.formatMessage({id: 'currentInvestmentChip'}, {shares: currentInvestment})}/>}
           </div>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
@@ -98,7 +96,8 @@ InvestibleListItem.propTypes = {
   quantity: PropTypes.number.isRequired,
   marketId: PropTypes.string.isRequired,
   categories: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
-  sharesAvailable: PropTypes.number.isRequired
+  sharesAvailable: PropTypes.number.isRequired,
+  currentInvestment: PropTypes.number.isRequired
 }
 
 export default injectIntl(withStyles(styles)(InvestibleListItem));

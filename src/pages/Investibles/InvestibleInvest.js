@@ -83,6 +83,7 @@ class InvestibleInvest extends React.Component {
           </FormControl>
           You have {sharesAvailable} to invest
           <Button onClick={this.handleInvest}>{intl.formatMessage({id: 'investButton'})}</Button>
+
         </form>
       </div>
     )

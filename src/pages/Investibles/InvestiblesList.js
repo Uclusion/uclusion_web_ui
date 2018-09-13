@@ -18,6 +18,7 @@ class InvestiblesList extends Component {
         quantity={element.quantity}
         categories={element.categories}
         marketId={element.market_id}
+        currentInvestment={element.current_user_investment}
         sharesAvailable={marketPresence.quantity}
       />
     ))

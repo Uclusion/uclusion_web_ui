@@ -14,7 +14,8 @@ export const investiblePropType = PropTypes.shape({
   closed: PropTypes.bool.isRequired,
   created_at: PropTypes.instanceOf(Date).isRequired,
   updated_at: PropTypes.instanceOf(Date).isRequired,
-  last_investment_at: PropTypes.instanceOf(Date).isRequired
+  last_investment_at: PropTypes.instanceOf(Date).isRequired,
+  current_user_investment: PropTypes.number.isRequired
 })
 
 const items = (state = [], action) => {

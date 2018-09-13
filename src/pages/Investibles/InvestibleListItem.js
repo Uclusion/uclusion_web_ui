@@ -18,7 +18,7 @@ const styles = (theme) => ({
   },
 
   helper: {
-    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
+
   },
 
   column: {

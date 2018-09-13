@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Typography} from '@material-ui/core'
 import Chip from '@material-ui/core/Chip'
+import Avatar from '@material-ui/core/Avatar';
 import InvestibleListItemTabs from './InvestibleListItemTabs'
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles'
@@ -67,7 +68,7 @@ class InvestibleListItem extends Component {
           </Typography>
           <div className={classes.column}/>
           <div className={classNames(classes.column, classes.helper)}>
-            {currentInvestment > 0 && <Chip label={intl.formatMessage({id: 'currentInvestmentChip'}, {shares: currentInvestment})}/>}
+            {currentInvestment > 0 && <Chip avatar={<Avatar>{intl.formatMessage({id: 'ideaShareSymbol'})}</Avatar>} label={intl.formatMessage({id: 'currentInvestmentChip'}, {shares: currentInvestment})}/>}
           </div>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>

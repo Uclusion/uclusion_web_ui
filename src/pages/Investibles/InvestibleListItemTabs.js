@@ -15,6 +15,9 @@ const styles = theme => ({
     width: '100%'
   },
 
+  tabBar: {
+
+  }
 });
 
 class InvestibleListItemTabs extends React.Component {
@@ -36,7 +39,7 @@ class InvestibleListItemTabs extends React.Component {
     const { value } = this.state;
     return (
       <div className={classes.paper}>
-          <Tabs value={value}
+          <Tabs value={value} className={classes.tabBar}
                 onChange={this.handleChange}
                 indicatorColor="primary"
                 textColor="primary"

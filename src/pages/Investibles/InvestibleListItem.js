@@ -31,7 +31,7 @@ const styles = (theme) => ({
   },
 
   tabSection: {
-    borderTop: `2px solid ${theme.palette.divider}`,
+    borderTop: `1px solid ${theme.palette.divider}`,
     display: 'block'
   },
 

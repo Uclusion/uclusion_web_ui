@@ -22,6 +22,10 @@ const styles = (theme) => ({
 
   },
 
+  investment: {
+    display: 'inline-block'
+  },
+
   column: {
     flexBasis: '33.33%',
   },
@@ -63,9 +67,15 @@ class InvestibleListItem extends Component {
     return (
       <ExpansionPanel>
         <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon/>}>
-          <Typography className={classes.column}>
+          <div className={classes.column}>
+            <div className={classes.investment}>
+              <Avatar>{intl.formatMessage({id: 'ideaShareSymbol'})}</Avatar>
+              <Typography>{quantity}</Typography>
+            </div>
+          <Typography variant="body1">
             {name}
           </Typography>
+          </div>
           <div className={classes.column}/>
           <div className={classNames(classes.column, classes.helper)}>
             {currentInvestment > 0 && <Chip avatar={<Avatar>{intl.formatMessage({id: 'ideaShareSymbol'})}</Avatar>} label={intl.formatMessage({id: 'userCurrentInvestmentChip'}, {shares: currentInvestment})}/>}

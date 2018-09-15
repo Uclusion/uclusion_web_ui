@@ -160,7 +160,8 @@ const messages = defineMessages({
   moreDetailsButton: 'More Details',
   userCurrentInvestmentChip: '{shares} yours',
   totalCurrentInvestmentChip: '{shares} total',
-  ideaShareSymbol: 'Î'
+  ideaShareSymbol: 'Î',
+  defaultCategoryName: 'Uncategorized'
 })
 
 export default messages

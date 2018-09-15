@@ -6,11 +6,11 @@ import _ from 'lodash'
 import { withTheme } from '@material-ui/core/styles'
 import { fetchInvestibles, fetchCategoriesInvestibles } from '../../containers/Investibles/actions'
 import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../../containers/Investibles/reducer'
-import InvestiblesList from './InvestiblesCategoryList'
 import { injectIntl } from 'react-intl'
 import { Activity } from 'uclusion-shell'
 import { getCurrentMarketId, getMarketsFetching } from '../../containers/Markets/reducer'
 import { getUsersFetching, getCurrentUser } from '../../containers/Users/reducer';
+import InvestibleList from './InvestibleList'
 
 class Investibles extends Component {
   constructor (props) {
@@ -50,15 +50,7 @@ class Investibles extends Component {
 
   render () {
     const { intl, loading, investibles, marketId, user } = this.props
-    let categories = new Map();
-    investibles.forEach((element) => {
-      const cats = element.categories;
-      cats.forEach((category) => {
-        let contents = categories[category] || [];
-        contents.push(element);
-        categories.set(category, contents);
-      })
-    })
+
 
     if (loading > 0 && investibles.length === 0) {
       return (
@@ -83,19 +75,13 @@ class Investibles extends Component {
         </Activity>
       )
     }
-    let categoryKeys = Array.from(categories.keys());
-    const catLists = categoryKeys.sort().map((key) =>
-    {
-      let investibles = categories.get(key);
-      return <InvestiblesList investibles={_.orderBy(investibles, ['quantity'], ['desc'])} marketId={marketId}
-                              user={user}/>
-    });
+
     return (
       <Activity
         isLoading={investibles === undefined}
         containerStyle={{ overflow: 'hidden' }}
         title={intl.formatMessage({ id: 'investibles' })}>
-        {catLists}
+        <InvestibleList user={user} marketId={marketId} investibles={investibles}/>
       </Activity>
     )
   }
@@ -122,4 +108,4 @@ function mapDispatchToProps (dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(injectIntl(withTheme()((Investibles))))
+)(injectIntl(withTheme()(Investibles)))

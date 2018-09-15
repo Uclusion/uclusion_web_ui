@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-  GridList,
+  Grid,
   ListSubheader
 } from '@material-ui/core'
 import PropTypes from 'prop-types'
@@ -8,27 +8,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 
 const styles = (theme) => ({
-  headerBox: {
-    display: 'flex',
-    justifyContent: 'space-between'
-  },
 
-  headerTitle: {
-    float: 'left',
-  },
-
-  headerButton: {
-    float: 'right'
-  },
-
-  headerBottom: {
-    clear: 'both'
-  },
-
-  mainGrid: {
-    padding: theme.spacing.unit * 2,
-    justifyContent: 'flex-end'
-  }
 
 })
 
@@ -38,10 +18,10 @@ class ItemListCategory extends React.Component {
     const {classes, title, items, headerActions} = this.props
 
     return (
-      <GridList className={classes.mainGrid}>
+      <Grid item columnCount={1}>
         <ListSubheader component="div">{title}</ListSubheader>
         {items}
-      </GridList>)
+      </Grid>)
   };
 }
 

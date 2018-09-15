@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-  List,
+  Grid,
   Typography
 
 } from '@material-ui/core'
@@ -26,8 +26,7 @@ const styles = (theme) => ({
   },
 
   mainGrid: {
-    padding: theme.spacing.unit * 2,
-    justifyContent: 'flex-end'
+    flexGrow: 1
   }
 
 })
@@ -39,16 +38,22 @@ class ItemList extends React.Component {
     const {classes, title, categoryLists, headerActions} = this.props
     const positionedHeaderActions = headerActions.map((element, index) => <div key={index}
                                                                                className={classes.headerButton}>{element}</div>)
-    return (<List className={classes.mainGrid}>
-      <div className={classes.headerBox}>
-        <Typography variant="display1" className={classes.headerTitle} gutterBottom>
-          {title}
-        </Typography>
-        {positionedHeaderActions}
+    return (
+      <div>
+        <div className={classes.headerBox}>
+          <Typography variant="display1" className={classes.headerTitle} gutterBottom>
+            {title}
+          </Typography>
+          {positionedHeaderActions}
+        </div>
+        <div className={classes.headerBottom}></div>
+
+        <Grid className={classes.mainGrid} container spacing={8} xl={12} xs={1} lg={8}>
+
+          {categoryLists}
+        </Grid>
       </div>
-      <div className={classes.headerBottom}></div>
-      {categoryLists}
-    </List>)
+    )
   };
 }
 

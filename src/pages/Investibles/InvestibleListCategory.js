@@ -22,7 +22,7 @@ class InvestibleListCategory extends React.Component {
       />
     )
     return (
-      <ItemListCategory items={items} category={category}/>
+      <ItemListCategory items={items} title={category}/>
     )
   };
 }

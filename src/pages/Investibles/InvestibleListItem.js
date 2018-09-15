@@ -68,13 +68,9 @@ class InvestibleListItem extends Component {
       <ExpansionPanel>
         <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon/>}>
           <div className={classes.column}>
-            <div className={classes.investment}>
-              <Avatar>{intl.formatMessage({id: 'ideaShareSymbol'})}</Avatar>
-              <Typography>{quantity}</Typography>
-            </div>
-          <Typography variant="body1">
-            {name}
-          </Typography>
+            <Typography>
+              {name}
+            </Typography>
           </div>
           <div className={classes.column}/>
           <div className={classNames(classes.column, classes.helper)}>

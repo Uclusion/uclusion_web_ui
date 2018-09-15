@@ -5,7 +5,7 @@ import InvestibleListItem from './InvestibleListItem'
 import ItemList from '../../components/ItemList'
 import {Button} from '@material-ui/core'
 import { injectIntl } from 'react-intl'
-class InvestiblesList extends Component {
+class InvestiblesCategoryList extends Component {
   render () {
     const { intl, investibles, user, marketId } = this.props;
     const marketPresence = user.market_presences.find((element) => element.market_id === marketId);
@@ -31,9 +31,9 @@ class InvestiblesList extends Component {
   }
 }
 
-InvestiblesList.propTypes = {
+InvestiblesCategoryList.propTypes = {
   investibles: PropTypes.arrayOf(investiblePropType).isRequired,
   user: PropTypes.object.isRequired
 }
 
-export default injectIntl(InvestiblesList);
+export default injectIntl(InvestiblesCategoryList);

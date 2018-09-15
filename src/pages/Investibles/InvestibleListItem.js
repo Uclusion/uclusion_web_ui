@@ -68,7 +68,8 @@ class InvestibleListItem extends Component {
           </Typography>
           <div className={classes.column}/>
           <div className={classNames(classes.column, classes.helper)}>
-            {currentInvestment > 0 && <Chip avatar={<Avatar>{intl.formatMessage({id: 'ideaShareSymbol'})}</Avatar>} label={intl.formatMessage({id: 'currentInvestmentChip'}, {shares: currentInvestment})}/>}
+            {currentInvestment > 0 && <Chip avatar={<Avatar>{intl.formatMessage({id: 'ideaShareSymbol'})}</Avatar>} label={intl.formatMessage({id: 'userCurrentInvestmentChip'}, {shares: currentInvestment})}/>}
+            {quantity > 0 && <Chip avatar={<Avatar>{intl.formatMessage({id: 'ideaShareSymbol'})}</Avatar>} label={intl.formatMessage({id: 'totalCurrentInvestmentChip'}, {shares: quantity})}/>}
           </div>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
@@ -76,7 +77,6 @@ class InvestibleListItem extends Component {
             <Typography>
               {description}
             </Typography>
-
             <div className={classes.tabSection}>
               <InvestibleListItemTabs name={name}
                                       quantity={quantity} investibleId={id} marketId={marketId}

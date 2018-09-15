@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-  Grid,
+  List,
   ListSubheader
 } from '@material-ui/core'
 import PropTypes from 'prop-types'
@@ -18,10 +18,13 @@ class ItemListCategory extends React.Component {
     const {classes, title, items, headerActions} = this.props
 
     return (
-      <Grid item columnCount={1}>
-        <ListSubheader component="div">{title}</ListSubheader>
+      <div>
+      <ListSubheader component="div">{title}</ListSubheader>
+      <List>
         {items}
-      </Grid>)
+      </List>
+      </div>
+    )
   };
 }
 

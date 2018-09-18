@@ -8,7 +8,9 @@ import { withStyles } from '@material-ui/core/styles'
 
 
 const styles = (theme) => ({
-
+  subList: {
+    padding: theme.spacing.unit
+  }
 
 })
 
@@ -18,9 +20,9 @@ class ItemListCategory extends React.Component {
     const {classes, title, items, headerActions} = this.props
 
     return (
-      <div>
+      <div className={classes.subList}>
       <ListSubheader component="div">{title}</ListSubheader>
-      <Grid item>
+      <Grid container direction="column" justify="flex-start" alignItems="stretch">
         {items}
       </Grid>
       </div>

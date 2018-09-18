@@ -41,14 +41,14 @@ class ItemList extends React.Component {
     return (
       <div>
         <div className={classes.headerBox}>
-          <Typography variant="display1" className={classes.headerTitle} gutterBottom>
+          <Typography variant="display2" className={classes.headerTitle} gutterBottom>
             {title}
           </Typography>
           {positionedHeaderActions}
         </div>
         <div className={classes.headerBottom}></div>
 
-        <Grid className={classes.mainGrid} container spacing={8} xl={12} xs={1} lg={8}>
+        <Grid className={classes.mainGrid} container spacing={8} xl={12} xs={1} lg={8} justify='flex-start' alignItems='flex-start'>
 
           {categoryLists}
         </Grid>

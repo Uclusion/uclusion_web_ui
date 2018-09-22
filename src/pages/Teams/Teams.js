@@ -4,15 +4,15 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import { withTheme } from '@material-ui/core/styles'
-import { fetchInvestibles, fetchCategoriesInvestibles } from '../../containers/Investibles/actions'
+import { fetchTeams } from '../../containers/Markets/actions'
 import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../../containers/Investibles/reducer'
 import { injectIntl } from 'react-intl'
 import { Activity } from 'uclusion-shell'
 import { getCurrentMarketId, getMarketsFetching } from '../../containers/Markets/reducer'
 import { getUsersFetching, getCurrentUser } from '../../containers/Users/reducer';
-import InvestibleList from './InvestibleList'
+import TeamsList from './TeamsList'
 
-class Investibles extends Component {
+class Tems extends Component {
   constructor (props) {
     super(props)
     // https://medium.freecodecamp.org/react-binding-patterns-5-approaches-for-handling-this-92c651b5af56
@@ -20,7 +20,7 @@ class Investibles extends Component {
   }
 
   componentDidMount () {
-    this.readTrendingInvestibles()
+    this.read()
   }
 
   componentDidUpdate (prevProps) {
@@ -30,34 +30,25 @@ class Investibles extends Component {
     // TODO flip return and branch below (see drawer example) to dedup Activity
   }
 
-  readTrendingInvestibles () {
-    const { dispatch, marketId } = this.props
-    dispatch(fetchInvestibles({
-      market_id: marketId,
-      trending_window_date: '2015-01-22T03:23:26Z'
-    }))
-  }
 
-  readCategoriesInvestibles (page, categoryName) {
+
+  readTeams (page, ) {
     const { dispatch, marketId } = this.props
-    dispatch(fetchCategoriesInvestibles({
+    dispatch(fetchTeams({
       market_id: marketId,
-      category: categoryName,
-      page,
-      per_page: 20
     }))
   }
 
   render () {
-    const { intl, loading, investibles, marketId, user } = this.props
+    const { intl, loading, teams, marketId, user } = this.props
 
 
-    if (loading > 0 && investibles.length === 0) {
+    if (loading > 0 && teams.length === 0) {
       return (
         <Activity
-          isLoading={investibles === undefined}
+          isLoading={teams === undefined}
           containerStyle={{ overflow: 'hidden' }}
-          title={intl.formatMessage({ id: 'investibles' })}>
+          title={intl.formatMessage({ id: 'teamsLoading' })}>
           <div>
             Loading
           </div>
@@ -68,10 +59,10 @@ class Investibles extends Component {
     if (investibles.length === 0) {
       return (
         <Activity
-          isLoading={investibles === undefined}
+          isLoading={teams === undefined}
           containerStyle={{ overflow: 'hidden' }}
-          title={intl.formatMessage({ id: 'investibles' })}>
-          <div><p>{intl.formatMessage({ id: 'investibleListNotFound'})}</p></div>
+          title={intl.formatMessage({ id: 'teamsLoading' })}>
+          <div><p>{intl.formatMessage({ id: 'teamsListNotFound'})}</p></div>
         </Activity>
       )
     }
@@ -80,17 +71,17 @@ class Investibles extends Component {
       <Activity
         isLoading={investibles === undefined}
         containerStyle={{ overflow: 'hidden' }}
-        title={intl.formatMessage({ id: 'investibles' })}>
-        <InvestibleList user={user} marketId={marketId} investibles={investibles}/>
+        title={intl.formatMessage({ id: 'teamsLoading' })}>
+        <TeamList user={user} marketId={marketId} teams={teams}/>
       </Activity>
     )
   }
 }
 
-Investibles.propTypes = {
+Teams.propTypes = {
   dispatch: PropTypes.func.isRequired,
   loading: PropTypes.number.isRequired,
-  investibles: PropTypes.arrayOf(investiblePropType).isRequired,
+  Teams: PropTypes.arrayOf(teamsPropType).isRequired,
   marketId: PropTypes.string.isRequired
 }
 

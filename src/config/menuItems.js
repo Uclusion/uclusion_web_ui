@@ -17,6 +17,7 @@ import BusinessIcon from '@material-ui/icons/Business'
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
 import SecurityIcon from '@material-ui/icons/Security'
 import GroupIcon from '@material-ui/icons/Group'
+import PeopleIcon from '@material-ui/icons/People'
 
 const getMenuItems = (props) => {
   const {
@@ -118,6 +119,11 @@ const getMenuItems = (props) => {
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'investibles' }),
       leftIcon: <ListIcon />,
+    },
+    { value: '/teams',
+      visible: isAuthorised,
+      primaryText: intl.formatMessage({id: 'teamsMenu'}),
+      leftIcon: <PeopleIcon/>
     },
     {
       value: '/about',

@@ -161,8 +161,8 @@ const messages = defineMessages({
   userCurrentInvestmentChip: '{shares} yours',
   totalCurrentInvestmentChip: '{shares} total',
   ideaShareSymbol: 'Î',
-  defaultCategoryName: 'Uncategorized'
-
+  defaultCategoryName: 'Uncategorized',
+  teamsMenu: 'Teams',
   teamsLoading: 'Teams',
   teamsListNotFound: 'No Teams found'
 })

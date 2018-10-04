@@ -3,6 +3,7 @@ import {
   Grid,
   ListSubheader
 } from '@material-ui/core'
+import Add from '@material-ui/icons/Add'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 
@@ -21,7 +22,7 @@ class ItemListCategory extends React.Component {
 
     return (
       <div className={classes.subList}>
-      <ListSubheader component="div">{title}</ListSubheader>
+      <ListSubheader component="div">{title}<Add/></ListSubheader>
       <Grid container direction="column" justify="flex-start" alignItems="stretch">
         {items}
       </Grid>

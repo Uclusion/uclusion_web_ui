@@ -2,7 +2,7 @@ import React from 'react'
 import ItemListQuickAdd from '../../components/ItemListQuickAdd'
 import PropTypes from 'prop-types'
 
-class InvestibleListQuickAdd extends React.Component {
+class InvestibleListQuickAdd extends Component {
 
   constructor (props) {
     super(props)
@@ -10,9 +10,9 @@ class InvestibleListQuickAdd extends React.Component {
     this.cancelOnClick = this.cancelOnClick.bind(this);
   }
 
-  addOnClick(value){
+  addOnClick = (value) => {
     //fill in what to do here
-  }
+  };
 
 
   render () {

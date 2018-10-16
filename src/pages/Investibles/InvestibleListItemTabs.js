@@ -48,8 +48,11 @@ class InvestibleListItemTabs extends React.Component {
             <Tab label={intl.formatMessage({id: 'activityTab'})}/>
             <Tab label={intl.formatMessage({id: 'commentsTab'})}/>
           </Tabs>
+        // eslint-disable-next-line
         {value == 0 && <InvestibleInvest marketId={marketId} sharesAvailable={sharesAvailable} investibleId={investibleId}/>}
+        // eslint-disable-next-line
         {value == 1 && <div>Activity Placeholder</div>}
+        // eslint-disable-next-line
         {value == 2 && <div>Coments Placeholder</div>}
 
       </div>

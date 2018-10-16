@@ -5,6 +5,7 @@ It allows the title to be set, and gives an add or cancel button
 
 import React from 'react'
 import {
+  Button,
   TextField
 } from '@material-ui/core'
 import Add from '@material-ui/icons/Add'
@@ -13,6 +14,10 @@ import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 
 const styles = theme => ({
+
+  hidden: {
+    display: 'none'
+  },
   container: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -48,7 +53,7 @@ class ItemListQuickAdd extends React.Component {
     const {classes, addOnClick, cancelOnClick, intl} = this.props
 
     return (
-      <div>
+      <div className={this.props.visible? 'container' : 'hidden'}>
         <TextField
           id="title"
           label={intl.formatMessage({id: 'titleLabel'})}

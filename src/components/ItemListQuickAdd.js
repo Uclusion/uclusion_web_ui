@@ -6,9 +6,9 @@ It allows the title to be set, and gives an add or cancel button
 import React from 'react'
 import {
   Button,
-  TextField
+  TextField,
+  Paper
 } from '@material-ui/core'
-import Add from '@material-ui/icons/Add'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
@@ -38,7 +38,8 @@ class ItemListQuickAdd extends React.Component {
 
   constructor (props) {
     super(props)
-    this.state = {...props, title: ''}
+    this.state = {title: ''}
+    this.handleChange = this.handleChange.bind(this);
   }
 
   handleChange = (name) => (event) => {
@@ -48,12 +49,16 @@ class ItemListQuickAdd extends React.Component {
     })
   }
 
+
+
   render () {
     //add on click and cancel on click will be called with the value of the text field
-    const {classes, addOnClick, cancelOnClick, intl} = this.props
-
+    const {visible, classes, addOnClick, cancelOnClick, intl} = this.props;
+    if(!visible){
+      return null;
+    }
     return (
-      <div className={this.props.visible? 'container' : 'hidden'}>
+      <Paper className={'container'}>
         <TextField
           id="title"
           label={intl.formatMessage({id: 'titleLabel'})}
@@ -66,10 +71,10 @@ class ItemListQuickAdd extends React.Component {
           onChange={this.handleChange('title')}
         />
         <Button variant='contained' color='primary'
-                onClick={addOnClick(this.state.title)}>{intl.formatMessage({id: 'addButton'})}</Button>
+                onClick={() => addOnClick(this.state.title)}>{intl.formatMessage({id: 'addButton'})}</Button>
         <Button variant='contained'
-                onClick={addOnClick(this.state.title)}>{intl.formatMessage({id: 'cancelButton'})}</Button>
-      </div>
+                onClick={() => cancelOnClick(this.state.title)}>{intl.formatMessage({id: 'cancelButton'})}</Button>
+      </Paper>
     )
   }
 

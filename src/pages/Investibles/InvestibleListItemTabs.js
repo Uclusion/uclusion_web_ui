@@ -3,8 +3,7 @@ import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Paper from '@material-ui/core/Paper'
-import AppBar from '@material-ui/core/AppBar';
+
 import InvestibleInvest from './InvestibleInvest'
 
 import { injectIntl } from 'react-intl'

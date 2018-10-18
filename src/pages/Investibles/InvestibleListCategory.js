@@ -2,12 +2,14 @@ import React from 'react'
 import ItemListCategory from '../../components/ItemListCategory'
 import InvestibleListItem from './InvestibleListItem'
 import PropTypes from 'prop-types'
+import InvestibleListQuickAdd from './InvestibleListQuickAdd'
 
 class InvestibleListCategory extends React.Component {
 
   render () {
     const { investibles, user, marketId, category } = this.props;
     const marketPresence = user.market_presences.find((element) => element.market_id === marketId);
+    const quickAddBox = <InvestibleListQuickAdd category={category} user={user} marketId={marketId}/>;
     const items = investibles.map(element =>
       <InvestibleListItem
         key={element.id}
@@ -22,7 +24,7 @@ class InvestibleListCategory extends React.Component {
       />
     )
     return (
-      <ItemListCategory items={items} title={category}/>
+      <ItemListCategory items={items} title={category} quickAdd={quickAddBox}/>
     )
   };
 }

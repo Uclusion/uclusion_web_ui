@@ -21,14 +21,15 @@ class ItemListCategory extends React.Component {
   constructor (props) {
     super(props);
     this.state = {...props, quickAddVisible: false};
+    this.addOnClick = this.addOnClick.bind(this);
   }
 
   addOnClick = () => {
-      this.setState({quickAddVisible:true});
+    this.setState({quickAddVisible: !this.state.quickAddVisible});
   }
 
   addCancelOnClick = () => {
-      this.setState({quickAddVisible: false});
+    this.setState({quickAddVisible: false});
   }
 
   addSaveOnClick = (addOnSave, value) => {
@@ -37,14 +38,15 @@ class ItemListCategory extends React.Component {
   }
 
   render (){
-    const {classes, title, items, headerActions, submitQuickAdd} = this.props
+    const {classes, title, items, headerActions, submitQuickAdd, quickAdd} = this.props
+    const myQuickAdd = React.cloneElement(quickAdd, {visible:this.state.quickAddVisible})
     return (
       <div className={classes.subList}>
-      <ListSubheader component="div">{title}<Add/></ListSubheader>
+      <ListSubheader component="div">{title}<Add onClick={() => this.addOnClick()}/></ListSubheader>
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
-        <ItemListQuickAdd visible={this.state.quickAddVisible}/>
-        {items}
-      </Grid>
+          {myQuickAdd}
+          {items}
+        </Grid>
       </div>
     )
   }

@@ -2,7 +2,8 @@ import React from 'react'
 import ItemListQuickAdd from '../../components/ItemListQuickAdd'
 import PropTypes from 'prop-types'
 
-class InvestibleListQuickAdd extends Component {
+
+class InvestibleListQuickAdd extends React.Component {
 
   constructor (props) {
     super(props)
@@ -14,11 +15,15 @@ class InvestibleListQuickAdd extends Component {
     //fill in what to do here
   };
 
+  cancelOnClick = (value) => {
+    //do something here too
+  };
+
 
   render () {
-    const { user, marketId, category } = this.props;
+    const { user, marketId, category, visible } = this.props;
     return (
-      <ItemListQuickAdd addOnClick={this.addOnClick} cancelOnClick={this.cancelOnClick}/>
+      <ItemListQuickAdd visible={visible} addOnClick={()=> alert(category)} cancelOnClick={this.cancelOnClick}/>
     )
   };
 }
@@ -27,7 +32,8 @@ class InvestibleListQuickAdd extends Component {
 InvestibleListQuickAdd.propTypes = {
   category: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
-  marketId: PropTypes.string.isRequired
+  marketId: PropTypes.string.isRequired,
+  visible: PropTypes.bool.isRequired
 }
 
 export default InvestibleListQuickAdd;

@@ -152,6 +152,7 @@ const messages = defineMessages({
   investModalQuantityLabel: 'Quantity',
   investButton: 'Invest',
   cancelButton: 'Cancel',
+  addButton: 'Add',
 
   investTab: 'Invest',
   activityTab: 'Activity',
@@ -164,7 +165,10 @@ const messages = defineMessages({
   defaultCategoryName: 'Uncategorized',
   teamsMenu: 'Teams',
   teamsLoading: 'Teams',
-  teamsListNotFound: 'No Teams found'
+  teamsListNotFound: 'No Teams found',
+
+  titleLabel: 'Title'
+
 })
 
 export default messages

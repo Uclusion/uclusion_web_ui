@@ -6,7 +6,6 @@ import {
 import Add from '@material-ui/icons/Add'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
-import ItemListQuickAdd from './ItemListQuickAdd'
 
 
 const styles = (theme) => ({

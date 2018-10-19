@@ -167,7 +167,8 @@ const messages = defineMessages({
   teamsLoading: 'Teams',
   teamsListNotFound: 'No Teams found',
 
-  titleLabel: 'Title'
+  titleLabel: 'Title',
+  descriptionLabel: 'Description'
 
 })
 

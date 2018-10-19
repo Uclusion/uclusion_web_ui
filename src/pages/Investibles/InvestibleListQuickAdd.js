@@ -1,14 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Paper, Button, TextField } from '@material-ui/core'
+import classnames from 'classnames'
+import { Paper, Button, TextFieOutlild } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 
 const styles = theme => ({
 
-  hidden: {
-    display: 'none'
-  },
   container: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -19,9 +17,6 @@ const styles = theme => ({
   },
   dense: {
     marginTop: 16,
-  },
-  menu: {
-    width: 200,
   },
 })
 
@@ -60,21 +55,32 @@ class InvestibleListQuickAdd extends React.Component {
     }
     return (
       <Paper className={'container'}>
+        <form  noValidate autoComplete="off">
         <TextField
           id="title"
           label={intl.formatMessage({id: 'titleLabel'})}
-          multiline
-          rows="4"
           defaultValue=""
           className={classes.textField}
           margin="normal"
-          variant="filled"
+
+          fullWidth
           onChange={this.handleChange('title')}
+        />
+        <TextField
+          variant="outlined"
+          id="description"
+          label={intl.formatMessage({id: 'descriptionLabel'})}
+          rowsMax="10"
+          defaultValue="TestDefault"
+          className={classes.textField}
+          margin="normal"
+          onChange={this.handleChange('description')}
         />
         <Button variant='contained' color='primary'
                 onClick={() => this.addOnClick()}>{intl.formatMessage({id: 'addButton'})}</Button>
         <Button variant='contained'
                 onClick={() => this.cancelOnClick()}>{intl.formatMessage({id: 'cancelButton'})}</Button>
+        </form>
       </Paper>
     )
   };

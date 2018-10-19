@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
-import { Paper, Button, TextFieOutlild } from '@material-ui/core'
+import { Paper, Button, TextField } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 
@@ -13,11 +13,9 @@ const styles = theme => ({
   },
   textField: {
     marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
-  },
-  dense: {
-    marginTop: 16,
-  },
+    marginRight: theme.spacing.uni  ,
+  }
+
 })
 
 
@@ -61,8 +59,8 @@ class InvestibleListQuickAdd extends React.Component {
           label={intl.formatMessage({id: 'titleLabel'})}
           defaultValue=""
           className={classes.textField}
+          variant="filled"
           margin="normal"
-
           fullWidth
           onChange={this.handleChange('title')}
         />
@@ -70,9 +68,11 @@ class InvestibleListQuickAdd extends React.Component {
           variant="outlined"
           id="description"
           label={intl.formatMessage({id: 'descriptionLabel'})}
-          rowsMax="10"
-          defaultValue="TestDefault"
+          multiline
+          rows="4"
+          defaultValue=""
           className={classes.textField}
+          fullWidth
           margin="normal"
           onChange={this.handleChange('description')}
         />

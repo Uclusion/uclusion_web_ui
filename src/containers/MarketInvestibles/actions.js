@@ -6,6 +6,8 @@ export const REQUEST_INVESTIBLES = 'REQUEST_INVESTIBLES'
 export const RECEIVE_INVESTIBLES = 'RECEIVE_INVESTIBLES'
 export const INVEST_INVESTIBLE = 'INVEST_INVESTIBLE'
 export const INVESTMENT_CREATED = 'INVESTMENT_CREATED'
+export const INVESTIBLE_CREATED = 'INVESTIBLE_CREATED'
+export const CREATE_AND_BIND_INVESTIBLE = 'CREATE_AND_BIND_INVESTIBLE'
 
 export const requestInvestibles = () => ({
   type: REQUEST_INVESTIBLES
@@ -29,6 +31,19 @@ export const investmentCreated = (investment) => ({
   investment
 })
 
+export const investibleCreated = (investible) => ({
+  type: INVESTIBLE_CREATED,
+  investible
+})
+
+//TODO use the ... notation to pass these automagically.
+export const createAndBindInvestible = (marketId, title, description, category) => ({
+  type: CREATE_AND_BIND_INVESTIBLE,
+  marketId,
+  title,
+  description,
+  category
+})
 
 
 const baseFetchInvestibles = (params, dispatch, aFunction) => {
@@ -97,3 +112,17 @@ export const createInvestment = (params = {}) => (dispatch) => {
    })
 }
 
+export const createMarketInvestible = (params = {}) => (dispatch) => {
+  dispatch(createAndBindInvestible(params.marketId, params.title, params.description, params.category))
+  uclusion.constructClient(config.api_configuration).then((client) => {
+    return client.investibles.create(params.title, params.description, [params.category])
+  }).then(investibleResult => {
+    const investibleId = investibleResult.investible.id
+    return createInvestment({marketId: params.marketId, investibleId: investibleId, quantity: 1}) //todo, make a more than one investment possible
+  }).catch((error) => {
+    console.log(error)
+    //these two calls make sure we update the UI. We _really_ need error handling to be better
+    dispatch(investibleCreated([]))
+    dispatch(fetchUser())
+  })
+}

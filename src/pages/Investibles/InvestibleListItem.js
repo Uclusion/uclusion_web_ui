@@ -56,7 +56,7 @@ class InvestibleListItem extends Component {
 
   investOnClick () {
     this.setState({ investOpen: true })
-  }''
+  }
 
   handleInvestModalClose () {
     this.setState({ investOpen: false })

@@ -3,8 +3,7 @@ import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Paper from '@material-ui/core/Paper'
-import AppBar from '@material-ui/core/AppBar';
+
 import InvestibleInvest from './InvestibleInvest'
 
 import { injectIntl } from 'react-intl'
@@ -48,8 +47,11 @@ class InvestibleListItemTabs extends React.Component {
             <Tab label={intl.formatMessage({id: 'activityTab'})}/>
             <Tab label={intl.formatMessage({id: 'commentsTab'})}/>
           </Tabs>
+        // eslint-disable-next-line
         {value == 0 && <InvestibleInvest marketId={marketId} sharesAvailable={sharesAvailable} investibleId={investibleId}/>}
+        // eslint-disable-next-line
         {value == 1 && <div>Activity Placeholder</div>}
+        // eslint-disable-next-line
         {value == 2 && <div>Coments Placeholder</div>}
 
       </div>

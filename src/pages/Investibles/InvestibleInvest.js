@@ -30,6 +30,7 @@ class InvestibleInvest extends React.Component {
     super(props);
     this.state = {...props, quantityToInvest: 0};
     this.handleInvest = this.handleInvest.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.validateQuantityToInvest = this.validateQuantityToInvest.bind(this);
   }
 
@@ -82,7 +83,7 @@ class InvestibleInvest extends React.Component {
             />
           </FormControl>
           You have {sharesAvailable} to invest
-          <Button onClick={this.handleInvest}>{intl.formatMessage({id: 'investButton'})}</Button>
+          <Button variant='contained' color='primary' onClick={this.handleInvest}>{intl.formatMessage({id: 'investButton'})}</Button>
 
         </form>
       </div>

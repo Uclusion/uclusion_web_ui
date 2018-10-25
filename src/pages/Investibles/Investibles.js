@@ -8,7 +8,7 @@ import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../.
 import { injectIntl } from 'react-intl'
 import { Activity } from 'uclusion-shell'
 import { getCurrentMarketId, getMarketsFetching } from '../../containers/Markets/reducer'
-import { getUsersFetching, getCurrentUser } from '../../containers/Users/reducer';
+import { getUsersFetching, getCurrentUser } from '../../containers/Users/reducer'
 import InvestibleList from './InvestibleList'
 
 class Investibles extends Component {

@@ -4,6 +4,9 @@ import classnames from 'classnames'
 import { Paper, Button, TextField } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+import { createMarketInvestible } from '../../containers/MarketInvestibles/actions'
 
 const styles = theme => ({
 
@@ -18,8 +21,6 @@ const styles = theme => ({
 
 })
 
-
-
 class InvestibleListQuickAdd extends React.Component {
 
   constructor (props) {
@@ -27,7 +28,6 @@ class InvestibleListQuickAdd extends React.Component {
     this.state = {}
     this.handleChange = this.handleChange.bind(this);
     this.addOnClick = this.addOnClick.bind(this);
-    this.cancelOnClick = this.cancelOnClick.bind(this);
   }
 
   handleChange = (name) => (event) => {
@@ -37,17 +37,15 @@ class InvestibleListQuickAdd extends React.Component {
     })
   }
 
-  addOnClick = (value) => {
-    //fill in what to do here
-  };
-
-  cancelOnClick = (value) => {
-    //do something here too
+  addOnClick = () => {
+    const { dispatch, marketId, category } = this.props;
+    const payload = {marketId, category, title: this.state.title, description: this.state.description };
+    dispatch(createMarketInvestible(payload));
   };
 
 
   render () {
-    const { classes, user, marketId, category, visible, intl } = this.props;
+    const { classes, user, marketId, category, visible, intl, addCancelOnClick } = this.props;
     if(!visible){
       return null;
     }
@@ -79,7 +77,7 @@ class InvestibleListQuickAdd extends React.Component {
         <Button variant='contained' color='primary'
                 onClick={() => this.addOnClick()}>{intl.formatMessage({id: 'addButton'})}</Button>
         <Button variant='contained'
-                onClick={() => this.cancelOnClick()}>{intl.formatMessage({id: 'cancelButton'})}</Button>
+                onClick={() => addCancelOnClick() }>{intl.formatMessage({id: 'cancelButton'})}</Button>
         </form>
       </Paper>
     )
@@ -91,7 +89,12 @@ InvestibleListQuickAdd.propTypes = {
   category: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
-  visible: PropTypes.bool.isRequired
+  visible: PropTypes.bool.isRequired,
+  cancelOnClick: PropTypes.func.isRequired
 }
 
-export default injectIntl(withStyles(styles, {withTheme: true})(InvestibleListQuickAdd))
+function mapDispatchToProps (dispatch) {
+  return Object.assign({ dispatch }, bindActionCreators({ createMarketInvestible }, dispatch))
+}
+
+export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, {withTheme: true})(InvestibleListQuickAdd)))

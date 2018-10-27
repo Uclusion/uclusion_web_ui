@@ -7,9 +7,9 @@ import InvestibleListQuickAdd from './InvestibleListQuickAdd'
 class InvestibleListCategory extends React.Component {
 
   render () {
-    const { investibles, user, marketId, category } = this.props;
-    const marketPresence = user.market_presences.find((element) => element.market_id === marketId);
-    const quickAddBox = <InvestibleListQuickAdd category={category} user={user} marketId={marketId}/>;
+    const { investibles, teamId, user, marketId, category } = this.props;
+    const marketPresence = user.market_presence;
+    const quickAddBox = <InvestibleListQuickAdd category={category} teamId={teamId} marketId={marketId}/>;
     const items = investibles.map(element =>
       <InvestibleListItem
         key={element.id}
@@ -17,8 +17,9 @@ class InvestibleListCategory extends React.Component {
         description={element.description}
         name={element.name}
         quantity={element.quantity}
-        categories={element.categories}
+        categories={element.category_list}
         marketId={element.market_id}
+        teamId ={teamId}
         currentInvestment={element.current_user_investment}
         sharesAvailable={marketPresence.quantity}
       />
@@ -33,8 +34,9 @@ class InvestibleListCategory extends React.Component {
 InvestibleListCategory.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
   category: PropTypes.string.isRequired,
+  marketId: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
-  marketId: PropTypes.string.isRequired
+  teamId: PropTypes.string.isRequired
 }
 
 export default InvestibleListCategory;

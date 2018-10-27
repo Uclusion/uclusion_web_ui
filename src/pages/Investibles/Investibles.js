@@ -19,7 +19,7 @@ class Investibles extends Component {
   }
 
   componentDidMount () {
-    this.readTrendingInvestibles()
+      this.readTrendingInvestibles()
   }
 
   componentDidUpdate (prevProps) {
@@ -30,7 +30,10 @@ class Investibles extends Component {
   }
 
   readTrendingInvestibles () {
-    const { dispatch, marketId } = this.props
+    const { dispatch, marketId, user } = this.props
+    if(!user){
+      return
+    }
     dispatch(fetchInvestibles({
       market_id: marketId,
       trending_window_date: '2015-01-22T03:23:26Z'
@@ -49,8 +52,6 @@ class Investibles extends Component {
 
   render () {
     const { intl, loading, investibles, marketId, user } = this.props
-
-
     if (loading > 0 && investibles.length === 0) {
       return (
         <Activity
@@ -74,14 +75,21 @@ class Investibles extends Component {
         </Activity>
       )
     }
-
+    const teamId = user.default_team_id //TODO:  might change later, so keeping it separate
     return (
-      <Activity
-        isLoading={investibles === undefined}
-        containerStyle={{ overflow: 'hidden' }}
-        title={intl.formatMessage({ id: 'investibles' })}>
-        <InvestibleList user={user} marketId={marketId} investibles={investibles}/>
-      </Activity>
+
+      <div style={{overflow: 'scroll'}}>
+
+        <Activity
+          isLoading={investibles === undefined}
+          containerStyle={{ overflow: 'hidden' }}
+          title={intl.formatMessage({ id: 'investibles' })}>
+
+            {investibles && <InvestibleList teamId={teamId} user={user} marketId={marketId} investibles={investibles}/>}
+
+          </Activity>
+      </div>
+
     )
   }
 }
@@ -90,7 +98,8 @@ Investibles.propTypes = {
   dispatch: PropTypes.func.isRequired,
   loading: PropTypes.number.isRequired,
   investibles: PropTypes.arrayOf(investiblePropType).isRequired,
-  marketId: PropTypes.string.isRequired
+  marketId: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired
 }
 
 const mapStateToProps = (state) => ({

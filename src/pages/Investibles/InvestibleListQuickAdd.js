@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import classnames from 'classnames'
+//import classnames from 'classnames'
 import { Paper, Button, TextField } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
@@ -37,15 +37,16 @@ class InvestibleListQuickAdd extends React.Component {
     })
   }
 
-  addOnClick = () => {
-    const { dispatch, marketId, category } = this.props;
-    const payload = {marketId, category, title: this.state.title, description: this.state.description };
+  addOnClick = (addSubmitOnClick) => {
+    const { dispatch, marketId, teamId, category } = this.props;
+    const payload = {marketId, category, teamId, title: this.state.title, description: this.state.description };
     dispatch(createMarketInvestible(payload));
+    addSubmitOnClick();
   };
 
 
   render () {
-    const { classes, user, marketId, category, visible, intl, addCancelOnClick } = this.props;
+    const { classes, visible, intl, addSubmitOnClick, addCancelOnClick } = this.props;
     if(!visible){
       return null;
     }
@@ -75,7 +76,7 @@ class InvestibleListQuickAdd extends React.Component {
           onChange={this.handleChange('description')}
         />
         <Button variant='contained' color='primary'
-                onClick={() => this.addOnClick()}>{intl.formatMessage({id: 'addButton'})}</Button>
+                onClick={() => this.addOnClick(addSubmitOnClick)}>{intl.formatMessage({id: 'addButton'})}</Button>
         <Button variant='contained'
                 onClick={() => addCancelOnClick() }>{intl.formatMessage({id: 'cancelButton'})}</Button>
         </form>
@@ -87,10 +88,11 @@ class InvestibleListQuickAdd extends React.Component {
 
 InvestibleListQuickAdd.propTypes = {
   category: PropTypes.string.isRequired,
-  user: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
+  teamId: PropTypes.string.isRequired,
   visible: PropTypes.bool.isRequired,
-  cancelOnClick: PropTypes.func.isRequired
+  addCancelOnClick: PropTypes.func.isRequired,
+  addSubmitOnClick: PropTypes.func.isRequired
 }
 
 function mapDispatchToProps (dispatch) {

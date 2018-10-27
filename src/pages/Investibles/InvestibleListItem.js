@@ -63,7 +63,7 @@ class InvestibleListItem extends Component {
   }
 
   render () {
-    const {name, description, quantity, id, sharesAvailable, marketId, classes, currentInvestment, intl} = this.props
+    const {name, description, quantity, id, sharesAvailable, marketId, classes, teamId, currentInvestment, intl} = this.props
     return (
       <ExpansionPanel>
         <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon/>}>
@@ -85,7 +85,7 @@ class InvestibleListItem extends Component {
             </Typography>
             <div className={classes.tabSection}>
               <InvestibleListItemTabs name={name}
-                                      quantity={quantity} investibleId={id} marketId={marketId}
+                                      quantity={quantity} investibleId={id} marketId={marketId} teamId={teamId}
                                       sharesAvailable={sharesAvailable}
               />
             </div>
@@ -104,7 +104,8 @@ InvestibleListItem.propTypes = {
   marketId: PropTypes.string.isRequired,
   categories: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
   sharesAvailable: PropTypes.number.isRequired,
-  currentInvestment: PropTypes.number.isRequired
+  currentInvestment: PropTypes.number.isRequired,
+  teamId: PropTypes.string.isRequired
 }
 
 export default injectIntl(withStyles(styles)(InvestibleListItem));

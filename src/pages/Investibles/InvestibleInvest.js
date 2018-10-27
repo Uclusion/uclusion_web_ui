@@ -35,10 +35,11 @@ class InvestibleInvest extends React.Component {
   }
 
   handleInvest = () => {
-    const {investibleId, marketId, dispatch} = this.props;
+    const {investibleId, teamId, marketId, dispatch} = this.props;
     let quantity = parseInt(this.state['quantityToInvest'], 10);
     dispatch(createInvestment({
       investibleId,
+      teamId,
       marketId,
       quantity
     }));
@@ -95,6 +96,7 @@ InvestibleInvest.propTypes = {
   classes: PropTypes.object.isRequired,
   investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
+  teamId: PropTypes.string.isRequired,
   sharesAvailable: PropTypes.number.isRequired
 }
 

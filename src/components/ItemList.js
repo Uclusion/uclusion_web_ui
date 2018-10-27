@@ -26,6 +26,7 @@ const styles = (theme) => ({
   },
 
   mainGrid: {
+    flexDirection: 'row',
     flexGrow: 1
   }
 
@@ -35,20 +36,17 @@ class ItemList extends React.Component {
 
   //TODO: this may need to change to pasing in the panels, sice we probably want to customize the entire list (e.g. just render the children in the list
   render () {
-    const {classes, title, categoryLists, headerActions} = this.props
+    const {classes, categoryLists, headerActions} = this.props
     const positionedHeaderActions = headerActions.map((element, index) => <div key={index}
                                                                                className={classes.headerButton}>{element}</div>)
     return (
       <div>
         <div className={classes.headerBox}>
-          <Typography variant="display2" className={classes.headerTitle} gutterBottom>
-            {title}
-          </Typography>
           {positionedHeaderActions}
         </div>
         <div className={classes.headerBottom}></div>
 
-        <Grid className={classes.mainGrid} container spacing={8} xl={12} xs={1} lg={8} justify='flex-start' alignItems='flex-start'>
+        <Grid className={classes.mainGrid} container spacing={8} justify='flex-start' alignItems='flex-start'>
 
           {categoryLists}
         </Grid>

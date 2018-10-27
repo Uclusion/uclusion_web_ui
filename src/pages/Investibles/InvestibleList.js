@@ -14,7 +14,7 @@ class InvestibleList extends React.Component {
   mapInvestiblesToCategories = (investibles, defaultCategoryName) => {
     let categoryMap = new Map();
     investibles.forEach((element) => {
-      const cats = element.categories;
+      const cats = element.category_list;
       cats.forEach((category) => {
         let contents = categoryMap.get(category) || [];
         contents.push(element);
@@ -24,23 +24,24 @@ class InvestibleList extends React.Component {
     return categoryMap;
   }
 
-  createCategoryLists = (categoryMap, user, marketId) => {
+  createCategoryLists = (categoryMap, marketId, teamId, user) => {
     let categoryNames = Array.from(categoryMap.keys());
+    console.log(categoryNames)
     const sortedNames = categoryNames.sort(); //put categories in alpha sorted order for now
     let categoryLists = sortedNames.map((name) => {
       const categoryInvestibles = categoryMap.get(name);
-      return <InvestibleListCategory category={name} investibles={categoryInvestibles} user={user} marketId={marketId}/>
+      return <InvestibleListCategory key={name} category={name} investibles={categoryInvestibles} user={user} teamId={teamId} marketId={marketId}/>
     });
     return categoryLists;
   }
 
   render () {
-    const { intl, investibles, user, marketId } = this.props;
+    const { intl, investibles, user, teamId, marketId } = this.props;
     const defaultCategoryName = intl.formatMessage({id: 'defaultCategoryName'});
     const categoryMap = this.mapInvestiblesToCategories(investibles, defaultCategoryName);
-    const categoryLists = this.createCategoryLists(categoryMap, user, marketId);
+    const categoryLists = this.createCategoryLists(categoryMap, marketId, teamId, user);
     return (
-      <ItemList title={intl.formatMessage({id: 'investibleListHeader'})} categoryLists={categoryLists} headerActions={[]}/>
+      <ItemList categoryLists={categoryLists} headerActions={[]}/>
     )
   }
 }
@@ -48,6 +49,7 @@ class InvestibleList extends React.Component {
 
 InvestibleList.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
+  teamId: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired
 };

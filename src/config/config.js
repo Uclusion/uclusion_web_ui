@@ -1,4 +1,4 @@
-import getMenuItems from './menuItems'
+  import getMenuItems from './menuItems'
 import locales from './locales'
 import routes from './routes'
 import themes from './themes'

@@ -29,8 +29,8 @@ export const fetchUser = (params = {}) => (dispatch) => {
     if (!params.user_id) {
       dispatch(receiveCurrentUser(user))
     }
-    if (params.dispatchFirstMarketId && user.market_presences.length > 0) {
-      dispatch(fetchMarket({market_id: user.market_presences[0].market_id, isSelected: true}))
+    if (params.dispatchFirstMarketId && user.market_presence) {
+      dispatch(fetchMarket({market_id: user.market_presence.id, isSelected: true}))
     }
     return dispatch(receiveUser(user))
   }).catch((error) => {

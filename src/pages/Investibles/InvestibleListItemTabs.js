@@ -34,7 +34,7 @@ class InvestibleListItemTabs extends React.Component {
   };
 
   render () {
-    const {classes, marketId, investibleId, intl, sharesAvailable} = this.props
+    const {classes, marketId, investibleId, intl, teamId, sharesAvailable} = this.props
     const { value } = this.state;
     return (
       <div className={classes.paper}>
@@ -48,7 +48,7 @@ class InvestibleListItemTabs extends React.Component {
             <Tab label={intl.formatMessage({id: 'commentsTab'})}/>
           </Tabs>
         // eslint-disable-next-line
-        {value == 0 && <InvestibleInvest marketId={marketId} sharesAvailable={sharesAvailable} investibleId={investibleId}/>}
+        {value == 0 && <InvestibleInvest teamId={teamId} marketId={marketId} sharesAvailable={sharesAvailable} investibleId={investibleId}/>}
         // eslint-disable-next-line
         {value == 1 && <div>Activity Placeholder</div>}
         // eslint-disable-next-line
@@ -63,6 +63,7 @@ InvestibleListItemTabs.propTypes = {
   classes: PropTypes.object.isRequired,
   investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
+  teamId: PropTypes.string.isRequired,
   sharesAvailable: PropTypes.number.isRequired
 }
 

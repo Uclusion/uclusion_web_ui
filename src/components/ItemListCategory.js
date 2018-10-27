@@ -21,6 +21,8 @@ class ItemListCategory extends React.Component {
     super(props);
     this.state = {...props, quickAddVisible: false};
     this.addOnClick = this.addOnClick.bind(this);
+    this.addCancelOnClick = this.addCancelOnClick.bind(this);
+    this.addSubmitOnClick = this.addSubmitOnClick.bind(this);
   }
 
   addOnClick = () => {
@@ -31,6 +33,10 @@ class ItemListCategory extends React.Component {
     this.setState({quickAddVisible: false});
   }
 
+  addSubmitOnClick = () => {
+    this.setState({quickAddVisible: false});
+  }
+
   addSaveOnClick = (addOnSave, value) => {
       addOnSave(value); //save the item out, and then hide this
       this.setState({quickAddVisible: false});
@@ -38,7 +44,7 @@ class ItemListCategory extends React.Component {
 
   render (){
     const {classes, title, items, headerActions, submitQuickAdd, quickAdd} = this.props
-    const myQuickAdd = React.cloneElement(quickAdd, {visible:this.state.quickAddVisible, addCancelOnClick: this.addCancelOnClick})
+    const myQuickAdd = React.cloneElement(quickAdd, {visible:this.state.quickAddVisible, addSubmitOnClick: this.addSubmitOnClick, addCancelOnClick: this.addCancelOnClick})
     return (
       <div className={classes.subList}>
       <ListSubheader component="div">{title}<Add onClick={() => this.addOnClick()}/></ListSubheader>

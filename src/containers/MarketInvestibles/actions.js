@@ -19,11 +19,12 @@ export const receiveInvestibles = investibles => ({
 })
 
 
-export const investInInvestible = (marketId, investibleId, quantity) => ({
+export const investInInvestible = (marketId, teamId, investibleId, quantity) => ({
   type: INVEST_INVESTIBLE,
   investibleId,
   quantity,
-  marketId
+  marketId,
+  teamId
 })
 
 export const investmentCreated = (investment) => ({
@@ -46,21 +47,6 @@ export const createAndBindInvestible = (marketId, title, description, category) 
 })
 
 
-const baseFetchInvestibles = (params, dispatch, aFunction) => {
-  if (!params.market_id) { return }
-  dispatch(requestInvestibles())
-
-  // TODO either constructClient must cache the client or we have to at the upper level
-  let promise = uclusion.constructClient(config.api_configuration)
-  promise = aFunction(params, promise)
-
-  return promise.then(response => dispatch(receiveInvestibles(response)))
-    .catch((error) => {
-      console.log(error)
-      dispatch(receiveInvestibles([]))
-    })
-}
-
 const formatInvestible = (investible) => {
   investible.created_at = new Date(investible.created_at)
   investible.updated_at = new Date(investible.updated_at)
@@ -75,18 +61,42 @@ export const formatInvestibles = (investibles) => {
   return investibles
 }
 
+const baseFetchInvestibles = (params, dispatch, aFunction) => {
+  if (!params.market_id && !params.investibleId) { return }
+  dispatch(requestInvestibles())
+
+  // TODO either constructClient must cache the client or we have to at the upper level
+  let promise = uclusion.constructClient(config.api_configuration)
+  promise = aFunction(promise)
+
+  return promise.then(response => dispatch(receiveInvestibles(response)))
+    .catch((error) => {
+      console.log(error)
+      dispatch(receiveInvestibles([]))
+    })
+}
+
 export const fetchInvestibles = (params = {}) => (dispatch) => {
-  return baseFetchInvestibles(params, dispatch, (params, promise) => {
-    if (params && params.id) {
-      return promise.then((client) => {
-        return client.markets.getMarketInvestible(params.market_id, params.id)
-      })
-    } else {
-      return promise.then((client) => {
-        return client.markets.listTrending(params.market_id, params.trending_window_date)
-      })
-    }
-  })
+  console.log('fetch investibles dispatched')
+  const singularFetcher = (client) => {
+    console.log('Single Fetch')
+    return client.investibles.get(params.investibleId)
+  }
+  const multifetcher = (client) => (client.markets.listTrending(params.market_id, params.trending_window_date));
+  let fetcher = null
+  if(params.investibleId){
+    console.log('Fetching singular')
+    fetcher = singularFetcher;
+  }else{
+    console.log('Fething multiple')
+    fetcher = multifetcher;
+  }
+  const promiseFunc = (promise) => {
+    return promise.then((client) => {
+      return fetcher(client);
+    })
+  }
+  return baseFetchInvestibles(params, dispatch, promiseFunc);
 }
 
 export const fetchCategoriesInvestibles = (params = {}) => (dispatch) => {
@@ -98,27 +108,36 @@ export const fetchCategoriesInvestibles = (params = {}) => (dispatch) => {
 }
 
 
-export const createInvestment = (params = {}) => (dispatch) => {
-  dispatch(investInInvestible(params.marketId, params.investibleId, params.quantity))
-  uclusion.constructClient(config.api_configuration).then((client) => {
-    return client.markets.createInvestment(params.marketId, params.investibleId, params.quantity)
-  }).then(investment => {
-    dispatch(investmentCreated(investment))
-    dispatch(fetchUser())
-  }).catch((error) => {
+export const createInvestment = (params = {}) => {
+  return (dispatch) => {
+    console.log(params)
+    dispatch(investInInvestible(params.marketId, params.teamId, params.investibleId, params.quantity))
+    uclusion.constructClient(config.api_configuration).then((client) => {
+      return client.markets.createInvestment(params.marketId, params.teamId, params.investibleId, params.quantity)
+    }).then(investment => {
+      dispatch(investmentCreated(investment))
+      if (params.newInvestible){
+        console.log('invested in new investible')
+        dispatch(fetchInvestibles(params))
+      }
+      dispatch(fetchUser())
+    }).catch((error) => {
       console.log(error)
       dispatch(investmentCreated([]))
       dispatch(fetchUser())
-   })
+    })
+  }
 }
 
 export const createMarketInvestible = (params = {}) => (dispatch) => {
   dispatch(createAndBindInvestible(params.marketId, params.title, params.description, params.category))
   uclusion.constructClient(config.api_configuration).then((client) => {
     return client.investibles.create(params.title, params.description, [params.category])
-  }).then(investibleResult => {
-    const investibleId = investibleResult.investible.id
-    return createInvestment({marketId: params.marketId, investibleId: investibleId, quantity: 1}) //todo, make a more than one investment possible
+  }).then(investible => {
+    dispatch(investibleCreated(investible));
+    //inform the invest they need to fetch the new market investible
+    const payload = {marketId: params.marketId, teamId: params.teamId, investibleId: investible.id, quantity: 1, newInvestible: true}
+    dispatch(createInvestment(payload))
   }).catch((error) => {
     console.log(error)
     //these two calls make sure we update the UI. We _really_ need error handling to be better

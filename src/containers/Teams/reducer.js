@@ -13,7 +13,7 @@ export const teamPropType = PropTypes.shape({
   updated_at: PropTypes.instanceOf(Date).isRequired
 })
 
-export const userTeams = (state, action) => {
+const userTeams = (state, action) => {
   switch (action.type) {
     case RECEIVE_USER_TEAMS:
       const teams = action.teams;
@@ -24,7 +24,7 @@ export const userTeams = (state, action) => {
 }
 
 
-export const isTeamFetching = (state = 0, action) => {
+const isTeamsFetching = (state = 0, action) => {
   switch (action.type) {
     case REQUEST_USER_TEAMS:
       return state + 1;
@@ -33,11 +33,13 @@ export const isTeamFetching = (state = 0, action) => {
   }
 }
 
+export const getTeamsFetching = (state) => state.isTeamsFetching
 
+export const getUserTeams = (state) => state.userTeams
 
 export default combineReducers({
   userTeams,
-  isTeamFetching
+  isTeamsFetching
 })
 
 

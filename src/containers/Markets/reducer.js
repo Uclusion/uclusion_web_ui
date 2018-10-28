@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { REQUEST_MARKET, RECEIVE_MARKET, SELECT_MARKET, formatMarkets, REQUEST_TEAMS, RECEIVE_TEAMS } from './actions'
+import { REQUEST_MARKET, RECEIVE_MARKET, SELECT_MARKET, formatMarkets } from './actions'
 
 export const marketPropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -57,16 +57,6 @@ const currentMarket = (state = null, action) => {
   }
 }
 
-const teams = (state = [], action) => {
-  switch (action.type) {
-    case REQUEST_TEAMS:
-      return state;
-    case RECEIVE_TEAMS:
-      return [ ... action.teams ]
-    default:
-      return state;
-  }
-}
 
 export const getMarkets = (state) => {
   return formatMarkets(state.marketItems)
@@ -81,6 +71,5 @@ export const getCurrentMarketId = (state) => {
 export default combineReducers({
   marketItems,
   isMarketFetching,
-  currentMarket,
-  teams
+  currentMarket
 })

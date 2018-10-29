@@ -47,7 +47,6 @@ class ItemList extends React.Component {
         <div className={classes.headerBottom}></div>
 
         <Grid className={classes.mainGrid} container spacing={8} justify='flex-start' alignItems='flex-start'>
-
           {categoryLists}
         </Grid>
       </div>

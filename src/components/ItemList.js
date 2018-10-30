@@ -56,9 +56,8 @@ class ItemList extends React.Component {
 
 
 ItemList.propTypes = {
-  title: PropTypes.arrayOf(PropTypes.object).isRequired,
-  categoryLists: PropTypes.object.isRequired,
-  headerActions: PropTypes.object.isRequired
+  categoryLists: PropTypes.arrayOf(PropTypes.object).isRequired,
+  headerActions: PropTypes.arrayOf(PropTypes.object)
 }
 
 

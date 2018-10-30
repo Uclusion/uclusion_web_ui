@@ -60,7 +60,6 @@ class QuickAddItemListCategory extends React.Component {
 
 QuickAddItemListCategory.propTypes = {
   items: PropTypes.arrayOf(PropTypes.object).isRequired,
-  category: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired
 }
 

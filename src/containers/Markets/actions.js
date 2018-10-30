@@ -29,7 +29,7 @@ export const fetchMarket = (params = {}) => (dispatch) => {
   }
   // TODO either constructClient must cache the client or we have to at the upper level
   uclusion.constructClient(config.api_configuration).then((client) => {
-    return client.markets.getMarket(params.market_id)
+    return client.markets.get(params.market_id)
   }).then(market => dispatch(receiveMarket(market)))
     .catch((error) => {
       console.log(error)

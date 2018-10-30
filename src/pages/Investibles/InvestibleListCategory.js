@@ -1,5 +1,5 @@
 import React from 'react'
-import ItemListCategory from '../../components/ItemListCategory'
+import ItemListCategory from '../../components/QuickAddItemListCategory'
 import InvestibleListItem from './InvestibleListItem'
 import PropTypes from 'prop-types'
 import InvestibleListQuickAdd from './InvestibleListQuickAdd'

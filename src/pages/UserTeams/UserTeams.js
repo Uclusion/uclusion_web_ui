@@ -6,15 +6,16 @@ import _ from 'lodash'
 import { withTheme } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 import { Activity } from 'uclusion-shell'
+import { fetchUserTeams } from '../../containers/Teams/actions'
 import { getTeamsFetching, getUserTeams} from '../../containers/Teams/reducer'
 import { getUsersFetching, getCurrentUser } from '../../containers/Users/reducer';
-import TeamsList from './TeamsList'
+import TeamsList from './UserTeamsList'
 
-class Tems extends Component {
+class UserTeams extends Component {
   constructor (props) {
     super(props)
     // https://medium.freecodecamp.org/react-binding-patterns-5-approaches-for-handling-this-92c651b5af56
-    this.readTrendingInvestibles = this.readTrendingInvestibles.bind(this)
+    this.readUserTeams = this.readUserTeams.bind(this)
   }
 
 
@@ -30,10 +31,8 @@ class Tems extends Component {
 
 
   readUserTeams () {
-    const { dispatch, marketId } = this.props
-    dispatch(fetchTeams({
-      market_id: marketId,
-    }))
+    const { dispatch } = this.props
+    dispatch(fetchUserTeams())
   }
 
   render () {
@@ -53,7 +52,7 @@ class Tems extends Component {
       )
     }
 
-    if (investibles.length === 0) {
+    if (teams.length === 0) {
       return (
         <Activity
           isLoading={teams === undefined}
@@ -69,16 +68,16 @@ class Tems extends Component {
         isLoading={teams === undefined}
         containerStyle={{ overflow: 'hidden' }}
         title={intl.formatMessage({ id: 'teamsLoading' })}>
-        <TeamList user={user} marketId={marketId} teams={teams}/>
+        <TeamsList user={user} teams={teams}/>
       </Activity>
     )
   }
 }
 
-Teams.propTypes = {
+UserTeams.propTypes = {
   dispatch: PropTypes.func.isRequired,
   loading: PropTypes.number.isRequired,
-  teams: PropTypes.arrayOf(teamsPropType).isRequired
+  teams: PropTypes.arrayOf(PropTypes.object).isRequired
 }
 
 const mapStateToProps = (state) => ({
@@ -94,4 +93,4 @@ function mapDispatchToProps (dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(injectIntl(withTheme()(Investibles)))
+)(injectIntl(withTheme()(UserTeams)))

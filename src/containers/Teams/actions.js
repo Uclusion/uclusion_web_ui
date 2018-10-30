@@ -19,12 +19,12 @@ export const receiveTeamUsers = (teamAndUsers) => ({
   teamAndUsers
 })
 
-export const requestUserTeams = () => ({
+export const requestUserTeams = (userId) => ({
   type: REQUEST_USER_TEAMS,
   userId
 })
 
-export const recieveUserTeams = (teams) => ({
+export const receiveUserTeams = (teams) => ({
   type: RECEIVE_USER_TEAMS,
   teams
 })
@@ -32,12 +32,12 @@ export const recieveUserTeams = (teams) => ({
 export const fetchUserTeams = () => (dispatch) => {
   dispatch(requestUserTeams);
   uclusion.constructClient(config.api_configuration).then((client) => {
-    return teams.list()
+    return client.teams.list()
   }).then((teams) => {
-    dispatch(recieveUserTeams(teams))
+    dispatch(receiveUserTeams(teams))
   }).catch((error) => {
     console.log(error)
-    dispatch(receiveUseTeams([]))
+    dispatch(receiveUserTeams([]))
   })
 }
 

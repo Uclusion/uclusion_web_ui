@@ -13,7 +13,7 @@ export const teamPropType = PropTypes.shape({
   updated_at: PropTypes.instanceOf(Date).isRequired
 })
 
-const userTeams = (state, action) => {
+const userTeams = (state = [], action) => {
   switch (action.type) {
     case RECEIVE_USER_TEAMS:
       const teams = action.teams;

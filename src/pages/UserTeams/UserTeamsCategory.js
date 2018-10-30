@@ -1,7 +1,7 @@
-import React from 'react'
-import { UserTeamsListItem } from './UserTeamsListItem'
-import { ItemListCategory } from '../../components/ItemListCategory'
+import UserTeamsListItem from './UserTeamsListItem'
+import ItemListCategory from '../../components/ItemListCategory'
 import PropTypes from 'prop-types'
+import React from 'react'
 
 class UserTeamsCategory extends React.Component {
 

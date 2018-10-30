@@ -16,12 +16,6 @@ const styles = (theme) => ({
 
 class ItemListCategory extends React.Component {
 
-  constructor (props) {
-    super(props);
-  }
-
-
-
   render (){
     const {classes, items, title } = this.props
     return (

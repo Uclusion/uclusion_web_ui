@@ -70,7 +70,6 @@ const messages = defineMessages({
   delete_task_title: 'Delete task?',
   delete_task_message: 'The task will be deleted!',
   error: 'Error!',
-  companies: 'Companies',
   create_company: 'Create company',
   edit_company: 'Edit company',
   delete_company_title: 'Delete company?',
@@ -163,12 +162,16 @@ const messages = defineMessages({
   totalCurrentInvestmentChip: '{shares} total',
   ideaShareSymbol: 'Î',
   defaultCategoryName: 'Uncategorized',
-  teamsMenu: 'Teams',
+  myTeamsMenu: 'My Teams',
   teamsLoading: 'Teams',
   teamsListNotFound: 'No Teams found',
 
   titleLabel: 'Title',
-  descriptionLabel: 'Description'
+  descriptionLabel: 'Description',
+
+  profileMenu: 'My Profile',
+
+  CustomerTeams: 'Customer Teams'
 
 })
 

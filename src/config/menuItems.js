@@ -83,35 +83,9 @@ const getMenuItems = (props) => {
       leftIcon: <DashboardIcon />
     },
     {
-      visible: isAuthorised,
-      primaryText: intl.formatMessage({ id: 'chats' }),
-      primaryTogglesNestedList: true,
-      leftIcon: <ChatIcon />,
-      nestedItems: [
-        {
-          value: '/chats',
-          visible: isAuthorised,
-          primaryText: intl.formatMessage({ id: 'private' }),
-          leftIcon: <Icon className='material-icons' >person</Icon>
-        },
-        {
-          value: '/public_chats',
-          visible: isAuthorised,
-          primaryText: intl.formatMessage({ id: 'public' }),
-          leftIcon: <Icon className='material-icons' >group</Icon>
-        },
-        {
-          value: '/predefined_chat_messages',
-          visible: isAuthorised,
-          primaryText: intl.formatMessage({ id: 'predefined_messages' }),
-          leftIcon: <Icon className='material-icons' >textsms</Icon>
-        }
-      ]
-    },
-    {
-      value: '/companies',
-      visible: isGranted('read_companies'),
-      primaryText: intl.formatMessage({ id: 'companies' }),
+      value: '/customer_teams',
+      visible: isGranted('read_companies'), //todo make this role based
+      primaryText: intl.formatMessage({ id: 'CustomerTeams' }),
       leftIcon: <BusinessIcon />
     },
     {
@@ -120,10 +94,18 @@ const getMenuItems = (props) => {
       primaryText: intl.formatMessage({ id: 'investibles' }),
       leftIcon: <ListIcon />,
     },
-    { value: '/teams',
+
+    { //value: '/profile',
       visible: isAuthorised,
-      primaryText: intl.formatMessage({id: 'teamsMenu'}),
-      leftIcon: <PeopleIcon/>
+      primaryText: intl.formatMessage({id: 'profileMenu'}),
+      leftIcon: <AccountBoxIcon/>,
+      nestedItems: [
+        { value: '/teams',
+          visible: isAuthorised,
+          primaryText: intl.formatMessage({id: 'myTeamsMenu'}),
+          leftIcon: <PeopleIcon/>
+        }
+      ]
     },
     {
       value: '/about',

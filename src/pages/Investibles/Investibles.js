@@ -19,6 +19,7 @@ class Investibles extends Component {
   }
 
   componentDidMount () {
+    console.log("Attempting to read trending investibles");
       this.readTrendingInvestibles()
   }
 
@@ -97,9 +98,9 @@ class Investibles extends Component {
 Investibles.propTypes = {
   dispatch: PropTypes.func.isRequired,
   loading: PropTypes.number.isRequired,
-  investibles: PropTypes.arrayOf(investiblePropType).isRequired,
-  marketId: PropTypes.string.isRequired,
-  user: PropTypes.object.isRequired
+  investibles: PropTypes.arrayOf(investiblePropType),
+  marketId: PropTypes.string,
+  user: PropTypes.object
 }
 
 const mapStateToProps = (state) => ({

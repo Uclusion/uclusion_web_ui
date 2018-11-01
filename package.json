@@ -25,6 +25,7 @@
     "material-ui-responsive-menu": "^1.19.3",
     "material-ui-selectable-menu-list": "^1.19.5",
     "muishift": "^1.0.8",
+    "ory-editor": "^0.4.4",
     "prop-types": "^15.6.2",
     "react": "^16.4.2",
     "react-chartjs-2": "^2.7.4",
@@ -52,9 +53,9 @@
     "redux-form-material-ui": "^5.0.0-beta.3",
     "redux-persist": "^5.10.0",
     "redux-thunk": "^2.3.0",
-    "uclusion_sdk": "file:../uclusion_sdk",
     "rmw-react-scripts": "1.1.11",
-    "uclusion-shell": "file:../uclusion-shell"
+    "uclusion-shell": "file:../uclusion-shell",
+    "uclusion_sdk": "file:../uclusion_sdk"
   },
   "scripts": {
     "check": "npm-check -s -u",

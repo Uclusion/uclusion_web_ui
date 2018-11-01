@@ -160,18 +160,21 @@ const messages = defineMessages({
   moreDetailsButton: 'More Details',
   userCurrentInvestmentChip: '{shares} yours',
   totalCurrentInvestmentChip: '{shares} total',
-  ideaShareSymbol: 'Î',
+  ideaShareSymbol: 'Ȗ',
   defaultCategoryName: 'Uncategorized',
-  myTeamsMenu: 'My Teams',
   teamsLoading: 'Teams',
   teamsListNotFound: 'No Teams found',
 
   titleLabel: 'Title',
   descriptionLabel: 'Description',
 
-  profileMenu: 'My Profile',
 
-  CustomerTeams: 'Customer Teams'
+  customerTeamsMenu: 'Customer Teams',
+  myTeamsMenu: 'My Teams',
+  profileMenu: 'My Profile',
+  addInvestibleMenu: 'Add Investible'
+
+
 
 })
 

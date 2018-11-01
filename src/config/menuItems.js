@@ -18,6 +18,7 @@ import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
 import SecurityIcon from '@material-ui/icons/Security'
 import GroupIcon from '@material-ui/icons/Group'
 import PeopleIcon from '@material-ui/icons/People'
+import AddBoxIcon from '@material-ui/icons/AddBox'
 
 const getMenuItems = (props) => {
   const {
@@ -85,8 +86,13 @@ const getMenuItems = (props) => {
     {
       value: '/customer_teams',
       visible: isGranted('read_companies'), //todo make this role based
-      primaryText: intl.formatMessage({ id: 'CustomerTeams' }),
+      primaryText: intl.formatMessage({ id: 'customerTeamsMenu' }),
       leftIcon: <BusinessIcon />
+    },
+    {
+      value: '/investibles/add',
+      primaryText: intl.formatMessage({ id: 'addInvestibleMenu'}),
+      leftIcon: <AddBoxIcon/>
     },
     {
       value: '/investibles',
@@ -94,7 +100,6 @@ const getMenuItems = (props) => {
       primaryText: intl.formatMessage({ id: 'investibles' }),
       leftIcon: <ListIcon />,
     },
-
     { //value: '/profile',
       visible: isAuthorised,
       primaryText: intl.formatMessage({id: 'profileMenu'}),
@@ -103,7 +108,7 @@ const getMenuItems = (props) => {
         { value: '/teams',
           visible: isAuthorised,
           primaryText: intl.formatMessage({id: 'myTeamsMenu'}),
-          leftIcon: <PeopleIcon/>
+          leftIcon: <GroupIcon/>
         }
       ]
     },

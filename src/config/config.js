@@ -23,6 +23,9 @@ function TokenAuthorizer () {
       console.error(ex)
     }
   }
+  this.reauthorize = (resolve, reject) => {
+    return this.authorize(resolve, reject)
+  }
 }
 
 const authorizer = new TokenAuthorizer()

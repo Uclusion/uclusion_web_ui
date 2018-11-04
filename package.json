@@ -26,6 +26,7 @@
     "material-ui-selectable-menu-list": "^1.19.5",
     "muishift": "^1.0.8",
     "ory-editor": "^0.4.4",
+    "ory-editor-plugins-slate": "^0.4.4",
     "prop-types": "^15.6.2",
     "react": "^16.4.2",
     "react-chartjs-2": "^2.7.4",

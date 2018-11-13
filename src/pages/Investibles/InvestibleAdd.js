@@ -16,6 +16,7 @@ import { Button, TextField } from '@material-ui/core'
 import slate from 'ory-editor-plugins-slate' // The rich text area plugin
 import 'ory-editor-plugins-slate/lib/index.css' // Stylesheets for the rich text area plugin
 import editorBorder from '../../components/OryPlugins/EditorBorderPlugin'
+import { createInvestible } from '../../containers/Investibles/actions'
 
 const styles = theme => ({
 
@@ -36,9 +37,28 @@ const styles = theme => ({
 class InvestibleAdd extends React.Component {
 
   constructor (props) {
+    this.state = {title: ''}
     super(props)
     this.initEditor = this.initEditor.bind(this)
     this.getEditor = this.getEditor.bind(this)
+    this.handleFieldChange = this.handleFieldChange(this)
+    this.onSave = this.onSave(this)
+  }
+
+  onSave(editor){
+    { dispatch } = this.props
+    description = getEditor().renderToHtml();
+    { title, category } = this.state
+    dispatch(createInvestible({description, title, category}))
+    //what do we want to do after the save?
+  }
+
+
+  handleFieldChange = (name) => (event) => {
+    let value = event.target.value
+    this.setState({
+      [name]: value
+    })
   }
 
   initEditor = () => {
@@ -79,7 +99,9 @@ class InvestibleAdd extends React.Component {
             <Toolbar editor={editor}/>
           </Editable>
         </div>
-        <Button variant="contained" color='primary' id="save">Save Investible</Button>
+        <TextField id="category" className={classes.textField} label={intl.formatMessage({id: 'categoryLabel  '})}
+                   variant="outlined" fullWidth/>
+        <Button variant="contained" color='primary' id="save">{intl.formatMessage({id: 'saveInvestibleButton'})}</Button>
       </div>
     )
   }

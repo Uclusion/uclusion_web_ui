@@ -17,6 +17,11 @@ import slate from 'ory-editor-plugins-slate' // The rich text area plugin
 import 'ory-editor-plugins-slate/lib/index.css' // Stylesheets for the rich text area plugin
 import editorBorder from '../../components/OryPlugins/EditorBorderPlugin'
 import { createInvestible } from '../../containers/Investibles/actions'
+import MenuItem from '@material-ui/core/MenuItem';
+import TextField from '@material-ui/core/TextField';
+import { getInvestibles, getInvestiblesFetching } from '../../containers/MarketInvestibles/reducer'
+import { getCurrentMarketId, getMarketsFetching } from '../../containers/Markets/reducer'
+import { getCurrentUser, getUsersFetching } from '../../containers/Users/reducer'
 
 const styles = theme => ({
 
@@ -88,19 +93,24 @@ class InvestibleAdd extends React.Component {
   }
 
   render () {
-    const {intl, classes} = this.props
+    const {intl, classes, categories} = this.props
     const editor = this.getEditor()
     return (
       <div>
         <TextField id="title" className={classes.textField} label={intl.formatMessage({id: 'titleLabel'})}
-                   variant="outlined" fullWidth/>
+                   variant="outlined" fullWidth onChange={this.handleFieldChange('title')}/>
+        <TextField id="category" className={classes.textField} onChange={this.handleFieldChange('category')} select label={intl.formatMessage({id: 'categoryLabel'})}
+                   variant="outlined">
+          {categories.map(category) => (
+            <MenuItem key={category} value={category}>{category}</MenuItem>
+            )}
+        </TextField>
         <div>
           <Editable editor={editor} id='InvestibleAdd'>
             <Toolbar editor={editor}/>
           </Editable>
         </div>
-        <TextField id="category" className={classes.textField} label={intl.formatMessage({id: 'categoryLabel  '})}
-                   variant="outlined" fullWidth/>
+
         <Button variant="contained" color='primary' id="save">{intl.formatMessage({id: 'saveInvestibleButton'})}</Button>
       </div>
     )
@@ -110,5 +120,13 @@ class InvestibleAdd extends React.Component {
 function mapDispatchToProps (dispatch) {
   return Object.assign({dispatch}, bindActionCreators({createMarketInvestible}, dispatch))
 }
+
+
+const mapStateToProps = (state) => ({
+  loading: getMarketsFetching(state.marketsReducer) + getCategoriesFetching(state.marketsReducer),
+  marketId: getCurrentMarketId(state.marketsReducer),
+  categories: getCategories(state.marketsReducer),
+  user: getCurrentUser(state.usersReducer)
+})
 
 export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, {withTheme: true})(InvestibleAdd)))

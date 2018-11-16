@@ -47,7 +47,7 @@ const styles = (theme) => ({
 class UserTeamsListItem extends React.Component {
 
   render () {
-    const {id, name, description, numMembers, classes, intl} = this.props
+    const { name, description, numMembers, classes } = this.props
     return (
       <ExpansionPanel>
         <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon/>}>

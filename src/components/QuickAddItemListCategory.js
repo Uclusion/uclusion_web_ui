@@ -43,7 +43,7 @@ class QuickAddItemListCategory extends React.Component {
   }
 
   render (){
-    const {classes, title, items, submitQuickAdd, quickAdd} = this.props
+    const {classes, title, items, quickAdd} = this.props
     const myQuickAdd = React.cloneElement(quickAdd, {visible:this.state.quickAddVisible, addSubmitOnClick: this.addSubmitOnClick, addCancelOnClick: this.addCancelOnClick})
     return (
       <div className={classes.subList}>

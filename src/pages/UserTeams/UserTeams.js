@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import _ from 'lodash'
 import { withTheme } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 import { Activity } from 'uclusion-shell'
@@ -14,20 +13,13 @@ import TeamsList from './UserTeamsList'
 class UserTeams extends Component {
   constructor (props) {
     super(props)
-    // https://medium.freecodecamp.org/react-binding-patterns-5-approaches-for-handling-this-92c651b5af56
     this.readUserTeams = this.readUserTeams.bind(this)
   }
-
 
 
   componentDidMount () {
     this.readUserTeams(1)
   }
-
-  componentDidUpdate (prevProps) {
-    // TODO flip return and branch below (see drawer example) to dedup Activity
-  }
-
 
 
   readUserTeams () {

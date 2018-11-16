@@ -6,12 +6,8 @@ import PropTypes from 'prop-types'
 
 class UserTeamsList extends React.Component {
 
-  constructor (props) {
-    super(props)
-  }
-
   render () {
-    const { intl, teams } = this.props;
+    const { teams } = this.props;
     const teamsCategory = <UserTeamsListCategory teams={teams}/>
     return (
       <ItemList categoryLists={[teamsCategory]} headerActions={[]}/>

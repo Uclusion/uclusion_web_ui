@@ -18,7 +18,7 @@ import { createMarketInvestible } from '../../containers/MarketInvestibles/actio
 // Load some exemplary plugins:
 
 import Editor, { Editable, createEmptyState } from 'ory-editor-core'
-import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui'
+import { Toolbar } from 'ory-editor-ui'
 import 'ory-editor-ui/lib/index.css'
 import slate from 'ory-editor-plugins-slate' // The rich text area plugin
 import 'ory-editor-plugins-slate/lib/index.css' // Stylesheets for the rich text area plugin

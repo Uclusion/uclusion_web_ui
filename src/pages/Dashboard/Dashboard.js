@@ -6,10 +6,9 @@ import { injectIntl, intlShape } from 'react-intl'
 import { GitHubIcon } from 'uclusion-shell/lib/components/Icons'
 import { Activity } from 'uclusion-shell'
 import { withTheme } from '@material-ui/core/styles'
-import { Line, Bar, Doughnut } from 'react-chartjs-2'
+import { Line, Bar } from 'react-chartjs-2'
 import { withFirebase } from 'firekit-provider'
-import CountUp from 'react-countup'
-import Icon from '@material-ui/core/Icon'
+
 import Scrollbar from 'uclusion-shell/lib/components/Scrollbar/Scrollbar'
 const currentYear = new Date().getFullYear()
 const daysPath = `/user_registrations_per_day/${currentYear}/${new Date().toISOString().slice(5, 7)}`
@@ -27,7 +26,7 @@ class Dashboard extends Component {
   }
 
   render() {
-    const { theme, intl, days, months, providers, usersCount } = this.props
+    const { theme, intl, days, months, providers } = this.props
 
     let daysLabels = []
     let daysData = []
@@ -121,17 +120,6 @@ class Dashboard extends Component {
       })
     }
 
-    const providersComponentData = {
-      labels: providersLabels,
-      datasets: [{
-        data: providersData,
-        backgroundColor: providersBackgrounColors,
-        hoverBackgroundColor: providersBackgrounColors
-      }]
-    }
-
-    const items = [{summaryText: "Foobar", expandedText:"My expanded value is awesome", actions: [<Button key="cacnel1" size="small">Cancel</Button>, <Button key="save1" size="small" color="primary"> Save </Button>]},
-    {summaryText: "Item2", expandedText:"ExpandedTEst text"}];
     return (
       <Activity
         iconElementRight={

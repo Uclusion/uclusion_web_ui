@@ -1,5 +1,5 @@
 import React from 'react'
-import Icon from '@material-ui/core/Icon'
+
 import allLocales from './locales'
 import allThemes from './themes'
 import LanguageIcon from '@material-ui/icons/Language'
@@ -12,12 +12,12 @@ import AccountBoxIcon from '@material-ui/icons/AccountBox'
 import LockIcon from '@material-ui/icons/Lock'
 import ListIcon from '@material-ui/icons/List'
 import DashboardIcon from '@material-ui/icons/Dashboard'
-import ChatIcon from '@material-ui/icons/Chat'
+
 import BusinessIcon from '@material-ui/icons/Business'
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
 import SecurityIcon from '@material-ui/icons/Security'
 import GroupIcon from '@material-ui/icons/Group'
-import PeopleIcon from '@material-ui/icons/People'
+
 import AddBoxIcon from '@material-ui/icons/AddBox'
 
 const getMenuItems = (props) => {

@@ -16,7 +16,7 @@ class Login extends Component {
     const { history, location, dispatch } = this.props
     let params = queryString.parse(location.search)
     config.api_configuration.authorizer.setAuthorization(params.uclusionToken)
-    const client = uclusion.constructClient(config.api_configuration).then((client) =>{
+    uclusion.constructClient(config.api_configuration).then((client) =>{
       GlobalState.uclusionClient = client
     })
     //this is a good place to do most initialization (I hope:)), since we've just logged in

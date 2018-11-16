@@ -1,6 +1,5 @@
 
-import config from '../../config/config'
-import { receiveUser } from '../Users/actions'
+
 import GlobalState from 'uclusion-shell/lib/utils/GlobalState'
 
 export const REQUEST_USER_TEAMS = 'REQUEST_USER_TEAMS'

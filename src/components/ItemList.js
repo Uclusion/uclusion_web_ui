@@ -1,8 +1,6 @@
 import React from 'react'
 import {
-  Grid,
-  Typography
-
+  Grid
 } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'

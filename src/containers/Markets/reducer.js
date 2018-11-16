@@ -68,8 +68,23 @@ const isCategoriesFetching = (state = 0, action) => {
   }
 }
 
+const marketCategories = (state ={} , action) => {
+  switch(action.type) {
+    case RECEIVE_MARKET_CATEGORIES:
+      const newState = { ...state };
+      newState[action.categories.market_id] = action.categories.categories;
+      return newState;
+    default:
+      return state
+  }
+}
+
 export const getMarkets = (state) => {
   return formatMarkets(state.marketItems)
+}
+
+export const getMarketCategories = (state) => {
+  return state.marketCategories
 }
 
 export const getMarketsFetching = state => state.isMarketFetching
@@ -84,5 +99,6 @@ export default combineReducers({
   marketItems,
   isMarketFetching,
   isCategoriesFetching,
+  marketCategories,
   currentMarketId
 })

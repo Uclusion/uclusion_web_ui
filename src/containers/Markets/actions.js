@@ -24,8 +24,8 @@ export const requestMarketCategories = (marketId) => ({
   marketId
 })
 
-export const receiveMarketCategories = categories => ({
-  type RECEIVE_MARKET_CATEGORIES,
+export const receiveMarketCategories = (categories) => ({
+  type: RECEIVE_MARKET_CATEGORIES,
   categories
 })
 

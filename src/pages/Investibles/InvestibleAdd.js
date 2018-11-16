@@ -1,27 +1,32 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+import GlobalState from 'uclusion-shell/lib/utils/GlobalState'
+import { Activity } from 'uclusion-shell'
+
+
+import MenuItem from '@material-ui/core/MenuItem';
+import { Button, TextField } from '@material-ui/core'
+
+
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createMarketInvestible } from '../../containers/MarketInvestibles/actions'
-import GlobalState from 'uclusion-shell/lib/utils/GlobalState'
+
+// Load some exemplary plugins:
 
 import Editor, { Editable, createEmptyState } from 'ory-editor-core'
 import { Trash, DisplayModeToggle, Toolbar } from 'ory-editor-ui'
 import 'ory-editor-ui/lib/index.css'
-import { Button, TextField } from '@material-ui/core'
-// Load some exemplary plugins:
 import slate from 'ory-editor-plugins-slate' // The rich text area plugin
 import 'ory-editor-plugins-slate/lib/index.css' // Stylesheets for the rich text area plugin
 import editorBorder from '../../components/OryPlugins/EditorBorderPlugin'
-import { createInvestible } from '../../containers/Investibles/actions'
-import MenuItem from '@material-ui/core/MenuItem';
-import TextField from '@material-ui/core/TextField';
-import { getInvestibles, getInvestiblesFetching } from '../../containers/MarketInvestibles/reducer'
-import { getCurrentMarketId, getMarketsFetching } from '../../containers/Markets/reducer'
-import { getCurrentUser, getUsersFetching } from '../../containers/Users/reducer'
+
+
+import { getCurrentMarketId, getMarketsFetching, getCategoriesFetching, getMarketCategories } from '../../containers/Markets/reducer'
+import { getCurrentUser } from '../../containers/Users/reducer'
 
 const styles = theme => ({
 
@@ -42,19 +47,19 @@ const styles = theme => ({
 class InvestibleAdd extends React.Component {
 
   constructor (props) {
-    this.state = {title: ''}
     super(props)
+    this.state = {title: '', description: '', category: ''}
     this.initEditor = this.initEditor.bind(this)
     this.getEditor = this.getEditor.bind(this)
     this.handleFieldChange = this.handleFieldChange(this)
     this.onSave = this.onSave(this)
   }
 
-  onSave(editor){
-    { dispatch } = this.props
-    description = getEditor().renderToHtml();
-    { title, category } = this.state
-    dispatch(createInvestible({description, title, category}))
+  onSave = (editor) => {
+    const { dispatch, marketId } = this.props
+    const description = this.getEditor().renderToHtml();
+    const { title, category } = this.state
+    dispatch(createMarketInvestible({marketId, description, title, category}))
     //what do we want to do after the save?
   }
 
@@ -93,17 +98,30 @@ class InvestibleAdd extends React.Component {
   }
 
   render () {
-    const {intl, classes, categories} = this.props
+    const {intl, classes, loading, marketId, marketCategories} = this.props
+    const categories = marketCategories[marketId]
     const editor = this.getEditor()
+    if (loading > 0) {
+      return (
+        <Activity
+          isLoading={categories === undefined}
+          containerStyle={{ overflow: 'hidden' }}
+          title={intl.formatMessage({ id: 'loadingMessage' })}>
+          <div>
+            {intl.formatMessage({ id: 'loadingMessage' })}
+          </div>
+        </Activity>
+      )
+    }
     return (
       <div>
         <TextField id="title" className={classes.textField} label={intl.formatMessage({id: 'titleLabel'})}
                    variant="outlined" fullWidth onChange={this.handleFieldChange('title')}/>
         <TextField id="category" className={classes.textField} onChange={this.handleFieldChange('category')} select label={intl.formatMessage({id: 'categoryLabel'})}
                    variant="outlined">
-          {categories.map(category) => (
+          {categories.map((category) => (
             <MenuItem key={category} value={category}>{category}</MenuItem>
-            )}
+            ))}
         </TextField>
         <div>
           <Editable editor={editor} id='InvestibleAdd'>
@@ -125,8 +143,8 @@ function mapDispatchToProps (dispatch) {
 const mapStateToProps = (state) => ({
   loading: getMarketsFetching(state.marketsReducer) + getCategoriesFetching(state.marketsReducer),
   marketId: getCurrentMarketId(state.marketsReducer),
-  categories: getCategories(state.marketsReducer),
+  marketCategories: getMarketCategories(state.marketsReducer),
   user: getCurrentUser(state.usersReducer)
 })
 
-export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, {withTheme: true})(InvestibleAdd)))
+export default connect(mapDispatchToProps, mapStateToProps)(injectIntl(withStyles(styles, {withTheme: true})(InvestibleAdd)))

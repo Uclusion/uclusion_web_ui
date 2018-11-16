@@ -172,8 +172,12 @@ const messages = defineMessages({
   customerTeamsMenu: 'Customer Teams',
   myTeamsMenu: 'My Teams',
   profileMenu: 'My Profile',
-  addInvestibleMenu: 'Add Investible'
+  addInvestibleMenu: 'Add Investible',
 
+  categoryLabel: 'Category',
+  saveInvestibleButton: 'Save investible',
+
+  loadingMessage: 'Loading'
 
 
 })

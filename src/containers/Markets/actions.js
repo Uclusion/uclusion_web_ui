@@ -2,6 +2,8 @@ import GlobalState from 'uclusion-shell/lib/utils/GlobalState'
 export const REQUEST_MARKET = 'REQUEST_MARKET'
 export const RECEIVE_MARKET = 'RECEIVE_MARKET'
 export const SELECT_MARKET = 'SELECT_MARKET'
+export const REQUEST_MARKET_CATEGORIES = 'REQUEST_MARKET_CATEGORIES'
+export const RECEIVE_MARKET_CATEGORIES = 'RECEIVE_MARKET_CATEGORIES'
 
 export const requestMarket = () => ({
   type: REQUEST_MARKET
@@ -16,6 +18,27 @@ export const selectMarket = marketId => ({
   type: SELECT_MARKET,
   marketId
 })
+
+export const requestMarketCategories = (marketId) => ({
+  type: REQUEST_MARKET_CATEGORIES,
+  marketId
+})
+
+export const receiveMarketCategories = (categories) => ({
+  type: RECEIVE_MARKET_CATEGORIES,
+  categories
+})
+
+export const fetchCategories = (params = {}) => (dispatch) => {
+  dispatch(requestMarketCategories(params.marketId));
+  const client = GlobalState.uclusionClient
+  return client.markets.listCategories(params.marketId)
+    .then(categories => dispatch(receiveMarketCategories(categories)))
+    .catch((error) => {
+      console.log(error)
+      dispatch(receiveMarketCategories([]))
+    })
+}
 
 export const fetchMarket = (params = {}) => (dispatch) => {
   dispatch(requestMarket())

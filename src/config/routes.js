@@ -10,7 +10,7 @@ const AsyncAddInvestible = MyLoadable({ loader: () => import('../pages/Investibl
 const AsyncInvestible = MyLoadable({ loader: () => import('../pages/Investibles/InvestibleListItem') })
 const AsyncInvestibles = MyLoadable({ loader: () => import('../pages/Investibles/Investibles') }, [AsyncInvestible])
 const AsyncDocument = MyLoadable({ loader: () => import('../pages/Document') })
-const AsyncCollection = MyLoadable({ loader: () => import('../pages/Collection') })
+
 const AsyncLogin = MyLoadable({ loader: () => import('../pages/Login') })
 const AsyncTeams = MyLoadable({ loader: () => import('../pages/UserTeams/UserTeams')})
 
@@ -23,7 +23,7 @@ const routes = [
   <RestrictedRoute type='public' path="/investibles/edit/:uid" exact component={AsyncInvestible} />,
   <RestrictedRoute type='public' path="/teams" exact component={AsyncTeams} />,
   <RestrictedRoute type='private' path="/document" exact component={AsyncDocument} />,
-  <RestrictedRoute type='private' path="/collection" exact component={AsyncCollection} />,
+
   <RestrictedRoute type='public' path="/login" exact component={AsyncLogin} />
 ]
 

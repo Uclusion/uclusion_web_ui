@@ -29,14 +29,15 @@ export const receiveMarketCategories = (categories) => ({
   categories
 })
 
-export const fetchCategories = (params = {}) => (dispatch) => {
+export const fetchMarketCategories = (params = {}) => (dispatch) => {
   dispatch(requestMarketCategories(params.marketId));
   const client = GlobalState.uclusionClient
+  console.log("Fetching market categories")
   return client.markets.listCategories(params.marketId)
     .then(categories => dispatch(receiveMarketCategories(categories)))
     .catch((error) => {
       console.log(error)
-      dispatch(receiveMarketCategories([]))
+      dispatch(receiveMarketCategories({}))
     })
 }
 

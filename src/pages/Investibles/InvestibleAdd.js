@@ -24,7 +24,7 @@ import slate from 'ory-editor-plugins-slate' // The rich text area plugin
 import 'ory-editor-plugins-slate/lib/index.css' // Stylesheets for the rich text area plugin
 import editorBorder from '../../components/OryPlugins/EditorBorderPlugin'
 
-
+import { fetchMarketCategories} from '../../containers/Markets/actions'
 import { getCurrentMarketId, getMarketsFetching, getCategoriesFetching, getMarketCategories } from '../../containers/Markets/reducer'
 import { getCurrentUser } from '../../containers/Users/reducer'
 
@@ -51,8 +51,19 @@ class InvestibleAdd extends React.Component {
     this.state = {title: '', description: '', category: ''}
     this.initEditor = this.initEditor.bind(this)
     this.getEditor = this.getEditor.bind(this)
-    this.handleFieldChange = this.handleFieldChange(this)
-    this.onSave = this.onSave(this)
+    this.handleFieldChange = this.handleFieldChange.bind(this)
+    this.onSave = this.onSave.bind(this)
+    this.readMarketCategories = this.readMarketCategories.bind(this)
+  }
+
+  componentWillMount () {
+    console.log("Attempting to read market categories")
+    this.readMarketCategories()
+  }
+
+  readMarketCategories () {
+    const { dispatch, marketId } = this.props
+    dispatch(fetchMarketCategories({marketId}))
   }
 
   onSave = (editor) => {
@@ -99,7 +110,6 @@ class InvestibleAdd extends React.Component {
 
   render () {
     const {intl, classes, loading, marketId, marketCategories} = this.props
-    const categories = marketCategories[marketId]
     const editor = this.getEditor()
     if (loading > 0) {
       return (
@@ -113,6 +123,7 @@ class InvestibleAdd extends React.Component {
         </Activity>
       )
     }
+    const categories = marketCategories[marketId]
     return (
       <div>
         <TextField id="title" className={classes.textField} label={intl.formatMessage({id: 'titleLabel'})}
@@ -140,11 +151,13 @@ function mapDispatchToProps (dispatch) {
 }
 
 
-const mapStateToProps = (state) => ({
-  loading: getMarketsFetching(state.marketsReducer) + getCategoriesFetching(state.marketsReducer),
-  marketId: getCurrentMarketId(state.marketsReducer),
-  marketCategories: getMarketCategories(state.marketsReducer),
-  user: getCurrentUser(state.usersReducer)
-})
+const mapStateToProps = (state) => {
+  return {
+    loading: getMarketsFetching(state.marketsReducer) + getCategoriesFetching(state.marketsReducer),
+    marketId: getCurrentMarketId(state.marketsReducer),
+    marketCategories: getMarketCategories(state.marketsReducer),
+    user: getCurrentUser(state.usersReducer)
+  }
+}
 
-export default connect(mapDispatchToProps, mapStateToProps)(injectIntl(withStyles(styles, {withTheme: true})(InvestibleAdd)))
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withStyles(styles, {withTheme: true})(InvestibleAdd)))

@@ -20,7 +20,7 @@ class Investibles extends Component {
 
   componentDidMount () {
     console.log("Attempting to read trending investibles");
-      this.readTrendingInvestibles()
+    this.readTrendingInvestibles()
   }
 
   componentDidUpdate (prevProps) {

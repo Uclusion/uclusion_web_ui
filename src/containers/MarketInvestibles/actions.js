@@ -63,7 +63,6 @@ const baseFetchInvestibles = (params, dispatch, aFunction) => {
 
   // TODO either constructClient must cache the client or we have to at the upper level
   const client = GlobalState.uclusionClient
-  console.log("Client": client)
   const promise = aFunction(client)
 
   return promise.then(response => dispatch(receiveInvestibles(response)))

@@ -5,24 +5,36 @@ import themes from './themes'
 import grants from './grants'
 
 function TokenAuthorizer () {
+
+  this.getData = () =>{
+    const key = Object.keys(localStorage).find(e => e.match(/uclusion:root/))
+    const data = JSON.parse(localStorage.getItem(key))
+    return data;
+  }
+
   this.authorize = (resolve, reject) => {
     return new Promise((resolve, reject) => {
       try {
-        const key = Object.keys(localStorage).find(e => e.match(/uclusion:root/))
-        const data = JSON.parse(localStorage.getItem(key))
+        const data = this.getData();
         resolve(data.auth)
       } catch (ex) {
         reject(ex)
       }
     })
   }
-  this.setAuthorization = (token) => {
+  this.setToken = (token) => {
     try {
       localStorage.setItem('uclusion:root', JSON.stringify({'auth': token}));
     } catch (ex) {
       console.error(ex)
     }
   }
+
+  this.getToken = () => {
+    const data = this.getData();
+    return data.auth
+  }
+
   this.reauthorize = (resolve, reject) => {
     return this.authorize(resolve, reject)
   }

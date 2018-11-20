@@ -56,7 +56,7 @@ class InvestibleAdd extends React.Component {
     this.readMarketCategories = this.readMarketCategories.bind(this)
   }
 
-  componentWillMount () {
+  componentDidMount () {
     console.log("Attempting to read market categories")
     this.readMarketCategories()
   }
@@ -111,7 +111,7 @@ class InvestibleAdd extends React.Component {
   render () {
     const {intl, classes, loading, marketId, marketCategories} = this.props
     const editor = this.getEditor()
-    if (loading > 0) {
+    if (loading > 0 || categories === undefined) {
       return (
         <Activity
           isLoading={categories === undefined}

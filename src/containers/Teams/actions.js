@@ -1,6 +1,4 @@
-
-
-import GlobalState from 'uclusion-shell/lib/utils/GlobalState'
+import { getClient } from '../../config/uclusionClient'
 
 export const REQUEST_USER_TEAMS = 'REQUEST_USER_TEAMS'
 export const RECEIVE_USER_TEAMS = 'RECEIVE_USER_TEAMS'
@@ -30,8 +28,10 @@ export const receiveUserTeams = (teams) => ({
 
 export const fetchUserTeams = () => (dispatch) => {
   dispatch(requestUserTeams)
-  const client = GlobalState.uclusionClient
-  return client.teams.list().then((teams) => {
+  const clientPromise = getClient()
+  return clientPromise.then((client) => {
+    return client.teams.list()
+  }).then((teams) => {
     dispatch(receiveUserTeams(teams))
   }).catch((error) => {
     console.log(error)

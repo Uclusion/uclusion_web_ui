@@ -15,10 +15,7 @@ class Login extends Component {
   componentDidMount () {
     const { history, location, dispatch } = this.props
     let params = queryString.parse(location.search)
-    config.api_configuration.authorizer.setAuthorization(params.uclusionToken)
-    uclusion.constructClient(config.api_configuration).then((client) =>{
-      GlobalState.uclusionClient = client
-    })
+    config.api_configuration.authorizer.setToken(params.uclusionToken)
     //this is a good place to do most initialization (I hope:)), since we've just logged in
     if (params.marketId) {
       dispatch(fetchMarket({market_id: params.marketId, isSelected: true}))

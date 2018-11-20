@@ -1,5 +1,6 @@
 import { fetchUser } from '../Users/actions'
-import GlobalState from 'uclusion-shell/lib/utils/GlobalState'
+import { getClient } from '../../config/uclusionClient'
+
 export const REQUEST_INVESTIBLES = 'REQUEST_INVESTIBLES'
 export const RECEIVE_INVESTIBLES = 'RECEIVE_INVESTIBLES'
 export const INVEST_INVESTIBLE = 'INVEST_INVESTIBLE'
@@ -62,7 +63,7 @@ const baseFetchInvestibles = (params, dispatch, aFunction) => {
   dispatch(requestInvestibles())
 
   // TODO either constructClient must cache the client or we have to at the upper level
-  const client = GlobalState.uclusionClient
+  const client = getClient()
   const promise = aFunction(client)
 
   return promise.then(response => dispatch(receiveInvestibles(response)))
@@ -99,8 +100,8 @@ export const createInvestment = (params = {}) => {
   return (dispatch) => {
     console.log(params)
     dispatch(investInInvestible(params.marketId, params.teamId, params.investibleId, params.quantity))
-    const client = GlobalState.uclusionClient
-    return client.markets.createInvestment(params.marketId, params.teamId, params.investibleId, params.quantity)
+    const clientPromise = getClient()
+    return clientPromise((client) => client.markets.createInvestment(params.marketId, params.teamId, params.investibleId, params.quantity))
       .then(investment => {
         dispatch(investmentCreated(investment))
         if (params.newInvestible) {
@@ -118,8 +119,8 @@ export const createInvestment = (params = {}) => {
 
 export const createMarketInvestible = (params = {}) => (dispatch) => {
   dispatch(createAndBindInvestible(params.marketId, params.title, params.description, params.category))
-  const client = GlobalState.uclusionClient
-  return client.investibles.create(params.title, params.description, [params.category])
+  const clientPromise = getClient()
+  return clientPromise.then((client) => client.investibles.create(params.title, params.description, [params.category]))
     .then(investible => {
       dispatch(investibleCreated(investible))
       //inform the invest they need to fetch the new market investible

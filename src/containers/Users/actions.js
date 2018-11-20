@@ -1,5 +1,4 @@
-import config from '../../config/config'
-import uclusion from 'uclusion_sdk'
+import { getClient } from '../../config/uclusionClient'
 import { fetchMarket } from '../Markets/actions'
 
 export const REQUEST_USER = 'REQUEST_USER'
@@ -23,7 +22,8 @@ export const receiveCurrentUser = user => ({
 export const fetchUser = (params = {}) => (dispatch) => {
   dispatch(requestUser())
   // TODO either constructClient must cache the client or we have to at the upper level
-  uclusion.constructClient(config.api_configuration).then((client) => {
+  const clientPromise = getClient()
+  return clientPromise.then((client) => {
     return client.users.get(params.user_id)
   }).then((user) => {
     if (!params.user_id) {

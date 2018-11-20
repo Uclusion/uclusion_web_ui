@@ -1,4 +1,5 @@
-import GlobalState from 'uclusion-shell/lib/utils/GlobalState'
+import { getClient } from '../../config/uclusionClient'
+
 export const REQUEST_MARKET = 'REQUEST_MARKET'
 export const RECEIVE_MARKET = 'RECEIVE_MARKET'
 export const SELECT_MARKET = 'SELECT_MARKET'
@@ -30,11 +31,12 @@ export const receiveMarketCategories = (categories) => ({
 })
 
 export const fetchMarketCategories = (params = {}) => (dispatch) => {
-  dispatch(requestMarketCategories(params.marketId));
-  const client = GlobalState.uclusionClient
-  console.log("Fetching market categories")
-  return client.markets.listCategories(params.marketId)
-    .then(categories => dispatch(receiveMarketCategories(categories)))
+  dispatch(requestMarketCategories(params.marketId))
+  const clientPromise = getClient()
+  console.log('Fetching market categories')
+  return clientPromise.then((client) => {
+    return client.markets.listCategories(params.marketId)
+  }).then(categories => dispatch(receiveMarketCategories(categories)))
     .catch((error) => {
       console.log(error)
       dispatch(receiveMarketCategories({}))
@@ -48,9 +50,10 @@ export const fetchMarket = (params = {}) => (dispatch) => {
     dispatch(selectMarket(params.market_id))
   }
   // TODO either constructClient must cache the client or we have to at the upper level
-  const client = GlobalState.uclusionClient
-  return client.markets.get(params.market_id)
-    .then(market => dispatch(receiveMarket(market)))
+  const clientPromise = getClient()
+  return clientPromise.then((client) => {
+    return client.markets.get(params.market_id)
+  }).then(market => dispatch(receiveMarket(market)))
     .catch((error) => {
       console.log(error)
       dispatch(receiveMarket([]))

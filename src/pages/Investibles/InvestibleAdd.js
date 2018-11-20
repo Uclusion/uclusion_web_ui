@@ -111,6 +111,7 @@ class InvestibleAdd extends React.Component {
   render () {
     const {intl, classes, loading, marketId, marketCategories} = this.props
     const editor = this.getEditor()
+    const categories = marketCategories[marketId]
     if (loading > 0 || categories === undefined) {
       return (
         <Activity
@@ -123,7 +124,6 @@ class InvestibleAdd extends React.Component {
         </Activity>
       )
     }
-    const categories = marketCategories[marketId]
     return (
       <div>
         <TextField id="title" className={classes.textField} label={intl.formatMessage({id: 'titleLabel'})}

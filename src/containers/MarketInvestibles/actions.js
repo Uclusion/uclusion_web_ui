@@ -63,8 +63,8 @@ const baseFetchInvestibles = (params, dispatch, aFunction) => {
   dispatch(requestInvestibles())
 
   // TODO either constructClient must cache the client or we have to at the upper level
-  const client = getClient()
-  const promise = aFunction(client)
+  const clientPromise = getClient()
+  const promise = clientPromise.then((client) => aFunction(client))
 
   return promise.then(response => dispatch(receiveInvestibles(response)))
     .catch((error) => {

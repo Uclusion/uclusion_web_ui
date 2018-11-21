@@ -25,7 +25,7 @@ import 'ory-editor-plugins-slate/lib/index.css' // Stylesheets for the rich text
 import editorBorder from '../../components/OryPlugins/EditorBorderPlugin'
 
 import { fetchMarketCategories} from '../../containers/Markets/actions'
-import { getCurrentMarketId, getMarketsFetching, getCategoriesFetching, getMarketCategories } from '../../containers/Markets/reducer'
+import { getCurrentMarketId, getCategoriesFetching, getMarketCategories } from '../../containers/Markets/reducer'
 import { getCurrentUser } from '../../containers/Users/reducer'
 
 const styles = theme => ({
@@ -111,14 +111,20 @@ class InvestibleAdd extends React.Component {
   render () {
     const {intl, classes, loading, marketId, marketCategories} = this.props
     const editor = this.getEditor()
+    console.log(marketId)
+    console.log(marketCategories)
     const categories = marketCategories[marketId]
+    console.log(categories)
+    console.log(loading)
     if (loading > 0 || categories === undefined) {
+      console.log("Loading activity")
       return (
         <Activity
           isLoading={categories === undefined}
           containerStyle={{ overflow: 'hidden' }}
           title={intl.formatMessage({ id: 'loadingMessage' })}>
           <div>
+            LoadingTest
             {intl.formatMessage({ id: 'loadingMessage' })}
           </div>
         </Activity>
@@ -153,7 +159,7 @@ function mapDispatchToProps (dispatch) {
 
 const mapStateToProps = (state) => {
   return {
-    loading: getMarketsFetching(state.marketsReducer) + getCategoriesFetching(state.marketsReducer),
+    loading: getCategoriesFetching(state.marketsReducer),
     marketId: getCurrentMarketId(state.marketsReducer),
     marketCategories: getMarketCategories(state.marketsReducer),
     user: getCurrentUser(state.usersReducer)

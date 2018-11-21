@@ -66,7 +66,7 @@ class InvestibleAdd extends React.Component {
     dispatch(fetchMarketCategories({marketId}))
   }
 
-  onSave = (editor) => {
+  onSave(editor){
     const { dispatch, marketId } = this.props
     const description = this.getEditor().renderToHtml();
     const { title, category } = this.state
@@ -75,14 +75,16 @@ class InvestibleAdd extends React.Component {
   }
 
 
-  handleFieldChange = (name) => (event) => {
-    let value = event.target.value
-    this.setState({
-      [name]: value
-    })
+  handleFieldChange(name){
+    return (event) => {
+      let value = event.target.value
+      this.setState({
+        [name]: value
+      })
+    }
   }
 
-  initEditor = () => {
+  initEditor() {
     const editable = createEmptyState()
     editable.id = 'InvestibleAdd'
     const editor = new Editor({
@@ -98,7 +100,7 @@ class InvestibleAdd extends React.Component {
     return editor
   }
 
-  getEditor = () => {
+  getEditor() {
     let editor = GlobalState.oryEditor
     if (!editor) {
       editor = this.initEditor()
@@ -132,6 +134,7 @@ class InvestibleAdd extends React.Component {
     }
     return (
       <div>
+        {intl.formatMessage({id: 'titleLabel'})}
         <TextField id="title" className={classes.textField} label={intl.formatMessage({id: 'titleLabel'})}
                    variant="outlined" fullWidth onChange={this.handleFieldChange('title')}/>
         <TextField id="category" className={classes.textField} onChange={this.handleFieldChange('category')} select label={intl.formatMessage({id: 'categoryLabel'})}
@@ -146,7 +149,7 @@ class InvestibleAdd extends React.Component {
           </Editable>
         </div>
 
-        <Button variant="contained" color='primary' id="save">{intl.formatMessage({id: 'saveInvestibleButton'})}</Button>
+        <Button variant="contained" color='primary' onClick={() => this.onSave(editor)} id="save">{intl.formatMessage({id: 'saveInvestibleButton'})}</Button>
       </div>
     )
   }

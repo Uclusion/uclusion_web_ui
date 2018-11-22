@@ -177,7 +177,9 @@ const messages = defineMessages({
   categoryLabel: 'Category',
   saveInvestibleButton: 'Save investible',
 
-  loadingMessage: 'Loading'
+  loadingMessage: 'Loading',
+
+  investibleAddDescriptionDefault: 'Add a description...'
 
 
 })

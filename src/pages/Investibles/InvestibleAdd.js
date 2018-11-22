@@ -15,14 +15,9 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createMarketInvestible } from '../../containers/MarketInvestibles/actions'
 
-// Load some exemplary plugins:
+//get my editor
+import HtmlRtfEditor from '../../components/HtmlRtfEditor'
 
-import Editor, { Editable, createEmptyState } from 'ory-editor-core'
-import { Toolbar } from 'ory-editor-ui'
-import 'ory-editor-ui/lib/index.css'
-import slate from 'ory-editor-plugins-slate' // The rich text area plugin
-import 'ory-editor-plugins-slate/lib/index.css' // Stylesheets for the rich text area plugin
-import editorBorder from '../../components/OryPlugins/EditorBorderPlugin'
 
 import { fetchMarketCategories} from '../../containers/Markets/actions'
 import { getCurrentMarketId, getCategoriesFetching, getMarketCategories } from '../../containers/Markets/reducer'
@@ -68,58 +63,19 @@ class InvestibleAdd extends React.Component {
 
   onSave(editor){
     const { dispatch, marketId } = this.props
-    const description = this.getEditor().renderToHtml();
+    const description = ""//TODO change
     const { title, category } = this.state
     dispatch(createMarketInvestible({marketId, description, title, category}))
     //what do we want to do after the save?
   }
 
 
-  handleFieldChange(name){
-    return (event) => {
-      let value = event.target.value
-      this.setState({
-        [name]: value
-      })
-    }
-  }
-
-  initEditor() {
-    const editable = createEmptyState()
-    editable.id = 'InvestibleAdd'
-    const editor = new Editor({
-      editables: [editable],
-      plugins: {
-        content: [slate()],
-        layout: [editorBorder({defaultPlugin: slate()})],
-      },
-      defaultPlugin: slate(),
-
-    })
-    editor.trigger.mode.edit()
-    return editor
-  }
-
-  getEditor() {
-    let editor = GlobalState.oryEditor
-    if (!editor) {
-      editor = this.initEditor()
-      GlobalState.oryEditor = editor
-    }
-
-    return editor
-  }
-
   render () {
     const {intl, classes, loading, marketId, marketCategories} = this.props
     const editor = this.getEditor()
-    console.log(marketId)
-    console.log(marketCategories)
     const categories = marketCategories[marketId]
-    console.log(categories)
-    console.log(loading)
+
     if (loading > 0 || categories === undefined) {
-      console.log("Loading activity")
       return (
         <Activity
           isLoading={categories === undefined}
@@ -144,9 +100,7 @@ class InvestibleAdd extends React.Component {
             ))}
         </TextField>
         <div>
-          <Editable editor={editor} id='InvestibleAdd'>
-            <Toolbar editor={editor}/>
-          </Editable>
+          <HtmlRtfEditor initialText={intl.formatMessage({id: 'investibleAddDescriptionDefault'})}/>
         </div>
 
         <Button variant="contained" color='primary' onClick={() => this.onSave(editor)} id="save">{intl.formatMessage({id: 'saveInvestibleButton'})}</Button>

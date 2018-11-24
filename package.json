@@ -18,6 +18,7 @@
     "github-markdown-css": "^2.10.0",
     "intl": "^1.2.5",
     "intl-locales-supported": "^1.0.0",
+    "immutable": "^4.0.0-rc.12",
     "match-sorter": "^2.2.3",
     "material-ui-filter": "^2.1.2",
     "material-ui-image": "^3.0.0",

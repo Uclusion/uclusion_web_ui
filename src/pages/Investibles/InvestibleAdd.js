@@ -43,9 +43,7 @@ class InvestibleAdd extends React.Component {
 
   constructor (props) {
     super(props)
-    this.state = {title: '', description: '', category: ''}
-    this.initEditor = this.initEditor.bind(this)
-    this.getEditor = this.getEditor.bind(this)
+    this.state = {title: '', category:''}
     this.handleFieldChange = this.handleFieldChange.bind(this)
     this.onSave = this.onSave.bind(this)
     this.readMarketCategories = this.readMarketCategories.bind(this)
@@ -55,6 +53,14 @@ class InvestibleAdd extends React.Component {
     console.log("Attempting to read market categories")
     this.readMarketCategories()
   }
+
+  handleFieldChange = (name) => (event) => {
+    let value = event.target.value
+    this.setState({
+      [name]: value
+    })
+  }
+
 
   readMarketCategories () {
     const { dispatch, marketId } = this.props
@@ -72,14 +78,13 @@ class InvestibleAdd extends React.Component {
 
   render () {
     const {intl, classes, loading, marketId, marketCategories} = this.props
-    const editor = this.getEditor()
     const categories = marketCategories[marketId]
-
     if (loading > 0 || categories === undefined) {
       return (
         <Activity
           isLoading={categories === undefined}
-          containerStyle={{ overflow: 'hidden' }}
+          containerStyle={{ overflow: 'hidden' }}LoadingTestLoading
+
           title={intl.formatMessage({ id: 'loadingMessage' })}>
           <div>
             LoadingTest
@@ -103,7 +108,7 @@ class InvestibleAdd extends React.Component {
           <HtmlRtfEditor initialText={intl.formatMessage({id: 'investibleAddDescriptionDefault'})}/>
         </div>
 
-        <Button variant="contained" color='primary' onClick={() => this.onSave(editor)} id="save">{intl.formatMessage({id: 'saveInvestibleButton'})}</Button>
+        <Button variant="contained" color='primary' id="save">{intl.formatMessage({id: 'saveInvestibleButton'})}</Button>
       </div>
     )
   }

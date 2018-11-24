@@ -4,7 +4,7 @@
 
 import { Editor } from 'slate-react'
 import { Value } from 'slate'
-import { React } from 'react'
+import React from 'react'
 
 const initialValue = (defaultText) => {
   return Value.fromJSON({
@@ -33,6 +33,7 @@ class HtmlRtfEditor extends React.Component {
   constructor (props) {
     super(props)
     const { initialText } = props
+    this.onChange = this.onChange.bind(this)
     this.state = {value: initialValue(initialText)}
   }
 

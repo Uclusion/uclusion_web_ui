@@ -16,7 +16,7 @@ import { bindActionCreators } from 'redux'
 import { createMarketInvestible } from '../../containers/MarketInvestibles/actions'
 
 //get my editor
-import HtmlRtfEditor from '../../components/HtmlRtfEditor'
+import HtmlRichTextEditor from '../../components/HtmlRichTextEditor'
 
 
 import { fetchMarketCategories} from '../../containers/Markets/actions'
@@ -105,7 +105,7 @@ class InvestibleAdd extends React.Component {
             ))}
         </TextField>
         <div>
-          <HtmlRtfEditor initialText={intl.formatMessage({id: 'investibleAddDescriptionDefault'})}/>
+          <HtmlRichTextEditor initialText={intl.formatMessage({id: 'investibleAddDescriptionDefault'})}/>
         </div>
 
         <Button variant="contained" color='primary' id="save">{intl.formatMessage({id: 'saveInvestibleButton'})}</Button>

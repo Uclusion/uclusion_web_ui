@@ -17,6 +17,7 @@ export const parseBlocks = (el, next) => {
       type: type,
       data: {
         className: el.getAttribute('class'),
+        src: el.getAttribute('src')
       },
       nodes: next(el.childNodes)
     }

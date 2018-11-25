@@ -14,10 +14,15 @@ class HtmlRichTextEditor extends React.Component {
   constructor (props) {
     super(props)
     const {initialText} = props
-    this.state = {value: defaultValue(initialText)}
     this.onChange = this.onChange.bind(this)
     this.html = new Html({rules})
     this.loadEditor = this.loadEditor.bind(this)
+    const loadedEditor = this.loadEditor();
+    let value = defaultValue(initialText)
+    if(loadedEditor){
+      value = loadedEditor;
+    }
+    this.state = {value}
     this.saveEditor = this.saveEditor.bind(this)
     this.removeEditor = this.removeEditor.bind(this)
   }
@@ -25,7 +30,9 @@ class HtmlRichTextEditor extends React.Component {
   loadEditor () {
     const {objectId} = this.props
     const activeEditors = getUclusionLocalStorageItem('htmlEditors')
+    console.log(objectId)
     if (objectId && activeEditors[objectId]) {
+      console.log("Loading state from storage")
       const storedValue = this.html.deserialize(activeEditors[objectId])
       return storedValue
     }
@@ -44,7 +51,7 @@ class HtmlRichTextEditor extends React.Component {
     const {objectId} = this.props
     const activeEditors = getUclusionLocalStorageItem('htmlEditors')
     const newActiveEditors = Object.assign({}, activeEditors)
-    delete newActiveEditors.objectId
+    delete newActiveEditors[objectId]
     setUclusionLocalStorageItem('htmlEditors', newActiveEditors)
   }
 
@@ -65,6 +72,7 @@ class HtmlRichTextEditor extends React.Component {
 
   // Render the editor.
   render () {
+
     const editor = <RichTextEditor value={this.state.value} onChange={this.onChange}/>
     return editor;
   }

@@ -47,6 +47,9 @@ class InvestibleAdd extends React.Component {
     this.handleFieldChange = this.handleFieldChange.bind(this)
     this.onSave = this.onSave.bind(this)
     this.readMarketCategories = this.readMarketCategories.bind(this)
+    this.onSave = this.onSave.bind(this)
+    this.getCategoriesMenu = this.getCategoriesMenu.bind(this)
+    this.getCategories = this.getCategories.bind(this)
   }
 
   componentDidMount () {
@@ -67,18 +70,29 @@ class InvestibleAdd extends React.Component {
     dispatch(fetchMarketCategories({marketId}))
   }
 
-  onSave(editor){
-    const { dispatch, marketId } = this.props
-    const description = ""//TODO change
-    const { title, category } = this.state
-    dispatch(createMarketInvestible({marketId, description, title, category}))
-    //what do we want to do after the save?
+  onSave() {
+    //save us out via redux
   }
 
-
-  render () {
-    const {intl, classes, loading, marketId, marketCategories} = this.props
+  getCategories(){
+    const {marketCategories, marketId} = this.props;
     const categories = marketCategories[marketId]
+    console.log("Found cats:" + categories)
+    return categories;
+  }
+
+  getCategoriesMenu(categories){
+    console.log(categories)
+    const menuItems = categories.map((category) => {
+      console.log(category)
+      return <MenuItem key={category.value} value={category.value}>{category.value}</MenuItem>
+    })
+    return menuItems
+
+  }
+  render () {
+    const {intl, classes, loading} = this.props
+    const categories = this.getCategories()
     if (loading > 0 || categories === undefined) {
       return (
         <Activity
@@ -93,6 +107,7 @@ class InvestibleAdd extends React.Component {
         </Activity>
       )
     }
+    const categoryMenuItems = this.getCategoriesMenu(categories)
     return (
       <div>
         {intl.formatMessage({id: 'titleLabel'})}
@@ -100,12 +115,10 @@ class InvestibleAdd extends React.Component {
                    variant="outlined" fullWidth onChange={this.handleFieldChange('title')}/>
         <TextField id="category" className={classes.textField} onChange={this.handleFieldChange('category')} select label={intl.formatMessage({id: 'categoryLabel'})}
                    variant="outlined">
-          {categories.map((category) => (
-            <MenuItem key={category} value={category}>{category}</MenuItem>
-            ))}
+          {categoryMenuItems}
         </TextField>
         <div>
-          <HtmlRichTextEditor initialText={intl.formatMessage({id: 'investibleAddDescriptionDefault'})} objectId="newInvestible"/>
+          <HtmlRichTextEditor initialText={intl.formatMessage({id: 'investibleAddDescriptionDefault'})} objectId="newInvestible" id="description" onChange={this.handleFieldChange('description')}/>
         </div>
 
         <Button variant="contained" color='primary' id="save">{intl.formatMessage({id: 'saveInvestibleButton'})}</Button>

@@ -2,7 +2,7 @@ import React from 'react'
 import { Image } from './components'
 
 export const renderBlocks = (node, children) => {
-  if (node.object == 'block') {
+  if (node.object === 'block') {
     switch (node.type) {
       case 'paragraph':
         return <p>{children}</p>
@@ -27,7 +27,7 @@ export const renderBlocks = (node, children) => {
 }
 
 export const renderMarks = (node, children) => {
-  if (node.object == 'mark') {
+  if (node.object === 'mark') {
     switch (node.type) {
       case 'bold':
         return <strong>{children}</strong>

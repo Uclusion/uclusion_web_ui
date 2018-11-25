@@ -1,5 +1,8 @@
 /**
  Html RTF editor based on slate, that's we can ue wherever we need full text editing
+It accepts an onChange property, which will return the string HTML value of the current state of the editor,
+ the initialText property which will be the text string renedered if no existing state is available,
+ and an ObjectId which will be used to search for state that hasn't been flushed (eg. we reloaded) without saving
  **/
 
 import RichTextEditor from './TextEditors/SlateEditors/RichTextEditor'
@@ -13,7 +16,7 @@ class HtmlRichTextEditor extends React.Component {
 
   constructor (props) {
     super(props)
-    const {initialText} = props
+    const {initialText, onChange} = props
     this.onChange = this.onChange.bind(this)
     this.html = new Html({rules})
     this.loadEditor = this.loadEditor.bind(this)
@@ -21,6 +24,9 @@ class HtmlRichTextEditor extends React.Component {
     let value = defaultValue(initialText)
     if(loadedEditor){
       value = loadedEditor;
+      //fire upstream onchange to alert the upper level code we changed loaded state
+      const string = this.html.serialize(value)
+      onChange({target: {value: string}})
     }
     this.state = {value}
     this.saveEditor = this.saveEditor.bind(this)
@@ -30,19 +36,17 @@ class HtmlRichTextEditor extends React.Component {
   loadEditor () {
     const {objectId} = this.props
     const activeEditors = getUclusionLocalStorageItem('htmlEditors')
-    console.log(objectId)
     if (objectId && activeEditors[objectId]) {
-      console.log("Loading state from storage")
       const storedValue = this.html.deserialize(activeEditors[objectId])
       return storedValue
     }
   }
 
-  saveEditor (value) {
+  saveEditor (string) {
     const {objectId} = this.props
     const activeEditors = getUclusionLocalStorageItem('htmlEditors')
     const newActiveEditors = Object.assign({}, activeEditors)
-    const string = this.html.serialize(value)
+
     newActiveEditors[objectId] = string
     setUclusionLocalStorageItem('htmlEditors', newActiveEditors)
   }
@@ -65,9 +69,15 @@ class HtmlRichTextEditor extends React.Component {
   onChange ({value}) {
     // When the document changes, save the serialized HTML to Local Storage.
     if (value.document != this.state.value.document) {
-      this.saveEditor(value)
+      const string = this.html.serialize(value)
+      this.saveEditor(string)
+      //call the parent onChange with the string value
+      const { onChange } = this.props
+      //emulate the other field's onchange
+      onChange({target: {value: string}})
     }
     this.setState({value})
+
   }
 
   // Render the editor.

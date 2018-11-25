@@ -5,7 +5,7 @@ const BLOCK_TAGS = {
   'h2' : 'heading-two',
   'li' : 'list-item',
   'ol' : 'numbered-list',
-  'image' : 'image',
+  'img' : 'image',
   'p' : 'paragraph'
 }
 

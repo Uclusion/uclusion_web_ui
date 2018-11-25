@@ -14,7 +14,7 @@ import { bindActionCreators } from 'redux'
 import { createMarketInvestible } from '../../containers/MarketInvestibles/actions'
 
 //get my editor
-import HtmlRichTextEditor from '../../components/HtmlRichTextEditor'
+import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
 
 import { fetchMarketCategories } from '../../containers/Markets/actions'
 import { getCurrentMarketId, getCategoriesFetching, getMarketCategories } from '../../containers/Markets/reducer'
@@ -120,9 +120,8 @@ class InvestibleAdd extends React.Component {
           {categoryMenuItems}
         </TextField>
         <div>
-          <HtmlRichTextEditor initialText={intl.formatMessage({id: 'investibleAddDescriptionDefault'})}
-                              objectId="newInvestible" id="description"
-                              onChange={this.handleFieldChange('description')}/>
+          <HtmlRichTextEditor value={intl.formatMessage({id: 'investibleAddDescriptionDefault'})}
+                              id="description" onChange={this.handleFieldChange('description')}/>
         </div>
 
         <Button variant="contained" color='primary' onClick={() => this.onSave()}

@@ -22,6 +22,8 @@ export const renderBlocks = (node, children) => {
         const src = node.data.get('src')
         return <Image src={src}/>
       }
+      default:
+        return undefined
     }
   }
 }
@@ -37,6 +39,8 @@ export const renderMarks = (node, children) => {
         return <em>{children}</em>
       case 'underlined':
         return <u>{children}</u>
+      default:
+        return undefined
     }
   }
 }

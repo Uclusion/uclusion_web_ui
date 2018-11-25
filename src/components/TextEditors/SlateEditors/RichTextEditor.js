@@ -17,7 +17,7 @@
 
 
 import { Editor, getEventRange, getEventTransfer } from 'slate-react'
-import { Block, Value } from 'slate'
+import { Block } from 'slate'
 import imageExtensions from 'image-extensions'
 import isUrl from 'is-url'
 import React from 'react'
@@ -25,29 +25,6 @@ import React from 'react'
 import { isKeyHotkey } from 'is-hotkey'
 import { Button, Icon, Toolbar, Image } from './components'
 
-
-export const defaultValue = (defaultText) => {
-  return Value.fromJSON({
-    document: {
-      nodes: [
-        {
-          object: 'block',
-          type: 'paragraph',
-          nodes: [
-            {
-              object: 'text',
-              leaves: [
-                {
-                  text: defaultText
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  })
-}
 
 /** This portion is from the image example, so we'll also support images!
  *
@@ -117,6 +94,8 @@ const schema = {
           const paragraph = Block.create('paragraph')
           return editor.insertNodeByKey(node.key, node.nodes.size, paragraph)
         }
+        default:
+          return undefined
       }
     },
   },
@@ -135,10 +114,6 @@ const schema = {
  */
 
 class RichTextEditor extends React.Component {
-
-  constructor (props) {
-    super(props)
-  }
 
   /**
    * Check if the current selection has a mark with `type` in it.

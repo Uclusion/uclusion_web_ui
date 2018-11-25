@@ -47,7 +47,7 @@ class InvestibleInvest extends React.Component {
 
 
   validateQuantityToInvest = (quantity) => {
-    return (quantity <= this.props.sharesAvailable) && (quantity > 0) && (Math.floor(quantity) == quantity);
+    return (quantity <= this.props.sharesAvailable) && (quantity > 0) && (Math.floor(quantity) === Math.ceil(quantity));
   }
 
   handleChange = (name) => (event) => {

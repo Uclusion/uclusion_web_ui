@@ -117,6 +117,21 @@ export const createInvestment = (params = {}) => {
   }
 }
 
+export const createNewBoundInvestible = (params = {}) => {
+  console.log("Binding new investible")
+  return (dispatch) => {
+    const clientPromise = getClient()
+    return clientPromise.then((client) => {
+      return client.markets.investAndBind(params.marketId, params.teamId, params.investibleId, params.quantity, params.categoryList)
+    }).then((result) => {
+      dispatch(fetchUser())
+    }).catch((error) => {
+      console.log(error)
+      dispatch(fetchUser())
+    })
+  }
+}
+
 export const createMarketInvestible = (params = {}) => (dispatch) => {
   dispatch(createAndBindInvestible(params.marketId, params.title, params.description, params.category))
   const clientPromise = getClient()
@@ -129,9 +144,10 @@ export const createMarketInvestible = (params = {}) => (dispatch) => {
         teamId: params.teamId,
         investibleId: investible.id,
         quantity: 1,
-        newInvestible: true
+        newInvestible: true,
+        categoryList: [params.category]
       }
-      dispatch(createInvestment(payload))
+      dispatch(createNewBoundInvestible(payload))
     }).catch((error) => {
       console.log(error)
       //these two calls make sure we update the UI. We _really_ need error handling to be better

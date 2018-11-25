@@ -16,17 +16,20 @@ class HtmlRichTextEditor extends React.Component {
 
   constructor (props) {
     super(props)
-    const {initialText, onChange} = props
+    const {initialHtml, onChange, readOnly} = props
     this.onChange = this.onChange.bind(this)
     this.html = new Html({rules})
     this.loadEditor = this.loadEditor.bind(this)
     const loadedEditor = this.loadEditor();
-    let value = defaultValue(initialText)
+    let value = this.html.deserialize(initialHtml)
     if(loadedEditor){
       value = loadedEditor;
       //fire upstream onchange to alert the upper level code we changed loaded state
-      const string = this.html.serialize(value)
-      onChange({target: {value: string}})
+      console.log(readOnly)
+      if(!readOnly && onChange){
+        const string = this.html.serialize(value)
+        onChange({target: {value: string}})
+      }
     }
     this.state = {value}
     this.saveEditor = this.saveEditor.bind(this)
@@ -67,23 +70,27 @@ class HtmlRichTextEditor extends React.Component {
   }
 
   onChange ({value}) {
-    // When the document changes, save the serialized HTML to Local Storage.
-    if (value.document != this.state.value.document) {
-      const string = this.html.serialize(value)
-      this.saveEditor(string)
-      //call the parent onChange with the string value
-      const { onChange } = this.props
-      //emulate the other field's onchange
-      onChange({target: {value: string}})
+    const { readOnly } = this.props
+    if(!readOnly) {
+      // When the document changes, save the serialized HTML to Local Storage.
+      if (value.document != this.state.value.document) {
+        const string = this.html.serialize(value)
+        this.saveEditor(string)
+        //call the parent onChange with the string value
+        const {onChange, readOnly} = this.props
+        //emulate the other field's onchange
+        if (!readOnly && onChange) {
+          onChange({target: {value: string}})
+        }
+      }
+      this.setState({value})
     }
-    this.setState({value})
-
   }
 
   // Render the editor.
   render () {
-
-    const editor = <RichTextEditor value={this.state.value} onChange={this.onChange}/>
+    const {readOnly} = this.props
+    const editor = <RichTextEditor value={this.state.value} onChange={this.onChange} readOnly={readOnly}/>
     return editor;
   }
 }

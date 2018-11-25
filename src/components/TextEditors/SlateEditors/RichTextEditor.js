@@ -174,14 +174,11 @@ class RichTextEditor extends React.Component {
     this.editor = editor
   }
 
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
-
-  render() {
-    const { value, onChange } = this.props
+  toolBar = () => {
+    const {readOnly} = this.props
+    if (readOnly) {
+      return null
+    }
     return (
       <div>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -198,6 +195,20 @@ class RichTextEditor extends React.Component {
           {this.renderBlockButton('bulleted-list', 'format_list_bulleted')}
           {this.renderImageButton()}
         </Toolbar>
+      </div>)
+  }
+
+  /**
+   * Render.
+   *
+   * @return {Element}
+   */
+
+  render() {
+    const { value, onChange, readOnly } = this.props
+    return (
+      <div>
+        {this.toolBar()}
         <Editor
           spellCheck
           autoFocus
@@ -211,6 +222,7 @@ class RichTextEditor extends React.Component {
           schema={schema}
           onDrop={this.onDropOrPaste}
           onPaste={this.onDropOrPaste}
+          readOnly={readOnly}
         />
       </div>
     )

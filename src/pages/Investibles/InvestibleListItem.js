@@ -8,6 +8,7 @@ import InvestibleListItemTabs from './InvestibleListItemTabs'
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
+import HtmlRichTextEditor from '../../components/HtmlRichTextEditor'
 const styles = (theme) => ({
   headerBox: {
     display: 'flex',
@@ -80,9 +81,7 @@ class InvestibleListItem extends Component {
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
           <div className={classes.wholeWidth}>
-            <Typography>
-              {description}
-            </Typography>
+            <HtmlRichTextEditor initialHtml={description} readOnly={true}/>
             <div className={classes.tabSection}>
               <InvestibleListItemTabs name={name}
                                       quantity={quantity} investibleId={id} marketId={marketId} teamId={teamId}

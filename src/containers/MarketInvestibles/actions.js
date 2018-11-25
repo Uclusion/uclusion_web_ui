@@ -101,7 +101,7 @@ export const createInvestment = (params = {}) => {
     console.log(params)
     dispatch(investInInvestible(params.marketId, params.teamId, params.investibleId, params.quantity))
     const clientPromise = getClient()
-    return clientPromise((client) => client.markets.createInvestment(params.marketId, params.teamId, params.investibleId, params.quantity))
+    return clientPromise.then((client) => client.markets.createInvestment(params.marketId, params.teamId, params.investibleId, params.quantity))
       .then(investment => {
         dispatch(investmentCreated(investment))
         if (params.newInvestible) {

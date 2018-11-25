@@ -1,5 +1,5 @@
 import getMenuItems from './menuItems'
-import { getUclusionLocalStorage} from '../components/utils'
+import { getUclusionLocalStorage, setUclusionLocalStorageItem } from '../components/utils'
 import locales from './locales'
 import routes from './routes'
 import themes from './themes'
@@ -10,7 +10,7 @@ function TokenAuthorizer () {
   this.authorize = (resolve, reject) => {
     return new Promise((resolve, reject) => {
       try {
-        const data = this.getData();
+        const data = getUclusionLocalStorage()
         resolve(data.auth)
       } catch (ex) {
         reject(ex)
@@ -19,14 +19,14 @@ function TokenAuthorizer () {
   }
   this.setToken = (token) => {
     try {
-
+      setUclusionLocalStorageItem('auth', token)
     } catch (ex) {
       console.error(ex)
     }
   }
 
   this.getToken = () => {
-    const data = getUclusionLocalStorage();
+    const data = getUclusionLocalStorage()
     return data.auth
   }
 

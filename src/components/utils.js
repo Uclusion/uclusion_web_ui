@@ -11,7 +11,10 @@ export const getUclusionLocalStorageItem = (subkey) => {
 }
 
 export const setUclusionLocalStorageItem = (key, value) => {
-  const data = getUclusionLocalStorage()
+  let data = getUclusionLocalStorage()
+  if(!data){
+    data = {}
+  }
   data[key] = value;
   localStorage.setItem('uclusion:root', JSON.stringify(data));
 }

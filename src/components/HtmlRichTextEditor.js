@@ -36,7 +36,7 @@ class HtmlRichTextEditor extends React.Component {
   loadEditor () {
     const {objectId} = this.props
     const activeEditors = getUclusionLocalStorageItem('htmlEditors')
-    if (objectId && activeEditors[objectId]) {
+    if (objectId && activeEditors && activeEditors[objectId]) {
       const storedValue = this.html.deserialize(activeEditors[objectId])
       return storedValue
     }

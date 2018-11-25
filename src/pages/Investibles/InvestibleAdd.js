@@ -4,10 +4,8 @@ import PropTypes from 'prop-types'
 import GlobalState from 'uclusion-shell/lib/utils/GlobalState'
 import { Activity } from 'uclusion-shell'
 
-
-import MenuItem from '@material-ui/core/MenuItem';
+import MenuItem from '@material-ui/core/MenuItem'
 import { Button, TextField } from '@material-ui/core'
-
 
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
@@ -18,8 +16,7 @@ import { createMarketInvestible } from '../../containers/MarketInvestibles/actio
 //get my editor
 import HtmlRichTextEditor from '../../components/HtmlRichTextEditor'
 
-
-import { fetchMarketCategories} from '../../containers/Markets/actions'
+import { fetchMarketCategories } from '../../containers/Markets/actions'
 import { getCurrentMarketId, getCategoriesFetching, getMarketCategories } from '../../containers/Markets/reducer'
 import { getCurrentUser } from '../../containers/Users/reducer'
 
@@ -43,7 +40,7 @@ class InvestibleAdd extends React.Component {
 
   constructor (props) {
     super(props)
-    this.state = {title: '', category:''}
+    this.state = {title: '', category: ''}
     this.handleFieldChange = this.handleFieldChange.bind(this)
     this.onSave = this.onSave.bind(this)
     this.readMarketCategories = this.readMarketCategories.bind(this)
@@ -53,7 +50,7 @@ class InvestibleAdd extends React.Component {
   }
 
   componentDidMount () {
-    console.log("Attempting to read market categories")
+    console.log('Attempting to read market categories')
     this.readMarketCategories()
   }
 
@@ -64,24 +61,27 @@ class InvestibleAdd extends React.Component {
     })
   }
 
-
   readMarketCategories () {
-    const { dispatch, marketId } = this.props
+    const {dispatch, marketId} = this.props
     dispatch(fetchMarketCategories({marketId}))
   }
 
-  onSave() {
-    //save us out via redux
+  onSave () {
+    const {dispatch, marketId, user} = this.props
+    const {title, description, category} = this.state
+    const teamId = user.default_team_id //TODO:  might change later, so keeping it separate
+    const payload = {marketId, category, teamId, title, description}
+    dispatch(createMarketInvestible(payload))
   }
 
-  getCategories(){
-    const {marketCategories, marketId} = this.props;
+  getCategories () {
+    const {marketCategories, marketId} = this.props
     const categories = marketCategories[marketId]
-    console.log("Found cats:" + categories)
-    return categories;
+    console.log('Found cats:' + categories)
+    return categories
   }
 
-  getCategoriesMenu(categories){
+  getCategoriesMenu (categories) {
     console.log(categories)
     const menuItems = categories.map((category) => {
       console.log(category)
@@ -90,6 +90,7 @@ class InvestibleAdd extends React.Component {
     return menuItems
 
   }
+
   render () {
     const {intl, classes, loading} = this.props
     const categories = this.getCategories()
@@ -97,12 +98,12 @@ class InvestibleAdd extends React.Component {
       return (
         <Activity
           isLoading={categories === undefined}
-          containerStyle={{ overflow: 'hidden' }}LoadingTestLoading
+          containerStyle={{overflow: 'hidden'}} LoadingTestLoading
 
-          title={intl.formatMessage({ id: 'loadingMessage' })}>
+          title={intl.formatMessage({id: 'loadingMessage'})}>
           <div>
             LoadingTest
-            {intl.formatMessage({ id: 'loadingMessage' })}
+            {intl.formatMessage({id: 'loadingMessage'})}
           </div>
         </Activity>
       )
@@ -113,15 +114,19 @@ class InvestibleAdd extends React.Component {
         {intl.formatMessage({id: 'titleLabel'})}
         <TextField id="title" className={classes.textField} label={intl.formatMessage({id: 'titleLabel'})}
                    variant="outlined" fullWidth onChange={this.handleFieldChange('title')}/>
-        <TextField id="category" className={classes.textField} onChange={this.handleFieldChange('category')} select label={intl.formatMessage({id: 'categoryLabel'})}
+        <TextField id="category" className={classes.textField} onChange={this.handleFieldChange('category')} select
+                   label={intl.formatMessage({id: 'categoryLabel'})}
                    variant="outlined">
           {categoryMenuItems}
         </TextField>
         <div>
-          <HtmlRichTextEditor initialText={intl.formatMessage({id: 'investibleAddDescriptionDefault'})} objectId="newInvestible" id="description" onChange={this.handleFieldChange('description')}/>
+          <HtmlRichTextEditor initialText={intl.formatMessage({id: 'investibleAddDescriptionDefault'})}
+                              objectId="newInvestible" id="description"
+                              onChange={this.handleFieldChange('description')}/>
         </div>
 
-        <Button variant="contained" color='primary' id="save">{intl.formatMessage({id: 'saveInvestibleButton'})}</Button>
+        <Button variant="contained" color='primary' onClick={() => this.onSave()}
+                id="save">{intl.formatMessage({id: 'saveInvestibleButton'})}</Button>
       </div>
     )
   }
@@ -130,7 +135,6 @@ class InvestibleAdd extends React.Component {
 function mapDispatchToProps (dispatch) {
   return Object.assign({dispatch}, bindActionCreators({createMarketInvestible}, dispatch))
 }
-
 
 const mapStateToProps = (state) => {
   return {

@@ -1,6 +1,11 @@
+import React from 'react'
+import { Image } from './components'
+
 export const renderBlocks = (node, children) => {
   if (node.object == 'block') {
     switch (node.type) {
+      case 'paragraph':
+        return <p>{children}</p>
       case 'block-quote':
         return <blockquote>{children}</blockquote>
       case 'bulleted-list':

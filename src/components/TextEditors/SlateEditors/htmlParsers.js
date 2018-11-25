@@ -5,7 +5,8 @@ const BLOCK_TAGS = {
   'h2' : 'heading-two',
   'li' : 'list-item',
   'ol' : 'numbered-list',
-  'image' : 'image'
+  'image' : 'image',
+  'p' : 'paragraph'
 }
 
 export const parseBlocks = (el, next) => {

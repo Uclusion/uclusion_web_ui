@@ -26,7 +26,7 @@ import { isKeyHotkey } from 'is-hotkey'
 import { Button, Icon, Toolbar, Image } from './components'
 
 
-const initialValue = (defaultText) => {
+export const defaultValue = (defaultText) => {
   return Value.fromJSON({
     document: {
       nodes: [
@@ -138,9 +138,8 @@ class RichTextEditor extends React.Component {
 
   constructor (props) {
     super(props)
-    const { initialText } = props
-    this.state = {value: initialValue(initialText)}
   }
+
   /**
    * Check if the current selection has a mark with `type` in it.
    *
@@ -149,7 +148,7 @@ class RichTextEditor extends React.Component {
    */
 
   hasMark = type => {
-    const { value } = this.state
+    const { value } = this.props
     return value.activeMarks.some(mark => mark.type == type)
   }
 
@@ -161,7 +160,7 @@ class RichTextEditor extends React.Component {
    */
 
   hasBlock = type => {
-    const { value } = this.state
+    const { value } = this.props
     return value.blocks.some(node => node.type == type)
   }
 
@@ -182,6 +181,7 @@ class RichTextEditor extends React.Component {
    */
 
   render() {
+    const { value, onChange } = this.props
     return (
       <div>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -203,8 +203,8 @@ class RichTextEditor extends React.Component {
           autoFocus
           placeholder="Enter some rich text..."
           ref={this.ref}
-          value={this.state.value}
-          onChange={this.onChange}
+          value={value}
+          onChange={onChange}
           onKeyDown={this.onKeyDown}
           renderNode={this.renderNode}
           renderMark={this.renderMark}
@@ -256,7 +256,7 @@ class RichTextEditor extends React.Component {
     let isActive = this.hasBlock(type)
 
     if (['numbered-list', 'bulleted-list'].includes(type)) {
-      const { value: { document, blocks } } = this.state
+      const { value: { document, blocks } } = this.props
 
       if (blocks.size > 0) {
         const parent = document.getParent(blocks.first().key)
@@ -330,15 +330,6 @@ class RichTextEditor extends React.Component {
     }
   }
 
-  /**
-   * On change, save the new `value`.
-   *
-   * @param {Editor} editor
-   */
-
-  onChange = ({ value }) => {
-    this.setState({ value })
-  }
 
   /**
    * On key down, if it's a formatting command toggle a mark.

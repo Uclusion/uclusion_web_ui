@@ -105,7 +105,7 @@ class InvestibleAdd extends React.Component {
             ))}
         </TextField>
         <div>
-          <HtmlRichTextEditor initialText={intl.formatMessage({id: 'investibleAddDescriptionDefault'})}/>
+          <HtmlRichTextEditor initialText={intl.formatMessage({id: 'investibleAddDescriptionDefault'})} objectId="newInvestible"/>
         </div>
 
         <Button variant="contained" color='primary' id="save">{intl.formatMessage({id: 'saveInvestibleButton'})}</Button>

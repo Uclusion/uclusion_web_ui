@@ -61,6 +61,7 @@
     "rmw-react-scripts": "1.1.11",
     "slate": "^0.44.6",
     "slate-react": "^0.21.12",
+    "slate-html-serializer": "^0.7.30",
     "uclusion-shell": "file:../uclusion-shell",
     "uclusion_sdk": "file:../uclusion_sdk"
   },

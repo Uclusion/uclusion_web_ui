@@ -1,16 +1,11 @@
-  import getMenuItems from './menuItems'
+import getMenuItems from './menuItems'
+import { getUclusionLocalStorage} from '../components/utils'
 import locales from './locales'
 import routes from './routes'
 import themes from './themes'
 import grants from './grants'
 
 function TokenAuthorizer () {
-
-  this.getData = () =>{
-    const key = Object.keys(localStorage).find(e => e.match(/uclusion:root/))
-    const data = JSON.parse(localStorage.getItem(key))
-    return data;
-  }
 
   this.authorize = (resolve, reject) => {
     return new Promise((resolve, reject) => {
@@ -24,14 +19,14 @@ function TokenAuthorizer () {
   }
   this.setToken = (token) => {
     try {
-      localStorage.setItem('uclusion:root', JSON.stringify({'auth': token}));
+
     } catch (ex) {
       console.error(ex)
     }
   }
 
   this.getToken = () => {
-    const data = this.getData();
+    const data = getUclusionLocalStorage();
     return data.auth
   }
 

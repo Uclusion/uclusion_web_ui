@@ -21,7 +21,7 @@ import { Block } from 'slate'
 import imageExtensions from 'image-extensions'
 import isUrl from 'is-url'
 import React from 'react'
-
+import Typography from '@material-ui/core/Typography'
 import { isKeyHotkey } from 'is-hotkey'
 import { Button, Icon, Toolbar, Image } from './components'
 
@@ -225,21 +225,23 @@ class RichTextEditor extends React.Component {
     return (
       <div>
         {this.toolBar()}
-        <Editor
-          spellCheck
-          autoFocus
-          placeholder="Enter some rich text..."
-          ref={this.ref}
-          value={value}
-          onChange={onChange}
-          onKeyDown={this.onKeyDown}
-          renderNode={this.renderNode}
-          renderMark={this.renderMark}
-          schema={schema}
-          onDrop={this.onDropOrPaste}
-          onPaste={this.onDropOrPaste}
-          readOnly={readOnly}
-        />
+        <Typography>
+          <Editor
+            spellCheck
+            autoFocus
+            placeholder="Enter some rich text..."
+            ref={this.ref}
+            value={value}
+            onChange={onChange}
+            onKeyDown={this.onKeyDown}
+            renderNode={this.renderNode}
+            renderMark={this.renderMark}
+            schema={schema}
+            onDrop={this.onDropOrPaste}
+            onPaste={this.onDropOrPaste}
+            readOnly={readOnly}
+          />
+        </Typography>
       </div>
     )
   }

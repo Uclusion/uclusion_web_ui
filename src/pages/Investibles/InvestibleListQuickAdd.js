@@ -7,6 +7,7 @@ import { injectIntl } from 'react-intl'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createMarketInvestible } from '../../containers/MarketInvestibles/actions'
+import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
 
 const styles = theme => ({
 
@@ -63,18 +64,8 @@ class InvestibleListQuickAdd extends React.Component {
           fullWidth
           onChange={this.handleChange('title')}
         />
-        <TextField
-          variant="outlined"
-          id="description"
-          label={intl.formatMessage({id: 'descriptionLabel'})}
-          multiline
-          rows="4"
-          defaultValue=""
-          className={classes.textField}
-          fullWidth
-          margin="normal"
-          onChange={this.handleChange('description')}
-        />
+        <HtmlRichTextEditor value={intl.formatMessage({id: 'descriptionLabel'})} onChange={this.handleChange('description')}/>
+
         <Button variant='contained' color='primary'
                 onClick={() => this.addOnClick(addSubmitOnClick)}>{intl.formatMessage({id: 'addButton'})}</Button>
         <Button variant='contained'

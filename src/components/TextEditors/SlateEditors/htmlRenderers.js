@@ -44,3 +44,16 @@ export const renderMarks = (node, children) => {
     }
   }
 }
+
+export const renderInlines = (node, children) => {
+  if (node.object === 'inline') {
+    switch (node.type) {
+      case 'link': {
+        const href = node.data.get('href')
+        return <a href={href}>{children}</a>
+      }
+      default:
+        return undefined
+    }
+  }
+}

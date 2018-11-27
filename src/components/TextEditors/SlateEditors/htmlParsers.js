@@ -17,7 +17,7 @@ export const parseBlocks = (el, next) => {
       type: type,
       data: {
         className: el.getAttribute('class'),
-        src: el.getAttribute('src')
+        src: el.getAttribute('src'),
       },
       nodes: next(el.childNodes)
     }
@@ -37,6 +37,26 @@ export const parseMarks = (el, next) => {
     return {
       object: 'mark',
       type: type,
+      nodes: next(el.childNodes)
+    }
+  }
+}
+
+
+const INLINE_TAGS = {
+  'a': 'link'
+}
+
+export const parseInlines = (el, next) => {
+  const type = INLINE_TAGS[el.tagName.toLowerCase()]
+  if(type){
+    return {
+      object: 'inline',
+      type: type,
+      data: {
+        className: el.getAttribute('class'),
+        href: el.getAttribute('href'),
+      },
       nodes: next(el.childNodes)
     }
   }

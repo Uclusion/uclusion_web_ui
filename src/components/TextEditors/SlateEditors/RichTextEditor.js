@@ -84,6 +84,33 @@ function insertImage(editor, src, target) {
   })
 }
 
+/**
+ * A change helper to standardize wrapping links.
+ *
+ * @param {Editor} editor
+ * @param {String} href
+ */
+
+function wrapLink(editor, href) {
+  editor.wrapInline({
+    type: 'link',
+    data: { href },
+  })
+
+  editor.moveToEnd()
+}
+
+/**
+ * A change helper to standardize unwrapping links.
+ *
+ * @param {Editor} editor
+ */
+
+function unwrapLink(editor) {
+  editor.unwrapInline('link')
+}
+
+
 
 const schema = {
   document: {
@@ -140,6 +167,18 @@ class RichTextEditor extends React.Component {
   }
 
   /**
+   * Check whether the current selection has a link in it.
+   *
+   * @return {Boolean} hasLinks
+   */
+
+  hasLinks = () => {
+    const { value } = this.props
+    return value.inlines.some(inline => inline.type == 'link')
+  }
+
+
+  /**
    * Store a reference to the `editor`.
    *
    * @param {Editor} editor
@@ -169,6 +208,8 @@ class RichTextEditor extends React.Component {
           {this.renderBlockButton('numbered-list', 'format_list_numbered')}
           {this.renderBlockButton('bulleted-list', 'format_list_bulleted')}
           {this.renderImageButton()}
+          {this.renderLinkButton()}
+
         </Toolbar>
       </div>)
   }
@@ -209,6 +250,11 @@ class RichTextEditor extends React.Component {
     </Button>)
   }
 
+  renderLinkButton = () => {
+    return (<Button active={this.hasLinks()} onMouseDown={this.onClickLink}>
+      <Icon>link</Icon>
+    </Button>)
+  }
 
   /**
    * Render a mark-toggling toolbar button.
@@ -289,6 +335,15 @@ class RichTextEditor extends React.Component {
       case 'image': {
         const src = node.data.get('src')
         return <Image src={src} selected={isFocused} {...attributes} />
+      }
+      case 'link': {
+        const { data } = node
+        const href = data.get('href')
+        return (
+          <a {...attributes} href={href}>
+            {children}
+          </a>
+        )
       }
       default:
         return next()
@@ -409,6 +464,52 @@ class RichTextEditor extends React.Component {
       }
     }
   }
+
+  /**
+   * When clicking a link, if the selection has a link in it, remove the link.
+   * Otherwise, add a new link with an href and text.
+   *
+   * @param {Event} event
+   */
+
+  onClickLink = event => {
+    event.preventDefault()
+
+    const { editor } = this
+    const { value } = editor
+    const hasLinks = this.hasLinks()
+
+    if (hasLinks) {
+      editor.command(unwrapLink)
+    } else if (value.selection.isExpanded) {
+      const href = window.prompt('Enter the URL of the link:')
+
+      if (href === null) {
+        return
+      }
+
+      editor.command(wrapLink, href)
+    } else {
+      const href = window.prompt('Enter the URL of the link:')
+
+      if (href === null) {
+        return
+      }
+
+      const text = window.prompt('Enter the text for the link:')
+
+      if (text === null) {
+        return
+      }
+
+      editor
+        .insertText(text)
+        .moveFocusBackward(text.length)
+        .command(wrapLink, href)
+    }
+  }
+
+
   /** Image editor stuff again */
   /**
    * On clicking the image button, prompt for an image and insert it.
@@ -452,11 +553,16 @@ class RichTextEditor extends React.Component {
       }
       return
     }
-    console.log(text)
+//    console.log(text)
     if (type === 'text') {
       if (!isUrl(text)) return next()
-      if (!isImage(text)) return next()
-      editor.command(insertImage, text, target)
+      if(this.hasLinks()){
+        if (editor.value.selection.isCollapsed) return next()
+        editor.command(unwrapLink)
+      }else {
+        if (!isImage(text)) return next()
+        editor.command(insertImage, text, target)
+      }
       return
     }
 

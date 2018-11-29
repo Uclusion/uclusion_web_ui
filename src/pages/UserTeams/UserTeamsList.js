@@ -1,5 +1,5 @@
 import React from 'react'
-import ItemList from '../../components/ItemList'
+import ItemList from '../../components/Lists/ItemList'
 import UserTeamsListCategory from './UserTeamsCategory'
 import { injectIntl } from 'react-intl'
 import PropTypes from 'prop-types'

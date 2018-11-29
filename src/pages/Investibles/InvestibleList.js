@@ -1,6 +1,6 @@
 import React from 'react'
 import InvestibleListCategory from './InvestibleListCategory'
-import ItemList from '../../components/ItemList'
+import ItemList from '../../components/Lists/ItemList'
 import { injectIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 class InvestibleList extends React.Component {

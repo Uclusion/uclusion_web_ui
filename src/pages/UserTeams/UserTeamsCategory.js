@@ -1,5 +1,5 @@
 import UserTeamsListItem from './UserTeamsListItem'
-import ItemListCategory from '../../components/ItemListCategory'
+import ItemListCategory from '../../components/Lists/ItemListCategory'
 import PropTypes from 'prop-types'
 import React from 'react'
 

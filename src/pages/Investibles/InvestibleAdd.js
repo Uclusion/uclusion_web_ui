@@ -1,7 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-
-import GlobalState from 'uclusion-shell/lib/utils/GlobalState'
 import { Activity } from 'uclusion-shell'
 
 import MenuItem from '@material-ui/core/MenuItem'

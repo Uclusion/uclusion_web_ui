@@ -6,10 +6,7 @@ import { fetchMarket } from '../../containers/Markets/actions'
 import { fetchUser } from '../../containers/Users/actions'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import uclusion from 'uclusion_sdk'
 
-
-import GlobalState from 'uclusion-shell/lib/utils/GlobalState'
 
 class Login extends Component {
   componentDidMount () {

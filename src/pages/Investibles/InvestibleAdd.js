@@ -82,7 +82,7 @@ class InvestibleAdd extends React.Component {
     console.log(categories)
     const menuItems = categories.map((category) => {
       console.log(category)
-      return <MenuItem key={category.value} value={category.value}>{category.value}</MenuItem>
+      return <MenuItem key={category.name} value={category.name}>{category.name}</MenuItem>
     })
     return menuItems
 

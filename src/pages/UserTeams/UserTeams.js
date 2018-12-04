@@ -5,9 +5,9 @@ import { connect } from 'react-redux'
 import { withTheme } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 import { Activity } from 'uclusion-shell'
-import { fetchUserTeams } from '../../containers/Teams/actions'
-import { getTeamsFetching, getUserTeams} from '../../containers/Teams/reducer'
-import { getUsersFetching, getCurrentUser } from '../../containers/Users/reducer';
+import { fetchUserTeams } from '../../store/Teams/actions'
+import { getTeamsFetching, getUserTeams} from '../../store/Teams/reducer'
+import { getUsersFetching, getCurrentUser } from '../../store/Users/reducer';
 import TeamsList from './UserTeamsList'
 
 class UserTeams extends Component {

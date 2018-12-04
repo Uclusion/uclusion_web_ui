@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { createMarketInvestible } from '../../containers/MarketInvestibles/actions'
+import { createMarketInvestible } from '../../store/MarketInvestibles/actions'
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
 
 const styles = theme => ({

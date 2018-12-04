@@ -8,14 +8,14 @@ import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { createMarketInvestible } from '../../containers/MarketInvestibles/actions'
+import { createMarketInvestible } from '../../store/MarketInvestibles/actions'
 
 //get my editor
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
 
-import { fetchMarketCategories } from '../../containers/Markets/actions'
-import { getCurrentMarketId, getCategoriesFetching, getMarketCategories } from '../../containers/Markets/reducer'
-import { getCurrentUser } from '../../containers/Users/reducer'
+import { fetchMarketCategories } from '../../store/Markets/actions'
+import { getCurrentMarketId, getCategoriesFetching, getMarketCategories } from '../../store/Markets/reducer'
+import { getCurrentUser } from '../../store/Users/reducer'
 
 const styles = theme => ({
 

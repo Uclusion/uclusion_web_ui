@@ -7,7 +7,7 @@ import TextField from '@material-ui/core/TextField'
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import { bindActionCreators } from 'redux'
-import { createInvestment } from '../../containers/MarketInvestibles/actions'
+import { createInvestment } from '../../store/MarketInvestibles/actions'
 
 import FormControl from '@material-ui/core/FormControl';
 

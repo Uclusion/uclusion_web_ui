@@ -225,7 +225,6 @@ class RichTextEditor extends React.Component {
     return (
       <div>
         {this.toolBar()}
-        <Typography>
           <Editor
             spellCheck
             autoFocus
@@ -241,8 +240,7 @@ class RichTextEditor extends React.Component {
             onPaste={this.onDropOrPaste}
             readOnly={readOnly}
           />
-        </Typography>
-      </div>
+       </div>
     )
   }
 

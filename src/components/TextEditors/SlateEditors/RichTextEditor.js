@@ -316,7 +316,6 @@ class RichTextEditor extends React.Component {
 
   renderNode = (props, editor, next) => {
     const { attributes, children, node, isFocused } = props
-
     switch (node.type) {
       case 'paragraph':
         return <p {...attributes}>{children}</p>

@@ -174,7 +174,7 @@ class RichTextEditor extends React.Component {
 
   hasLinks = () => {
     const { value } = this.props
-    return value.inlines.some(inline => inline.type == 'link')
+    return value.inlines.some(inline => inline.type === 'link')
   }
 
 
@@ -225,6 +225,7 @@ class RichTextEditor extends React.Component {
     return (
       <div>
         {this.toolBar()}
+        <Typography component="div">
           <Editor
             spellCheck
             autoFocus
@@ -240,6 +241,7 @@ class RichTextEditor extends React.Component {
             onPaste={this.onDropOrPaste}
             readOnly={readOnly}
           />
+        </Typography>
        </div>
     )
   }

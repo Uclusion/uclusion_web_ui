@@ -63,6 +63,10 @@ class InvestibleListItem extends Component {
     this.setState({ investOpen: false })
   }
 
+  itemOnClick () {
+    const { userMessages } = this.context;
+  }
+
   render () {
     const {name, description, quantity, id, sharesAvailable, marketId, classes, teamId, currentInvestment, intl} = this.props
     return (

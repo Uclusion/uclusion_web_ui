@@ -9,7 +9,8 @@ import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
-import { withUserMessage } from 'uclusion-shell/lib/containers/UserMessages/UserMessageContext'
+
+import { toast } from 'react-toastify'
 const styles = (theme) => ({
   headerBox: {
     display: 'flex',
@@ -56,7 +57,6 @@ class InvestibleListItem extends Component {
     this.state = { investOpen: false }
     this.investOnClick = this.investOnClick.bind(this)
     this.handleInvestModalClose = this.handleInvestModalClose.bind(this)
-    this.itemOnClick = this.itemOnClick.bind(this)
   }
 
   investOnClick () {
@@ -67,11 +67,6 @@ class InvestibleListItem extends Component {
     this.setState({ investOpen: false })
   }
 
-  itemOnClick () {
-    const { userMessageSender } = this.props
-    const message = {level: 'info', message: { id: 'edit_task'}}
-    userMessageSender(message)
-  }
 
   render () {
     const {name, description, quantity, id, sharesAvailable, marketId, classes, teamId, currentInvestment, intl} = this.props
@@ -93,7 +88,6 @@ class InvestibleListItem extends Component {
           <div className={classes.wholeWidth}>
             <HtmlRichTextEditor value={description} readOnly={true}/>
             <div className={classes.tabSection}>
-              <p onClick={() => this.itemOnClick()}> FOO </p>
               <InvestibleListItemTabs name={name}
                                       quantity={quantity} investibleId={id} marketId={marketId} teamId={teamId}
                                       sharesAvailable={sharesAvailable}
@@ -118,4 +112,4 @@ InvestibleListItem.propTypes = {
   teamId: PropTypes.string.isRequired
 }
 
-export default withUserMessage(injectIntl(withStyles(styles)(InvestibleListItem)));
+export default injectIntl(withStyles(styles)(InvestibleListItem));

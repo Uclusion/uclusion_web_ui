@@ -10,7 +10,7 @@ import { Activity } from 'uclusion-shell'
 import { getCurrentMarketId, getMarketsFetching } from '../../store/Markets/reducer'
 import { getUsersFetching, getCurrentUser } from '../../store/Users/reducer'
 import InvestibleList from './InvestibleList'
-
+import { toast } from 'react-toastify'
 class Investibles extends Component {
   constructor (props) {
     super(props)
@@ -43,6 +43,7 @@ class Investibles extends Component {
 
   readCategoriesInvestibles (page, categoryName) {
     const { dispatch, marketId } = this.props
+    toast("TEST!")
     dispatch(fetchCategoriesInvestibles({
       market_id: marketId,
       category: categoryName,

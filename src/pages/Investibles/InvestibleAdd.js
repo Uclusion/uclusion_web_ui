@@ -1,5 +1,5 @@
 import React from 'react'
-import { Activity } from 'uclusion-shell'
+import Activity from '../../containers/Activity/Activity'
 
 import MenuItem from '@material-ui/core/MenuItem'
 import { Button, TextField } from '@material-ui/core'

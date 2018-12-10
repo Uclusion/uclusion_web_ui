@@ -8,7 +8,6 @@ import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import { bindActionCreators } from 'redux'
 import { createInvestment } from '../../store/MarketInvestibles/actions'
-
 import FormControl from '@material-ui/core/FormControl';
 
 const styles = theme => ({

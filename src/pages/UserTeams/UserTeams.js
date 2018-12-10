@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { withTheme } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
-import { Activity } from 'uclusion-shell'
+import Activity  from '../../containers/Activity/Activity'
 import { fetchUserTeams } from '../../store/Teams/actions'
 import { getTeamsFetching, getUserTeams} from '../../store/Teams/reducer'
 import { getUsersFetching, getCurrentUser } from '../../store/Users/reducer';

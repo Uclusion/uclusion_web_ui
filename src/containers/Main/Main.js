@@ -1,10 +1,10 @@
-import App from 'uclusion-shell'
+import App from '../../containers/App/App'
 import React, { Component } from 'react'
 import config from '../../config'
 import configureStore from '../../store'
 import locales from '../../config/locales'
 import { Helmet } from 'react-helmet'
-import { addLocalizationData } from 'uclusion-shell/lib/config/locales'
+import { addLocalizationData } from '../../config/locales'
 import { withA2HS } from 'a2hs'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -25,7 +25,7 @@ class Main extends Component {
         <link async rel='stylesheet' href='index.css' />
       </Helmet>
       <ToastContainer/>
-      <App appConfig={{ configureStore, ...config }} />
+      <App appConfig={{ configureStore, ...config }}/>
     </div>
   }
 }

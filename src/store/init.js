@@ -1,5 +1,5 @@
 import config from '../config'
-import { isAuthorised } from 'uclusion-shell/lib/utils/auth'
+import { isAuthorised } from '../utils/auth'
 
 export const initState = {
   auth: { isAuthorised: isAuthorised() },

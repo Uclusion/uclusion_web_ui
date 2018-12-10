@@ -1,7 +1,7 @@
 import React from 'react'
 
 import allLocales from './locales'
-import allThemes from './themes'
+import { themes } from './themes'
 import LanguageIcon from '@material-ui/icons/Language'
 import StyleIcon from '@material-ui/icons/Style'
 import Brightness2 from '@material-ui/icons/Brightness2'
@@ -40,7 +40,7 @@ const getMenuItems = (props) => {
   // const isAuthorised = auth.isAuthorised
   const isAuthorised = true
 
-  const themeItems = allThemes.map((t) => {
+  const themeItems = themes.map((t) => {
     return {
       value: undefined,
       visible: true,

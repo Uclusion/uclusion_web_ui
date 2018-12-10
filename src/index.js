@@ -1,18 +1,18 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import Loadable from 'react-loadable'
-import LoadingComponent from 'uclusion-shell/lib/components/LoadingComponent'
+import LoadingComponent from './components/LoadingComponent/LoadingComponent'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
-import registerServiceWorker from 'uclusion-shell/lib/utils/registerServiceWorker'
+import registerServiceWorker from './utils/registerServiceWorker'
 import A2HSProvider from 'a2hs'
 
 const MainAsync = Loadable({
-  loader: () => import('../src/containers/Main'),
+  loader: () => import('./containers/Main'),
   loading: () => <LoadingComponent />
 });
 
 const LPAsync = Loadable({
-  loader: () => import('../src/pages/LandingPage'),
+  loader: () => import('./pages/LandingPage'),
   loading: () => <LoadingComponent />
 });
 

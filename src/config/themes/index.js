@@ -2,7 +2,7 @@ import red from '@material-ui/core/colors/red'
 import pink from '@material-ui/core/colors/pink'
 import green from '@material-ui/core/colors/green'
 import blue from '@material-ui/core/colors/blue'
-
+import { createMuiTheme } from '@material-ui/core/styles'
 const themes = [
   {
     id: 'default',
@@ -32,4 +32,20 @@ const themes = [
   }
 ]
 
-export default themes
+export { themes }
+const getThemeSource = (t, ts) => {
+  if (ts) {
+    for (let i = 0; i < ts.length; i++) {
+      if (ts[i]['id'] === t.source) {
+        const source = ts[i]['source']
+        const palette = source != null ? source.palette : {}
+
+        return createMuiTheme({ ...source, palette: { ...palette, type: t.isNightModeOn ? 'dark' : 'light' } })
+      }
+    }
+  }
+
+  return createMuiTheme({ palette: { type: t.isNightModeOn ? 'dark' : 'light' } }) // Default theme
+}
+
+export default getThemeSource

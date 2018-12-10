@@ -2,7 +2,7 @@ import getMenuItems from './menuItems'
 import { getUclusionLocalStorage, setUclusionLocalStorageItem } from '../components/utils'
 import locales from './locales'
 import routes from './routes'
-import themes from './themes'
+import { themes } from './themes'
 import grants from './grants'
 
 function TokenAuthorizer () {

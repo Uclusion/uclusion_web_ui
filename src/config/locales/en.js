@@ -179,8 +179,11 @@ const messages = defineMessages({
 
   loadingMessage: 'Loading',
 
-  investibleAddDescriptionDefault: 'Add a description...'
+  investibleAddDescriptionDefault: 'Add a description...',
 
+  // User messages
+  investmentFailed: 'There was a problem investing. Please try again',
+  investmentSucceeded: 'You have invested Ȗ{shares}'
 
 })
 

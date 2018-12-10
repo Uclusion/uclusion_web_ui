@@ -3,13 +3,13 @@ import { connect } from 'react-redux'
 import Button from '@material-ui/core/Button'
 
 import { injectIntl, intlShape } from 'react-intl'
-import { GitHubIcon } from 'uclusion-shell/lib/components/Icons'
-import { Activity } from 'uclusion-shell'
+import { GitHubIcon } from '../../components/Icons'
+import  Activity from '../../containers/Activity/Activity'
 import { withTheme } from '@material-ui/core/styles'
 import { Line, Bar } from 'react-chartjs-2'
 import { withFirebase } from 'firekit-provider'
 
-import Scrollbar from 'uclusion-shell/lib/components/Scrollbar/Scrollbar'
+import Scrollbar from '../../components/Scrollbar/Scrollbar'
 const currentYear = new Date().getFullYear()
 const daysPath = `/user_registrations_per_day/${currentYear}/${new Date().toISOString().slice(5, 7)}`
 const monthsPath = `/user_registrations_per_month/${currentYear}`

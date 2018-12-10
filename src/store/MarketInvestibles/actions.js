@@ -1,5 +1,6 @@
 import { fetchUser } from '../Users/actions'
 import { getClient } from '../../config/uclusionClient'
+import { sendIntlMessage, ERROR, SUCCESS} from '../../utils/userMessage'
 
 export const REQUEST_INVESTIBLES = 'REQUEST_INVESTIBLES'
 export const RECEIVE_INVESTIBLES = 'RECEIVE_INVESTIBLES'
@@ -105,12 +106,13 @@ export const createInvestment = (params = {}) => {
       .then(investment => {
         dispatch(investmentCreated(investment))
         if (params.newInvestible) {
-          console.log('invested in new investible')
           dispatch(fetchInvestibles(params))
+        }else{
+          sendIntlMessage(SUCCESS, {id: 'investmentSucceeded'}, {shares: params.quantity})
         }
         dispatch(fetchUser())
       }).catch((error) => {
-        console.log(error)
+        sendIntlMessage(ERROR, {id: 'investmentFailed'})
         dispatch(investmentCreated([]))
         dispatch(fetchUser())
       })

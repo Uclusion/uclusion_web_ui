@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import IconButton from '@material-ui/core/IconButton'
 import { injectIntl, intlShape } from 'react-intl'
-import { GitHubIcon } from 'uclusion-shell/lib/components/Icons'
-import { Activity } from 'uclusion-shell'
+import GitHubIcon from '../../components/Icons/GitHubIcon'
+import Activity from '../../containers/Activity'
 import ReactMarkdown from 'react-markdown'
-import Scrollbar from 'uclusion-shell/lib/components/Scrollbar/Scrollbar'
+import Scrollbar from '../../components/Scrollbar/Scrollbar'
 import README from './README.md'
 
 require('github-markdown-css')

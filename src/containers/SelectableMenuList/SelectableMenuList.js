@@ -6,13 +6,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import Divider from '@material-ui/core/Divider'
-import InboxIcon from '@material-ui/icons/MoveToInbox'
-import Icon from '@material-ui/core/Icon'
-import Collapse from '@material-ui/core/Collapse'
 import { withTheme, withStyles } from '@material-ui/core/styles'
-import ExpandLess from '@material-ui/icons/ExpandLess'
-import ExpandMore from '@material-ui/icons/ExpandMore'
-import StarBorder from '@material-ui/icons/StarBorder'
 import IconButton from '@material-ui/core/IconButton'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import ArrowBack from '@material-ui/icons/ArrowBack'
@@ -33,7 +27,6 @@ class SelectableMenuList extends Component {
   state = {}
 
   handleNestedItemsClick = (item) => {
-    const { items } = this.props
     if (item.nestedItems) {
 
       let previousItems = this.state.previousItems ? this.state.previousItems : []
@@ -74,7 +67,7 @@ class SelectableMenuList extends Component {
   };
 
   getItem = (item, i) => {
-    const { onIndexChange, classes, useMinified } = this.props
+    const { onIndexChange, useMinified } = this.props
 
     delete item.visible
 

@@ -10,7 +10,6 @@ export const DrawerContent = (props, context) => {
   const {
     appConfig,
     match,
-    messaging,
     drawer
   } = props
 

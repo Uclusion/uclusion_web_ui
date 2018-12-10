@@ -3,7 +3,7 @@
  code that is NOT a react component and hence cant use injectIntl
  **/
 
-import React, { Children } from 'react'
+import React  from 'react'
 import { injectIntl } from 'react-intl'
 
 export let intl = null

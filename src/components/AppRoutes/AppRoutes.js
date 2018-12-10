@@ -1,6 +1,4 @@
 import React from 'react'
-import Loadable from 'react-loadable'
-import RestrictedRoute from '../../containers/RestrictedRoute'
 import makeLoadable from '../../containers/MyLoadable'
 import { Route } from 'react-router-dom'
 

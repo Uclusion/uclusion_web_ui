@@ -10,7 +10,6 @@ import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
 
-import { toast } from 'react-toastify'
 const styles = (theme) => ({
   headerBox: {
     display: 'flex',

@@ -162,7 +162,7 @@ const messages = defineMessages({
   totalCurrentInvestmentChip: '{shares} total',
   ideaShareSymbol: 'Ȗ',
   defaultCategoryName: 'Uncategorized',
-  teamsLoading: 'Teams',
+
   teamsListNotFound: 'No Teams found',
 
   titleLabel: 'Title',
@@ -170,7 +170,6 @@ const messages = defineMessages({
 
 
   customerTeamsMenu: 'Customer Teams',
-  myTeamsMenu: 'My Teams',
   profileMenu: 'My Profile',
   addInvestibleMenu: 'Add Investible',
 
@@ -181,9 +180,18 @@ const messages = defineMessages({
 
   investibleAddDescriptionDefault: 'Add a description...',
 
+
+  // Team Memberships pages
+  teamsHeader: 'Team Memberships',
+  teamsLoading: 'Loading your Team Memberships',
+  myTeamsMenu: 'Team Memberships',
+
+
   // User messages
   investmentFailed: 'There was a problem investing. Please try again',
   investmentSucceeded: 'You have invested Ȗ{shares}'
+
+
 
 })
 

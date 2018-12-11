@@ -94,17 +94,15 @@ const getMenuItems = (props) => {
       primaryText: intl.formatMessage({ id: 'investibles' }),
       leftIcon: <ListIcon />,
     },
+    { value: '/teams',
+      visible: isAuthorised,
+      primaryText: intl.formatMessage({id: 'myTeamsMenu'}),
+      leftIcon: <GroupIcon/>
+    },
     { //value: '/profile',
       visible: isAuthorised,
       primaryText: intl.formatMessage({id: 'profileMenu'}),
       leftIcon: <AccountBoxIcon/>,
-      nestedItems: [
-        { value: '/teams',
-          visible: isAuthorised,
-          primaryText: intl.formatMessage({id: 'myTeamsMenu'}),
-          leftIcon: <GroupIcon/>
-        }
-      ]
     },
     {
       value: '/about',

@@ -9,6 +9,7 @@ import { fetchUserTeams } from '../../store/Teams/actions'
 import { getTeamsFetching, getUserTeams} from '../../store/Teams/reducer'
 import { getUsersFetching, getCurrentUser } from '../../store/Users/reducer';
 import TeamsList from './UserTeamsList'
+import { Typography } from '@material-ui/core'
 
 class UserTeams extends Component {
   constructor (props) {
@@ -36,10 +37,10 @@ class UserTeams extends Component {
         <Activity
           isLoading={teams === undefined}
           containerStyle={{ overflow: 'hidden' }}
-          title={intl.formatMessage({ id: 'teamsLoading' })}>
-          <div>
-            Loading
-          </div>
+          title={intl.formatMessage({ id: 'teamsHeader' })}>
+          <Typography>
+            {intl.formatMessage({id: 'teamsLoading'})}
+          </Typography>
         </Activity>
       )
     }
@@ -49,8 +50,10 @@ class UserTeams extends Component {
         <Activity
           isLoading={teams === undefined}
           containerStyle={{ overflow: 'hidden' }}
-          title={intl.formatMessage({ id: 'teamsLoading' })}>
-          <div><p>{intl.formatMessage({ id: 'teamsListNotFound'})}</p></div>
+          title={intl.formatMessage({ id: 'teamsHeader' })}>
+          <Typography>
+            {intl.formatMessage({ id: 'teamsListNotFound'})}
+          </Typography>
         </Activity>
       )
     }
@@ -59,7 +62,7 @@ class UserTeams extends Component {
       <Activity
         isLoading={teams === undefined}
         containerStyle={{ overflow: 'hidden' }}
-        title={intl.formatMessage({ id: 'teamsLoading' })}>
+        title={intl.formatMessage({ id: 'teamsHeader' })}>
         <TeamsList user={user} teams={teams}/>
       </Activity>
     )

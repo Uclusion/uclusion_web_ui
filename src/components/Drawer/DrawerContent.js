@@ -30,7 +30,7 @@ export const DrawerContent = (props, context) => {
 
   }
 
-  const menuItems = appConfig.getMenuItems({ ...props, isAuthMenu: true, handleSignOut })
+  const menuItems = appConfig.getMenuItems({ ...props, handleSignOut })
 
   return (
     <div style={{

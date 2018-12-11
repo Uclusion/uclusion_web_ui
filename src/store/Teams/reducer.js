@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
 
-import { RECEIVE_USER_TEAMS, REQUEST_USER_TEAMS} from './actions'
+import { RECEIVE_USER_TEAMS, REQUEST_USER_TEAMS, RECEIVE_TEAM_MEMBERS } from './actions'
 
 
 
@@ -33,9 +33,20 @@ const isTeamsFetching = (state = 0, action) => {
   }
 }
 
+const teamMembers = (state = {}, action) => {
+  switch (action.type) {
+    case RECEIVE_TEAM_MEMBERS:
+      return state; //todo fill in
+    default:
+      return state;
+  }
+}
+
 export const getTeamsFetching = (state) => state.isTeamsFetching
 
 export const getUserTeams = (state) => state.userTeams
+
+export const getTeamMembers = (state) => state.teamMembers
 
 export default combineReducers({
   userTeams,

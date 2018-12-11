@@ -112,7 +112,7 @@ const mapStateToProps = (state) => ({
 })
 
 function mapDispatchToProps (dispatch) {
-  return Object.assign({ dispatch }, bindActionCreators({ fetchInvestibles }, dispatch))
+  return { dispatch }
 }
 
 export default connect(

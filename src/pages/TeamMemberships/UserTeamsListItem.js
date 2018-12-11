@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
 import React from 'react'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Typography } from '@material-ui/core'
@@ -8,6 +9,7 @@ import PeopleIcon from '@material-ui/icons/People'
 import classNames from 'classnames'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
+import { getTeamMembers} from '../../store/Teams/reducer'
 
 const styles = (theme) => ({
   headerBox: {
@@ -46,27 +48,33 @@ const styles = (theme) => ({
 
 class UserTeamsListItem extends React.Component {
 
+  listUsersOnClick(id){
+
+  }
+
   render () {
-    const { name, description, numMembers, classes } = this.props
+    const { id, name, description, numMembers, classes } = this.props
     return (
       <ExpansionPanel>
-        <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon/>}>
+        <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon onClick={() => this.listUsersOnclick(id)}/>}>
           <div className={classes.column}>
             <Typography>
               {name}
             </Typography>
+            <div className={classes.wholeWidth}>
+              <Typography>
+                {description}
+              </Typography>
+            </div>
           </div>
           <div className={classes.column}/>
           <div className={classNames(classes.column, classes.helper)}>
             <Chip avatar={<Avatar><PeopleIcon/></Avatar>} label={numMembers}/>
           </div>
+
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
-          <div className={classes.wholeWidth}>
-            <Typography>
-              {description}
-            </Typography>
-          </div>
+
         </ExpansionPanelDetails>
       </ExpansionPanel>
     )
@@ -81,5 +89,13 @@ UserTeamsListItem.propTypes = {
   marketSharesAvailable: PropTypes.arrayOf(PropTypes.number).isRequired
 }
 
+const mapStateToProps = (state) => ({
+  teamMembers: getTeamMembers(state.teamsReducer)
+})
 
-export default injectIntl(withStyles(styles)(UserTeamsListItem))
+function mapDispatchToProps (dispatch) {
+  return { dispatch }
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withStyles(styles)(UserTeamsListItem)))

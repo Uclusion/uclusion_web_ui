@@ -159,12 +159,6 @@ const getMenuItems = (props) => {
       onClick: () => { switchNightMode(!themeSource.isNightModeOn) },
       primaryText: intl.formatMessage({ id: themeSource.isNightModeOn ? 'day_mode' : 'night_mode' }),
       leftIcon: themeSource.isNightModeOn ? <Brightness7 /> : <Brightness2 />
-    },
-    {
-      visible: isAppInstallable && !isAppInstalled,
-      onClick: () => { deferredPrompt.prompt() },
-      primaryText: intl.formatMessage({ id: 'install' }),
-      leftIcon: <VerticalAlignBottomIcon />
     }
   ]
 }

@@ -1,6 +1,10 @@
 import { getClient } from '../../config/uclusionClient'
+import { sendIntlMessage, ERROR } from '../../utils/userMessage'
 
-export const REQUEST_USER_TEAMS = 'REQUEST_USER_TEAMS'
+export const REQUEST_USER_TEAMS
+
+
+= 'REQUEST_USER_TEAMS'
 export const RECEIVE_USER_TEAMS = 'RECEIVE_USER_TEAMS'
 
 export const REQUEST_TEAM_USERS = 'REQUEST_TEAM_USERS'
@@ -35,6 +39,7 @@ export const fetchUserTeams = () => (dispatch) => {
     dispatch(receiveUserTeams(teams))
   }).catch((error) => {
     console.log(error)
+    sendIntlMessage(ERROR, {id: 'teamsLoadFailed'})
     dispatch(receiveUserTeams([]))
   })
 }

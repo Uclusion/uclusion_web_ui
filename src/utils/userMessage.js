@@ -26,7 +26,7 @@ export function sendIntlMessage (level, i18nMessageDescription, ii18nMessageVale
       toast.warn(message)
       break
     case ERROR:
-      toast.warn(message)
+      toast.error(message)
       break
     case SUCCESS:
       toast.success(message)

@@ -187,13 +187,14 @@ const messages = defineMessages({
 
   // Team Memberships pages
   teamsHeader: 'Team Memberships',
-  teamsLoading: 'Loading your Team Memberships',
+  teamsLoading: 'Loading your Team Memberships.',
   myTeamsMenu: 'Team Memberships',
 
 
   // User messages
-  investmentFailed: 'There was a problem investing. Please try again',
-  investmentSucceeded: 'You have invested Ȗ{shares}'
+  investmentFailed: 'There was a problem investing. Please try again.',
+  investmentSucceeded: 'You have invested Ȗ{shares}.',
+  teamsLoadFailed: 'There was a problem retrieving your Team Memberships. Please try again.'
 
 
 

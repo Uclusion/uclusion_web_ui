@@ -18,7 +18,6 @@ import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
 import SecurityIcon from '@material-ui/icons/Security'
 import GroupIcon from '@material-ui/icons/Group'
 
-import AddBoxIcon from '@material-ui/icons/AddBox'
 
 const getMenuItems = (props) => {
   const {
@@ -88,11 +87,6 @@ const getMenuItems = (props) => {
       visible: isGranted('read_companies'), //todo make this role based
       primaryText: intl.formatMessage({ id: 'customerTeamsMenu' }),
       leftIcon: <BusinessIcon />
-    },
-    {
-      value: '/investibles/add',
-      primaryText: intl.formatMessage({ id: 'addInvestibleMenu'}),
-      leftIcon: <AddBoxIcon/>
     },
     {
       value: '/investibles',

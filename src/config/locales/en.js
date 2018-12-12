@@ -1,7 +1,7 @@
 import { defineMessages } from 'react-intl'
 
 const messages = defineMessages({
-  app_name: 'React Most Wanted',
+  app_name: 'Uclusion',
   dashboard: 'Dashboard',
   about: 'About',
   page_not_found_demo: 'Page not found demo',
@@ -172,10 +172,11 @@ const messages = defineMessages({
   titleLabel: 'Title',
   descriptionLabel: 'Description',
 
-
-  customerTeamsMenu: 'Customer Teams',
-  profileMenu: 'My Profile',
+  // Sidebar menu names
+  marketCategoriesMenu: 'Categories',
+  marketTeamsMenu: 'Market Teams',
   addInvestibleMenu: 'Add Investible',
+  investiblesMenu: 'Investibles',
 
   categoryLabel: 'Category',
   saveInvestibleButton: 'Save investible',

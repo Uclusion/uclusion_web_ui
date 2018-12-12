@@ -7,15 +7,13 @@ import StyleIcon from '@material-ui/icons/Style'
 import Brightness2 from '@material-ui/icons/Brightness2'
 import Brightness7 from '@material-ui/icons/Brightness7'
 import SettingsIcon from '@material-ui/icons/SettingsApplications'
-import VerticalAlignBottomIcon from '@material-ui/icons/VerticalAlignBottom'
 import AccountBoxIcon from '@material-ui/icons/AccountBox'
 import LockIcon from '@material-ui/icons/Lock'
 import ListIcon from '@material-ui/icons/List'
 import DashboardIcon from '@material-ui/icons/Dashboard'
 
 import BusinessIcon from '@material-ui/icons/Business'
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
-import SecurityIcon from '@material-ui/icons/Security'
+import ViewColumn from '@material-ui/icons/ViewColumn'
 import GroupIcon from '@material-ui/icons/Group'
 
 
@@ -29,9 +27,6 @@ const getMenuItems = (props) => {
     themeSource,
     // auth,
     isGranted,
-    deferredPrompt,
-    isAppInstallable,
-    isAppInstalled,
     isAuthMenu,
     handleSignOut
   } = props
@@ -83,52 +78,27 @@ const getMenuItems = (props) => {
       leftIcon: <DashboardIcon />
     },
     {
-      value: '/customer_teams',
+      value: '/marketTeams',
       visible: isGranted('read_companies'), //todo make this role based
-      primaryText: intl.formatMessage({ id: 'customerTeamsMenu' }),
+      primaryText: intl.formatMessage({ id: 'marketTeamsMenu' }),
       leftIcon: <BusinessIcon />
     },
     {
       value: '/investibles',
       visible: isAuthorised,
-      primaryText: intl.formatMessage({ id: 'investibles' }),
+      primaryText: intl.formatMessage({ id: 'investiblesMenu' }),
       leftIcon: <ListIcon />,
+    },
+    {
+      value: '/marketCategories',
+      visible: isAuthorised,
+      primaryText: intl.formatMessage({ id: 'marketCategoriesMenu'}),
+      leftIcon: <ViewColumn/>
     },
     { value: '/teams',
       visible: isAuthorised,
       primaryText: intl.formatMessage({id: 'myTeamsMenu'}),
       leftIcon: <GroupIcon/>
-    },
-    { //value: '/profile',
-      visible: isAuthorised,
-      primaryText: intl.formatMessage({id: 'profileMenu'}),
-      leftIcon: <AccountBoxIcon/>,
-    },
-    {
-      value: '/about',
-      visible: isAuthorised,
-      primaryText: intl.formatMessage({ id: 'about' }),
-      leftIcon: <InfoOutlinedIcon />
-    },
-    {
-      visible: isAuthorised, // In prod: isGranted('administration'),
-      primaryTogglesNestedList: true,
-      primaryText: intl.formatMessage({ id: 'administration' }),
-      leftIcon: <SecurityIcon />,
-      nestedItems: [
-        {
-          value: '/users',
-          visible: isAuthorised, // In prod: isGranted('read_users'),
-          primaryText: intl.formatMessage({ id: 'users' }),
-          leftIcon: <GroupIcon />
-        },
-        {
-          value: '/roles',
-          visible: isGranted('read_roles'),
-          primaryText: intl.formatMessage({ id: 'roles' }),
-          leftIcon: <AccountBoxIcon />
-        }
-      ]
     },
     {
       divider: true,

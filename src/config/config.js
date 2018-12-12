@@ -64,7 +64,7 @@ const config = {
   ],
   initial_state: {
     themeSource: {
-      isNightModeOn: true,
+      isNightModeOn: false,
       source: 'light'
     },
     locale: 'en'

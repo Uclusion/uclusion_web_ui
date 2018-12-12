@@ -197,7 +197,8 @@ const messages = defineMessages({
   teamsLoadFailed: 'There was a problem retrieving your Team Memberships. Please try again.',
   teamMemberLoadFailed: 'There was a problem retrieving the members of your team. Please try again',
   investibleAddFailed: 'There was a problem saving your investible. Please try again',
-  investibleAddSucceeded: 'Your new idea has been created!'
+  investibleBindFailed: 'There was a problem making your investible available to others. Please try again',
+  investibleAddSucceeded: 'Your new investible has been created! It may take a few minutes to be visible.'
 })
 
 export default messages

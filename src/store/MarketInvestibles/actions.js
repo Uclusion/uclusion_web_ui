@@ -106,6 +106,7 @@ export const createInvestment = (params = {}) => {
       .then(investment => {
         dispatch(investmentCreated(investment))
         if (params.newInvestible) {
+          sendIntlMessage(SUCCESS, {id: 'investibleAddSucceeded'})
           dispatch(fetchInvestibles(params))
         }else{
           sendIntlMessage(SUCCESS, {id: 'investmentSucceeded'}, {shares: params.quantity})
@@ -128,7 +129,7 @@ export const createNewBoundInvestible = (params = {}) => {
     }).then((result) => {
       dispatch(fetchUser())
     }).catch((error) => {
-      console.log(error)
+      sendIntlMessage(ERROR, {id: 'investibleAddFailed'})
       dispatch(fetchUser())
     })
   }

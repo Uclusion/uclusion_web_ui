@@ -88,8 +88,8 @@ class InvestibleListItem extends Component {
             <HtmlRichTextEditor value={description} readOnly={true}/>
             <div className={classes.tabSection}>
               <InvestibleListItemTabs name={name}
-                                      quantity={quantity} investibleId={id} marketId={marketId} teamId={teamId}
-                                      sharesAvailable={sharesAvailable}
+                quantity={quantity} investibleId={id} marketId={marketId} teamId={teamId}
+                sharesAvailable={sharesAvailable}
               />
             </div>
           </div>

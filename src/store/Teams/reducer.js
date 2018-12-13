@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
-
+import _ from 'lodash'
 import { RECEIVE_USER_TEAMS, REQUEST_USER_TEAMS, RECEIVE_TEAM_MEMBERS } from './actions'
 
 
@@ -16,10 +16,10 @@ export const teamPropType = PropTypes.shape({
 const userTeams = (state = [], action) => {
   switch (action.type) {
     case RECEIVE_USER_TEAMS:
-      const teams = action.teams;
-      return teams;
+      const teams = action.teams
+      return teams
     default:
-      return state;
+      return state
   }
 }
 
@@ -27,18 +27,22 @@ const userTeams = (state = [], action) => {
 const isTeamsFetching = (state = 0, action) => {
   switch (action.type) {
     case REQUEST_USER_TEAMS:
-      return state + 1;
+      return state + 1
     default:
-      return state;
+      return state
   }
 }
 
-const teamMembers = (state = {}, action) => {
+const teamMembers = (state = [], action) => {
+  const { team, users } = action.teamAndMembers
+  const { id } = team
   switch (action.type) {
     case RECEIVE_TEAM_MEMBERS:
-      return state; //todo fill in
+      const newState = {... state}
+      newState[id] = {team, users}
+      return newState;
     default:
-      return state;
+      return state
   }
 }
 
@@ -50,6 +54,7 @@ export const getTeamMembers = (state) => state.teamMembers
 
 export default combineReducers({
   userTeams,
+  teamMembers,
   isTeamsFetching
 })
 

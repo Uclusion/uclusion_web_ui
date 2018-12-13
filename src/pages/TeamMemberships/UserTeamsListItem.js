@@ -9,7 +9,8 @@ import PeopleIcon from '@material-ui/icons/People'
 import classNames from 'classnames'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
-import { getTeamMembers} from '../../store/Teams/reducer'
+import { fetchTeamMembers } from '../../store/Teams/actions'
+import { getTeamMembers } from '../../store/Teams/reducer'
 
 const styles = (theme) => ({
   headerBox: {
@@ -48,8 +49,12 @@ const styles = (theme) => ({
 
 class UserTeamsListItem extends React.Component {
 
-  listUsersOnClick(id){
-
+  listUsersOnClick(teamId){
+    fetchTeamMembers(teamId)
+  }
+  //need fetching stuff. At this point it's probably better to make a component for it and use the loading/etc
+  createMemberList(teamId){
+    const members = inve
   }
 
   render () {

@@ -1,14 +1,14 @@
-import UserTeamsListItem from './UserTeamsListItem'
+import UserMembershipsListItem from './UserMembershipsListItem'
 import ItemListCategory from '../../components/Lists/ItemListCategory'
 import PropTypes from 'prop-types'
 import React from 'react'
 
-class UserTeamsCategory extends React.Component {
+class UserMembershipsCategory extends React.Component {
 
   render () {
     const {teams} = this.props
     const items = teams.map(element =>
-      <UserTeamsListItem
+      <UserMembershipsListItem
         key={element.id}
         id={element.id}
         description={element.description}
@@ -22,8 +22,8 @@ class UserTeamsCategory extends React.Component {
   }
 }
 
-UserTeamsCategory.propTypes = {
+UserMembershipsCategory.propTypes = {
   teams: PropTypes.arrayOf(PropTypes.object).isRequired
 }
 
-export default UserTeamsCategory
+export default UserMembershipsCategory

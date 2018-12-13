@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
+
 import React from 'react'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Typography } from '@material-ui/core'
@@ -9,8 +9,7 @@ import PeopleIcon from '@material-ui/icons/People'
 import classNames from 'classnames'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
-import { fetchTeamMembers } from '../../store/Teams/actions'
-import { getTeamMembers } from '../../store/Teams/reducer'
+import MemberList from './MemberList'
 
 const styles = (theme) => ({
   headerBox: {
@@ -47,21 +46,14 @@ const styles = (theme) => ({
   }
 })
 
-class UserTeamsListItem extends React.Component {
+class UserMembershipsListItem extends React.Component {
 
-  listUsersOnClick(teamId){
-    fetchTeamMembers(teamId)
-  }
-  //need fetching stuff. At this point it's probably better to make a component for it and use the loading/etc
-  createMemberList(teamId){
-    const members = inve
-  }
 
   render () {
     const { id, name, description, numMembers, classes } = this.props
     return (
       <ExpansionPanel>
-        <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon onClick={() => this.listUsersOnclick(id)}/>}>
+        <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon/>}>
           <div className={classes.column}>
             <Typography>
               {name}
@@ -79,14 +71,14 @@ class UserTeamsListItem extends React.Component {
 
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
-
+          <MemberList teamId={id}/>
         </ExpansionPanelDetails>
       </ExpansionPanel>
     )
   }
 }
 
-UserTeamsListItem.propTypes = {
+UserMembershipsListItem.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
@@ -94,13 +86,6 @@ UserTeamsListItem.propTypes = {
   marketSharesAvailable: PropTypes.arrayOf(PropTypes.number).isRequired
 }
 
-const mapStateToProps = (state) => ({
-  teamMembers: getTeamMembers(state.teamsReducer)
-})
-
-function mapDispatchToProps (dispatch) {
-  return { dispatch }
-}
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withStyles(styles)(UserTeamsListItem)))
+export default injectIntl(withStyles(styles)(UserMembershipsListItem))

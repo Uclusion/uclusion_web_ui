@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
-import _ from 'lodash'
 import { RECEIVE_USER_TEAMS, REQUEST_USER_TEAMS, RECEIVE_TEAM_MEMBERS } from './actions'
 
 
@@ -33,12 +32,12 @@ const isTeamsFetching = (state = 0, action) => {
   }
 }
 
-const teamMembers = (state = [], action) => {
-  const { team, users } = action.teamAndMembers
-  const { id } = team
+const teamMembers = (state = {}, action) => {
   switch (action.type) {
     case RECEIVE_TEAM_MEMBERS:
-      const newState = {... state}
+      const { team, users } = action.teamAndMembers
+      const { id } = team
+      const newState = {...state}
       newState[id] = {team, users}
       return newState;
     default:

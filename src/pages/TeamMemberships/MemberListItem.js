@@ -45,7 +45,11 @@ class MemberListItem extends React.Component {
 
 
   render () {
-    const { name, classes } = this.props
+    const { name, classes, type } = this.props
+    //for now, don't bother rendering the TEAM user
+    if(type === 'TEAM'){
+      return null
+    }
     return (
       <ExpansionPanel>
           <ExpansionPanelSummary>
@@ -65,6 +69,7 @@ class MemberListItem extends React.Component {
 MemberListItem.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired
 }
 
 

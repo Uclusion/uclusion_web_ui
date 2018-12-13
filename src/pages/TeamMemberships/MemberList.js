@@ -37,7 +37,8 @@ function mapDispatchToProps (dispatch) {
 }
 
 MemberList.propTypes = {
-  teamId: PropTypes.arrayOf(PropTypes.object).isRequired
+  teamMembers: PropTypes.object.isRequired,
+  teamId: PropTypes.string.isRequired
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(MemberList)

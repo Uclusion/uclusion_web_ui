@@ -8,7 +8,7 @@ class MemberListCategory extends React.Component {
   render () {
     const {members} = this.props
     const items = members.map(element =>
-      <MemberListItem name={element.name}/>
+      <MemberListItem key={element.id} {...element} />
     )
     return (
       <ItemListCategory items={items}/>

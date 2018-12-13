@@ -31,7 +31,7 @@ export const fetchTeamMembers = (teamId) => (dispatch) => {
   dispatch(requestTeamMembers(teamId))
   const clientPromise = getClient()
   return clientPromise.then((client) => {
-    return client.getTeamMembers(teamId)
+    return client.teams.get(teamId)
   }).then((teamAndMembers) => {
     dispatch(receiveTeamMembers(teamAndMembers))
   }).catch((error) => {

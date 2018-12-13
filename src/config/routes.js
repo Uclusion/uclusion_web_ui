@@ -10,7 +10,7 @@ const AsyncInvestibles = MyLoadable({ loader: () => import('../pages/Investibles
 const AsyncDocument = MyLoadable({ loader: () => import('../pages/Document') })
 
 const AsyncLogin = MyLoadable({ loader: () => import('../pages/Login') })
-const AsyncTeams = MyLoadable({ loader: () => import('../pages/TeamMemberships/UserTeams')})
+const AsyncTeams = MyLoadable({ loader: () => import('../pages/TeamMemberships/UserMemberships')})
 
 const routes = [
   <RestrictedRoute type='private' path="/" exact component={AsyncDashboard} />,

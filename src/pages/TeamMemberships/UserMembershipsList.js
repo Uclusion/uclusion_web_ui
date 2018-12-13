@@ -1,14 +1,14 @@
 import React from 'react'
 import ItemList from '../../components/Lists/ItemList'
-import UserTeamsListCategory from './UserTeamsCategory'
+import UserMembershipsListCategory from './UserMembershipsCategory'
 import { injectIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 
-class UserTeamsList extends React.Component {
+class UserMembershipsList extends React.Component {
 
   render () {
     const { teams } = this.props;
-    const teamsCategory = <UserTeamsListCategory teams={teams}/>
+    const teamsCategory = <UserMembershipsListCategory teams={teams}/>
     return (
       <ItemList categoryLists={[teamsCategory]} headerActions={[]}/>
     )
@@ -16,8 +16,8 @@ class UserTeamsList extends React.Component {
 }
 
 
-UserTeamsList.propTypes = {
+UserMembershipsList.propTypes = {
   teams: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
-export default injectIntl(UserTeamsList);
+export default injectIntl(UserMembershipsList);

@@ -2,16 +2,15 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { withTheme } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 import Activity  from '../../containers/Activity/Activity'
 import { fetchUserTeams } from '../../store/Teams/actions'
 import { getTeamsFetching, getUserTeams} from '../../store/Teams/reducer'
-import { getUsersFetching, getCurrentUser } from '../../store/Users/reducer';
-import TeamsList from './UserTeamsList'
+import { getCurrentUser } from '../../store/Users/reducer';
+import UserMembershipsList from './UserMembershipsList'
 import { Typography } from '@material-ui/core'
 
-class UserTeams extends Component {
+class UserMemberships extends Component {
   constructor (props) {
     super(props)
     this.readUserTeams = this.readUserTeams.bind(this)
@@ -32,7 +31,7 @@ class UserTeams extends Component {
     const { intl, loading, teams, user } = this.props
 
 
-    if (loading > 0 && teams.length === 0) {
+    if (loading > 0) {
       return (
         <Activity
           isLoading={teams === undefined}
@@ -63,20 +62,20 @@ class UserTeams extends Component {
         isLoading={teams === undefined}
         containerStyle={{ overflow: 'hidden' }}
         title={intl.formatMessage({ id: 'teamsHeader' })}>
-        <TeamsList user={user} teams={teams}/>
+        <UserMembershipsList user={user} teams={teams}/>
       </Activity>
     )
   }
 }
 
-UserTeams.propTypes = {
+UserMemberships.propTypes = {
   dispatch: PropTypes.func.isRequired,
   loading: PropTypes.number.isRequired,
   teams: PropTypes.arrayOf(PropTypes.object).isRequired
 }
 
 const mapStateToProps = (state) => ({
-  loading: getTeamsFetching(state.teamsReducer) + getUsersFetching(state.usersReducer),
+  loading: getTeamsFetching(state.teamsReducer),
   teams: getUserTeams(state.teamsReducer),
   user: getCurrentUser(state.usersReducer)
 })
@@ -88,4 +87,4 @@ function mapDispatchToProps (dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(injectIntl(withTheme()(UserTeams)))
+)(injectIntl(UserMemberships))

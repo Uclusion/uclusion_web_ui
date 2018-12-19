@@ -59,7 +59,6 @@
     "redux-logger": "3.x",
     "redux-persist": "^5.10.0",
     "redux-thunk": "^2.3.0",
-    "rmw-react-scripts": "1.1.11",
     "slate": "^0.44.6",
     "slate-react": "^0.21.12",
     "slate-html-serializer": "^0.7.30",
@@ -86,11 +85,12 @@
   "devDependencies": {
     "enzyme": "^3.6.0",
     "query-string": "^4.3.4",
-    "react-scripts": "^1.1.5",
+    "react-scripts": "^2.1.1",
     "redux-logger": "^3.0.6",
     "redux-testkit": "^1.0.6",
     "selenium-webdriver": "^4.0.0-alpha.1",
     "source-map-explorer": "^1.6.0",
-    "standard": "^11.0.1"
+    "standard": "^11.0.1",
+    "webpack": "4.19.1"
   }
 }

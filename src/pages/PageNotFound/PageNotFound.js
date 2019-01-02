@@ -33,13 +33,10 @@ const styles = theme => ({
 })
 
 const PageNotFound = ({ theme, intl, appConfig, classes }) => {
-  const AppIcon = appConfig.appIcon
-
   return (
     <Activity>
       <Paper className={classes.paper}>
         <div className={classes.container}>
-          <AppIcon className={classes.icon} />
           <Typography variant='display1' >
             {intl.formatMessage({ id: 'warning_404_message' })}
           </Typography>

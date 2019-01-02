@@ -6,7 +6,7 @@ import { fetchInvestibles, fetchCategoriesInvestibles } from '../../store/Market
 import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../../store/MarketInvestibles/reducer'
 import { injectIntl } from 'react-intl'
 import  Activity from '../../containers/Activity/Activity'
-import { getCurrentMarketId, getMarketsFetching } from '../../store/Markets/reducer'
+import { getCurrentMarketId, getMarketsFetching, getCategoriesFetching } from '../../store/Markets/reducer'
 import { getUsersFetching, getCurrentUser } from '../../store/Users/reducer'
 import InvestibleList from './InvestibleList'
 import { toast } from 'react-toastify'
@@ -104,7 +104,7 @@ Investibles.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
-  loading: getInvestiblesFetching(state.investiblesReducer) + getMarketsFetching(state.marketsReducer) + getUsersFetching(state.usersReducer),
+  loading: getInvestiblesFetching(state.investiblesReducer) + getMarketsFetching(state.marketsReducer) + getCategoriesFetching(state.marketsReducer) + getUsersFetching(state.usersReducer),
   investibles: getInvestibles(state.investiblesReducer),
   marketId: getCurrentMarketId(state.marketsReducer),
   user: getCurrentUser(state.usersReducer)

@@ -45,7 +45,6 @@ export const fetchMarketCategories = (params = {}) => (dispatch) => {
 
 export const fetchMarket = (params = {}) => (dispatch) => {
   dispatch(requestMarket())
-
   if (params.isSelected) {
     dispatch(selectMarket(params.market_id))
   }
@@ -53,11 +52,13 @@ export const fetchMarket = (params = {}) => (dispatch) => {
   const clientPromise = getClient()
   return clientPromise.then((client) => {
     return client.markets.get(params.market_id)
-  }).then(market => dispatch(receiveMarket(market)))
-    .catch((error) => {
-      console.log(error)
-      dispatch(receiveMarket([]))
-    })
+  }).then((market) => {
+    dispatch(receiveMarket(market))
+    return dispatch(fetchMarketCategories({marketId: market.id}))
+  }).catch((error) => {
+    console.log(error)
+    dispatch(receiveMarket([]))
+  })
 }
 
 const formatMarket = (market) => {

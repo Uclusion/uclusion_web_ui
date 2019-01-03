@@ -24,22 +24,21 @@ class InvestibleList extends React.Component {
     return categoryMap;
   }
 
-  createCategoryLists = (categoryMap, marketId, teamId, user) => {
-    let categoryNames = Array.from(categoryMap.keys());
+  createCategoryLists = (categoryNames, categoryMap, marketId, teamId, user) => {
     console.log(categoryNames)
     const sortedNames = categoryNames.sort(); //put categories in alpha sorted order for now
-    let categoryLists = sortedNames.map((name) => {
-      const categoryInvestibles = categoryMap.get(name);
+    return sortedNames.map((name) => {
+      const categoryInvestibles = categoryMap.has(name) ? categoryMap.get(name) : {};
       return <InvestibleListCategory key={name} category={name} investibles={categoryInvestibles} user={user} teamId={teamId} marketId={marketId}/>
     });
-    return categoryLists;
   }
 
   render () {
-    const { intl, investibles, user, teamId, marketId } = this.props;
+    const { intl, investibles, categories, user, teamId, marketId } = this.props;
     const defaultCategoryName = intl.formatMessage({id: 'defaultCategoryName'});
     const categoryMap = this.mapInvestiblesToCategories(investibles, defaultCategoryName);
-    const categoryLists = this.createCategoryLists(categoryMap, marketId, teamId, user);
+    let categoryNames = categories.map(category => category.name);
+    const categoryLists = this.createCategoryLists(categoryNames, categoryMap, marketId, teamId, user);
     return (
       <ItemList categoryLists={categoryLists} headerActions={[]}/>
     )
@@ -49,6 +48,7 @@ class InvestibleList extends React.Component {
 
 InvestibleList.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
+  categories: PropTypes.arrayOf(PropTypes.object).isRequired,
   teamId: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired

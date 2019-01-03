@@ -45,11 +45,11 @@ class QuickAddItemListCategory extends React.Component {
   render (){
     const {classes, title, items, quickAdd} = this.props
     const myQuickAdd = React.cloneElement(quickAdd, {visible:this.state.quickAddVisible, addSubmitOnClick: this.addSubmitOnClick, addCancelOnClick: this.addCancelOnClick})
+    items.unshift(myQuickAdd)
     return (
       <div className={classes.subList}>
       <ListSubheader component="div">{title}<Add onClick={() => this.addOnClick()}/></ListSubheader>
         <Grid container direction="column" justify="flex-start" alignItems="stretch">
-          {myQuickAdd}
           {items}
         </Grid>
       </div>

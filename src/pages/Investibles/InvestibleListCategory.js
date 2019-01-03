@@ -9,8 +9,8 @@ class InvestibleListCategory extends React.Component {
   render () {
     const { investibles, teamId, user, marketId, category } = this.props;
     const marketPresence = user.market_presence;
-    const quickAddBox = <InvestibleListQuickAdd category={category} teamId={teamId} marketId={marketId}/>;
-    const items = investibles.map(element =>
+    const quickAddBox = <InvestibleListQuickAdd category={category} teamId={teamId} marketId={marketId} />;
+    const items = investibles.map ? investibles.map(element =>
       <InvestibleListItem
         key={element.id}
         id={element.id}
@@ -19,13 +19,13 @@ class InvestibleListCategory extends React.Component {
         quantity={element.quantity}
         categories={element.category_list}
         marketId={element.market_id}
-        teamId ={teamId}
+        teamId={teamId}
         currentInvestment={element.current_user_investment}
         sharesAvailable={marketPresence.quantity}
       />
-    )
+    ) : []
     return (
-      <ItemListCategory items={items} title={category} quickAdd={quickAddBox}/>
+      <ItemListCategory items={items} title={category} quickAdd={quickAddBox} />
     )
   };
 }

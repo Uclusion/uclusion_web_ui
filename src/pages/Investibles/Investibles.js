@@ -6,7 +6,7 @@ import { fetchInvestibles, fetchCategoriesInvestibles } from '../../store/Market
 import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../../store/MarketInvestibles/reducer'
 import { injectIntl } from 'react-intl'
 import  Activity from '../../containers/Activity/Activity'
-import { getCurrentMarketId, getMarketsFetching, getCategoriesFetching } from '../../store/Markets/reducer'
+import { getCurrentMarketId, getMarketsFetching, getCategoriesFetching, getMarketCategories, categoryPropType } from '../../store/Markets/reducer'
 import { getUsersFetching, getCurrentUser } from '../../store/Users/reducer'
 import InvestibleList from './InvestibleList'
 import { toast } from 'react-toastify'
@@ -52,7 +52,7 @@ class Investibles extends Component {
   }
 
   render () {
-    const { intl, loading, investibles, marketId, user } = this.props
+    const { intl, loading, investibles, categories, marketId, user } = this.props
     if (loading > 0 && investibles.length === 0) {
       return (
         <Activity
@@ -62,17 +62,6 @@ class Investibles extends Component {
           <div>
           Loading
           </div>
-        </Activity>
-      )
-    }
-
-    if (investibles.length === 0) {
-      return (
-        <Activity
-          isLoading={investibles === undefined}
-          containerStyle={{ overflow: 'hidden' }}
-          title={intl.formatMessage({ id: 'investibles' })}>
-          <div><p>{intl.formatMessage({ id: 'investibleListNotFound'})}</p></div>
         </Activity>
       )
     }
@@ -86,9 +75,8 @@ class Investibles extends Component {
           containerStyle={{ overflow: 'hidden' }}
           title={intl.formatMessage({ id: 'investibles' })}>
 
-            {investibles && <InvestibleList teamId={teamId} user={user} marketId={marketId} investibles={investibles}/>}
-
-          </Activity>
+          {investibles && <InvestibleList teamId={teamId} user={user} marketId={marketId} investibles={investibles} categories={categories} />}
+        </Activity>
       </div>
 
     )
@@ -99,6 +87,7 @@ Investibles.propTypes = {
   dispatch: PropTypes.func.isRequired,
   loading: PropTypes.number.isRequired,
   investibles: PropTypes.arrayOf(investiblePropType),
+  categories: PropTypes.arrayOf(categoryPropType),
   marketId: PropTypes.string,
   user: PropTypes.object
 }
@@ -106,6 +95,7 @@ Investibles.propTypes = {
 const mapStateToProps = (state) => ({
   loading: getInvestiblesFetching(state.investiblesReducer) + getMarketsFetching(state.marketsReducer) + getCategoriesFetching(state.marketsReducer) + getUsersFetching(state.usersReducer),
   investibles: getInvestibles(state.investiblesReducer),
+  categories: getMarketCategories(state.marketsReducer),
   marketId: getCurrentMarketId(state.marketsReducer),
   user: getCurrentUser(state.usersReducer)
 })

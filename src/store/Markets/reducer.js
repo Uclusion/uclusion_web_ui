@@ -19,6 +19,9 @@ export const marketPropType = PropTypes.shape({
   updated_at: PropTypes.instanceOf(Date).isRequired
 })
 
+export const categoryPropType = PropTypes.shape({
+  name: PropTypes.string.isRequired
+})
 
 const marketItems = (state = [], action) => {
   switch (action.type) {
@@ -79,12 +82,11 @@ export const getMarkets = (state) => {
 }
 
 export const getMarketCategories = (state) => {
-  return state.marketCategories
+  return state.currentMarketId ? state.marketCategories[state.currentMarketId] : []
 }
 
 export const getMarketsFetching = (state) => state.isMarketFetching
 export const getCategoriesFetching = (state) => state.isCategoriesFetching
-
 
 export const getCurrentMarketId = (state) => {
   return state.currentMarketId

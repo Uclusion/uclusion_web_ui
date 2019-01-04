@@ -3,6 +3,8 @@ import InvestibleListCategory from './InvestibleListCategory'
 import ItemList from '../../components/Lists/ItemList'
 import { injectIntl } from 'react-intl'
 import PropTypes from 'prop-types'
+import Typography from '@material-ui/core/Typography'
+
 class InvestibleList extends React.Component {
 
   constructor (props) {
@@ -35,6 +37,13 @@ class InvestibleList extends React.Component {
 
   render () {
     const { intl, investibles, categories, user, teamId, marketId } = this.props;
+    if (!categories || categories.length === 0) {
+      return (
+        <Typography variant='heading' >
+          {intl.formatMessage({ id: 'warning_404_categories' })}
+        </Typography>
+      )
+    }
     const defaultCategoryName = intl.formatMessage({id: 'defaultCategoryName'});
     const categoryMap = this.mapInvestiblesToCategories(investibles, defaultCategoryName);
     let categoryNames = categories.map(category => category.name);

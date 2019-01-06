@@ -1,37 +1,33 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
-import config from '../../config/config'
-import queryString from 'query-string'
-import { fetchMarket } from '../../store/Markets/actions'
-import { fetchUser } from '../../store/Users/actions'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-
+import { OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk'
+import { Button } from '@material-ui/core'
+import appConfig from '../../config/config'
 
 class Login extends Component {
-  componentDidMount () {
-    const { history, location, dispatch } = this.props
-    let params = queryString.parse(location.search)
-    config.api_configuration.authorizer.setToken(params.uclusionToken)
-    //this is a good place to do most initialization (I hope:)), since we've just logged in
-    if (params.marketId) {
-      dispatch(fetchMarket({market_id: params.marketId, isSelected: true}))
-      dispatch(fetchUser({dispatchFirstMarketId: false}))
-    } else {
-      dispatch(fetchUser({dispatchFirstMarketId: true}))
-    }
-    history.push('/investibles')
+  constructor(props){
+    super(props)
+    const { match } = props
+    const { marketId } = match
+    this.marketId = marketId
+    this.loginOidc = this.loginOidc.bind(this)
+  }
+
+  loginOidc(){
+    const destinationPage = '/' + this.marketId + 'investibles'
+    const pageUrl = window.location.href
+    const config = { pageUrl, marketId: this.marketId, uclusionUrl: appConfig.api_configuration.baseURL}
+    const authorizer = new OidcAuthorizer(config)
+    const redirect = authorizer.authorize(pageUrl, destinationPage)
+    window.location = redirect;
   }
 
   render () {
     return (
-      <div>Loading...</div>
+      <div><Button onClick={()=>this.loginOidc()}>Login Oidc</Button></div>
     )
   }
 }
 
-function mapDispatchToProps (dispatch) {
-  return Object.assign({ dispatch }, bindActionCreators({ fetchMarket, fetchUser }, dispatch))
-}
 
-export default connect(mapDispatchToProps)(withRouter((Login)))
+export default withRouter(Login)

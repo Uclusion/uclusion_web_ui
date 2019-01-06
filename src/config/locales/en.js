@@ -192,6 +192,8 @@ const messages = defineMessages({
   teamsLoading: 'Loading your Team Memberships.',
   myTeamsMenu: 'Team Memberships',
 
+  //auth messages
+  authorizationFailed: "We're sorry, authorization failed. Please try again",
 
   // User messages
   investmentFailed: 'There was a problem investing. Please try again.',

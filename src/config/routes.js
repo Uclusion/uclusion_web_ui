@@ -13,15 +13,15 @@ const AsyncLogin = MyLoadable({ loader: () => import('../pages/Login') })
 const AsyncTeams = MyLoadable({ loader: () => import('../pages/TeamMemberships/UserMemberships')})
 
 const routes = [
-  <RestrictedRoute type='private' path="/" exact component={AsyncDashboard} />,
-  <RestrictedRoute type='private' path="/dashboard" exact component={AsyncDashboard} />,
-  <RestrictedRoute type='private' path="/about" exact component={AsyncAbout} />,
-  <RestrictedRoute type='public' path="/investibles" exact component={AsyncInvestibles} />,
+  <RestrictedRoute type='private' path="/:marketId/" exact component={AsyncDashboard} />,
+  <RestrictedRoute type='private' path="/:marketId/dashboard" exact component={AsyncDashboard} />,
+  <RestrictedRoute type='private' path="/:marketId/about" exact component={AsyncAbout} />,
+  <RestrictedRoute type='public' path="/:marketId/investibles" exact component={AsyncInvestibles} />,
 
-  <RestrictedRoute type='public' path="/teams" exact component={AsyncTeams} />,
-  <RestrictedRoute type='private' path="/document" exact component={AsyncDocument} />,
+  <RestrictedRoute type='public' path="/:marketId/teams" exact component={AsyncTeams} />,
+  <RestrictedRoute type='private' path="/:marketId/document" exact component={AsyncDocument} />,
 
-  <RestrictedRoute type='public' path="/login" exact component={AsyncLogin} />
+  <RestrictedRoute type='public' path="/:marketId/login" exact component={AsyncLogin} />
 ]
 
 

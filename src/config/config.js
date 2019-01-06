@@ -4,38 +4,61 @@ import locales from './locales'
 import routes from './routes'
 import { themes } from './themes'
 import grants from './grants'
+import { OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk'
 
-function TokenAuthorizer () {
+const UCLUSION_URL = 'https://dev.api.uclusion.com/v1';
 
-  this.authorize = (resolve, reject) => {
-    return new Promise((resolve, reject) => {
-      try {
-        const data = getUclusionLocalStorage()
-        resolve(data.auth)
-      } catch (ex) {
-        reject(ex)
-      }
-    })
-  }
-  this.setToken = (token) => {
-    try {
-      setUclusionLocalStorageItem('auth', token)
-    } catch (ex) {
-      console.error(ex)
-    }
-  }
+class ReactWebAuthorizer{
 
-  this.getToken = () => {
+  constructor(){
     const data = getUclusionLocalStorage()
-    return data.auth
+    const { type, token } = data.auth
+    this.type = type;
+    this.token = token;
   }
 
-  this.reauthorize = (resolve, reject) => {
-    return this.authorize(resolve, reject)
+  getMarketIdFromUrl(){
+    const path = window.location.pathname;
+    const noSlash = path.substr(1);
+    const end = noSlash.indexOf(noSlash);
+    const marketId = noSlash.substr(0, end);
+    return marketId;
+  }
+
+
+  getAuthorizer() {
+    let authorizer = null;
+    const pageUrl = window.location.href;
+    const marketId = this.getMarketIdFromUrl();
+    const config = { pageUrl, uclusionUrl: UCLUSION_URL, marketId};
+    switch (this.type) {
+      case 'oidc':
+        authorizer = new OidcAuthorizer(config);
+        break;
+      case 'sso':
+        authorizer = new SsoAuthorizer(config);
+        break;
+      default:
+        //I dont know what you are and if you've even logged in, so i need to redirect you to a generic login page
+        window.location = '/' + marketId + '/Login'
+    }
+    return authorizer
+  }
+
+  authorize(){
+   const authorizer = this.getAuthorizer();
+   const pageUrl = window.location.href;
+   const redirectUrl = authorizer.authorize(pageUrl, pageUrl);
+   window.location = redirectUrl;
+  }
+
+  getToken(){
+    return this.token;
   }
 }
 
-const authorizer = new TokenAuthorizer()
+
+const authorizer = new ReactWebAuthorizer()
 
 const config = {
   firebase_config: {
@@ -77,8 +100,8 @@ const config = {
   getMenuItems,
   firebaseLoad: () => import('./firebase'),
   api_configuration: {
-    baseURL: 'https://dev.api.uclusion.com/v1',
-    authorizer: authorizer
+    authorizer: authorizer,
+    baseURL: UCLUSION_URL
   }
 }
 

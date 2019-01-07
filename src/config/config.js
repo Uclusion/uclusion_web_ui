@@ -12,9 +12,11 @@ class ReactWebAuthorizer {
 
   constructor () {
     const data = getUclusionLocalStorage()
-    const { type, token } = data.auth
-    this.type = type
-    this.token = token
+    if(data) {
+      const { type, token } = data.auth
+      this.type = type
+      this.token = token
+    }
   }
 
   getMarketIdFromUrl () {
@@ -38,8 +40,11 @@ class ReactWebAuthorizer {
         authorizer = new SsoAuthorizer(config)
         break
       default:
+        console.log(pageUrl)
+        const location =  '/' + marketId + '/Login'
+        console.log('redirecting you to login at '  + location)
         //I dont know what you are and if you've even logged in, so i need to redirect you to a generic login page
-        window.location = '/' + marketId + '/Login'
+        window.location = location
     }
     return authorizer
   }

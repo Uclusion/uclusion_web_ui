@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
-import { OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk'
+import { OidcAuthorizer } from 'uclusion_authorizer_sdk'
 import { Button } from '@material-ui/core'
 import appConfig from '../../config/config'
 

@@ -54,7 +54,7 @@ class Investibles extends Component {
 
   readCategoriesInvestibles (page, categoryName) {
     const { dispatch, marketId } = this.props
-    toast("TEST!")
+   // toast("TEST!")
     dispatch(fetchCategoriesInvestibles({
       market_id: marketId,
       category: categoryName,

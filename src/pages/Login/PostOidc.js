@@ -7,8 +7,21 @@ import { injectIntl } from 'react-intl'
 import { fetchMarket } from '../../store/Markets/actions'
 import { fetchUser } from '../../store/Users/actions'
 import { connect } from 'react-redux'
+import { Redirect} from 'react-router'
 
 class PostOidc extends Component {
+
+  constructor(props){
+    super(props)
+    this.state = {marketId: undefined, destination: undefined}
+    this.getPathPart = this.getPathPart.bind(this)
+  }
+
+  getPathPart(url){
+    const parsed = new URL(url)
+    return parsed.pathname
+  }
+
   componentDidMount () {
     const pageUrl = window.location.href
     const configuration = {
@@ -25,12 +38,17 @@ class PostOidc extends Component {
       console.log(destination_page)
       dispatch(fetchMarket({market_id, isSelected: true}))
       dispatch(fetchUser({dispatchFirstMarketId: false}))
-      window.location = destination_page // this should really be a relative link...
+      this.setState({marketId: market_id, destination: destination_page})
     })
   }
 
   render () {
     const { intl } = this.props
+    const { marketId, destination } = this.state
+    if (marketId){
+      const path = this.getPathPart(destination)
+      return (<Redirect to={path}/>)
+    }
     return (
       <div>
         <Typography>
@@ -40,7 +58,9 @@ class PostOidc extends Component {
     )
   }
 }
-function mapStateToProps (state) {}
+function mapStateToProps (state) {
+  return {}
+}
 
 function mapDispatchToProps (dispatch) {
   return { dispatch }

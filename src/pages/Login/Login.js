@@ -7,19 +7,42 @@ import appConfig from '../../config/config'
 class Login extends Component {
   constructor(props){
     super(props)
-    const { match } = props
-    const { marketId } = match
-    this.marketId = marketId
     this.loginOidc = this.loginOidc.bind(this)
+    this.getMarketId = this.getMarketId.bind(this)
+    this.getDestinationPage = this.getDestinationPage.bind(this)
   }
 
-  loginOidc(){
-    const destinationPage = '/' + this.marketId + 'investibles'
+  getMarketId() {
+    const { match } = this.props
+    const { params } = match
+    console.log(params)
+    const {marketId} = params
+    console.log(marketId)
+    return marketId
+  }
+
+  getDestinationPage(subPath) {
+    const marketId = this.getMarketId()
+    const newPath = '/' + marketId + '/' + subPath
+    const currentPage = new URL(window.location.href)
+    currentPage.pathname = newPath
+    return currentPage.toString()
+  }
+
+  loginOidc() {
+    const marketId = this.getMarketId()
+    const destinationPage = this.getDestinationPage('investibles')
+    const redirectUrl = this.getDestinationPage('PostOidc')
     const pageUrl = window.location.href
-    const config = { pageUrl, marketId: this.marketId, uclusionUrl: appConfig.api_configuration.baseURL}
+    const uclusionUrl = appConfig.api_configuration.baseURL
+    console.log(uclusionUrl)
+    const config = { pageUrl, marketId: marketId, uclusionUrl }
     const authorizer = new OidcAuthorizer(config)
-    const redirect = authorizer.authorize(pageUrl, destinationPage)
-    window.location = redirect;
+    const redirectPromise = authorizer.authorize(pageUrl, destinationPage, redirectUrl)
+    redirectPromise.then((location) => {
+      console.log(location)
+      window.location = location
+    })
   }
 
   render () {

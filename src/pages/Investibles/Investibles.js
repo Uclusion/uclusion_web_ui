@@ -15,11 +15,22 @@ class Investibles extends Component {
     super(props)
     // https://medium.freecodecamp.org/react-binding-patterns-5-approaches-for-handling-this-92c651b5af56
     this.readTrendingInvestibles = this.readTrendingInvestibles.bind(this)
+    this.getMarketId = this.getMarketId.bind(this)
   }
 
   componentDidMount () {
     console.log("Attempting to read trending investibles");
     this.readTrendingInvestibles()
+  }
+
+  //todo move this into utils
+  getMarketId() {
+    const { match } = this.props
+    const { params } = match
+    console.log(params)
+    const {marketId} = params
+    console.log(marketId)
+    return marketId
   }
 
   componentDidUpdate (prevProps) {
@@ -30,10 +41,11 @@ class Investibles extends Component {
   }
 
   readTrendingInvestibles () {
-    const { dispatch, marketId, user } = this.props
-    if(!user){
+    const { dispatch, user } = this.props
+    if (!user) {
       return
     }
+    const marketId = this.getMarketId()
     dispatch(fetchInvestibles({
       market_id: marketId,
       trending_window_date: '2015-01-22T03:23:26Z'

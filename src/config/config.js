@@ -8,36 +8,35 @@ import { OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk'
 
 const UCLUSION_URL = 'https://dev.api.uclusion.com/v1';
 
-class ReactWebAuthorizer{
+class ReactWebAuthorizer {
 
-  constructor(){
+  constructor () {
     const data = getUclusionLocalStorage()
     const { type, token } = data.auth
-    this.type = type;
-    this.token = token;
+    this.type = type
+    this.token = token
   }
 
-  getMarketIdFromUrl(){
-    const path = window.location.pathname;
-    const noSlash = path.substr(1);
-    const end = noSlash.indexOf(noSlash);
-    const marketId = noSlash.substr(0, end);
-    return marketId;
+  getMarketIdFromUrl () {
+    const path = window.location.pathname
+    const noSlash = path.substr(1)
+    const end = noSlash.indexOf(noSlash)
+    const marketId = noSlash.substr(0, end)
+    return marketId
   }
 
-
-  getAuthorizer() {
-    let authorizer = null;
-    const pageUrl = window.location.href;
-    const marketId = this.getMarketIdFromUrl();
-    const config = { pageUrl, uclusionUrl: UCLUSION_URL, marketId};
+  getAuthorizer () {
+    let authorizer = null
+    const pageUrl = window.location.href
+    const marketId = this.getMarketIdFromUrl()
+    const config = { pageUrl, uclusionUrl: UCLUSION_URL, marketId }
     switch (this.type) {
       case 'oidc':
-        authorizer = new OidcAuthorizer(config);
-        break;
+        authorizer = new OidcAuthorizer(config)
+        break
       case 'sso':
-        authorizer = new SsoAuthorizer(config);
-        break;
+        authorizer = new SsoAuthorizer(config)
+        break
       default:
         //I dont know what you are and if you've even logged in, so i need to redirect you to a generic login page
         window.location = '/' + marketId + '/Login'
@@ -45,15 +44,21 @@ class ReactWebAuthorizer{
     return authorizer
   }
 
-  authorize(){
-   const authorizer = this.getAuthorizer();
-   const pageUrl = window.location.href;
-   const redirectUrl = authorizer.authorize(pageUrl, pageUrl);
-   window.location = redirectUrl;
+  authorize () {
+    const token = this.token
+    if (token) {
+      return new Promise(function (resolve, reject) {
+        resolve(token)
+      })
+    }
+    const authorizer = this.getAuthorizer()
+    const pageUrl = window.location.href
+    const redirectUrl = authorizer.authorize(pageUrl, pageUrl)
+    window.location = redirectUrl
   }
 
-  getToken(){
-    return this.token;
+  getToken () {
+    return this.token
   }
 }
 

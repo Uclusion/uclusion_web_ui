@@ -1,5 +1,5 @@
 import getMenuItems from './menuItems'
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils'
+import { getUclusionLocalStorageItem } from '../components/utils'
 import locales from './locales'
 import routes from './routes'
 import { themes } from './themes'

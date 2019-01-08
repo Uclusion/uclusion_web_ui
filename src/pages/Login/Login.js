@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
-import { OidcAuthorizer } from 'uclusion_authorizer_sdk'
+import { OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk'
 import { Button } from '@material-ui/core'
 import appConfig from '../../config/config'
 
@@ -8,8 +8,12 @@ class Login extends Component {
   constructor(props){
     super(props)
     this.loginOidc = this.loginOidc.bind(this)
+    this.loginSso = this.loginSso.bind(this)
+    this.getLoginParams = this.getLoginParams.bind(this)
+    this.doLoginRedirect = this.doLoginRedirect.bind(this)
     this.getMarketId = this.getMarketId.bind(this)
     this.getDestinationPage = this.getDestinationPage.bind(this)
+
   }
 
   getMarketId() {
@@ -29,25 +33,41 @@ class Login extends Component {
     return currentPage.toString()
   }
 
-  loginOidc() {
+  getLoginParams(){
     const marketId = this.getMarketId()
     const destinationPage = this.getDestinationPage('investibles')
     const redirectUrl = this.getDestinationPage('PostOidc')
     const pageUrl = window.location.href
     const uclusionUrl = appConfig.api_configuration.baseURL
-    console.log(uclusionUrl)
-    const config = { pageUrl, marketId: marketId, uclusionUrl }
-    const authorizer = new OidcAuthorizer(config)
+    return {marketId, destinationPage, redirectUrl, pageUrl, uclusionUrl}
+  }
+
+  doLoginRedirect(authorizer, loginParams){
+    const {pageUrl, destinationPage, redirectUrl} = loginParams;
     const redirectPromise = authorizer.authorize(pageUrl, destinationPage, redirectUrl)
     redirectPromise.then((location) => {
       console.log(location)
       window.location = location
     })
   }
+  loginOidc() {
+    const loginParams = this.getLoginParams()
+    const authorizer = new OidcAuthorizer(loginParams)
+    this.doLoginRedirect(authorizer, loginParams)
+  }
+
+  loginSso() {
+    const loginParams = this.getLoginParams()
+    const authorizer = new SsoAuthorizer(loginParams)
+    this.doLoginRedirect(authorizer, loginParams)
+  }
 
   render () {
     return (
-      <div><Button onClick={()=>this.loginOidc()}>Login Oidc</Button></div>
+      <div>
+        <Button onClick={()=>this.loginOidc()}>Login OIDC</Button>
+        <Button onClick={()=>this.loginSso()}>Login SSO</Button>
+      </div>
     )
   }
 }

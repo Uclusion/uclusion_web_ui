@@ -26,52 +26,52 @@ export const categoryPropType = PropTypes.shape({
 const marketItems = (state = [], action) => {
   switch (action.type) {
     case REQUEST_MARKET:
-      return state;
+      return state
     case RECEIVE_MARKET:
-      let market = [action.market];
-      return _.unionBy(market, state, 'id');
+      let market = [action.market]
+      return _.unionBy(market, state, 'id')
     default:
-      return state;
+      return state
   }
 }
 
 const isMarketFetching = (state = 0, action) => {
   switch (action.type) {
     case REQUEST_MARKET:
-      return state + 1;
+      return state + 1
     case RECEIVE_MARKET:
-      return state - 1;
+      return state - 1
     default:
-      return state;
+      return state
   }
 }
 
 const currentMarketId = (state = null, action) => {
   switch (action.type) {
     case SELECT_MARKET:
-      return action.marketId;
+      return action.marketId
     default:
-      return state;
+      return state
   }
 }
 
 const isCategoriesFetching = (state = 0, action) => {
-  switch(action.type) {
+  switch (action.type) {
     case REQUEST_MARKET_CATEGORIES:
-      return state + 1;
+      return state + 1
     case RECEIVE_MARKET_CATEGORIES:
-      return state - 1;
+      return state - 1
     default:
-      return state;
+      return state
   }
 }
 
-const marketCategories = (state ={} , action) => {
-  switch(action.type) {
+const marketCategories = (state = {}, action) => {
+  switch (action.type) {
     case RECEIVE_MARKET_CATEGORIES:
-      const newState = { ...state };
-      newState[action.categories.market_id] = action.categories.categories;
-      return newState;
+      const newState = { ...state }
+      newState[action.categories.market_id] = action.categories.categories
+      return newState
     default:
       return state
   }

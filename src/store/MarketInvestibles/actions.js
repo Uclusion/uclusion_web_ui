@@ -1,6 +1,6 @@
 import { fetchUser } from '../Users/actions'
 import { getClient } from '../../config/uclusionClient'
-import { sendIntlMessage, ERROR, SUCCESS} from '../../utils/userMessage'
+import { sendIntlMessage, ERROR, SUCCESS } from '../../utils/userMessage'
 
 export const REQUEST_INVESTIBLES = 'REQUEST_INVESTIBLES'
 export const RECEIVE_INVESTIBLES = 'RECEIVE_INVESTIBLES'
@@ -36,7 +36,7 @@ export const investibleCreated = (investible) => ({
   investible
 })
 
-//TODO use the ... notation to pass these automagically.
+// TODO use the ... notation to pass these automagically.
 export const createAndBindInvestible = (marketId, title, description, category) => ({
   type: CREATE_AND_BIND_INVESTIBLE,
   marketId,
@@ -108,6 +108,7 @@ export const createInvestment = (params = {}) => {
         sendIntlMessage(SUCCESS, {id: 'investmentSucceeded'}, {shares: params.quantity})
         dispatch(fetchUser())
       }).catch((error) => {
+        console.error(error)
         sendIntlMessage(ERROR, {id: 'investmentFailed'})
         dispatch(investmentCreated([]))
         dispatch(fetchUser())
@@ -124,6 +125,7 @@ export const createNewBoundInvestible = (params = {}) => {
       sendIntlMessage(SUCCESS, {id: 'investibleAddSucceeded'})
       dispatch(fetchUser())
     }).catch((error) => {
+      console.error(error)
       sendIntlMessage(ERROR, {id: 'investibleBindFailed'})
       dispatch(fetchUser())
     })

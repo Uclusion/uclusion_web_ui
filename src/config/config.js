@@ -1,5 +1,5 @@
 import getMenuItems from './menuItems'
-import { getUclusionLocalStorage, setUclusionLocalStorageItem } from '../components/utils'
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils'
 import locales from './locales'
 import routes from './routes'
 import { themes } from './themes'
@@ -10,13 +10,8 @@ const UCLUSION_URL = 'https://dev.api.uclusion.com/v1';
 
 class ReactWebAuthorizer {
 
-  constructor () {
-    const data = getUclusionLocalStorage()
-    if(data) {
-      const { type, token } = data.auth
-      this.type = type
-      this.token = token
-    }
+  getLocalAuthInfo() {
+    return getUclusionLocalStorageItem('auth')
   }
 
   getMarketIdFromUrl () {
@@ -27,10 +22,24 @@ class ReactWebAuthorizer {
     return marketId
   }
 
+  /**
+   * Used when I don't know anything about you (e.g. I have no authorization context)
+   * @param marketId
+   */
+  doGenericAuthRedirect(marketId){
+    const location =  '/' + marketId + '/Login'
+    console.log('redirecting you to login at '  + location)
+    window.location = location
+  }
+
   getAuthorizer () {
+    const marketId = this.getMarketIdFromUrl()
+    const authInfo = this.getLocalAuthInfo()
+    if(!authInfo || !authInfo.type){
+      this.doGenericAuthRedirect(marketId)
+    }
     let authorizer = null
     const pageUrl = window.location.href
-    const marketId = this.getMarketIdFromUrl()
     const config = { pageUrl, uclusionUrl: UCLUSION_URL, marketId }
     switch (this.type) {
       case 'oidc':
@@ -40,22 +49,20 @@ class ReactWebAuthorizer {
         authorizer = new SsoAuthorizer(config)
         break
       default:
-        console.log(pageUrl)
-        const location =  '/' + marketId + '/Login'
-        console.log('redirecting you to login at '  + location)
-        //I dont know what you are and if you've even logged in, so i need to redirect you to a generic login page
-        window.location = location
-    }
+        //I don't regonize this type of authorizor, so I'm going to make you log in again
+        this.doGenericAuthRedirect(marketId)
+      }
     return authorizer
   }
 
   authorize () {
-    const token = this.token
-    if (token) {
+    const authInfo = this.getLocalAuthInfo()
+    if (authInfo && authInfo.token) {
       return new Promise(function (resolve, reject) {
-        resolve(token)
+        resolve(authInfo.token)
       })
     }
+    ///we're not pre-authorized, so kick them into authorization flow
     const authorizer = this.getAuthorizer()
     const pageUrl = window.location.href
     const redirectUrl = authorizer.authorize(pageUrl, pageUrl)
@@ -63,7 +70,11 @@ class ReactWebAuthorizer {
   }
 
   getToken () {
-    return this.token
+    const authInfo = this.getLocalAuthInfo()
+    if(authInfo){
+      return authInfo.token
+    }
+    return undefined
   }
 }
 

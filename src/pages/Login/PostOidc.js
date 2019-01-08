@@ -31,11 +31,12 @@ class PostOidc extends Component {
     const { dispatch } = this.props
     const authorizer = constructAuthorizer(configuration)
     authorizer.authorize(pageUrl).then((resolve) => {
-      console.log(resolve)
+     // console.log(resolve)
       const { uclusion_token, destination_page, market_id } = resolve
       const authInfo = { token: uclusion_token, type: 'oidc'}
       setUclusionLocalStorageItem('auth', authInfo)
       console.log(destination_page)
+      //pre-emptively fetch the market and user, since we're likely to need it
       dispatch(fetchMarket({market_id, isSelected: true}))
       dispatch(fetchUser({dispatchFirstMarketId: false}))
       this.setState({marketId: market_id, destination: destination_page})

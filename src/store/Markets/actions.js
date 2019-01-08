@@ -43,7 +43,7 @@ export const fetchMarketCategories = (params = {}) => (dispatch) => {
     })
 }
 
-export const  fetchMarket = (params = {}) => (dispatch) => {
+export const fetchMarket = (params = {}) => (dispatch) => {
   dispatch(requestMarket())
   if (params.isSelected) {
     dispatch(selectMarket(params.market_id))

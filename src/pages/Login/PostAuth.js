@@ -8,12 +8,22 @@ import { fetchMarket } from '../../store/Markets/actions'
 import { fetchUser } from '../../store/Users/actions'
 import { connect } from 'react-redux'
 import { Redirect} from 'react-router'
+import CircularProgress from '@material-ui/core/CircularProgress';
+import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
 
-class PostOidc extends Component {
+const styles = theme => ({
+  progress: {
+    margin: theme.spacing.unit * 2,
+  },
+});
+
+
+class PostAuth extends Component {
 
   constructor(props){
     super(props)
-    this.state = {marketId: undefined, destination: undefined}
+    this.state = {marketId: undefined, destination: undefined, failed: false}
     this.getPathPart = this.getPathPart.bind(this)
   }
 
@@ -39,21 +49,34 @@ class PostOidc extends Component {
       //pre-emptively fetch the market and user, since we're likely to need it
       dispatch(fetchMarket({market_id, isSelected: true}))
       dispatch(fetchUser({dispatchFirstMarketId: false}))
-      this.setState({marketId: market_id, destination: destination_page})
+      this.setState({marketId: market_id, destination: destination_page, failed: false})
+    }, (reject) => {
+      this.setState({failed: true})
     })
   }
 
   render () {
-    const { intl } = this.props
-    const { marketId, destination } = this.state
+    const { intl, classes } = this.props
+    const { marketId, destination, failed } = this.state
     if (marketId){
       const path = this.getPathPart(destination)
       return (<Redirect to={path}/>)
     }
+    if (failed) {
+      return (
+        <div>
+          <Typography>
+            {intl.formatMessage({id: 'authorizationFailed'})}
+          </Typography>
+        </div>
+      )
+    }
+
     return (
       <div>
+        <CircularProgress className={classes.progress} />
         <Typography>
-          {intl.formatMessage({ id: 'authorizationFailed' })}
+          {intl.formatMessage({id: 'authorizationInProgress'})}
         </Typography>
       </div>
     )
@@ -67,4 +90,8 @@ function mapDispatchToProps (dispatch) {
   return { dispatch }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(PostOidc))
+PostAuth.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(PostAuth)))

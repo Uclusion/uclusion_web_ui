@@ -36,7 +36,7 @@ class Login extends Component {
   getLoginParams(){
     const marketId = this.getMarketId()
     const destinationPage = this.getDestinationPage('investibles')
-    const redirectUrl = this.getDestinationPage('PostOidc')
+    const redirectUrl = this.getDestinationPage('post_auth')
     const pageUrl = window.location.href
     const uclusionUrl = appConfig.api_configuration.baseURL
     return {marketId, destinationPage, redirectUrl, pageUrl, uclusionUrl}

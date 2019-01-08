@@ -8,7 +8,7 @@ const AsyncDashboard = MyLoadable({ loader: () => import('../pages/Dashboard') }
 const AsyncAbout = MyLoadable({ loader: () => import('../pages/About') })
 const AsyncInvestibles = MyLoadable({ loader: () => import('../pages/Investibles/Investibles') })
 const AsyncDocument = MyLoadable({ loader: () => import('../pages/Document') })
-const AsyncPostOidc = MyLoadable({ loader: () => import('../pages/Login/PostOidc') })
+const AsyncPostAuth = MyLoadable({ loader: () => import('../pages/Login/PostAuth') })
 const AsyncLogin = MyLoadable({ loader: () => import('../pages/Login') })
 const AsyncTeams = MyLoadable({ loader: () => import('../pages/TeamMemberships/UserMemberships')})
 
@@ -20,7 +20,7 @@ const routes = [
 
   <RestrictedRoute type='public' path="/:marketId/teams" exact component={AsyncTeams} />,
   <RestrictedRoute type='private' path="/:marketId/document" exact component={AsyncDocument} />,
-  <RestrictedRoute type='public' path="/:marketId/PostOidc" exact component={AsyncPostOidc}/>,
+  <RestrictedRoute type='public' path="/:marketId/post_auth" exact component={AsyncPostAuth}/>,
   <RestrictedRoute type='public' path="/:marketId/login" exact component={AsyncLogin} />
 ]
 

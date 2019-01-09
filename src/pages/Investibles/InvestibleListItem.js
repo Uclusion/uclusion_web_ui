@@ -1,14 +1,16 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Typography} from '@material-ui/core'
+import { ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Typography } from '@material-ui/core'
 import Chip from '@material-ui/core/Chip'
-import Avatar from '@material-ui/core/Avatar';
+import Avatar from '@material-ui/core/Avatar'
 import InvestibleListItemTabs from './InvestibleListItemTabs'
-import classNames from 'classnames';
+import classNames from 'classnames'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
+import { withUseAndPermissions } from '../../components/UserPermissions/UserPermissions'
+import InvestibleDelete from './InvestibleDelete'
 
 const styles = (theme) => ({
   headerBox: {
@@ -20,9 +22,7 @@ const styles = (theme) => ({
     alignItems: 'center',
   },
 
-  helper: {
-
-  },
+  helper: {},
 
   investment: {
     display: 'inline-block'
@@ -49,10 +49,8 @@ const styles = (theme) => ({
 
 class InvestibleListItem extends Component {
 
-
   constructor (props) {
     super(props)
-
     this.state = { investOpen: false }
     this.investOnClick = this.investOnClick.bind(this)
     this.handleInvestModalClose = this.handleInvestModalClose.bind(this)
@@ -66,9 +64,9 @@ class InvestibleListItem extends Component {
     this.setState({ investOpen: false })
   }
 
-
   render () {
-    const {name, description, quantity, id, sharesAvailable, marketId, classes, teamId, currentInvestment, intl} = this.props
+    const { name, description, quantity, id, sharesAvailable, marketId, classes, teamId, currentInvestment, intl, userPermissions } = this.props
+    const { canDeleteMarketInvestible } = userPermissions
     return (
       <ExpansionPanel>
         <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon/>}>
@@ -79,8 +77,11 @@ class InvestibleListItem extends Component {
           </div>
           <div className={classes.column}/>
           <div className={classNames(classes.column, classes.helper)}>
-            {currentInvestment > 0 && <Chip avatar={<Avatar>{intl.formatMessage({id: 'ideaShareSymbol'})}</Avatar>} label={intl.formatMessage({id: 'userCurrentInvestmentChip'}, {shares: currentInvestment})}/>}
-            {quantity > 0 && <Chip avatar={<Avatar>{intl.formatMessage({id: 'ideaShareSymbol'})}</Avatar>} label={intl.formatMessage({id: 'totalCurrentInvestmentChip'}, {shares: quantity})}/>}
+            {currentInvestment > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>}
+                                            label={intl.formatMessage({ id: 'userCurrentInvestmentChip' }, { shares: currentInvestment })}/>}
+            {quantity > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>}
+                                   label={intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: quantity })}/>}
+            {canDeleteMarketInvestible && <InvestibleDelete investibleId={id}/>}
           </div>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
@@ -88,8 +89,8 @@ class InvestibleListItem extends Component {
             <HtmlRichTextEditor value={description} readOnly={true}/>
             <div className={classes.tabSection}>
               <InvestibleListItemTabs name={name}
-                quantity={quantity} investibleId={id} marketId={marketId} teamId={teamId}
-                sharesAvailable={sharesAvailable}
+                                      quantity={quantity} investibleId={id} marketId={marketId} teamId={teamId}
+                                      sharesAvailable={sharesAvailable}
               />
             </div>
           </div>
@@ -108,7 +109,8 @@ InvestibleListItem.propTypes = {
   categories: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
   sharesAvailable: PropTypes.number.isRequired,
   currentInvestment: PropTypes.number.isRequired,
-  teamId: PropTypes.string.isRequired
+  teamId: PropTypes.string.isRequired,
+  userPermissions: PropTypes.object.isRequired
 }
 
-export default injectIntl(withStyles(styles)(InvestibleListItem));
+export default injectIntl(withStyles(styles)(withUseAndPermissions(InvestibleListItem)))

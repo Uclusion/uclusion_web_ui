@@ -6,17 +6,16 @@ import { fetchCategoriesInvestibles } from '../../store/MarketInvestibles/action
 import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../../store/MarketInvestibles/reducer'
 import { injectIntl } from 'react-intl'
 import Activity from '../../containers/Activity/Activity'
-import { getCurrentMarketId, getMarketsFetching, getCategoriesFetching, getMarketCategories, categoryPropType } from '../../store/Markets/reducer'
+import { getMarketsFetching, getCategoriesFetching, getMarketCategories, categoryPropType } from '../../store/Markets/reducer'
 import { getUsersFetching, getCurrentUser } from '../../store/Users/reducer'
 import InvestibleList from './InvestibleList'
-// import { toast } from 'react-toastify'
+import { withMarketId } from '../../components/PathProps/MarketId'
 
 class Investibles extends Component {
   constructor (props) {
     super(props)
     // https://medium.freecodecamp.org/react-binding-patterns-5-approaches-for-handling-this-92c651b5af56
     // this.readTrendingInvestibles = this.readTrendingInvestibles.bind(this)
-    this.getMarketId = this.getMarketId.bind(this)
   }
 
   componentDidMount () {
@@ -24,15 +23,6 @@ class Investibles extends Component {
     // this.readTrendingInvestibles() This is PWA so we don't do this here
   }
 
-  // todo move this into utils
-  getMarketId () {
-    const { match } = this.props
-    const { params } = match
-    console.log(params)
-    const {marketId} = params
-    console.log(marketId)
-    return marketId
-  }
 
   componentDidUpdate (prevProps) {
     // if (this.props.marketId !== prevProps.marketId) {
@@ -109,7 +99,6 @@ const mapStateToProps = (state) => ({
   loading: getInvestiblesFetching(state.investiblesReducer) + getMarketsFetching(state.marketsReducer) + getCategoriesFetching(state.marketsReducer) + getUsersFetching(state.usersReducer),
   investibles: getInvestibles(state.investiblesReducer),
   categories: getMarketCategories(state.marketsReducer),
-  marketId: getCurrentMarketId(state.marketsReducer),
   user: getCurrentUser(state.usersReducer)
 })
 
@@ -120,4 +109,4 @@ function mapDispatchToProps (dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(injectIntl(withTheme()(Investibles)))
+)(injectIntl(withTheme()(withMarketId(Investibles))))

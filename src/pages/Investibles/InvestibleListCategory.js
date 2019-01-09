@@ -5,11 +5,10 @@ import PropTypes from 'prop-types'
 import InvestibleListQuickAdd from './InvestibleListQuickAdd'
 
 class InvestibleListCategory extends React.Component {
-
   render () {
-    const { investibles, teamId, user, marketId, category } = this.props;
-    const marketPresence = user.market_presence;
-    const quickAddBox = <InvestibleListQuickAdd category={category} teamId={teamId} marketId={marketId} />;
+    const { investibles, teamId, user, marketId, category } = this.props
+    const marketPresence = user.market_presence
+    const quickAddBox = <InvestibleListQuickAdd key='quickadd' category={category} teamId={teamId} marketId={marketId} />
     const items = investibles.map ? investibles.map(element =>
       <InvestibleListItem
         key={element.id}
@@ -30,7 +29,6 @@ class InvestibleListCategory extends React.Component {
   };
 }
 
-
 InvestibleListCategory.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
   category: PropTypes.string.isRequired,
@@ -39,4 +37,4 @@ InvestibleListCategory.propTypes = {
   teamId: PropTypes.string.isRequired
 }
 
-export default InvestibleListCategory;
+export default InvestibleListCategory

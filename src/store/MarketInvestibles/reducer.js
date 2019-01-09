@@ -12,16 +12,15 @@ import {
 export const investiblePropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  market_id: PropTypes.string.isRequired,
+  market_id: PropTypes.string,
   description: PropTypes.string.isRequired,
-  category_list: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
-  quantity: PropTypes.number.isRequired,
-  investment_in_window1: PropTypes.number.isRequired,
-  closed: PropTypes.bool.isRequired,
-  created_at: PropTypes.instanceOf(Date).isRequired,
-  updated_at: PropTypes.instanceOf(Date).isRequired,
-  last_investment_at: PropTypes.instanceOf(Date).isRequired,
-  current_user_investment: PropTypes.number.isRequired
+  category_list: PropTypes.arrayOf(PropTypes.string),
+  quantity: PropTypes.number,
+  investment_in_window1: PropTypes.number,
+  created_at: PropTypes.instanceOf(Date),
+  updated_at: PropTypes.instanceOf(Date),
+  last_investment_at: PropTypes.instanceOf(Date),
+  current_user_investment: PropTypes.number
 })
 
 const items = (state = [], action) => {

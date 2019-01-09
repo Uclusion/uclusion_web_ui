@@ -10,7 +10,6 @@ export const INVESTIBLE_CREATED = 'INVESTIBLE_CREATED'
 export const DELETE_MARKET_INVESTIBLE = 'DELETE_MARKET_INVESTIBLE'
 export const MARKET_INVESTIBLE_DELETED = 'MARKET_INVESTIBLE_DELETED'
 
-
 export const deleteInvestible = (investibleId) => ({
   type: DELETE_MARKET_INVESTIBLE,
   investibleId
@@ -37,7 +36,6 @@ export const investInInvestible = (marketId, teamId, investibleId, quantity) => 
   marketId,
   teamId
 })
-
 
 export const investmentCreated = (investment) => ({
   type: INVESTMENT_CREATED,
@@ -66,8 +64,6 @@ export const formatInvestibles = (investibles) => {
 const baseFetchInvestibles = (params, dispatch, aFunction) => {
   if (!params.market_id && !params.investibleId) { return }
   dispatch(requestInvestibles())
-
-  // TODO either constructClient must cache the client or we have to at the upper level
   const clientPromise = getClient()
   const promise = clientPromise.then((client) => aFunction(client))
 

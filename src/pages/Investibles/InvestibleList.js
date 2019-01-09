@@ -30,7 +30,7 @@ class InvestibleList extends React.Component {
     console.log(categoryNames)
     const sortedNames = categoryNames.sort(); //put categories in alpha sorted order for now
     return sortedNames.map((name) => {
-      const categoryInvestibles = categoryMap.has(name) ? categoryMap.get(name) : {};
+      const categoryInvestibles = categoryMap.has(name) ? categoryMap.get(name) : [];
       return <InvestibleListCategory key={name} category={name} investibles={categoryInvestibles} user={user} teamId={teamId} marketId={marketId}/>
     });
   }

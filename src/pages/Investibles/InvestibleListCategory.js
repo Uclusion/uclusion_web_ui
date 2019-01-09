@@ -12,14 +12,8 @@ class InvestibleListCategory extends React.Component {
     const items = investibles.map ? investibles.map(element =>
       <InvestibleListItem
         key={element.id}
-        id={element.id}
-        description={element.description}
-        name={element.name}
-        quantity={element.quantity}
-        categories={element.category_list}
-        marketId={element.market_id}
+        investible={element}
         teamId={teamId}
-        currentInvestment={element.current_user_investment}
         sharesAvailable={marketPresence.quantity}
       />
     ) : []

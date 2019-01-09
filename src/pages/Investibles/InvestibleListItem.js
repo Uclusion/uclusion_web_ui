@@ -19,7 +19,7 @@ const styles = (theme) => ({
   },
 
   details: {
-    alignItems: 'center',
+    alignItems: 'center'
   },
 
   helper: {},
@@ -29,7 +29,7 @@ const styles = (theme) => ({
   },
 
   column: {
-    flexBasis: '33.33%',
+    flexBasis: '33.33%'
   },
 
   mainGrid: {
@@ -48,7 +48,6 @@ const styles = (theme) => ({
 })
 
 class InvestibleListItem extends Component {
-
   constructor (props) {
     super(props)
     this.state = { investOpen: false }
@@ -65,33 +64,29 @@ class InvestibleListItem extends Component {
   }
 
   render () {
-    const { name, description, quantity, id, sharesAvailable, marketId, classes, teamId, currentInvestment, intl, userPermissions } = this.props
+    const { investible, sharesAvailable, classes, teamId, intl, userPermissions } = this.props
     const { canDeleteMarketInvestible } = userPermissions
     return (
       <ExpansionPanel>
-        <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon/>}>
+        <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon />}>
           <div className={classes.column}>
             <Typography>
-              {name}
+              {investible.name} {investible.stage} {investible.next_stage}
             </Typography>
           </div>
-          <div className={classes.column}/>
+          <div className={classes.column} />
           <div className={classNames(classes.column, classes.helper)}>
-            {currentInvestment > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>}
-                                            label={intl.formatMessage({ id: 'userCurrentInvestmentChip' }, { shares: currentInvestment })}/>}
-            {quantity > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>}
-                                   label={intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: quantity })}/>}
-            {canDeleteMarketInvestible && <InvestibleDelete investibleId={id}/>}
+            {investible.current_user_investment > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>} label={intl.formatMessage({ id: 'userCurrentInvestmentChip' }, { shares: investible.current_user_investment })} />}
+            {investible.quantity > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>} label={intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })} />}
+            {investible.next_stage_threshold > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>} label={intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })} />}
+            {canDeleteMarketInvestible && <InvestibleDelete investibleId={investible.id} />}
           </div>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
           <div className={classes.wholeWidth}>
-            <HtmlRichTextEditor value={description} readOnly={true}/>
+            <HtmlRichTextEditor value={investible.description} readOnly />
             <div className={classes.tabSection}>
-              <InvestibleListItemTabs name={name}
-                                      quantity={quantity} investibleId={id} marketId={marketId} teamId={teamId}
-                                      sharesAvailable={sharesAvailable}
-              />
+              <InvestibleListItemTabs name={investible.name} quantity={investible.quantity} investibleId={investible.id} marketId={investible.market_id} teamId={teamId} sharesAvailable={sharesAvailable} />
             </div>
           </div>
         </ExpansionPanelDetails>
@@ -101,14 +96,8 @@ class InvestibleListItem extends Component {
 }
 
 InvestibleListItem.propTypes = {
-  id: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
-  quantity: PropTypes.number.isRequired,
-  marketId: PropTypes.string.isRequired,
-  categories: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
+  investible: PropTypes.object.isRequired,
   sharesAvailable: PropTypes.number.isRequired,
-  currentInvestment: PropTypes.number.isRequired,
   teamId: PropTypes.string.isRequired,
   userPermissions: PropTypes.object.isRequired
 }

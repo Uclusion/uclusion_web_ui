@@ -1,7 +1,5 @@
 import { combineReducers } from 'redux'
-import PropTypes from 'prop-types'
-import _ from 'lodash'
-import { REQUEST_INVESTIBLES, RECEIVE_INVESTIBLES, INVESTMENT_CREATED, INVESTIBLE_CREATED, formatInvestibles } from './actions'
+import { formatInvestibles } from './actions'
 
 const items = (state = [], action) => {
   switch (action.type) {
@@ -26,4 +24,4 @@ export const getInvestiblesFetching = state => state.isFetching
 export default combineReducers({
   items,
   isFetching
-});
+})

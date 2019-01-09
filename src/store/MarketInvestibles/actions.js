@@ -9,6 +9,7 @@ export const INVESTMENT_CREATED = 'INVESTMENT_CREATED'
 export const INVESTIBLE_CREATED = 'INVESTIBLE_CREATED'
 export const DELETE_MARKET_INVESTIBLE = 'DELETE_MARKET_INVESTIBLE'
 export const MARKET_INVESTIBLE_DELETED = 'MARKET_INVESTIBLE_DELETED'
+export const MARKET_INVESTIBLE_CREATED = 'MARKET_INVESTIBLE_CREATED'
 
 export const deleteInvestible = (investibleId) => ({
   type: DELETE_MARKET_INVESTIBLE,
@@ -40,6 +41,12 @@ export const investInInvestible = (marketId, teamId, investibleId, quantity) => 
 export const investmentCreated = (investment) => ({
   type: INVESTMENT_CREATED,
   investment
+})
+
+export const marketInvestibleCreated = (investment, marketInvestible) => ({
+  type: MARKET_INVESTIBLE_CREATED,
+  investment,
+  marketInvestible
 })
 
 export const investibleCreated = (investible) => ({
@@ -120,10 +127,9 @@ export const createNewBoundInvestible = (params = {}) => {
     const clientPromise = getClient()
     return clientPromise.then((client) => {
       return client.markets.investAndBind(params.marketId, params.teamId, params.investibleId, params.quantity, params.categoryList)
-    }).then((investment) => {
-      investment.categoryList = params.categoryList
-      investment.copiedInvestibleId = params.investibleId
-      dispatch(investmentCreated(investment))
+    }).then((response) => {
+      response.investible.copiedInvestibleId = params.investibleId
+      dispatch(marketInvestibleCreated(response.investment, response.investible))
       sendIntlMessage(SUCCESS, {id: 'investibleAddSucceeded'})
       dispatch(fetchUser({marketId: params.marketId}))
     }).catch((error) => {

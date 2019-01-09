@@ -149,7 +149,6 @@ const messages = defineMessages({
   document: 'Document',
   collection: 'Collection',
   infinitelist: 'Infinitelist',
-
   investibleListNotFound: 'No Investibles Found.',
   investibleListHeader: 'Investibles',
   investModalText: 'Please enter the quantity of idea shares to invest:',
@@ -157,45 +156,34 @@ const messages = defineMessages({
   investButton: 'Invest',
   cancelButton: 'Cancel',
   addButton: 'Add',
-
   investTab: 'Invest',
   activityTab: 'Activity',
   commentsTab: 'Comments',
-
   moreDetailsButton: 'More Details',
   userCurrentInvestmentChip: '{shares} yours',
   totalCurrentInvestmentChip: '{shares} total',
+  investmentForNextStageChip: '{shares} required for next stage',
   ideaShareSymbol: 'Ȗ',
   defaultCategoryName: 'Uncategorized',
-
   teamsListNotFound: 'No Teams found',
-
   titleLabel: 'Title',
   descriptionLabel: 'Description',
-
   // Sidebar menu names
   marketCategoriesMenu: 'Categories',
   marketTeamsMenu: 'Market Teams',
   addInvestibleMenu: 'Add Investible',
   investiblesMenu: 'Investibles',
-
   categoryLabel: 'Category',
   saveInvestibleButton: 'Save investible',
-
   loadingMessage: 'Loading',
-
   investibleAddDescriptionDefault: 'Add a description...',
-
-
   // Team Memberships pages
   teamsHeader: 'Team Memberships',
   teamsLoading: 'Loading your Team Memberships.',
   myTeamsMenu: 'Team Memberships',
-
-  //auth messages
+  // auth messages
   authorizationFailed: "We're sorry, authorization failed. Please try again",
   authorizationInProgress: 'Logging you in...',
-
   // User messages
   investmentFailed: 'There was a problem investing. Please try again.',
   investmentSucceeded: 'You have invested Ȗ{shares}.',

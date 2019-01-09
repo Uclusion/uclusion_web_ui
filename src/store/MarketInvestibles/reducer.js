@@ -6,7 +6,7 @@ import {
   RECEIVE_INVESTIBLES,
   INVESTMENT_CREATED,
   formatInvestibles,
-  INVESTIBLE_CREATED
+  INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED
 } from './actions'
 
 export const investiblePropType = PropTypes.shape({
@@ -35,20 +35,20 @@ const items = (state = [], action) => {
       }
       return _.unionBy(investibles, state, 'id')
     case INVESTMENT_CREATED:
+    case MARKET_INVESTIBLE_CREATED:
       const investment = action.investment
-      let findInvestibleId = investment.copiedInvestibleId ? investment.copiedInvestibleId : investment.investible_id
+      const marketInvestible = action.marketInvestible
+      let findInvestibleId = marketInvestible ? marketInvestible.copiedInvestibleId : investment.investible_id
       let investible = state.find((element) => element.id === findInvestibleId)
-      // if we're not yet in the investible list, don't bother fetching us. We'll get it later
-      if (!investible) {
-        return state
+      let investibleCopy
+      if (marketInvestible) {
+        // This is a bind to market
+        investibleCopy = {...investible, ...marketInvestible}
+      } else {
+        investibleCopy = {...investible}
       }
-      let investibleCopy = {...investible}
       investibleCopy.id = investment.investible_id
       investibleCopy.quantity = investment.investible_quantity
-      if (investment.categoryList) {
-        // This is a bind to market
-        investibleCopy.category_list = investment.categoryList
-      }
       investibleCopy.current_user_investment = investment.current_user_investment
       return _.unionBy([investibleCopy], state, 'id')
     default:
@@ -76,4 +76,4 @@ export const getInvestiblesFetching = state => state.isFetching
 export default combineReducers({
   items,
   isFetching
-});
+})

@@ -7,7 +7,6 @@ export const RECEIVE_INVESTIBLES = 'RECEIVE_INVESTIBLES'
 export const INVEST_INVESTIBLE = 'INVEST_INVESTIBLE'
 export const INVESTMENT_CREATED = 'INVESTMENT_CREATED'
 export const INVESTIBLE_CREATED = 'INVESTIBLE_CREATED'
-export const CREATE_AND_BIND_INVESTIBLE = 'CREATE_AND_BIND_INVESTIBLE'
 
 export const requestInvestibles = () => ({
   type: REQUEST_INVESTIBLES
@@ -34,15 +33,6 @@ export const investmentCreated = (investment) => ({
 export const investibleCreated = (investible) => ({
   type: INVESTIBLE_CREATED,
   investible
-})
-
-// TODO use the ... notation to pass these automagically.
-export const createAndBindInvestible = (marketId, title, description, category) => ({
-  type: CREATE_AND_BIND_INVESTIBLE,
-  marketId,
-  title,
-  description,
-  category
 })
 
 const formatInvestible = (investible) => {
@@ -106,12 +96,11 @@ export const createInvestment = (params = {}) => {
       .then(investment => {
         dispatch(investmentCreated(investment))
         sendIntlMessage(SUCCESS, {id: 'investmentSucceeded'}, {shares: params.quantity})
-        dispatch(fetchUser())
+        dispatch(fetchUser({marketId: params.marketId}))
       }).catch((error) => {
         console.error(error)
         sendIntlMessage(ERROR, {id: 'investmentFailed'})
         dispatch(investmentCreated([]))
-        dispatch(fetchUser())
       })
   }
 }
@@ -121,19 +110,19 @@ export const createNewBoundInvestible = (params = {}) => {
     const clientPromise = getClient()
     return clientPromise.then((client) => {
       return client.markets.investAndBind(params.marketId, params.teamId, params.investibleId, params.quantity, params.categoryList)
-    }).then((result) => {
+    }).then((investment) => {
+      investment.categoryList = params.categoryList
+      dispatch(investmentCreated(investment))
       sendIntlMessage(SUCCESS, {id: 'investibleAddSucceeded'})
-      dispatch(fetchUser())
+      dispatch(fetchUser({marketId: params.marketId}))
     }).catch((error) => {
       console.error(error)
       sendIntlMessage(ERROR, {id: 'investibleBindFailed'})
-      dispatch(fetchUser())
     })
   }
 }
 
 export const createMarketInvestible = (params = {}) => (dispatch) => {
-  dispatch(createAndBindInvestible(params.marketId, params.title, params.description, params.category))
   const clientPromise = getClient()
   return clientPromise.then((client) => client.investibles.create(params.title, params.description))
     .then(investible => {
@@ -152,6 +141,5 @@ export const createMarketInvestible = (params = {}) => (dispatch) => {
       console.log(error)
       sendIntlMessage(ERROR, {id: 'investibleAddFailed'})
       dispatch(investibleCreated([]))
-      dispatch(fetchUser())
     })
 }

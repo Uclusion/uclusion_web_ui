@@ -16,7 +16,7 @@ class InvestibleList extends React.Component {
   mapInvestiblesToCategories = (investibles, defaultCategoryName) => {
     let categoryMap = new Map();
     investibles.forEach((element) => {
-      const cats = element.category_list;
+      const cats = element.category_list ? element.category_list : [];
       cats.forEach((category) => {
         let contents = categoryMap.get(category) || [];
         contents.push(element);

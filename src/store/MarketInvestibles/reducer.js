@@ -1,7 +1,13 @@
 import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { REQUEST_INVESTIBLES, RECEIVE_INVESTIBLES, INVESTMENT_CREATED, formatInvestibles } from './actions'
+import {
+  REQUEST_INVESTIBLES,
+  RECEIVE_INVESTIBLES,
+  INVESTMENT_CREATED,
+  formatInvestibles,
+  INVESTIBLE_CREATED
+} from './actions'
 
 export const investiblePropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -23,7 +29,8 @@ const items = (state = [], action) => {
     case REQUEST_INVESTIBLES:
       return state
     case RECEIVE_INVESTIBLES:
-      let investibles = action.investibles
+    case INVESTIBLE_CREATED:
+      let investibles = action.investibles ? action.investibles : action.investible
       if (!Array.isArray(investibles)) {
         investibles = [investibles]
       }
@@ -31,12 +38,16 @@ const items = (state = [], action) => {
     case INVESTMENT_CREATED:
       const investment = action.investment
       let investible = state.find((element) => element.id === investment.investible_id)
-      //if we're not yet in the investible list, don't bother fetching us. We'll get it later
-      if(!investible){
+      // if we're not yet in the investible list, don't bother fetching us. We'll get it later
+      if (!investible) {
         return state
       }
       let investibleCopy = {...investible}
       investibleCopy.quantity = investment.investible_quantity
+      if (investment.categoryList) {
+        // This is a bind to market
+        investibleCopy.category_list = investment.categoryList
+      }
       investibleCopy.current_user_investment = investment.current_user_investment
       return _.unionBy([investibleCopy], state, 'id')
     default:

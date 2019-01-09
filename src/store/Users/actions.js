@@ -21,16 +21,12 @@ export const receiveCurrentUser = user => ({
 
 export const fetchUser = (params = {}) => (dispatch) => {
   dispatch(requestUser())
-  // TODO either constructClient must cache the client or we have to at the upper level
   const clientPromise = getClient()
   return clientPromise.then((client) => {
-    return client.users.get(params.user_id)
+    return client.users.get(params.user_id, params.marketId)
   }).then((user) => {
     if (!params.user_id) {
       dispatch(receiveCurrentUser(user))
-    }
-    if (params.dispatchFirstMarketId && user.market_presence) {
-      dispatch(fetchMarket({market_id: user.market_presence.id, isSelected: true}))
     }
     return dispatch(receiveUser(user))
   }).catch((error) => {

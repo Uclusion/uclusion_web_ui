@@ -203,7 +203,9 @@ const messages = defineMessages({
   teamMemberLoadFailed: 'There was a problem retrieving the members of your team. Please try again',
   investibleAddFailed: 'There was a problem saving your investible. Please try again',
   investibleBindFailed: 'There was a problem making your investible available to others. Please try again',
-  investibleAddSucceeded: 'Your new investible has been created! It may take a few minutes to be visible.'
+  investibleAddSucceeded: 'Your new investible has been created! It may take a few minutes to be visible.',
+  marketInvestibleDeleted: 'The investible has been removed from the market.',
+  marketInvestibleDeleteFailed: 'There was a problem removing the investible from the market. Please try again'
 })
 
 export default messages

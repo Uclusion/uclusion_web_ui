@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { DeleteForever } from '@material-ui/icons'
 import PropTypes from 'prop-types'
-import { deleteMarketInvestible} from '../../store/MarketInvestibles/actions'
+import { deleteMarketInvestible } from '../../store/MarketInvestibles/actions'
 
 class InvestibleDelete extends React.Component {
 

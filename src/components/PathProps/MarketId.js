@@ -1,5 +1,6 @@
 /**
- * Higher order component to extract the market id out of the path parts and pass it in as a prop to wrapped components
+ * Higher order component to extract the market id out of the path parts and pass it in as a prop to wrapped components.
+ * Assumes youre in a react router context
  */
 
 import React from 'react'

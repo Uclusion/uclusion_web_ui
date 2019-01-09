@@ -36,12 +36,14 @@ const items = (state = [], action) => {
       return _.unionBy(investibles, state, 'id')
     case INVESTMENT_CREATED:
       const investment = action.investment
-      let investible = state.find((element) => element.id === investment.investible_id)
+      let findInvestibleId = investment.copiedInvestibleId ? investment.copiedInvestibleId : investment.investible_id
+      let investible = state.find((element) => element.id === findInvestibleId)
       // if we're not yet in the investible list, don't bother fetching us. We'll get it later
       if (!investible) {
         return state
       }
       let investibleCopy = {...investible}
+      investibleCopy.id = investment.investible_id
       investibleCopy.quantity = investment.investible_quantity
       if (investment.categoryList) {
         // This is a bind to market

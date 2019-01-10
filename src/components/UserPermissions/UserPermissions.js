@@ -25,7 +25,7 @@ function withUseAndPermissions(WrappedComponent) {
       if (! available_apis || !operation_permissions ){
         return {}
       }
-      const canDeleteMarketInvestible = available_apis.includes('delete_investible') && operation_permissions.delete_market_investible
+      const canDeleteMarketInvestible = available_apis.includes('delete_investible') && operation_permissions.includes('delete_market_investible')
       // console.log(_upUser)
       return { canDeleteMarketInvestible }
     }

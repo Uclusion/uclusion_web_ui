@@ -162,7 +162,7 @@ const messages = defineMessages({
   moreDetailsButton: 'More Details',
   userCurrentInvestmentChip: '{shares} yours',
   totalCurrentInvestmentChip: '{shares} total',
-  investmentForNextStageChip: '{shares} required for next stage',
+  investmentForNextStageChip: '{shares} for next stage',
   ideaShareSymbol: 'Ȗ',
   defaultCategoryName: 'Uncategorized',
   teamsListNotFound: 'No Teams found',

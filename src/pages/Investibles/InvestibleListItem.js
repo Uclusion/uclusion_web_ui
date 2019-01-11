@@ -79,7 +79,7 @@ class InvestibleListItem extends Component {
             {investible.current_user_investment > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>} label={intl.formatMessage({ id: 'userCurrentInvestmentChip' }, { shares: investible.current_user_investment })} />}
             {investible.quantity > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>} label={intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })} />}
             {investible.next_stage_threshold > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>} label={intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })} />}
-            {canDeleteMarketInvestible && <InvestibleDelete investibleId={investible.id} />}
+            {canDeleteMarketInvestible && <InvestibleDelete investible={investible} />}
           </div>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>

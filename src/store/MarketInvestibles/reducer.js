@@ -6,7 +6,7 @@ import {
   RECEIVE_INVESTIBLES,
   INVESTMENT_CREATED,
   formatInvestibles,
-  INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED
+  INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED
 } from './actions'
 
 export const investiblePropType = PropTypes.shape({
@@ -34,6 +34,8 @@ const items = (state = [], action) => {
         investibles = [investibles]
       }
       return _.unionBy(investibles, state, 'id')
+    case MARKET_INVESTIBLE_DELETED:
+      return state.filter(item => item.id !== action.investibleId)
     case INVESTMENT_CREATED:
     case MARKET_INVESTIBLE_CREATED:
       const investment = action.investment

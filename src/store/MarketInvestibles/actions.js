@@ -161,7 +161,7 @@ export const createMarketInvestible = (params = {}) => (dispatch) => {
 }
 
 export const deleteMarketInvestible = (params = {}) => (dispatch) => {
-  const { investibleId } = params
+  const investibleId = params
   dispatch(deleteInvestible(investibleId))
   const clientPromise = getClient()
   return clientPromise.then((client) => client.investibles.delete(investibleId))

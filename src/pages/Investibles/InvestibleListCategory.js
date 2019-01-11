@@ -14,7 +14,7 @@ class InvestibleListCategory extends React.Component {
         key={element.id}
         investible={element}
         teamId={teamId}
-        sharesAvailable={marketPresence.quantity}
+        sharesAvailgable={marketPresence.quantity}
       />
     ) : []
     return (

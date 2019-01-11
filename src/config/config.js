@@ -1,106 +1,14 @@
 import getMenuItems from './menuItems'
-import { getUclusionLocalStorageItem } from '../components/utils'
+
 import locales from './locales'
 import routes from './routes'
 import { themes } from './themes'
 import grants from './grants'
-import { OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk'
+import ReactWebAuthorizer from '../utils/ReactWebAuthorizer'
 
 const UCLUSION_URL = 'https://dev.api.uclusion.com/v1';
 
-class ReactWebAuthorizer {
-
-  getLocalAuthInfo() {
-    return getUclusionLocalStorageItem('auth')
-  }
-
-  getMarketIdFromUrl () {
-    const path = window.location.pathname
-    const noSlash = path.substr(1)
-    const end = noSlash.indexOf(noSlash)
-    const marketId = noSlash.substr(0, end)
-    return marketId
-  }
-
-  getPostAuthPage() {
-    const marketId = this.getMarketIdFromUrl()
-    const newPath = '/' + marketId + '/post_auth'
-    const currentPage = new URL(window.location.href)
-    currentPage.pathname = newPath
-    return currentPage.toString()
-  }
-
-  /**
-   * Used when I don't know anything about you (e.g. I have no authorization context)
-   * @param marketId
-   */
-  doGenericAuthRedirect(marketId){
-    const location =  '/' + marketId + '/Login'
-    console.log('redirecting you to login at '  + location)
-    window.location = location
-  }
-
-  getAuthorizer () {
-    const marketId = this.getMarketIdFromUrl()
-    const authInfo = this.getLocalAuthInfo()
-    if(!authInfo || !authInfo.type){
-      this.doGenericAuthRedirect(marketId)
-    }
-    let authorizer = null
-    const pageUrl = window.location.href
-    const config = { pageUrl, uclusionUrl: UCLUSION_URL, marketId }
-    switch (this.type) {
-      case 'oidc':
-        authorizer = new OidcAuthorizer(config)
-        break
-      case 'sso':
-        authorizer = new SsoAuthorizer(config)
-        break
-      default:
-        //I don't recognize this type of authorizer, so I'm going to make you log in again
-        this.doGenericAuthRedirect(marketId)
-      }
-    return authorizer
-  }
-
-  doAuthFromCurrentPage(){
-    ///we're not pre-authorized, so kick them into authorization flow
-    const authorizer = this.getAuthorizer()
-    const pageUrl = window.location.href
-    const postAuthPage = this.getPostAuthPage()
-    const redirectUrl = authorizer.authorize(pageUrl, pageUrl, postAuthPage)
-    window.location = redirectUrl
-  }
-
-  /**
-   * According to the contract we should use the redirect, etc, but we
-   * can figure it out from the current page
-   */
-  reauthorize (redirectUrl, destinationUrl) {
-    this.doAuthFromCurrentPage()
-  }
-
-  authorize () {
-    const authInfo = this.getLocalAuthInfo()
-    if (authInfo && authInfo.token) {
-      return new Promise(function (resolve, reject) {
-        resolve(authInfo.token)
-      })
-    }
-    this.doAuthFromCurrentPage()
-  }
-
-  getToken () {
-    const authInfo = this.getLocalAuthInfo()
-    if(authInfo){
-      return authInfo.token
-    }
-    return undefined
-  }
-}
-
-
-const authorizer = new ReactWebAuthorizer()
+const authorizer = new ReactWebAuthorizer(UCLUSION_URL)
 
 const config = {
   firebase_config: {

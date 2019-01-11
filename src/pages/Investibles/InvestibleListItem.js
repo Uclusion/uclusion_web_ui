@@ -9,7 +9,7 @@ import classNames from 'classnames'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
-import { withUseAndPermissions } from '../../components/UserPermissions/UserPermissions'
+import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions'
 import InvestibleDelete from './InvestibleDelete'
 
 const styles = (theme) => ({
@@ -102,4 +102,4 @@ InvestibleListItem.propTypes = {
   userPermissions: PropTypes.object.isRequired
 }
 
-export default injectIntl(withStyles(styles)(withUseAndPermissions(InvestibleListItem)))
+export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItem)))

@@ -1,13 +1,15 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { getCurrentUser, getUsersFetching } from '../../store/Users/reducer'
+import { getCurrentUser, getCurrentUserFetching } from '../../store/Users/reducer'
 
-const mapStateToProps = (state) => ({
-  _upUserLoading: getUsersFetching(state.usersReducer),
-  _upUser: getCurrentUser(state.usersReducer)
-})
+const mapStateToProps = (state) => {
+  return {
+    _upUserLoading: getCurrentUserFetching(state.usersReducer),
+    _upUser: getCurrentUser(state.usersReducer)
+  }
+}
 
-function withUseAndPermissions(WrappedComponent) {
+function withUserAndPermissions(WrappedComponent) {
 
   class UserPermissionsWrapper extends React.Component {
 
@@ -16,18 +18,30 @@ function withUseAndPermissions(WrappedComponent) {
       this.getUserPermissions = this.getUserPermissions.bind(this)
     }
 
+    permissionsArrayToObject(array){
+      const reducer = (accumulator, current) => {
+        accumulator[current] = true
+        return accumulator
+      }
+      return array.reduce(reducer, {})
+    }
+
     getUserPermissions () {
-      const { _upUser, _upUserLoading } = this.props
+      const { _upUserLoading, _upUser } = this.props
       if (!_upUser || _upUserLoading) {
         return {}
       }
       const { available_apis, operation_permissions } = _upUser.market_presence
-      if (! available_apis || !operation_permissions ){
+      if (!available_apis || !operation_permissions ){
         return {}
       }
-      const canDeleteMarketInvestible = available_apis.includes('delete_investible') && operation_permissions.includes('delete_market_investible')
+      const apisObject = this.permissionsArrayToObject(available_apis)
+      const opObject = this.permissionsArrayToObject(operation_permissions)
+      console.log(apisObject)
+      const canDeleteMarketInvestible = apisObject.delete_investible && opObject.delete_market_investible
       // console.log(_upUser)
-      return { canDeleteMarketInvestible }
+      const canInvest = apisObject.create_investment
+      return { canDeleteMarketInvestible, canInvest }
     }
 
     render () {
@@ -44,4 +58,4 @@ function withUseAndPermissions(WrappedComponent) {
   return connect(mapStateToProps)(UserPermissionsWrapper)
 }
 
-export { withUseAndPermissions }
+export { withUserAndPermissions }

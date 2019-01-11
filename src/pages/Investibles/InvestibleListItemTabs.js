@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
+import { withUserAndPermissions} from '../../components/UserPermissions/UserPermissions'
 import InvestibleInvest from './InvestibleInvest'
 
 import { injectIntl } from 'react-intl'
@@ -34,7 +35,8 @@ class InvestibleListItemTabs extends React.Component {
   };
 
   render () {
-    const {classes, marketId, investibleId, intl, teamId, sharesAvailable} = this.props
+    const {classes, marketId, investibleId, intl, teamId, sharesAvailable, userPermissions} = this.props
+    const { canInvest } = userPermissions
     const { value } = this.state;
     return (
       <div className={classes.paper}>
@@ -43,11 +45,11 @@ class InvestibleListItemTabs extends React.Component {
                 indicatorColor="primary"
                 textColor="primary"
           >
-            <Tab label={intl.formatMessage({id: 'investTab'})}/>
+            { canInvest &&   <Tab label={intl.formatMessage({id: 'investTab'})}/> }
             <Tab label={intl.formatMessage({id: 'activityTab'})}/>
             <Tab label={intl.formatMessage({id: 'commentsTab'})}/>
           </Tabs>
-        {value === 0 && <InvestibleInvest teamId={teamId} marketId={marketId} sharesAvailable={sharesAvailable} investibleId={investibleId}/>}
+        {value === 0 && canInvest && <InvestibleInvest teamId={teamId} marketId={marketId} sharesAvailable={sharesAvailable} investibleId={investibleId}/>}
         {value === 1 && <div>Activity Placeholder</div>}
         {value === 2 && <div>Coments Placeholder</div>}
       </div>
@@ -63,4 +65,4 @@ InvestibleListItemTabs.propTypes = {
   sharesAvailable: PropTypes.number.isRequired
 }
 
-export default injectIntl(withStyles(styles)(InvestibleListItemTabs));
+export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs)))

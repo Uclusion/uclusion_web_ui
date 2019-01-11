@@ -22,6 +22,14 @@ class ReactWebAuthorizer {
     return marketId
   }
 
+  getPostAuthPage() {
+    const marketId = this.getMarketIdFromUrl()
+    const newPath = '/' + marketId + '/post_auth'
+    const currentPage = new URL(window.location.href)
+    currentPage.pathname = newPath
+    return currentPage.toString()
+  }
+
   /**
    * Used when I don't know anything about you (e.g. I have no authorization context)
    * @param marketId
@@ -49,10 +57,27 @@ class ReactWebAuthorizer {
         authorizer = new SsoAuthorizer(config)
         break
       default:
-        //I don't regonize this type of authorizor, so I'm going to make you log in again
+        //I don't recognize this type of authorizer, so I'm going to make you log in again
         this.doGenericAuthRedirect(marketId)
       }
     return authorizer
+  }
+
+  doAuthFromCurrentPage(){
+    ///we're not pre-authorized, so kick them into authorization flow
+    const authorizer = this.getAuthorizer()
+    const pageUrl = window.location.href
+    const postAuthPage = this.getPostAuthPage()
+    const redirectUrl = authorizer.authorize(pageUrl, pageUrl, postAuthPage)
+    window.location = redirectUrl
+  }
+
+  /**
+   * According to the contract we should use the redirect, etc, but we
+   * can figure it out from the current page
+   */
+  reauthorize (redirectUrl, destinationUrl) {
+    this.doAuthFromCurrentPage()
   }
 
   authorize () {
@@ -62,11 +87,7 @@ class ReactWebAuthorizer {
         resolve(authInfo.token)
       })
     }
-    ///we're not pre-authorized, so kick them into authorization flow
-    const authorizer = this.getAuthorizer()
-    const pageUrl = window.location.href
-    const redirectUrl = authorizer.authorize(pageUrl, pageUrl)
-    window.location = redirectUrl
+    this.doAuthFromCurrentPage()
   }
 
   getToken () {

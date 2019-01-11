@@ -1,6 +1,6 @@
 import React from 'react'
 import InvestibleListCategory from './InvestibleListCategory'
-import ItemList from '../../components/Lists/ItemList'
+import ItemList from '../Lists/ItemList'
 import { injectIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import Typography from '@material-ui/core/Typography'

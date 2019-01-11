@@ -8,8 +8,8 @@ import InvestibleListItemTabs from './InvestibleListItemTabs'
 import classNames from 'classnames'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
-import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
-import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions'
+import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor'
+import { withUserAndPermissions } from '../UserPermissions/UserPermissions'
 import InvestibleDelete from './InvestibleDelete'
 
 const styles = (theme) => ({

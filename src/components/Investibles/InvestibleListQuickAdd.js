@@ -7,7 +7,7 @@ import { injectIntl } from 'react-intl'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createMarketInvestible } from '../../store/MarketInvestibles/actions'
-import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
+import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor'
 
 const styles = theme => ({
 

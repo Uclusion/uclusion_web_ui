@@ -32,16 +32,17 @@ function withUserAndPermissions(WrappedComponent) {
         return {}
       }
       const { available_apis, operation_permissions } = _upUser.market_presence
-      if (!available_apis || !operation_permissions ){
+      if (!available_apis || !operation_permissions) {
         return {}
       }
       const apisObject = this.permissionsArrayToObject(available_apis)
       const opObject = this.permissionsArrayToObject(operation_permissions)
       console.log(apisObject)
       const canDeleteMarketInvestible = apisObject.delete_investible && opObject.delete_market_investible
+      const canEditMarketInvestible = apisObject.update_investible && opObject.update_market_investible
       // console.log(_upUser)
       const canInvest = apisObject.create_investment
-      return { canDeleteMarketInvestible, canInvest }
+      return { canDeleteMarketInvestible, canInvest, canEditMarketInvestible }
     }
 
     render () {

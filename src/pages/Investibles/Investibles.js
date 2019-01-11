@@ -8,7 +8,7 @@ import { injectIntl } from 'react-intl'
 import Activity from '../../containers/Activity/Activity'
 import { getMarketsFetching, getCategoriesFetching, getMarketCategories, categoryPropType } from '../../store/Markets/reducer'
 import { getUsersFetching, getCurrentUser } from '../../store/Users/reducer'
-import InvestibleList from './InvestibleList'
+import InvestibleList from '../../components/Investibles/InvestibleList'
 import { withMarketId } from '../../components/PathProps/MarketId'
 
 class Investibles extends Component {

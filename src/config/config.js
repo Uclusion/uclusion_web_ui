@@ -6,9 +6,7 @@ import { themes } from './themes'
 import grants from './grants'
 import ReactWebAuthorizer from '../utils/ReactWebAuthorizer'
 
-const UCLUSION_URL = 'https://dev.api.uclusion.com/v1';
-
-const authorizer = new ReactWebAuthorizer(UCLUSION_URL)
+const authorizer = new ReactWebAuthorizer(process.env.REACT_APP_UCLUSION_URL)
 
 const config = {
   firebase_config: {
@@ -51,7 +49,7 @@ const config = {
   firebaseLoad: () => import('./firebase'),
   api_configuration: {
     authorizer: authorizer,
-    baseURL: UCLUSION_URL
+    baseURL: process.env.REACT_APP_UCLUSION_URL
   }
 }
 

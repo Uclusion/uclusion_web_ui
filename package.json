@@ -68,10 +68,10 @@
   "scripts": {
     "check": "npm-check -s -u",
     "analyze": "source-map-explorer build/static/js/main.*",
-    "start": "react-scripts start",
+    "start": "REACT_APP_UCLUSION_URL='https://dev.api.uclusion.com/v1' react-scripts start",
     "standard": "standard src/**/*.js",
-    "build": "react-scripts build",
-    "deploy": "aws s3 sync build/ s3://uclusion-web-ui-test",
+    "build": "REACT_APP_UCLUSION_URL='https://stage.api.uclusion.com/v1' react-scripts build",
+    "deploy": "aws s3 sync build/ s3://uclusion-web-ui",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },

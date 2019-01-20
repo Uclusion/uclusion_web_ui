@@ -8,6 +8,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createMarketInvestible } from '../../store/MarketInvestibles/actions'
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor'
+import { withUserAndPermissions } from '../UserPermissions/UserPermissions'
 
 const styles = theme => ({
 
@@ -40,8 +41,9 @@ class InvestibleListQuickAdd extends React.Component {
   }
 
   addOnClick = (addSubmitOnClick) => {
-    const { dispatch, marketId, teamId, category } = this.props;
-    const payload = {marketId, category, teamId, title: this.state.title, description: this.state.description};
+    const { dispatch, marketId, teamId, category, userPermissions } = this.props;
+    const { canInvest } = userPermissions
+    const payload = {marketId, category, teamId, canInvest, title: this.state.title, description: this.state.description};
     dispatch(createMarketInvestible(payload));
     addSubmitOnClick();
   };
@@ -91,4 +93,4 @@ function mapDispatchToProps (dispatch) {
   return Object.assign({ dispatch }, bindActionCreators({ createMarketInvestible }, dispatch))
 }
 
-export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, {withTheme: true})(InvestibleListQuickAdd)))
+export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, {withTheme: true})(withUserAndPermissions(InvestibleListQuickAdd))))

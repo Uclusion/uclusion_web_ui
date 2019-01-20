@@ -126,10 +126,14 @@ export const createNewBoundInvestible = (params = {}) => {
   return (dispatch) => {
     const clientPromise = getClient()
     return clientPromise.then((client) => {
-      return client.markets.investAndBind(params.marketId, params.teamId, params.investibleId, params.quantity, params.categoryList)
+      if (params.canInvest) {
+        return client.markets.investAndBind(params.marketId, params.teamId, params.investibleId, params.quantity, params.categoryList)
+      }
+      return client.investibles.bindToMarket(params.investibleId, params.marketId, params.categoryList)
     }).then((response) => {
-      response.investible.copiedInvestibleId = params.investibleId
-      dispatch(marketInvestibleCreated(response.investment, response.investible))
+      let investible = response.investible ? response.investible : response
+      investible.copiedInvestibleId = params.investibleId
+      dispatch(marketInvestibleCreated(response.investment, investible))
       sendIntlMessage(SUCCESS, {id: 'investibleAddSucceeded'})
       dispatch(fetchUser({marketId: params.marketId}))
     }).catch((error) => {
@@ -150,7 +154,8 @@ export const createMarketInvestible = (params = {}) => (dispatch) => {
         teamId: params.teamId,
         investibleId: investible.id,
         quantity: 1,
-        categoryList: [params.category]
+        categoryList: [params.category],
+        canInvest: params.canInvest
       }
       dispatch(createNewBoundInvestible(payload))
     }).catch((error) => {

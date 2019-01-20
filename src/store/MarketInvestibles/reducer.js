@@ -40,7 +40,8 @@ const items = (state = [], action) => {
     case MARKET_INVESTIBLE_CREATED:
       const investment = action.investment
       const marketInvestible = action.marketInvestible
-      let findInvestibleId = marketInvestible ? marketInvestible.copiedInvestibleId : investment.investible_id
+      const investibleId = marketInvestible ? marketInvestible.investible_id : investment.investible_id
+      let findInvestibleId = marketInvestible ? marketInvestible.copiedInvestibleId : investibleId
       let investible = state.find((element) => element.id === findInvestibleId)
       let investibleCopy
       if (marketInvestible) {
@@ -49,9 +50,9 @@ const items = (state = [], action) => {
       } else {
         investibleCopy = {...investible}
       }
-      investibleCopy.id = investment.investible_id
-      investibleCopy.quantity = investment.investible_quantity
-      investibleCopy.current_user_investment = investment.current_user_investment
+      investibleCopy.id = investibleId
+      investibleCopy.quantity = investment ? investment.investible_quantity : 0
+      investibleCopy.current_user_investment = investment ? investment.current_user_investment : 0
       return _.unionBy([investibleCopy], state, 'id')
     default:
       return state

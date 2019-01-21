@@ -7,27 +7,25 @@ import { injectIntl } from 'react-intl'
 import { fetchMarket } from '../../store/Markets/actions'
 import { fetchUser } from '../../store/Users/actions'
 import { connect } from 'react-redux'
-import { Redirect} from 'react-router'
-import CircularProgress from '@material-ui/core/CircularProgress';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { Redirect } from 'react-router'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import PropTypes from 'prop-types'
+import { withStyles } from '@material-ui/core/styles'
 
 const styles = theme => ({
   progress: {
-    margin: theme.spacing.unit * 2,
-  },
-});
-
+    margin: theme.spacing.unit * 2
+  }
+})
 
 class PostAuth extends Component {
-
-  constructor(props){
+  constructor (props) {
     super(props)
     this.state = {marketId: undefined, destination: undefined, failed: false}
-    this.getPathPart = this.getPathPart.bind(this)
+    PostAuth.getPathPart = PostAuth.getPathPart.bind(this)
   }
 
-  getPathPart(url){
+  static getPathPart (url) {
     const parsed = new URL(url)
     return parsed.pathname
   }
@@ -43,7 +41,7 @@ class PostAuth extends Component {
     authorizer.authorize(pageUrl).then((resolve) => {
       // console.log(resolve)
       const { uclusion_token, destination_page, market_id } = resolve
-      const authInfo = { token: uclusion_token, type: 'oidc'}
+      const authInfo = { token: uclusion_token }
       setUclusionLocalStorageItem('auth', authInfo)
       console.log(destination_page)
       // pre-emptively fetch the market and user, since we're likely to need it
@@ -58,8 +56,8 @@ class PostAuth extends Component {
   render () {
     const { intl, classes } = this.props
     const { marketId, destination, failed } = this.state
-    if (marketId){
-      const path = this.getPathPart(destination)
+    if (marketId) {
+      const path = PostAuth.getPathPart(destination)
       return (<Redirect to={path} />)
     }
     if (failed) {
@@ -91,7 +89,7 @@ function mapDispatchToProps (dispatch) {
 }
 
 PostAuth.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
+  classes: PropTypes.object.isRequired
+}
 
 export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(PostAuth)))

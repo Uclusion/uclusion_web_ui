@@ -26,16 +26,16 @@ const userItems = (state = [], action) => {
       let user = [action.user]
       return _.unionBy(user, state, 'id')
     default:
-      return state;
+      return state
   }
 }
 
 const isUserFetching = (state = 0, action) => {
   switch (action.type) {
     case REQUEST_USER:
-      return state + 1;
+      return state + 1
     case RECEIVE_USER:
-      return state - 1;
+      return state - 1
     default:
       return state;
   }
@@ -44,21 +44,22 @@ const isUserFetching = (state = 0, action) => {
 const isCurrentUserFetching = (state = 0, action) => {
   switch (action.type) {
     case REQUEST_CURRENT_USER:
-      return state + 1;
+      return state + 1
     case RECEIVE_CURRENT_USER:
-      return state - 1;
+      return state - 1
     default:
-      return state;
+      return state
   }
 }
-
 
 const currentUser = (state = null, action) => {
   switch (action.type) {
     case RECEIVE_CURRENT_USER:
-      return action.user;
+    case REQUEST_CURRENT_USER:
+      // This user object on request won't have market presences but better than nothing
+      return action.user
     default:
-      return state;
+      return state
   }
 }
 

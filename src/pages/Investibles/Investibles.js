@@ -56,7 +56,8 @@ class Investibles extends Component {
 
   render () {
     const { intl, loading, investibles, categories, marketId, user } = this.props
-    if (loading > 0 && investibles.length === 0) {
+    // Can't rely just on loading as their could be an attempt to load this page before loading even begins
+    if ((loading > 0 && investibles.length === 0) || (!user || !user.market_presence)) {
       return (
         <Activity
           isLoading={investibles === undefined}

@@ -28,7 +28,8 @@ const getMenuItems = (props) => {
     // auth,
     isGranted,
     isAuthMenu,
-    handleSignOut
+    handleSignOut,
+    marketId
   } = props
 
   // const isAuthorised = auth.isAuthorised
@@ -84,7 +85,7 @@ const getMenuItems = (props) => {
       leftIcon: <BusinessIcon />
     },
     {
-      value: '/investibles',
+      value: '/' + marketId + '/investibles',
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'investiblesMenu' }),
       leftIcon: <ListIcon />,
@@ -95,7 +96,7 @@ const getMenuItems = (props) => {
       primaryText: intl.formatMessage({ id: 'marketCategoriesMenu'}),
       leftIcon: <ViewColumn/>
     },
-    { value: '/teams',
+    { value: '/' + marketId + '/teams',
       visible: isAuthorised,
       primaryText: intl.formatMessage({id: 'myTeamsMenu'}),
       leftIcon: <GroupIcon/>

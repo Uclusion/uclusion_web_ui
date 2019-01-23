@@ -1,5 +1,5 @@
 import UserMembershipsListItem from './UserMembershipsListItem'
-import ItemListCategory from '../../components/Lists/ItemListCategory'
+import ItemListCategory from '../Lists/ItemListCategory'
 import PropTypes from 'prop-types'
 import React from 'react'
 
@@ -14,6 +14,7 @@ class UserMembershipsCategory extends React.Component {
         description={element.description}
         name={element.name}
         marketSharesAvailable={[1]}
+        numMembers={element.num_users}
       />
     )
     return (

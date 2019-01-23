@@ -7,7 +7,7 @@ import Activity  from '../../containers/Activity/Activity'
 import { fetchUserTeams } from '../../store/Teams/actions'
 import { getTeamsFetching, getUserTeams} from '../../store/Teams/reducer'
 import { getCurrentUser } from '../../store/Users/reducer';
-import UserMembershipsList from './UserMembershipsList'
+import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList'
 import { Typography } from '@material-ui/core'
 
 class UserMemberships extends Component {
@@ -16,11 +16,9 @@ class UserMemberships extends Component {
     this.readUserTeams = this.readUserTeams.bind(this)
   }
 
-
   componentDidMount () {
     this.readUserTeams(1)
   }
-
 
   readUserTeams () {
     const { dispatch } = this.props
@@ -62,7 +60,7 @@ class UserMemberships extends Component {
         isLoading={teams === undefined}
         containerStyle={{ overflow: 'hidden' }}
         title={intl.formatMessage({ id: 'teamsHeader' })}>
-        <UserMembershipsList user={user} teams={teams}/>
+        <UserMembershipsList user={user} teams={teams} />
       </Activity>
     )
   }
@@ -74,11 +72,13 @@ UserMemberships.propTypes = {
   teams: PropTypes.arrayOf(PropTypes.object).isRequired
 }
 
-const mapStateToProps = (state) => ({
-  loading: getTeamsFetching(state.teamsReducer),
-  teams: getUserTeams(state.teamsReducer),
-  user: getCurrentUser(state.usersReducer)
-})
+function mapStateToProps (state) {
+  return {
+    loading: getTeamsFetching(state.teamsReducer),
+    teams: getUserTeams(state.teamsReducer),
+    user: getCurrentUser(state.usersReducer)
+  }
+}
 
 function mapDispatchToProps (dispatch) {
   return Object.assign({ dispatch }, bindActionCreators({ fetchUserTeams }, dispatch))

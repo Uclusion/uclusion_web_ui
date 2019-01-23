@@ -1,5 +1,5 @@
 import MemberListItem from './MemberListItem'
-import ItemListCategory from '../../components/Lists/ItemListCategory'
+import ItemListCategory from '../Lists/ItemListCategory'
 import PropTypes from 'prop-types'
 import React from 'react'
 

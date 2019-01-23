@@ -10,16 +10,16 @@ class MemberList extends React.Component{
     this.readCurrentUsers()
   }
 
-  readCurrentUsers(){
+  readCurrentUsers() {
     const { dispatch, teamId } = this.props
     dispatch(fetchTeamMembers(teamId))
   }
 
-  render(){
+  render() {
     const { teamMembers, teamId } = this.props
     const thisTeamsMembers = teamMembers[teamId]
     if (!thisTeamsMembers){
-      return null;
+      return null
     }
     const { users } = thisTeamsMembers
     return (
@@ -28,9 +28,9 @@ class MemberList extends React.Component{
   }
 }
 
-const mapStateToProps = (state) => ({
-  teamMembers: getTeamMembers(state.teamsReducer)
-})
+function mapStateToProps (state) {
+  return { teamMembers: getTeamMembers(state.teamsReducer) }
+}
 
 function mapDispatchToProps (dispatch) {
   return { dispatch }

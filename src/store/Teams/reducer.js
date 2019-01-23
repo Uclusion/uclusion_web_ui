@@ -36,10 +36,11 @@ const teamMembers = (state = {}, action) => {
   switch (action.type) {
     case RECEIVE_TEAM_MEMBERS:
       const { team, users } = action.teamAndMembers
+      team['num_users'] = users.length
       const { id } = team
       const newState = {...state}
       newState[id] = {team, users}
-      return newState;
+      return newState
     default:
       return state
   }

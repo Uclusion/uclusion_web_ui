@@ -28,11 +28,21 @@ const getMenuItems = (props) => {
     // auth,
     isGranted,
     isAuthMenu,
-    handleSignOut
+    handleSignOut,
+    marketId
   } = props
 
   // const isAuthorised = auth.isAuthorised
   const isAuthorised = true
+
+  /**
+   * Creates a link relative to the curent market url
+   * @param destination the page you want to go to within the market url space
+   * @returns the proper link for a market sub page
+   */
+  const getMarketSpecificLink = (destination) => {
+    return '/' + marketId + '/' + destination
+  }
 
   const themeItems = themes.map((t) => {
     return {
@@ -72,30 +82,30 @@ const getMenuItems = (props) => {
 
   return [
     {
-      value: '/dashboard',
+      value: getMarketSpecificLink('dashboard'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'dashboard' }),
       leftIcon: <DashboardIcon />
     },
     {
-      value: '/marketTeams',
+      value: getMarketSpecificLink('marketTeams'),
       visible: isGranted('read_companies'), //todo make this role based
       primaryText: intl.formatMessage({ id: 'marketTeamsMenu' }),
       leftIcon: <BusinessIcon />
     },
     {
-      value: '/investibles',
+      value: getMarketSpecificLink('investibles'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'investiblesMenu' }),
       leftIcon: <ListIcon />,
     },
     {
-      value: '/marketCategories',
+      value: getMarketSpecificLink('marketCategories'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'marketCategoriesMenu'}),
       leftIcon: <ViewColumn/>
     },
-    { value: '/teams',
+    { value: getMarketSpecificLink('teams'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({id: 'myTeamsMenu'}),
       leftIcon: <GroupIcon/>

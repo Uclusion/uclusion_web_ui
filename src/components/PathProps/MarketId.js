@@ -5,7 +5,7 @@
 
 import React from 'react'
 
-function withMarketId (WrappeedComponent) {
+function withMarketId (WrappedComponent) {
 
   return class MarketId extends React.Component {
 
@@ -14,19 +14,18 @@ function withMarketId (WrappeedComponent) {
       this.getMarketId = this.getMarketId.bind(this)
     }
 
-    // todo move this into utils
     getMarketId () {
-      const { match } = this.props
-      const { params } = match
-      console.log(params)
-      const { marketId } = params
-      console.log(marketId)
+      const path = window.location.pathname
+      console.log('Current location ' + path)
+      const noSlash = path.substr(1)
+      const end = noSlash.indexOf('/')
+      const marketId = noSlash.substr(0, end)
       return marketId
     }
 
     render () {
       const marketId = this.getMarketId()
-      return <WrappeedComponent {...this.props} marketId={marketId}/>
+      return <WrappedComponent {...this.props} marketId={marketId}/>
     }
   }
 }

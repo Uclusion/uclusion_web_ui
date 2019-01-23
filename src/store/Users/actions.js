@@ -10,9 +10,9 @@ export const requestUser = () => ({
   type: REQUEST_USER
 })
 
-
-export const requestCurrentUser = () => ({
-  type: REQUEST_CURRENT_USER
+export const requestCurrentUser = user => ({
+  type: REQUEST_CURRENT_USER,
+  user
 })
 
 export const receiveUser = user => ({
@@ -27,7 +27,7 @@ export const receiveCurrentUser = user => ({
 
 export const fetchUser = (params = {}) => (dispatch) => {
   if (!params.user_id){
-    dispatch(requestCurrentUser())
+    dispatch(requestCurrentUser(params.user))
   } else {
     dispatch(requestUser())
   }

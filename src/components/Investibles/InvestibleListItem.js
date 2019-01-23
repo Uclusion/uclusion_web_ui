@@ -100,6 +100,6 @@ InvestibleListItem.propTypes = {
   sharesAvailable: PropTypes.number.isRequired,
   teamId: PropTypes.string.isRequired,
   userPermissions: PropTypes.object.isRequired
-}
+};
 
-export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItem)))
+export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItem)));

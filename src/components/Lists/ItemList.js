@@ -6,6 +6,12 @@ import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 
 const styles = (theme) => ({
+  itemList: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+
   headerBox: {
     display: 'flex',
     justifyContent: 'space-between'
@@ -24,8 +30,10 @@ const styles = (theme) => ({
   },
 
   mainGrid: {
-    flexDirection: 'row',
-    flexGrow: 1
+    flex: 1,
+    display: 'flex',
+    alignItems: 'stretch',
+    overflow: 'auto',
   }
 
 })
@@ -38,15 +46,15 @@ class ItemList extends React.Component {
     const positionedHeaderActions = headerActions.map((element, index) => <div key={index}
                                                                                className={classes.headerButton}>{element}</div>)
     return (
-      <div>
+      <div className={classes.itemList}>
         <div className={classes.headerBox}>
           {positionedHeaderActions}
         </div>
         <div className={classes.headerBottom}></div>
 
-        <Grid className={classes.mainGrid} container justify='flex-start' alignItems='flex-start'>
+        <div className={classes.mainGrid}>
           {categoryLists}
-        </Grid>
+        </div>
       </div>
     )
   };

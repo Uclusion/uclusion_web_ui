@@ -71,7 +71,7 @@
     "start": "REACT_APP_UCLUSION_URL='https://dev.api.uclusion.com/v1' react-scripts start",
     "standard": "standard src/**/*.js",
     "build": "REACT_APP_UCLUSION_URL='https://stage.api.uclusion.com/v1' react-scripts build",
-    "deploy": "aws --profile stageAccount s3 sync build/ s3://uclusion-web-ui",
+    "deploy": "aws --profile stageAccount s3 sync --delete build/ s3://uclusion-web-ui",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },

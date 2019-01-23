@@ -71,7 +71,7 @@ class Investibles extends Component {
     const teamId = user.default_team_id // TODO:  might change later, so keeping it separate
     return (
 
-      <div style={{overflow: 'scroll'}}>
+      <div>
 
         <Activity
           isLoading={investibles === undefined}

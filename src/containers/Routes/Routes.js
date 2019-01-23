@@ -13,7 +13,7 @@ export class Routes extends Component {
     const appRoutes = getAppRoutes(appConfig.firebaseLoad)
     return (
 
-      <div style={{ width: '100%', height: '100%' }}>
+      <div style={{ width: '100%', height: '100vh' }}>
         <Switch >
           {customRoutes.map((Route, i) => { return React.cloneElement(Route, { key: `@customRoutes/${i}` }) })}
           {appRoutes.map((Route, i) => { return React.cloneElement(Route, { key: `@appRoutes/${i}` }) })}

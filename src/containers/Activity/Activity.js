@@ -23,7 +23,7 @@ const styles = theme => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    height: `100vh`
+    height: '100vh'
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
@@ -44,6 +44,7 @@ const styles = theme => ({
   content: {
     flex: 1,
     backgroundColor: theme.palette.background.default,
+    overflow: 'auto',
   },
 
   appBarShift: {

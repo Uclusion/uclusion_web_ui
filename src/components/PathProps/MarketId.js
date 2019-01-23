@@ -41,6 +41,7 @@ function withMarketId (WrappedComponent) {
 
     render () {
       const marketId = this.getMarketId()
+      this.updateRedux(marketId)
       return <WrappedComponent {...this.props} marketId={marketId} />
     }
   }

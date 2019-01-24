@@ -11,8 +11,7 @@ const styles = (theme) => ({
   subList: {
     padding: theme.spacing.unit
   }
-
-})
+});
 
 class ItemListCategory extends React.Component {
 

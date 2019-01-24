@@ -46,7 +46,13 @@ const styles = theme => ({
     backgroundColor: theme.palette.background.default,
     overflow: 'auto',
   },
-
+  contentShift: {
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
   appBarShift: {
     //marginLeft: drawerWidth,
     width: `calc(100% - ${drawerWidth}px)`,
@@ -96,6 +102,13 @@ class Activity extends React.Component {
     //const smDown = width === 'sm' || width === 'xs'
     const smDown = isWidthDown('sm', width)
 
+    const appBarClassName = (width !== 'sm' && width !== 'xs')
+              ? classNames(classes.appBar, drawer.open && classes.appBarShift)
+              : classes.appBar;
+    const contentClassName = (width !== 'sm' && width !== 'xs')
+              ? classNames(classes.content, drawer.open && classes.contentShift)
+              : classes.content;
+
     return (
       <div className={classes.root}>
         <Helmet>
@@ -107,7 +120,7 @@ class Activity extends React.Component {
 
         <AppBar
           position={(width !== 'sm' && width !== 'xs') ? "absolute" : undefined}
-          className={(width !== 'sm' && width !== 'xs') ? classNames(classes.appBar, drawer.open && classes.appBarShift) : classes.appBar}
+          className={appBarClassName}
         >
           <Toolbar disableGutters={true} >
             {true && <LinearProgress />}
@@ -144,7 +157,7 @@ class Activity extends React.Component {
             {intl.formatMessage({ id: 'offline' })}
           </Typography>
         </div>}
-        <main className={classes.content}>
+        <main className={contentClassName}>
           {children}
         </main>
       </div >

@@ -8,6 +8,8 @@ import { withStyles } from '@material-ui/core/styles'
 const styles = (theme) => ({
   subListWrapper: {
     padding: theme.spacing.unit,
+    height: '100%',
+    boxSizing: 'border-box'
   },
   subList: {
     height: '100%',

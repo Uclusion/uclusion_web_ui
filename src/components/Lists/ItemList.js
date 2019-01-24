@@ -1,9 +1,9 @@
 import React from 'react'
-import {
-  Grid
-} from '@material-ui/core'
 import PropTypes from 'prop-types'
+import { compose } from 'redux'
 import { withStyles } from '@material-ui/core/styles'
+import withWidth from '@material-ui/core/withWidth'
+import SwipeableViews from 'react-swipeable-views';
 
 const styles = (theme) => ({
   itemList: {
@@ -32,7 +32,6 @@ const styles = (theme) => ({
   mainGrid: {
     flex: 1,
     display: 'flex',
-    alignItems: 'stretch',
     overflow: 'auto',
   }
 
@@ -42,7 +41,7 @@ class ItemList extends React.Component {
 
   //TODO: this may need to change to pasing in the panels, sice we probably want to customize the entire list (e.g. just render the children in the list
   render () {
-    const {classes, categoryLists, headerActions} = this.props
+    const { classes, categoryLists, headerActions, width } = this.props
     const positionedHeaderActions = headerActions.map((element, index) => <div key={index}
                                                                                className={classes.headerButton}>{element}</div>)
     return (
@@ -52,9 +51,20 @@ class ItemList extends React.Component {
         </div>
         <div className={classes.headerBottom}></div>
 
-        <div className={classes.mainGrid}>
-          {categoryLists}
-        </div>
+        {width === 'xs' ? (
+          <SwipeableViews
+            style={{ flex: 1 }}
+            containerStyle={{ height: '100%' }}
+            enableMouseEvents
+            resistance
+          >
+            {categoryLists}
+          </SwipeableViews>
+        ) : (
+          <div className={classes.mainGrid}>
+            {categoryLists}
+          </div>
+        )}
       </div>
     )
   };
@@ -66,5 +76,7 @@ ItemList.propTypes = {
   headerActions: PropTypes.arrayOf(PropTypes.object)
 }
 
-
-export default withStyles(styles, {withTheme: true})(ItemList)
+export default compose(
+  withWidth(),
+  withStyles(styles, {withTheme: true})
+)(ItemList)

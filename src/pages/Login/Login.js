@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom'
 import { OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk'
 import { Button } from '@material-ui/core'
 import appConfig from '../../config/config'
+import { getAuthMarketId, getMarketId } from '../../utils/marketIdPathFunctions'
 
 class Login extends Component {
   constructor(props){
@@ -11,22 +12,12 @@ class Login extends Component {
     this.loginSso = this.loginSso.bind(this)
     this.getLoginParams = this.getLoginParams.bind(this)
     this.doLoginRedirect = this.doLoginRedirect.bind(this)
-    this.getMarketId = this.getMarketId.bind(this)
     this.getDestinationPage = this.getDestinationPage.bind(this)
 
   }
 
-  getMarketId() {
-    const { match } = this.props
-    const { params } = match
-    console.log(params)
-    const {marketId} = params
-    console.log(marketId)
-    return marketId
-  }
-
   getDestinationPage(subPath) {
-    const marketId = this.getMarketId()
+    const marketId = getMarketId()
     const newPath = '/' + marketId + '/' + subPath
     const currentPage = new URL(window.location.href)
     currentPage.pathname = newPath
@@ -34,7 +25,7 @@ class Login extends Component {
   }
 
   getLoginParams(){
-    const marketId = this.getMarketId()
+    const marketId = getAuthMarketId()
     const destinationPage = this.getDestinationPage('investibles')
     const redirectUrl = this.getDestinationPage('post_auth')
     const pageUrl = window.location.href

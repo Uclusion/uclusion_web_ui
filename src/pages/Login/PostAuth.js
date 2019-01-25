@@ -23,12 +23,12 @@ class PostAuth extends Component {
   constructor (props) {
     super(props)
     this.state = {marketId: undefined, destination: undefined, failed: false}
-    PostAuth.getPathPart = PostAuth.getPathPart.bind(this)
+    PostAuth.getPathAndQueryPart = PostAuth.getPathAndQueryPart.bind(this)
   }
 
-  static getPathPart (url) {
+  static getPathAndQueryPart (url) {
     const parsed = new URL(url)
-    return parsed.pathname
+    return parsed.pathname + parsed.search
   }
 
   componentDidMount () {
@@ -60,7 +60,7 @@ class PostAuth extends Component {
     const { intl, classes } = this.props
     const { marketId, destination, failed } = this.state
     if (marketId) {
-      const path = PostAuth.getPathPart(destination)
+      const path = PostAuth.getPathAndQueryPart(destination)
       return (<Redirect to={path} />)
     }
     if (failed) {

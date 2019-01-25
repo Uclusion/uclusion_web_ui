@@ -1,5 +1,6 @@
 import { getUclusionLocalStorageItem } from '../components/utils'
 import { OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk'
+import { getAuthMarketId } from './marketIdPathFunctions'
 
 class ReactWebAuthorizer {
 
@@ -11,17 +12,8 @@ class ReactWebAuthorizer {
     return getUclusionLocalStorageItem('auth')
   }
 
-  getMarketIdFromUrl () {
-    const path = window.location.pathname
-    console.log('Current location ' + path)
-    const noSlash = path.substr(1)
-    const end = noSlash.indexOf('/')
-    const marketId = noSlash.substr(0, end)
-    return marketId
-  }
-
   getPostAuthPage () {
-    const marketId = this.getMarketIdFromUrl()
+    const marketId = getAuthMarketId()
     const newPath = '/' + marketId + '/post_auth'
     const currentPage = new URL(window.location.href)
     currentPage.pathname = newPath
@@ -39,7 +31,7 @@ class ReactWebAuthorizer {
   }
 
   getAuthorizer () {
-    const marketId = this.getMarketIdFromUrl()
+    const marketId = getAuthMarketId()
     const authInfo = this.getLocalAuthInfo()
     if (!authInfo || !authInfo.type) {
       this.doGenericAuthRedirect(marketId)
@@ -62,7 +54,7 @@ class ReactWebAuthorizer {
 
   doAuthFromCurrentPage () {
     /// we're not pre-authorized, so kick them into authorization flow
-    const marketId = this.getMarketIdFromUrl()
+    const marketId = getAuthMarketId()
     const authorizer = this.getAuthorizer()
     const pageUrl = window.location.href
     const postAuthPage = this.getPostAuthPage()

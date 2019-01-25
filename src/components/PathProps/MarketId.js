@@ -6,6 +6,7 @@
 import React from 'react'
 import { selectMarket } from '../../store/Markets/actions'
 import { connect } from 'react-redux'
+import { getMarketId } from '../../utils/marketIdPathFunctions'
 
 function mapStateToProps (state) {
   return { currentMarket: state.marketsReducer.currentMarket }
@@ -19,8 +20,6 @@ function withMarketId (WrappedComponent) {
   class MarketId extends React.Component {
     constructor (props) {
       super(props)
-      this.getMarketId = this.getMarketId.bind(this)
-      this.getAuthMarketId = this.getAuthMarketId.bind(this)
       this.updateRedux = this.updateRedux.bind(this)
     }
 
@@ -31,29 +30,10 @@ function withMarketId (WrappedComponent) {
       }
     }
 
-    getAuthMarketId (marketId) {
-      const urlParams = new URLSearchParams(window.location.search)
-      const authMarket = urlParams.get('authMarket')
-      if (authMarket != null){
-        return authMarket
-      }
-      return marketId
-    }
-
-    getMarketId () {
-      const path = window.location.pathname
-      console.log('Current location ' + path)
-      const noSlash = path.substr(1)
-      const end = noSlash.indexOf('/')
-      const marketId = noSlash.substr(0, end)
-      return marketId
-    }
-
     render () {
-      const marketId = this.getMarketId()
-      const authMarketId = this.getAuthMarketId(marketId)
+      const marketId = getMarketId()
       this.updateRedux(marketId)
-      return <WrappedComponent {...this.props} marketId={marketId} authMarketId={authMarketId} />
+      return <WrappedComponent {...this.props} marketId={marketId} />
     }
   }
 

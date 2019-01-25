@@ -20,14 +20,24 @@ function withMarketId (WrappedComponent) {
     constructor (props) {
       super(props)
       this.getMarketId = this.getMarketId.bind(this)
+      this.getAuthMarketId = this.getAuthMarketId.bind(this)
       this.updateRedux = this.updateRedux.bind(this)
     }
 
     updateRedux (marketId) {
       const { dispatch, currentMarket } = this.props
-      if (marketId !== currentMarket ){
+      if (marketId !== currentMarket ) {
         dispatch(selectMarket(marketId))
       }
+    }
+
+    getAuthMarketId (marketId) {
+      const urlParams = new URLSearchParams(window.location.search)
+      const authMarket = urlParams.get('authMarket')
+      if (authMarket != null){
+        return authMarket
+      }
+      return marketId
     }
 
     getMarketId () {
@@ -41,8 +51,9 @@ function withMarketId (WrappedComponent) {
 
     render () {
       const marketId = this.getMarketId()
+      const authMarketId = this.getAuthMarketId(marketId)
       this.updateRedux(marketId)
-      return <WrappedComponent {...this.props} marketId={marketId} />
+      return <WrappedComponent {...this.props} marketId={marketId} authMarketId={authMarketId} />
     }
   }
 

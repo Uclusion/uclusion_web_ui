@@ -15,7 +15,7 @@ import DashboardIcon from '@material-ui/icons/Dashboard'
 import BusinessIcon from '@material-ui/icons/Business'
 import ViewColumn from '@material-ui/icons/ViewColumn'
 import GroupIcon from '@material-ui/icons/Group'
-
+import { formMarketSpecificLink } from '../utils/marketIdPathFunctions'
 
 const getMenuItems = (props) => {
   const {
@@ -29,20 +29,11 @@ const getMenuItems = (props) => {
     isGranted,
     isAuthMenu,
     handleSignOut,
-    marketId
   } = props
 
   // const isAuthorised = auth.isAuthorised
   const isAuthorised = true
 
-  /**
-   * Creates a link relative to the curent market url
-   * @param destination the page you want to go to within the market url space
-   * @returns the proper link for a market sub page
-   */
-  const getMarketSpecificLink = (destination) => {
-    return '/' + marketId + '/' + destination
-  }
 
   const themeItems = themes.map((t) => {
     return {
@@ -82,30 +73,30 @@ const getMenuItems = (props) => {
 
   return [
     {
-      value: getMarketSpecificLink('dashboard'),
+      value: formMarketSpecificLink('dashboard'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'dashboard' }),
       leftIcon: <DashboardIcon />
     },
     {
-      value: getMarketSpecificLink('marketTeams'),
+      value: formMarketSpecificLink('marketTeams'),
       visible: isGranted('read_companies'), //todo make this role based
       primaryText: intl.formatMessage({ id: 'marketTeamsMenu' }),
       leftIcon: <BusinessIcon />
     },
     {
-      value: getMarketSpecificLink('investibles'),
+      value: formMarketSpecificLink('investibles'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'investiblesMenu' }),
       leftIcon: <ListIcon />,
     },
     {
-      value: getMarketSpecificLink('marketCategories'),
+      value: formMarketSpecificLink('marketCategories'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'marketCategoriesMenu'}),
       leftIcon: <ViewColumn/>
     },
-    { value: getMarketSpecificLink('teams'),
+    { value: formMarketSpecificLink('teams'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({id: 'myTeamsMenu'}),
       leftIcon: <GroupIcon/>

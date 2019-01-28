@@ -77,11 +77,16 @@ function formAuthAppendedLink(destMarket, destLink) {
 /**
  * Forms a link to a given market id with the given subpath. Usually used when switching
  * to a different market
- * @param marketId
+ * @param market
  * @param subPath
  * @returns {string}
  */
-export function getDifferentMarketLink(marketId, subPath) {
-  const marketLink = formMarketIdLink(marketId, subPath)
-  return formAuthAppendedLink(marketId, marketLink)
+export function getDifferentMarketLink (market, subPath) {
+  const marketLink = formMarketIdLink(market.id, subPath)
+  if (market.external_market_auth_type === 'ALL') {
+    // Since the destination type is all we should continue to use the current token
+    const authMarket = getAuthMarketId()
+    return appendAuthMarket(authMarket, marketLink)
+  }
+  return marketLink
 }

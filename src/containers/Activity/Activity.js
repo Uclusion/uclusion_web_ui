@@ -90,6 +90,7 @@ const styles = theme => ({
 class Activity extends React.Component {
   constructor (props) {
     super(props)
+    this.state = {}
   }
 
   handleDrawerToggle = () => {
@@ -113,7 +114,10 @@ class Activity extends React.Component {
       this.props.dispatch(fetchMarket({market_id: newMarketId, isSelected: true}))
       // We have the user already from login but not the market presences which this fetch user will retrieve
       this.props.dispatch(fetchUser({marketId: newMarketId, user: this.props.user}))
-      window.location = getDifferentMarketLink(newMarketId, 'investibles')
+      let market = this.state.markets.find(function (market) {
+        return market.id = newMarketId;
+      })
+      window.location = getDifferentMarketLink(market, 'investibles')
     }
   };
 
@@ -125,6 +129,7 @@ class Activity extends React.Component {
         return team.team_id = user.default_team_id;
       })
       let markets = team_presence.market_list
+      this.state.markets = markets
       marketChoices = markets.map((market) => {
         return <MenuItem value={market.id}>{market.name}</MenuItem>
       });

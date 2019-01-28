@@ -15,7 +15,7 @@ import DashboardIcon from '@material-ui/icons/Dashboard'
 import BusinessIcon from '@material-ui/icons/Business'
 import ViewColumn from '@material-ui/icons/ViewColumn'
 import GroupIcon from '@material-ui/icons/Group'
-import { formCurretnMarketLink } from '../utils/marketIdPathFunctions'
+import { formCurrentMarketLink } from '../utils/marketIdPathFunctions'
 
 const getMenuItems = (props) => {
   const {
@@ -73,30 +73,30 @@ const getMenuItems = (props) => {
 
   return [
     {
-      value: formCurretnMarketLink('dashboard'),
+      value: formCurrentMarketLink('dashboard'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'dashboard' }),
       leftIcon: <DashboardIcon />
     },
     {
-      value: formCurretnMarketLink('marketTeams'),
+      value: formCurrentMarketLink('marketTeams'),
       visible: isGranted('read_companies'), //todo make this role based
       primaryText: intl.formatMessage({ id: 'marketTeamsMenu' }),
       leftIcon: <BusinessIcon />
     },
     {
-      value: formCurretnMarketLink('investibles'),
+      value: formCurrentMarketLink('investibles'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'investiblesMenu' }),
       leftIcon: <ListIcon />,
     },
     {
-      value: formCurretnMarketLink('marketCategories'),
+      value: formCurrentMarketLink('marketCategories'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'marketCategoriesMenu'}),
       leftIcon: <ViewColumn/>
     },
-    { value: formCurretnMarketLink('teams'),
+    { value: formCurrentMarketLink('teams'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({id: 'myTeamsMenu'}),
       leftIcon: <GroupIcon/>

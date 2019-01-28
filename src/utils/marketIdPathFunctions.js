@@ -26,16 +26,15 @@ export function getMarketId () {
 
 /**
  * Appends the auth market id to the relative link given and returns the new relative link so formed
- * @param relativeDestination
  * @param authMarketId
+ * @param relativeDestination
  * @returns {string}
  */
-function appendAuthMarket (relativeDestination, authMarketId) {
+function appendAuthMarket (authMarketId, relativeDestination) {
   // window.location.href is just to make the parser happy. We'll discard it to make sure we give a relative link
   const url = new URL(relativeDestination, window.location.href)
   const searchParams = url.searchParams
   searchParams.append('authMarketId', authMarketId)
-
   return url.pathname + '?' + searchParams.toString()
 }
 
@@ -54,14 +53,25 @@ function formMarketIdLink (marketId, subPath) {
  * Forms a relative link and embeds the active market and auth market if needed
  * @param realtiveDestination
  */
-export function formCurretnMarketLink (subPath) {
+export function formCurrentMarketLink (subPath) {
   const market = getMarketId()
+  const marketLink = formMarketIdLink(market, subPath)
+  return formAuthAppendedLink(market, marketLink)
+}
+
+/**
+ * Determines if the auth market is the same as the dest market and
+ * appends the auth market id if needed
+ * @param destMarket
+ * @param destLink
+ * @returns {string}
+ */
+function formAuthAppendedLink(destMarket, destLink) {
   const authMarket = getAuthMarketId()
-  const dest = formMarketIdLink(market, subPath)
-  if (market !== authMarket) {
-    return appendAuthMarket(dest, authMarket)
+  if (destMarket !== authMarket) {
+    return appendAuthMarket(authMarket, destLink)
   }
-  return dest
+  return destLink
 }
 
 /**
@@ -71,6 +81,7 @@ export function formCurretnMarketLink (subPath) {
  * @param subPath
  * @returns {string}
  */
-export function getDifferentMarketLink (marketId, subPath) {
-  return formMarketIdLink(marketId, subPath)
+export function getDifferentMarketLink(marketId, subPath) {
+  const marketLink = formMarketIdLink(marketId, subPath)
+  return formAuthAppendedLink(marketId, marketLink)
 }

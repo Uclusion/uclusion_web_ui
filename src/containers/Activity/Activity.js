@@ -16,6 +16,14 @@ import { compose } from 'redux'
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import { withStyles } from '@material-ui/core/styles'
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import { withMarketId } from '../../components/PathProps/MarketId'
+import { getCurrentUser } from '../../store/Users/reducer'
 
 const drawerWidth = 240;
 
@@ -67,6 +75,13 @@ const styles = theme => ({
   grow: {
     flex: '1 1 auto',
   },
+  formControl: {
+    marginRight: 50,
+    minWidth: 1,
+  },
+  selectEmpty: {
+    marginTop: 5,
+  },
 });
 
 class Activity extends React.Component {
@@ -87,8 +102,17 @@ class Activity extends React.Component {
   };
 
   render() {
-    const { classes, theme, children, drawer, intl, title, pageTitle, width, appBarContent, isLoading, onBackClick, isOffline } = this.props;
-
+    const { classes, theme, children, drawer, intl, title, pageTitle, width, appBarContent, isLoading, onBackClick, isOffline, marketId, user } = this.props;
+    let marketChoices;
+    if (user && user.team_presences) {
+      let team_presence = user.team_presences.find(function (team) {
+        return team.team_id = user.default_team_id;
+      })
+      let markets = team_presence.market_list
+      marketChoices = markets.map((market) => {
+        return <MenuItem value={market.id}>{market.name}</MenuItem>
+      });
+    }
     let headerTitle = ''
 
     if (typeof title === 'string' || title instanceof String) {
@@ -141,7 +165,19 @@ class Activity extends React.Component {
               <Icon >chevron_left</Icon>
             </IconButton>
             {!onBackClick && drawer.open && <div style={{ marginRight: 32 }} />}
-
+            {marketChoices && <form autoComplete="off">
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="age-helper">Market</InputLabel>
+                <Select
+                  value={marketId}
+                  onChange={this.handleChange}
+                  input={<Input name="market" id="market-switch" />}
+                >
+                  {marketChoices}
+                </Select>
+                <FormHelperText>Choose the market to display</FormHelperText>
+              </FormControl>
+            </form>}
             <Typography variant="title" color="inherit" noWrap >
               {headerTitle}
             </Typography>
@@ -176,7 +212,8 @@ const mapStateToProps = (state) => {
 
   return {
     drawer,
-    isOffline: connection ? !connection.isConnected : false
+    isOffline: connection ? !connection.isConnected : false,
+    user: getCurrentUser(state.usersReducer)
   }
 }
 
@@ -185,5 +222,5 @@ export default compose(
   withWidth(),
   withStyles(styles, { withTheme: true }),
   injectIntl
-)(Activity)
+)(withMarketId(Activity))
 

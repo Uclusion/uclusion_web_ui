@@ -1,5 +1,4 @@
 import { getClient } from '../../config/uclusionClient'
-import { fetchMarket } from '../Markets/actions'
 
 export const REQUEST_USER = 'REQUEST_USER'
 export const REQUEST_CURRENT_USER = 'REQUEST_CURRENT_USER'
@@ -26,19 +25,24 @@ export const receiveCurrentUser = user => ({
 })
 
 export const fetchUser = (params = {}) => (dispatch) => {
-  if (!params.user_id){
+  if (!params.user_id) {
     dispatch(requestCurrentUser(params.user))
   } else {
     dispatch(requestUser())
   }
   const clientPromise = getClient()
+  let globalClient
   return clientPromise.then((client) => {
+    globalClient = client
     return client.users.get(params.user_id, params.marketId)
   }).then((user) => {
     if (!params.user_id) {
-      dispatch(receiveCurrentUser(user))
+      globalClient.users.getPresences().then((teamPresences) => {
+        user.team_presences = teamPresences
+        dispatch(receiveCurrentUser(user))
+      })
     } else {
-      return dispatch(receiveUser(user))
+      dispatch(receiveUser(user))
     }
   }).catch((error) => {
     console.log(error)

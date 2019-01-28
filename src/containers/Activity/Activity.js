@@ -24,6 +24,9 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { withMarketId } from '../../components/PathProps/MarketId'
 import { getCurrentUser } from '../../store/Users/reducer'
+import { fetchMarket } from '../../store/Markets/actions'
+import { fetchUser } from '../../store/Users/actions'
+import { getDifferentMarketLink } from '../../utils/marketIdPathFunctions'
 
 const drawerWidth = 240;
 
@@ -85,6 +88,9 @@ const styles = theme => ({
 });
 
 class Activity extends React.Component {
+  constructor (props) {
+    super(props)
+  }
 
   handleDrawerToggle = () => {
     const { setDrawerMobileOpen, drawer } = this.props
@@ -99,6 +105,16 @@ class Activity extends React.Component {
   handleDrawerClose = () => {
     const { setDrawerOpen } = this.props
     setDrawerOpen(false)
+  };
+
+  handleMarketChange = event => {
+    const newMarketId = event.target.value
+    if (newMarketId !== this.props.marketId) {
+      this.props.dispatch(fetchMarket({market_id: newMarketId, isSelected: true}))
+      // We have the user already from login but not the market presences which this fetch user will retrieve
+      this.props.dispatch(fetchUser({marketId: newMarketId, user: this.props.user}))
+      window.location = getDifferentMarketLink(newMarketId, 'investibles')
+    }
   };
 
   render() {
@@ -167,10 +183,10 @@ class Activity extends React.Component {
             {!onBackClick && drawer.open && <div style={{ marginRight: 32 }} />}
             {marketChoices && <form autoComplete="off">
               <FormControl className={classes.formControl}>
-                <InputLabel htmlFor="age-helper">Market</InputLabel>
+                <InputLabel htmlFor="market-switch-helper">Market</InputLabel>
                 <Select
                   value={marketId}
-                  onChange={this.handleChange}
+                  onChange={this.handleMarketChange}
                   input={<Input name="market" id="market-switch" />}
                 >
                   {marketChoices}

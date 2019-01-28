@@ -34,21 +34,43 @@ function appendAuthMarket (relativeDestination, authMarketId) {
   // window.location.href is just to make the parser happy. We'll discard it to make sure we give a relative link
   const url = new URL(relativeDestination, window.location.href)
   const searchParams = url.searchParams
-  searchParams.append('authMarketId', authMarketId);
+  searchParams.append('authMarketId', authMarketId)
 
   return url.pathname + '?' + searchParams.toString()
+}
+
+/**
+ * Helper function to centralize market id subpath link formation
+ * @param marketId
+ * @param subPath
+ * @returns {string}
+ */
+function formMarketIdLink (marketId, subPath) {
+  const dest = '/' + marketId + '/' + subPath
+  return dest
 }
 
 /**
  * Forms a relative link and embeds the active market and auth market if needed
  * @param realtiveDestination
  */
-export function formMarketSpecificLink (subPath){
+export function formCurretnMarketLink (subPath) {
   const market = getMarketId()
   const authMarket = getAuthMarketId()
-  const dest = '/' + market + '/' + subPath
-  if ( market !== authMarket ) {
+  const dest = formMarketIdLink(market, subPath)
+  if (market !== authMarket) {
     return appendAuthMarket(dest, authMarket)
   }
   return dest
+}
+
+/**
+ * Forms a link to a given market id with the given subpath. Usually used when switching
+ * to a different market
+ * @param marketId
+ * @param subPath
+ * @returns {string}
+ */
+export function getDifferentMarketLink (marketId, subPath) {
+  return formMarketIdLink(marketId, subPath)
 }

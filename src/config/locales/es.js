@@ -139,10 +139,8 @@ const messages = defineMessages({
   select_operator: 'Seleccione operador',
   not_match_found: 'No se encontraron coincidencias',
   edit_user: 'Editar usuario',
-  firestore: 'Firestore',
   hot_dog_status: 'Hot dog status',
   user_label_search: 'Buscar usuario',
-  document: 'Documento',
   collection: 'Colección',
   infinitelist: 'Infinitelist'
 

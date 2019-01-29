@@ -7,7 +7,6 @@ import { GitHubIcon } from '../../components/Icons'
 import  Activity from '../../containers/Activity/Activity'
 import { withTheme } from '@material-ui/core/styles'
 import { Line, Bar } from 'react-chartjs-2'
-import { withFirebase } from 'firekit-provider'
 
 import Scrollbar from '../../components/Scrollbar/Scrollbar'
 const currentYear = new Date().getFullYear()
@@ -180,4 +179,4 @@ const mapStateToProps = (state) => {
 
 export default connect(
   mapStateToProps
-)(injectIntl(withTheme()(withFirebase(Dashboard))))
+)(injectIntl(withTheme()(Dashboard)))

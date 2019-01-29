@@ -88,11 +88,6 @@ const styles = theme => ({
 });
 
 class Activity extends React.Component {
-  constructor (props) {
-    super(props)
-    this.state = {}
-  }
-
   handleDrawerToggle = () => {
     const { setDrawerMobileOpen, drawer } = this.props
     setDrawerMobileOpen(!drawer.mobileOpen)
@@ -111,25 +106,29 @@ class Activity extends React.Component {
   handleMarketChange = event => {
     const newMarketId = event.target.value
     if (newMarketId !== this.props.marketId) {
+      let markets = this.extractMarkets(this.props.user)
       this.props.dispatch(fetchMarket({market_id: newMarketId, isSelected: true}))
       // We have the user already from login but not the market presences which this fetch user will retrieve
       this.props.dispatch(fetchUser({marketId: newMarketId, user: this.props.user}))
-      let market = this.state.markets.find(function (market) {
+      let market = markets.find(function (market) {
         return market.id = newMarketId;
       })
       window.location = getDifferentMarketLink(market, 'investibles')
     }
   };
 
+  extractMarkets (user) {
+    let team_presence = user.team_presences.find(function (team) {
+      return team.team_id = user.default_team_id
+    })
+    return team_presence.market_list
+  }
+
   render() {
     const { classes, theme, children, drawer, intl, title, pageTitle, width, appBarContent, isLoading, onBackClick, isOffline, marketId, user } = this.props;
     let marketChoices;
     if (user && user.team_presences) {
-      let team_presence = user.team_presences.find(function (team) {
-        return team.team_id = user.default_team_id;
-      })
-      let markets = team_presence.market_list
-      this.state.markets = markets
+      let markets = this.extractMarkets(user)
       marketChoices = markets.map((market) => {
         return <MenuItem value={market.id}>{market.name}</MenuItem>
       });

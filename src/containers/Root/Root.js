@@ -10,111 +10,12 @@ import MomentUtils from 'material-ui-pickers/utils/moment-utils'
 import { IntlProvider } from 'react-intl'
 import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvider'
 import AppLayout from '../../containers/AppLayout'
-import {
-  watchAuth,
-  clearInitialization,
-  initConnection,
-  watchList,
-  initMessaging,
-  watchPath
-} from 'firekit'
 import createHistory from 'history/createBrowserHistory'
 import { Router, Route, Switch } from 'react-router-dom'
-import { setPersistentValue } from '../../store/persistentValues/actions'
 
 const history = createHistory()
 
 class Root extends Component {
-
-  handlePresence = (user, firebaseApp) => {
-
-    let myConnectionsRef = firebaseApp.database().ref(`users/${user.uid}/connections`)
-
-    let lastOnlineRef = firebaseApp.database().ref(`users/${user.uid}/lastOnline`)
-    lastOnlineRef.onDisconnect().set(new Date())
-
-    let con = myConnectionsRef.push(true)
-    con.onDisconnect().remove()
-
-  }
-
-  onAuthStateChanged = (user, firebaseApp) => {
-    const {
-      clearInitialization,
-      watchConnection,
-      watchList,
-      watchPath,
-      appConfig
-    } = this.props
-
-    clearInitialization()
-
-    if (user) {
-
-      this.handlePresence(user, firebaseApp)
-      setTimeout(() => { watchConnection(firebaseApp) }, 1000)
-
-      const userData = {
-        displayName: user.displayName ? user.displayName : 'UserName',
-        email: user.email ? user.email : ' ',
-        photoURL: user.photoURL,
-        emailVerified: user.emailVerified,
-        isAnonymous: user.isAnonymous,
-        uid: user.uid,
-        providerData: user.providerData,
-      }
-
-      let publicProviderData = []
-
-      user.providerData.forEach(provider => {
-        publicProviderData.push({
-          providerId: provider.providerId,
-          displayName: provider.displayName ? provider.displayName : null
-        })
-      })
-
-      const publicUserData = {
-        displayName: user.displayName ? user.displayName : 'UserName',
-        photoURL: user.photoURL,
-        uid: user.uid,
-        providerData: publicProviderData,
-      }
-
-      watchList(firebaseApp, `user_grants/${user.uid}`)
-      watchPath(firebaseApp, `admins/${user.uid}`)
-
-      if (appConfig.onAuthStateChanged) {
-        try {
-          appConfig.onAuthStateChanged(user, this.props, firebaseApp)
-        } catch (err) {
-          console.warn(err)
-        }
-      }
-
-      firebaseApp.database().ref(`users/${user.uid}`).update(publicUserData)
-
-      return userData
-
-    } else {
-      return null
-    }
-
-  }
-
-  componentWillMount () {
-    const {watchAuth, appConfig} = this.props
-
-    appConfig.firebaseLoad().then(({firebaseApp}) => {
-      watchAuth(firebaseApp, (user) => this.onAuthStateChanged(user, firebaseApp))
-    })
-
-  }
-
-  componentWillUnmount () {
-    //const { clearApp }= this.props;
-    //clearApp(this.firebaseApp); //TODO: add it after firekit update
-  }
-
   render () {
     const {appConfig, locale, themeSource} = this.props
 
@@ -129,7 +30,7 @@ class Root extends Component {
             <IntlGlobalProvider>
               <Router history={history}>
                 <Switch>
-                  <Route children={(props) => <AppLayout {...props} />}/>
+                  <Route children={(props) => <AppLayout {...props} />} />
                 </Switch>
               </Router>
             </IntlGlobalProvider>
@@ -148,26 +49,15 @@ Root.propTypes = {
 
 const mapStateToProps = (state, ownProps) => {
 
-  const {locale, themeSource, persistentValues, simpleValues} = state
-
-  const notificationPermissionRequested = persistentValues.notificationPermissionRequested
+  const {locale, themeSource, simpleValues} = state
 
   return {
     locale,
     themeSource,
-    notificationPermissionRequested,
     simpleValues
   }
 }
 
 export default connect(
-  mapStateToProps, {
-    watchAuth,
-    clearInitialization,
-    watchConnection: initConnection,
-    watchList,
-    watchPath,
-    initMessaging,
-    setPersistentValue
-  }
+  mapStateToProps
 )(Root)

@@ -10,7 +10,7 @@ export class Routes extends Component {
     const { appConfig } = this.props
 
     const customRoutes = appConfig.routes ? appConfig.routes : []
-    const appRoutes = getAppRoutes(appConfig.firebaseLoad)
+    const appRoutes = getAppRoutes()
     return (
 
       <div style={{ width: '100%', height: '100vh' }}>

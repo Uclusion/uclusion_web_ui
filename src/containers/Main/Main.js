@@ -2,9 +2,8 @@ import App from '../../containers/App/App'
 import React, { Component } from 'react'
 import config from '../../config'
 import configureStore from '../../store'
-import locales from '../../config/locales'
 import { Helmet } from 'react-helmet'
-import { addLocalizationData } from '../../config/locales'
+import locales, { addLocalizationData } from '../../config/locales'
 import { withA2HS } from 'a2hs'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -20,12 +19,11 @@ class Main extends Component {
   render () {
     return <div>
       <Helmet>
-        <link async type='text/css' rel='stylesheet' href='https://cdn.firebase.com/libs/firebaseui/3.0.0/firebaseui.css' />
         <link async rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons' />
         <link async rel='stylesheet' href='index.css' />
       </Helmet>
-      <ToastContainer/>
-      <App appConfig={{ configureStore, ...config }}/>
+      <ToastContainer />
+      <App appConfig={{ configureStore, ...config }} />
     </div>
   }
 }

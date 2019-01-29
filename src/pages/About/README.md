@@ -28,7 +28,6 @@ Check this out:
 * it is build with CRA and even if you use this Starter Kit your CRA scripts will work properly. You will be able to make every CRA update as if you have started with it. We don't eject anyone from CRA :smile:
 * it has all "MOST WANTED" features build in. That is where the name comes from :wink: We come to the features a little bit later.
 * it is customisable
-* it uses Firebase :smile:
 * it is Best Practice Project PWA (Progressive Web Application)
 * you will love it once you start using it :smile:
 
@@ -38,7 +37,6 @@ Let's take a look at some of them:
 * Material UI
 * code splitting
 * redux implementation
-* firebase to redux sync
 * authentication
 * authorisation
 * push notifications UI integration
@@ -55,9 +53,6 @@ Sure. It is a project made over years and still fully supported. Reason for that
 
 The informations you are seeking are skatered over some Medium articles writen by me at the time I was working on solving some problems in this project. So they should explain some core parts in detail:
 - [Beyond create-react-app](https://codeburst.io/beyond-create-react-app-cra-a2063196a124)
-- [Organising your Firebase CLoud Functions](https://codeburst.io/organizing-your-firebase-cloud-functions-67dc17b3b0da)
-- [Firekit concepts to sync Firebase and redux](https://codeburst.io/firekit-concepts-to-sync-firebase-and-redux-606a1e3e50d6)
-- [Firebase and react Continuous Deployment](https://codeburst.io/firebase-and-react-continuous-deployment-2e6d81f0b6a1)
 - [Redux simple values](https://codeburst.io/redux-simple-values-7712694f311)
 - [React Most Wanted](https://medium.com/@tarikhuber/react-most-wanted-d4e916782c2e)
 

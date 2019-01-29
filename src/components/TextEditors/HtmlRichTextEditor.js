@@ -18,36 +18,44 @@ class HtmlRichTextEditor extends React.Component {
 
   constructor (props) {
     super(props)
-    const {value} = props
-    this.onChange = this.onChange.bind(this)
-    this.html = new Html({rules})
-    const internalValue = this.html.deserialize(value)
-    this.state = {value: internalValue}
+
+    this.html = new Html({ rules })
+
+    const { value } = props
+    this.state = {
+      value: this.html.deserialize(value)
+    }
   }
 
-  onChange ({value}) {
+  onChange = ({ value }) => {
     const { readOnly, onChange } = this.props
-    if(!readOnly) {
+    if (!readOnly) {
       // When the document changes, save the serialized HTML to Local Storage.
       if (value.document !== this.state.value.document) {
         const string = this.html.serialize(value)
         //call the parent onChange with the string html value
         //emulate material ui field's onchange symantics
         if (onChange) {
-          const changeUpdate = {target: {value: string}}
+          const changeUpdate = { target: { value: string } }
           console.log(changeUpdate)
           onChange(changeUpdate)
         }
       }
-      this.setState({value})
+
+      this.setState({ value })
     }
   }
 
   // Render the editor.
   render () {
-    const {readOnly} = this.props
-    const editor = <RichTextEditor value={this.state.value} onChange={this.onChange} readOnly={readOnly}/>
-    return editor;
+    const { readOnly } = this.props;
+    return (
+      <RichTextEditor
+        value={this.state.value}
+        onChange={this.onChange}
+        readOnly={readOnly}
+      />
+    );
   }
 }
 

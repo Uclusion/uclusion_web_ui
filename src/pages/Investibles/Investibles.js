@@ -12,11 +12,11 @@ import InvestibleList from '../../components/Investibles/InvestibleList'
 import { withMarketId } from '../../components/PathProps/MarketId'
 
 class Investibles extends Component {
-  constructor (props) {
-    super(props)
-    // https://medium.freecodecamp.org/react-binding-patterns-5-approaches-for-handling-this-92c651b5af56
-    // this.readTrendingInvestibles = this.readTrendingInvestibles.bind(this)
-  }
+  // constructor (props) {
+  //   super(props)
+  //   // https://medium.freecodecamp.org/react-binding-patterns-5-approaches-for-handling-this-92c651b5af56
+  //   // this.readTrendingInvestibles = this.readTrendingInvestibles.bind(this)
+  // }
 
   componentDidMount () {
     // console.log("Attempting to read trending investibles");

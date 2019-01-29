@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-//import classnames from 'classnames'
 import { Paper, Button, TextField } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
@@ -15,10 +14,22 @@ const styles = theme => ({
   container: {
     display: 'flex',
     flexWrap: 'wrap',
+    padding: theme.spacing.unit,
   },
   textField: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.uni  ,
+    margin: 0,
+    marginBottom: theme.spacing.unit,
+  },
+  textInput: {
+    height: 40,
+  },
+  actionContainer: {
+    display: 'flex',
+    padding: theme.spacing.unit * 2,
+    justifyContent: 'space-between'
+  },
+  actionButton: {
+    maxWidth: 160,
   }
 
 })
@@ -50,35 +61,57 @@ class InvestibleListQuickAdd extends React.Component {
 
 
   render () {
-    const { classes, visible, intl, addSubmitOnClick, addCancelOnClick } = this.props;
-    if(!visible){
+    const {
+      classes,
+      visible,
+      intl,
+      addSubmitOnClick,
+      addCancelOnClick,
+    } = this.props;
+    console.log(this.state.description);
+
+    if (!visible) {
       return null;
     }
-    return (
-      <Paper className={'container'}>
-        <form  noValidate autoComplete="off">
-        <TextField
-          id="title"
-          label={intl.formatMessage({id: 'titleLabel'})}
-          defaultValue=""
-          className={classes.textField}
-          variant="filled"
-          margin="normal"
-          fullWidth
-          onChange={this.handleChange('title')}
-        />
-        <HtmlRichTextEditor value={this.state.description} onChange={this.handleChange('description')}/>
 
-        <Button variant='contained' color='primary'
-                onClick={() => this.addOnClick(addSubmitOnClick)}>{intl.formatMessage({id: 'addButton'})}</Button>
-        <Button variant='contained'
-                onClick={() => addCancelOnClick() }>{intl.formatMessage({id: 'cancelButton'})}</Button>
-        </form>
-      </Paper>
+    return (
+      <form noValidate autoComplete="off">
+        <Paper className={classes.container}>
+          <TextField
+            className={classes.textField}
+            InputProps={{ className: classes.textInput }}
+            id="title"
+            placeholder={intl.formatMessage({id: 'titleLabel'})}
+            defaultValue=""
+            margin="normal"
+            fullWidth
+            onChange={this.handleChange('title')}
+          />
+          <HtmlRichTextEditor value={this.state.description} onChange={this.handleChange('description')}/>
+        </Paper>
+        <div className={classes.actionContainer}>
+          <Button
+            className={classes.actionButton}
+            variant="contained"
+            fullWidth
+            color="primary"
+            onClick={() => this.addOnClick(addSubmitOnClick)}
+          >
+            {intl.formatMessage({ id: 'addButton' })}
+          </Button>
+          <Button
+            className={classes.actionButton}
+            variant="contained"
+            fullWidth
+            onClick={() => addCancelOnClick()}
+          >
+            {intl.formatMessage({ id: 'cancelButton' })}
+          </Button>
+        </div>
+      </form>
     )
   };
 }
-
 
 InvestibleListQuickAdd.propTypes = {
   category: PropTypes.string.isRequired,

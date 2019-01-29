@@ -129,7 +129,7 @@ class Activity extends React.Component {
         return team.team_id = user.default_team_id;
       })
       let markets = team_presence.market_list
-      this.state.markets = markets
+      this.setState({ markets })
       marketChoices = markets.map((market) => {
         return <MenuItem value={market.id}>{market.name}</MenuItem>
       });

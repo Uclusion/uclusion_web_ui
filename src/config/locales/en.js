@@ -164,6 +164,7 @@ const messages = defineMessages({
   ideaShareSymbol: 'Ȗ',
   defaultCategoryName: 'Uncategorized',
   teamsListNotFound: 'No Teams found',
+  categoriesListNotFound: 'No Market Categories found',
   titleLabel: 'Title',
   descriptionLabel: 'Description',
   // Sidebar menu names
@@ -177,7 +178,9 @@ const messages = defineMessages({
   investibleAddDescriptionDefault: 'Add a description...',
   // Team Memberships pages
   teamsHeader: 'Team Memberships',
+  categoriesHeader: 'Market Categories',
   teamsLoading: 'Loading your Team Memberships.',
+  categoriesLoading: 'Loading Market Categories.',
   myTeamsMenu: 'Team Memberships',
   // auth messages
   authorizationFailed: "We're sorry, authorization failed. Please try again",

@@ -43,7 +43,8 @@ function withUserAndPermissions(WrappedComponent) {
       // console.log(_upUser)
       const canInvest = apisObject.create_investment || false
       const canListAccountTeams = apisObject.list_teams || false
-      return { canDeleteMarketInvestible, canInvest, canEditMarketInvestible, canListAccountTeams }
+      const canCategorize = apisObject.category_create || false
+      return { canDeleteMarketInvestible, canInvest, canEditMarketInvestible, canListAccountTeams, canCategorize }
     }
 
     render () {

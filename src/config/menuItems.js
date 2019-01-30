@@ -32,7 +32,7 @@ const getMenuItems = (props) => {
 
   // const isAuthorised = auth.isAuthorised
   const isAuthorised = true
-  const { canInvest, canListAccountTeams } = userPermissions
+  const { canInvest, canListAccountTeams, canCategorize } = userPermissions
 
   const themeItems = themes.map((t) => {
     return {
@@ -91,7 +91,7 @@ const getMenuItems = (props) => {
     },
     {
       value: formCurrentMarketLink('marketCategories'),
-      visible: isAuthorised,
+      visible: canCategorize,
       primaryText: intl.formatMessage({ id: 'marketCategoriesMenu'}),
       leftIcon: <ViewColumn/>
     },

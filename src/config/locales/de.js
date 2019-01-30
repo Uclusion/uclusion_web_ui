@@ -2,7 +2,6 @@ import { defineMessages } from 'react-intl';
 
 const messages = defineMessages({
   app_name: 'React Meist Gesucht',
-  dashboard: 'Übersicht',
   about: 'Über',
   page_not_found_demo: 'Seite nicht gefunden demo',
   '404': '404',

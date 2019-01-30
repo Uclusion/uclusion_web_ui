@@ -10,7 +10,6 @@ import SettingsIcon from '@material-ui/icons/SettingsApplications'
 import AccountBoxIcon from '@material-ui/icons/AccountBox'
 import LockIcon from '@material-ui/icons/Lock'
 import ListIcon from '@material-ui/icons/List'
-import DashboardIcon from '@material-ui/icons/Dashboard'
 
 import BusinessIcon from '@material-ui/icons/Business'
 import ViewColumn from '@material-ui/icons/ViewColumn'
@@ -71,12 +70,6 @@ const getMenuItems = (props) => {
   }
 
   return [
-    {
-      value: formCurrentMarketLink('dashboard'),
-      visible: isAuthorised,
-      primaryText: intl.formatMessage({ id: 'dashboard' }),
-      leftIcon: <DashboardIcon />
-    },
     {
       value: formCurrentMarketLink('marketTeams'),
       visible: canListAccountTeams,

@@ -2,7 +2,6 @@ import { defineMessages } from 'react-intl'
 
 const messages = defineMessages({
   app_name: 'Uclusion',
-  dashboard: 'Dashboard',
   about: 'About',
   page_not_found_demo: 'Page not found demo',
   '404': '404',

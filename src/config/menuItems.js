@@ -25,15 +25,14 @@ const getMenuItems = (props) => {
     updateLocale,
     intl,
     themeSource,
-    // auth,
-    isGranted,
     isAuthMenu,
     handleSignOut,
+    userPermissions
   } = props
 
   // const isAuthorised = auth.isAuthorised
   const isAuthorised = true
-
+  const { canInvest, canListAccountTeams } = userPermissions
 
   const themeItems = themes.map((t) => {
     return {
@@ -80,7 +79,7 @@ const getMenuItems = (props) => {
     },
     {
       value: formCurrentMarketLink('marketTeams'),
-      visible: isGranted('read_companies'), //todo make this role based
+      visible: canListAccountTeams,
       primaryText: intl.formatMessage({ id: 'marketTeamsMenu' }),
       leftIcon: <BusinessIcon />
     },
@@ -97,7 +96,7 @@ const getMenuItems = (props) => {
       leftIcon: <ViewColumn/>
     },
     { value: formCurrentMarketLink('teams'),
-      visible: isAuthorised,
+      visible: canInvest,
       primaryText: intl.formatMessage({id: 'myTeamsMenu'}),
       leftIcon: <GroupIcon/>
     },

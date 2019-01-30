@@ -45,22 +45,19 @@ class MemberListItem extends React.Component {
 
 
   render () {
-    const { name, classes, type } = this.props
-    //for now, don't bother rendering the TEAM user
-    if(type === 'TEAM'){
-      return null
-    }
+    const { name, classes } = this.props
+    // for now, don't bother rendering the TEAM user
     return (
       <ExpansionPanel>
-          <ExpansionPanelSummary>
+        <ExpansionPanelSummary>
           <div className={classes.column}>
             <Typography>
               {name}
             </Typography>
           </div>
-          <div className={classes.column}/>
-          <div className={classNames(classes.column, classes.helper)}/>
-          </ExpansionPanelSummary>
+          <div className={classes.column} />
+          <div className={classNames(classes.column, classes.helper)} />
+        </ExpansionPanelSummary>
       </ExpansionPanel>
     )
   }
@@ -68,7 +65,7 @@ class MemberListItem extends React.Component {
 
 MemberListItem.propTypes = {
   id: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
+  name: PropTypes.string,
   type: PropTypes.string.isRequired
 }
 

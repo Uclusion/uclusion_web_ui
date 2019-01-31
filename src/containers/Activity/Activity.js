@@ -166,7 +166,7 @@ class Activity extends React.Component {
     if (user && user.team_presences) {
       let markets = this.extractMarkets(user)
       marketChoices = markets.map((market) => {
-        return <MenuItem value={market.id}>{market.name}</MenuItem>
+        return <MenuItem key={market.name} value={market.id}>{market.name}</MenuItem>
       });
     }
     let headerTitle = ''

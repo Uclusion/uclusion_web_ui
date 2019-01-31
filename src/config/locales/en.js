@@ -2,7 +2,6 @@ import { defineMessages } from 'react-intl'
 
 const messages = defineMessages({
   app_name: 'Uclusion',
-  dashboard: 'Dashboard',
   about: 'About',
   page_not_found_demo: 'Page not found demo',
   '404': '404',
@@ -164,6 +163,7 @@ const messages = defineMessages({
   ideaShareSymbol: 'Ȗ',
   defaultCategoryName: 'Uncategorized',
   teamsListNotFound: 'No Teams found',
+  categoriesListNotFound: 'No Market Categories found',
   titleLabel: 'Title',
   descriptionLabel: 'Description',
   // Sidebar menu names
@@ -177,7 +177,9 @@ const messages = defineMessages({
   investibleAddDescriptionDefault: 'Add a description...',
   // Team Memberships pages
   teamsHeader: 'Team Memberships',
+  categoriesHeader: 'Market Categories',
   teamsLoading: 'Loading your Team Memberships.',
+  categoriesLoading: 'Loading Market Categories.',
   myTeamsMenu: 'Team Memberships',
   // auth messages
   authorizationFailed: "We're sorry, authorization failed. Please try again",
@@ -191,7 +193,9 @@ const messages = defineMessages({
   investibleBindFailed: 'There was a problem making your investible available to others. Please try again',
   investibleAddSucceeded: 'Your new investible has been created! It may take a few minutes to be visible.',
   marketInvestibleDeleted: 'The investible has been removed from the market.',
-  marketInvestibleDeleteFailed: 'There was a problem removing the investible from the market. Please try again'
+  marketInvestibleDeleteFailed: 'There was a problem removing the investible from the market. Please try again',
+  marketCategoryDeleted: 'The category has been removed from the market.',
+  marketCategoryDeleteFailed: 'There was a problem removing the category from the market. Please try again'
 })
 
 export default messages

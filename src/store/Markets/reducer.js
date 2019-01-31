@@ -1,7 +1,15 @@
 import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { REQUEST_MARKET, RECEIVE_MARKET, SELECT_MARKET, REQUEST_MARKET_CATEGORIES, RECEIVE_MARKET_CATEGORIES, formatMarkets } from './actions'
+import {
+  REQUEST_MARKET,
+  RECEIVE_MARKET,
+  SELECT_MARKET,
+  REQUEST_MARKET_CATEGORIES,
+  RECEIVE_MARKET_CATEGORIES,
+  formatMarkets,
+  MARKET_CATEGORY_DELETED
+} from './actions'
 
 export const marketPropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -72,6 +80,10 @@ const marketCategories = (state = {}, action) => {
       const newState = { ...state }
       newState[action.categories.market_id] = action.categories.categories
       return newState
+    case MARKET_CATEGORY_DELETED:
+      const newStateForCategories = { ...state }
+      newStateForCategories[action.marketId] = state[action.marketId].filter(item => item.name !== action.name)
+      return newStateForCategories
     default:
       return state
   }

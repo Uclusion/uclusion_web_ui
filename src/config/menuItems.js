@@ -10,7 +10,6 @@ import SettingsIcon from '@material-ui/icons/SettingsApplications'
 import AccountBoxIcon from '@material-ui/icons/AccountBox'
 import LockIcon from '@material-ui/icons/Lock'
 import ListIcon from '@material-ui/icons/List'
-import DashboardIcon from '@material-ui/icons/Dashboard'
 
 import BusinessIcon from '@material-ui/icons/Business'
 import ViewColumn from '@material-ui/icons/ViewColumn'
@@ -25,15 +24,14 @@ const getMenuItems = (props) => {
     updateLocale,
     intl,
     themeSource,
-    // auth,
-    isGranted,
     isAuthMenu,
     handleSignOut,
+    userPermissions
   } = props
 
   // const isAuthorised = auth.isAuthorised
   const isAuthorised = true
-
+  const { canInvest, canListAccountTeams, canCategorize } = userPermissions
 
   const themeItems = themes.map((t) => {
     return {
@@ -73,14 +71,8 @@ const getMenuItems = (props) => {
 
   return [
     {
-      value: formCurrentMarketLink('dashboard'),
-      visible: isAuthorised,
-      primaryText: intl.formatMessage({ id: 'dashboard' }),
-      leftIcon: <DashboardIcon />
-    },
-    {
       value: formCurrentMarketLink('marketTeams'),
-      visible: isGranted('read_companies'), //todo make this role based
+      visible: canListAccountTeams,
       primaryText: intl.formatMessage({ id: 'marketTeamsMenu' }),
       leftIcon: <BusinessIcon />
     },
@@ -92,12 +84,12 @@ const getMenuItems = (props) => {
     },
     {
       value: formCurrentMarketLink('marketCategories'),
-      visible: isAuthorised,
+      visible: canCategorize,
       primaryText: intl.formatMessage({ id: 'marketCategoriesMenu'}),
       leftIcon: <ViewColumn/>
     },
     { value: formCurrentMarketLink('teams'),
-      visible: isAuthorised,
+      visible: canInvest,
       primaryText: intl.formatMessage({id: 'myTeamsMenu'}),
       leftIcon: <GroupIcon/>
     },

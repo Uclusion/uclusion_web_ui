@@ -2,7 +2,6 @@ import { defineMessages } from 'react-intl'
 
 const messages = defineMessages({
   app_name: 'React Najtrazeniji',
-  dashboard: 'Pregled',
   about: 'Opis',
   page_not_found_demo: 'Stranica nije pronadjena',
   '404': '404',

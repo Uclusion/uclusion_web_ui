@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types'
 import React from 'react'
-import {ExpansionPanel, ExpansionPanelSummary, Typography } from '@material-ui/core'
+import { ExpansionPanel, ExpansionPanelSummary, Typography } from '@material-ui/core'
 import classNames from 'classnames'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
-
+import CategoryDelete from './CategoryDelete'
 
 const styles = (theme) => ({
   headerBox: {
@@ -41,12 +41,9 @@ const styles = (theme) => ({
   }
 })
 
-class MemberListItem extends React.Component {
-
-
+class CategoryListItem extends React.Component {
   render () {
-    const { name, classes } = this.props
-    // for now, don't bother rendering the TEAM user
+    const { name, classes, investiblesIn } = this.props
     return (
       <ExpansionPanel>
         <ExpansionPanelSummary>
@@ -55,7 +52,14 @@ class MemberListItem extends React.Component {
               {name}
             </Typography>
           </div>
-          <div className={classes.column} />
+          <div className={classes.column}>
+            <Typography>
+              {investiblesIn}
+            </Typography>
+          </div>
+          <div className={classes.column}>
+            {(!investiblesIn || investiblesIn === 0) && <CategoryDelete name={name} />}
+          </div>
           <div className={classNames(classes.column, classes.helper)} />
         </ExpansionPanelSummary>
       </ExpansionPanel>
@@ -63,12 +67,9 @@ class MemberListItem extends React.Component {
   }
 }
 
-MemberListItem.propTypes = {
-  id: PropTypes.string.isRequired,
-  name: PropTypes.string,
-  type: PropTypes.string.isRequired
+CategoryListItem.propTypes = {
+  name: PropTypes.string.isRequired,
+  investiblesIn: PropTypes.number
 }
 
-
-
-export default injectIntl(withStyles(styles)(MemberListItem))
+export default injectIntl(withStyles(styles)(CategoryListItem))

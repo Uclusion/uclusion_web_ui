@@ -57,7 +57,7 @@ const currentUser = (state = null, action) => {
     case RECEIVE_CURRENT_USER:
     case REQUEST_CURRENT_USER:
       // This user object on request won't have market presences but better than nothing
-      return action.user
+      return action.user ? action.user : state
     default:
       return state
   }

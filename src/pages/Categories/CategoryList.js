@@ -9,6 +9,8 @@ import { getCategoriesFetching, getMarketCategories } from '../../store/Markets/
 import { withStyles } from '@material-ui/core/styles/index'
 import withWidth from '@material-ui/core/withWidth/index'
 import CategoryListItem from './CategoryListItem'
+import CategoryAdd from './CategoryAdd'
+import { withMarketId } from '../../components/PathProps/MarketId'
 
 const styles = (theme) => ({
   mainGrid: {
@@ -20,7 +22,7 @@ const styles = (theme) => ({
 
 class CategoryList extends Component {
   render () {
-    const { intl, loading, categories, classes } = this.props
+    const { intl, loading, categories, classes, marketId } = this.props
     if (loading > 0) {
       return (
         <Activity
@@ -59,6 +61,7 @@ class CategoryList extends Component {
         isLoading={categories === undefined}
         containerStyle={{ overflow: 'hidden' }}
         title={intl.formatMessage({ id: 'categoriesHeader' })}>
+        <CategoryAdd key='quickadd' marketId={marketId} />
         <div className={classes.mainGrid}>
           {categoryLists}
         </div>
@@ -90,4 +93,4 @@ export default connect(
 )(compose(
   withWidth(),
   withStyles(styles, {withTheme: true})
-)(injectIntl(CategoryList)))
+)(injectIntl(withMarketId(CategoryList))))

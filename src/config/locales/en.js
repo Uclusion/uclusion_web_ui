@@ -195,7 +195,9 @@ const messages = defineMessages({
   marketInvestibleDeleted: 'The investible has been removed from the market.',
   marketInvestibleDeleteFailed: 'There was a problem removing the investible from the market. Please try again',
   marketCategoryDeleted: 'The category has been removed from the market.',
-  marketCategoryDeleteFailed: 'There was a problem removing the category from the market. Please try again'
+  marketCategoryDeleteFailed: 'There was a problem removing the category from the market. Please try again',
+  marketCategoryCreated: 'The category has been added to the market.',
+  marketCategoryCreateFailed: 'There was a problem adding the category to the market. Please try again'
 })
 
 export default messages

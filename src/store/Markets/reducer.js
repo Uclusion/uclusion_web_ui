@@ -8,7 +8,8 @@ import {
   REQUEST_MARKET_CATEGORIES,
   RECEIVE_MARKET_CATEGORIES,
   formatMarkets,
-  MARKET_CATEGORY_DELETED
+  MARKET_CATEGORY_DELETED,
+  MARKET_CATEGORY_CREATED
 } from './actions'
 
 export const marketPropType = PropTypes.shape({
@@ -36,8 +37,8 @@ const marketItems = (state = [], action) => {
     case REQUEST_MARKET:
       return state
     case RECEIVE_MARKET:
-      let market = [action.market]
-      return _.unionBy(market, state, 'id')
+      let markets = [action.market]
+      return _.unionBy(markets, state, 'id')
     default:
       return state
   }
@@ -84,6 +85,11 @@ const marketCategories = (state = {}, action) => {
       const newStateForCategories = { ...state }
       newStateForCategories[action.marketId] = state[action.marketId].filter(item => item.name !== action.name)
       return newStateForCategories
+    case MARKET_CATEGORY_CREATED:
+      let categories = [action.category]
+      const newStateAddCategories = { ...state }
+      newStateAddCategories[action.marketId] = _.unionBy(categories, state[action.marketId], 'name')
+      return newStateAddCategories
     default:
       return state
   }

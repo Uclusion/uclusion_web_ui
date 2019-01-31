@@ -8,6 +8,7 @@ export const SELECT_MARKET = 'SELECT_MARKET'
 export const REQUEST_MARKET_CATEGORIES = 'REQUEST_MARKET_CATEGORIES'
 export const RECEIVE_MARKET_CATEGORIES = 'RECEIVE_MARKET_CATEGORIES'
 export const MARKET_CATEGORY_DELETED = 'MARKET_CATEGORY_DELETED'
+export const MARKET_CATEGORY_CREATED = 'MARKET_CATEGORY_CREATED'
 
 export const requestMarket = () => ({
   type: REQUEST_MARKET
@@ -39,6 +40,12 @@ export const categoryDeleted = (name, marketId) => ({
   marketId
 })
 
+export const categoryCreated = (category, marketId) => ({
+  type: MARKET_CATEGORY_CREATED,
+  category,
+  marketId
+})
+
 export const fetchMarketCategories = (params = {}) => (dispatch) => {
   dispatch(requestMarketCategories(params.marketId))
   const clientPromise = getClient()
@@ -66,6 +73,19 @@ export const deleteMarketCategory = (params = {}) => (dispatch) => {
     }).catch((error) => {
       console.log(error)
       sendIntlMessage(ERROR, { id: 'marketCategoryDeleteFailed' })
+    })
+}
+
+export const createMarketCategory = (params = {}) => (dispatch) => {
+  const clientPromise = getClient()
+  return clientPromise.then((client) => client.investibles.createCategory(params.name, params.marketId))
+    .then((category) => {
+      category.investiblesIn = 0
+      dispatch(categoryCreated(category, params.marketId))
+      sendIntlMessage(SUCCESS, { id: 'marketCategoryCreated' })
+    }).catch((error) => {
+      console.log(error)
+      sendIntlMessage(ERROR, { id: 'marketCategoryCreateFailed' })
     })
 }
 

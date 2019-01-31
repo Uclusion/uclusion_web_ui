@@ -2,6 +2,7 @@ import AppBar from '@material-ui/core/AppBar'
 
 import Icon from '@material-ui/core/Icon'
 import IconButton from '@material-ui/core/IconButton'
+import ArrowDropdown from '@material-ui/icons/ArrowDropDown';
 import LinearProgress from '@material-ui/core/LinearProgress'
 import MenuIcon from '@material-ui/icons/Menu'
 import PropTypes from 'prop-types'
@@ -78,9 +79,28 @@ const styles = theme => ({
   grow: {
     flex: '1 1 auto',
   },
+  marketSelect: {
+    color: 'inherit',
+  },
+  form: {
+    display: 'flex',
+    alignItems: 'center',
+    paddingRight: 20,
+  },
+  formLabel: {
+    color: 'inherit',
+    position: 'relative',
+    top: -1,
+    marginRight: theme.spacing.unit,
+  },
   formControl: {
-    marginRight: 50,
     minWidth: 1,
+  },
+  selectArrow: {
+    position: 'absolute',
+    pointerEvents: 'none',
+    top: 'calc(50% - 12px)',
+    right: 0,
   },
   selectEmpty: {
     marginTop: 5,
@@ -125,7 +145,23 @@ class Activity extends React.Component {
   }
 
   render() {
-    const { classes, theme, children, drawer, intl, title, pageTitle, width, appBarContent, isLoading, onBackClick, isOffline, marketId, user } = this.props;
+    const {
+      classes,
+      theme,
+      children,
+      drawer,
+      intl,
+      title,
+      pageTitle,
+      width,
+      appBarContent,
+      isLoading,
+      onBackClick,
+      isOffline,
+      marketId,
+      user,
+    } = this.props;
+
     let marketChoices;
     if (user && user.team_presences) {
       let markets = this.extractMarkets(user)
@@ -185,19 +221,23 @@ class Activity extends React.Component {
               <Icon >chevron_left</Icon>
             </IconButton>
             {!onBackClick && drawer.open && <div style={{ marginRight: 32 }} />}
-            {marketChoices && <form autoComplete="off">
-              <FormControl className={classes.formControl}>
-                <InputLabel htmlFor="market-switch-helper">Market</InputLabel>
-                <Select
-                  value={marketId}
-                  onChange={this.handleMarketChange}
-                  input={<Input name="market" id="market-switch" />}
-                >
-                  {marketChoices}
-                </Select>
-                <FormHelperText>Choose the market to display</FormHelperText>
-              </FormControl>
-            </form>}
+            {marketChoices && (
+              <form className={classes.form} autoComplete="off">
+                <Typography className={classes.formLabel}>Market:</Typography>
+                <FormControl className={classes.formControl}>
+                  <Select
+                    className={classes.marketSelect}
+                    disableUnderline
+                    value={marketId}
+                    onChange={this.handleMarketChange}
+                    IconComponent={() => <ArrowDropdown className={classes.selectArrow} />}
+                    input={<Input name="market" id="market-switch" />}
+                  >
+                    {marketChoices}
+                  </Select>
+                </FormControl>
+              </form>
+            )}
             <Typography variant="title" color="inherit" noWrap >
               {headerTitle}
             </Typography>

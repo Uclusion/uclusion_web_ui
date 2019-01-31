@@ -4,6 +4,7 @@ import { ExpansionPanel, ExpansionPanelSummary, Typography } from '@material-ui/
 import classNames from 'classnames'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
+import CategoryDelete from './CategoryDelete'
 
 const styles = (theme) => ({
   headerBox: {
@@ -56,6 +57,9 @@ class CategoryListItem extends React.Component {
               {investiblesIn}
             </Typography>
           </div>
+          <div className={classes.column}>
+            {(!investiblesIn || investiblesIn === 0) && <CategoryDelete name={name} />}
+          </div>
           <div className={classNames(classes.column, classes.helper)} />
         </ExpansionPanelSummary>
       </ExpansionPanel>
@@ -64,8 +68,7 @@ class CategoryListItem extends React.Component {
 }
 
 CategoryListItem.propTypes = {
-  id: PropTypes.string.isRequired,
-  name: PropTypes.string,
+  name: PropTypes.string.isRequired,
   investiblesIn: PropTypes.number
 }
 

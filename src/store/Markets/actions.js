@@ -1,11 +1,13 @@
 import { getClient } from '../../config/uclusionClient'
 import { fetchInvestibles } from '../MarketInvestibles/actions'
+import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage'
 
 export const REQUEST_MARKET = 'REQUEST_MARKET'
 export const RECEIVE_MARKET = 'RECEIVE_MARKET'
 export const SELECT_MARKET = 'SELECT_MARKET'
 export const REQUEST_MARKET_CATEGORIES = 'REQUEST_MARKET_CATEGORIES'
 export const RECEIVE_MARKET_CATEGORIES = 'RECEIVE_MARKET_CATEGORIES'
+export const MARKET_CATEGORY_DELETED = 'MARKET_CATEGORY_DELETED'
 
 export const requestMarket = () => ({
   type: REQUEST_MARKET
@@ -31,6 +33,12 @@ export const receiveMarketCategories = (categories) => ({
   categories
 })
 
+export const categoryDeleted = (name, marketId) => ({
+  type: MARKET_CATEGORY_DELETED,
+  name,
+  marketId
+})
+
 export const fetchMarketCategories = (params = {}) => (dispatch) => {
   dispatch(requestMarketCategories(params.marketId))
   const clientPromise = getClient()
@@ -47,6 +55,18 @@ export const fetchMarketCategories = (params = {}) => (dispatch) => {
     console.log(error)
     dispatch(receiveMarketCategories({}))
   })
+}
+
+export const deleteMarketCategory = (params = {}) => (dispatch) => {
+  const clientPromise = getClient()
+  return clientPromise.then((client) => client.investibles.deleteCategory(params.name, params.marketId))
+    .then((deleted) => {
+      dispatch(categoryDeleted(params.name, params.marketId))
+      sendIntlMessage(SUCCESS, { id: 'marketCategoryDeleted' })
+    }).catch((error) => {
+      console.log(error)
+      sendIntlMessage(ERROR, { id: 'marketCategoryDeleteFailed' })
+    })
 }
 
 export const fetchMarket = (params = {}) => (dispatch) => {

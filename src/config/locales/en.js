@@ -193,7 +193,9 @@ const messages = defineMessages({
   investibleBindFailed: 'There was a problem making your investible available to others. Please try again',
   investibleAddSucceeded: 'Your new investible has been created! It may take a few minutes to be visible.',
   marketInvestibleDeleted: 'The investible has been removed from the market.',
-  marketInvestibleDeleteFailed: 'There was a problem removing the investible from the market. Please try again'
+  marketInvestibleDeleteFailed: 'There was a problem removing the investible from the market. Please try again',
+  marketCategoryDeleted: 'The category has been removed from the market.',
+  marketCategoryDeleteFailed: 'There was a problem removing the category from the market. Please try again'
 })
 
 export default messages

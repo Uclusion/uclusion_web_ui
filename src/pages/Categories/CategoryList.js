@@ -48,8 +48,8 @@ class CategoryList extends Component {
     }
     const categoryLists = categories.map(element =>
       <CategoryListItem
-        key={element.id}
-        id={element.id}
+        key={element.name}
+        id={element.name}
         name={element.name}
         investiblesIn={element.investibles_in}
       />

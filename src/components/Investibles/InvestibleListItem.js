@@ -43,7 +43,7 @@ const styles = (theme) => ({
   },
 
   wholeWidth: {
-    flexBasis: '100%'
+    width: '100%'
   }
 })
 
@@ -78,14 +78,14 @@ class InvestibleListItem extends Component {
               <div style={{ minWidth: 100 }}>Current Stage:</div>
               <div>
                 <div>{investible.stage}</div>
-                <div style={{ fontSize: 12 }}>{`(${investible.quantity} uShares)`}</div>
+                <div style={{ fontSize: 12 }}>{`${investible.quantity} uShares`}</div>
               </div>
             </div>
             <div style={{ display: 'flex' }}>
               <div style={{ minWidth: 100 }}>Next Stage:</div>
               <div>
                 <div>{investible.next_stage}</div>
-                <div style={{ fontSize: 12 }}>{`(Requires at least ${investible.next_stage_threshold} uShares)`}</div>
+                <div style={{ fontSize: 12 }}>{`Requires at least ${investible.next_stage_threshold} uShares`}</div>
               </div>
             </div>
           </Typography>

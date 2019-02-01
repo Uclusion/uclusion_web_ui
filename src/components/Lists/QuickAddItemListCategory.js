@@ -84,7 +84,13 @@ class QuickAddItemListCategory extends React.Component {
           </ListSubheader>
           <div className={classes.subListContent}>
             {myQuickAdd}
-            <Grid container direction="column" justify="flex-start" alignItems="stretch">
+            <Grid
+              container
+              direction="column"
+              justify="flex-start"
+              alignItems="stretch"
+              wrap="nowrap"
+            >
               {items}
             </Grid>
           </div>

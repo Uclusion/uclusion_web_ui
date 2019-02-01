@@ -14,13 +14,22 @@ const styles = theme => ({
 
   container: {
     display: 'flex',
-    flexWrap: 'wrap',
+    alignItems: 'flex-end',
   },
   textField: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
     width: 200,
-  }
+  },
+  investButton: {
+    marginLeft: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
+  },
+  availableShares: {
+    fontSize: 14,
+    paddingLeft: theme.spacing.unit,
+  },
+
 });
 
 class InvestibleInvest extends React.Component {
@@ -82,10 +91,18 @@ class InvestibleInvest extends React.Component {
               margin="normal"
             />
           </FormControl>
-          You have {sharesAvailable} to invest
-          <Button variant='contained' color='primary' onClick={this.handleInvest}>{intl.formatMessage({id: 'investButton'})}</Button>
-
+          <Button
+            className={classes.investButton}
+            variant="contained"
+            color="primary"
+            onClick={this.handleInvest}
+          >
+            {intl.formatMessage({id: 'investButton'})}
+          </Button>
         </form>
+        <Typography className={classes.availableShares}>
+          * You have {sharesAvailable} to invest
+        </Typography>
       </div>
     )
   }

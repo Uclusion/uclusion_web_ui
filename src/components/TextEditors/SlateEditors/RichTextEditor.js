@@ -225,7 +225,14 @@ class RichTextEditor extends React.Component {
     return (
       <div style={{ width: '100%' }}>
         {this.toolBar()}
-        <Typography className="typography" component="div">
+        <Typography
+          style={{
+            padding: '16px 0',
+            minHeight: readOnly ? 'auto' : '80px',
+          }}
+          className="rich-editor"
+          component="div"
+        >
           <Editor
             spellCheck
             autoFocus

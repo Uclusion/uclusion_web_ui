@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
@@ -14,9 +15,12 @@ const styles = theme => ({
     flexGrow: 1,
     width: '100%'
   },
-
+  tab: {
+    minWidth: 'auto',
+    flex: 1,
+  },
   tabBar: {
-
+    marginBottom: theme.spacing.unit * 2,
   }
 });
 
@@ -40,18 +44,22 @@ class InvestibleListItemTabs extends React.Component {
     const { value } = this.state;
     return (
       <div className={classes.paper}>
-          <Tabs value={value} className={classes.tabBar}
-                onChange={this.handleChange}
-                indicatorColor="primary"
-                textColor="primary"
-          >
-            { canInvest &&   <Tab label={intl.formatMessage({id: 'investTab'})}/> }
-            <Tab label={intl.formatMessage({id: 'activityTab'})}/>
-            <Tab label={intl.formatMessage({id: 'commentsTab'})}/>
-          </Tabs>
+        <Tabs
+          value={value}
+          className={classes.tabBar}
+          onChange={this.handleChange}
+          indicatorColor="primary"
+          textColor="primary"
+        >
+          {canInvest && (
+            <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })} />
+          )}
+          <Tab className={classes.tab} label={intl.formatMessage({id: 'activityTab'})}/>
+          <Tab className={classes.tab} label={intl.formatMessage({id: 'commentsTab'})}/>
+        </Tabs>
         {value === 0 && canInvest && <InvestibleInvest teamId={teamId} marketId={marketId} sharesAvailable={sharesAvailable} investibleId={investibleId}/>}
-        {value === 1 && <div>Activity Placeholder</div>}
-        {value === 2 && <div>Coments Placeholder</div>}
+        {value === 1 && <Typography>Activity Placeholder</Typography>}
+        {value === 2 && <Typography>Coments Placeholder</Typography>}
       </div>
     )
   }

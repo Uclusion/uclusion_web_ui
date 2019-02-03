@@ -52,6 +52,7 @@
     "redux-logger": "3.x",
     "redux-persist": "^5.10.0",
     "redux-thunk": "^2.3.0",
+    "localforage": "^1.7.3",
     "slate": "^0.44.6",
     "slate-react": "^0.21.12",
     "slate-html-serializer": "^0.7.30",

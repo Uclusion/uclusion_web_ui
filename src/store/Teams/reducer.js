@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux'
+import { combineReducers } from 'redux-loop'
 import PropTypes from 'prop-types'
 import { RECEIVE_USER_TEAMS, REQUEST_USER_TEAMS, RECEIVE_TEAM_MEMBERS } from './actions'
 

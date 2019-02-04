@@ -5,6 +5,7 @@ import { setUclusionLocalStorageItem } from '../../components/utils'
 import Typography from '@material-ui/core/es/Typography/Typography'
 import { injectIntl } from 'react-intl'
 import { fetchMarket } from '../../store/Markets/actions'
+import { fetchInvestibleList } from '../../store/MarketInvestibles/actions'
 import { fetchUser } from '../../store/Users/actions'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
@@ -48,6 +49,7 @@ class PostAuth extends Component {
       // pre-emptively fetch the market and user, since we're likely to need it
       dispatch(fetchMarket({market_id: market_id, isSelected: true}))
       dispatch(fetchUserTeams())
+      dispatch(fetchInvestibleList({marketId: market_id}))
       // We have the user already from login but not the market presences which this fetch user will retrieve
       dispatch(fetchUser({marketId: market_id, user: user}))
       this.setState({marketId: market_id, destination: destination_page, failed: false})

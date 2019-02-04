@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux'
+import { combineReducers } from 'redux-loop'
 import initState from './init'
 import rootReducer from './rootReducer'
 import investiblesReducer from './MarketInvestibles/reducer'

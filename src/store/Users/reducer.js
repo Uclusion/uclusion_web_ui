@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux'
+import { combineReducers } from 'redux-loop'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { REQUEST_USER, RECEIVE_USER, RECEIVE_CURRENT_USER, REQUEST_CURRENT_USER, formatUsers } from './actions'

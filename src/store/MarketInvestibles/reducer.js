@@ -1,4 +1,3 @@
-import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import {
@@ -9,7 +8,7 @@ import {
   INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED, RECEIVE_MARKET_INVESTIBLE_LIST
 } from './actions'
 import { getClient } from '../../config/uclusionClient'
-import { loop, Cmd } from 'redux-loop'
+import { loop, Cmd, combineReducers } from 'redux-loop'
 
 export const investiblePropType = PropTypes.shape({
   id: PropTypes.string.isRequired,

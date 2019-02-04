@@ -21,10 +21,6 @@ export const investibleDeleted = (investibleId) => ({
   investibleId
 })
 
-export const requestInvestibles = () => ({
-  type: REQUEST_INVESTIBLES
-})
-
 export const receiveInvestibles = investibles => ({
   type: RECEIVE_INVESTIBLES,
   investibles
@@ -68,40 +64,21 @@ export const formatInvestibles = (investibles) => {
   return investibles
 }
 
-const baseFetchInvestibles = (params, dispatch, aFunction) => {
-  if (!params.market_id && !params.investibleId) { return }
-  dispatch(requestInvestibles())
-  const clientPromise = getClient()
-  const promise = clientPromise.then((client) => aFunction(client))
-
+export const fetchInvestibles = (params = {}) => (dispatch) => {
+  console.log('fetch investibles dispatched')
+  const client = getClient()
+  let promise = client.markets.listInvestibles(params.marketId)
+  // TODO need to process the return to have dates and compare the dates and build the request list
+  // get the request list and then process it in receive investibles below - where TODO must convert to dates also
+  // TODO ACTUALLY DO WE NEED TO CONVERT TO DATES - JUST TREAT THEM LIKE STRINGS AND IF NOT EQUAL ADD TO LIST
+  // unless concerned that push will have put something newer
+  // TODO if you miss the push and its not in CloudSearch already COULD HAVE ISSUE
+  // NEED EVENTUALLY CONSISTENT - this API not providing that unless use polling
   return promise.then(response => dispatch(receiveInvestibles(response)))
     .catch((error) => {
       console.log(error)
       dispatch(receiveInvestibles([]))
     })
-}
-
-export const fetchInvestibles = (params = {}) => (dispatch) => {
-  console.log('fetch investibles dispatched')
-  const singularFetcher = (client) => {
-    return client.investibles.get(params.investibleId)
-  }
-  const multifetcher = (client) => (client.markets.listTrending(params.market_id, params.trending_window_date))
-  let fetcher = null
-  if (params.investibleId) {
-    fetcher = singularFetcher
-  } else {
-    fetcher = multifetcher
-  }
-  return baseFetchInvestibles(params, dispatch, (client) => (fetcher(client)))
-}
-
-export const fetchCategoriesInvestibles = (params = {}) => (dispatch) => {
-  return baseFetchInvestibles(params, dispatch, (params, promise) => {
-    return promise.then((client) => {
-      return client.markets.listCategoriesInvestibles(params.market_id, params.category, params.page, params.per_page)
-    })
-  })
 }
 
 export const createInvestment = (params = {}) => {

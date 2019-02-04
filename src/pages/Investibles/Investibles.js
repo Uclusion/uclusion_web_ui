@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { withTheme } from '@material-ui/core/styles'
-import { fetchCategoriesInvestibles } from '../../store/MarketInvestibles/actions'
 import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../../store/MarketInvestibles/reducer'
 import { injectIntl } from 'react-intl'
 import Activity from '../../containers/Activity/Activity'
@@ -12,41 +11,6 @@ import InvestibleList from '../../components/Investibles/InvestibleList'
 import { withMarketId } from '../../components/PathProps/MarketId'
 
 class Investibles extends Component {
-  componentDidMount () {
-    // console.log("Attempting to read trending investibles");
-    // this.readTrendingInvestibles() This is PWA so we don't do this here
-  }
-
-  componentDidUpdate (prevProps) {
-    // if (this.props.marketId !== prevProps.marketId) {
-    //   this.readTrendingInvestibles() This is PWA so do this long before here
-    // }
-    // TODO flip return and branch below (see drawer example) to dedup Activity
-  }
-
-  // readTrendingInvestibles () {
-  //   const { dispatch, user } = this.props
-  //   if (!user) {
-  //     return
-  //   }
-  //   const marketId = this.getMarketId()
-  //   dispatch(fetchInvestibles({
-  //     market_id: marketId,
-  //     trending_window_date: '2015-01-22T03:23:26Z'
-  //   }))
-  // }
-
-  readCategoriesInvestibles (page, categoryName) {
-    const { dispatch, marketId } = this.props
-    // toast("TEST!")
-    dispatch(fetchCategoriesInvestibles({
-      market_id: marketId,
-      category: categoryName,
-      page,
-      per_page: 20
-    }))
-  }
-
   render () {
     const { intl, loading, investibles, categories, marketId, user } = this.props
     // Can't rely just on loading as their could be an attempt to load this page before loading even begins

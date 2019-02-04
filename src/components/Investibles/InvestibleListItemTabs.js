@@ -39,9 +39,19 @@ class InvestibleListItemTabs extends React.Component {
   };
 
   render () {
-    const {classes, marketId, investibleId, intl, teamId, sharesAvailable, userPermissions} = this.props
-    const { canInvest } = userPermissions
+    const {
+      classes,
+      marketId,
+      investibleId,
+      intl,
+      teamId,
+      sharesAvailable,
+      currentUserInvestment,
+      userPermissions,
+    } = this.props;
+    const { canInvest } = userPermissions;
     const { value } = this.state;
+
     return (
       <div className={classes.paper}>
         <Tabs
@@ -57,7 +67,15 @@ class InvestibleListItemTabs extends React.Component {
           <Tab className={classes.tab} label={intl.formatMessage({id: 'activityTab'})}/>
           <Tab className={classes.tab} label={intl.formatMessage({id: 'commentsTab'})}/>
         </Tabs>
-        {value === 0 && canInvest && <InvestibleInvest teamId={teamId} marketId={marketId} sharesAvailable={sharesAvailable} investibleId={investibleId}/>}
+        {value === 0 && canInvest && (
+          <InvestibleInvest
+            teamId={teamId}
+            marketId={marketId}
+            sharesAvailable={sharesAvailable}
+            currentUserInvestment={currentUserInvestment}
+            investibleId={investibleId}
+          />
+        )}
         {value === 1 && <Typography>Activity Placeholder</Typography>}
         {value === 2 && <Typography>Coments Placeholder</Typography>}
       </div>
@@ -70,7 +88,8 @@ InvestibleListItemTabs.propTypes = {
   investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
   teamId: PropTypes.string.isRequired,
-  sharesAvailable: PropTypes.number.isRequired
+  sharesAvailable: PropTypes.number.isRequired,
+  currentUserInvestment: PropTypes.number.isRequired
 }
 
 export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs)))

@@ -75,17 +75,25 @@ class InvestibleListItem extends Component {
               {canDeleteMarketInvestible && <InvestibleDelete investible={investible} />}
             </div>
             <div style={{ display: 'flex', marginBottom: '8px' }}>
-              <div style={{ minWidth: 100 }}>Current Stage:</div>
+              <div style={{ minWidth: 100 }}>
+                {intl.formatMessage({ id: 'currentStageLabel' })}
+              </div>
               <div>
-                <div>{investible.stage}</div>
-                <div style={{ fontSize: 12 }}>{`${investible.quantity} uShares`}</div>
+                <div>{intl.formatMessage({ id: investible.stage })}</div>
+                <div style={{ fontSize: 12 }}>
+                  {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })}
+                </div>
               </div>
             </div>
             <div style={{ display: 'flex' }}>
-              <div style={{ minWidth: 100 }}>Next Stage:</div>
+              <div style={{ minWidth: 100 }}>
+                {intl.formatMessage({ id: 'nextStageLabel' })}
+              </div>
               <div>
-                <div>{investible.next_stage}</div>
-                <div style={{ fontSize: 12 }}>{`Requires at least ${investible.next_stage_threshold} uShares`}</div>
+                <div>{intl.formatMessage({ id: investible.next_stage })}</div>
+                <div style={{ fontSize: 12 }}>
+                  {intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })}
+                </div>
               </div>
             </div>
           </Typography>
@@ -94,35 +102,19 @@ class InvestibleListItem extends Component {
           <div className={classes.wholeWidth}>
             <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={investible.description} readOnly />
             <div className={classes.tabSection}>
-              <InvestibleListItemTabs name={investible.name} quantity={investible.quantity} investibleId={investible.id} marketId={investible.market_id} teamId={teamId} sharesAvailable={sharesAvailable} />
+              <InvestibleListItemTabs
+                name={investible.name}
+                quantity={investible.quantity}
+                investibleId={investible.id}
+                marketId={investible.market_id}
+                teamId={teamId}
+                sharesAvailable={sharesAvailable}
+                currentUserInvestment={investible.current_user_investment}
+              />
             </div>
           </div>
         </ExpansionPanelDetails>
       </ExpansionPanel>
-      // <ExpansionPanel>
-      //   <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon />}>
-      //     <div className={classes.column}>
-      //       <Typography>
-      //         {investible.name} {investible.stage} {investible.next_stage}
-      //       </Typography>
-      //     </div>
-      //     <div className={classes.column} />
-      //     <div className={classNames(classes.column, classes.helper)}>
-      //       {investible.current_user_investment > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>} label={intl.formatMessage({ id: 'userCurrentInvestmentChip' }, { shares: investible.current_user_investment })} />}
-      //       {investible.quantity > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>} label={intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })} />}
-      //       {investible.next_stage_threshold > 0 && <Chip avatar={<Avatar>{intl.formatMessage({ id: 'ideaShareSymbol' })}</Avatar>} label={intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })} />}
-      //       {canDeleteMarketInvestible && <InvestibleDelete investible={investible} />}
-      //     </div>
-      //   </ExpansionPanelSummary>
-      //   <ExpansionPanelDetails>
-      //     <div className={classes.wholeWidth}>
-      //       <HtmlRichTextEditor value={investible.description} readOnly />
-      //       <div className={classes.tabSection}>
-      //         <InvestibleListItemTabs name={investible.name} quantity={investible.quantity} investibleId={investible.id} marketId={investible.market_id} teamId={teamId} sharesAvailable={sharesAvailable} />
-      //       </div>
-      //     </div>
-      //   </ExpansionPanelDetails>
-      // </ExpansionPanel>
     )
   }
 }

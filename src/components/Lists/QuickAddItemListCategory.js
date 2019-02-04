@@ -2,8 +2,9 @@ import React from 'react'
 import { Grid, ListSubheader } from '@material-ui/core'
 import Add from '@material-ui/icons/Add'
 import PropTypes from 'prop-types'
+import { compose } from 'redux'
 import { withStyles } from '@material-ui/core/styles'
-
+import withWidth from '@material-ui/core/withWidth'
 
 const styles = (theme) => ({
   subListWrapper: {
@@ -64,7 +65,8 @@ class QuickAddItemListCategory extends React.Component {
       classes,
       title,
       items,
-      quickAdd
+      quickAdd,
+      width,
     } = this.props;
     const myQuickAdd = React.cloneElement(
       quickAdd,
@@ -76,7 +78,10 @@ class QuickAddItemListCategory extends React.Component {
     );
 
     return (
-      <div className={classes.subListWrapper}>
+      <div
+        className={classes.subListWrapper}
+        style={width === 'xs' ? {} : { maxWidth: 400 }}
+      >
         <div className={classes.subList}>
           <ListSubheader component="div" className={classes.subListHeader}>
             {title}
@@ -106,4 +111,7 @@ QuickAddItemListCategory.propTypes = {
   title: PropTypes.string.isRequired
 };
 
-export default withStyles(styles, {withTheme: true})(QuickAddItemListCategory);
+export default compose(
+  withWidth(),
+  withStyles(styles, { withTheme: true })
+)(QuickAddItemListCategory);

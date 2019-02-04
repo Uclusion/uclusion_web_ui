@@ -81,19 +81,6 @@ export const investiblesReceived = (investibleList) => ({
   investibleList
 })
 
-const reFormatInvestible = (investible) => {
-  investible.created_at = new Date(investible.created_at)
-  investible.updated_at = new Date(investible.updated_at)
-  investible.last_investment_at = new Date(investible.last_investment_at)
-  return investible
-}
-
-const reFormatInvestibles = (investibles) => {
-  investibles.forEach((investible) => {
-    formatInvestible(investible)
-  })
-  return investibles
-}
 
 export const fetchInvestibleList = (params = {}) => {
   return (dispatch) => {

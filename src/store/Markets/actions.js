@@ -1,5 +1,4 @@
 import { getClient } from '../../config/uclusionClient'
-import { fetchInvestibles } from '../MarketInvestibles/actions'
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage'
 
 export const REQUEST_MARKET = 'REQUEST_MARKET'
@@ -54,10 +53,6 @@ export const fetchMarketCategories = (params = {}) => (dispatch) => {
     return client.markets.listCategories(params.marketId)
   }).then((categories) => {
     dispatch(receiveMarketCategories(categories))
-    return dispatch(fetchInvestibles({
-      market_id: params.marketId,
-      trending_window_date: '2015-01-22T03:23:26Z'
-    }))
   }).catch((error) => {
     console.log(error)
     dispatch(receiveMarketCategories({}))

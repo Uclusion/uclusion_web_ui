@@ -5,7 +5,6 @@ import {
   REQUEST_INVESTIBLES,
   RECEIVE_INVESTIBLES,
   INVESTMENT_CREATED,
-  formatInvestibles,
   investiblesRequested, investibleRequestFailed,
   INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED, RECEIVE_MARKET_INVESTIBLE_LIST
 } from './actions'
@@ -26,17 +25,32 @@ export const investiblePropType = PropTypes.shape({
   current_user_investment: PropTypes.number
 })
 
-const determinetNeedsUpdate = (state, investibleList) => {
+const reFormatInvestible = (investible) => {
+  investible.created_at = new Date(investible.created_at)
+  investible.updated_at = new Date(investible.updated_at)
+  investible.last_investment_at = new Date(investible.last_investment_at)
+  return investible
+}
+
+const reFormatInvestibles = (investibles) => {
+  investibles.forEach((investible) => {
+    reFormatInvestible(investible)
+  })
+  return investibles
+}
+
+
+const determineNeedsUpdate = (state, investibleList) => {
   const stateHash = _.keyBy(state, (item) => item.id)
   const updateNeeded = _.filter(investibleList, (item) => {
     const stateVersion = stateHash[item.id]
-    return !stateVerion || (stateVersion.updated_at < new Date(item.updated_at))
+    return !stateVersion || (stateVersion.updated_at < new Date(item.updated_at))
   })
   return updateNeeded.map((item) => item.id)
 }
 
 const fetchNeededInvestibles = (state, marketId, investibleList) => {
-  const needsUpdate = determinetNeedsUpdate(state, investibleList)
+  const needsUpdate = determineNeedsUpdate(state, investibleList)
   if (needsUpdate.length > 0) {
     const clientPromise = getClient()
     return clientPromise.then((client) => client.markets.getMarketInvestibles(marketId, needsUpdate))
@@ -49,7 +63,7 @@ const items = (state = [], action) => {
       const { marketId, idList } = action
       return loop(state,
         Cmd.run(fetchNeededInvestibles, {
-          successActionCreator, investiblesRequested,
+          successActionCreator: investiblesRequested,
           failActionCreator: investibleRequestFailed,
           args: [state, marketId, idList]
         }))
@@ -99,7 +113,7 @@ const isFetching = (state = 0, action) => {
 }
 
 export const getInvestibles = (state) => {
-  return formatInvestibles(state.items)
+  return reFormatInvestibles(state.items)
 }
 
 export const getInvestiblesFetching = state => state.isFetching

@@ -6,8 +6,11 @@ import {
   RECEIVE_INVESTIBLES,
   INVESTMENT_CREATED,
   formatInvestibles,
-  INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED
+  investiblesRequested, investibleRequestFailed,
+  INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED, RECEIVE_MARKET_INVESTIBLE_LIST
 } from './actions'
+import { getClient } from '../../config/uclusionClient'
+import { loop, Cmd } from 'redux-loop'
 
 export const investiblePropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -23,8 +26,33 @@ export const investiblePropType = PropTypes.shape({
   current_user_investment: PropTypes.number
 })
 
+const determinetNeedsUpdate = (state, investibleList) => {
+  const stateHash = _.keyBy(state, (item) => item.id)
+  const updateNeeded = _.filter(investibleList, (item) => {
+    const stateVersion = stateHash[item.id]
+    return !stateVerion || (stateVersion.updated_at < new Date(item.updated_at))
+  })
+  return updateNeeded.map((item) => item.id)
+}
+
+const fetchNeededInvestibles = (state, marketId, investibleList) => {
+  const needsUpdate = determinetNeedsUpdate(state, investibleList)
+  if (needsUpdate.length > 0) {
+    const clientPromise = getClient()
+    return clientPromise.then((client) => client.markets.getMarketInvestibles(marketId, needsUpdate))
+  }
+}
+
 const items = (state = [], action) => {
   switch (action.type) {
+    case RECEIVE_MARKET_INVESTIBLE_LIST:
+      const { marketId, idList } = action
+      return loop(state,
+        Cmd.run(fetchNeededInvestibles, {
+          successActionCreator, investiblesRequested,
+          failActionCreator: investibleRequestFailed,
+          args: [state, marketId, idList]
+        }))
     case REQUEST_INVESTIBLES:
       return state
     case RECEIVE_INVESTIBLES:
@@ -46,9 +74,9 @@ const items = (state = [], action) => {
       let investibleCopy
       if (marketInvestible) {
         // This is a bind to market
-        investibleCopy = {...investible, ...marketInvestible}
+        investibleCopy = { ...investible, ...marketInvestible }
       } else {
-        investibleCopy = {...investible}
+        investibleCopy = { ...investible }
       }
       investibleCopy.id = investibleId
       investibleCopy.quantity = investment ? investment.investible_quantity : 0

@@ -4,11 +4,10 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import Activity from '../../containers/Activity/Activity'
-import { getMarketCategories } from '../../store/Markets/reducer'
+import { Typography } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles/index'
 import withWidth from '@material-ui/core/withWidth/index'
-import CategoryListItem from './CategoryListItem'
-import CategoryAdd from './CategoryAdd'
+import TeamListItem from './TeamListItem'
 import { withMarketId } from '../../components/PathProps/MarketId'
 
 const styles = (theme) => ({
@@ -19,11 +18,24 @@ const styles = (theme) => ({
   }
 })
 
-class CategoryList extends Component {
+class TeamList extends Component {
   render () {
-    const { intl, categories, classes, marketId } = this.props
-    const categoryLists = categories.map(element =>
-      <CategoryListItem
+    const { intl, teams, classes } = this.props
+
+    if (!teams) {
+      return (
+        <Activity
+          isLoading={teams === undefined}
+          containerStyle={{ overflow: 'hidden' }}
+          title={intl.formatMessage({ id: 'teamsHeader' })}>
+          <Typography>
+            {intl.formatMessage({ id: 'teamsListNotFound' })}
+          </Typography>
+        </Activity>
+      )
+    }
+    const teamLists = teams.map(element =>
+      <TeamListItem
         key={element.name}
         id={element.name}
         name={element.name}
@@ -32,32 +44,31 @@ class CategoryList extends Component {
     )
     return (
       <Activity
-        isLoading={categories === undefined}
+        isLoading={teams === undefined}
         containerStyle={{ overflow: 'hidden' }}
-        title={intl.formatMessage({ id: 'categoriesHeader' })}>
-        <CategoryAdd key='quickadd' marketId={marketId} />
+        title={intl.formatMessage({ id: 'teamsHeader' })}>
         <div className={classes.mainGrid}>
-          {categoryLists}
+          {teamLists}
         </div>
       </Activity>
     )
   }
 }
 
-CategoryList.propTypes = {
+TeamList.propTypes = {
   dispatch: PropTypes.func.isRequired,
   loading: PropTypes.number.isRequired,
-  categories: PropTypes.arrayOf(PropTypes.object).isRequired
+  teams: PropTypes.arrayOf(PropTypes.object).isRequired
 }
 
 function mapStateToProps (state) {
   return {
-    categories: getMarketCategories(state.marketsReducer)
+    teams: fetchMarketTeams(state.marketsReducer)
   }
 }
 
 function mapDispatchToProps (dispatch) {
-  return Object.assign({ dispatch }, bindActionCreators({ getMarketCategories }, dispatch))
+  return Object.assign({ dispatch }, bindActionCreators({ getMarketTeams }, dispatch))
 }
 
 export default connect(
@@ -66,4 +77,4 @@ export default connect(
 )(compose(
   withWidth(),
   withStyles(styles, {withTheme: true})
-)(injectIntl(withMarketId(CategoryList))))
+)(injectIntl(withMarketId(TeamList))))

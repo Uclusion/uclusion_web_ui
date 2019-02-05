@@ -2,11 +2,9 @@ import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import {
-  REQUEST_INVESTIBLES,
   RECEIVE_INVESTIBLES,
   INVESTMENT_CREATED,
-  formatInvestibles,
-  INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED
+  INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED, RECEIVE_MARKET_INVESTIBLE_LIST
 } from './actions'
 
 export const investiblePropType = PropTypes.shape({
@@ -23,9 +21,23 @@ export const investiblePropType = PropTypes.shape({
   current_user_investment: PropTypes.number
 })
 
+const reFormatInvestible = (investible) => {
+  investible.created_at = new Date(investible.created_at)
+  investible.updated_at = new Date(investible.updated_at)
+  investible.last_investment_at = new Date(investible.last_investment_at)
+  return investible
+}
+
+const reFormatInvestibles = (investibles) => {
+  investibles.forEach((investible) => {
+    reFormatInvestible(investible)
+  })
+  return investibles
+}
+
 const items = (state = [], action) => {
   switch (action.type) {
-    case REQUEST_INVESTIBLES:
+    case RECEIVE_MARKET_INVESTIBLE_LIST:
       return state
     case RECEIVE_INVESTIBLES:
     case INVESTIBLE_CREATED:
@@ -46,9 +58,9 @@ const items = (state = [], action) => {
       let investibleCopy
       if (marketInvestible) {
         // This is a bind to market
-        investibleCopy = {...investible, ...marketInvestible}
+        investibleCopy = { ...investible, ...marketInvestible }
       } else {
-        investibleCopy = {...investible}
+        investibleCopy = { ...investible }
       }
       investibleCopy.id = investibleId
       investibleCopy.quantity = investment ? investment.investible_quantity : 0
@@ -59,24 +71,10 @@ const items = (state = [], action) => {
   }
 }
 
-const isFetching = (state = 0, action) => {
-  switch (action.type) {
-    case REQUEST_INVESTIBLES:
-      return state + 1
-    case RECEIVE_INVESTIBLES:
-      return state - 1
-    default:
-      return state
-  }
-}
-
 export const getInvestibles = (state) => {
-  return formatInvestibles(state.items)
+  return reFormatInvestibles(state.items)
 }
-
-export const getInvestiblesFetching = state => state.isFetching
 
 export default combineReducers({
-  items,
-  isFetching
+  items
 })

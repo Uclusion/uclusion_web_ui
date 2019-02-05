@@ -2,55 +2,49 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { withTheme } from '@material-ui/core/styles'
-import { fetchCategoriesInvestibles } from '../../store/MarketInvestibles/actions'
-import { getInvestiblesFetching, getInvestibles, investiblePropType } from '../../store/MarketInvestibles/reducer'
+import { getInvestibles, investiblePropType } from '../../store/MarketInvestibles/reducer'
 import { injectIntl } from 'react-intl'
 import Activity from '../../containers/Activity/Activity'
-import { getMarketsFetching, getCategoriesFetching, getMarketCategories, categoryPropType } from '../../store/Markets/reducer'
-import { getUsersFetching, getCurrentUser } from '../../store/Users/reducer'
+import { getMarketCategories, categoryPropType } from '../../store/Markets/reducer'
+import { getCurrentUser } from '../../store/Users/reducer'
 import InvestibleList from '../../components/Investibles/InvestibleList'
 import { withMarketId } from '../../components/PathProps/MarketId'
+import { fetchInvestibleList } from '../../store/MarketInvestibles/actions'
+
+const pollRate = 6000000
 
 class Investibles extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      lastFetched: undefined
+    }
+  }
   componentDidMount () {
-    // console.log("Attempting to read trending investibles");
-    // this.readTrendingInvestibles() This is PWA so we don't do this here
+    this.getItems() // Initial fetch
+    this.timer = setInterval(() => this.getItems(), pollRate)
   }
 
-  componentDidUpdate (prevProps) {
-    // if (this.props.marketId !== prevProps.marketId) {
-    //   this.readTrendingInvestibles() This is PWA so do this long before here
-    // }
-    // TODO flip return and branch below (see drawer example) to dedup Activity
+  componentWillUnmount () {
+    clearInterval(this.timer)
   }
 
-  // readTrendingInvestibles () {
-  //   const { dispatch, user } = this.props
-  //   if (!user) {
-  //     return
-  //   }
-  //   const marketId = this.getMarketId()
-  //   dispatch(fetchInvestibles({
-  //     market_id: marketId,
-  //     trending_window_date: '2015-01-22T03:23:26Z'
-  //   }))
-  // }
-
-  readCategoriesInvestibles (page, categoryName) {
-    const { dispatch, marketId } = this.props
-    // toast("TEST!")
-    dispatch(fetchCategoriesInvestibles({
-      market_id: marketId,
-      category: categoryName,
-      page,
-      per_page: 20
-    }))
+  getItems () {
+    const { investibles, marketId, dispatch } = this.props
+    if (investibles && investibles.length > 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
+      console.log('Fetching investibles from polling')
+      this.setState({lastFetched: Date.now()})
+      dispatch(fetchInvestibleList({marketId: marketId, currentInvestibleList: investibles}))
+    }
   }
-
   render () {
-    const { intl, loading, investibles, categories, marketId, user } = this.props
-    // Can't rely just on loading as their could be an attempt to load this page before loading even begins
-    if ((loading > 0 && investibles.length === 0) || (!user || !user.market_presence)) {
+    const { intl, investibles, categories, marketId, user, dispatch } = this.props
+    if (investibles && investibles.length === 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
+      console.log('Fetching investibles')
+      this.setState({lastFetched: Date.now()})
+      dispatch(fetchInvestibleList({marketId: marketId, currentInvestibleList: investibles}))
+    }
+    if (!investibles || (!user || !user.market_presence)) {
       return (
         <Activity
           isLoading={investibles === undefined}
@@ -82,7 +76,6 @@ class Investibles extends Component {
 
 Investibles.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  loading: PropTypes.number.isRequired,
   investibles: PropTypes.arrayOf(investiblePropType),
   categories: PropTypes.arrayOf(categoryPropType),
   marketId: PropTypes.string,
@@ -90,7 +83,6 @@ Investibles.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
-  loading: getInvestiblesFetching(state.investiblesReducer) + getMarketsFetching(state.marketsReducer) + getCategoriesFetching(state.marketsReducer) + getUsersFetching(state.usersReducer),
   investibles: getInvestibles(state.investiblesReducer),
   categories: getMarketCategories(state.marketsReducer),
   user: getCurrentUser(state.usersReducer)

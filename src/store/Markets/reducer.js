@@ -5,7 +5,6 @@ import {
   REQUEST_MARKET,
   RECEIVE_MARKET,
   SELECT_MARKET,
-  REQUEST_MARKET_CATEGORIES,
   RECEIVE_MARKET_CATEGORIES,
   formatMarkets,
   MARKET_CATEGORY_DELETED,
@@ -44,32 +43,10 @@ const marketItems = (state = [], action) => {
   }
 }
 
-const isMarketFetching = (state = 0, action) => {
-  switch (action.type) {
-    case REQUEST_MARKET:
-      return state + 1
-    case RECEIVE_MARKET:
-      return state - 1
-    default:
-      return state
-  }
-}
-
 const currentMarketId = (state = null, action) => {
   switch (action.type) {
     case SELECT_MARKET:
       return action.marketId
-    default:
-      return state
-  }
-}
-
-const isCategoriesFetching = (state = 0, action) => {
-  switch (action.type) {
-    case REQUEST_MARKET_CATEGORIES:
-      return state + 1
-    case RECEIVE_MARKET_CATEGORIES:
-      return state - 1
     default:
       return state
   }
@@ -103,17 +80,12 @@ export const getMarketCategories = (state) => {
   return state.currentMarketId ? state.marketCategories[state.currentMarketId] : []
 }
 
-export const getMarketsFetching = (state) => state.isMarketFetching
-export const getCategoriesFetching = (state) => state.isCategoriesFetching
-
 export const getCurrentMarketId = (state) => {
   return state.currentMarketId
 }
 
 export default combineReducers({
   marketItems,
-  isMarketFetching,
-  isCategoriesFetching,
   marketCategories,
   currentMarketId
 })

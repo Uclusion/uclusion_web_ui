@@ -30,28 +30,6 @@ const userItems = (state = [], action) => {
   }
 }
 
-const isUserFetching = (state = 0, action) => {
-  switch (action.type) {
-    case REQUEST_USER:
-      return state + 1
-    case RECEIVE_USER:
-      return state - 1
-    default:
-      return state;
-  }
-}
-
-const isCurrentUserFetching = (state = 0, action) => {
-  switch (action.type) {
-    case REQUEST_CURRENT_USER:
-      return state + 1
-    case RECEIVE_CURRENT_USER:
-      return state - 1
-    default:
-      return state
-  }
-}
-
 const currentUser = (state = null, action) => {
   switch (action.type) {
     case RECEIVE_CURRENT_USER:
@@ -67,17 +45,11 @@ export const getUsers = (state) => {
   return formatUsers(state.userItems)
 }
 
-export const getUsersFetching = state => state.isUserFetching
-
-export const getCurrentUserFetching = state => state.isCurrentUserFetching
-
 export const getCurrentUser = (state) => {
   return state.currentUser
 }
 
 export default combineReducers({
   userItems,
-  isUserFetching,
-  isCurrentUserFetching,
   currentUser
 })

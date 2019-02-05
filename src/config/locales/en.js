@@ -200,6 +200,8 @@ const messages = defineMessages({
   marketCategoryDeleteFailed: 'There was a problem removing the category from the market. Please try again',
   marketCategoryCreated: 'The category has been added to the market.',
   marketCategoryCreateFailed: 'There was a problem adding the category to the market. Please try again',
+  investibleListFetchFailed: 'Unable to fetch your list of investibles. Please refresh the page',
+  investibleFetchFailed: 'Unable to fetch your investibles. Please refresh the page',
   // Stages
   BOUND: 'In market',
   NEEDS_REVIEW: 'Needs review',

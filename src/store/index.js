@@ -3,8 +3,8 @@ import { createLogger } from 'redux-logger'
 import thunk from 'redux-thunk'
 import reducers from './reducers'
 import { persistStore, persistReducer } from 'redux-persist'
-import storage from 'redux-persist/es/storage' // default: localStorage if web, AsyncStorage if react-native
 import initState from './init'
+import * as localForage from 'localforage'
 
 export default function configureStore () {
   let store
@@ -25,12 +25,12 @@ export default function configureStore () {
       }) : compose
 
   const enhancer = composeEnhancers(
-    applyMiddleware(...middlewares)
+    applyMiddleware(...middlewares),
   )
 
   const persistorConfig = {
     key: 'root',
-    storage,
+    storage: localForage,
     blacklist: ['auth', 'form', 'connection', 'initialization', 'simpleValues']
   }
 

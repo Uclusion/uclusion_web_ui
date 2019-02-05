@@ -18,8 +18,8 @@ const styles = theme => ({
   },
   textField: {
     marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
-    width: 200,
+    marginRight: theme.spacing.unit * 2,
+    width: 100,
   },
   investButton: {
     marginLeft: theme.spacing.unit,
@@ -62,7 +62,12 @@ class InvestibleInvest extends React.Component {
     let value = event.target.value;
     let valid = false;
     if(name === 'quantityToInvest'){
+      value = parseInt(value, 10);
+      if (isNaN(value)) {
+        value = 0;
+      }
       valid = this.validateQuantityToInvest(value);
+      value = `${value}`;
     }
 
     if(valid) {
@@ -73,7 +78,13 @@ class InvestibleInvest extends React.Component {
   }
 
   render () {
-    const {classes, intl, sharesAvailable} = this.props
+    const {
+      classes,
+      intl,
+      sharesAvailable,
+      currentUserInvestment,
+    } = this.props;
+
     return (
       <div>
         <Typography>
@@ -87,7 +98,7 @@ class InvestibleInvest extends React.Component {
               className={classes.textField}
               value={this.state.quantityToInvest}
               onChange={this.handleChange('quantityToInvest')}
-              type="number"
+              // type="number"
               margin="normal"
             />
           </FormControl>
@@ -101,7 +112,9 @@ class InvestibleInvest extends React.Component {
           </Button>
         </form>
         <Typography className={classes.availableShares}>
-          * You have {sharesAvailable} to invest
+          * {intl.formatMessage({ id: 'availableSharesToInvest' }, { shares: sharesAvailable })}
+          <br />
+          {currentUserInvestment > 0 && `* ${intl.formatMessage({ id: 'userInvestedShares' }, { shares: currentUserInvestment })}`}
         </Typography>
       </div>
     )

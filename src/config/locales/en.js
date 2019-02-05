@@ -157,10 +157,12 @@ const messages = defineMessages({
   activityTab: 'Activity',
   commentsTab: 'Comments',
   moreDetailsButton: 'More Details',
-  userCurrentInvestmentChip: '{shares} yours',
-  totalCurrentInvestmentChip: '{shares} total',
-  investmentForNextStageChip: '{shares} for next stage',
-  ideaShareSymbol: 'Ȗ',
+  totalCurrentInvestmentChip: '{shares} uShares',
+  investmentForNextStageChip: 'Requires at least {shares} uShares',
+  currentStageLabel: 'Current Stage:',
+  nextStageLabel: 'Next Stage:',
+  availableSharesToInvest: 'You have {shares} available shares to invest',
+  userInvestedShares: 'You have already invested {shares} shares',
   defaultCategoryName: 'Uncategorized',
   teamsListNotFound: 'No Teams found',
   categoriesListNotFound: 'No Market Categories found',
@@ -199,7 +201,10 @@ const messages = defineMessages({
   marketCategoryCreated: 'The category has been added to the market.',
   marketCategoryCreateFailed: 'There was a problem adding the category to the market. Please try again',
   investibleListFetchFailed: 'Unable to fetch your list of investibles. Please refresh the page',
-  investibleFetchFailed: 'Unable to fetch your investibles. Please refresh the page'
-})
+  investibleFetchFailed: 'Unable to fetch your investibles. Please refresh the page',
+  // Stages
+  BOUND: 'In market',
+  NEEDS_REVIEW: 'Needs review',
+});
 
-export default messages
+export default messages;

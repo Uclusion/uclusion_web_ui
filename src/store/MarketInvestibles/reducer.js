@@ -101,24 +101,10 @@ const items = (state = [], action) => {
   }
 }
 
-const isFetching = (state = 0, action) => {
-  switch (action.type) {
-    case REQUEST_INVESTIBLES:
-      return state + 1
-    case RECEIVE_INVESTIBLES:
-      return state - 1
-    default:
-      return state
-  }
-}
-
 export const getInvestibles = (state) => {
   return reFormatInvestibles(state.items)
 }
 
-export const getInvestiblesFetching = state => state.isFetching
-
 export default combineReducers({
-  items,
-  isFetching
+  items
 })

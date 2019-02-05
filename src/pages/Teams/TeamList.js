@@ -5,7 +5,6 @@ import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import Activity from '../../containers/Activity/Activity'
 import { Typography } from '@material-ui/core'
-import { getCategoriesFetching, getMarketCategories } from '../../store/Markets/reducer'
 import { withStyles } from '@material-ui/core/styles/index'
 import withWidth from '@material-ui/core/withWidth/index'
 import TeamListItem from './TeamListItem'
@@ -21,21 +20,9 @@ const styles = (theme) => ({
 
 class TeamList extends Component {
   render () {
-    const { intl, loading, teams, classes, marketId } = this.props
-    if (loading > 0) {
-      return (
-        <Activity
-          isLoading={teams === undefined}
-          containerStyle={{ overflow: 'hidden' }}
-          title={intl.formatMessage({ id: 'teamsHeader' })}>
-          <Typography>
-            {intl.formatMessage({id: 'teamsLoading'})}
-          </Typography>
-        </Activity>
-      )
-    }
+    const { intl, teams, classes } = this.props
 
-    if (teams.length === 0) {
+    if (!teams) {
       return (
         <Activity
           isLoading={teams === undefined}
@@ -76,7 +63,6 @@ TeamList.propTypes = {
 
 function mapStateToProps (state) {
   return {
-    loading: getTeamsFetching(state.marketsReducer),
     teams: fetchMarketTeams(state.marketsReducer)
   }
 }

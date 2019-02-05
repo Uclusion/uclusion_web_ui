@@ -5,27 +5,14 @@ import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import Activity from '../../containers/Activity/Activity'
 import { fetchUserTeams } from '../../store/Teams/actions'
-import { getTeamsFetching, getUserTeams } from '../../store/Teams/reducer'
+import { getUserTeams } from '../../store/Teams/reducer'
 import { getCurrentUser } from '../../store/Users/reducer'
 import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList'
 import { Typography } from '@material-ui/core'
 
 class UserMemberships extends Component {
   render () {
-    const { intl, loading, teams, user } = this.props
-    if (loading > 0) {
-      return (
-        <Activity
-          isLoading={teams === undefined}
-          containerStyle={{ overflow: 'hidden' }}
-          title={intl.formatMessage({ id: 'teamsHeader' })}>
-          <Typography>
-            {intl.formatMessage({id: 'teamsLoading'})}
-          </Typography>
-        </Activity>
-      )
-    }
-
+    const { intl, teams, user } = this.props
     if (teams.length === 0) {
       return (
         <Activity
@@ -58,7 +45,6 @@ UserMemberships.propTypes = {
 
 function mapStateToProps (state) {
   return {
-    loading: getTeamsFetching(state.teamsReducer),
     teams: getUserTeams(state.teamsReducer),
     user: getCurrentUser(state.usersReducer)
   }

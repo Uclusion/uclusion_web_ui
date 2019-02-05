@@ -1,10 +1,9 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { getCurrentUser, getCurrentUserFetching } from '../../store/Users/reducer'
+import { getCurrentUser } from '../../store/Users/reducer'
 
 const mapStateToProps = (state) => {
   return {
-    _upUserLoading: getCurrentUserFetching(state.usersReducer),
     _upUser: getCurrentUser(state.usersReducer)
   }
 }
@@ -55,7 +54,7 @@ function withUserAndPermissions(WrappedComponent) {
       delete newProps._upUser
 
       // technically we're passing the user and Permissions here which is fine
-      return <WrappedComponent {...newProps} userPermissions={userPermissions}/>
+      return <WrappedComponent {...newProps} userPermissions={userPermissions} />
     }
   }
   return connect(mapStateToProps)(UserPermissionsWrapper)

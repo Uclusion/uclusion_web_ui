@@ -46,7 +46,6 @@ class Investibles extends Component {
 
 Investibles.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  loading: PropTypes.number.isRequired,
   investibles: PropTypes.arrayOf(investiblePropType),
   categories: PropTypes.arrayOf(categoryPropType),
   marketId: PropTypes.string,

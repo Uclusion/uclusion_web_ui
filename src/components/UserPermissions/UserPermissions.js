@@ -8,34 +8,32 @@ const mapStateToProps = (state) => {
   }
 }
 
-function withUserAndPermissions(WrappedComponent) {
+const permissionsArrayToObject = (array) => {
+  const reducer = (accumulator, current) => {
+    accumulator[current] = true
+    return accumulator
+  }
+  return array.reduce(reducer, {})
+}
 
+function withUserAndPermissions (WrappedComponent) {
   class UserPermissionsWrapper extends React.Component {
-
     constructor (props) {
       super(props)
       this.getUserPermissions = this.getUserPermissions.bind(this)
     }
 
-    permissionsArrayToObject(array){
-      const reducer = (accumulator, current) => {
-        accumulator[current] = true
-        return accumulator
-      }
-      return array.reduce(reducer, {})
-    }
-
     getUserPermissions () {
       const { _upUser } = this.props
-      if (!_upUser){
+      if (!_upUser || !_upUser.market_presence) {
         return {}
       }
       const { available_apis, operation_permissions } = _upUser.market_presence
       if (!available_apis || !operation_permissions) {
         return {}
       }
-      const apisObject = this.permissionsArrayToObject(available_apis)
-      const opObject = this.permissionsArrayToObject(operation_permissions)
+      const apisObject = permissionsArrayToObject(available_apis)
+      const opObject = permissionsArrayToObject(operation_permissions)
       console.log(apisObject)
       const canDeleteMarketInvestible = apisObject.delete_investible && opObject.delete_market_investible
       const canEditMarketInvestible = apisObject.update_investible && opObject.update_market_investible

@@ -2,12 +2,10 @@ import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import {
-  REQUEST_INVESTIBLES,
   RECEIVE_INVESTIBLES,
   INVESTMENT_CREATED,
   INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED, RECEIVE_MARKET_INVESTIBLE_LIST
 } from './actions'
-import { getClient } from '../../config/uclusionClient'
 
 export const investiblePropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -40,8 +38,6 @@ const reFormatInvestibles = (investibles) => {
 const items = (state = [], action) => {
   switch (action.type) {
     case RECEIVE_MARKET_INVESTIBLE_LIST:
-      return state
-    case REQUEST_INVESTIBLES:
       return state
     case RECEIVE_INVESTIBLES:
     case INVESTIBLE_CREATED:

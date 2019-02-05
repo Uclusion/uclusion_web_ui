@@ -3,8 +3,6 @@ import { getClient } from '../../config/uclusionClient'
 import { sendIntlMessage, ERROR, SUCCESS } from '../../utils/userMessage'
 import _ from 'lodash'
 
-export const REQUEST_INVESTIBLES = 'REQUEST_INVESTIBLES'
-export const REQUEST_INVESTIBLES_FAILED = 'REQUEST_INVESTIBLES_FAILED'
 export const RECEIVE_INVESTIBLES = 'RECEIVE_INVESTIBLES'
 export const INVEST_INVESTIBLE = 'INVEST_INVESTIBLE'
 export const INVESTMENT_CREATED = 'INVESTMENT_CREATED'
@@ -66,24 +64,6 @@ export const investibleListReceived = (marketId, investibleList) => ({
   investibleList
 })
 
-export const investiblesRequested = (marketId, idList) => ({
-  type: REQUEST_INVESTIBLES,
-  marketId,
-  idList
-})
-
-export const investibleRequestFailed = (error) => ({
-  type: REQUEST_INVESTIBLES_FAILED,
-  error
-})
-
-export const investiblesReceived = (investibleList) => ({
-  type: RECEIVE_INVESTIBLES,
-  investibleList
-})
-
-
-
 const determineNeedsUpdate = (currentInvestibles, investibleList) => {
   const currentHash = _.keyBy(currentInvestibles, (item) => item.id)
   const updateNeeded = _.filter(investibleList, (item) => {
@@ -93,18 +73,17 @@ const determineNeedsUpdate = (currentInvestibles, investibleList) => {
   return updateNeeded.map((item) => item.id)
 }
 
-
 export const fetchInvestibleList = (params = {}) => {
   return (dispatch) => {
     const { marketId, currentInvestibleList } = params
-    dispatch(investibleCreated(marketId))
     const clientPromise = getClient()
     return clientPromise.then((client) => client.markets.listInvestibles(marketId))
       .then(investibleList => {
         dispatch(investibleListReceived(marketId, investibleList))
         const needsUpdate = determineNeedsUpdate(currentInvestibleList, investibleList)
         const chunks = _.chunk(needsUpdate, 50)
-        for (const chunk in chunks) {
+        for (let i = 0; i < chunks.length; i++) {
+          const chunk = chunks[i]
           dispatch(fetchInvestibles({marketId, idList: chunk}))
         }
       }).catch(error => {
@@ -116,21 +95,19 @@ export const fetchInvestibleList = (params = {}) => {
 
 export const fetchInvestibles = (params = {}) => {
   return (dispatch) => {
-    const {idList, marketId } = params
-    dispatch(investiblesRequested(marketId, idList))
+    const { idList, marketId } = params
     const clientPromise = getClient()
-    return clientPromise.then((client) => client.markets.getMarketInvestibles(marketId, idList))
-      .catch(error => {
-        console.error(error)
-        sendIntlMessage(ERROR, {id: 'investibleFetchFailed'})
-      })
+    return clientPromise.then((client) => client.markets.getMarketInvestibles(marketId, idList)).then((investibles) => {
+      dispatch(receiveInvestibles(investibles))
+    }).catch(error => {
+      console.error(error)
+      sendIntlMessage(ERROR, {id: 'investibleFetchFailed'})
+    })
   }
 }
 
-
 export const createInvestment = (params = {}) => {
   return (dispatch) => {
-    //console.log(params)
     dispatch(investInInvestible(params.marketId, params.teamId, params.investibleId, params.quantity))
     const clientPromise = getClient()
     return clientPromise.then((client) => client.markets.createInvestment(params.marketId, params.teamId, params.investibleId, params.quantity))

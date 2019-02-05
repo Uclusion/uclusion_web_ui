@@ -2,10 +2,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Typography } from '@material-ui/core'
-import Chip from '@material-ui/core/Chip'
-import Avatar from '@material-ui/core/Avatar'
 import InvestibleListItemTabs from './InvestibleListItemTabs'
-import classNames from 'classnames'
 import { withStyles } from '@material-ui/core/styles'
 import { injectIntl } from 'react-intl'
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor'
@@ -69,7 +66,7 @@ class InvestibleListItem extends Component {
     return (
       <ExpansionPanel>
         <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography style={{ width: '100%' }}>
+          <Typography component={'span'} style={{ width: '100%' }}>
             <div style={{ marginBottom: '16px', marginRight: '-37px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
               {investible.name}
               {canDeleteMarketInvestible && <InvestibleDelete investible={investible} />}

@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux-loop'
+import { combineReducers } from 'redux'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import {

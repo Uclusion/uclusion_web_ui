@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux-loop'
+import { combineReducers } from 'redux'
 import { formatInvestibles } from './actions'
 
 const items = (state = [], action) => {

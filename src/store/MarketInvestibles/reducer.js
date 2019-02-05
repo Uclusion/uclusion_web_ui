@@ -5,11 +5,9 @@ import {
   REQUEST_INVESTIBLES,
   RECEIVE_INVESTIBLES,
   INVESTMENT_CREATED,
-  investiblesRequested, investibleRequestFailed,
   INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED, RECEIVE_MARKET_INVESTIBLE_LIST
 } from './actions'
 import { getClient } from '../../config/uclusionClient'
-import { loop, Cmd } from 'redux-loop'
 
 export const investiblePropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -39,34 +37,10 @@ const reFormatInvestibles = (investibles) => {
   return investibles
 }
 
-
-const determineNeedsUpdate = (state, investibleList) => {
-  const stateHash = _.keyBy(state, (item) => item.id)
-  const updateNeeded = _.filter(investibleList, (item) => {
-    const stateVersion = stateHash[item.id]
-    return !stateVersion || (stateVersion.updated_at < new Date(item.updated_at))
-  })
-  return updateNeeded.map((item) => item.id)
-}
-
-const fetchNeededInvestibles = (state, marketId, investibleList) => {
-  const needsUpdate = determineNeedsUpdate(state, investibleList)
-  if (needsUpdate.length > 0) {
-    const clientPromise = getClient()
-    return clientPromise.then((client) => client.markets.getMarketInvestibles(marketId, needsUpdate))
-  }
-}
-
 const items = (state = [], action) => {
   switch (action.type) {
     case RECEIVE_MARKET_INVESTIBLE_LIST:
-      const { marketId, idList } = action
-      return loop(state,
-        Cmd.run(fetchNeededInvestibles, {
-          successActionCreator: investiblesRequested,
-          failActionCreator: investibleRequestFailed,
-          args: [state, marketId, idList]
-        }))
+      return state
     case REQUEST_INVESTIBLES:
       return state
     case RECEIVE_INVESTIBLES:

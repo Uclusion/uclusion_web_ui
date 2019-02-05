@@ -1,6 +1,7 @@
 import { fetchUser } from '../Users/actions'
 import { getClient } from '../../config/uclusionClient'
 import { sendIntlMessage, ERROR, SUCCESS } from '../../utils/userMessage'
+import _ from 'lodash'
 
 export const REQUEST_INVESTIBLES = 'REQUEST_INVESTIBLES'
 export const REQUEST_INVESTIBLES_FAILED = 'REQUEST_INVESTIBLES_FAILED'
@@ -82,17 +83,46 @@ export const investiblesReceived = (investibleList) => ({
 })
 
 
+
+const determineNeedsUpdate = (currentInvestibles, investibleList) => {
+  const currentHash = _.keyBy(currentInvestibles, (item) => item.id)
+  const updateNeeded = _.filter(investibleList, (item) => {
+    const stateVersion = currentHash[item.id]
+    return !stateVersion || (stateVersion.updated_at < new Date(item.updated_at))
+  })
+  return updateNeeded.map((item) => item.id)
+}
+
+
 export const fetchInvestibleList = (params = {}) => {
   return (dispatch) => {
-    const { marketId } = params
+    const { marketId, currentInvestibleList } = params
     dispatch(investibleCreated(marketId))
     const clientPromise = getClient()
     return clientPromise.then((client) => client.markets.listInvestibles(marketId))
       .then(investibleList => {
         dispatch(investibleListReceived(marketId, investibleList))
+        const needsUpdate = determineNeedsUpdate(currentInvestibleList, investibleList)
+        const chunks = _.chunk(needsUpdate, 50)
+        for (const chunk in chunks) {
+          dispatch(fetchInvestibles({marketId, idList: chunk}))
+        }
       }).catch(error => {
         console.error(error)
         sendIntlMessage(ERROR, { id: 'investibleListFetchFailed' })
+      })
+  }
+}
+
+export const fetchInvestibles = (params = {}) => {
+  return (dispatch) => {
+    const {idList, marketId } = params
+    dispatch(investiblesRequested(marketId, idList))
+    const clientPromise = getClient()
+    return clientPromise.then((client) => client.markets.getMarketInvestibles(marketId, idList))
+      .catch(error => {
+        console.error(error)
+        sendIntlMessage(ERROR, {id: 'investibleFetchFailed'})
       })
   }
 }

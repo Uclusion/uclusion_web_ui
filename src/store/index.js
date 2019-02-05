@@ -5,7 +5,6 @@ import reducers from './reducers'
 import { persistStore, persistReducer } from 'redux-persist'
 import initState from './init'
 import * as localForage from 'localforage'
-import { install } from 'redux-loop';
 
 export default function configureStore () {
   let store
@@ -27,7 +26,6 @@ export default function configureStore () {
 
   const enhancer = composeEnhancers(
     applyMiddleware(...middlewares),
-    install()
   )
 
   const persistorConfig = {

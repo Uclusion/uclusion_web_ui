@@ -26,8 +26,8 @@ function withUserAndPermissions(WrappedComponent) {
     }
 
     getUserPermissions () {
-      const { _upUserLoading, _upUser } = this.props
-      if (!_upUser || _upUserLoading) {
+      const { _upUser } = this.props
+      if (!_upUser){
         return {}
       }
       const { available_apis, operation_permissions } = _upUser.market_presence

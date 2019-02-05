@@ -9,11 +9,40 @@ import { getMarketCategories, categoryPropType } from '../../store/Markets/reduc
 import { getCurrentUser } from '../../store/Users/reducer'
 import InvestibleList from '../../components/Investibles/InvestibleList'
 import { withMarketId } from '../../components/PathProps/MarketId'
+import { fetchInvestibleList } from '../../store/MarketInvestibles/actions'
+
+const pollRate = 6000000
 
 class Investibles extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      lastFetched: undefined
+    }
+  }
+  componentDidMount () {
+    this.timer = setInterval(() => this.getItems(), pollRate)
+  }
+
+  componentWillUnmount () {
+    this.timer = null
+  }
+
+  getItems () {
+    const { investibles, marketId, dispatch } = this.props
+    if (investibles && investibles.length > 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
+      console.log('Fetching investibles from polling')
+      this.setState({lastFetched: Date.now()})
+      dispatch(fetchInvestibleList({marketId: marketId, currentInvestibleList: investibles}))
+    }
+  }
   render () {
-    const { intl, investibles, categories, marketId, user } = this.props
-    // Can't rely just on loading as their could be an attempt to load this page before loading even begins
+    const { intl, investibles, categories, marketId, user, dispatch } = this.props
+    if (investibles && investibles.length === 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
+      console.log('Fetching investibles')
+      this.setState({lastFetched: Date.now()})
+      dispatch(fetchInvestibleList({marketId: marketId, currentInvestibleList: investibles}))
+    }
     if (!investibles || (!user || !user.market_presence)) {
       return (
         <Activity

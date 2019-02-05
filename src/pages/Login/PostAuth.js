@@ -12,7 +12,6 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import { fetchUserTeams } from '../../store/Teams/actions'
-import { fetchInvestibleList } from '../../store/MarketInvestibles/actions'
 
 const styles = theme => ({
   progress: {
@@ -51,7 +50,6 @@ class PostAuth extends Component {
       dispatch(fetchUserTeams())
       // We have the user already from login but not the market presences which this fetch user will retrieve
       dispatch(fetchUser({marketId: market_id, user: user}))
-      dispatch(fetchInvestibleList({marketId: market_id, currentInvestibleList: []}))
       this.setState({marketId: market_id, destination: destination_page, failed: false})
     }, (reject) => {
       this.setState({failed: true})

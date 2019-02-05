@@ -14,18 +14,19 @@ import { fetchInvestibleList } from '../../store/MarketInvestibles/actions'
 const pollRate = 6000000
 
 class Investibles extends Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       lastFetched: undefined
     }
   }
   componentDidMount () {
+    this.getItems() // Initial fetch
     this.timer = setInterval(() => this.getItems(), pollRate)
   }
 
   componentWillUnmount () {
-    this.timer = null
+    clearInterval(this.timer)
   }
 
   getItems () {

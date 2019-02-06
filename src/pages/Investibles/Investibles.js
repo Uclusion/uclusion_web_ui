@@ -10,9 +10,9 @@ import { getCurrentUser } from '../../store/Users/reducer'
 import InvestibleList from '../../components/Investibles/InvestibleList'
 import { withMarketId } from '../../components/PathProps/MarketId'
 import { fetchInvestibleList } from '../../store/MarketInvestibles/actions'
-import LoginModal from '../Login/LoginModal';
+import LoginModal from '../Login/LoginModal'
 
-const pollRate = 5400000 //90 mins = 5400 seconds * 1000 for millis
+const pollRate = 5400000 // 90 mins = 5400 seconds * 1000 for millis
 
 class Investibles extends Component {
   constructor (props) {
@@ -31,9 +31,11 @@ class Investibles extends Component {
   }
 
   getItems () {
-    const { investibles, marketId, dispatch } = this.props
-    if (investibles && investibles.length > 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
-      console.log('Fetching investibles from polling')
+    const { investibles, marketId, dispatch,
+      history: { location: { pathname } } } = this.props
+    const showLogin = /(.+)\/login/.test(pathname.toLowerCase())
+    if (!showLogin && investibles && investibles.length > 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
+      console.log('Fetching investibles from polling with last fetched ' + this.state.lastFetched)
       this.setState({lastFetched: Date.now()})
       dispatch(fetchInvestibleList({marketId: marketId, currentInvestibleList: investibles}))
     }
@@ -46,12 +48,12 @@ class Investibles extends Component {
       marketId,
       user,
       dispatch,
-      history: { location: { pathname } },
-    } = this.props;
+      history: { location: { pathname } }
+    } = this.props
 
-    const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
+    const showLogin = /(.+)\/login/.test(pathname.toLowerCase())
 
-    if (investibles && investibles.length === 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
+    if (!showLogin && investibles && investibles.length === 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
       console.log('Fetching investibles')
       this.setState({lastFetched: Date.now()})
       dispatch(fetchInvestibleList({marketId: marketId, currentInvestibleList: investibles}))

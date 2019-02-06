@@ -15,6 +15,7 @@
     "intl-locales-supported": "^1.0.0",
     "is-url": "^1.2.4",
     "localforage": "^1.7.3",
+    "lodash": "^4.17.11",
     "match-sorter": "^2.2.3",
     "material-ui-filter": "^2.1.2",
     "material-ui-image": "^3.0.0",

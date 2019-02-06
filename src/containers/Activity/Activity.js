@@ -2,7 +2,7 @@ import AppBar from '@material-ui/core/AppBar'
 
 import Icon from '@material-ui/core/Icon'
 import IconButton from '@material-ui/core/IconButton'
-import ArrowDropdown from '@material-ui/icons/ArrowDropDown';
+import ArrowDropdown from '@material-ui/icons/ArrowDropDown'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import MenuIcon from '@material-ui/icons/Menu'
 import PropTypes from 'prop-types'
@@ -17,18 +17,22 @@ import { compose } from 'redux'
 import { connect } from 'react-redux'
 import { injectIntl } from 'react-intl'
 import { withStyles } from '@material-ui/core/styles'
-import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
+import Input from '@material-ui/core/Input'
+import MenuItem from '@material-ui/core/MenuItem'
+import FormControl from '@material-ui/core/FormControl'
+import Select from '@material-ui/core/Select'
 import { withMarketId } from '../../components/PathProps/MarketId'
 import { getCurrentUser } from '../../store/Users/reducer'
 import { fetchMarket } from '../../store/Markets/actions'
 import { fetchUser } from '../../store/Users/actions'
 import { getDifferentMarketLink } from '../../utils/marketIdPathFunctions'
+<<<<<<< HEAD
 import { getClient } from '../../config/uclusionClient'
+=======
+import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper'
+>>>>>>> Fixed some bugs in the runner and updated the package lock
 
-const drawerWidth = 240;
+const drawerWidth = 240
 
 const styles = theme => ({
   root: {
@@ -104,37 +108,39 @@ const styles = theme => ({
   selectEmpty: {
     marginTop: 5,
   },
-});
+})
 
 class Activity extends React.Component {
   handleDrawerToggle = () => {
     const { setDrawerMobileOpen, drawer } = this.props
     setDrawerMobileOpen(!drawer.mobileOpen)
-  };
+  }
 
   handleDrawerOpen = () => {
     const { setDrawerOpen } = this.props
     setDrawerOpen(true)
-  };
+  }
 
   handleDrawerClose = () => {
     const { setDrawerOpen } = this.props
     setDrawerOpen(false)
-  };
+  }
 
   handleMarketChange = event => {
     const newMarketId = event.target.value
-    if (newMarketId !== this.props.marketId) {
-      let markets = this.extractMarkets(this.props.user)
-      this.props.dispatch(fetchMarket({market_id: newMarketId, isSelected: true}))
+    const { webSocket, marketId, user } = this.props
+    if (newMarketId !== marketId) {
+      webSocket.subscribe(newMarketId, user.id)
+      let markets = this.extractMarkets(user)
+      this.props.dispatch(fetchMarket({ market_id: newMarketId, isSelected: true }))
       // We have the user already from login but not the market presences which this fetch user will retrieve
-      this.props.dispatch(fetchUser({marketId: newMarketId, user: this.props.user}))
+      this.props.dispatch(fetchUser({ marketId: newMarketId, user}))
       let market = markets.find(function (market) {
-        return market.id = newMarketId;
+        return market.id === newMarketId
       })
       window.location = getDifferentMarketLink(market, 'investibles')
     }
-  };
+  }
 
   extractMarkets (user) {
     let team_presence = user.team_presences.find(function (team) {
@@ -142,12 +148,13 @@ class Activity extends React.Component {
     })
     return team_presence.market_list
   }
-
+  
   render() {
     const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase())
     if (!showLogin) {
       getClient() // Will verify the token
     }
+
     const {
       classes,
       theme,
@@ -165,11 +172,12 @@ class Activity extends React.Component {
       user
     } = this.props;
     let marketChoices;
+
     if (user && user.team_presences) {
       let markets = this.extractMarkets(user)
       marketChoices = markets.map((market) => {
         return <MenuItem key={market.name} value={market.id}>{market.name}</MenuItem>
-      });
+      })
     }
     let headerTitle = ''
 
@@ -185,34 +193,34 @@ class Activity extends React.Component {
     const smDown = isWidthDown('sm', width)
 
     const appBarClassName = (width !== 'sm' && width !== 'xs')
-              ? classNames(classes.appBar, drawer.open && classes.appBarShift)
-              : classes.appBar;
+      ? classNames(classes.appBar, drawer.open && classes.appBarShift)
+      : classes.appBar
     const contentClassName = (width !== 'sm' && width !== 'xs')
-              ? classNames(classes.content, drawer.open && classes.contentShift)
-              : classes.content;
+      ? classNames(classes.content, drawer.open && classes.contentShift)
+      : classes.content
 
     return (
       <div className={classes.root}>
         <Helmet>
-          <meta name="theme-color" content={theme.palette.primary.main} />
-          <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
-          <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
+          <meta name="theme-color" content={theme.palette.primary.main}/>
+          <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main}/>
+          <meta name="msapplication-navbutton-color" content={theme.palette.primary.main}/>
           <title>{headerTitle}</title>
         </Helmet>
 
         <AppBar
-          position={(width !== 'sm' && width !== 'xs') ? "absolute" : undefined}
+          position={(width !== 'sm' && width !== 'xs') ? 'absolute' : undefined}
           className={appBarClassName}
         >
-          <Toolbar disableGutters={true} >
-            {true && <LinearProgress />}
+          <Toolbar disableGutters={true}>
+            {true && <LinearProgress/>}
             <IconButton
               color="inherit"
               aria-label="open drawer"
               onClick={!drawer.open ? this.handleDrawerOpen : this.handleDrawerToggle}
               className={classNames(!smDown && classes.menuButton, drawer.open && !smDown && classes.hide, onBackClick && classes.hide)}
             >
-              <MenuIcon />
+              <MenuIcon/>
             </IconButton>
             <IconButton
               color="inherit"
@@ -220,9 +228,9 @@ class Activity extends React.Component {
               onClick={onBackClick}
               className={classNames(!smDown && classes.menuButton, !onBackClick && classes.hide)}
             >
-              <Icon >chevron_left</Icon>
+              <Icon>chevron_left</Icon>
             </IconButton>
-            {!onBackClick && drawer.open && <div style={{ marginRight: 32 }} />}
+            {!onBackClick && drawer.open && <div style={{ marginRight: 32 }}/>}
             {marketChoices && (
               <form className={classes.form} autoComplete="off">
                 <Typography className={classes.formLabel}>Market:</Typography>
@@ -232,34 +240,40 @@ class Activity extends React.Component {
                     disableUnderline
                     value={marketId}
                     onChange={this.handleMarketChange}
-                    IconComponent={() => <ArrowDropdown className={classes.selectArrow} />}
-                    input={<Input name="market" id="market-switch" />}
+                    IconComponent={() => <ArrowDropdown className={classes.selectArrow}/>}
+                    input={<Input name="market" id="market-switch"/>}
                   >
                     {marketChoices}
                   </Select>
                 </FormControl>
               </form>
             )}
-            <Typography variant="title" color="inherit" noWrap >
+            <Typography variant="title" color="inherit" noWrap>
               {headerTitle}
             </Typography>
-            <div className={classes.grow} />
+            <div className={classes.grow}/>
             {appBarContent}
 
           </Toolbar>
         </AppBar>
-        <div className={classes.toolbar} />
-        {isLoading && <LinearProgress />}
-        {isOffline && <div style={{ display: 'flex', justifyContent: 'center', width: '100%', height: 15, backgroundColor: theme.palette.secondary.main }}>
-          <Typography variant="caption" color="textSecondary" noWrap >
+        <div className={classes.toolbar}/>
+        {isLoading && <LinearProgress/>}
+        {isOffline && <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          width: '100%',
+          height: 15,
+          backgroundColor: theme.palette.secondary.main
+        }}>
+          <Typography variant="caption" color="textSecondary" noWrap>
             {intl.formatMessage({ id: 'offline' })}
           </Typography>
         </div>}
         <main className={contentClassName}>
           {children}
         </main>
-      </div >
-    );
+      </div>
+    )
   }
 }
 
@@ -267,7 +281,7 @@ Activity.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
   drawer: PropTypes.object.isRequired,
-};
+}
 
 const mapStateToProps = (state) => {
   const { drawer, connection } = state
@@ -279,10 +293,10 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default compose(
+export default withBackgroundProcesses(compose(
   connect(mapStateToProps, { ...drawerActions }),
   withWidth(),
   withStyles(styles, { withTheme: true }),
   injectIntl
-)(withMarketId(Activity))
+)(withMarketId(Activity)))
 

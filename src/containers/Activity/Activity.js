@@ -26,11 +26,8 @@ import { getCurrentUser } from '../../store/Users/reducer'
 import { fetchMarket } from '../../store/Markets/actions'
 import { fetchUser } from '../../store/Users/actions'
 import { getDifferentMarketLink } from '../../utils/marketIdPathFunctions'
-<<<<<<< HEAD
 import { getClient } from '../../config/uclusionClient'
-=======
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper'
->>>>>>> Fixed some bugs in the runner and updated the package lock
 
 const drawerWidth = 240
 
@@ -148,7 +145,7 @@ class Activity extends React.Component {
     })
     return team_presence.market_list
   }
-  
+
   render() {
     const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase())
     if (!showLogin) {

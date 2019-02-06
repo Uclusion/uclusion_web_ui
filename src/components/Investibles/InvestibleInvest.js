@@ -39,7 +39,6 @@ class InvestibleInvest extends React.Component {
     this.state = {...props, quantityToInvest: 0};
     this.handleInvest = this.handleInvest.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.validateQuantityToInvest = this.validateQuantityToInvest.bind(this);
   }
 
   handleInvest = () => {
@@ -55,7 +54,7 @@ class InvestibleInvest extends React.Component {
 
 
   validateQuantityToInvest = (quantity) => {
-    return (quantity <= this.props.sharesAvailable) && (quantity > 0) && (Math.floor(quantity) === Math.ceil(quantity));
+    return (quantity <= this.props.sharesAvailable) && (quantity > 0);
   }
 
   handleChange = (name) => (event) => {
@@ -66,7 +65,7 @@ class InvestibleInvest extends React.Component {
       if (isNaN(value)) {
         value = 0;
       }
-      valid = this.validateQuantityToInvest(value);
+      valid = (value === 0) || this.validateQuantityToInvest(value);
       value = `${value}`;
     }
 
@@ -84,6 +83,8 @@ class InvestibleInvest extends React.Component {
       sharesAvailable,
       currentUserInvestment,
     } = this.props;
+    const { quantityToInvest } = this.state;
+    const investEnabled = this.validateQuantityToInvest(parseInt(quantityToInvest, 10));
 
     return (
       <div>
@@ -106,6 +107,7 @@ class InvestibleInvest extends React.Component {
             className={classes.investButton}
             variant="contained"
             color="primary"
+            disabled={!investEnabled}
             onClick={this.handleInvest}
           >
             {intl.formatMessage({id: 'investButton'})}

@@ -10,6 +10,7 @@ import { getCurrentUser } from '../../store/Users/reducer'
 import InvestibleList from '../../components/Investibles/InvestibleList'
 import { withMarketId } from '../../components/PathProps/MarketId'
 import { fetchInvestibleList } from '../../store/MarketInvestibles/actions'
+import LoginModal from '../Login/LoginModal';
 
 const pollRate = 5400000 //90 mins = 5400 seconds * 1000 for millis
 
@@ -38,7 +39,18 @@ class Investibles extends Component {
     }
   }
   render () {
-    const { intl, investibles, categories, marketId, user, dispatch } = this.props
+    const {
+      intl,
+      investibles,
+      categories,
+      marketId,
+      user,
+      dispatch,
+      history: { location: { pathname } },
+    } = this.props;
+
+    const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
+
     if (investibles && investibles.length === 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
       console.log('Fetching investibles')
       this.setState({lastFetched: Date.now()})
@@ -68,6 +80,10 @@ class Investibles extends Component {
 
           {investibles && <InvestibleList teamId={teamId} user={user} marketId={marketId} investibles={investibles} categories={categories} />}
         </Activity>
+
+        <LoginModal
+          open={showLogin}
+        />
       </div>
 
     )

@@ -80,7 +80,7 @@ class QuickAddItemListCategory extends React.Component {
     return (
       <div
         className={classes.subListWrapper}
-        style={width === 'xs' ? {} : { maxWidth: 400 }}
+        style={width === 'xs' ? {} : { minWidth: 400, maxWidth: 400 }}
       >
         <div className={classes.subList}>
           <ListSubheader component="div" className={classes.subListHeader}>

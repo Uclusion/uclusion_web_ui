@@ -58,19 +58,7 @@ class Investibles extends Component {
       this.setState({lastFetched: Date.now()})
       dispatch(fetchInvestibleList({marketId: marketId, currentInvestibleList: investibles}))
     }
-    if (!investibles || (!user || !user.market_presence)) {
-      return (
-        <Activity
-          isLoading={investibles === undefined}
-          containerStyle={{ overflow: 'hidden' }}
-          title={intl.formatMessage({ id: 'investibles' })}>
-          <div>
-          Loading
-          </div>
-        </Activity>
-      )
-    }
-    const teamId = user.default_team_id // TODO:  might change later, so keeping it separate
+    // TODO: give choice of teamId instead of default
     return (
 
       <div>
@@ -80,7 +68,7 @@ class Investibles extends Component {
           containerStyle={{ overflow: 'hidden' }}
           title={intl.formatMessage({ id: 'investibles' })}>
 
-          {investibles && <InvestibleList teamId={teamId} user={user} marketId={marketId} investibles={investibles} categories={categories} />}
+          {investibles && user && user.market_presence && <InvestibleList teamId={user.default_team_id} user={user} marketId={marketId} investibles={investibles} categories={categories} />}
         </Activity>
 
         <LoginModal

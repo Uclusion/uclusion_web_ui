@@ -43,9 +43,9 @@ class PostAuth extends Component {
     authorizer.authorize(pageUrl).then((resolve) => {
       // console.log(resolve)
       const {uclusion_token, destination_page, market_id, user} = resolve
-      const authInfo = {token: uclusion_token}
+      const authInfo = {token: uclusion_token, type: authorizer.getType()}
       setUclusionLocalStorageItem('auth', authInfo)
-      //console.log('Destination ' + destination_page + ' for user ' + JSON.stringify(user))
+      // console.log('Destination ' + destination_page + ' for user ' + JSON.stringify(user))
       // pre-emptively fetch the market and user, since we're likely to need it
       dispatch(fetchMarket({market_id: market_id, isSelected: true}))
       dispatch(fetchUserTeams())
@@ -63,7 +63,7 @@ class PostAuth extends Component {
     const {marketId, destination, failed} = this.state
     if (marketId) {
       const path = PostAuth.getPathAndQueryPart(destination)
-      return (<Redirect to={path}/>)
+      return (<Redirect to={path} />)
     }
     if (failed) {
       return (
@@ -77,7 +77,7 @@ class PostAuth extends Component {
 
     return (
       <div>
-        <CircularProgress className={classes.progress}/>
+        <CircularProgress className={classes.progress} />
         <Typography>
           {intl.formatMessage({id: 'authorizationInProgress'})}
         </Typography>

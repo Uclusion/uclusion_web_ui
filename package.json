@@ -56,6 +56,7 @@
     "slate": "^0.44.6",
     "slate-html-serializer": "^0.7.30",
     "slate-react": "^0.21.12",
+    "jwt-decode": "^2.2.0",
     "uclusion_authorizer_sdk": "file:../uclusion_authorizer_sdk",
     "uclusion_sdk": "file:../uclusion_sdk"
   },

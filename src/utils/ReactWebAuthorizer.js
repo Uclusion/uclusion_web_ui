@@ -1,40 +1,48 @@
 import { getUclusionLocalStorageItem } from '../components/utils'
 import { OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk'
 import { getAuthMarketId } from './marketIdPathFunctions'
+import decode from 'jwt-decode'
+
+const getLocalAuthInfo = () => {
+  const authInfo = getUclusionLocalStorageItem('auth')
+  if (!authInfo) {
+    return null
+  }
+  let decodedToken = decode(authInfo.token)
+  if (decodedToken.exp < Date.now() / 1000) {
+    return null
+  }
+  return authInfo
+}
+
+const getPostAuthPage = () => {
+  const marketId = getAuthMarketId()
+  const newPath = '/' + marketId + '/post_auth'
+  const currentPage = new URL(window.location.href)
+  currentPage.pathname = newPath
+  return currentPage.toString()
+}
+
+/**
+ * Used when I don't know anything about you (e.g. I have no authorization context)
+ * @param marketId
+ */
+const doGenericAuthRedirect = (marketId) => {
+  const location = '/' + marketId + '/Login'
+  console.log('redirecting you to login at ' + location)
+  window.location = location
+}
 
 class ReactWebAuthorizer {
-
   constructor (uclusionUrl) {
     this.uclusionUrl = uclusionUrl
   }
 
-  getLocalAuthInfo () {
-    return getUclusionLocalStorageItem('auth')
-  }
-
-  getPostAuthPage () {
-    const marketId = getAuthMarketId()
-    const newPath = '/' + marketId + '/post_auth'
-    const currentPage = new URL(window.location.href)
-    currentPage.pathname = newPath
-    return currentPage.toString()
-  }
-
-  /**
-   * Used when I don't know anything about you (e.g. I have no authorization context)
-   * @param marketId
-   */
-  doGenericAuthRedirect (marketId) {
-    const location = '/' + marketId + '/Login'
-    console.log('redirecting you to login at ' + location)
-    window.location = location
-  }
-
   getAuthorizer () {
     const marketId = getAuthMarketId()
-    const authInfo = this.getLocalAuthInfo()
+    const authInfo = getLocalAuthInfo()
     if (!authInfo || !authInfo.type) {
-      this.doGenericAuthRedirect(marketId)
+      doGenericAuthRedirect(marketId)
     }
     let authorizer = null
     const config = { uclusionUrl: this.uclusionUrl, marketId }
@@ -47,7 +55,7 @@ class ReactWebAuthorizer {
         break
       default:
         // I don't recognize this type of authorizer, so I'm going to make you log in again
-        this.doGenericAuthRedirect(marketId)
+        doGenericAuthRedirect(marketId)
     }
     return authorizer
   }
@@ -57,13 +65,13 @@ class ReactWebAuthorizer {
     const marketId = getAuthMarketId()
     const authorizer = this.getAuthorizer()
     const pageUrl = window.location.href
-    const postAuthPage = this.getPostAuthPage()
+    const postAuthPage = getPostAuthPage()
     authorizer.authorize(pageUrl, pageUrl, postAuthPage)
       .then((redirectUrl) => {
         window.location = redirectUrl
       }).catch((reject) => {
         console.log(reject)
-        this.doGenericAuthRedirect(marketId)
+        doGenericAuthRedirect(marketId)
       })
   }
 
@@ -76,7 +84,7 @@ class ReactWebAuthorizer {
   }
 
   authorize () {
-    const authInfo = this.getLocalAuthInfo()
+    const authInfo = getLocalAuthInfo()
     if (authInfo && authInfo.token) {
       return new Promise(function (resolve, reject) {
         resolve(authInfo.token)
@@ -86,7 +94,7 @@ class ReactWebAuthorizer {
   }
 
   getToken () {
-    const authInfo = this.getLocalAuthInfo()
+    const authInfo = getLocalAuthInfo()
     if (authInfo) {
       return authInfo.token
     }

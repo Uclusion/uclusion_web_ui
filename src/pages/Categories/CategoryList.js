@@ -46,7 +46,6 @@ class CategoryList extends Component {
 
 CategoryList.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  loading: PropTypes.number.isRequired,
   categories: PropTypes.arrayOf(PropTypes.object).isRequired
 }
 

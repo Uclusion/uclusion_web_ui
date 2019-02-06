@@ -26,6 +26,7 @@ import { getCurrentUser } from '../../store/Users/reducer'
 import { fetchMarket } from '../../store/Markets/actions'
 import { fetchUser } from '../../store/Users/actions'
 import { getDifferentMarketLink } from '../../utils/marketIdPathFunctions'
+import { getClient } from '../../config/uclusionClient'
 
 const drawerWidth = 240;
 
@@ -143,6 +144,10 @@ class Activity extends React.Component {
   }
 
   render() {
+    const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase())
+    if (!showLogin) {
+      getClient() // Will verify the token
+    }
     const {
       classes,
       theme,
@@ -157,9 +162,8 @@ class Activity extends React.Component {
       onBackClick,
       isOffline,
       marketId,
-      user,
+      user
     } = this.props;
-
     let marketChoices;
     if (user && user.team_presences) {
       let markets = this.extractMarkets(user)

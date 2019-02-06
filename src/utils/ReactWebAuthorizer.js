@@ -28,7 +28,7 @@ const getPostAuthPage = () => {
  * @param marketId
  */
 const doGenericAuthRedirect = (marketId) => {
-  const location = '/' + marketId + '/Login'
+  const location = '/' + marketId + '/Login' // TODO add redirect page as parameter
   console.log('redirecting you to login at ' + location)
   window.location = location
 }
@@ -64,7 +64,7 @@ class ReactWebAuthorizer {
     /// we're not pre-authorized, so kick them into authorization flow
     const marketId = getAuthMarketId()
     const authorizer = this.getAuthorizer()
-    const pageUrl = window.location.href
+    const pageUrl = window.location.href // TODO use redirect page below instead of pageUrl twice
     const postAuthPage = getPostAuthPage()
     authorizer.authorize(pageUrl, pageUrl, postAuthPage)
       .then((redirectUrl) => {

@@ -11,7 +11,7 @@ import InvestibleList from '../../components/Investibles/InvestibleList'
 import { withMarketId } from '../../components/PathProps/MarketId'
 import { fetchInvestibleList } from '../../store/MarketInvestibles/actions'
 
-const pollRate = 6000000
+const pollRate = 5400000 //90 mins = 5400 seconds * 1000 for millis
 
 class Investibles extends Component {
   constructor (props) {

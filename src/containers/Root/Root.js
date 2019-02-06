@@ -12,10 +12,19 @@ import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvid
 import AppLayout from '../../containers/AppLayout'
 import createHistory from 'history/createBrowserHistory'
 import { Router, Route, Switch } from 'react-router-dom'
+import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper'
 
 const history = createHistory()
 
 class Root extends Component {
+
+  constructor (props) {
+    super(props)
+    const {webSocket} = props
+    this.state = {webSocket}
+    webSocket.connect()
+  }
+
   render () {
     const {appConfig, locale, themeSource} = this.props
 
@@ -30,7 +39,7 @@ class Root extends Component {
             <IntlGlobalProvider>
               <Router history={history}>
                 <Switch>
-                  <Route children={(props) => <AppLayout {...props} />} />
+                  <Route children={(props) => <AppLayout {...props} />}/>
                 </Switch>
               </Router>
             </IntlGlobalProvider>
@@ -58,6 +67,6 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(
+export default withBackgroundProcesses(connect(
   mapStateToProps
-)(Root)
+)(Root))

@@ -22,6 +22,7 @@ const config = {
   grants,
   routes,
   getMenuItems,
+  webSocketUrl: process.env.REACT_APP_WEBSOCKET_URL,
   api_configuration: {
     authorizer: authorizer,
     baseURL: process.env.REACT_APP_UCLUSION_URL

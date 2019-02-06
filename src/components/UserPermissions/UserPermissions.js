@@ -34,7 +34,7 @@ function withUserAndPermissions (WrappedComponent) {
       }
       const apisObject = permissionsArrayToObject(available_apis)
       const opObject = permissionsArrayToObject(operation_permissions)
-      console.log(apisObject)
+      //console.log(apisObject)
       const canDeleteMarketInvestible = apisObject.delete_investible && opObject.delete_market_investible
       const canEditMarketInvestible = apisObject.update_investible && opObject.update_market_investible
       // console.log(_upUser)

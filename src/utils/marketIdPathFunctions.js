@@ -17,7 +17,7 @@ export function getAuthMarketId () {
  */
 export function getMarketId () {
   const path = window.location.pathname
-  console.log('Current location ' + path)
+  //console.log('Current location ' + path)
   const noSlash = path.substr(1)
   const end = noSlash.indexOf('/')
   const marketId = noSlash.substr(0, end)

@@ -45,7 +45,8 @@ const items = (state = [], action) => {
       if (!Array.isArray(investibles)) {
         investibles = [investibles]
       }
-      return _.unionBy(investibles, state, 'id')
+      const newState = _.unionBy(investibles, state, 'id')
+      return newState
     case MARKET_INVESTIBLE_DELETED:
       return state.filter(item => item.id !== action.investibleId)
     case INVESTMENT_CREATED:

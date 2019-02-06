@@ -62,9 +62,9 @@
   "scripts": {
     "check": "npm-check -s -u",
     "analyze": "source-map-explorer build/static/js/main.*",
-    "start": "REACT_APP_UCLUSION_URL='https://dev.api.uclusion.com/v1' react-scripts start",
+    "start": "REACT_APP_UCLUSION_URL='https://dev.api.uclusion.com/v1' REACT_APP_WEBSOCKET_URL='wss://d63jjyx8l0.execute-api.us-west-2.amazonaws.com/dev/' react-scripts start",
     "standard": "standard src/**/*.js",
-    "build": "REACT_APP_UCLUSION_URL='https://stage.api.uclusion.com/v1' react-scripts build",
+    "build": "REACT_APP_UCLUSION_URL='https://stage.api.uclusion.com/v1' REACT_APP_WEBSOCKET_URL='wss://d63jjyx8l0.execute-api.us-west-2.amazonaws.com/dev/' react-scripts build",
     "deploy": "aws --profile stageAccount s3 sync --delete build/ s3://uclusion-web-ui",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"

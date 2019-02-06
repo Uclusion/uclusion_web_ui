@@ -12,6 +12,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import { fetchUserTeams } from '../../store/Teams/actions'
+import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper'
 
 const styles = theme => ({
   progress: {
@@ -37,19 +38,20 @@ class PostAuth extends Component {
       pageUrl,
       uclusionUrl: appConfig.api_configuration.baseURL
     }
-    const { dispatch } = this.props
+    const {dispatch, webSocket} = this.props
     const authorizer = constructAuthorizer(configuration)
     authorizer.authorize(pageUrl).then((resolve) => {
       // console.log(resolve)
-      const { uclusion_token, destination_page, market_id, user } = resolve
-      const authInfo = { token: uclusion_token }
+      const {uclusion_token, destination_page, market_id, user} = resolve
+      const authInfo = {token: uclusion_token}
       setUclusionLocalStorageItem('auth', authInfo)
-      console.log('Destination ' + destination_page + ' for user ' + JSON.stringify(user))
+      //console.log('Destination ' + destination_page + ' for user ' + JSON.stringify(user))
       // pre-emptively fetch the market and user, since we're likely to need it
       dispatch(fetchMarket({market_id: market_id, isSelected: true}))
       dispatch(fetchUserTeams())
       // We have the user already from login but not the market presences which this fetch user will retrieve
       dispatch(fetchUser({marketId: market_id, user: user}))
+      webSocket.subscribe(market_id, user.id)
       this.setState({marketId: market_id, destination: destination_page, failed: false})
     }, (reject) => {
       this.setState({failed: true})
@@ -57,11 +59,11 @@ class PostAuth extends Component {
   }
 
   render () {
-    const { intl, classes } = this.props
-    const { marketId, destination, failed } = this.state
+    const {intl, classes} = this.props
+    const {marketId, destination, failed} = this.state
     if (marketId) {
       const path = PostAuth.getPathAndQueryPart(destination)
-      return (<Redirect to={path} />)
+      return (<Redirect to={path}/>)
     }
     if (failed) {
       return (
@@ -75,7 +77,7 @@ class PostAuth extends Component {
 
     return (
       <div>
-        <CircularProgress className={classes.progress} />
+        <CircularProgress className={classes.progress}/>
         <Typography>
           {intl.formatMessage({id: 'authorizationInProgress'})}
         </Typography>
@@ -83,16 +85,17 @@ class PostAuth extends Component {
     )
   }
 }
+
 function mapStateToProps (state) {
   return {}
 }
 
 function mapDispatchToProps (dispatch) {
-  return { dispatch }
+  return {dispatch}
 }
 
 PostAuth.propTypes = {
   classes: PropTypes.object.isRequired
 }
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(PostAuth)))
+export default withBackgroundProcesses(withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(PostAuth))))

@@ -8,9 +8,13 @@ import config from '../../config'
 import locales, { addLocalizationData, getLocaleMessages } from '../../config/locales'
 import { IntlProvider } from 'react-intl'
 import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvider'
+
+
 addLocalizationData(locales)
 
+
 class App extends Component {
+
 
   render () {
     const {appConfig, locale} = this.props

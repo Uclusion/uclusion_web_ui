@@ -22,7 +22,10 @@ const config = {
   grants,
   routes,
   getMenuItems,
-  webSocketUrl: process.env.REACT_APP_WEBSOCKET_URL,
+  webSockets: {
+    wsUrl: process.env.REACT_APP_WEBSOCKET_URL,
+    reconnectInterval: 3000
+  },
   api_configuration: {
     authorizer: authorizer,
     baseURL: process.env.REACT_APP_UCLUSION_URL

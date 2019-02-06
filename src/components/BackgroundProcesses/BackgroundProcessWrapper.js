@@ -2,6 +2,7 @@ import React from 'react'
 import WebSocketRunner from './WebSocketRunner'
 import { connect } from 'react-redux'
 import config from '../../config/config'
+
 function mapDispatchToProps (dispatch) {
   return {dispatch}
 }
@@ -17,11 +18,13 @@ function withBackgroundProcesses (WrappedComponent) {
   class BackgroundProcessWrapper extends React.Component {
 
     getWebSocket () {
-      if (webSocket != null){
+      if (webSocket != null) {
         return webSocket
       }
       const {dispatch} = this.props
-      webSocket = new WebSocketRunner(config.webSocketUrl, dispatch)
+      const { webSockets } = config
+      const sockConfig = {wsUrl: webSockets.wsUrl, dispatch, reconnectInterval: webSockets.reconnectInterval}
+      webSocket = new WebSocketRunner(sockConfig)
       return webSocket
     }
 

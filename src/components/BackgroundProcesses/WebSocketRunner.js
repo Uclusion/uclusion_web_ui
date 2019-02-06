@@ -5,9 +5,11 @@ import { fetchInvestibles } from '../../store/MarketInvestibles/actions'
  */
 class WebSocketRunner {
 
-  constructor (wsUrl, dispatch) {
-    this.wsUrl = wsUrl
-    this.dispatch = dispatch
+  constructor (config) {
+    this.wsUrl = config.wsUrl
+    this.dispatch = config.dispatch
+    this.reconnectInterval = config.reconnectInterval
+    this.subscribeQueue = []
   }
 
   getMessageHandler () {
@@ -26,25 +28,43 @@ class WebSocketRunner {
   }
 
   subscribe (marketId, userId) {
-    //if we're not open subscribe after we're open
+    // if socket is not open append it to the runners subscribe queu
+    const action = JSON.stringify({action: 'subscribe', user_id: userId, market_id: marketId})
     if (this.socket.readyState !== WebSocket.OPEN) {
-      this.socket.onopen = (event) => {
-        this.socket.send(JSON.stringify({
-          action: 'subscribe',
-          user_id: userId,
-          market_id: marketId
-        }))
-      }
+      this.subscribeQueue.push(action)
     } else {
-      this.socket.send(JSON.stringify({action: 'subscribe', user_id: userId, market_id: marketId}))
+      this.socket.send(action)
+    }
+  }
+
+  onOpenFactory(){
+    //we have to assign queue this to prevent the handler's this from being retargeted to the websocket
+    const queue = this.subscribeQueue
+    return (event) => {
+      queue.forEach((element) => this.socket.send(element))
+      while(queue.length > 0){
+        queue.pop()
+      }
+    }
+  }
+
+  onCloseFactory(){
+    const retryInterval = this.reconnectInterval
+    const connectFunc = this.connect
+    const connector = () => {connectFunc()}
+    return (event) => {
+      console.log("Web Socket Closed. Reopening")
+      setInterval(connector, retryInterval)
     }
   }
 
   //dead stupid version without good error handling, we'll improve later,
   connect () {
     this.socket = new WebSocket(this.wsUrl)
+    this.socket.onopen = this.onOpenFactory()
     this.socket.onmessage = this.getMessageHandler()
-    this.socket.onclose = (event) => {console.log("Closing websocket")}
+    //make us retry
+    this.socket.onclose = this.onCloseFactory()
   }
 
 }

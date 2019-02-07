@@ -1,5 +1,5 @@
 import { fetchInvestibles } from '../../store/MarketInvestibles/actions'
-
+import _ from 'lodash'
 /**
  * Class which fires and manages a websocket connection to the server. It may need to become a service worker
  */
@@ -27,33 +27,36 @@ class WebSocketRunner {
     }
   }
 
+
   subscribe (marketId, userId) {
-    // if socket is not open append it to the runners subscribe queu
-    const action = JSON.stringify({action: 'subscribe', user_id: userId, market_id: marketId})
-    if (this.socket.readyState !== WebSocket.OPEN) {
-      this.subscribeQueue.push(action)
-    } else {
-      this.socket.send(action)
+    const action = {action: 'subscribe', user_id: userId, market_id: marketId}
+    //push the action onto the subscribe queue so if we reconnect we'll track it
+    this.subscribeQueue.push(action)
+    // if socket is open, just go ahead and send it
+    if (this.socket.readyState === WebSocket.OPEN) {
+      const actionString = JSON.stringify(action)
+      this.socket.send(actionString)
     }
+    //compact the queue to remove duplicates
+    const compacted = _.uniqWith(this.subscribeQueue, _.isEqual)
+    this.subscribeQueue = compacted
   }
 
-  onOpenFactory(){
+  onOpenFactory () {
     //we have to assign queue this to prevent the handler's this from being retargeted to the websocket
     const queue = this.subscribeQueue
     return (event) => {
-      queue.forEach((element) => this.socket.send(element))
-      while(queue.length > 0){
-        queue.pop()
-      }
+      queue.forEach((action) => this.socket.send(JSON.stringify(action)))
+      //we're not emptying the queue because we might need it on reconnect
     }
   }
 
-  onCloseFactory(){
+  onCloseFactory () {
     const retryInterval = this.reconnectInterval
     const connectFunc = this.connect
     const connector = () => {connectFunc()}
     return (event) => {
-      console.log("Web Socket Closed. Reopening")
+      console.log('Web Socket Closed. Reopening')
       setInterval(connector, retryInterval)
     }
   }

@@ -28,7 +28,9 @@ html, body, #root{
 
 .loader {
   animation: spin infinite 20s linear;
-  height: 80px;
+  /* height: 80px; */
+  width: 80%;
+  height: 80%;
 }
 
 @keyframes spin {

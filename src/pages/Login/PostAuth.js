@@ -27,8 +27,11 @@ class PostAuth extends Component {
     PostAuth.getPathAndQueryPart = PostAuth.getPathAndQueryPart.bind(this)
   }
 
-  static getPathAndQueryPart (url) {
+  static getPathAndQueryPart (url, marketId) {
     const parsed = new URL(url)
+    if (parsed.search.includes('destinationPage')) {
+      return '/' + marketId + '/' + parsed.search.split('=')[1]
+    }
     return parsed.pathname + parsed.search
   }
 
@@ -62,7 +65,7 @@ class PostAuth extends Component {
     const {intl, classes} = this.props
     const {marketId, destination, failed} = this.state
     if (marketId) {
-      const path = PostAuth.getPathAndQueryPart(destination)
+      const path = PostAuth.getPathAndQueryPart(destination, marketId)
       return (<Redirect to={path} />)
     }
     if (failed) {

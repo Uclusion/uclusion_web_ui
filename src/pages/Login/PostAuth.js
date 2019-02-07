@@ -8,17 +8,23 @@ import { fetchMarket } from '../../store/Markets/actions'
 import { fetchUser } from '../../store/Users/actions'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
-import CircularProgress from '@material-ui/core/CircularProgress'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import { fetchUserTeams } from '../../store/Teams/actions'
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper'
 
 const styles = theme => ({
-  progress: {
-    margin: theme.spacing.unit * 2
-  }
-})
+  container: {
+    height: '100vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    width: '80%',
+    height: '80%',
+  },
+});
 
 class PostAuth extends Component {
   constructor (props) {
@@ -59,12 +65,16 @@ class PostAuth extends Component {
   }
 
   render () {
-    const {intl, classes} = this.props
-    const {marketId, destination, failed} = this.state
+    const { intl, classes } = this.props;
+    const { marketId, destination, failed } = this.state;
+
     if (marketId) {
-      const path = PostAuth.getPathAndQueryPart(destination)
-      return (<Redirect to={path} />)
+      const path = PostAuth.getPathAndQueryPart(destination);
+      return (
+        <Redirect to={path} />
+      );
     }
+
     if (failed) {
       return (
         <div>
@@ -72,17 +82,14 @@ class PostAuth extends Component {
             {intl.formatMessage({id: 'authorizationFailed'})}
           </Typography>
         </div>
-      )
+      );
     }
 
     return (
-      <div>
-        <CircularProgress className={classes.progress} />
-        <Typography>
-          {intl.formatMessage({id: 'authorizationInProgress'})}
-        </Typography>
+      <div className={classes.container}>
+        <img className={classes.logo} src='/logo.svg' alt='logo' />
       </div>
-    )
+    );
   }
 }
 

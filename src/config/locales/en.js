@@ -183,6 +183,8 @@ const messages = defineMessages({
   teamsLoading: 'Loading your Team Memberships.',
   categoriesLoading: 'Loading Market Categories.',
   myTeamsMenu: 'Team Memberships',
+  login_admin: 'Login Admin',
+  login_user: 'Login User',
   // auth messages
   authorizationFailed: "We're sorry, authorization failed. Please try again",
   authorizationInProgress: 'Logging you in...',

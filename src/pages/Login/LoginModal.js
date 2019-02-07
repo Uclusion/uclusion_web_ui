@@ -4,6 +4,7 @@ import { Button, Dialog, DialogTitle, List, ListItem } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import appConfig from '../../config/config';
 import { getAuthMarketId, getMarketId } from '../../utils/marketIdPathFunctions';
+import { injectIntl } from 'react-intl'
 
 const styles = theme => ({
   button: {
@@ -17,12 +18,18 @@ class LoginModal extends Component {
     const newPath = '/' + marketId + '/' + subPath;
     const currentPage = new URL(window.location.href);
     currentPage.pathname = newPath;
+    currentPage.search = ''
     return currentPage.toString();
   }
 
   getLoginParams() {
     const marketId = getAuthMarketId();
-    const destinationPage = this.getDestinationPage('investibles');
+    const parsed = new URL(window.location.href)
+    let page = 'investibles'
+    if (parsed.search.includes('destinationPage')) {
+      page = parsed.search.split('=')[1]
+    }
+    const destinationPage = this.getDestinationPage(page);
     const redirectUrl = this.getDestinationPage('post_auth');
     const pageUrl = window.location.href;
     const uclusionUrl = appConfig.api_configuration.baseURL;
@@ -57,7 +64,7 @@ class LoginModal extends Component {
   }
 
   render () {
-    const { classes, ...other } = this.props;
+    const { intl, classes, ...other } = this.props;
 
     return (
       <Dialog onClose={() => null} aria-labelledby="simple-dialog-title" {...other}>
@@ -71,7 +78,7 @@ class LoginModal extends Component {
                 color="primary"
                 onClick={this.loginOidc}
               >
-                Login OIDC
+                {intl.formatMessage({ id: 'login_admin' })}
               </Button>
             </ListItem>
             <ListItem>
@@ -81,7 +88,7 @@ class LoginModal extends Component {
                 color="primary"
                 onClick={this.loginSso}
               >
-                Login SSO
+                {intl.formatMessage({ id: 'login_user' })}
               </Button>
             </ListItem>
           </List>
@@ -91,4 +98,4 @@ class LoginModal extends Component {
   }
 }
 
-export default withStyles(styles)(LoginModal);
+export default withStyles(styles)(injectIntl(LoginModal));

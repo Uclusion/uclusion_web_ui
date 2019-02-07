@@ -1,5 +1,6 @@
 import { fetchInvestibles } from '../../store/MarketInvestibles/actions'
 import _ from 'lodash'
+
 /**
  * Class which fires and manages a websocket connection to the server. It may need to become a service worker
  */
@@ -19,7 +20,7 @@ class WebSocketRunner {
       switch (payload.event_type) {
         case 'MARKET_INVESTIBLE_UPDATED':
         case 'MARKET_INVESTIBLE_CREATED':
-          this.dispatch(fetchInvestibles({marketId: payload.sub_object_id, idList: [payload.object_id]}))
+          this.dispatch(fetchInvestibles({ marketId: payload.sub_object_id, idList: [payload.object_id] }))
           break
         default:
           console.debug('unknown event:', event)
@@ -27,9 +28,8 @@ class WebSocketRunner {
     }
   }
 
-
   subscribe (marketId, userId) {
-    const action = {action: 'subscribe', user_id: userId, market_id: marketId}
+    const action = { action: 'subscribe', user_id: userId, market_id: marketId }
     //push the action onto the subscribe queue so if we reconnect we'll track it
     this.subscribeQueue.push(action)
     // if socket is open, just go ahead and send it
@@ -54,7 +54,7 @@ class WebSocketRunner {
   onCloseFactory () {
     const retryInterval = this.reconnectInterval
     const connectFunc = this.connect
-    const connector = () => {connectFunc()}
+    const connector = function () { connectFunc() }
     return (event) => {
       console.log('Web Socket Closed. Reopening')
       setInterval(connector, retryInterval)

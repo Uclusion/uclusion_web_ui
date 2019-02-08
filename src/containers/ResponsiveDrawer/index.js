@@ -1,1 +1,1 @@
-export { default } from './ResponsiveDrawer.js';
+export { default } from './ResponsiveDrawer';

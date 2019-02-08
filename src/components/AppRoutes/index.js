@@ -1,1 +1,1 @@
-export { default } from './AppRoutes.js';
+export { default } from './AppRoutes';

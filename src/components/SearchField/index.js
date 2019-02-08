@@ -1,1 +1,1 @@
-export { default } from './SearchField.js';
+export { default } from './SearchField';

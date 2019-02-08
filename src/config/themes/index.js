@@ -1,12 +1,13 @@
-import red from '@material-ui/core/colors/red'
-import pink from '@material-ui/core/colors/pink'
-import green from '@material-ui/core/colors/green'
-import blue from '@material-ui/core/colors/blue'
-import { createMuiTheme } from '@material-ui/core/styles'
+import red from '@material-ui/core/colors/red';
+import pink from '@material-ui/core/colors/pink';
+import green from '@material-ui/core/colors/green';
+import blue from '@material-ui/core/colors/blue';
+import { createMuiTheme } from '@material-ui/core/styles';
+
 const themes = [
   {
     id: 'default',
-    color: blue[500]
+    color: blue[500],
   },
   {
     id: 'red',
@@ -15,9 +16,9 @@ const themes = [
       palette: {
         primary: red,
         secondary: pink,
-        error: red
-      }
-    }
+        error: red,
+      },
+    },
   },
   {
     id: 'green',
@@ -26,26 +27,26 @@ const themes = [
       palette: {
         primary: green,
         secondary: red,
-        error: red
-      }
-    }
-  }
-]
+        error: red,
+      },
+    },
+  },
+];
 
-export { themes }
+export { themes };
 const getThemeSource = (t, ts) => {
   if (ts) {
     for (let i = 0; i < ts.length; i++) {
-      if (ts[i]['id'] === t.source) {
-        const source = ts[i]['source']
-        const palette = source != null ? source.palette : {}
+      if (ts[i].id === t.source) {
+        const source = ts[i].source;
+        const palette = source != null ? source.palette : {};
 
-        return createMuiTheme({ ...source, palette: { ...palette, type: t.isNightModeOn ? 'dark' : 'light' } })
+        return createMuiTheme({ ...source, palette: { ...palette, type: t.isNightModeOn ? 'dark' : 'light' } });
       }
     }
   }
 
-  return createMuiTheme({ palette: { type: t.isNightModeOn ? 'dark' : 'light' } }) // Default theme
-}
+  return createMuiTheme({ palette: { type: t.isNightModeOn ? 'dark' : 'light' } }); // Default theme
+};
 
-export default getThemeSource
+export default getThemeSource;

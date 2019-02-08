@@ -1,46 +1,50 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
-import { withTheme } from '@material-ui/core/styles'
-import { getInvestibles, investiblePropType } from '../../store/MarketInvestibles/reducer'
-import { injectIntl } from 'react-intl'
-import Activity from '../../containers/Activity/Activity'
-import { getMarketCategories, categoryPropType } from '../../store/Markets/reducer'
-import { getCurrentUser } from '../../store/Users/reducer'
-import InvestibleList from '../../components/Investibles/InvestibleList'
-import { withMarketId } from '../../components/PathProps/MarketId'
-import { fetchInvestibleList } from '../../store/MarketInvestibles/actions'
-import LoginModal from '../Login/LoginModal'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { withTheme } from '@material-ui/core/styles';
+import { injectIntl } from 'react-intl';
+import { getInvestibles, investiblePropType } from '../../store/MarketInvestibles/reducer';
+import Activity from '../../containers/Activity/Activity';
+import { getMarketCategories, categoryPropType } from '../../store/Markets/reducer';
+import { getCurrentUser } from '../../store/Users/reducer';
+import InvestibleList from '../../components/Investibles/InvestibleList';
+import { withMarketId } from '../../components/PathProps/MarketId';
+import { fetchInvestibleList } from '../../store/MarketInvestibles/actions';
+import LoginModal from '../Login/LoginModal';
 
-const pollRate = 5400000 // 90 mins = 5400 seconds * 1000 for millis
+const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
 class Investibles extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
-      lastFetched: undefined
-    }
-  }
-  componentDidMount () {
-    this.getItems() // Initial fetch
-    this.timer = setInterval(() => this.getItems(), pollRate)
+      lastFetched: undefined,
+    };
   }
 
-  componentWillUnmount () {
-    clearInterval(this.timer)
+  componentDidMount() {
+    this.getItems(); // Initial fetch
+    this.timer = setInterval(() => this.getItems(), pollRate);
   }
 
-  getItems () {
-    const { investibles, marketId, dispatch,
-      history: { location: { pathname } } } = this.props
-    const showLogin = /(.+)\/login/.test(pathname.toLowerCase())
+  componentWillUnmount() {
+    clearInterval(this.timer);
+  }
+
+  getItems() {
+    const {
+      investibles, marketId, dispatch,
+      history: { location: { pathname } },
+    } = this.props;
+    const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
     if (!showLogin && investibles && investibles.length > 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
-      console.log('Fetching investibles from polling with last fetched ' + this.state.lastFetched)
-      this.setState({lastFetched: Date.now()})
-      dispatch(fetchInvestibleList({marketId: marketId, currentInvestibleList: investibles}))
+      console.log(`Fetching investibles from polling with last fetched ${this.state.lastFetched}`);
+      this.setState({ lastFetched: Date.now() });
+      dispatch(fetchInvestibleList({ marketId, currentInvestibleList: investibles }));
     }
   }
-  render () {
+
+  render() {
     const {
       intl,
       investibles,
@@ -48,15 +52,15 @@ class Investibles extends Component {
       marketId,
       user,
       dispatch,
-      history: { location: { pathname } }
-    } = this.props
+      history: { location: { pathname } },
+    } = this.props;
 
-    const showLogin = /(.+)\/login/.test(pathname.toLowerCase())
+    const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
 
     if (!showLogin && investibles && investibles.length === 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
-      console.log('Fetching investibles')
-      this.setState({lastFetched: Date.now()})
-      dispatch(fetchInvestibleList({marketId: marketId, currentInvestibleList: investibles}))
+      console.log('Fetching investibles');
+      this.setState({ lastFetched: Date.now() });
+      dispatch(fetchInvestibleList({ marketId, currentInvestibleList: investibles }));
     }
     // TODO: give choice of teamId instead of default
     return (
@@ -66,7 +70,8 @@ class Investibles extends Component {
         <Activity
           isLoading={investibles === undefined}
           containerStyle={{ overflow: 'hidden' }}
-          title={intl.formatMessage({ id: 'investibles' })}>
+          title={intl.formatMessage({ id: 'investibles' })}
+        >
 
           {investibles && user && user.market_presence && <InvestibleList teamId={user.default_team_id} user={user} marketId={marketId} investibles={investibles} categories={categories} />}
         </Activity>
@@ -76,7 +81,7 @@ class Investibles extends Component {
         />
       </div>
 
-    )
+    );
   }
 }
 
@@ -85,20 +90,20 @@ Investibles.propTypes = {
   investibles: PropTypes.arrayOf(investiblePropType),
   categories: PropTypes.arrayOf(categoryPropType),
   marketId: PropTypes.string,
-  user: PropTypes.object
-}
+  user: PropTypes.object,
+};
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
   categories: getMarketCategories(state.marketsReducer),
-  user: getCurrentUser(state.usersReducer)
-})
+  user: getCurrentUser(state.usersReducer),
+});
 
-function mapDispatchToProps (dispatch) {
-  return { dispatch }
+function mapDispatchToProps(dispatch) {
+  return { dispatch };
 }
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
-)(injectIntl(withTheme()(withMarketId(Investibles))))
+  mapDispatchToProps,
+)(injectIntl(withTheme()(withMarketId(Investibles))));

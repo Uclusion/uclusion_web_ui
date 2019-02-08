@@ -1,14 +1,14 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { withStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import { connect } from 'react-redux'
-import { injectIntl } from 'react-intl'
-import { bindActionCreators } from 'redux'
-import { createInvestment } from '../../store/MarketInvestibles/actions'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import { connect } from 'react-redux';
+import { injectIntl } from 'react-intl';
+import { bindActionCreators } from 'redux';
 import FormControl from '@material-ui/core/FormControl';
+import { createInvestment } from '../../store/MarketInvestibles/actions';
 
 const styles = theme => ({
 
@@ -33,34 +33,33 @@ const styles = theme => ({
 });
 
 class InvestibleInvest extends React.Component {
-
-  constructor (props) {
+  constructor(props) {
     super(props);
-    this.state = {...props, quantityToInvest: 0};
+    this.state = { ...props, quantityToInvest: 0 };
     this.handleInvest = this.handleInvest.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
   handleInvest = () => {
-    const {investibleId, teamId, marketId, dispatch} = this.props;
-    let quantity = parseInt(this.state['quantityToInvest'], 10);
+    const {
+      investibleId, teamId, marketId, dispatch,
+    } = this.props;
+    const quantity = parseInt(this.state.quantityToInvest, 10);
     dispatch(createInvestment({
       investibleId,
       teamId,
       marketId,
-      quantity
+      quantity,
     }));
   }
 
 
-  validateQuantityToInvest = (quantity) => {
-    return (quantity <= this.props.sharesAvailable) && (quantity > 0);
-  }
+  validateQuantityToInvest = quantity => (quantity <= this.props.sharesAvailable) && (quantity > 0)
 
-  handleChange = (name) => (event) => {
+  handleChange = name => (event) => {
     let value = event.target.value;
     let valid = false;
-    if(name === 'quantityToInvest'){
+    if (name === 'quantityToInvest') {
       value = parseInt(value, 10);
       if (isNaN(value)) {
         value = 0;
@@ -69,14 +68,14 @@ class InvestibleInvest extends React.Component {
       value = `${value}`;
     }
 
-    if(valid) {
+    if (valid) {
       this.setState({
-        [name]: value
-      })
+        [name]: value,
+      });
     }
   }
 
-  render () {
+  render() {
     const {
       classes,
       intl,
@@ -89,13 +88,13 @@ class InvestibleInvest extends React.Component {
     return (
       <div>
         <Typography>
-          {intl.formatMessage({id: 'investModalText'})}
+          {intl.formatMessage({ id: 'investModalText' })}
         </Typography>
         <form className={classes.container} noValidate autoComplete="off">
           <FormControl>
             <TextField
               id="quantityToInvest"
-              label={intl.formatMessage({id: 'investModalQuantityLabel'})}
+              label={intl.formatMessage({ id: 'investModalQuantityLabel' })}
               className={classes.textField}
               value={this.state.quantityToInvest}
               onChange={this.handleChange('quantityToInvest')}
@@ -110,16 +109,18 @@ class InvestibleInvest extends React.Component {
             disabled={!investEnabled}
             onClick={this.handleInvest}
           >
-            {intl.formatMessage({id: 'investButton'})}
+            {intl.formatMessage({ id: 'investButton' })}
           </Button>
         </form>
         <Typography className={classes.availableShares}>
-          * {intl.formatMessage({ id: 'availableSharesToInvest' }, { shares: sharesAvailable })}
+          *
+          {' '}
+          {intl.formatMessage({ id: 'availableSharesToInvest' }, { shares: sharesAvailable })}
           <br />
           {currentUserInvestment > 0 && `* ${intl.formatMessage({ id: 'userInvestedShares' }, { shares: currentUserInvestment })}`}
         </Typography>
       </div>
-    )
+    );
   }
 }
 
@@ -128,11 +129,11 @@ InvestibleInvest.propTypes = {
   investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
   teamId: PropTypes.string.isRequired,
-  sharesAvailable: PropTypes.number.isRequired
-}
+  sharesAvailable: PropTypes.number.isRequired,
+};
 
-function mapDispatchToProps (dispatch) {
-  return Object.assign({ dispatch }, bindActionCreators({ createInvestment }, dispatch))
+function mapDispatchToProps(dispatch) {
+  return Object.assign({ dispatch }, bindActionCreators({ createInvestment }, dispatch));
 }
 
 export default connect(mapDispatchToProps)(injectIntl(withStyles(styles)(InvestibleInvest)));

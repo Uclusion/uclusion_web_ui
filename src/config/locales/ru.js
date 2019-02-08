@@ -1,10 +1,10 @@
-import { defineMessages } from 'react-intl'
+import { defineMessages } from 'react-intl';
 
 const messages = defineMessages({
   app_name: 'React Самый Нужный',
   about: 'О нас',
   page_not_found_demo: 'Страница не найдена Демо',
-  '404': '404',
+  404: '404',
   warning_404_message: '404 Страница не найдена',
   warning_404_description: 'К сожалению, страница, которую Вы запрашиваете, не существует.',
   settings: 'Настроики',
@@ -161,8 +161,8 @@ const messages = defineMessages({
   disable_notifications_dialog_message: 'Все уведомления на всех ваших устройствах будут отключены!',
   update_title: 'Доступно обновление!',
   update_message: 'Нажмите здесь, чтобы получить новую версию.',
-  install: 'Установить'
+  install: 'Установить',
 
-})
+});
 
-export default messages
+export default messages;

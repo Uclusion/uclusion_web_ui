@@ -1,11 +1,11 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import PropTypes from 'prop-types'
-import { withTheme, withStyles } from '@material-ui/core/styles'
-import Drawer from '@material-ui/core/Drawer'
-import classNames from 'classnames'
-import drawerActions from '../../store/drawer/actions'
-import withWidth, { isWidthDown } from '@material-ui/core/withWidth'
+import React from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { withTheme, withStyles } from '@material-ui/core/styles';
+import Drawer from '@material-ui/core/Drawer';
+import classNames from 'classnames';
+import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
+import drawerActions from '../../store/drawer/actions';
 
 const drawerWidth = 240;
 
@@ -63,31 +63,33 @@ class ResponsiveDrawer extends React.Component {
   };
 
   handleDrawerToggle = () => {
-    const { setDrawerMobileOpen, drawer } = this.props
-    setDrawerMobileOpen(!drawer.mobileOpen)
+    const { setDrawerMobileOpen, drawer } = this.props;
+    setDrawerMobileOpen(!drawer.mobileOpen);
   };
 
   handleDrawerOpen = () => {
-    const { setDrawerOpen } = this.props
-    setDrawerOpen(true)
+    const { setDrawerOpen } = this.props;
+    setDrawerOpen(true);
   };
 
   handleDrawerClose = () => {
-    const { setDrawerOpen } = this.props
-    setDrawerOpen(false)
+    const { setDrawerOpen } = this.props;
+    setDrawerOpen(false);
   };
 
   render() {
-    const { classes, theme, children, drawer, width } = this.props;
+    const {
+      classes, theme, children, drawer, width,
+    } = this.props;
 
 
-    const smDown = isWidthDown('sm', width)
+    const smDown = isWidthDown('sm', width);
 
 
     return (
       <div>
         <Drawer
-          variant={smDown ? "temporary" : "permanent"}
+          variant={smDown ? 'temporary' : 'permanent'}
           onClose={this.handleDrawerToggle}
           anchor={smDown ? undefined : (theme.direction === 'rtl' ? 'right' : 'left')}
           classes={{
@@ -113,11 +115,11 @@ ResponsiveDrawer.propTypes = {
 
 
 const mapStateToProps = (state) => {
-  const { drawer } = state
+  const { drawer } = state;
 
   return {
-    drawer
-  }
-}
+    drawer,
+  };
+};
 
-export default connect(mapStateToProps, { ...drawerActions })(withWidth()(withTheme()(withStyles(styles, { withTheme: true })(ResponsiveDrawer))))
+export default connect(mapStateToProps, { ...drawerActions })(withWidth()(withTheme()(withStyles(styles, { withTheme: true })(ResponsiveDrawer))));

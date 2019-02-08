@@ -1,22 +1,24 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import config from '../config'
+import React from 'react';
+import PropTypes from 'prop-types';
+import config from '../config';
 
 const withAppConfigs = (Component) => {
   const ChildComponent = (props, context) => {
-    const { appConfig } = context
+    const { appConfig } = context;
 
-    return <Component
-      appConfig={{ ...config, ...appConfig }}
-      {...props}
-    />
-  }
+    return (
+      <Component
+        appConfig={{ ...config, ...appConfig }}
+        {...props}
+      />
+    );
+  };
 
   ChildComponent.contextTypes = {
-    appConfig: PropTypes.object.isRequired
-  }
+    appConfig: PropTypes.object.isRequired,
+  };
 
-  return ChildComponent
-}
+  return ChildComponent;
+};
 
-export default withAppConfigs
+export default withAppConfigs;

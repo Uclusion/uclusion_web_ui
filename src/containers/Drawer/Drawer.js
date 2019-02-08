@@ -1,28 +1,28 @@
-import React, { Component } from 'react'
-import Scrollbar from '../../components/Scrollbar'
-import withAppConfigs from '../../utils/withAppConfigs'
-import DrawerContent from './DrawerContent'
-import DrawerHeader from './DrawerHeader'
-import ResponsiveDrawer from '../../containers/ResponsiveDrawer'
-import { withRouter } from 'react-router-dom'
+import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
+import Scrollbar from '../../components/Scrollbar';
+import withAppConfigs from '../../utils/withAppConfigs';
+import DrawerContent from './DrawerContent';
+import DrawerHeader from './DrawerHeader';
+import ResponsiveDrawer from '../ResponsiveDrawer';
 
 export class AppLayout extends Component {
-  render () {
-    const { history, appConfig } = this.props
+  render() {
+    const { history, appConfig } = this.props;
 
-    const path = history.location.pathname
-    const Header = appConfig.drawerHeader ? appConfig.drawerHeader : DrawerHeader
+    const path = history.location.pathname;
+    const Header = appConfig.drawerHeader ? appConfig.drawerHeader : DrawerHeader;
     return (
 
-      <ResponsiveDrawer >
+      <ResponsiveDrawer>
         <Header />
-        <Scrollbar >
+        <Scrollbar>
           <DrawerContent path={path} history={history} />
         </Scrollbar>
       </ResponsiveDrawer>
 
-    )
+    );
   }
 }
 
-export default withRouter(withAppConfigs(AppLayout))
+export default withRouter(withAppConfigs(AppLayout));

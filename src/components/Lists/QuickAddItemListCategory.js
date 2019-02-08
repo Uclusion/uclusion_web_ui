@@ -1,16 +1,16 @@
-import React from 'react'
-import { Grid, ListSubheader } from '@material-ui/core'
-import Add from '@material-ui/icons/Add'
-import PropTypes from 'prop-types'
-import { compose } from 'redux'
-import { withStyles } from '@material-ui/core/styles'
-import withWidth from '@material-ui/core/withWidth'
+import React from 'react';
+import { Grid, ListSubheader } from '@material-ui/core';
+import Add from '@material-ui/icons/Add';
+import PropTypes from 'prop-types';
+import { compose } from 'redux';
+import { withStyles } from '@material-ui/core/styles';
+import withWidth from '@material-ui/core/withWidth';
 
-const styles = (theme) => ({
+const styles = theme => ({
   subListWrapper: {
     padding: theme.spacing.unit,
     height: '100%',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
   },
   subList: {
     height: '100%',
@@ -20,44 +20,43 @@ const styles = (theme) => ({
     padding: theme.spacing.unit,
     paddingTop: 0,
     backgroundColor: theme.palette.grey[theme.palette.type === 'dark' ? 900 : 300],
-    borderRadius: 6
+    borderRadius: 6,
   },
   subListHeader: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   subListContent: {
     flex: 1,
-    overflowY: 'auto'
-  }
+    overflowY: 'auto',
+  },
 });
 
 class QuickAddItemListCategory extends React.Component {
-
-  constructor (props) {
+  constructor(props) {
     super(props);
-    this.state = {...props, quickAddVisible: false};
+    this.state = { ...props, quickAddVisible: false };
     this.addOnClick = this.addOnClick.bind(this);
     this.addCancelOnClick = this.addCancelOnClick.bind(this);
     this.addSubmitOnClick = this.addSubmitOnClick.bind(this);
   }
 
   addOnClick = () => {
-    this.setState({quickAddVisible: !this.state.quickAddVisible});
+    this.setState({ quickAddVisible: !this.state.quickAddVisible });
   }
 
   addCancelOnClick = () => {
-    this.setState({quickAddVisible: false});
+    this.setState({ quickAddVisible: false });
   }
 
   addSubmitOnClick = () => {
-    this.setState({quickAddVisible: false});
+    this.setState({ quickAddVisible: false });
   }
 
   addSaveOnClick = (addOnSave, value) => {
-      addOnSave(value); //save the item out, and then hide this
-      this.setState({quickAddVisible: false});
+    addOnSave(value); // save the item out, and then hide this
+    this.setState({ quickAddVisible: false });
   }
 
   render() {
@@ -71,10 +70,10 @@ class QuickAddItemListCategory extends React.Component {
     const myQuickAdd = React.cloneElement(
       quickAdd,
       {
-        visible:this.state.quickAddVisible,
+        visible: this.state.quickAddVisible,
         addSubmitOnClick: this.addSubmitOnClick,
-        addCancelOnClick: this.addCancelOnClick
-      }
+        addCancelOnClick: this.addCancelOnClick,
+      },
     );
 
     return (
@@ -101,17 +100,17 @@ class QuickAddItemListCategory extends React.Component {
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
 
 
 QuickAddItemListCategory.propTypes = {
   items: PropTypes.arrayOf(PropTypes.object).isRequired,
-  title: PropTypes.string.isRequired
+  title: PropTypes.string.isRequired,
 };
 
 export default compose(
   withWidth(),
-  withStyles(styles, { withTheme: true })
+  withStyles(styles, { withTheme: true }),
 )(QuickAddItemListCategory);

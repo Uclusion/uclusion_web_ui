@@ -1,1 +1,1 @@
-export { default } from './AppConfigProvider.js'
+export { default } from './AppConfigProvider';

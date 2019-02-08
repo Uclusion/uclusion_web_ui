@@ -1,13 +1,13 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { Paper, Button, TextField } from '@material-ui/core'
-import { withStyles } from '@material-ui/core/styles'
-import { injectIntl } from 'react-intl'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import { createMarketInvestible } from '../../store/MarketInvestibles/actions'
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor'
-import { withUserAndPermissions } from '../UserPermissions/UserPermissions'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Paper, Button, TextField } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
+import { injectIntl } from 'react-intl';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { createMarketInvestible } from '../../store/MarketInvestibles/actions';
+import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({
 
@@ -26,41 +26,44 @@ const styles = theme => ({
   actionContainer: {
     display: 'flex',
     padding: theme.spacing.unit * 2,
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   actionButton: {
     maxWidth: 160,
-  }
+  },
 
-})
+});
 
 class InvestibleListQuickAdd extends React.Component {
-
-  constructor (props) {
-    super(props)
-    const { intl } = props
-    this.state = {description: intl.formatMessage({id: 'descriptionLabel'})}
+  constructor(props) {
+    super(props);
+    const { intl } = props;
+    this.state = { description: intl.formatMessage({ id: 'descriptionLabel' }) };
     this.handleChange = this.handleChange.bind(this);
     this.addOnClick = this.addOnClick.bind(this);
   }
 
-  handleChange = (name) => (event) => {
-    let value = event.target.value
+  handleChange = name => (event) => {
+    const value = event.target.value;
     this.setState({
-      [name]: value
-    })
+      [name]: value,
+    });
   }
 
   addOnClick = (addSubmitOnClick) => {
-    const { dispatch, marketId, teamId, category, userPermissions } = this.props;
-    const { canInvest } = userPermissions
-    const payload = {marketId, category, teamId, canInvest, title: this.state.title, description: this.state.description};
+    const {
+      dispatch, marketId, teamId, category, userPermissions,
+    } = this.props;
+    const { canInvest } = userPermissions;
+    const payload = {
+      marketId, category, teamId, canInvest, title: this.state.title, description: this.state.description,
+    };
     dispatch(createMarketInvestible(payload));
     addSubmitOnClick();
   };
 
 
-  render () {
+  render() {
     const {
       classes,
       visible,
@@ -81,13 +84,13 @@ class InvestibleListQuickAdd extends React.Component {
             className={classes.textField}
             InputProps={{ className: classes.textInput }}
             id="title"
-            placeholder={intl.formatMessage({id: 'titleLabel'})}
+            placeholder={intl.formatMessage({ id: 'titleLabel' })}
             defaultValue=""
             margin="normal"
             fullWidth
             onChange={this.handleChange('title')}
           />
-          <HtmlRichTextEditor value={this.state.description} onChange={this.handleChange('description')}/>
+          <HtmlRichTextEditor value={this.state.description} onChange={this.handleChange('description')} />
         </Paper>
         <div className={classes.actionContainer}>
           <Button
@@ -109,8 +112,8 @@ class InvestibleListQuickAdd extends React.Component {
           </Button>
         </div>
       </form>
-    )
-  };
+    );
+  }
 }
 
 InvestibleListQuickAdd.propTypes = {
@@ -119,11 +122,11 @@ InvestibleListQuickAdd.propTypes = {
   teamId: PropTypes.string.isRequired,
   visible: PropTypes.bool.isRequired,
   addCancelOnClick: PropTypes.func.isRequired,
-  addSubmitOnClick: PropTypes.func.isRequired
+  addSubmitOnClick: PropTypes.func.isRequired,
+};
+
+function mapDispatchToProps(dispatch) {
+  return Object.assign({ dispatch }, bindActionCreators({ createMarketInvestible }, dispatch));
 }
 
-function mapDispatchToProps (dispatch) {
-  return Object.assign({ dispatch }, bindActionCreators({ createMarketInvestible }, dispatch))
-}
-
-export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, {withTheme: true})(withUserAndPermissions(InvestibleListQuickAdd))))
+export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, { withTheme: true })(withUserAndPermissions(InvestibleListQuickAdd))));

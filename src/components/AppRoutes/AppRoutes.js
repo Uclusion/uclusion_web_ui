@@ -1,9 +1,9 @@
-import React from 'react'
-import makeLoadable from '../../containers/MyLoadable'
-import { Route } from 'react-router-dom'
+import React from 'react';
+import { Route } from 'react-router-dom';
+import makeLoadable from '../../containers/MyLoadable';
 
 const getAppRoutes = () => {
-  const MyLoadable = (opts, preloadComponents) => makeLoadable({ ...opts }, preloadComponents)
+  const MyLoadable = (opts, preloadComponents) => makeLoadable({ ...opts }, preloadComponents);
 
 
   const AsyncPageNotFound = MyLoadable({ loader: () => import('../../pages/PageNotFound') });
@@ -12,8 +12,7 @@ const getAppRoutes = () => {
   return [
     <Route component={AsyncPageNotFound} />,
 
-  ]
+  ];
+};
 
-}
-
-export default getAppRoutes
+export default getAppRoutes;

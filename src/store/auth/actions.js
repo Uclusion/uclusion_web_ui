@@ -1,7 +1,7 @@
-import * as types from './types'
+import * as types from './types';
 
-export function userLogout () {
+export function userLogout() {
   return {
-    type: types.USER_LOGOUT
-  }
+    type: types.USER_LOGOUT,
+  };
 }

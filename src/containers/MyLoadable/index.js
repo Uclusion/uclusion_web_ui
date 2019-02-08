@@ -1,3 +1,3 @@
-import MyLoadable from './MyLoadable'
+import MyLoadable from './MyLoadable';
 
-export default MyLoadable
+export default MyLoadable;

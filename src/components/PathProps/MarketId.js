@@ -3,41 +3,41 @@
  * Assumes youre in a react router context
  */
 
-import React from 'react'
-import { selectMarket } from '../../store/Markets/actions'
-import { connect } from 'react-redux'
-import { getMarketId } from '../../utils/marketIdPathFunctions'
+import React from 'react';
+import { connect } from 'react-redux';
+import { selectMarket } from '../../store/Markets/actions';
+import { getMarketId } from '../../utils/marketIdPathFunctions';
 
-function mapStateToProps (state) {
-  return { currentMarket: state.marketsReducer.currentMarket }
+function mapStateToProps(state) {
+  return { currentMarket: state.marketsReducer.currentMarket };
 }
 
-function mapDispatchToProps (dispatch) {
-  return { dispatch }
+function mapDispatchToProps(dispatch) {
+  return { dispatch };
 }
 
-function withMarketId (WrappedComponent) {
+function withMarketId(WrappedComponent) {
   class MarketId extends React.Component {
-    constructor (props) {
-      super(props)
-      this.updateRedux = this.updateRedux.bind(this)
+    constructor(props) {
+      super(props);
+      this.updateRedux = this.updateRedux.bind(this);
     }
 
-    updateRedux (marketId) {
-      const { dispatch, currentMarket } = this.props
-      if (marketId !== currentMarket ) {
-        dispatch(selectMarket(marketId))
+    updateRedux(marketId) {
+      const { dispatch, currentMarket } = this.props;
+      if (marketId !== currentMarket) {
+        dispatch(selectMarket(marketId));
       }
     }
 
-    render () {
-      const marketId = getMarketId()
-      this.updateRedux(marketId)
-      return <WrappedComponent {...this.props} marketId={marketId} />
+    render() {
+      const marketId = getMarketId();
+      this.updateRedux(marketId);
+      return <WrappedComponent {...this.props} marketId={marketId} />;
     }
   }
 
-  return connect(mapStateToProps, mapDispatchToProps)(MarketId)
+  return connect(mapStateToProps, mapDispatchToProps)(MarketId);
 }
 
-export { withMarketId }
+export { withMarketId };

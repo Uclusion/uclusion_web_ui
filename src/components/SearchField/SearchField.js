@@ -1,12 +1,12 @@
-import React from 'react'
-import Icon from '@material-ui/core/Icon'
-import { injectIntl } from 'react-intl'
-import { fade } from '@material-ui/core/styles/colorManipulator'
-import { withTheme, withStyles } from '@material-ui/core/styles'
-import withWidth from '@material-ui/core/withWidth'
-import { connect } from 'react-redux'
-import { filterActions } from 'material-ui-filter'
-import classNames from 'classnames'
+import React from 'react';
+import Icon from '@material-ui/core/Icon';
+import { injectIntl } from 'react-intl';
+import { fade } from '@material-ui/core/styles/colorManipulator';
+import { withTheme, withStyles } from '@material-ui/core/styles';
+import withWidth from '@material-ui/core/withWidth';
+import { connect } from 'react-redux';
+import { filterActions } from 'material-ui-filter';
+import classNames from 'classnames';
 
 const styles = theme => ({
   root: {
@@ -19,15 +19,15 @@ const styles = theme => ({
     minHeight: 48,
     display: 'block',
     '&:hover': {
-      background: fade(theme.palette.common.white, 0.25)
+      background: fade(theme.palette.common.white, 0.25),
     },
     '& $input': {
       transition: theme.transitions.create('width'),
       width: 0,
       '&:focus': {
-        width: 200
-      }
-    }
+        width: 200,
+      },
+    },
   },
   rootOpen: {
     fontFamily: theme.typography.fontFamily,
@@ -39,7 +39,7 @@ const styles = theme => ({
     borderRadius: 4,
     display: 'block',
     background: fade(theme.palette.common.white, 0.25),
-    width: 240
+    width: 240,
 
   },
   search: {
@@ -49,7 +49,7 @@ const styles = theme => ({
     pointerEvents: 'none',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   input: {
     font: 'inherit',
@@ -64,8 +64,8 @@ const styles = theme => ({
     color: 'inherit',
     width: '100%',
     '&:focus': {
-      outline: 0
-    }
+      outline: 0,
+    },
   },
   inputOpen: {
     font: 'inherit',
@@ -79,49 +79,48 @@ const styles = theme => ({
     margin: 0, // Reset for Safari
     color: 'inherit',
     width: '100%',
-    outline: 0
-  }
+    outline: 0,
+  },
 }
-)
+);
 
-const SearchField = ({ onChange, hintText, theme, intl, classes, width, filterName, setSearch, searchValue }) => {
-  return (
-    <div className={classNames((searchValue && searchValue !== '') ? classes.rootOpen : classes.root)} >
-      <div className={classes.search}>
-        <Icon>search</Icon>
-      </div>
-      <input
-        id='docsearch-input'
-        value={searchValue}
-        ref={node => {
-          if (node && (searchValue && searchValue !== '')) {
-            node.focus()
-          }
-        }}
-
-        className={classNames((searchValue && searchValue !== '') ? classes.inputOpen : classes.input)}
-
-        onChange={(e) => {
-          setSearch(filterName, e.target.value)
-        }}
-
-      />
+const SearchField = ({
+  onChange, hintText, theme, intl, classes, width, filterName, setSearch, searchValue,
+}) => (
+  <div className={classNames((searchValue && searchValue !== '') ? classes.rootOpen : classes.root)}>
+    <div className={classes.search}>
+      <Icon>search</Icon>
     </div>
+    <input
+      id="docsearch-input"
+      value={searchValue}
+      ref={(node) => {
+        if (node && (searchValue && searchValue !== '')) {
+          node.focus();
+        }
+      }}
 
-  )
-}
+      className={classNames((searchValue && searchValue !== '') ? classes.inputOpen : classes.input)}
+
+      onChange={(e) => {
+        setSearch(filterName, e.target.value);
+      }}
+    />
+  </div>
+
+);
 
 const mapStateToProps = (state, ownProps) => {
-  const { filters } = state
-  const { filterName } = ownProps
+  const { filters } = state;
+  const { filterName } = ownProps;
 
-  const searchValue = filters[filterName] ? (filters[filterName].search ? filters[filterName].search.value : '') : ''
+  const searchValue = filters[filterName] ? (filters[filterName].search ? filters[filterName].search.value : '') : '';
 
   return {
-    searchValue
-  }
-}
+    searchValue,
+  };
+};
 
 export default connect(
-  mapStateToProps, { ...filterActions }
-)(injectIntl(withTheme()(withStyles(styles, { withTheme: true }, withWidth())(SearchField))))
+  mapStateToProps, { ...filterActions },
+)(injectIntl(withTheme()(withStyles(styles, { withTheme: true }, withWidth())(SearchField))));

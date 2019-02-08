@@ -2,23 +2,22 @@ import { Component } from 'react';
 import PropTypes from 'prop-types';
 
 class AppConfigProvider extends Component {
-
     static propTypes = {
-        children: PropTypes.element,
+      children: PropTypes.element,
     };
 
     static childContextTypes = {
-        appConfig: PropTypes.object.isRequired,
+      appConfig: PropTypes.object.isRequired,
     };
 
     getChildContext() {
-        return {
-            appConfig: this.props.appConfig,
-        };
+      return {
+        appConfig: this.props.appConfig,
+      };
     }
 
     render() {
-        return this.props.children;
+      return this.props.children;
     }
 }
 

@@ -1,1 +1,1 @@
-export { default } from './AppLayout.js'
+export { default } from './AppLayout.js';

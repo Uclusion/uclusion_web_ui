@@ -1,6 +1,6 @@
-import { combineReducers } from 'redux'
-import PropTypes from 'prop-types'
-import _ from 'lodash'
+import { combineReducers } from 'redux';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
 import {
   REQUEST_MARKET,
   RECEIVE_MARKET,
@@ -8,8 +8,8 @@ import {
   RECEIVE_MARKET_CATEGORIES,
   formatMarkets,
   MARKET_CATEGORY_DELETED,
-  MARKET_CATEGORY_CREATED
-} from './actions'
+  MARKET_CATEGORY_CREATED,
+} from './actions';
 
 export const marketPropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -24,68 +24,62 @@ export const marketPropType = PropTypes.shape({
   trending_window: PropTypes.number.isRequired,
   manual_roi: PropTypes.bool.isRequired,
   created_at: PropTypes.instanceOf(Date).isRequired,
-  updated_at: PropTypes.instanceOf(Date).isRequired
-})
+  updated_at: PropTypes.instanceOf(Date).isRequired,
+});
 
 export const categoryPropType = PropTypes.shape({
-  name: PropTypes.string.isRequired
-})
+  name: PropTypes.string.isRequired,
+});
 
 const marketItems = (state = [], action) => {
   switch (action.type) {
     case REQUEST_MARKET:
-      return state
+      return state;
     case RECEIVE_MARKET:
-      let markets = [action.market]
-      return _.unionBy(markets, state, 'id')
+      const markets = [action.market];
+      return _.unionBy(markets, state, 'id');
     default:
-      return state
+      return state;
   }
-}
+};
 
 const currentMarketId = (state = null, action) => {
   switch (action.type) {
     case SELECT_MARKET:
-      return action.marketId
+      return action.marketId;
     default:
-      return state
+      return state;
   }
-}
+};
 
 const marketCategories = (state = {}, action) => {
   switch (action.type) {
     case RECEIVE_MARKET_CATEGORIES:
-      const newState = { ...state }
-      newState[action.categories.market_id] = action.categories.categories
-      return newState
+      const newState = { ...state };
+      newState[action.categories.market_id] = action.categories.categories;
+      return newState;
     case MARKET_CATEGORY_DELETED:
-      const newStateForCategories = { ...state }
-      newStateForCategories[action.marketId] = state[action.marketId].filter(item => item.name !== action.name)
-      return newStateForCategories
+      const newStateForCategories = { ...state };
+      newStateForCategories[action.marketId] = state[action.marketId].filter(item => item.name !== action.name);
+      return newStateForCategories;
     case MARKET_CATEGORY_CREATED:
-      let categories = [action.category]
-      const newStateAddCategories = { ...state }
-      newStateAddCategories[action.marketId] = _.unionBy(categories, state[action.marketId], 'name')
-      return newStateAddCategories
+      const categories = [action.category];
+      const newStateAddCategories = { ...state };
+      newStateAddCategories[action.marketId] = _.unionBy(categories, state[action.marketId], 'name');
+      return newStateAddCategories;
     default:
-      return state
+      return state;
   }
-}
+};
 
-export const getMarkets = (state) => {
-  return formatMarkets(state.marketItems)
-}
+export const getMarkets = state => formatMarkets(state.marketItems);
 
-export const getMarketCategories = (state) => {
-  return state.currentMarketId ? state.marketCategories[state.currentMarketId] : []
-}
+export const getMarketCategories = state => (state.currentMarketId ? state.marketCategories[state.currentMarketId] : []);
 
-export const getCurrentMarketId = (state) => {
-  return state.currentMarketId
-}
+export const getCurrentMarketId = state => state.currentMarketId;
 
 export default combineReducers({
   marketItems,
   marketCategories,
-  currentMarketId
-})
+  currentMarketId,
+});

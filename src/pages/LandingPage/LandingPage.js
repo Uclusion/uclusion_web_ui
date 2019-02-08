@@ -1,26 +1,26 @@
-import AppBar from '@material-ui/core/AppBar'
-import IconButton from '@material-ui/core/IconButton'
-import LockIcon from '@material-ui/icons/Lock'
-import React, { Component } from 'react'
-import Toolbar from '@material-ui/core/Toolbar'
-import Tooltip from '@material-ui/core/Tooltip'
-import Typography from '@material-ui/core/Typography'
-import { GitHubIcon } from '../../components/Icons'
-import { Helmet } from 'react-helmet'
-import { withRouter } from 'react-router-dom'
-import { withStyles } from '@material-ui/core/styles'
-import Card from '@material-ui/core/Card'
-import CardActions from '@material-ui/core/CardActions'
-import CardContent from '@material-ui/core/CardContent'
+import AppBar from '@material-ui/core/AppBar';
+import IconButton from '@material-ui/core/IconButton';
+import LockIcon from '@material-ui/icons/Lock';
+import React, { Component } from 'react';
+import Toolbar from '@material-ui/core/Toolbar';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
+import { Helmet } from 'react-helmet';
+import { withRouter } from 'react-router-dom';
+import { withStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import { GitHubIcon } from '../../components/Icons';
 
 const styles = theme => ({
   main: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   root: {
     flexGrow: 1,
-    flex: '1 0 100%'
+    flex: '1 0 100%',
     // height: '100%',
     // overflow: 'hidden'
   },
@@ -32,13 +32,13 @@ const styles = theme => ({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: theme.palette.background.paper,
-    color: theme.palette.type === 'light' ? theme.palette.primary.dark : theme.palette.primary.main
+    color: theme.palette.type === 'light' ? theme.palette.primary.dark : theme.palette.primary.main,
   },
   text: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   title: {
     letterSpacing: '.7rem',
@@ -47,9 +47,9 @@ const styles = theme => ({
     [theme.breakpoints.only('xs')]: {
       fontSize: 24,
       letterSpacing: '.1em',
-      textIndent: '.1rem'
+      textIndent: '.1rem',
     },
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
   },
   headline: {
     paddingLeft: theme.spacing.unit * 4,
@@ -58,33 +58,33 @@ const styles = theme => ({
     maxWidth: 600,
     textAlign: 'center',
     [theme.breakpoints.only('xs')]: {
-      fontSize: 18
-    }
+      fontSize: 18,
+    },
   },
   content: {
     height: '100%',
     // paddingTop: theme.spacing.unit * 8,
     [theme.breakpoints.up('sm')]: {
-      paddingTop: theme.spacing.unit
-    }
+      paddingTop: theme.spacing.unit,
+    },
   },
   button: {
-    marginTop: theme.spacing.unit * 3
+    marginTop: theme.spacing.unit * 3,
   },
   logo: {
     marginLeft: '37%',
     width: '25%',
-    height: '25%'
+    height: '25%',
   },
   steps: {
     maxWidth: theme.spacing.unit * 130,
-    margin: 'auto'
+    margin: 'auto',
   },
   step: {
-    padding: `${theme.spacing.unit * 3}px ${theme.spacing.unit * 2}px`
+    padding: `${theme.spacing.unit * 3}px ${theme.spacing.unit * 2}px`,
   },
   stepIcon: {
-    marginBottom: theme.spacing.unit
+    marginBottom: theme.spacing.unit,
   },
   markdownElement: {},
   cardsContent: {
@@ -95,8 +95,8 @@ const styles = theme => ({
     [theme.breakpoints.only('xs')]: {
       width: '100%',
       padding: 0,
-      paddingTop: 15
-    }
+      paddingTop: 15,
+    },
 
   },
   card: {
@@ -106,8 +106,8 @@ const styles = theme => ({
     [theme.breakpoints.only('xs')]: {
       width: '100%',
       margin: 0,
-      marginTop: 7
-    }
+      marginTop: 7,
+    },
   },
   bullet: {
     display: 'inline-block',
@@ -122,35 +122,32 @@ const styles = theme => ({
     marginBottom: 12,
   },
 
-})
+});
 
 class LandingPage extends Component {
-
-
   isAuthorised = () => {
     try {
-      const key = Object.keys(localStorage).find(e => e.match(/persist:root/))
-      const data = JSON.parse(localStorage.getItem(key))
-      const auth = JSON.parse(data.auth)
+      const key = Object.keys(localStorage).find(e => e.match(/persist:root/));
+      const data = JSON.parse(localStorage.getItem(key));
+      const auth = JSON.parse(data.auth);
 
-      return auth && auth.isAuthorised
-
+      return auth && auth.isAuthorised;
     } catch (ex) {
-      return false
+      return false;
     }
   }
 
   componentDidMount() {
-    const { history } = this.props
+    const { history } = this.props;
 
     if (this.isAuthorised()) {
-      history.push('/signin')
+      history.push('/signin');
     }
   }
 
 
   render() {
-    const { classes, history, theme } = this.props
+    const { classes, history, theme } = this.props;
 
     return (
       <div className={classes.main}>
@@ -160,29 +157,29 @@ class LandingPage extends Component {
           <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
           <title>UCLUSION MOST WANTED</title>
         </Helmet>
-        <AppBar position='static'>
+        <AppBar position="static">
           <Toolbar disableGutters>
             <div style={{ flex: 1 }} />
 
             <Tooltip id="tooltip-icon1" title="Sign in">
               <IconButton
-                name='signin'
-                aria-label='Open Github'
-                color='inherit'
-                onClick={() => { history.push('/signin') }}
-                rel='noopener'
+                name="signin"
+                aria-label="Open Github"
+                color="inherit"
+                onClick={() => { history.push('/signin'); }}
+                rel="noopener"
               >
                 <LockIcon />
               </IconButton>
             </Tooltip>
             <Tooltip id="tooltip-icon2" title="GitHub repository">
               <IconButton
-                name='github'
-                aria-label='Open Github'
-                color='inherit'
-                href='https://github.com/TarikHuber/react-most-wanted'
-                target='_blank'
-                rel='noopener'
+                name="github"
+                aria-label="Open Github"
+                color="inherit"
+                href="https://github.com/TarikHuber/react-most-wanted"
+                target="_blank"
+                rel="noopener"
               >
                 <GitHubIcon />
               </IconButton>
@@ -194,25 +191,25 @@ class LandingPage extends Component {
           <div className={classes.hero}>
             <div className={classes.content}>
               <img
-                src='/uclusion_ulogo.jpg'
-                alt='Uclusion Logo'
+                src="/uclusion_ulogo.jpg"
+                alt="Uclusion Logo"
                 className={classes.logo}
               />
               <div className={classes.text}>
                 <Typography
-                  variant='display2'
-                  align='center'
-                  component='h1'
-                  color='inherit'
+                  variant="display2"
+                  align="center"
+                  component="h1"
+                  color="inherit"
                   gutterBottom
                   className={classes.title}
                 >
                   {'UCLUSION MOST WANTED'}
                 </Typography>
                 <Typography
-                  variant='headline'
-                  component='h2'
-                  color='inherit'
+                  variant="headline"
+                  component="h2"
+                  color="inherit"
                   gutterBottom
                   className={classes.headline}
                 >
@@ -223,30 +220,35 @@ class LandingPage extends Component {
               <div className={classes.cardsContent}>
                 <Card className={classes.card}>
                   <CardContent>
-                    <Typography  >{`Try Uclusion Slack integration:`}</Typography>
+                    <Typography>Try Uclusion Slack integration:</Typography>
                     <br />
                     <a href="https://slack.com/oauth/authorize?scope=commands,bot&client_id=378072647557.383178544246&redirect_uri=https://t5e5r3c2ld.execute-api.us-west-2.amazonaws.com/dev/signup">
-                      <img alt="Add to Slack" height="40" width="139"
-                           src="https://platform.slack-edge.com/img/add_to_slack.png"
-                           srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"/>
+                      <img
+                        alt="Add to Slack"
+                        height="40"
+                        width="139"
+                        src="https://platform.slack-edge.com/img/add_to_slack.png"
+                        srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
+                      />
                     </a>
                   </CardContent>
                 </Card>
                 <Card className={classes.card}>
                   <CardContent>
-                    <Typography  >{`Login with Slack:`}</Typography>
+                    <Typography>Login with Slack:</Typography>
                     <br />
-                    <a href={'https://slack.com/oauth/authorize?scope=identity.basic&client_id=378072647557.383178544246&state='
-                    +window.location.href+'&redirect_uri=https://t5e5r3c2ld.execute-api.us-west-2.amazonaws.com/dev/login'}>
-                      <img alt="Login with Slack" src="https://api.slack.com/img/sign_in_with_slack.png" /></a>
+                    <a href={`https://slack.com/oauth/authorize?scope=identity.basic&client_id=378072647557.383178544246&state=${
+                      window.location.href}&redirect_uri=https://t5e5r3c2ld.execute-api.us-west-2.amazonaws.com/dev/login`}
+                    >
+                      <img alt="Login with Slack" src="https://api.slack.com/img/sign_in_with_slack.png" />
+                    </a>
                   </CardContent>
-                  <CardActions>
-                  </CardActions>
+                  <CardActions />
                 </Card>
                 <Card className={classes.card}>
                   <CardContent>
                     <Typography variant="headline" component="h2">Login with Email Address</Typography>
-                      <br />
+                    <br />
                   </CardContent>
                 </Card>
               </div>
@@ -255,8 +257,8 @@ class LandingPage extends Component {
         </div>
       </div>
 
-    )
+    );
   }
 }
 
-export default withRouter(withStyles(styles, { withTheme: true })(LandingPage))
+export default withRouter(withStyles(styles, { withTheme: true })(LandingPage));

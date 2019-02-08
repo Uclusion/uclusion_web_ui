@@ -1,19 +1,19 @@
-import * as types from './types'
+import * as types from './types';
 
 const initialState = {
   source: 'light',
-  isNightModeOn: false
-}
+  isNightModeOn: false,
+};
 
 const themeSource = (state = initialState, action) => {
   switch (action.type) {
     case types.UPDATE_THEME:
-      return { ...state, 'source': action.theme }
+      return { ...state, source: action.theme };
     case types.SWITCH_NIGHT_MODE:
-      return { ...state, 'isNightModeOn': action.isNightModeOn }
+      return { ...state, isNightModeOn: action.isNightModeOn };
     default:
-      return state
+      return state;
   }
-}
+};
 
-export default themeSource
+export default themeSource;

@@ -1,19 +1,19 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { withStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
-import { withUserAndPermissions} from '../UserPermissions/UserPermissions'
-import InvestibleInvest from './InvestibleInvest'
+import { injectIntl } from 'react-intl';
+import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
+import InvestibleInvest from './InvestibleInvest';
 
-import { injectIntl } from 'react-intl'
 
 const styles = theme => ({
   paper: {
     flexGrow: 1,
-    width: '100%'
+    width: '100%',
   },
   tab: {
     minWidth: 'auto',
@@ -21,16 +21,15 @@ const styles = theme => ({
   },
   tabBar: {
     marginBottom: theme.spacing.unit * 2,
-  }
+  },
 });
 
 class InvestibleListItemTabs extends React.Component {
-
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = {
-      value: 0
-    }
+      value: 0,
+    };
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -38,7 +37,7 @@ class InvestibleListItemTabs extends React.Component {
     this.setState({ value });
   };
 
-  render () {
+  render() {
     const {
       classes,
       marketId,
@@ -64,8 +63,8 @@ class InvestibleListItemTabs extends React.Component {
           {canInvest && (
             <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })} />
           )}
-          <Tab className={classes.tab} label={intl.formatMessage({id: 'activityTab'})}/>
-          <Tab className={classes.tab} label={intl.formatMessage({id: 'commentsTab'})}/>
+          <Tab className={classes.tab} label={intl.formatMessage({ id: 'activityTab' })} />
+          <Tab className={classes.tab} label={intl.formatMessage({ id: 'commentsTab' })} />
         </Tabs>
         {value === 0 && canInvest && (
           <InvestibleInvest
@@ -79,7 +78,7 @@ class InvestibleListItemTabs extends React.Component {
         {value === 1 && <Typography>Activity Placeholder</Typography>}
         {value === 2 && <Typography>Coments Placeholder</Typography>}
       </div>
-    )
+    );
   }
 }
 
@@ -89,7 +88,7 @@ InvestibleListItemTabs.propTypes = {
   marketId: PropTypes.string.isRequired,
   teamId: PropTypes.string.isRequired,
   sharesAvailable: PropTypes.number.isRequired,
-  currentUserInvestment: PropTypes.number.isRequired
-}
+  currentUserInvestment: PropTypes.number.isRequired,
+};
 
-export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs)))
+export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs)));

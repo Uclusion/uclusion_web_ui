@@ -1,7 +1,7 @@
-import config from '../config'
+import config from '../config';
 
 export const initState = {
-  ...config.initial_state
-}
+  ...config.initial_state,
+};
 
-export default initState
+export default initState;

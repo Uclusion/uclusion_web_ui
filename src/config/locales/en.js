@@ -1,10 +1,10 @@
-import { defineMessages } from 'react-intl'
+import { defineMessages } from 'react-intl';
 
 const messages = defineMessages({
   app_name: 'Uclusion',
   about: 'About',
   page_not_found_demo: 'Page not found demo',
-  '404': '404',
+  404: '404',
   warning_404_message: '404 Page not found',
   warning_404_description: 'We are sorry but the page you are looking for does not exist.',
   warning_404_categories: 'No categories configured for this market.',

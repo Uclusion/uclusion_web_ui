@@ -1,10 +1,10 @@
-import { defineMessages } from 'react-intl'
+import { defineMessages } from 'react-intl';
 
 const messages = defineMessages({
   app_name: 'React Najtrazeniji',
   about: 'Opis',
   page_not_found_demo: 'Stranica nije pronadjena',
-  '404': '404',
+  404: '404',
   warning_404_message: '404 stranica nije pronadjena',
   warning_404_description: 'Zao nam je ali trazena stranica nepostoji',
   settings: 'Postavke',
@@ -141,7 +141,7 @@ const messages = defineMessages({
   hot_dog_status: 'Hot dog status',
   user_label_search: 'Search user',
   collection: 'Collection',
-  infinitelist: 'Infinitelist'
-})
+  infinitelist: 'Infinitelist',
+});
 
-export default messages
+export default messages;

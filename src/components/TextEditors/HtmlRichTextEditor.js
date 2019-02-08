@@ -4,50 +4,49 @@ It accepts an onChange property, which will return the string HTML value of the 
  the initialText property which will be the text string renedered if no existing state is available,
  and an ObjectId which will be used to search for state that hasn't been flushed (eg. we reloaded) without saving
  It's onchange handler emulates the material ui input type onChange emission
- **/
+ * */
 
-import RichTextEditor from './SlateEditors/RichTextEditor'
 
-import React from 'react'
-import Html from 'slate-html-serializer'
-import { rules } from './SlateEditors/html_rules'
-import PropTypes from 'prop-types'
+import React from 'react';
+import Html from 'slate-html-serializer';
+import PropTypes from 'prop-types';
+import { rules } from './SlateEditors/html_rules';
+import RichTextEditor from './SlateEditors/RichTextEditor';
 
 
 class HtmlRichTextEditor extends React.Component {
+  constructor(props) {
+    super(props);
 
-  constructor (props) {
-    super(props)
+    this.html = new Html({ rules });
 
-    this.html = new Html({ rules })
-
-    const { value } = props
+    const { value } = props;
     this.state = {
-      value: this.html.deserialize(value)
-    }
+      value: this.html.deserialize(value),
+    };
   }
 
   onChange = ({ value }) => {
-    const { readOnly, onChange } = this.props
+    const { readOnly, onChange } = this.props;
     if (!readOnly) {
       // When the document changes, save the serialized HTML to Local Storage.
       if (value.document !== this.state.value.document) {
-        const string = this.html.serialize(value)
-        //call the parent onChange with the string html value
-        //emulate material ui field's onchange symantics
+        const string = this.html.serialize(value);
+        // call the parent onChange with the string html value
+        // emulate material ui field's onchange symantics
         if (onChange) {
-          const changeUpdate = { target: { value: string } }
-          console.log(changeUpdate)
-          onChange(changeUpdate)
+          const changeUpdate = { target: { value: string } };
+          console.log(changeUpdate);
+          onChange(changeUpdate);
         }
       }
 
-      this.setState({ value })
+      this.setState({ value });
     }
   }
 
   // Render the editor.
-  render () {
+  render() {
     const { readOnly } = this.props;
     return (
       <RichTextEditor
@@ -62,7 +61,7 @@ class HtmlRichTextEditor extends React.Component {
 
 HtmlRichTextEditor.propTypes = {
   value: PropTypes.string.isRequired,
-  onChange: PropTypes.func
-}
+  onChange: PropTypes.func,
+};
 
-export default HtmlRichTextEditor
+export default HtmlRichTextEditor;

@@ -1,15 +1,15 @@
-import PropTypes from 'prop-types'
-import React from 'react'
-import {ExpansionPanel, ExpansionPanelSummary, Typography } from '@material-ui/core'
-import classNames from 'classnames'
-import { withStyles } from '@material-ui/core/styles'
-import { injectIntl } from 'react-intl'
+import PropTypes from 'prop-types';
+import React from 'react';
+import { ExpansionPanel, ExpansionPanelSummary, Typography } from '@material-ui/core';
+import classNames from 'classnames';
+import { withStyles } from '@material-ui/core/styles';
+import { injectIntl } from 'react-intl';
 
 
-const styles = (theme) => ({
+const styles = theme => ({
   headerBox: {
     display: 'flex',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
 
   details: {
@@ -19,7 +19,7 @@ const styles = (theme) => ({
   helper: {},
 
   investment: {
-    display: 'inline-block'
+    display: 'inline-block',
   },
 
   column: {
@@ -28,24 +28,22 @@ const styles = (theme) => ({
 
   mainGrid: {
     padding: theme.spacing.unit * 2,
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   },
 
   tabSection: {
     borderTop: `1px solid ${theme.palette.divider}`,
-    display: 'block'
+    display: 'block',
   },
 
   wholeWidth: {
-    flexBasis: '100%'
-  }
-})
+    flexBasis: '100%',
+  },
+});
 
 class MemberListItem extends React.Component {
-
-
-  render () {
-    const { name, classes } = this.props
+  render() {
+    const { name, classes } = this.props;
     // for now, don't bother rendering the TEAM user
     return (
       <ExpansionPanel>
@@ -59,16 +57,15 @@ class MemberListItem extends React.Component {
           <div className={classNames(classes.column, classes.helper)} />
         </ExpansionPanelSummary>
       </ExpansionPanel>
-    )
+    );
   }
 }
 
 MemberListItem.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string,
-  type: PropTypes.string.isRequired
-}
+  type: PropTypes.string.isRequired,
+};
 
 
-
-export default injectIntl(withStyles(styles)(MemberListItem))
+export default injectIntl(withStyles(styles)(MemberListItem));

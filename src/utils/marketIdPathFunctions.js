@@ -1,27 +1,27 @@
 /**
- * Gets the market id of the market used for authorization
- * @returns {string}
- */
-export function getAuthMarketId () {
-  const urlParams = new URLSearchParams(window.location.search)
-  const authMarket = urlParams.get('authMarket')
-  if (authMarket != null) {
-    return authMarket
-  }
-  return getMarketId()
-}
-
-/**
  * Gets the market id from the URL if it's present in it.
  * @returns {string}
  */
-export function getMarketId () {
-  const path = window.location.pathname
-  //console.log('Current location ' + path)
-  const noSlash = path.substr(1)
-  const end = noSlash.indexOf('/')
-  const marketId = noSlash.substr(0, end)
-  return marketId
+export function getMarketId() {
+  const path = window.location.pathname;
+  // console.log('Current location ' + path)
+  const noSlash = path.substr(1);
+  const end = noSlash.indexOf('/');
+  const marketId = noSlash.substr(0, end);
+  return marketId;
+}
+
+/**
+ * Gets the market id of the market used for authorization
+ * @returns {string}
+ */
+export function getAuthMarketId() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const authMarket = urlParams.get('authMarket');
+  if (authMarket != null) {
+    return authMarket;
+  }
+  return getMarketId();
 }
 
 /**
@@ -30,12 +30,13 @@ export function getMarketId () {
  * @param relativeDestination
  * @returns {string}
  */
-function appendAuthMarket (authMarketId, relativeDestination) {
-  // window.location.href is just to make the parser happy. We'll discard it to make sure we give a relative link
-  const url = new URL(relativeDestination, window.location.href)
-  const searchParams = url.searchParams
-  searchParams.append('authMarketId', authMarketId)
-  return url.pathname + '?' + searchParams.toString()
+function appendAuthMarket(authMarketId, relativeDestination) {
+  // window.location.href is just to make the parser happy.
+  // We'll discard it to make sure we give a relative link
+  const url = new URL(relativeDestination, window.location.href);
+  const { searchParams } = url;
+  searchParams.append('authMarketId', authMarketId);
+  return `${url.pathname}?${searchParams.toString()}`;
 }
 
 /**
@@ -44,19 +45,9 @@ function appendAuthMarket (authMarketId, relativeDestination) {
  * @param subPath
  * @returns {string}
  */
-function formMarketIdLink (marketId, subPath) {
-  const dest = '/' + marketId + '/' + subPath
-  return dest
-}
-
-/**
- * Forms a relative link and embeds the active market and auth market if needed
- * @param realtiveDestination
- */
-export function formCurrentMarketLink (subPath) {
-  const market = getMarketId()
-  const marketLink = formMarketIdLink(market, subPath)
-  return formAuthAppendedLink(market, marketLink)
+function formMarketIdLink(marketId, subPath) {
+  const dest = `/${marketId}/${subPath}`;
+  return dest;
 }
 
 /**
@@ -67,11 +58,21 @@ export function formCurrentMarketLink (subPath) {
  * @returns {string}
  */
 function formAuthAppendedLink(destMarket, destLink) {
-  const authMarket = getAuthMarketId()
+  const authMarket = getAuthMarketId();
   if (destMarket !== authMarket) {
-    return appendAuthMarket(authMarket, destLink)
+    return appendAuthMarket(authMarket, destLink);
   }
-  return destLink
+  return destLink;
+}
+
+/**
+ * Forms a relative link and embeds the active market and auth market if needed
+ * @param realtiveDestination
+ */
+export function formCurrentMarketLink(subPath) {
+  const market = getMarketId();
+  const marketLink = formMarketIdLink(market, subPath);
+  return formAuthAppendedLink(market, marketLink);
 }
 
 /**
@@ -81,12 +82,12 @@ function formAuthAppendedLink(destMarket, destLink) {
  * @param subPath
  * @returns {string}
  */
-export function getDifferentMarketLink (market, subPath) {
-  const marketLink = formMarketIdLink(market.id, subPath)
+export function getDifferentMarketLink(market, subPath) {
+  const marketLink = formMarketIdLink(market.id, subPath);
   if (market.external_market_auth_type === 'ALL') {
     // Since the destination type is all we should continue to use the current token
-    const authMarket = getAuthMarketId()
-    return appendAuthMarket(authMarket, marketLink)
+    const authMarket = getAuthMarketId();
+    return appendAuthMarket(authMarket, marketLink);
   }
-  return marketLink
+  return marketLink;
 }

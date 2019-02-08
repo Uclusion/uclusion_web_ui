@@ -1,56 +1,52 @@
-import { getClient } from '../../config/uclusionClient'
-import { sendIntlMessage, ERROR } from '../../utils/userMessage'
+import { getClient } from '../../config/uclusionClient';
+import { sendIntlMessage, ERROR } from '../../utils/userMessage';
 
-export const REQUEST_USER_TEAMS = 'REQUEST_USER_TEAMS'
-export const RECEIVE_USER_TEAMS = 'RECEIVE_USER_TEAMS'
+export const REQUEST_USER_TEAMS = 'REQUEST_USER_TEAMS';
+export const RECEIVE_USER_TEAMS = 'RECEIVE_USER_TEAMS';
 
-export const REQUEST_TEAM_MEMBERS = 'REQUEST_TEAM_MEMBERS'
-export const RECEIVE_TEAM_MEMBERS = 'RECEIVE_TEAM_MEMBERS'
+export const REQUEST_TEAM_MEMBERS = 'REQUEST_TEAM_MEMBERS';
+export const RECEIVE_TEAM_MEMBERS = 'RECEIVE_TEAM_MEMBERS';
 
-export const requestTeamMembers = (teamId) => ({
+export const requestTeamMembers = teamId => ({
   type: REQUEST_TEAM_MEMBERS,
-  teamId
-})
+  teamId,
+});
 
-export const receiveTeamMembers = (teamAndMembers) => ({
+export const receiveTeamMembers = teamAndMembers => ({
   type: RECEIVE_TEAM_MEMBERS,
-  teamAndMembers
-})
+  teamAndMembers,
+});
 
-export const requestUserTeams = (userId) => ({
+export const requestUserTeams = userId => ({
   type: REQUEST_USER_TEAMS,
-  userId
-})
+  userId,
+});
 
-export const receiveUserTeams = (teams) => ({
+export const receiveUserTeams = teams => ({
   type: RECEIVE_USER_TEAMS,
-  teams
-})
+  teams,
+});
 
-export const fetchTeamMembers = (teamId) => (dispatch) => {
-  dispatch(requestTeamMembers(teamId))
-  const clientPromise = getClient()
-  return clientPromise.then((client) => {
-    return client.teams.get(teamId)
-  }).then((teamAndMembers) => {
-    dispatch(receiveTeamMembers(teamAndMembers))
+export const fetchTeamMembers = teamId => (dispatch) => {
+  dispatch(requestTeamMembers(teamId));
+  const clientPromise = getClient();
+  return clientPromise.then(client => client.teams.get(teamId)).then((teamAndMembers) => {
+    dispatch(receiveTeamMembers(teamAndMembers));
   }).catch((error) => {
-    console.log(error)
-    sendIntlMessage(ERROR, {id: 'teamMemberLoadFailed'})
-    dispatch(receiveTeamMembers({}))
-  })
-}
+    console.log(error);
+    sendIntlMessage(ERROR, { id: 'teamMemberLoadFailed' });
+    dispatch(receiveTeamMembers({}));
+  });
+};
 
 export const fetchUserTeams = () => (dispatch) => {
-  dispatch(requestUserTeams)
-  const clientPromise = getClient()
-  return clientPromise.then((client) => {
-    return client.teams.mine()
-  }).then((teams) => {
-    dispatch(receiveUserTeams(teams))
+  dispatch(requestUserTeams);
+  const clientPromise = getClient();
+  return clientPromise.then(client => client.teams.mine()).then((teams) => {
+    dispatch(receiveUserTeams(teams));
   }).catch((error) => {
-    console.log(error)
-    sendIntlMessage(ERROR, {id: 'teamsLoadFailed'})
-    dispatch(receiveUserTeams([]))
-  })
-}
+    console.log(error);
+    sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
+    dispatch(receiveUserTeams([]));
+  });
+};

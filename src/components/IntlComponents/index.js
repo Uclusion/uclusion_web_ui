@@ -1,1 +1,1 @@
-export { default } from './IntlGlobalProvider.js'
+export { default } from './IntlGlobalProvider.js';

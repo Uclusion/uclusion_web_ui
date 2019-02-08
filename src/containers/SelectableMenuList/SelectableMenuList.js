@@ -1,15 +1,15 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import Divider from '@material-ui/core/Divider'
-import { withTheme, withStyles } from '@material-ui/core/styles'
-import IconButton from '@material-ui/core/IconButton'
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
-import ArrowBack from '@material-ui/icons/ArrowBack'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import Divider from '@material-ui/core/Divider';
+import { withTheme, withStyles } from '@material-ui/core/styles';
+import IconButton from '@material-ui/core/IconButton';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import ArrowBack from '@material-ui/icons/ArrowBack';
 
 const styles = theme => ({
   root: {
@@ -23,124 +23,128 @@ const styles = theme => ({
 });
 
 class SelectableMenuList extends Component {
-
   state = {}
 
   handleNestedItemsClick = (item) => {
     if (item.nestedItems) {
+      const previousItems = this.state.previousItems ? this.state.previousItems : [];
+      const items = item.nestedItems;
+      const title = item.primaryText;
 
-      let previousItems = this.state.previousItems ? this.state.previousItems : []
-      const items = item.nestedItems
-      const title = item.primaryText
+      previousItems.unshift(this.state.items ? this.state.items : items);
 
-      previousItems.unshift(this.state.items ? this.state.items : items)
-
-      this.setState({ items, previousItems, title })
+      this.setState({ items, previousItems, title });
     }
-
   }
 
   handleBackClick = (item) => {
+    const previousItems = this.state.previousItems ? this.state.previousItems : [];
+    const items = previousItems[0] ? previousItems[0] : undefined;
 
-    let previousItems = this.state.previousItems ? this.state.previousItems : []
-    const items = previousItems[0] ? previousItems[0] : undefined
+    previousItems.shift();
 
-    previousItems.shift()
-
-    this.setState({ items, previousItems })
-
+    this.setState({ items, previousItems });
   }
 
   getNestedItems = (hostItem, hostIndex) => {
-
     if (hostItem.nestedItems !== undefined) {
-      let items = hostItem.nestedItems.filter(function (item) { return item.visible !== false })
+      const items = hostItem.nestedItems.filter(item => item.visible !== false);
 
       if (items.length > 0) {
-        return items.map((item, i) => {
-          return this.getItem(item, hostIndex.toString() + i.toString())
-        })
+        return items.map((item, i) => this.getItem(item, hostIndex.toString() + i.toString()));
       }
     }
 
-    return null
+    return null;
   };
 
   getItem = (item, i) => {
-    const { onIndexChange, useMinified } = this.props
+    const { onIndexChange, useMinified } = this.props;
 
-    delete item.visible
+    delete item.visible;
 
     if (item !== undefined) {
       if (item.subheader !== undefined) {
-        return <div
-          key={i}
-          inset={item.inset}
-          style={item.style}>
-          {item.subheader}
-        </div>
-      } else if (item.divider !== undefined) {
-        return <Divider
-          key={i}
-          inset={item.inset}
-          style={item.style}
-        />
-      } else {
-        return <ListItem
+        return (
+          <div
+            key={i}
+            inset={item.inset}
+            style={item.style}
+          >
+            {item.subheader}
+          </div>
+        );
+      } if (item.divider !== undefined) {
+        return (
+          <Divider
+            key={i}
+            inset={item.inset}
+            style={item.style}
+          />
+        );
+      }
+      return (
+        <ListItem
           button
           key={i}
           onClick={(e) => {
-            onIndexChange(e, item.value)
-            this.handleNestedItemsClick(item)
+            onIndexChange(e, item.value);
+            this.handleNestedItemsClick(item);
 
             if (item.onClick) {
-              item.onClick()
+              item.onClick();
             }
           }}
           onMouseDown={(e) => {
             if (e.button === 1) {
-              var win = window.open(`${item.value}`, '_blank')
-              win.focus()
+              const win = window.open(`${item.value}`, '_blank');
+              win.focus();
             }
           }}
         >
-          {item.leftIcon &&
+          {item.leftIcon
+            && (
             <ListItemIcon>
               {item.leftIcon}
             </ListItemIcon>
+            )
           }
 
-          {item.nestedItems &&
+          {item.nestedItems
+            && (
             <ListItemSecondaryAction>
               <IconButton style={{ paddingLeft: useMinified ? 30 : undefined }}>
-                <KeyboardArrowRight color={'action'} />
+                <KeyboardArrowRight color="action" />
               </IconButton>
             </ListItemSecondaryAction>
+            )
           }
 
           <ListItemText primary={item.primaryText} />
         </ListItem>
-      }
+      );
     }
 
-    return null
+    return null;
   }
 
   render() {
-    const { items, onIndexChange, index } = this.props
+    const { items, onIndexChange, index } = this.props;
 
-    const list = this.state.previousItems && this.state.previousItems.length > 0 ? this.state.items : items
+    const list = this.state.previousItems && this.state.previousItems.length > 0 ? this.state.items : items;
 
     return (
       <List
         value={index}
-        onChange={onIndexChange}>
-        {this.state.items && this.state.previousItems && this.state.previousItems.length > 0 &&
+        onChange={onIndexChange}
+      >
+        {this.state.items && this.state.previousItems && this.state.previousItems.length > 0
+          && (
           <div>
             <ListItem
               button
               onClick={(e) => {
-                this.handleBackClick()
+                this.handleBackClick();
               }}
             >
               <ListItemIcon>
@@ -148,28 +152,23 @@ class SelectableMenuList extends Component {
               </ListItemIcon>
               <ListItemText primary={this.state.title} />
             </ListItem>
-            <Divider
-
-            />
+            <Divider />
           </div>
+          )
 
         }
         {
-          list.filter((item) => {
-            return item.visible !== false
-          }).map((item, i) => {
-            return this.getItem(item, i)
-          })
+          list.filter(item => item.visible !== false).map((item, i) => this.getItem(item, i))
         }
       </List>
-    )
+    );
   }
-};
+}
 
 SelectableMenuList.propTypes = {
   items: PropTypes.array.isRequired,
   onIndexChange: PropTypes.func.isRequired,
-  index: PropTypes.string.isRequired
-}
+  index: PropTypes.string.isRequired,
+};
 
-export default withTheme()(withStyles(styles, { withTheme: true })(SelectableMenuList))
+export default withTheme()(withStyles(styles, { withTheme: true })(SelectableMenuList));

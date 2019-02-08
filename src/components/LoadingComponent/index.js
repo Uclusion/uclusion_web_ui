@@ -1,1 +1,1 @@
-export { default } from './LoadingComponent.js'
+export { default } from './LoadingComponent.js';

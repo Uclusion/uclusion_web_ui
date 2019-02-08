@@ -1,11 +1,11 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { Paper, Button, TextField } from '@material-ui/core'
-import { withStyles } from '@material-ui/core/styles'
-import { injectIntl } from 'react-intl'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import { createMarketCategory } from '../../store/Markets/actions'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Paper, Button, TextField } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
+import { injectIntl } from 'react-intl';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { createMarketCategory } from '../../store/Markets/actions';
 
 const styles = theme => ({
 
@@ -24,41 +24,40 @@ const styles = theme => ({
   actionContainer: {
     display: 'flex',
     padding: theme.spacing.unit * 2,
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   actionButton: {
     maxWidth: 160,
-  }
+  },
 
-})
+});
 
 class CategoryAdd extends React.Component {
-
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.handleChange = this.handleChange.bind(this);
     this.addOnClick = this.addOnClick.bind(this);
   }
 
-  handleChange = (name) => (event) => {
-    let value = event.target.value
+  handleChange = name => (event) => {
+    const value = event.target.value;
     this.setState({
-      [name]: value
-    })
+      [name]: value,
+    });
   }
 
   addOnClick = (marketId) => {
     const { dispatch } = this.props;
-    const payload = {marketId, name: this.state.title};
+    const payload = { marketId, name: this.state.title };
     dispatch(createMarketCategory(payload));
   };
 
 
-  render () {
+  render() {
     const {
       classes,
       intl,
-      marketId
+      marketId,
     } = this.props;
 
     return (
@@ -68,7 +67,7 @@ class CategoryAdd extends React.Component {
             className={classes.textField}
             InputProps={{ className: classes.textInput }}
             id="category"
-            placeholder={intl.formatMessage({id: 'categoryLabel'})}
+            placeholder={intl.formatMessage({ id: 'categoryLabel' })}
             defaultValue=""
             margin="normal"
             fullWidth
@@ -87,16 +86,16 @@ class CategoryAdd extends React.Component {
           </Button>
         </div>
       </form>
-    )
-  };
+    );
+  }
 }
 
 CategoryAdd.propTypes = {
   marketId: PropTypes.string.isRequired,
+};
+
+function mapDispatchToProps(dispatch) {
+  return Object.assign({ dispatch }, bindActionCreators({ createMarketCategory }, dispatch));
 }
 
-function mapDispatchToProps (dispatch) {
-  return Object.assign({ dispatch }, bindActionCreators({ createMarketCategory }, dispatch))
-}
-
-export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, {withTheme: true})(CategoryAdd)))
+export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, { withTheme: true })(CategoryAdd)));

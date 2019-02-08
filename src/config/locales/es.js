@@ -1,10 +1,10 @@
-import { defineMessages } from 'react-intl'
+import { defineMessages } from 'react-intl';
 
 const messages = defineMessages({
   app_name: 'React Most Wanted',
   about: 'Acerca',
   page_not_found_demo: 'Página no encontrada demo',
-  '404': '404',
+  404: '404',
   warning_404_message: 'Página no encontrada',
   warning_404_description: 'Disculpa, pero la página que buscas no existe.',
   settings: 'Ajustes',
@@ -141,8 +141,8 @@ const messages = defineMessages({
   hot_dog_status: 'Hot dog status',
   user_label_search: 'Buscar usuario',
   collection: 'Colección',
-  infinitelist: 'Infinitelist'
+  infinitelist: 'Infinitelist',
 
-})
+});
 
-export default messages
+export default messages;

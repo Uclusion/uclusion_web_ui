@@ -1,105 +1,105 @@
-import { getUclusionLocalStorageItem } from '../components/utils'
-import { OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk'
-import { getAuthMarketId } from './marketIdPathFunctions'
-import decode from 'jwt-decode'
+import { OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk';
+import decode from 'jwt-decode';
+import { getUclusionLocalStorageItem } from '../components/utils';
+import { getAuthMarketId } from './marketIdPathFunctions';
 
 const getLocalAuthInfo = () => {
-  const authInfo = getUclusionLocalStorageItem('auth')
+  const authInfo = getUclusionLocalStorageItem('auth');
   if (!authInfo) {
-    return null
+    return null;
   }
-  let decodedToken = decode(authInfo.token)
+  const decodedToken = decode(authInfo.token);
   if (decodedToken.exp < Date.now() / 1000) {
-    return null
+    return null;
   }
-  return authInfo
-}
+  return authInfo;
+};
 
 const getPostAuthPage = () => {
-  const marketId = getAuthMarketId()
-  const newPath = '/' + marketId + '/post_auth'
-  const currentPage = new URL(window.location.href)
-  currentPage.pathname = newPath
-  return currentPage.toString()
-}
+  const marketId = getAuthMarketId();
+  const newPath = `/${marketId}/post_auth`;
+  const currentPage = new URL(window.location.href);
+  currentPage.pathname = newPath;
+  return currentPage.toString();
+};
 
 /**
  * Used when I don't know anything about you (e.g. I have no authorization context)
  * @param marketId
  */
 const doGenericAuthRedirect = (marketId) => {
-  const location = '/' + marketId + '/Login?destinationPage=' + window.location.pathname.split('/')[2]
-  console.log('redirecting you to login at ' + location)
-  window.location = location
-}
+  const location = `/${marketId}/Login?destinationPage=${window.location.pathname.split('/')[2]}`;
+  console.log(`redirecting you to login at ${location}`);
+  window.location = location;
+};
 
 class ReactWebAuthorizer {
-  constructor (uclusionUrl) {
-    this.uclusionUrl = uclusionUrl
+  constructor(uclusionUrl) {
+    this.uclusionUrl = uclusionUrl;
   }
 
-  getAuthorizer () {
-    const marketId = getAuthMarketId()
-    const authInfo = getLocalAuthInfo()
+  getAuthorizer() {
+    const marketId = getAuthMarketId();
+    const authInfo = getLocalAuthInfo();
     if (!authInfo || !authInfo.type) {
-      doGenericAuthRedirect(marketId)
+      doGenericAuthRedirect(marketId);
     }
-    let authorizer = null
-    const config = { uclusionUrl: this.uclusionUrl, marketId }
+    let authorizer = null;
+    const config = { uclusionUrl: this.uclusionUrl, marketId };
     switch (authInfo.type) {
       case 'oidc':
-        authorizer = new OidcAuthorizer(config)
-        break
+        authorizer = new OidcAuthorizer(config);
+        break;
       case 'sso':
-        authorizer = new SsoAuthorizer(config)
-        break
+        authorizer = new SsoAuthorizer(config);
+        break;
       default:
         // I don't recognize this type of authorizer, so I'm going to make you log in again
-        doGenericAuthRedirect(marketId)
+        doGenericAuthRedirect(marketId);
     }
-    return authorizer
+    return authorizer;
   }
 
-  doAuthFromCurrentPage () {
-    /// we're not pre-authorized, so kick them into authorization flow
-    const marketId = getAuthMarketId()
-    const authorizer = this.getAuthorizer()
-    const pageUrl = window.location.href
-    const postAuthPage = getPostAuthPage()
+  doAuthFromCurrentPage() {
+    // / we're not pre-authorized, so kick them into authorization flow
+    const marketId = getAuthMarketId();
+    const authorizer = this.getAuthorizer();
+    const pageUrl = window.location.href;
+    const postAuthPage = getPostAuthPage();
     authorizer.authorize(pageUrl, pageUrl, postAuthPage)
       .then((redirectUrl) => {
-        window.location = redirectUrl
+        window.location = redirectUrl;
       }).catch((reject) => {
-        console.log(reject)
-        doGenericAuthRedirect(marketId)
-      })
+        console.log(reject);
+        doGenericAuthRedirect(marketId);
+      });
   }
 
   /**
    * According to the contract we should use the redirect, etc, but we
    * can figure it out from the current page
    */
-  reauthorize (redirectUrl, destinationUrl) {
-    this.doAuthFromCurrentPage()
+  reauthorize(redirectUrl, destinationUrl) {
+    this.doAuthFromCurrentPage();
   }
 
-  authorize () {
-    const authInfo = getLocalAuthInfo()
+  authorize() {
+    const authInfo = getLocalAuthInfo();
     if (authInfo && authInfo.token) {
-      return new Promise(function (resolve, reject) {
-        resolve(authInfo.token)
-      })
+      return new Promise(((resolve, reject) => {
+        resolve(authInfo.token);
+      }));
     }
-    this.doAuthFromCurrentPage()
+    this.doAuthFromCurrentPage();
   }
 
-  getToken () {
-    const authInfo = getLocalAuthInfo()
+  getToken() {
+    const authInfo = getLocalAuthInfo();
     if (authInfo) {
-      return authInfo.token
+      return authInfo.token;
     }
-    return undefined
+    return undefined;
   }
 }
 
-export default ReactWebAuthorizer
+export default ReactWebAuthorizer;

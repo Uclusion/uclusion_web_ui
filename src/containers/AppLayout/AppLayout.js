@@ -1,9 +1,9 @@
-import Drawer from '../../containers/Drawer'
-import React, { Component } from 'react'
-import Routes from '../../containers/Routes'
+import React, { Component } from 'react';
 
-import { withStyles } from '@material-ui/core/styles'
-import { injectIntl } from 'react-intl'
+import { withStyles } from '@material-ui/core/styles';
+import { injectIntl } from 'react-intl';
+import Routes from '../Routes';
+import Drawer from '../Drawer';
 
 const styles = theme => ({
   body: {
@@ -15,15 +15,13 @@ const styles = theme => ({
     overflow: 'hidden',
     position: 'relative',
     display: 'flex',
-    width: '100%'
-  }
-})
+    width: '100%',
+  },
+});
 
 export class AppLayout extends Component {
-
-
   render() {
-    const { classes } = this.props
+    const { classes } = this.props;
     return (
       <div className={classes.body}>
         <div className={classes.root}>
@@ -31,9 +29,9 @@ export class AppLayout extends Component {
           <Routes />
 
         </div>
-      </div >
-    )
+      </div>
+    );
   }
 }
 
-export default injectIntl(withStyles(styles, { withTheme: true })(AppLayout))
+export default injectIntl(withStyles(styles, { withTheme: true })(AppLayout));

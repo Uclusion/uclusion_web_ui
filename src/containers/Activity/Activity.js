@@ -1,41 +1,41 @@
-import AppBar from '@material-ui/core/AppBar'
+import AppBar from '@material-ui/core/AppBar';
 
-import Icon from '@material-ui/core/Icon'
-import IconButton from '@material-ui/core/IconButton'
-import ArrowDropdown from '@material-ui/icons/ArrowDropDown'
-import LinearProgress from '@material-ui/core/LinearProgress'
-import MenuIcon from '@material-ui/icons/Menu'
-import PropTypes from 'prop-types'
-import React from 'react'
-import Toolbar from '@material-ui/core/Toolbar'
-import Typography from '@material-ui/core/Typography'
-import classNames from 'classnames'
-import drawerActions from '../../store/drawer/actions'
-import withWidth, { isWidthDown } from '@material-ui/core/withWidth'
-import { Helmet } from 'react-helmet'
-import { compose } from 'redux'
-import { connect } from 'react-redux'
-import { injectIntl } from 'react-intl'
-import { withStyles } from '@material-ui/core/styles'
-import Input from '@material-ui/core/Input'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
-import { withMarketId } from '../../components/PathProps/MarketId'
-import { getCurrentUser } from '../../store/Users/reducer'
-import { fetchMarket } from '../../store/Markets/actions'
-import { fetchUser } from '../../store/Users/actions'
-import { getDifferentMarketLink } from '../../utils/marketIdPathFunctions'
-import { getClient } from '../../config/uclusionClient'
-import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper'
+import Icon from '@material-ui/core/Icon';
+import IconButton from '@material-ui/core/IconButton';
+import ArrowDropdown from '@material-ui/icons/ArrowDropDown';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import MenuIcon from '@material-ui/icons/Menu';
+import PropTypes from 'prop-types';
+import React from 'react';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import classNames from 'classnames';
+import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
+import { Helmet } from 'react-helmet';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
+import { injectIntl } from 'react-intl';
+import { withStyles } from '@material-ui/core/styles';
+import Input from '@material-ui/core/Input';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import drawerActions from '../../store/drawer/actions';
+import { withMarketId } from '../../components/PathProps/MarketId';
+import { getCurrentUser } from '../../store/Users/reducer';
+import { fetchMarket } from '../../store/Markets/actions';
+import { fetchUser } from '../../store/Users/actions';
+import { getDifferentMarketLink } from '../../utils/marketIdPathFunctions';
+import { getClient } from '../../config/uclusionClient';
+import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 
-const drawerWidth = 240
+const drawerWidth = 240;
 
 const styles = theme => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100vh'
+    height: '100vh',
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
@@ -66,7 +66,7 @@ const styles = theme => ({
     }),
   },
   appBarShift: {
-    //marginLeft: drawerWidth,
+    // marginLeft: drawerWidth,
     width: `calc(100% - ${drawerWidth}px)`,
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
@@ -105,51 +105,47 @@ const styles = theme => ({
   selectEmpty: {
     marginTop: 5,
   },
-})
+});
 
 class Activity extends React.Component {
   handleDrawerToggle = () => {
-    const { setDrawerMobileOpen, drawer } = this.props
-    setDrawerMobileOpen(!drawer.mobileOpen)
+    const { setDrawerMobileOpen, drawer } = this.props;
+    setDrawerMobileOpen(!drawer.mobileOpen);
   }
 
   handleDrawerOpen = () => {
-    const { setDrawerOpen } = this.props
-    setDrawerOpen(true)
+    const { setDrawerOpen } = this.props;
+    setDrawerOpen(true);
   }
 
   handleDrawerClose = () => {
-    const { setDrawerOpen } = this.props
-    setDrawerOpen(false)
+    const { setDrawerOpen } = this.props;
+    setDrawerOpen(false);
   }
 
-  handleMarketChange = event => {
-    const newMarketId = event.target.value
-    const { webSocket, marketId, user } = this.props
+  handleMarketChange = (event) => {
+    const newMarketId = event.target.value;
+    const { webSocket, marketId, user } = this.props;
     if (newMarketId !== marketId) {
-      webSocket.subscribe(newMarketId, user.id)
-      let markets = this.extractMarkets(user)
-      this.props.dispatch(fetchMarket({ market_id: newMarketId, isSelected: true }))
+      webSocket.subscribe(newMarketId, user.id);
+      const markets = this.extractMarkets(user);
+      this.props.dispatch(fetchMarket({ market_id: newMarketId, isSelected: true }));
       // We have the user already from login but not the market presences which this fetch user will retrieve
-      this.props.dispatch(fetchUser({ marketId: newMarketId, user}))
-      let market = markets.find(function (market) {
-        return market.id === newMarketId
-      })
-      window.location = getDifferentMarketLink(market, 'investibles')
+      this.props.dispatch(fetchUser({ marketId: newMarketId, user }));
+      const market = markets.find(market => market.id === newMarketId);
+      window.location = getDifferentMarketLink(market, 'investibles');
     }
   }
 
-  extractMarkets (user) {
-    let team_presence = user.team_presences.find(function (team) {
-      return team.team_id = user.default_team_id
-    })
-    return team_presence.market_list
+  extractMarkets(user) {
+    const team_presence = user.team_presences.find(team => team.team_id = user.default_team_id);
+    return team_presence.market_list;
   }
 
   render() {
-    const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase())
+    const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
     if (!showLogin) {
-      getClient() // Will verify the token
+      getClient(); // Will verify the token
     }
 
     const {
@@ -166,42 +162,40 @@ class Activity extends React.Component {
       onBackClick,
       isOffline,
       marketId,
-      user
+      user,
     } = this.props;
     let marketChoices;
 
     if (user && user.team_presences) {
-      let markets = this.extractMarkets(user)
-      marketChoices = markets.map((market) => {
-        return <MenuItem key={market.name} value={market.id}>{market.name}</MenuItem>
-      })
+      const markets = this.extractMarkets(user);
+      marketChoices = markets.map(market => <MenuItem key={market.name} value={market.id}>{market.name}</MenuItem>);
     }
-    let headerTitle = ''
+    let headerTitle = '';
 
     if (typeof title === 'string' || title instanceof String) {
-      headerTitle = title
+      headerTitle = title;
     }
 
     if (pageTitle) {
-      headerTitle = pageTitle
+      headerTitle = pageTitle;
     }
 
-    //const smDown = width === 'sm' || width === 'xs'
-    const smDown = isWidthDown('sm', width)
+    // const smDown = width === 'sm' || width === 'xs'
+    const smDown = isWidthDown('sm', width);
 
     const appBarClassName = (width !== 'sm' && width !== 'xs')
       ? classNames(classes.appBar, drawer.open && classes.appBarShift)
-      : classes.appBar
+      : classes.appBar;
     const contentClassName = (width !== 'sm' && width !== 'xs')
       ? classNames(classes.content, drawer.open && classes.contentShift)
-      : classes.content
+      : classes.content;
 
     return (
       <div className={classes.root}>
         <Helmet>
-          <meta name="theme-color" content={theme.palette.primary.main}/>
-          <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main}/>
-          <meta name="msapplication-navbutton-color" content={theme.palette.primary.main}/>
+          <meta name="theme-color" content={theme.palette.primary.main} />
+          <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
+          <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
           <title>{headerTitle}</title>
         </Helmet>
 
@@ -209,15 +203,15 @@ class Activity extends React.Component {
           position={(width !== 'sm' && width !== 'xs') ? 'absolute' : undefined}
           className={appBarClassName}
         >
-          <Toolbar disableGutters={true}>
-            {true && <LinearProgress/>}
+          <Toolbar disableGutters>
+            {true && <LinearProgress />}
             <IconButton
               color="inherit"
               aria-label="open drawer"
               onClick={!drawer.open ? this.handleDrawerOpen : this.handleDrawerToggle}
               className={classNames(!smDown && classes.menuButton, drawer.open && !smDown && classes.hide, onBackClick && classes.hide)}
             >
-              <MenuIcon/>
+              <MenuIcon />
             </IconButton>
             <IconButton
               color="inherit"
@@ -227,7 +221,7 @@ class Activity extends React.Component {
             >
               <Icon>chevron_left</Icon>
             </IconButton>
-            {!onBackClick && drawer.open && <div style={{ marginRight: 32 }}/>}
+            {!onBackClick && drawer.open && <div style={{ marginRight: 32 }} />}
             {marketChoices && (
               <form className={classes.form} autoComplete="off">
                 <Typography className={classes.formLabel}>Market:</Typography>
@@ -237,8 +231,8 @@ class Activity extends React.Component {
                     disableUnderline
                     value={marketId}
                     onChange={this.handleMarketChange}
-                    IconComponent={() => <ArrowDropdown className={classes.selectArrow}/>}
-                    input={<Input name="market" id="market-switch"/>}
+                    IconComponent={() => <ArrowDropdown className={classes.selectArrow} />}
+                    input={<Input name="market" id="market-switch" />}
                   >
                     {marketChoices}
                   </Select>
@@ -248,29 +242,32 @@ class Activity extends React.Component {
             <Typography variant="title" color="inherit" noWrap>
               {headerTitle}
             </Typography>
-            <div className={classes.grow}/>
+            <div className={classes.grow} />
             {appBarContent}
 
           </Toolbar>
         </AppBar>
-        <div className={classes.toolbar}/>
-        {isLoading && <LinearProgress/>}
-        {isOffline && <div style={{
+        <div className={classes.toolbar} />
+        {isLoading && <LinearProgress />}
+        {isOffline && (
+        <div style={{
           display: 'flex',
           justifyContent: 'center',
           width: '100%',
           height: 15,
-          backgroundColor: theme.palette.secondary.main
-        }}>
+          backgroundColor: theme.palette.secondary.main,
+        }}
+        >
           <Typography variant="caption" color="textSecondary" noWrap>
             {intl.formatMessage({ id: 'offline' })}
           </Typography>
-        </div>}
+        </div>
+        )}
         <main className={contentClassName}>
           {children}
         </main>
       </div>
-    )
+    );
   }
 }
 
@@ -278,22 +275,21 @@ Activity.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
   drawer: PropTypes.object.isRequired,
-}
+};
 
 const mapStateToProps = (state) => {
-  const { drawer, connection } = state
+  const { drawer, connection } = state;
 
   return {
     drawer,
     isOffline: connection ? !connection.isConnected : false,
-    user: getCurrentUser(state.usersReducer)
-  }
-}
+    user: getCurrentUser(state.usersReducer),
+  };
+};
 
 export default withBackgroundProcesses(compose(
   connect(mapStateToProps, { ...drawerActions }),
   withWidth(),
   withStyles(styles, { withTheme: true }),
-  injectIntl
-)(withMarketId(Activity)))
-
+  injectIntl,
+)(withMarketId(Activity)));

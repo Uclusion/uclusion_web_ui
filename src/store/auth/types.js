@@ -1,3 +1,3 @@
-const namespace = 'AUTH'
+const namespace = 'AUTH';
 
-export const USER_LOGOUT = `${namespace}@USER_LOGOUT`
+export const USER_LOGOUT = `${namespace}@USER_LOGOUT`;

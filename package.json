@@ -69,6 +69,7 @@
     "build": "REACT_APP_UCLUSION_URL='https://stage.api.uclusion.com/v1' REACT_APP_WEBSOCKET_URL='wss://d63jjyx8l0.execute-api.us-west-2.amazonaws.com/dev/' react-scripts build",
     "deploy": "aws --profile stageAccount s3 sync --delete build/ s3://uclusion-web-ui",
     "test": "react-scripts test --env=jsdom",
+    "lint": "eslint src",
     "eject": "react-scripts eject"
   },
   "browserslist": {
@@ -81,6 +82,9 @@
   },
   "devDependencies": {
     "enzyme": "^3.6.0",
+    "eslint": "^5.13.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-react": "^7.12.4",
     "query-string": "^4.3.4",
     "react-scripts": "^2.1.1",
     "redux-logger": "^3.0.6",

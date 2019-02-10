@@ -7,7 +7,7 @@ import TextField from '@material-ui/core/TextField';
 import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { bindActionCreators } from 'redux';
-import FormControl from '@material-ui/core/FormControl';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import { createInvestment } from '../../store/MarketInvestibles/actions';
 
 const styles = theme => ({
@@ -35,16 +35,21 @@ const styles = theme => ({
 class InvestibleInvest extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { ...props, quantityToInvest: 0 };
-    this.handleInvest = this.handleInvest.bind(this);
-    this.handleChange = this.handleChange.bind(this);
+    this.state = {
+      ...props,
+      quantityToInvest: '',
+    };
   }
 
   handleInvest = () => {
     const {
-      investibleId, teamId, marketId, dispatch,
+      investibleId,
+      teamId,
+      marketId,
+      dispatch,
     } = this.props;
-    const quantity = parseInt(this.state.quantityToInvest, 10);
+    const { quantityToInvest } = this.state;
+    const quantity = parseInt(quantityToInvest, 10);
     dispatch(createInvestment({
       investibleId,
       teamId,
@@ -57,15 +62,13 @@ class InvestibleInvest extends React.Component {
   validateQuantityToInvest = quantity => (quantity <= this.props.sharesAvailable) && (quantity > 0)
 
   handleChange = name => (event) => {
-    let value = event.target.value;
-    let valid = false;
+    const { value } = event.target;
+    let valid = true;
     if (name === 'quantityToInvest') {
-      value = parseInt(value, 10);
-      if (isNaN(value)) {
-        value = 0;
+      const numValue = parseInt(value, 10);
+      if (!isNaN(numValue) && (numValue < 0 || numValue > this.props.sharesAvailable)) {
+        valid = false;
       }
-      valid = (value === 0) || this.validateQuantityToInvest(value);
-      value = `${value}`;
     }
 
     if (valid) {
@@ -91,17 +94,25 @@ class InvestibleInvest extends React.Component {
           {intl.formatMessage({ id: 'investModalText' })}
         </Typography>
         <form className={classes.container} noValidate autoComplete="off">
-          <FormControl>
-            <TextField
-              id="quantityToInvest"
-              label={intl.formatMessage({ id: 'investModalQuantityLabel' })}
-              className={classes.textField}
-              value={this.state.quantityToInvest}
-              onChange={this.handleChange('quantityToInvest')}
-              // type="number"
-              margin="normal"
-            />
-          </FormControl>
+          <TextField
+            id="quantityToInvest"
+            label={intl.formatMessage({ id: 'investModalQuantityLabel' })}
+            className={classes.textField}
+            margin="normal"
+            type="number"
+            value={quantityToInvest}
+            onChange={this.handleChange('quantityToInvest')}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment
+                  style={{ paddingBottom: 4 }}
+                  position="start"
+                >
+                  $
+                </InputAdornment>
+              ),
+            }}
+          />
           <Button
             className={classes.investButton}
             variant="contained"

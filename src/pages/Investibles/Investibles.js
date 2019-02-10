@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+/* eslint-disable react/forbid-prop-types */
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTheme } from '@material-ui/core/styles';
@@ -14,83 +15,86 @@ import LoginModal from '../Login/LoginModal';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
-class Investibles extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      lastFetched: undefined,
-    };
-  }
-
-  componentDidMount() {
-    this.getItems(); // Initial fetch
-    this.timer = setInterval(() => this.getItems(), pollRate);
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.timer);
-  }
-
-  getItems() {
+function InvestiblesPage(props) {
+  const [lastFetched, setLastFetched] = useState(undefined);
+  function getItems() {
     const {
       investibles, marketId, dispatch,
       history: { location: { pathname } },
-    } = this.props;
+    } = props;
     const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
-    if (!showLogin && investibles && investibles.length > 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
-      console.log(`Fetching investibles from polling with last fetched ${this.state.lastFetched}`);
-      this.setState({ lastFetched: Date.now() });
+    if (!showLogin && investibles && investibles.length > 0
+      && (!lastFetched || (Date.now() - lastFetched > pollRate))) {
+      console.log(`Fetching investibles from polling with last fetched ${lastFetched}`);
+      setLastFetched(Date.now());
       dispatch(fetchInvestibleList({ marketId, currentInvestibleList: investibles }));
     }
   }
+  useEffect(() => {
+    getItems(); // Initial fetch
+    const timer = setInterval(() => getItems(), pollRate);
+    return () => {
+      clearInterval(timer);
+    };
+  });
 
-  render() {
-    const {
-      intl,
-      investibles,
-      categories,
-      marketId,
-      user,
-      dispatch,
-      history: { location: { pathname } },
-    } = this.props;
+  const {
+    intl,
+    investibles,
+    categories,
+    marketId,
+    user,
+    dispatch,
+    history: { location: { pathname } },
+  } = props;
 
-    const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
+  const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
 
-    if (!showLogin && investibles && investibles.length === 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
-      console.log('Fetching investibles');
-      this.setState({ lastFetched: Date.now() });
-      dispatch(fetchInvestibleList({ marketId, currentInvestibleList: investibles }));
-    }
-    // TODO: give choice of teamId instead of default
-    return (
+  if (!showLogin && investibles && investibles.length === 0
+    && (!lastFetched || (Date.now() - lastFetched > pollRate))) {
+    console.log('Fetching investibles');
+    setLastFetched(Date.now());
+    dispatch(fetchInvestibleList({ marketId, currentInvestibleList: investibles }));
+  }
+  // TODO: give choice of teamId instead of default
+  return (
 
-      <div>
+    <div>
 
-        <Activity
-          isLoading={investibles === undefined}
-          containerStyle={{ overflow: 'hidden' }}
-          title={intl.formatMessage({ id: 'investibles' })}
-        >
+      <Activity
+        isLoading={investibles === undefined}
+        containerStyle={{ overflow: 'hidden' }}
+        title={intl.formatMessage({ id: 'investibles' })}
+      >
 
-          {investibles && user && user.market_presence && <InvestibleList teamId={user.default_team_id} user={user} marketId={marketId} investibles={investibles} categories={categories} />}
-        </Activity>
-
-        <LoginModal
-          open={showLogin}
+        {investibles && user && user.market_presence
+        && (
+        <InvestibleList
+          teamId={user.default_team_id}
+          user={user}
+          marketId={marketId}
+          investibles={investibles}
+          categories={categories}
         />
-      </div>
+        )}
+      </Activity>
 
-    );
-  }
+      <LoginModal
+        open={showLogin}
+      />
+    </div>
+
+  );
 }
 
-Investibles.propTypes = {
+InvestiblesPage.propTypes = {
   dispatch: PropTypes.func.isRequired,
+  intl: PropTypes.object.isRequired,
   investibles: PropTypes.arrayOf(investiblePropType),
   categories: PropTypes.arrayOf(categoryPropType),
   marketId: PropTypes.string,
   user: PropTypes.object,
+  history: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -106,4 +110,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withTheme()(withMarketId(Investibles))));
+)(injectIntl(withTheme()(withMarketId(InvestiblesPage))));

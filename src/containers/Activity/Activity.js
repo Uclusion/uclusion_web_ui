@@ -276,7 +276,7 @@ Activity.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
   drawer: PropTypes.object.isRequired,
-  children: PropTypes.object.isRequired,
+  children: PropTypes.object,
   intl: PropTypes.object.isRequired,
   title: PropTypes.string.isRequired,
   pageTitle: PropTypes.string,

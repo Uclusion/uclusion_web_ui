@@ -1,6 +1,5 @@
 /* eslint-disable react/forbid-prop-types */
 import AppBar from '@material-ui/core/AppBar';
-
 import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowDropdown from '@material-ui/icons/ArrowDropDown';
@@ -113,27 +112,22 @@ const extractMarkets = (user) => {
   return teamPresence.market_list;
 };
 
-class Activity extends React.Component {
-  handleDrawerToggle = () => {
-    const { setDrawerMobileOpen, drawer } = this.props;
+function Activity(props) {
+  function handleDrawerToggle() {
+    const { setDrawerMobileOpen, drawer } = props;
     setDrawerMobileOpen(!drawer.mobileOpen);
-  };
+  }
 
-  handleDrawerOpen = () => {
-    const { setDrawerOpen } = this.props;
+  function handleDrawerOpen() {
+    const { setDrawerOpen } = props;
     setDrawerOpen(true);
-  };
+  }
 
-  handleDrawerClose = () => {
-    const { setDrawerOpen } = this.props;
-    setDrawerOpen(false);
-  };
-
-  handleMarketChange = (event) => {
+  function handleMarketChange(event) {
     const newMarketId = event.target.value;
     const {
       webSocket, marketId, user, dispatch,
-    } = this.props;
+    } = props;
     if (newMarketId !== marketId) {
       webSocket.subscribe(newMarketId, user.id);
       const markets = extractMarkets(user);
@@ -143,139 +137,137 @@ class Activity extends React.Component {
       const newMarket = markets.find(market => market.id === newMarketId);
       window.location = getDifferentMarketLink(newMarket, 'investibles');
     }
-  };
+  }
 
-  render() {
-    const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
-    if (!showLogin) {
-      getClient(); // Will verify the token
-    }
+  const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
+  if (!showLogin) {
+    getClient(); // Will verify the token
+  }
 
-    const {
-      classes,
-      theme,
-      children,
-      drawer,
-      intl,
-      title,
-      pageTitle,
-      width,
-      appBarContent,
-      isLoading,
-      onBackClick,
-      isOffline,
-      marketId,
-      user,
-    } = this.props;
-    let marketChoices;
+  const {
+    classes,
+    theme,
+    children,
+    drawer,
+    intl,
+    title,
+    pageTitle,
+    width,
+    appBarContent,
+    isLoading,
+    onBackClick,
+    isOffline,
+    marketId,
+    user,
+  } = props;
+  let marketChoices;
 
-    if (user && user.team_presences) {
-      const markets = extractMarkets(user);
-      marketChoices = markets.map(
-      // eslint-disable-next-line comma-dangle
-        market => <MenuItem key={market.name} value={market.id}>{market.name}</MenuItem>
-      );
-    }
-    let headerTitle = '';
-
-    if (typeof title === 'string' || title instanceof String) {
-      headerTitle = title;
-    }
-
-    if (pageTitle) {
-      headerTitle = pageTitle;
-    }
-
-    // const smDown = width === 'sm' || width === 'xs'
-    const smDown = isWidthDown('sm', width);
-
-    const appBarClassName = (width !== 'sm' && width !== 'xs')
-      ? classNames(classes.appBar, drawer.open && classes.appBarShift)
-      : classes.appBar;
-    const contentClassName = (width !== 'sm' && width !== 'xs')
-      ? classNames(classes.content, drawer.open && classes.contentShift)
-      : classes.content;
-
-    return (
-      <div className={classes.root}>
-        <Helmet>
-          <meta name="theme-color" content={theme.palette.primary.main} />
-          <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
-          <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
-          <title>{headerTitle}</title>
-        </Helmet>
-
-        <AppBar
-          position={(width !== 'sm' && width !== 'xs') ? 'absolute' : undefined}
-          className={appBarClassName}
-        >
-          <Toolbar disableGutters>
-            <LinearProgress />
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={!drawer.open ? this.handleDrawerOpen : this.handleDrawerToggle}
-              className={classNames(!smDown && classes.menuButton,
-                drawer.open && !smDown && classes.hide, onBackClick && classes.hide)}
-            >
-              <MenuIcon />
-            </IconButton>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={onBackClick}
-              className={classNames(!smDown && classes.menuButton, !onBackClick && classes.hide)}
-            >
-              <Icon>chevron_left</Icon>
-            </IconButton>
-            {!onBackClick && drawer.open && <div style={{ marginRight: 32 }} />}
-            {marketChoices && (
-              <form className={classes.form} autoComplete="off">
-                <Typography className={classes.formLabel}>Market:</Typography>
-                <FormControl className={classes.formControl}>
-                  <Select
-                    className={classes.marketSelect}
-                    disableUnderline
-                    value={marketId}
-                    onChange={this.handleMarketChange}
-                    IconComponent={() => <ArrowDropdown className={classes.selectArrow} />}
-                    input={<Input name="market" id="market-switch" />}
-                  >
-                    {marketChoices}
-                  </Select>
-                </FormControl>
-              </form>
-            )}
-            <Typography variant="title" color="inherit" noWrap>
-              {headerTitle}
-            </Typography>
-            <div className={classes.grow} />
-            {appBarContent}
-
-          </Toolbar>
-        </AppBar>
-        <div className={classes.toolbar} />
-        {isLoading && <LinearProgress />}
-        {isOffline && (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          width: '100%',
-          height: 15,
-          backgroundColor: theme.palette.secondary.main,
-        }}
-        >
-          <Typography variant="caption" color="textSecondary" noWrap>
-            {intl.formatMessage({ id: 'offline' })}
-          </Typography>
-        </div>
-        )}
-        <main className={contentClassName}>
-          {children}
-        </main>
-      </div>
+  if (user && user.team_presences) {
+    const markets = extractMarkets(user);
+    marketChoices = markets.map(
+    // eslint-disable-next-line comma-dangle
+      market => <MenuItem key={market.name} value={market.id}>{market.name}</MenuItem>
     );
   }
+  let headerTitle = '';
+
+  if (typeof title === 'string' || title instanceof String) {
+    headerTitle = title;
+  }
+
+  if (pageTitle) {
+    headerTitle = pageTitle;
+  }
+
+  // const smDown = width === 'sm' || width === 'xs'
+  const smDown = isWidthDown('sm', width);
+
+  const appBarClassName = (width !== 'sm' && width !== 'xs')
+    ? classNames(classes.appBar, drawer.open && classes.appBarShift)
+    : classes.appBar;
+  const contentClassName = (width !== 'sm' && width !== 'xs')
+    ? classNames(classes.content, drawer.open && classes.contentShift)
+    : classes.content;
+
+  return (
+    <div className={classes.root}>
+      <Helmet>
+        <meta name="theme-color" content={theme.palette.primary.main} />
+        <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
+        <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
+        <title>{headerTitle}</title>
+      </Helmet>
+
+      <AppBar
+        position={(width !== 'sm' && width !== 'xs') ? 'absolute' : undefined}
+        className={appBarClassName}
+      >
+        <Toolbar disableGutters>
+          <LinearProgress />
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={!drawer.open ? handleDrawerOpen : handleDrawerToggle}
+            className={classNames(!smDown && classes.menuButton,
+              drawer.open && !smDown && classes.hide, onBackClick && classes.hide)}
+          >
+            <MenuIcon />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={onBackClick}
+            className={classNames(!smDown && classes.menuButton, !onBackClick && classes.hide)}
+          >
+            <Icon>chevron_left</Icon>
+          </IconButton>
+          {!onBackClick && drawer.open && <div style={{ marginRight: 32 }} />}
+          {marketChoices && (
+            <form className={classes.form} autoComplete="off">
+              <Typography className={classes.formLabel}>Market:</Typography>
+              <FormControl className={classes.formControl}>
+                <Select
+                  className={classes.marketSelect}
+                  disableUnderline
+                  value={marketId}
+                  onChange={handleMarketChange}
+                  IconComponent={() => <ArrowDropdown className={classes.selectArrow} />}
+                  input={<Input name="market" id="market-switch" />}
+                >
+                  {marketChoices}
+                </Select>
+              </FormControl>
+            </form>
+          )}
+          <Typography variant="title" color="inherit" noWrap>
+            {headerTitle}
+          </Typography>
+          <div className={classes.grow} />
+          {appBarContent}
+
+        </Toolbar>
+      </AppBar>
+      <div className={classes.toolbar} />
+      {isLoading && <LinearProgress />}
+      {isOffline && (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        width: '100%',
+        height: 15,
+        backgroundColor: theme.palette.secondary.main,
+      }}
+      >
+        <Typography variant="caption" color="textSecondary" noWrap>
+          {intl.formatMessage({ id: 'offline' })}
+        </Typography>
+      </div>
+      )}
+      <main className={contentClassName}>
+        {children}
+      </main>
+    </div>
+  );
 }
 
 Activity.propTypes = {
@@ -286,17 +278,17 @@ Activity.propTypes = {
   drawer: PropTypes.object.isRequired,
   children: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
-  title: PropTypes.object.isRequired,
-  pageTitle: PropTypes.object.isRequired,
-  width: PropTypes.object.isRequired,
-  appBarContent: PropTypes.object.isRequired,
-  isLoading: PropTypes.object.isRequired,
-  onBackClick: PropTypes.object.isRequired,
-  isOffline: PropTypes.object.isRequired,
+  title: PropTypes.string.isRequired,
+  pageTitle: PropTypes.string,
+  width: PropTypes.string.isRequired,
+  appBarContent: PropTypes.object,
+  isLoading: PropTypes.bool.isRequired,
+  onBackClick: PropTypes.object,
+  isOffline: PropTypes.bool.isRequired,
   webSocket: PropTypes.object.isRequired,
-  marketId: PropTypes.object.isRequired,
+  marketId: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
-  dispatch: PropTypes.object.isRequired,
+  dispatch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => {

@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 import AppBar from '@material-ui/core/AppBar';
 
 import Icon from '@material-ui/core/Icon';
@@ -107,40 +108,42 @@ const styles = theme => ({
   },
 });
 
+const extractMarkets = (user) => {
+  const teamPresence = user.team_presences.find(team => team.team_id === user.default_team_id);
+  return teamPresence.market_list;
+};
+
 class Activity extends React.Component {
   handleDrawerToggle = () => {
     const { setDrawerMobileOpen, drawer } = this.props;
     setDrawerMobileOpen(!drawer.mobileOpen);
-  }
+  };
 
   handleDrawerOpen = () => {
     const { setDrawerOpen } = this.props;
     setDrawerOpen(true);
-  }
+  };
 
   handleDrawerClose = () => {
     const { setDrawerOpen } = this.props;
     setDrawerOpen(false);
-  }
+  };
 
   handleMarketChange = (event) => {
     const newMarketId = event.target.value;
-    const { webSocket, marketId, user } = this.props;
+    const {
+      webSocket, marketId, user, dispatch,
+    } = this.props;
     if (newMarketId !== marketId) {
       webSocket.subscribe(newMarketId, user.id);
-      const markets = this.extractMarkets(user);
-      this.props.dispatch(fetchMarket({ market_id: newMarketId, isSelected: true }));
-      // We have the user already from login but not the market presences which this fetch user will retrieve
-      this.props.dispatch(fetchUser({ marketId: newMarketId, user }));
-      const market = markets.find(market => market.id === newMarketId);
-      window.location = getDifferentMarketLink(market, 'investibles');
+      const markets = extractMarkets(user);
+      dispatch(fetchMarket({ market_id: newMarketId, isSelected: true }));
+      // Have the user already but not the market presences which this fetch user will retrieve
+      dispatch(fetchUser({ marketId: newMarketId, user }));
+      const newMarket = markets.find(market => market.id === newMarketId);
+      window.location = getDifferentMarketLink(newMarket, 'investibles');
     }
-  }
-
-  extractMarkets(user) {
-    const team_presence = user.team_presences.find(team => team.team_id = user.default_team_id);
-    return team_presence.market_list;
-  }
+  };
 
   render() {
     const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
@@ -167,8 +170,11 @@ class Activity extends React.Component {
     let marketChoices;
 
     if (user && user.team_presences) {
-      const markets = this.extractMarkets(user);
-      marketChoices = markets.map(market => <MenuItem key={market.name} value={market.id}>{market.name}</MenuItem>);
+      const markets = extractMarkets(user);
+      marketChoices = markets.map(
+      // eslint-disable-next-line comma-dangle
+        market => <MenuItem key={market.name} value={market.id}>{market.name}</MenuItem>
+      );
     }
     let headerTitle = '';
 
@@ -204,12 +210,13 @@ class Activity extends React.Component {
           className={appBarClassName}
         >
           <Toolbar disableGutters>
-            {true && <LinearProgress />}
+            <LinearProgress />
             <IconButton
               color="inherit"
               aria-label="open drawer"
               onClick={!drawer.open ? this.handleDrawerOpen : this.handleDrawerToggle}
-              className={classNames(!smDown && classes.menuButton, drawer.open && !smDown && classes.hide, onBackClick && classes.hide)}
+              className={classNames(!smDown && classes.menuButton,
+                drawer.open && !smDown && classes.hide, onBackClick && classes.hide)}
             >
               <MenuIcon />
             </IconButton>
@@ -272,9 +279,24 @@ class Activity extends React.Component {
 }
 
 Activity.propTypes = {
+  setDrawerMobileOpen: PropTypes.func.isRequired,
+  setDrawerOpen: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
   drawer: PropTypes.object.isRequired,
+  children: PropTypes.object.isRequired,
+  intl: PropTypes.object.isRequired,
+  title: PropTypes.object.isRequired,
+  pageTitle: PropTypes.object.isRequired,
+  width: PropTypes.object.isRequired,
+  appBarContent: PropTypes.object.isRequired,
+  isLoading: PropTypes.object.isRequired,
+  onBackClick: PropTypes.object.isRequired,
+  isOffline: PropTypes.object.isRequired,
+  webSocket: PropTypes.object.isRequired,
+  marketId: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
+  dispatch: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => {

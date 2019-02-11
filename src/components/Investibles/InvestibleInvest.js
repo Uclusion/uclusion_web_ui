@@ -108,7 +108,7 @@ class InvestibleInvest extends React.Component {
                   style={{ paddingBottom: 4 }}
                   position="start"
                 >
-                  $
+                  Ȗ
                 </InputAdornment>
               ),
             }}

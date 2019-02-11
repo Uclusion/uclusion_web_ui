@@ -69,7 +69,7 @@ class WebSocketRunner {
     this.socket.onopen = this.onOpenFactory();
     this.socket.onmessage = this.getMessageHandler();
     // make us retry
-    this.socket.onclose = this.onCloseFactory;
+    this.socket.onclose = this.onCloseFactory();
   }
 }
 

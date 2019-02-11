@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+/* eslint-disable react/forbid-prop-types */
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTheme } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
-import { getInvestibles, investiblePropType } from '../../store/MarketInvestibles/reducer';
+import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
 import { getMarketCategories, categoryPropType } from '../../store/Markets/reducer';
 import { getCurrentUser } from '../../store/Users/reducer';
@@ -14,83 +15,92 @@ import LoginModal from '../Login/LoginModal';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
-class Investibles extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      lastFetched: undefined,
-    };
-  }
-
-  componentDidMount() {
-    this.getItems(); // Initial fetch
-    this.timer = setInterval(() => this.getItems(), pollRate);
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.timer);
-  }
-
-  getItems() {
+function InvestiblesPage(props) {
+  const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
+  function getItems() {
     const {
       investibles, marketId, dispatch,
       history: { location: { pathname } },
-    } = this.props;
+    } = props;
     const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
-    if (!showLogin && investibles && investibles.length > 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
-      console.log(`Fetching investibles from polling with last fetched ${this.state.lastFetched}`);
-      this.setState({ lastFetched: Date.now() });
-      dispatch(fetchInvestibleList({ marketId, currentInvestibleList: investibles }));
+    if (!showLogin) {
+      if (lastFetchedMarketId !== marketId) {
+        setLastFetchedMarketId(marketId);
+      }
+      console.log(`Fetching investibles with marketId ${marketId}`);
+      const currentInvestibleList = marketId in investibles ? investibles[marketId] : [];
+      dispatch(fetchInvestibleList({ marketId, currentInvestibleList }));
     }
   }
-
-  render() {
-    const {
-      intl,
-      investibles,
-      categories,
-      marketId,
-      user,
-      dispatch,
-      history: { location: { pathname } },
-    } = this.props;
-
-    const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
-
-    if (!showLogin && investibles && investibles.length === 0 && (!this.state.lastFetched || (Date.now() - this.state.lastFetched > pollRate))) {
-      console.log('Fetching investibles');
-      this.setState({ lastFetched: Date.now() });
-      dispatch(fetchInvestibleList({ marketId, currentInvestibleList: investibles }));
+  useEffect(() => {
+    const { marketId } = props;
+    if (lastFetchedMarketId !== marketId) {
+      // useEffect may happen many  times but initial fetch only when market changes
+      getItems();
     }
-    // TODO: give choice of teamId instead of default
-    return (
+    const timer = setInterval(() => getItems(), pollRate);
+    return () => {
+      clearInterval(timer);
+    };
+  });
 
-      <div>
+  const {
+    intl,
+    investibles,
+    categories,
+    marketId,
+    user,
+    history: { location: { pathname } },
+  } = props;
 
-        <Activity
-          isLoading={investibles === undefined}
-          containerStyle={{ overflow: 'hidden' }}
-          title={intl.formatMessage({ id: 'investibles' })}
-        >
+  const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
+  let currentInvestibleList;
+  if (marketId in investibles) {
+    currentInvestibleList = investibles[marketId];
+  } else if (categories || investibles) {
+    currentInvestibleList = [];
+  } else {
+    currentInvestibleList = undefined;
+  }
+  // TODO: give choice of teamId instead of default
+  return (
 
-          {investibles && user && user.market_presence && <InvestibleList teamId={user.default_team_id} user={user} marketId={marketId} investibles={investibles} categories={categories} />}
-        </Activity>
+    <div>
 
-        <LoginModal
-          open={showLogin}
+      <Activity
+        isLoading={currentInvestibleList === undefined}
+        containerStyle={{ overflow: 'hidden' }}
+        title={intl.formatMessage({ id: 'investibles' })}
+      >
+
+        {currentInvestibleList && user && user.market_presence
+        && (
+        <InvestibleList
+          teamId={user.default_team_id}
+          user={user}
+          marketId={marketId}
+          investibles={currentInvestibleList}
+          categories={categories}
         />
-      </div>
+        )}
+      </Activity>
 
-    );
-  }
+      <LoginModal
+        open={showLogin}
+      />
+    </div>
+
+  );
 }
 
-Investibles.propTypes = {
+InvestiblesPage.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  investibles: PropTypes.arrayOf(investiblePropType),
+  intl: PropTypes.object.isRequired,
+  investibles: PropTypes.object,
   categories: PropTypes.arrayOf(categoryPropType),
   marketId: PropTypes.string,
   user: PropTypes.object,
+  history: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -106,4 +116,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withTheme()(withMarketId(Investibles))));
+)(injectIntl(withTheme()(withMarketId(InvestiblesPage))));

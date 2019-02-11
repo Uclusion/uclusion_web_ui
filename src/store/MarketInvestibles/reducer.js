@@ -1,25 +1,11 @@
+/* eslint-disable no-case-declarations */
 import { combineReducers } from 'redux';
-import PropTypes from 'prop-types';
 import _ from 'lodash';
 import {
   RECEIVE_INVESTIBLES,
   INVESTMENT_CREATED,
-  INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED, RECEIVE_MARKET_INVESTIBLE_LIST,
+  INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED,
 } from './actions';
-
-export const investiblePropType = PropTypes.shape({
-  id: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  market_id: PropTypes.string,
-  description: PropTypes.string.isRequired,
-  category_list: PropTypes.arrayOf(PropTypes.string),
-  quantity: PropTypes.number,
-  investment_in_window1: PropTypes.number,
-  created_at: PropTypes.instanceOf(Date),
-  updated_at: PropTypes.instanceOf(Date),
-  last_investment_at: PropTypes.instanceOf(Date),
-  current_user_investment: PropTypes.number,
-});
 
 const reFormatInvestible = (investible) => {
   investible.created_at = new Date(investible.created_at);
@@ -28,34 +14,43 @@ const reFormatInvestible = (investible) => {
   return investible;
 };
 
-const reFormatInvestibles = (investibles) => {
-  investibles.forEach((investible) => {
-    reFormatInvestible(investible);
+const reFormatInvestibles = (items) => {
+  Object.keys(items).forEach((key) => {
+    items[key].forEach((investible) => {
+      reFormatInvestible(investible);
+    });
   });
-  return investibles;
+  return items;
 };
 
 const items = (state = [], action) => {
   switch (action.type) {
-    case RECEIVE_MARKET_INVESTIBLE_LIST:
-      return state;
     case RECEIVE_INVESTIBLES:
     case INVESTIBLE_CREATED:
+      const marketId = action.marketId ? action.marketId : 'template';
       let investibles = action.investibles ? action.investibles : action.investible;
       if (!Array.isArray(investibles)) {
         investibles = [investibles];
       }
-      const newState = _.unionBy(investibles, state, 'id');
+      const newState = { ...state };
+      newState[marketId] = _.unionBy(investibles, state[marketId], 'id');
       return newState;
     case MARKET_INVESTIBLE_DELETED:
-      return state.filter(item => item.id !== action.investibleId);
+      const newStateForDelete = { ...state };
+      newStateForDelete[action.marketId] = state[action.marketId].filter(
+        item => item.id !== action.investibleId
+      );
+      return newStateForDelete;
     case INVESTMENT_CREATED:
     case MARKET_INVESTIBLE_CREATED:
-      const investment = action.investment;
-      const marketInvestible = action.marketInvestible;
-      const investibleId = marketInvestible ? marketInvestible.investible_id : investment.investible_id;
-      const findInvestibleId = marketInvestible ? marketInvestible.copiedInvestibleId : investibleId;
-      const investible = state.find(element => element.id === findInvestibleId);
+      const newStateForCreation = { ...state };
+      const { investment, marketInvestible } = action;
+      const investibleId = marketInvestible ? marketInvestible.investible_id
+        : investment.investible_id;
+      const findInvestibleId = marketInvestible ? marketInvestible.copiedInvestibleId
+        : investibleId;
+      const investibleMarketId = marketInvestible ? 'template' : investment.market_id;
+      const investible = state[investibleMarketId].find(element => element.id === findInvestibleId);
       let investibleCopy;
       if (marketInvestible) {
         // This is a bind to market
@@ -66,7 +61,9 @@ const items = (state = [], action) => {
       investibleCopy.id = investibleId;
       investibleCopy.quantity = investment ? investment.investible_quantity : 0;
       investibleCopy.current_user_investment = investment ? investment.current_user_investment : 0;
-      return _.unionBy([investibleCopy], state, 'id');
+      newStateForCreation[investibleCopy.market_id] = _.unionBy([investibleCopy],
+        state[investibleCopy.market_id], 'id');
+      return newStateForCreation;
     default:
       return state;
   }

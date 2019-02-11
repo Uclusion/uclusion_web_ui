@@ -2,7 +2,6 @@ import { combineReducers } from 'redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import {
-  REQUEST_MARKET,
   RECEIVE_MARKET,
   SELECT_MARKET,
   RECEIVE_MARKET_CATEGORIES,
@@ -33,8 +32,6 @@ export const categoryPropType = PropTypes.shape({
 
 const marketItems = (state = [], action) => {
   switch (action.type) {
-    case REQUEST_MARKET:
-      return state;
     case RECEIVE_MARKET:
       const markets = [action.market];
       return _.unionBy(markets, state, 'id');

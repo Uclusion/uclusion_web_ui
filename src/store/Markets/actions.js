@@ -1,17 +1,11 @@
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 
-export const REQUEST_MARKET = 'REQUEST_MARKET';
 export const RECEIVE_MARKET = 'RECEIVE_MARKET';
 export const SELECT_MARKET = 'SELECT_MARKET';
-export const REQUEST_MARKET_CATEGORIES = 'REQUEST_MARKET_CATEGORIES';
 export const RECEIVE_MARKET_CATEGORIES = 'RECEIVE_MARKET_CATEGORIES';
 export const MARKET_CATEGORY_DELETED = 'MARKET_CATEGORY_DELETED';
 export const MARKET_CATEGORY_CREATED = 'MARKET_CATEGORY_CREATED';
-
-export const requestMarket = () => ({
-  type: REQUEST_MARKET,
-});
 
 export const receiveMarket = market => ({
   type: RECEIVE_MARKET,
@@ -20,11 +14,6 @@ export const receiveMarket = market => ({
 
 export const selectMarket = marketId => ({
   type: SELECT_MARKET,
-  marketId,
-});
-
-export const requestMarketCategories = marketId => ({
-  type: REQUEST_MARKET_CATEGORIES,
   marketId,
 });
 
@@ -46,7 +35,6 @@ export const categoryCreated = (category, marketId) => ({
 });
 
 export const fetchMarketCategories = (params = {}) => (dispatch) => {
-  dispatch(requestMarketCategories(params.marketId));
   const clientPromise = getClient();
   console.log('Fetching market categories');
   return clientPromise.then(client => client.markets.listCategories(params.marketId)).then((categories) => {
@@ -83,7 +71,6 @@ export const createMarketCategory = (params = {}) => (dispatch) => {
 };
 
 export const fetchMarket = (params = {}) => (dispatch) => {
-  dispatch(requestMarket());
   if (params.isSelected) {
     dispatch(selectMarket(params.market_id));
   }
@@ -91,9 +78,9 @@ export const fetchMarket = (params = {}) => (dispatch) => {
   const clientPromise = getClient();
   return clientPromise.then(client => client.markets.get(params.market_id)).then((market) => {
     dispatch(receiveMarket(market));
-    return dispatch(fetchMarketCategories({ marketId: market.id }));
+    dispatch(fetchMarketCategories({ marketId: market.id }));
   }).catch((error) => {
-    console.log(error);
+    console.error(error);
     dispatch(receiveMarket([]));
   });
 };

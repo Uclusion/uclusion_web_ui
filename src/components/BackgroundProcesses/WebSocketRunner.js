@@ -19,7 +19,10 @@ class WebSocketRunner {
       switch (payload.event_type) {
         case 'MARKET_INVESTIBLE_UPDATED':
         case 'MARKET_INVESTIBLE_CREATED':
-          this.dispatch(fetchInvestibles({ marketId: payload.sub_object_id, idList: [payload.object_id] }));
+          this.dispatch(fetchInvestibles({
+            marketId: payload.sub_object_id,
+            idList: [payload.object_id],
+          }));
           break;
         default:
           console.debug('unknown event:', event);
@@ -42,7 +45,8 @@ class WebSocketRunner {
   }
 
   onOpenFactory() {
-    // we have to assign queue this to prevent the handler's this from being retargeted to the websocket
+    // we have to assign queue this to prevent the handler's
+    // this from being retargeted to the websocket
     const queue = this.subscribeQueue;
     return (event) => {
       queue.forEach(action => this.socket.send(JSON.stringify(action)));
@@ -51,13 +55,12 @@ class WebSocketRunner {
   }
 
   onCloseFactory() {
-    const retryInterval = this.reconnectInterval;
-    const connectFunc = this.connect;
-    const connector = function () { connectFunc(); };
-    return (event) => {
-      console.log('Web Socket Closed. Reopening');
-      setInterval(connector, retryInterval);
+    const runner = this;
+    const connectFunc = function(event){
+      console.debug('Web socket closed. Reopening in:', runner.reconnectInterval);
+      setTimeout(runner.connect.bind(runner), runner.reconnectInterval);
     };
+    return connectFunc;
   }
 
   // dead stupid version without good error handling, we'll improve later,

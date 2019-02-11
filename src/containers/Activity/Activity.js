@@ -20,6 +20,7 @@ import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import { withRouter } from 'react-router-dom';
 import drawerActions from '../../store/drawer/actions';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import { getCurrentUser } from '../../store/Users/reducer';
@@ -126,7 +127,7 @@ function Activity(props) {
   function handleMarketChange(event) {
     const newMarketId = event.target.value;
     const {
-      webSocket, marketId, user, dispatch,
+      webSocket, marketId, user, dispatch, history,
     } = props;
     if (newMarketId !== marketId) {
       webSocket.subscribe(newMarketId, user.id);
@@ -135,7 +136,7 @@ function Activity(props) {
       // Have the user already but not the market presences which this fetch user will retrieve
       dispatch(fetchUser({ marketId: newMarketId, user }));
       const newMarket = markets.find(market => market.id === newMarketId);
-      window.location = getDifferentMarketLink(newMarket, 'investibles');
+      history.push(getDifferentMarketLink(newMarket, 'investibles'));
     }
   }
 
@@ -276,7 +277,7 @@ Activity.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
   drawer: PropTypes.object.isRequired,
-  children: PropTypes.object.isRequired,
+  children: PropTypes.object,
   intl: PropTypes.object.isRequired,
   title: PropTypes.string.isRequired,
   pageTitle: PropTypes.string,
@@ -289,6 +290,7 @@ Activity.propTypes = {
   marketId: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
+  history: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => {
@@ -306,4 +308,4 @@ export default withBackgroundProcesses(compose(
   withWidth(),
   withStyles(styles, { withTheme: true }),
   injectIntl,
-)(withMarketId(Activity)));
+)(withRouter(withMarketId(Activity))));

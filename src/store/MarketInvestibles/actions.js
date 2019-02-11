@@ -10,31 +10,18 @@ export const INVESTIBLE_CREATED = 'INVESTIBLE_CREATED';
 export const DELETE_MARKET_INVESTIBLE = 'DELETE_MARKET_INVESTIBLE';
 export const MARKET_INVESTIBLE_DELETED = 'MARKET_INVESTIBLE_DELETED';
 export const MARKET_INVESTIBLE_CREATED = 'MARKET_INVESTIBLE_CREATED';
-
-export const REQUEST_MARKET_INVESTIBLE_LIST = 'REQUEST_MARKET_INVESTIBLE_LIST';
 export const RECEIVE_MARKET_INVESTIBLE_LIST = 'RECEIVE_MARKET_INVESTIBLE_LIST';
 
-export const deleteInvestible = investibleId => ({
-  type: DELETE_MARKET_INVESTIBLE,
-  investibleId,
-});
-
-export const investibleDeleted = investibleId => ({
+export const investibleDeleted = (marketId, investibleId) => ({
   type: MARKET_INVESTIBLE_DELETED,
   investibleId,
+  marketId,
 });
 
-export const receiveInvestibles = investibles => ({
+export const receiveInvestibles = (marketId, investibles) => ({
   type: RECEIVE_INVESTIBLES,
   investibles,
-});
-
-export const investInInvestible = (marketId, teamId, investibleId, quantity) => ({
-  type: INVEST_INVESTIBLE,
-  investibleId,
-  quantity,
   marketId,
-  teamId,
 });
 
 export const investmentCreated = investment => ({
@@ -53,17 +40,6 @@ export const investibleCreated = investible => ({
   investible,
 });
 
-export const investibleListRequested = marketId => ({
-  type: REQUEST_MARKET_INVESTIBLE_LIST,
-  marketId,
-});
-
-export const investibleListReceived = (marketId, investibleList) => ({
-  type: RECEIVE_MARKET_INVESTIBLE_LIST,
-  marketId,
-  investibleList,
-});
-
 const determineNeedsUpdate = (currentInvestibles, investibleList) => {
   const currentHash = _.keyBy(currentInvestibles, item => item.id);
   const updateNeeded = _.filter(investibleList, (item) => {
@@ -78,7 +54,6 @@ export const fetchInvestibleList = (params = {}) => (dispatch) => {
   const clientPromise = getClient();
   return clientPromise.then(client => client.markets.listInvestibles(marketId))
     .then((investibleList) => {
-      dispatch(investibleListReceived(marketId, investibleList));
       const needsUpdate = determineNeedsUpdate(currentInvestibleList, investibleList);
       const chunks = _.chunk(needsUpdate, 50);
       for (let i = 0; i < chunks.length; i++) {
@@ -94,16 +69,16 @@ export const fetchInvestibleList = (params = {}) => (dispatch) => {
 export const fetchInvestibles = (params = {}) => (dispatch) => {
   const { idList, marketId } = params;
   const clientPromise = getClient();
-  return clientPromise.then(client => client.markets.getMarketInvestibles(marketId, idList)).then((investibles) => {
-    dispatch(receiveInvestibles(investibles));
-  }).catch((error) => {
-    console.error(error);
-    sendIntlMessage(ERROR, { id: 'investibleFetchFailed' });
-  });
+  return clientPromise.then(client => client.markets.getMarketInvestibles(marketId, idList))
+    .then((investibles) => {
+      dispatch(receiveInvestibles(marketId, investibles));
+    }).catch((error) => {
+      console.error(error);
+      sendIntlMessage(ERROR, { id: 'investibleFetchFailed' });
+    });
 };
 
 export const createInvestment = (params = {}) => (dispatch) => {
-  dispatch(investInInvestible(params.marketId, params.teamId, params.investibleId, params.quantity));
   const clientPromise = getClient();
   return clientPromise.then(client => client.markets.createInvestment(params.marketId, params.teamId, params.investibleId, params.quantity))
     .then((investment) => {
@@ -158,12 +133,11 @@ export const createMarketInvestible = (params = {}) => (dispatch) => {
 };
 
 export const deleteMarketInvestible = (params = {}) => (dispatch) => {
-  const investibleId = params;
-  dispatch(deleteInvestible(investibleId));
+  const { marketId, investibleId } = params;
   const clientPromise = getClient();
   return clientPromise.then(client => client.investibles.delete(investibleId))
     .then((deleted) => {
-      dispatch(investibleDeleted(investibleId));
+      dispatch(investibleDeleted(marketId, investibleId));
       sendIntlMessage(SUCCESS, { id: 'marketInvestibleDeleted' });
     }).catch((error) => {
       console.log(error);

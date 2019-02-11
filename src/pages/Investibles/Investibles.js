@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTheme } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
-import { getInvestibles, investiblePropType } from '../../store/MarketInvestibles/reducer';
+import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
 import { getMarketCategories, categoryPropType } from '../../store/Markets/reducer';
 import { getCurrentUser } from '../../store/Users/reducer';
@@ -16,22 +16,28 @@ import LoginModal from '../Login/LoginModal';
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
 function InvestiblesPage(props) {
-  const [lastFetched, setLastFetched] = useState(undefined);
+  const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
   function getItems() {
     const {
       investibles, marketId, dispatch,
       history: { location: { pathname } },
     } = props;
     const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
-    if (!showLogin && investibles && investibles.length > 0
-      && (!lastFetched || (Date.now() - lastFetched > pollRate))) {
-      console.log(`Fetching investibles from polling with last fetched ${lastFetched}`);
-      setLastFetched(Date.now());
-      dispatch(fetchInvestibleList({ marketId, currentInvestibleList: investibles }));
+    if (!showLogin) {
+      if (lastFetchedMarketId !== marketId) {
+        setLastFetchedMarketId(marketId);
+      }
+      console.log(`Fetching investibles with marketId ${marketId}`);
+      const currentInvestibleList = marketId in investibles ? investibles[marketId] : [];
+      dispatch(fetchInvestibleList({ marketId, currentInvestibleList }));
     }
   }
   useEffect(() => {
-    getItems(); // Initial fetch
+    const { marketId } = props;
+    if (lastFetchedMarketId !== marketId) {
+      // useEffect may happen many  times but initial fetch only when market changes
+      getItems();
+    }
     const timer = setInterval(() => getItems(), pollRate);
     return () => {
       clearInterval(timer);
@@ -44,17 +50,17 @@ function InvestiblesPage(props) {
     categories,
     marketId,
     user,
-    dispatch,
     history: { location: { pathname } },
   } = props;
 
   const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
-
-  if (!showLogin && investibles && investibles.length === 0
-    && (!lastFetched || (Date.now() - lastFetched > pollRate))) {
-    console.log('Fetching investibles');
-    setLastFetched(Date.now());
-    dispatch(fetchInvestibleList({ marketId, currentInvestibleList: investibles }));
+  let currentInvestibleList;
+  if (marketId in investibles) {
+    currentInvestibleList = investibles[marketId];
+  } else if (categories || investibles) {
+    currentInvestibleList = [];
+  } else {
+    currentInvestibleList = undefined;
   }
   // TODO: give choice of teamId instead of default
   return (
@@ -62,18 +68,18 @@ function InvestiblesPage(props) {
     <div>
 
       <Activity
-        isLoading={investibles === undefined}
+        isLoading={currentInvestibleList === undefined}
         containerStyle={{ overflow: 'hidden' }}
         title={intl.formatMessage({ id: 'investibles' })}
       >
 
-        {investibles && user && user.market_presence
+        {currentInvestibleList && user && user.market_presence
         && (
         <InvestibleList
           teamId={user.default_team_id}
           user={user}
           marketId={marketId}
-          investibles={investibles}
+          investibles={currentInvestibleList}
           categories={categories}
         />
         )}
@@ -90,7 +96,7 @@ function InvestiblesPage(props) {
 InvestiblesPage.propTypes = {
   dispatch: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
-  investibles: PropTypes.arrayOf(investiblePropType),
+  investibles: PropTypes.object,
   categories: PropTypes.arrayOf(categoryPropType),
   marketId: PropTypes.string,
   user: PropTypes.object,

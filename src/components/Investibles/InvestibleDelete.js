@@ -14,7 +14,10 @@ class InvestibleDelete extends React.Component {
 
   doDelete() {
     const { dispatch, investible } = this.props;
-    dispatch(deleteMarketInvestible(investible.id));
+    dispatch(deleteMarketInvestible({
+      marketId: investible.market_id,
+      investibleId: investible.id,
+    }));
   }
 
   render() {

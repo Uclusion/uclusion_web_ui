@@ -186,7 +186,7 @@ const messages = defineMessages({
   login_admin: 'Login Admin',
   login_user: 'Login User',
   // auth messages
-  authorizationFailed: "We're sorry, authorization failed. Please try again",
+  authorizationFailed: 'We\'re sorry, authorization failed. Please try again',
   authorizationInProgress: 'Logging you in...',
   // User messages
   investmentFailed: 'There was a problem investing. Please try again.',
@@ -204,6 +204,7 @@ const messages = defineMessages({
   marketCategoryCreateFailed: 'There was a problem adding the category to the market. Please try again',
   investibleListFetchFailed: 'Unable to fetch your list of investibles. Please refresh the page',
   investibleFetchFailed: 'Unable to fetch your investibles. Please refresh the page',
+  commentsFetchFailed: 'We\'re sorry comments are not currently available for that investible',
   // Stages
   BOUND: 'In market',
   NEEDS_REVIEW: 'Needs review',

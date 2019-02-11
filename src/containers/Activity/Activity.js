@@ -127,7 +127,7 @@ function Activity(props) {
   function handleMarketChange(event) {
     const newMarketId = event.target.value;
     const {
-      webSocket, marketId, user, dispatch, history
+      webSocket, marketId, user, dispatch, history,
     } = props;
     if (newMarketId !== marketId) {
       webSocket.subscribe(newMarketId, user.id);

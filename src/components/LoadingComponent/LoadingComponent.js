@@ -6,19 +6,11 @@ export const LoadingComponent = (props) => {
     if (props.timedOut) {
       // In case we've timed out loading our other component.
       return <div>Loader timed out!</div>;
-    } if (props.pastDelay) {
-      // Display a loading screen after a set delay. <img src="/logo.svg" className="loader" alt="logo" />
-      return (
-        <div className="shell">
-          <div className="container">
-            <img src="/logo.svg" className="loader" alt="logo" />
-          </div>
-        </div>
-      );
     }
     // Don't flash "Loading..." when we don't need to.
     return null;
-  } if (props.error) {
+  }
+  if (props.error) {
     console.warn(props.error);
 
     // Reload page on first failed load

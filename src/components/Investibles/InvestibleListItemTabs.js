@@ -63,7 +63,6 @@ class InvestibleListItemTabs extends React.Component {
           {canInvest && (
             <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })} />
           )}
-          <Tab className={classes.tab} label={intl.formatMessage({ id: 'activityTab' })} />
           <Tab className={classes.tab} label={intl.formatMessage({ id: 'commentsTab' })} />
         </Tabs>
         {value === 0 && canInvest && (

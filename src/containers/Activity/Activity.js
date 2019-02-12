@@ -24,11 +24,10 @@ import { withRouter } from 'react-router-dom';
 import drawerActions from '../../store/drawer/actions';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import { getCurrentUser } from '../../store/Users/reducer';
-import { fetchMarket } from '../../store/Markets/actions';
-import { fetchUser } from '../../store/Users/actions';
 import { getDifferentMarketLink } from '../../utils/marketIdPathFunctions';
 import { getClient } from '../../config/uclusionClient';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
+import { postAuthTasks } from '../../utils/fetchFunctions';
 
 const drawerWidth = 240;
 
@@ -130,11 +129,8 @@ function Activity(props) {
       webSocket, marketId, user, dispatch, history,
     } = props;
     if (newMarketId !== marketId) {
-      webSocket.subscribe(newMarketId, user.id);
+      postAuthTasks(null, null, dispatch, marketId, user, webSocket);
       const markets = extractMarkets(user);
-      dispatch(fetchMarket({ market_id: newMarketId, isSelected: true }));
-      // Have the user already but not the market presences which this fetch user will retrieve
-      dispatch(fetchUser({ marketId: newMarketId, user }));
       const newMarket = markets.find(market => market.id === newMarketId);
       history.push(getDifferentMarketLink(newMarket, 'investibles'));
     }

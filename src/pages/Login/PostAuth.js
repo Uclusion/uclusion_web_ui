@@ -6,12 +6,9 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import { fetchUser } from '../../store/Users/actions';
-import { fetchMarket } from '../../store/Markets/actions';
-import { setUclusionLocalStorageItem } from '../../components/utils';
 import appConfig from '../../config/config';
-import { fetchUserTeams } from '../../store/Teams/actions';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
+import { postAuthTasks } from '../../utils/fetchFunctions';
 
 const styles = theme => ({
   container: {
@@ -51,15 +48,7 @@ class PostAuth extends Component {
       const {
         uclusion_token, destination_page, market_id, user,
       } = resolve;
-      const authInfo = { token: uclusion_token, type: authorizer.getType() };
-      setUclusionLocalStorageItem('auth', authInfo);
-      // console.log('Destination ' + destination_page + ' for user ' + JSON.stringify(user))
-      // pre-emptively fetch the market and user, since we're likely to need it
-      dispatch(fetchMarket({ market_id, isSelected: true }));
-      dispatch(fetchUserTeams());
-      // We have the user already from login but not the market presences which this fetch user will retrieve
-      dispatch(fetchUser({ marketId: market_id, user }));
-      webSocket.subscribe(market_id, user.id);
+      postAuthTasks(uclusion_token, authorizer.getType(), dispatch, market_id, user, webSocket);
       this.setState({ marketId: market_id, destination: destination_page, failed: false });
     }, (reject) => {
       this.setState({ failed: true });

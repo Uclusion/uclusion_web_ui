@@ -188,6 +188,7 @@ const messages = defineMessages({
   myTeamsMenu: 'Team Memberships',
   login_admin: 'Login Admin',
   login_user: 'Login User',
+  login_guest: 'Login Guest',
   // auth messages
   authorizationFailed: 'We\'re sorry, authorization failed. Please try again',
   authorizationInProgress: 'Logging you in...',

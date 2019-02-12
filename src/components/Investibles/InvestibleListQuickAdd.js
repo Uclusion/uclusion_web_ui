@@ -72,7 +72,7 @@ class InvestibleListQuickAdd extends React.Component {
       addSubmitOnClick,
       addCancelOnClick,
     } = this.props;
-    console.log(this.state.description);
+    //console.log(this.state.description);
 
     if (!visible) {
       return null;

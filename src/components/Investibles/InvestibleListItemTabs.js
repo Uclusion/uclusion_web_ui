@@ -85,7 +85,7 @@ class InvestibleListItemTabs extends React.Component {
             investibleId={investibleId}
           />
         )}
-        {value === 1 && <CommentsList investibleId={investibleId}/>}
+        {value === 1 && <CommentsList currentUserInvestment={currentUserInvestment} investibleId={investibleId}/>}
         {value === 2 && <Typography>Coments Placeholder</Typography>}
       </div>
     );

@@ -56,7 +56,7 @@ class InvestibleInvest extends React.Component {
       marketId,
       quantity,
     }));
-    this.state.quantityToInvest = '';
+    this.setState({ ...this.props, quantityToInvest: '' });
   };
 
   validateQuantityToInvest = quantity => (quantity <= this.props.sharesAvailable) && (quantity > 0)

@@ -33,6 +33,7 @@ const items = (state = [], action) => {
         investibles = [investibles];
       }
       const newState = { ...state };
+      console.log(`Combining ${JSON.stringify(investibles)}`);
       newState[marketId] = _.unionBy(investibles, state[marketId], 'id');
       return newState;
     case MARKET_INVESTIBLE_DELETED:

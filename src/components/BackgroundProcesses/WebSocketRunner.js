@@ -49,6 +49,7 @@ class WebSocketRunner {
     // this from being retargeted to the websocket
     const queue = this.subscribeQueue;
     return (event) => {
+      console.log(`Here in open factory with ${JSON.stringify(queue)}`);
       queue.forEach(action => this.socket.send(JSON.stringify(action)));
       // we're not emptying the queue because we might need it on reconnect
     };
@@ -56,7 +57,7 @@ class WebSocketRunner {
 
   onCloseFactory() {
     const runner = this;
-    const connectFunc = function(event){
+    const connectFunc = function (event) {
       console.debug('Web socket closed. Reopening in:', runner.reconnectInterval);
       setTimeout(runner.connect.bind(runner), runner.reconnectInterval);
     };

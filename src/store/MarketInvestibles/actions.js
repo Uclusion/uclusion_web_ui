@@ -49,9 +49,23 @@ const determineNeedsUpdate = (currentInvestibles, investibleList) => {
   return updateNeeded.map(item => item.id);
 };
 
+export const fetchInvestibles = (params = {}) => (dispatch) => {
+  const { idList, marketId } = params;
+  const clientPromise = getClient();
+  console.log(`Fetching idList ${idList}`);
+  return clientPromise.then(client => client.markets.getMarketInvestibles(marketId, idList))
+    .then((investibles) => {
+      dispatch(receiveInvestibles(marketId, investibles));
+    }).catch((error) => {
+      console.error(error);
+      sendIntlMessage(ERROR, { id: 'investibleFetchFailed' });
+    });
+};
+
 export const fetchInvestibleList = (params = {}) => (dispatch) => {
   const { marketId, currentInvestibleList } = params;
   const clientPromise = getClient();
+  console.log(`Fetching investibles list for ${marketId}`);
   return clientPromise.then(client => client.markets.listInvestibles(marketId))
     .then((investibleList) => {
       const needsUpdate = determineNeedsUpdate(currentInvestibleList, investibleList);
@@ -63,18 +77,6 @@ export const fetchInvestibleList = (params = {}) => (dispatch) => {
     }).catch((error) => {
       console.error(error);
       sendIntlMessage(ERROR, { id: 'investibleListFetchFailed' });
-    });
-};
-
-export const fetchInvestibles = (params = {}) => (dispatch) => {
-  const { idList, marketId } = params;
-  const clientPromise = getClient();
-  return clientPromise.then(client => client.markets.getMarketInvestibles(marketId, idList))
-    .then((investibles) => {
-      dispatch(receiveInvestibles(marketId, investibles));
-    }).catch((error) => {
-      console.error(error);
-      sendIntlMessage(ERROR, { id: 'investibleFetchFailed' });
     });
 };
 

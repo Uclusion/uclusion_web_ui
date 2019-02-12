@@ -13,7 +13,7 @@ class WebSocketRunner {
   }
 
   getMessageHandler() {
-    return (event) => {
+    const handler = (event) => {
       console.log(event);
       const payload = JSON.parse(event.data);
       switch (payload.event_type) {
@@ -28,6 +28,7 @@ class WebSocketRunner {
           console.debug('unknown event:', event);
       }
     };
+    return handler.bind(this);
   }
 
   subscribe(marketId, userId) {
@@ -42,17 +43,25 @@ class WebSocketRunner {
     // compact the queue to remove duplicates
     const compacted = _.uniqWith(this.subscribeQueue, _.isEqual);
     this.subscribeQueue = compacted;
+    console.debug('Subscribe queue at end of subscribe:', JSON.stringify(this.subscribeQueue));
   }
 
   onOpenFactory() {
     // we have to assign queue this to prevent the handler's
     // this from being retargeted to the websocket
     const queue = this.subscribeQueue;
-    return (event) => {
-      console.log(`Here in open factory with ${JSON.stringify(queue)}`);
-      queue.forEach(action => this.socket.send(JSON.stringify(action)));
+    console.debug('Subcribing to:', queue);
+    const factory = (event) => {
+      console.debug('Here in open factory with queue:', JSON.stringify(queue));
+      console.debug('My socket is:', this.socket);
+      queue.forEach(action => {
+        const actionString = JSON.stringify(action)
+        console.debug('Sending to my socket:', this.socket, actionString);
+        this.socket.send(actionString);
+      });
       // we're not emptying the queue because we might need it on reconnect
     };
+    return factory.bind(this);
   }
 
   onCloseFactory() {
@@ -61,16 +70,16 @@ class WebSocketRunner {
       console.debug('Web socket closed. Reopening in:', runner.reconnectInterval);
       setTimeout(runner.connect.bind(runner), runner.reconnectInterval);
     };
-    return connectFunc;
+    return connectFunc.bind(this);
   }
 
   // dead stupid version without good error handling, we'll improve later,
   connect() {
     this.socket = new WebSocket(this.wsUrl);
-    this.socket.onopen = this.onOpenFactory().bind(this);
-    this.socket.onmessage = this.getMessageHandler().bind(this);
+    this.socket.onopen = this.onOpenFactory();
+    this.socket.onmessage = this.getMessageHandler();
     // make us retry
-    this.socket.onclose = this.onCloseFactory().bind(this);
+    this.socket.onclose = this.onCloseFactory();
   }
 }
 

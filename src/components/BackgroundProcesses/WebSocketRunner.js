@@ -67,10 +67,10 @@ class WebSocketRunner {
   // dead stupid version without good error handling, we'll improve later,
   connect() {
     this.socket = new WebSocket(this.wsUrl);
-    this.socket.onopen = this.onOpenFactory();
-    this.socket.onmessage = this.getMessageHandler();
+    this.socket.onopen = this.onOpenFactory().bind(this);
+    this.socket.onmessage = this.getMessageHandler().bind(this);
     // make us retry
-    this.socket.onclose = this.onCloseFactory();
+    this.socket.onclose = this.onCloseFactory().bind(this);
   }
 }
 

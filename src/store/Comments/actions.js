@@ -1,4 +1,4 @@
-import { getClient } from '../../config/uclusionClient';
+import { getClient } from '../../config/uclusionClient'
 import { sendIntlMessage, ERROR, SUCCESS } from '../../utils/userMessage';
 
 export const COMMENTS_LIST_REQUESTED = 'COMMENTS_LIST_REQUESTED';
@@ -18,7 +18,7 @@ export const commentReceived = (comment) => ({
 
 export const commentListRequested = (investibleId) => ({
   type: COMMENTS_LIST_REQUESTED,
-  investibleId
+  investibleId,
 });
 
 export const commentListReceived = (comments) => ({
@@ -26,10 +26,24 @@ export const commentListReceived = (comments) => ({
   comments,
 });
 
-export const fetchComment = (params = {}) => (dispatch) =>  {
+export const fetchComment = (params = {}) => (dispatch) => {
   const { commentId } = params;
   const clientPromise = getClient();
- /* clientPromise.then((client) => {
-    client.investibles.
-  })*/
+  clientPromise.then((client) => {
+    client.investibles.getComment(commentId);
+  });
+};
+
+export const fetchCommentList = (params = {}) => (dispatch) => {
+  const { investibleId } = params;
+  const clientPromise = getClient();
+  clientPromise.then((client) => {
+    client.investibles.listComments(investibleId, 9999)
+      .then((comments) => {
+        dispatch(commentListReceived(comments));
+      }).catch((error) => {
+        console.error(error);
+        sendIntlMessage(ERROR, { id: 'commentsFetchFailed' });
+      });
+  });
 };

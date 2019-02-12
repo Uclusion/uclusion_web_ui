@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import filterReducer from 'material-ui-filter/lib/store/reducer';
-import initState from './init';
+import { initState } from './init';
 import rootReducer from './rootReducer';
 import investiblesReducer from './MarketInvestibles/reducer';
 import marketsReducer from './Markets/reducer';
@@ -11,6 +11,7 @@ import persistentValues from './persistentValues/reducer';
 import simpleValues from './simpleValues/reducer';
 import themeSource from './themeSource/reducer';
 import drawer from './drawer/reducer';
+import commentsReducer from './Comments/reducer';
 
 
 export const appReducers = {
@@ -24,7 +25,12 @@ export const appReducers = {
 
 
 const appReducer = combineReducers({
-  ...appReducers, investiblesReducer, marketsReducer, usersReducer, teamsReducer,
+  ...appReducers,
+  investiblesReducer,
+  marketsReducer,
+  usersReducer,
+  teamsReducer,
+  commentsReducer,
 });
 
 

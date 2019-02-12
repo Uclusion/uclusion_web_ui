@@ -4,11 +4,11 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-
+import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import InvestibleInvest from './InvestibleInvest';
-
+import { fetchInvestibleList } from "../../store/MarketInvestibles/actions";
 
 const styles = theme => ({
   paper: {
@@ -31,10 +31,16 @@ class InvestibleListItemTabs extends React.Component {
       value: 0,
     };
     this.handleChange = this.handleChange.bind(this);
+    this.fetchComments = this.fetchComments.bind(this);
   }
 
   handleChange = (event, value) => {
     this.setState({ value });
+  };
+
+  fetchComments = (investibleId) => {
+    const { dispatch } = this.props;
+    dispatch(fetchInvestibleList({ investibleId }));
   };
 
   render() {
@@ -61,9 +67,14 @@ class InvestibleListItemTabs extends React.Component {
           textColor="primary"
         >
           {canInvest && (
-            <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })} />
+            <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })}/>
           )}
-          <Tab className={classes.tab} label={intl.formatMessage({ id: 'commentsTab' })} />
+          <Tab
+            className={classes.tab}
+            label={intl.formatMessage({ id: 'commentsTab' })}
+            investibleId={investibleId}
+            onClick={() => this.fetchComments({ investibleId })}
+          />
         </Tabs>
         {value === 0 && canInvest && (
           <InvestibleInvest
@@ -88,6 +99,15 @@ InvestibleListItemTabs.propTypes = {
   teamId: PropTypes.string.isRequired,
   sharesAvailable: PropTypes.number.isRequired,
   currentUserInvestment: PropTypes.number.isRequired,
+  userPermissions: PropTypes.object.isRequired,
 };
 
-export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs)));
+function mapStateToProps(state){
+  return {};
+}
+
+function mapDispatchToProps(dispatch){
+  return { dispatch };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs))));

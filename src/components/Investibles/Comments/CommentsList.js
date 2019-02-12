@@ -16,7 +16,7 @@ function CommentsList(props) {
       return [];
     }
     return myComments.map((comment) => (
-        <CommentListItem key={comment.id} comment={comment} />
+        <CommentListItem key={comment.id} {...comment} />
     ));
   }
 

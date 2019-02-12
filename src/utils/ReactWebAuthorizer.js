@@ -1,4 +1,4 @@
-import { OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk';
+import { OidcAuthorizer, SsoAuthorizer, AnonymousAuthorizer } from 'uclusion_authorizer_sdk';
 import decode from 'jwt-decode';
 import { getUclusionLocalStorageItem } from '../components/utils';
 import { getAuthMarketId } from './marketIdPathFunctions';
@@ -52,6 +52,9 @@ class ReactWebAuthorizer {
         break;
       case 'sso':
         authorizer = new SsoAuthorizer(config);
+        break;
+      case 'anonymous':
+        authorizer = new AnonymousAuthorizer(config);
         break;
       default:
         // I don't recognize this type of authorizer, so I'm going to make you log in again

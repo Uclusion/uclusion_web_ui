@@ -1,4 +1,6 @@
+/* eslint-disable react/forbid-prop-types */
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { OidcAuthorizer, SsoAuthorizer, AnonymousAuthorizer } from 'uclusion_authorizer_sdk';
 import {
   Button, Dialog, DialogTitle, List, ListItem,
@@ -6,8 +8,9 @@ import {
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import appConfig from '../../config/config';
-import { getAuthMarketId, getMarketId } from '../../utils/marketIdPathFunctions';
+import { getAuthMarketId, formCurrentMarketLink, getMarketId } from '../../utils/marketIdPathFunctions';
 import { postAuthTasks } from '../../utils/fetchFunctions';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 
@@ -77,7 +80,7 @@ function LoginModal(props) {
   }
 
   function loginAnonymous() {
-    const { dispatch, webSocket } = props;
+    const { dispatch, webSocket, history } = props;
     const loginParams = getLoginParams();
     const authorizer = new AnonymousAuthorizer(loginParams);
     authorizer.doPostAuthorize().then((resolve) => {
@@ -85,6 +88,7 @@ function LoginModal(props) {
         uclusion_token, market_id, user,
       } = resolve;
       postAuthTasks(uclusion_token, authorizer.getType(), dispatch, market_id, user, webSocket);
+      history.push(formCurrentMarketLink('investibles'));
     });
   }
 
@@ -133,6 +137,13 @@ function LoginModal(props) {
   );
 }
 
+LoginModal.propTypes = {
+  dispatch: PropTypes.func.isRequired,
+  intl: PropTypes.object.isRequired,
+  history: PropTypes.object.isRequired,
+  webSocket: PropTypes.object.isRequired,
+};
+
 function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
@@ -142,4 +153,4 @@ function mapStateToProps(state) {
 }
 
 export default withBackgroundProcesses(withStyles(styles)(connect(mapStateToProps,
-  mapDispatchToProps)(injectIntl(LoginModal))));
+  mapDispatchToProps)(injectIntl(withRouter(LoginModal)))));

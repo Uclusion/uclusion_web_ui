@@ -130,7 +130,7 @@ function Activity(props) {
       webSocket, marketId, user, dispatch, history,
     } = props;
     if (newMarketId !== marketId) {
-      webSocket.subscribe(newMarketId, user.id);
+      webSocket.subscribe(user.id, {market_id: newMarketId});
       const markets = extractMarkets(user);
       dispatch(fetchMarket({ market_id: newMarketId, isSelected: true }));
       // Have the user already but not the market presences which this fetch user will retrieve

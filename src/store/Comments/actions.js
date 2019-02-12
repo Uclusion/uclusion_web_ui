@@ -12,9 +12,8 @@ export const commentRequested = (commentId) => ({
   commentId,
 });
 
-export const commentCreated = (investibleId, comment) => ({
+export const commentCreated = (comment) => ({
   type: COMMENT_CREATED,
-  investibleId,
   comment
 });
 
@@ -37,7 +36,12 @@ export const fetchComment = (params = {}) => (dispatch) => {
   const { commentId } = params;
   const clientPromise = getClient();
   clientPromise.then((client) => {
-    client.investibles.getComment(commentId);
+    client.investibles.getComment(commentId)
+      .then((comment) => {
+        dispatch(commentReceived(comment));
+      }).catch((error) => {
+        console.error(error);
+      });
   });
 };
 
@@ -61,7 +65,7 @@ export const createComment = (params = {}) => (dispatch) => {
   clientPromise.then((client) => {
     client.investibles.createComment(investibleId, body)
       .then((comment) => {
-        dispatch(commentCreated(investibleId, comment));
+        dispatch(commentCreated(comment));
         sendIntlMessage(SUCCESS, { id: 'commentCreateSucceeded' });
       }).catch((error) => {
         console.error(error);

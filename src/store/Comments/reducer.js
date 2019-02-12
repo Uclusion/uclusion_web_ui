@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { COMMENTS_LIST_RECEIVED, COMMENT_CREATED } from './actions';
+import { COMMENTS_LIST_RECEIVED, COMMENT_CREATED, COMMENT_RECEIVED } from './actions';
 import _ from 'lodash';
 
 function investibleComments(state = {}, action) {
@@ -9,10 +9,11 @@ function investibleComments(state = {}, action) {
       const listState = { ...state };
       listState[investible_id] = comments;
       return listState;
+    case COMMENT_RECEIVED:
     case COMMENT_CREATED:
-      const { investibleId, comment } = action;
+      const { comment } = action;
       const createState = { ...state};
-      createState[investibleId].push(comment);
+      createState[comment.investible_id].push(comment);
       return createState;
     default:
       return state;

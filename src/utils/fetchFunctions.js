@@ -14,5 +14,5 @@ export function postAuthTasks(uclusionToken, tokenType, dispatch, market_id, use
   dispatch(fetchUserTeams());
   // Have the user from login but not the market presences which this fetch user will retrieve
   dispatch(fetchUser({ marketId: market_id, user }));
-  webSocket.subscribe(market_id, user.id);
+  webSocket.subscribe(user.id, { market_id });
 }

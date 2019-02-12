@@ -1,6 +1,8 @@
 import { connect } from 'react-redux';
 import { getComments } from '../../../store/Comments/reducer';
 import CommentListItem from './CommentListItem';
+import React from 'react';
+
 
 function CommentsList(props){
 

@@ -8,7 +8,8 @@ import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import InvestibleInvest from './InvestibleInvest';
-import { fetchInvestibleList } from "../../store/MarketInvestibles/actions";
+import { fetchCommentList } from '../../store/Comments/actions';
+import CommentsList from './Comments/CommentsList';
 
 const styles = theme => ({
   paper: {
@@ -40,7 +41,7 @@ class InvestibleListItemTabs extends React.Component {
 
   fetchComments = (investibleId) => {
     const { dispatch } = this.props;
-    dispatch(fetchInvestibleList({ investibleId }));
+    dispatch(fetchCommentList({ investibleId }));
   };
 
   render() {
@@ -72,8 +73,7 @@ class InvestibleListItemTabs extends React.Component {
           <Tab
             className={classes.tab}
             label={intl.formatMessage({ id: 'commentsTab' })}
-            investibleId={investibleId}
-            onClick={() => this.fetchComments({ investibleId })}
+            onClick={() => this.fetchComments(investibleId )}
           />
         </Tabs>
         {value === 0 && canInvest && (
@@ -85,7 +85,7 @@ class InvestibleListItemTabs extends React.Component {
             investibleId={investibleId}
           />
         )}
-        {value === 1 && <Typography>Activity Placeholder</Typography>}
+        {value === 1 && <CommentsList investibleId={investibleId}/>}
         {value === 2 && <Typography>Coments Placeholder</Typography>}
       </div>
     );

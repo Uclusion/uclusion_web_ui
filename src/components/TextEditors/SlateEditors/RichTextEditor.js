@@ -191,7 +191,7 @@ class RichTextEditor extends React.Component {
   toolBar = () => {
     const {readOnly} = this.props
     if (readOnly) {
-      return null
+      return null;
     }
     return (
       <div>

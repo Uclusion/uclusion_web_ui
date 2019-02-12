@@ -4,6 +4,7 @@ import { createComment } from "../../../store/Comments/actions";
 import Paper from "@material-ui/core/es/Paper/Paper";
 import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
+import Button from "@material-ui/core/es/Button/Button";
 
 class CommentsAdd extends React.Component {
 
@@ -15,11 +16,10 @@ class CommentsAdd extends React.Component {
     this.addOnClick = this.addOnClick.bind(this);
   }
 
-  addOnClick(addSubmitOnClick) {
+  addOnClick() {
     const { dispatch, investibleId, intl } = this.props;
     const { body } = this.state;
     dispatch(createComment({ investibleId, body }));
-    addSubmitOnClick();
     this.setState({ body: intl.formatMessage({ id: 'commentBody' }) });
   }
 
@@ -33,9 +33,18 @@ class CommentsAdd extends React.Component {
   }
 
   render() {
+    const { intl } = this.props;
     return (
       <Paper>
-        <HtmlRichTextEditor value={this.state.body} onChange={this.handleChange('body')}/>
+        <HtmlRichTextEditor value={this.state.body} onChange={this.handleChange('body')} />
+        <Button
+          variant="contained"
+          fullWidth
+          color="primary"
+          onClick={() => this.addOnClick()}
+        >
+          {intl.formatMessage({id: 'saveCommentButton'})}
+        </Button>
       </Paper>
     );
   }

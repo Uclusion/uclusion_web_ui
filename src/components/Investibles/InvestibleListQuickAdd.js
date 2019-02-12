@@ -38,7 +38,7 @@ class InvestibleListQuickAdd extends React.Component {
   constructor(props) {
     super(props);
     const { intl } = props;
-    this.state = { description: intl.formatMessage({ id: 'descriptionLabel' }) };
+    this.state = { description: intl.formatMessage({ id: 'descriptionBody' }) };
     this.handleChange = this.handleChange.bind(this);
     this.addOnClick = this.addOnClick.bind(this);
   }
@@ -48,11 +48,11 @@ class InvestibleListQuickAdd extends React.Component {
     this.setState({
       [name]: value,
     });
-  }
+  };
 
   addOnClick = (addSubmitOnClick) => {
     const {
-      dispatch, marketId, teamId, category, userPermissions,
+      dispatch, marketId, teamId, category, userPermissions, intl
     } = this.props;
     const { canInvest } = userPermissions;
     const payload = {
@@ -60,6 +60,7 @@ class InvestibleListQuickAdd extends React.Component {
     };
     dispatch(createMarketInvestible(payload));
     addSubmitOnClick();
+    this.setState({ title: '', description: intl.formatMessage({ id: 'descriptionBody' }) });
   };
 
 
@@ -90,7 +91,7 @@ class InvestibleListQuickAdd extends React.Component {
             fullWidth
             onChange={this.handleChange('title')}
           />
-          <HtmlRichTextEditor value={this.state.description} onChange={this.handleChange('description')} />
+          <HtmlRichTextEditor value={this.state.description} onChange={this.handleChange('description')}/>
         </Paper>
         <div className={classes.actionContainer}>
           <Button

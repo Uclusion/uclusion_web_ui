@@ -168,6 +168,8 @@ const messages = defineMessages({
   categoriesListNotFound: 'No Market Categories found',
   titleLabel: 'Title',
   descriptionLabel: 'Description',
+  descriptionBody: 'Your description...',
+  commentBody: 'Your comment...',
   // Sidebar menu names
   marketCategoriesMenu: 'Categories',
   marketTeamsMenu: 'Market Teams',
@@ -205,6 +207,8 @@ const messages = defineMessages({
   investibleListFetchFailed: 'Unable to fetch your list of investibles. Please refresh the page',
   investibleFetchFailed: 'Unable to fetch your investibles. Please refresh the page',
   commentsFetchFailed: 'We\'re sorry comments are not currently available for that investible',
+  commentCreateSucceeded: 'You\'re comment has been added',
+  commentCreateFailed: 'We\'re sorry, your comment could not be created',
   // Stages
   BOUND: 'In market',
   NEEDS_REVIEW: 'Needs review',

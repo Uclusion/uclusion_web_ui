@@ -3,27 +3,42 @@ import { getComments } from '../../../store/Comments/reducer';
 import CommentListItem from './CommentListItem';
 import CommentsAdd from './CommentsAdd';
 import React from 'react';
-
+import Typography from '@material-ui/core/es/Typography/Typography';
+import { injectIntl } from 'react-intl';
 
 function CommentsList(props) {
 
-  const { investibleId } = props;
+  const { investibleId, intl } = props;
 
   function getListItems() {
     const { investibleComments } = props;
     const myComments = investibleComments[investibleId];
-    if (!myComments) {
-      return [];
+    if (!myComments || myComments.length === 0) {
+      return <Typography>{intl.formatMessage({ id: 'noComments' })}</Typography>;
     }
     return myComments.map((comment) => (
         <CommentListItem key={comment.id} {...comment} />
     ));
   }
 
+
+  function userCanComment(){
+    const { currentUserInvestment } = props;
+    return currentUserInvestment > 0;
+  }
+
+  function getCommentAddSection(){
+    const canComment = userCanComment();
+    if (userCanComment()){
+      return <CommentsAdd investibleId={investibleId} />;
+    }
+    return <Typography>{intl.formatMessage({ id: 'investToComment' })}</Typography>;
+  }
+
   return (
     <div>
       {getListItems()}
-      <CommentsAdd investibleId={investibleId} />
+      {getCommentAddSection()}
     </div>
   );
 }
@@ -34,4 +49,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(CommentsList);
+export default connect(mapStateToProps)(injectIntl(CommentsList));

@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
+import { fetchComment } from "../../store/Comments/actions";
 
 /**
  * Class which fires and manages a websocket connection to the server. It may need to become a service worker
@@ -24,6 +25,10 @@ class WebSocketRunner {
             idList: [payload.object_id],
           }));
           break;
+        case 'INVESTIBLE_COMMENT_UPDATED':
+          this.dispatch(fetchComment({
+            commentId: payload.object_id,
+          }))
         default:
           console.debug('unknown event:', event);
       }
@@ -31,8 +36,15 @@ class WebSocketRunner {
     return handler.bind(this);
   }
 
-  subscribe(marketId, userId) {
-    const action = { action: 'subscribe', user_id: userId, market_id: marketId };
+  /**
+   * Subscribes the given user id to the subscriptions described in the subscriptions object
+   * subscriptions is an object of a form similar to
+   * {market_id: marketId, investible_id: investibleId ...}
+   * @param userId the user id to subscribe with
+   * @param subscriptions the object ids to subscribe too
+   */
+  subscribe(userId, subscriptions) {
+    const action = { action: 'subscribe', user_id: userId, ...subscriptions };
     // push the action onto the subscribe queue so if we reconnect we'll track it
     this.subscribeQueue.push(action);
     // if socket is open, just go ahead and send it

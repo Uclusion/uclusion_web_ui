@@ -178,6 +178,8 @@ const messages = defineMessages({
   categoryLabel: 'Category',
   saveCommentButton: 'Save Comment',
   saveInvestibleButton: 'Save investible',
+  investToComment: 'You must invest to comment.',
+  noComments: 'There are no comments yet.',
   loadingMessage: 'Loading',
   investibleAddDescriptionDefault: 'Add a description...',
   // Team Memberships pages

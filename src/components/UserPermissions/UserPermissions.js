@@ -46,13 +46,14 @@ function withUserAndPermissions(WrappedComponent) {
 
     render() {
       const userPermissions = this.getUserPermissions();
+      const upUser = this.props._upUser;
       // remove the up user
       const newProps = { ...this.props };
       delete newProps._upUserLoading;
       delete newProps._upUser;
 
       // technically we're passing the user and Permissions here which is fine
-      return <WrappedComponent {...newProps} userPermissions={userPermissions} />;
+      return <WrappedComponent {...newProps} upUser={upUser} userPermissions={userPermissions} />;
     }
   }
   return connect(mapStateToProps)(UserPermissionsWrapper);

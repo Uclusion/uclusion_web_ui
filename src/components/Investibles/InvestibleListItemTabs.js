@@ -10,6 +10,7 @@ import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import InvestibleInvest from './InvestibleInvest';
 import { fetchCommentList } from '../../store/Comments/actions';
 import CommentsList from './Comments/CommentsList';
+import { withBackgroundProcesses } from "../BackgroundProcesses/BackgroundProcessWrapper";
 
 const styles = theme => ({
   paper: {
@@ -40,7 +41,8 @@ class InvestibleListItemTabs extends React.Component {
   };
 
   fetchComments = (investibleId) => {
-    const { dispatch } = this.props;
+    const { dispatch, webSocket, upUser } = this.props;
+    webSocket.subscribe(upUser.id, {investible_id: investibleId});
     dispatch(fetchCommentList({ investibleId }));
   };
 
@@ -85,7 +87,7 @@ class InvestibleListItemTabs extends React.Component {
             investibleId={investibleId}
           />
         )}
-        {value === 1 && <CommentsList investibleId={investibleId}/>}
+        {value === 1 && <CommentsList currentUserInvestment={currentUserInvestment} investibleId={investibleId}/>}
         {value === 2 && <Typography>Coments Placeholder</Typography>}
       </div>
     );
@@ -100,6 +102,7 @@ InvestibleListItemTabs.propTypes = {
   sharesAvailable: PropTypes.number.isRequired,
   currentUserInvestment: PropTypes.number.isRequired,
   userPermissions: PropTypes.object.isRequired,
+  upUser: PropTypes.object.isRequired,
 };
 
 function mapStateToProps(state){
@@ -110,4 +113,4 @@ function mapDispatchToProps(dispatch){
   return { dispatch };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs))));
+export default withBackgroundProcesses(connect(mapStateToProps, mapDispatchToProps)(injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs)))));

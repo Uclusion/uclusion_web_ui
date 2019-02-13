@@ -211,7 +211,7 @@ const messages = defineMessages({
   investibleListFetchFailed: 'Unable to fetch your list of investibles. Please refresh the page',
   investibleFetchFailed: 'Unable to fetch your investibles. Please refresh the page',
   commentsFetchFailed: 'We\'re sorry comments are not currently available for that investible',
-  commentCreateSucceeded: 'You\'re comment has been added',
+  commentCreateSucceeded: 'Your comment has been added',
   commentCreateFailed: 'We\'re sorry, your comment could not be created',
   // Stages
   BOUND: 'In market',

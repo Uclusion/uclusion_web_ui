@@ -41,12 +41,23 @@ const getThemeSource = (t, ts) => {
         const source = ts[i].source;
         const palette = source != null ? source.palette : {};
 
-        return createMuiTheme({ ...source, palette: { ...palette, type: t.isNightModeOn ? 'dark' : 'light' } });
+        return createMuiTheme({
+          ...source,
+          palette: { ...palette, type: t.isNightModeOn ? 'dark' : 'light' },
+          typography: {
+            useNextVariants: true,
+          },
+        });
       }
     }
   }
 
-  return createMuiTheme({ palette: { type: t.isNightModeOn ? 'dark' : 'light' } }); // Default theme
+  return createMuiTheme({
+    palette: { type: t.isNightModeOn ? 'dark' : 'light' },
+    typography: {
+      useNextVariants: true,
+    },
+  }); // Default theme
 };
 
 export default getThemeSource;

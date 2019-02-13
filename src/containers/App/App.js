@@ -16,11 +16,18 @@ addLocalizationData(locales);
 class App extends Component {
   render() {
     const { appConfig, locale } = this.props;
-    const messages = { ...(getLocaleMessages(locale, locales)), ...(getLocaleMessages(locale, appConfig.locales)) };
-    const store = (appConfig && appConfig.configureStore) ? appConfig.configureStore() : configureStore();
+    let myLocale = locale;
+    if (!myLocale) {
+      myLocale = 'en';
+    }
+    const messages = { ...(getLocaleMessages(locale, locales)),
+      ...(getLocaleMessages(locale, appConfig.locales)),
+    };
+    const store = (appConfig && appConfig.configureStore)
+      ? appConfig.configureStore() : configureStore();
     const configs = { ...config, ...appConfig };
     return (
-      <IntlProvider locale={locale} key={locale} messages={messages}>
+      <IntlProvider locale={myLocale} key={myLocale} messages={messages}>
         <IntlGlobalProvider>
           <Provider store={store}>
             <AppConfigProvider appConfig={configs}>

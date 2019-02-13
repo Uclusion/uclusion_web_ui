@@ -236,7 +236,7 @@ function Activity(props) {
               </FormControl>
             </form>
           )}
-          <Typography variant="title" color="inherit" noWrap>
+          <Typography variant="h6" color="inherit" noWrap>
             {headerTitle}
           </Typography>
           <div className={classes.grow} />

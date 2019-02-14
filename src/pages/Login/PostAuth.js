@@ -5,23 +5,9 @@ import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import appConfig from '../../config/config';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { postAuthTasks } from '../../utils/fetchFunctions';
-
-const styles = theme => ({
-  container: {
-    height: '100vh',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    width: '80%',
-    height: '80%',
-  },
-});
 
 class PostAuth extends Component {
   constructor(props) {
@@ -76,11 +62,7 @@ class PostAuth extends Component {
       );
     }
 
-    return (
-      <div className={classes.container}>
-        <img className={classes.logo} src="/logo.svg" alt="logo" />
-      </div>
-    );
+    return <div />;
   }
 }
 
@@ -96,4 +78,4 @@ PostAuth.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withBackgroundProcesses(withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(injectIntl(PostAuth))));
+export default withBackgroundProcesses(connect(mapStateToProps, mapDispatchToProps)(injectIntl(PostAuth)));

@@ -163,4 +163,4 @@ function mapStateToProps(state) {
 }
 
 export default withBackgroundProcesses(withStyles(styles)(connect(mapStateToProps,
-  mapDispatchToProps)(injectIntl(withRouter(LoginModal)))));
+  mapDispatchToProps)(injectIntl(withRouter(React.memo(LoginModal))))));

@@ -85,9 +85,11 @@ function InvestiblesPage(props) {
         )}
       </Activity>
 
-      <LoginModal
-        open={showLogin}
-      />
+      {showLogin && (
+        <LoginModal
+          open={showLogin}
+        />
+      )}
     </div>
 
   );
@@ -116,4 +118,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withTheme()(withMarketId(InvestiblesPage))));
+)(injectIntl(withTheme()(withMarketId(React.memo(InvestiblesPage)))));

@@ -33,7 +33,7 @@ const styles = theme => ({
   },
 });
 
-class QuickAddItemListCategory extends React.Component {
+class QuickAddItemListCategory extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = { ...props, quickAddVisible: false };

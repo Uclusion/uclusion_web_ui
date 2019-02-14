@@ -26,7 +26,7 @@ const styles = theme => ({
   },
 });
 
-class InvestibleListItemTabs extends React.Component {
+class InvestibleListItemTabs extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {

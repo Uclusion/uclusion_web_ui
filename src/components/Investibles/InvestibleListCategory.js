@@ -6,8 +6,7 @@ import InvestibleListQuickAdd from './InvestibleListQuickAdd';
 import { reverseDateComparator, combineComparators } from '../../utils/comparators';
 
 
-class InvestibleListCategory extends React.Component {
-
+class InvestibleListCategory extends React.PureComponent {
   getSortedInvestiblesList(investibles) {
     const unsorted = investibles && investibles.map ? investibles : [];
     // just using reverse date sort with secondary comparison of invested amount and tertiary on id

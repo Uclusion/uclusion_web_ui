@@ -6,7 +6,7 @@ import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core/styles/index';
 import { deleteMarketInvestible } from '../../store/MarketInvestibles/actions';
 
-class InvestibleDelete extends React.Component {
+class InvestibleDelete extends React.PureComponent {
   constructor(props) {
     super(props);
     this.doDelete = this.doDelete.bind(this);

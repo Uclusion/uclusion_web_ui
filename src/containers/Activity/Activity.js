@@ -304,4 +304,4 @@ export default withBackgroundProcesses(compose(
   withWidth(),
   withStyles(styles, { withTheme: true }),
   injectIntl,
-)(withRouter(withMarketId(Activity))));
+)(withRouter(withMarketId(React.memo(Activity)))));

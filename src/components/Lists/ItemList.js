@@ -37,7 +37,7 @@ const styles = theme => ({
 
 });
 
-class ItemList extends React.Component {
+class ItemList extends React.PureComponent {
   // TODO: this may need to change to pasing in the panels, sice we probably want to customize the entire list (e.g. just render the children in the list
   render() {
     const {

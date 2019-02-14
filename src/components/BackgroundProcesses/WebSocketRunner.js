@@ -28,7 +28,8 @@ class WebSocketRunner {
         case 'INVESTIBLE_COMMENT_UPDATED':
           this.dispatch(fetchComment({
             commentId: payload.object_id,
-          }))
+          }));
+          break;
         default:
           console.debug('unknown event:', event);
       }

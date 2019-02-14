@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux';
 import { COMMENTS_LIST_RECEIVED, COMMENT_CREATED, COMMENT_RECEIVED } from './actions';
-import _ from 'lodash';
 
 function investibleComments(state = {}, action) {
   switch (action.type) {

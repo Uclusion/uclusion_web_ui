@@ -47,7 +47,7 @@ class PostAuth extends Component {
   }
 
   render() {
-    const { intl, classes } = this.props;
+    const { intl } = this.props;
     const { marketId, destination, failed } = this.state;
 
     if (marketId) {

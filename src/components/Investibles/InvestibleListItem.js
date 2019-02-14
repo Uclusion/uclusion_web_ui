@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {
   ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Typography,
@@ -46,7 +46,7 @@ const styles = theme => ({
   },
 });
 
-class InvestibleListItem extends Component {
+class InvestibleListItem extends PureComponent {
   constructor(props) {
     super(props);
     this.state = { investOpen: false };

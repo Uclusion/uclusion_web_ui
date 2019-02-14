@@ -5,7 +5,7 @@ import { getTeamMembers } from '../../store/Teams/reducer';
 import { fetchTeamMembers } from '../../store/Teams/actions';
 import MemberListCategory from './MemberListCategory';
 
-class MemberList extends React.Component {
+class MemberList extends React.PureComponent {
   componentDidMount() {
     this.readCurrentUsers();
   }

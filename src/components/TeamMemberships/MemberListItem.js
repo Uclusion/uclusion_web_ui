@@ -41,7 +41,7 @@ const styles = theme => ({
   },
 });
 
-class MemberListItem extends React.Component {
+class MemberListItem extends React.PureComponent {
   render() {
     const { name, classes } = this.props;
     // for now, don't bother rendering the TEAM user

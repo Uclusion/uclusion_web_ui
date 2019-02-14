@@ -34,7 +34,7 @@ const styles = theme => ({
 
 });
 
-class InvestibleListQuickAdd extends React.Component {
+class InvestibleListQuickAdd extends React.PureComponent {
   constructor(props) {
     super(props);
     const { intl } = props;

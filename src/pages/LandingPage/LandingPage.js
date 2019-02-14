@@ -11,7 +11,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
-import { GitHubIcon } from '../../components/Icons';
+import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 
 const styles = theme => ({
   main: {
@@ -29,8 +29,8 @@ const styles = theme => ({
     // minHeight: '80vh',
     flex: '0 0 auto',
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'left',
+    alignItems: 'left',
     backgroundColor: theme.palette.background.paper,
     color: theme.palette.type === 'light' ? theme.palette.primary.dark : theme.palette.primary.main,
   },
@@ -72,9 +72,7 @@ const styles = theme => ({
     marginTop: theme.spacing.unit * 3,
   },
   logo: {
-    marginLeft: '37%',
-    width: '25%',
-    height: '25%',
+    marginLeft: '0%',
   },
   steps: {
     maxWidth: theme.spacing.unit * 130,
@@ -155,7 +153,7 @@ class LandingPage extends Component {
           <meta name="theme-color" content={theme.palette.primary.main} />
           <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
           <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
-          <title>UCLUSION MOST WANTED</title>
+          <title>Uclusion Registration</title>
         </Helmet>
         <AppBar position="static">
           <Toolbar disableGutters>
@@ -164,24 +162,24 @@ class LandingPage extends Component {
             <Tooltip id="tooltip-icon1" title="Sign in">
               <IconButton
                 name="signin"
-                aria-label="Open Github"
+                aria-label="Open Uclusion"
                 color="inherit"
-                onClick={() => { history.push('/signin'); }}
+                onClick={() => { history.push('Login'); }}
                 rel="noopener"
               >
                 <LockIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip id="tooltip-icon2" title="GitHub repository">
+            <Tooltip id="tooltip-icon2" title="Uclusion website">
               <IconButton
-                name="github"
-                aria-label="Open Github"
+                name="questionanswer"
+                aria-label="Open Uclusion Website"
                 color="inherit"
-                href="https://github.com/TarikHuber/react-most-wanted"
+                href="https://www.uclusion.com"
                 target="_blank"
                 rel="noopener"
               >
-                <GitHubIcon />
+                <QuestionAnswerIcon />
               </IconButton>
             </Tooltip>
           </Toolbar>
@@ -191,7 +189,7 @@ class LandingPage extends Component {
           <div className={classes.hero}>
             <div className={classes.content}>
               <img
-                src="/uclusion_ulogo.jpg"
+                src="/watermark.png"
                 alt="Uclusion Logo"
                 className={classes.logo}
               />

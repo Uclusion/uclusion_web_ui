@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -10,7 +10,7 @@ import { getUserTeams } from '../../store/Teams/reducer';
 import { getCurrentUser } from '../../store/Users/reducer';
 import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList';
 
-class UserMemberships extends Component {
+class UserMemberships extends PureComponent {
   render() {
     const { intl, teams, user } = this.props;
     if (teams.length === 0) {
@@ -41,7 +41,6 @@ class UserMemberships extends Component {
 
 UserMemberships.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  loading: PropTypes.number.isRequired,
   teams: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 

@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import ItemList from '../Lists/ItemList';
 import InvestibleListCategory from './InvestibleListCategory';
 
-class InvestibleList extends React.Component {
+class InvestibleList extends React.PureComponent {
   constructor(props) {
     super(props);
     this.mapInvestiblesToCategories = this.mapInvestiblesToCategories.bind(this);

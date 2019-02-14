@@ -13,7 +13,7 @@ const styles = theme => ({
   },
 });
 
-class ItemListCategory extends React.Component {
+class ItemListCategory extends React.PureComponent {
   render() {
     const { classes, items, title } = this.props;
     return (

@@ -3,7 +3,7 @@ import React from 'react';
 import UserMembershipsListItem from './UserMembershipsListItem';
 import ItemListCategory from '../Lists/ItemListCategory';
 
-class UserMembershipsCategory extends React.Component {
+class UserMembershipsCategory extends React.PureComponent {
   render() {
     const { teams } = this.props;
     const items = teams.map(element => (

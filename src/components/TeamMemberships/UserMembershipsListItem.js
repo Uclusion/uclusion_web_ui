@@ -48,7 +48,7 @@ const styles = theme => ({
   },
 });
 
-class UserMembershipsListItem extends React.Component {
+class UserMembershipsListItem extends React.PureComponent {
   render() {
     const {
       id, name, description, numMembers, classes,

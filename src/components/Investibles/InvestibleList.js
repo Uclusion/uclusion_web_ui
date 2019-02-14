@@ -23,16 +23,17 @@ class InvestibleList extends React.Component {
       });
     });
     return categoryMap;
-  }
+  };
 
   createCategoryLists = (categoryNames, categoryMap, marketId, teamId, user) => {
     console.log(categoryNames);
     const sortedNames = categoryNames.sort(); // put categories in alpha sorted order for now
     return sortedNames.map((name) => {
       const categoryInvestibles = categoryMap.has(name) ? categoryMap.get(name) : [];
-      return <InvestibleListCategory key={name} category={name} investibles={categoryInvestibles} user={user} teamId={teamId} marketId={marketId} />;
+      return <InvestibleListCategory key={name} category={name} investibles={categoryInvestibles} user={user}
+                                     teamId={teamId} marketId={marketId}/>;
     });
-  }
+  };
 
   render() {
     const {
@@ -50,7 +51,7 @@ class InvestibleList extends React.Component {
     const categoryNames = categories.map(category => category.name);
     const categoryLists = this.createCategoryLists(categoryNames, categoryMap, marketId, teamId, user);
     return (
-      <ItemList categoryLists={categoryLists} headerActions={[]} />
+      <ItemList categoryLists={categoryLists} headerActions={[]}/>
     );
   }
 }

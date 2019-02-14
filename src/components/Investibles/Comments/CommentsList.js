@@ -5,20 +5,12 @@ import CommentsAdd from './CommentsAdd';
 import React from 'react';
 import Typography from '@material-ui/core/es/Typography/Typography';
 import { injectIntl } from 'react-intl';
+import { reverseDateComparator } from '../../../utils/comparators';
 
 function CommentsList(props) {
 
   const { investibleId, intl } = props;
 
-  function reverseDateComparator(d1, d2) {
-    if (d1 > d2) {
-      return -1;
-    }
-    if (d1 < d2) {
-      return 1;
-    }
-    return 0;
-  }
 
   function sortComments(commentsList) {
     commentsList.sort((c1, c2) => {

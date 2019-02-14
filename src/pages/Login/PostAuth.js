@@ -34,8 +34,13 @@ class PostAuth extends Component {
       const {
         uclusion_token, destination_page, market_id, user,
       } = resolve;
-      postAuthTasks(uclusion_token, authorizer.getType(), dispatch, market_id, user, webSocket);
-      this.setState({ marketId: market_id, destination: destination_page, failed: false });
+      const currentPage = new URL(destination_page);
+      let realMarketId = market_id;
+      if (currentPage.search.includes('authMarketId')) {
+        realMarketId = currentPage.pathname.split('/')[1];
+      }
+      postAuthTasks(uclusion_token, authorizer.getType(), dispatch, realMarketId, user, webSocket);
+      this.setState({ marketId: realMarketId, destination: destination_page, failed: false });
     }, (reject) => {
       this.setState({ failed: true });
     });

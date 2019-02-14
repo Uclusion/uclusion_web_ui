@@ -30,9 +30,13 @@ function withMarketId(WrappedComponent) {
       }
     }
 
-    render() {
+    componentDidUpdate(){
       const marketId = getMarketId();
       this.updateRedux(marketId);
+    }
+
+    render() {
+      const marketId = getMarketId();
       return <WrappedComponent {...this.props} marketId={marketId} />;
     }
   }

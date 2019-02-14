@@ -22,12 +22,16 @@ const styles = theme => ({
 
 function LoginModal(props) {
   const [allowGuestLogin, setAllowGuestLogin] = useState(false);
-  function getDestinationPage(subPath) {
-    const marketId = getMarketId();
-    const newPath = `/${marketId}/${subPath}`;
+  function getDestinationPage(subPath, includeAuthMarket) {
     const currentPage = new URL(window.location.href);
-    currentPage.pathname = newPath;
-    currentPage.search = '';
+    let authMarketId;
+    if (currentPage.search.includes('authMarketId')) {
+      const parsed = currentPage.search.substr(currentPage.search.indexOf('authMarketId'));
+      authMarketId = parsed.split('=')[1];
+    }
+    const marketId = includeAuthMarket || !authMarketId ? getMarketId() : authMarketId;
+    currentPage.pathname = `/${marketId}/${subPath}`;
+    currentPage.search = authMarketId && includeAuthMarket ? `authMarketId=${authMarketId}` : '';
     return currentPage.toString();
   }
   function getLoginParams() {
@@ -36,11 +40,17 @@ function LoginModal(props) {
     let page = 'investibles';
     if (parsed.search.includes('destinationPage')) {
       page = parsed.search.split('=')[1];
+      if (page.includes('&')) {
+        page = page.split('&')[0];
+      }
     }
-    const destinationPage = getDestinationPage(page);
-    const redirectUrl = getDestinationPage('post_auth');
+    const destinationPage = getDestinationPage(page, true);
+    const redirectUrl = getDestinationPage('post_auth', false);
     const pageUrl = window.location.href;
     const uclusionUrl = appConfig.api_configuration.baseURL;
+    console.log(`page = ${page}`);
+    console.log(`destinationPage = ${destinationPage}`);
+    console.log(`redirectUrl = ${redirectUrl}`);
     return {
       marketId,
       destinationPage,

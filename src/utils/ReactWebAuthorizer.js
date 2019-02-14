@@ -28,7 +28,13 @@ const getPostAuthPage = () => {
  * @param marketId
  */
 const doGenericAuthRedirect = (marketId) => {
-  const location = `/${marketId}/Login?destinationPage=${window.location.pathname.split('/')[2]}`;
+  let location = `/${marketId}/Login?destinationPage=${window.location.pathname.split('/')[2]}`;
+  const currentPage = new URL(window.location.href);
+  if (currentPage.search.includes('authMarketId')) {
+    const parsed = currentPage.search.substr(currentPage.search.indexOf('authMarketId'));
+    const authMarketId = parsed.split('=')[1];
+    location += `&authMarketId=${authMarketId}`;
+  }
   console.log(`redirecting you to login at ${location}`);
   window.location = location;
 };

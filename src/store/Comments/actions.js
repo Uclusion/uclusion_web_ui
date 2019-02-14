@@ -53,6 +53,7 @@ export const fetchCommentList = (params = {}) => (dispatch) => {
       .then((comments) => {
         dispatch(commentListReceived(comments));
       }).catch((error) => {
+        alert(error);
         console.error(error);
         sendIntlMessage(ERROR, { id: 'commentsFetchFailed' });
       });

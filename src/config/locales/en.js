@@ -194,6 +194,7 @@ const messages = defineMessages({
   // auth messages
   authorizationFailed: 'We\'re sorry, authorization failed. Please try again',
   authorizationInProgress: 'Logging you in...',
+  commentHeaderFormat: '{name}: ({date})',
   // User messages
   investmentFailed: 'There was a problem investing. Please try again.',
   investmentSucceeded: 'You have invested Ȗ{shares}.',

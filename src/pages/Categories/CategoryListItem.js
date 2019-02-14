@@ -1,75 +1,56 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { ExpansionPanel, ExpansionPanelSummary, Typography } from '@material-ui/core';
-import classNames from 'classnames';
+import { Paper, Grid, Typography } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import CategoryDelete from './CategoryDelete';
 
 const styles = theme => ({
-  headerBox: {
-    display: 'flex',
-    justifyContent: 'space-between',
+  itemCell: {
+    padding: theme.spacing.unit,
   },
-
-  details: {
-    alignItems: 'center',
-  },
-
-  helper: {},
-
-  investment: {
-    display: 'inline-block',
-  },
-
-  column: {
-    flexBasis: '33.33%',
-  },
-
-  mainGrid: {
+  itemContent: {
     padding: theme.spacing.unit * 2,
-    justifyContent: 'flex-end',
   },
-
-  tabSection: {
-    borderTop: `1px solid ${theme.palette.divider}`,
-    display: 'block',
+  title: {
+    display: 'flex',
+    marginBottom: theme.spacing.unit,
   },
-
-  wholeWidth: {
-    flexBasis: '100%',
+  titleText: {
+    flex: 1,
+    fontWeight: 'bold',
   },
 });
 
-class CategoryListItem extends React.Component {
-  render() {
-    const { name, classes, investiblesIn } = this.props;
-    return (
-      <ExpansionPanel>
-        <ExpansionPanelSummary>
-          <div className={classes.column}>
-            <Typography>
-              {name}
-            </Typography>
-          </div>
-          <div className={classes.column}>
-            <Typography>
-              {investiblesIn}
-            </Typography>
-          </div>
-          <div className={classes.column}>
-            {(!investiblesIn || investiblesIn === 0) && <CategoryDelete name={name} />}
-          </div>
-          <div className={classNames(classes.column, classes.helper)} />
-        </ExpansionPanelSummary>
-      </ExpansionPanel>
-    );
-  }
-}
+const CategoryListItem = ({
+  intl,
+  name,
+  classes,
+  investiblesIn,
+}) => (
+  <Grid className={classes.itemCell} item xs={12} sm={6} md={4} lg={3} xl={2}>
+    <Paper className={classes.itemContent}>
+      <div className={classes.title}>
+        <Typography className={classes.titleText}>{name}</Typography>
+        {(!investiblesIn || investiblesIn === 0) && <CategoryDelete name={name} />}
+      </div>
+      <Typography>
+        {(investiblesIn > 0)
+          ? `${investiblesIn} ${intl.formatMessage({ id: 'investibles' })}`
+          : intl.formatMessage({ id: 'investibleListNotFound' })
+        }
+      </Typography>
+    </Paper>
+  </Grid>
+);
 
 CategoryListItem.propTypes = {
   name: PropTypes.string.isRequired,
   investiblesIn: PropTypes.number,
+};
+
+CategoryListItem.defaultProps = {
+  investiblesIn: 0,
 };
 
 export default injectIntl(withStyles(styles)(CategoryListItem));

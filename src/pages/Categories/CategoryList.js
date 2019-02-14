@@ -1,51 +1,47 @@
-import React, { Component } from 'react';
-import { bindActionCreators, compose } from 'redux';
+import React from 'react';
 import PropTypes from 'prop-types';
+import { bindActionCreators, compose } from 'redux';
 import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
-import { withStyles } from '@material-ui/core/styles/index';
-import withWidth from '@material-ui/core/withWidth/index';
+import { Grid } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
+import withWidth from '@material-ui/core/withWidth';
 import Activity from '../../containers/Activity/Activity';
+import { withMarketId } from '../../components/PathProps/MarketId';
 import { getMarketCategories } from '../../store/Markets/reducer';
 import CategoryListItem from './CategoryListItem';
 import CategoryAdd from './CategoryAdd';
-import { withMarketId } from '../../components/PathProps/MarketId';
 
 const styles = theme => ({
-  mainGrid: {
-    flex: 1,
-    display: 'flex',
-    overflow: 'auto',
+  gridContainer: {
+    padding: theme.spacing.unit,
   },
 });
 
-class CategoryList extends Component {
-  render() {
-    const {
-      intl, categories, classes, marketId,
-    } = this.props;
-    const categoryLists = categories.map(element => (
-      <CategoryListItem
-        key={element.name}
-        id={element.name}
-        name={element.name}
-        investiblesIn={element.investibles_in}
-      />
-    ));
-    return (
-      <Activity
-        isLoading={categories === undefined}
-        containerStyle={{ overflow: 'hidden' }}
-        title={intl.formatMessage({ id: 'categoriesHeader' })}
-      >
-        <CategoryAdd key="quickadd" marketId={marketId} />
-        <div className={classes.mainGrid}>
-          {categoryLists}
-        </div>
-      </Activity>
-    );
-  }
-}
+const CategoryList = ({
+  intl,
+  categories,
+  classes,
+  marketId,
+}) => (
+  <Activity
+    isLoading={categories === undefined}
+    containerStyle={{ overflow: 'hidden' }}
+    title={intl.formatMessage({ id: 'categoriesHeader' })}
+  >
+    <CategoryAdd marketId={marketId} />
+    <Grid container className={classes.gridContainer}>
+      {categories.map(category => (
+        <CategoryListItem
+          key={category.name}
+          id={category.name}
+          name={category.name}
+          investiblesIn={category.investibles_in}
+        />
+      ))}
+    </Grid>
+  </Activity>
+);
 
 CategoryList.propTypes = {
   dispatch: PropTypes.func.isRequired,

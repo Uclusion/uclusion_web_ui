@@ -7,6 +7,7 @@ import SelectableMenuList from '../../containers/SelectableMenuList';
 import withAppConfigs from '../../utils/withAppConfigs';
 import { withMarketId } from '../PathProps/MarketId';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
+import { setUclusionLocalStorageItem } from '../utils';
 
 export const DrawerContent = (props, context) => {
   const {
@@ -28,8 +29,7 @@ export const DrawerContent = (props, context) => {
   };
 
   const handleSignOut = () => {
-
-
+    setUclusionLocalStorageItem('auth', {});
   };
 
   return (

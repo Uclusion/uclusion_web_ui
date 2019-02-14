@@ -56,16 +56,16 @@ const getMenuItems = (props) => {
         primaryText: intl.formatMessage({ id: 'my_account' }),
         leftIcon: <AccountBoxIcon />,
       },
-      {
-        value: '/signin',
-        onClick: handleSignOut,
-        primaryText: intl.formatMessage({ id: 'sign_out' }),
-        leftIcon: <LockIcon />,
-      },
     ];
   }
 
   return [
+    {
+      value: formCurrentMarketLink('Login'),
+      onClick: handleSignOut,
+      primaryText: intl.formatMessage({ id: 'sign_out' }),
+      leftIcon: <LockIcon />,
+    },
     {
       value: formCurrentMarketLink('marketTeams'),
       visible: canListAccountTeams,

@@ -41,7 +41,7 @@ class CommentsAdd extends React.Component {
           variant="contained"
           fullWidth
           color="primary"
-          onClick={() => this.addOnClick()}
+          onClick={this.addOnClick}
         >
           {intl.formatMessage({id: 'saveCommentButton'})}
         </Button>

@@ -21,10 +21,10 @@ function CommentsList(props) {
   function getListItems() {
     const { investibleComments } = props;
     const myComments = investibleComments[investibleId];
-    sortComments(myComments);
     if (!myComments || myComments.length === 0) {
       return <Typography>{intl.formatMessage({ id: 'noComments' })}</Typography>;
     }
+    sortComments(myComments);
     return myComments.map((comment, index) => (
       <CommentListItem key={index} {...comment} />
     ));

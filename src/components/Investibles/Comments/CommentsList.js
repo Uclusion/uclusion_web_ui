@@ -37,9 +37,8 @@ function CommentsList(props) {
   }
 
   function getCommentAddSection() {
-    const canComment = userCanComment();
     if (userCanComment()) {
-      return <CommentsAdd investibleId={investibleId}/>;
+      return <CommentsAdd investibleId={investibleId} />;
     }
     return <Typography>{intl.formatMessage({ id: 'investToComment' })}</Typography>;
   }

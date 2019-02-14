@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import ItemListCategory from '../Lists/QuickAddItemListCategory';
@@ -34,7 +33,7 @@ class InvestibleListCategory extends React.Component {
   }
 
   render() {
-    const { investibles, teamId, marketId, category } = this.props;
+    const { teamId, marketId, category } = this.props;
     const items = this.getListItems();
     const quickAddBox = <InvestibleListQuickAdd key="quickadd" category={category} teamId={teamId}
                                                 marketId={marketId}/>;

@@ -29,6 +29,7 @@ class WebSocketRunner {
           this.dispatch(fetchComment({
             commentId: payload.object_id,
           }))
+          break;
         default:
           console.debug('unknown event:', event);
       }

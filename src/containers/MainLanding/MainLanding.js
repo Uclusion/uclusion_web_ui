@@ -10,19 +10,15 @@ import 'react-toastify/dist/ReactToastify.css';
 
 addLocalizationData(locales);
 
-class Main extends PureComponent {
+class MainLanding extends PureComponent {
   render() {
     return (
       <div>
-        <Helmet>
-          <link async rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-          <link async rel="stylesheet" href="index.css" />
-        </Helmet>
         <ToastContainer />
-        <App appConfig={{ configureStore, ...config }} />
+        <App appConfig={{ configureStore, ...config }} isLanding />
       </div>
     );
   }
 }
 
-export default withA2HS(Main);
+export default withA2HS(MainLanding);

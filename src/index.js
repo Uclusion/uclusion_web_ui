@@ -8,12 +8,12 @@ import A2HSProvider from 'a2hs'
 
 const MainAsync = Loadable({
   loader: () => import('./containers/Main'),
-  loading: () => <LoadingComponent />
+  loading: () => <LoadingComponent />,
 });
 
 const LPAsync = Loadable({
-  loader: () => import('./pages/LandingPage'),
-  loading: () => <LoadingComponent />
+  loader: () => import('./containers/MainLanding'),
+  loading: () => <LoadingComponent />,
 });
 
 ReactDOM.render(
@@ -31,7 +31,7 @@ ReactDOM.render(
       MainAsync.preload()
     }, 1500)
   }
-)
+);
 
 
-registerServiceWorker()
+registerServiceWorker();

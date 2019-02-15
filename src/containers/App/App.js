@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Provider } from 'react-redux';
 import { IntlProvider } from 'react-intl';
 import Root from '../Root';
@@ -13,9 +13,9 @@ import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvid
 addLocalizationData(locales);
 
 
-class App extends Component {
+class App extends PureComponent {
   render() {
-    const { appConfig, locale } = this.props;
+    const { appConfig, locale, isLanding } = this.props;
     let myLocale = locale;
     if (!myLocale) {
       myLocale = 'en';
@@ -31,7 +31,10 @@ class App extends Component {
         <IntlGlobalProvider>
           <Provider store={store}>
             <AppConfigProvider appConfig={configs}>
-              <Root appConfig={configs} />
+              {
+                (isLanding && <Root appConfig={configs} isLanding />)
+                || (!isLanding && <Root appConfig={configs} />)
+              }
             </AppConfigProvider>
           </Provider>
         </IntlGlobalProvider>
@@ -42,6 +45,7 @@ class App extends Component {
 
 App.propTypes = {
   appConfig: PropTypes.object,
+  isLanding: PropTypes.bool,
 };
 
 export default App;

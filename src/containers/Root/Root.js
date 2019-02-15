@@ -10,6 +10,7 @@ import createHistory from 'history/createBrowserHistory';
 import { Router, Route, Switch } from 'react-router-dom';
 import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvider';
 import AppLayout from '../AppLayout';
+import LandingPage from '../../pages/LandingPage/LandingPage';
 import getThemeSource from '../../config/themes';
 import locales, { getLocaleMessages } from '../../config/locales';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
@@ -25,9 +26,15 @@ class Root extends Component {
   }
 
   render() {
-    const { appConfig, locale, themeSource } = this.props;
-
-    const messages = { ...(getLocaleMessages(locale, locales)), ...(getLocaleMessages(locale, appConfig.locales)) };
+    const {
+      appConfig,
+      locale,
+      themeSource,
+      isLanding,
+    } = this.props;
+    const messages = { ...(getLocaleMessages(locale, locales)),
+      ...(getLocaleMessages(locale, appConfig.locales)),
+    };
     const source = getThemeSource(themeSource, appConfig.themes);
     const theme = createMuiTheme(source);
 
@@ -38,7 +45,9 @@ class Root extends Component {
             <IntlGlobalProvider>
               <Router history={history}>
                 <Switch>
-                  <Route children={props => <AppLayout {...props} />} />
+                  {(isLanding && <Route children={props => <LandingPage {...props} />} />)
+                    || (!isLanding && <Route children={props => <AppLayout {...props} />} />)
+                  }
                 </Switch>
               </Router>
             </IntlGlobalProvider>
@@ -52,6 +61,7 @@ class Root extends Component {
 Root.propTypes = {
   locale: PropTypes.string.isRequired,
   themeSource: PropTypes.object.isRequired,
+  isLanding: PropTypes.bool,
 };
 
 const mapStateToProps = (state, ownProps) => {

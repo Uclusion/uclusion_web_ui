@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import {
-  REQUEST_USER, RECEIVE_USER, RECEIVE_CURRENT_USER, REQUEST_CURRENT_USER, formatUsers,
+  RECEIVE_USER, RECEIVE_CURRENT_USER, REQUEST_CURRENT_USER, formatUsers,
 } from './actions';
 
 export const userPropType = PropTypes.shape({
@@ -22,8 +22,6 @@ export const userPropType = PropTypes.shape({
 
 const userItems = (state = [], action) => {
   switch (action.type) {
-    case REQUEST_USER:
-      return state;
     case RECEIVE_USER:
       const user = [action.user];
       return _.unionBy(user, state, 'id');

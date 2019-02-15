@@ -1,13 +1,8 @@
 import { getClient } from '../../config/uclusionClient';
 
-export const REQUEST_USER = 'REQUEST_USER';
 export const REQUEST_CURRENT_USER = 'REQUEST_CURRENT_USER';
 export const RECEIVE_USER = 'RECEIVE_USER';
 export const RECEIVE_CURRENT_USER = 'RECEIVE_CURRENT_USER';
-
-export const requestUser = () => ({
-  type: REQUEST_USER,
-});
 
 export const requestCurrentUser = user => ({
   type: REQUEST_CURRENT_USER,
@@ -27,8 +22,6 @@ export const receiveCurrentUser = user => ({
 export const fetchUser = (params = {}) => (dispatch) => {
   if (!params.user_id) {
     dispatch(requestCurrentUser(params.user));
-  } else {
-    dispatch(requestUser());
   }
   const clientPromise = getClient();
   let globalClient;

@@ -12,6 +12,8 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import { connect } from 'react-redux';
+import { getCurrentUser } from '../../store/Users/reducer';
 
 const styles = theme => ({
   main: {
@@ -123,29 +125,8 @@ const styles = theme => ({
 });
 
 class LandingPage extends Component {
-  isAuthorised = () => {
-    try {
-      const key = Object.keys(localStorage).find(e => e.match(/persist:root/));
-      const data = JSON.parse(localStorage.getItem(key));
-      const auth = JSON.parse(data.auth);
-
-      return auth && auth.isAuthorised;
-    } catch (ex) {
-      return false;
-    }
-  }
-
-  componentDidMount() {
-    const { history } = this.props;
-
-    if (this.isAuthorised()) {
-      history.push('/signin');
-    }
-  }
-
-
   render() {
-    const { classes, history, theme } = this.props;
+    const { classes, history, theme, user } = this.props;
 
     return (
       <div className={classes.main}>
@@ -158,18 +139,21 @@ class LandingPage extends Component {
         <AppBar position="static">
           <Toolbar disableGutters>
             <div style={{ flex: 1 }} />
-
+            {user && user.default_market_id && (
             <Tooltip id="tooltip-icon1" title="Sign in">
               <IconButton
                 name="signin"
                 aria-label="Open Uclusion"
                 color="inherit"
-                onClick={() => { history.push('Login'); }}
+                onClick={() => {
+                  window.location = `${window.location.href}${user.default_market_id}/Login`;
+                }}
                 rel="noopener"
               >
                 <LockIcon />
               </IconButton>
             </Tooltip>
+            )}
             <Tooltip id="tooltip-icon2" title="Uclusion website">
               <IconButton
                 name="questionanswer"
@@ -259,4 +243,15 @@ class LandingPage extends Component {
   }
 }
 
-export default withRouter(withStyles(styles, { withTheme: true })(LandingPage));
+const mapStateToProps = state => ({
+  user: getCurrentUser(state.usersReducer),
+});
+
+function mapDispatchToProps(dispatch) {
+  return { dispatch };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withRouter(withStyles(styles, { withTheme: true })(LandingPage)));

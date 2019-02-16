@@ -33,5 +33,5 @@ ReactDOM.render(
   }
 );
 
-
+console.log("RegisteringServiceWorker");
 registerServiceWorker();

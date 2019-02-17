@@ -16,6 +16,7 @@ import withAppConfigs from '../../utils/withAppConfigs';
 const styles = theme => ({
   paper: {
     backgroundColor: theme.palette.primary.dark,
+    borderRadius: 0,
     margin: 0,
     padding: 0,
   },
@@ -28,7 +29,10 @@ const styles = theme => ({
   button: {
     // width: 15
   },
-
+  logo: {
+    width: 40,
+    height: 40,
+  },
 });
 
 export const DrawerHeader = (props) => {
@@ -39,13 +43,16 @@ export const DrawerHeader = (props) => {
     classes,
 
     setDrawerUseMinified,
-    // width
+    width,
   } = props;
+
+  const headerHeight = (width === 'xs') ? 40 : 48;
 
   return (
     <Paper className={classes.paper}>
       <List>
-        <ListItem>
+        <ListItem style={{ height: headerHeight }}>
+          <img className={classes.logo} src="/images/logo-white.svg" alt="logo" />
           <ListItemText classes={{ primary: classes.listItem }} primary={intl.formatMessage({ id: 'app_name' })} />
           <Hidden smDown implementation="css">
             <ListItemSecondaryAction>

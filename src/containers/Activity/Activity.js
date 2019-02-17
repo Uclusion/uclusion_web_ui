@@ -79,8 +79,14 @@ const styles = theme => ({
   grow: {
     flex: '1 1 auto',
   },
+  logo: {
+    width: 40,
+    height: 40,
+    marginRight: theme.spacing.unit * 2,
+  },
   marketSelect: {
     color: 'inherit',
+    fontSize: 20,
   },
   form: {
     display: 'flex',
@@ -92,6 +98,7 @@ const styles = theme => ({
     position: 'relative',
     top: -1,
     marginRight: theme.spacing.unit,
+    fontSize: 20,
   },
   formControl: {
     minWidth: 1,
@@ -219,6 +226,7 @@ function Activity(props) {
             <Icon>chevron_left</Icon>
           </IconButton>
           {!onBackClick && drawer.open && <div style={{ marginRight: 32 }} />}
+          {!drawer.open && <img className={classes.logo} src="/images/logo-white.svg" alt="logo" />}
           {marketChoices && (
             <form className={classes.form} autoComplete="off">
               <Typography className={classes.formLabel}>Market:</Typography>

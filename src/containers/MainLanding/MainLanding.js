@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import { Helmet } from 'react-helmet';
 import { withA2HS } from 'a2hs';
 import { ToastContainer } from 'react-toastify';
 import App from '../App/App';

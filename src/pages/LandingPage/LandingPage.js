@@ -1,19 +1,25 @@
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';
 import LockIcon from '@material-ui/icons/Lock';
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
 import { Helmet } from 'react-helmet';
 import { withRouter } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { AnonymousAuthorizer } from 'uclusion_authorizer_sdk';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import Input from '@material-ui/core/Input';
+import ArrowDropdown from '@material-ui/icons/ArrowDropDown';
 import { getCurrentUser } from '../../store/Users/reducer';
+import appConfig from '../../config/config';
+import { setUclusionLocalStorageItem, getUclusionLocalStorageItem } from '../../components/utils';
+import { getClient } from '../../config/uclusionClient';
 
 const styles = theme => ({
   main: {
@@ -124,124 +130,192 @@ const styles = theme => ({
 
 });
 
-class LandingPage extends Component {
-  render() {
-    const { classes, history, theme, user } = this.props;
+function createMarket(client, accountCreationInfo) {
+  client.markets.createMarket({
+    name: accountCreationInfo.marketName,
+    description: accountCreationInfo.marketDescription,
+  }).then((market) => {
+    window.location = `${window.location.origin}/${market.market_id}/marketCategories`;
+  })
+    .catch((error) => {
+      console.error(error);
+      throw error;
+    });
+}
 
-    return (
-      <div className={classes.main}>
-        <Helmet>
-          <meta name="theme-color" content={theme.palette.primary.main} />
-          <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
-          <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
-          <title>Uclusion Registration</title>
-        </Helmet>
-        <AppBar position="static">
-          <Toolbar disableGutters>
-            <div style={{ flex: 1 }} />
-            {user && user.default_market_id && (
-            <Tooltip id="tooltip-icon1" title="Sign in">
-              <IconButton
-                name="signin"
-                aria-label="Open Uclusion"
-                color="inherit"
-                onClick={() => {
-                  window.location = `${window.location.href}${user.default_market_id}/Login`;
-                }}
-                rel="noopener"
-              >
-                <LockIcon />
-              </IconButton>
-            </Tooltip>
-            )}
-            <Tooltip id="tooltip-icon2" title="Uclusion website">
-              <IconButton
-                name="questionanswer"
-                aria-label="Open Uclusion Website"
-                color="inherit"
-                href="https://www.uclusion.com"
-                target="_blank"
-                rel="noopener"
-              >
-                <QuestionAnswerIcon />
-              </IconButton>
-            </Tooltip>
-          </Toolbar>
-        </AppBar>
+function LandingPage(props) {
+  const [accountName, setAccountName] = useState(undefined);
+  const [marketName, setMarketName] = useState(undefined);
+  const [marketDescription, setMarketDescription] = useState(undefined);
+  const [clientId, setClientId] = useState(undefined);
+  const [oidcType, setOidcType] = useState('GOOGLE');
+  const [processing, setProcessing] = useState(false);
+  useEffect(() => {
+    const authorizer = new AnonymousAuthorizer({
+      uclusionUrl: appConfig.api_configuration.baseURL,
+    });
+    const pageUrl = window.location.href;
+    if (authorizer.amIOnPostAuthorizePage(pageUrl) && !processing) {
+      setProcessing(true);
+      const accountCreationInfo = getUclusionLocalStorageItem('accountCreationInfo');
+      setAccountName(accountCreationInfo.accountName);
+      setMarketName(accountCreationInfo.marketName);
+      setMarketDescription(accountCreationInfo.marketDescription);
+      setClientId(accountCreationInfo.clientId);
+      setOidcType(accountCreationInfo.oidcType);
+      authorizer.doPostAccount(pageUrl).then((response) => {
+        const authInfo = {
+          token: response.login_capability, type: authorizer.getType(),
+        };
+        setUclusionLocalStorageItem('auth', authInfo);
+        return getClient();
+      }).then((client) => {
+        // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
+        setTimeout(createMarket(client, accountCreationInfo), 5000);
+      });
+    }
+    return () => {};
+  });
+  function handleAccountNameChange(event) {
+    setAccountName(event.target.value);
+  }
 
-        <div className={classes.root}>
-          <div className={classes.hero}>
-            <div className={classes.content}>
-              <img
-                src="/watermark.png"
-                alt="Uclusion Logo"
-                className={classes.logo}
-              />
-              <div className={classes.text}>
-                <Typography
-                  variant="display2"
-                  align="center"
-                  component="h1"
-                  color="inherit"
-                  gutterBottom
-                  className={classes.title}
+  function handleMarketNameChange(event) {
+    setMarketName(event.target.value);
+  }
+
+  function handleMarketDescriptionChange(event) {
+    setMarketDescription(event.target.value);
+  }
+
+  function handleClientIdChange(event) {
+    setClientId(event.target.value);
+  }
+
+  function handleOidcTypeChange(event) {
+    setOidcType(event.target.value);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    const accountCreationInfo = {
+      marketName, marketDescription, accountName, clientId, oidcType,
+    };
+    setUclusionLocalStorageItem('accountCreationInfo', accountCreationInfo);
+    const authorizer = new AnonymousAuthorizer({
+      uclusionUrl: appConfig.api_configuration.baseURL,
+    });
+    authorizer.accountRedirect({
+      uclusion_client_id: clientId,
+      op_endpoint_base_url: oidcType === 'GOOGLE' ? 'https://accounts.google.com' : 'https://dev-496062.oktapreview.com/oauth2/default',
+      account_name: accountName,
+      team_name: `Team ${marketName}`,
+      team_description: `${marketName} administrators`,
+      redirect_url: `${window.location.href}`,
+      oidc_type: oidcType,
+    }).then((redirectUrl) => {
+      window.location = redirectUrl;
+    }).catch((reject) => {
+      console.error(reject);
+    });
+  }
+
+  const { classes, theme, user } = props;
+
+  return (
+    <div className={classes.main}>
+      <Helmet>
+        <meta name="theme-color" content={theme.palette.primary.main} />
+        <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
+        <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
+        <title>Uclusion Registration</title>
+      </Helmet>
+      <AppBar position="static">
+        <Toolbar disableGutters>
+          <div style={{ flex: 1 }} />
+          {user && user.default_market_id && (
+          <Tooltip id="tooltip-icon1" title="Sign in">
+            <IconButton
+              name="signin"
+              aria-label="Open Uclusion"
+              color="inherit"
+              onClick={() => {
+                window.location = `${window.location.href}${user.default_market_id}/Login`;
+              }}
+              rel="noopener"
+            >
+              <LockIcon />
+            </IconButton>
+          </Tooltip>
+          )}
+          <Tooltip id="tooltip-icon2" title="Uclusion website">
+            <IconButton
+              name="questionanswer"
+              aria-label="Open Uclusion Website"
+              color="inherit"
+              href="https://www.uclusion.com"
+              target="_blank"
+              rel="noopener"
+            >
+              <QuestionAnswerIcon />
+            </IconButton>
+          </Tooltip>
+        </Toolbar>
+      </AppBar>
+
+      <div className={classes.root}>
+        <div className={classes.hero}>
+          <div className={classes.content}>
+            <img
+              src="/watermark.png"
+              alt="Uclusion Logo"
+              className={classes.logo}
+            />
+          </div>
+          <div className={classes.content}>
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="accountNameId">
+                Account Name:
+                <input id="accountNameId" type="text" value={accountName} onChange={handleAccountNameChange} />
+              </label>
+              <label htmlFor="marketNameId">
+                Market Name:
+                <input id="marketNameId" type="text" value={marketName} onChange={handleMarketNameChange} />
+              </label>
+              <label htmlFor="marketDescriptionId">
+                Market Description:
+                <input id="marketDescriptionId" type="text" value={marketDescription} onChange={handleMarketDescriptionChange} />
+              </label>
+              <label htmlFor="clientId">
+                Authorization Client ID from Google or Okta:
+                <input id="clientId" type="text" value={clientId} onChange={handleClientIdChange} />
+              </label>
+              <FormControl>
+                <Select
+                  disableUnderline
+                  value={oidcType}
+                  onChange={handleOidcTypeChange}
+                  IconComponent={() => <ArrowDropdown className={classes.selectArrow} />}
+                  input={<Input name="oidcType" id="oidcTypeId" />}
                 >
-                  {'UCLUSION MOST WANTED'}
-                </Typography>
-                <Typography
-                  variant="headline"
-                  component="h2"
-                  color="inherit"
-                  gutterBottom
-                  className={classes.headline}
-                >
-                  {'Uclusion Starter-Kit with all Most Wanted features.'}
-                </Typography>
-              </div>
-
-              <div className={classes.cardsContent}>
-                <Card className={classes.card}>
-                  <CardContent>
-                    <Typography>Try Uclusion Slack integration:</Typography>
-                    <br />
-                    <a href="https://slack.com/oauth/authorize?scope=commands,bot&client_id=378072647557.383178544246&redirect_uri=https://t5e5r3c2ld.execute-api.us-west-2.amazonaws.com/dev/signup">
-                      <img
-                        alt="Add to Slack"
-                        height="40"
-                        width="139"
-                        src="https://platform.slack-edge.com/img/add_to_slack.png"
-                        srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
-                      />
-                    </a>
-                  </CardContent>
-                </Card>
-                <Card className={classes.card}>
-                  <CardContent>
-                    <Typography>Login with Slack:</Typography>
-                    <br />
-                    <a href={`https://slack.com/oauth/authorize?scope=identity.basic&client_id=378072647557.383178544246&state=${
-                      window.location.href}&redirect_uri=https://t5e5r3c2ld.execute-api.us-west-2.amazonaws.com/dev/login`}
-                    >
-                      <img alt="Login with Slack" src="https://api.slack.com/img/sign_in_with_slack.png" />
-                    </a>
-                  </CardContent>
-                  <CardActions />
-                </Card>
-                <Card className={classes.card}>
-                  <CardContent>
-                    <Typography variant="headline" component="h2">Login with Email Address</Typography>
-                    <br />
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+                  <MenuItem key="GOOGLE" value="GOOGLE">GOOGLE</MenuItem>
+                  <MenuItem key="OKTA" value="OKTA">OKTA</MenuItem>
+                </Select>
+              </FormControl>
+              <input type="submit" value="Submit" />
+            </form>
           </div>
         </div>
       </div>
-
-    );
-  }
+    </div>
+  );
 }
+
+LandingPage.propTypes = {
+  classes: PropTypes.object.isRequired,
+  theme: PropTypes.object.isRequired,
+  user: PropTypes.object,
+};
 
 const mapStateToProps = state => ({
   user: getCurrentUser(state.usersReducer),

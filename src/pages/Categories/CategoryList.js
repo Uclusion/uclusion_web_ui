@@ -25,21 +25,24 @@ const CategoryList = ({
   marketId,
 }) => (
   <Activity
-    isLoading={categories === undefined}
+    isLoading={marketId === undefined}
     containerStyle={{ overflow: 'hidden' }}
     title={intl.formatMessage({ id: 'categoriesHeader' })}
   >
     <CategoryAdd marketId={marketId} />
-    <Grid container className={classes.gridContainer}>
-      {categories.map(category => (
-        <CategoryListItem
-          key={category.name}
-          id={category.name}
-          name={category.name}
-          investiblesIn={category.investibles_in}
-        />
-      ))}
-    </Grid>
+    {categories && categories.length > 0
+    && (
+      <Grid container className={classes.gridContainer}>
+        {categories.map(category => (
+          <CategoryListItem
+            key={category.name}
+            id={category.name}
+            name={category.name}
+            investiblesIn={category.investibles_in}
+          />
+        ))}
+      </Grid>
+    )}
   </Activity>
 );
 

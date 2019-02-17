@@ -4,7 +4,6 @@ import makeLoadable from '../containers/MyLoadable/MyLoadable';
 
 const MyLoadable = (opts, preloadComponents) => makeLoadable({ ...opts }, preloadComponents);
 
-const AsyncAbout = MyLoadable({ loader: () => import('../pages/About') });
 const AsyncInvestibles = MyLoadable({ loader: () => import('../pages/Investibles/Investibles') });
 const AsyncPostAuth = MyLoadable({ loader: () => import('../pages/Login/PostAuth') });
 // const AsyncLogin = MyLoadable({ loader: () => import('../pages/Login') })
@@ -13,7 +12,6 @@ const AsyncCategories = MyLoadable({ loader: () => import('../pages/Categories/C
 
 const routes = [
   <Route type="private" path="/:marketId/" exact component={AsyncInvestibles} />,
-  <Route type="private" path="/:marketId/about" exact component={AsyncAbout} />,
   <Route type="public" path="/:marketId/investibles" exact component={AsyncInvestibles} />,
   <Route type="public" path="/:marketId/marketCategories" exact component={AsyncCategories} />,
   <Route type="public" path="/:marketId/teams" exact component={AsyncTeams} />,

@@ -9,7 +9,7 @@ import {
   INVESTMENT_CREATED,
   INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED,
 } from './actions';
-import { SELECT_MARKET } from '../Markets/actions';
+
 
 function reFormatInvestible(investible){
   investible.created_at = new Date(investible.created_at);

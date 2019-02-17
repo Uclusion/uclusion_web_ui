@@ -13,11 +13,42 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import { fetchInvestibleList } from '../../store/MarketInvestibles/actions';
 import LoginModal from '../Login/LoginModal';
 import InvestibleSearchBox from '../../components/Investibles/InvestibleSearchBox';
+import { hasInvestibleSearchActive, getActiveInvestibleSearchResults } from '../../store/Search/reducer';
+import _ from 'lodash';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
 function InvestiblesPage(props) {
   const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
+
+  function getMarketInvestibles(){
+    const { marketId, investibles, categories } = props;
+    if (marketId in investibles) {
+      return investibles[marketId];
+    }
+    if (categories || investibles) {
+      return [];
+    }
+    return undefined;
+  }
+
+  function getFilteredSearchList(marketInvestibles, searchResults){
+    const selector = {};
+    for(var x = 0; x < searchResults.length; x++){
+      selector[searchResults[x].ref] = true;
+    }
+    return _.filter(marketInvestibles, (investible) => (selector[investible.id]));
+  }
+
+  function getCurrentInvestibleList(){
+    const marketInvestibles = getMarketInvestibles();
+    const {investibleSearchActive, investibleSearchResults } = props;
+    if (investibleSearchActive && investibleSearchResults){
+      return getFilteredSearchList(marketInvestibles, investibleSearchResults);
+    }
+    return marketInvestibles;
+  }
+
   function getItems() {
     const {
       investibles, marketId, dispatch,
@@ -47,7 +78,6 @@ function InvestiblesPage(props) {
 
   const {
     intl,
-    investibles,
     categories,
     marketId,
     user,
@@ -55,14 +85,8 @@ function InvestiblesPage(props) {
   } = props;
 
   const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
-  let currentInvestibleList;
-  if (marketId in investibles) {
-    currentInvestibleList = investibles[marketId];
-  } else if (categories || investibles) {
-    currentInvestibleList = [];
-  } else {
-    currentInvestibleList = undefined;
-  }
+  const currentInvestibleList = getCurrentInvestibleList();
+
   // TODO: give choice of teamId instead of default
   return (
 
@@ -113,6 +137,8 @@ const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
   categories: getMarketCategories(state.marketsReducer),
   user: getCurrentUser(state.usersReducer),
+  investibleSearchActive: hasInvestibleSearchActive(state.searchReducer),
+  investibleSearchResults: getActiveInvestibleSearchResults(state.searchReducer),
 });
 
 function mapDispatchToProps(dispatch) {

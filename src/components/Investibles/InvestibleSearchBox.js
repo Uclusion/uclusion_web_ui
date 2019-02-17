@@ -8,16 +8,34 @@ import { getCurrentMarketId } from '../../store/Markets/reducer';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 
 function InvestibleSearchBox(props) {
-  const { dispatch, index } = props;
-  const [query, setQuery] = useState(0);
+  const { dispatch, currentMarketId, marketInvestibles } = props;
+  const [index, setIndex] = useState({});
+  const [oldMarketId, setOldMarketId] = useState('');
 
   useEffect(() => {
-    const result = index.search(query);
-    dispatch(updateSearchResults(query, result));
+    if (oldMarketId !== currentMarketId) {
+      const newIndex = elasticlunr(function () {
+        this.addField('name');
+        this.addField('description');
+        this.setRef('id');
+      });
+      if (marketInvestibles) {
+        marketInvestibles.forEach((investible) => {
+          newIndex.addDoc(investible);
+        });
+      }
+      setIndex(newIndex);
+      setOldMarketId(currentMarketId);
+    }
   });
 
+  function doSearch(newQuery){
+    const results = index.search(newQuery);
+    dispatch(updateSearchResults(newQuery, results));
+  }
+
   return (
-    <TextField onChange={event => setQuery(event.target.value)}/>
+    <TextField onChange={event => doSearch(event.target.value)}/>
   );
 }
 
@@ -25,18 +43,10 @@ function mapStateToProps(state) {
   const currentInvestibles = getInvestibles(state.investiblesReducer);
   const currentMarket = getCurrentMarketId(state.marketsReducer);
   const marketInvestibles = currentInvestibles[currentMarket];
-  const index = elasticlunr(function () {
-    this.addField('name');
-    this.addField('description');
-    this.setRef('id');
-  });
-  if (marketInvestibles) {
-    marketInvestibles.forEach((investible) => {
-      index.addDoc(investible);
-    });
-  }
+
   return {
-    index,
+    currentMarket,
+    marketInvestibles,
   };
 }
 

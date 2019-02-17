@@ -1,11 +1,15 @@
 /* eslint-disable no-case-declarations */
 import { combineReducers } from 'redux';
+import { createSelector } from 'reselect';
+import { getCurrentMarketId } from '../Markets/reducer';
+
 import _ from 'lodash';
 import {
   RECEIVE_INVESTIBLES,
   INVESTMENT_CREATED,
   INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED,
 } from './actions';
+import { SELECT_MARKET } from '../Markets/actions';
 
 function reFormatInvestible(investible){
   investible.created_at = new Date(investible.created_at);
@@ -60,7 +64,7 @@ function getMarketInvestibleCreatedState(state, action){
 function getMarketInvestibleDeletedState(state, action){
   const newState = { ...state };
   newState[action.marketId] = state[action.marketId].filter(
-    item => item.id !== action.investibleId
+    item => (item.id !== action.investibleId),
   );
   return newState;
 }
@@ -81,6 +85,7 @@ const items = (state = [], action) => {
 };
 
 export const getInvestibles = state => state.items;
+
 
 export default combineReducers({
   items,

@@ -12,6 +12,7 @@ import InvestibleList from '../../components/Investibles/InvestibleList';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import { fetchInvestibleList } from '../../store/MarketInvestibles/actions';
 import LoginModal from '../Login/LoginModal';
+import InvestibleSearchBox from '../../components/Investibles/InvestibleSearchBox';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -75,6 +76,8 @@ function InvestiblesPage(props) {
 
         {currentInvestibleList && user && user.market_presence
         && (
+          <div>
+        <InvestibleSearchBox/>
         <InvestibleList
           teamId={user.default_team_id}
           user={user}
@@ -82,6 +85,7 @@ function InvestiblesPage(props) {
           investibles={currentInvestibleList}
           categories={categories}
         />
+          </div>
         )}
       </Activity>
 

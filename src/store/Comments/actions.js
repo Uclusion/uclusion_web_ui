@@ -40,20 +40,16 @@ export const commentListReceived = (comments) => ({
 });
 
 export const deleteComment = (params = {}) => (dispatch) => {
-  const { commentId, investibleId, supressMessage: suppressMessage } = params;
+  const { commentId, investibleId} = params;
   const clientPromise = getClient();
   clientPromise.then((client) => {
     client.investibles.deleteComment(commentId)
       .then((result) => {
         dispatch(commentDeleted(investibleId, commentId));
-        if (!suppressMessage) {
-          sendIntlMessage(SUCCESS, { id: 'commentDeleteSucceeded' });
-        }
+        sendIntlMessage(SUCCESS, { id: 'commentDeleteSucceeded' });
       }).catch((error) => {
         console.error(error);
-        if (!suppressMessage) {
-          sendIntlMessage(ERROR, { id: 'commentDeleteFailed' });
-        }
+        sendIntlMessage(ERROR, { id: 'commentDeleteFailed' });
       });
   });
 };

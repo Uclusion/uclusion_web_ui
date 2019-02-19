@@ -17,7 +17,7 @@ function MemberList(props) {
       sendIntlMessage(ERROR, { id: 'teamMemberLoadFailed' });
     });
     return () => {};
-  });
+  }, []);
   return (
     <Grid container spacing={16}>
       {users && users.map(user => <MemberListItem key={user.id} user={user} />)}

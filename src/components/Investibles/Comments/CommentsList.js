@@ -26,7 +26,7 @@ function CommentsList(props) {
     }
     sortComments(myComments);
     return myComments.map((comment, index) => (
-      <CommentListItem key={index} {...comment} />
+      <CommentListItem key={index} {...comment}/>
     ));
   }
 

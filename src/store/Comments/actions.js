@@ -6,6 +6,13 @@ export const COMMENTS_LIST_RECEIVED = 'COMMENTS_LIST_RECEIVED';
 export const COMMENT_REQUESTED = 'COMMENT_REQUESTED';
 export const COMMENT_RECEIVED = 'COMMENT_RECEIVED';
 export const COMMENT_CREATED = 'COMMENT_CREATED';
+export const COMMENT_DELETED = 'COMMENT_DELETED';
+
+export const commentDeleted = (investibleId, commentId) => ({
+  type: COMMENT_DELETED,
+  investibleId,
+  commentId,
+});
 
 export const commentRequested = (commentId) => ({
   type: COMMENT_REQUESTED,
@@ -14,7 +21,7 @@ export const commentRequested = (commentId) => ({
 
 export const commentCreated = (comment) => ({
   type: COMMENT_CREATED,
-  comment
+  comment,
 });
 
 export const commentReceived = (comment) => ({
@@ -31,6 +38,21 @@ export const commentListReceived = (comments) => ({
   type: COMMENTS_LIST_RECEIVED,
   comments,
 });
+
+export const deleteComment = (params = {}) => (dispatch) => {
+  const { commentId, investibleId } = params;
+  const clientPromise = getClient();
+  clientPromise.then((client) => {
+    client.investibles.deleteComment(commentId)
+      .then((result) => {
+        dispatch(commentDeleted(investibleId, commentId));
+        sendIntlMessage(SUCCESS, { id: 'commentDeleteSucceeded' });
+      }).catch((error) => {
+        console.error(error);
+        sendIntlMessage(ERROR, { id: 'commentDeleteFailed' });
+      });
+  });
+};
 
 export const fetchComment = (params = {}) => (dispatch) => {
   const { commentId } = params;

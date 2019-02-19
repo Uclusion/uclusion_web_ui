@@ -39,8 +39,16 @@ function withUserAndPermissions(WrappedComponent) {
       const canInvest = apisObject.create_investment || false;
       const canListAccountTeams = apisObject.list_teams || false;
       const canCategorize = apisObject.category_create || false;
+      const canDeleteOwnComments = apisObject.comments_delete || false;
+      const canDeleteOthersComments = apisObject.comments_delete && opObject.delete_others_comment;
       return {
-        canDeleteMarketInvestible, canInvest, canEditMarketInvestible, canListAccountTeams, canCategorize,
+        canDeleteMarketInvestible,
+        canInvest,
+        canEditMarketInvestible,
+        canListAccountTeams,
+        canCategorize,
+        canDeleteOwnComments,
+        canDeleteOthersComments,
       };
     }
 

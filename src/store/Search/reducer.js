@@ -10,12 +10,16 @@ function investibles(state = {}, action) {
   }
 }
 
-export function hasInvestibleSearchActive(state) {
+export function getActiveInvestibleSearchQuery(state){
   const { investibles } = state;
   if (investibles && investibles.query) {
-    return investibles.query !== '';
+    return investibles.query;
   }
-  return false;
+  return '';
+}
+
+export function hasInvestibleSearchActive(state) {
+  return getActiveInvestibleSearchQuery(state) !== '';
 }
 
 export function getActiveInvestibleSearchResults(state) {

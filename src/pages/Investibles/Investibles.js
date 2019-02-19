@@ -130,6 +130,8 @@ InvestiblesPage.propTypes = {
   categories: PropTypes.arrayOf(categoryPropType),
   marketId: PropTypes.string,
   user: PropTypes.object,
+  investibleSearchActive: PropTypes.bool.isRequired,
+  investibleSearchResults: PropTypes.array,
   history: PropTypes.object.isRequired,
 };
 

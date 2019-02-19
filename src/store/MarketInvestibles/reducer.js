@@ -1,7 +1,5 @@
 /* eslint-disable no-case-declarations */
 import { combineReducers } from 'redux';
-import { createSelector } from 'reselect';
-import { getCurrentMarketId } from '../Markets/reducer';
 
 import _ from 'lodash';
 import {

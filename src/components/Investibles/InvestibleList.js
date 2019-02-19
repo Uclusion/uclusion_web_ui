@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import ItemList from '../Lists/ItemList';
 import InvestibleListCategory from './InvestibleListCategory';
+import { connect } from 'react-redux';
+import { hasInvestibleSearchActive } from '../../store/Search/reducer';
 
 class InvestibleList extends React.PureComponent {
   constructor(props) {
@@ -27,8 +29,10 @@ class InvestibleList extends React.PureComponent {
 
   createCategoryLists = (categoryNames, categoryMap, marketId, teamId, user) => {
     console.log(categoryNames);
+    const { investibleSearchActive } = this.props;
     const sortedNames = categoryNames.sort(); // put categories in alpha sorted order for now
-    return sortedNames.map((name) => {
+    const searchFiltered = sortedNames.filter(name => !investibleSearchActive || categoryMap.has(name));
+    return searchFiltered.map((name) => {
       const categoryInvestibles = categoryMap.has(name) ? categoryMap.get(name) : [];
       return <InvestibleListCategory key={name} category={name} investibles={categoryInvestibles} user={user}
                                      teamId={teamId} marketId={marketId}/>;
@@ -55,14 +59,17 @@ class InvestibleList extends React.PureComponent {
     );
   }
 }
-
+const mapStateToProps = state => ({
+  investibleSearchActive: hasInvestibleSearchActive(state.searchReducer),
+});
 
 InvestibleList.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
   categories: PropTypes.arrayOf(PropTypes.object).isRequired,
   teamId: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
+  investibleSearchActive: PropTypes.bool.isRequired,
   marketId: PropTypes.string.isRequired,
 };
 
-export default injectIntl(InvestibleList);
+export default connect(mapStateToProps)(injectIntl(InvestibleList));

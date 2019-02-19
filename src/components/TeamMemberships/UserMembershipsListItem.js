@@ -1,76 +1,71 @@
-import PropTypes from 'prop-types';
-
 import React from 'react';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import PropTypes from 'prop-types';
 import {
-  ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Typography,
+  ExpansionPanel,
+  ExpansionPanelDetails,
+  ExpansionPanelSummary,
+  Typography,
+  Button,
 } from '@material-ui/core';
-import Chip from '@material-ui/core/Chip';
-import Avatar from '@material-ui/core/Avatar';
-import PeopleIcon from '@material-ui/icons/People';
-import classNames from 'classnames';
+import withWidth from '@material-ui/core/withWidth';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import MemberList from './MemberList';
 
 const styles = theme => ({
-  headerBox: {
-    display: 'flex',
-    justifyContent: 'space-between',
+  summary: {
+    flex: 1,
   },
-
-  details: {
-    alignItems: 'center',
+  expandButton: {
+    alignSelf: 'center',
+    paddingRight: `${theme.spacing.unit}px !important`,
   },
-
-  helper: {},
-
-  investment: {
-    display: 'inline-block',
-  },
-
-  column: {
-    flexBasis: '33.33%',
-  },
-
-  mainGrid: {
-    padding: theme.spacing.unit * 2,
-    justifyContent: 'flex-end',
-  },
-
-  tabSection: {
-    borderTop: `1px solid ${theme.palette.divider}`,
-    display: 'block',
-  },
-
-  wholeWidth: {
-    flexBasis: '100%',
+  expandButtonMobile: {
+    padding: '0px !important',
+    marginTop: theme.spacing.unit * 2,
   },
 });
 
 class UserMembershipsListItem extends React.PureComponent {
   render() {
+    const { team, classes, width } = this.props;
     const {
-      id, name, description, numMembers, classes,
-    } = this.props;
+      id,
+      name,
+      description,
+      num_users: numUsers,
+    } = team;
+    const isMobile = (width === 'xs');
+
     return (
       <ExpansionPanel>
-        <ExpansionPanelSummary className={classes.details} expandIcon={<ExpandMoreIcon />}>
-          <div className={classes.column}>
-            <Typography>
+        <ExpansionPanelSummary>
+          <div className={classes.summary}>
+            <Typography variant="title" paragraph>
               {name}
             </Typography>
-            <div className={classes.wholeWidth}>
-              <Typography>
-                {description}
-              </Typography>
-            </div>
+            <Typography>
+              {description}
+            </Typography>
+            {isMobile && (
+              <Button
+                className={classes.expandButtonMobile}
+                color="primary"
+                size="medium"
+              >
+                {`View all ${numUsers} members`}
+              </Button>
+            )}
           </div>
-          <div className={classes.column} />
-          <div className={classNames(classes.column, classes.helper)}>
-            <Chip avatar={<Avatar><PeopleIcon /></Avatar>} label={numMembers} />
-          </div>
-
+          {!isMobile && (
+            <Button
+              className={classes.expandButton}
+              color="primary"
+              size="medium"
+            >
+              {`View all ${numUsers} members`}
+            </Button>
+          )}
         </ExpansionPanelSummary>
         <ExpansionPanelDetails>
           <MemberList teamId={id} />
@@ -81,12 +76,12 @@ class UserMembershipsListItem extends React.PureComponent {
 }
 
 UserMembershipsListItem.propTypes = {
-  id: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
-  numMembers: PropTypes.number.isRequired,
-  marketSharesAvailable: PropTypes.arrayOf(PropTypes.number).isRequired,
+  team: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    description: PropTypes.string,
+    num_users: PropTypes.number,
+  }).isRequired,
 };
 
-
-export default injectIntl(withStyles(styles)(UserMembershipsListItem));
+export default injectIntl(withWidth()(withStyles(styles)(UserMembershipsListItem)));

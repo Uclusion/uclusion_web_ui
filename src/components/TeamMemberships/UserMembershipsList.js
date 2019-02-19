@@ -1,22 +1,33 @@
 import React from 'react';
-import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import ItemList from '../Lists/ItemList';
-import UserMembershipsListCategory from './UserMembershipsCategory';
+import { injectIntl } from 'react-intl';
+import { withStyles } from '@material-ui/core/styles';
+import UserMembershipsListItem from './UserMembershipsListItem';
+
+const styles = theme => ({
+  root: {
+    padding: theme.spacing.unit * 2,
+  },
+});
 
 class UserMembershipsList extends React.PureComponent {
   render() {
-    const { teams } = this.props;
-    const teamsCategory = <UserMembershipsListCategory teams={teams} />;
+    const { teams, classes } = this.props;
     return (
-      <ItemList categoryLists={[teamsCategory]} headerActions={[]} />
+      <div className={classes.root}>
+        {[...teams, ...teams].map(team => (
+          <UserMembershipsListItem
+            key={team.id}
+            team={team}
+          />
+        ))}
+      </div>
     );
   }
 }
-
 
 UserMembershipsList.propTypes = {
   teams: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
-export default injectIntl(UserMembershipsList);
+export default injectIntl(withStyles(styles)(UserMembershipsList));

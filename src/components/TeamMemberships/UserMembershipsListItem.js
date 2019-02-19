@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -33,7 +34,6 @@ class UserMembershipsListItem extends React.PureComponent {
       id,
       name,
       description,
-      num_users: numUsers,
     } = team;
     const isMobile = (width === 'xs');
 
@@ -41,7 +41,7 @@ class UserMembershipsListItem extends React.PureComponent {
       <ExpansionPanel>
         <ExpansionPanelSummary>
           <div className={classes.summary}>
-            <Typography variant="title" paragraph>
+            <Typography variant="h6" paragraph>
               {name}
             </Typography>
             <Typography>
@@ -53,7 +53,7 @@ class UserMembershipsListItem extends React.PureComponent {
                 color="primary"
                 size="medium"
               >
-                {`View all ${numUsers} members`}
+                {'View all members'}
               </Button>
             )}
           </div>
@@ -63,7 +63,7 @@ class UserMembershipsListItem extends React.PureComponent {
               color="primary"
               size="medium"
             >
-              {`View all ${numUsers} members`}
+              {'View all members'}
             </Button>
           )}
         </ExpansionPanelSummary>
@@ -80,8 +80,9 @@ UserMembershipsListItem.propTypes = {
     id: PropTypes.string,
     name: PropTypes.string,
     description: PropTypes.string,
-    num_users: PropTypes.number,
   }).isRequired,
+  classes: PropTypes.object.isRequired,
+  width: PropTypes.string.isRequired,
 };
 
 export default injectIntl(withWidth()(withStyles(styles)(UserMembershipsListItem)));

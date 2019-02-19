@@ -5,7 +5,6 @@ import rootReducer from './rootReducer';
 import investiblesReducer from './MarketInvestibles/reducer';
 import marketsReducer from './Markets/reducer';
 import usersReducer from './Users/reducer';
-import teamsReducer from './Teams/reducer';
 import locale from './locale/reducer';
 import persistentValues from './persistentValues/reducer';
 import simpleValues from './simpleValues/reducer';
@@ -30,7 +29,6 @@ const appReducer = combineReducers({
   investiblesReducer,
   marketsReducer,
   usersReducer,
-  teamsReducer,
   commentsReducer,
   searchReducer,
 });

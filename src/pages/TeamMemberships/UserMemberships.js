@@ -1,61 +1,52 @@
-import React, { PureComponent } from 'react';
-import { bindActionCreators } from 'redux';
+/* eslint-disable react/forbid-prop-types */
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
-import { Typography } from '@material-ui/core';
 import Activity from '../../containers/Activity/Activity';
-import { fetchUserTeams } from '../../store/Teams/actions';
-import { getUserTeams } from '../../store/Teams/reducer';
-import { getCurrentUser } from '../../store/Users/reducer';
 import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList';
+import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
+import { getClient } from '../../config/uclusionClient';
+import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 
-class UserMemberships extends PureComponent {
-  render() {
-    const { intl, teams, user } = this.props;
-    if (teams.length === 0) {
-      return (
-        <Activity
-          isLoading={teams === undefined}
-          containerStyle={{ overflow: 'hidden' }}
-          title={intl.formatMessage({ id: 'teamsHeader' })}
-        >
-          <Typography>
-            {intl.formatMessage({ id: 'teamsListNotFound' })}
-          </Typography>
-        </Activity>
-      );
+function UserMemberships(props) {
+  const [teams, setTeams] = useState(undefined);
+  const { intl, userPermissions } = props;
+  const { canListAccountTeams } = userPermissions;
+  // Empty array on second argument to prevent re-running when teams property changes
+  useEffect(() => {
+    const clientPromise = getClient();
+    if (canListAccountTeams) {
+      clientPromise.then(client => client.teams.list()).then((accountTeams) => {
+        setTeams(accountTeams);
+      }).catch((error) => {
+        console.log(error);
+        sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
+      });
+    } else {
+      clientPromise.then(client => client.teams.mine()).then((myTeams) => {
+        setTeams(myTeams);
+      }).catch((error) => {
+        console.log(error);
+        sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
+      });
     }
+    return () => {};
+  }, []);
 
-    return (
-      <Activity
-        isLoading={teams === undefined}
-        containerStyle={{ overflow: 'hidden' }}
-        title={intl.formatMessage({ id: 'teamsHeader' })}
-      >
-        <UserMembershipsList user={user} teams={teams} />
-      </Activity>
-    );
-  }
+  return (
+    <Activity
+      isLoading={teams === undefined}
+      containerStyle={{ overflow: 'hidden' }}
+      title={intl.formatMessage({ id: 'teamsHeader' })}
+    >
+      {teams && <UserMembershipsList teams={teams} />}
+    </Activity>
+  );
 }
 
 UserMemberships.propTypes = {
-  dispatch: PropTypes.func.isRequired,
-  teams: PropTypes.arrayOf(PropTypes.object).isRequired,
+  userPermissions: PropTypes.object.isRequired,
+  intl: PropTypes.object.isRequired,
 };
 
-function mapStateToProps(state) {
-  return {
-    teams: getUserTeams(state.teamsReducer),
-    user: getCurrentUser(state.usersReducer),
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return Object.assign({ dispatch }, bindActionCreators({ fetchUserTeams }, dispatch));
-}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(injectIntl(UserMemberships));
+export default injectIntl(withUserAndPermissions(UserMemberships));

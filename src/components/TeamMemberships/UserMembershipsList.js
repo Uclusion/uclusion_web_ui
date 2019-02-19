@@ -15,7 +15,7 @@ class UserMembershipsList extends React.PureComponent {
     const { teams, classes } = this.props;
     return (
       <div className={classes.root}>
-        {[...teams, ...teams].map(team => (
+        {teams.map(team => (
           <UserMembershipsListItem
             key={team.id}
             team={team}
@@ -28,6 +28,8 @@ class UserMembershipsList extends React.PureComponent {
 
 UserMembershipsList.propTypes = {
   teams: PropTypes.arrayOf(PropTypes.object).isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  classes: PropTypes.object.isRequired,
 };
 
 export default injectIntl(withStyles(styles)(UserMembershipsList));

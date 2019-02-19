@@ -8,8 +8,6 @@ import SettingsIcon from '@material-ui/icons/SettingsApplications';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import LockIcon from '@material-ui/icons/Lock';
 import ListIcon from '@material-ui/icons/List';
-
-import BusinessIcon from '@material-ui/icons/Business';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import GroupIcon from '@material-ui/icons/Group';
 import { themes } from './themes';
@@ -31,7 +29,7 @@ const getMenuItems = (props) => {
 
   // const isAuthorised = auth.isAuthorised
   const isAuthorised = true;
-  const { canInvest, canListAccountTeams, canCategorize } = userPermissions;
+  const { canCategorize } = userPermissions;
 
   const themeItems = themes.map(t => ({
     value: undefined,
@@ -67,12 +65,6 @@ const getMenuItems = (props) => {
       leftIcon: <LockIcon />,
     },
     {
-      value: formCurrentMarketLink('marketTeams'),
-      visible: canListAccountTeams,
-      primaryText: intl.formatMessage({ id: 'marketTeamsMenu' }),
-      leftIcon: <BusinessIcon />,
-    },
-    {
       value: formCurrentMarketLink('investibles'),
       visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'investiblesMenu' }),
@@ -86,7 +78,6 @@ const getMenuItems = (props) => {
     },
     {
       value: formCurrentMarketLink('teams'),
-      visible: canInvest,
       primaryText: intl.formatMessage({ id: 'myTeamsMenu' }),
       leftIcon: <GroupIcon />,
     },

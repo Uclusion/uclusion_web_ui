@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
-import { fetchComment } from "../../store/Comments/actions";
+import { fetchComment, deleteComment } from "../../store/Comments/actions";
 
 /**
  * Class which fires and manages a websocket connection to the server. It may need to become a service worker
@@ -23,6 +23,13 @@ class WebSocketRunner {
           this.dispatch(fetchInvestibles({
             marketId: payload.sub_object_id,
             idList: [payload.object_id],
+          }));
+          break;
+        case 'INVESTIBLE_COMMENT_DELETED':
+          this.dispatch(deleteComment({
+            commentId: payload.object_id,
+            investibleId: payload.sub_object_id,
+            suppressMessage: true,
           }));
           break;
         case 'INVESTIBLE_COMMENT_UPDATED':

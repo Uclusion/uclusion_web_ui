@@ -1,5 +1,5 @@
 /* eslint-disable react/forbid-prop-types */
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   ExpansionPanel,
@@ -27,52 +27,68 @@ const styles = theme => ({
   },
 });
 
-class UserMembershipsListItem extends React.PureComponent {
-  render() {
-    const { team, classes, width } = this.props;
-    const {
-      id,
-      name,
-      description,
-    } = team;
-    const isMobile = (width === 'xs');
+function UserMembershipsListItem(props) {
+  const [teamSize, setTeamSize] = useState(undefined);
+  const [teamSharedAmount, setTeamSharedAmount] = useState(undefined);
+  const { team, classes, width } = props;
+  const {
+    id,
+    name,
+    description,
+  } = team;
+  const isMobile = (width === 'xs');
 
-    return (
-      <ExpansionPanel>
-        <ExpansionPanelSummary>
-          <div className={classes.summary}>
-            <Typography variant="h6" paragraph>
-              {name}
-            </Typography>
+  return (
+    <ExpansionPanel CollapseProps={{ unmountOnExit: true }}>
+      <ExpansionPanelSummary>
+        <div className={classes.summary}>
+          <Typography variant="h6" paragraph>
+            {name}
+          </Typography>
+          <Typography>
+            {description}
+          </Typography>
+          {teamSize
+          && (
+          <Typography>
+            Team size:
+            {' '}
+            {teamSize}
+          </Typography>
+          )}
+          {teamSharedAmount
+          && (
             <Typography>
-              {description}
+              Team shared uShares:
+              {' '}
+              {teamSharedAmount}
             </Typography>
-            {isMobile && (
-              <Button
-                className={classes.expandButtonMobile}
-                color="primary"
-                size="medium"
-              >
-                {'View all members'}
-              </Button>
-            )}
-          </div>
-          {!isMobile && (
+          )}
+          {isMobile && (
             <Button
-              className={classes.expandButton}
+              className={classes.expandButtonMobile}
               color="primary"
               size="medium"
             >
               {'View all members'}
             </Button>
           )}
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-          <MemberList teamId={id} />
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
-    );
-  }
+        </div>
+        {!isMobile && (
+          <Button
+            className={classes.expandButton}
+            color="primary"
+            size="medium"
+          >
+            {'View all members'}
+          </Button>
+        )}
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails>
+        <MemberList teamId={id} teamShared={setTeamSharedAmount} teamSize={setTeamSize} />
+      </ExpansionPanelDetails>
+    </ExpansionPanel>
+  );
 }
 
 UserMembershipsListItem.propTypes = {

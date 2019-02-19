@@ -15,7 +15,7 @@ class UserMembershipsList extends React.PureComponent {
     const { teams, classes } = this.props;
     return (
       <div className={classes.root}>
-        {[...teams, ...teams].map(team => (
+        {teams.map(team => (
           <UserMembershipsListItem
             key={team.id}
             team={team}

@@ -214,6 +214,8 @@ const messages = defineMessages({
   commentsFetchFailed: 'We\'re sorry comments are not currently available for that investible',
   commentCreateSucceeded: 'Your comment has been added',
   commentCreateFailed: 'We\'re sorry, your comment could not be created',
+  commentDeleteSucceeded: 'The comment has been deleted',
+  commentDeleteFailed: 'We\'re sorry, the comment could not be deleted',
   // Stages
   BOUND: 'In market',
   NEEDS_REVIEW: 'Needs review',

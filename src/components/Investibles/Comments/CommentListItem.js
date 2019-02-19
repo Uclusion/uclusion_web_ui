@@ -2,9 +2,20 @@ import React from 'react';
 import { Typography, Paper } from '@material-ui/core';
 import HtmlRichTextEditor from "../../TextEditors/HtmlRichTextEditor";
 import { injectIntl } from "react-intl";
+import { withUserAndPermissions } from '../../UserPermissions/UserPermissions';
+import CommentDelete from './CommentDelete'
+
 
 function CommentListItem(props) {
-  const { created_by_name, created_at, body, intl } = props;
+
+  function canDeleteComment(){
+    const { created_by, userPermissions, upUser, } = props;
+    const { canDeleteOwnComments, canDeleteOthersComments, } = userPermissions;
+    return canDeleteOthersComments || (canDeleteOwnComments && upUser.id === created_by);
+  }
+
+
+  const { created_by_name, created_at, body, intl, id, investible_id} = props;
   const dateFormatOptions = {
     year: 'numeric',
     month: 'numeric',
@@ -19,10 +30,10 @@ function CommentListItem(props) {
   });
   return (
     <Paper>
-      <Typography>{commentHeader}</Typography>
+      <Typography>{commentHeader}{canDeleteComment() && <CommentDelete commentId={id} investibleId={investible_id}/>}</Typography>
       <HtmlRichTextEditor value={body} readOnly={true}/>
     </Paper>
   );
 }
 
-export default injectIntl(CommentListItem);
+export default withUserAndPermissions(injectIntl(CommentListItem));

@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
-import { COMMENTS_LIST_RECEIVED, COMMENT_CREATED, COMMENT_RECEIVED } from './actions';
+import { COMMENTS_LIST_RECEIVED, COMMENT_CREATED, COMMENT_RECEIVED, COMMENT_DELETED } from './actions';
+import _ from 'lodash';
 
 const reFormatComment = (comment) => {
   comment.created_at = new Date(comment.created_at);
@@ -30,6 +31,13 @@ function updateSingleCommentState(state, action) {
   return newState;
 }
 
+function deleteSingleCommentState(state, action) {
+  const { commentId, investibleId } = action;
+  const newState = { ...state };
+  newState[investibleId] = _.filter(state[investibleId], comment => (comment.id !== commentId));
+  return newState;
+}
+
 function investibleComments(state = {}, action) {
   switch (action.type) {
     case COMMENTS_LIST_RECEIVED:
@@ -37,6 +45,8 @@ function investibleComments(state = {}, action) {
     case COMMENT_RECEIVED:
     case COMMENT_CREATED:
       return updateSingleCommentState(state, action);
+    case COMMENT_DELETED:
+      return deleteSingleCommentState(state, action);
     default:
       return state;
   }

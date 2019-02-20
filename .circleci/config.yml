@@ -56,6 +56,7 @@ jobs:
           name: Invalidate Cloud Front cache
           command: |
             cd ~/repo
+            aws configure set preview.cloudfront true
             aws cloudfront create-invalidation --distribution-id E10WWH6E4AWPV5 --paths "/*"
 
 workflows:

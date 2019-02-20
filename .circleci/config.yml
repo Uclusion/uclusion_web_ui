@@ -1,0 +1,60 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2.1
+
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:10
+
+jobs:
+  build:
+    <<: *defaults
+    steps:
+
+      - checkout
+      
+      - run:
+          name: Check out uclusion_sdk
+          command: |
+            cd ~/
+            git clone git@github.com:Uclusion/uclusion_sdk.git
+      
+      - run:
+          name: Check out uclusion_authorizer_sdk
+          command: |
+            cd ~/
+            git clone git@github.com:Uclusion/uclusion_authorizer_sdk.git
+
+      - run:
+          name: Build web ui
+          command: |
+            cd ~/repo
+            npm run-script build
+
+      - run:
+          name: Deploy web ui
+          command: |
+            [ -d ~/.aws ] && echo "Found" || mkdir ~/.aws
+            echo -e "[default]\naws_access_key_id=$aws_access_key_id\naws_secret_access_key=$aws_secret_access_key\n" > ~/.aws/credentials
+            cd ~/repo
+            npm run-script deploy
+
+      - run:
+          name: Invalidate Cloud Front cache
+          command: |
+            cd ~/repo
+            aws cloudfront create-invalidation --distribution-id E10WWH6E4AWPV5 --paths "/*"
+
+workflows:
+  deploy-stage:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^stage_only.*/
+            branches:
+              ignore: /.*/
+          context: stage

@@ -54,6 +54,7 @@ jobs:
       - run:
           name: Invalidate Cloud Front cache
           command: |
+            sudo apt-get -y -qq install awscli
             cd ~/repo
             aws cloudfront create-invalidation --distribution-id E10WWH6E4AWPV5 --paths "/*"
 

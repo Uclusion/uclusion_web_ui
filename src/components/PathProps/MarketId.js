@@ -4,36 +4,13 @@
  */
 
 import React from 'react';
-import { connect } from 'react-redux';
-import { selectMarket } from '../../store/Markets/actions';
+
 import { getMarketId } from '../../utils/marketIdPathFunctions';
 
-function mapStateToProps(state) {
-  return { currentMarket: state.marketsReducer.currentMarket };
-}
-
-function mapDispatchToProps(dispatch) {
-  return { dispatch };
-}
 
 function withMarketId(WrappedComponent) {
+
   class MarketId extends React.Component {
-    constructor(props) {
-      super(props);
-      this.updateRedux = this.updateRedux.bind(this);
-    }
-
-    updateRedux(marketId) {
-      const { dispatch, currentMarket } = this.props;
-      if (marketId !== currentMarket) {
-        dispatch(selectMarket(marketId));
-      }
-    }
-
-    componentDidUpdate(){
-      const marketId = getMarketId();
-      this.updateRedux(marketId);
-    }
 
     render() {
       const marketId = getMarketId();
@@ -41,7 +18,7 @@ function withMarketId(WrappedComponent) {
     }
   }
 
-  return connect(mapStateToProps, mapDispatchToProps)(MarketId);
+  return MarketId;
 }
 
 export { withMarketId };

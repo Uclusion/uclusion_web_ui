@@ -20,8 +20,8 @@ function reFormatInvestibles(investibles){
   investibles.forEach((item) => {reFormatInvestible(item)});
 }
 
-
-function getInvestibleCreatedState(state, action){
+// exported for use by the search reducer
+export function getInvestibleCreatedState(state, action){
   const marketId = action.marketId ? action.marketId : 'template';
   let investibles = action.investibles ? action.investibles : action.investible;
   if (!Array.isArray(investibles)) {
@@ -34,6 +34,7 @@ function getInvestibleCreatedState(state, action){
   return newState;
 }
 
+// exported for use by the search reducer
 function getMarketInvestibleCreatedState(state, action){
   const newState = { ...state };
   const { investment, marketInvestible } = action;
@@ -59,7 +60,7 @@ function getMarketInvestibleCreatedState(state, action){
   return newState;
 }
 
-function getMarketInvestibleDeletedState(state, action){
+export function getMarketInvestibleDeletedState(state, action){
   const newState = { ...state };
   newState[action.marketId] = state[action.marketId].filter(
     item => (item.id !== action.investibleId),

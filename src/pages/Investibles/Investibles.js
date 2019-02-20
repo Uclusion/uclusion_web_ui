@@ -13,7 +13,7 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import { fetchInvestibleList } from '../../store/MarketInvestibles/actions';
 import LoginModal from '../Login/LoginModal';
 import InvestibleSearchBox from '../../components/Investibles/InvestibleSearchBox';
-import { hasInvestibleSearchActive, getActiveInvestibleSearchResults } from '../../store/Search/reducer';
+import { getActiveInvestibleSearches } from '../../store/Search/reducer';
 import _ from 'lodash';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
@@ -50,9 +50,10 @@ function InvestiblesPage(props) {
 
   function getCurrentInvestibleList(){
     const marketInvestibles = getMarketInvestibles();
-    const {investibleSearchActive, investibleSearchResults } = props;
-    if (investibleSearchActive && investibleSearchResults){
-      return getFilteredSearchList(marketInvestibles, investibleSearchResults);
+    const { activeInvestibleSearches, marketId } = props;
+    const currentSearch = activeInvestibleSearches[marketId];
+    if (currentSearch && currentSearch.results && currentSearch.results.length > 0) {
+      return getFilteredSearchList(marketInvestibles, currentSearch.results);
     }
     return marketInvestibles;
   }
@@ -139,8 +140,7 @@ InvestiblesPage.propTypes = {
   categories: PropTypes.arrayOf(categoryPropType),
   marketId: PropTypes.string,
   user: PropTypes.object,
-  investibleSearchActive: PropTypes.bool.isRequired,
-  investibleSearchResults: PropTypes.array,
+  activeInvestibleSearches: PropTypes.object,
   history: PropTypes.object.isRequired,
 };
 
@@ -148,8 +148,7 @@ const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
   categories: getMarketCategories(state.marketsReducer),
   user: getCurrentUser(state.usersReducer),
-  investibleSearchActive: hasInvestibleSearchActive(state.searchReducer),
-  investibleSearchResults: getActiveInvestibleSearchResults(state.searchReducer),
+  activeInvestibleSearches: getActiveInvestibleSearches(state.searchReducer),
 });
 
 function mapDispatchToProps(dispatch) {

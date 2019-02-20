@@ -32,7 +32,7 @@ jobs:
             git clone git@github.com:Uclusion/uclusion_authorizer_sdk.git
 
       - run:
-          name: Build web ui
+          name: Install web ui
           command: |
             cd ~/repo
             npm install

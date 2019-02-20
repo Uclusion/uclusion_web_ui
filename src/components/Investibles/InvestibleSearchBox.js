@@ -9,7 +9,7 @@ import { getActiveInvestibleSearches, getSerializedIndexes } from '../../store/S
 import { withMarketId } from '../PathProps/MarketId';
 
 function InvestibleSearchBox(props) {
-  const { dispatch, marketId, query, serializedIndexes, searches} = props;
+  const { dispatch, marketId, serializedIndexes, searches} = props;
   const marketSearch = searches[marketId];
   const marketSearchQuery = marketSearch? marketSearch.query : '';
 

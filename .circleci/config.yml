@@ -35,6 +35,12 @@ jobs:
           name: Build web ui
           command: |
             cd ~/repo
+            npm install
+
+      - run:
+          name: Build web ui
+          command: |
+            cd ~/repo
             npm run-script build
 
       - run:

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { withTheme } from '@material-ui/core/styles';
+import { withTheme, withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
@@ -17,6 +17,14 @@ import { hasInvestibleSearchActive, getActiveInvestibleSearchResults } from '../
 import _ from 'lodash';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
+
+const styles = theme => ({
+  root: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+});
 
 function InvestiblesPage(props) {
   const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
@@ -82,6 +90,7 @@ function InvestiblesPage(props) {
     marketId,
     user,
     history: { location: { pathname } },
+    classes,
   } = props;
 
   const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
@@ -100,15 +109,15 @@ function InvestiblesPage(props) {
 
         {currentInvestibleList && user && user.market_presence
         && (
-          <div>
-        <InvestibleSearchBox/>
-        <InvestibleList
-          teamId={user.default_team_id}
-          user={user}
-          marketId={marketId}
-          investibles={currentInvestibleList}
-          categories={categories}
-        />
+          <div className={classes.root}>
+            <InvestibleSearchBox />
+            <InvestibleList
+              teamId={user.default_team_id}
+              user={user}
+              marketId={marketId}
+              investibles={currentInvestibleList}
+              categories={categories}
+            />
           </div>
         )}
       </Activity>
@@ -150,4 +159,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withTheme()(withMarketId(React.memo(InvestiblesPage)))));
+)(injectIntl(withStyles(styles)(withTheme()(withMarketId(React.memo(InvestiblesPage))))));

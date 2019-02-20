@@ -48,13 +48,13 @@ jobs:
           command: |
             [ -d ~/.aws ] && echo "Found" || mkdir ~/.aws
             echo -e "[default]\naws_access_key_id=$aws_access_key_id\naws_secret_access_key=$aws_secret_access_key\n" > ~/.aws/credentials
+            sudo apt-get -y -qq install awscli
             cd ~/repo
             npm run-script deploy
 
       - run:
           name: Invalidate Cloud Front cache
           command: |
-            sudo apt-get -y -qq install awscli
             cd ~/repo
             aws cloudfront create-invalidation --distribution-id E10WWH6E4AWPV5 --paths "/*"
 

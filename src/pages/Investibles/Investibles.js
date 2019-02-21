@@ -13,7 +13,7 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import { fetchInvestibleList } from '../../store/MarketInvestibles/actions';
 import LoginModal from '../Login/LoginModal';
 import InvestibleSearchBox from '../../components/Investibles/InvestibleSearchBox';
-import { getActiveInvestibleSearches } from '../../store/Search/reducer';
+import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 import _ from 'lodash';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
@@ -148,7 +148,7 @@ const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
   categories: getMarketCategories(state.marketsReducer),
   user: getCurrentUser(state.usersReducer),
-  activeInvestibleSearches: getActiveInvestibleSearches(state.searchReducer),
+  activeInvestibleSearches: getActiveInvestibleSearches(state.activeSearches),
 });
 
 function mapDispatchToProps(dispatch) {

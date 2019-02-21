@@ -11,8 +11,8 @@ import simpleValues from './simpleValues/reducer';
 import themeSource from './themeSource/reducer';
 import drawer from './drawer/reducer';
 import commentsReducer from './Comments/reducer';
-import searchReducer from './Search/reducer';
-
+import activeSearches from './ActiveSearches/reducer';
+import searchIndexes from './SearchIndexes/reducer';
 
 export const appReducers = {
   filters: filterReducer,
@@ -30,7 +30,8 @@ const appReducer = combineReducers({
   marketsReducer,
   usersReducer,
   commentsReducer,
-  searchReducer,
+  activeSearches,
+  searchIndexes,
 });
 
 

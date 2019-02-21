@@ -6,7 +6,8 @@ import {
 } from '../MarketInvestibles/actions';
 import { getInvestibleCreatedState, getMarketInvestibleDeletedState } from '../MarketInvestibles/reducer';
 import elasticlunr from 'elasticlunr/example/elasticlunr';
-import { combineReducers } from "redux";
+import { combineReducers } from 'redux';
+import { COMMENTS_LIST_RECEIVED } from '../Comments/actions';
 
 /**
  * calculate the changed state and returns a convenient form with the market id and the items seperated
@@ -20,8 +21,14 @@ function unpackMarketState(updates){
   return { marketId, items, type };
 }
 
+function getUpdatedCommentsState(action){
+  return { type: 'noop'};
+}
+
+
 /**
- * Right now the two update functions return _every_ investible in the market.
+ * Right now the getUpdatedInvestiblesState and getUpdatedMarketInvestiblesState
+ * functions return _every_ investible in the market.
  * That's not super efficient, so we'll likely need to compute our own state
  * @param action
  */
@@ -52,6 +59,8 @@ function getActionState(action){
     case INVESTMENT_CREATED:
     case MARKET_INVESTIBLE_CREATED:
       return getUpdatedMarketInvestiblesState(action);
+    case COMMENTS_LIST_RECEIVED:
+      return getUpdatedCommentsState(action);
     default:
       return { type: 'NOOP' };// for completeness
   }

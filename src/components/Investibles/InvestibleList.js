@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import ItemList from '../Lists/ItemList';
 import InvestibleListCategory from './InvestibleListCategory';
 import { connect } from 'react-redux';
-import { getActiveInvestibleSearches } from '../../store/Search/reducer';
+import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 
 class InvestibleList extends React.PureComponent {
   constructor(props) {
@@ -61,7 +61,7 @@ class InvestibleList extends React.PureComponent {
   }
 }
 const mapStateToProps = state => ({
-  marketSearches: getActiveInvestibleSearches(state.searchReducer),
+  marketSearches: getActiveInvestibleSearches(state.activeSearches),
 });
 
 InvestibleList.propTypes = {

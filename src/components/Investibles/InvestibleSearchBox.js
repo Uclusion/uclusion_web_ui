@@ -3,9 +3,10 @@ import { connect } from 'react-redux';
 import elasticlunr from 'elasticlunr';
 import { TextField } from '@material-ui/core';
 
-import { updateSearchResults } from '../../store/Search/actions';
+import { updateSearchResults } from '../../store/ActiveSearches/actions';
 
-import { getActiveInvestibleSearches, getSerializedIndexes } from '../../store/Search/reducer';
+import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
+import { getSerializedMarketIndexes } from '../../store/SearchIndexes/reducer';
 import { withMarketId } from '../PathProps/MarketId';
 
 function InvestibleSearchBox(props) {
@@ -29,8 +30,8 @@ function InvestibleSearchBox(props) {
 }
 
 function mapStateToProps(state) {
-  const searches = getActiveInvestibleSearches(state.searchReducer);
-  const serializedIndexes = getSerializedIndexes(state.searchReducer);
+  const searches = getActiveInvestibleSearches(state.activeSearches);
+  const serializedIndexes = getSerializedMarketIndexes(state.searchIndexes);
 
   return {
     searches,

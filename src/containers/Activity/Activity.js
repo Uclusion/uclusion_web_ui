@@ -136,7 +136,7 @@ function Activity(props) {
       webSocket, marketId, user, dispatch, history,
     } = props;
     if (newMarketId !== marketId) {
-      postAuthTasks(null, null, dispatch, marketId, user, webSocket);
+      postAuthTasks(null, null, dispatch, newMarketId, user, webSocket);
       const markets = extractMarkets(user);
       const newMarket = markets.find(market => market.id === newMarketId);
       history.push(getDifferentMarketLink(newMarket, 'investibles'));

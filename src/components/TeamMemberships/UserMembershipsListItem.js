@@ -28,13 +28,16 @@ const styles = theme => ({
 });
 
 function UserMembershipsListItem(props) {
-  const [teamSize, setTeamSize] = useState(undefined);
-  const [teamSharedAmount, setTeamSharedAmount] = useState(undefined);
+  const [teamLastInvestmentDate, setTeamLastInvestmentDate] = useState(undefined);
   const { team, classes, width } = props;
   const {
     id,
     name,
     description,
+    shared_quantity,
+    team_size,
+    quantity_invested,
+    quantity,
   } = team;
   const isMobile = (width === 'xs');
 
@@ -48,20 +51,27 @@ function UserMembershipsListItem(props) {
           <Typography>
             {description}
           </Typography>
-          {teamSize
-          && (
           <Typography>
-            Team size:
+            Team shared uShares:
             {' '}
-            {teamSize}
+            {shared_quantity}
           </Typography>
-          )}
-          {teamSharedAmount
+          <Typography>
+            Team unspent uShares:
+            {' '}
+            {quantity}
+          </Typography>
+          <Typography>
+            Team invested uShares:
+            {' '}
+            {quantity_invested}
+          </Typography>
+          {teamLastInvestmentDate
           && (
             <Typography>
-              Team shared uShares:
+              Team last investment:
               {' '}
-              {teamSharedAmount}
+              {teamLastInvestmentDate}
             </Typography>
           )}
           {isMobile && (
@@ -70,7 +80,7 @@ function UserMembershipsListItem(props) {
               color="primary"
               size="medium"
             >
-              {'View all members'}
+                {`View all ${team_size} members`}
             </Button>
           )}
         </div>
@@ -80,12 +90,12 @@ function UserMembershipsListItem(props) {
             color="primary"
             size="medium"
           >
-            {'View all members'}
+              {`View all ${team_size} members`}
           </Button>
         )}
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
-        <MemberList teamId={id} teamShared={setTeamSharedAmount} teamSize={setTeamSize} />
+        <MemberList teamId={id} teamLastInvestmentDate={setTeamLastInvestmentDate} />
       </ExpansionPanelDetails>
     </ExpansionPanel>
   );
@@ -96,6 +106,8 @@ UserMembershipsListItem.propTypes = {
     id: PropTypes.string,
     name: PropTypes.string,
     description: PropTypes.string,
+    team_size: PropTypes.number,
+    shared_amount: PropTypes.number,
   }).isRequired,
   classes: PropTypes.object.isRequired,
   width: PropTypes.string.isRequired,

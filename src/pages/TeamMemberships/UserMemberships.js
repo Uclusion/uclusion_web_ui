@@ -7,23 +7,24 @@ import UserMembershipsList from '../../components/TeamMemberships/UserMembership
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
+import { withMarketId } from '../../components/PathProps/MarketId';
 
 function UserMemberships(props) {
   const [teams, setTeams] = useState(undefined);
-  const { intl, userPermissions } = props;
+  const { intl, userPermissions, marketId } = props;
   const { canListAccountTeams } = userPermissions;
-  // Empty array on second argument to prevent re-running when teams property changes
+  // Second argument prevents re-running on teams property changes - only for changes in listed
   useEffect(() => {
     const clientPromise = getClient();
     if (canListAccountTeams) {
-      clientPromise.then(client => client.teams.list()).then((accountTeams) => {
-        setTeams(accountTeams);
+      clientPromise.then(client => client.teams.list(marketId)).then((marketTeams) => {
+        setTeams(marketTeams);
       }).catch((error) => {
         console.log(error);
         sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
       });
     } else {
-      clientPromise.then(client => client.teams.mine()).then((myTeams) => {
+      clientPromise.then(client => client.teams.mine(marketId)).then((myTeams) => {
         setTeams(myTeams);
       }).catch((error) => {
         console.log(error);
@@ -31,7 +32,7 @@ function UserMemberships(props) {
       });
     }
     return () => {};
-  }, []);
+  }, [marketId]);
 
   return (
     <Activity
@@ -46,7 +47,8 @@ function UserMemberships(props) {
 
 UserMemberships.propTypes = {
   userPermissions: PropTypes.object.isRequired,
+  marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
 };
 
-export default injectIntl(withUserAndPermissions(UserMemberships));
+export default injectIntl(withUserAndPermissions(withMarketId(UserMemberships)));

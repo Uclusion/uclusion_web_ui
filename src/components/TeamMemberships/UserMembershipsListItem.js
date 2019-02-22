@@ -28,7 +28,6 @@ const styles = theme => ({
 });
 
 function UserMembershipsListItem(props) {
-  const [teamLastInvestmentDate, setTeamLastInvestmentDate] = useState(undefined);
   const { team, classes, width } = props;
   const {
     id,
@@ -38,6 +37,7 @@ function UserMembershipsListItem(props) {
     team_size,
     quantity_invested,
     quantity,
+    last_investment_updated_at,
   } = team;
   const isMobile = (width === 'xs');
 
@@ -66,12 +66,12 @@ function UserMembershipsListItem(props) {
             {' '}
             {quantity_invested}
           </Typography>
-          {teamLastInvestmentDate
+          {last_investment_updated_at
           && (
             <Typography>
               Team last investment:
               {' '}
-              {teamLastInvestmentDate}
+              {last_investment_updated_at}
             </Typography>
           )}
           {isMobile && (
@@ -95,7 +95,7 @@ function UserMembershipsListItem(props) {
         )}
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
-        <MemberList teamId={id} teamLastInvestmentDate={setTeamLastInvestmentDate} />
+        <MemberList teamId={id} />
       </ExpansionPanelDetails>
     </ExpansionPanel>
   );

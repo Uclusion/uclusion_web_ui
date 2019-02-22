@@ -10,7 +10,7 @@ import { withMarketId } from '../PathProps/MarketId';
 function MemberList(props) {
   const [users, setUsers] = useState(undefined);
   const [investments, setInvestments] = useState(undefined);
-  const { teamId, teamLastInvestmentDate, marketId } = props;
+  const { teamId, marketId } = props;
   function processUser(user) {
     const processed = { ...user };
     const marketPresence = user.market_presences.find(presence => presence.market_id === marketId);
@@ -34,21 +34,13 @@ function MemberList(props) {
       setUsers(processedUsers);
       return globalClient.teams.investments(teamId, marketId);
     }).then((investmentsDict) => {
-      let teamLastInvestmentDateCandidate;
       const processedInvestments = [];
       Object.keys(investmentsDict).forEach((investibleId) => {
         const investment = processInvestment(investibleId, investmentsDict[investibleId]);
         processedInvestments.push(investment);
-        if (!teamLastInvestmentDateCandidate
-          || investment.lastInvestmentDate > teamLastInvestmentDateCandidate) {
-          teamLastInvestmentDateCandidate = investment.lastInvestmentDate;
-        }
       });
       if (processedInvestments.length > 0) {
         setInvestments(processedInvestments);
-      }
-      if (teamLastInvestmentDateCandidate) {
-        teamLastInvestmentDate(teamLastInvestmentDateCandidate);
       }
     }).catch((error) => {
       console.log(error);
@@ -66,7 +58,6 @@ function MemberList(props) {
 MemberList.propTypes = {
   teamId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
-  teamLastInvestmentDate: PropTypes.func.isRequired,
 };
 
 export default withMarketId(MemberList);

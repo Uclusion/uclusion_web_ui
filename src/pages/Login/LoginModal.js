@@ -1,7 +1,9 @@
 /* eslint-disable react/forbid-prop-types */
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { OidcAuthorizer, SsoAuthorizer, AnonymousAuthorizer } from 'uclusion_authorizer_sdk';
+import { CognitoAuthorizer } from 'uclusion_node_sdk';
 import {
   Button, Dialog, DialogTitle, List, ListItem,
 } from '@material-ui/core';
@@ -10,18 +12,26 @@ import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import appConfig from '../../config/config';
+import { setUclusionLocalStorageItem } from '../../components/utils';
 import { getAuthMarketId, formCurrentMarketLink, getMarketId } from '../../utils/marketIdPathFunctions';
 import { postAuthTasks } from '../../utils/fetchFunctions';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 
 const styles = theme => ({
   button: {
-    width: 240,
+    width: 320,
+  },
+  input: {
+    display: 'block',
+    width: 320,
+    marginBottom: theme.spacing.unit * 2,
   },
 });
 
 function LoginModal(props) {
   const [allowGuestLogin, setAllowGuestLogin] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   function getDestinationPage(subPath, includeAuthMarket) {
     const currentPage = new URL(window.location.href);
     let authMarketId;
@@ -89,6 +99,29 @@ function LoginModal(props) {
     doLoginRedirect(authorizer, loginParams);
   }
 
+  function loginCognito() {
+    const { destinationPage } = getLoginParams();
+    const authorizerConfiguration = {
+      username: email,
+      password,
+      poolId: 'us-west-2_Z3vZuhzd2',
+      clientId: '2off68ct2ntku805jt7sip0j1b',
+    };
+
+    const authorizer = new CognitoAuthorizer(authorizerConfiguration);
+    authorizer.authorize().then((token) => {
+      const authInfo = {
+        token,
+        type: 'cognito',
+      };
+      setUclusionLocalStorageItem('auth', authInfo);
+      window.location = destinationPage;
+    }).catch((error) => {
+      console.log(error);
+      alert('Cannot signin');
+    });
+  }
+
   function loginAnonymous() {
     const { dispatch, webSocket, history } = props;
     const loginParams = getLoginParams();
@@ -108,6 +141,39 @@ function LoginModal(props) {
       <DialogTitle id="simple-dialog-title">Log In</DialogTitle>
       <div>
         <List>
+          <ListItem>
+            <ValidatorForm onSubmit={loginCognito}>
+              <TextValidator
+                className={classes.input}
+                label="Email"
+                name="email"
+                validators={['required', 'isEmail']}
+                errorMessages={['Email is required', 'Email is not valid']}
+                fullWidth
+                value={email}
+                onChange={event => setEmail(event.target.value)}
+              />
+              <TextValidator
+                className={classes.input}
+                label="Password"
+                name="password"
+                type="password"
+                validators={['required']}
+                errorMessages={['Password is required']}
+                fullWidth
+                value={password}
+                onChange={event => setPassword(event.target.value)}
+              />
+              <Button
+                className={classes.button}
+                type="submit"
+                variant="contained"
+                color="primary"
+              >
+                Login Cognito
+              </Button>
+            </ValidatorForm>
+          </ListItem>
           <ListItem>
             <Button
               className={classes.button}

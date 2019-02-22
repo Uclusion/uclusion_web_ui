@@ -9,30 +9,53 @@ import { withMarketId } from '../PathProps/MarketId';
 
 function MemberList(props) {
   const [users, setUsers] = useState(undefined);
-  const { teamId, teamShared, teamSize } = props;
+  const [investments, setInvestments] = useState(undefined);
+  const { teamId, teamLastInvestmentDate, marketId } = props;
   function processUser(user) {
     const processed = { ...user };
-    const { marketId } = props;
     const marketPresence = user.market_presences.find(presence => presence.market_id === marketId);
     processed.quantity = marketPresence.quantity;
     processed.quantityInvested = marketPresence.quantity_invested;
     return processed;
   }
+  function processInvestment(investibleId, investmentInfo) {
+    // TODO hook to store for full investible
+    return { lastInvestmentDate: investmentInfo.most_recent_investment_date };
+  }
   useEffect(() => {
+    let globalClient;
     const clientPromise = getClient();
-    clientPromise.then(client => client.teams.get(teamId)).then((response) => {
+    clientPromise.then((client) => {
+      globalClient = client;
+      return client.teams.get(teamId);
+    }).then((response) => {
       const processedUsers = response.users.map(user => processUser(user));
-      const nonUsers = _.remove(processedUsers, user => user.type !== 'USER');
-      const teamUser = nonUsers[0]; // Should be only one
-      teamShared(teamUser.quantity);
-      teamSize(processedUsers.length);
+      _.remove(processedUsers, user => user.type !== 'USER');
       setUsers(processedUsers);
+      return globalClient.teams.investments(teamId, marketId);
+    }).then((investmentsDict) => {
+      let teamLastInvestmentDateCandidate;
+      const processedInvestments = [];
+      Object.keys(investmentsDict).forEach((investibleId) => {
+        const investment = processInvestment(investibleId, investmentsDict[investibleId]);
+        processedInvestments.push(investment);
+        if (!teamLastInvestmentDateCandidate
+          || investment.lastInvestmentDate > teamLastInvestmentDateCandidate) {
+          teamLastInvestmentDateCandidate = investment.lastInvestmentDate;
+        }
+      });
+      if (processedInvestments.length > 0) {
+        setInvestments(processedInvestments);
+      }
+      if (teamLastInvestmentDateCandidate) {
+        teamLastInvestmentDate(teamLastInvestmentDateCandidate);
+      }
     }).catch((error) => {
       console.log(error);
       sendIntlMessage(ERROR, { id: 'teamMemberLoadFailed' });
     });
     return () => {};
-  }, []);
+  }, [marketId]);
   return (
     <Grid container spacing={16}>
       {users && users.map(user => <MemberListItem key={user.id} user={user} />)}
@@ -43,8 +66,7 @@ function MemberList(props) {
 MemberList.propTypes = {
   teamId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
-  teamShared: PropTypes.func.isRequired,
-  teamSize: PropTypes.func.isRequired,
+  teamLastInvestmentDate: PropTypes.func.isRequired,
 };
 
 export default withMarketId(MemberList);

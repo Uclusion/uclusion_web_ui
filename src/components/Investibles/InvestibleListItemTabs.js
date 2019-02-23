@@ -8,7 +8,6 @@ import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import InvestibleInvest from './InvestibleInvest';
-import { fetchCommentList } from '../../store/Comments/actions';
 import CommentsList from './Comments/CommentsList';
 import { withBackgroundProcesses } from "../BackgroundProcesses/BackgroundProcessWrapper";
 
@@ -38,12 +37,6 @@ class InvestibleListItemTabs extends React.PureComponent {
 
   handleChange = (event, value) => {
     this.setState({ value });
-  };
-
-  fetchComments = (investibleId) => {
-    const { dispatch, webSocket, upUser } = this.props;
-    webSocket.subscribe(upUser.id, {investible_id: investibleId});
-    dispatch(fetchCommentList({ investibleId }));
   };
 
   render() {

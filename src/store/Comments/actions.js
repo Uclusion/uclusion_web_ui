@@ -29,9 +29,9 @@ export const commentReceived = (comment) => ({
   comment,
 });
 
-export const commentListRequested = (investibleId) => ({
+export const commentListRequested = (marketId) => ({
   type: COMMENTS_LIST_REQUESTED,
-  investibleId,
+  marketId,
 });
 
 export const commentListReceived = (comments) => ({
@@ -68,14 +68,13 @@ export const fetchComment = (params = {}) => (dispatch) => {
 };
 
 export const fetchCommentList = (params = {}) => (dispatch) => {
-  const { investibleId } = params;
+  const { marketId, curentCommentList } = params;
   const clientPromise = getClient();
   clientPromise.then((client) => {
-    client.investibles.listComments(investibleId, 9999)
+    client.investibles.listCommentsByMarket(marketId)
       .then((comments) => {
         dispatch(commentListReceived(comments));
       }).catch((error) => {
-        alert(error);
         console.error(error);
         sendIntlMessage(ERROR, { id: 'commentsFetchFailed' });
       });

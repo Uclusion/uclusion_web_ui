@@ -30,6 +30,7 @@ const styles = theme => ({
 
 function LoginModal(props) {
   const [allowGuestLogin, setAllowGuestLogin] = useState(false);
+  const [allowCognitoLogin, setAllowCognitoLogin] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   function getDestinationPage(subPath, includeAuthMarket) {
@@ -73,8 +74,8 @@ function LoginModal(props) {
     const loginParams = getLoginParams();
     const authorizer = new AnonymousAuthorizer(loginParams);
     authorizer.marketLoginInfo().then((response) => {
-      const allowAnonymous = response.allow_anonymous;
-      setAllowGuestLogin(allowAnonymous);
+      setAllowCognitoLogin(response.allow_cognito);
+      setAllowGuestLogin(response.allow_anonymous);
     });
     return () => {};
   });
@@ -141,39 +142,42 @@ function LoginModal(props) {
       <DialogTitle id="simple-dialog-title">Log In</DialogTitle>
       <div>
         <List>
-          <ListItem>
-            <ValidatorForm onSubmit={loginCognito}>
-              <TextValidator
-                className={classes.input}
-                label="Email"
-                name="email"
-                validators={['required', 'isEmail']}
-                errorMessages={['Email is required', 'Email is not valid']}
-                fullWidth
-                value={email}
-                onChange={event => setEmail(event.target.value)}
-              />
-              <TextValidator
-                className={classes.input}
-                label="Password"
-                name="password"
-                type="password"
-                validators={['required']}
-                errorMessages={['Password is required']}
-                fullWidth
-                value={password}
-                onChange={event => setPassword(event.target.value)}
-              />
-              <Button
-                className={classes.button}
-                type="submit"
-                variant="contained"
-                color="primary"
-              >
-                Login Cognito
-              </Button>
-            </ValidatorForm>
-          </ListItem>
+          {allowCognitoLogin
+          && (
+            <ListItem>
+              <ValidatorForm onSubmit={loginCognito}>
+                <TextValidator
+                  className={classes.input}
+                  label="Email"
+                  name="email"
+                  validators={['required', 'isEmail']}
+                  errorMessages={['Email is required', 'Email is not valid']}
+                  fullWidth
+                  value={email}
+                  onChange={event => setEmail(event.target.value)}
+                />
+                <TextValidator
+                  className={classes.input}
+                  label="Password"
+                  name="password"
+                  type="password"
+                  validators={['required']}
+                  errorMessages={['Password is required']}
+                  fullWidth
+                  value={password}
+                  onChange={event => setPassword(event.target.value)}
+                />
+                <Button
+                  className={classes.button}
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                >
+                  Login Cognito
+                </Button>
+              </ValidatorForm>
+            </ListItem>
+          )}
           <ListItem>
             <Button
               className={classes.button}

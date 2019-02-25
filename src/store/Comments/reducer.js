@@ -40,7 +40,7 @@ function deleteSingleCommentState(state, action) {
   return newState;
 }
 
-function investibleComments(state = {}, action) {
+function marketComments(state = {}, action) {
   switch (action.type) {
     case COMMENTS_RECEIVED:
     case COMMENT_CREATED:
@@ -53,7 +53,7 @@ function investibleComments(state = {}, action) {
 }
 
 export function getComments(state) {
-  return state.investibleComments;
+  return state.marketComments;
 }
 
-export default combineReducers({ investibleComments });
+export default combineReducers({ marketComments });

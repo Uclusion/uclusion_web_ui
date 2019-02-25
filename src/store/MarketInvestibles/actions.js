@@ -1,4 +1,4 @@
-import _ from 'lodash';
+
 import { fetchUser } from '../Users/actions';
 import { getClient } from '../../config/uclusionClient';
 import { sendIntlMessage, ERROR, SUCCESS } from '../../utils/userMessage';

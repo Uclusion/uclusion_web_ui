@@ -32,7 +32,6 @@ class InvestibleListItemTabs extends React.PureComponent {
       value: 0,
     };
     this.handleChange = this.handleChange.bind(this);
-    this.fetchComments = this.fetchComments.bind(this);
   }
 
   handleChange = (event, value) => {
@@ -80,7 +79,7 @@ class InvestibleListItemTabs extends React.PureComponent {
             investibleId={investibleId}
           />
         )}
-        {value === 1 && <CommentsList currentUserInvestment={currentUserInvestment} investibleId={investibleId}/>}
+        {value === 1 && <CommentsList marketId={marketId} currentUserInvestment={currentUserInvestment} investibleId={investibleId}/>}
         {value === 2 && <Typography>Coments Placeholder</Typography>}
       </div>
     );

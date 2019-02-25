@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTheme, withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
+import _ from 'lodash';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
 import { getMarketCategories, categoryPropType } from '../../store/Markets/reducer';
@@ -14,7 +15,8 @@ import { fetchInvestibleList } from '../../store/MarketInvestibles/actions';
 import LoginModal from '../Login/LoginModal';
 import InvestibleSearchBox from '../../components/Investibles/InvestibleSearchBox';
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
-import _ from 'lodash';
+import { fetchCommentList } from '../../store/Comments/actions';
+import { getComments } from '../../store/Comments/reducer';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -42,13 +44,13 @@ function InvestiblesPage(props) {
 
   function getFilteredSearchList(marketInvestibles, searchResults){
     const selector = {};
-    for(var x = 0; x < searchResults.length; x++){
+    for (let x = 0; x < searchResults.length; x += 1) {
       selector[searchResults[x].ref] = true;
     }
     return _.filter(marketInvestibles, (investible) => (selector[investible.id]));
   }
 
-  function getCurrentInvestibleList(){
+  function getCurrentInvestibleList() {
     const marketInvestibles = getMarketInvestibles();
     const { activeInvestibleSearches, marketId } = props;
     const currentSearch = activeInvestibleSearches[marketId];
@@ -60,7 +62,7 @@ function InvestiblesPage(props) {
 
   function getItems() {
     const {
-      investibles, marketId, dispatch,
+      investibles, marketId, dispatch, comments,
       history: { location: { pathname } },
     } = props;
     const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
@@ -68,9 +70,11 @@ function InvestiblesPage(props) {
       if (lastFetchedMarketId !== marketId) {
         setLastFetchedMarketId(marketId);
       }
-      console.log(`Fetching investibles with marketId ${marketId}`);
+      console.debug('Fetching investibles with marketId:', marketId);
       const currentInvestibleList = marketId in investibles ? investibles[marketId] : [];
+      const currentCommentList = marketId in comments ? comments[marketId] : [];
       dispatch(fetchInvestibleList({ marketId, currentInvestibleList }));
+      dispatch(fetchCommentList({ marketId, currentCommentList }));
     }
   }
   useEffect(() => {
@@ -137,6 +141,7 @@ InvestiblesPage.propTypes = {
   dispatch: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
   investibles: PropTypes.object,
+  comments: PropTypes.object,
   categories: PropTypes.arrayOf(categoryPropType),
   marketId: PropTypes.string,
   user: PropTypes.object,
@@ -147,6 +152,7 @@ InvestiblesPage.propTypes = {
 const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
   categories: getMarketCategories(state.marketsReducer),
+  comments: getComments(state.commentsReducer),
   user: getCurrentUser(state.usersReducer),
   activeInvestibleSearches: getActiveInvestibleSearches(state.activeSearches),
 });

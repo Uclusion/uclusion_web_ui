@@ -1,7 +1,8 @@
-import _ from 'lodash';
+
 import { fetchUser } from '../Users/actions';
 import { getClient } from '../../config/uclusionClient';
 import { sendIntlMessage, ERROR, SUCCESS } from '../../utils/userMessage';
+import { updateInChunks } from '../reducer_helpers';
 
 export const RECEIVE_INVESTIBLES = 'RECEIVE_INVESTIBLES';
 export const INVEST_INVESTIBLE = 'INVEST_INVESTIBLE';
@@ -40,15 +41,6 @@ export const investibleCreated = investible => ({
   investible,
 });
 
-const determineNeedsUpdate = (currentInvestibles, investibleList) => {
-  const currentHash = _.keyBy(currentInvestibles, item => item.id);
-  const updateNeeded = _.filter(investibleList, (item) => {
-    const stateVersion = currentHash[item.id];
-    return !stateVersion || (stateVersion.updated_at < new Date(item.updated_at));
-  });
-  return updateNeeded.map(item => item.id);
-};
-
 export const fetchInvestibles = (params = {}) => (dispatch) => {
   const { idList, marketId } = params;
   const clientPromise = getClient();
@@ -65,15 +57,10 @@ export const fetchInvestibles = (params = {}) => (dispatch) => {
 export const fetchInvestibleList = (params = {}) => (dispatch) => {
   const { marketId, currentInvestibleList } = params;
   const clientPromise = getClient();
-  console.log(`Fetching investibles list for ${marketId}`);
+  console.debug('Fetching investibles list for:', marketId);
   return clientPromise.then(client => client.markets.listInvestibles(marketId))
     .then((investibleList) => {
-      const needsUpdate = determineNeedsUpdate(currentInvestibleList, investibleList);
-      const chunks = _.chunk(needsUpdate, 50);
-      for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i];
-        dispatch(fetchInvestibles({ marketId, idList: chunk }));
-      }
+      updateInChunks(dispatch, currentInvestibleList, investibleList, fetchInvestibles, marketId);
     }).catch((error) => {
       console.error(error);
       sendIntlMessage(ERROR, { id: 'investibleListFetchFailed' });

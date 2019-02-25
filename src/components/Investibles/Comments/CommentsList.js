@@ -6,10 +6,11 @@ import React from 'react';
 import Typography from '@material-ui/core/es/Typography/Typography';
 import { injectIntl } from 'react-intl';
 import { reverseDateComparator } from '../../../utils/comparators';
+import PropTypes from 'prop-types';
 
 function CommentsList(props) {
 
-  const { investibleId, intl } = props;
+  const { marketId, investibleId, intl } = props;
 
 
   function sortComments(commentsList) {
@@ -19,14 +20,15 @@ function CommentsList(props) {
   }
 
   function getListItems() {
-    const { investibleComments } = props;
-    const myComments = investibleComments[investibleId];
+    const { comments } = props;
+    const marketComments = comments[marketId] || {};
+    const myComments = marketComments[investibleId];
     if (!myComments || myComments.length === 0) {
       return <Typography>{intl.formatMessage({ id: 'noComments' })}</Typography>;
     }
     sortComments(myComments);
-    return myComments.map((comment, index) => (
-      <CommentListItem key={index} {...comment}/>
+    return myComments.map(comment => (
+      <CommentListItem key={comment.id} {...comment}/>
     ));
   }
 
@@ -51,9 +53,18 @@ function CommentsList(props) {
   );
 }
 
+
+CommentsList.propTypes = {
+  intl: PropTypes.object.isRequired,
+  comments: PropTypes.object,
+  investibleId: PropTypes.string.isRequired,
+  marketId: PropTypes.string.isRequired,
+  currentUserInvestment: PropTypes.number,
+};
+
 function mapStateToProps(state) {
   return {
-    investibleComments: getComments(state.commentsReducer),
+    comments: getComments(state.commentsReducer),
   };
 }
 

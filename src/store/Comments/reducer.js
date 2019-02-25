@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { COMMENTS_LIST_RECEIVED, COMMENT_CREATED, COMMENT_RECEIVED, COMMENT_DELETED } from './actions';
+import { COMMENT_CREATED, COMMENTS_RECEIVED, COMMENT_DELETED } from './actions';
 import _ from 'lodash';
 
 const reFormatComment = (comment) => {
@@ -16,35 +16,35 @@ function reFormatComments(items) {
 }
 
 function updateCommentListState(state, action) {
-  const { investible_id, comments } = action.comments;
-  const newState = { ...state };
+  const { marketId, comments } = action.comments;
   const formatted = reFormatComments(comments);
-  newState[investible_id] = formatted;
-  return newState;
-}
-
-function updateSingleCommentState(state, action) {
-  const { comment } = action;
   const newState = { ...state };
-  const formatted = reFormatComment(comment);
-  newState[comment.investible_id].push(formatted);
+  const byInvestible = _.keyBy(formatted, item => item.investible_id);
+  const marketList = newState[marketId] || {};
+  Object.keys(byInvestible).forEach((investibleId) => {
+    const oldList = marketList[investibleId] || [];
+    marketList[investibleId] = _.unionBy(byInvestible[investibleId], oldList, 'id');
+  });
+  newState[marketId] = marketList;
   return newState;
 }
 
 function deleteSingleCommentState(state, action) {
-  const { commentId, investibleId } = action;
+  const { commentId, investibleId, marketId } = action;
   const newState = { ...state };
-  newState[investibleId] = _.filter(state[investibleId], comment => (comment.id !== commentId));
+  const marketList = newState[marketId];
+  if (marketList && marketList[investibleId]) {
+    marketList[investibleId] = _.filter(marketList[investibleId], comment => (comment.id !== commentId));
+    newState[marketId] = marketList;
+  }
   return newState;
 }
 
-function investibleComments(state = {}, action) {
+function marketComments(state = {}, action) {
   switch (action.type) {
-    case COMMENTS_LIST_RECEIVED:
-      return updateCommentListState(state, action);
-    case COMMENT_RECEIVED:
+    case COMMENTS_RECEIVED:
     case COMMENT_CREATED:
-      return updateSingleCommentState(state, action);
+      return updateCommentListState(state, action);
     case COMMENT_DELETED:
       return deleteSingleCommentState(state, action);
     default:
@@ -53,7 +53,7 @@ function investibleComments(state = {}, action) {
 }
 
 export function getComments(state) {
-  return state.investibleComments;
+  return state.marketComments;
 }
 
-export default combineReducers({ investibleComments });
+export default combineReducers({ marketComments });

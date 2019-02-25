@@ -1,10 +1,11 @@
 import { getClient } from '../../config/uclusionClient';
 import { sendIntlMessage, ERROR, SUCCESS } from '../../utils/userMessage';
+import { updateInChunks } from '../reducer_helpers';
 
 export const COMMENTS_LIST_REQUESTED = 'COMMENTS_LIST_REQUESTED';
 export const COMMENTS_LIST_RECEIVED = 'COMMENTS_LIST_RECEIVED';
-export const COMMENT_REQUESTED = 'COMMENT_REQUESTED';
-export const COMMENT_RECEIVED = 'COMMENT_RECEIVED';
+export const COMMENTS_REQUESTED = 'COMMENTS_REQUESTED';
+export const COMMENTS_RECEIVED = 'COMMENTS_RECEIVED';
 export const COMMENT_CREATED = 'COMMENT_CREATED';
 export const COMMENT_DELETED = 'COMMENT_DELETED';
 
@@ -14,24 +15,27 @@ export const commentDeleted = (investibleId, commentId) => ({
   commentId,
 });
 
-export const commentRequested = (commentId) => ({
-  type: COMMENT_REQUESTED,
-  commentId,
+export const commentsRequested = (marketId, commentIds) => ({
+  type: COMMENTS_REQUESTED,
+  marketId,
+  commentIds,
 });
 
-export const commentCreated = (comment) => ({
+export const commentCreated = (marketId, comment) => ({
   type: COMMENT_CREATED,
-  comment,
+  marketId,
+  comments: [comment],
 });
 
-export const commentReceived = (comment) => ({
-  type: COMMENT_RECEIVED,
-  comment,
+export const commentsReceived = (marketId, comments) => ({
+  type: COMMENTS_RECEIVED,
+  marketId,
+  comments,
 });
 
-export const commentListRequested = (investibleId) => ({
+export const commentListRequested = (marketId) => ({
   type: COMMENTS_LIST_REQUESTED,
-  investibleId,
+  marketId,
 });
 
 export const commentListReceived = (comments) => ({
@@ -54,32 +58,29 @@ export const deleteComment = (params = {}) => (dispatch) => {
   });
 };
 
-export const fetchComment = (params = {}) => (dispatch) => {
-  const { commentId } = params;
+export const fetchComments = (params = {}) => (dispatch) => {
+  const { commentIdList, marketId } = params;
   const clientPromise = getClient();
-  clientPromise.then((client) => {
-    client.investibles.getComment(commentId)
-      .then((comment) => {
-        dispatch(commentReceived(comment));
-      }).catch((error) => {
-        console.error(error);
-      });
-  });
+  return clientPromise.then(client => client.investibles.getMarketComments(marketId, commentIdList))
+    .then((comments) => {
+      dispatch(commentsReceived(marketId, comments));
+    }).catch((error) => {
+      console.error(error);
+      sendIntlMessage(ERROR, { id: 'commentsFetchFailed' });
+    });
 };
 
 export const fetchCommentList = (params = {}) => (dispatch) => {
-  const { investibleId } = params;
+  const { marketId, currentCommentList } = params;
   const clientPromise = getClient();
-  clientPromise.then((client) => {
-    client.investibles.listComments(investibleId, 9999)
-      .then((comments) => {
-        dispatch(commentListReceived(comments));
-      }).catch((error) => {
-        alert(error);
-        console.error(error);
-        sendIntlMessage(ERROR, { id: 'commentsFetchFailed' });
-      });
-  });
+  console.debug('Fetching investibles list for:', marketId);
+  return clientPromise.then(client => client.investibles.listCommentsByMarket(marketId))
+    .then((commentList) => {
+      updateInChunks(dispatch, currentCommentList, commentList, fetchComments, marketId);
+    }).catch((error) => {
+      console.error(error);
+      sendIntlMessage(ERROR, { id: 'commentsListFetchFailed' });
+    });
 };
 
 export const createComment = (params = {}) => (dispatch) => {

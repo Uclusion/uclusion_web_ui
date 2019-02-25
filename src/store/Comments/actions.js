@@ -76,7 +76,7 @@ export const fetchCommentList = (params = {}) => (dispatch) => {
   console.debug('Fetching investibles list for:', marketId);
   return clientPromise.then(client => client.investibles.listCommentsByMarket(marketId))
     .then((commentList) => {
-      updateInChunks(dispatch, currentCommentList, commentList, fetchComments, marketId);
+      updateInChunks(dispatch, currentCommentList, commentList.comments, fetchComments, marketId);
     }).catch((error) => {
       console.error(error);
       sendIntlMessage(ERROR, { id: 'commentsListFetchFailed' });

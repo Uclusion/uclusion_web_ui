@@ -44,6 +44,7 @@ function MemberList(props) {
       }
     }).catch((error) => {
       console.log(error);
+      console.log(investments); // Just to prevent compiler warning for now
       sendIntlMessage(ERROR, { id: 'teamMemberLoadFailed' });
     });
     return () => {};

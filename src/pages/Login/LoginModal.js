@@ -2,8 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { OidcAuthorizer, SsoAuthorizer, AnonymousAuthorizer } from 'uclusion_authorizer_sdk';
-import { CognitoAuthorizer } from 'uclusion_node_sdk';
+import {
+  OidcAuthorizer,
+  SsoAuthorizer,
+  AnonymousAuthorizer,
+  CognitoAuthorizer,
+} from 'uclusion_authorizer_sdk';
 import {
   Button, Dialog, DialogTitle, List, ListItem,
 } from '@material-ui/core';

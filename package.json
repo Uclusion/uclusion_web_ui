@@ -63,7 +63,6 @@
     "slate-html-serializer": "^0.7.30",
     "slate-react": "^0.21.12",
     "uclusion_authorizer_sdk": "file:../uclusion_authorizer_sdk",
-    "uclusion_node_sdk": "file:../nodejs_sdk",
     "uclusion_sdk": "file:../uclusion_sdk"
   },
   "scripts": {

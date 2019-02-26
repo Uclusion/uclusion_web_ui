@@ -6,7 +6,7 @@ import ArrowDropdown from '@material-ui/icons/ArrowDropDown';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import MenuIcon from '@material-ui/icons/Menu';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
@@ -28,6 +28,7 @@ import { getDifferentMarketLink } from '../../utils/marketIdPathFunctions';
 import { getClient } from '../../config/uclusionClient';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { postAuthTasks } from '../../utils/fetchFunctions';
+import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 
 const drawerWidth = 240;
 
@@ -142,6 +143,21 @@ function Activity(props) {
       history.push(getDifferentMarketLink(newMarket, 'investibles'));
     }
   }
+  useEffect(() => {
+    const {
+      userPermissions,
+      setDrawerOpen,
+      setDrawerMobileOpen,
+      setDrawerUseMinified,
+    } = props;
+    const { isGuest } = userPermissions;
+    if (isGuest) {
+      setDrawerMobileOpen(false);
+      setDrawerOpen(false);
+      setDrawerUseMinified(false);
+    }
+    return () => {};
+  }, []);
 
   const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
   if (!showLogin) {
@@ -163,7 +179,9 @@ function Activity(props) {
     isOffline,
     marketId,
     user,
+    userPermissions,
   } = props;
+  const { isGuest } = userPermissions;
   let marketChoices;
 
   if (user && user.team_presences) {
@@ -208,15 +226,18 @@ function Activity(props) {
       >
         <Toolbar disableGutters>
           <LinearProgress />
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={!drawer.open ? handleDrawerOpen : handleDrawerToggle}
-            className={classNames(!smDown && classes.menuButton,
-              drawer.open && !smDown && classes.hide, onBackClick && classes.hide)}
-          >
-            <MenuIcon />
-          </IconButton>
+          {!isGuest
+            && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={!drawer.open ? handleDrawerOpen : handleDrawerToggle}
+              className={classNames(!smDown && classes.menuButton,
+                drawer.open && !smDown && classes.hide, onBackClick && classes.hide)}
+            >
+              <MenuIcon />
+            </IconButton>
+            )}
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -277,6 +298,7 @@ function Activity(props) {
 
 Activity.propTypes = {
   setDrawerMobileOpen: PropTypes.func.isRequired,
+  setDrawerUseMinified: PropTypes.func.isRequired,
   setDrawerOpen: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
@@ -295,6 +317,7 @@ Activity.propTypes = {
   user: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
+  userPermissions: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => {
@@ -312,4 +335,4 @@ export default withBackgroundProcesses(compose(
   withWidth(),
   withStyles(styles, { withTheme: true }),
   injectIntl,
-)(withRouter(withMarketId(React.memo(Activity)))));
+)(withRouter(withMarketId(withUserAndPermissions(React.memo(Activity))))));

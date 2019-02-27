@@ -42,6 +42,7 @@ function withUserAndPermissions(WrappedComponent) {
       const canDeleteOwnComments = apisObject.comments_delete || false;
       const canDeleteOthersComments = apisObject.comments_delete && opObject.delete_others_comment;
       const isGuest = !(apisObject.get_own_user || false);
+      const canReadComments = apisObject.comments_get || false;
       return {
         canDeleteMarketInvestible,
         canInvest,
@@ -51,6 +52,7 @@ function withUserAndPermissions(WrappedComponent) {
         canDeleteOwnComments,
         canDeleteOthersComments,
         isGuest,
+        canReadComments,
       };
     }
 

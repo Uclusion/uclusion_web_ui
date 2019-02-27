@@ -49,7 +49,7 @@ class InvestibleListItemTabs extends React.PureComponent {
       currentUserInvestment,
       userPermissions,
     } = this.props;
-    const { canInvest } = userPermissions;
+    const { canInvest, canReadComments } = userPermissions;
     const { value } = this.state;
 
     return (
@@ -64,11 +64,10 @@ class InvestibleListItemTabs extends React.PureComponent {
           {canInvest && (
             <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })}/>
           )}
-          <Tab
+          { canReadComments && (<Tab
             className={classes.tab}
             label={intl.formatMessage({ id: 'commentsTab' })}
-            onClick={() => this.fetchComments(investibleId )}
-          />
+          />)}
         </Tabs>
         {value === 0 && canInvest && (
           <InvestibleInvest

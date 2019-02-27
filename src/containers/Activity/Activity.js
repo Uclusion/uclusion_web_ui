@@ -143,27 +143,6 @@ function Activity(props) {
       history.push(getDifferentMarketLink(newMarket, 'investibles'));
     }
   }
-  useEffect(() => {
-    const {
-      userPermissions,
-      setDrawerOpen,
-      setDrawerMobileOpen,
-      setDrawerUseMinified,
-    } = props;
-    const { isGuest } = userPermissions;
-    if (isGuest) {
-      setDrawerMobileOpen(false);
-      setDrawerOpen(false);
-      setDrawerUseMinified(false);
-    }
-    return () => {};
-  }, []);
-
-  const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
-  if (!showLogin) {
-    getClient(); // Will verify the token
-  }
-
   const {
     classes,
     theme,
@@ -181,6 +160,25 @@ function Activity(props) {
     user,
     userPermissions,
   } = props;
+  useEffect(() => {
+    const {
+      setDrawerOpen,
+      setDrawerMobileOpen,
+      setDrawerUseMinified,
+    } = props;
+    const { isGuest } = userPermissions;
+    if (isGuest) {
+      setDrawerMobileOpen(false);
+      setDrawerOpen(false);
+      setDrawerUseMinified(false);
+    }
+    return () => {};
+  }, [userPermissions]);
+
+  const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
+  if (!showLogin) {
+    getClient(); // Will verify the token
+  }
   const { isGuest } = userPermissions;
   let marketChoices;
 

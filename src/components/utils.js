@@ -15,6 +15,10 @@ export const setUclusionLocalStorageItem = (key, value) => {
   if (!data) {
     data = {};
   }
-  data[key] = value;
+  if (value) {
+    data[key] = value;
+  } else {
+    delete data[key];
+  }
   localStorage.setItem('uclusion:root', JSON.stringify(data));
 };

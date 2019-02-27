@@ -29,7 +29,7 @@ export const DrawerContent = (props, context) => {
   };
 
   const handleSignOut = () => {
-    setUclusionLocalStorageItem('auth', {});
+    setUclusionLocalStorageItem('auth', null);
   };
 
   return (

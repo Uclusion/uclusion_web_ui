@@ -17,6 +17,7 @@ import InvestibleSearchBox from '../../components/Investibles/InvestibleSearchBo
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 import { fetchCommentList } from '../../store/Comments/actions';
 import { getComments } from '../../store/Comments/reducer';
+import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -62,10 +63,11 @@ function InvestiblesPage(props) {
 
   function getItems() {
     const {
-      investibles, marketId, dispatch, comments,
+      investibles, marketId, dispatch, comments, userPermissions,
       history: { location: { pathname } },
     } = props;
     const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
+    const { canReadComments } = userPermissions;
     if (!showLogin) {
       if (lastFetchedMarketId !== marketId) {
         setLastFetchedMarketId(marketId);
@@ -74,7 +76,9 @@ function InvestiblesPage(props) {
       const currentInvestibleList = marketId in investibles ? investibles[marketId] : [];
       const currentCommentList = marketId in comments ? comments[marketId] : [];
       dispatch(fetchInvestibleList({ marketId, currentInvestibleList }));
-      dispatch(fetchCommentList({ marketId, currentCommentList }));
+      if (canReadComments) {
+        dispatch(fetchCommentList({ marketId, currentCommentList }));
+      }
     }
   }
   useEffect(() => {
@@ -147,6 +151,7 @@ InvestiblesPage.propTypes = {
   user: PropTypes.object,
   activeInvestibleSearches: PropTypes.object,
   history: PropTypes.object.isRequired,
+  userPermissions: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -164,4 +169,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withStyles(styles)(withTheme()(withMarketId(React.memo(InvestiblesPage))))));
+)(injectIntl(withStyles(styles)(withTheme()(withUserAndPermissions(withMarketId(React.memo(InvestiblesPage)))))));

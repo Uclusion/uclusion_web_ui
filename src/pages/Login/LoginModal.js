@@ -37,6 +37,7 @@ let cognitoAuthorizer = null;
 function LoginModal(props) {
   const [allowGuestLogin, setAllowGuestLogin] = useState(false);
   const [allowCognitoLogin, setAllowCognitoLogin] = useState(false);
+  const [allowUserLogin, setAllowUserLogin] = useState(false);
   const [allowChangePassword, setAllowChangePassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -83,6 +84,7 @@ function LoginModal(props) {
     authorizer.marketLoginInfo().then((response) => {
       setAllowCognitoLogin(response.allow_cognito);
       setAllowGuestLogin(response.allow_anonymous);
+      setAllowUserLogin(response.allow_user);
     });
     return () => {};
   });
@@ -255,6 +257,8 @@ function LoginModal(props) {
                 {intl.formatMessage({ id: 'login_admin' })}
               </Button>
             </ListItem>
+            {allowUserLogin
+            && (
             <ListItem>
               <Button
                 className={classes.button}
@@ -265,6 +269,7 @@ function LoginModal(props) {
                 {intl.formatMessage({ id: 'login_user' })}
               </Button>
             </ListItem>
+            )}
             {allowGuestLogin
             && (
               <ListItem>

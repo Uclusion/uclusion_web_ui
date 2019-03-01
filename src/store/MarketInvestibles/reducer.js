@@ -59,11 +59,15 @@ function getMarketInvestibleCreatedState(state, action){
 }
 
 export function getMarketInvestibleDeletedState(state, action){
-  const newState = { ...state };
-  newState[action.marketId] = state[action.marketId].filter(
-    item => (item.id !== action.investibleId),
-  );
-  return newState;
+  if (state[action.marketId]) {
+    const newState = { ...state };
+    newState[action.marketId] = state[action.marketId].filter(
+      item => (item.id !== action.investibleId),
+    );
+    return newState;
+  }
+  // no investible list to change, hence nothing to do
+  return state;
 }
 
 const items = (state = [], action) => {

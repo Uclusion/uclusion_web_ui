@@ -23,10 +23,8 @@ function reFormatInvestibles(investibles){
 // exported for use by the search reducer
 export function getInvestibleCreatedState(state, action){
   const marketId = action.marketId ? action.marketId : 'template';
-  let investibles = action.investibles ? action.investibles : action.investible;
-  if (!Array.isArray(investibles)) {
-    investibles = [investibles];
-  }
+  const investibles = action.investibles ? action.investibles : [action.investible];
+
   reFormatInvestibles(investibles);
   const newState = { ...state };
   // console.log(`Combining ${JSON.stringify(investibles)}`);

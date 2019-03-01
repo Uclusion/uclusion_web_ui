@@ -49,14 +49,14 @@ function InvestiblesPage(props) {
     for (let x = 0; x < searchResults.length; x += 1) {
       selector[searchResults[x].ref] = true;
     }
-    return _.filter(marketInvestibles, (investible) => (selector[investible.id]));
+    return marketInvestibles.filter(investible => (selector[investible.id]));
   }
 
   function getCurrentInvestibleList() {
     const marketInvestibles = getMarketInvestibles();
     const { activeInvestibleSearches, marketId } = props;
     const currentSearch = activeInvestibleSearches[marketId];
-    if (currentSearch && currentSearch.results && currentSearch.results.length > 0) {
+    if (currentSearch && currentSearch.results && currentSearch.query !=='') {
       return getFilteredSearchList(marketInvestibles, currentSearch.results);
     }
     return marketInvestibles;

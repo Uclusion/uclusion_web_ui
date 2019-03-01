@@ -12,7 +12,7 @@ import themeSource from './themeSource/reducer';
 import drawer from './drawer/reducer';
 import commentsReducer from './Comments/reducer';
 import activeSearches from './ActiveSearches/reducer';
-import searchIndexes from './SearchIndexes/reducer';
+import searchReducer from './SearchIndexes/reducer';
 
 export const appReducers = {
   filters: filterReducer,
@@ -23,6 +23,17 @@ export const appReducers = {
   themeSource,
 };
 
+/**
+ * Wraps the investible and comments reducer and packs them into the action.
+ * This is a bit of a hack, but allows the state to be recomputed based on values
+ * in the other reducers
+ * @param state
+ * @param action
+ */
+const searchIndexes = (state, action) => {
+  const actionPacket = { ...action, investiblesReducer, commentsReducer };
+  return searchReducer(state, actionPacket);
+};
 
 const appReducer = combineReducers({
   ...appReducers,

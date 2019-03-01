@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import { COMMENT_CREATED, COMMENTS_RECEIVED, COMMENT_DELETED } from './actions';
 import _ from 'lodash';
+import { arrayToMappedSubArrays } from '../../utils/arrays';
 
 const reFormatComment = (comment) => {
   comment.created_at = new Date(comment.created_at);
@@ -15,11 +16,11 @@ function reFormatComments(items) {
   return items;
 }
 
-function updateCommentListState(state, action) {
-  const { marketId, comments } = action.comments;
+export function updateCommentListState(state, action) {
+  const { marketId, comments } = action;
   const formatted = reFormatComments(comments);
   const newState = { ...state };
-  const byInvestible = _.keyBy(formatted, item => item.investible_id);
+  const byInvestible = arrayToMappedSubArrays(formatted, item => item.investible_id);
   const marketList = newState[marketId] || {};
   Object.keys(byInvestible).forEach((investibleId) => {
     const oldList = marketList[investibleId] || [];

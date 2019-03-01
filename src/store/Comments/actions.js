@@ -59,9 +59,9 @@ export const deleteComment = (params = {}) => (dispatch) => {
 };
 
 export const fetchComments = (params = {}) => (dispatch) => {
-  const { commentIdList, marketId } = params;
+  const { idList, marketId } = params;
   const clientPromise = getClient();
-  return clientPromise.then(client => client.investibles.getMarketComments(marketId, commentIdList))
+  return clientPromise.then(client => client.investibles.getMarketComments(marketId, idList))
     .then((comments) => {
       dispatch(commentsReceived(marketId, comments));
     }).catch((error) => {
@@ -84,12 +84,12 @@ export const fetchCommentList = (params = {}) => (dispatch) => {
 };
 
 export const createComment = (params = {}) => (dispatch) => {
-  const { investibleId, body } = params;
+  const { investibleId, marketId, body } = params;
   const clientPromise = getClient();
   clientPromise.then((client) => {
     client.investibles.createComment(investibleId, body)
       .then((comment) => {
-        dispatch(commentCreated(comment));
+        dispatch(commentCreated(marketId, comment));
         sendIntlMessage(SUCCESS, { id: 'commentCreateSucceeded' });
       }).catch((error) => {
         console.error(error);

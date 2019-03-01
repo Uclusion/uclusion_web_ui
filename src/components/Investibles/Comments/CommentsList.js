@@ -40,7 +40,7 @@ function CommentsList(props) {
 
   function getCommentAddSection() {
     if (userCanComment()) {
-      return <CommentsAdd investibleId={investibleId} />;
+      return <CommentsAdd investibleId={investibleId} marketId={marketId} />;
     }
     return <Typography>{intl.formatMessage({ id: 'investToComment' })}</Typography>;
   }

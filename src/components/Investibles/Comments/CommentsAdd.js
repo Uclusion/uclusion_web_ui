@@ -17,9 +17,9 @@ class CommentsAdd extends React.Component {
   }
 
   addOnClick() {
-    const { dispatch, investibleId, intl } = this.props;
+    const { dispatch, marketId,  investibleId, intl } = this.props;
     const { body } = this.state;
-    dispatch(createComment({ investibleId, body }));
+    dispatch(createComment({ investibleId, body, marketId }));
     this.setState({ body: intl.formatMessage({ id: 'commentBody' }) });
   }
 

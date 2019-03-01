@@ -40,7 +40,7 @@ function InvestibleSearchBox(props) {
     const serializedIndex = serializedIndexes[marketId];
     // if we don't have an index, there's nothing to search against
     if (serializedIndex) {
-      const index = elasticlunr.Index.load(serializedIndex);
+      const index = elasticlunr.Index.load(JSON.parse(serializedIndex));
       const results = index.search(newQuery, { expand: true });
       dispatch(updateSearchResults(newQuery, results, marketId));
     }

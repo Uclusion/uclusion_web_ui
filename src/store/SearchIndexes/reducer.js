@@ -5,26 +5,124 @@ import {
   RECEIVE_INVESTIBLES
 } from '../MarketInvestibles/actions';
 import { getInvestibleCreatedState, getMarketInvestibleDeletedState } from '../MarketInvestibles/reducer';
+import { updateCommentListState } from '../Comments/reducer';
 import elasticlunr from 'elasticlunr/example/elasticlunr';
 import { combineReducers } from 'redux';
-import { COMMENTS_LIST_RECEIVED } from '../Comments/actions';
+import { COMMENTS_LIST_RECEIVED, COMMENT_DELETED, COMMENT_CREATED } from '../Comments/actions';
+
+
+/**
+ * Given an HTML string renders the TEXT representation of the html with all
+ * markup removed
+ * @param html the HTML To render
+ * @returns the text content of the html
+ */
+function removeHtml(html){
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || '';
+}
+
+/**
+ * Takes a list of comments and packs them into a string suitable for
+ * indexing
+ * @param comments the list of comments to pack
+ * @returns a searchable string containing the relevant parts of the comments
+ */
+function packComments(comments) {
+  const commentsString = comments.reduce((comment) => {
+    const strippedBody = removeHtml(comment.body);
+    const separator = ' ';
+    return strippedBody.concat(separator);
+  }, '');
+  return commentsString;
+}
+
+/**
+ * Given a packed state representing investibles, gets the comments for it
+ * and loads the comments into the item under comments attribute
+ * @param action
+ */
+
+function loadCommentsForItems(action, packedState){
+  const marketComments = action.commentsReducer[packedState.marketId];
+  if (marketComments) {
+    packedState.items.forEach((item) => {
+      const investibleComments = marketComments[item.id];
+      if (investibleComments) {
+        const packedComments = packComments(investibleComments);
+        item.comments = packedComments;
+      }
+    });
+  }
+}
+
+/**
+ * This reorganizes the packed state to make it the same as the investible form.
+ * The reason it's different is because the index works on _investibles_ not comments.
+ * Also the packed state here is a HASH keyed from investible id instead of an array
+ * @param action
+ * @param packedState
+ */
+function transformCommentsToItems(action, packedState){
+  const marketInvestibles = action.investiblesReducer[packedState.marketId];
+  const newItems = [];
+  if (marketInvestibles) {
+    const investibleIds = Object.keys(packedState.items);
+    investibleIds.foreach((investibleId) => {
+      const investible = marketInvestibles[investibleId];
+      if (investible) {
+        const packedComments = packComments(packedState.items[investibleId]);
+        investible.comments = packedComments;
+        newItems.push(investible);
+      }
+    });
+  }
+  // overwrite the old items with the new items
+  return { ...packedState, items: newItems };
+}
+
 
 /**
  * calculate the changed state and returns a convenient form with the market id and the items seperated
  * @param action
  */
 
-function unpackMarketState(updates){
+function unpackMarketState(updates) {
   const marketId = Object.keys(updates)[0];
   const items = updates[marketId];
   const type = 'UPDATE';
   return { marketId, items, type };
 }
 
-function getUpdatedCommentsState(action){
-  return { type: 'noop'};
+function getUpdatedCommentsState(action) {
+  // empty state passed in so we just have the updates
+  const updates = updateCommentListState({}, action);
+  const marketState = unpackMarketState(updates);
+  // now we have comments in the items. We need to convert this to having the investible
+  // with the comments
+  const transformedState = transformCommentsToItems(marketState);
+  return transformedState;
 }
 
+function getDeletedCommentsState(action) {
+  // we're going to do the same thing as the updated, but we're going
+  // to remove the current list
+  const marketComments = action.commentsReducer[action.marketId];
+  if (marketComments) {
+    const investibleComments = marketComments[action.investibleId];
+    if (investibleComments) {
+      const filteredComments = investibleComments.filter(comment => comment.id !== action.id);
+      const marketState = {
+        marketId: action.marketId,
+        items: filteredComments,
+        type: 'UPDATE', // a delete on a comment is an update of the investbile
+      };
+      const transformedState = transformCommentsToItems(marketState);
+      return transformedState;
+    }
+  }
+  return { type: 'NOOP' }; // if there's no investible to update, this is a NOOP
+}
 
 /**
  * Right now the getUpdatedInvestiblesState and getUpdatedMarketInvestiblesState
@@ -33,21 +131,23 @@ function getUpdatedCommentsState(action){
  * @param action
  */
 function getUpdatedInvestiblesState(action){
-  //since we called with an empty state, this is the entirety of the changes
+  // since we called with an empty state, this is the entirety of the changes
   const updates = getInvestibleCreatedState({}, action);
-  return unpackMarketState(updates);
+  const marketState = unpackMarketState(updates);
+  loadCommentsForItems(action, marketState);
+  return marketState;
 }
 
 function getUpdatedMarketInvestiblesState(action){
   const updates = getMarketInvestibleDeletedState({}, action);
-  return unpackMarketState(updates);
+  const marketState = unpackMarketState(updates);
+  loadCommentsForItems(action, marketState);
+  return marketState;
 }
-
 
 function getDeletedInvestiblesState(action){
-  return { marketId: action.marketId, type: 'DELETE', items: [action.investibleId] }
+  return { marketId: action.marketId, type: 'DELETE', items: [action.investibleId] };
 }
-
 
 function getActionState(action){
   switch (action.type) {
@@ -61,6 +161,9 @@ function getActionState(action){
       return getUpdatedMarketInvestiblesState(action);
     case COMMENTS_LIST_RECEIVED:
       return getUpdatedCommentsState(action);
+    case COMMENT_DELETED:
+      return getDeletedCommentsState(action);
+
     default:
       return { type: 'NOOP' };// for completeness
   }
@@ -87,21 +190,15 @@ function createNewIndex(){
   return newIndex;
 }
 
-function removeHtml(html){
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  return doc.body.textContent || '';
-}
-
 
 function getInvestibleDocument(investible){
   const doc = { ...investible };
   doc.description = removeHtml(doc.description);
-  //  doc.comments = collectComments(investible.id);
   return doc;
 }
 
 function handleIndexDocumentUpdate(serializedIndex, marketId, items) {
-  const index = serializedIndex? elasticlunr.Index.load(serializedIndex): createNewIndex();
+  const index = serializedIndex? elasticlunr.Index.load(JSON.parse(serializedIndex)): createNewIndex();
   items.forEach((investible) => {
     index.addDoc(getInvestibleDocument(investible));
   });
@@ -128,32 +225,21 @@ function getNewMarketIndex(serializedIndex, actionState){
  */
 function marketSearchIndexes(state = {}, action){
   const actionState = getActionState(action);
+  if (actionState.type === 'NOOP'){
+    return state; // no CHANGES
+  }
   const { marketId } = actionState;
   const serializedIndex = state[marketId];
-  const newState = { ...state };
+  const newState = {...state};
   const newIndex = getNewMarketIndex(serializedIndex, actionState);
   if (newIndex) {
-    const newSerialized = newIndex.toJSON();
+    const newSerialized = JSON.stringify(newIndex.toJSON());
     newState[marketId] = newSerialized;
   }
   return newState;
 }
 
 
-/**
- *
- function collectComments(investibleId) {
-    const investibleComments = comments[investibleId] || [];
-    // using an empty space in back so the tokenizer recognizes the comments as separate words
-    const commentsString = investibleComments.reduce((comment) => {
-      const strippedBody = removeHtml(comment.body);
-      const separator = ' ';
-      return strippedBody.concat(separator);
-    }, '');
-    return commentsString;
-  }
-
- */
 
 export function getSerializedMarketIndexes(state){
   return state.marketSearchIndexes;

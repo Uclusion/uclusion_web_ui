@@ -41,6 +41,11 @@ function InvestibleSearchBox(props) {
     // if we don't have an index, there's nothing to search against
     if (serializedIndex) {
       const index = elasticlunr.Index.load(JSON.parse(serializedIndex));
+      // Without this working around "we" returns nothing but "web" returns things - see https://github.com/olivernn/lunr.js/issues/38
+      // However in that bug they removed stemmer and I am removing stopWordFilter
+      // BUT STOP WORDS ARE STILL IN EFFECT
+      // on the search results - this just removes the processing of stop words from the input
+      index.pipeline._queue = index.pipeline._queue.filter(lunrPipeLineFunction => lunrPipeLineFunction.label !== 'stopWordFilter');
       const results = index.search(newQuery, { expand: true });
       dispatch(updateSearchResults(newQuery, results, marketId));
     }

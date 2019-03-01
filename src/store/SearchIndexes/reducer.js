@@ -9,7 +9,7 @@ import {
 import { getInvestibleCreatedState, getMarketInvestibleDeletedState } from '../MarketInvestibles/reducer';
 import { updateCommentListState } from '../Comments/reducer';
 import { COMMENT_DELETED, COMMENTS_RECEIVED } from '../Comments/actions';
-
+import _ from 'lodash';
 
 /**
  * Given an HTML string renders the TEXT representation of the html with all
@@ -29,11 +29,12 @@ function removeHtml(html) {
  * @returns a searchable string containing the relevant parts of the comments
  */
 function packComments(comments) {
-  return comments.reduce((comment) => {
+  const reducer = (accumulator, comment) => {
     const strippedBody = removeHtml(comment.body);
     const separator = ' ';
-    return strippedBody.concat(separator);
-  }, '');
+    return accumulator.concat(separator).concat(strippedBody);
+  };
+  return comments.reduce(reducer, '');
 }
 
 /**
@@ -62,17 +63,19 @@ function loadCommentsForItems(action, packedState) {
  * @param action
  * @param packedState
  */
-function transformCommentsToItems(action, packedState) {
+function transformCommentsToItems(packedState) {
   const { marketInvestibles, items } = packedState;
   const newItems = [];
   if (marketInvestibles) {
-    for (const investibleId in items) {
-      const investible = marketInvestibles[investibleId];
+    const investibleMap = _.keyBy(marketInvestibles, element => element.id);
+    Object.keys(items).forEach((investibleId) => {
+      const investible = investibleMap[investibleId];
       if (investible) {
-        investible.comments = packComments(items[investibleId]);
+        const comments = items[investibleId];
+        investible.comments = packComments(comments);
         newItems.push(investible);
       }
-    }
+    });
   }
   // overwrite the old items with the new items
   return { ...packedState, items: newItems };
@@ -95,7 +98,7 @@ function createStateForUpdates(updates) {
 function getCommentMarketState(action, updates) {
   const updateState = createStateForUpdates(updates);
   const marketInvestibles = action.investiblesReducer.items[updateState.marketId];
-  return { ...updateState, investibles: marketInvestibles };
+  return { ...updateState, marketInvestibles };
 }
 function getUpdatedCommentsState(action) {
   // empty state passed in so we just have the updates
@@ -237,6 +240,7 @@ function marketSearchIndexes(state = {}, action) {
   }
   return newState;
 }
+
 
 export function getSerializedMarketIndexes(state) {
   return state.marketSearchIndexes;

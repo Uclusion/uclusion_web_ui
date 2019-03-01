@@ -11,10 +11,11 @@ function CommentDelete(props) {
 
 
   function doDelete(){
-    const { dispatch, commentId, investibleId } = props;
+    const { dispatch, marketId, investibleId, commentId } = props;
     dispatch(deleteComment({
-      commentId,
+      marketId,
       investibleId,
+      commentId,
     }));
   }
 
@@ -23,8 +24,9 @@ function CommentDelete(props) {
 
 CommentDelete.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  commentId: PropTypes.string.isRequired,
+  marketId: PropTypes.string.isRequired,
   investibleId: PropTypes.string.isRequired,
+  commentId: PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state) {

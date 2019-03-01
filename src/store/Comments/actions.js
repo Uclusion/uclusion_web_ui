@@ -9,8 +9,9 @@ export const COMMENTS_RECEIVED = 'COMMENTS_RECEIVED';
 export const COMMENT_CREATED = 'COMMENT_CREATED';
 export const COMMENT_DELETED = 'COMMENT_DELETED';
 
-export const commentDeleted = (investibleId, commentId) => ({
+export const commentDeleted = (marketId, investibleId, commentId) => ({
   type: COMMENT_DELETED,
+  marketId,
   investibleId,
   commentId,
 });
@@ -44,12 +45,12 @@ export const commentListReceived = (comments) => ({
 });
 
 export const deleteComment = (params = {}) => (dispatch) => {
-  const { commentId, investibleId} = params;
+  const {marketId, investibleId, commentId } = params;
   const clientPromise = getClient();
   clientPromise.then((client) => {
     client.investibles.deleteComment(commentId)
       .then((result) => {
-        dispatch(commentDeleted(investibleId, commentId));
+        dispatch(commentDeleted(marketId, investibleId, commentId));
         sendIntlMessage(SUCCESS, { id: 'commentDeleteSucceeded' });
       }).catch((error) => {
         console.error(error);

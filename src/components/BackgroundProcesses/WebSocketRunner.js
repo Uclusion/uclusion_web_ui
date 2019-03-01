@@ -26,7 +26,7 @@ class WebSocketRunner {
           }));
           break;
         case 'INVESTIBLE_COMMENT_DELETED':
-          this.dispatch(commentDeleted(payload.sub_object_id, payload.object_id));
+          this.dispatch(commentDeleted(payload.associated_object_id, payload.sub_object_id, payload.object_id));
           break;
         case 'INVESTIBLE_COMMENT_UPDATED':
           this.dispatch(fetchComments({

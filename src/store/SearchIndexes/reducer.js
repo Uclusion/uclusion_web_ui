@@ -112,15 +112,19 @@ function getUpdatedCommentsState(action) {
 function getDeletedCommentsState(action) {
   // we're going to do the same thing as the updated, but we're going
   // to remove the current list
-  const marketComments = action.commentsReducer.marketComments[action.marketId];
+  const { marketId, investibleId, commentId } = action;
+  const marketComments = action.commentsReducer.marketComments[marketId];
   if (marketComments) {
-    const investibleComments = marketComments[action.investibleId];
+    const investibleComments = marketComments[investibleId];
     if (investibleComments) {
-      const filteredComments = investibleComments.filter(comment => comment.id !== action.id);
+      const filteredComments = investibleComments.filter(comment => comment.id !== commentId);
       const marketState = {
         marketId: action.marketId,
-        items: filteredComments,
-        type: 'UPDATE', // a delete on a comment is an update of the investbile
+        marketInvestibles: action.investiblesReducer.items[action.marketId],
+        // a delete on a comment is an update of the investbile
+        type: 'UPDATE',
+        // mimic the structure of an update
+        items: { [marketId]: { [investibleId]: filteredComments } },
       };
       return transformCommentsToItems(marketState);
     }
@@ -188,14 +192,18 @@ function createNewIndex() {
     this.addField('description');
     this.addField('comments');
     this.setRef('id');
-    this.saveDocument(false);
+    this.saveDocument(true);
   });
 }
 
 
 function getInvestibleDocument(investible) {
-  const doc = { ...investible };
-  doc.description = removeHtml(doc.description);
+  const doc = {
+    id: investible.id,
+    description: removeHtml(investible.description),
+    name: investible.name,
+    comments: investible.comments,
+  };
   return doc;
 }
 
@@ -203,7 +211,8 @@ function handleIndexDocumentUpdate(serializedIndex, marketId, items) {
   const index = serializedIndex ? elasticlunr.Index.load(JSON.parse(serializedIndex))
     : createNewIndex();
   items.forEach((investible) => {
-    index.addDoc(getInvestibleDocument(investible));
+    const doc = getInvestibleDocument(investible);
+    index.updateDoc(doc); // works as an upsert
   });
   return index;
 }

@@ -1,7 +1,6 @@
-import { combineReducers } from 'redux';
 import filterReducer from 'material-ui-filter/lib/store/reducer';
 import { initState } from './init';
-import rootReducer from './rootReducer';
+//import rootReducer from './rootReducer';
 import investiblesReducer from './MarketInvestibles/reducer';
 import marketsReducer from './Markets/reducer';
 import usersReducer from './Users/reducer';
@@ -23,27 +22,27 @@ export const appReducers = {
   themeSource,
 };
 
-/**
- * Wraps the investible and comments reducer and packs them into the action.
- * This is a bit of a hack, but allows the state to be recomputed based on values
- * in the other reducers
- * @param state
- * @param action
- */
-const searchIndexes = (state, action) => {
-  const actionPacket = { ...action, investiblesReducer, commentsReducer };
-  return searchReducer(state, actionPacket);
-};
-
-const appReducer = combineReducers({
+const myReducers = {
   ...appReducers,
   investiblesReducer,
   marketsReducer,
   usersReducer,
   commentsReducer,
   activeSearches,
-  searchIndexes,
-});
+};
 
+// give the search reducer the comments and the investibles, so we have our own custom combineReducers
+function mainReducer(state, action){
+  if(state === undefined){
+    return state;
+  }
+  let newState = {};
+  for (var key in myReducers) {
+    const reducer = myReducers[key];
+    newState[key] = reducer(state[key], action);
+  }
+  newState.searchIndexes = searchReducer(state.searchIndexes, {...action, investiblesReducer: state.investiblesReducer, commentsReducer: state.commentsReducer});
+  return newState;
+}
 
-export default (state, action) => rootReducer(appReducer, initState, state, action);
+export default mainReducer;//(state, action) => rootReducer(mainReducer, initState, state, action);

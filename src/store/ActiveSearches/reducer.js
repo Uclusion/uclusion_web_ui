@@ -9,7 +9,7 @@ function investibleSearches(state = {}, action) {
       newState[action.marketId] = { query: action.query, results: action.results};
       return newState;
     default:
-      return newState;
+      return state;
   }
 }
 export function getActiveInvestibleSearches(state){

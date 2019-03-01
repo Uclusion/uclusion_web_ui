@@ -87,7 +87,7 @@ function LoginModal(props) {
       setAllowUserLogin(response.allow_user);
     });
     return () => {};
-  });
+  }, []);
   function doLoginRedirect(authorizer, loginParams) {
     const { pageUrl, destinationPage, redirectUrl } = loginParams;
     const redirectPromise = authorizer.authorize(pageUrl, destinationPage, redirectUrl);

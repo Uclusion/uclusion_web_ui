@@ -33,7 +33,7 @@ export function getInvestibleCreatedState(state, action){
 }
 
 // exported for use by the search reducer
-function getMarketInvestibleCreatedState(state, action){
+export function getMarketInvestibleCreatedState(state, action){
   const newState = { ...state };
   const { investment, marketInvestible } = action;
   const investibleId = marketInvestible ? marketInvestible.investible_id

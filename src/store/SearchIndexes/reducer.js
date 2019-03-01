@@ -7,7 +7,7 @@ import {
   MARKET_INVESTIBLE_DELETED,
   RECEIVE_INVESTIBLES,
 } from '../MarketInvestibles/actions';
-import { getInvestibleCreatedState, getMarketInvestibleDeletedState } from '../MarketInvestibles/reducer';
+import { getInvestibleCreatedState, getMarketInvestibleCreatedState } from '../MarketInvestibles/reducer';
 import { updateCommentListState } from '../Comments/reducer';
 import { COMMENT_DELETED, COMMENTS_RECEIVED } from '../Comments/actions';
 
@@ -147,7 +147,7 @@ function getUpdatedInvestiblesState(action) {
 }
 
 function getUpdatedMarketInvestiblesState(action) {
-  const updates = getMarketInvestibleDeletedState({}, action);
+  const updates = getMarketInvestibleCreatedState({}, action);
   const marketState = createStateForUpdates(updates);
   loadCommentsForItems(action, marketState);
   return marketState;

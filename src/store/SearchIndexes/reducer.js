@@ -3,7 +3,6 @@ import { combineReducers } from 'redux';
 import _ from 'lodash';
 import {
   INVESTIBLE_CREATED,
-  INVESTMENT_CREATED,
   MARKET_INVESTIBLE_DELETED,
   RECEIVE_INVESTIBLES,
 } from '../MarketInvestibles/actions';
@@ -158,7 +157,6 @@ function getActionState(action) {
       return getUpdatedInvestiblesState(action);
     case MARKET_INVESTIBLE_DELETED:
       return getDeletedInvestiblesState(action);
-    case INVESTMENT_CREATED:
     case COMMENTS_RECEIVED:
       return getUpdatedCommentsState(action);
     case COMMENT_DELETED:

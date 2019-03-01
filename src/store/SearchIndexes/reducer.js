@@ -3,11 +3,11 @@ import { combineReducers } from 'redux';
 import _ from 'lodash';
 import {
   INVESTIBLE_CREATED,
-  INVESTMENT_CREATED, MARKET_INVESTIBLE_CREATED,
+  INVESTMENT_CREATED,
   MARKET_INVESTIBLE_DELETED,
   RECEIVE_INVESTIBLES,
 } from '../MarketInvestibles/actions';
-import { getInvestibleCreatedState, getMarketInvestibleCreatedState } from '../MarketInvestibles/reducer';
+import { getInvestibleCreatedState } from '../MarketInvestibles/reducer';
 import { updateCommentListState } from '../Comments/reducer';
 import { COMMENT_DELETED, COMMENTS_RECEIVED } from '../Comments/actions';
 
@@ -146,12 +146,6 @@ function getUpdatedInvestiblesState(action) {
   return marketState;
 }
 
-function getUpdatedMarketInvestiblesState(action) {
-  const updates = getMarketInvestibleCreatedState({}, action);
-  const marketState = createStateForUpdates(updates);
-  loadCommentsForItems(action, marketState);
-  return marketState;
-}
 
 function getDeletedInvestiblesState(action) {
   return { marketId: action.marketId, type: 'DELETE', items: [action.investibleId] };
@@ -165,8 +159,6 @@ function getActionState(action) {
     case MARKET_INVESTIBLE_DELETED:
       return getDeletedInvestiblesState(action);
     case INVESTMENT_CREATED:
-    case MARKET_INVESTIBLE_CREATED:
-      return getUpdatedMarketInvestiblesState(action);
     case COMMENTS_RECEIVED:
       return getUpdatedCommentsState(action);
     case COMMENT_DELETED:

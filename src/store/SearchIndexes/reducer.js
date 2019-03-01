@@ -8,7 +8,7 @@ import { getInvestibleCreatedState, getMarketInvestibleDeletedState } from '../M
 import { updateCommentListState } from '../Comments/reducer';
 import elasticlunr from 'elasticlunr/example/elasticlunr';
 import { combineReducers } from 'redux';
-import { COMMENTS_LIST_RECEIVED, COMMENT_DELETED } from '../Comments/actions';
+import { COMMENTS_LIST_RECEIVED, COMMENT_DELETED, COMMENTS_RECEIVED } from '../Comments/actions';
 
 
 /**
@@ -44,7 +44,7 @@ function packComments(comments) {
  */
 
 function loadCommentsForItems(action, packedState){
-  const marketComments = action.commentsReducer[packedState.marketId];
+  const marketComments = action.commentsReducer.marketComments[packedState.marketId];
   if (marketComments) {
     packedState.items.forEach((item) => {
       const investibleComments = marketComments[item.id];
@@ -64,18 +64,17 @@ function loadCommentsForItems(action, packedState){
  * @param packedState
  */
 function transformCommentsToItems(action, packedState){
-  const marketInvestibles = action.investiblesReducer[packedState.marketId];
+  const { marketInvestibles, items } = packedState;
   const newItems = [];
   if (marketInvestibles) {
-    const investibleIds = Object.keys(packedState.items);
-    investibleIds.foreach((investibleId) => {
+    for (var investibleId in items) {
       const investible = marketInvestibles[investibleId];
       if (investible) {
-        const packedComments = packComments(packedState.items[investibleId]);
+        const packedComments = packComments(items[investibleId]);
         investible.comments = packedComments;
         newItems.push(investible);
       }
-    });
+    }
   }
   // overwrite the old items with the new items
   return { ...packedState, items: newItems };
@@ -87,17 +86,22 @@ function transformCommentsToItems(action, packedState){
  * @param action
  */
 
-function unpackMarketState(updates) {
+function createStateForUpdates(updates) {
   const marketId = Object.keys(updates)[0];
   const items = updates[marketId];
   const type = 'UPDATE';
   return { marketId, items, type };
 }
 
+function getCommentMarketState(action, updates){
+  const updateState = createStateForUpdates(updates);
+  const marketInvestibles = action.investiblesReducer.items[updateState.marketId];
+  return {...updateState, investibles: marketInvestibles};
+}
 function getUpdatedCommentsState(action) {
   // empty state passed in so we just have the updates
   const updates = updateCommentListState({}, action);
-  const marketState = unpackMarketState(updates);
+  const marketState = getCommentMarketState(action, updates);
   // now we have comments in the items. We need to convert this to having the investible
   // with the comments
   const transformedState = transformCommentsToItems(marketState);
@@ -107,7 +111,7 @@ function getUpdatedCommentsState(action) {
 function getDeletedCommentsState(action) {
   // we're going to do the same thing as the updated, but we're going
   // to remove the current list
-  const marketComments = action.commentsReducer[action.marketId];
+  const marketComments = action.commentsReducer.marketComments[action.marketId];
   if (marketComments) {
     const investibleComments = marketComments[action.investibleId];
     if (investibleComments) {
@@ -133,14 +137,14 @@ function getDeletedCommentsState(action) {
 function getUpdatedInvestiblesState(action){
   // since we called with an empty state, this is the entirety of the changes
   const updates = getInvestibleCreatedState({}, action);
-  const marketState = unpackMarketState(updates);
+  const marketState = createStateForUpdates(updates);
   loadCommentsForItems(action, marketState);
   return marketState;
 }
 
 function getUpdatedMarketInvestiblesState(action){
   const updates = getMarketInvestibleDeletedState({}, action);
-  const marketState = unpackMarketState(updates);
+  const marketState = createStateForUpdates(updates);
   loadCommentsForItems(action, marketState);
   return marketState;
 }
@@ -159,11 +163,10 @@ function getActionState(action){
     case INVESTMENT_CREATED:
     case MARKET_INVESTIBLE_CREATED:
       return getUpdatedMarketInvestiblesState(action);
-    case COMMENTS_LIST_RECEIVED:
+    case COMMENTS_RECEIVED:
       return getUpdatedCommentsState(action);
     case COMMENT_DELETED:
       return getDeletedCommentsState(action);
-
     default:
       return { type: 'NOOP' };// for completeness
   }
@@ -213,7 +216,7 @@ function getNewMarketIndex(serializedIndex, actionState){
     case 'DELETE':
       return handleIndexDocumentDelete(serializedIndex, marketId, items);
     default:
-      return undefined;
+      return null;
   }
 }
 
@@ -232,7 +235,7 @@ function marketSearchIndexes(state = {}, action){
   const serializedIndex = state[marketId];
   const newState = {...state};
   const newIndex = getNewMarketIndex(serializedIndex, actionState);
-  if (newIndex) {
+  if (newIndex !== null) {
     const newSerialized = JSON.stringify(newIndex.toJSON());
     newState[marketId] = newSerialized;
   }
@@ -245,4 +248,4 @@ export function getSerializedMarketIndexes(state){
   return state.marketSearchIndexes;
 }
 
-export default combineReducers({ marketSearchIndexes });
+export default combineReducers({marketSearchIndexes});

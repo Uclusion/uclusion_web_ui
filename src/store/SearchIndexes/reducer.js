@@ -1,5 +1,6 @@
 import elasticlunr from 'elasticlunr/example/elasticlunr';
 import { combineReducers } from 'redux';
+import _ from 'lodash';
 import {
   INVESTIBLE_CREATED,
   INVESTMENT_CREATED, MARKET_INVESTIBLE_CREATED,
@@ -9,7 +10,6 @@ import {
 import { getInvestibleCreatedState, getMarketInvestibleDeletedState } from '../MarketInvestibles/reducer';
 import { updateCommentListState } from '../Comments/reducer';
 import { COMMENT_DELETED, COMMENTS_RECEIVED } from '../Comments/actions';
-import _ from 'lodash';
 
 /**
  * Given an HTML string renders the TEXT representation of the html with all

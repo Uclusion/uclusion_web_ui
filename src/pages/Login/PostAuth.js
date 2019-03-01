@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 import React, { Component } from 'react';
 import { constructAuthorizer } from 'uclusion_authorizer_sdk';
 import Typography from '@material-ui/core/es/Typography/Typography';
@@ -72,7 +73,7 @@ class PostAuth extends Component {
 }
 
 function mapStateToProps(state) {
-  return {};
+  return { ...state };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -80,7 +81,9 @@ function mapDispatchToProps(dispatch) {
 }
 
 PostAuth.propTypes = {
-  classes: PropTypes.object.isRequired,
+  dispatch: PropTypes.func.isRequired,
+  intl: PropTypes.object.isRequired,
+  webSocket: PropTypes.object.isRequired,
 };
 
 export default withBackgroundProcesses(connect(mapStateToProps, mapDispatchToProps)(injectIntl(PostAuth)));

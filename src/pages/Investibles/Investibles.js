@@ -55,7 +55,8 @@ function InvestiblesPage(props) {
     const marketInvestibles = getMarketInvestibles();
     const { activeInvestibleSearches, marketId } = props;
     const currentSearch = activeInvestibleSearches[marketId];
-    if (currentSearch && currentSearch.results && currentSearch.query !=='') {
+    if (marketInvestibles && marketInvestibles.length > 0 && currentSearch
+      && currentSearch.results && currentSearch.query !== '') {
       return getFilteredSearchList(marketInvestibles, currentSearch.results);
     }
     return marketInvestibles;

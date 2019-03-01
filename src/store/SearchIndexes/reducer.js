@@ -8,7 +8,7 @@ import { getInvestibleCreatedState, getMarketInvestibleDeletedState } from '../M
 import { updateCommentListState } from '../Comments/reducer';
 import elasticlunr from 'elasticlunr/example/elasticlunr';
 import { combineReducers } from 'redux';
-import { COMMENTS_LIST_RECEIVED, COMMENT_DELETED, COMMENT_CREATED } from '../Comments/actions';
+import { COMMENTS_LIST_RECEIVED, COMMENT_DELETED } from '../Comments/actions';
 
 
 /**

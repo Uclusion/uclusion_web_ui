@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTheme, withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
-import _ from 'lodash';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
 import { getMarketCategories, categoryPropType } from '../../store/Markets/reducer';

@@ -10,7 +10,8 @@ import { withMarketId } from '../PathProps/MarketId';
 function MemberList(props) {
   const [users, setUsers] = useState(undefined);
   const [investments, setInvestments] = useState(undefined);
-  const { teamId, marketId } = props;
+  const { teamId, investibles = [], marketId } = props;
+
   function processUser(user) {
     const processed = { ...user };
     const marketPresence = user.market_presences.find(presence => presence.market_id === marketId);
@@ -18,10 +19,17 @@ function MemberList(props) {
     processed.quantityInvested = marketPresence.quantity_invested;
     return processed;
   }
+
   function processInvestment(investibleId, investmentInfo) {
     // TODO hook to store for full investible
     return { lastInvestmentDate: investmentInfo.most_recent_investment_date };
   }
+
+  function getInvestiblesForUser(user) {
+    const investiblesForUser = investibles.filter(({ created_by }) => created_by === user.id);
+    return investiblesForUser;
+  }
+
   useEffect(() => {
     let globalClient;
     const clientPromise = getClient();
@@ -49,15 +57,23 @@ function MemberList(props) {
     });
     return () => {};
   }, [marketId]);
+
   return (
     <Grid container spacing={16}>
-      {users && users.map(user => <MemberListItem key={user.id} user={user} />)}
+      {users && users.map(user => (
+        <MemberListItem
+          key={user.id}
+          user={user}
+          investibles={getInvestiblesForUser(user)}
+        />
+      ))}
     </Grid>
   );
 }
 
 MemberList.propTypes = {
   teamId: PropTypes.string.isRequired,
+  investibles: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
 };
 

@@ -1,7 +1,9 @@
 /* eslint-disable react/forbid-prop-types */
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
+import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
 import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
@@ -13,6 +15,16 @@ function UserMemberships(props) {
   const [teams, setTeams] = useState(undefined);
   const { intl, userPermissions, marketId } = props;
   const { canListAccountTeams } = userPermissions;
+
+  function getMarketInvestibles() {
+    const { marketId, investibles } = props;
+    if (marketId in investibles) {
+      return investibles[marketId];
+    }
+
+    return undefined;
+  }
+
   // Second argument prevents re-running on teams property changes - only for changes in listed
   useEffect(() => {
     const clientPromise = getClient();
@@ -40,7 +52,7 @@ function UserMemberships(props) {
       containerStyle={{ overflow: 'hidden' }}
       title={intl.formatMessage({ id: 'teamsHeader' })}
     >
-      {teams && <UserMembershipsList teams={teams} />}
+      {teams && <UserMembershipsList teams={teams} investibles={getMarketInvestibles()} />}
     </Activity>
   );
 }
@@ -49,6 +61,14 @@ UserMemberships.propTypes = {
   userPermissions: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
+  investibles: PropTypes.object,
+  marketId: PropTypes.string,
 };
 
-export default injectIntl(withUserAndPermissions(withMarketId(UserMemberships)));
+const mapStateToProps = state => ({
+  investibles: getInvestibles(state.investiblesReducer),
+});
+
+export default connect(
+  mapStateToProps,
+)(injectIntl(withUserAndPermissions(withMarketId(UserMemberships))));

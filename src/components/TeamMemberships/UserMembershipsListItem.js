@@ -7,15 +7,39 @@ import {
   ExpansionPanelSummary,
   Typography,
   Button,
+  Badge,
+  Chip,
 } from '@material-ui/core';
 import withWidth from '@material-ui/core/withWidth';
 import { withStyles } from '@material-ui/core/styles';
+import moment from 'moment';
 import { injectIntl } from 'react-intl';
 import MemberList from './MemberList';
 
 const styles = theme => ({
   summary: {
     flex: 1,
+  },
+  title: {
+    display: 'flex',
+    alignItems: 'center',
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+  },
+  titleText: {
+    margin: 0,
+    maxWidth: '50%',
+  },
+  investiblesLabel: {
+    marginLeft: theme.spacing.unit * 8,
+    marginRight: theme.spacing.unit * 2,
+  },
+  investiblesBadge: {
+    marginLeft: theme.spacing.unit * 3,
+  },
+  lastInvestmentDate: {
+    color: theme.palette.grey[600],
+    marginBottom: theme.spacing.unit * 2,
   },
   expandButton: {
     alignSelf: 'center',
@@ -28,7 +52,12 @@ const styles = theme => ({
 });
 
 function UserMembershipsListItem(props) {
-  const { team, classes, width } = props;
+  const {
+    team,
+    investibles,
+    classes,
+    width,
+  } = props;
   const {
     id,
     name,
@@ -40,40 +69,59 @@ function UserMembershipsListItem(props) {
     last_investment_updated_at,
   } = team;
   const isMobile = (width === 'xs');
+  const lastInvestDate = moment(last_investment_updated_at).format('MM/DD/YYYY hh:mm A');
 
   return (
     <ExpansionPanel CollapseProps={{ unmountOnExit: true }}>
       <ExpansionPanelSummary>
         <div className={classes.summary}>
-          <Typography variant="h6" paragraph>
-            {name}
-          </Typography>
+          <div className={classes.title}>
+            <Typography className={classes.titleText} variant="h6" paragraph>
+              {name}
+            </Typography>
+            <Typography className={classes.investiblesLabel}>uShares:</Typography>
+            <Badge
+              max={1000000}
+              badgeContent={shared_quantity}
+              color="primary"
+            >
+              <Chip
+                label="Shared"
+                variant="outlined"
+              />
+            </Badge>
+            <Badge
+              className={classes.investiblesBadge}
+              max={1000000}
+              badgeContent={quantity}
+              color="primary"
+            >
+              <Chip
+                label="Available"
+                variant="outlined"
+              />
+            </Badge>
+            <Badge
+              className={classes.investiblesBadge}
+              max={1000000}
+              badgeContent={quantity_invested}
+              color="primary"
+            >
+              <Chip
+                label="Invested"
+                variant="outlined"
+              />
+            </Badge>
+          </div>
+          {last_investment_updated_at && (
+            <Typography className={classes.lastInvestmentDate}>
+              {'Last invested at:  '}
+              {lastInvestDate}
+            </Typography>
+          )}
           <Typography>
             {description}
           </Typography>
-          <Typography>
-            Team shared uShares:
-            {' '}
-            {shared_quantity}
-          </Typography>
-          <Typography>
-            Team unspent uShares:
-            {' '}
-            {quantity}
-          </Typography>
-          <Typography>
-            Team invested uShares:
-            {' '}
-            {quantity_invested}
-          </Typography>
-          {last_investment_updated_at
-          && (
-            <Typography>
-              Team last investment:
-              {' '}
-              {last_investment_updated_at}
-            </Typography>
-          )}
           {isMobile && (
             <Button
               className={classes.expandButtonMobile}
@@ -95,7 +143,7 @@ function UserMembershipsListItem(props) {
         )}
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
-        <MemberList teamId={id} />
+        <MemberList investibles={investibles} teamId={id} />
       </ExpansionPanelDetails>
     </ExpansionPanel>
   );
@@ -109,6 +157,7 @@ UserMembershipsListItem.propTypes = {
     team_size: PropTypes.number,
     shared_amount: PropTypes.number,
   }).isRequired,
+  investibles: PropTypes.arrayOf(PropTypes.object),
   classes: PropTypes.object.isRequired,
   width: PropTypes.string.isRequired,
 };

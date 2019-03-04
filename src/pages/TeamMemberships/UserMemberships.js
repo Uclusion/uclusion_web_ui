@@ -62,7 +62,6 @@ UserMemberships.propTypes = {
   marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
   investibles: PropTypes.object,
-  marketId: PropTypes.string,
 };
 
 const mapStateToProps = state => ({

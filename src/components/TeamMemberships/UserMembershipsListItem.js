@@ -72,7 +72,6 @@ function UserMembershipsListItem(props) {
     investibles,
     marketId,
     classes,
-    width,
   } = props;
   const {
     id,

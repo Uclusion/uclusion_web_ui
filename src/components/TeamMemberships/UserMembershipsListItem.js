@@ -84,7 +84,7 @@ function UserMembershipsListItem(props) {
     quantity,
     last_investment_updated_at,
   } = team;
-  const isMobile = (width === 'xs');
+
   const lastInvestDate = moment(last_investment_updated_at).format('MM/DD/YYYY hh:mm A');
 
   const [users, setUsers] = useState(undefined);

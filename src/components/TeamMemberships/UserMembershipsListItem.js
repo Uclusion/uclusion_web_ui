@@ -66,7 +66,7 @@ const styles = theme => ({
 
 function UserMembershipsListItem(props) {
   const [tabIndex, setTabIndex] = useState(0);
-
+  const [investiblesForTeam, setInvestiblesForTeam] = useState(undefined);
   const {
     team,
     investibles,
@@ -74,7 +74,6 @@ function UserMembershipsListItem(props) {
     classes,
   } = props;
   const {
-    id,
     name,
     description,
     shared_quantity,
@@ -87,7 +86,6 @@ function UserMembershipsListItem(props) {
   const lastInvestDate = moment(last_investment_updated_at).format('MM/DD/YYYY hh:mm A');
 
   const [users, setUsers] = useState(undefined);
-  const [investments, setInvestments] = useState(undefined);
 
   function processUser(user) {
     const processed = { ...user };
@@ -97,40 +95,21 @@ function UserMembershipsListItem(props) {
     return processed;
   }
 
-  function processInvestment(investibleId, investmentInfo) {
-    // TODO hook to store for full investible
-    return { lastInvestmentDate: investmentInfo.most_recent_investment_date };
-  }
-
-  function getInvestibles() {
-    const userIds = users.map(user => user.id);
-    const investiblesForTeam = investibles.filter(({ created_by }) => userIds.includes(created_by));
-    return investiblesForTeam;
-  }
-
   useEffect(() => {
     let globalClient;
     const clientPromise = getClient();
     clientPromise.then((client) => {
       globalClient = client;
-      return client.teams.get(id);
+      return client.teams.get(team.id);
     }).then((response) => {
       const processedUsers = response.users.map(user => processUser(user));
       _.remove(processedUsers, user => user.type !== 'USER');
       setUsers(processedUsers);
-      return globalClient.teams.investments(id, marketId);
+      return globalClient.teams.investments(team.id, marketId);
     }).then((investmentsDict) => {
-      const processedInvestments = [];
-      Object.keys(investmentsDict).forEach((investibleId) => {
-        const investment = processInvestment(investibleId, investmentsDict[investibleId]);
-        processedInvestments.push(investment);
-      });
-      if (processedInvestments.length > 0) {
-        setInvestments(processedInvestments);
-      }
+      setInvestiblesForTeam(investibles.filter(({ id }) => id in investmentsDict));
     }).catch((error) => {
       console.log(error);
-      console.log(investments); // Just to prevent compiler warning for now
       sendIntlMessage(ERROR, { id: 'teamMemberLoadFailed' });
     });
     return () => {};
@@ -210,7 +189,7 @@ function UserMembershipsListItem(props) {
             />
           ) : (
             <InvestiblesList
-              investibles={getInvestibles()}
+              investibles={investiblesForTeam}
             />
           )}
         </div>

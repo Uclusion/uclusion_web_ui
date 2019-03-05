@@ -6,7 +6,11 @@ import UserMembershipsListItem from './UserMembershipsListItem';
 
 const styles = theme => ({
   root: {
-    padding: theme.spacing.unit * 2,
+    boxSizing: 'border-box',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'stretch',
+    paddingTop: theme.spacing.unit,
   },
 });
 

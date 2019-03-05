@@ -10,7 +10,7 @@ import { injectIntl } from 'react-intl';
 
 const styles = theme => ({
   paper: {
-    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
     padding: theme.spacing.unit * 2,
   },
   investibleName: {

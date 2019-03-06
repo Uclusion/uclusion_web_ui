@@ -43,6 +43,8 @@ function LoginModal(props) {
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [poolId, setPoolId] = useState('');
+  const [clientId, setClientId] = useState('');
   ValidatorForm.addValidationRule('isPasswordMatch', value => (value === newPassword));
 
   function getDestinationPage(subPath, includeAuthMarket) {
@@ -85,6 +87,14 @@ function LoginModal(props) {
       setAllowCognitoLogin(response.allow_cognito);
       setAllowGuestLogin(response.allow_anonymous);
       setAllowUserLogin(response.allow_user);
+      if (response.allow_cognito) {
+        setPoolId(response.user_pool_id);
+        setClientId(response.cognito_client_id);
+        const { newLogin } = loginParams;
+        if (newLogin) {
+          setAllowChangePassword(true);
+        }
+      }
     });
     return () => {};
   }, []);
@@ -120,35 +130,38 @@ function LoginModal(props) {
   }
 
   function changePasswordCognito() {
-    cognitoAuthorizer.changePassword(newPassword)
+    cognitoAuthorizer.completeNewPasswordChallenge(newPassword)
       .then(() => {
         cognitoTokenGenerated();
       })
       .catch((err) => {
         console.log(err);
-        alert('Cannot change password');
-        setAllowChangePassword(false);
       });
   }
 
   function loginCognito() {
-    const { newLogin } = getLoginParams();
+    const { marketId, uclusionUrl } = getLoginParams();
     const authorizerConfiguration = {
       username: email,
       password,
-      poolId: 'us-west-2_Z3vZuhzd2',
-      clientId: '2off68ct2ntku805jt7sip0j1b',
+      poolId,
+      clientId,
+      marketId,
+      baseURL: uclusionUrl,
     };
     cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
     cognitoAuthorizer.authorize().then(() => {
-      if (newLogin === 'true') {
-        setAllowChangePassword(true);
-      } else {
-        cognitoTokenGenerated();
-      }
+      cognitoTokenGenerated();
     }).catch((error) => {
-      console.log(error);
-      alert('Cannot signin');
+      if ('newPasswordRequired' in error && error.newPasswordRequired) {
+        if (newPassword) {
+          changePasswordCognito();
+        } else {
+          setAllowChangePassword(true);
+        }
+      } else {
+        console.log(error);
+      }
     });
   }
 
@@ -172,10 +185,32 @@ function LoginModal(props) {
         {allowChangePassword ? 'Change Password' : 'Log In'}
       </DialogTitle>
       <div>
-        {allowChangePassword ? (
-          <List>
+        <List>
+          {allowCognitoLogin && (
             <ListItem>
-              <ValidatorForm onSubmit={changePasswordCognito}>
+              <ValidatorForm onSubmit={loginCognito}>
+                <TextValidator
+                  className={classes.input}
+                  label="Email"
+                  name="email"
+                  validators={['required', 'isEmail']}
+                  errorMessages={['Email is required', 'Email is not valid']}
+                  fullWidth
+                  value={email}
+                  onChange={event => setEmail(event.target.value)}
+                />
+                <TextValidator
+                  className={classes.input}
+                  label="Password"
+                  name="password"
+                  type="password"
+                  validators={['required']}
+                  errorMessages={['Password is required']}
+                  fullWidth
+                  value={password}
+                  onChange={event => setPassword(event.target.value)}
+                />
+                {allowChangePassword && (
                 <TextValidator
                   className={classes.input}
                   label="New Password"
@@ -187,6 +222,8 @@ function LoginModal(props) {
                   value={newPassword}
                   onChange={event => setNewPassword(event.target.value)}
                 />
+                )}
+                {allowChangePassword && (
                 <TextValidator
                   className={classes.input}
                   label="Confirm Password"
@@ -198,66 +235,29 @@ function LoginModal(props) {
                   value={confirmPassword}
                   onChange={event => setConfirmPassword(event.target.value)}
                 />
+                )}
                 <Button
                   className={classes.button}
                   type="submit"
                   variant="contained"
                   color="primary"
                 >
-                  Change Password
+                  Login Cognito
                 </Button>
               </ValidatorForm>
             </ListItem>
-          </List>
-        ) : (
-          <List>
-            {allowCognitoLogin
-            && (
-              <ListItem>
-                <ValidatorForm onSubmit={loginCognito}>
-                  <TextValidator
-                    className={classes.input}
-                    label="Email"
-                    name="email"
-                    validators={['required', 'isEmail']}
-                    errorMessages={['Email is required', 'Email is not valid']}
-                    fullWidth
-                    value={email}
-                    onChange={event => setEmail(event.target.value)}
-                  />
-                  <TextValidator
-                    className={classes.input}
-                    label="Password"
-                    name="password"
-                    type="password"
-                    validators={['required']}
-                    errorMessages={['Password is required']}
-                    fullWidth
-                    value={password}
-                    onChange={event => setPassword(event.target.value)}
-                  />
-                  <Button
-                    className={classes.button}
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                  >
-                    Login Cognito
-                  </Button>
-                </ValidatorForm>
-              </ListItem>
-            )}
-            <ListItem>
-              <Button
-                className={classes.button}
-                variant="contained"
-                color="primary"
-                onClick={loginOidc}
-              >
-                {intl.formatMessage({ id: 'login_admin' })}
-              </Button>
-            </ListItem>
-            {allowUserLogin
+          )}
+          <ListItem>
+            <Button
+              className={classes.button}
+              variant="contained"
+              color="primary"
+              onClick={loginOidc}
+            >
+              {intl.formatMessage({ id: 'login_admin' })}
+            </Button>
+          </ListItem>
+          {allowUserLogin
             && (
             <ListItem>
               <Button
@@ -270,7 +270,7 @@ function LoginModal(props) {
               </Button>
             </ListItem>
             )}
-            {allowGuestLogin
+          {allowGuestLogin
             && (
               <ListItem>
                 <Button
@@ -283,8 +283,7 @@ function LoginModal(props) {
                 </Button>
               </ListItem>
             )}
-          </List>
-        )}
+        </List>
       </div>
     </Dialog>
   );
@@ -295,6 +294,7 @@ LoginModal.propTypes = {
   intl: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   webSocket: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

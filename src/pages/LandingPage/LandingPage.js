@@ -135,7 +135,14 @@ function createMarket(client, accountCreationInfo) {
     name: accountCreationInfo.marketName,
     description: accountCreationInfo.marketDescription,
   }).then((market) => {
-    window.location = `${window.location.origin}/${market.market_id}/marketCategories`;
+    if (accountCreationInfo.email) {
+      // Un setting return auth token because need them to login again from email sent
+      // (otherwise identity not confirmed)
+      setUclusionLocalStorageItem('auth', null);
+      window.location = `${window.location.origin}/${market.market_id}/marketCategories?newLogin=true`;
+    } else {
+      window.location = `${window.location.origin}/${market.market_id}/marketCategories`;
+    }
   })
     .catch((error) => {
       console.error(error);
@@ -148,8 +155,13 @@ function LandingPage(props) {
   const [marketName, setMarketName] = useState(undefined);
   const [marketDescription, setMarketDescription] = useState(undefined);
   const [clientId, setClientId] = useState(undefined);
-  const [oidcType, setOidcType] = useState('GOOGLE');
+  const [loginType, setLoginType] = useState('COGNITO');
   const [processing, setProcessing] = useState(false);
+  const [baseURL, setBaseURL] = useState(undefined);
+  const [email, setEmail] = useState(undefined);
+  const [name, setName] = useState(undefined);
+  const [marketProductLoginUrl, setMarketProductLoginUrl] = useState(undefined);
+
   useEffect(() => {
     const authorizer = new AnonymousAuthorizer({
       uclusionUrl: appConfig.api_configuration.baseURL,
@@ -162,7 +174,7 @@ function LandingPage(props) {
       setMarketName(accountCreationInfo.marketName);
       setMarketDescription(accountCreationInfo.marketDescription);
       setClientId(accountCreationInfo.clientId);
-      setOidcType(accountCreationInfo.oidcType);
+      setLoginType(accountCreationInfo.loginType);
       authorizer.doPostAccount(pageUrl).then((response) => {
         const authInfo = {
           token: response.login_capability, type: authorizer.getType(),
@@ -192,32 +204,64 @@ function LandingPage(props) {
     setClientId(event.target.value);
   }
 
-  function handleOidcTypeChange(event) {
-    setOidcType(event.target.value);
+  function handleLoginTypeChange(event) {
+    setLoginType(event.target.value);
+  }
+
+  function handleBaseURLChange(event) {
+    setBaseURL(event.target.value);
+  }
+
+  function handleEmailChange(event) {
+    setEmail(event.target.value);
+  }
+
+  function handleNameChange(event) {
+    setName(event.target.value);
+  }
+
+  function handleMarketProductLoginUrlChange(event) {
+    setMarketProductLoginUrl(event.target.value);
   }
 
   function handleSubmit(event) {
     event.preventDefault();
-    const accountCreationInfo = {
-      marketName, marketDescription, accountName, clientId, oidcType,
-    };
-    setUclusionLocalStorageItem('accountCreationInfo', accountCreationInfo);
     const authorizer = new AnonymousAuthorizer({
       uclusionUrl: appConfig.api_configuration.baseURL,
     });
-    authorizer.accountRedirect({
-      uclusion_client_id: clientId,
-      op_endpoint_base_url: oidcType === 'GOOGLE' ? 'https://accounts.google.com' : 'https://dev-496062.oktapreview.com/oauth2/default',
-      account_name: accountName,
-      team_name: `Team ${marketName}`,
-      team_description: `${marketName} administrators`,
-      redirect_url: `${window.location.href}`,
-      oidc_type: oidcType,
-    }).then((redirectUrl) => {
-      window.location = redirectUrl;
-    }).catch((reject) => {
-      console.error(reject);
-    });
+    const accountCreationInfo = {
+      marketName, marketDescription, accountName, clientId, loginType, email, name,
+    };
+    if (loginType === 'COGNITO') {
+      authorizer.cognitoAccountCreate(accountCreationInfo)
+        .then((response) => {
+          const authInfo = {
+            token: response.login_capability, type: authorizer.getType(),
+          };
+          // Have to set the return token or market creation will fail
+          setUclusionLocalStorageItem('auth', authInfo);
+          return getClient();
+        }).then((client) => {
+          console.log('Now pausing before create market so will need spinner');
+          // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
+          setTimeout(createMarket(client, accountCreationInfo), 5000);
+        });
+    } else {
+      setUclusionLocalStorageItem('accountCreationInfo', accountCreationInfo);
+      authorizer.accountRedirect({
+        uclusion_client_id: clientId,
+        op_endpoint_base_url: loginType === 'GOOGLE' ? 'https://accounts.google.com' : baseURL,
+        account_name: accountName,
+        team_name: `Team ${marketName}`,
+        team_description: `${marketName} administrators`,
+        redirect_url: `${window.location.href}`,
+        oidc_type: loginType,
+      }).then((redirectUrl) => {
+        window.location = redirectUrl;
+      }).catch((reject) => {
+        console.error(reject);
+      });
+    }
   }
 
   const { classes, theme, user } = props;
@@ -274,6 +318,19 @@ function LandingPage(props) {
           </div>
           <div className={classes.content}>
             <form onSubmit={handleSubmit}>
+              <FormControl>
+                <Select
+                  disableUnderline
+                  value={loginType}
+                  onChange={handleLoginTypeChange}
+                  IconComponent={() => <ArrowDropdown className={classes.selectArrow} />}
+                  input={<Input name="loginType" id="loginTypeId" />}
+                >
+                  <MenuItem key="GOOGLE" value="GOOGLE">GOOGLE</MenuItem>
+                  <MenuItem key="OKTA" value="OKTA">OKTA</MenuItem>
+                  <MenuItem key="COGNITO" value="COGNITO">Email password</MenuItem>
+                </Select>
+              </FormControl>
               <label htmlFor="accountNameId">
                 Account Name:
                 <input id="accountNameId" type="text" value={accountName} onChange={handleAccountNameChange} />
@@ -286,22 +343,34 @@ function LandingPage(props) {
                 Market Description:
                 <input id="marketDescriptionId" type="text" value={marketDescription} onChange={handleMarketDescriptionChange} />
               </label>
+              <label htmlFor="marketProductLoginUrl">
+                Optional Market Product Login URL:
+                <input id="marketProductLoginUrl" type="text" value={marketProductLoginUrl} onChange={handleMarketProductLoginUrlChange} />
+              </label>
+              {loginType === 'COGNITO' && (
+                <label htmlFor="email">
+                  Email:
+                  <input id="email" type="text" value={email} onChange={handleEmailChange} />
+                </label>
+              )}
+              {loginType === 'COGNITO' && (
+                <label htmlFor="name">
+                  Name:
+                  <input id="name" type="text" value={name} onChange={handleNameChange} />
+                </label>
+              )}
+              {loginType !== 'COGNITO' && (
               <label htmlFor="clientId">
                 Authorization Client ID from Google or Okta:
                 <input id="clientId" type="text" value={clientId} onChange={handleClientIdChange} />
               </label>
-              <FormControl>
-                <Select
-                  disableUnderline
-                  value={oidcType}
-                  onChange={handleOidcTypeChange}
-                  IconComponent={() => <ArrowDropdown className={classes.selectArrow} />}
-                  input={<Input name="oidcType" id="oidcTypeId" />}
-                >
-                  <MenuItem key="GOOGLE" value="GOOGLE">GOOGLE</MenuItem>
-                  <MenuItem key="OKTA" value="OKTA">OKTA</MenuItem>
-                </Select>
-              </FormControl>
+              )}
+              {loginType === 'OKTA' && (
+                <label htmlFor="baseURL">
+                  Endpoint Base URL for Okta:
+                  <input id="clientId" type="text" value={baseURL} onChange={handleBaseURLChange} />
+                </label>
+              )}
               <input type="submit" value="Submit" />
             </form>
           </div>

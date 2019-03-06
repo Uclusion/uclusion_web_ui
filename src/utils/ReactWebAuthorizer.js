@@ -1,4 +1,4 @@
-import { OidcAuthorizer, SsoAuthorizer, AnonymousAuthorizer } from 'uclusion_authorizer_sdk';
+import { OidcAuthorizer, SsoAuthorizer, AnonymousAuthorizer, CognitoAuthorizer } from 'uclusion_authorizer_sdk';
 import decode from 'jwt-decode';
 import { getUclusionLocalStorageItem } from '../components/utils';
 import { getAuthMarketId } from './marketIdPathFunctions';
@@ -35,6 +35,9 @@ const doGenericAuthRedirect = (marketId) => {
     const authMarketId = parsed.split('=')[1];
     location += `&authMarketId=${authMarketId}`;
   }
+  if (currentPage.search.includes('newLogin')) {
+    location += '&newLogin=true';
+  }
   console.log(`redirecting you to login at ${location}`);
   window.location = location;
 };
@@ -61,6 +64,9 @@ class ReactWebAuthorizer {
         break;
       case 'anonymous':
         authorizer = new AnonymousAuthorizer(config);
+        break;
+      case 'cognito':
+        authorizer = new CognitoAuthorizer(config);
         break;
       default:
         // I don't recognize this type of authorizer, so I'm going to make you log in again

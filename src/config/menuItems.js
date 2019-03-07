@@ -10,9 +10,11 @@ import LockIcon from '@material-ui/icons/Lock';
 import ListIcon from '@material-ui/icons/List';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import GroupIcon from '@material-ui/icons/Group';
+import SecurityIcon from '@material-ui/icons/Security'
 import { themes } from './themes';
 import allLocales from './locales';
 import { formCurrentMarketLink } from '../utils/marketIdPathFunctions';
+import { getUclusionLocalStorageItem } from '../components/utils';
 
 const getMenuItems = (props) => {
   const {
@@ -27,9 +29,8 @@ const getMenuItems = (props) => {
     userPermissions,
   } = props;
 
-  // const isAuthorised = auth.isAuthorised
-  const isAuthorised = true;
   const { canCategorize } = userPermissions;
+  const authInfo = getUclusionLocalStorageItem('auth');
 
   const themeItems = themes.map(t => ({
     value: undefined,
@@ -66,7 +67,6 @@ const getMenuItems = (props) => {
     },
     {
       value: formCurrentMarketLink('investibles'),
-      visible: isAuthorised,
       primaryText: intl.formatMessage({ id: 'investiblesMenu' }),
       leftIcon: <ListIcon />,
     },
@@ -82,8 +82,13 @@ const getMenuItems = (props) => {
       leftIcon: <GroupIcon />,
     },
     {
+      value: formCurrentMarketLink('invite'),
+      primaryText: intl.formatMessage({ id: 'inviteMenu' }),
+      visible: authInfo.type === 'cognito',
+      leftIcon: <SecurityIcon />,
+    },
+    {
       divider: true,
-      visible: isAuthorised,
     },
     {
       primaryText: intl.formatMessage({ id: 'settings' }),

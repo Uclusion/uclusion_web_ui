@@ -32,12 +32,14 @@ export const categoryCreated = (category, marketId) => ({
 export const fetchMarketCategories = (params = {}) => (dispatch) => {
   const clientPromise = getClient();
   console.log('Fetching market categories');
-  return clientPromise.then(client => client.markets.listCategories(params.marketId)).then((categories) => {
-    dispatch(receiveMarketCategories(categories));
-  }).catch((error) => {
-    console.log(error);
-    dispatch(receiveMarketCategories({}));
-  });
+  return clientPromise.then(client => client.markets.listInvestibles(params.marketId))
+    .then((response) => {
+      const { categories } = response;
+      dispatch(receiveMarketCategories(categories));
+    }).catch((error) => {
+      console.log(error);
+      dispatch(receiveMarketCategories({}));
+    });
 };
 
 export const deleteMarketCategory = (params = {}) => (dispatch) => {
@@ -66,11 +68,9 @@ export const createMarketCategory = (params = {}) => (dispatch) => {
 };
 
 export const fetchMarket = (params = {}) => (dispatch) => {
-  // TODO either constructClient must cache the client or we have to at the upper level
   const clientPromise = getClient();
   return clientPromise.then(client => client.markets.get(params.market_id)).then((market) => {
     dispatch(receiveMarket(market));
-    dispatch(fetchMarketCategories({ marketId: market.id }));
   }).catch((error) => {
     console.error(error);
     dispatch(receiveMarket([]));

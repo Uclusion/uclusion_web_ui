@@ -3,6 +3,7 @@ import { fetchUser } from '../Users/actions';
 import { getClient } from '../../config/uclusionClient';
 import { sendIntlMessage, ERROR, SUCCESS } from '../../utils/userMessage';
 import { updateInChunks } from '../reducer_helpers';
+import { receiveMarketCategories } from '../Markets/actions';
 
 export const RECEIVE_INVESTIBLES = 'RECEIVE_INVESTIBLES';
 export const INVEST_INVESTIBLE = 'INVEST_INVESTIBLE';
@@ -59,8 +60,10 @@ export const fetchInvestibleList = (params = {}) => (dispatch) => {
   const clientPromise = getClient();
   console.debug('Fetching investibles list for:', marketId);
   return clientPromise.then(client => client.markets.listInvestibles(marketId))
-    .then((investibleList) => {
-      updateInChunks(dispatch, currentInvestibleList, investibleList, fetchInvestibles, marketId);
+    .then((response) => {
+      const { investibles, categories } = response;
+      dispatch(receiveMarketCategories(categories));
+      updateInChunks(dispatch, currentInvestibleList, investibles, fetchInvestibles, marketId);
     }).catch((error) => {
       console.error(error);
       sendIntlMessage(ERROR, { id: 'investibleListFetchFailed' });

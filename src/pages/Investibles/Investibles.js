@@ -17,7 +17,6 @@ import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer'
 import { fetchCommentList } from '../../store/Comments/actions';
 import { getComments } from '../../store/Comments/reducer';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
-import { fetchMarketCategories } from '../../store/Markets/actions';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -74,8 +73,6 @@ function InvestiblesPage(props) {
         setLastFetchedMarketId(marketId);
       }
       console.debug('Fetching investibles with marketId:', marketId);
-      // In case categories have changed
-      dispatch(fetchMarketCategories({ marketId }));
       const currentInvestibleList = marketId in investibles ? investibles[marketId] : [];
       const currentCommentList = marketId in comments ? comments[marketId] : [];
       dispatch(fetchInvestibleList({ marketId, currentInvestibleList }));

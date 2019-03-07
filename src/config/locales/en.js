@@ -188,6 +188,7 @@ const messages = defineMessages({
   teamsLoading: 'Loading your Team Memberships.',
   categoriesLoading: 'Loading Market Categories.',
   myTeamsMenu: 'Team Memberships',
+  inviteMenu: 'Invite to Market',
   login_admin: 'Login Admin',
   login_user: 'Login User',
   login_guest: 'Login Guest',

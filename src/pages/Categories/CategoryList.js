@@ -22,7 +22,7 @@ const styles = theme => ({
 function CategoryList(props) {
   const {
     intl,
-    categories,
+    allCategories,
     classes,
     marketId,
     dispatch,
@@ -32,6 +32,9 @@ function CategoryList(props) {
     dispatch(fetchMarketCategories({ marketId }));
     return () => {};
   }, [marketId]);
+
+  const categories = getMarketCategories(allCategories, marketId);
+
   return (
     <Activity
       isLoading={marketId === undefined}
@@ -60,18 +63,18 @@ CategoryList.propTypes = {
   dispatch: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  categories: PropTypes.arrayOf(PropTypes.object).isRequired,
+  allCategories: PropTypes.arrayOf(PropTypes.object).isRequired,
   marketId: PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
-    categories: getMarketCategories(state.marketsReducer),
+    allCategories: state.marketsReducer.marketCategories,
   };
 }
 
 function mapDispatchToProps(dispatch) {
-  return Object.assign({ dispatch }, bindActionCreators({ getMarketCategories }, dispatch));
+  return Object.assign({ dispatch }, bindActionCreators(dispatch));
 }
 
 export default connect(

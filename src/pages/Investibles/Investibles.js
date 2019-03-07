@@ -6,7 +6,7 @@ import { withTheme, withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
-import { getMarketCategories, categoryPropType } from '../../store/Markets/reducer';
+import { getMarketCategories } from '../../store/Markets/reducer';
 import { getCurrentUser } from '../../store/Users/reducer';
 import InvestibleList from '../../components/Investibles/InvestibleList';
 import { withMarketId } from '../../components/PathProps/MarketId';
@@ -33,11 +33,11 @@ function InvestiblesPage(props) {
   const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
 
   function getMarketInvestibles(){
-    const { marketId, investibles, categories } = props;
+    const { marketId, investibles, allCategories } = props;
     if (marketId in investibles) {
       return investibles[marketId];
     }
-    if (categories || investibles) {
+    if (marketId in allCategories || investibles) {
       return [];
     }
     return undefined;
@@ -98,7 +98,7 @@ function InvestiblesPage(props) {
 
   const {
     intl,
-    categories,
+    allCategories,
     marketId,
     user,
     history: { location: { pathname } },
@@ -107,6 +107,8 @@ function InvestiblesPage(props) {
 
   const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
   const currentInvestibleList = getCurrentInvestibleList();
+
+  const categories = getMarketCategories(allCategories, marketId);
 
   // TODO: give choice of teamId instead of default
   return (
@@ -149,7 +151,7 @@ InvestiblesPage.propTypes = {
   intl: PropTypes.object.isRequired,
   investibles: PropTypes.object,
   comments: PropTypes.object,
-  categories: PropTypes.arrayOf(categoryPropType),
+  allCategories: PropTypes.object,
   marketId: PropTypes.string,
   user: PropTypes.object,
   activeInvestibleSearches: PropTypes.object,
@@ -159,7 +161,7 @@ InvestiblesPage.propTypes = {
 
 const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
-  categories: getMarketCategories(state.marketsReducer),
+  allCategories: state.marketsReducer.marketCategories,
   comments: getComments(state.commentsReducer),
   user: getCurrentUser(state.usersReducer),
   activeInvestibleSearches: getActiveInvestibleSearches(state.activeSearches),

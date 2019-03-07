@@ -12,11 +12,6 @@ export const receiveMarket = market => ({
   market,
 });
 
-export const selectMarket = marketId => ({
-  type: SELECT_MARKET,
-  marketId,
-});
-
 export const receiveMarketCategories = categories => ({
   type: RECEIVE_MARKET_CATEGORIES,
   categories,
@@ -71,9 +66,6 @@ export const createMarketCategory = (params = {}) => (dispatch) => {
 };
 
 export const fetchMarket = (params = {}) => (dispatch) => {
-  if (params.isSelected) {
-    dispatch(selectMarket(params.market_id));
-  }
   // TODO either constructClient must cache the client or we have to at the upper level
   const clientPromise = getClient();
   return clientPromise.then(client => client.markets.get(params.market_id)).then((market) => {

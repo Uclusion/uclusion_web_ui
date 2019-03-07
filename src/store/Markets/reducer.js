@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import {
   RECEIVE_MARKET,
-  SELECT_MARKET,
   RECEIVE_MARKET_CATEGORIES,
   formatMarkets,
   MARKET_CATEGORY_DELETED,
@@ -40,15 +39,6 @@ const marketItems = (state = [], action) => {
   }
 };
 
-const currentMarketId = (state = null, action) => {
-  switch (action.type) {
-    case SELECT_MARKET:
-      return action.marketId;
-    default:
-      return state;
-  }
-};
-
 const marketCategories = (state = {}, action) => {
   switch (action.type) {
     case RECEIVE_MARKET_CATEGORIES:
@@ -71,12 +61,10 @@ const marketCategories = (state = {}, action) => {
 
 export const getMarkets = state => formatMarkets(state.marketItems);
 
-export const getMarketCategories = state => (state.currentMarketId ? state.marketCategories[state.currentMarketId] : []);
-
-export const getCurrentMarketId = state => state.currentMarketId;
+export const getMarketCategories = (categories, currentMarketId) => (
+  currentMarketId ? categories[currentMarketId] : []);
 
 export default combineReducers({
   marketItems,
   marketCategories,
-  currentMarketId,
 });

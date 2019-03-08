@@ -12,7 +12,7 @@ addLocalizationData(locales);
 class MainLanding extends PureComponent {
   render() {
     return (
-      <div>
+      <div style={{ height: '100%' }}>
         <ToastContainer />
         <App appConfig={{ configureStore, ...config }} isLanding />
       </div>

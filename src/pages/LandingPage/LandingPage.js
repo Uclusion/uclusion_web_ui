@@ -11,123 +11,73 @@ import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { AnonymousAuthorizer } from 'uclusion_authorizer_sdk';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import Input from '@material-ui/core/Input';
-import ArrowDropdown from '@material-ui/icons/ArrowDropDown';
+import {
+  Card,
+  CardContent,
+  Tabs,
+  Tab,
+  FormControl,
+  InputLabel,
+  Input,
+  Button,
+  Typography,
+} from '@material-ui/core';
 import { getCurrentUser } from '../../store/Users/reducer';
 import appConfig from '../../config/config';
 import { setUclusionLocalStorageItem, getUclusionLocalStorageItem } from '../../components/utils';
 import { getClient } from '../../config/uclusionClient';
 
+const LOGIN_GOOGLE = 0;
+const LOGIN_OKTA = 1;
+const LOGIN_COGNITO = 2;
+
 const styles = theme => ({
   main: {
+    height: '100%',
     display: 'flex',
     flexDirection: 'column',
   },
   root: {
-    flexGrow: 1,
-    flex: '1 0 100%',
-    // height: '100%',
-    // overflow: 'hidden'
-  },
-  hero: {
-    height: '100%',
-    // minHeight: '80vh',
-    flex: '0 0 auto',
-    display: 'flex',
-    justifyContent: 'left',
-    alignItems: 'left',
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.type === 'light' ? theme.palette.primary.dark : theme.palette.primary.main,
-  },
-  text: {
+    flex: 1,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    letterSpacing: '.7rem',
-    textIndent: '.7rem',
-    fontWeight: theme.typography.fontWeightLight,
+    overflow: 'auto',
     [theme.breakpoints.only('xs')]: {
-      fontSize: 24,
-      letterSpacing: '.1em',
-      textIndent: '.1rem',
+      paddingTop: 0,
+      paddingBottom: 0,
     },
-    whiteSpace: 'nowrap',
+    paddingTop: theme.spacing.unit * 4,
+    paddingBottom: theme.spacing.unit * 4,
   },
-  headline: {
-    paddingLeft: theme.spacing.unit * 4,
-    paddingRight: theme.spacing.unit * 4,
-    marginTop: theme.spacing.unit,
-    maxWidth: 600,
-    textAlign: 'center',
+  card: {
+    overflow: 'unset',
+    width: 480,
+    maxWidth: '100%',
     [theme.breakpoints.only('xs')]: {
-      fontSize: 18,
+      boxShadow: 'none',
     },
   },
   content: {
-    height: '100%',
-    // paddingTop: theme.spacing.unit * 8,
-    [theme.breakpoints.up('sm')]: {
-      paddingTop: theme.spacing.unit,
-    },
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
-  button: {
-    marginTop: theme.spacing.unit * 3,
+  tabs: {
+    [theme.breakpoints.only('xs')]: {
+      alignSelf: 'stretch',
+    },
   },
   logo: {
-    marginLeft: '0%',
+    width: 300,
+    height: 300,
   },
-  steps: {
-    maxWidth: theme.spacing.unit * 130,
-    margin: 'auto',
-  },
-  step: {
-    padding: `${theme.spacing.unit * 3}px ${theme.spacing.unit * 2}px`,
-  },
-  stepIcon: {
+  formField: {
     marginBottom: theme.spacing.unit,
   },
-  markdownElement: {},
-  cardsContent: {
-    padding: 15,
-    display: 'flex',
-    justifyContent: 'space-around',
-    flexWrap: 'wrap',
-    [theme.breakpoints.only('xs')]: {
-      width: '100%',
-      padding: 0,
-      paddingTop: 15,
-    },
-
+  loginButton: {
+    marginTop: theme.spacing.unit,
   },
-  card: {
-    minWidth: 275,
-    maxWidth: 350,
-    margin: 15,
-    [theme.breakpoints.only('xs')]: {
-      width: '100%',
-      margin: 0,
-      marginTop: 7,
-    },
-  },
-  bullet: {
-    display: 'inline-block',
-    margin: '0 2px',
-    transform: 'scale(0.8)',
-  },
-  cardTitle: {
-    marginBottom: 16,
-    fontSize: 14,
-  },
-  pos: {
-    marginBottom: 12,
-  },
-
 });
 
 function createMarket(client, accountCreationInfo) {
@@ -155,7 +105,7 @@ function LandingPage(props) {
   const [marketName, setMarketName] = useState(undefined);
   const [marketDescription, setMarketDescription] = useState(undefined);
   const [clientId, setClientId] = useState(undefined);
-  const [loginType, setLoginType] = useState('COGNITO');
+  const [loginType, setLoginType] = useState(LOGIN_COGNITO);
   const [processing, setProcessing] = useState(false);
   const [baseURL, setBaseURL] = useState(undefined);
   const [email, setEmail] = useState(undefined);
@@ -204,8 +154,8 @@ function LandingPage(props) {
     setClientId(event.target.value);
   }
 
-  function handleLoginTypeChange(event) {
-    setLoginType(event.target.value);
+  function handleLoginTypeChange(event, value) {
+    setLoginType(value);
   }
 
   function handleBaseURLChange(event) {
@@ -308,73 +258,113 @@ function LandingPage(props) {
       </AppBar>
 
       <div className={classes.root}>
-        <div className={classes.hero}>
-          <div className={classes.content}>
-            <img
-              src="/watermark.png"
-              alt="Uclusion Logo"
-              className={classes.logo}
-            />
-          </div>
-          <div className={classes.content}>
-            <form onSubmit={handleSubmit}>
-              <FormControl>
-                <Select
-                  disableUnderline
-                  value={loginType}
-                  onChange={handleLoginTypeChange}
-                  IconComponent={() => <ArrowDropdown className={classes.selectArrow} />}
-                  input={<Input name="loginType" id="loginTypeId" />}
+        <Card className={classes.card}>
+          <CardContent>
+            <div className={classes.content}>
+              <img
+                className={classes.logo}
+                src="/watermark.png"
+                alt="Uclusion Logo"
+              />
+              <Typography variant="h6">LOG IN WITH:</Typography>
+              <Tabs
+                className={classes.tabs}
+                indicatorColor="primary"
+                textColor="primary"
+                variant="fullWidth"
+                value={loginType}
+                onChange={handleLoginTypeChange}
+              >
+                <Tab label="Google" />
+                <Tab label="OKTA" />
+                <Tab label="Cognito" />
+              </Tabs>
+              <form onSubmit={handleSubmit}>
+                <FormControl className={classes.formField} fullWidth>
+                  <InputLabel htmlFor="accountNameId">Account Name:</InputLabel>
+                  <Input
+                    id="accountNameId"
+                    value={accountName}
+                    onChange={handleAccountNameChange}
+                  />
+                </FormControl>
+                <FormControl className={classes.formField} fullWidth>
+                  <InputLabel htmlFor="marketNameId">Market Name:</InputLabel>
+                  <Input
+                    id="marketNameId"
+                    value={marketName}
+                    onChange={handleMarketNameChange}
+                  />
+                </FormControl>
+                <FormControl className={classes.formField} fullWidth>
+                  <InputLabel htmlFor="marketDescriptionId">Market Description:</InputLabel>
+                  <Input
+                    id="marketDescriptionId"
+                    value={marketDescription}
+                    onChange={handleMarketDescriptionChange}
+                  />
+                </FormControl>
+                <FormControl className={classes.formField} fullWidth>
+                  <InputLabel htmlFor="marketProductLoginUrl">Optional Market Product Login URL:</InputLabel>
+                  <Input
+                    id="marketProductLoginUrl"
+                    value={marketProductLoginUrl}
+                    onChange={handleMarketProductLoginUrlChange}
+                  />
+                </FormControl>
+                {loginType === LOGIN_COGNITO && (
+                  <FormControl className={classes.formField} fullWidth>
+                    <InputLabel htmlFor="email">Email:</InputLabel>
+                    <Input
+                      id="email"
+                      value={email}
+                      onChange={handleEmailChange}
+                    />
+                  </FormControl>
+                )}
+                {loginType === LOGIN_COGNITO && (
+                  <FormControl className={classes.formField} fullWidth>
+                    <InputLabel htmlFor="name">Name:</InputLabel>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={handleNameChange}
+                    />
+                  </FormControl>
+                )}
+                {loginType !== LOGIN_COGNITO && (
+                  <FormControl className={classes.formField} fullWidth>
+                    <InputLabel htmlFor="clientId">Authorization Client ID from Google or Okta:</InputLabel>
+                    <Input
+                      id="clientId"
+                      value={clientId}
+                      onChange={handleClientIdChange}
+                    />
+                  </FormControl>
+                )}
+                {loginType === LOGIN_OKTA && (
+                  <FormControl className={classes.formField} fullWidth>
+                    <InputLabel htmlFor="baseURL">Endpoint Base URL for Okta:</InputLabel>
+                    <Input
+                      id="baseURL"
+                      value={baseURL}
+                      onChange={handleBaseURLChange}
+                    />
+                  </FormControl>
+                )}
+                <Button
+                  className={classes.loginButton}
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
                 >
-                  <MenuItem key="GOOGLE" value="GOOGLE">GOOGLE</MenuItem>
-                  <MenuItem key="OKTA" value="OKTA">OKTA</MenuItem>
-                  <MenuItem key="COGNITO" value="COGNITO">Email password</MenuItem>
-                </Select>
-              </FormControl>
-              <label htmlFor="accountNameId">
-                Account Name:
-                <input id="accountNameId" type="text" value={accountName} onChange={handleAccountNameChange} />
-              </label>
-              <label htmlFor="marketNameId">
-                Market Name:
-                <input id="marketNameId" type="text" value={marketName} onChange={handleMarketNameChange} />
-              </label>
-              <label htmlFor="marketDescriptionId">
-                Market Description:
-                <input id="marketDescriptionId" type="text" value={marketDescription} onChange={handleMarketDescriptionChange} />
-              </label>
-              <label htmlFor="marketProductLoginUrl">
-                Optional Market Product Login URL:
-                <input id="marketProductLoginUrl" type="text" value={marketProductLoginUrl} onChange={handleMarketProductLoginUrlChange} />
-              </label>
-              {loginType === 'COGNITO' && (
-                <label htmlFor="email">
-                  Email:
-                  <input id="email" type="text" value={email} onChange={handleEmailChange} />
-                </label>
-              )}
-              {loginType === 'COGNITO' && (
-                <label htmlFor="name">
-                  Name:
-                  <input id="name" type="text" value={name} onChange={handleNameChange} />
-                </label>
-              )}
-              {loginType !== 'COGNITO' && (
-              <label htmlFor="clientId">
-                Authorization Client ID from Google or Okta:
-                <input id="clientId" type="text" value={clientId} onChange={handleClientIdChange} />
-              </label>
-              )}
-              {loginType === 'OKTA' && (
-                <label htmlFor="baseURL">
-                  Endpoint Base URL for Okta:
-                  <input id="clientId" type="text" value={baseURL} onChange={handleBaseURLChange} />
-                </label>
-              )}
-              <input type="submit" value="Submit" />
-            </form>
-          </div>
-        </div>
+                  Log In
+                </Button>
+              </form>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

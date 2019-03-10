@@ -84,7 +84,7 @@ const getMenuItems = (props) => {
     {
       value: formCurrentMarketLink('invite'),
       primaryText: intl.formatMessage({ id: 'inviteMenu' }),
-      visible: authInfo.type === 'cognito',
+      visible: authInfo && authInfo.type === 'cognito',
       leftIcon: <SecurityIcon />,
     },
     {

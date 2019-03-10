@@ -33,10 +33,13 @@ function withUserAndPermissions(WrappedComponent) {
       const apisObject = permissionsArrayToObject(available_apis);
       const opObject = permissionsArrayToObject(operation_permissions);
       // console.log(apisObject)
-      const canDeleteMarketInvestible = apisObject.delete_investible && opObject.delete_market_investible;
-      const canEditMarketInvestible = apisObject.update_investible && opObject.update_market_investible;
+      const canDeleteMarketInvestible = apisObject.delete_investible
+        && opObject.delete_market_investible;
+      const canEditMarketInvestible = apisObject.update_investible
+        && opObject.update_market_investible;
       // console.log(_upUser)
       const canInvest = apisObject.create_investment || false;
+      const canCreateInvestible = apisObject.create_investible || false;
       const canListAccountTeams = apisObject.list_teams || false;
       const canCategorize = apisObject.category_create || false;
       const canDeleteOwnComments = apisObject.comments_delete || false;
@@ -53,6 +56,7 @@ function withUserAndPermissions(WrappedComponent) {
         canDeleteOthersComments,
         isGuest,
         canReadComments,
+        canCreateInvestible,
       };
     }
 

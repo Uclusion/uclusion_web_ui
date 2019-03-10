@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import { Grid, ListSubheader } from '@material-ui/core';
 import Add from '@material-ui/icons/Add';
@@ -5,6 +6,7 @@ import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
 import withWidth from '@material-ui/core/withWidth';
+import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({
   subListWrapper: {
@@ -66,7 +68,9 @@ class QuickAddItemListCategory extends React.PureComponent {
       items,
       quickAdd,
       width,
+      userPermissions,
     } = this.props;
+    const { canCreateInvestible } = userPermissions;
     const myQuickAdd = React.cloneElement(
       quickAdd,
       {
@@ -84,7 +88,7 @@ class QuickAddItemListCategory extends React.PureComponent {
         <div className={classes.subList}>
           <ListSubheader component="div" className={classes.subListHeader}>
             {title}
-            <Add onClick={this.addOnClick} />
+            {canCreateInvestible && (<Add onClick={this.addOnClick} />)}
           </ListSubheader>
           <div className={classes.subListContent}>
             {myQuickAdd}
@@ -108,9 +112,10 @@ class QuickAddItemListCategory extends React.PureComponent {
 QuickAddItemListCategory.propTypes = {
   items: PropTypes.arrayOf(PropTypes.object).isRequired,
   title: PropTypes.string.isRequired,
+  userPermissions: PropTypes.object.isRequired,
 };
 
 export default compose(
   withWidth(),
   withStyles(styles, { withTheme: true }),
-)(QuickAddItemListCategory);
+)(withUserAndPermissions(QuickAddItemListCategory));

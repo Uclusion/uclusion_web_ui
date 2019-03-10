@@ -186,6 +186,7 @@ const messages = defineMessages({
   investibleAddDescriptionDefault: 'Add a description...',
   // Team Memberships pages
   teamsHeader: 'Team Memberships',
+  inviteHeader: 'Invite',
   categoriesHeader: 'Market Categories',
   teamsLoading: 'Loading your Team Memberships.',
   categoriesLoading: 'Loading Market Categories.',

@@ -182,7 +182,7 @@ function LandingPage(props) {
     const accountCreationInfo = {
       marketName, marketDescription, accountName, clientId, loginType, email, name,
     };
-    if (loginType === 'COGNITO') {
+    if (loginType === LOGIN_COGNITO) {
       authorizer.cognitoAccountCreate(accountCreationInfo)
         .then((response) => {
           const authInfo = {
@@ -200,7 +200,7 @@ function LandingPage(props) {
       setUclusionLocalStorageItem('accountCreationInfo', accountCreationInfo);
       authorizer.accountRedirect({
         uclusion_client_id: clientId,
-        op_endpoint_base_url: loginType === 'GOOGLE' ? 'https://accounts.google.com' : baseURL,
+        op_endpoint_base_url: loginType === LOGIN_GOOGLE ? 'https://accounts.google.com' : baseURL,
         account_name: accountName,
         team_name: `Team ${marketName}`,
         team_description: `${marketName} administrators`,
@@ -266,7 +266,7 @@ function LandingPage(props) {
                 src="/watermark.png"
                 alt="Uclusion Logo"
               />
-              <Typography variant="h6">LOG IN WITH:</Typography>
+              <Typography variant="h6">CREATE ACCOUNT WITH:</Typography>
               <Tabs
                 className={classes.tabs}
                 indicatorColor="primary"
@@ -305,7 +305,7 @@ function LandingPage(props) {
                   />
                 </FormControl>
                 <FormControl className={classes.formField} fullWidth>
-                  <InputLabel htmlFor="marketProductLoginUrl">Optional Market Product Login URL:</InputLabel>
+                  <InputLabel htmlFor="marketProductLoginUrl">Optional Product Login URL:</InputLabel>
                   <Input
                     id="marketProductLoginUrl"
                     value={marketProductLoginUrl}
@@ -334,7 +334,7 @@ function LandingPage(props) {
                 )}
                 {loginType !== LOGIN_COGNITO && (
                   <FormControl className={classes.formField} fullWidth>
-                    <InputLabel htmlFor="clientId">Authorization Client ID from Google or Okta:</InputLabel>
+                    <InputLabel htmlFor="clientId">Authorization Client ID:</InputLabel>
                     <Input
                       id="clientId"
                       value={clientId}
@@ -344,7 +344,7 @@ function LandingPage(props) {
                 )}
                 {loginType === LOGIN_OKTA && (
                   <FormControl className={classes.formField} fullWidth>
-                    <InputLabel htmlFor="baseURL">Endpoint Base URL for Okta:</InputLabel>
+                    <InputLabel htmlFor="baseURL">Endpoint Base URL:</InputLabel>
                     <Input
                       id="baseURL"
                       value={baseURL}

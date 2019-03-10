@@ -39,7 +39,7 @@ function Invite(props) {
     <Activity
       isLoading={teams === undefined}
       containerStyle={{ overflow: 'hidden' }}
-      title={intl.formatMessage({ id: 'teamsHeader' })}
+      title={intl.formatMessage({ id: 'inviteHeader' })}
     >
       <TeamAdd marketId={marketId} teams={teams} teamsSet={setTeams} />
       {teams.map(team => (

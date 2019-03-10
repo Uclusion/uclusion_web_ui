@@ -1,43 +1,32 @@
 /* eslint-disable react/forbid-prop-types */
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
-import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
-import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
+import InviteListItem from './InviteListItem';
+import TeamAdd from './TeamAdd';
 
 function Invite(props) {
-  const [teams, setTeams] = useState(undefined);
+  const [teams, setTeams] = useState([]);
   const { intl, userPermissions, marketId } = props;
   const { canListAccountTeams } = userPermissions;
 
-  function getMarketInvestibles() {
-    const { marketId, investibles } = props;
-    if (marketId in investibles) {
-      return investibles[marketId];
-    }
-
-    return undefined;
-  }
-
-  // Second argument prevents re-running on teams property changes - only for changes in listed
   useEffect(() => {
     const clientPromise = getClient();
     if (canListAccountTeams) {
       clientPromise.then(client => client.teams.list(marketId)).then((marketTeams) => {
-        setTeams(marketTeams);
+        setTeams(marketTeams.filter(team => !('external_id' in team)));
       }).catch((error) => {
         console.log(error);
         sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
       });
     } else {
-      clientPromise.then(client => client.teams.mine(marketId)).then((myTeams) => {
-        setTeams(myTeams);
+      clientPromise.then(client => client.teams.mine(marketId)).then((marketTeams) => {
+        setTeams(marketTeams.filter(team => !('external_id' in team)));
       }).catch((error) => {
         console.log(error);
         sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
@@ -52,7 +41,15 @@ function Invite(props) {
       containerStyle={{ overflow: 'hidden' }}
       title={intl.formatMessage({ id: 'teamsHeader' })}
     >
-      {teams && <UserMembershipsList teams={teams} investibles={getMarketInvestibles()} />}
+      <TeamAdd marketId={marketId} teams={teams} teamsSet={setTeams} />
+      {teams.map(team => (
+        <InviteListItem
+          key={team.id}
+          name={team.name}
+          description={team.description}
+          teamSize={team.team_size}
+        />
+      ))}
     </Activity>
   );
 }
@@ -61,13 +58,6 @@ Invite.propTypes = {
   userPermissions: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
-  investibles: PropTypes.object,
 };
 
-const mapStateToProps = state => ({
-  investibles: getInvestibles(state.investiblesReducer),
-});
-
-export default connect(
-  mapStateToProps,
-)(injectIntl(withUserAndPermissions(withMarketId(Invite))));
+export default injectIntl(withUserAndPermissions(withMarketId(Invite)));

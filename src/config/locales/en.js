@@ -168,6 +168,8 @@ const messages = defineMessages({
   categoriesListNotFound: 'No Market Categories found',
   titleLabel: 'Title',
   descriptionLabel: 'Description',
+  teamNameLabel: 'Name',
+  teamDescriptionLabel: 'Description',
   descriptionBody: 'Your description...',
   commentBody: 'Your comment...',
   // Sidebar menu names
@@ -210,6 +212,8 @@ const messages = defineMessages({
   marketCategoryDeleteFailed: 'There was a problem removing the category from the market. Please try again',
   marketCategoryCreated: 'The category has been added to the market.',
   marketCategoryCreateFailed: 'There was a problem adding the category to the market. Please try again',
+  marketTeamCreated: 'The team has been added to the market.',
+  marketTeamCreateFailed: 'There was a problem adding the team to the market. Please try again',
   investibleListFetchFailed: 'Unable to fetch your list of investibles. Please refresh the page',
   investibleFetchFailed: 'Unable to fetch your investibles. Please refresh the page',
   commentsFetchFailed: 'We\'re sorry comments can not be fetched right now. Please reload the page',

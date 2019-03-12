@@ -5,7 +5,6 @@ import { Grid, Typography, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { getClient } from '../../config/uclusionClient';
-import { withMarketId } from '../../components/PathProps/MarketId';
 
 const styles = theme => ({
   itemCell: {
@@ -27,7 +26,7 @@ const styles = theme => ({
 function InviteListItem(props) {
   const [inviteUrl, setInviteUrl] = useState(undefined);
   const {
-    name, description, classes, teamSize, id, marketId,
+    name, description, classes, teamSize, id,
   } = props;
 
   function handleSubmit(event) {
@@ -35,7 +34,9 @@ function InviteListItem(props) {
     getClient().then((client) => {
       return client.teams.inviteToken(id);
     }).then((inviteToken) => {
-      setInviteUrl(`${window.location.href}${marketId}/NewCognito?creationToken=${inviteToken}`);
+      const location = window.location.href;
+      const lastIndex = location.lastIndexOf('/') + 1;
+      setInviteUrl(`${location.substring(0, lastIndex)}NewCognito?creationToken=${inviteToken}`);
     }).catch((e) => {
       console.error(e);
     });
@@ -78,7 +79,6 @@ InviteListItem.propTypes = {
   classes: PropTypes.object.isRequired,
   teamSize: PropTypes.number.isRequired,
   id: PropTypes.string.isRequired,
-  marketId: PropTypes.string.isRequired,
 };
 
-export default injectIntl(withStyles(styles)(withMarketId(InviteListItem)));
+export default injectIntl(withStyles(styles)(InviteListItem));

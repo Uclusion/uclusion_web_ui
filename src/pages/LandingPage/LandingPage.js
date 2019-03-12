@@ -21,6 +21,7 @@ import {
   Input,
   Button,
   Typography,
+  CircularProgress,
 } from '@material-ui/core';
 import { getCurrentUser } from '../../store/Users/reducer';
 import appConfig from '../../config/config';
@@ -78,6 +79,11 @@ const styles = theme => ({
   loginButton: {
     marginTop: theme.spacing.unit,
   },
+  progress: {
+    display: 'block',
+    margin: 'auto',
+    marginTop: theme.spacing.unit,
+  },
 });
 
 function createMarket(client, accountCreationInfo) {
@@ -111,6 +117,7 @@ function LandingPage(props) {
   const [email, setEmail] = useState(undefined);
   const [name, setName] = useState(undefined);
   const [marketProductLoginUrl, setMarketProductLoginUrl] = useState(undefined);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const authorizer = new AnonymousAuthorizer({
@@ -183,6 +190,7 @@ function LandingPage(props) {
       marketName, marketDescription, accountName, clientId, loginType, email, name,
     };
     if (loginType === LOGIN_COGNITO) {
+      setLoading(true);
       authorizer.cognitoAccountCreate(accountCreationInfo)
         .then((response) => {
           const authInfo = {
@@ -195,8 +203,15 @@ function LandingPage(props) {
           console.log('Now pausing before create market so will need spinner');
           // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
           setTimeout(createMarket, 10000, client, accountCreationInfo);
+        }).catch((e) => {
+          alert('Cannot sign in');
+          console.log(e);
+        })
+        .finally(() => {
+          setLoading(false);
         });
     } else {
+      setLoading(true);
       setUclusionLocalStorageItem('accountCreationInfo', accountCreationInfo);
       authorizer.accountRedirect({
         uclusion_client_id: clientId,
@@ -208,8 +223,11 @@ function LandingPage(props) {
         oidc_type: loginType,
       }).then((redirectUrl) => {
         window.location = redirectUrl;
-      }).catch((reject) => {
-        console.error(reject);
+      }).catch((e) => {
+        alert('Cannot sign in');
+        console.error(e);
+      }).finally(() => {
+        setLoading(false);
       });
     }
   }
@@ -352,15 +370,19 @@ function LandingPage(props) {
                     />
                   </FormControl>
                 )}
-                <Button
-                  className={classes.loginButton}
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                >
-                  Log In
-                </Button>
+                {loading ? (
+                  <CircularProgress className={classes.progress} />
+                ) : (
+                  <Button
+                    className={classes.loginButton}
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                  >
+                    Log In
+                  </Button>
+                )}
               </form>
             </div>
           </CardContent>

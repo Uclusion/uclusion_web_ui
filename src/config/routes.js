@@ -9,6 +9,7 @@ const AsyncPostAuth = MyLoadable({ loader: () => import('../pages/Login/PostAuth
 const AsyncInvite = MyLoadable({ loader: () => import('../pages/Invite/Invite') });
 const AsyncTeams = MyLoadable({ loader: () => import('../pages/TeamMemberships/UserMemberships') });
 const AsyncCategories = MyLoadable({ loader: () => import('../pages/Categories/CategoryList') });
+const AsyncNewCognito = MyLoadable({ loader: () => import('../pages/Cognito/NewCognito') });
 
 const routes = [
   <Route type="private" path="/:marketId/" exact component={AsyncInvestibles} />,
@@ -18,6 +19,7 @@ const routes = [
   <Route type="public" path="/:marketId/invite" exact component={AsyncInvite} />,
   <Route type="public" path="/:marketId/post_auth" exact component={AsyncPostAuth} />,
   <Route type="public" path="/:marketId/login" exact component={AsyncInvestibles} />,
+  <Route type="public" path="/:marketId/newCognito" exact component={AsyncNewCognito} />,
 ];
 
 

@@ -176,7 +176,8 @@ function Activity(props) {
   }, [userPermissions]);
 
   const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
-  if (!showLogin) {
+  const newCognitoUser = /(.+)\/newCognito/.test(window.location.href.toLowerCase());
+  if (!showLogin && !newCognitoUser) {
     getClient(); // Will verify the token
   }
   const { isGuest } = userPermissions;

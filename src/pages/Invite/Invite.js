@@ -45,6 +45,7 @@ function Invite(props) {
       {teams.map(team => (
         <InviteListItem
           key={team.id}
+          id={team.id}
           name={team.name}
           description={team.description}
           teamSize={team.team_size}

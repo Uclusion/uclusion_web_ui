@@ -1,9 +1,11 @@
 /* eslint-disable react/forbid-prop-types */
 import PropTypes from 'prop-types';
-import React from 'react';
-import { Grid, Typography } from '@material-ui/core';
+import React, { useState } from 'react';
+import { Grid, Typography, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
+import { getClient } from '../../config/uclusionClient';
+import { withMarketId } from '../../components/PathProps/MarketId';
 
 const styles = theme => ({
   itemCell: {
@@ -22,30 +24,61 @@ const styles = theme => ({
   },
 });
 
-const InviteListItem = ({
-  name,
-  description,
-  classes,
-  teamSize,
-}) => (
-  <Grid className={classes.itemCell} item>
-    <div className={classes.title}>
-      <Typography className={classes.titleText}>{name}</Typography>
-    </div>
-    <div className={classes.title}>
-      <Typography className={classes.titleText}>{description}</Typography>
-    </div>
-    <div className={classes.title}>
-      <Typography className={classes.titleText}>{teamSize}</Typography>
-    </div>
-  </Grid>
-);
+function InviteListItem(props) {
+  const [inviteUrl, setInviteUrl] = useState(undefined);
+  const {
+    name, description, classes, teamSize, id, marketId,
+  } = props;
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    getClient().then((client) => {
+      return client.teams.inviteToken(id);
+    }).then((inviteToken) => {
+      setInviteUrl(`${window.location.href}${marketId}/NewCognito?creationToken=${inviteToken}`);
+    }).catch((e) => {
+      console.error(e);
+    });
+  }
+
+  return (
+    <Grid className={classes.itemCell} item>
+      <div className={classes.title}>
+        <Typography className={classes.titleText}>{name}</Typography>
+      </div>
+      <div className={classes.title}>
+        <Typography className={classes.titleText}>{description}</Typography>
+      </div>
+      <div className={classes.title}>
+        <Typography className={classes.titleText}>{teamSize}</Typography>
+      </div>
+      {inviteUrl && (
+      <div className={classes.title}>
+        <Typography className={classes.titleText}>{inviteUrl}</Typography>
+      </div>
+      )}
+      {!inviteUrl && (
+      <Button
+        className={classes.loginButton}
+        type="submit"
+        variant="contained"
+        color="primary"
+        onClick={handleSubmit}
+      >
+        Get Invite Link
+      </Button>
+      )}
+    </Grid>
+  );
+}
 
 InviteListItem.propTypes = {
   name: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   classes: PropTypes.object.isRequired,
   teamSize: PropTypes.number.isRequired,
+  id: PropTypes.string.isRequired,
+  marketId: PropTypes.string.isRequired,
 };
 
-export default injectIntl(withStyles(styles)(InviteListItem));
+export default injectIntl(withStyles(styles)(withMarketId(InviteListItem)));

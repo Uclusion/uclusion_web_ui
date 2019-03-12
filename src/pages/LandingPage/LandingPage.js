@@ -380,7 +380,7 @@ function LandingPage(props) {
                     color="primary"
                     fullWidth
                   >
-                    Log In
+                    Submit
                   </Button>
                 )}
               </form>

@@ -78,6 +78,7 @@ function LoginModal(props) {
       pageUrl,
       uclusionUrl,
       newLogin,
+      page,
     };
   }
   useEffect(() => {
@@ -120,13 +121,11 @@ function LoginModal(props) {
   }
 
   function cognitoTokenGenerated() {
-    const { destinationPage } = getLoginParams();
-    const authInfo = {
-      token: cognitoAuthorizer.storedToken,
-      type: 'cognito',
-    };
-    setUclusionLocalStorageItem('auth', authInfo);
-    window.location = destinationPage;
+    const { dispatch, webSocket, history } = props;
+    const { marketId, page } = getLoginParams();
+    postAuthTasks(cognitoAuthorizer.storedToken, cognitoAuthorizer.getType(), dispatch,
+      marketId, cognitoAuthorizer.user, webSocket);
+    history.push(page);
   }
 
   function changePasswordCognito() {

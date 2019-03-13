@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators, compose } from 'redux';
@@ -63,7 +64,7 @@ CategoryList.propTypes = {
   dispatch: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  allCategories: PropTypes.arrayOf(PropTypes.object).isRequired,
+  allCategories: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
 };
 

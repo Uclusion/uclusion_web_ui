@@ -12,9 +12,10 @@ export const receiveMarket = market => ({
   market,
 });
 
-export const receiveMarketCategories = categories => ({
+export const receiveMarketCategories = (categories, marketId) => ({
   type: RECEIVE_MARKET_CATEGORIES,
   categories,
+  marketId,
 });
 
 export const categoryDeleted = (name, marketId) => ({
@@ -35,7 +36,7 @@ export const fetchMarketCategories = (params = {}) => (dispatch) => {
   return clientPromise.then(client => client.markets.listInvestibles(params.marketId))
     .then((response) => {
       const { categories } = response;
-      dispatch(receiveMarketCategories(categories));
+      dispatch(receiveMarketCategories(categories, params.marketId));
     }).catch((error) => {
       console.log(error);
       dispatch(receiveMarketCategories({}));

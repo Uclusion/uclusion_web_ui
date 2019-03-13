@@ -62,7 +62,7 @@ export const fetchInvestibleList = (params = {}) => (dispatch) => {
   return clientPromise.then(client => client.markets.listInvestibles(marketId))
     .then((response) => {
       const { investibles, categories } = response;
-      dispatch(receiveMarketCategories(categories));
+      dispatch(receiveMarketCategories(categories, marketId));
       updateInChunks(dispatch, currentInvestibleList, investibles, fetchInvestibles, marketId);
     }).catch((error) => {
       console.error(error);

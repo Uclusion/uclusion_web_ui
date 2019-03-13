@@ -46,7 +46,7 @@ class InvestibleList extends React.PureComponent {
     } = this.props;
     if (!categories || categories.length === 0) {
       return (
-        <Typography variant="heading">
+        <Typography variant="h4">
           {intl.formatMessage({ id: 'warning_404_categories' })}
         </Typography>
       );

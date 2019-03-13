@@ -43,7 +43,7 @@ const marketCategories = (state = {}, action) => {
   switch (action.type) {
     case RECEIVE_MARKET_CATEGORIES:
       const newState = { ...state };
-      newState[action.categories.market_id] = action.categories.categories;
+      newState[action.marketId] = action.categories;
       return newState;
     case MARKET_CATEGORY_DELETED:
       const newStateForCategories = { ...state };

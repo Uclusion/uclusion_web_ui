@@ -9,6 +9,7 @@ import Activity from '../../containers/Activity/Activity';
 import { getMarketCategories } from '../../store/Markets/reducer';
 import { getCurrentUser } from '../../store/Users/reducer';
 import InvestibleList from '../../components/Investibles/InvestibleList';
+import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import { fetchInvestibleList } from '../../store/MarketInvestibles/actions';
 import LoginModal from '../Login/LoginModal';
@@ -17,6 +18,7 @@ import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer'
 import { fetchCommentList } from '../../store/Comments/actions';
 import { getComments } from '../../store/Comments/reducer';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
+import { hideInvestibleDetail } from '../../store/Detail/actions';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -100,6 +102,8 @@ function InvestiblesPage(props) {
     user,
     history: { location: { pathname } },
     classes,
+    investibleDetail,
+    dispatch,
   } = props;
 
   const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
@@ -129,6 +133,11 @@ function InvestiblesPage(props) {
               investibles={currentInvestibleList}
               categories={categories}
             />
+            <InvestibleDetail
+              investible={investibleDetail.data}
+              show={investibleDetail.show}
+              onClose={() => dispatch(hideInvestibleDetail())}
+            />
           </div>
         )}
       </Activity>
@@ -154,6 +163,7 @@ InvestiblesPage.propTypes = {
   activeInvestibleSearches: PropTypes.object,
   history: PropTypes.object.isRequired,
   userPermissions: PropTypes.object.isRequired,
+  investibleDetail: PropTypes.object,
 };
 
 const mapStateToProps = state => ({
@@ -162,6 +172,7 @@ const mapStateToProps = state => ({
   comments: getComments(state.commentsReducer),
   user: getCurrentUser(state.usersReducer),
   activeInvestibleSearches: getActiveInvestibleSearches(state.activeSearches),
+  investibleDetail: state.detail.investible,
 });
 
 function mapDispatchToProps(dispatch) {

@@ -10,10 +10,18 @@ import { withUserAndPermissions } from '../../components/UserPermissions/UserPer
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
+import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
+import { hideInvestibleDetail } from '../../store/Detail/actions';
 
 function UserMemberships(props) {
   const [teams, setTeams] = useState(undefined);
-  const { intl, userPermissions, marketId } = props;
+  const {
+    intl,
+    userPermissions,
+    marketId,
+    dispatch,
+    investibleDetail,
+  } = props;
   const { canListAccountTeams } = userPermissions;
 
   function getMarketInvestibles() {
@@ -53,6 +61,11 @@ function UserMemberships(props) {
       title={intl.formatMessage({ id: 'teamsHeader' })}
     >
       {teams && <UserMembershipsList teams={teams} investibles={getMarketInvestibles()} />}
+      <InvestibleDetail
+        investible={investibleDetail.data}
+        show={investibleDetail.show}
+        onClose={() => dispatch(hideInvestibleDetail())}
+      />
     </Activity>
   );
 }
@@ -66,8 +79,14 @@ UserMemberships.propTypes = {
 
 const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
+  investibleDetail: state.detail.investible,
 });
+
+function mapDispatchToProps(dispatch) {
+  return { dispatch };
+}
 
 export default connect(
   mapStateToProps,
+  mapDispatchToProps,
 )(injectIntl(withUserAndPermissions(withMarketId(UserMemberships))));

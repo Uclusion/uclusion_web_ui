@@ -1,133 +1,110 @@
+import React from 'react';
 import PropTypes from 'prop-types';
-import React, { PureComponent } from 'react';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import {
-  ExpansionPanel, ExpansionPanelDetails, ExpansionPanelSummary, Typography,
-} from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
-import InvestibleListItemTabs from './InvestibleListItemTabs';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import classNames from 'classnames';
+import { withStyles } from '@material-ui/core/styles';
+import {
+  Card,
+  Typography,
+} from '@material-ui/core';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import InvestibleDelete from './InvestibleDelete';
 
 const styles = theme => ({
-  headerBox: {
+  card: {
+    marginBottom: theme.spacing.unit,
+    padding: theme.spacing.unit * 1.5,
+    boxShadow: 'none',
+    '&:last-child': {
+      marginBottom: 0,
+    },
+  },
+  flex: {
     display: 'flex',
     justifyContent: 'space-between',
   },
-
-  details: {
-    alignItems: 'center',
+  row: {
+    marginBottom: theme.spacing.unit,
+    '&:last-child': {
+      marginBottom: 0,
+    },
   },
-
-  helper: {},
-
-  investment: {
-    display: 'inline-block',
+  investibleName: {
+    marginBottom: theme.spacing.unit,
+    fontWeight: 'bold',
+    cursor: 'pointer',
   },
-
-  column: {
-    flexBasis: '33.33%',
+  stageLabel: {
+    minWidth: 100,
   },
-
-  mainGrid: {
-    padding: theme.spacing.unit * 2,
-    justifyContent: 'flex-end',
+  stageContent: {
+    flex: 1,
   },
-
-  tabSection: {
-    borderTop: `1px solid ${theme.palette.divider}`,
-    display: 'block',
-  },
-
-  wholeWidth: {
-    width: '100%',
+  numSharesText: {
+    fontSize: 12,
   },
 });
 
-class InvestibleListItem extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = { investOpen: false };
-    this.investOnClick = this.investOnClick.bind(this);
-    this.handleInvestModalClose = this.handleInvestModalClose.bind(this);
-  }
-
-  investOnClick() {
-    this.setState({ investOpen: true });
-  }
-
-  handleInvestModalClose() {
-    this.setState({ investOpen: false });
-  }
-
+class InvestibleListItem extends React.PureComponent {
   render() {
     const {
-      investible, sharesAvailable, classes, teamId, intl, userPermissions,
+      classes,
+      intl,
+      investible,
+      onClickInvestible,
+      userPermissions,
     } = this.props;
     const { canDeleteMarketInvestible } = userPermissions;
+
     return (
-      <ExpansionPanel>
-        <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography component="span" style={{ width: '100%' }}>
-            <div style={{
-              marginBottom: '16px', marginRight: '-37px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold',
-            }}
-            >
-              {investible.name}
-              {canDeleteMarketInvestible && <InvestibleDelete investible={investible} />}
-            </div>
-            <div style={{ display: 'flex', marginBottom: '8px' }}>
-              <div style={{ minWidth: 100 }}>
-                {intl.formatMessage({ id: 'currentStageLabel' })}
+      <Card className={classes.card}>
+        <Typography component="div">
+          <div
+            className={classNames(classes.flex, classes.investibleName)}
+            role="presentation"
+            onClick={onClickInvestible}
+          >
+            {investible.name}
+            {canDeleteMarketInvestible && <InvestibleDelete investible={investible} />}
+          </div>
+          <div className={classNames(classes.flex, classes.row)}>
+            <span className={classes.stageLabel}>
+              {intl.formatMessage({ id: 'currentStageLabel' })}
+            </span>
+            <div className={classes.stageContent}>
+              <div>{intl.formatMessage({ id: investible.stage })}</div>
+              <div className={classes.numSharesText}>
+                {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })}
               </div>
-              <div>
-                <div>{intl.formatMessage({ id: investible.stage })}</div>
-                <div style={{ fontSize: 12 }}>
-                  {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })}
-                </div>
-              </div>
-            </div>
-            <div style={{ display: 'flex' }}>
-              <div style={{ minWidth: 100 }}>
-                {intl.formatMessage({ id: 'nextStageLabel' })}
-              </div>
-              <div>
-                <div>{intl.formatMessage({ id: investible.next_stage })}</div>
-                <div style={{ fontSize: 12 }}>
-                  {intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })}
-                </div>
-              </div>
-            </div>
-          </Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-          <div className={classes.wholeWidth}>
-            <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={investible.description} readOnly />
-            <div className={classes.tabSection}>
-              <InvestibleListItemTabs
-                name={investible.name}
-                quantity={investible.quantity}
-                investibleId={investible.id}
-                marketId={investible.market_id}
-                teamId={teamId}
-                sharesAvailable={sharesAvailable}
-                currentUserInvestment={investible.current_user_investment}
-              />
             </div>
           </div>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
+          <div className={classNames(classes.flex, classes.row)}>
+            <span className={classes.stageLabel}>
+              {intl.formatMessage({ id: 'nextStageLabel' })}
+            </span>
+            <div className={classes.stageContent}>
+              <div>{intl.formatMessage({ id: investible.next_stage })}</div>
+              <div className={classes.numSharesText}>
+                {intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })}
+              </div>
+            </div>
+          </div>
+        </Typography>
+      </Card>
     );
   }
 }
 
 InvestibleListItem.propTypes = {
-  investible: PropTypes.object.isRequired,
-  sharesAvailable: PropTypes.number.isRequired,
-  teamId: PropTypes.string.isRequired,
-  userPermissions: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired, //eslint-disable-line
+  intl: PropTypes.object.isRequired, //eslint-disable-line
+  investible: PropTypes.object.isRequired, //eslint-disable-line
+  onClickInvestible: PropTypes.func,
+  userPermissions: PropTypes.object.isRequired, //eslint-disable-line
+};
+
+InvestibleListItem.defaultProps = {
+  onClickInvestible: () => null,
 };
 
 export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItem)));

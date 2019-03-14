@@ -15,6 +15,7 @@ const styles = theme => ({
   },
   investibleName: {
     fontWeight: 'bold',
+    cursor: 'pointer',
   },
   stage: {
     marginTop: theme.spacing.unit,
@@ -30,10 +31,16 @@ const styles = theme => ({
 
 class InvestiblesListItem extends React.PureComponent {
   render() {
-    const { investible, intl, classes } = this.props;
+    const { investible, intl, classes, onClickInvestible } = this.props;
     return (
       <Paper className={classes.paper}>
-        <Typography className={classes.investibleName}>{investible.name}</Typography>
+        <Typography
+          className={classes.investibleName}
+          role="presentation"
+          onClick={onClickInvestible}
+        >
+          {investible.name}
+        </Typography>
         <div className={classes.stage}>
           <Typography className={classes.stageLabel}>
             {intl.formatMessage({ id: 'currentStageLabel' })}
@@ -67,6 +74,7 @@ class InvestiblesListItem extends React.PureComponent {
 
 InvestiblesListItem.propTypes = {
   investible: PropTypes.object.isRequired,
+  onClickInvestible: PropTypes.func.isRequired,
 };
 
 

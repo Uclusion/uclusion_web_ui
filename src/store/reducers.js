@@ -10,6 +10,7 @@ import drawer from './drawer/reducer';
 import commentsReducer from './Comments/reducer';
 import activeSearches from './ActiveSearches/reducer';
 import searchReducer from './SearchIndexes/reducer';
+import detailReducer from './Detail/reducer';
 
 export const appReducers = {
   filters: filterReducer,
@@ -18,6 +19,7 @@ export const appReducers = {
   simpleValues,
   drawer,
   themeSource,
+  detail: detailReducer,
 };
 
 const myReducers = {

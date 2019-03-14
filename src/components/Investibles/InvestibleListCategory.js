@@ -5,7 +5,6 @@ import InvestibleListItem from './InvestibleListItem';
 import InvestibleListQuickAdd from './InvestibleListQuickAdd';
 import { reverseDateComparator, combineComparators } from '../../utils/comparators';
 
-
 class InvestibleListCategory extends React.PureComponent {
   getSortedInvestiblesList(investibles) {
     const unsorted = investibles && investibles.map ? investibles : [];
@@ -18,26 +17,45 @@ class InvestibleListCategory extends React.PureComponent {
   }
 
   getListItems() {
-    const { user, teamId, investibles } = this.props;
+    const { investibles } = this.props;
     const sortedInvestibles = this.getSortedInvestiblesList(investibles);
-    const marketPresence = user.market_presence;
     return sortedInvestibles.map((element, index) => (
       <InvestibleListItem
         key={index}
         investible={element}
-        teamId={teamId}
-        sharesAvailable={marketPresence.quantity}
+        onClickInvestible={() => this.handleClickInvestible(element)}
       />
     ));
+  }
+
+  handleClickInvestible(investible) {
+    const { user, teamId, onClickInvestible } = this.props;
+    const { market_presence: { quantity } } = user;
+    onClickInvestible({
+      ...investible,
+      teamId,
+      sharesAvailable: quantity,
+    });
   }
 
   render() {
     const { teamId, marketId, category } = this.props;
     const items = this.getListItems();
-    const quickAddBox = <InvestibleListQuickAdd key="quickadd" category={category} teamId={teamId}
-                                                marketId={marketId}/>;
+    const quickAddBox = (
+      <InvestibleListQuickAdd
+        key="quickadd"
+        category={category}
+        teamId={teamId}
+        marketId={marketId}
+      />
+    );
+
     return (
-      <ItemListCategory items={items} title={category} quickAdd={quickAddBox}/>
+      <ItemListCategory
+        items={items}
+        title={category}
+        quickAdd={quickAddBox}
+      />
     );
   }
 }
@@ -46,8 +64,9 @@ InvestibleListCategory.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
   category: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
-  user: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired, //eslint-disable-line
   teamId: PropTypes.string.isRequired,
+  onClickInvestible: PropTypes.func.isRequired,
 };
 
 export default InvestibleListCategory;

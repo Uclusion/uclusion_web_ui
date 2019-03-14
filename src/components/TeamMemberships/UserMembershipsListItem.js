@@ -1,6 +1,8 @@
 /* eslint-disable react/forbid-prop-types */
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import {
   Card,
   Typography,
@@ -19,6 +21,8 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
 import MemberList from './MemberList';
 import InvestiblesList from './InvestiblesList';
+import { getCurrentUser } from '../../store/Users/reducer';
+import { showInvestibleDetail } from '../../store/Detail/actions';
 
 const styles = theme => ({
   root: {
@@ -68,12 +72,15 @@ function UserMembershipsListItem(props) {
   const [tabIndex, setTabIndex] = useState(0);
   const [investiblesForTeam, setInvestiblesForTeam] = useState(undefined);
   const {
+    user,
     team,
     investibles,
     marketId,
     classes,
+    showInvestibleDetail,
   } = props;
   const {
+    team_id: teamId,
     name,
     description,
     shared_quantity,
@@ -82,6 +89,7 @@ function UserMembershipsListItem(props) {
     quantity,
     last_investment_updated_at,
   } = team;
+  const { market_presence: { quantity: sharesAvailable } } = user;
 
   const lastInvestDate = moment(last_investment_updated_at).format('MM/DD/YYYY hh:mm A');
 
@@ -93,6 +101,14 @@ function UserMembershipsListItem(props) {
     processed.quantity = marketPresence.quantity;
     processed.quantityInvested = marketPresence.quantity_invested;
     return processed;
+  }
+
+  function handleClickInvestible(investible) {
+    showInvestibleDetail({
+      ...investible,
+      teamId,
+      sharesAvailable,
+    });
   }
 
   useEffect(() => {
@@ -190,6 +206,7 @@ function UserMembershipsListItem(props) {
           ) : (
             <InvestiblesList
               investibles={investiblesForTeam}
+              onClickInvestible={handleClickInvestible}
             />
           )}
         </div>
@@ -211,4 +228,15 @@ UserMembershipsListItem.propTypes = {
   width: PropTypes.string.isRequired,
 };
 
-export default injectIntl(withWidth()(withStyles(styles)(withMarketId(UserMembershipsListItem))));
+const mapStateToProps = state => ({
+  user: getCurrentUser(state.usersReducer),
+  investibleDetail: state.detail.investible,
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+  showInvestibleDetail,
+}, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(
+  injectIntl(withWidth()(withStyles(styles)(withMarketId(UserMembershipsListItem)))),
+);

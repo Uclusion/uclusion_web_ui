@@ -17,7 +17,8 @@ const styles = theme => ({
     width: '100%',
   },
   tab: {
-    minWidth: 'auto',
+    minWidth: 'unset',
+    maxWidth: 'unset',
     flex: 1,
   },
   tabBar: {

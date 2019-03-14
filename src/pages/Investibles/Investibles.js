@@ -133,11 +133,13 @@ function InvestiblesPage(props) {
               investibles={currentInvestibleList}
               categories={categories}
             />
+            {investibleDetail.data && (
             <InvestibleDetail
               investible={investibleDetail.data}
               show={investibleDetail.show}
               onClose={() => dispatch(hideInvestibleDetail())}
             />
+            )}
           </div>
         )}
       </Activity>

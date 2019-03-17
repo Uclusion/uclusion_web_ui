@@ -3,6 +3,8 @@ import {
   HIDE_INVESTIBLE_DETAIL,
   SHOW_USER_DETAIL,
   HIDE_USER_DETAIL,
+  UPDATE_INVESTIBLE_DETAIL_INVESTMENT,
+
 } from './actions';
 
 const initialState = {
@@ -38,6 +40,21 @@ export default (state = initialState, action) => {
         },
       };
 
+    case UPDATE_INVESTIBLE_DETAIL_INVESTMENT:
+      if (state.investible && state.investible.data.id === payload.investible_id) {
+        const newInvestible = {
+          ...state.investible.data,
+          current_user_investment: payload.current_user_investment
+        };
+        return {
+          ...state,
+          investible: {
+            show: state.investible.show,
+            data: newInvestible,
+          },
+        };
+      }
+      return state;
     case SHOW_USER_DETAIL:
       return {
         ...state,

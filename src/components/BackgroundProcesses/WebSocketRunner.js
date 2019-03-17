@@ -21,7 +21,7 @@ class WebSocketRunner {
         case 'MARKET_INVESTIBLE_UPDATED':
         case 'MARKET_INVESTIBLE_CREATED':
           this.dispatch(fetchInvestibles({
-            marketId: payload.sub_object_id,
+            marketId: payload.indirect_object_id,
             idList: [payload.object_id],
           }));
           break;

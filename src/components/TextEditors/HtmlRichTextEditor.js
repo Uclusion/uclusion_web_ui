@@ -12,7 +12,8 @@ import Html from 'slate-html-serializer';
 import PropTypes from 'prop-types';
 import { rules } from './SlateEditors/html_rules';
 import RichTextEditor from './SlateEditors/RichTextEditor';
-
+import { ERROR, sendIntlMessage } from '../../utils/userMessage';
+import withAppConfigs from '../../utils/withAppConfigs';
 
 class HtmlRichTextEditor extends React.Component {
   constructor(props) {
@@ -37,13 +38,18 @@ class HtmlRichTextEditor extends React.Component {
   }
 
   onChange = ({ value }) => {
-    const { readOnly, onChange } = this.props;
+    const { readOnly, onChange, appConfig } = this.props;
     if (!readOnly) {
       // When the document changes, save the serialized HTML to Local Storage.
       if (value.document !== this.state.value.document) {
         const string = this.html.serialize(value);
+        // check if we're outside of our 350K limit. If so, throw an error to the ui
+        // and ignore the update
+        if (string.length > appConfig.maxRichTextEditorSize) {
+          sendIntlMessage(ERROR, { id: 'editBoxTooManyBytes' });
+        }
         // call the parent onChange with the string html value
-        // emulate material ui field's onchange symantics
+        // in order emulate material ui field's onchange symantics
         if (onChange) {
           const changeUpdate = { target: { value: string } };
           console.log(changeUpdate);
@@ -58,9 +64,10 @@ class HtmlRichTextEditor extends React.Component {
   // Render the editor.
   render() {
     const { readOnly } = this.props;
+    const { value } = this.state;
     return (
       <RichTextEditor
-        value={this.state.value}
+        value={value}
         onChange={this.onChange}
         readOnly={readOnly}
       />
@@ -74,4 +81,4 @@ HtmlRichTextEditor.propTypes = {
   onChange: PropTypes.func,
 };
 
-export default HtmlRichTextEditor;
+export default withAppConfigs(HtmlRichTextEditor);

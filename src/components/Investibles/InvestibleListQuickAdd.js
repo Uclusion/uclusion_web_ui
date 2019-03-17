@@ -8,6 +8,8 @@ import { bindActionCreators } from 'redux';
 import { createMarketInvestible } from '../../store/MarketInvestibles/actions';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
+import withAppConfigs from '../../utils/withAppConfigs';
+import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 
 const styles = theme => ({
 
@@ -52,12 +54,18 @@ class InvestibleListQuickAdd extends React.PureComponent {
 
   addOnClick = (addSubmitOnClick) => {
     const {
-      dispatch, marketId, teamId, category, userPermissions, intl
+      dispatch, marketId, teamId, category, userPermissions, intl, appConfig
     } = this.props;
+
+    const { title, description } = this.state;
     const { canInvest } = userPermissions;
     const payload = {
-      marketId, category, teamId, canInvest, title: this.state.title, description: this.state.description,
+      marketId, category, teamId, canInvest, title, description,
     };
+    if (description.length > appConfig.maxRichTextEditorSize){
+      sendIntlMessage(ERROR, { id: 'investibleDescriptionTooManyBytes' });
+      return;
+    }
     dispatch(createMarketInvestible(payload));
     addSubmitOnClick();
     this.setState({ title: '', description: intl.formatMessage({ id: 'descriptionBody' }) });
@@ -72,12 +80,11 @@ class InvestibleListQuickAdd extends React.PureComponent {
       addSubmitOnClick,
       addCancelOnClick,
     } = this.props;
-    //console.log(this.state.description);
 
+    const { description } = this.state;
     if (!visible) {
       return null;
     }
-
     return (
       <form noValidate autoComplete="off">
         <Paper className={classes.container}>
@@ -89,9 +96,10 @@ class InvestibleListQuickAdd extends React.PureComponent {
             defaultValue=""
             margin="normal"
             fullWidth
+            inputProps={ { maxlength: 255 } }
             onChange={this.handleChange('title')}
           />
-          <HtmlRichTextEditor value={this.state.description} onChange={this.handleChange('description')}/>
+          <HtmlRichTextEditor value={description} onChange={this.handleChange('description')}/>
         </Paper>
         <div className={classes.actionContainer}>
           <Button
@@ -130,4 +138,4 @@ function mapDispatchToProps(dispatch) {
   return Object.assign({ dispatch }, bindActionCreators({ createMarketInvestible }, dispatch));
 }
 
-export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, { withTheme: true })(withUserAndPermissions(InvestibleListQuickAdd))));
+export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, { withTheme: true })(withUserAndPermissions(withAppConfigs(InvestibleListQuickAdd)))));

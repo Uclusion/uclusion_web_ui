@@ -76,7 +76,7 @@ class InvestibleInvest extends React.PureComponent {
         [name]: value,
       });
     }
-  }
+  };
 
   render() {
     const {

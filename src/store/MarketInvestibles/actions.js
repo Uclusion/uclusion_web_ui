@@ -4,6 +4,7 @@ import { getClient } from '../../config/uclusionClient';
 import { sendIntlMessage, ERROR, SUCCESS } from '../../utils/userMessage';
 import { updateInChunks } from '../reducer_helpers';
 import { receiveMarketCategories } from '../Markets/actions';
+import { updateInvestibleDetailInvestment } from '../Detail/actions';
 
 export const RECEIVE_INVESTIBLES = 'RECEIVE_INVESTIBLES';
 export const INVEST_INVESTIBLE = 'INVEST_INVESTIBLE';
@@ -76,6 +77,7 @@ export const createInvestment = (params = {}) => (dispatch) => {
     .then((investment) => {
       dispatch(investmentCreated(investment));
       sendIntlMessage(SUCCESS, { id: 'investmentSucceeded' }, { shares: params.quantity });
+      dispatch(updateInvestibleDetailInvestment(investment));
       dispatch(fetchUser({ marketId: params.marketId }));
     }).catch((error) => {
       console.error(error);

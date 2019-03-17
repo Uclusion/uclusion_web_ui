@@ -16,6 +16,7 @@ const config = {
     },
     locale: 'en',
   },
+  maxRichTextEditorSize: 400000,
   drawer_width: 256,
   locales,
   themes,

@@ -550,7 +550,7 @@ class RichTextEditor extends React.Component {
       }
       return;
     }
-//    console.log(text)
+    // console.log(text)
     if (type === 'text') {
       if (!isUrl(text)) return next();
       if (this.hasLinks()) {

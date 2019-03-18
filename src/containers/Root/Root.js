@@ -65,12 +65,11 @@ Root.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const { locale, themeSource, simpleValues } = state;
+  const { locale, themeSource } = state;
 
   return {
     locale,
     themeSource,
-    simpleValues,
   };
 };
 

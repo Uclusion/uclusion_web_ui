@@ -170,7 +170,7 @@ function LoginModal(props) {
   }
 
   function loginAnonymous() {
-    const { dispatch, webSocket, history } = props;
+    const { dispatch, history, webSocket } = props;
     const loginParams = getLoginParams();
     const authorizer = new AnonymousAuthorizer(loginParams);
     authorizer.doPostAuthorize().then((resolve) => {
@@ -182,9 +182,11 @@ function LoginModal(props) {
     });
   }
 
-  const { intl, classes, ...other } = props;
+  const {
+    intl, classes, open,
+  } = props;
   return (
-    <Dialog onClose={() => null} aria-labelledby="simple-dialog-title" {...other}>
+    <Dialog onClose={() => null} aria-labelledby="simple-dialog-title" open={open}>
       <DialogTitle id="simple-dialog-title">
         {allowChangePassword ? 'Change Password' : 'Log In'}
       </DialogTitle>
@@ -299,6 +301,7 @@ LoginModal.propTypes = {
   history: PropTypes.object.isRequired,
   webSocket: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
+  open: PropTypes.bool.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

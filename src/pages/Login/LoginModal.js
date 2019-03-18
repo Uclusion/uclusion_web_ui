@@ -16,7 +16,6 @@ import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import appConfig from '../../config/config';
-import { setUclusionLocalStorageItem } from '../../components/utils';
 import { getAuthMarketId, formCurrentMarketLink, getMarketId } from '../../utils/marketIdPathFunctions';
 import { postAuthTasks } from '../../utils/fetchFunctions';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
@@ -59,13 +58,19 @@ function LoginModal(props) {
     currentPage.search = authMarketId && includeAuthMarket ? `authMarketId=${authMarketId}` : '';
     return currentPage.toString();
   }
+  const getPostAuthPage = () => {
+    const currentPage = new URL(window.location.href);
+    currentPage.pathname = '/post_auth';
+    currentPage.search = '';
+    return currentPage.toString();
+  };
   function getLoginParams() {
     const marketId = getAuthMarketId();
     const parsed = new URL(window.location.href);
     const page = parsed.searchParams.get('destinationPage') || 'investibles';
     const newLogin = parsed.searchParams.get('newLogin');
     const destinationPage = getDestinationPage(page, true);
-    const redirectUrl = getDestinationPage('post_auth', false);
+    const redirectUrl = getPostAuthPage();
     const pageUrl = window.location.href;
     const uclusionUrl = appConfig.api_configuration.baseURL;
     console.log(`page = ${page}`);

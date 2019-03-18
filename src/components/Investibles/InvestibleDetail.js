@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { injectIntl } from 'react-intl';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import {
@@ -52,7 +51,6 @@ class InvestibleDetail extends React.PureComponent {
   render() {
     const {
       classes,
-      intl,
       investible = {},
       show = false,
       onClose,
@@ -90,10 +88,9 @@ class InvestibleDetail extends React.PureComponent {
 
 InvestibleDetail.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
-  intl: PropTypes.object.isRequired, //eslint-disable-line
   investible: PropTypes.object.isRequired, //eslint-disable-line
   show: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
 };
 
-export default injectIntl(withStyles(styles)(InvestibleDetail));
+export default withStyles(styles)(InvestibleDetail);

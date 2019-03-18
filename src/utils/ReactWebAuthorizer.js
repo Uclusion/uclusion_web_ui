@@ -16,10 +16,8 @@ const getLocalAuthInfo = () => {
 };
 
 const getPostAuthPage = () => {
-  const marketId = getAuthMarketId();
-  const newPath = `/${marketId}/post_auth`;
   const currentPage = new URL(window.location.href);
-  currentPage.pathname = newPath;
+  currentPage.pathname = '/post_auth';
   return currentPage.toString();
 };
 
@@ -50,7 +48,7 @@ class ReactWebAuthorizer {
   getAuthorizer() {
     const marketId = getAuthMarketId();
     const authInfo = getLocalAuthInfo();
-    if (!authInfo || !authInfo.type) {
+    if (authInfo === null || !authInfo || !authInfo.type) {
       doGenericAuthRedirect(marketId);
     }
     let authorizer = null;

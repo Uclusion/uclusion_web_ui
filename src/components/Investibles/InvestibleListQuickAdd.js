@@ -90,16 +90,14 @@ class InvestibleListQuickAdd extends React.PureComponent {
         <Paper className={classes.container}>
           <TextField
             className={classes.textField}
-            InputProps={{ className: classes.textInput }}
             id="title"
             placeholder={intl.formatMessage({ id: 'titleLabel' })}
             defaultValue=""
             margin="normal"
             fullWidth
-            inputProps={ { maxlength: 255 } }
             onChange={this.handleChange('title')}
           />
-          <HtmlRichTextEditor value={description} onChange={this.handleChange('description')}/>
+          <HtmlRichTextEditor value={description} onChange={this.handleChange('description')} />
         </Paper>
         <div className={classes.actionContainer}>
           <Button

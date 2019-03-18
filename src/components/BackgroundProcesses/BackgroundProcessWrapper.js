@@ -27,7 +27,8 @@ function withBackgroundProcesses(WrappedComponent) {
     }
 
     render() {
-      return <WrappedComponent {...this.props} webSocket={this.getWebSocket()} />;
+      const { dispatch, ...passThroughProps } = this.props;
+      return <WrappedComponent {...passThroughProps} webSocket={this.getWebSocket()} />;
     }
   }
 

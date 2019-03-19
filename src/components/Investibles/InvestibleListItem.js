@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { injectIntl } from 'react-intl';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
@@ -18,6 +19,9 @@ const styles = theme => ({
     '&:last-child': {
       marginBottom: 0,
     },
+  },
+  link: {
+    textDecoration: 'none',
   },
   flex: {
     display: 'flex',
@@ -51,45 +55,42 @@ class InvestibleListItem extends React.PureComponent {
       classes,
       intl,
       investible,
-      onClickInvestible,
       userPermissions,
     } = this.props;
     const { canDeleteMarketInvestible } = userPermissions;
 
     return (
       <Card className={classes.card}>
-        <Typography component="div">
-          <div
-            className={classNames(classes.flex, classes.investibleName)}
-            role="presentation"
-            onClick={onClickInvestible}
-          >
-            {investible.name}
-            {canDeleteMarketInvestible && <InvestibleDelete investible={investible} />}
-          </div>
-          <div className={classNames(classes.flex, classes.row)}>
-            <span className={classes.stageLabel}>
-              {intl.formatMessage({ id: 'currentStageLabel' })}
-            </span>
-            <div className={classes.stageContent}>
-              <div>{intl.formatMessage({ id: investible.stage })}</div>
-              <div className={classes.numSharesText}>
-                {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })}
+        <Link className={classes.link} to={`#investible:${investible.id}`}>
+          <Typography component="div">
+            <div className={classNames(classes.flex, classes.investibleName)}>
+              {investible.name}
+              {canDeleteMarketInvestible && <InvestibleDelete investible={investible} />}
+            </div>
+            <div className={classNames(classes.flex, classes.row)}>
+              <span className={classes.stageLabel}>
+                {intl.formatMessage({ id: 'currentStageLabel' })}
+              </span>
+              <div className={classes.stageContent}>
+                <div>{intl.formatMessage({ id: investible.stage })}</div>
+                <div className={classes.numSharesText}>
+                  {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })}
+                </div>
               </div>
             </div>
-          </div>
-          <div className={classNames(classes.flex, classes.row)}>
-            <span className={classes.stageLabel}>
-              {intl.formatMessage({ id: 'nextStageLabel' })}
-            </span>
-            <div className={classes.stageContent}>
-              <div>{intl.formatMessage({ id: investible.next_stage })}</div>
-              <div className={classes.numSharesText}>
-                {intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })}
+            <div className={classNames(classes.flex, classes.row)}>
+              <span className={classes.stageLabel}>
+                {intl.formatMessage({ id: 'nextStageLabel' })}
+              </span>
+              <div className={classes.stageContent}>
+                <div>{intl.formatMessage({ id: investible.next_stage })}</div>
+                <div className={classes.numSharesText}>
+                  {intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })}
+                </div>
               </div>
             </div>
-          </div>
-        </Typography>
+          </Typography>
+        </Link>
       </Card>
     );
   }
@@ -99,12 +100,7 @@ InvestibleListItem.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired, //eslint-disable-line
   investible: PropTypes.object.isRequired, //eslint-disable-line
-  onClickInvestible: PropTypes.func,
   userPermissions: PropTypes.object.isRequired, //eslint-disable-line
-};
-
-InvestibleListItem.defaultProps = {
-  onClickInvestible: () => null,
 };
 
 export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItem)));

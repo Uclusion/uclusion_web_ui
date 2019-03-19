@@ -11,18 +11,21 @@ import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
-import { hideInvestibleDetail } from '../../store/Detail/actions';
+import UserDetail from '../../components/TeamMemberships/UserDetail';
 
 function UserMemberships(props) {
   const [teams, setTeams] = useState(undefined);
+  const [allUsers, setAllUsers] = useState({});
   const {
     intl,
     userPermissions,
     marketId,
     dispatch,
-    investibleDetail,
+    investibles,
+    history,
   } = props;
   const { canListAccountTeams } = userPermissions;
+  const { location: { hash, pathname } } = history;
 
   function getMarketInvestibles() {
     const { marketId, investibles } = props;
@@ -31,6 +34,14 @@ function UserMemberships(props) {
     }
 
     return undefined;
+  }
+
+  function usersFetched(users) {
+    const newUsers = { ...allUsers };
+    users.forEach((user) => {
+      newUsers[user.id] = user;
+    });
+    setAllUsers(newUsers);
   }
 
   // Second argument prevents re-running on teams property changes - only for changes in listed
@@ -54,17 +65,47 @@ function UserMemberships(props) {
     return () => {};
   }, [marketId]);
 
+  let investibleDetail = null;
+  let userDetail = null;
+  if (hash) {
+    const hashPart = hash.substr(1).split(':');
+    if (hashPart.length >= 2) {
+      const hashKey = hashPart[0];
+      const hashValue = hashPart[1];
+      if (hashKey === 'investible') {
+        const allInvestibles = investibles[marketId] || [];
+        for (const investible of allInvestibles) { //eslint-disable-line
+          if (investible.id === hashValue) {
+            investibleDetail = investible;
+            break;
+          }
+        }
+      } else if (hashKey === 'user') {
+        userDetail = allUsers[hashValue];
+      }
+    }
+  }
+
   return (
     <Activity
       isLoading={teams === undefined}
       containerStyle={{ overflow: 'hidden' }}
       title={intl.formatMessage({ id: 'teamsHeader' })}
     >
-      {teams && <UserMembershipsList teams={teams} investibles={getMarketInvestibles()} />}
+      {teams && (
+        <UserMembershipsList
+          teams={teams}
+          investibles={getMarketInvestibles()}
+          usersFetched={usersFetched}
+        />
+      )}
       <InvestibleDetail
-        investible={investibleDetail.data}
-        show={investibleDetail.show}
-        onClose={() => dispatch(hideInvestibleDetail())}
+        investible={investibleDetail}
+        onClose={() => history.push(pathname)}
+      />
+      <UserDetail
+        user={userDetail}
+        onClose={() => history.push(pathname)}
       />
     </Activity>
   );
@@ -79,7 +120,6 @@ UserMemberships.propTypes = {
 
 const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
-  investibleDetail: state.detail.investible,
 });
 
 function mapDispatchToProps(dispatch) {

@@ -7,7 +7,6 @@ import Typography from '@material-ui/core/Typography';
 import ItemList from '../Lists/ItemList';
 import InvestibleListCategory from './InvestibleListCategory';
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
-import { showInvestibleDetail } from '../../store/Detail/actions';
 
 class InvestibleList extends React.PureComponent {
   constructor(props) {
@@ -30,7 +29,7 @@ class InvestibleList extends React.PureComponent {
   };
 
   createCategoryLists = (categoryNames, categoryMap, marketId, teamId, user) => {
-    const { marketSearches, showInvestibleDetail } = this.props;
+    const { marketSearches } = this.props;
     const hasSearchActive = marketSearches[marketId] && marketSearches[marketId].query !== '';
     const sortedNames = categoryNames.sort(); // put categories in alpha sorted order for now
     const searchFiltered = sortedNames.filter(name => !hasSearchActive || categoryMap.has(name));
@@ -45,7 +44,6 @@ class InvestibleList extends React.PureComponent {
           user={user}
           teamId={teamId}
           marketId={marketId}
-          onClickInvestible={showInvestibleDetail}
         />
       );
     });
@@ -79,10 +77,6 @@ const mapStateToProps = state => ({
   marketSearches: getActiveInvestibleSearches(state.activeSearches),
 });
 
-const mapDispatchToProps = dispatch => bindActionCreators({
-  showInvestibleDetail,
-}, dispatch);
-
 InvestibleList.propTypes = {
   intl: PropTypes.object.isRequired, //eslint-disable-line
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -91,7 +85,6 @@ InvestibleList.propTypes = {
   user: PropTypes.object.isRequired, //eslint-disable-line
   marketSearches: PropTypes.object.isRequired, //eslint-disable-line
   marketId: PropTypes.string.isRequired,
-  showInvestibleDetail: PropTypes.func.isRequired,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(InvestibleList));
+export default connect(mapStateToProps)(injectIntl(InvestibleList));

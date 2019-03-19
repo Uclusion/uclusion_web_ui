@@ -22,7 +22,6 @@ import { withMarketId } from '../PathProps/MarketId';
 import MemberList from './MemberList';
 import InvestiblesList from './InvestiblesList';
 import { getCurrentUser } from '../../store/Users/reducer';
-import { showInvestibleDetail } from '../../store/Detail/actions';
 
 const styles = theme => ({
   root: {
@@ -77,7 +76,7 @@ function UserMembershipsListItem(props) {
     investibles,
     marketId,
     classes,
-    showInvestibleDetail,
+    usersFetched,
   } = props;
   const {
     team_id: teamId,
@@ -103,14 +102,6 @@ function UserMembershipsListItem(props) {
     return processed;
   }
 
-  function handleClickInvestible(investible) {
-    showInvestibleDetail({
-      ...investible,
-      teamId,
-      sharesAvailable,
-    });
-  }
-
   useEffect(() => {
     let globalClient;
     const clientPromise = getClient();
@@ -121,6 +112,7 @@ function UserMembershipsListItem(props) {
       const processedUsers = response.users.map(user => processUser(user));
       _.remove(processedUsers, user => user.type !== 'USER');
       setUsers(processedUsers);
+      usersFetched(processedUsers);
       return globalClient.teams.investments(team.id, marketId);
     }).then((investmentsDict) => {
       setInvestiblesForTeam(investibles.filter(({ id }) => id in investmentsDict));
@@ -206,7 +198,6 @@ function UserMembershipsListItem(props) {
           ) : (
             <InvestiblesList
               investibles={investiblesForTeam}
-              onClickInvestible={handleClickInvestible}
             />
           )}
         </div>
@@ -226,6 +217,7 @@ UserMembershipsListItem.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   classes: PropTypes.object.isRequired,
   width: PropTypes.string.isRequired,
+  usersFetched: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -233,10 +225,6 @@ const mapStateToProps = state => ({
   investibleDetail: state.detail.investible,
 });
 
-const mapDispatchToProps = dispatch => bindActionCreators({
-  showInvestibleDetail,
-}, dispatch);
-
-export default connect(mapStateToProps, mapDispatchToProps)(
+export default connect(mapStateToProps)(
   injectIntl(withWidth()(withStyles(styles)(withMarketId(UserMembershipsListItem)))),
 );

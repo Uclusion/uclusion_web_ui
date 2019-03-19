@@ -1,6 +1,7 @@
 /* eslint-disable react/forbid-prop-types */
 import PropTypes from 'prop-types';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   Paper,
   Typography,
@@ -12,6 +13,9 @@ const styles = theme => ({
   paper: {
     padding: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
+  },
+  link: {
+    textDecoration: 'none',
   },
   content: {
     display: 'flex',
@@ -33,17 +37,19 @@ class MemberListItem extends React.PureComponent {
 
     return (
       <Paper className={classes.paper}>
-        <div className={classes.content}>
-          <div className={classes.infoContainer}>
-            <Typography className={classes.username}>{name}</Typography>
-            <Typography>
-              {`uShares available: ${quantity}`}
-            </Typography>
-            <Typography>
-              {`uShares spent: ${quantityInvested}`}
-            </Typography>
+        <Link className={classes.link} to={`#user:${user.id}`}>
+          <div className={classes.content}>
+            <div className={classes.infoContainer}>
+              <Typography className={classes.username}>{name}</Typography>
+              <Typography>
+                {`uShares available: ${quantity}`}
+              </Typography>
+              <Typography>
+                {`uShares spent: ${quantityInvested}`}
+              </Typography>
+            </div>
           </div>
-        </div>
+        </Link>
       </Paper>
     );
   }

@@ -7,8 +7,6 @@ import {
   Typography,
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
-import InvestibleListItemTabs from './InvestibleListItemTabs';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 
 const styles = theme => ({
   root: {
@@ -40,18 +38,18 @@ const styles = theme => ({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  investibleName: {
+  userName: {
     paddingTop: theme.spacing.unit * 1.25,
     paddingBottom: theme.spacing.unit,
     fontWeight: 'bold',
   },
 });
 
-class InvestibleDetail extends React.PureComponent {
+class UserDetail extends React.PureComponent {
   componentDidUpdate() {
-    const { investible } = this.props;
-    if (investible) {
-      this.lastInvestible = investible;
+    const { user } = this.props;
+    if (user) {
+      this.lastUser = user;
     }
   }
 
@@ -60,8 +58,8 @@ class InvestibleDetail extends React.PureComponent {
       classes,
       onClose,
     } = this.props;
-    const show = !!this.props.investible;
-    const investible = this.props.investible || this.lastInvestible || {};
+    const show = !!this.props.user;
+    const user = this.props.user || this.lastUser || {};
 
     return (
       <div
@@ -71,34 +69,30 @@ class InvestibleDetail extends React.PureComponent {
         })}
       >
         <div className={classes.flex}>
-          <Typography variant="h6" className={classes.investibleName}>
-            {investible.name}
+          <Typography variant="h6" className={classes.userName}>
+            {user.name || 'Anonymous'}
           </Typography>
           <IconButton aria-label="Close" onClick={onClose}>
             <CloseIcon />
           </IconButton>
         </div>
         <div style={{ flex: 1, overflow: 'auto' }}>
-          <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={investible.description} readOnly />
-          <InvestibleListItemTabs
-            name={investible.name}
-            quantity={investible.quantity}
-            investibleId={investible.id}
-            marketId={investible.market_id}
-            teamId={investible.teamId}
-            sharesAvailable={investible.sharesAvailable}
-            currentUserInvestment={investible.current_user_investment}
-          />
+          <Typography>
+            {`uShares available: ${user.quantity}`}
+          </Typography>
+          <Typography>
+            {`uShares spent: ${user.quantityInvested}`}
+          </Typography>
         </div>
       </div>
     );
   }
 }
 
-InvestibleDetail.propTypes = {
+UserDetail.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
-  investible: PropTypes.object.isRequired, //eslint-disable-line
+  user: PropTypes.object.isRequired, //eslint-disable-line
   onClose: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(InvestibleDetail);
+export default withStyles(styles)(UserDetail);

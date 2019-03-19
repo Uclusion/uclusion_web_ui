@@ -18,7 +18,6 @@ import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer'
 import { fetchCommentList } from '../../store/Comments/actions';
 import { getComments } from '../../store/Comments/reducer';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
-import { hideInvestibleDetail } from '../../store/Detail/actions';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -100,16 +99,35 @@ function InvestiblesPage(props) {
     allCategories,
     marketId,
     user,
-    history: { location: { pathname } },
+    history,
     classes,
-    investibleDetail,
+    investibles,
     dispatch,
   } = props;
+  const { location: { hash, pathname } } = history;
 
   const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
   const currentInvestibleList = getCurrentInvestibleList();
 
   const categories = getMarketCategories(allCategories, marketId);
+
+  let investibleDetail = null;
+  if (hash) {
+    const hashPart = hash.substr(1).split(':');
+    if (hashPart.length >= 2) {
+      const hashKey = hashPart[0];
+      const hashValue = hashPart[1];
+      if (hashKey === 'investible') {
+        const allInvestibles = investibles[marketId] || [];
+        for (const investible of allInvestibles) { //eslint-disable-line
+          if (investible.id === hashValue) {
+            investibleDetail = investible;
+            break;
+          }
+        }
+      }
+    }
+  }
 
   // TODO: give choice of teamId instead of default
   return (
@@ -133,13 +151,10 @@ function InvestiblesPage(props) {
               investibles={currentInvestibleList}
               categories={categories}
             />
-            {investibleDetail.data && (
             <InvestibleDetail
-              investible={investibleDetail.data}
-              show={investibleDetail.show}
-              onClose={() => dispatch(hideInvestibleDetail())}
+              investible={investibleDetail}
+              onClose={() => history.push(pathname)}
             />
-            )}
           </div>
         )}
       </Activity>
@@ -165,7 +180,6 @@ InvestiblesPage.propTypes = {
   activeInvestibleSearches: PropTypes.object,
   history: PropTypes.object.isRequired,
   userPermissions: PropTypes.object.isRequired,
-  investibleDetail: PropTypes.object,
 };
 
 const mapStateToProps = state => ({
@@ -174,7 +188,6 @@ const mapStateToProps = state => ({
   comments: getComments(state.commentsReducer),
   user: getCurrentUser(state.usersReducer),
   activeInvestibleSearches: getActiveInvestibleSearches(state.activeSearches),
-  investibleDetail: state.detail.investible,
 });
 
 function mapDispatchToProps(dispatch) {

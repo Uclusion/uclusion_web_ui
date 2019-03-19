@@ -23,19 +23,8 @@ class InvestibleListCategory extends React.PureComponent {
       <InvestibleListItem
         key={index}
         investible={element}
-        onClickInvestible={() => this.handleClickInvestible(element)}
       />
     ));
-  }
-
-  handleClickInvestible(investible) {
-    const { user, teamId, onClickInvestible } = this.props;
-    const { market_presence: { quantity } } = user;
-    onClickInvestible({
-      ...investible,
-      teamId,
-      sharesAvailable: quantity,
-    });
   }
 
   render() {
@@ -66,7 +55,6 @@ InvestibleListCategory.propTypes = {
   marketId: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired, //eslint-disable-line
   teamId: PropTypes.string.isRequired,
-  onClickInvestible: PropTypes.func.isRequired,
 };
 
 export default InvestibleListCategory;

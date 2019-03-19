@@ -16,7 +16,12 @@ const styles = theme => ({
 
 class UserMembershipsList extends React.PureComponent {
   render() {
-    const { teams, investibles, classes } = this.props;
+    const {
+      teams,
+      investibles,
+      classes,
+      usersFetched,
+    } = this.props;
     return (
       <div className={classes.root}>
         {teams.map(team => (
@@ -24,6 +29,7 @@ class UserMembershipsList extends React.PureComponent {
             key={team.id}
             team={team}
             investibles={investibles}
+            usersFetched={usersFetched}
           />
         ))}
       </div>
@@ -36,6 +42,7 @@ UserMembershipsList.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object.isRequired,
+  usersFetched: PropTypes.func.isRequired,
 };
 
 export default injectIntl(withStyles(styles)(UserMembershipsList));

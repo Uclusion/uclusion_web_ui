@@ -1,7 +1,6 @@
 /* eslint-disable react/forbid-prop-types */
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import {
   Card,
@@ -71,7 +70,6 @@ function UserMembershipsListItem(props) {
   const [tabIndex, setTabIndex] = useState(0);
   const [investiblesForTeam, setInvestiblesForTeam] = useState(undefined);
   const {
-    user,
     team,
     investibles,
     marketId,
@@ -79,7 +77,6 @@ function UserMembershipsListItem(props) {
     usersFetched,
   } = props;
   const {
-    team_id: teamId,
     name,
     description,
     shared_quantity,
@@ -88,7 +85,7 @@ function UserMembershipsListItem(props) {
     quantity,
     last_investment_updated_at,
   } = team;
-  const { market_presence: { quantity: sharesAvailable } } = user;
+;
 
   const lastInvestDate = moment(last_investment_updated_at).format('MM/DD/YYYY hh:mm A');
 

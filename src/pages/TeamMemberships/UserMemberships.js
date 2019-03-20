@@ -20,7 +20,6 @@ function UserMemberships(props) {
     intl,
     userPermissions,
     marketId,
-    dispatch,
     investibles,
     history,
   } = props;

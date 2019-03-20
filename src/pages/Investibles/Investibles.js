@@ -102,7 +102,6 @@ function InvestiblesPage(props) {
     history,
     classes,
     investibles,
-    dispatch,
   } = props;
   const { location: { hash, pathname } } = history;
 

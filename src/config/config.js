@@ -31,6 +31,7 @@ const config = {
     authorizer,
     baseURL: process.env.REACT_APP_UCLUSION_URL,
   },
+  version: process.env.REACT_APP_VERSION,
 };
 
 export default config;

@@ -27,12 +27,20 @@ const styles = theme => ({
   username: {
     fontWeight: 'bold',
   },
+  email: {
+    marginBottom: theme.spacing.unit,
+  },
 });
 
 class MemberListItem extends React.PureComponent {
   render() {
     const { user, classes } = this.props;
-    const { name = 'Anonymous', quantity, quantityInvested } = user;
+    const {
+      name = 'Anonymous',
+      email,
+      quantity,
+      quantityInvested,
+    } = user;
     // for now, don't bother rendering the TEAM user
 
     return (
@@ -41,6 +49,7 @@ class MemberListItem extends React.PureComponent {
           <div className={classes.content}>
             <div className={classes.infoContainer}>
               <Typography className={classes.username}>{name}</Typography>
+              <Typography className={classes.email}>{email}</Typography>
               <Typography>
                 {`uShares available: ${quantity}`}
               </Typography>

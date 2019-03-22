@@ -38,7 +38,12 @@ jobs:
           command: |
             cd ~/repo
             npm install
-
+      # TODO: THIS SHOULD REALLY CHANGE TO USE THE ENV FILE IN THE CONTEXT
+      - run:
+          name: Copy env file
+          command: |
+            cd ~/repo
+            cp stage.env .env
       - run:
           name: Build web ui
           command: |

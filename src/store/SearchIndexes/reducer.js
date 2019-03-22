@@ -171,7 +171,7 @@ function handleIndexDocumentDelete(serializedIndex, marketId, items) {
   if (!serializedIndex) {
     return undefined;
   }
-  const index = elasticlunr.load(serializedIndex);
+  const index = elasticlunr.Index.load(JSON.parse(serializedIndex));
   items.forEach((item) => { index.removeDocByRef(item); });
   return index;
 }

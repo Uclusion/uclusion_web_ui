@@ -90,7 +90,7 @@ class InvestibleListQuickAdd extends React.PureComponent {
         <Paper className={classes.container}>
           <TextField
             className={classes.textField}
-            InputProps={{ className: classes.textInput, maxlength: 255 }}
+            InputProps={{ className: classes.textInput, maxLength: 255 }}
             id="title"
             placeholder={intl.formatMessage({ id: 'titleLabel' })}
             defaultValue=""

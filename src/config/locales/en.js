@@ -200,6 +200,7 @@ const messages = defineMessages({
   authorizationInProgress: 'Logging you in...',
   commentHeaderFormat: '{name}: ({date})',
   // User messages
+  marketFetchFailed: 'There was a problem loading the market. Please try again',
   investmentFailed: 'There was a problem investing. Please try again.',
   investmentSucceeded: 'You have invested Ȗ{shares}.',
   teamsLoadFailed: 'There was a problem retrieving your Team Memberships. Please try again.',

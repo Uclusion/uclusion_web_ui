@@ -1,6 +1,7 @@
 import React from 'react';
 
 import LanguageIcon from '@material-ui/icons/Language';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import StyleIcon from '@material-ui/icons/Style';
 import Brightness2 from '@material-ui/icons/Brightness2';
 import Brightness7 from '@material-ui/icons/Brightness7';
@@ -89,6 +90,11 @@ const getMenuItems = (props) => {
     },
     {
       divider: true,
+    },
+    {
+      value: formCurrentMarketLink('about'),
+      primaryText: intl.formatMessage({ id: 'about' }),
+      leftIcon: <InfoOutlinedIcon/>
     },
     {
       primaryText: intl.formatMessage({ id: 'settings' }),

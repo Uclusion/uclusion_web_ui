@@ -45,6 +45,7 @@ function withUserAndPermissions(WrappedComponent) {
       const canDeleteOwnComments = apisObject.comments_delete || false;
       const canDeleteOthersComments = apisObject.comments_delete && opObject.delete_others_comment;
       const isGuest = !(apisObject.get_own_user || false);
+      const isMarketAdmin = canCategorize; // need a better definition of this but it works for now
       const canReadComments = apisObject.comments_get || false;
       return {
         canDeleteMarketInvestible,
@@ -57,6 +58,7 @@ function withUserAndPermissions(WrappedComponent) {
         isGuest,
         canReadComments,
         canCreateInvestible,
+        isMarketAdmin,
       };
     }
 

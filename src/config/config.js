@@ -32,6 +32,9 @@ const config = {
     baseURL: process.env.REACT_APP_UCLUSION_URL,
   },
   version: process.env.REACT_APP_VERSION,
+  uclusionSupportInfo: {
+    email: process.env.REACT_APP_UCLUSION_SUPPORT_EMAIL
+  }
 };
 
 export default config;

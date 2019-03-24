@@ -10,6 +10,7 @@ import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import InvestibleInvest from './InvestibleInvest';
 import CommentsList from './Comments/CommentsList';
 import { withBackgroundProcesses } from "../BackgroundProcesses/BackgroundProcessWrapper";
+import { getCurrentUser } from '../../store/Users/reducer';
 
 const styles = theme => ({
   paper: {
@@ -45,8 +46,7 @@ class InvestibleListItemTabs extends React.PureComponent {
       marketId,
       investibleId,
       intl,
-      teamId,
-      sharesAvailable,
+      user,
       currentUserInvestment,
       userPermissions,
     } = this.props;
@@ -70,11 +70,11 @@ class InvestibleListItemTabs extends React.PureComponent {
             label={intl.formatMessage({ id: 'commentsTab' })}
           />)}
         </Tabs>
-        {value === 0 && canInvest && (
+        {value === 0 && canInvest && user && (
           <InvestibleInvest
-            teamId={teamId}
+            teamId={user.default_team_id}
             marketId={marketId}
-            sharesAvailable={sharesAvailable}
+            sharesAvailable={user.market_presence.quantity}
             currentUserInvestment={currentUserInvestment}
             investibleId={investibleId}
           />
@@ -90,16 +90,14 @@ InvestibleListItemTabs.propTypes = {
   classes: PropTypes.object.isRequired,
   investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
-  teamId: PropTypes.string.isRequired,
-  sharesAvailable: PropTypes.number.isRequired,
+  user: PropTypes.object,
   currentUserInvestment: PropTypes.number.isRequired,
   userPermissions: PropTypes.object.isRequired,
-  upUser: PropTypes.object.isRequired,
 };
 
-function mapStateToProps(state){
-  return {};
-}
+const mapStateToProps = state => ({
+  user: getCurrentUser(state.usersReducer),
+});
 
 function mapDispatchToProps(dispatch){
   return { dispatch };

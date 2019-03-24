@@ -85,8 +85,6 @@ class InvestibleDetail extends React.PureComponent {
             quantity={investible.quantity}
             investibleId={investible.id}
             marketId={investible.market_id}
-            teamId={investible.teamId}
-            sharesAvailable={investible.sharesAvailable}
             currentUserInvestment={investible.current_user_investment}
           />
         </div>

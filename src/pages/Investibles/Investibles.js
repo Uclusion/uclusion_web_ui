@@ -32,7 +32,7 @@ const styles = theme => ({
 function InvestiblesPage(props) {
   const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
 
-  function getMarketInvestibles(){
+  function getMarketInvestibles() {
     const { marketId, investibles, allCategories } = props;
     if (marketId in investibles) {
       return investibles[marketId];
@@ -43,7 +43,7 @@ function InvestiblesPage(props) {
     return undefined;
   }
 
-  function getFilteredSearchList(marketInvestibles, searchResults){
+  function getFilteredSearchList(marketInvestibles, searchResults) {
     const selector = {};
     for (let x = 0; x < searchResults.length; x += 1) {
       selector[searchResults[x].ref] = true;
@@ -150,10 +150,12 @@ function InvestiblesPage(props) {
               investibles={currentInvestibleList}
               categories={categories}
             />
+            {investibleDetail && (
             <InvestibleDetail
               investible={investibleDetail}
               onClose={() => history.push(pathname)}
             />
+            )}
           </div>
         )}
       </Activity>

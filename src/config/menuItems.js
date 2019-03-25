@@ -1,30 +1,29 @@
 import React from 'react';
 
-import LanguageIcon from '@material-ui/icons/Language';
+// import LanguageIcon from '@material-ui/icons/Language';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-import StyleIcon from '@material-ui/icons/Style';
-import Brightness2 from '@material-ui/icons/Brightness2';
-import Brightness7 from '@material-ui/icons/Brightness7';
-import SettingsIcon from '@material-ui/icons/SettingsApplications';
+// import StyleIcon from '@material-ui/icons/Style';
+// import Brightness2 from '@material-ui/icons/Brightness2';
+// import Brightness7 from '@material-ui/icons/Brightness7';
+// import SettingsIcon from '@material-ui/icons/SettingsApplications';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import LockIcon from '@material-ui/icons/Lock';
 import ListIcon from '@material-ui/icons/List';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import GroupIcon from '@material-ui/icons/Group';
 import SecurityIcon from '@material-ui/icons/Security'
-import { themes } from './themes';
-import allLocales from './locales';
+// import { themes } from './themes';
+// import allLocales from './locales';
 import { formCurrentMarketLink } from '../utils/marketIdPathFunctions';
 import { getUclusionLocalStorageItem } from '../components/utils';
 
 const getMenuItems = (props) => {
   const {
-    locale,
-    updateTheme,
-    switchNightMode,
-    updateLocale,
+//    locale,
+//    updateTheme,
+//    updateLocale,
     intl,
-    themeSource,
+//    themeSource,
     isAuthMenu,
     handleSignOut,
     userPermissions,
@@ -33,22 +32,22 @@ const getMenuItems = (props) => {
   const { canCategorize } = userPermissions;
   const authInfo = getUclusionLocalStorageItem('auth');
 
-  const themeItems = themes.map(t => ({
+/*  const themeItems = themes.map(t => ({
     value: undefined,
     visible: true,
     primaryText: intl.formatMessage({ id: t.id }),
     onClick: () => { updateTheme(t.id); },
     leftIcon: <StyleIcon style={{ color: t.color }} />,
   }));
-
-  const localeItems = allLocales.map(l => ({
+*/
+/*  const localeItems = allLocales.map(l => ({
     value: undefined,
     visible: true,
     primaryText: intl.formatMessage({ id: l.locale }),
     onClick: () => { updateLocale(l.locale); },
     leftIcon: <LanguageIcon />,
   }));
-
+*/
   if (isAuthMenu) {
     return [
       {
@@ -60,12 +59,6 @@ const getMenuItems = (props) => {
   }
 
   return [
-    {
-      value: formCurrentMarketLink('Login'),
-      onClick: handleSignOut,
-      primaryText: intl.formatMessage({ id: 'sign_out' }),
-      leftIcon: <LockIcon />,
-    },
     {
       value: formCurrentMarketLink('investibles'),
       primaryText: intl.formatMessage({ id: 'investiblesMenu' }),
@@ -96,7 +89,8 @@ const getMenuItems = (props) => {
       primaryText: intl.formatMessage({ id: 'about' }),
       leftIcon: <InfoOutlinedIcon/>
     },
-    {
+  /*
+  {
       primaryText: intl.formatMessage({ id: 'settings' }),
       primaryTogglesNestedList: true,
       leftIcon: <SettingsIcon />,
@@ -117,10 +111,12 @@ const getMenuItems = (props) => {
         },
       ],
     },
+    */
     {
-      onClick: () => { switchNightMode(!themeSource.isNightModeOn); },
-      primaryText: intl.formatMessage({ id: themeSource.isNightModeOn ? 'day_mode' : 'night_mode' }),
-      leftIcon: themeSource.isNightModeOn ? <Brightness7 /> : <Brightness2 />,
+      value: formCurrentMarketLink('Login'),
+      onClick: handleSignOut,
+      primaryText: intl.formatMessage({ id: 'sign_out' }),
+      leftIcon: <LockIcon />,
     },
   ];
 };

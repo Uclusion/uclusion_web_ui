@@ -62,7 +62,8 @@ class InvestibleList extends React.PureComponent {
     const defaultCategoryName = intl.formatMessage({ id: 'defaultCategoryName' });
     const categoryMap = this.mapInvestiblesToCategories(investibles, defaultCategoryName);
     const categoryNames = categories.map(category => category.name);
-    const categoryLists = this.createCategoryLists(categoryNames, categoryMap, marketId, teamId, user);
+    const categoryLists = this.createCategoryLists(categoryNames,
+      categoryMap, marketId, teamId, user);
 
     return (
       <ItemList
@@ -79,7 +80,7 @@ const mapStateToProps = state => ({
 InvestibleList.propTypes = {
   intl: PropTypes.object.isRequired, //eslint-disable-line
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
-  categories: PropTypes.arrayOf(PropTypes.object).isRequired,
+  categories: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   teamId: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired, //eslint-disable-line
   marketSearches: PropTypes.object.isRequired, //eslint-disable-line

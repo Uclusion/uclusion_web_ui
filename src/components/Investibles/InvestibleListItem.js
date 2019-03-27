@@ -4,12 +4,14 @@ import { Link } from 'react-router-dom';
 import { injectIntl } from 'react-intl';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
+import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
+
 import {
   Card,
   Typography,
 } from '@material-ui/core';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
-import InvestibleDelete from './InvestibleDelete';
+
 
 const styles = theme => ({
   card: {
@@ -57,7 +59,7 @@ class InvestibleListItem extends React.PureComponent {
       investible,
       userPermissions,
     } = this.props;
-    const { canDeleteMarketInvestible } = userPermissions;
+
 
     return (
       <Card className={classes.card}>
@@ -65,7 +67,7 @@ class InvestibleListItem extends React.PureComponent {
           <Typography component="div">
             <div className={classNames(classes.flex, classes.investibleName)}>
               {investible.name}
-              {canDeleteMarketInvestible && <InvestibleDelete investible={investible} />}
+              <InvestibleFollowUnfollow investible={investible}/>
             </div>
             <div className={classNames(classes.flex, classes.row)}>
               <span className={classes.stageLabel}>

@@ -6,6 +6,7 @@ import {
   RECEIVE_INVESTIBLES,
   INVESTMENT_CREATED,
   INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED,
+  INVESTIBLE_FOLLOW_UNFOLLOW,
 } from './actions';
 
 
@@ -70,6 +71,21 @@ export function getMarketInvestibleDeletedState(state, action){
   return state;
 }
 
+function getInvestibleFollowUnfollowState(state, action){
+  const newState = {... state };
+  const { investible, stopFollowing } = action;
+  const marketInvestibles = newState[investible.market_id];
+  if (marketInvestibles) {
+    const oldInvestible = marketInvestibles[investible.id];
+    if (oldInvestible) {
+      const newInvestible = { ...oldInvestible };
+      newInvestible.current_user_following = !stopFollowing;
+      marketInvestibles[investible.id] = newInvestible;
+    }
+  }
+  return newState;
+}
+
 const items = (state = [], action) => {
   switch (action.type) {
     case RECEIVE_INVESTIBLES:
@@ -80,6 +96,8 @@ const items = (state = [], action) => {
     case INVESTMENT_CREATED:
     case MARKET_INVESTIBLE_CREATED:
       return getMarketInvestibleCreatedState(state, action);
+    case INVESTIBLE_FOLLOW_UNFOLLOW:
+      return getInvestibleFollowUnfollowState(state, action);
     default:
       return state;
   }

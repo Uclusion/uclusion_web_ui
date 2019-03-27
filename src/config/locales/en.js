@@ -61,6 +61,7 @@ const messages = defineMessages({
   send_verification_email: 'Send verification E-Mail',
   send_verification_email_again: 'Send verification E-Mail again',
   investibles: 'Investibles',
+  marketInvestiblesTitle: '{marketName} Investibles',
   create_task: 'Create task',
   edit_task: 'Edit task',
   users: 'Users',
@@ -226,6 +227,7 @@ const messages = defineMessages({
   commentDeleteFailed: 'We\'re sorry, the comment could not be deleted',
   editBoxTooManyBytes: 'There is too much data in the editor. Please remove some text or images',
   investibleDescriptionTooManyBytes: 'The investible description is too large. Please remove some text or images',
+  investibleFollowFailed: 'We could not change your favorite selection. Please try again',
   // Stages
   BOUND: 'In market',
   NEEDS_REVIEW: 'Needs review',

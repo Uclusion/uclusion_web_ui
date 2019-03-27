@@ -43,6 +43,9 @@ const styles = theme => ({
     paddingBottom: theme.spacing.unit,
     fontWeight: 'bold',
   },
+  email: {
+    marginBottom: theme.spacing.unit,
+  },
 });
 
 class UserDetail extends React.PureComponent {
@@ -77,6 +80,9 @@ class UserDetail extends React.PureComponent {
           </IconButton>
         </div>
         <div style={{ flex: 1, overflow: 'auto' }}>
+          <Typography className={classes.email}>
+            {user.email}
+          </Typography>
           <Typography>
             {`uShares available: ${user.quantity}`}
           </Typography>

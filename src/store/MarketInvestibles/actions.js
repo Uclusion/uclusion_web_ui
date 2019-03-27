@@ -44,10 +44,10 @@ export const investibleCreated = investible => ({
   investible,
 });
 
-export const investibleFollowed = (investible, stopFollowing) => ({
+export const investibleFollowed = (investible, isFollowing) => ({
   type: INVESTIBLE_FOLLOW_UNFOLLOW,
   investible,
-  stopFollowing,
+  isFollowing,
 });
 
 export const followUnfollowInvestible = (params = {}) => (dispatch) => {
@@ -55,7 +55,7 @@ export const followUnfollowInvestible = (params = {}) => (dispatch) => {
   const clientPromise = getClient();
   return clientPromise.then(client => client.investibles.follow(investible.id, stopFollowing))
     .then((result) => {
-      dispatch(investibleFollowed(investible, stopFollowing));
+      dispatch(investibleFollowed(investible, result.following));
     }).catch((error) => {
       console.error(error);
       sendIntlMessage(ERROR, { id: 'investibleFollowFailed' });

@@ -9,17 +9,17 @@ import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 
 function InvestibleFollowUnfollow(props){
   const { dispatch, investible } = props;
-  const { current_user_following } = investible;
+  const { current_user_is_following } = investible;
 
   function doFollowToggle(){
     dispatch(followUnfollowInvestible({
       investible,
-      stopFollowing: current_user_following,
+      stopFollowing: current_user_is_following,
     }));
   }
 
   function getProperButton(){
-    if (current_user_following) {
+    if (current_user_is_following) {
       return <Favorite onClick={() => doFollowToggle()} />
     }
     return <FavoriteBorder onClick={() => doFollowToggle()} />

@@ -72,15 +72,20 @@ export function getMarketInvestibleDeletedState(state, action){
 }
 
 function getInvestibleFollowUnfollowState(state, action){
-  const newState = {... state };
-  const { investible, stopFollowing } = action;
+  const newState = { ...state };
+  const { investible, isFollowing } = action;
   const marketInvestibles = newState[investible.market_id];
+  console.log(marketInvestibles);
   if (marketInvestibles) {
-    const oldInvestible = marketInvestibles[investible.id];
+    //need lodash union by here
+    const oldInvestible = marketInvestibles.find(item => item.id === investible.id);
+    console.log(oldInvestible);
     if (oldInvestible) {
+      console.log("Found old investible");
       const newInvestible = { ...oldInvestible };
-      newInvestible.current_user_following = !stopFollowing;
-      marketInvestibles[investible.id] = newInvestible;
+      newInvestible.current_user_is_following = isFollowing;
+      const newMarketInvestibles = _.unionBy([newInvestible], marketInvestibles, 'id');
+      newState[investible.market_id] = newMarketInvestibles;
     }
   }
   return newState;

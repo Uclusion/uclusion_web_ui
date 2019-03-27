@@ -44,6 +44,17 @@ class QuickAddItemListCategory extends React.PureComponent {
     this.addSubmitOnClick = this.addSubmitOnClick.bind(this);
   }
 
+  componentDidMount() {
+    this.persistSelectedInvestibleScroll();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { items, selectedInvestibleIndex } = this.props;
+    if (selectedInvestibleIndex !== prevProps.selectedInvestibleIndex || items !== prevProps.items) {
+      this.persistSelectedInvestibleScroll();
+    }
+  }
+
   addOnClick = () => {
     this.setState({ quickAddVisible: !this.state.quickAddVisible });
   }
@@ -59,6 +70,20 @@ class QuickAddItemListCategory extends React.PureComponent {
   addSaveOnClick = (addOnSave, value) => {
     addOnSave(value); // save the item out, and then hide this
     this.setState({ quickAddVisible: false });
+  }
+
+  persistSelectedInvestibleScroll() {
+    const { selectedInvestibleIndex } = this.props;
+    if (selectedInvestibleIndex >= 0) {
+      const scrollableContent = this.scrollableWrapper.childNodes[0];
+      const investibleDom = scrollableContent.childNodes[selectedInvestibleIndex];
+      const { top: contentTop, bottom: contentBottom } = this.scrollableWrapper.getBoundingClientRect();
+      const { top: investibleTop, bottom: investibleBottom } = investibleDom.getBoundingClientRect();
+      if (investibleTop < contentTop || investibleBottom > contentBottom) {
+        const newScrollTop = (investibleTop + this.scrollableWrapper.scrollTop) - contentTop;
+        this.scrollableWrapper.scrollTop = newScrollTop;
+      }
+    }
   }
 
   render() {
@@ -90,7 +115,12 @@ class QuickAddItemListCategory extends React.PureComponent {
             {title}
             {canCreateInvestible && (<Add onClick={this.addOnClick} />)}
           </ListSubheader>
-          <div className={classes.subListContent}>
+          <div
+            className={classes.subListContent}
+            ref={(ref) => {
+              this.scrollableWrapper = ref;
+            }}
+          >
             {myQuickAdd}
             <Grid
               container
@@ -113,6 +143,7 @@ QuickAddItemListCategory.propTypes = {
   items: PropTypes.arrayOf(PropTypes.object).isRequired,
   title: PropTypes.string.isRequired,
   userPermissions: PropTypes.object.isRequired,
+  selectedInvestibleIndex: PropTypes.number.isRequired,
 };
 
 export default compose(

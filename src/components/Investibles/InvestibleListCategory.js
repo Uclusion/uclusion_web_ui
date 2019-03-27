@@ -16,20 +16,41 @@ class InvestibleListCategory extends React.PureComponent {
     return unsorted.sort(combined);
   }
 
-  getListItems() {
-    const { investibles } = this.props;
+  getSelectedInvestibleIndex(investibles) {
+    const { hash } = window.location;
+    if (hash) {
+      const hashPart = hash.substr(1).split(':');
+      if (hashPart.length >= 2) {
+        const hashKey = hashPart[0];
+        const hashValue = hashPart[1];
+        if (hashKey === 'investible') {
+          for (let i = 0; i < investibles.length; i++) {
+            if (investibles[i].id === hashValue) {
+              return i;
+            }
+          }
+        }
+      }
+    }
+
+    return -1;
+  }
+
+  render() {
+    const {
+      teamId,
+      marketId,
+      category,
+      investibles,
+    } = this.props;
     const sortedInvestibles = this.getSortedInvestiblesList(investibles);
-    return sortedInvestibles.map((element, index) => (
+    const items = sortedInvestibles.map((element, index) => (
       <InvestibleListItem
         key={index}
         investible={element}
       />
     ));
-  }
-
-  render() {
-    const { teamId, marketId, category } = this.props;
-    const items = this.getListItems();
+    const selectedInvestibleIndex = this.getSelectedInvestibleIndex(sortedInvestibles);
     const quickAddBox = (
       <InvestibleListQuickAdd
         key="quickadd"
@@ -42,6 +63,7 @@ class InvestibleListCategory extends React.PureComponent {
     return (
       <ItemListCategory
         items={items}
+        selectedInvestibleIndex={selectedInvestibleIndex}
         title={category}
         quickAdd={quickAddBox}
       />

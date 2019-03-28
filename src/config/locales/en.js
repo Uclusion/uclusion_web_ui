@@ -201,6 +201,7 @@ const messages = defineMessages({
   authorizationFailed: 'We\'re sorry, authorization failed. Please try again',
   authorizationInProgress: 'Logging you in...',
   commentHeaderFormat: '{name}: ({date})',
+  officialCommentResponse: 'OFFICIAL RESPONSE',
   // User messages
   marketFetchFailed: 'There was a problem loading the market. Please try again',
   marketFollowFailed: 'We could not change your favorite selection. Please try again',

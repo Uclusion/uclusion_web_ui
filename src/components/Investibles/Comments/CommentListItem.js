@@ -10,13 +10,13 @@ import PropTypes from 'prop-types';
 function CommentListItem(props) {
 
   function canDeleteComment(){
-    const { created_by, userPermissions, upUser, } = props;
-    const { canDeleteOwnComments, canDeleteOthersComments, } = userPermissions;
+    const { created_by, userPermissions, upUser } = props;
+    const { canDeleteOwnComments, canDeleteOthersComments } = userPermissions;
     return canDeleteOthersComments || (canDeleteOwnComments && upUser.id === created_by);
   }
 
 
-  const { created_by_name, created_at, body, intl, id, market_id, investible_id} = props;
+  const { created_by_name, created_at, body, intl, id, market_id, investible_id, is_official } = props;
   const dateFormatOptions = {
     year: 'numeric',
     month: 'numeric',
@@ -31,6 +31,7 @@ function CommentListItem(props) {
   });
   return (
     <Paper>
+      {is_official && <Typography color={'primary'}>{intl.formatMessage({id: 'officialCommentResponse'})}</Typography>}
       <Typography>{commentHeader}{canDeleteComment() && <CommentDelete marketId={market_id} investibleId={investible_id}  commentId={id} />}</Typography>
       <HtmlRichTextEditor value={body} readOnly={true}/>
     </Paper>
@@ -46,6 +47,7 @@ CommentListItem.propTypes = {
   created_by_name: PropTypes.string.isRequired,
   created_at: PropTypes.instanceOf(Date).isRequired,
   created_by: PropTypes.string.isRequired,
+  is_official: PropTypes.bool.isRequired,
 };
 
 export default withUserAndPermissions(injectIntl(CommentListItem));

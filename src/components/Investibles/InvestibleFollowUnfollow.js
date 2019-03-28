@@ -39,7 +39,7 @@ function InvestibleFollowUnfollow(props){
 
 InvestibleFollowUnfollow.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  useIconButton: PropTypes.boolean,
+  useIconButton: PropTypes.bool,
   investible: PropTypes.object,
 };
 

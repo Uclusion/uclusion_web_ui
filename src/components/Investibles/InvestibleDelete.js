@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { DeleteForever } from '@material-ui/icons';
+import { IconButton } from "@material-ui/core";
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core/styles/index';
@@ -21,7 +22,7 @@ class InvestibleDelete extends React.PureComponent {
   }
 
   render() {
-    return <DeleteForever onClick={() => this.doDelete()} />;
+    return <IconButton onClick={() => this.doDelete()} ><DeleteForever /></IconButton>;
   }
 }
 

@@ -57,7 +57,6 @@ class InvestibleListItem extends React.PureComponent {
       classes,
       intl,
       investible,
-      userPermissions,
     } = this.props;
 
 
@@ -102,7 +101,6 @@ InvestibleListItem.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired, //eslint-disable-line
   investible: PropTypes.object.isRequired, //eslint-disable-line
-  userPermissions: PropTypes.object.isRequired, //eslint-disable-line
 };
 
 export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItem)));

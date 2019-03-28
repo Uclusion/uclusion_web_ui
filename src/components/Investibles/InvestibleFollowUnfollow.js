@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { IconButton } from "@material-ui/core";
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core/styles/index';
@@ -8,7 +9,7 @@ import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 
 function InvestibleFollowUnfollow(props){
-  const { dispatch, investible } = props;
+  const { dispatch, investible, useIconButton } = props;
   const { current_user_is_following } = investible;
 
   function doFollowToggle(){
@@ -18,18 +19,27 @@ function InvestibleFollowUnfollow(props){
     }));
   }
 
-  function getProperButton(){
-    if (current_user_is_following) {
-      return <Favorite onClick={() => doFollowToggle()} />
+  /** THis sucks, refs suck too. Need to figure out how to clean this code up **/
+  function getButton(){
+    const onclick = () => doFollowToggle();
+    if (useIconButton) {
+      if( current_user_is_following ){
+        return  <IconButton onClick={onclick}><Favorite /></IconButton>
+      }
+      return <IconButton onClick={onclick}><FavoriteBorder /></IconButton>
     }
-    return <FavoriteBorder onClick={() => doFollowToggle()} />
+    if( current_user_is_following ){
+      return <Favorite onClick={onclick} />
+    }
+    return <FavoriteBorder onClick={onclick} />
   }
 
-  return getProperButton();
+  return getButton();
 }
 
 InvestibleFollowUnfollow.propTypes = {
   dispatch: PropTypes.func.isRequired,
+  useIconButton: PropTypes.boolean,
   investible: PropTypes.object,
 };
 

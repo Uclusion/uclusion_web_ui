@@ -10,6 +10,10 @@ import CloseIcon from '@material-ui/icons/Close';
 import InvestibleListItemTabs from './InvestibleListItemTabs';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 
+import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
+import InvestibleDelete from './InvestibleDelete';
+import { withUserAndPermissions } from "../UserPermissions/UserPermissions";
+
 const styles = theme => ({
   root: {
     position: 'fixed',
@@ -40,6 +44,11 @@ const styles = theme => ({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
+  bottomActions: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   investibleName: {
     paddingTop: theme.spacing.unit * 1.25,
     paddingBottom: theme.spacing.unit,
@@ -59,9 +68,11 @@ class InvestibleDetail extends React.PureComponent {
     const {
       classes,
       onClose,
+      userPermissions
     } = this.props;
     const show = !!this.props.investible;
     const investible = this.props.investible || this.lastInvestible || {};
+    const { canDeleteMarketInvestible } = userPermissions;
 
     return (
       <div
@@ -88,6 +99,10 @@ class InvestibleDetail extends React.PureComponent {
             currentUserInvestment={investible.current_user_investment}
           />
         </div>
+        <div className={classNames(classes.bottomActions)}>
+          <InvestibleFollowUnfollow investible={investible} useIconButton={true} />
+          {canDeleteMarketInvestible && <InvestibleDelete investible={investible} />}
+         </div>
       </div>
     );
   }
@@ -99,4 +114,4 @@ InvestibleDetail.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(InvestibleDetail);
+export default withUserAndPermissions(withStyles(styles)(InvestibleDetail));

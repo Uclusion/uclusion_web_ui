@@ -4,9 +4,9 @@ import { IconButton } from "@material-ui/core";
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core/styles/index';
-import { followUnfollowInvestible } from '../../store/MarketInvestibles/actions';
 import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
+import { followUnfollowInvestible } from '../../store/MarketInvestibles/actions';
 
 function InvestibleFollowUnfollow(props){
   const { dispatch, investible, useIconButton } = props;
@@ -23,15 +23,15 @@ function InvestibleFollowUnfollow(props){
   function getButton(){
     const onclick = () => doFollowToggle();
     if (useIconButton) {
-      if( current_user_is_following ){
-        return  <IconButton onClick={onclick}><Favorite /></IconButton>
+      if (current_user_is_following) {
+        return  <IconButton onClick={onclick}><Favorite /></IconButton>;
       }
-      return <IconButton onClick={onclick}><FavoriteBorder /></IconButton>
+      return <IconButton onClick={onclick}><FavoriteBorder /></IconButton>;
     }
-    if( current_user_is_following ){
-      return <Favorite onClick={onclick} />
+    if (current_user_is_following) {
+      return <Favorite onClick={onclick} />;
     }
-    return <FavoriteBorder onClick={onclick} />
+    return <FavoriteBorder onClick={onclick} />;
   }
 
   return getButton();

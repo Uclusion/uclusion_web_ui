@@ -9,10 +9,9 @@ import {
 import CloseIcon from '@material-ui/icons/Close';
 import InvestibleListItemTabs from './InvestibleListItemTabs';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
-
 import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
 import InvestibleDelete from './InvestibleDelete';
-import { withUserAndPermissions } from "../UserPermissions/UserPermissions";
+import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({
   root: {
@@ -68,7 +67,7 @@ class InvestibleDetail extends React.PureComponent {
     const {
       classes,
       onClose,
-      userPermissions
+      userPermissions,
     } = this.props;
     const show = !!this.props.investible;
     const investible = this.props.investible || this.lastInvestible || {};
@@ -102,7 +101,7 @@ class InvestibleDetail extends React.PureComponent {
         <div className={classNames(classes.bottomActions)}>
           <InvestibleFollowUnfollow investible={investible} useIconButton={true} />
           {canDeleteMarketInvestible && <InvestibleDelete investible={investible} />}
-         </div>
+        </div>
       </div>
     );
   }
@@ -112,6 +111,7 @@ InvestibleDetail.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
   investible: PropTypes.object.isRequired, //eslint-disable-line
   onClose: PropTypes.func.isRequired,
+  userPermissions: PropTypes.object.isRequired, //eslint-disable-line
 };
 
 export default withUserAndPermissions(withStyles(styles)(InvestibleDetail));

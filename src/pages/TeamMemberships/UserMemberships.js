@@ -98,15 +98,19 @@ function UserMemberships(props) {
           usersFetched={usersFetched}
         />
       )}
-      <InvestibleDetail
-        investible={investibleDetail}
-        onClose={() => history.push(pathname)}
-      />
-      <UserDetail
-        user={userDetail}
-        investibles={getMarketInvestibles()}
-        onClose={() => history.push(pathname)}
-      />
+      {investibleDetail && (
+        <InvestibleDetail
+          investible={investibleDetail}
+          onClose={() => history.push(pathname)}
+        />
+      )}
+      {userDetail && (
+        <UserDetail
+          user={userDetail}
+          investibles={getMarketInvestibles()}
+          onClose={() => history.push(pathname)}
+        />
+      )}
     </Activity>
   );
 }
@@ -115,7 +119,7 @@ UserMemberships.propTypes = {
   userPermissions: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
-  investibles: PropTypes.object,
+  investibles: PropTypes.object, //eslint-disable-line
 };
 
 const mapStateToProps = state => ({

@@ -98,6 +98,7 @@ class UserDetail extends React.PureComponent {
               className={classes.tabBar}
               indicatorColor="primary"
               textColor="primary"
+              value={0}
             >
               <Tab className={classes.tab} label="Investments" />
             </Tabs>

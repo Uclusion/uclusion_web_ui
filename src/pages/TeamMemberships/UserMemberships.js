@@ -27,12 +27,11 @@ function UserMemberships(props) {
   const { location: { hash, pathname } } = history;
 
   function getMarketInvestibles() {
-    const { marketId, investibles } = props;
     if (marketId in investibles) {
       return investibles[marketId];
     }
 
-    return undefined;
+    return [];
   }
 
   function usersFetched(users) {

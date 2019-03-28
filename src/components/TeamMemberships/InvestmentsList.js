@@ -5,7 +5,7 @@ import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
 
-function InvestiblesList(props) {
+function InvestmentsList(props) {
   const [investments, setInvestments] = useState(undefined);
   const { userId, marketId, investibles } = props;
   useEffect(() => {
@@ -22,23 +22,25 @@ function InvestiblesList(props) {
     return () => {};
   }, [userId]);
   function getInvestible(typeObjectId) {
-    return investibles.find(({ id }) => id in typeObjectId);
+    return investibles.find(({ id }) => typeObjectId.includes(id));
   }
   return (
-    investments && investibles && investments.map(investment => (
-      <InvestmentsListItem
-        key={investment.type_object_id}
-        quantity={investment.quantity}
-        investible={getInvestible(investment.type_object_id)}
-      />
-    ))
+    <div>
+      {investments && investibles && investments.map(investment => (
+        <InvestmentsListItem
+          key={investment.type_object_id}
+          quantity={investment.quantity}
+          investible={getInvestible(investment.type_object_id)}
+        />
+      ))}
+    </div>
   );
 }
 
-InvestiblesList.propTypes = {
+InvestmentsList.propTypes = {
   userId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
   investibles: PropTypes.arrayOf(PropTypes.object),
 };
 
-export default withMarketId(InvestiblesList);
+export default withMarketId(InvestmentsList);

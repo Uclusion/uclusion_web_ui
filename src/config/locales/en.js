@@ -176,6 +176,7 @@ const messages = defineMessages({
   // Sidebar menu names
   marketCategoriesMenu: 'Categories',
   marketTeamsMenu: 'Market Teams',
+  marketDropDown: 'Market:',
   addInvestibleMenu: 'Add Investible',
   investiblesMenu: 'Investibles',
   categoryLabel: 'Category',
@@ -202,6 +203,7 @@ const messages = defineMessages({
   commentHeaderFormat: '{name}: ({date})',
   // User messages
   marketFetchFailed: 'There was a problem loading the market. Please try again',
+  marketFollowFailed: 'We could not change your favorite selection. Please try again',
   investmentFailed: 'There was a problem investing. Please try again.',
   investmentSucceeded: 'You have invested Ȗ{shares}.',
   teamsLoadFailed: 'There was a problem retrieving your Team Memberships. Please try again.',

@@ -18,6 +18,8 @@ import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer'
 import { fetchCommentList } from '../../store/Comments/actions';
 import { getComments } from '../../store/Comments/reducer';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
+import { getMarketPresenceName } from '../../utils/marketSelectionFunctions';
+import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfollow';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -127,6 +129,7 @@ function InvestiblesPage(props) {
       }
     }
   }
+  const currentMarketName = getMarketPresenceName(user, marketId);
 
   // TODO: give choice of teamId instead of default
   return (
@@ -136,7 +139,8 @@ function InvestiblesPage(props) {
       <Activity
         isLoading={currentInvestibleList === undefined}
         containerStyle={{ overflow: 'hidden' }}
-        title={intl.formatMessage({ id: 'marketInvestiblesTitle' }, {marketName: 'Test'})}
+        title={intl.formatMessage({ id: 'marketInvestiblesTitle' }, {marketName: currentMarketName})}
+        titleButtons={<MarketFollowUnfollow user={user} marketId={marketId}/>}
       >
 
         {currentInvestibleList && user && user.market_presence

@@ -5,6 +5,8 @@ import {
   RECEIVE_USER, RECEIVE_CURRENT_USER, REQUEST_CURRENT_USER, formatUsers,
 } from './actions';
 
+import { FOLLOWED_MARKET } from '../Markets/actions'
+
 export const userPropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
@@ -30,12 +32,30 @@ const userItems = (state = [], action) => {
   }
 };
 
+const updateMarketFollowState = (state, action) => {
+  if (!state) {
+    return state;
+  }
+  console.log("Found current state");
+  const { marketId, following } = action;
+  const newState = { ...state };
+  if ( newState.market_presence.id !== marketId) {
+    console.log("Market presence doesn't match this id!, Bailing");
+    return state;
+  }
+  // update the current presence
+  newState.market_presence.following = following;
+  return newState;
+};
+
 const currentUser = (state = null, action) => {
   switch (action.type) {
     case RECEIVE_CURRENT_USER:
     case REQUEST_CURRENT_USER:
       // This user object on request won't have market presences but better than nothing
       return action.user ? action.user : state;
+    case FOLLOWED_MARKET:
+      return updateMarketFollowState(state, action);
     default:
       return state;
   }

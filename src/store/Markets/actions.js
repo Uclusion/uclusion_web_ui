@@ -6,6 +6,8 @@ export const SELECT_MARKET = 'SELECT_MARKET';
 export const RECEIVE_MARKET_CATEGORIES = 'RECEIVE_MARKET_CATEGORIES';
 export const MARKET_CATEGORY_DELETED = 'MARKET_CATEGORY_DELETED';
 export const MARKET_CATEGORY_CREATED = 'MARKET_CATEGORY_CREATED';
+export const FOLLOWED_MARKET = 'FOLLOWED_MARKET';
+
 
 export const receiveMarket = market => ({
   type: RECEIVE_MARKET,
@@ -29,6 +31,24 @@ export const categoryCreated = (category, marketId) => ({
   category,
   marketId,
 });
+
+export const followedMarket = (marketId, following) => ({
+  type: FOLLOWED_MARKET,
+  marketId,
+  following
+});
+
+export const followUnfollowMarket = (params = {}) => (dispatch) => {
+  const { marketId, following } = params;
+  const clientPromise = getClient();
+  return clientPromise.then(client => client.markets.followMarket(marketId, following))
+    .then((response) => {
+      dispatch(followedMarket(marketId, response.following));
+    }).catch((error) => {
+      console.log(error);
+      sendIntlMessage(ERROR, { id: 'marketFollowFailed'})
+    });
+};
 
 export const fetchMarketCategories = (params = {}) => (dispatch) => {
   const clientPromise = getClient();

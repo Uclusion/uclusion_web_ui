@@ -29,6 +29,7 @@ import { getClient } from '../../config/uclusionClient';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { postAuthTasks } from '../../utils/fetchFunctions';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
+import { listUserMarkets } from '../../utils/marketSelectionFunctions';
 
 const drawerWidth = 240;
 
@@ -115,10 +116,6 @@ const styles = theme => ({
   },
 });
 
-const extractMarkets = (user) => {
-  const teamPresence = user.team_presences.find(team => team.team_id === user.default_team_id);
-  return teamPresence.market_list;
-};
 
 function Activity(props) {
   function handleDrawerToggle() {
@@ -138,7 +135,7 @@ function Activity(props) {
     } = props;
     if (newMarketId !== marketId) {
       postAuthTasks(null, null, dispatch, newMarketId, user, webSocket);
-      const markets = extractMarkets(user);
+      const markets = listUserMarkets(user);
       const newMarket = markets.find(market => market.id === newMarketId);
       history.push(getDifferentMarketLink(newMarket, 'investibles'));
     }
@@ -159,6 +156,7 @@ function Activity(props) {
     marketId,
     user,
     userPermissions,
+    titleButtons,
   } = props;
   useEffect(() => {
     const {
@@ -184,7 +182,7 @@ function Activity(props) {
   let marketChoices;
 
   if (user && user.team_presences) {
-    const markets = extractMarkets(user);
+    const markets = listUserMarkets(user);
     marketChoices = markets.map(
     // eslint-disable-next-line comma-dangle
       market => <MenuItem key={market.name} value={market.id}>{market.name}</MenuItem>
@@ -247,9 +245,15 @@ function Activity(props) {
           </IconButton>
           {!onBackClick && drawer.open && <div style={{ marginRight: 32 }} />}
           {!drawer.open && <img className={classes.logo} src="/images/logo-white.svg" alt="logo" />}
+          <Typography variant="h6" color="inherit" noWrap>
+            {headerTitle}
+          </Typography>
+          {titleButtons}
+          <div className={classes.grow} />
+          {appBarContent}
           {marketChoices && (
             <form className={classes.form} autoComplete="off">
-              <Typography className={classes.formLabel}>Market:</Typography>
+              <Typography className={classes.formLabel}>{intl.formatMessage({ id: 'marketDropDown' })}</Typography>
               <FormControl className={classes.formControl}>
                 <Select
                   className={classes.marketSelect}
@@ -264,11 +268,6 @@ function Activity(props) {
               </FormControl>
             </form>
           )}
-          <Typography variant="h6" color="inherit" noWrap>
-            {headerTitle}
-          </Typography>
-          <div className={classes.grow} />
-          {appBarContent}
 
         </Toolbar>
       </AppBar>

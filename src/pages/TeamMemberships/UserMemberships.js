@@ -104,6 +104,7 @@ function UserMemberships(props) {
       />
       <UserDetail
         user={userDetail}
+        investibles={getMarketInvestibles()}
         onClose={() => history.push(pathname)}
       />
     </Activity>

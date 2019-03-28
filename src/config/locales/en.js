@@ -204,6 +204,7 @@ const messages = defineMessages({
   investmentFailed: 'There was a problem investing. Please try again.',
   investmentSucceeded: 'You have invested Ȗ{shares}.',
   teamsLoadFailed: 'There was a problem retrieving your Team Memberships. Please try again.',
+  investmentsLoadFailed: 'There was a problem retrieving investments. Please try again.',
   teamMemberLoadFailed: 'There was a problem retrieving the members of your team. Please try again',
   investibleAddFailed: 'There was a problem saving your investible. Please try again',
   investibleBindFailed: 'There was a problem making your investible available to others. Please try again',

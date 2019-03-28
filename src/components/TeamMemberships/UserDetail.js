@@ -7,6 +7,9 @@ import {
   Typography,
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import InvestmentsList from './InvestmentsList';
 
 const styles = theme => ({
   root: {
@@ -57,6 +60,7 @@ class UserDetail extends React.PureComponent {
     const {
       classes,
       onClose,
+      investibles,
     } = this.props;
     const show = !!this.props.user;
     const user = this.props.user || this.lastUser || {};
@@ -83,6 +87,19 @@ class UserDetail extends React.PureComponent {
           <Typography>
             {`uShares spent: ${user.quantityInvested}`}
           </Typography>
+          <div className={classes.paper}>
+            <Tabs
+              className={classes.tabBar}
+              indicatorColor="primary"
+              textColor="primary"
+            >
+              <Tab className={classes.tab} label="Investments" />
+            </Tabs>
+            <InvestmentsList
+              userId={user.id}
+              investibles={investibles}
+            />
+          </div>
         </div>
       </div>
     );
@@ -92,6 +109,7 @@ class UserDetail extends React.PureComponent {
 UserDetail.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
   user: PropTypes.object.isRequired, //eslint-disable-line
+  investibles: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   onClose: PropTypes.func.isRequired,
 };
 

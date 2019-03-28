@@ -14,6 +14,7 @@ export const DELETE_MARKET_INVESTIBLE = 'DELETE_MARKET_INVESTIBLE';
 export const MARKET_INVESTIBLE_DELETED = 'MARKET_INVESTIBLE_DELETED';
 export const MARKET_INVESTIBLE_CREATED = 'MARKET_INVESTIBLE_CREATED';
 export const RECEIVE_MARKET_INVESTIBLE_LIST = 'RECEIVE_MARKET_INVESTIBLE_LIST';
+export const INVESTIBLE_FOLLOW_UNFOLLOW = 'INVESTIBLE_FOLLOW_UNFOLLOW';
 
 export const investibleDeleted = (marketId, investibleId) => ({
   type: MARKET_INVESTIBLE_DELETED,
@@ -42,6 +43,24 @@ export const investibleCreated = investible => ({
   type: INVESTIBLE_CREATED,
   investible,
 });
+
+export const investibleFollowed = (investible, isFollowing) => ({
+  type: INVESTIBLE_FOLLOW_UNFOLLOW,
+  investible,
+  isFollowing,
+});
+
+export const followUnfollowInvestible = (params = {}) => (dispatch) => {
+  const { investible, stopFollowing } = params;
+  const clientPromise = getClient();
+  return clientPromise.then(client => client.investibles.follow(investible.id, stopFollowing))
+    .then((result) => {
+      dispatch(investibleFollowed(investible, result.following));
+    }).catch((error) => {
+      console.error(error);
+      sendIntlMessage(ERROR, { id: 'investibleFollowFailed' });
+    });
+};
 
 export const fetchInvestibles = (params = {}) => (dispatch) => {
   const { idList, marketId } = params;

@@ -43,9 +43,11 @@ function withUserAndPermissions(WrappedComponent) {
       const canListAccountTeams = apisObject.list_teams || false;
       const canCategorize = apisObject.category_create || false;
       const canDeleteOwnComments = apisObject.comments_delete || false;
-      const canDeleteOthersComments = apisObject.comments_delete && opObject.delete_others_comment;
+      const canDeleteOthersComments = (apisObject.comments_delete && opObject.delete_others_comment)
+        || false;
       const isGuest = !(apisObject.get_own_user || false);
-      const isMarketAdmin = canCategorize || canDeleteOthersComments; // need a better definition of this but it works for now
+      const isMarketAdmin = (canCategorize || canDeleteOthersComments)
+        || false; // need a better definition of this but it works for now
       const canReadComments = apisObject.comments_get || false;
       return {
         canDeleteMarketInvestible,

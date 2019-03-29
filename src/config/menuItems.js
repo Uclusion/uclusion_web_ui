@@ -29,7 +29,7 @@ const getMenuItems = (props) => {
     userPermissions,
   } = props;
 
-  const { canCategorize } = userPermissions;
+  const { canCategorize, isMarketAdmin } = userPermissions;
   const authInfo = getUclusionLocalStorageItem('auth');
 
 /*  const themeItems = themes.map(t => ({
@@ -78,7 +78,7 @@ const getMenuItems = (props) => {
     {
       value: formCurrentMarketLink('invite'),
       primaryText: intl.formatMessage({ id: 'inviteMenu' }),
-      visible: authInfo && authInfo.type === 'cognito',
+      visible: (authInfo && authInfo.type === 'cognito') || isMarketAdmin,
       leftIcon: <SecurityIcon />,
     },
     {

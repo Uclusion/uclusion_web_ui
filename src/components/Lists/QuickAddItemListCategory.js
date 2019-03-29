@@ -32,6 +32,13 @@ const styles = theme => ({
   subListContent: {
     flex: 1,
     overflowY: 'auto',
+    marginLeft: -theme.spacing.unit,
+    marginRight: -theme.spacing.unit,
+    marginBottom: -theme.spacing.unit,
+    paddingLeft: theme.spacing.unit,
+    paddingRight: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+    paddingTop: theme.spacing.unit * 0.5,
   },
 });
 

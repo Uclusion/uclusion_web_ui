@@ -19,6 +19,9 @@ const styles = theme => ({
       marginBottom: 0,
     },
   },
+  cardSelected: {
+    boxShadow: '0 0 5px blue',
+  },
   link: {
     textDecoration: 'none',
   },
@@ -54,11 +57,11 @@ class InvestibleListItem extends React.PureComponent {
       classes,
       intl,
       investible,
+      selected,
     } = this.props;
 
-
     return (
-      <Card className={classes.card}>
+      <Card className={classNames(classes.card, { [classes.cardSelected]: selected })}>
         <Link className={classes.link} to={`#investible:${investible.id}`}>
           <Typography component="div">
             <div className={classNames(classes.flex, classes.investibleName)}>
@@ -98,6 +101,7 @@ InvestibleListItem.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired, //eslint-disable-line
   investible: PropTypes.object.isRequired, //eslint-disable-line
+  selected: PropTypes.bool, //eslint-disable-line
 };
 
 export default injectIntl(withStyles(styles)(InvestibleListItem));

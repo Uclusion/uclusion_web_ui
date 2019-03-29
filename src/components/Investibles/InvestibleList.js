@@ -28,7 +28,7 @@ class InvestibleList extends React.PureComponent {
   };
 
   createCategoryLists = (categoryNames, categoryMap, marketId, teamId, user) => {
-    const { marketSearches } = this.props;
+    const { marketSearches, location } = this.props;
     const hasSearchActive = marketSearches[marketId] && marketSearches[marketId].query !== '';
     const sortedNames = categoryNames.sort(); // put categories in alpha sorted order for now
     const searchFiltered = sortedNames.filter(name => !hasSearchActive || categoryMap.has(name));
@@ -43,6 +43,7 @@ class InvestibleList extends React.PureComponent {
           user={user}
           teamId={teamId}
           marketId={marketId}
+          location={location}
         />
       );
     });
@@ -85,6 +86,7 @@ InvestibleList.propTypes = {
   user: PropTypes.object.isRequired, //eslint-disable-line
   marketSearches: PropTypes.object.isRequired, //eslint-disable-line
   marketId: PropTypes.string.isRequired,
+  location: PropTypes.object.isRequired, //eslint-disable-line
 };
 
 export default connect(mapStateToProps)(injectIntl(InvestibleList));

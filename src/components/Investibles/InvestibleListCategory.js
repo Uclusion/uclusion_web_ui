@@ -17,7 +17,7 @@ class InvestibleListCategory extends React.PureComponent {
   }
 
   getSelectedInvestibleIndex(investibles) {
-    const { hash } = window.location;
+    const { location: { hash } } = this.props;
     if (hash) {
       const hashPart = hash.substr(1).split(':');
       if (hashPart.length >= 2) {
@@ -44,13 +44,14 @@ class InvestibleListCategory extends React.PureComponent {
       investibles,
     } = this.props;
     const sortedInvestibles = this.getSortedInvestiblesList(investibles);
+    const selectedInvestibleIndex = this.getSelectedInvestibleIndex(sortedInvestibles);
     const items = sortedInvestibles.map((element, index) => (
       <InvestibleListItem
         key={index}
         investible={element}
+        selected={index === selectedInvestibleIndex}
       />
     ));
-    const selectedInvestibleIndex = this.getSelectedInvestibleIndex(sortedInvestibles);
     const quickAddBox = (
       <InvestibleListQuickAdd
         key="quickadd"
@@ -77,6 +78,7 @@ InvestibleListCategory.propTypes = {
   marketId: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired, //eslint-disable-line
   teamId: PropTypes.string.isRequired,
+  location: PropTypes.object.isRequired, //eslint-disable-line
 };
 
 export default InvestibleListCategory;

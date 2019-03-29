@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import {
   IconButton,
@@ -43,6 +44,21 @@ const styles = theme => ({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
+  row: {
+    marginBottom: theme.spacing.unit,
+    '&:last-child': {
+      marginBottom: 0,
+    },
+  },
+  stageLabel: {
+    minWidth: 100,
+  },
+  stageContent: {
+    flex: 1,
+  },
+  numSharesText: {
+    fontSize: 12,
+  },
   bottomActions: {
     display: 'flex',
     justifyContent: 'center',
@@ -66,6 +82,7 @@ class InvestibleDetail extends React.PureComponent {
   render() {
     const {
       classes,
+      intl,
       onClose,
       userPermissions,
     } = this.props;
@@ -88,6 +105,30 @@ class InvestibleDetail extends React.PureComponent {
             <CloseIcon />
           </IconButton>
         </div>
+        <Typography component="div">
+          <div className={classNames(classes.flex, classes.row)}>
+            <span className={classes.stageLabel}>
+              {intl.formatMessage({ id: 'currentStageLabel' })}
+            </span>
+            <div className={classes.stageContent}>
+              <div>{intl.formatMessage({ id: investible.stage })}</div>
+              <div className={classes.numSharesText}>
+                {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })}
+              </div>
+            </div>
+          </div>
+          <div className={classNames(classes.flex, classes.row)}>
+            <span className={classes.stageLabel}>
+              {intl.formatMessage({ id: 'nextStageLabel' })}
+            </span>
+            <div className={classes.stageContent}>
+              <div>{intl.formatMessage({ id: investible.next_stage })}</div>
+              <div className={classes.numSharesText}>
+                {intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })}
+              </div>
+            </div>
+          </div>
+        </Typography>
         <div style={{ flex: 1, overflow: 'auto' }}>
           <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={investible.description} readOnly />
           <InvestibleListItemTabs
@@ -114,4 +155,4 @@ InvestibleDetail.propTypes = {
   userPermissions: PropTypes.object.isRequired, //eslint-disable-line
 };
 
-export default withUserAndPermissions(withStyles(styles)(InvestibleDetail));
+export default injectIntl(withUserAndPermissions(withStyles(styles)(InvestibleDetail)));

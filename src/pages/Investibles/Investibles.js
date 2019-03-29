@@ -104,6 +104,7 @@ function InvestiblesPage(props) {
     history,
     classes,
     investibles,
+    location,
   } = props;
   const { location: { hash, pathname } } = history;
 
@@ -148,6 +149,7 @@ function InvestiblesPage(props) {
           <div className={classes.root}>
             <InvestibleSearchBox />
             <InvestibleList
+              location={location}
               teamId={user.default_team_id}
               user={user}
               marketId={marketId}
@@ -185,6 +187,7 @@ InvestiblesPage.propTypes = {
   activeInvestibleSearches: PropTypes.object,
   history: PropTypes.object.isRequired,
   userPermissions: PropTypes.object.isRequired,
+  location: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({

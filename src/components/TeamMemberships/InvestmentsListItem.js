@@ -1,4 +1,5 @@
 /* eslint-disable react/forbid-prop-types */
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { DeleteForever } from '@material-ui/icons';
@@ -9,9 +10,11 @@ import {
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
+import { connect } from 'react-redux';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
+import { investmentsDeleted } from '../../store/MarketInvestibles/actions';
 
 const styles = theme => ({
   paper: {
@@ -45,10 +48,23 @@ function InvestmentsListItem(props) {
   } = props;
   const [calculatedQuantity, setCalculatedQuantity] = useState(quantity);
   useEffect(() => {
-    const { marketId } = props;
+    const { marketId, dispatch, teams, setTeams } = props;
     if (calculatedQuantity === 0) {
       const clientPromise = getClient();
       clientPromise.then(client => client.markets.deleteInvestments(marketId, investible.id))
+        .then((response) => {
+          dispatch(investmentsDeleted(marketId, investible.id, response.quantity));
+          const teamQuantities = response.team_quantities;
+          const newTeams = [];
+          Object.keys(teamQuantities).forEach((teamId) => {
+            const oldTeam = teams.find(item => item.id === teamId);
+            const newTeam = { ...oldTeam };
+            newTeam.quantity += teamQuantities[teamId];
+            newTeam.quantity_invested -= teamQuantities[teamId];
+            newTeams.push(newTeam);
+          });
+          setTeams(_.unionBy(newTeams, teams, 'id'));
+        })
         .catch((error) => {
           setCalculatedQuantity(quantity);
           console.log(error);
@@ -83,7 +99,18 @@ InvestmentsListItem.propTypes = {
   quantity: PropTypes.number.isRequired,
   userIsOwner: PropTypes.bool.isRequired,
   classes: PropTypes.object.isRequired,
+  dispatch: PropTypes.func.isRequired,
+  teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
+  setTeams: PropTypes.func, //eslint-disable-line
 };
 
+function mapDispatchToProps(dispatch) {
+  return { dispatch };
+}
 
-export default injectIntl(withStyles(styles)(withMarketId(InvestmentsListItem)));
+const mapStateToProps = () => ({});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(injectIntl(withStyles(styles)(withMarketId(InvestmentsListItem))));

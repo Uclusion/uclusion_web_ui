@@ -5,7 +5,8 @@ import {
   RECEIVE_USER, RECEIVE_CURRENT_USER, REQUEST_CURRENT_USER, formatUsers,
 } from './actions';
 
-import { FOLLOWED_MARKET } from '../Markets/actions'
+import { FOLLOWED_MARKET } from '../Markets/actions';
+import { INVESTMENTS_DELETED } from '../MarketInvestibles/actions';
 
 export const userPropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -36,15 +37,27 @@ const updateMarketFollowState = (state, action) => {
   if (!state) {
     return state;
   }
-  console.log("Found current state");
   const { marketId, following } = action;
   const newState = { ...state };
-  if ( newState.market_presence.id !== marketId) {
-    console.log("Market presence doesn't match this id!, Bailing");
+  if (newState.market_presence.id !== marketId) {
     return state;
   }
   // update the current presence
   newState.market_presence.following = following;
+  return newState;
+};
+
+const updateInvestmentsDeletedState = (state, action) => {
+  if (!state) {
+    return state;
+  }
+  const { marketId, quantity } = action;
+  const newState = { ...state };
+  if (newState.market_presence.id !== marketId) {
+    return state;
+  }
+  // update the current presence
+  newState.market_presence.quantity -= quantity;
   return newState;
 };
 
@@ -56,6 +69,8 @@ const currentUser = (state = null, action) => {
       return action.user ? action.user : state;
     case FOLLOWED_MARKET:
       return updateMarketFollowState(state, action);
+    case INVESTMENTS_DELETED:
+      return updateInvestmentsDeletedState(state, action);
     default:
       return state;
   }

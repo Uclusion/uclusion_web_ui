@@ -107,6 +107,8 @@ function UserMemberships(props) {
       {userDetail && (
         <UserDetail
           user={userDetail}
+          teams={teams}
+          setTeams={setTeams}
           investibles={getMarketInvestibles()}
           onClose={() => history.push(pathname)}
         />

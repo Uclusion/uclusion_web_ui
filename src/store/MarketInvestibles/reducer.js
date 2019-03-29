@@ -5,7 +5,7 @@ import _ from 'lodash';
 import {
   RECEIVE_INVESTIBLES,
   INVESTMENT_CREATED,
-  INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED,
+  INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED, INVESTMENTS_DELETED,
   INVESTIBLE_FOLLOW_UNFOLLOW,
 } from './actions';
 
@@ -75,17 +75,29 @@ function getInvestibleFollowUnfollowState(state, action){
   const newState = { ...state };
   const { investible, isFollowing } = action;
   const marketInvestibles = newState[investible.market_id];
-  console.log(marketInvestibles);
   if (marketInvestibles) {
-    //need lodash union by here
     const oldInvestible = marketInvestibles.find(item => item.id === investible.id);
-    console.log(oldInvestible);
     if (oldInvestible) {
-      console.log("Found old investible");
       const newInvestible = { ...oldInvestible };
       newInvestible.current_user_is_following = isFollowing;
       const newMarketInvestibles = _.unionBy([newInvestible], marketInvestibles, 'id');
       newState[investible.market_id] = newMarketInvestibles;
+    }
+  }
+  return newState;
+}
+
+function getInvestmentsDeletedState(state, action) {
+  const newState = { ...state };
+  const { marketId, investibleId, quantity } = action;
+  const marketInvestibles = newState[marketId];
+  if (marketInvestibles) {
+    const oldInvestible = marketInvestibles.find(item => item.id === investibleId);
+    if (oldInvestible) {
+      const newInvestible = { ...oldInvestible };
+      newInvestible.quantity -= quantity;
+      const newMarketInvestibles = _.unionBy([newInvestible], marketInvestibles, 'id');
+      newState[marketId] = newMarketInvestibles;
     }
   }
   return newState;
@@ -103,6 +115,8 @@ const items = (state = [], action) => {
       return getMarketInvestibleCreatedState(state, action);
     case INVESTIBLE_FOLLOW_UNFOLLOW:
       return getInvestibleFollowUnfollowState(state, action);
+    case INVESTMENTS_DELETED:
+      return getInvestmentsDeletedState(state, action);
     default:
       return state;
   }

@@ -12,6 +12,7 @@ export const INVESTMENT_CREATED = 'INVESTMENT_CREATED';
 export const INVESTIBLE_CREATED = 'INVESTIBLE_CREATED';
 export const DELETE_MARKET_INVESTIBLE = 'DELETE_MARKET_INVESTIBLE';
 export const MARKET_INVESTIBLE_DELETED = 'MARKET_INVESTIBLE_DELETED';
+export const INVESTMENTS_DELETED = 'INVESTMENTS_DELETED';
 export const MARKET_INVESTIBLE_CREATED = 'MARKET_INVESTIBLE_CREATED';
 export const RECEIVE_MARKET_INVESTIBLE_LIST = 'RECEIVE_MARKET_INVESTIBLE_LIST';
 export const INVESTIBLE_FOLLOW_UNFOLLOW = 'INVESTIBLE_FOLLOW_UNFOLLOW';
@@ -20,6 +21,13 @@ export const investibleDeleted = (marketId, investibleId) => ({
   type: MARKET_INVESTIBLE_DELETED,
   investibleId,
   marketId,
+});
+
+export const investmentsDeleted = (marketId, investibleId, quantity) => ({
+  type: INVESTMENTS_DELETED,
+  marketId,
+  investibleId,
+  quantity,
 });
 
 export const receiveInvestibles = (marketId, investibles) => ({

@@ -64,6 +64,8 @@ class UserDetail extends React.PureComponent {
       classes,
       onClose,
       investibles,
+      teams,
+      setTeams,
     } = this.props;
     const show = !!this.props.user;
     const user = this.props.user || this.lastUser || {};
@@ -103,6 +105,8 @@ class UserDetail extends React.PureComponent {
               <Tab className={classes.tab} label="Investments" />
             </Tabs>
             <InvestmentsList
+              teams={teams}
+              setTeams={setTeams}
               userId={user.id}
               investibles={investibles}
             />
@@ -117,6 +121,8 @@ UserDetail.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
   user: PropTypes.object.isRequired, //eslint-disable-line
   investibles: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
+  teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
+  setTeams: PropTypes.func, //eslint-disable-line
   onClose: PropTypes.func.isRequired,
 };
 

@@ -20,7 +20,8 @@ class UserMembershipsList extends React.PureComponent {
       teams,
       investibles,
       classes,
-      usersFetched,
+      setUsers,
+      allUsers,
     } = this.props;
     return (
       <div className={classes.root}>
@@ -29,7 +30,8 @@ class UserMembershipsList extends React.PureComponent {
             key={team.id}
             team={team}
             investibles={investibles}
-            usersFetched={usersFetched}
+            setUsers={setUsers}
+            allUsers={allUsers}
           />
         ))}
       </div>
@@ -42,7 +44,8 @@ UserMembershipsList.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object.isRequired,
-  usersFetched: PropTypes.func.isRequired,
+  setUsers: PropTypes.func.isRequired,
+  allUsers: PropTypes.object.isRequired, //eslint-disable-line
 };
 
 export default injectIntl(withStyles(styles)(UserMembershipsList));

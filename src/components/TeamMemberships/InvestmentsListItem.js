@@ -48,8 +48,16 @@ function InvestmentsListItem(props) {
   } = props;
   const [calculatedQuantity, setCalculatedQuantity] = useState(quantity);
   useEffect(() => {
-    const { marketId, dispatch, teams, setTeams } = props;
-    if (calculatedQuantity === 0) {
+    const {
+      marketId,
+      dispatch,
+      teams,
+      setTeams,
+      users,
+      setUsers,
+      userId,
+    } = props;
+    if (calculatedQuantity === 0 && quantity > 0) {
       const clientPromise = getClient();
       clientPromise.then(client => client.markets.deleteInvestments(marketId, investible.id))
         .then((response) => {
@@ -64,6 +72,13 @@ function InvestmentsListItem(props) {
             newTeams.push(newTeam);
           });
           setTeams(_.unionBy(newTeams, teams, 'id'));
+          const oldUser = users[userId];
+          const newUser = { ...oldUser };
+          newUser.quantity += response.quantity;
+          newUser.quantityInvested -= response.quantity;
+          const newUsers = { ...users };
+          newUsers[userId] = newUser;
+          setUsers(newUsers);
         })
         .catch((error) => {
           setCalculatedQuantity(quantity);
@@ -102,6 +117,9 @@ InvestmentsListItem.propTypes = {
   dispatch: PropTypes.func.isRequired,
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   setTeams: PropTypes.func, //eslint-disable-line
+  userId: PropTypes.string.isRequired,
+  users: PropTypes.object.isRequired, //eslint-disable-line
+  setUsers: PropTypes.func, //eslint-disable-line
 };
 
 function mapDispatchToProps(dispatch) {

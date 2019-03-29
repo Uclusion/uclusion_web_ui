@@ -15,6 +15,8 @@ function InvestmentsList(props) {
     upUser,
     teams,
     setTeams,
+    users,
+    setUsers
   } = props;
   useEffect(() => {
     const clientPromise = getClient();
@@ -43,6 +45,9 @@ function InvestmentsList(props) {
           userIsOwner={userId === upUser.id}
           teams={teams}
           setTeams={setTeams}
+          userId={userId}
+          users={users}
+          setUsers={setUsers}
         />
       ))}
     </div>
@@ -55,6 +60,8 @@ InvestmentsList.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   setTeams: PropTypes.func, //eslint-disable-line
+  users: PropTypes.object.isRequired, //eslint-disable-line
+  setUsers: PropTypes.func, //eslint-disable-line
   upUser: PropTypes.shape({
     id: PropTypes.string,
   }).isRequired,

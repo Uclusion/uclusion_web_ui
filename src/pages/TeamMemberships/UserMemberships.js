@@ -12,7 +12,6 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import UserDetail from '../../components/TeamMemberships/UserDetail';
-import { Typography } from '@material-ui/core';
 
 function UserMemberships(props) {
   const [teams, setTeams] = useState(undefined);
@@ -33,14 +32,6 @@ function UserMemberships(props) {
     }
 
     return [];
-  }
-
-  function usersFetched(users) {
-    const newUsers = { ...allUsers };
-    users.forEach((user) => {
-      newUsers[user.id] = user;
-    });
-    setAllUsers(newUsers);
   }
 
   // Second argument prevents re-running on teams property changes - only for changes in listed
@@ -91,31 +82,33 @@ function UserMemberships(props) {
       containerStyle={{ overflow: 'hidden' }}
       title={intl.formatMessage({ id: 'teamsHeader' })}
     >
-      {teams && (
-        <UserMembershipsList
-          teams={teams}
-          investibles={getMarketInvestibles()}
-          usersFetched={usersFetched}
-        />
-      )}
-      {investibleDetail && (
-        <InvestibleDetail
-          investible={investibleDetail}
-          onClose={() => history.push(pathname)}
-        />
-      )}
-      {userDetail && (
-        <UserDetail
-          user={userDetail}
-          teams={teams}
-          setTeams={setTeams}
-          investibles={getMarketInvestibles()}
-          onClose={() => history.push(pathname)}
-        />
-      )}
-      {!teams && !investibleDetail && !userDetail && (
-        <Typography>Loading</Typography>
-      )}
+      <div>
+        {teams && (
+          <UserMembershipsList
+            teams={teams}
+            investibles={getMarketInvestibles()}
+            setUsers={setAllUsers}
+            allUsers={allUsers}
+          />
+        )}
+        {investibleDetail && teams && (
+          <InvestibleDetail
+            investible={investibleDetail}
+            onClose={() => history.push(pathname)}
+          />
+        )}
+        {userDetail && teams && Object.keys(allUsers).length > 0 && (
+          <UserDetail
+            user={userDetail}
+            teams={teams}
+            setTeams={setTeams}
+            users={allUsers}
+            setUsers={setAllUsers}
+            investibles={getMarketInvestibles()}
+            onClose={() => history.push(pathname)}
+          />
+        )}
+      </div>
     </Activity>
   );
 }

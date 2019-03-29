@@ -66,6 +66,8 @@ class UserDetail extends React.PureComponent {
       investibles,
       teams,
       setTeams,
+      users,
+      setUsers
     } = this.props;
     const show = !!this.props.user;
     const user = this.props.user || this.lastUser || {};
@@ -107,6 +109,8 @@ class UserDetail extends React.PureComponent {
             <InvestmentsList
               teams={teams}
               setTeams={setTeams}
+              users={users}
+              setUsers={setUsers}
               userId={user.id}
               investibles={investibles}
             />
@@ -123,6 +127,8 @@ UserDetail.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   setTeams: PropTypes.func, //eslint-disable-line
+  users: PropTypes.object.isRequired, //eslint-disable-line
+  setUsers: PropTypes.func, //eslint-disable-line
   onClose: PropTypes.func.isRequired,
 };
 

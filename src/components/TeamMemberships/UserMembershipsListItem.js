@@ -69,12 +69,14 @@ const styles = theme => ({
 function UserMembershipsListItem(props) {
   const [tabIndex, setTabIndex] = useState(0);
   const [investiblesForTeam, setInvestiblesForTeam] = useState(undefined);
+  const [userIds, setUserIds] = useState(undefined);
   const {
     team,
     investibles,
     marketId,
     classes,
-    usersFetched,
+    setUsers,
+    allUsers,
   } = props;
   const {
     name,
@@ -89,14 +91,23 @@ function UserMembershipsListItem(props) {
 
   const lastInvestDate = moment(last_investment_updated_at).format('MM/DD/YYYY hh:mm A');
 
-  const [users, setUsers] = useState(undefined);
-
   function processUser(user) {
     const processed = { ...user };
     const marketPresence = user.market_presences.find(presence => presence.market_id === marketId);
     processed.quantity = marketPresence.quantity;
     processed.quantityInvested = marketPresence.quantity_invested;
     return processed;
+  }
+
+  function usersFetched(users) {
+    const newUsers = { ...allUsers };
+    const newUserIds = [];
+    users.forEach((user) => {
+      newUsers[user.id] = user;
+      newUserIds.push(user.id);
+    });
+    setUsers(newUsers);
+    setUserIds(newUserIds);
   }
 
   useEffect(() => {
@@ -108,7 +119,6 @@ function UserMembershipsListItem(props) {
     }).then((response) => {
       const processedUsers = response.users.map(user => processUser(user));
       _.remove(processedUsers, user => user.type !== 'USER');
-      setUsers(processedUsers);
       usersFetched(processedUsers);
       return globalClient.teams.investments(team.id, marketId);
     }).then((investmentsDict) => {
@@ -190,7 +200,8 @@ function UserMembershipsListItem(props) {
         <div className={classes.tabContent}>
           {tabIndex === 0 ? (
             <MemberList
-              users={users}
+              allUsers={allUsers}
+              userIds={userIds}
             />
           ) : (
             <InvestiblesList
@@ -214,7 +225,8 @@ UserMembershipsListItem.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   classes: PropTypes.object.isRequired,
   width: PropTypes.string.isRequired,
-  usersFetched: PropTypes.func.isRequired,
+  setUsers: PropTypes.func.isRequired,
+  allUsers: PropTypes.object.isRequired, //eslint-disable-line
 };
 
 const mapStateToProps = state => ({

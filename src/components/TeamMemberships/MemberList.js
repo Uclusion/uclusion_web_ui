@@ -3,21 +3,24 @@ import PropTypes from 'prop-types';
 import MemberListItem from './MemberListItem';
 
 function MemberList(props) {
-  const { users } = props;
+  const { allUsers, userIds } = props;
   return (
     <div>
-      {users && users.map(user => (
-        <MemberListItem
-          key={user.id}
-          user={user}
-        />
+      {allUsers && userIds && userIds.map(userId => (
+        allUsers[userId] && (
+          <MemberListItem
+            key={userId}
+            user={allUsers[userId]}
+          />
+        )
       ))}
     </div>
   );
 }
 
 MemberList.propTypes = {
-  users: PropTypes.arrayOf(PropTypes.object),
+  allUsers: PropTypes.object.isRequired, //eslint-disable-line
+  userIds: PropTypes.arrayOf(PropTypes.string), //eslint-disable-line
 };
 
 export default MemberList;

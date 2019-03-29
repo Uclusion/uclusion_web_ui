@@ -23,6 +23,7 @@ class UserMembershipsList extends React.PureComponent {
       setUsers,
       allUsers,
     } = this.props;
+    const allTeamsUsers = {};
     return (
       <div className={classes.root}>
         {teams.map(team => (
@@ -31,7 +32,9 @@ class UserMembershipsList extends React.PureComponent {
             team={team}
             investibles={investibles}
             setUsers={setUsers}
+            allTeamUsers={allTeamsUsers}
             allUsers={allUsers}
+            numTeams={teams.length}
           />
         ))}
       </div>

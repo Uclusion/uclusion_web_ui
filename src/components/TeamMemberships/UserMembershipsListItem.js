@@ -75,8 +75,10 @@ function UserMembershipsListItem(props) {
     investibles,
     marketId,
     classes,
-    setUsers,
     allUsers,
+    allTeamUsers,
+    setUsers,
+    numTeams,
   } = props;
   const {
     name,
@@ -99,15 +101,22 @@ function UserMembershipsListItem(props) {
     return processed;
   }
 
-  function usersFetched(users) {
-    const newUsers = { ...allUsers };
+  function usersFetched(teamId, users) {
     const newUserIds = [];
+    allTeamUsers[teamId] = {};
     users.forEach((user) => {
-      newUsers[user.id] = user;
+      allTeamUsers[teamId][user.id] = user;
       newUserIds.push(user.id);
     });
-    setUsers(newUsers);
     setUserIds(newUserIds);
+    if (Object.keys(allTeamUsers).length === numTeams) {
+      let flattened = {};
+      Object.keys(allTeamUsers).forEach((teamId) => {
+        flattened = { ...flattened, ...allTeamUsers[teamId] };
+      });
+      console.log(flattened);
+      setUsers(flattened);
+    }
   }
 
   useEffect(() => {
@@ -119,7 +128,7 @@ function UserMembershipsListItem(props) {
     }).then((response) => {
       const processedUsers = response.users.map(user => processUser(user));
       _.remove(processedUsers, user => user.type !== 'USER');
-      usersFetched(processedUsers);
+      usersFetched(team.id, processedUsers);
       return globalClient.teams.investments(team.id, marketId);
     }).then((investmentsDict) => {
       setInvestiblesForTeam(investibles.filter(({ id }) => id in investmentsDict));
@@ -227,6 +236,7 @@ UserMembershipsListItem.propTypes = {
   width: PropTypes.string.isRequired,
   setUsers: PropTypes.func.isRequired,
   allUsers: PropTypes.object.isRequired, //eslint-disable-line
+  numTeams: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = state => ({

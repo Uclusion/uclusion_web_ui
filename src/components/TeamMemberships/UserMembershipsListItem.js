@@ -213,9 +213,11 @@ function UserMembershipsListItem(props) {
               userIds={userIds}
             />
           ) : (
+            investiblesForTeam && (
             <InvestiblesList
               investibles={investiblesForTeam}
             />
+            )
           )}
         </div>
       </Card>

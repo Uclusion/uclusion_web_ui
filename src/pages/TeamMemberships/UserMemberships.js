@@ -12,6 +12,7 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import UserDetail from '../../components/TeamMemberships/UserDetail';
+import { Typography } from '@material-ui/core';
 
 function UserMemberships(props) {
   const [teams, setTeams] = useState(undefined);
@@ -109,6 +110,9 @@ function UserMemberships(props) {
           investibles={getMarketInvestibles()}
           onClose={() => history.push(pathname)}
         />
+      )}
+      {!teams && !investibleDetail && !userDetail && (
+        <Typography>Loading</Typography>
       )}
     </Activity>
   );

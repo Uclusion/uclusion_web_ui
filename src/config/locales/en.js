@@ -205,6 +205,7 @@ const messages = defineMessages({
   marketFetchFailed: 'There was a problem loading the market. Please try again',
   marketFollowFailed: 'We could not change your favorite selection. Please try again',
   investmentFailed: 'There was a problem investing. Please try again.',
+  refundFailed: 'There was a problem refunding. Please try again.',
   investmentSucceeded: 'You have invested Ȗ{shares}.',
   teamsLoadFailed: 'There was a problem retrieving your Team Memberships. Please try again.',
   investmentsLoadFailed: 'There was a problem retrieving investments. Please try again.',

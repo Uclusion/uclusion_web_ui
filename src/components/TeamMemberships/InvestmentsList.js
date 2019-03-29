@@ -4,13 +4,20 @@ import InvestmentsListItem from './InvestmentsListItem';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
+import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 function InvestmentsList(props) {
   const [investments, setInvestments] = useState(undefined);
-  const { userId, marketId, investibles } = props;
+  const {
+    userId,
+    marketId,
+    investibles,
+    upUser,
+  } = props;
   useEffect(() => {
     const clientPromise = getClient();
     clientPromise.then((client) => {
+      console.log(`User ID is ${userId} and logged in user ${upUser.id}`);
       // TODO pagination with lastEvaluatedKey
       return client.markets.listUserInvestments(marketId, userId, 100);
     }).then((response) => {
@@ -31,6 +38,7 @@ function InvestmentsList(props) {
           key={investment.type_object_id}
           quantity={investment.quantity}
           investible={getInvestible(investment.type_object_id)}
+          userIsOwner={userId === upUser.id}
         />
       ))}
     </div>
@@ -41,6 +49,9 @@ InvestmentsList.propTypes = {
   userId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
   investibles: PropTypes.arrayOf(PropTypes.object),
+  upUser: PropTypes.shape({
+    id: PropTypes.string,
+  }).isRequired,
 };
 
-export default withMarketId(InvestmentsList);
+export default withMarketId(withUserAndPermissions(InvestmentsList));

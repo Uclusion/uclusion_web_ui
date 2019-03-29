@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { connect } from 'react-redux';
@@ -31,7 +30,7 @@ class InvestibleListItemTabs extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      value: 0,
+      value: props.userPermissions.canInvest ? 'invest' : 'comments',
     };
     this.handleChange = this.handleChange.bind(this);
   }
@@ -51,6 +50,7 @@ class InvestibleListItemTabs extends React.PureComponent {
       userPermissions,
     } = this.props;
     const { canInvest, canReadComments } = userPermissions;
+
     const { value } = this.state;
 
     return (
@@ -63,14 +63,16 @@ class InvestibleListItemTabs extends React.PureComponent {
           textColor="primary"
         >
           {canInvest && (
-            <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })}/>
+            <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })} value='invest' />
           )}
           { canReadComments && (<Tab
             className={classes.tab}
             label={intl.formatMessage({ id: 'commentsTab' })}
+            value='comments'
           />)}
         </Tabs>
-        {value === 0 && canInvest && user && (
+
+        {value === 'invest' && canInvest && user && (
           <InvestibleInvest
             teamId={user.default_team_id}
             marketId={marketId}
@@ -79,8 +81,7 @@ class InvestibleListItemTabs extends React.PureComponent {
             investibleId={investibleId}
           />
         )}
-        {value === 1 && <CommentsList marketId={marketId} currentUserInvestment={currentUserInvestment} investibleId={investibleId}/>}
-        {value === 2 && <Typography>Coments Placeholder</Typography>}
+        {value === 'comments' && <CommentsList marketId={marketId} currentUserInvestment={currentUserInvestment} investibleId={investibleId}/>}
       </div>
     );
   }

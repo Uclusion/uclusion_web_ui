@@ -7,11 +7,12 @@ import Typography from '@material-ui/core/es/Typography/Typography';
 import { injectIntl } from 'react-intl';
 import { reverseDateComparator } from '../../../utils/comparators';
 import PropTypes from 'prop-types';
+import { withUserAndPermissions } from '../../UserPermissions/UserPermissions';
 
 function CommentsList(props) {
 
-  const { marketId, investibleId, intl } = props;
-
+  const { marketId, investibleId, intl, userPermissions } = props;
+  const { isMarketAdmin } = userPermissions;
 
   function sortComments(commentsList) {
     commentsList.sort((c1, c2) => {
@@ -35,7 +36,7 @@ function CommentsList(props) {
 
   function userCanComment() {
     const { currentUserInvestment } = props;
-    return currentUserInvestment > 0;
+    return isMarketAdmin || currentUserInvestment > 0;
   }
 
   function getCommentAddSection() {
@@ -60,6 +61,7 @@ CommentsList.propTypes = {
   investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
   currentUserInvestment: PropTypes.number,
+  userPermissions: PropTypes.object.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -68,4 +70,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(injectIntl(CommentsList));
+export default withUserAndPermissions(connect(mapStateToProps)(injectIntl(CommentsList)));

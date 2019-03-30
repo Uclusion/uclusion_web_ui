@@ -41,7 +41,8 @@ export default (state = initialState, action) => {
       };
 
     case UPDATE_INVESTIBLE_DETAIL_INVESTMENT:
-      if (state.investible && state.investible.data.id === payload.investible_id) {
+      if (state.investible && state.investible.data
+        && state.investible.data.id === payload.investible_id) {
         const newInvestible = {
           ...state.investible.data,
           current_user_investment: payload.current_user_investment

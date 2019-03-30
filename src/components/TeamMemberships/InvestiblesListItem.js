@@ -68,6 +68,11 @@ class InvestiblesListItem extends React.PureComponent {
               </Typography>
             </div>
           </div>
+          <Typography className={classes.availableShares}>
+            *
+            {' '}
+            {intl.formatMessage({ id: 'teamInvestedShares' }, { shares: investible.quantityInvested })}
+          </Typography>
         </Link>
       </Paper>
     );

@@ -89,7 +89,7 @@ function UserMembershipsListItem(props) {
     quantity,
     last_investment_updated_at,
   } = team;
-;
+
 
   const lastInvestDate = moment(last_investment_updated_at).format('MM/DD/YYYY hh:mm A');
 
@@ -133,8 +133,11 @@ function UserMembershipsListItem(props) {
       usersFetched(team.id, processedUsers);
       return globalClient.markets.listUserInvestments(marketId, team.user_id, 10000);
     }).then((investments) => {
-      setInvestiblesForTeam(investments.map(investment => (
-        { ...investment, ...getInvestible(investment.type_object_id) })));
+      setInvestiblesForTeam(investments.map((investment) => {
+        const processedInvestment = { ...investment };
+        processedInvestment.quantityInvested = investment.quantity;
+        return { ...processedInvestment, ...getInvestible(investment.type_object_id) };
+      }));
     }).catch((error) => {
       console.log(error);
       sendIntlMessage(ERROR, { id: 'teamMemberLoadFailed' });

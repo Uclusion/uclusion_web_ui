@@ -164,6 +164,7 @@ const messages = defineMessages({
   nextStageLabel: 'Next Stage:',
   availableSharesToInvest: 'You have Ȗ{shares} available',
   userInvestedShares: 'You have already invested Ȗ{shares}',
+  teamInvestedShares: 'Team invested Ȗ{shares}',
   defaultCategoryName: 'Uncategorized',
   teamsListNotFound: 'No Teams found',
   categoriesListNotFound: 'No Market Categories found',

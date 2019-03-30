@@ -118,7 +118,9 @@ function UserMembershipsListItem(props) {
       setUsers(flattened);
     }
   }
-
+  function getInvestible(typeObjectId) {
+    return investibles.find(({ id }) => typeObjectId.includes(id));
+  }
   useEffect(() => {
     let globalClient;
     const clientPromise = getClient();
@@ -129,9 +131,10 @@ function UserMembershipsListItem(props) {
       const processedUsers = response.users.map(user => processUser(user));
       _.remove(processedUsers, user => user.type !== 'USER');
       usersFetched(team.id, processedUsers);
-      return globalClient.teams.investments(team.id, marketId);
-    }).then((investmentsDict) => {
-      setInvestiblesForTeam(investibles.filter(({ id }) => id in investmentsDict));
+      return globalClient.markets.listUserInvestments(marketId, team.user_id, 10000);
+    }).then((investments) => {
+      setInvestiblesForTeam(investments.map(investment => (
+        { ...investment, ...getInvestible(investment.type_object_id) })));
     }).catch((error) => {
       console.log(error);
       sendIntlMessage(ERROR, { id: 'teamMemberLoadFailed' });

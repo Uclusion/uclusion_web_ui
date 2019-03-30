@@ -22,8 +22,7 @@ function InvestmentsList(props) {
     const clientPromise = getClient();
     clientPromise.then((client) => {
       console.log(`User ID is ${userId} and logged in user ${upUser.id}`);
-      // TODO pagination with lastEvaluatedKey
-      return client.markets.listUserInvestments(marketId, userId, 100);
+      return client.markets.listUserInvestments(marketId, userId, 10000);
     }).then((response) => {
       setInvestments(response);
     }).catch((error) => {

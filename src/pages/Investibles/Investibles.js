@@ -140,10 +140,9 @@ function InvestiblesPage(props) {
       <Activity
         isLoading={currentInvestibleList === undefined}
         containerStyle={{ overflow: 'hidden' }}
-        title={intl.formatMessage({ id: 'marketInvestiblesTitle' }, {marketName: currentMarketName})}
-        titleButtons={<MarketFollowUnfollow user={user} marketId={marketId}/>}
+        title={intl.formatMessage({ id: 'marketInvestiblesTitle' }, { marketName: currentMarketName })}
+        titleButtons={<MarketFollowUnfollow user={user} marketId={marketId} />}
       >
-
         {currentInvestibleList && user && user.market_presence
         && (
           <div className={classes.root}>

@@ -72,6 +72,10 @@ const styles = theme => ({
 });
 
 class InvestibleDetail extends React.PureComponent {
+  state = {
+    promptDeleteInvestible: false,
+  };
+
   componentDidUpdate() {
     const { investible } = this.props;
     if (investible) {
@@ -140,8 +144,8 @@ class InvestibleDetail extends React.PureComponent {
           />
         </div>
         <div className={classNames(classes.bottomActions)}>
-          <InvestibleFollowUnfollow investible={investible} useIconButton={true} />
-          {canDeleteMarketInvestible && <InvestibleDelete investible={investible} />}
+          <InvestibleFollowUnfollow investible={investible} useIconButton />
+          {canDeleteMarketInvestible && <InvestibleDelete investible={investible} onCloseDetail={onClose} />}
         </div>
       </div>
     );

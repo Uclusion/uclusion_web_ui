@@ -41,6 +41,7 @@ class CategoryAdd extends React.Component {
     const { title } = this.state;
     const payload = { marketId, name: title };
     dispatch(createMarketCategory(payload));
+    this.setState({ title: '' });
   };
 
   render() {

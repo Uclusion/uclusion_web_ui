@@ -202,7 +202,7 @@ function LandingPage(props) {
         }).then((client) => {
           console.log('Now pausing before create market so will need spinner');
           // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
-          setTimeout(createMarket, 10000, client, accountCreationInfo);
+          setTimeout(createMarket, 25000, client, accountCreationInfo);
         }).catch((e) => {
           alert('Cannot sign in');
           console.log(e);

@@ -7,8 +7,8 @@ import { withUserAndPermissions } from '../../components/UserPermissions/UserPer
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import InviteListItem from './InviteListItem';
-import TeamAdd from './TeamAdd';
+import TeamAdd from '../../components/Invite/TeamAdd';
+import InviteList from '../../components/Invite/InviteList';
 
 function Invite(props) {
   const [teams, setTeams] = useState([]);
@@ -42,15 +42,7 @@ function Invite(props) {
       title={intl.formatMessage({ id: 'inviteHeader' })}
     >
       <TeamAdd marketId={marketId} teams={teams} teamsSet={setTeams} />
-      {teams.map(team => (
-        <InviteListItem
-          key={team.id}
-          id={team.id}
-          name={team.name}
-          description={team.description}
-          teamSize={team.team_size}
-        />
-      ))}
+      <InviteList teams={teams} />
     </Activity>
   );
 }

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
-import { Button, TextField } from '@material-ui/core';
+import { Grid, Button, TextField } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
@@ -14,10 +14,12 @@ const styles = theme => ({
     alignItems: 'flex-end',
     padding: theme.spacing.unit * 2,
   },
+  gridItem: {
+    display: 'flex',
+    alignItems: 'flex-end',
+  },
   textField: {
-    flex: 1,
-    maxWidth: 400,
-    marginRight: theme.spacing.unit * 2,
+    width: '100%',
   },
   addButton: {
     minWidth: 80,
@@ -66,28 +68,36 @@ function TeamAdd(props) {
 
   return (
     <form className={classes.form} noValidate autoComplete="off">
-      <TextField
-        className={classes.textField}
-        id="teamName"
-        label={intl.formatMessage({ id: 'teamNameLabel' })}
-        value={name}
-        onChange={handleNameChange}
-      />
-      <TextField
-        className={classes.textField}
-        id="teamDescription"
-        label={intl.formatMessage({ id: 'teamDescriptionLabel' })}
-        value={description}
-        onChange={handleDescriptionChange}
-      />
-      <Button
-        className={classes.addButton}
-        variant="contained"
-        color="primary"
-        onClick={() => addOnClick()}
-      >
-        {intl.formatMessage({ id: 'addButton' })}
-      </Button>
+      <Grid container spacing={16}>
+        <Grid item xs={12} lg={3}>
+          <TextField
+            className={classes.textField}
+            id="teamName"
+            label={intl.formatMessage({ id: 'teamNameLabel' })}
+            value={name}
+            onChange={handleNameChange}
+          />
+        </Grid>
+        <Grid item xs={12} lg={6}>
+          <TextField
+            className={classes.textField}
+            id="teamDescription"
+            label={intl.formatMessage({ id: 'teamDescriptionLabel' })}
+            value={description}
+            onChange={handleDescriptionChange}
+          />
+        </Grid>
+        <Grid className={classes.gridItem} item xs={12} lg={3}>
+          <Button
+            className={classes.addButton}
+            variant="contained"
+            color="primary"
+            onClick={() => addOnClick()}
+          >
+            {intl.formatMessage({ id: 'addButton' })}
+          </Button>
+        </Grid>
+      </Grid>
     </form>
   );
 }

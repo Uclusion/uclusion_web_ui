@@ -33,7 +33,7 @@ const styles = theme => ({
 });
 
 function InvestiblesPage(props) {
-  const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
+  const [lastFetchedMarketId, setLastFetchedMarketId] = useState  (undefined);
   const [selectedStage, setSelectedStage] = useState(undefined);
   const [stageDropdownVisible, setStageDropdownVisible] = useState(true);
   function getMarketInvestibles() {
@@ -57,7 +57,7 @@ function InvestiblesPage(props) {
 
   function onStageSelection(stageId) {
     if (stageId.toLowerCase() === 'all') {
-      setSelectedStage('undefined');
+      setSelectedStage(undefined);
     } else {
       setSelectedStage(stageId);
     }
@@ -69,13 +69,9 @@ function InvestiblesPage(props) {
     const currentSearch = activeInvestibleSearches[marketId];
     if (marketInvestibles && marketInvestibles.length > 0 && currentSearch
       && currentSearch.results && currentSearch.query !== '') {
-      // clear the stage selections
-      setStageDropdownVisible(false);
-      setSelectedStage(undefined);
       // now render the filtered list
       return getFilteredSearchList(marketInvestibles, currentSearch.results);
     }
-    setStageDropdownVisible(true);
     if (marketInvestibles && selectedStage) {
       return marketInvestibles.filter(investible => investible.stage === selectedStage);
     }

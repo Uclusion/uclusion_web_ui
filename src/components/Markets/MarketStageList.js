@@ -8,6 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 // import Input from '@material-ui/core/Input';
 import { FormHelperText } from '@material-ui/core';
+import { injectIntl } from 'react-intl';
 
 function MarketStageList(props) {
   const { onChange, marketStages, intl, marketId } = props;
@@ -19,7 +20,9 @@ function MarketStageList(props) {
   }
 
   function handleChange(event) {
-    onChange(event.target.value);
+    const { value } = event.target;
+    setSelectedStage(value);
+    onChange(value);
   }
 
 
@@ -27,7 +30,7 @@ function MarketStageList(props) {
   function getSelectList(stageItems) {
     return (
       <FormControl>
-        <InputLabel shrink htmFor="select-dropdown-stage">{intl.formatMessage({ id: 'stageSelectLabel'})}</InputLabel>
+        <InputLabel shrink>{intl.formatMessage({ id: 'stageSelectLabel'})}</InputLabel>
         <Select value={selectedStage} onChange={handleChange}>
           {stageItems}
         </Select>
@@ -36,11 +39,11 @@ function MarketStageList(props) {
   }
 
   const stages = marketStages[marketId];
-  let stageList = [];
+  const allStages = <MenuItem key='all' value='all'>{intl.formatMessage({ id: 'stageSelectAllStages' })}</MenuItem>;
+  let stageList = [allStages];
   if (stages) {
-    const allStages = <MenuItem key='all' value='all'>{intl.formatMessage({ id: 'stageSelectAllStages' })}</MenuItem>;
     const stageItems = convertStagesToItems(stageList);
-    stageList = [allStages, ...stageItems];
+    stageList = stageList.concat(stageItems);
   }
   return getSelectList(stageList);
 }
@@ -52,10 +55,11 @@ function mapStateToProps(state) {
 }
 
 MarketStageList.propTypes = {
-  intl: PropTypes.oject.isRequired,
+  intl: PropTypes.object.isRequired,
   marketStages: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
 
 };
 
-export default connect(mapStateToProps)(MarketStageList);
+export default connect(mapStateToProps)(injectIntl(MarketStageList));
+

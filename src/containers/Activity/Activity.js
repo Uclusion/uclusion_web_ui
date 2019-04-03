@@ -146,6 +146,7 @@ function Activity(props) {
     children,
     drawer,
     intl,
+    hideMarketSelect,
     title,
     pageTitle,
     width,
@@ -251,7 +252,7 @@ function Activity(props) {
           {titleButtons}
           <div className={classes.grow} />
           {appBarContent}
-          {marketChoices && (
+          {marketChoices && !hideMarketSelect && (
             <form className={classes.form} autoComplete="off">
               <Typography className={classes.formLabel}>{intl.formatMessage({ id: 'marketDropDown' })}</Typography>
               <FormControl className={classes.formControl}>
@@ -304,6 +305,7 @@ Activity.propTypes = {
   children: PropTypes.object,
   intl: PropTypes.object.isRequired,
   title: PropTypes.string,
+  hideMarketSelect: PropTypes.bool,
   pageTitle: PropTypes.string,
   width: PropTypes.string.isRequired,
   appBarContent: PropTypes.object,

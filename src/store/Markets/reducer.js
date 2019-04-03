@@ -74,6 +74,8 @@ const marketCategories = (state = {}, action) => {
 
 export const getMarkets = state => formatMarkets(state.marketItems);
 
+export const getStages = state => state.marketStages;
+
 export const getMarketCategories = (categories, currentMarketId) => (
   currentMarketId ? categories[currentMarketId] : []);
 

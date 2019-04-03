@@ -1,10 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { getCurrentMarketPresence } from '../../utils/marketSelectionFunctions';
+import PropTypes from 'prop-types';
 import Favorite from '@material-ui/icons/Favorite';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
+import { getCurrentMarketPresence } from '../../utils/marketSelectionFunctions';
 import { followUnfollowMarket } from '../../store/Markets/actions';
-import PropTypes from 'prop-types';
 
 function MarketFollowUnfollow(props) {
 

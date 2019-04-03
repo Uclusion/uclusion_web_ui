@@ -20,6 +20,7 @@ import { getComments } from '../../store/Comments/reducer';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getMarketPresenceName } from '../../utils/marketSelectionFunctions';
 import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfollow';
+import MarketStageList from '../../components/Markets/MarketStageList';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -33,7 +34,8 @@ const styles = theme => ({
 
 function InvestiblesPage(props) {
   const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
-
+  const [selectedStage, setSelectedStage] = useState(undefined);
+  const [stageDropdownVisible, setStageDropdownVisible] = useState(true);
   function getMarketInvestibles() {
     const { marketId, investibles, allCategories } = props;
     if (marketId in investibles) {
@@ -53,13 +55,29 @@ function InvestiblesPage(props) {
     return marketInvestibles.filter(investible => (selector[investible.id]));
   }
 
+  function onStageSelection(stageId) {
+    if (stageId.toLowerCase() === 'all') {
+      setSelectedStage('undefined');
+    } else {
+      setSelectedStage(stageId);
+    }
+  }
+
   function getCurrentInvestibleList() {
     const marketInvestibles = getMarketInvestibles();
     const { activeInvestibleSearches, marketId } = props;
     const currentSearch = activeInvestibleSearches[marketId];
     if (marketInvestibles && marketInvestibles.length > 0 && currentSearch
       && currentSearch.results && currentSearch.query !== '') {
+      // clear the stage selections
+      setStageDropdownVisible(false);
+      setSelectedStage(undefined);
+      // now render the filtered list
       return getFilteredSearchList(marketInvestibles, currentSearch.results);
+    }
+    setStageDropdownVisible(true);
+    if (marketInvestibles && selectedStage) {
+      return marketInvestibles.filter(investible => investible.stage === selectedStage);
     }
     return marketInvestibles;
   }
@@ -147,6 +165,7 @@ function InvestiblesPage(props) {
         && (
           <div className={classes.root}>
             <InvestibleSearchBox />
+            {stageDropdownVisible && <MarketStageList onChange={onStageSelection} marketId={marketId} />}
             <InvestibleList
               location={location}
               teamId={user.default_team_id}

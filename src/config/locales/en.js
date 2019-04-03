@@ -176,6 +176,7 @@ const messages = defineMessages({
   commentBody: 'Your comment...',
   // Sidebar menu names
   marketCategoriesMenu: 'Categories',
+  myInvestmentsMenu: 'My investments',
   marketTeamsMenu: 'Market Teams',
   marketDropDown: 'Market:',
   addInvestibleMenu: 'Add Investible',

@@ -10,6 +10,7 @@ import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import LockIcon from '@material-ui/icons/Lock';
 import ListIcon from '@material-ui/icons/List';
 import ViewColumn from '@material-ui/icons/ViewColumn';
+import Timeline from '@material-ui/icons/Timeline';
 import GroupIcon from '@material-ui/icons/Group';
 import SecurityIcon from '@material-ui/icons/Security'
 // import { themes } from './themes';
@@ -26,11 +27,13 @@ const getMenuItems = (props) => {
 //    themeSource,
     isAuthMenu,
     handleSignOut,
+    upUser,
     userPermissions,
   } = props;
 
   const { canCategorize, isMarketAdmin } = userPermissions;
   const authInfo = getUclusionLocalStorageItem('auth');
+  const myInvestmentsSubpath = upUser ? 'teams#user:' + upUser.id : '';
 
 /*  const themeItems = themes.map(t => ({
     value: undefined,
@@ -58,6 +61,7 @@ const getMenuItems = (props) => {
     ];
   }
 
+
   return [
     {
       value: formCurrentMarketLink('investibles'),
@@ -69,6 +73,12 @@ const getMenuItems = (props) => {
       visible: canCategorize,
       primaryText: intl.formatMessage({ id: 'marketCategoriesMenu' }),
       leftIcon: <ViewColumn />,
+    },
+    {
+      value: formCurrentMarketLink(myInvestmentsSubpath),
+      visible: upUser && userPermissions.canInvest,
+      primaryText: intl.formatMessage({ id: 'myInvestmentsMenu' }),
+      leftIcon: <Timeline />,
     },
     {
       value: formCurrentMarketLink('teams'),

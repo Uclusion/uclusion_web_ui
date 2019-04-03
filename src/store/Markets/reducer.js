@@ -7,6 +7,7 @@ import {
   formatMarkets,
   MARKET_CATEGORY_DELETED,
   MARKET_CATEGORY_CREATED,
+  RECEIVE_MARKET_STAGES,
 } from './actions';
 
 export const marketPropType = PropTypes.shape({
@@ -34,6 +35,18 @@ const marketItems = (state = [], action) => {
     case RECEIVE_MARKET:
       const markets = [action.market];
       return _.unionBy(markets, state, 'id');
+    default:
+      return state;
+  }
+};
+
+const marketStages = (state = {}, action) => {
+  switch(action.type) {
+    case RECEIVE_MARKET_STAGES:
+      const { stages, marketId } = action;
+      const newState = { ...state };
+      newState[marketId] = stages;
+      return newState;
     default:
       return state;
   }
@@ -67,4 +80,5 @@ export const getMarketCategories = (categories, currentMarketId) => (
 export default combineReducers({
   marketItems,
   marketCategories,
+  marketStages
 });

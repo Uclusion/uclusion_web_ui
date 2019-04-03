@@ -7,11 +7,18 @@ export const RECEIVE_MARKET_CATEGORIES = 'RECEIVE_MARKET_CATEGORIES';
 export const MARKET_CATEGORY_DELETED = 'MARKET_CATEGORY_DELETED';
 export const MARKET_CATEGORY_CREATED = 'MARKET_CATEGORY_CREATED';
 export const FOLLOWED_MARKET = 'FOLLOWED_MARKET';
+export const RECEIVE_MARKET_STAGES = 'RECEIVE_MARKET_STAGES';
 
 
 export const receiveMarket = market => ({
   type: RECEIVE_MARKET,
   market,
+});
+
+export const receiveMarketStages = (stages, marketId) => ({
+  type: RECEIVE_MARKET_STAGES,
+  stages,
+  marketId,
 });
 
 export const receiveMarketCategories = (categories, marketId) => ({
@@ -50,13 +57,26 @@ export const followUnfollowMarket = (params = {}) => (dispatch) => {
     });
 };
 
+export const fetchMarketStages = (params = {}) => (dispatch) => {
+  const clientPromise = getClient();
+  const { marketId } = params;
+  console.debug('Fetching market stages');
+  return clientPromise.then(client => client.markets.listStages(marketId))
+    .then((stageList) => {
+      dispatch(receiveMarketStages(stageList, marketId));
+    }).catch((error) => {
+      console.log(error);
+    });
+};
+
 export const fetchMarketCategories = (params = {}) => (dispatch) => {
   const clientPromise = getClient();
-  console.log('Fetching market categories');
-  return clientPromise.then(client => client.markets.listInvestibles(params.marketId))
+  console.debug('Fetching market categories');
+  const { marketId } = params;
+  return clientPromise.then(client => client.markets.listInvestibles(marketId))
     .then((response) => {
       const { categories } = response;
-      dispatch(receiveMarketCategories(categories, params.marketId));
+      dispatch(receiveMarketCategories(categories, marketId));
     }).catch((error) => {
       console.log(error);
       dispatch(receiveMarketCategories({}));

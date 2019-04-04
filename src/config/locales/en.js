@@ -174,6 +174,10 @@ const messages = defineMessages({
   teamDescriptionLabel: 'Description',
   descriptionBody: 'Your description...',
   commentBody: 'Your comment...',
+  // About pages
+  clearStorageLabel: 'Clear local storage and logout',
+  clearStorageButton: 'Clear',
+
   // Sidebar menu names
   marketCategoriesMenu: 'Categories',
   myInvestmentsMenu: 'My investments',

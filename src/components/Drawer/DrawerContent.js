@@ -30,6 +30,7 @@ export const DrawerContent = (props, context) => {
 
   const handleSignOut = () => {
     setUclusionLocalStorageItem('auth', null);
+    window.refresh();
   };
 
   return (

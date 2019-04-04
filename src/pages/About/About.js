@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Paper, Typography } from '@material-ui/core';
+import { Paper, Typography, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import Activity from '../../containers/Activity/Activity';
@@ -9,6 +9,7 @@ import withAppConfigs from '../../utils/withAppConfigs';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
+import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 
 const styles = theme => ({
   root: {
@@ -45,6 +46,7 @@ function About(props) {
     appConfig,
     marketId,
     classes,
+    history,
     intl,
   } = props;
 
@@ -65,6 +67,18 @@ function About(props) {
     return () => {
     };
   }, [marketId]);
+
+  function handleClear() {
+    localStorage.clear();
+    indexedDB.deleteDatabase('localforage');
+    navigator.serviceWorker.getRegistrations()
+      .then((registrations) => {
+        registrations.forEach((registration) => {
+          registration.unregister();
+        });
+      });
+    history.push(formCurrentMarketLink('Login'));
+  }
 
   // Each one of the paper blocks here represent a logical section of the page. We'll probably
   // want to skin it with pretty headers etc.
@@ -117,6 +131,8 @@ function About(props) {
               </Typography>
             </Paper>
           )}
+          <br/>
+          <Button color='primary' onClick={handleClear}>{intl.formatMessage({ id: 'clearStorageLabel' })}</Button>
         </div>
       </Activity>
     </div>
@@ -128,6 +144,8 @@ About.propTypes = {
   userPermissions: PropTypes.object,
   appConfig: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
-};
+  intl: PropTypes.object.isRequired,
+}
+
 
 export default injectIntl(withUserAndPermissions(withAppConfigs(withMarketId(withStyles(styles)(About)))));

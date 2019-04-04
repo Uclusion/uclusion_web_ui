@@ -14,12 +14,14 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import { fetchInvestibleList } from '../../store/MarketInvestibles/actions';
 import LoginModal from '../Login/LoginModal';
 import InvestibleSearchBox from '../../components/Investibles/InvestibleSearchBox';
-import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
+import { getActiveInvestibleSearches, getSelectedStage } from '../../store/ActiveSearches/reducer';
 import { fetchCommentList } from '../../store/Comments/actions';
 import { getComments } from '../../store/Comments/reducer';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getMarketPresenceName } from '../../utils/marketSelectionFunctions';
 import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfollow';
+import MarketStageList from '../../components/Markets/MarketStageList';
+import { fetchMarketStages } from '../../store/Markets/actions';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -32,10 +34,11 @@ const styles = theme => ({
 });
 
 function InvestiblesPage(props) {
-  const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
+  const [lastFetchedMarketId, setLastFetchedMarketId] = useState  (undefined);
+  const { marketId } = props;
 
   function getMarketInvestibles() {
-    const { marketId, investibles, allCategories } = props;
+    const { investibles, allCategories } = props;
     if (marketId in investibles) {
       return investibles[marketId];
     }
@@ -53,20 +56,31 @@ function InvestiblesPage(props) {
     return marketInvestibles.filter(investible => (selector[investible.id]));
   }
 
-  function getCurrentInvestibleList() {
+  function getSearchFilteredInvestibles(){
     const marketInvestibles = getMarketInvestibles();
-    const { activeInvestibleSearches, marketId } = props;
+    const { activeInvestibleSearches } = props;
     const currentSearch = activeInvestibleSearches[marketId];
     if (marketInvestibles && marketInvestibles.length > 0 && currentSearch
       && currentSearch.results && currentSearch.query !== '') {
+      // now render the filtered list
       return getFilteredSearchList(marketInvestibles, currentSearch.results);
     }
     return marketInvestibles;
   }
 
+  function getCurrentInvestibleList() {
+    const searched = getSearchFilteredInvestibles();
+    const { selectedStage } = props;
+    if (selectedStage && selectedStage[marketId]) {
+      const stage = selectedStage[marketId];
+      return searched.filter(element => element.stage === stage);
+    }
+    return searched;
+  }
+
   function getItems() {
     const {
-      investibles, marketId, dispatch, comments, userPermissions,
+      investibles, dispatch, comments, userPermissions,
       history: { location: { pathname } },
     } = props;
     const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
@@ -79,13 +93,13 @@ function InvestiblesPage(props) {
       const currentInvestibleList = marketId in investibles ? investibles[marketId] : [];
       const currentCommentList = marketId in comments ? comments[marketId] : [];
       dispatch(fetchInvestibleList({ marketId, currentInvestibleList }));
+      dispatch(fetchMarketStages({ marketId }));
       if (canReadComments) {
         dispatch(fetchCommentList({ marketId, currentCommentList }));
       }
     }
   }
   useEffect(() => {
-    const { marketId } = props;
     if (lastFetchedMarketId !== marketId) {
       // useEffect may happen many  times but initial fetch only when market changes
       getItems();
@@ -99,7 +113,6 @@ function InvestiblesPage(props) {
   const {
     intl,
     allCategories,
-    marketId,
     user,
     history,
     classes,
@@ -147,6 +160,7 @@ function InvestiblesPage(props) {
         && (
           <div className={classes.root}>
             <InvestibleSearchBox />
+            <MarketStageList marketId={marketId} />
             <InvestibleList
               location={location}
               teamId={user.default_team_id}
@@ -184,6 +198,7 @@ InvestiblesPage.propTypes = {
   marketId: PropTypes.string,
   user: PropTypes.object,
   activeInvestibleSearches: PropTypes.object,
+  selectedStage: PropTypes.object,
   history: PropTypes.object.isRequired,
   userPermissions: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
@@ -195,6 +210,7 @@ const mapStateToProps = state => ({
   comments: getComments(state.commentsReducer),
   user: getCurrentUser(state.usersReducer),
   activeInvestibleSearches: getActiveInvestibleSearches(state.activeSearches),
+  selectedStage: getSelectedStage(state.activeSearches),
 });
 
 function mapDispatchToProps(dispatch) {

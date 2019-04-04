@@ -52,6 +52,28 @@ const styles = theme => ({
 });
 
 class InvestibleListItem extends React.PureComponent {
+
+  getNextStageContent(investible) {
+    const { classes, intl } = this.props;
+    if (investible.next_stage_name) {
+      return (
+        <div className={classNames(classes.flex, classes.row)}>
+              <span className={classes.stageLabel}>
+                {intl.formatMessage({ id: 'nextStageLabel' })}
+              </span>
+          <div className={classes.stageContent}>
+            <div>{investible.next_stage_name}</div>
+            <div className={classes.numSharesText}>
+              {investible.next_stage_threshold && intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return (<div/>);
+
+  }
+
   render() {
     const {
       classes,
@@ -66,30 +88,22 @@ class InvestibleListItem extends React.PureComponent {
           <Typography component="div">
             <div className={classNames(classes.flex, classes.investibleName)}>
               {investible.name}
-              <InvestibleFollowUnfollow investible={investible} />
+              <InvestibleFollowUnfollow investible={investible}/>
             </div>
             <div className={classNames(classes.flex, classes.row)}>
               <span className={classes.stageLabel}>
                 {intl.formatMessage({ id: 'currentStageLabel' })}
               </span>
               <div className={classes.stageContent}>
-                <div>{intl.formatMessage({ id: investible.stage })}</div>
+                <div>{investible.stage_name}</div>
                 <div className={classes.numSharesText}>
                   {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })}
                 </div>
               </div>
             </div>
-            <div className={classNames(classes.flex, classes.row)}>
-              <span className={classes.stageLabel}>
-                {intl.formatMessage({ id: 'nextStageLabel' })}
-              </span>
-              <div className={classes.stageContent}>
-                <div>{intl.formatMessage({ id: investible.next_stage })}</div>
-                <div className={classes.numSharesText}>
-                  {intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })}
-                </div>
-              </div>
-            </div>
+
+            {this.getNextStageContent(investible)}
+
           </Typography>
         </Link>
       </Card>

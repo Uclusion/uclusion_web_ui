@@ -68,9 +68,37 @@ function About(props) {
     };
   }, [marketId]);
 
+  function clearIndexDB() {
+    function deleteData() {
+      console.log(db.objectStoreNames);
+      // open a read/write db transaction, ready for deleting the data
+      var transaction = db.transaction(['keyvaluepairs'], 'readwrite');
+      // report on the success of the transaction completing, when everything is done
+      var objStore = transaction.objectStore('keyvaluepairs');
+      objStore.clear();
+      transaction.oncomplete = function (event) {
+        console.debug('Clear transaction completed.');
+      };
+      transaction.onerror = function (event) {
+        console.log('Clear transaction not opened due to error');
+      };
+    }
+
+    var DBOpenRequest = window.indexedDB.open('localforage', 2);
+    var db;
+
+    DBOpenRequest.onsuccess = function (event) {
+      console.debug('Db opened for clear');
+      // store the result of opening the database in the db variable. This is used a lot below
+      db = DBOpenRequest.result;
+      // Run the deleteData() function to delete a record from the database
+      deleteData();
+    };
+  }
+
   function handleClear() {
     localStorage.clear();
-    indexedDB.deleteDatabase('localforage');
+    clearIndexDB();
     navigator.serviceWorker.getRegistrations()
       .then((registrations) => {
         registrations.forEach((registration) => {
@@ -145,7 +173,6 @@ About.propTypes = {
   appConfig: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
-}
-
+};
 
 export default injectIntl(withUserAndPermissions(withAppConfigs(withMarketId(withStyles(styles)(About)))));

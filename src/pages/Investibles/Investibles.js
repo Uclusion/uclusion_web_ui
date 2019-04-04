@@ -34,11 +34,18 @@ const styles = theme => ({
   topActions: {
     width: '100%',
     display: 'flex',
-    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
   },
   stageSelector: {
-    verticalAlign: 'center',
-  }
+    display: 'flex',
+    alignItems: 'center',
+    margin: theme.spacing.unit,
+    marginTop: theme.spacing.unit * 2,
+    width: 384,
+    [theme.breakpoints.only('xs')]: {
+      width: '100%',
+    },
+  },
 });
 
 function InvestiblesPage(props) {
@@ -171,8 +178,8 @@ function InvestiblesPage(props) {
             <div className={classes.topActions}>
               <InvestibleSearchBox />
               <div className={classes.stageSelector}>
-                <MarketStageList/>
-                <MarketFollowUnfollow/>
+                <MarketStageList />
+                <MarketFollowUnfollow />
               </div>
 
             </div>

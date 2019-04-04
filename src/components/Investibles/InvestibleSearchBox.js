@@ -1,25 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { withTheme, withStyles } from '@material-ui/core/styles';
+import { injectIntl } from 'react-intl';
 import elasticlunr from 'elasticlunr';
 import {
   FormControl,
   Input,
   InputLabel,
-  InputAdornment, FormHelperText,
+  InputAdornment,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { updateSearchResults } from '../../store/ActiveSearches/actions';
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 import { getSerializedMarketIndexes } from '../../store/SearchIndexes/reducer';
 import { withMarketId } from '../PathProps/MarketId';
-import { injectIntl } from 'react-intl';
 
 const styles = theme => ({
   root: {
     margin: theme.spacing.unit,
     marginTop: theme.spacing.unit * 2,
-    maxWidth: 384,
+    width: 384,
+    [theme.breakpoints.only('xs')]: {
+      width: '100%',
+    },
   },
 });
 
@@ -65,6 +68,7 @@ function InvestibleSearchBox(props) {
       <Input
         id="adornment-search"
         type="text"
+        placeholder={intl.formatMessage({ id: 'searchBoxHelper' })}
         value={marketSearchQuery}
         onChange={event => doSearch(event.target.value)}
         endAdornment={(
@@ -73,7 +77,6 @@ function InvestibleSearchBox(props) {
           </InputAdornment>
         )}
       />
-      <FormHelperText>{intl.formatMessage({ id: 'searchBoxHelper' })}</FormHelperText>
     </FormControl>
   );
 }

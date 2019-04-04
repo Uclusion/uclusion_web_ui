@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
+import { withStyles } from '@material-ui/core';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
@@ -10,38 +11,54 @@ import InputLabel from '@material-ui/core/InputLabel';
 import { changeStageSelection } from '../../store/ActiveSearches/actions';
 import { getStages } from '../../store/Markets/reducer';
 import { getSelectedStage } from '../../store/ActiveSearches/reducer';
-import { FormHelperText } from '@material-ui/core';
+
+const styles = theme => ({
+  root: {
+    flex: 1,
+  },
+});
 
 function MarketStageList(props) {
-  const { marketStages, intl, marketId, dispatch, selectedStage } = props;
+  const {
+    marketStages,
+    intl,
+    marketId,
+    dispatch,
+    selectedStage,
+    classes,
+  } = props;
 
   function convertStagesToItems(stageList) {
-    const items = stageList.map((stage, index) => <MenuItem key={index} value={stage.id}>{stage.name}</MenuItem>);
-    return items;
+    return stageList.map((stage, index) => (
+      <MenuItem key={index} value={stage.id}>{stage.name}</MenuItem>
+    ));
   }
 
   const activeStage = selectedStage && selectedStage[marketId];
 
   function handleChange(event) {
     const { value } = event.target;
-    const actualValue = value === 'all' ? undefined : value;
-    dispatch(changeStageSelection(actualValue, marketId));
+    dispatch(changeStageSelection(value, marketId));
   }
 
   function getSelectList(stageItems) {
     return (
-      <FormControl>
-        <InputLabel shrink htmlFor='adornment-stage'>{intl.formatMessage({ id: 'stageSelectLabel' })}</InputLabel>
-        <Select id='adornment-stage' value={ activeStage || 'all'} onChange={handleChange}>
+      <FormControl className={classes.root}>
+        <InputLabel shrink htmlFor="adornment-stage">{intl.formatMessage({ id: 'stageSelectLabel' })}</InputLabel>
+        <Select id="adornment-stage" value={activeStage || 'all'} onChange={handleChange}>
+          <MenuItem value="all" disabled>
+            {intl.formatMessage({ id: 'stageSelectHelper' })}
+          </MenuItem>
           {stageItems}
         </Select>
-        <FormHelperText> {intl.formatMessage({ id: 'stageSelectHelper' })}</FormHelperText>
-      </FormControl>);
+      </FormControl>
+    );
   }
 
   const stages = marketStages && marketStages[marketId];
-  const allStages = { id: 'all', name: intl.formatMessage({ id: 'stageSelectAllStages' }) };
-  let stageList = [allStages];
+  // const allStages = { id: 'all', name: intl.formatMessage({ id: 'stageSelectAllStages' }) };
+  // let stageList = [allStages];
+  let stageList = [];
   if (stages) {
     stageList = stageList.concat(stages);
   }
@@ -68,5 +85,6 @@ MarketStageList.propTypes = {
   selectedStage: PropTypes.object,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(MarketStageList));
-
+export default connect(mapStateToProps, mapDispatchToProps)(
+  withStyles(styles)(injectIntl(MarketStageList)),
+);

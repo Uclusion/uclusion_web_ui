@@ -43,6 +43,7 @@ const styles = theme => ({
   },
   inviteUrl: {
     wordBreak: 'break-all',
+    marginBottom: theme.spacing.unit,
   },
 });
 
@@ -70,6 +71,15 @@ function InviteListItem(props) {
     }).catch((e) => {
       console.error(e);
     });
+  }
+
+  function handleCopyLink() {
+    const el = document.createElement('textarea');
+    el.value = inviteUrl;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
   }
 
   return (
@@ -130,6 +140,14 @@ function InviteListItem(props) {
             onClick={handleSubmit}
           >
             Get Invite Link
+          </Button>
+        )}
+        {inviteUrl && (
+          <Button
+            variant="contained"
+            onClick={handleCopyLink}
+          >
+            Copy Link
           </Button>
         )}
       </Card>

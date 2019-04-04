@@ -80,7 +80,7 @@ function mapDispatchToProps(dispatch) {
 MarketStageList.propTypes = {
   intl: PropTypes.object.isRequired,
   marketStages: PropTypes.object.isRequired,
-  marketId: PropTypes.string.isRequired,
+  marketId: PropTypes.string,
   dispatch: PropTypes.func.isRequired,
   selectedStage: PropTypes.object,
 };

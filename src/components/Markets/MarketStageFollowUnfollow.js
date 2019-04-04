@@ -15,20 +15,33 @@ function MarketStageFollowUnfollow(props) {
     marketStages
   } = props;
   const currentStage = selectedStage && selectedStage[marketId];
-  const following = currentStage && marketStages && marketStages[marketId];
 
-  function onClick() {
+  function amFollowing() {
+    // we are following if we have everything available, and it's following is true
+    const stageInfoAvailable = currentStage && marketStages && marketStages[marketId];
+    if (stageInfoAvailable) {
+      const currentStageObject = marketStages[marketId].find(element => element.id === currentStage);
+      return currentStageObject.following;
+    }
+    return false;
+  }
+
+  const following = amFollowing();
+
+  function doFollowingToggle() {
     // check if we have a current stage and if we have accurate follow info
+    console.log("checking following");
     if (currentStage && marketStages && marketStages[marketId]) {
-      dispatch(followUnFollowMarketStage({ marketId, currentStage, following }));
+      console.log("Following");
+      dispatch(followUnFollowMarketStage({ marketId, stageId: currentStage, following }));
     }
   }
 
   function getIcon() {
     if (following) {
-      return <Favorite onClick={onClick} />;
+      return <Favorite onClick={() => doFollowingToggle()} />;
     }
-    return <FavoriteBorder onClick={onClick} />;
+    return <FavoriteBorder onClick={() => doFollowingToggle()} />;
   }
 
   return getIcon();

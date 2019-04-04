@@ -21,6 +21,7 @@ import { withUserAndPermissions } from '../../components/UserPermissions/UserPer
 import { getMarketPresenceName } from '../../utils/marketSelectionFunctions';
 import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfollow';
 import MarketStageList from '../../components/Markets/MarketStageList';
+import MarketStageFollowUnfollow from '../../components/Markets/MarketStageFollowUnfollow';
 import { fetchMarketStages } from '../../store/Markets/actions';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
@@ -178,8 +179,8 @@ function InvestiblesPage(props) {
             <div className={classes.topActions}>
               <InvestibleSearchBox />
               <div className={classes.stageSelector}>
-                <MarketStageList />
-                <MarketFollowUnfollow />
+                <MarketStageList marketId={marketId} />
+                <MarketStageFollowUnfollow marketId={marketId} />
               </div>
 
             </div>

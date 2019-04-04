@@ -21,7 +21,7 @@ function MarketStageFollowUnfollow(props) {
     const stageInfoAvailable = currentStage && marketStages && marketStages[marketId];
     if (stageInfoAvailable) {
       const currentStageObject = marketStages[marketId].find(element => element.id === currentStage);
-      return currentStageObject.following;
+      return currentStageObject && currentStageObject.following;
     }
     return false;
   }
@@ -41,7 +41,10 @@ function MarketStageFollowUnfollow(props) {
     if (following) {
       return <Favorite onClick={() => doFollowingToggle()} />;
     }
-    return <FavoriteBorder onClick={() => doFollowingToggle()} />;
+    if (currentStage) {
+      return <FavoriteBorder onClick={() => doFollowingToggle()}/>;
+    }
+    return <div />;
   }
 
   return getIcon();

@@ -38,16 +38,21 @@ function MarketStageList(props) {
 
   function handleChange(event) {
     const { value } = event.target;
-    dispatch(changeStageSelection(value, marketId));
+    // we map 'unselected' to undefined in order to zero out the selection in the reducer without
+    const realValue = value === 'unselected' ? undefined : value;
+    dispatch(changeStageSelection(realValue, marketId));
   }
 
   function getSelectList(stageItems) {
     return (
       <FormControl className={classes.root}>
         <InputLabel shrink htmlFor="adornment-stage">{intl.formatMessage({ id: 'stageSelectLabel' })}</InputLabel>
-        <Select id="adornment-stage" value={activeStage || 'all'} onChange={handleChange}>
-          <MenuItem value="all" disabled>
+        <Select id="adornment-stage" value={activeStage || 'unselected'} onChange={handleChange}>
+          <MenuItem value="helper" disabled>
             {intl.formatMessage({ id: 'stageSelectHelper' })}
+          </MenuItem>
+          <MenuItem value="unselected">
+            {intl.formatMessage({ id: 'stageSelectAllStages' })}
           </MenuItem>
           {stageItems}
         </Select>

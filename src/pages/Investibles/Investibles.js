@@ -31,10 +31,18 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column',
   },
+  topActions: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'flex-start',
+  },
+  stageSelector: {
+    verticalAlign: 'center',
+  }
 });
 
 function InvestiblesPage(props) {
-  const [lastFetchedMarketId, setLastFetchedMarketId] = useState  (undefined);
+  const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
   const { marketId } = props;
 
   function getMarketInvestibles() {
@@ -56,7 +64,7 @@ function InvestiblesPage(props) {
     return marketInvestibles.filter(investible => (selector[investible.id]));
   }
 
-  function getSearchFilteredInvestibles(){
+  function getSearchFilteredInvestibles() {
     const marketInvestibles = getMarketInvestibles();
     const { activeInvestibleSearches } = props;
     const currentSearch = activeInvestibleSearches[marketId];
@@ -99,6 +107,7 @@ function InvestiblesPage(props) {
       }
     }
   }
+
   useEffect(() => {
     if (lastFetchedMarketId !== marketId) {
       // useEffect may happen many  times but initial fetch only when market changes
@@ -154,27 +163,37 @@ function InvestiblesPage(props) {
         isLoading={currentInvestibleList === undefined}
         containerStyle={{ overflow: 'hidden' }}
         title={intl.formatMessage({ id: 'marketInvestiblesTitle' }, { marketName: currentMarketName })}
-        titleButtons={<MarketFollowUnfollow user={user} marketId={marketId} />}
+        titleButtons={<MarketFollowUnfollow user={user} marketId={marketId}/>}
       >
         {currentInvestibleList && user && user.market_presence
         && (
-          <div className={classes.root}>
-            <InvestibleSearchBox />
-            <MarketStageList marketId={marketId} />
-            <InvestibleList
-              location={location}
-              teamId={user.default_team_id}
-              user={user}
-              marketId={marketId}
-              investibles={currentInvestibleList}
-              categories={categories}
-            />
-            {investibleDetail && (
-            <InvestibleDetail
-              investible={investibleDetail}
-              onClose={() => history.push(pathname)}
-            />
-            )}
+          <div>
+            <div className={classes.topActions}>
+              <InvestibleSearchBox />
+              <div className={classes.stageSelector}>
+                <MarketStageList/>
+                <MarketFollowUnfollow/>
+              </div>
+
+            </div>
+            <div className={classes.root}>
+
+
+              <InvestibleList
+                location={location}
+                teamId={user.default_team_id}
+                user={user}
+                marketId={marketId}
+                investibles={currentInvestibleList}
+                categories={categories}
+              />
+              {investibleDetail && (
+                <InvestibleDetail
+                  investible={investibleDetail}
+                  onClose={() => history.push(pathname)}
+                />
+              )}
+            </div>
           </div>
         )}
       </Activity>

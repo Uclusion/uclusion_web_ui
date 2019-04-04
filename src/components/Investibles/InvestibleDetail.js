@@ -61,7 +61,7 @@ const styles = theme => ({
   },
   bottomActions: {
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
   },
   investibleName: {

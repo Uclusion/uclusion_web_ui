@@ -8,7 +8,7 @@ export const MARKET_CATEGORY_DELETED = 'MARKET_CATEGORY_DELETED';
 export const MARKET_CATEGORY_CREATED = 'MARKET_CATEGORY_CREATED';
 export const FOLLOWED_MARKET = 'FOLLOWED_MARKET';
 export const RECEIVE_MARKET_STAGES = 'RECEIVE_MARKET_STAGES';
-
+export const FOLLOWED_MARKET_STAGE = 'FOLLOWED_MARKET_STAGE';
 
 export const receiveMarket = market => ({
   type: RECEIVE_MARKET,
@@ -45,6 +45,13 @@ export const followedMarket = (marketId, following) => ({
   following
 });
 
+export const followedMarketStage = (marketId, stageId, following) => ({
+  type: FOLLOWED_MARKET_STAGE,
+  marketId,
+  stageId,
+  following
+});
+
 export const followUnfollowMarket = (params = {}) => (dispatch) => {
   const { marketId, following } = params;
   const clientPromise = getClient();
@@ -53,7 +60,19 @@ export const followUnfollowMarket = (params = {}) => (dispatch) => {
       dispatch(followedMarket(marketId, response.following));
     }).catch((error) => {
       console.log(error);
-      sendIntlMessage(ERROR, { id: 'marketFollowFailed'})
+      sendIntlMessage(ERROR, { id: 'marketFollowFailed'});
+    });
+};
+
+export const followUnFollowMarketStage = (params = {}) => (dispatch) => {
+  const { marketId, stageId, following } = params;
+  const clientPromise = getClient();
+  return clientPromise.then(client => client.markets.followStage(stageId, marketId, following))
+    .then((response) => {
+      dispatch(followedMarketStage(marketId, stageId, response.following));
+    }).catch((error) => {
+      console.log(error);
+      sendIntlMessage(error, { id: 'stageFollowFailed'});
     });
 };
 

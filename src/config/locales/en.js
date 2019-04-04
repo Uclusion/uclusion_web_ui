@@ -203,9 +203,13 @@ const messages = defineMessages({
   login_admin: 'Login Admin',
   login_user: 'Login User',
   login_guest: 'Login Guest',
+  //search box
+  searchBoxLabel: 'Search Investibles',
+  searchBoxHelper: 'Type to search',
   // marketStages drop down
   stageSelectAllStages: 'All',
-  stageSelectHelper: 'View by stage',
+  stageSelectLabel: 'Stage',
+  stageSelectHelper: 'Select to filter view',
   // auth messages
   authorizationFailed: 'We\'re sorry, authorization failed. Please try again',
   authorizationInProgress: 'Logging you in...',
@@ -214,6 +218,7 @@ const messages = defineMessages({
   // User messages
   marketFetchFailed: 'There was a problem loading the market. Please try again',
   marketFollowFailed: 'We could not change your favorite selection. Please try again',
+  stageFollowFailed: 'We could not change your favorite selection. Please try again',
   investmentFailed: 'There was a problem investing. Please try again.',
   refundFailed: 'There was a problem refunding. Please try again.',
   investmentSucceeded: 'You have invested Ȗ{shares}.',

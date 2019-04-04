@@ -6,9 +6,11 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
+
 import { changeStageSelection } from '../../store/ActiveSearches/actions';
 import { getStages } from '../../store/Markets/reducer';
 import { getSelectedStage } from '../../store/ActiveSearches/reducer';
+import { FormHelperText } from '@material-ui/core';
 
 function MarketStageList(props) {
   const { marketStages, intl, marketId, dispatch, selectedStage } = props;
@@ -29,10 +31,11 @@ function MarketStageList(props) {
   function getSelectList(stageItems) {
     return (
       <FormControl>
-        <InputLabel shrink>{intl.formatMessage({ id: 'stageSelectHelper' })}</InputLabel>
-        <Select value={ activeStage || 'all'} onChange={handleChange}>
+        <InputLabel shrink htmlFor='adornment-stage'>{intl.formatMessage({ id: 'stageSelectLabel' })}</InputLabel>
+        <Select id='adornment-stage' value={ activeStage || 'all'} onChange={handleChange}>
           {stageItems}
         </Select>
+        <FormHelperText> {intl.formatMessage({ id: 'stageSelectHelper' })}</FormHelperText>
       </FormControl>);
   }
 
@@ -50,7 +53,7 @@ function mapStateToProps(state) {
   return {
     marketStages: getStages(state.marketsReducer),
     selectedStage: getSelectedStage(state.activeSearches),
-  }; // not used yet
+  };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -63,7 +66,6 @@ MarketStageList.propTypes = {
   marketId: PropTypes.string.isRequired,
   dispatch: PropTypes.func.isRequired,
   selectedStage: PropTypes.object,
-
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(MarketStageList));

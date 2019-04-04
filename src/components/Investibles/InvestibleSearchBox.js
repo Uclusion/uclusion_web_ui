@@ -6,13 +6,14 @@ import {
   FormControl,
   Input,
   InputLabel,
-  InputAdornment,
+  InputAdornment, FormHelperText,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { updateSearchResults } from '../../store/ActiveSearches/actions';
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 import { getSerializedMarketIndexes } from '../../store/SearchIndexes/reducer';
 import { withMarketId } from '../PathProps/MarketId';
+import { injectIntl } from 'react-intl';
 
 const styles = theme => ({
   root: {
@@ -30,6 +31,7 @@ function InvestibleSearchBox(props) {
     serializedIndexes,
     searches,
     classes,
+    intl,
   } = props;
 
   const marketSearch = searches[marketId];
@@ -59,7 +61,7 @@ function InvestibleSearchBox(props) {
 
   return (
     <FormControl className={classes.root}>
-      <InputLabel htmlFor="adornment-search" shrink>Search Investibles</InputLabel>
+      <InputLabel htmlFor="adornment-search" shrink>{intl.formatMessage({ id: 'searchBoxLabel' })}</InputLabel>
       <Input
         id="adornment-search"
         type="text"
@@ -71,6 +73,7 @@ function InvestibleSearchBox(props) {
           </InputAdornment>
         )}
       />
+      <FormHelperText>{intl.formatMessage({ id: 'searchBoxHelper' })}</FormHelperText>
     </FormControl>
   );
 }
@@ -89,4 +92,4 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTheme()(withMarketId(InvestibleSearchBox))));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTheme()(withMarketId(injectIntl(InvestibleSearchBox)))));

@@ -9,10 +9,11 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import TeamAdd from '../../components/Invite/TeamAdd';
 import InviteList from '../../components/Invite/InviteList';
+import AdminAdd from '../../components/Invite/AdminAdd';
 
 function Invite(props) {
   const [teams, setTeams] = useState([]);
-  const { intl, userPermissions, marketId } = props;
+  const { intl, userPermissions, upUser, marketId } = props;
   const { canListAccountTeams } = userPermissions;
 
   useEffect(() => {
@@ -41,8 +42,15 @@ function Invite(props) {
       containerStyle={{ overflow: 'hidden' }}
       title={intl.formatMessage({ id: 'inviteHeader' })}
     >
-      <TeamAdd marketId={marketId} teams={teams} teamsSet={setTeams} />
-      <InviteList teams={teams} />
+      <div>
+        {canListAccountTeams && (
+          <TeamAdd marketId={marketId} teams={teams} teamsSet={setTeams} />
+        )}
+        {canListAccountTeams && (
+          <AdminAdd upUser={upUser} />
+        )}
+        <InviteList teams={teams} />
+      </div>
     </Activity>
   );
 }

@@ -236,6 +236,8 @@ const messages = defineMessages({
   marketCategoryCreateFailed: 'There was a problem adding the category to the market. Please try again',
   marketTeamCreated: 'The team has been added to the market.',
   marketTeamCreateFailed: 'There was a problem adding the team to the market. Please try again',
+  userCreated: 'The user has been added as an admin.',
+  userCreateFailed: 'There was a problem adding the user to your team. Please try again',
   investibleListFetchFailed: 'Unable to fetch your list of investibles. Please refresh the page',
   investibleFetchFailed: 'Unable to fetch your investibles. Please refresh the page',
   commentsFetchFailed: 'We\'re sorry comments can not be fetched right now. Please reload the page',

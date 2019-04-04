@@ -1,5 +1,5 @@
 import { combineReducers } from "redux";
-import { INVESTIBLE_SEARCH_RESULTS } from './actions';
+import { INVESTIBLE_SEARCH_RESULTS, CHANGE_STAGE_SELECTION } from './actions';
 
 
 function investibleSearches(state = {}, action) {
@@ -12,9 +12,23 @@ function investibleSearches(state = {}, action) {
       return state;
   }
 }
-export function getActiveInvestibleSearches(state){
+export function getActiveInvestibleSearches(state) {
   return state.investibleSearches;
 }
 
+function selectedStage(state = {}, action) {
+  const newState = { ...state };
+  switch (action.type) {
+    case CHANGE_STAGE_SELECTION:
+      newState[action.marketId] = action.selectedStage;
+      return newState;
+    default:
+      return state;
+  }
+}
 
-export default combineReducers({ investibleSearches });
+export function getSelectedStage(state) {
+  return state.selectedStage;
+}
+
+export default combineReducers({ investibleSearches, selectedStage });

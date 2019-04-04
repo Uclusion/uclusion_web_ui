@@ -200,7 +200,6 @@ const messages = defineMessages({
   login_guest: 'Login Guest',
   // marketStages drop down
   stageSelectAllStages: 'All',
-  stageSelectLabel: 'Stage',
   stageSelectHelper: 'View by stage',
   // auth messages
   authorizationFailed: 'We\'re sorry, authorization failed. Please try again',

@@ -1,6 +1,6 @@
 import { fetchUser } from '../store/Users/actions';
 import { setUclusionLocalStorageItem } from '../components/utils';
-import { fetchMarket } from '../store/Markets/actions';
+import { fetchMarket, fetchMarketStages } from '../store/Markets/actions';
 
 export function postAuthTasks(uclusionToken, tokenType, dispatch, market_id, user, webSocket) {
   if (uclusionToken) {
@@ -12,5 +12,6 @@ export function postAuthTasks(uclusionToken, tokenType, dispatch, market_id, use
   dispatch(fetchMarket({ market_id }));
   // Have the user from login but not the market presences which this fetch user will retrieve
   dispatch(fetchUser({ marketId: market_id, user }));
+  dispatch(fetchMarketStages({ marketId: market_id }));
   webSocket.subscribe(user.id, { market_id });
 }

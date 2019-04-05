@@ -88,7 +88,7 @@ class InvestibleListItem extends React.PureComponent {
           <Typography component="div">
             <div className={classNames(classes.flex, classes.investibleName)}>
               {investible.name}
-              <InvestibleFollowUnfollow investible={investible}/>
+              <InvestibleFollowUnfollow investible={investible} />
             </div>
             <div className={classNames(classes.flex, classes.row)}>
               <span className={classes.stageLabel}>
@@ -104,6 +104,10 @@ class InvestibleListItem extends React.PureComponent {
 
             {this.getNextStageContent(investible)}
 
+          </Typography>
+          {investible.current_user_investment > 0 && (<br />)}
+          <Typography className={classes.availableShares}>
+            {investible.current_user_investment > 0 && `* ${intl.formatMessage({ id: 'userInvestedShares' }, { shares: investible.current_user_investment })}`}
           </Typography>
         </Link>
       </Card>

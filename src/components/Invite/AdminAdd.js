@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { Grid, Button, TextField } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import _ from 'lodash';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import { getClient } from '../../config/uclusionClient';
 

@@ -8,8 +8,10 @@ import InviteListItem from './InviteListItem';
 
 const styles = theme => ({
   root: {
+    flex: 1,
     width: '100%',
-    overflow: 'hidden',
+    overflowX: 'hidden',
+    overflowY: 'auto',
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
   },

@@ -4,7 +4,7 @@ import { Switch, withRouter } from 'react-router-dom';
 import getAppRoutes from '../../components/AppRoutes';
 import withAppConfigs from '../../utils/withAppConfigs';
 
-export class Routes extends Component {
+export class Routes extends Component { //eslint-disable-line
   render() {
     const { appConfig } = this.props;
 
@@ -12,7 +12,7 @@ export class Routes extends Component {
     const appRoutes = getAppRoutes();
     return (
 
-      <div style={{ width: '100%', height: '100vh' }}>
+      <div style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
         <Switch>
           {customRoutes.map((Route, i) => React.cloneElement(Route, { key: `@customRoutes/${i}` }))}
           {appRoutes.map((Route, i) => React.cloneElement(Route, { key: `@appRoutes/${i}` }))}

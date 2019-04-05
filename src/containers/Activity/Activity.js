@@ -58,14 +58,14 @@ const styles = theme => ({
   content: {
     flex: 1,
     backgroundColor: theme.palette.background.default,
-    overflow: 'auto',
+    overflow: 'hidden',
   },
   contentShift: {
     // width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
+    // transition: theme.transitions.create(['width', 'margin'], {
+    //   easing: theme.transitions.easing.sharp,
+    //   duration: theme.transitions.duration.enteringScreen,
+    // }),
   },
   appBarShift: {
     // marginLeft: drawerWidth,

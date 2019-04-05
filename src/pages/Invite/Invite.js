@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
+import { withStyles } from '@material-ui/core';
 import Activity from '../../containers/Activity/Activity';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getClient } from '../../config/uclusionClient';
@@ -10,9 +11,22 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import TeamAdd from '../../components/Invite/TeamAdd';
 import InviteList from '../../components/Invite/InviteList';
 
+const styles = theme => ({
+  content: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+});
+
 function Invite(props) {
   const [teams, setTeams] = useState([]);
-  const { intl, userPermissions, marketId } = props;
+  const {
+    intl,
+    userPermissions,
+    marketId,
+    classes,
+  } = props;
   const { canListAccountTeams } = userPermissions;
 
   useEffect(() => {
@@ -41,8 +55,10 @@ function Invite(props) {
       containerStyle={{ overflow: 'hidden' }}
       title={intl.formatMessage({ id: 'inviteHeader' })}
     >
-      <TeamAdd marketId={marketId} teams={teams} teamsSet={setTeams} />
-      <InviteList teams={teams} />
+      <div className={classes.content}>
+        <TeamAdd marketId={marketId} teams={teams} teamsSet={setTeams} />
+        <InviteList teams={teams} />
+      </div>
     </Activity>
   );
 }
@@ -53,4 +69,4 @@ Invite.propTypes = {
   intl: PropTypes.object.isRequired,
 };
 
-export default injectIntl(withUserAndPermissions(withMarketId(Invite)));
+export default injectIntl(withUserAndPermissions(withMarketId(withStyles(styles)(Invite))));

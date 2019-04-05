@@ -15,7 +15,14 @@ import CategoryAdd from './CategoryAdd';
 import { fetchMarketCategories } from '../../store/Markets/actions';
 
 const styles = theme => ({
+  content: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
   gridContainer: {
+    flex: 1,
+    overflow: 'auto',
     padding: theme.spacing.unit,
   },
 });
@@ -37,26 +44,31 @@ function CategoryList(props) {
   const categories = getMarketCategories(allCategories, marketId);
 
   return (
-    <Activity
-      isLoading={marketId === undefined}
-      containerStyle={{ overflow: 'hidden' }}
-      title={intl.formatMessage({ id: 'categoriesHeader' })}
-    >
-      <CategoryAdd marketId={marketId} />
-      {categories && categories.length > 0
-      && (
-        <Grid container className={classes.gridContainer}>
-          {categories.map(category => (
-            <CategoryListItem
-              key={category.name}
-              id={category.name}
-              name={category.name}
-              investiblesIn={category.investibles_in}
-            />
-          ))}
-        </Grid>
-      )}
-    </Activity>
+    <div>
+      <Activity
+        isLoading={marketId === undefined}
+        containerStyle={{ overflow: 'hidden' }}
+        title={intl.formatMessage({ id: 'categoriesHeader' })}
+      >
+        <div className={classes.content}>
+          <CategoryAdd marketId={marketId} />
+          {categories && categories.length > 0 && (
+            <div className={classes.gridContainer}>
+              <Grid container>
+                {categories.map(category => (
+                  <CategoryListItem
+                    key={category.name}
+                    id={category.name}
+                    name={category.name}
+                    investiblesIn={category.investibles_in}
+                  />
+                ))}
+              </Grid>
+            </div>
+          )}
+        </div>
+      </Activity>
+    </div>
   );
 }
 

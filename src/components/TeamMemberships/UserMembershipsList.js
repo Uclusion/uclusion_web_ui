@@ -6,6 +6,7 @@ import UserMembershipsListItem from './UserMembershipsListItem';
 
 const styles = theme => ({
   root: {
+    overflowX: 'auto',
     boxSizing: 'border-box',
     height: '100%',
     display: 'flex',

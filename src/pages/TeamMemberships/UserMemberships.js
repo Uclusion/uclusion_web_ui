@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
+import { withStyles } from '@material-ui/core';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
 import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList';
@@ -13,6 +14,14 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import UserDetail from '../../components/TeamMemberships/UserDetail';
 
+const styles = theme => ({
+  content: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+});
+
 function UserMemberships(props) {
   const [teams, setTeams] = useState(undefined);
   const [allUsers, setAllUsers] = useState({});
@@ -22,6 +31,7 @@ function UserMemberships(props) {
     marketId,
     investibles,
     history,
+    classes,
   } = props;
   const { canListAccountTeams } = userPermissions;
   const { location: { hash, pathname } } = history;
@@ -82,7 +92,7 @@ function UserMemberships(props) {
       containerStyle={{ overflow: 'hidden' }}
       title={intl.formatMessage({ id: 'teamsHeader' })}
     >
-      <div>
+      <div className={classes.content}>
         {teams && (
           <UserMembershipsList
             teams={teams}
@@ -131,4 +141,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withUserAndPermissions(withMarketId(UserMemberships))));
+)(injectIntl(withUserAndPermissions(withMarketId(withStyles(styles)(UserMemberships)))));

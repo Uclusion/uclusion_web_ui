@@ -36,6 +36,11 @@ const styles = theme => ({
     display: 'flex',
     flexWrap: 'wrap',
   },
+  content: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+  },
   stageSelector: {
     display: 'flex',
     alignItems: 'center',
@@ -174,7 +179,7 @@ function InvestiblesPage(props) {
       >
         {currentInvestibleList && user && user.market_presence
         && (
-          <div>
+          <div className={classes.root}>
             <div className={classes.topActions}>
               <InvestibleSearchBox />
               <div className={classes.stageSelector}>
@@ -183,7 +188,7 @@ function InvestiblesPage(props) {
               </div>
 
             </div>
-            <div className={classes.root}>
+            <div className={classes.content}>
 
 
               <InvestibleList

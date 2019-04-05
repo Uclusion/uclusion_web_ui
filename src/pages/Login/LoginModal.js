@@ -37,6 +37,7 @@ function LoginModal(props) {
   const [allowGuestLogin, setAllowGuestLogin] = useState(false);
   const [allowCognitoLogin, setAllowCognitoLogin] = useState(false);
   const [allowUserLogin, setAllowUserLogin] = useState(false);
+  const [allowOidcLogin, setAllowOidcLogin] = useState(false);
   const [allowChangePassword, setAllowChangePassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -93,6 +94,7 @@ function LoginModal(props) {
       setAllowCognitoLogin(response.allow_cognito);
       setAllowGuestLogin(response.allow_anonymous);
       setAllowUserLogin(response.allow_user);
+      setAllowOidcLogin(response.allow_oidc);
       if (response.allow_cognito) {
         setPoolId(response.user_pool_id);
         setClientId(response.cognito_client_id);
@@ -253,6 +255,8 @@ function LoginModal(props) {
               </ValidatorForm>
             </ListItem>
           )}
+          {allowOidcLogin
+          && (
           <ListItem>
             <Button
               className={classes.button}
@@ -263,6 +267,7 @@ function LoginModal(props) {
               {intl.formatMessage({ id: 'login_admin' })}
             </Button>
           </ListItem>
+          )}
           {allowUserLogin
             && (
             <ListItem>

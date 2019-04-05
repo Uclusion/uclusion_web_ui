@@ -86,7 +86,7 @@ const styles = theme => ({
   },
 });
 
-function createMarket(client, accountCreationInfo) {
+function createMarket(client, accountCreationInfo, setLoading) {
   client.markets.createMarket({
     name: accountCreationInfo.marketName,
     description: accountCreationInfo.marketDescription,
@@ -99,11 +99,14 @@ function createMarket(client, accountCreationInfo) {
     } else {
       window.location = `${window.location.origin}/${market.market_id}/marketCategories`;
     }
-  })
-    .catch((error) => {
-      console.error(error);
-      throw error;
-    });
+  }).catch((error) => {
+    console.error(error);
+    throw error;
+  }).finally(() => {
+    if (setLoading) {
+      setLoading(false);
+    }
+  });
 }
 
 function LandingPage(props) {
@@ -202,13 +205,10 @@ function LandingPage(props) {
         }).then((client) => {
           console.log('Now pausing before create market so will need spinner');
           // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
-          setTimeout(createMarket, 25000, client, accountCreationInfo);
+          setTimeout(createMarket, 25000, client, accountCreationInfo, setLoading);
         }).catch((e) => {
           alert('Cannot sign in');
           console.log(e);
-        })
-        .finally(() => {
-          setLoading(false);
         });
     } else {
       setLoading(true);

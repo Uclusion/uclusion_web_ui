@@ -92,8 +92,12 @@ function NewCognito(props) {
     });
     const urlParams = new URLSearchParams(window.location.search);
     const creationToken = urlParams.get('creationToken');
-    authorizer.cognitoUserCreate(name, email, creationToken).then(() => {
-      window.location = `${window.location.origin}/${marketId}/investibles?newLogin=true`;
+    authorizer.cognitoUserCreate(name, email, creationToken).then((user) => {
+      let location = `${window.location.origin}/${marketId}/investibles`;
+      if (!user.exists_in_cognito) {
+        location += '?newLogin=true';
+      }
+      window.location = location;
     });
   }
 

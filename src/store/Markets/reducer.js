@@ -8,6 +8,7 @@ import {
   MARKET_CATEGORY_DELETED,
   MARKET_CATEGORY_CREATED,
   RECEIVE_MARKET_STAGES,
+  FOLLOWED_MARKET_STAGE
 } from './actions';
 
 export const marketPropType = PropTypes.shape({
@@ -41,11 +42,19 @@ const marketItems = (state = [], action) => {
 };
 
 const marketStages = (state = {}, action) => {
+  const newState = { ...state };
+  const { marketId } = action;
   switch(action.type) {
     case RECEIVE_MARKET_STAGES:
-      const { stages, marketId } = action;
-      const newState = { ...state };
+      const { stages } = action;
       newState[marketId] = stages;
+      return newState;
+    case FOLLOWED_MARKET_STAGE:
+      const { stageId, following } = action;
+      if (newState[marketId]) {
+        const stage = newState[marketId].find(element => element.id === stageId);
+        stage.following = following;
+      }
       return newState;
     default:
       return state;

@@ -46,7 +46,7 @@ function MarketFollowUnfollow(props) {
 
 MarketFollowUnfollow.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  user: PropTypes.object.isRequired,
+  user: PropTypes.object,
   marketId: PropTypes.string.isRequired,
 };
 

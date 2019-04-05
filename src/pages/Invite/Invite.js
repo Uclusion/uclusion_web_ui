@@ -10,6 +10,7 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import TeamAdd from '../../components/Invite/TeamAdd';
 import InviteList from '../../components/Invite/InviteList';
+import AdminAdd from '../../components/Invite/AdminAdd';
 
 const styles = theme => ({
   content: {
@@ -24,6 +25,7 @@ function Invite(props) {
   const {
     intl,
     userPermissions,
+    upUser,
     marketId,
     classes,
   } = props;
@@ -56,7 +58,12 @@ function Invite(props) {
       title={intl.formatMessage({ id: 'inviteHeader' })}
     >
       <div className={classes.content}>
-        <TeamAdd marketId={marketId} teams={teams} teamsSet={setTeams} />
+        {canListAccountTeams && (
+          <TeamAdd marketId={marketId} teams={teams} teamsSet={setTeams} />
+        )}
+        {canListAccountTeams && (
+          <AdminAdd upUser={upUser} />
+        )}
         <InviteList teams={teams} />
       </div>
     </Activity>

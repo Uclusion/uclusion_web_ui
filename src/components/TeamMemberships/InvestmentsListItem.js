@@ -2,15 +2,14 @@
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
-import { DeleteForever } from '@material-ui/icons';
 import {
-  IconButton,
   Paper,
   Typography,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
+import Button from '@material-ui/core/Button';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
@@ -37,6 +36,10 @@ const styles = theme => ({
   email: {
     marginBottom: theme.spacing.unit,
   },
+  investButton: {
+    marginLeft: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
+  },
 });
 
 function InvestmentsListItem(props) {
@@ -45,6 +48,7 @@ function InvestmentsListItem(props) {
     quantity,
     classes,
     userIsOwner,
+    intl,
   } = props;
   const [calculatedQuantity, setCalculatedQuantity] = useState(quantity);
   useEffect(() => {
@@ -96,8 +100,16 @@ function InvestmentsListItem(props) {
           <Typography>
             {`uShares invested: ${calculatedQuantity}`}
           </Typography>
+          {userIsOwner && (<br />)}
           {userIsOwner && (
-          <IconButton onClick={() => setCalculatedQuantity(0)}><DeleteForever /></IconButton>
+            <Button
+              className={classes.investButton}
+              variant="outlined"
+              color="secondary"
+              onClick={() => setCalculatedQuantity(0)}
+            >
+              {intl.formatMessage({ id: 'unInvestButton' })}
+            </Button>
           )}
         </div>
       </div>
@@ -120,6 +132,7 @@ InvestmentsListItem.propTypes = {
   userId: PropTypes.string.isRequired,
   users: PropTypes.object.isRequired, //eslint-disable-line
   setUsers: PropTypes.func, //eslint-disable-line
+  intl: PropTypes.object.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

@@ -152,6 +152,7 @@ const messages = defineMessages({
   investModalText: 'Please enter the quantity of uShares to invest:',
   investModalQuantityLabel: 'Quantity',
   investButton: 'Invest',
+  unInvestButton: 'Refund',
   cancelButton: 'Cancel',
   addButton: 'Add',
   investTab: 'Invest',

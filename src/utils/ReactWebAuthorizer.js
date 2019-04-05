@@ -36,6 +36,9 @@ const doGenericAuthRedirect = (marketId) => {
   if (currentPage.search.includes('newLogin')) {
     location += '&newLogin=true';
   }
+  if (currentPage.href.includes('#')) {
+    location += `#${currentPage.href.split('#')[1]}`;
+  }
   console.log(`redirecting you to login at ${location}`);
   window.location = location;
 };

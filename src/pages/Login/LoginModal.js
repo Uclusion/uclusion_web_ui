@@ -68,7 +68,10 @@ function LoginModal(props) {
   function getLoginParams() {
     const marketId = getAuthMarketId();
     const parsed = new URL(window.location.href);
-    const page = parsed.searchParams.get('destinationPage') || 'investibles';
+    let page = parsed.searchParams.get('destinationPage') || 'investibles';
+    if (parsed.href.includes('#')) {
+      page += `#${parsed.href.split('#')[1]}`;
+    }
     const newLogin = parsed.searchParams.get('newLogin');
     const destinationPage = getDestinationPage(page, true);
     const redirectUrl = getPostAuthPage();

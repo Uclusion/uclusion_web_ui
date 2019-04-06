@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import appConfig from '../../config/config';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { postAuthTasks } from '../../utils/fetchFunctions';
+import { clearReduxStore } from '../../utils/reduxHelperFunctions';
 
 function PostAuth(props) {
   const [resolve, setResolve] = useState(undefined);
@@ -25,8 +26,12 @@ function PostAuth(props) {
       // Have to do here or get warning about setting state before component mounted
       const { dispatch, webSocket } = props;
       const {
-        uclusion_token, destination_page, market_id, user,
+        uclusion_token, destination_page, market_id, user, usersReducer,
       } = resolve;
+      // if we're not sure the user is the same as we loaded redux with, zero out redux
+      if (!usersReducer || usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {
+        clearReduxStore();
+      }
       const currentPage = new URL(destination_page);
       let realMarketId = market_id;
       if (currentPage.search.includes('authMarketId')) {

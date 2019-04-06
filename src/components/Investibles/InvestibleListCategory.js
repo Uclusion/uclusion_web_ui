@@ -4,7 +4,7 @@ import ItemListCategory from '../Lists/QuickAddItemListCategory';
 import InvestibleListItem from './InvestibleListItem';
 import InvestibleListQuickAdd from './InvestibleListQuickAdd';
 import _ from 'lodash';
-import { formatInvestibles } from '../../utils/reduxFormattingFunctions';
+import { formatInvestibles } from '../../utils/reduxHelperFunctions';
 class InvestibleListCategory extends React.PureComponent {
   getSortedAndFormattedInvestiblesList(investibles) {
     const formatted = formatInvestibles(investibles);

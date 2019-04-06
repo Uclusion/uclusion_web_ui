@@ -8,7 +8,7 @@ import { injectIntl } from 'react-intl';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withUserAndPermissions } from '../../UserPermissions/UserPermissions';
-import { reFormatComments } from '../../../utils/reduxFormattingFunctions';
+import { reFormatComments } from '../../../utils/reduxHelperFunctions';
 
 function CommentsList(props) {
 

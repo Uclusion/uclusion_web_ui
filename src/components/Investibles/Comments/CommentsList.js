@@ -5,19 +5,19 @@ import CommentsAdd from './CommentsAdd';
 import React from 'react';
 import Typography from '@material-ui/core/es/Typography/Typography';
 import { injectIntl } from 'react-intl';
-import { reverseDateComparator } from '../../../utils/comparators';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withUserAndPermissions } from '../../UserPermissions/UserPermissions';
+import { reFormatComments } from '../../../utils/reduxFormattingFunctions';
 
 function CommentsList(props) {
 
   const { marketId, investibleId, intl, userPermissions } = props;
   const { isMarketAdmin } = userPermissions;
 
-  function sortComments(commentsList) {
-    commentsList.sort((c1, c2) => {
-      return reverseDateComparator(c1.created_at, c2.created_at);
-    });
+  function sortComments(comments) {
+    const formatted = reFormatComments(comments);
+    return _.sortBy(formatted, ['created_at']);
   }
 
   function getListItems() {
@@ -27,8 +27,8 @@ function CommentsList(props) {
     if (!myComments || myComments.length === 0) {
       return <Typography>{intl.formatMessage({ id: 'noComments' })}</Typography>;
     }
-    sortComments(myComments);
-    return myComments.map(comment => (
+    const sorted = sortComments(comments)
+    return sorted.map(comment => (
       <CommentListItem key={comment.id} {...comment}/>
     ));
   }

@@ -3,17 +3,14 @@ import PropTypes from 'prop-types';
 import ItemListCategory from '../Lists/QuickAddItemListCategory';
 import InvestibleListItem from './InvestibleListItem';
 import InvestibleListQuickAdd from './InvestibleListQuickAdd';
-import { reverseDateComparator, combineComparators } from '../../utils/comparators';
-
+import _ from 'lodash';
+import { formatInvestibles } from '../../utils/reduxFormattingFunctions';
 class InvestibleListCategory extends React.PureComponent {
-  getSortedInvestiblesList(investibles) {
-    const unsorted = investibles && investibles.map ? investibles : [];
-    // just using reverse date sort with secondary comparison of invested amount and tertiary on id
-    const dateCompare = (i1, i2) => (reverseDateComparator(i1.updated_at, i2.updated_at));
-    const sharesInvestedCompare = (i1, i2) => (i1.quantity - i2.quantity);
-    const idCompare = (i1, i2) => (i1.id.localeCompare(i2.id));
-    const combined = combineComparators(dateCompare, sharesInvestedCompare, idCompare);
-    return unsorted.sort(combined);
+  getSortedAndFormattedInvestiblesList(investibles) {
+    const formatted = formatInvestibles(investibles);
+    // use a copy
+    const sorted = _.sortBy(formatted, ['updated_at', 'current_user_investment', 'id']);
+    return sorted.reverse();
   }
 
   getSelectedInvestibleIndex(investibles) {
@@ -43,7 +40,7 @@ class InvestibleListCategory extends React.PureComponent {
       category,
       investibles,
     } = this.props;
-    const sortedInvestibles = this.getSortedInvestiblesList(investibles);
+    const sortedInvestibles = this.getSortedAndFormattedInvestiblesList(investibles);
     const selectedInvestibleIndex = this.getSelectedInvestibleIndex(sortedInvestibles);
     const items = sortedInvestibles.map((element, index) => (
       <InvestibleListItem

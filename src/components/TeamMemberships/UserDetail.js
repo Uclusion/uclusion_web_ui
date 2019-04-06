@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
@@ -10,6 +10,8 @@ import CloseIcon from '@material-ui/icons/Close';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import InvestmentsList from './InvestmentsList';
+import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
+import AdminUserItem from './AdminUserItem';
 
 const styles = theme => ({
   root: {
@@ -51,74 +53,93 @@ const styles = theme => ({
   },
 });
 
-class UserDetail extends React.PureComponent {
-  componentDidUpdate() {
-    const { user } = this.props;
-    if (user) {
-      this.lastUser = user;
+function UserDetail(props) {
+  const [lastUser, setLastUser] = useState(undefined);
+  const [value, setValue] = useState('investments');
+  const {
+    classes,
+    onClose,
+    investibles,
+    teams,
+    setTeams,
+    users,
+    setUsers,
+    userPermissions,
+    user,
+  } = props;
+  useEffect(() => {
+    if (!lastUser) {
+      setLastUser(user);
     }
+    return () => {};
+  });
+  function handleTabChange(event, value) {
+    setValue(value);
   }
-
-  render() {
-    const {
-      classes,
-      onClose,
-      investibles,
-      teams,
-      setTeams,
-      users,
-      setUsers
-    } = this.props;
-    const show = !!this.props.user;
-    const user = this.props.user || this.lastUser || {};
-
-    return (
-      <div
-        className={classNames(classes.root, {
-          [classes.detailOpen]: show,
-          [classes.detailClose]: !show,
-        })}
-      >
-        <div className={classes.flex}>
-          <Typography variant="h6" className={classes.userName}>
-            {user.name || 'Anonymous'}
-          </Typography>
-          <IconButton aria-label="Close" onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
-        </div>
-        <div style={{ flex: 1, overflow: 'auto' }}>
-          <Typography className={classes.email}>
-            {user.email}
-          </Typography>
-          <Typography>
-            {`uShares available: ${user.quantity}`}
-          </Typography>
-          <Typography>
-            {`uShares spent: ${user.quantityInvested}`}
-          </Typography>
-          <div className={classes.paper}>
-            <Tabs
-              className={classes.tabBar}
-              indicatorColor="primary"
-              textColor="primary"
-              value={0}
-            >
-              <Tab className={classes.tab} label="Investments" />
-            </Tabs>
+  const show = !!user;
+  const myUser = user || lastUser || {};
+  const { canGrant } = userPermissions;
+  return (
+    <div
+      className={classNames(classes.root, {
+        [classes.detailOpen]: show,
+        [classes.detailClose]: !show,
+      })}
+    >
+      <div className={classes.flex}>
+        <Typography variant="h6" className={classes.userName}>
+          {myUser.name || 'Anonymous'}
+        </Typography>
+        <IconButton aria-label="Close" onClick={onClose}>
+          <CloseIcon />
+        </IconButton>
+      </div>
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        <Typography className={classes.email}>
+          {myUser.email}
+        </Typography>
+        <Typography>
+          {`uShares available: ${myUser.quantity}`}
+        </Typography>
+        <Typography>
+          {`uShares spent: ${myUser.quantityInvested}`}
+        </Typography>
+        <div className={classes.paper}>
+          <Tabs
+            className={classes.tabBar}
+            indicatorColor="primary"
+            textColor="primary"
+            value={value}
+            onChange={handleTabChange}
+          >
+            <Tab className={classes.tab} label="Investments" value="investments" />
+            {canGrant && (
+              <Tab className={classes.tab} label="Administer" value="administer" />
+            )}
+          </Tabs>
+          {value === 'investments' && (
             <InvestmentsList
               teams={teams}
               setTeams={setTeams}
               users={users}
               setUsers={setUsers}
-              userId={user.id}
+              userId={myUser.id}
               investibles={investibles}
             />
-          </div>
+          )}
+          {value === 'administer' && (
+            <AdminUserItem
+              teams={teams}
+              setTeams={setTeams}
+              users={users}
+              setUsers={setUsers}
+              user={myUser}
+            />
+          )}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 UserDetail.propTypes = {
@@ -130,6 +151,7 @@ UserDetail.propTypes = {
   users: PropTypes.object.isRequired, //eslint-disable-line
   setUsers: PropTypes.func, //eslint-disable-line
   onClose: PropTypes.func.isRequired,
+  userPermissions: PropTypes.object.isRequired, //eslint-disable-line
 };
 
-export default withStyles(styles)(UserDetail);
+export default withUserAndPermissions(withStyles(styles)(UserDetail));

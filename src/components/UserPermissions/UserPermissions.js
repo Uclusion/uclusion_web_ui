@@ -49,6 +49,7 @@ function withUserAndPermissions(WrappedComponent) {
       const isMarketAdmin = (canCategorize || canDeleteOthersComments)
         || false; // need a better definition of this but it works for now
       const canReadComments = apisObject.comments_get || false;
+      const canGrant = apisObject.grant_user || false;
       return {
         canDeleteMarketInvestible,
         canInvest,
@@ -61,6 +62,7 @@ function withUserAndPermissions(WrappedComponent) {
         canReadComments,
         canCreateInvestible,
         isMarketAdmin,
+        canGrant,
       };
     }
 

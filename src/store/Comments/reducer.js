@@ -1,26 +1,12 @@
 import { combineReducers } from 'redux';
-import { COMMENT_CREATED, COMMENTS_RECEIVED, COMMENT_DELETED } from './actions';
 import _ from 'lodash';
+import { COMMENT_CREATED, COMMENTS_RECEIVED, COMMENT_DELETED } from './actions';
 import { arrayToMappedSubArrays } from '../../utils/arrays';
-
-const reFormatComment = (comment) => {
-  comment.created_at = new Date(comment.created_at);
-  comment.updated_at = new Date(comment.updated_at);
-  return comment;
-};
-
-function reFormatComments(items) {
-  items.forEach((comment) => {
-    reFormatComment(comment);
-  });
-  return items;
-}
 
 export function updateCommentListState(state, action) {
   const { marketId, comments } = action;
-  const formatted = reFormatComments(comments);
   const newState = { ...state };
-  const byInvestible = arrayToMappedSubArrays(formatted, item => item.investible_id);
+  const byInvestible = arrayToMappedSubArrays(comments, item => item.investible_id);
   const marketList = newState[marketId] || {};
   Object.keys(byInvestible).forEach((investibleId) => {
     const oldList = marketList[investibleId] || [];

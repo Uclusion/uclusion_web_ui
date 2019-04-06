@@ -10,23 +10,10 @@ import {
 } from './actions';
 
 
-function reFormatInvestible(investible){
-  investible.created_at = new Date(investible.created_at);
-  investible.updated_at = new Date(investible.updated_at);
-  investible.last_investment_at = new Date(investible.last_investment_at);
-  return investible;
-}
-
-function reFormatInvestibles(investibles){
-  investibles.forEach((item) => {reFormatInvestible(item)});
-}
-
 // exported for use by the search reducer
 export function getInvestibleCreatedState(state, action){
   const marketId = action.marketId ? action.marketId : 'template';
   const investibles = action.investibles ? action.investibles : [action.investible];
-
-  reFormatInvestibles(investibles);
   const newState = { ...state };
   // console.log(`Combining ${JSON.stringify(investibles)}`);
   newState[marketId] = _.unionBy(investibles, state[marketId], 'id');
@@ -53,7 +40,6 @@ export function getMarketInvestibleCreatedState(state, action){
   investibleCopy.id = investibleId;
   investibleCopy.quantity = investment ? investment.investible_quantity : 0;
   investibleCopy.current_user_investment = investment ? investment.current_user_investment : 0;
-  reFormatInvestible(investibleCopy);
   newState[investibleCopy.market_id] = _.unionBy([investibleCopy],
     state[investibleCopy.market_id], 'id');
   return newState;

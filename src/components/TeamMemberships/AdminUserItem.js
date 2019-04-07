@@ -77,6 +77,9 @@ function AdminUserItem(props) {
           const oldTeam = teams.find(item => item.id === team.team_id);
           const newTeam = { ...oldTeam };
           newTeam.quantity += quantity;
+          if (user.type !== 'USER') {
+            newTeam.shared_quantity += quantity;
+          }
           newTeams.push(newTeam);
         });
         setTeams(_.unionBy(newTeams, teams, 'id'));

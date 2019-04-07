@@ -21,10 +21,12 @@ import { withMarketId } from '../PathProps/MarketId';
 import MemberList from './MemberList';
 import InvestiblesList from './InvestiblesList';
 import { getCurrentUser } from '../../store/Users/reducer';
+import AdminUserItem from './AdminUserItem';
+import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({
   root: {
-    width: 400,
+    width: 500,
     minWidth: 400,
     padding: theme.spacing.unit,
     boxSizing: 'border-box',
@@ -70,15 +72,19 @@ function UserMembershipsListItem(props) {
   const [tabIndex, setTabIndex] = useState(0);
   const [investiblesForTeam, setInvestiblesForTeam] = useState(undefined);
   const [userIds, setUserIds] = useState(undefined);
+  const [teamUser, setTeamUser] = useState(undefined);
   const {
     team,
+    teams,
     investibles,
     marketId,
     classes,
     allUsers,
     allTeamUsers,
     setUsers,
+    setTeams,
     numTeams,
+    userPermissions,
   } = props;
   const {
     name,
@@ -89,8 +95,7 @@ function UserMembershipsListItem(props) {
     quantity,
     last_investment_updated_at,
   } = team;
-
-
+  const { canGrant } = userPermissions;
   const lastInvestDate = moment(last_investment_updated_at).format('MM/DD/YYYY hh:mm A');
 
   function processUser(user) {
@@ -129,7 +134,8 @@ function UserMembershipsListItem(props) {
       return client.teams.get(team.id);
     }).then((response) => {
       const processedUsers = response.users.map(user => processUser(user));
-      _.remove(processedUsers, user => user.type !== 'USER');
+      const teamUsers = _.remove(processedUsers, user => user.type !== 'USER');
+      setTeamUser(teamUsers[0]);
       usersFetched(team.id, processedUsers);
       return globalClient.markets.listUserInvestments(marketId, team.user_id, 10000);
     }).then((investments) => {
@@ -211,19 +217,30 @@ function UserMembershipsListItem(props) {
             className={classes.tab}
             label="Investibles"
           />
+          {canGrant && (
+            <Tab className={classes.tab} label="Administer" />
+          )}
         </Tabs>
         <div className={classes.tabContent}>
-          {tabIndex === 0 ? (
+          {tabIndex === 0 && (
             <MemberList
               allUsers={allUsers}
               userIds={userIds}
             />
-          ) : (
-            investiblesForTeam && (
+          )}
+          {tabIndex === 1 && investiblesForTeam && (
             <InvestiblesList
               investibles={investiblesForTeam}
             />
-            )
+          )}
+          {tabIndex === 2 && teamUser && (
+            <AdminUserItem
+              teams={teams}
+              setTeams={setTeams}
+              users={allUsers}
+              setUsers={setUsers}
+              user={teamUser}
+            />
           )}
         </div>
       </Card>
@@ -245,6 +262,9 @@ UserMembershipsListItem.propTypes = {
   setUsers: PropTypes.func.isRequired,
   allUsers: PropTypes.object.isRequired, //eslint-disable-line
   numTeams: PropTypes.number.isRequired,
+  setTeams: PropTypes.func, //eslint-disable-line
+  teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
+  userPermissions: PropTypes.object.isRequired, //eslint-disable-line
 };
 
 const mapStateToProps = state => ({
@@ -252,6 +272,6 @@ const mapStateToProps = state => ({
   investibleDetail: state.detail.investible,
 });
 
-export default connect(mapStateToProps)(
+export default connect(mapStateToProps)(withUserAndPermissions(
   injectIntl(withWidth()(withStyles(styles)(withMarketId(UserMembershipsListItem)))),
-);
+));

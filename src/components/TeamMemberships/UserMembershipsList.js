@@ -19,6 +19,7 @@ class UserMembershipsList extends React.PureComponent {
   render() {
     const {
       teams,
+      setTeams,
       investibles,
       classes,
       setUsers,
@@ -31,6 +32,8 @@ class UserMembershipsList extends React.PureComponent {
           <UserMembershipsListItem
             key={team.id}
             team={team}
+            teams={teams}
+            setTeams={setTeams}
             investibles={investibles}
             setUsers={setUsers}
             allTeamUsers={allTeamsUsers}
@@ -45,6 +48,7 @@ class UserMembershipsList extends React.PureComponent {
 
 UserMembershipsList.propTypes = {
   teams: PropTypes.arrayOf(PropTypes.object).isRequired,
+  setTeams: PropTypes.func, //eslint-disable-line
   investibles: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object.isRequired,

@@ -96,6 +96,7 @@ function UserMemberships(props) {
         {teams && (
           <UserMembershipsList
             teams={teams}
+            setTeams={setTeams}
             investibles={getMarketInvestibles()}
             setUsers={setAllUsers}
             allUsers={allUsers}

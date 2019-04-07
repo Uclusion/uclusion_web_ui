@@ -85,6 +85,7 @@ function UserMembershipsListItem(props) {
     setTeams,
     numTeams,
     userPermissions,
+    intl,
   } = props;
   const {
     name,
@@ -211,14 +212,14 @@ function UserMembershipsListItem(props) {
         >
           <Tab
             className={classes.tab}
-            label={`${team_size} Members`}
+            label={`${team_size} ${intl.formatMessage({ id: 'members' })}`}
           />
           <Tab
             className={classes.tab}
-            label="Investibles"
+            label={intl.formatMessage({ id: 'investibles' })}
           />
           {canGrant && (
-            <Tab className={classes.tab} label="Administer" />
+            <Tab className={classes.tab} label={intl.formatMessage({ id: 'administer' })} />
           )}
         </Tabs>
         <div className={classes.tabContent}>
@@ -265,6 +266,7 @@ UserMembershipsListItem.propTypes = {
   setTeams: PropTypes.func, //eslint-disable-line
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   userPermissions: PropTypes.object.isRequired, //eslint-disable-line
+  intl: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({

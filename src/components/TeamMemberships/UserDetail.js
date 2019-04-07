@@ -12,6 +12,7 @@ import Tab from '@material-ui/core/Tab';
 import InvestmentsList from './InvestmentsList';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import AdminUserItem from './AdminUserItem';
+import { injectIntl } from 'react-intl';
 
 const styles = theme => ({
   root: {
@@ -66,6 +67,7 @@ function UserDetail(props) {
     setUsers,
     userPermissions,
     user,
+    intl,
   } = props;
   useEffect(() => {
     if (!lastUser) {
@@ -112,9 +114,9 @@ function UserDetail(props) {
             value={value}
             onChange={handleTabChange}
           >
-            <Tab className={classes.tab} label="Investments" value="investments" />
+            <Tab className={classes.tab} label={intl.formatMessage({ id: 'investments' })} value="investments" />
             {canGrant && (
-              <Tab className={classes.tab} label="Administer" value="administer" />
+              <Tab className={classes.tab} label={intl.formatMessage({ id: 'administer' })} value="administer" />
             )}
           </Tabs>
           {value === 'investments' && (
@@ -152,6 +154,7 @@ UserDetail.propTypes = {
   setUsers: PropTypes.func, //eslint-disable-line
   onClose: PropTypes.func.isRequired,
   userPermissions: PropTypes.object.isRequired, //eslint-disable-line
+  intl: PropTypes.object.isRequired, //eslint-disable-line
 };
 
-export default withUserAndPermissions(withStyles(styles)(UserDetail));
+export default injectIntl(withUserAndPermissions(withStyles(styles)(UserDetail)));

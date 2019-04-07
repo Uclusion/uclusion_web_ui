@@ -254,9 +254,11 @@ const messages = defineMessages({
   editBoxTooManyBytes: 'There is too much data in the editor. Please remove some text or images',
   investibleDescriptionTooManyBytes: 'The investible description is too large. Please remove some text or images',
   investibleFollowFailed: 'We could not change your favorite selection. Please try again',
-  // Stages
-  BOUND: 'In market',
-  NEEDS_REVIEW: 'Needs review',
+  //InvestibleEdit
+  investibleEditHeader: 'Edit Investible',
+  investibleEditStageHelper: 'Select to change stage',
+  investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
+
 });
 
 export default messages;

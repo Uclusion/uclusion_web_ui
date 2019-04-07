@@ -72,9 +72,6 @@ const styles = theme => ({
 });
 
 class InvestibleDetail extends React.PureComponent {
-  state = {
-    promptDeleteInvestible: false,
-  };
 
   componentDidUpdate() {
     const { investible } = this.props;

@@ -50,6 +50,7 @@ function InvestibleEdit(props) {
     match,
     marketId,
     marketStages,
+    dispatch,
     classes,
     intl,
   } = props;
@@ -74,6 +75,10 @@ function InvestibleEdit(props) {
       newInvestible[name] = value;
       setInvestible(newInvestible);
     };
+  }
+
+  function onSave(){
+    dispatch(saveInvestmentEdits({...state}));
   }
 
   const {
@@ -132,6 +137,9 @@ function InvestibleEdit(props) {
             onChange={handleChange('description')}
           />
         </div>
+        <div>
+          Placeholder for category multiple select
+        </div>
         <div className={classes.numSharesText}>
           {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: quantity })}
         </div>
@@ -168,6 +176,7 @@ InvestibleEdit.propTypes = {
   match: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired, //eslint-disable-line
   marketStages: PropTypes.object.isRequired,  //eslint-disable-line
+  dispatch: PropTypes.func.isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withMarketId(withStyles(styles)(InvestibleEdit))));

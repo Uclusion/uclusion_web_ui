@@ -16,6 +16,8 @@ export const INVESTMENTS_DELETED = 'INVESTMENTS_DELETED';
 export const MARKET_INVESTIBLE_CREATED = 'MARKET_INVESTIBLE_CREATED';
 export const RECEIVE_MARKET_INVESTIBLE_LIST = 'RECEIVE_MARKET_INVESTIBLE_LIST';
 export const INVESTIBLE_FOLLOW_UNFOLLOW = 'INVESTIBLE_FOLLOW_UNFOLLOW';
+export const MARKET_INVESTIBLE_EDITED = 'MARKET_INVESTIBLE_EDITED';
+
 
 export const investibleDeleted = (marketId, investibleId) => ({
   type: MARKET_INVESTIBLE_DELETED,
@@ -57,6 +59,28 @@ export const investibleFollowed = (investible, isFollowing) => ({
   investible,
   isFollowing,
 });
+
+export const saveInvestibleEdits = (params = {}) => (dispatch) => {
+  // first we sync the name and description to the investments service,
+  // then we sync the state information (e.g. stage, etc) off to the markets service
+  const clientPromise = getClient();
+  const { id, name, description, category_list, stage, current_stage } = params;
+  // store the client so we can use it for second half
+  let clientHolder = null;
+  return clientPromise.then((client) => {
+      clientHolder = client;
+      return clientHolder.investibles.updateInMarket(id, name, description, category_list);
+    }).then((result) => {
+      const stateOptions = {
+        stage_id: stage,
+        current_stage_id: current_stage,
+        next_stage_additional_investment: additional_investment,
+      };
+      clientHolder.investibles.stateChange(id, stateOptionse);
+    }).then((result) => {
+
+     }).catch;
+};
 
 export const followUnfollowInvestible = (params = {}) => (dispatch) => {
   const { investible, stopFollowing } = params;

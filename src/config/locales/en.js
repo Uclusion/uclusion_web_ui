@@ -258,6 +258,9 @@ const messages = defineMessages({
   investibleEditHeader: 'Edit Investible',
   investibleEditStageHelper: 'Select to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
+  investibleEditCurrentStageLabel: 'Current Stage:',
+  investibleEditNextStageLabel: 'Next Stage:',
+  investibleEditNextStageInvestmentLabel: 'Required Investment:',
 
 });
 

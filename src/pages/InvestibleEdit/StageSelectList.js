@@ -30,15 +30,12 @@ function MarketStageList(props) {
     ));
   }
 
-  function handleChange(event) {
-    const { value } = event.target;
-    onChange(value);
-  }
+
 
   function getSelectList(stageItems) {
     return (
       <FormControl className={classes.root}>
-        <Select id="adornment-stage" value={value} onChange={handleChange}>
+        <Select id="adornment-stage" value={value} onChange={onChange}>
           <MenuItem value="helper" disabled>
             {intl.formatMessage({ id: 'investibleEditStageHelper' })}
           </MenuItem>

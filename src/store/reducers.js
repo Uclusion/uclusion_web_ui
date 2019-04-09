@@ -9,6 +9,8 @@ import commentsReducer from './Comments/reducer';
 import activeSearches from './ActiveSearches/reducer';
 import searchReducer from './SearchIndexes/reducer';
 import detailReducer from './Detail/reducer';
+import { initState } from './init';
+import * as authTypes from './auth/types';
 
 export const appReducers = {
   filters: filterReducer,
@@ -33,16 +35,22 @@ function mainReducer(state, action) {
   if (state === undefined) {
     return state;
   }
+  // we want to be able to reset the used state to the reducers to the init
+  // state on logout
+  let currentState = state;
+  if (action.type === authTypes.USER_LOGOUT) {
+    currentState = { ...initState };
+  }
   const newState = {};
   Object.keys(myReducers).forEach((key) => {
     const reducer = myReducers[key];
-    newState[key] = reducer(state[key], action);
+    newState[key] = reducer(currentState[key], action);
   });
-  newState.searchIndexes = searchReducer(state.searchIndexes,
+  newState.searchIndexes = searchReducer(currentState.searchIndexes,
     {
       ...action,
-      investiblesReducer: state.investiblesReducer,
-      commentsReducer: state.commentsReducer,
+      investiblesReducer: currentState.investiblesReducer,
+      commentsReducer: currentState.commentsReducer,
     });
   return newState;
 }

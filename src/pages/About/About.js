@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Paper, Typography, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
@@ -10,7 +11,7 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
-import { clearReduxStore } from '../../utils/reduxHelperFunctions';
+import { clearUserState, unRegisterServiceWorker } from '../../utils/userStateFunctions';
 
 const styles = theme => ({
   root: {
@@ -48,6 +49,7 @@ function About(props) {
     marketId,
     classes,
     history,
+    dispatch,
     intl,
   } = props;
 
@@ -71,15 +73,10 @@ function About(props) {
 
 
   function handleClear() {
-    localStorage.clear();
-    clearReduxStore();
-    navigator.serviceWorker.getRegistrations()
-      .then((registrations) => {
-        registrations.forEach((registration) => {
-          registration.unregister();
-        });
-      });
+    clearUserState(dispatch);
+    unRegisterServiceWorker();
     history.push(formCurrentMarketLink('Login'));
+
   }
 
   // Each one of the paper blocks here represent a logical section of the page. We'll probably
@@ -147,6 +144,15 @@ About.propTypes = {
   appConfig: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
+  dispatch: PropTypes.func.isRequired,
 };
 
-export default injectIntl(withUserAndPermissions(withAppConfigs(withMarketId(withStyles(styles)(About)))));
+function mapStateToProps(state) {
+  return {};
+}
+
+function mapDispatchToProps(dispatch) {
+  return { dispatch };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withUserAndPermissions(withAppConfigs(withMarketId(withStyles(styles)(About))))));

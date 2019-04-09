@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import appConfig from '../../config/config';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { postAuthTasks } from '../../utils/fetchFunctions';
-import { clearReduxStore } from '../../utils/reduxHelperFunctions';
+import { clearUserState } from '../../utils/userStateFunctions';
 
 function PostAuth(props) {
   const [resolve, setResolve] = useState(undefined);
@@ -30,7 +30,7 @@ function PostAuth(props) {
       } = resolve;
       // if we're not sure the user is the same as we loaded redux with, zero out redux
       if (!usersReducer || usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {
-        clearReduxStore();
+        clearUserState(dispatch);
       }
       const currentPage = new URL(destination_page);
       let realMarketId = market_id;

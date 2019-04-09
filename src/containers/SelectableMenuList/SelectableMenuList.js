@@ -88,9 +88,10 @@ class SelectableMenuList extends Component {
           button
           key={i}
           onClick={(e) => {
-            onIndexChange(e, item.value);
+            if (item.value) {
+              onIndexChange(e, item.value);
+            }
             this.handleNestedItemsClick(item);
-
             if (item.onClick) {
               item.onClick();
             }

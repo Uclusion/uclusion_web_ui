@@ -188,6 +188,7 @@ const messages = defineMessages({
 
   // Sidebar menu names
   marketCategoriesMenu: 'Categories',
+  help: 'Help',
   myInvestmentsMenu: 'My Investments',
   marketTeamsMenu: 'Market Teams',
   marketDropDown: 'Market:',

@@ -260,12 +260,12 @@ function LandingPage(props) {
             </IconButton>
           </Tooltip>
           )}
-          <Tooltip id="tooltip-icon2" title="Uclusion website">
+          <Tooltip id="tooltip-icon2" title="Uclusion Help">
             <IconButton
               name="questionanswer"
-              aria-label="Open Uclusion Website"
+              aria-label="Open Uclusion Help"
               color="inherit"
-              href="https://www.uclusion.com"
+              href="https://uclusion.zendesk.com/hc/en-us"
               target="_blank"
               rel="noopener"
             >

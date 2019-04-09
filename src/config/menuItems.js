@@ -2,6 +2,7 @@ import React from 'react';
 
 // import LanguageIcon from '@material-ui/icons/Language';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 // import StyleIcon from '@material-ui/icons/Style';
 // import Brightness2 from '@material-ui/icons/Brightness2';
 // import Brightness7 from '@material-ui/icons/Brightness7';
@@ -12,7 +13,7 @@ import ListIcon from '@material-ui/icons/List';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import Timeline from '@material-ui/icons/Timeline';
 import GroupIcon from '@material-ui/icons/Group';
-import SecurityIcon from '@material-ui/icons/Security'
+import SecurityIcon from '@material-ui/icons/Security';
 // import { themes } from './themes';
 // import allLocales from './locales';
 import { formCurrentMarketLink } from '../utils/marketIdPathFunctions';
@@ -122,6 +123,14 @@ const getMenuItems = (props) => {
       ],
     },
     */
+    {
+      primaryText: intl.formatMessage({ id: 'help' }),
+      onClick: () => {
+        const win = window.open('https://uclusion.zendesk.com/hc/en-us', '_blank');
+        win.focus();
+      },
+      leftIcon: <QuestionAnswerIcon />,
+    },
     {
       value: formCurrentMarketLink('Login'),
       onClick: handleSignOut,

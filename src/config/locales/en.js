@@ -37,6 +37,7 @@ const messages = defineMessages({
   'link_with_github.com': 'Link with Github',
   my_account: 'My account',
   name: 'Name',
+  adminName: 'Name of new admin',
   email: 'E-Mail',
   password: 'Password',
   new_password: 'New Password',
@@ -177,7 +178,7 @@ const messages = defineMessages({
   categoriesListNotFound: 'No Market Categories found',
   titleLabel: 'Title',
   descriptionLabel: 'Description',
-  teamNameLabel: 'Name',
+  teamNameLabel: 'Name of new team',
   teamDescriptionLabel: 'Description',
   descriptionBody: 'Your description...',
   commentBody: 'Your comment...',
@@ -187,7 +188,7 @@ const messages = defineMessages({
 
   // Sidebar menu names
   marketCategoriesMenu: 'Categories',
-  myInvestmentsMenu: 'My investments',
+  myInvestmentsMenu: 'My Investments',
   marketTeamsMenu: 'Market Teams',
   marketDropDown: 'Market:',
   addInvestibleMenu: 'Add Investible',

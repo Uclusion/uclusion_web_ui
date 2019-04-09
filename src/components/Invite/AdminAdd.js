@@ -64,7 +64,7 @@ function AdminAdd(props) {
           <TextField
             className={classes.textField}
             id="userName"
-            label={intl.formatMessage({ id: 'name' })}
+            label={intl.formatMessage({ id: 'adminName' })}
             value={name}
             onChange={handleNameChange}
           />

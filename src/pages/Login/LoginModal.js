@@ -1,6 +1,7 @@
 /* eslint-disable react/forbid-prop-types */
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {
   OidcAuthorizer,
@@ -29,6 +30,18 @@ const styles = theme => ({
     width: 320,
     marginBottom: theme.spacing.unit * 2,
   },
+  noVertPadding: {
+    paddingTop: 0,
+    paddingBottom: 0,
+  },
+  separator: {
+    width: '100%',
+    height: 1,
+    backgroundColor: theme.palette.grey[400],
+  },
+  hidden: {
+    display: 'none',
+  },
 });
 
 let cognitoAuthorizer = null;
@@ -39,8 +52,10 @@ function LoginModal(props) {
   const [allowUserLogin, setAllowUserLogin] = useState(false);
   const [allowOidcLogin, setAllowOidcLogin] = useState(false);
   const [allowChangePassword, setAllowChangePassword] = useState(false);
+  const [allowResetPassword, setAllowResetPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [poolId, setPoolId] = useState('');
@@ -167,10 +182,40 @@ function LoginModal(props) {
           changePasswordCognito();
         } else {
           setAllowChangePassword(true);
+          setNewPassword('');
+          setConfirmPassword('');
         }
       } else {
         console.log(error);
       }
+    });
+  }
+
+  function forgotCognitoPassword() {
+    const { marketId, uclusionUrl } = getLoginParams();
+    const authorizerConfiguration = {
+      username: email,
+      poolId,
+      clientId,
+      marketId,
+      baseURL: uclusionUrl,
+    };
+    cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
+    cognitoAuthorizer.forgotPassword().then(() => {
+      setAllowResetPassword(true);
+      setCode('');
+      setNewPassword('');
+      setConfirmPassword('');
+    }).catch((error) => {
+      console.log(error);
+    });
+  }
+
+  function resetCognitoPassword() {
+    cognitoAuthorizer.confirmPassword(code, newPassword).then(() => {
+      setAllowResetPassword(false);
+    }).catch((error) => {
+      console.log(error);
     });
   }
 
@@ -193,12 +238,56 @@ function LoginModal(props) {
   return (
     <Dialog onClose={() => null} aria-labelledby="simple-dialog-title" open={open}>
       <DialogTitle id="simple-dialog-title">
-        {allowChangePassword ? 'Change Password' : 'Log In'}
+        {allowChangePassword ? 'Change Password' : (allowResetPassword ? 'Reset Password' : 'Log In')}
       </DialogTitle>
       <div>
         <List>
-          {allowCognitoLogin && (
-            <ListItem>
+          {allowCognitoLogin && ([
+            <ListItem key="resetPassword" className={classNames({ [classes.hidden]: !allowResetPassword })}>
+              <ValidatorForm onSubmit={resetCognitoPassword}>
+                <TextValidator
+                  className={classes.input}
+                  label="Code"
+                  name="code"
+                  validators={['required']}
+                  errorMessages={['Code is required']}
+                  fullWidth
+                  value={code}
+                  onChange={event => setCode(event.target.value)}
+                />
+                <TextValidator
+                  className={classes.input}
+                  label="New Password"
+                  name="new_password"
+                  type="password"
+                  validators={['required']}
+                  errorMessages={['Password is required']}
+                  fullWidth
+                  value={newPassword}
+                  onChange={event => setNewPassword(event.target.value)}
+                />
+                <TextValidator
+                  className={classes.input}
+                  label="Confirm Password"
+                  name="confirm_password"
+                  type="password"
+                  validators={['isPasswordMatch', 'required']}
+                  errorMessages={['Passwords do not match', 'Password is required']}
+                  fullWidth
+                  value={confirmPassword}
+                  onChange={event => setConfirmPassword(event.target.value)}
+                />
+                <Button
+                  className={classes.button}
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                >
+                  Reset Cognito Password
+                </Button>
+              </ValidatorForm>
+            </ListItem>,
+            <ListItem key="loginCognito" className={classNames({ [classes.hidden]: allowResetPassword })}>
               <ValidatorForm onSubmit={loginCognito}>
                 <TextValidator
                   className={classes.input}
@@ -222,30 +311,30 @@ function LoginModal(props) {
                   onChange={event => setPassword(event.target.value)}
                 />
                 {allowChangePassword && (
-                <TextValidator
-                  className={classes.input}
-                  label="New Password"
-                  name="new_password"
-                  type="password"
-                  validators={['required']}
-                  errorMessages={['Password is required']}
-                  fullWidth
-                  value={newPassword}
-                  onChange={event => setNewPassword(event.target.value)}
-                />
+                  <TextValidator
+                    className={classes.input}
+                    label="New Password"
+                    name="new_password"
+                    type="password"
+                    validators={['required']}
+                    errorMessages={['Password is required']}
+                    fullWidth
+                    value={newPassword}
+                    onChange={event => setNewPassword(event.target.value)}
+                  />
                 )}
                 {allowChangePassword && (
-                <TextValidator
-                  className={classes.input}
-                  label="Confirm Password"
-                  name="confirm_password"
-                  type="password"
-                  validators={['isPasswordMatch', 'required']}
-                  errorMessages={['Passwords do not match', 'Password is required']}
-                  fullWidth
-                  value={confirmPassword}
-                  onChange={event => setConfirmPassword(event.target.value)}
-                />
+                  <TextValidator
+                    className={classes.input}
+                    label="Confirm Password"
+                    name="confirm_password"
+                    type="password"
+                    validators={['isPasswordMatch', 'required']}
+                    errorMessages={['Passwords do not match', 'Password is required']}
+                    fullWidth
+                    value={confirmPassword}
+                    onChange={event => setConfirmPassword(event.target.value)}
+                  />
                 )}
                 <Button
                   className={classes.button}
@@ -256,6 +345,25 @@ function LoginModal(props) {
                   Login Cognito
                 </Button>
               </ValidatorForm>
+            </ListItem>,
+            <ListItem
+              key="resetCognito"
+              className={classNames(classes.noVertPadding, {
+                [classes.hidden]: allowResetPassword,
+              })}
+            >
+              <Button
+                className={classes.button}
+                color="primary"
+                onClick={forgotCognitoPassword}
+              >
+                Forgot Password
+              </Button>
+            </ListItem>,
+          ])}
+          {(allowOidcLogin || allowUserLogin) && (
+            <ListItem>
+              <div className={classes.separator} />
             </ListItem>
           )}
           {allowOidcLogin

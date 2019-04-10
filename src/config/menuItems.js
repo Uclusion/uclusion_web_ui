@@ -7,6 +7,7 @@ import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 // import Brightness2 from '@material-ui/icons/Brightness2';
 // import Brightness7 from '@material-ui/icons/Brightness7';
 // import SettingsIcon from '@material-ui/icons/SettingsApplications';
+import DashboardIcon from '@material-ui/icons/Dashboard';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import LockIcon from '@material-ui/icons/Lock';
 import ListIcon from '@material-ui/icons/List';
@@ -64,6 +65,11 @@ const getMenuItems = (props) => {
 
 
   return [
+    {
+      value: formCurrentMarketLink('dashboard'),
+      primaryText: intl.formatMessage({ id: 'dashboardMenu' }),
+      leftIcon: <DashboardIcon />,
+    },
     {
       value: formCurrentMarketLink('investibles'),
       primaryText: intl.formatMessage({ id: 'investiblesMenu' }),

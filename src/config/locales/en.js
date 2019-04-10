@@ -194,6 +194,7 @@ const messages = defineMessages({
   marketDropDown: 'Market:',
   addInvestibleMenu: 'Add Investible',
   investiblesMenu: 'Investibles',
+  dashboardMenu: 'Dashboard',
   categoryLabel: 'Category',
   saveCommentButton: 'Save Comment',
   saveInvestibleButton: 'Save investible',
@@ -201,6 +202,8 @@ const messages = defineMessages({
   noComments: 'There are no comments yet.',
   loadingMessage: 'Loading',
   investibleAddDescriptionDefault: 'Add a description...',
+  // Dashboard pages
+  dashboardHeader: 'Dashboard',
   // Team Memberships pages
   teamsHeader: 'Team Memberships',
   inviteHeader: 'Pre-Sales or Cognito Invite',
@@ -233,6 +236,7 @@ const messages = defineMessages({
   refundFailed: 'There was a problem refunding. Please try again.',
   investmentSucceeded: 'You have invested Ȗ{shares}.',
   teamsLoadFailed: 'There was a problem retrieving your Team Memberships. Please try again.',
+  summariesLoadFailed: 'There was a problem retrieving summaries. Please try again.',
   investmentsLoadFailed: 'There was a problem retrieving investments. Please try again.',
   teamMemberLoadFailed: 'There was a problem retrieving the members of your team. Please try again',
   investibleAddFailed: 'There was a problem saving your investible. Please try again',

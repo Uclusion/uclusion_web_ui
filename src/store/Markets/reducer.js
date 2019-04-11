@@ -85,8 +85,7 @@ export const getMarkets = state => formatMarkets(state.marketItems);
 
 export const getStages = state => state.marketStages;
 
-export const getMarketCategories = (categories, currentMarketId) => (
-  currentMarketId ? categories[currentMarketId] : []);
+export const getMarketCategories = state => state.marketCategories;
 
 export default combineReducers({
   marketItems,

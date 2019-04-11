@@ -6,7 +6,6 @@ import { withTheme, withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
-import { getMarketCategories } from '../../store/Markets/reducer';
 import { getCurrentUser } from '../../store/Users/reducer';
 import InvestibleList from '../../components/Investibles/InvestibleList';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
@@ -146,7 +145,7 @@ function InvestiblesPage(props) {
   const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
   const currentInvestibleList = getCurrentInvestibleList();
 
-  const categories = getMarketCategories(allCategories, marketId);
+  const categories = allCategories[marketId];
 
   let investibleDetail = null;
   if (hash) {

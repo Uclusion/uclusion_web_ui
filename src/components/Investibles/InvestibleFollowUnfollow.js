@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { IconButton } from "@material-ui/core";
+import { IconButton } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core/styles/index';

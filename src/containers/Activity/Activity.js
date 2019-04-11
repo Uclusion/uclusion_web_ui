@@ -28,7 +28,6 @@ import { getDifferentMarketLink } from '../../utils/marketIdPathFunctions';
 import { getClient } from '../../config/uclusionClient';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { postAuthTasks } from '../../utils/fetchFunctions';
-import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { listUserMarkets } from '../../utils/marketSelectionFunctions';
 
 const drawerWidth = 240;
@@ -156,30 +155,14 @@ function Activity(props) {
     isOffline,
     marketId,
     user,
-    userPermissions,
     titleButtons,
   } = props;
-  useEffect(() => {
-    const {
-      setDrawerOpen,
-      setDrawerMobileOpen,
-      setDrawerUseMinified,
-    } = props;
-    const { isGuest } = userPermissions;
-    if (isGuest) {
-      setDrawerMobileOpen(false);
-      setDrawerOpen(false);
-      setDrawerUseMinified(false);
-    }
-    return () => {};
-  }, [userPermissions]);
 
   const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
   const newCognitoUser = /(.+)\/newCognito/.test(window.location.href.toLowerCase());
   if (!showLogin && !newCognitoUser) {
     getClient(); // Will verify the token
   }
-  const { isGuest } = userPermissions;
   let marketChoices;
 
   if (user && user.team_presences) {
@@ -224,18 +207,15 @@ function Activity(props) {
       >
         <Toolbar disableGutters>
           <LinearProgress />
-          {!isGuest
-            && (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={!drawer.open ? handleDrawerOpen : handleDrawerToggle}
-              className={classNames(!smDown && classes.menuButton,
-                drawer.open && !smDown && classes.hide, onBackClick && classes.hide)}
-            >
-              <MenuIcon />
-            </IconButton>
-            )}
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={!drawer.open ? handleDrawerOpen : handleDrawerToggle}
+            className={classNames(!smDown && classes.menuButton,
+              drawer.open && !smDown && classes.hide, onBackClick && classes.hide)}
+          >
+            <MenuIcon />
+          </IconButton>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -317,7 +297,6 @@ Activity.propTypes = {
   user: PropTypes.object,
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
-  userPermissions: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => {
@@ -335,4 +314,4 @@ export default withBackgroundProcesses(compose(
   withWidth(),
   withStyles(styles, { withTheme: true }),
   injectIntl,
-)(withRouter(withMarketId(withUserAndPermissions(React.memo(Activity))))));
+)(withRouter(withMarketId(React.memo(Activity)))));

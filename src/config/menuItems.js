@@ -33,7 +33,7 @@ const getMenuItems = (props) => {
     userPermissions,
   } = props;
 
-  const { canCategorize, isMarketAdmin } = userPermissions;
+  const { canCategorize, isMarketAdmin, isGuest } = userPermissions;
   const authInfo = getUclusionLocalStorageItem('auth');
   const myInvestmentsSubpath = upUser ? 'teams#user:' + upUser.id : '';
 
@@ -68,6 +68,7 @@ const getMenuItems = (props) => {
     {
       value: formCurrentMarketLink('dashboard'),
       primaryText: intl.formatMessage({ id: 'dashboardMenu' }),
+      visible: isMarketAdmin,
       leftIcon: <DashboardIcon />,
     },
     {
@@ -90,12 +91,13 @@ const getMenuItems = (props) => {
     {
       value: formCurrentMarketLink('teams'),
       primaryText: intl.formatMessage({ id: 'myTeamsMenu' }),
+      visible: !isGuest,
       leftIcon: <GroupIcon />,
     },
     {
       value: formCurrentMarketLink('invite'),
       primaryText: intl.formatMessage({ id: 'inviteMenu' }),
-      visible: (authInfo && authInfo.type === 'cognito') || isMarketAdmin,
+      visible: (!isGuest && authInfo && authInfo.type === 'cognito') || isMarketAdmin,
       leftIcon: <SecurityIcon />,
     },
     {

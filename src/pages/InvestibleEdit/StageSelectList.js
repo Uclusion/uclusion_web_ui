@@ -14,7 +14,7 @@ const styles = theme => ({
   },
 });
 
-function MarketStageList(props) {
+function StageSelectList(props) {
   const {
     marketStages,
     intl,
@@ -44,7 +44,6 @@ function MarketStageList(props) {
       </FormControl>
     );
   }
-  console.log(marketId);
   const stages = (marketStages && marketStages[marketId]) || [];
   const stageItems = convertStagesToItems(stages);
   return getSelectList(stageItems);
@@ -60,7 +59,7 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-MarketStageList.propTypes = {
+StageSelectList.propTypes = {
   intl: PropTypes.object.isRequired,
   marketStages: PropTypes.object.isRequired,  //eslint-disable-line
   marketId: PropTypes.string,
@@ -68,5 +67,5 @@ MarketStageList.propTypes = {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(injectIntl(MarketStageList)),
+  withStyles(styles)(injectIntl(StageSelectList)),
 );

@@ -60,27 +60,7 @@ export const investibleFollowed = (investible, isFollowing) => ({
   isFollowing,
 });
 
-export const saveInvestibleEdits = (params = {}) => (dispatch) => {
-  // first we sync the name and description to the investments service,
-  // then we sync the state information (e.g. stage, etc) off to the markets service
-  const clientPromise = getClient();
-  const { id, name, description, category_list, stage, current_stage } = params;
-  // store the client so we can use it for second half
-  let clientHolder = null;
-  return clientPromise.then((client) => {
-      clientHolder = client;
-      return clientHolder.investibles.updateInMarket(id, name, description, category_list);
-    }).then((result) => {
-      const stateOptions = {
-        stage_id: stage,
-        current_stage_id: current_stage,
-        next_stage_additional_investment: additional_investment,
-      };
-      clientHolder.investibles.stateChange(id, stateOptionse);
-    }).then((result) => {
 
-     }).catch;
-};
 
 export const followUnfollowInvestible = (params = {}) => (dispatch) => {
   const { investible, stopFollowing } = params;
@@ -120,6 +100,34 @@ export const fetchInvestibleList = (params = {}) => (dispatch) => {
       console.error(error);
       sendIntlMessage(ERROR, { id: 'investibleListFetchFailed' });
     });
+};
+
+export const saveInvestibleEdits = (params = {}) => (dispatch) => {
+  // first we sync the name and description to the investments service,
+  // then we sync the state information (e.g. stage, etc) off to the markets service
+  const clientPromise = getClient();
+  const { id, name, description, category_list, market_id,
+    stage, current_stage_id, additional_investment } = params;
+  // store the client so we can use it for second half
+  let clientHolder = null;
+  return clientPromise.then((client) => {
+    clientHolder = client;
+    return clientHolder.investibles.updateInMarket(id, market_id, name, description, category_list);
+  }).then((result) => {
+    const stateOptions = {
+      stage_id: stage,
+      current_stage_id,
+      next_stage_additional_investment: additional_investment,
+    };
+    return clientHolder.investibles.stateChange(id, stateOptions);
+  }).then((result) => {
+    // instead of doing fancy logic to merge stuff, lets just refetch that investible
+    dispatch(fetchInvestibles({ idList: [id], marketId: market_id }));
+    sendIntlMessage(SUCCESS, { id: 'investibleEditFailed' });
+  }).catch((error) => {
+    console.error(error);
+    sendIntlMessage(ERROR, { id: 'investibleEditFailed' });
+  });
 };
 
 export const createInvestment = (params = {}) => (dispatch) => {

@@ -254,6 +254,8 @@ const messages = defineMessages({
   editBoxTooManyBytes: 'There is too much data in the editor. Please remove some text or images',
   investibleDescriptionTooManyBytes: 'The investible description is too large. Please remove some text or images',
   investibleFollowFailed: 'We could not change your favorite selection. Please try again',
+  investibleEditFailed: 'We could not update your investible. Please try again',
+  investibleEditSuccess: 'We are saving your edits. They should appear shortly',
   //InvestibleEdit
   investibleEditHeader: 'Edit Investible',
   investibleEditStageHelper: 'Select to change stage',
@@ -261,6 +263,9 @@ const messages = defineMessages({
   investibleEditCurrentStageLabel: 'Current Stage:',
   investibleEditNextStageLabel: 'Next Stage:',
   investibleEditNextStageInvestmentLabel: 'Required Investment:',
+  investibleEditSaveLabel: 'Save',
+  investibleCategoriesLabel: 'Categories',
+  investibleEditCategoriesHelper: 'Select One or More',
 
 });
 

@@ -7,15 +7,17 @@ import { withStyles } from '@material-ui/core/styles';
 import {
   TextField,
   Typography,
+  Button,
 } from '@material-ui/core';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
 import StageSelectList from './StageSelectList';
-
+import CategorySelectList from './CategorySelectList';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import Activity from '../../containers/Activity/Activity';
 import { getStages } from '../../store/Markets/reducer';
+import { saveInvestibleEdits } from '../../store/MarketInvestibles/actions';
 
 const styles = theme => ({
   flex: {
@@ -56,29 +58,46 @@ function InvestibleEdit(props) {
   } = props;
   const { investibleId } = match.params;
   const [investible, setInvestible] = useState({});
+  const [saved, setSaved] = useState(undefined);
 
   useEffect(() => {
     const clientPromise = getClient();
     clientPromise.then(client => client.markets.getMarketInvestibles(marketId, [investibleId]))
       .then((investibles) => {
+        const investible = investibles[0];
+        // set the current stage on it to keep the save happy
+        investible.current_stage_id = investible.stage;
         setInvestible(investibles[0]);
       }).catch((error) => {
         console.log(error);
         sendIntlMessage(ERROR, { id: 'investibleEditInvestibleFetchFailed' });
       });
-  }, [marketId, investibleId]);
+  }, [marketId, investibleId, saved]);
 
   function handleChange(name) {
     return (event) => {
       const { value } = event.target;
+      // if the name is the category list, and none are selected, disallow the change
+      if (name === 'category_list' && value.length === 0) {
+        return;
+      }
       const newInvestible = { ...investible };
+      // if we've changed stage, zero out the additional investible to make sure
+      // the default value changes in the additional investment field
+      if (name === 'stage') {
+        delete newInvestible.additional_investment;
+      }
       newInvestible[name] = value;
       setInvestible(newInvestible);
     };
   }
 
-  function onSave(){
-    dispatch(saveInvestmentEdits({...state}));
+  function onSave() {
+    console.log(investible);
+    dispatch(saveInvestibleEdits(investible));
+    // give us 2 seconds for the save to propagate (this is hacky, better idea is recommended, but
+    // I can't think of a clean way to integrate this "fetch just for this page" and redux update
+    setTimeout(() => {setSaved(!saved)}, 2000);
   }
 
   const {
@@ -92,6 +111,8 @@ function InvestibleEdit(props) {
       const { next_stage, additional_investment } = currentStage.automatic_transition;
       const nextStageData = marketStages[marketId].find((element) => element.id === next_stage);
       if (nextStageData) {
+        // use either the value we've saved on the investible, or the default for the stage if it exists
+        const investmentFieldValue = investible.additional_investment || (investible.quantity + additional_investment);
         return (
           <div>
             <Typography>{intl.formatMessage({ id: 'investibleEditNextStageLabel' })}</Typography>
@@ -101,11 +122,16 @@ function InvestibleEdit(props) {
               id="additional_investment"
               label={intl.formatMessage({ id: 'investibleEditNextStageInvestmentLabel' })}
               margin="normal"
-              value={investible.quantity + additional_investment}
+              value={investmentFieldValue}
               onChange={handleChange('additional_investment')}
             />
           </div>
         );
+      } else {
+        // zero  out the additional investment if we have no next stage
+        const newInvestible = { ...investible };
+        delete newInvestible.additional_investment;
+        setInvestible(newInvestible);
       }
     }
     return (<div/>);
@@ -138,7 +164,8 @@ function InvestibleEdit(props) {
           />
         </div>
         <div>
-          Placeholder for category multiple select
+          <Typography>{intl.formatMessage({ id: 'investibleCategoriesLabel'})}</Typography>
+          <CategorySelectList marketId={marketId} value={investible.category_list || []} onChange={handleChange('category_list')}/>
         </div>
         <div className={classes.numSharesText}>
           {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: quantity })}
@@ -149,12 +176,12 @@ function InvestibleEdit(props) {
               {intl.formatMessage({ id: 'currentStageLabel' })}
             </span>
             <div className={classes.stageContent}>
-              <div><StageSelectList onChange={handleChange('stage')} value={stage} marketId={marketId} /></div>
+              <div><StageSelectList onChange={handleChange('stage')} value={stage} marketId={marketId}/></div>
               {getNextStageInfo()}
             </div>
           </div>
-
         </Typography>
+        <Button onClick={() => onSave()}>{intl.formatMessage({ id: 'investibleEditSaveLabel' })}</Button>
       </div>
     </Activity>
   );

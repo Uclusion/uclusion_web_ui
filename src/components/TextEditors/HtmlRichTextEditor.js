@@ -52,7 +52,6 @@ class HtmlRichTextEditor extends React.Component {
         // in order emulate material ui field's onchange symantics
         if (onChange) {
           const changeUpdate = { target: { value: string } };
-          console.log(changeUpdate);
           onChange(changeUpdate);
         }
       }

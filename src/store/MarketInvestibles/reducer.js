@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 
 import _ from 'lodash';
 import {
-  RECEIVE_INVESTIBLES,
+  RECEIVE_INVESTIBLES, RECEIVE_INVESTIBLE_LIST,
   INVESTMENT_CREATED,
   INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED, INVESTMENTS_DELETED,
   INVESTIBLE_FOLLOW_UNFOLLOW,
@@ -89,8 +89,40 @@ function getInvestmentsDeletedState(state, action) {
   return newState;
 }
 
+/**
+ * The only thing we can do when we receive an investible list is to
+ * delete those investibles which aren't in it.
+ * @param state the old state
+ * @param action the action
+ * @returns {*} the new state
+ */
+function getReceiveInvestibleListState(state, action) {
+  const { marketId, investibleList } = action;
+  // console.debug(marketId);
+  if (!state[marketId]) {
+    return state;
+  }
+  const newState = { ...state };
+  const investibleHash = investibleList.reduce((hash, element) => {
+    hash[element.id] = element; //eslint-disable-line
+    return hash;
+  }, {});
+  const oldInvestibles = newState[marketId];
+  const newInvestibles = oldInvestibles.filter((element) => {
+    const exists = investibleHash[element.id];
+    // if (!exists) {
+    //  console.log("Removing investible " + element.id);
+    // }
+    return exists;
+  });
+  newState[marketId] = newInvestibles;
+  return newState;
+}
+
 const items = (state = [], action) => {
   switch (action.type) {
+    case RECEIVE_INVESTIBLE_LIST:
+      return getReceiveInvestibleListState(state, action);
     case RECEIVE_INVESTIBLES:
     case INVESTIBLE_CREATED:
       return getInvestibleCreatedState(state, action);

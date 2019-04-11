@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
+import { fetchInvestibles, investibleDeleted } from '../../store/MarketInvestibles/actions';
 import { fetchComments, commentDeleted } from '../../store/Comments/actions';
 
 /**
@@ -15,7 +15,7 @@ class WebSocketRunner {
 
   getMessageHandler() {
     const handler = (event) => {
-      console.log(event);
+      // console.debug(event);
       const payload = JSON.parse(event.data);
       switch (payload.event_type) {
         case 'MARKET_INVESTIBLE_UPDATED':
@@ -33,6 +33,9 @@ class WebSocketRunner {
             commentIds: [payload.object_id],
             marketId: payload.associated_object_id,
           }));
+          break;
+        case 'MARKET_INVESTIBLE_DELETED':
+          this.dispatch(investibleDeleted(payload.indirect_object_id, payload.object_id));
           break;
         default:
           console.debug('unknown event:', event);

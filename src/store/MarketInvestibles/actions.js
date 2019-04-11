@@ -17,7 +17,7 @@ export const MARKET_INVESTIBLE_CREATED = 'MARKET_INVESTIBLE_CREATED';
 export const RECEIVE_MARKET_INVESTIBLE_LIST = 'RECEIVE_MARKET_INVESTIBLE_LIST';
 export const INVESTIBLE_FOLLOW_UNFOLLOW = 'INVESTIBLE_FOLLOW_UNFOLLOW';
 export const MARKET_INVESTIBLE_EDITED = 'MARKET_INVESTIBLE_EDITED';
-
+export const RECEIVE_INVESTIBLE_LIST = 'RECEIVE_INVESTIBLE_LIST';
 
 export const investibleDeleted = (marketId, investibleId) => ({
   type: MARKET_INVESTIBLE_DELETED,
@@ -30,6 +30,12 @@ export const investmentsDeleted = (marketId, investibleId, quantity) => ({
   marketId,
   investibleId,
   quantity,
+});
+
+export const receiveInvestibleList = (marketId, investibleList) => ({
+  type: RECEIVE_INVESTIBLE_LIST,
+  marketId,
+  investibleList
 });
 
 export const receiveInvestibles = (marketId, investibles) => ({
@@ -95,6 +101,7 @@ export const fetchInvestibleList = (params = {}) => (dispatch) => {
     .then((response) => {
       const { investibles, categories } = response;
       dispatch(receiveMarketCategories(categories, marketId));
+      dispatch(receiveInvestibleList(marketId, investibles));
       updateInChunks(dispatch, currentInvestibleList, investibles, fetchInvestibles, marketId);
     }).catch((error) => {
       console.error(error);

@@ -8,6 +8,7 @@ import {
   TextField,
   Typography,
   Button,
+  Chip,
 } from '@material-ui/core';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
 import StageSelectList from './StageSelectList';
@@ -18,6 +19,7 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import Activity from '../../containers/Activity/Activity';
 import { getStages } from '../../store/Markets/reducer';
 import { saveInvestibleEdits } from '../../store/MarketInvestibles/actions';
+
 
 const styles = theme => ({
   flex: {
@@ -100,9 +102,35 @@ function InvestibleEdit(props) {
     setTimeout(() => {setSaved(!saved)}, 2000);
   }
 
+
   const {
-    description, stage, name, quantity,
+    description, stage, name, quantity, label_scratch, category_list, label_list
   } = investible;
+
+  function handleLabelDelete(label){
+    const { label_list } = investible;
+    const oldList = label_list || [];
+    const newLabels = oldList.filter(element => element !== label);
+    const newInvestible = { ...investible, label_list: newLabels };
+    setInvestible(newInvestible);
+  }
+
+  function handleLabelAdd() {
+    if (label_scratch) {
+      const oldList = label_list || [];
+      const newLabels = oldList.includes(label_scratch) ? oldList : [...oldList, label_scratch];
+      const newInvestible = { ...investible, label_list: newLabels, label_scratch: '' };
+      setInvestible(newInvestible);
+    }
+  }
+
+  function getLabelChips() {
+    const usedList = label_list || [];
+    const chips = usedList.map((label, index) => {
+      return <Chip key={index} label={label} onDelete={() => handleLabelDelete(label)}/>
+    });
+    return chips;
+  }
 
   function getNextStageInfo() {
     const currentStages = marketStages && marketStages[marketId];
@@ -165,7 +193,25 @@ function InvestibleEdit(props) {
         </div>
         <div>
           <Typography>{intl.formatMessage({ id: 'investibleCategoriesLabel'})}</Typography>
-          <CategorySelectList marketId={marketId} value={investible.category_list || []} onChange={handleChange('category_list')}/>
+          <CategorySelectList marketId={marketId} value={category_list || []} onChange={handleChange('category_list')}/>
+        </div>
+        <div>
+          <Typography>{intl.formatMessage({ id: 'investibleEditLabelsLabel' })}</Typography>
+          <div>
+            {getLabelChips()}
+          </div>
+        </div>
+        <div>
+          <Typography>{intl.formatMessage({ id: 'investibleEditAddNewLabelLabel' })}</Typography>
+          <TextField
+            className={classes.textField}
+            InputProps={{ className: classes.textInput, maxLength: 255 }}
+            margin="normal"
+            name="label_scratch"
+            onChange={handleChange('label_scratch')}
+            value={label_scratch}
+          />
+          <Button onClick={handleLabelAdd}>{intl.formatMessage({ id: 'investibleEditAddNewLabelButton' })}</Button>
         </div>
         <div className={classes.numSharesText}>
           {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: quantity })}

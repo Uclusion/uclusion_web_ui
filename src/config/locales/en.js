@@ -266,6 +266,9 @@ const messages = defineMessages({
   investibleEditSaveLabel: 'Save',
   investibleCategoriesLabel: 'Categories',
   investibleEditCategoriesHelper: 'Select One or More',
+  investibleEditLabelsLabel: 'Labels',
+  investibleEditAddNewLabelLabel: 'New Label:',
+  investibleEditAddNewLabelButton: 'Add Label',
 
 });
 

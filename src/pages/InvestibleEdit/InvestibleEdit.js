@@ -211,7 +211,7 @@ function InvestibleEdit(props) {
             onChange={handleChange('label_scratch')}
             value={label_scratch}
           />
-          <Button onClick={handleLabelAdd}>{intl.formatMessage({ id: 'investibleEditAddNewLabelButton' })}</Button>
+          {(!label_list || label_list.length < 5) && <Button onClick={handleLabelAdd}>{intl.formatMessage({ id: 'investibleEditAddNewLabelButton' })}</Button>}
         </div>
         <div className={classes.numSharesText}>
           {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: quantity })}

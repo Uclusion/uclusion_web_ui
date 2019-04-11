@@ -12,6 +12,7 @@ import InvestibleListItemTabs from './InvestibleListItemTabs';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
 import InvestibleDelete from './InvestibleDelete';
+import InvestibleEdit from './InvestibleEdit';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({
@@ -108,7 +109,7 @@ class InvestibleDetail extends React.PureComponent {
     } = this.props;
     const show = !!this.props.investible;
     const investible = this.props.investible || this.lastInvestible || {};
-    const { canDeleteMarketInvestible } = userPermissions;
+    const { canDeleteMarketInvestible, canEditMarketInvestible } = userPermissions;
 
     return (
       <div
@@ -153,6 +154,7 @@ class InvestibleDetail extends React.PureComponent {
         <div className={classNames(classes.bottomActions)}>
           <InvestibleFollowUnfollow investible={investible} useIconButton />
           {canDeleteMarketInvestible && <InvestibleDelete investible={investible} onCloseDetail={onClose} />}
+          {canEditMarketInvestible && <InvestibleEdit investibleId={investible.id} />}
         </div>
       </div>
     );

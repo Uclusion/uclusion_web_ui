@@ -41,7 +41,11 @@ function CategoryList(props) {
     return () => {};
   }, [marketId]);
 
-  const categories = getMarketCategories(allCategories, marketId);
+  function getCurrentMarketCategories(categories, currentMarketId){
+    return currentMarketId ? categories[currentMarketId] : [];
+  }
+
+  const categories = getCurrentMarketCategories(allCategories, marketId);
 
   return (
     <div>
@@ -80,9 +84,10 @@ CategoryList.propTypes = {
   marketId: PropTypes.string.isRequired,
 };
 
+
 function mapStateToProps(state) {
   return {
-    allCategories: state.marketsReducer.marketCategories,
+    allCategories: getMarketCategories(state.marketsReducer),
   };
 }
 

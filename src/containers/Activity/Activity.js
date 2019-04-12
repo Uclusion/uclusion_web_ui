@@ -6,7 +6,7 @@ import ArrowDropdown from '@material-ui/icons/ArrowDropDown';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import MenuIcon from '@material-ui/icons/Menu';
 import PropTypes from 'prop-types';
-import React, { useEffect } from 'react';
+import React from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';

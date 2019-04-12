@@ -29,7 +29,7 @@ function Invite(props) {
     marketId,
     classes,
   } = props;
-  const { canListAccountTeams } = userPermissions;
+  const { canListAccountTeams, canInvest } = userPermissions;
 
   useEffect(() => {
     const clientPromise = getClient();
@@ -40,7 +40,7 @@ function Invite(props) {
         console.log(error);
         sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
       });
-    } else {
+    } else if (canInvest) {
       clientPromise.then(client => client.teams.mine(marketId)).then((marketTeams) => {
         setTeams(marketTeams.filter(team => !('external_id' in team)));
       }).catch((error) => {
@@ -49,7 +49,7 @@ function Invite(props) {
       });
     }
     return () => {};
-  }, [marketId]);
+  }, [marketId, canListAccountTeams, canInvest]);
 
   return (
     <Activity

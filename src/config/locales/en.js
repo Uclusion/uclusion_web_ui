@@ -1,6 +1,4 @@
 import { defineMessages } from 'react-intl';
-import React from 'react';
-
 const messages = defineMessages({
   app_name: 'Uclusion',
   about: 'About',

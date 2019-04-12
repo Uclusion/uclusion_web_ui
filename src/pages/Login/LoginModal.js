@@ -18,7 +18,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import appConfig from '../../config/config';
 import { getAuthMarketId, formCurrentMarketLink, getMarketId } from '../../utils/marketIdPathFunctions';
-import { postAuthTasks } from '../../utils/fetchFunctions';
+import { postAuthTasks } from '../../utils/postAuthFunctions';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 
 const styles = theme => ({
@@ -146,9 +146,9 @@ function LoginModal(props) {
   }
 
   function cognitoTokenGenerated() {
-    const { dispatch, webSocket, history } = props;
+    const { dispatch, webSocket, history, usersReducer } = props;
     const { marketId, page } = getLoginParams();
-    postAuthTasks(cognitoAuthorizer.storedToken, cognitoAuthorizer.getType(), dispatch,
+    postAuthTasks(usersReducer, cognitoAuthorizer.storedToken, cognitoAuthorizer.getType(), dispatch,
       marketId, cognitoAuthorizer.user, webSocket);
     history.push(page);
   }
@@ -220,14 +220,14 @@ function LoginModal(props) {
   }
 
   function loginAnonymous() {
-    const { dispatch, history, webSocket } = props;
+    const { dispatch, history, webSocket, usersReducer } = props;
     const loginParams = getLoginParams();
     const authorizer = new AnonymousAuthorizer(loginParams);
     authorizer.doPostAuthorize().then((resolve) => {
       const {
         uclusion_token, market_id, user,
       } = resolve;
-      postAuthTasks(uclusion_token, authorizer.getType(), dispatch, market_id, user, webSocket);
+      postAuthTasks(usersReducer, uclusion_token, authorizer.getType(), dispatch, market_id, user, webSocket);
       history.push(formCurrentMarketLink('investibles'));
     });
   }
@@ -418,6 +418,7 @@ LoginModal.propTypes = {
   webSocket: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
+  usersReducer: PropTypes.object.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

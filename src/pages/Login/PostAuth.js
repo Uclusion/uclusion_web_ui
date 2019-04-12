@@ -8,8 +8,8 @@ import { Redirect } from 'react-router';
 import PropTypes from 'prop-types';
 import appConfig from '../../config/config';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
-import { postAuthTasks } from '../../utils/fetchFunctions';
-import { clearUserState } from '../../utils/userStateFunctions';
+import { postAuthTasks } from '../../utils/postAuthFunctions';
+
 
 function PostAuth(props) {
   const [resolve, setResolve] = useState(undefined);
@@ -24,20 +24,16 @@ function PostAuth(props) {
   useEffect(() => {
     if (resolve) {
       // Have to do here or get warning about setting state before component mounted
-      const { dispatch, webSocket } = props;
+      const { dispatch, webSocket, usersReducer } = props;
       const {
-        uclusion_token, destination_page, market_id, user, usersReducer,
+        uclusion_token, destination_page, market_id, user,
       } = resolve;
-      // if we're not sure the user is the same as we loaded redux with, zero out redux
-      if (!usersReducer || usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {
-        clearUserState(dispatch);
-      }
       const currentPage = new URL(destination_page);
       let realMarketId = market_id;
       if (currentPage.search.includes('authMarketId')) {
         realMarketId = currentPage.pathname.split('/')[1];
       }
-      postAuthTasks(uclusion_token, authorizerType, dispatch, realMarketId, user, webSocket);
+      postAuthTasks(usersReducer, uclusion_token, authorizerType, dispatch, realMarketId, user, webSocket);
       setPath(getPathAndQueryPart(destination_page));
     } else {
       const pageUrl = window.location.href;
@@ -48,6 +44,7 @@ function PostAuth(props) {
       console.log(`pageUrl is ${pageUrl}`);
       const authorizer = constructAuthorizer(configuration);
       authorizer.authorize(pageUrl).then((resolve) => {
+        console.log(resolve);
         setAuthorizerType(authorizer.getType());
         setFailed(false);
         setResolve(resolve);

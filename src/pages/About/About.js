@@ -90,48 +90,48 @@ function About(props) {
         <div className={classes.root}>
           <Paper className={classes.section}>
             <Typography className={classes.row}>
-              <span className={classes.label}>Application version:</span>
+              <span className={classes.label}>{intl.formatMessage({ id: 'aboutApplicationVersionLabel' })}</span>
               <span className={classes.value}>{version}</span>
             </Typography>
           </Paper>
           <Paper className={classes.section}>
             <Typography className={classes.row}>
-              <span className={classes.label}>Market Id:</span>
+              <span className={classes.label}>{intl.formatMessage({ id: 'aboutMarketIdLabel' })}</span>
               <span className={classes.value}>{marketId}</span>
             </Typography>
             <Typography className={classes.row}>
-              <span className={classes.label}>Account Id:</span>
+              <span className={classes.label}>{intl.formatMessage({ id: 'aboutAccountIdLabel' })}</span>
               <span className={classes.value}>{!!market && market.account_id}</span>
             </Typography>
             <Typography className={classes.row}>
-              <span className={classes.label}>Account Name:</span>
+              <span className={classes.label}>{intl.formatMessage({ id: 'aboutAccountNameLabel' })}</span>
               <span className={classes.value}>{!!market && market.account_name}</span>
             </Typography>
           </Paper>
           <Paper className={classes.section}>
             <Typography className={classes.row}>
-              <span className={classes.label}>User Id:</span>
+              <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserIdLabel' })}</span>
               <span className={classes.value}>{!!upUser && upUser.id}</span>
             </Typography>
             <Typography className={classes.row}>
-              <span className={classes.label}>User Name:</span>
+              <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserNameLabel' })}</span>
               <span className={classes.value}>{!!upUser && upUser.name}</span>
             </Typography>
             <Typography className={classes.row}>
-              <span className={classes.label}>Team Id:</span>
+              <span className={classes.label}>{intl.formatMessage({ id: 'aboutTeamIdLabel' })}</span>
               <span className={classes.value}>{!!upUser && upUser.team_id}</span>
             </Typography>
           </Paper>
           {isMarketAdmin && (
             <Paper className={classes.section}>
               <Typography className={classes.row}>
-                <span className={classes.label}>Uclusion Email:</span>
+                <span className={classes.label}>{intl.formatMessage({ id: 'aboutUclusionEmailLabel' })}</span>
                 <span className={classes.value}>{appConfig.uclusionSupportInfo.email}</span>
               </Typography>
             </Paper>
           )}
           <br/>
-          <Button color='primary' onClick={handleClear}>{intl.formatMessage({ id: 'clearStorageLabel' })}</Button>
+          <Button color='primary' onClick={handleClear}>{intl.formatMessage({ id: 'aboutClearStorageButton' })}</Button>
         </div>
       </Activity>
     </div>

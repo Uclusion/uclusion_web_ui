@@ -15,10 +15,10 @@ import StageSelectList from './StageSelectList';
 import CategorySelectList from './CategorySelectList';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import { getClient } from '../../config/uclusionClient';
-import { ERROR, sendIntlMessage } from '../../utils/userMessage';
+import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import Activity from '../../containers/Activity/Activity';
 import { getStages } from '../../store/Markets/reducer';
-import { saveInvestibleEdits } from '../../store/MarketInvestibles/actions';
+import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
 
 
 const styles = theme => ({
@@ -95,11 +95,33 @@ function InvestibleEdit(props) {
   }
 
   function onSave() {
-    console.log(investible);
-    dispatch(saveInvestibleEdits(investible));
-    // give us 2 seconds for the save to propagate (this is hacky, better idea is recommended, but
-    // I can't think of a clean way to integrate this "fetch just for this page" and redux update
-    setTimeout(() => {setSaved(!saved)}, 2000);
+    // first we sync the name and description to the investments service,
+    // then we sync the state information (e.g. stage, etc) off to the markets service
+    const clientPromise = getClient();
+    const { id, name, description, category_list, market_id, label_list,
+      stage, current_stage_id, additional_investment } = investible;
+    // store the client so we can use it for second half
+    let clientHolder = null;
+    return clientPromise.then((client) => {
+      clientHolder = client;
+      return clientHolder.investibles.updateInMarket(id, market_id, name, description, category_list, label_list);
+    }).then((result) => {
+      const stateOptions = {
+        stage_id: stage,
+        current_stage_id,
+        next_stage_additional_investment: additional_investment,
+      };
+      return clientHolder.investibles.stateChange(id, stateOptions);
+    }).then((result) => {
+      // instead of doing fancy logic to merge stuff, lets just refetch that investible
+      dispatch(fetchInvestibles({ idList: [id], marketId: market_id }));
+      sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' })
+      setSaved(true);
+    }).catch((error) => {
+      console.error(error);
+      sendIntlMessage(ERROR, { id: 'investibleEditFailed' });
+      setSaved(false);
+    });
   }
 
 

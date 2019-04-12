@@ -109,34 +109,6 @@ export const fetchInvestibleList = (params = {}) => (dispatch) => {
     });
 };
 
-export const saveInvestibleEdits = (params = {}) => (dispatch) => {
-  // first we sync the name and description to the investments service,
-  // then we sync the state information (e.g. stage, etc) off to the markets service
-  const clientPromise = getClient();
-  const { id, name, description, category_list, market_id, label_list,
-    stage, current_stage_id, additional_investment } = params;
-  // store the client so we can use it for second half
-  let clientHolder = null;
-  return clientPromise.then((client) => {
-    clientHolder = client;
-    return clientHolder.investibles.updateInMarket(id, market_id, name, description, category_list, label_list);
-  }).then((result) => {
-    const stateOptions = {
-      stage_id: stage,
-      current_stage_id,
-      next_stage_additional_investment: additional_investment,
-    };
-    return clientHolder.investibles.stateChange(id, stateOptions);
-  }).then((result) => {
-    // instead of doing fancy logic to merge stuff, lets just refetch that investible
-    dispatch(fetchInvestibles({ idList: [id], marketId: market_id }));
-    sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });
-  }).catch((error) => {
-    console.error(error);
-    sendIntlMessage(ERROR, { id: 'investibleEditFailed' });
-  });
-};
-
 export const createInvestment = (params = {}) => (dispatch) => {
   const clientPromise = getClient();
   return clientPromise.then(client => client.markets.createInvestment(params.marketId, params.teamId, params.investibleId, params.quantity))

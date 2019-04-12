@@ -1,5 +1,4 @@
 import { defineMessages } from 'react-intl';
-
 const messages = defineMessages({
   app_name: 'Uclusion',
   about: 'About',
@@ -183,8 +182,15 @@ const messages = defineMessages({
   descriptionBody: 'Your description...',
   commentBody: 'Your comment...',
   // About pages
-  clearStorageLabel: 'Clear local storage and logout',
-  clearStorageButton: 'Clear',
+  aboutClearStorageButton: 'Clear local storage and logout',
+  aboutMarketIdLabel: 'Market Id:',
+  aboutAccountIdLabel: 'Account Id:',
+  aboutAccountNameLabel: 'Account Name:',
+  aboutUserIdLabel: 'User Id:',
+  aboutUserNameLabel: 'User Name:',
+  aboutTeamIdLabel: 'Team Id:',
+  aboutUclusionEmailLabel: 'Uclusion Email:',
+  aboutApplicationVersionLabel: 'Application Version:',
 
   // Sidebar menu names
   marketCategoriesMenu: 'Categories',

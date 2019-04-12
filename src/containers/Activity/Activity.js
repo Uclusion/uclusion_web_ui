@@ -6,7 +6,7 @@ import ArrowDropdown from '@material-ui/icons/ArrowDropDown';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import MenuIcon from '@material-ui/icons/Menu';
 import PropTypes from 'prop-types';
-import React, { useEffect } from 'react';
+import React from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
@@ -27,7 +27,7 @@ import { getCurrentUser } from '../../store/Users/reducer';
 import { getDifferentMarketLink } from '../../utils/marketIdPathFunctions';
 import { getClient } from '../../config/uclusionClient';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
-import { postAuthTasks } from '../../utils/fetchFunctions';
+import { marketChangeTasks } from '../../utils/postAuthFunctions';
 import { listUserMarkets } from '../../utils/marketSelectionFunctions';
 
 const drawerWidth = 240;
@@ -133,7 +133,7 @@ function Activity(props) {
       webSocket, marketId, user, dispatch, history,
     } = props;
     if (newMarketId !== marketId) {
-      postAuthTasks(null, null, dispatch, newMarketId, user, webSocket);
+      marketChangeTasks(dispatch, newMarketId, user, webSocket);
       const markets = listUserMarkets(user);
       const newMarket = markets.find(market => market.id === newMarketId);
       history.push(getDifferentMarketLink(newMarket, 'investibles'));

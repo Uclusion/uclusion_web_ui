@@ -9,6 +9,9 @@ import {
   Typography,
   Button,
   Chip,
+  Card,
+  CardContent,
+  CardActions,
 } from '@material-ui/core';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
 import StageSelectList from './StageSelectList';
@@ -20,22 +23,18 @@ import Activity from '../../containers/Activity/Activity';
 import { getStages } from '../../store/Markets/reducer';
 import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
 
-
 const styles = theme => ({
+  root: {
+    padding: theme.spacing.unit * 2,
+  },
   flex: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  row: {
-    marginBottom: theme.spacing.unit,
-    '&:last-child': {
-      marginBottom: 0,
-    },
-  },
   textField: {
-    margin: 0,
-    marginBottom: theme.spacing.unit,
+    // margin: 0,
+    // marginBottom: theme.spacing.unit,
   },
   stageLabel: {
     minWidth: 100,
@@ -46,7 +45,41 @@ const styles = theme => ({
   numSharesText: {
     fontSize: 12,
   },
-
+  row: {
+    marginBottom: theme.spacing.unit * 2,
+    '&:last-child': {
+      marginBottom: 0,
+    },
+  },
+  actions: {
+    padding: theme.spacing.unit * 2,
+    justifyContent: 'flex-end',
+    borderTopWidth: 1,
+    borderTopStyle: 'solid',
+    borderTopColor: theme.palette.grey[300],
+  },
+  description: {
+    padding: theme.spacing.unit * 1.5,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: theme.palette.grey[300],
+  },
+  controlLabel: {
+    fontSize: '1rem',
+    transform: 'translate(0, 1.5px) scale(0.75)',
+    transformOrigin: 'top left',
+    color: 'rgba(0, 0, 0, 0.54)',
+  },
+  noLabelsText: {
+    lineHeight: '36px',
+  },
+  labelChips: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  labelChip: {
+    margin: theme.spacing.unit * 0.25,
+  },
 });
 
 function InvestibleEdit(props) {
@@ -146,12 +179,32 @@ function InvestibleEdit(props) {
     }
   }
 
-  function getLabelChips() {
+  function renderLabelChips() {
     const usedList = label_list || [];
-    const chips = usedList.map((label, index) => {
-      return <Chip key={index} label={label} onDelete={() => handleLabelDelete(label)}/>
-    });
-    return chips;
+
+    return (
+      <div>
+        <Typography className={classes.controlLabel}>
+          {intl.formatMessage({ id: 'investibleEditLabelsLabel' })}
+        </Typography>
+        {usedList.length > 0 ? (
+          <div className={classes.labelChips}>
+            {usedList.map((label, index) => (
+              <Chip
+                className={classes.labelChip}
+                key={index}
+                label={label}
+                onDelete={() => handleLabelDelete(label)}
+              />
+            ))}
+          </div>
+        ) : (
+          <Typography className={classes.noLabelsText}>
+            No labels
+          </Typography>
+        )}
+      </div>
+    );
   }
 
   function getNextStageInfo() {
@@ -193,63 +246,71 @@ function InvestibleEdit(props) {
       containerStyle={{ overflow: 'hidden' }}
       title={intl.formatMessage({ id: 'investibleEditHeader' })}
     >
-      <div>
-        <div className={classes.flex}>
-          <TextField
-            className={classes.textField}
-            InputProps={{ className: classes.textInput, maxLength: 255 }}
-            id="name"
-            label={intl.formatMessage({ id: 'titleLabel' })}
-            margin="normal"
-            fullWidth
-            value={name}
-            onChange={handleChange('name')}
-          />
-        </div>
-        <div style={{ flex: 1, overflow: 'auto' }}>
-          <HtmlRichTextEditor
-            style={{ minHeight: 'auto' }}
-            value={description}
-            onChange={handleChange('description')}
-          />
-        </div>
-        <div>
-          <Typography>{intl.formatMessage({ id: 'investibleCategoriesLabel'})}</Typography>
-          <CategorySelectList marketId={marketId} value={category_list || []} onChange={handleChange('category_list')}/>
-        </div>
-        <div>
-          <Typography>{intl.formatMessage({ id: 'investibleEditLabelsLabel' })}</Typography>
-          <div>
-            {getLabelChips()}
-          </div>
-        </div>
-        <div>
-          <Typography>{intl.formatMessage({ id: 'investibleEditAddNewLabelLabel' })}</Typography>
-          <TextField
-            className={classes.textField}
-            InputProps={{ className: classes.textInput, maxLength: 255 }}
-            margin="normal"
-            name="label_scratch"
-            onChange={handleChange('label_scratch')}
-            value={label_scratch}
-          />
-          {(!label_list || label_list.length < 5) && <Button onClick={handleLabelAdd}>{intl.formatMessage({ id: 'investibleEditAddNewLabelButton' })}</Button>}
-        </div>
-        <div className={classes.numSharesText}>
-          {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: quantity })}
-        </div>
-        <Typography component="div">
-          <div className={classNames(classes.flex, classes.row)}>
-            <span className={classes.stageLabel}>
-              {intl.formatMessage({ id: 'currentStageLabel' })}
-            </span>
-            <div className={classes.stageContent}>
-              <div><StageSelectList onChange={handleChange('stage')} value={stage} marketId={marketId}/></div>
-              {getNextStageInfo()}
+      <div className={classes.root}>
+        <Card>
+          <CardContent>
+            <TextField
+              className={classNames(classes.textField, classes.row)}
+              InputProps={{ maxLength: 255 }}
+              InputLabelProps={{ shrink: true }}
+              id="name"
+              label={intl.formatMessage({ id: 'titleLabel' })}
+              margin="normal"
+              fullWidth
+              value={name}
+              onChange={handleChange('name')}
+            />
+            <div className={classNames(classes.description, classes.row)}>
+              <HtmlRichTextEditor
+                value={description}
+                onChange={handleChange('description')}
+              />
             </div>
-          </div>
-        </Typography>
-        <Button onClick={() => onSave()}>{intl.formatMessage({ id: 'investibleEditSaveLabel' })}</Button>
+            <div className={classes.row}>
+              <CategorySelectList
+                marketId={marketId}
+                value={category_list || []}
+                onChange={handleChange('category_list')}
+              />
+            </div>
+            <div className={classes.row}>
+              {renderLabelChips()}
+            </div>
+            <div className={classes.row}>
+              <Typography>{intl.formatMessage({ id: 'investibleEditAddNewLabelLabel' })}</Typography>
+              <TextField
+                className={classes.textField}
+                InputProps={{ className: classes.textInput, maxLength: 255 }}
+                margin="normal"
+                name="label_scratch"
+                onChange={handleChange('label_scratch')}
+                value={label_scratch}
+              />
+              {(!label_list || label_list.length < 5) && <Button onClick={handleLabelAdd}>{intl.formatMessage({ id: 'investibleEditAddNewLabelButton' })}</Button>}
+            </div>
+            <Typography className={classNames(classes.numSharesText, classes.row)}>
+              {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: quantity })}
+            </Typography>
+            <Typography component="div" className={classNames(classes.flex, classes.row)}>
+              <span className={classes.stageLabel}>
+                {intl.formatMessage({ id: 'currentStageLabel' })}
+              </span>
+              <div className={classes.stageContent}>
+                <div><StageSelectList onChange={handleChange('stage')} value={stage} marketId={marketId}/></div>
+                {getNextStageInfo()}
+              </div>
+            </Typography>
+          </CardContent>
+          <CardActions className={classes.actions}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => onSave()}
+            >
+              {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
+            </Button>
+          </CardActions>
+        </Card>
       </div>
     </Activity>
   );

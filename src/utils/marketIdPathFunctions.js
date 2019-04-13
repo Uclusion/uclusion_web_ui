@@ -67,10 +67,13 @@ function formAuthAppendedLink(destMarket, destLink) {
 
 /**
  * Forms a relative link and embeds the active market and auth market if needed
- * @param realtiveDestination
+ * @param subPath relative destination
  */
 export function formCurrentMarketLink(subPath) {
   const market = getMarketId();
+  if (!market) {
+    return '';
+  }
   const marketLink = formMarketIdLink(market, subPath);
   return formAuthAppendedLink(market, marketLink);
 }

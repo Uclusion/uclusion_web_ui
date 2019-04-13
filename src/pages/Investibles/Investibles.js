@@ -109,7 +109,7 @@ function InvestiblesPage(props) {
       if (lastFetchedMarketId !== marketId) {
         setLastFetchedMarketId(marketId);
       }
-      console.debug('Fetching investibles with marketId:', marketId);
+      console.log('Fetching investibles with marketId:', marketId);
       const currentInvestibleList = marketId in investibles ? investibles[marketId] : [];
       const currentCommentList = marketId in comments ? comments[marketId] : [];
       dispatch(fetchInvestibleList({ marketId, currentInvestibleList }));
@@ -172,10 +172,10 @@ function InvestiblesPage(props) {
     <div>
 
       <Activity
-        isLoading={currentInvestibleList === undefined}
+        isLoading={currentInvestibleList === undefined || user === undefined}
         containerStyle={{ overflow: 'hidden' }}
         title={intl.formatMessage({ id: 'marketInvestiblesTitle' }, { marketName: currentMarketName })}
-        titleButtons={<MarketFollowUnfollow user={user} marketId={marketId}/>}
+        titleButtons={<MarketFollowUnfollow user={user} marketId={marketId} />}
       >
         {currentInvestibleList && user && user.market_presence
         && (

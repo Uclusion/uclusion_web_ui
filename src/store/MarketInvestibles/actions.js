@@ -96,7 +96,7 @@ export const fetchInvestibles = (params = {}) => (dispatch) => {
 export const fetchInvestibleList = (params = {}) => (dispatch) => {
   const { marketId, currentInvestibleList } = params;
   const clientPromise = getClient();
-  console.debug('Fetching investibles list for:', marketId);
+  console.log('Fetching investibles list for:', marketId);
   return clientPromise.then(client => client.markets.listInvestibles(marketId))
     .then((response) => {
       const { investibles, categories } = response;

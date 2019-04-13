@@ -32,6 +32,8 @@ export const fetchUser = (params = {}) => (dispatch) => {
     if (!params.user_id) {
       globalClient.users.getPresences().then((teamPresences) => {
         user.team_presences = teamPresences;
+        console.log('Receiving user');
+        console.log(user);
         dispatch(receiveCurrentUser(user));
       });
     } else {

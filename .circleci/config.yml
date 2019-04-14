@@ -37,8 +37,8 @@ jobs:
           name: Install web ui
           command: |
             cd ~/repo
+            echo 'export MY_RELEASE_VAR=`git rev-parse HEAD | head -c 16`' >> $BASH_ENV
             npm install
-      # TODO: THIS SHOULD REALLY CHANGE TO USE THE ENV FILE IN THE CONTEXT
       - run:
           name: Copy env file
           command: |
@@ -65,6 +65,21 @@ jobs:
             cd ~/repo
             aws configure set preview.cloudfront true
             aws cloudfront create-invalidation --distribution-id E10WWH6E4AWPV5 --paths "/*"
+
+      - run:
+          name: Check out utils repo
+          command: |
+            cd ~/
+            mkdir utils_repo
+            git clone git@github.com:Uclusion/circleci_orbs.git ./utils_repo
+
+      - run:
+          name: record the release
+          command: |
+            cd ~/utils_repo
+            pip install --user boto3
+            pip install --user pynamodb
+            python -m utils.record_release -a ${MY_RELEASE_VAR}
 
 workflows:
   deploy-stage:

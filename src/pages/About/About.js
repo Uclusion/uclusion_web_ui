@@ -11,7 +11,7 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
-import { clearUserState, unRegisterServiceWorker } from '../../utils/userStateFunctions';
+import { clearUserState } from '../../utils/userStateFunctions';
 
 const styles = theme => ({
   root: {
@@ -74,7 +74,6 @@ function About(props) {
 
   function handleClear() {
     clearUserState(dispatch);
-    unRegisterServiceWorker();
     history.push(formCurrentMarketLink('Login'));
 
   }

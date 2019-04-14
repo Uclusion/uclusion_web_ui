@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom'
 import Loadable from 'react-loadable'
 import LoadingComponent from './components/LoadingComponent/LoadingComponent'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
-import registerServiceWorker from './utils/registerServiceWorker'
 import A2HSProvider from 'a2hs'
 
 const MainAsync = Loadable({
@@ -32,6 +31,3 @@ ReactDOM.render(
     }, 1500)
   }
 );
-
-console.log("RegisteringServiceWorker");
-registerServiceWorker();

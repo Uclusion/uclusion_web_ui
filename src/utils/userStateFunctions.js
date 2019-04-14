@@ -10,12 +10,3 @@ export function clearUserState(dispatch) {
   localStorage.clear();
   clearReduxStore(dispatch);
 }
-
-export function unRegisterServiceWorker() {
-  navigator.serviceWorker.getRegistrations()
-    .then((registrations) => {
-      registrations.forEach((registration) => {
-        registration.unregister();
-      });
-    });
-}

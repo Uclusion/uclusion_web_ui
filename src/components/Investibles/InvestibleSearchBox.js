@@ -69,7 +69,7 @@ function InvestibleSearchBox(props) {
         id="adornment-search"
         type="text"
         placeholder={intl.formatMessage({ id: 'searchBoxHelper' })}
-        value={marketSearchQuery}
+        value={marketSearchQuery || searchQuery}
         onChange={event => doSearch(event.target.value)}
         endAdornment={(
           <InputAdornment position="end">

@@ -309,8 +309,12 @@ const mapStateToProps = (state) => {
   };
 };
 
+function mapDispatchToProps(dispatch) {
+  return { ...drawerActions, dispatch };
+}
+
 export default withBackgroundProcesses(compose(
-  connect(mapStateToProps, { ...drawerActions }),
+  connect(mapStateToProps, mapDispatchToProps),
   withWidth(),
   withStyles(styles, { withTheme: true }),
   injectIntl,

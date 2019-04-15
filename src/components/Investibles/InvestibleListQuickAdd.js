@@ -86,7 +86,7 @@ class InvestibleListQuickAdd extends React.PureComponent {
       return null;
     }
     return (
-      <form noValidate autoComplete="off">
+      <div>
         <Paper className={classes.container}>
           <TextField
             className={classes.textField}
@@ -119,7 +119,7 @@ class InvestibleListQuickAdd extends React.PureComponent {
             {intl.formatMessage({ id: 'cancelButton' })}
           </Button>
         </div>
-      </form>
+      </div>
     );
   }
 }

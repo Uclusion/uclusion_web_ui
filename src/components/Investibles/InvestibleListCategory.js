@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ItemListCategory from '../Lists/QuickAddItemListCategory';
+import QuickAddItemListCategory from '../Lists/QuickAddItemListCategory';
 import InvestibleListItem from './InvestibleListItem';
 import InvestibleListQuickAdd from './InvestibleListQuickAdd';
 import _ from 'lodash';
@@ -59,7 +59,7 @@ class InvestibleListCategory extends React.PureComponent {
     );
 
     return (
-      <ItemListCategory
+      <QuickAddItemListCategory
         items={items}
         selectedInvestibleIndex={selectedInvestibleIndex}
         title={category}

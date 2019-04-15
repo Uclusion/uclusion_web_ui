@@ -19,6 +19,8 @@ const styles = theme => ({
   titleText: {
     flex: 1,
     fontWeight: 'bold',
+    maxWidth: 315,
+    wordWrap: 'break-word',
   },
 });
 

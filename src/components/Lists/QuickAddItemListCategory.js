@@ -1,6 +1,6 @@
 /* eslint-disable react/forbid-prop-types */
 import React from 'react';
-import { Grid, ListSubheader } from '@material-ui/core';
+import { Grid, ListSubheader } from '@material-ui/core'
 import Add from '@material-ui/icons/Add';
 import PropTypes from 'prop-types';
 import { compose } from 'redux';
@@ -27,7 +27,7 @@ const styles = theme => ({
   subListHeader: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'baseline',
   },
   subListContent: {
     flex: 1,
@@ -39,6 +39,11 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
     paddingTop: theme.spacing.unit * 0.5,
+  },
+  titleText: {
+    maxWidth: 315,
+    wordWrap: 'break-word',
+    lineHeight: '2em',
   },
 });
 
@@ -119,7 +124,7 @@ class QuickAddItemListCategory extends React.PureComponent {
       >
         <div className={classes.subList}>
           <ListSubheader component="div" className={classes.subListHeader}>
-            {title}
+            <div className={classes.titleText}>{title}</div>
             {canCreateInvestible && (<Add onClick={this.addOnClick} />)}
           </ListSubheader>
           <div

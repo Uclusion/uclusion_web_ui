@@ -15,7 +15,7 @@ const styles = theme => ({
   },
   textField: {
     flex: 1,
-    maxWidth: 315,
+    maxWidth: 400,
     marginRight: theme.spacing.unit * 2,
   },
   addButton: {
@@ -57,7 +57,7 @@ class CategoryAdd extends React.Component {
       <form className={classes.form} noValidate autoComplete="off">
         <TextField
           className={classes.textField}
-          inputProps={{ maxlength: 24}}
+          inputProps={{ maxlength: 255}}
           id="category"
           label={intl.formatMessage({ id: 'categoryLabel' })}
           value={title}

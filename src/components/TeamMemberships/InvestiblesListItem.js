@@ -57,7 +57,7 @@ class InvestiblesListItem extends React.PureComponent {
             </Typography>
             <div>
               <Typography>
-                {intl.formatMessage({ id: investible.stage_name })}
+                { investible.stage_name }
               </Typography>
               <Typography className={classes.investmentText}>
                 {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })}
@@ -70,7 +70,7 @@ class InvestiblesListItem extends React.PureComponent {
             </Typography>
             <div>
               <Typography>
-                {intl.formatMessage({ id: investible.next_stage_name })}
+                { investible.next_stage_name }
               </Typography>
               <Typography className={classes.investmentText}>
                 {intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })}

@@ -12,7 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import { Helmet } from 'react-helmet';
-import { compose } from 'redux';
+import { compose, bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
@@ -310,7 +310,8 @@ const mapStateToProps = (state) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return { ...drawerActions, dispatch };
+  const boundCreators = bindActionCreators({...drawerActions}, dispatch);
+  return { ...boundCreators, dispatch };
 }
 
 export default withBackgroundProcesses(compose(

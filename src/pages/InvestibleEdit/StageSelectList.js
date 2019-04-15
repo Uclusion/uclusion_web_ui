@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
-import { withStyles } from '@material-ui/core';
+import { InputLabel, withStyles } from '@material-ui/core';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
@@ -22,6 +22,7 @@ function StageSelectList(props) {
     classes,
     onChange,
     value,
+    label,
   } = props;
 
   function convertStagesToItems(stageList) {
@@ -35,6 +36,7 @@ function StageSelectList(props) {
   function getSelectList(stageItems) {
     return (
       <FormControl className={classes.root}>
+        <InputLabel shrink>{label}</InputLabel>
         <Select id="adornment-stage" value={value} onChange={onChange}>
           <MenuItem value="helper" disabled>
             {intl.formatMessage({ id: 'investibleEditStageHelper' })}
@@ -64,6 +66,7 @@ StageSelectList.propTypes = {
   marketStages: PropTypes.object.isRequired,  //eslint-disable-line
   marketId: PropTypes.string,
   dispatch: PropTypes.func.isRequired,
+  label: PropTypes.string.isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(

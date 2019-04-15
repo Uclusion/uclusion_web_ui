@@ -277,13 +277,15 @@ const messages = defineMessages({
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
   investibleEditCurrentStageLabel: 'Current Stage:',
   investibleEditNextStageLabel: 'Next Stage:',
-  investibleEditNextStageInvestmentLabel: 'Required Investment:',
+  investibleEditNextStageInvestmentLabel: 'Additional Investment Required:',
   investibleEditSaveLabel: 'Save',
-  investibleCategoriesLabel: 'Categories',
+  investibleCategoriesLabel: 'Categories:',
   investibleEditCategoriesHelper: 'Select One or More',
-  investibleEditLabelsLabel: 'Labels',
+  investibleEditLabelsLabel: 'Labels:',
   investibleEditAddNewLabelLabel: 'New Label:',
   investibleEditAddNewLabelButton: 'Add Label',
+  investibleEditCurrentInvestmentLine: 'Current Investment: {shares} uShares',
+
 
 });
 

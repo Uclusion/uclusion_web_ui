@@ -39,6 +39,8 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit,
     fontWeight: 'bold',
     cursor: 'pointer',
+    maxWidth: 300,
+    wordWrap: 'break-word',
   },
   stageLabel: {
     minWidth: 100,
@@ -86,8 +88,8 @@ class InvestibleListItem extends React.PureComponent {
       <Card className={classNames(classes.card, { [classes.cardSelected]: selected })}>
         <Link className={classes.link} to={`#investible:${investible.id}`}>
           <Typography component="div">
-            <div className={classNames(classes.flex, classes.investibleName)}>
-              {investible.name}
+            <div className={classes.flex}>
+              <div className={classes.investibleName}>{investible.name}</div>
               <InvestibleFollowUnfollow investible={investible} />
             </div>
             <div className={classNames(classes.flex, classes.row)}>

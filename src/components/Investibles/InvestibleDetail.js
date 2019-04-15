@@ -69,6 +69,8 @@ const styles = theme => ({
     paddingTop: theme.spacing.unit * 1.25,
     paddingBottom: theme.spacing.unit,
     fontWeight: 'bold',
+    maxWidth: 380,
+    wordWrap: 'break-word',
   },
 });
 

@@ -20,6 +20,8 @@ const styles = theme => ({
   investibleName: {
     fontWeight: 'bold',
     cursor: 'pointer',
+    maxWidth: 400,
+    wordWrap: 'break-word',
   },
   stage: {
     marginTop: theme.spacing.unit,
@@ -32,6 +34,13 @@ const styles = theme => ({
     fontSize: 12,
   },
 });
+
+/**
+ * TODO: Unify this with the main investible list. I know it's slightly different, but I don't want to pay
+ * the cost of making rendering fixes twice. It could be TOTALLY drop in if this view were powered by redux,
+ * and we'd be able to follow/unfollow from this screen as well. (Which we can already do from detail)
+ *
+ */
 
 class InvestiblesListItem extends React.PureComponent {
   render() {

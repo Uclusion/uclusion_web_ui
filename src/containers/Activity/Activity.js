@@ -303,6 +303,7 @@ const mapStateToProps = (state) => {
   const { drawer, connection } = state;
 
   return {
+    ...drawerActions,
     drawer,
     isOffline: connection ? !connection.isConnected : false,
     user: getCurrentUser(state.usersReducer),
@@ -310,12 +311,12 @@ const mapStateToProps = (state) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return { ...drawerActions, dispatch };
+  return { dispatch };
 }
 
 export default withBackgroundProcesses(compose(
   connect(mapStateToProps, mapDispatchToProps),
   withWidth(),
   withStyles(styles, { withTheme: true }),
-  injectIntl,
+  injectIntl
 )(withRouter(withMarketId(React.memo(Activity)))));

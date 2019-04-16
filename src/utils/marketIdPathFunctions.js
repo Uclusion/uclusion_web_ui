@@ -17,7 +17,7 @@ export function getMarketId() {
  */
 export function getAuthMarketId() {
   const urlParams = new URLSearchParams(window.location.search);
-  const authMarket = urlParams.get('authMarket');
+  const authMarket = urlParams.get('authMarketId');
   if (authMarket != null) {
     return authMarket;
   }

@@ -8,7 +8,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { createMarketCategory } from '../../store/Markets/actions';
 
 const styles = theme => ({
-  form: {
+  addBox: {
     display: 'flex',
     alignItems: 'flex-end',
     padding: theme.spacing.unit * 2,
@@ -34,7 +34,7 @@ class CategoryAdd extends React.Component {
     this.setState({
       [name]: value,
     });
-  }
+  };
 
   addOnClick = (marketId) => {
     const { dispatch } = this.props;
@@ -54,10 +54,10 @@ class CategoryAdd extends React.Component {
     const canAdd = !!title;
 
     return (
-      <form className={classes.form} noValidate autoComplete="off">
+      <div className={classes.addBox} >
         <TextField
           className={classes.textField}
-          inputProps={{ maxlength: 255}}
+          inputProps={{ maxlength: 255 }}
           id="category"
           label={intl.formatMessage({ id: 'categoryLabel' })}
           value={title}
@@ -72,7 +72,7 @@ class CategoryAdd extends React.Component {
         >
           {intl.formatMessage({ id: 'addButton' })}
         </Button>
-      </form>
+      </div>
     );
   }
 }

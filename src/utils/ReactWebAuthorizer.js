@@ -1,7 +1,7 @@
 import { OidcAuthorizer, SsoAuthorizer, AnonymousAuthorizer, CognitoAuthorizer } from 'uclusion_authorizer_sdk';
 import decode from 'jwt-decode';
 import { getUclusionLocalStorageItem } from '../components/utils';
-import { getAuthMarketId } from './marketIdPathFunctions';
+import { getAuthMarketId, getMarketId } from './marketIdPathFunctions';
 
 const getLocalAuthInfo = () => {
   const authInfo = getUclusionLocalStorageItem('auth');
@@ -23,10 +23,9 @@ const getPostAuthPage = () => {
 
 /**
  * Used when I don't know anything about you (e.g. I have no authorization context)
- * @param marketId
  */
-const doGenericAuthRedirect = (marketId) => {
-  let location = `/${marketId}/Login?destinationPage=${window.location.pathname.split('/')[2]}`;
+const doGenericAuthRedirect = () => {
+  let location = `/${getMarketId()}/Login?destinationPage=${window.location.pathname.split('/')[2]}`;
   const currentPage = new URL(window.location.href);
   if (currentPage.search.includes('authMarketId')) {
     const parsed = currentPage.search.substr(currentPage.search.indexOf('authMarketId'));
@@ -52,7 +51,7 @@ class ReactWebAuthorizer {
     const marketId = getAuthMarketId();
     const authInfo = getLocalAuthInfo();
     if (authInfo === null || !authInfo || !authInfo.type) {
-      doGenericAuthRedirect(marketId);
+      doGenericAuthRedirect();
     }
     let authorizer = null;
     const config = { uclusionUrl: this.uclusionUrl, marketId };
@@ -71,14 +70,13 @@ class ReactWebAuthorizer {
         break;
       default:
         // I don't recognize this type of authorizer, so I'm going to make you log in again
-        doGenericAuthRedirect(marketId);
+        doGenericAuthRedirect();
     }
     return authorizer;
   }
 
   doAuthFromCurrentPage() {
     // / we're not pre-authorized, so kick them into authorization flow
-    const marketId = getAuthMarketId();
     const authorizer = this.getAuthorizer();
     const pageUrl = window.location.href;
     const postAuthPage = getPostAuthPage();
@@ -87,7 +85,7 @@ class ReactWebAuthorizer {
         window.location = redirectUrl;
       }).catch((reject) => {
         console.log(reject);
-        doGenericAuthRedirect(marketId);
+        doGenericAuthRedirect();
       });
   }
 

@@ -285,8 +285,7 @@ const messages = defineMessages({
   investibleEditAddNewLabelLabel: 'New Label:',
   investibleEditAddNewLabelButton: 'Add Label',
   investibleEditCurrentInvestmentLine: 'Current Investment: {shares} uShares',
-
-
+  investibleEditCurrentInvestmentLabel: 'Current Investment',
 });
 
 export default messages;

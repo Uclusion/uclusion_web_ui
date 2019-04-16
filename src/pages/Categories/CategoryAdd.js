@@ -54,7 +54,7 @@ class CategoryAdd extends React.Component {
     const canAdd = !!title;
 
     return (
-      <div className={classes.addBox} >
+      <div className={classes.addBox}>
         <TextField
           className={classes.textField}
           inputProps={{ maxlength: 255 }}

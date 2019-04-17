@@ -30,13 +30,9 @@ const styles = theme => ({
 function TeamAdd(props) {
   const [name, setName] = useState(undefined);
   const [description, setDescription] = useState(undefined);
-  const [loading, setLoading] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   function addOnClick() {
-    if (loading) return;
-
-    setLoading(true);
-
     const { teams, teamsSet, marketId } = props;
     const clientPromise = getClient();
     setProcessing(true);
@@ -60,9 +56,10 @@ function TeamAdd(props) {
       setProcessing(false);
       console.log(error);
       sendIntlMessage(ERROR, { id: 'marketTeamCreateFailed' });
-    }).finally(() => {
-      setLoading(false);
-    });
+    })
+      .finally(() => {
+        setProcessing(false);
+      });
   }
 
   function handleNameChange(event) {
@@ -104,6 +101,7 @@ function TeamAdd(props) {
             className={classes.addButton}
             variant="contained"
             color="primary"
+            disabled={processing === true || !name || !description}
             onClick={addOnClick}
           >
             {intl.formatMessage({ id: 'addButton' })}

@@ -29,13 +29,9 @@ const styles = theme => ({
 function AdminAdd(props) {
   const [name, setName] = useState(undefined);
   const [email, setEmail] = useState(undefined);
-  const [loading, setLoading] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   function addOnClick() {
-    if (loading) return;
-
-    setLoading(true);
-
     const { upUser } = props;
     const clientPromise = getClient();
     clientPromise.then((client) => {
@@ -50,9 +46,10 @@ function AdminAdd(props) {
       console.log(error);
       setProcessing(false);
       sendIntlMessage(ERROR, { id: 'userCreateFailed' });
-    }).finally(() => {
-      setLoading(false);
-    });
+    })
+      .finally(() => {
+        setProcessing(false);
+      });
   }
 
   function handleNameChange(event) {
@@ -94,6 +91,7 @@ function AdminAdd(props) {
             className={classes.addButton}
             variant="contained"
             color="primary"
+            disabled={processing === true || !name || !email}
             onClick={addOnClick}
           >
             {intl.formatMessage({ id: 'addButton' })}

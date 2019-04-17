@@ -29,11 +29,16 @@ const styles = theme => ({
 function AdminAdd(props) {
   const [name, setName] = useState(undefined);
   const [email, setEmail] = useState(undefined);
+  const [loading, setLoading] = useState(false);
 
   function addOnClick() {
+    if (loading) return;
+
+    setLoading(true);
+
     const { upUser } = props;
     const clientPromise = getClient();
-    return clientPromise.then((client) => {
+    clientPromise.then((client) => {
       return client.users.create(upUser.default_team_id, name, email);
     }).then((user) => {
       console.log(JSON.stringify(user));
@@ -41,6 +46,8 @@ function AdminAdd(props) {
     }).catch((error) => {
       console.log(error);
       sendIntlMessage(ERROR, { id: 'userCreateFailed' });
+    }).finally(() => {
+      setLoading(false);
     });
   }
 
@@ -83,7 +90,7 @@ function AdminAdd(props) {
             className={classes.addButton}
             variant="contained"
             color="primary"
-            onClick={() => addOnClick()}
+            onClick={addOnClick}
           >
             {intl.formatMessage({ id: 'addButton' })}
           </Button>

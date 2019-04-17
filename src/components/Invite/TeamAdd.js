@@ -30,13 +30,18 @@ const styles = theme => ({
 function TeamAdd(props) {
   const [name, setName] = useState(undefined);
   const [description, setDescription] = useState(undefined);
+  const [loading, setLoading] = useState(false);
 
   function addOnClick() {
+    if (loading) return;
+
+    setLoading(true);
+
     const { teams, teamsSet, marketId } = props;
     const clientPromise = getClient();
     let globalClient;
     let globalTeam;
-    return clientPromise.then((client) => {
+    clientPromise.then((client) => {
       globalClient = client;
       return client.teams.create(name, description);
     }).then((team) => {
@@ -50,6 +55,8 @@ function TeamAdd(props) {
     }).catch((error) => {
       console.log(error);
       sendIntlMessage(ERROR, { id: 'marketTeamCreateFailed' });
+    }).finally(() => {
+      setLoading(false);
     });
   }
 
@@ -92,7 +99,7 @@ function TeamAdd(props) {
             className={classes.addButton}
             variant="contained"
             color="primary"
-            onClick={() => addOnClick()}
+            onClick={addOnClick}
           >
             {intl.formatMessage({ id: 'addButton' })}
           </Button>

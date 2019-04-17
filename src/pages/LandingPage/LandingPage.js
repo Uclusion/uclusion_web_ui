@@ -1,5 +1,6 @@
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import LockIcon from '@material-ui/icons/Lock';
 import React, { useState, useEffect } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -27,6 +28,7 @@ import { getCurrentUser } from '../../store/Users/reducer';
 import appConfig from '../../config/config';
 import { setUclusionLocalStorageItem, getUclusionLocalStorageItem } from '../../components/utils';
 import { getClient } from '../../config/uclusionClient';
+import { validURL } from '../../utils/validators';
 
 const LOGIN_GOOGLE = 0;
 const LOGIN_OKTA = 1;
@@ -121,6 +123,7 @@ function LandingPage(props) {
   const [name, setName] = useState(undefined);
   const [marketProductLoginUrl, setMarketProductLoginUrl] = useState(undefined);
   const [loading, setLoading] = useState(false);
+  ValidatorForm.addValidationRule('isURL', value => !value || validURL(value));
 
   useEffect(() => {
     const authorizer = new AnonymousAuthorizer({
@@ -297,78 +300,94 @@ function LandingPage(props) {
                 <Tab label="OKTA" />
                 <Tab label="Cognito" />
               </Tabs>
-              <form onSubmit={handleSubmit}>
-                <FormControl className={classes.formField} fullWidth>
-                  <InputLabel htmlFor="accountNameId">Account Name:</InputLabel>
-                  <Input
-                    id="accountNameId"
-                    value={accountName}
-                    onChange={handleAccountNameChange}
-                  />
-                </FormControl>
-                <FormControl className={classes.formField} fullWidth>
-                  <InputLabel htmlFor="marketNameId">Market Name:</InputLabel>
-                  <Input
-                    id="marketNameId"
-                    value={marketName}
-                    onChange={handleMarketNameChange}
-                  />
-                </FormControl>
-                <FormControl className={classes.formField} fullWidth>
-                  <InputLabel htmlFor="marketDescriptionId">Market Description:</InputLabel>
-                  <Input
-                    id="marketDescriptionId"
-                    value={marketDescription}
-                    onChange={handleMarketDescriptionChange}
-                  />
-                </FormControl>
-                <FormControl className={classes.formField} fullWidth>
-                  <InputLabel htmlFor="marketProductLoginUrl">Optional Product Login URL:</InputLabel>
-                  <Input
-                    id="marketProductLoginUrl"
-                    value={marketProductLoginUrl}
-                    onChange={handleMarketProductLoginUrlChange}
-                  />
-                </FormControl>
+              <ValidatorForm onSubmit={handleSubmit}>
+                <TextValidator
+                  className={classes.formField}
+                  label="Account Name:"
+                  name="accountNameId"
+                  validators={['required']}
+                  errorMessages={['Account name is required']}
+                  fullWidth
+                  value={accountName}
+                  onChange={handleAccountNameChange}
+                />
+                <TextValidator
+                  className={classes.formField}
+                  label="Market Name:"
+                  name="marketNameId"
+                  validators={['required']}
+                  errorMessages={['Market name is required']}
+                  fullWidth
+                  value={marketName}
+                  onChange={handleMarketNameChange}
+                />
+                <TextValidator
+                  className={classes.formField}
+                  label="Market Description:"
+                  name="marketDescriptionId"
+                  validators={['required']}
+                  errorMessages={['Market description is required']}
+                  fullWidth
+                  value={marketDescription}
+                  onChange={handleMarketDescriptionChange}
+                />
+                <TextValidator
+                  className={classes.formField}
+                  label="Optional Product Login URL:"
+                  name="marketProductLoginUrl"
+                  validators={['isURL']}
+                  errorMessages={['URL is invalid']}
+                  fullWidth
+                  value={marketProductLoginUrl}
+                  onChange={handleMarketProductLoginUrlChange}
+                />
                 {loginType === LOGIN_COGNITO && (
-                  <FormControl className={classes.formField} fullWidth>
-                    <InputLabel htmlFor="email">Email:</InputLabel>
-                    <Input
-                      id="email"
-                      value={email}
-                      onChange={handleEmailChange}
-                    />
-                  </FormControl>
+                  <TextValidator
+                    className={classes.formField}
+                    label="Email:"
+                    name="email"
+                    validators={['required', 'isEmail']}
+                    errorMessages={['Email is required', 'Email is not valid']}
+                    fullWidth
+                    value={email}
+                    onChange={handleEmailChange}
+                  />
                 )}
                 {loginType === LOGIN_COGNITO && (
-                  <FormControl className={classes.formField} fullWidth>
-                    <InputLabel htmlFor="name">Name:</InputLabel>
-                    <Input
-                      id="name"
-                      value={name}
-                      onChange={handleNameChange}
-                    />
-                  </FormControl>
+                  <TextValidator
+                    className={classes.formField}
+                    label="Name:"
+                    name="name"
+                    validators={['required']}
+                    errorMessages={['Name is required']}
+                    fullWidth
+                    value={name}
+                    onChange={handleNameChange}
+                  />
                 )}
                 {loginType !== LOGIN_COGNITO && (
-                  <FormControl className={classes.formField} fullWidth>
-                    <InputLabel htmlFor="clientId">Authorization Client ID:</InputLabel>
-                    <Input
-                      id="clientId"
-                      value={clientId}
-                      onChange={handleClientIdChange}
-                    />
-                  </FormControl>
+                  <TextValidator
+                    className={classes.formField}
+                    label="Authorization Client ID:"
+                    name="clientId"
+                    validators={['required']}
+                    errorMessages={['Authorization client id is required']}
+                    fullWidth
+                    value={clientId}
+                    onChange={handleClientIdChange}
+                  />
                 )}
                 {loginType === LOGIN_OKTA && (
-                  <FormControl className={classes.formField} fullWidth>
-                    <InputLabel htmlFor="baseURL">Endpoint Base URL:</InputLabel>
-                    <Input
-                      id="baseURL"
-                      value={baseURL}
-                      onChange={handleBaseURLChange}
-                    />
-                  </FormControl>
+                  <TextValidator
+                    className={classes.formField}
+                    label="Endpoint Base URL:"
+                    name="baseURL"
+                    validators={['required', 'isURL']}
+                    errorMessages={['URL is required', 'URL is invalid']}
+                    fullWidth
+                    value={baseURL}
+                    onChange={handleBaseURLChange}
+                  />
                 )}
                 {loading ? (
                   <CircularProgress className={classes.progress} />
@@ -383,7 +402,7 @@ function LandingPage(props) {
                     Submit
                   </Button>
                 )}
-              </form>
+              </ValidatorForm>
             </div>
           </CardContent>
         </Card>

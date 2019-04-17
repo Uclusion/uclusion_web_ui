@@ -10,7 +10,12 @@ import {
   CognitoAuthorizer,
 } from 'uclusion_authorizer_sdk';
 import {
-  Button, Dialog, DialogTitle, List, ListItem,
+  Button,
+  Dialog,
+  DialogTitle,
+  List,
+  ListItem,
+  Typography,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
@@ -22,12 +27,14 @@ import { postAuthTasks } from '../../utils/postAuthFunctions';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 
 const styles = theme => ({
-  button: {
-    width: 320,
+  content: {
+    width: 360,
+  },
+  form: {
+    width: '100%',
   },
   input: {
     display: 'block',
-    width: 320,
     marginBottom: theme.spacing.unit * 2,
   },
   noVertPadding: {
@@ -41,6 +48,11 @@ const styles = theme => ({
   },
   hidden: {
     display: 'none',
+  },
+  errorText: {
+    marginTop: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
+    color: '#f44336',
   },
 });
 
@@ -60,6 +72,7 @@ function LoginModal(props) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [poolId, setPoolId] = useState('');
   const [clientId, setClientId] = useState('');
+  const [error, setError] = useState('');
   ValidatorForm.addValidationRule('isPasswordMatch', value => (value === newPassword));
 
   function getDestinationPage(subPath, includeAuthMarket) {
@@ -174,6 +187,7 @@ function LoginModal(props) {
       baseURL: uclusionUrl,
     };
     cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
+    setError('');
     cognitoAuthorizer.authorize().then(() => {
       cognitoTokenGenerated();
     }).catch((error) => {
@@ -186,6 +200,7 @@ function LoginModal(props) {
           setConfirmPassword('');
         }
       } else {
+        setError(error.message);
         console.log(error);
       }
     });
@@ -201,20 +216,24 @@ function LoginModal(props) {
       baseURL: uclusionUrl,
     };
     cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
+    setError('');
     cognitoAuthorizer.forgotPassword().then(() => {
       setAllowResetPassword(true);
       setCode('');
       setNewPassword('');
       setConfirmPassword('');
     }).catch((error) => {
+      setError(error.message);
       console.log(error);
     });
   }
 
   function resetCognitoPassword() {
+    setError('');
     cognitoAuthorizer.confirmPassword(code, newPassword).then(() => {
       setAllowResetPassword(false);
     }).catch((error) => {
+      setError(error.message);
       console.log(error);
     });
   }
@@ -240,21 +259,77 @@ function LoginModal(props) {
       <DialogTitle id="simple-dialog-title">
         {allowChangePassword ? 'Change Password' : (allowResetPassword ? 'Reset Password' : 'Log In')}
       </DialogTitle>
-      <div>
-        <List>
-          {allowCognitoLogin && ([
-            <ListItem key="resetPassword" className={classNames({ [classes.hidden]: !allowResetPassword })}>
-              <ValidatorForm onSubmit={resetCognitoPassword}>
-                <TextValidator
-                  className={classes.input}
-                  label="Code"
-                  name="code"
-                  validators={['required']}
-                  errorMessages={['Code is required']}
-                  fullWidth
-                  value={code}
-                  onChange={event => setCode(event.target.value)}
-                />
+      <List className={classes.content}>
+        {allowCognitoLogin && ([
+          <ListItem key="resetPassword" className={classNames({ [classes.hidden]: !allowResetPassword })}>
+            <ValidatorForm className={classes.form} onSubmit={resetCognitoPassword}>
+              <TextValidator
+                className={classes.input}
+                label="Code"
+                name="code"
+                validators={['required']}
+                errorMessages={['Code is required']}
+                fullWidth
+                value={code}
+                onChange={event => setCode(event.target.value)}
+              />
+              <TextValidator
+                className={classes.input}
+                label="New Password"
+                name="new_password"
+                type="password"
+                validators={['required']}
+                errorMessages={['Password is required']}
+                fullWidth
+                value={newPassword}
+                onChange={event => setNewPassword(event.target.value)}
+              />
+              <TextValidator
+                className={classes.input}
+                label="Confirm Password"
+                name="confirm_password"
+                type="password"
+                validators={['isPasswordMatch', 'required']}
+                errorMessages={['Passwords do not match', 'Password is required']}
+                fullWidth
+                value={confirmPassword}
+                onChange={event => setConfirmPassword(event.target.value)}
+              />
+              <Typography className={classes.errorText}>{error}</Typography>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+              >
+                Reset Cognito Password
+              </Button>
+            </ValidatorForm>
+          </ListItem>,
+          <ListItem key="loginCognito" className={classNames({ [classes.hidden]: allowResetPassword })}>
+            <ValidatorForm className={classes.form} onSubmit={loginCognito}>
+              <TextValidator
+                className={classes.input}
+                label="Email"
+                name="email"
+                validators={['required', 'isEmail']}
+                errorMessages={['Email is required', 'Email is not valid']}
+                fullWidth
+                value={email}
+                onChange={event => setEmail(event.target.value)}
+              />
+              <TextValidator
+                className={classes.input}
+                label="Password"
+                name="password"
+                type="password"
+                validators={['required']}
+                errorMessages={['Password is required']}
+                fullWidth
+                value={password}
+                onChange={event => setPassword(event.target.value)}
+              />
+              {allowChangePassword && (
                 <TextValidator
                   className={classes.input}
                   label="New Password"
@@ -266,6 +341,8 @@ function LoginModal(props) {
                   value={newPassword}
                   onChange={event => setNewPassword(event.target.value)}
                 />
+              )}
+              {allowChangePassword && (
                 <TextValidator
                   className={classes.input}
                   label="Confirm Password"
@@ -277,136 +354,78 @@ function LoginModal(props) {
                   value={confirmPassword}
                   onChange={event => setConfirmPassword(event.target.value)}
                 />
-                <Button
-                  className={classes.button}
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                >
-                  Reset Cognito Password
-                </Button>
-              </ValidatorForm>
-            </ListItem>,
-            <ListItem key="loginCognito" className={classNames({ [classes.hidden]: allowResetPassword })}>
-              <ValidatorForm onSubmit={loginCognito}>
-                <TextValidator
-                  className={classes.input}
-                  label="Email"
-                  name="email"
-                  validators={['required', 'isEmail']}
-                  errorMessages={['Email is required', 'Email is not valid']}
-                  fullWidth
-                  value={email}
-                  onChange={event => setEmail(event.target.value)}
-                />
-                <TextValidator
-                  className={classes.input}
-                  label="Password"
-                  name="password"
-                  type="password"
-                  validators={['required']}
-                  errorMessages={['Password is required']}
-                  fullWidth
-                  value={password}
-                  onChange={event => setPassword(event.target.value)}
-                />
-                {allowChangePassword && (
-                  <TextValidator
-                    className={classes.input}
-                    label="New Password"
-                    name="new_password"
-                    type="password"
-                    validators={['required']}
-                    errorMessages={['Password is required']}
-                    fullWidth
-                    value={newPassword}
-                    onChange={event => setNewPassword(event.target.value)}
-                  />
-                )}
-                {allowChangePassword && (
-                  <TextValidator
-                    className={classes.input}
-                    label="Confirm Password"
-                    name="confirm_password"
-                    type="password"
-                    validators={['isPasswordMatch', 'required']}
-                    errorMessages={['Passwords do not match', 'Password is required']}
-                    fullWidth
-                    value={confirmPassword}
-                    onChange={event => setConfirmPassword(event.target.value)}
-                  />
-                )}
-                <Button
-                  className={classes.button}
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                >
-                  Login Cognito
-                </Button>
-              </ValidatorForm>
-            </ListItem>,
-            <ListItem
-              key="resetCognito"
-              className={classNames(classes.noVertPadding, {
-                [classes.hidden]: allowResetPassword,
-              })}
-            >
+              )}
+              <Typography className={classes.errorText}>{error}</Typography>
               <Button
-                className={classes.button}
+                type="submit"
+                variant="contained"
                 color="primary"
-                onClick={forgotCognitoPassword}
+                fullWidth
               >
-                Forgot Password
+                Login Cognito
               </Button>
-            </ListItem>,
-          ])}
-          {(allowOidcLogin || allowUserLogin) && (
-            <ListItem>
-              <div className={classes.separator} />
-            </ListItem>
-          )}
-          {allowOidcLogin
+            </ValidatorForm>
+          </ListItem>,
+          <ListItem
+            key="resetCognito"
+            className={classNames(classes.noVertPadding, {
+              [classes.hidden]: allowResetPassword,
+            })}
+          >
+            <Button
+              color="primary"
+              onClick={forgotCognitoPassword}
+              fullWidth
+            >
+              Forgot Password
+            </Button>
+          </ListItem>,
+        ])}
+        {(allowOidcLogin || allowUserLogin) && (
+          <ListItem>
+            <div className={classes.separator} />
+          </ListItem>
+        )}
+        {allowOidcLogin
+        && (
+        <ListItem>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={loginOidc}
+            fullWidth
+          >
+            {intl.formatMessage({ id: 'login_admin' })}
+          </Button>
+        </ListItem>
+        )}
+        {allowUserLogin
           && (
           <ListItem>
             <Button
-              className={classes.button}
               variant="contained"
               color="primary"
-              onClick={loginOidc}
+              onClick={loginSso}
+              fullWidth
             >
-              {intl.formatMessage({ id: 'login_admin' })}
+              {intl.formatMessage({ id: 'login_user' })}
             </Button>
           </ListItem>
           )}
-          {allowUserLogin
-            && (
+        {allowGuestLogin
+          && (
             <ListItem>
               <Button
-                className={classes.button}
                 variant="contained"
                 color="primary"
-                onClick={loginSso}
+                onClick={loginAnonymous}
+                fullWidth
               >
-                {intl.formatMessage({ id: 'login_user' })}
+                {intl.formatMessage({ id: 'login_guest' })}
               </Button>
             </ListItem>
-            )}
-          {allowGuestLogin
-            && (
-              <ListItem>
-                <Button
-                  className={classes.button}
-                  variant="contained"
-                  color="primary"
-                  onClick={loginAnonymous}
-                >
-                  {intl.formatMessage({ id: 'login_guest' })}
-                </Button>
-              </ListItem>
-            )}
-        </List>
-      </div>
+          )}
+      </List>
     </Dialog>
   );
 }

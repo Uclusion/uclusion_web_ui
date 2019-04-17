@@ -42,9 +42,13 @@ function AdminAdd(props) {
       return client.users.create(upUser.default_team_id, name, email);
     }).then((user) => {
       console.log(JSON.stringify(user));
+      setName('');
+      setEmail('');
+      setProcessing(false);
       sendIntlMessage(SUCCESS, { id: 'userCreated' });
     }).catch((error) => {
       console.log(error);
+      setProcessing(false);
       sendIntlMessage(ERROR, { id: 'userCreateFailed' });
     }).finally(() => {
       setLoading(false);

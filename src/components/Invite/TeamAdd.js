@@ -39,6 +39,7 @@ function TeamAdd(props) {
 
     const { teams, teamsSet, marketId } = props;
     const clientPromise = getClient();
+    setProcessing(true);
     let globalClient;
     let globalTeam;
     clientPromise.then((client) => {
@@ -51,8 +52,12 @@ function TeamAdd(props) {
       const team = { ...globalTeam, ...marketTeam };
       const newTeams = _.unionBy([team], teams, 'id');
       teamsSet(newTeams);
+      setName('');
+      setDescription('');
+      setProcessing(false);
       sendIntlMessage(SUCCESS, { id: 'marketTeamCreated' });
     }).catch((error) => {
+      setProcessing(false);
       console.log(error);
       sendIntlMessage(ERROR, { id: 'marketTeamCreateFailed' });
     }).finally(() => {

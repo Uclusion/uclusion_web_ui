@@ -30,10 +30,12 @@ const styles = theme => ({
 function TeamAdd(props) {
   const [name, setName] = useState(undefined);
   const [description, setDescription] = useState(undefined);
+  const [processing, setProcessing] = useState(false);
 
   function addOnClick() {
     const { teams, teamsSet, marketId } = props;
     const clientPromise = getClient();
+    setProcessing(true);
     let globalClient;
     let globalTeam;
     return clientPromise.then((client) => {
@@ -46,8 +48,12 @@ function TeamAdd(props) {
       const team = { ...globalTeam, ...marketTeam };
       const newTeams = _.unionBy([team], teams, 'id');
       teamsSet(newTeams);
+      setName('');
+      setDescription('');
+      setProcessing(false);
       sendIntlMessage(SUCCESS, { id: 'marketTeamCreated' });
     }).catch((error) => {
+      setProcessing(false);
       console.log(error);
       sendIntlMessage(ERROR, { id: 'marketTeamCreateFailed' });
     });
@@ -92,6 +98,7 @@ function TeamAdd(props) {
             className={classes.addButton}
             variant="contained"
             color="primary"
+            disabled={processing === true || !name || !description}
             onClick={() => addOnClick()}
           >
             {intl.formatMessage({ id: 'addButton' })}

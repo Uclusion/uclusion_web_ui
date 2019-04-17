@@ -29,6 +29,7 @@ const styles = theme => ({
 function AdminAdd(props) {
   const [name, setName] = useState(undefined);
   const [email, setEmail] = useState(undefined);
+  const [processing, setProcessing] = useState(false);
 
   function addOnClick() {
     const { upUser } = props;
@@ -37,9 +38,13 @@ function AdminAdd(props) {
       return client.users.create(upUser.default_team_id, name, email);
     }).then((user) => {
       console.log(JSON.stringify(user));
+      setName('');
+      setEmail('');
+      setProcessing(false);
       sendIntlMessage(SUCCESS, { id: 'userCreated' });
     }).catch((error) => {
       console.log(error);
+      setProcessing(false);
       sendIntlMessage(ERROR, { id: 'userCreateFailed' });
     });
   }
@@ -83,6 +88,7 @@ function AdminAdd(props) {
             className={classes.addButton}
             variant="contained"
             color="primary"
+            disabled={processing === true || !name || !email}
             onClick={() => addOnClick()}
           >
             {intl.formatMessage({ id: 'addButton' })}

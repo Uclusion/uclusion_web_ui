@@ -54,6 +54,9 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit,
     color: '#f44336',
   },
+  helpText: {
+    marginLeft: theme.spacing.unit * 2,
+  },
 });
 
 let cognitoAuthorizer = null;
@@ -260,6 +263,11 @@ function LoginModal(props) {
         {allowChangePassword ? 'Change Password' : (allowResetPassword ? 'Reset Password' : 'Log In')}
       </DialogTitle>
       <List className={classes.content}>
+        {allowResetPassword && (
+          <Typography className={classes.helpText}>
+            {intl.formatMessage({ id: 'check_email_code' })}
+          </Typography>
+        )}
         {allowCognitoLogin && ([
           <ListItem key="resetPassword" className={classNames({ [classes.hidden]: !allowResetPassword })}>
             <ValidatorForm className={classes.form} onSubmit={resetCognitoPassword}>
@@ -318,6 +326,11 @@ function LoginModal(props) {
                 value={email}
                 onChange={event => setEmail(event.target.value)}
               />
+              {allowChangePassword && (
+                <Typography className={classes.content}>
+                  {intl.formatMessage({ id: 'check_email_password' })}
+                </Typography>
+              )}
               <TextValidator
                 className={classes.input}
                 label="Password"

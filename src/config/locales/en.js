@@ -60,6 +60,8 @@ const messages = defineMessages({
   email_verified: 'E-Mail is verified',
   send_verification_email: 'Send verification E-Mail',
   send_verification_email_again: 'Send verification E-Mail again',
+  check_email_password: 'Please check your email for a temporary password',
+  check_email_code: 'Please check your email for a code',
   investibles: 'Investibles',
   members: 'Members',
   investments: 'Investments',

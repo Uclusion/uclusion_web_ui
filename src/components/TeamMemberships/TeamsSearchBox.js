@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { withTheme, withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
@@ -25,8 +25,6 @@ const styles = theme => ({
 function TeamsSearchBox(props) {
   const [searchQuery, setSearchQuery] = useState(undefined);
   const {
-    dispatch,
-    marketId,
     classes,
     intl,
   } = props;

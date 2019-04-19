@@ -26,7 +26,7 @@ import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({
   root: {
-    width: 500,
+    width: 400,
     minWidth: 400,
     padding: theme.spacing.unit,
     boxSizing: 'border-box',
@@ -61,6 +61,10 @@ const styles = theme => ({
   },
   tab: {
     flex: 1,
+    minWidth: 80,
+  },
+  tabLabelContainer: {
+    padding: 6,
   },
   tabContent: {
     flex: 1,
@@ -212,14 +216,20 @@ function UserMembershipsListItem(props) {
         >
           <Tab
             className={classes.tab}
+            classes={{ labelContainer: classes.tabLabelContainer }}
             label={`${team_size} ${intl.formatMessage({ id: 'members' })}`}
           />
           <Tab
             className={classes.tab}
+            classes={{ labelContainer: classes.tabLabelContainer }}
             label={intl.formatMessage({ id: 'investibles' })}
           />
           {canGrant && (
-            <Tab className={classes.tab} label={intl.formatMessage({ id: 'administer' })} />
+            <Tab
+              className={classes.tab}
+              classes={{ labelContainer: classes.tabLabelContainer }}
+              label={intl.formatMessage({ id: 'administer' })}
+            />
           )}
         </Tabs>
         <div className={classes.tabContent}>

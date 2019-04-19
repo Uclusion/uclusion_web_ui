@@ -6,6 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import {
   IconButton,
   Typography,
+  Chip,
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import InvestibleListItemTabs from './InvestibleListItemTabs';
@@ -72,6 +73,22 @@ const styles = theme => ({
     maxWidth: 380,
     wordWrap: 'break-word',
   },
+  controlLabel: {
+    fontSize: '1rem',
+    transform: 'translate(0, 1.5px) scale(0.75)',
+    transformOrigin: 'top left',
+    color: 'rgba(0, 0, 0, 0.54)',
+  },
+  noLabelsText: {
+    lineHeight: '36px',
+  },
+  labelChips: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  labelChip: {
+    margin: theme.spacing.unit * 0.25,
+  },
 });
 
 class InvestibleDetail extends React.PureComponent {
@@ -83,23 +100,50 @@ class InvestibleDetail extends React.PureComponent {
     }
   }
 
-  getNextStageContent(investible){
+  getNextStageContent(investible) {
     const { intl, classes } = this.props;
     if (investible.next_stage_name) {
-      return (<div className={classNames(classes.flex, classes.row)}>
-            <span className={classes.stageLabel}>
-              {intl.formatMessage({ id: 'nextStageLabel' })}
-            </span>
+      return (
+        <Typography component="div" className={classNames(classes.flex, classes.row)}>
+          <span className={classes.stageLabel}>
+            {intl.formatMessage({ id: 'nextStageLabel' })}
+          </span>
           <div className={classes.stageContent}>
             <div>{investible.next_stage_name}</div>
             <div className={classes.numSharesText}>
               {investible.next_stage_threshold && intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })}
             </div>
           </div>
-        </div>
+        </Typography>
       );
     }
     return (<div />);
+  }
+
+  renderLabelChips() {
+    const { investible, classes } = this.props;
+    const { label_list = [] } = investible || this.lastInvestible || {};
+
+    return (
+      <div className={classes.row}>
+        {/* <Typography className={classes.controlLabel}>Labels</Typography> */}
+        {label_list.length > 0 ? (
+          <div className={classes.labelChips}>
+            {label_list.map((label, index) => (
+              <Chip
+                className={classes.labelChip}
+                key={index}
+                label={label}
+              />
+            ))}
+          </div>
+        ) : (
+          <Typography className={classes.noLabelsText}>
+            No labels
+          </Typography>
+        )}
+      </div>
+    );
   }
 
   render() {
@@ -128,21 +172,20 @@ class InvestibleDetail extends React.PureComponent {
             <CloseIcon />
           </IconButton>
         </div>
-        <Typography component="div">
-          <div className={classNames(classes.flex, classes.row)}>
-            <span className={classes.stageLabel}>
-              {intl.formatMessage({ id: 'currentStageLabel' })}
-            </span>
-            <div className={classes.stageContent}>
-              <div>{investible.stage_name}</div>
-              <div className={classes.numSharesText}>
-                {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })}
-              </div>
+        <Typography component="div" className={classNames(classes.flex, classes.row)}>
+          <span className={classes.stageLabel}>
+            {intl.formatMessage({ id: 'currentStageLabel' })}
+          </span>
+          <div className={classes.stageContent}>
+            <div>{investible.stage_name}</div>
+            <div className={classes.numSharesText}>
+              {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })}
             </div>
           </div>
-          {this.getNextStageContent(investible)}
-
         </Typography>
+        {this.getNextStageContent(investible)}
+        {this.renderLabelChips()}
+
         <div style={{ flex: 1, overflow: 'auto' }}>
           <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={investible.description} readOnly />
           <InvestibleListItemTabs
@@ -153,6 +196,7 @@ class InvestibleDetail extends React.PureComponent {
             currentUserInvestment={investible.current_user_investment}
           />
         </div>
+
         <div className={classNames(classes.bottomActions)}>
           <InvestibleFollowUnfollow investible={investible} useIconButton />
           {canDeleteMarketInvestible && <InvestibleDelete investible={investible} onCloseDetail={onClose} />}

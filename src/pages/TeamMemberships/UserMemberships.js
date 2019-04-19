@@ -13,6 +13,7 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import UserDetail from '../../components/TeamMemberships/UserDetail';
+import TeamsSearchBox from '../../components/TeamMemberships/TeamsSearchBox';
 
 const styles = theme => ({
   content: {
@@ -93,6 +94,7 @@ function UserMemberships(props) {
       title={intl.formatMessage({ id: 'teamsHeader' })}
     >
       <div className={classes.content}>
+        {teams && teams.length > 10 && <TeamsSearchBox />}
         {teams && (
           <UserMembershipsList
             teams={teams}

@@ -159,8 +159,14 @@ function InvestibleEdit (props) {
     })
   }
 
+  function onCancel() {
+    const { match: { params }, history } = props;
+    const { marketId, investibleId } = params;
+    history.push(`/${marketId}/investibles#investible:${investibleId}`);
+  }
+
   const {
-    description, stage, name, quantity, label_scratch, category_list, label_list
+    description = '', stage, name, quantity, label_scratch, category_list, label_list
   } = investible
 
   function handleLabelDelete (label) {
@@ -250,7 +256,7 @@ function InvestibleEdit (props) {
 
   return (
     <Activity
-      isLoading={investible === undefined}
+      isLoading={Object.keys(investible).length === 0}
       containerStyle={{ overflow: 'hidden' }}
       title={intl.formatMessage({ id: 'investibleEditHeader' })}
     >
@@ -329,6 +335,11 @@ function InvestibleEdit (props) {
             </Typography> */}
           </CardContent>
           <CardActions className={classes.actions}>
+            <Button
+              onClick={() => onCancel()}
+            >
+              {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
+            </Button>
             <Button
               variant="contained"
               color="primary"

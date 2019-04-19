@@ -8,6 +8,8 @@ import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { bindActionCreators } from 'redux';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
+import Info from '@material-ui/icons/Info';
 import { createInvestment } from '../../store/MarketInvestibles/actions';
 
 const styles = theme => ({
@@ -29,7 +31,11 @@ const styles = theme => ({
     fontSize: 14,
     paddingLeft: theme.spacing.unit,
   },
-
+  button: {
+    marginLeft: theme.spacing.unit,
+    marginBottom: theme.spacing.unit * 2,
+    padding: 0,
+  },
 });
 
 class InvestibleInvest extends React.PureComponent {
@@ -122,6 +128,17 @@ class InvestibleInvest extends React.PureComponent {
           >
             {intl.formatMessage({ id: 'investButton' })}
           </Button>
+          <IconButton
+            name="investinfo"
+            aria-label="Invest Help"
+            className={classes.button}
+            color="primary"
+            href="https://uclusion.zendesk.com/hc/en-us/articles/360026659811"
+            target="_blank"
+            rel="noopener"
+          >
+            <Info />
+          </IconButton>
         </form>
         <Typography className={classes.availableShares}>
           *

@@ -5,6 +5,8 @@ import { injectIntl } from 'react-intl';
 import { Grid, Button, TextField } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
+import IconButton from '@material-ui/core/IconButton';
+import Info from '@material-ui/icons/Info';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import { getClient } from '../../config/uclusionClient';
 
@@ -24,6 +26,9 @@ const styles = theme => ({
   addButton: {
     minWidth: 80,
     height: 36,
+  },
+  button: {
+    padding: theme.spacing.unit,
   },
 });
 
@@ -106,6 +111,17 @@ function TeamAdd(props) {
           >
             {intl.formatMessage({ id: 'addButton' })}
           </Button>
+          <IconButton
+            name="teaminfo"
+            aria-label="Team Help"
+            className={classes.button}
+            color="primary"
+            href="https://uclusion.zendesk.com/hc/en-us/articles/360026358152-Admin-Creating-a-New-Team-or-User-for-Username-Password-Login"
+            target="_blank"
+            rel="noopener"
+          >
+            <Info />
+          </IconButton>
         </Grid>
       </Grid>
     </form>

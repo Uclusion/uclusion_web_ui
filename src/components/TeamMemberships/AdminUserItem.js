@@ -10,6 +10,8 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import Button from '@material-ui/core/Button';
+import Info from '@material-ui/icons/Info';
+import IconButton from '@material-ui/core/IconButton';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
@@ -39,6 +41,10 @@ const styles = theme => ({
     marginLeft: theme.spacing.unit,
     marginBottom: theme.spacing.unit,
     marginTop: theme.spacing.unit * 3,
+  },
+  button: {
+    padding: theme.spacing.unit,
+    marginTop: theme.spacing.unit * 2,
   },
 });
 
@@ -138,6 +144,17 @@ function AdminUserItem(props) {
         >
           {intl.formatMessage({ id: 'grantButton' })}
         </Button>
+        <IconButton
+          name="teaminfo"
+          aria-label="Grant Help"
+          className={classes.button}
+          color="primary"
+          href="https://uclusion.zendesk.com/hc/en-us/articles/360026366572-Granting-uShares"
+          target="_blank"
+          rel="noopener"
+        >
+          <Info />
+        </IconButton>
       </form>
     </div>
   );

@@ -3,6 +3,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import LockIcon from '@material-ui/icons/Lock';
 import React, { useState, useEffect } from 'react';
+import { injectIntl } from 'react-intl';
 import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Helmet } from 'react-helmet';
@@ -26,6 +27,8 @@ import appConfig from '../../config/config';
 import { setUclusionLocalStorageItem, getUclusionLocalStorageItem } from '../../components/utils';
 import { getClient } from '../../config/uclusionClient';
 import { validURL } from '../../utils/validators';
+import { sendIntlMessage, ERROR } from "../../utils/userMessage";
+
 
 const LOGIN_GOOGLE = 0;
 const LOGIN_OKTA = 1;
@@ -203,12 +206,12 @@ function LandingPage(props) {
           setUclusionLocalStorageItem('auth', authInfo);
           return getClient();
         }).then((client) => {
-          console.log('Now pausing before create market so will need spinner');
+          console.debug('Now pausing before create market so will need spinner');
           // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
           setTimeout(createMarket, 25000, client, accountCreationInfo, setLoading);
         }).catch((e) => {
-          alert('Cannot sign in');
-          console.log(e);
+          sendIntlMessage(ERROR, { id: 'landingPageErrorSigningIn' })
+          console.error(e);
         });
     } else {
       setLoading(true);
@@ -224,7 +227,7 @@ function LandingPage(props) {
       }).then((redirectUrl) => {
         window.location = redirectUrl;
       }).catch((e) => {
-        alert('Cannot sign in');
+        sendIntlMessage(ERROR, { id: 'landingPageErrorSigningIn' })
         console.error(e);
       }).finally(() => {
         setLoading(false);
@@ -232,7 +235,7 @@ function LandingPage(props) {
     }
   }
 
-  const { classes, theme, user } = props;
+  const { classes, theme, user, intl } = props;
 
   return (
     <div className={classes.main}>
@@ -240,7 +243,7 @@ function LandingPage(props) {
         <meta name="theme-color" content={theme.palette.primary.main} />
         <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
         <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
-        <title>Uclusion Registration</title>
+        <title>{intl.formatMessage({ id: 'landingPageUclusionRegistration' })}</title>
       </Helmet>
       <AppBar position="static">
         <Toolbar disableGutters>
@@ -249,7 +252,7 @@ function LandingPage(props) {
           <Tooltip id="tooltip-icon1" title="Sign in">
             <IconButton
               name="signin"
-              aria-label="Open Uclusion"
+              aria-label={intl.formatMessage({ id: 'landingPageOpenUclusion' })}
               color="inherit"
               onClick={() => {
                 window.location = `${window.location.href}${user.default_market_id}/Login`;
@@ -263,7 +266,7 @@ function LandingPage(props) {
           <Tooltip id="tooltip-icon2" title="Uclusion Help">
             <IconButton
               name="questionanswer"
-              aria-label="Open Uclusion Help"
+              aria-label={intl.formatMessage({ id: 'landingPageOpenUclusionHelp' })}
               color="inherit"
               href="https://uclusion.zendesk.com/hc/en-us"
               target="_blank"
@@ -284,7 +287,7 @@ function LandingPage(props) {
                 src="/watermark.png"
                 alt="Uclusion Logo"
               />
-              <Typography variant="h6">CREATE ACCOUNT WITH:</Typography>
+              <Typography variant="h6">{intl.formatMessage({ id: 'landingPageCreateAccountWith' })}</Typography>
               <Tabs
                 className={classes.tabs}
                 indicatorColor="primary"
@@ -293,58 +296,48 @@ function LandingPage(props) {
                 value={loginType}
                 onChange={handleLoginTypeChange}
               >
-                <Tab label="Google" />
-                <Tab label="OKTA" />
-                <Tab label="Cognito" />
+                <Tab label={intl.formatMessage({ id: 'landingPageGoogle' })} />
+                <Tab label={intl.formatMessage({ id: 'landingPageOkta' })} />
+                <Tab label={intl.formatMessage({ id: 'landingPageCognito' })} />
               </Tabs>
               <ValidatorForm onSubmit={handleSubmit}>
                 <TextValidator
                   className={classes.formField}
-                  label="Account Name:"
+                  label={intl.formatMessage({ id: 'landingPageAccountName' })}
                   name="accountNameId"
                   validators={['required']}
-                  errorMessages={['Account name is required']}
+                  errorMessages={[intl.formatMessage({ id: 'landingPageAccountNameError' })]}
                   fullWidth
                   value={accountName}
                   onChange={handleAccountNameChange}
                 />
                 <TextValidator
                   className={classes.formField}
-                  label="Market Name:"
+                  label={intl.formatMessage({ id: 'landingPageMarketName' })}
                   name="marketNameId"
                   validators={['required']}
-                  errorMessages={['Market name is required']}
+                  errorMessages={[intl.formatMessage({ id: 'landingPageMarketNameError' })]}
                   fullWidth
                   value={marketName}
                   onChange={handleMarketNameChange}
                 />
                 <TextValidator
                   className={classes.formField}
-                  label="Market Description:"
+                  label={intl.formatMessage({ id: 'landingPageMarketDescription' })}
                   name="marketDescriptionId"
                   validators={['required']}
-                  errorMessages={['Market description is required']}
+                  errorMessages={[intl.formatMessage({ id: 'landingPageMarketDescriptionError' })]}
                   fullWidth
                   value={marketDescription}
                   onChange={handleMarketDescriptionChange}
                 />
-                <TextValidator
-                  className={classes.formField}
-                  label="Optional Product Login URL:"
-                  name="marketProductLoginUrl"
-                  validators={['isURL']}
-                  errorMessages={['URL is invalid']}
-                  fullWidth
-                  value={marketProductLoginUrl}
-                  onChange={handleMarketProductLoginUrlChange}
-                />
                 {loginType === LOGIN_COGNITO && (
                   <TextValidator
                     className={classes.formField}
-                    label="Email:"
+                    label={intl.formatMessage({ id: 'landingPageEmail' })}
                     name="email"
                     validators={['required', 'isEmail']}
-                    errorMessages={['Email is required', 'Email is not valid']}
+                    errorMessages={[intl.formatMessage({ id: 'landingPageEmailErrorMissing' }), intl.formatMessage({ id: 'landingPageEmailErrorInvalid' })]}
                     fullWidth
                     value={email}
                     onChange={handleEmailChange}
@@ -353,22 +346,33 @@ function LandingPage(props) {
                 {loginType === LOGIN_COGNITO && (
                   <TextValidator
                     className={classes.formField}
-                    label="Name:"
+                    label={intl.formatMessage({ id: 'landingPageName' })}
                     name="name"
                     validators={['required']}
-                    errorMessages={['Name is required']}
+                    errorMessages={[intl.formatMessage({ id: 'landingPageNameError' })]}
                     fullWidth
                     value={name}
                     onChange={handleNameChange}
                   />
                 )}
+                <TextValidator
+                  className={classes.formField}
+                  label={intl.formatMessage({ id: 'landingPageLoginUrl' })}
+                  name="marketProductLoginUrl"
+                  validators={['isURL']}
+                  errorMessages={[intl.formatMessage({ id: 'landingPageLoginUrlError' })]}
+                  fullWidth
+                  value={marketProductLoginUrl}
+                  onChange={handleMarketProductLoginUrlChange}
+                />
+
                 {loginType !== LOGIN_COGNITO && (
                   <TextValidator
                     className={classes.formField}
-                    label="Authorization Client ID:"
+                    label={intl.formatMessage({ id: 'landingPageAuthorizationClientId' })}
                     name="clientId"
                     validators={['required']}
-                    errorMessages={['Authorization client id is required']}
+                    errorMessages={[intl.formatMessage({ id: 'landingPageAuthorizationClientIdError' })]}
                     fullWidth
                     value={clientId}
                     onChange={handleClientIdChange}
@@ -377,10 +381,10 @@ function LandingPage(props) {
                 {loginType === LOGIN_OKTA && (
                   <TextValidator
                     className={classes.formField}
-                    label="Endpoint Base URL:"
+                      label={intl.formatMessage({ id: 'landingPageEndpointBaseUrl' })}
                     name="baseURL"
                     validators={['required', 'isURL']}
-                    errorMessages={['URL is required', 'URL is invalid']}
+                    errorMessages={[intl.formatMessage({ id: 'landingPageEndpointBaseUrlErrorMissing' }), intl.formatMessage({ id: 'landingPageEndpointBaseUrlErrorInvalid' })]}
                     fullWidth
                     value={baseURL}
                     onChange={handleBaseURLChange}
@@ -396,7 +400,7 @@ function LandingPage(props) {
                     color="primary"
                     fullWidth
                   >
-                    Submit
+                    {intl.formatMessage({ id: 'landingPageSubmit' })}
                   </Button>
                 )}
               </ValidatorForm>
@@ -412,6 +416,7 @@ LandingPage.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
   user: PropTypes.object,
+  intl: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -425,4 +430,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(withRouter(withStyles(styles, { withTheme: true })(LandingPage)));
+)(withRouter(withStyles(styles, { withTheme: true })(injectIntl(LandingPage))));

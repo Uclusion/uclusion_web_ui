@@ -289,6 +289,36 @@ const messages = defineMessages({
   investibleEditAddNewLabelButton: 'Add Label',
   investibleEditCurrentInvestmentLine: 'Current Investment: {shares} uShares',
   investibleEditCurrentInvestmentLabel: 'Current Investment',
+
+  //Landing Page
+  landingPageErrorSigningIn: 'There was a problem signing in. Please try again',
+  landingPageUclusionRegistration: 'Uclusion Registration',
+  landingPageCreateAccountWith: 'CREATE ACCOUNT WITH IDENTITY FROM:',
+  landingPageOpenUclusion: 'Open Uclusion',
+  ladningPageOpenUclusionHelp: 'Open Uclusion Help',
+  landingPageCognito: 'Uclusion',
+  landingPageOkta: 'Okta',
+  landingPageGoogle: 'Google',
+  landingPageAccountName: 'Company Name:',
+  landingPageAccountNameError: 'Company Name is required',
+  landingPageMarketName: 'Product Name:',
+  landingPageMarketNameError: 'Product Name is required:',
+  landingPageMarketDescription: 'Product Description:',
+  landingPageMarketDescriptionError: 'Product Description is required',
+  landingPageLoginUrl: 'Single Sign On (SSO) Login URL:',
+  landingPageLoginUrlError: 'SSO URL is invalid',
+  landingPageEmail: 'Your Email:',
+  landingPageEmailErrorMissing: 'Your Email is required',
+  landingPageEmailErrorInvalid: 'Your Email is invalid',
+  landingPageName: 'Your Name:',
+  landingPageNameError: 'Your Name is required',
+  landingPageAuthorizationClientId: 'Client ID:',
+  landingPageAuthorizationClientIdError: 'Client ID is required',
+  landingPageEndpointBaseUrl: 'Endpoint Base URL:',
+  landingPageEndpointBaseUrlErrorMissing: 'Endpoint Base URL is required',
+  landingPageEndpointBaseUrlErrorInvalid: 'Endpoint Base URL is invalid',
+  landingPageSubmit: 'Create account',
+
 });
 
 export default messages;

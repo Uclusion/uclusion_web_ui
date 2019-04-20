@@ -92,7 +92,13 @@ function NewCognito(props) {
     });
     const urlParams = new URLSearchParams(window.location.search);
     const creationToken = urlParams.get('creationToken');
-    authorizer.cognitoUserCreate(name, email, creationToken).then((user) => {
+    let promise;
+    if (creationToken) {
+      promise = authorizer.cognitoUserCreate(name, email, creationToken);
+    } else {
+      promise = authorizer.cognitoUserSignup(marketId, name, email);
+    }
+    promise.then((user) => {
       let location = `${window.location.origin}/${marketId}/investibles`;
       if (!user.exists_in_cognito) {
         location += '?newLogin=true';

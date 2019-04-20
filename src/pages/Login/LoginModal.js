@@ -254,6 +254,11 @@ function LoginModal(props) {
     });
   }
 
+  function signup() {
+    const { history } = props;
+    history.push(formCurrentMarketLink('NewCognito'));
+  }
+
   const {
     intl, classes, open,
   } = props;
@@ -438,6 +443,23 @@ function LoginModal(props) {
               </Button>
             </ListItem>
           )}
+        {!allowUserLogin && (
+          <ListItem>
+            <div className={classes.separator} />
+          </ListItem>
+        )}
+        {!allowUserLogin && (
+          <ListItem>
+            <Button
+              onClick={signup}
+              variant="contained"
+              color="primary"
+              fullWidth
+            >
+              {intl.formatMessage({ id: 'signup' })}
+            </Button>
+          </ListItem>
+        )}
       </List>
     </Dialog>
   );

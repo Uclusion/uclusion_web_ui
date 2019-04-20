@@ -306,7 +306,7 @@ const messages = defineMessages({
   landingPageMarketNameError: 'Product Name is required:',
   landingPageMarketDescription: 'Product Description:',
   landingPageMarketDescriptionError: 'Product Description is required',
-  landingPageLoginUrl: 'Single Sign On (SSO) Login URL:',
+  landingPageLoginUrl: 'Single Sign On (SSO) Login URL (Optional):',
   landingPageLoginUrlError: 'SSO URL is invalid',
   landingPageEmail: 'Your Email:',
   landingPageEmailErrorMissing: 'Your Email is required',

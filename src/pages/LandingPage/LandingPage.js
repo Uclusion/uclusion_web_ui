@@ -12,6 +12,7 @@ import { withStyles } from '@material-ui/core/styles';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import Info from '@material-ui/icons/Info';
 import { AnonymousAuthorizer } from 'uclusion_authorizer_sdk';
 import {
   Card,
@@ -85,6 +86,10 @@ const styles = theme => ({
     display: 'block',
     margin: 'auto',
     marginTop: theme.spacing.unit,
+  },
+  button: {
+    marginLeft: 0,
+    padding: theme.spacing.unit * 0.5,
   },
 });
 
@@ -287,7 +292,20 @@ function LandingPage(props) {
                 src="/watermark.png"
                 alt="Uclusion Logo"
               />
-              <Typography variant="h6">{intl.formatMessage({ id: 'landingPageCreateAccountWith' })}</Typography>
+              <Typography variant="h6">
+                <IconButton
+                  name="accountinfo"
+                  aria-label="Account Help"
+                  className={classes.button}
+                  color="primary"
+                  href="https://uclusion.zendesk.com/hc/en-us/articles/360026630212-Account-and-Market-Creation"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <Info />
+                </IconButton>
+                {intl.formatMessage({ id: 'landingPageCreateAccountWith' })}
+              </Typography>
               <Tabs
                 className={classes.tabs}
                 indicatorColor="primary"

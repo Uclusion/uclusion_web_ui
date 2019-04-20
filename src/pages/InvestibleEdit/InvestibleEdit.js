@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
-import classNames from 'classnames'
-import { connect } from 'react-redux'
-import { injectIntl } from 'react-intl'
-import { withStyles } from '@material-ui/core/styles'
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
+import { connect } from 'react-redux';
+import { injectIntl } from 'react-intl';
+import { withStyles } from '@material-ui/core/styles';
 import {
   TextField,
   Typography,
@@ -12,16 +12,16 @@ import {
   Card,
   CardContent,
   CardActions,
-} from '@material-ui/core'
-import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
-import StageSelectList from './StageSelectList'
-import CategorySelectList from './CategorySelectList'
-import { withMarketId } from '../../components/PathProps/MarketId'
-import { getClient } from '../../config/uclusionClient'
-import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage'
-import Activity from '../../containers/Activity/Activity'
-import { getStages } from '../../store/Markets/reducer'
-import { fetchInvestibles } from '../../store/MarketInvestibles/actions'
+} from '@material-ui/core';
+import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
+import StageSelectList from './StageSelectList';
+import CategorySelectList from './CategorySelectList';
+import { withMarketId } from '../../components/PathProps/MarketId';
+import { getClient } from '../../config/uclusionClient';
+import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
+import Activity from '../../containers/Activity/Activity';
+import { getStages } from '../../store/Markets/reducer';
+import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
 
 const styles = theme => ({
   root: {
@@ -90,73 +90,83 @@ function InvestibleEdit (props) {
     dispatch,
     classes,
     intl,
-  } = props
-  const { investibleId } = match.params
-  const [investible, setInvestible] = useState({})
-  const [saved, setSaved] = useState(undefined)
+  } = props;
+  const { investibleId } = match.params;
+  const [investible, setInvestible] = useState({});
+  const [saved, setSaved] = useState(undefined);
+  const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
-    const clientPromise = getClient()
+    const clientPromise = getClient();
     clientPromise.then(client => client.markets.getMarketInvestibles(marketId, [investibleId]))
       .then((investibles) => {
-        const investible = investibles[0]
+        const investible = investibles[0];
         // set the current stage on it to keep the save happy
-        investible.current_stage_id = investible.stage
-        setInvestible(investibles[0])
+        investible.current_stage_id = investible.stage;
+        setInvestible(investibles[0]);
       }).catch((error) => {
-      console.log(error)
-      sendIntlMessage(ERROR, { id: 'investibleEditInvestibleFetchFailed' })
-    })
-  }, [marketId, investibleId, saved])
+        console.log(error);
+        sendIntlMessage(ERROR, { id: 'investibleEditInvestibleFetchFailed' });
+      });
+  }, [marketId, investibleId, saved]);
 
-  function handleChange (name) {
+  function handleChange(name) {
     return (event) => {
-      const { value } = event.target
+      const { value } = event.target;
       // if the name is the category list, and none are selected, disallow the change
       if (name === 'category_list' && value.length === 0) {
-        return
+        return;
       }
-      const newInvestible = { ...investible }
+      const newInvestible = { ...investible };
       // if we've changed stage, zero out the additional investible to make sure
       // the default value changes in the additional investment field
       if (name === 'stage') {
-        delete newInvestible.additional_investment
+        delete newInvestible.additional_investment;
       }
-      newInvestible[name] = value
-      setInvestible(newInvestible)
-    }
+      let validatedValue = value;
+      if (name === 'additional_investment') {
+        validatedValue = parseInt(value, 10);
+      }
+      if (!dirty && newInvestible[name] !== validatedValue) {
+        setDirty(true);
+      }
+      newInvestible[name] = validatedValue;
+      setInvestible(newInvestible);
+    };
   }
 
-  function onSave () {
+  function onSave() {
     // first we sync the name and description to the investments service,
     // then we sync the state information (e.g. stage, etc) off to the markets service
-    const clientPromise = getClient()
+    const clientPromise = getClient();
     const {
       id, name, description, category_list, market_id, label_list,
       stage, current_stage_id, additional_investment
-    } = investible
+    } = investible;
     // store the client so we can use it for second half
-    let clientHolder = null
+    let clientHolder = null;
     return clientPromise.then((client) => {
-      clientHolder = client
-      return clientHolder.investibles.updateInMarket(id, market_id, name, description, category_list, label_list)
-    }).then((result) => {
+      clientHolder = client;
+      return clientHolder.investibles.updateInMarket(id, market_id,
+        name, description, category_list, label_list);
+    }).then(() => {
       const stateOptions = {
         stage_id: stage,
         current_stage_id,
         next_stage_additional_investment: additional_investment,
-      }
-      return clientHolder.investibles.stateChange(id, stateOptions)
-    }).then((result) => {
+      };
+      return clientHolder.investibles.stateChange(id, stateOptions);
+    }).then(() => {
       // instead of doing fancy logic to merge stuff, lets just refetch that investible
-      dispatch(fetchInvestibles({ idList: [id], marketId: market_id }))
-      sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' })
-      setSaved(true)
+      dispatch(fetchInvestibles({ idList: [id], marketId: market_id }));
+      sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });
+      setSaved(true);
+      setDirty(false);
     }).catch((error) => {
-      console.error(error)
-      sendIntlMessage(ERROR, { id: 'investibleEditFailed' })
-      setSaved(false)
-    })
+      console.error(error);
+      sendIntlMessage(ERROR, { id: 'investibleEditFailed' });
+      setSaved(false);
+    });
   }
 
   function onCancel() {
@@ -167,27 +177,27 @@ function InvestibleEdit (props) {
 
   const {
     description = '', stage, name, quantity, label_scratch, category_list, label_list
-  } = investible
+  } = investible;
 
-  function handleLabelDelete (label) {
-    const { label_list } = investible
-    const oldList = label_list || []
-    const newLabels = oldList.filter(element => element !== label)
-    const newInvestible = { ...investible, label_list: newLabels }
-    setInvestible(newInvestible)
+  function handleLabelDelete(label) {
+    const { label_list } = investible;
+    const oldList = label_list || [];
+    const newLabels = oldList.filter(element => element !== label);
+    const newInvestible = { ...investible, label_list: newLabels };
+    setInvestible(newInvestible);
   }
 
-  function handleLabelAdd () {
+  function handleLabelAdd() {
     if (label_scratch) {
-      const oldList = label_list || []
-      const newLabels = oldList.includes(label_scratch) ? oldList : [...oldList, label_scratch]
-      const newInvestible = { ...investible, label_list: newLabels, label_scratch: '' }
-      setInvestible(newInvestible)
+      const oldList = label_list || [];
+      const newLabels = oldList.includes(label_scratch) ? oldList : [...oldList, label_scratch];
+      const newInvestible = { ...investible, label_list: newLabels, label_scratch: '' };
+      setInvestible(newInvestible);
     }
   }
 
-  function renderLabelChips () {
-    const usedList = label_list || []
+  function renderLabelChips() {
+    const usedList = label_list || [];
 
     return (
       <div>
@@ -240,6 +250,7 @@ function InvestibleEdit (props) {
               value={investmentFieldValue}
               onChange={handleChange('additional_investment')}
               inputProps={{ size: 24 }}
+              type="number"
             />
           </div>
         );
@@ -326,19 +337,13 @@ function InvestibleEdit (props) {
               />
             </div>
             {getNextStageInfo()}
-            {/* <Typography className={classNames(classes.numSharesText, classes.row)}>
-              {intl.formatMessage({ id: 'investibleEditCurrentInvestmentLine' }, { shares: quantity })}
-            </Typography>
-            <Typography component="div" className={classNames(classes.flex, classes.row)}>
-              <div className={classes.stageContent}>
-              </div>
-            </Typography> */}
           </CardContent>
           <CardActions className={classes.actions}>
             <Button
               onClick={() => onCancel()}
             >
-              {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
+              {dirty && intl.formatMessage({ id: 'investibleEditCancelLabel' })}
+              {!dirty && intl.formatMessage({ id: 'investibleEditCloseLabel' })}
             </Button>
             <Button
               variant="contained"
@@ -357,11 +362,11 @@ function InvestibleEdit (props) {
 function mapStateToProps (state) {
   return {
     marketStages: getStages(state.marketsReducer),
-  }
+  };
 }
 
 function mapDispatchToProps (dispatch) {
-  return { dispatch }
+  return { dispatch };
 }
 
 InvestibleEdit.propTypes = {
@@ -371,6 +376,6 @@ InvestibleEdit.propTypes = {
   intl: PropTypes.object.isRequired, //eslint-disable-line
   marketStages: PropTypes.object.isRequired,  //eslint-disable-line
   dispatch: PropTypes.func.isRequired,
-}
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withMarketId(withStyles(styles)(InvestibleEdit))))
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withMarketId(withStyles(styles)(InvestibleEdit))));

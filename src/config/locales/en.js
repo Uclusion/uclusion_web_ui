@@ -281,6 +281,7 @@ const messages = defineMessages({
   investibleEditNextStageLabel: 'Next Stage:',
   investibleEditNextStageInvestmentLabel: 'Additional Investment Required:',
   investibleEditCancelLabel: 'Cancel',
+  investibleEditCloseLabel: 'Close',
   investibleEditSaveLabel: 'Save',
   investibleCategoriesLabel: 'Categories:',
   investibleEditCategoriesHelper: 'Select One or More',

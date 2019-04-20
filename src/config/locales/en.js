@@ -302,7 +302,7 @@ const messages = defineMessages({
   landingPageGoogle: 'Google',
   landingPageAccountName: 'Company Name:',
   landingPageAccountNameError: 'Company Name is required',
-  landingPageMarketName: 'Product Name:',
+  landingPageMarketName: 'Product (Market) Name:',
   landingPageMarketNameError: 'Product Name is required:',
   landingPageMarketDescription: 'Product Description:',
   landingPageMarketDescriptionError: 'Product Description is required',

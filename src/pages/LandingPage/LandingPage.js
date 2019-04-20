@@ -154,8 +154,10 @@ function LandingPage(props) {
         setTimeout(createMarket, 10000, client, accountCreationInfo);
       });
     }
-    return () => {};
+    return () => {
+    };
   });
+
   function handleAccountNameChange(event) {
     setAccountName(event.target.value);
   }
@@ -211,13 +213,13 @@ function LandingPage(props) {
           setUclusionLocalStorageItem('auth', authInfo);
           return getClient();
         }).then((client) => {
-          console.debug('Now pausing before create market so will need spinner');
-          // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
-          setTimeout(createMarket, 25000, client, accountCreationInfo, setLoading);
-        }).catch((e) => {
-          sendIntlMessage(ERROR, { id: 'landingPageErrorSigningIn' })
-          console.error(e);
-        });
+        console.debug('Now pausing before create market so will need spinner');
+        // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
+        setTimeout(createMarket, 25000, client, accountCreationInfo, setLoading);
+      }).catch((e) => {
+        sendIntlMessage(ERROR, { id: 'landingPageErrorSigningIn' });
+        console.error(e);
+      });
     } else {
       setLoading(true);
       setUclusionLocalStorageItem('accountCreationInfo', accountCreationInfo);
@@ -232,7 +234,7 @@ function LandingPage(props) {
       }).then((redirectUrl) => {
         window.location = redirectUrl;
       }).catch((e) => {
-        sendIntlMessage(ERROR, { id: 'landingPageErrorSigningIn' })
+        sendIntlMessage(ERROR, { id: 'landingPageErrorSigningIn' });
         console.error(e);
       }).finally(() => {
         setLoading(false);
@@ -245,30 +247,30 @@ function LandingPage(props) {
   return (
     <div className={classes.main}>
       <Helmet>
-        <meta name="theme-color" content={theme.palette.primary.main} />
-        <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
-        <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
+        <meta name="theme-color" content={theme.palette.primary.main}/>
+        <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main}/>
+        <meta name="msapplication-navbutton-color" content={theme.palette.primary.main}/>
         <title>{intl.formatMessage({ id: 'landingPageUclusionRegistration' })}</title>
       </Helmet>
       <AppBar position="static">
         <Toolbar disableGutters>
-          <div style={{ flex: 1 }} />
+          <div style={{ flex: 1 }}/>
           {user && user.default_market_id && (
-          <Tooltip id="tooltip-icon1" title="Sign in">
-            <IconButton
-              name="signin"
-              aria-label={intl.formatMessage({ id: 'landingPageOpenUclusion' })}
-              color="inherit"
-              onClick={() => {
-                window.location = `${window.location.href}${user.default_market_id}/Login`;
-              }}
-              rel="noopener"
-            >
-              <LockIcon />
-            </IconButton>
-          </Tooltip>
+            <Tooltip title={intl.formatMessage({ id: 'landingPageSigninTooltip' })}>
+              <IconButton
+                name="signin"
+                aria-label={intl.formatMessage({ id: 'landingPageOpenUclusion' })}
+                color="inherit"
+                onClick={() => {
+                  window.location = `${window.location.href}${user.default_market_id}/Login`;
+                }}
+                rel="noopener"
+              >
+                <LockIcon/>
+              </IconButton>
+            </Tooltip>
           )}
-          <Tooltip id="tooltip-icon2" title="Uclusion Help">
+          <Tooltip title={intl.formatMessage({ id: 'landingPageHelpTooltip' })}>
             <IconButton
               name="questionanswer"
               aria-label={intl.formatMessage({ id: 'landingPageOpenUclusionHelp' })}
@@ -277,7 +279,7 @@ function LandingPage(props) {
               target="_blank"
               rel="noopener"
             >
-              <QuestionAnswerIcon />
+              <QuestionAnswerIcon/>
             </IconButton>
           </Tooltip>
         </Toolbar>
@@ -293,17 +295,20 @@ function LandingPage(props) {
                 alt="Uclusion Logo"
               />
               <Typography variant="h6">
-                <IconButton
-                  name="accountinfo"
-                  aria-label="Account Help"
-                  className={classes.button}
-                  color="primary"
-                  href="https://uclusion.zendesk.com/hc/en-us/articles/360026630212-Account-and-Market-Creation"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  <Info />
-                </IconButton>
+                <Tooltip title={intl.formatMessage({ id: 'landingPageFormHelpTooltip' })}>
+
+                  <IconButton
+                    name="accountinfo"
+                    aria-label="Account Help"
+                    className={classes.button}
+                    color="primary"
+                    href="https://uclusion.zendesk.com/hc/en-us/articles/360026630212-Account-and-Market-Creation"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <Info/>
+                  </IconButton>
+                </Tooltip>
                 {intl.formatMessage({ id: 'landingPageCreateAccountWith' })}
               </Typography>
               <Tabs
@@ -314,102 +319,120 @@ function LandingPage(props) {
                 value={loginType}
                 onChange={handleLoginTypeChange}
               >
-                <Tab label={intl.formatMessage({ id: 'landingPageGoogle' })} />
-                <Tab label={intl.formatMessage({ id: 'landingPageOkta' })} />
-                <Tab label={intl.formatMessage({ id: 'landingPageCognito' })} />
+                <Tab label={intl.formatMessage({ id: 'landingPageGoogle' })}/>
+                <Tab label={intl.formatMessage({ id: 'landingPageOkta' })}/>
+                <Tab label={intl.formatMessage({ id: 'landingPageCognito' })}/>
               </Tabs>
               <ValidatorForm onSubmit={handleSubmit}>
-                <TextValidator
-                  className={classes.formField}
-                  label={intl.formatMessage({ id: 'landingPageAccountName' })}
-                  name="accountNameId"
-                  validators={['required']}
-                  errorMessages={[intl.formatMessage({ id: 'landingPageAccountNameError' })]}
-                  fullWidth
-                  value={accountName}
-                  onChange={handleAccountNameChange}
-                />
-                <TextValidator
-                  className={classes.formField}
-                  label={intl.formatMessage({ id: 'landingPageMarketName' })}
-                  name="marketNameId"
-                  validators={['required']}
-                  errorMessages={[intl.formatMessage({ id: 'landingPageMarketNameError' })]}
-                  fullWidth
-                  value={marketName}
-                  onChange={handleMarketNameChange}
-                />
-                <TextValidator
-                  className={classes.formField}
-                  label={intl.formatMessage({ id: 'landingPageMarketDescription' })}
-                  name="marketDescriptionId"
-                  validators={['required']}
-                  errorMessages={[intl.formatMessage({ id: 'landingPageMarketDescriptionError' })]}
-                  fullWidth
-                  value={marketDescription}
-                  onChange={handleMarketDescriptionChange}
-                />
-                {loginType === LOGIN_COGNITO && (
+                <Tooltip title={intl.formatMessage({ id: 'landingPageAccountNameTooltip' })}>
                   <TextValidator
                     className={classes.formField}
-                    label={intl.formatMessage({ id: 'landingPageEmail' })}
-                    name="email"
-                    validators={['required', 'isEmail']}
-                    errorMessages={[intl.formatMessage({ id: 'landingPageEmailErrorMissing' }), intl.formatMessage({ id: 'landingPageEmailErrorInvalid' })]}
-                    fullWidth
-                    value={email}
-                    onChange={handleEmailChange}
-                  />
-                )}
-                {loginType === LOGIN_COGNITO && (
-                  <TextValidator
-                    className={classes.formField}
-                    label={intl.formatMessage({ id: 'landingPageName' })}
-                    name="name"
+                    label={intl.formatMessage({ id: 'landingPageAccountName' })}
+                    name="accountNameId"
                     validators={['required']}
-                    errorMessages={[intl.formatMessage({ id: 'landingPageNameError' })]}
+                    errorMessages={[intl.formatMessage({ id: 'landingPageAccountNameError' })]}
                     fullWidth
-                    value={name}
-                    onChange={handleNameChange}
+                    value={accountName}
+                    onChange={handleAccountNameChange}
                   />
-                )}
-                <TextValidator
-                  className={classes.formField}
-                  label={intl.formatMessage({ id: 'landingPageLoginUrl' })}
-                  name="marketProductLoginUrl"
-                  validators={['isURL']}
-                  errorMessages={[intl.formatMessage({ id: 'landingPageLoginUrlError' })]}
-                  fullWidth
-                  value={marketProductLoginUrl}
-                  onChange={handleMarketProductLoginUrlChange}
-                />
+                </Tooltip>
+                <Tooltip title={intl.formatMessage({ id: 'landingPageMarketNameTooltip' })}>
+                  <TextValidator
+                    className={classes.formField}
+                    label={intl.formatMessage({ id: 'landingPageMarketName' })}
+                    name="marketNameId"
+                    validators={['required']}
+                    errorMessages={[intl.formatMessage({ id: 'landingPageMarketNameError' })]}
+                    fullWidth
+                    value={marketName}
+                    onChange={handleMarketNameChange}
+                  />
+                </Tooltip>
+                <Tooltip title={intl.formatMessage({ id: 'landingPageMarketDescriptionTooltip' })}>
+                  <TextValidator
+                    className={classes.formField}
+                    label={intl.formatMessage({ id: 'landingPageMarketDescription' })}
+                    name="marketDescriptionId"
+                    validators={['required']}
+                    errorMessages={[intl.formatMessage({ id: 'landingPageMarketDescriptionError' })]}
+                    fullWidth
+                    value={marketDescription}
+                    onChange={handleMarketDescriptionChange}
+                  />
+                </Tooltip>
 
-                {loginType !== LOGIN_COGNITO && (
+                {loginType === LOGIN_COGNITO && (
+                  <Tooltip title={intl.formatMessage({ id: 'landingPageEmailTooltip' })}>
+                    <TextValidator
+                      className={classes.formField}
+                      label={intl.formatMessage({ id: 'landingPageEmail' })}
+                      name="email"
+                      validators={['required', 'isEmail']}
+                      errorMessages={[intl.formatMessage({ id: 'landingPageEmailErrorMissing' }), intl.formatMessage({ id: 'landingPageEmailErrorInvalid' })]}
+                      fullWidth
+                      value={email}
+                      onChange={handleEmailChange}
+                    />
+                  </Tooltip>
+                )}
+                {loginType === LOGIN_COGNITO && (
+                  <Tooltip title={intl.formatMessage({ id: 'landingPageNameTooltip' })}>
+                    <TextValidator
+                      className={classes.formField}
+                      label={intl.formatMessage({ id: 'landingPageName' })}
+                      name="name"
+                      validators={['required']}
+                      errorMessages={[intl.formatMessage({ id: 'landingPageNameError' })]}
+                      fullWidth
+                      value={name}
+                      onChange={handleNameChange}
+                    />
+                  </Tooltip>
+                )}
+                <Tooltip title={intl.formatMessage({ id: 'landingPageLoginUrlTooltip' })}>
                   <TextValidator
                     className={classes.formField}
-                    label={intl.formatMessage({ id: 'landingPageAuthorizationClientId' })}
-                    name="clientId"
-                    validators={['required']}
-                    errorMessages={[intl.formatMessage({ id: 'landingPageAuthorizationClientIdError' })]}
+                    label={intl.formatMessage({ id: 'landingPageLoginUrl' })}
+                    name="marketProductLoginUrl"
+                    validators={['isURL']}
+                    errorMessages={[intl.formatMessage({ id: 'landingPageLoginUrlError' })]}
                     fullWidth
-                    value={clientId}
-                    onChange={handleClientIdChange}
+                    value={marketProductLoginUrl}
+                    onChange={handleMarketProductLoginUrlChange}
                   />
+                </Tooltip>
+                {loginType !== LOGIN_COGNITO && (
+                  <Tooltip title={intl.formatMessage({ id: 'landingPageAuthorizationClientIdTooltip' })}>
+
+                    <TextValidator
+                      className={classes.formField}
+                      label={intl.formatMessage({ id: 'landingPageAuthorizationClientId' })}
+                      name="clientId"
+                      validators={['required']}
+                      errorMessages={[intl.formatMessage({ id: 'landingPageAuthorizationClientIdError' })]}
+                      fullWidth
+                      value={clientId}
+                      onChange={handleClientIdChange}
+                    />
+                  </Tooltip>
                 )}
                 {loginType === LOGIN_OKTA && (
-                  <TextValidator
-                    className={classes.formField}
+                  <Tooltip title={intl.formatMessage({ id: 'landingPageEndpointBaseUrlTooltip' })}>
+
+                    <TextValidator
+                      className={classes.formField}
                       label={intl.formatMessage({ id: 'landingPageEndpointBaseUrl' })}
-                    name="baseURL"
-                    validators={['required', 'isURL']}
-                    errorMessages={[intl.formatMessage({ id: 'landingPageEndpointBaseUrlErrorMissing' }), intl.formatMessage({ id: 'landingPageEndpointBaseUrlErrorInvalid' })]}
-                    fullWidth
-                    value={baseURL}
-                    onChange={handleBaseURLChange}
-                  />
+                      name="baseURL"
+                      validators={['required', 'isURL']}
+                      errorMessages={[intl.formatMessage({ id: 'landingPageEndpointBaseUrlErrorMissing' }), intl.formatMessage({ id: 'landingPageEndpointBaseUrlErrorInvalid' })]}
+                      fullWidth
+                      value={baseURL}
+                      onChange={handleBaseURLChange}
+                    />
+                  </Tooltip>
                 )}
                 {loading ? (
-                  <CircularProgress className={classes.progress} />
+                  <CircularProgress className={classes.progress}/>
                 ) : (
                   <Button
                     className={classes.loginButton}

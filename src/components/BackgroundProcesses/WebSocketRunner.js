@@ -30,7 +30,7 @@ class WebSocketRunner {
           break;
         case 'INVESTIBLE_COMMENT_UPDATED':
           this.dispatch(fetchComments({
-            commentIds: [payload.object_id],
+            idList: [payload.object_id],
             marketId: payload.associated_object_id,
           }));
           break;

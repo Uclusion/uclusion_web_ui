@@ -105,7 +105,7 @@ function InvestiblesPage(props) {
     } = props;
     const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
     const { canReadComments } = userPermissions;
-    if (!showLogin) {
+    if (!showLogin && canReadComments !== undefined) {
       if (lastFetchedMarketId !== marketId) {
         setLastFetchedMarketId(marketId);
       }

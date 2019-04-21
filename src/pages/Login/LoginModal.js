@@ -443,12 +443,12 @@ function LoginModal(props) {
               </Button>
             </ListItem>
           )}
-        {!allowUserLogin && (
+        {!allowUserLogin && allowCognitoLogin && (
           <ListItem>
             <div className={classes.separator} />
           </ListItem>
         )}
-        {!allowUserLogin && (
+        {!allowUserLogin && allowCognitoLogin && (
           <ListItem>
             <Button
               onClick={signup}

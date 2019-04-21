@@ -27,7 +27,7 @@ function CommentsList(props) {
     if (!myComments || myComments.length === 0) {
       return <Typography>{intl.formatMessage({ id: 'noComments' })}</Typography>;
     }
-    const sorted = sortComments(comments)
+    const sorted = sortComments(myComments);
     return sorted.map(comment => (
       <CommentListItem key={comment.id} {...comment}/>
     ));

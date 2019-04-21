@@ -9,6 +9,7 @@ import {
   InputLabel,
   InputAdornment,
 } from '@material-ui/core';
+import ClearIcon from '@material-ui/icons/Clear'
 import SearchIcon from '@material-ui/icons/Search';
 import { updateSearchResults } from '../../store/ActiveSearches/actions';
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
@@ -44,6 +45,10 @@ function InvestibleSearchBox(props) {
     setSearchQuery(newQuery);
   }
 
+  function clearSearch() {
+    setSearchQuery('');
+  }
+
   useEffect(() => {
     if (marketId && searchQuery !== undefined) {
       const serializedIndex = serializedIndexes[marketId];
@@ -71,6 +76,11 @@ function InvestibleSearchBox(props) {
         placeholder={intl.formatMessage({ id: 'searchBoxHelper' })}
         value={marketSearchQuery || searchQuery}
         onChange={event => doSearch(event.target.value)}
+        startAdornment={(searchQuery && (
+          <InputAdornment position="start">
+            <ClearIcon onClick={() => clearSearch() }/>
+          </InputAdornment>
+          ))}
         endAdornment={(
           <InputAdornment position="end">
             <SearchIcon />

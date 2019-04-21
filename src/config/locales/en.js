@@ -311,7 +311,7 @@ const messages = defineMessages({
   landingPageMarketNameTooltip: 'Your product name will be used as the name of your first idea market.',
   landingPageMarketNameError: 'Product Name is required:',
   landingPageMarketDescription: 'Product Description:',
-  landingPageMarketDescriptionTooltip: 'This is a short description of your product that will be displayed to users.',
+  landingPageMarketDescriptionTooltip: 'This is a short description to help keep products organized.',
   landingPageMarketDescriptionError: 'Product Description is required',
   landingPageLoginUrl: 'Single Sign On (SSO) Login URL (Optional):',
   landingPageLoginUrlTooltip: 'If you have set up a SSO integration with Uclusion, enter your login page URL here.',

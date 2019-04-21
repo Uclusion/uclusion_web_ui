@@ -100,16 +100,18 @@ function InvestmentsListItem(props) {
           <Typography>
             {`uShares invested: ${calculatedQuantity}`}
           </Typography>
-          {userIsOwner && (<br />)}
-          {userIsOwner && (
-            <Button
-              className={classes.investButton}
-              variant="outlined"
-              color="secondary"
-              onClick={() => setCalculatedQuantity(0)}
-            >
-              {intl.formatMessage({ id: 'unInvestButton' })}
-            </Button>
+          {(userIsOwner && calculatedQuantity > 0) && (
+            <div>
+              <br/>
+              <Button
+                className={classes.investButton}
+                variant="outlined"
+                color="secondary"
+                onClick={() => setCalculatedQuantity(0)}
+              >
+                {intl.formatMessage({ id: 'unInvestButton' })}
+              </Button>
+            </div>
           )}
         </div>
       </div>

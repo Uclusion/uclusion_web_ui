@@ -230,7 +230,7 @@ function LandingPage(props) {
         team_name: `Team ${marketName}`,
         team_description: `${marketName} administrators`,
         redirect_url: `${window.location.href}`,
-        oidc_type: loginType,
+        oidc_type: loginType === LOGIN_GOOGLE ? 'GOOGLE' : 'OKTA',
       }).then((redirectUrl) => {
         window.location = redirectUrl;
       }).catch((e) => {
@@ -319,9 +319,9 @@ function LandingPage(props) {
                 value={loginType}
                 onChange={handleLoginTypeChange}
               >
-                <Tab label={intl.formatMessage({ id: 'landingPageGoogle' })}/>
-                <Tab label={intl.formatMessage({ id: 'landingPageOkta' })}/>
-                <Tab label={intl.formatMessage({ id: 'landingPageCognito' })}/>
+                <Tab label={intl.formatMessage({ id: 'landingPageGoogle' })} />
+                <Tab label={intl.formatMessage({ id: 'landingPageOkta' })} />
+                <Tab label={intl.formatMessage({ id: 'landingPageCognito' })} />
               </Tabs>
               <ValidatorForm onSubmit={handleSubmit}>
                 <Tooltip title={intl.formatMessage({ id: 'landingPageAccountNameTooltip' })}>

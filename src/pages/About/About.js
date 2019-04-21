@@ -84,7 +84,6 @@ function About(props) {
     <div>
       <Activity
         title={intl.formatMessage({ id: 'about' })}
-        hideMarketSelect
       >
         <div className={classes.root}>
           <Paper className={classes.section}>

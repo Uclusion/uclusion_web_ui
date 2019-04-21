@@ -102,7 +102,6 @@ function Dashboard(props) {
       <Activity
         isLoading={summaries === undefined}
         title={intl.formatMessage({ id: 'dashboardHeader' })}
-        hideMarketSelect
       >
         <div className={classes.root}>
           <div className={classes.chart} id="users-chart" />

@@ -62,11 +62,12 @@ class HtmlRichTextEditor extends React.Component {
 
   // Render the editor.
   render() {
-    const { readOnly } = this.props;
+    const { readOnly, placeHolder } = this.props;
     const { value } = this.state;
     return (
       <RichTextEditor
         value={value}
+        placeHolder={placeHolder}
         onChange={this.onChange}
         readOnly={readOnly}
       />
@@ -76,7 +77,8 @@ class HtmlRichTextEditor extends React.Component {
 
 
 HtmlRichTextEditor.propTypes = {
-  value: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  placeHolder: PropTypes.string.isRequired,
   onChange: PropTypes.func,
 };
 

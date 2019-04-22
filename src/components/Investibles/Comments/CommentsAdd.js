@@ -10,17 +10,16 @@ class CommentsAdd extends React.Component {
 
   constructor(props) {
     super(props);
-    const { intl } = props;
-    this.state = { body: intl.formatMessage({ id: 'commentBody' }) };
+    this.state = { body: '' };
     this.handleChange = this.handleChange.bind(this);
     this.addOnClick = this.addOnClick.bind(this);
   }
 
   addOnClick() {
-    const { dispatch, marketId,  investibleId, intl } = this.props;
+    const { dispatch, marketId,  investibleId } = this.props;
     const { body } = this.state;
     dispatch(createComment({ investibleId, body, marketId }));
-    this.setState({ body: intl.formatMessage({ id: 'commentBody' }) });
+    this.setState({ body: '' });
   }
 
   handleChange(name) {
@@ -34,16 +33,17 @@ class CommentsAdd extends React.Component {
 
   render() {
     const { intl } = this.props;
+    const { body } = this.state;
     return (
       <Paper>
-        <HtmlRichTextEditor value={this.state.body} onChange={this.handleChange('body')} />
+        <HtmlRichTextEditor value={body} placeHolder={intl.formatMessage({ id: 'commentBody' })} onChange={this.handleChange('body')} />
         <Button
           variant="contained"
           fullWidth
           color="primary"
           onClick={this.addOnClick}
         >
-          {intl.formatMessage({id: 'saveCommentButton'})}
+          {intl.formatMessage({ id: 'saveCommentButton' })}
         </Button>
       </Paper>
     );

@@ -212,7 +212,7 @@ class RichTextEditor extends React.Component {
    */
 
   render() {
-    const { value, onChange, readOnly } = this.props;
+    const { value, onChange, readOnly, placeHolder } = this.props;
     return (
       <div style={{ width: '100%' }}>
         {this.toolBar()}
@@ -227,7 +227,7 @@ class RichTextEditor extends React.Component {
           <Editor
             spellCheck
             autoFocus
-            placeholder="Enter some rich text..."
+            placeholder={placeHolder}
             ref={this.ref}
             value={value}
             onChange={onChange}

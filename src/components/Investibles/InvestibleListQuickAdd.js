@@ -39,8 +39,7 @@ const styles = theme => ({
 class InvestibleListQuickAdd extends React.PureComponent {
   constructor(props) {
     super(props);
-    const { intl } = props;
-    this.state = { description: intl.formatMessage({ id: 'descriptionBody' }) };
+    this.state = {title: '', description: '' };
     this.handleChange = this.handleChange.bind(this);
     this.addOnClick = this.addOnClick.bind(this);
   }
@@ -54,7 +53,7 @@ class InvestibleListQuickAdd extends React.PureComponent {
 
   addOnClick = (addSubmitOnClick) => {
     const {
-      dispatch, marketId, teamId, category, userPermissions, intl, appConfig
+      dispatch, marketId, teamId, category, userPermissions, appConfig
     } = this.props;
 
     const { title, description } = this.state;
@@ -68,7 +67,7 @@ class InvestibleListQuickAdd extends React.PureComponent {
     }
     dispatch(createMarketInvestible(payload));
     addSubmitOnClick();
-    this.setState({ title: '', description: intl.formatMessage({ id: 'descriptionBody' }) });
+    this.setState({ title: '', description: '' });
   };
 
 
@@ -98,7 +97,7 @@ class InvestibleListQuickAdd extends React.PureComponent {
             fullWidth
             onChange={this.handleChange('title')}
           />
-          <HtmlRichTextEditor value={description} onChange={this.handleChange('description')} />
+          <HtmlRichTextEditor value={description} placeHolder={intl.formatMessage({ id: 'descriptionBody' })} onChange={this.handleChange('description')} />
         </Paper>
         <div className={classes.actionContainer}>
           <Button

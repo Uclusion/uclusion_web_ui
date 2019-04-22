@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import {
@@ -15,6 +16,9 @@ import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
 import InvestibleDelete from './InvestibleDelete';
 import InvestibleEdit from './InvestibleEdit';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
+import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
+import { fetchUser } from '../../store/Users/actions';
+import { getCurrentUser } from '../../store/Users/reducer';
 
 const styles = theme => ({
   root: {
@@ -91,17 +95,22 @@ const styles = theme => ({
   },
 });
 
-class InvestibleDetail extends React.PureComponent {
+function InvestibleDetail(props) {
+  const [lastInvestible, setLastInvestible] = useState({});
 
-  componentDidUpdate() {
-    const { investible } = this.props;
-    if (investible) {
-      this.lastInvestible = investible;
+  const {
+    investible, intl, classes, onClose, userPermissions, dispatch, user,
+  } = props;
+  useEffect(() => {
+    if (investible.id !== lastInvestible.id) {
+      setLastInvestible(investible);
+      dispatch(fetchInvestibles({ idList: [investible.id], marketId: investible.market_id }));
+      // Required if someone on team has spent shared uShares or there was a grant
+      dispatch(fetchUser({ marketId: investible.market_id, user }));
     }
-  }
+  }, [investible]);
 
-  getNextStageContent(investible) {
-    const { intl, classes } = this.props;
+  function getNextStageContent(investible) {
     if (investible.next_stage_name) {
       return (
         <Typography component="div" className={classNames(classes.flex, classes.row)}>
@@ -120,9 +129,8 @@ class InvestibleDetail extends React.PureComponent {
     return (<div />);
   }
 
-  renderLabelChips() {
-    const { investible, classes } = this.props;
-    const { label_list = [] } = investible || this.lastInvestible || {};
+  function renderLabelChips() {
+    const { label_list = [] } = investible || lastInvestible;
 
     return (
       <div className={classes.row}>
@@ -145,73 +153,78 @@ class InvestibleDetail extends React.PureComponent {
       </div>
     );
   }
+  const show = !!investible;
+  const myInvestible = investible || lastInvestible;
+  const { canDeleteMarketInvestible, canEditMarketInvestible } = userPermissions;
 
-  render() {
-    const {
-      classes,
-      intl,
-      onClose,
-      userPermissions,
-    } = this.props;
-    const show = !!this.props.investible;
-    const investible = this.props.investible || this.lastInvestible || {};
-    const { canDeleteMarketInvestible, canEditMarketInvestible } = userPermissions;
-
-    return (
-      <div
-        className={classNames(classes.root, {
-          [classes.detailOpen]: show,
-          [classes.detailClose]: !show,
-        })}
-      >
-        <div className={classes.flex}>
-          <Typography variant="h6" className={classes.investibleName}>
-            {investible.name}
-          </Typography>
-          <IconButton aria-label="Close" onClick={onClose}>
-            <CloseIcon />
-          </IconButton>
-        </div>
-        <Typography component="div" className={classNames(classes.flex, classes.row)}>
-          <span className={classes.stageLabel}>
-            {intl.formatMessage({ id: 'currentStageLabel' })}
-          </span>
-          <div className={classes.stageContent}>
-            <div>{investible.stage_name}</div>
-            <div className={classes.numSharesText}>
-              {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })}
-            </div>
-          </div>
+  return (
+    <div
+      className={classNames(classes.root, {
+        [classes.detailOpen]: show,
+        [classes.detailClose]: !show,
+      })}
+    >
+      <div className={classes.flex}>
+        <Typography variant="h6" className={classes.investibleName}>
+          {myInvestible.name}
         </Typography>
-        {this.getNextStageContent(investible)}
-        {this.renderLabelChips()}
-
-        <div style={{ flex: 1, overflow: 'auto' }}>
-          <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={investible.description} readOnly />
-          <InvestibleListItemTabs
-            name={investible.name}
-            quantity={investible.quantity}
-            investibleId={investible.id}
-            marketId={investible.market_id}
-            currentUserInvestment={investible.current_user_investment}
-          />
-        </div>
-
-        <div className={classNames(classes.bottomActions)}>
-          <InvestibleFollowUnfollow investible={investible} useIconButton />
-          {canDeleteMarketInvestible && <InvestibleDelete investible={investible} onCloseDetail={onClose} />}
-          {canEditMarketInvestible && <InvestibleEdit investibleId={investible.id} />}
-        </div>
+        <IconButton aria-label="Close" onClick={onClose}>
+          <CloseIcon />
+        </IconButton>
       </div>
-    );
-  }
+      <Typography component="div" className={classNames(classes.flex, classes.row)}>
+        <span className={classes.stageLabel}>
+          {intl.formatMessage({ id: 'currentStageLabel' })}
+        </span>
+        <div className={classes.stageContent}>
+          <div>{myInvestible.stage_name}</div>
+          <div className={classes.numSharesText}>
+            {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: myInvestible.quantity })}
+          </div>
+        </div>
+      </Typography>
+      {getNextStageContent(myInvestible)}
+      {renderLabelChips()}
+
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={myInvestible.description} readOnly />
+        <InvestibleListItemTabs
+          name={myInvestible.name}
+          quantity={myInvestible.quantity}
+          investibleId={myInvestible.id}
+          marketId={myInvestible.market_id}
+          currentUserInvestment={myInvestible.current_user_investment}
+        />
+      </div>
+
+      <div className={classNames(classes.bottomActions)}>
+        <InvestibleFollowUnfollow investible={myInvestible} useIconButton />
+        {canDeleteMarketInvestible
+        && <InvestibleDelete investible={myInvestible} onCloseDetail={onClose} />}
+        {canEditMarketInvestible && <InvestibleEdit investibleId={myInvestible.id} />}
+      </div>
+    </div>
+  );
 }
+
+function mapDispatchToProps(dispatch) {
+  return { dispatch };
+}
+
+const mapStateToProps = state => ({
+  user: getCurrentUser(state.usersReducer),
+});
 
 InvestibleDetail.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
   investible: PropTypes.object.isRequired, //eslint-disable-line
   onClose: PropTypes.func.isRequired,
   userPermissions: PropTypes.object.isRequired, //eslint-disable-line
+  intl: PropTypes.object.isRequired, //eslint-disable-line
+  dispatch: PropTypes.func.isRequired,
+  user: PropTypes.object, //eslint-disable-line
 };
 
-export default injectIntl(withUserAndPermissions(withStyles(styles)(InvestibleDetail)));
+export default connect(mapStateToProps, mapDispatchToProps)(
+  injectIntl(withUserAndPermissions(withStyles(styles)(InvestibleDetail))),
+);

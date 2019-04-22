@@ -28,6 +28,7 @@ const styles = theme => ({
   root: {
     width: 400,
     minWidth: 400,
+    height: '100%',
     padding: theme.spacing.unit,
     boxSizing: 'border-box',
   },

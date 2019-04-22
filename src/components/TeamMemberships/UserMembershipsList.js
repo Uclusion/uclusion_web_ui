@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import UserMembershipsListItem from './UserMembershipsListItem';
+import LazyLoad from '../LazyLoad';
 
 const styles = theme => ({
   root: {
@@ -29,17 +30,21 @@ class UserMembershipsList extends React.PureComponent {
     return (
       <div className={classes.root}>
         {teams.map(team => (
-          <UserMembershipsListItem
+          <LazyLoad
             key={team.id}
-            team={team}
-            teams={teams}
-            setTeams={setTeams}
-            investibles={investibles}
-            setUsers={setUsers}
-            allTeamUsers={allTeamsUsers}
-            allUsers={allUsers}
-            numTeams={teams.length}
-          />
+            width={400}
+          >
+            <UserMembershipsListItem
+              team={team}
+              teams={teams}
+              setTeams={setTeams}
+              investibles={investibles}
+              setUsers={setUsers}
+              allTeamUsers={allTeamsUsers}
+              allUsers={allUsers}
+              numTeams={teams.length}
+            />
+          </LazyLoad>
         ))}
       </div>
     );

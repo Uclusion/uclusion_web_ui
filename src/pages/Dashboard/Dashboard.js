@@ -51,7 +51,7 @@ function Dashboard(props) {
     valueAxis.tooltip.disabled = true;
     valueAxis.renderer.minWidth = 35;
 
-    const series = chart.series.push(new am4charts.LineSeries());
+    const series = chart.series.push(new am4charts.ColumnSeries());
     series.dataFields.dateX = 'date';
     series.dataFields.valueY = 'value';
 

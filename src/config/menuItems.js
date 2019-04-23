@@ -93,12 +93,14 @@ const getMenuItems = (props) => {
       primaryText: intl.formatMessage({ id: 'myTeamsMenu' }),
       visible: !isGuest,
       leftIcon: <GroupIcon />,
-    },
-    {
-      value: formCurrentMarketLink('invite'),
-      primaryText: intl.formatMessage({ id: 'inviteMenu' }),
-      visible: (!isGuest && authInfo && authInfo.type === 'cognito') || isMarketAdmin,
-      leftIcon: <SecurityIcon />,
+      nestedItems: [
+        {
+          value: formCurrentMarketLink('invite'),
+          primaryText: intl.formatMessage({ id: 'inviteMenu' }),
+          visible: (!isGuest && authInfo && authInfo.type === 'cognito') || isMarketAdmin,
+          leftIcon: <SecurityIcon />,
+        },
+      ],
     },
     {
       divider: true,
@@ -106,7 +108,7 @@ const getMenuItems = (props) => {
     {
       value: formCurrentMarketLink('about'),
       primaryText: intl.formatMessage({ id: 'about' }),
-      leftIcon: <InfoOutlinedIcon/>
+      leftIcon: <InfoOutlinedIcon />,
     },
   /*
   {

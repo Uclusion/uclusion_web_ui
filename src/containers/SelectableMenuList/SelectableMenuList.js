@@ -20,6 +20,9 @@ const styles = theme => ({
   icon: {
     color: theme.palette.primary.contrastText,
   },
+  listItemIcon: {
+    marginRight: 0,
+  },
 });
 
 class SelectableMenuList extends Component {
@@ -59,7 +62,11 @@ class SelectableMenuList extends Component {
   };
 
   getItem = (item, i) => {
-    const { onIndexChange, useMinified } = this.props;
+    const {
+      onIndexChange,
+      useMinified,
+      classes,
+    } = this.props;
 
     delete item.visible;
 
@@ -105,9 +112,9 @@ class SelectableMenuList extends Component {
         >
           {item.leftIcon
             && (
-            <ListItemIcon>
-              {item.leftIcon}
-            </ListItemIcon>
+              <ListItemIcon className={classes.listItemIcon}>
+                {item.leftIcon}
+              </ListItemIcon>
             )
           }
 
@@ -130,7 +137,12 @@ class SelectableMenuList extends Component {
   }
 
   render() {
-    const { items, onIndexChange, index } = this.props;
+    const {
+      items,
+      onIndexChange,
+      index,
+      classes,
+    } = this.props;
 
     const list = this.state.previousItems && this.state.previousItems.length > 0 ? this.state.items : items;
 
@@ -148,7 +160,7 @@ class SelectableMenuList extends Component {
                 this.handleBackClick();
               }}
             >
-              <ListItemIcon>
+              <ListItemIcon className={classes.listItemIcon}>
                 <ArrowBack />
               </ListItemIcon>
               <ListItemText primary={this.state.title} />

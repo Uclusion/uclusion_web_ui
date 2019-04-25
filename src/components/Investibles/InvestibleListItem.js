@@ -9,6 +9,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
+import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({
   card: {
@@ -82,7 +83,10 @@ class InvestibleListItem extends React.PureComponent {
       intl,
       investible,
       selected,
+      userPermissions,
     } = this.props;
+
+    const { isGuest } = userPermissions;
 
     return (
       <Card className={classNames(classes.card, { [classes.cardSelected]: selected })}>
@@ -90,7 +94,7 @@ class InvestibleListItem extends React.PureComponent {
           <Typography component="div">
             <div className={classes.flex}>
               <div className={classes.investibleName}>{investible.name}</div>
-              <InvestibleFollowUnfollow investible={investible} />
+              {!isGuest && (<InvestibleFollowUnfollow investible={investible} />)}
             </div>
             <div className={classNames(classes.flex, classes.row)}>
               <span className={classes.stageLabel}>
@@ -124,4 +128,4 @@ InvestibleListItem.propTypes = {
   selected: PropTypes.bool, //eslint-disable-line
 };
 
-export default injectIntl(withStyles(styles)(InvestibleListItem));
+export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItem)));

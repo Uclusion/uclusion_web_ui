@@ -155,7 +155,7 @@ function InvestibleDetail(props) {
   }
   const show = !!investible;
   const myInvestible = investible || lastInvestible;
-  const { canDeleteMarketInvestible, canEditMarketInvestible } = userPermissions;
+  const { canDeleteMarketInvestible, canEditMarketInvestible, isGuest } = userPermissions;
 
   return (
     <div
@@ -198,7 +198,7 @@ function InvestibleDetail(props) {
       </div>
 
       <div className={classNames(classes.bottomActions)}>
-        <InvestibleFollowUnfollow investible={myInvestible} useIconButton />
+        {!isGuest && (<InvestibleFollowUnfollow investible={myInvestible} useIconButton />)}
         {canDeleteMarketInvestible
         && <InvestibleDelete investible={myInvestible} onCloseDetail={onClose} />}
         {canEditMarketInvestible && <InvestibleEdit investibleId={myInvestible.id} />}

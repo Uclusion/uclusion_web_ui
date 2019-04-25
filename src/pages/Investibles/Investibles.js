@@ -139,9 +139,10 @@ function InvestiblesPage(props) {
     classes,
     investibles,
     location,
+    userPermissions,
   } = props;
   const { location: { hash, pathname } } = history;
-
+  const { isGuest } = userPermissions;
   const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
   const currentInvestibleList = getCurrentInvestibleList();
 
@@ -175,7 +176,7 @@ function InvestiblesPage(props) {
         isLoading={currentInvestibleList === undefined || user === undefined}
         containerStyle={{ overflow: 'hidden' }}
         title={intl.formatMessage({ id: 'marketInvestiblesTitle' }, { marketName: currentMarketName })}
-        titleButtons={<MarketFollowUnfollow user={user} marketId={marketId} />}
+        titleButtons={!isGuest && (<MarketFollowUnfollow user={user} marketId={marketId} />)}
       >
         {currentInvestibleList && user && user.market_presence
         && (
@@ -184,7 +185,7 @@ function InvestiblesPage(props) {
               <InvestibleSearchBox />
               <div className={classes.stageSelector}>
                 <MarketStageList marketId={marketId} />
-                <MarketStageFollowUnfollow marketId={marketId} />
+                {!isGuest && (<MarketStageFollowUnfollow marketId={marketId} />)}
               </div>
 
             </div>

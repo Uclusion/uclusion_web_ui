@@ -25,6 +25,7 @@ import appConfig from '../../config/config';
 import { getAuthMarketId, formCurrentMarketLink, getMarketId } from '../../utils/marketIdPathFunctions';
 import { postAuthTasks } from '../../utils/postAuthFunctions';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
+import { setUclusionLocalStorageItem } from '../../components/utils';
 
 const styles = theme => ({
   content: {
@@ -126,6 +127,7 @@ function LoginModal(props) {
     const loginParams = getLoginParams();
     const authorizer = new AnonymousAuthorizer(loginParams);
     authorizer.marketLoginInfo().then((response) => {
+      setUclusionLocalStorageItem('loginInfo', response);
       setAllowCognitoLogin(response.allow_cognito);
       setAllowGuestLogin(response.allow_anonymous);
       setAllowUserLogin(response.allow_user);

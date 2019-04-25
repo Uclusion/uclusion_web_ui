@@ -11,12 +11,16 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import TeamAdd from '../../components/Invite/TeamAdd';
 import InviteList from '../../components/Invite/InviteList';
 import AdminAdd from '../../components/Invite/AdminAdd';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   content: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+  },
+  directions: {
+    padding: theme.spacing.unit * 2,
   },
 });
 
@@ -55,9 +59,14 @@ function Invite(props) {
     <Activity
       isLoading={teams === undefined}
       containerStyle={{ overflow: 'hidden' }}
-      title={intl.formatMessage({ id: 'inviteHeader' })}
+      title={intl.formatMessage({ id: 'inviteMenu' })}
     >
       <div className={classes.content}>
+        {canListAccountTeams && (
+          <Typography variant="h5" className={classes.directions}>
+            {intl.formatMessage({ id: 'inviteMarketText' })}
+          </Typography>
+        )}
         {canListAccountTeams && (
           <TeamAdd marketId={marketId} teams={teams} teamsSet={setTeams} />
         )}

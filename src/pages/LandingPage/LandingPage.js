@@ -302,7 +302,7 @@ function LandingPage(props) {
                     aria-label="Account Help"
                     className={classes.button}
                     color="primary"
-                    href="https://uclusion.zendesk.com/hc/en-us/articles/360026630212-Account-and-Market-Creation"
+                    href="https://uclusion.zendesk.com/hc/en-us/articles/360026630212"
                     target="_blank"
                     rel="noopener"
                   >

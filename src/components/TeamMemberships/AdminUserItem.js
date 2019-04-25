@@ -149,7 +149,7 @@ function AdminUserItem(props) {
           aria-label="Grant Help"
           className={classes.button}
           color="primary"
-          href="https://uclusion.zendesk.com/hc/en-us/articles/360026366572-Granting-uShares"
+          href="https://uclusion.zendesk.com/hc/en-us/articles/360026366572"
           target="_blank"
           rel="noopener"
         >

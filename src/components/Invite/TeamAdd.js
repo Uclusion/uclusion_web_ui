@@ -116,7 +116,7 @@ function TeamAdd(props) {
             aria-label="Team Help"
             className={classes.button}
             color="primary"
-            href="https://uclusion.zendesk.com/hc/en-us/articles/360026358152-Admin-Creating-a-New-Team-or-User-for-Username-Password-Login"
+            href="https://uclusion.zendesk.com/hc/en-us/articles/360026358152"
             target="_blank"
             rel="noopener"
           >

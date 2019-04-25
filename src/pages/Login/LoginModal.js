@@ -76,6 +76,7 @@ function LoginModal(props) {
   const [poolId, setPoolId] = useState('');
   const [clientId, setClientId] = useState('');
   const [error, setError] = useState('');
+  const [processing, setProcessing] = useState(false);
   ValidatorForm.addValidationRule('isPasswordMatch', value => (value === newPassword));
 
   function getDestinationPage(subPath, includeAuthMarket) {
@@ -166,6 +167,7 @@ function LoginModal(props) {
     const { marketId, page } = getLoginParams();
     postAuthTasks(usersReducer, cognitoAuthorizer.storedToken, cognitoAuthorizer.getType(), dispatch,
       marketId, cognitoAuthorizer.user, webSocket);
+    setProcessing(false);
     history.push(page);
   }
 
@@ -180,6 +182,7 @@ function LoginModal(props) {
   }
 
   function loginCognito() {
+    setProcessing(true);
     const { marketId, uclusionUrl } = getLoginParams();
     const authorizerConfiguration = {
       username: email,
@@ -203,6 +206,7 @@ function LoginModal(props) {
           setConfirmPassword('');
         }
       } else {
+        setProcessing(false);
         setError(error.message);
         console.log(error);
       }
@@ -378,6 +382,7 @@ function LoginModal(props) {
                 type="submit"
                 variant="contained"
                 color="primary"
+                disabled={processing}
                 fullWidth
               >
                 Login Cognito

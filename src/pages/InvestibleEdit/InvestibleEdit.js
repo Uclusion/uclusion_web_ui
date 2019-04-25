@@ -136,6 +136,7 @@ function InvestibleEdit (props) {
   }
 
   function onSave() {
+    setDirty(false);
     // first we sync the name and description to the investments service,
     // then we sync the state information (e.g. stage, etc) off to the markets service
     const clientPromise = getClient();
@@ -161,11 +162,11 @@ function InvestibleEdit (props) {
       dispatch(fetchInvestibles({ idList: [id], marketId: market_id }));
       sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });
       setSaved(true);
-      setDirty(false);
     }).catch((error) => {
       console.error(error);
       sendIntlMessage(ERROR, { id: 'investibleEditFailed' });
       setSaved(false);
+      setDirty(false);
     });
   }
 
@@ -348,6 +349,7 @@ function InvestibleEdit (props) {
             <Button
               variant="contained"
               color="primary"
+              disabled={!dirty}
               onClick={() => onSave()}
             >
               {intl.formatMessage({ id: 'investibleEditSaveLabel' })}

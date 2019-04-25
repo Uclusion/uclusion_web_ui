@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
-import { withStyles } from '@material-ui/core';
+import { withStyles, Button } from '@material-ui/core';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
 import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList';
@@ -21,11 +21,22 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column',
   },
+  toolbar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    flexWrap: 'wrap',
+  },
+  favoriteButton: {
+    margin: theme.spacing.unit,
+  },
 });
 
 function UserMemberships(props) {
   const [teams, setTeams] = useState(undefined);
   const [allUsers, setAllUsers] = useState({});
+  const [favoriteTeams, setFavoriteTeams] = useState([]);
+  const [showFavorite, setShowFavorite] = useState(false);
   const {
     intl,
     userPermissions,
@@ -43,6 +54,29 @@ function UserMemberships(props) {
     }
 
     return [];
+  }
+
+  function toggleShowFavorite() {
+    setShowFavorite(!showFavorite);
+  }
+
+  function toggleFavoriteTeam(team) {
+    let newFavoriteTeams;
+    if (favoriteTeams.includes(team.id)) {
+      newFavoriteTeams = favoriteTeams.filter(id => id !== team.id);
+    } else {
+      newFavoriteTeams = [...favoriteTeams, team.id];
+    }
+    setFavoriteTeams(newFavoriteTeams);
+  }
+
+  function getFilteredTeams() {
+    const teamsWithFavorite = teams.map(team => ({ ...team, favorite: favoriteTeams.includes(team.id) }));
+    if (showFavorite) {
+      return teamsWithFavorite.filter(({ favorite }) => favorite);
+    }
+
+    return teamsWithFavorite;
   }
 
   // Second argument prevents re-running on teams property changes - only for changes in listed
@@ -94,14 +128,27 @@ function UserMemberships(props) {
       title={intl.formatMessage({ id: 'teamsHeader' })}
     >
       <div className={classes.content}>
-        {teams && teams.length > 10 && <TeamsSearchBox />}
+        {teams && teams.length > 10 && (
+          <div className={classes.toolbar}>
+            <TeamsSearchBox />
+            <Button
+              className={classes.favoriteButton}
+              variant="contained"
+              color="primary"
+              onClick={toggleShowFavorite}
+            >
+              {showFavorite ? 'Show All' : 'Show Favorite'}
+            </Button>
+          </div>
+        )}
         {teams && (
           <UserMembershipsList
-            teams={teams}
+            teams={getFilteredTeams()}
             setTeams={setTeams}
             investibles={getMarketInvestibles()}
             setUsers={setAllUsers}
             allUsers={allUsers}
+            onToggleFavorite={toggleFavoriteTeam}
           />
         )}
         {investibleDetail && teams && (

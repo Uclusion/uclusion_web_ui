@@ -25,6 +25,7 @@ class UserMembershipsList extends React.PureComponent {
       classes,
       setUsers,
       allUsers,
+      onToggleFavorite,
     } = this.props;
     const allTeamsUsers = {};
     return (
@@ -43,6 +44,7 @@ class UserMembershipsList extends React.PureComponent {
               allTeamUsers={allTeamsUsers}
               allUsers={allUsers}
               numTeams={teams.length}
+              onToggleFavorite={onToggleFavorite}
             />
           </LazyLoad>
         ))}
@@ -59,6 +61,7 @@ UserMembershipsList.propTypes = {
   classes: PropTypes.object.isRequired,
   setUsers: PropTypes.func.isRequired,
   allUsers: PropTypes.object.isRequired, //eslint-disable-line
+  onToggleFavorite: PropTypes.func,
 };
 
 export default injectIntl(withStyles(styles)(UserMembershipsList));

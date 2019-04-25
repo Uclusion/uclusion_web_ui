@@ -9,9 +9,12 @@ import {
   Chip,
   Tabs,
   Tab,
+  IconButton,
 } from '@material-ui/core';
 import withWidth from '@material-ui/core/withWidth';
 import { withStyles } from '@material-ui/core/styles';
+import StarIcon from '@material-ui/icons/Star';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
 import _ from 'lodash';
 import moment from 'moment';
 import { injectIntl } from 'react-intl';
@@ -39,8 +42,17 @@ const styles = theme => ({
     flexDirection: 'column',
     boxSizing: 'border-box',
   },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+  },
   title: {
+    flex: 1,
     marginBottom: 0,
+  },
+  favoriteButton: {
+    padding: theme.spacing.unit * 0.5,
+    color: theme.palette.primary.main,
   },
   ushares: {
     display: 'flex',
@@ -91,6 +103,7 @@ function UserMembershipsListItem(props) {
     numTeams,
     userPermissions,
     intl,
+    onToggleFavorite,
   } = props;
   const {
     name,
@@ -100,6 +113,7 @@ function UserMembershipsListItem(props) {
     quantity_invested,
     quantity,
     last_investment_updated_at,
+    favorite,
   } = team;
   const { canGrant } = userPermissions;
   const lastInvestDate = moment(last_investment_updated_at).format('MM/DD/YYYY hh:mm A');
@@ -160,9 +174,17 @@ function UserMembershipsListItem(props) {
   return (
     <div className={classes.root}>
       <Card className={classes.container}>
-        <Typography className={classes.title} variant="h6" paragraph>
-          {name}
-        </Typography>
+        <div className={classes.header}>
+          <Typography className={classes.title} variant="h6" paragraph>
+            {name}
+          </Typography>
+          <IconButton
+            className={classes.favoriteButton}
+            onClick={() => onToggleFavorite(team)}
+          >
+            {favorite ? <StarIcon /> : <StarBorderIcon />}
+          </IconButton>
+        </div>
         {last_investment_updated_at && (
           <Typography className={classes.lastInvestmentDate}>
             {'Last invested at:  '}

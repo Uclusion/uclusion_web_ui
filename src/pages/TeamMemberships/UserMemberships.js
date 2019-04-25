@@ -125,7 +125,7 @@ function UserMemberships(props) {
     <Activity
       isLoading={teams === undefined}
       containerStyle={{ overflow: 'hidden' }}
-      title={intl.formatMessage({ id: 'teamsHeader' })}
+      title={intl.formatMessage({ id: 'myTeamsMenu' })}
     >
       <div className={classes.content}>
         {teams && teams.length > 10 && (

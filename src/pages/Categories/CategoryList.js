@@ -52,7 +52,7 @@ function CategoryList(props) {
       <Activity
         isLoading={marketId === undefined}
         containerStyle={{ overflow: 'hidden' }}
-        title={intl.formatMessage({ id: 'categoriesHeader' })}
+        title={intl.formatMessage({ id: 'marketCategoriesMenu' })}
       >
         <div className={classes.content}>
           <CategoryAdd marketId={marketId} />

@@ -211,11 +211,7 @@ const messages = defineMessages({
   noComments: 'There are no comments yet.',
   loadingMessage: 'Loading',
   investibleAddDescriptionDefault: 'Add a description...',
-  // Dashboard pages
-  dashboardHeader: 'Dashboard',
   // Team Memberships pages
-  teamsHeader: 'Team Memberships',
-  categoriesHeader: 'Categories',
   teamsLoading: 'Loading your Team Memberships.',
   categoriesLoading: 'Loading Categories.',
   myTeamsMenu: 'Team Memberships',

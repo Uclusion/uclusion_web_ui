@@ -101,7 +101,7 @@ function Dashboard(props) {
     <div>
       <Activity
         isLoading={summaries === undefined}
-        title={intl.formatMessage({ id: 'dashboardHeader' })}
+        title={intl.formatMessage({ id: 'dashboardMenu' })}
       >
         <div className={classes.root}>
           <div className={classes.chart} id="users-chart" />

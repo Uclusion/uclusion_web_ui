@@ -13,6 +13,8 @@ import {
   CardContent,
   CardActions,
 } from '@material-ui/core';
+import Info from '@material-ui/icons/Info';
+import IconButton from '@material-ui/core/IconButton';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
 import StageSelectList from './StageSelectList';
 import CategorySelectList from './CategorySelectList';
@@ -79,6 +81,11 @@ const styles = theme => ({
   },
   newLabelButton: {
     marginLeft: theme.spacing.unit * 2,
+  },
+  button: {
+    marginLeft: theme.spacing.unit,
+    marginBottom: theme.spacing.unit * 2,
+    padding: 0,
   },
 });
 
@@ -329,6 +336,17 @@ function InvestibleEdit (props) {
                 value={stage}
                 marketId={marketId}
               />
+              <IconButton
+                name="stageinfo"
+                aria-label="Edit Investible Help"
+                className={classes.button}
+                color="primary"
+                href="https://uclusion.zendesk.com/hc/en-us/articles/360027638651"
+                target="_blank"
+                rel="noopener"
+              >
+                <Info />
+              </IconButton>
               <TextField
                 className={classNames(classes.fullFlex, classes.leftMargin)}
                 label={intl.formatMessage({ id: 'investibleEditCurrentInvestmentLabel' })}

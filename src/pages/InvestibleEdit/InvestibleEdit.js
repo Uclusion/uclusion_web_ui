@@ -189,7 +189,7 @@ function InvestibleEdit (props) {
   }
 
   const {
-    description = '', stage, name, quantity, label_scratch, category_list, label_list
+    description = '', stage, name, label_scratch, category_list, label_list
   } = investible;
 
   function handleLabelDelete(label) {

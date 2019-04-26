@@ -172,7 +172,7 @@ const messages = defineMessages({
   commentsTab: 'Comments',
   moreDetailsButton: 'More Details',
   totalCurrentInvestmentChip: '{shares} uShares',
-  investmentForNextStageChip: 'Requires at least {shares} uShares',
+  investmentForNextStageChip: 'Needs {shares} additional investment',
   currentStageLabel: 'Current Stage:',
   nextStageLabel: 'Next Stage:',
   availableSharesToInvest: 'You have Ȗ{shares} available',

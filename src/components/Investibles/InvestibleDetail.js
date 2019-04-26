@@ -120,7 +120,8 @@ function InvestibleDetail(props) {
           <div className={classes.stageContent}>
             <div>{investible.next_stage_name}</div>
             <div className={classes.numSharesText}>
-              {investible.next_stage_threshold && intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })}
+              {investible.next_stage_threshold && intl.formatMessage({ id: 'investmentForNextStageChip' },
+                { shares: investible.next_stage_threshold - investible.quantity })}
             </div>
           </div>
         </Typography>

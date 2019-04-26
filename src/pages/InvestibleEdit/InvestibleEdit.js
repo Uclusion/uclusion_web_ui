@@ -35,15 +35,16 @@ const styles = theme => ({
       marginBottom: 0,
     },
   },
-  inputRow: {
-    display: 'flex',
-    maxWidth: 480,
-  },
   fullFlex: {
     flex: 1,
   },
   leftMargin: {
-    marginLeft: theme.spacing.unit * 2,
+    marginLeft: theme.spacing.unit * 4,
+    maxWidth: 250,
+  },
+  moreLeftMargin: {
+    marginLeft: theme.spacing.unit * 10,
+    maxWidth: 250,
   },
   actions: {
     padding: theme.spacing.unit * 2,
@@ -81,6 +82,10 @@ const styles = theme => ({
   },
   newLabelButton: {
     marginLeft: theme.spacing.unit * 2,
+  },
+  newLabelRowBottom: {
+    marginBottom: theme.spacing.unit * 2,
+    marginTop: theme.spacing.unit * 4,
   },
   button: {
     marginLeft: theme.spacing.unit,
@@ -239,26 +244,30 @@ function InvestibleEdit (props) {
       const { next_stage, additional_investment } = currentStage.automatic_transition;
       const nextStageData = marketStages[marketId].find((element) => element.id === next_stage);
       if (nextStageData) {
-        // use either the value we've saved on the investible, or the default for the stage if it exists
-        const investmentFieldValue = investible.additional_investment || (investible.quantity + additional_investment);
-
+        let investmentFieldValue = investible.additional_investment;
+        if (!investmentFieldValue || investmentFieldValue <= 0) {
+          investmentFieldValue = additional_investment ? additional_investment > 0 : 1;
+          if (investible.current_stage_id === stage) {
+            investmentFieldValue = investible.next_stage_threshold - investible.quantity;
+          }
+        }
         return (
-          <div className={classNames(classes.row, classes.inputRow)}>
+          <div>
             <TextField
-              className={classes.fullFlex}
               id="additional_investment"
               label={intl.formatMessage({ id: 'investibleEditNextStageLabel' })}
               defaultValue={nextStageData.name}
               inputProps={{ readOnly: true }}
             />
             <TextField
-              className={classNames(classes.fullFlex, classes.leftMargin)}
+              className={classNames(classes.leftMargin)}
               id="additional_investment"
               label={intl.formatMessage({ id: 'investibleEditNextStageInvestmentLabel' })}
               value={investmentFieldValue}
               onChange={handleChange('additional_investment')}
               inputProps={{ size: 24 }}
               type="number"
+              fullWidth
             />
           </div>
         );
@@ -329,7 +338,7 @@ function InvestibleEdit (props) {
                 </Button>
               )}
             </div>
-            <div className={classNames(classes.row, classes.inputRow)}>
+            <div className={classes.newLabelRowBottom}>
               <StageSelectList
                 label={intl.formatMessage({ id: 'currentStageLabel' })}
                 onChange={handleChange('stage')}
@@ -347,13 +356,16 @@ function InvestibleEdit (props) {
               >
                 <Info />
               </IconButton>
-              <TextField
-                className={classNames(classes.fullFlex, classes.leftMargin)}
-                label={intl.formatMessage({ id: 'investibleEditCurrentInvestmentLabel' })}
-                value={`${quantity || 0} uShares`}
-                disabled
-                InputLabelProps={{ shrink: true }}
-              />
+              {investible.current_stage_id === stage && investible.next_stage && (
+                <TextField
+                  className={classNames(classes.moreLeftMargin)}
+                  label={intl.formatMessage({ id: 'investibleEditCurrentInvestmentLabel' })}
+                  value={`${investible.next_stage_threshold - investible.quantity} uShares`}
+                  disabled
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                />
+              )}
             </div>
             {getNextStageInfo()}
           </CardContent>

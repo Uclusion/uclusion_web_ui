@@ -280,7 +280,7 @@ const messages = defineMessages({
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
   investibleEditCurrentStageLabel: 'Current Stage:',
   investibleEditNextStageLabel: 'Next Stage:',
-  investibleEditNextStageInvestmentLabel: 'Additional Investment Required:',
+  investibleEditNextStageInvestmentLabel: 'New investment for next stage:',
   investibleEditCancelLabel: 'Cancel',
   investibleEditCloseLabel: 'Close',
   investibleEditSaveLabel: 'Save',
@@ -290,7 +290,7 @@ const messages = defineMessages({
   investibleEditAddNewLabelLabel: 'New Label:',
   investibleEditAddNewLabelButton: 'Add Label',
   investibleEditCurrentInvestmentLine: 'Current Investment: {shares} uShares',
-  investibleEditCurrentInvestmentLabel: 'Current Investment',
+  investibleEditCurrentInvestmentLabel: 'Current investment for next stage',
 
   //Landing Page
   landingPageSigninTooltip: 'Sign In',

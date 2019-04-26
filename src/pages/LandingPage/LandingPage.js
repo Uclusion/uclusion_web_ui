@@ -102,7 +102,11 @@ function createMarket(client, accountCreationInfo, setLoading) {
       // Un setting return auth token because need them to login again from email sent
       // (otherwise identity not confirmed)
       setUclusionLocalStorageItem('auth', null);
-      window.location = `${window.location.origin}/${market.market_id}/marketCategories?newLogin=true`;
+      if (accountCreationInfo.isExistingLogin) {
+        window.location = `${window.location.origin}/${market.market_id}/marketCategories`;
+      } else {
+        window.location = `${window.location.origin}/${market.market_id}/marketCategories?newLogin=true`;
+      }
     } else {
       window.location = `${window.location.origin}/${market.market_id}/marketCategories`;
     }
@@ -209,6 +213,7 @@ function LandingPage(props) {
           const authInfo = {
             token: response.login_capability, type: authorizer.getType(),
           };
+          accountCreationInfo.isExistingLogin = response.user.exists_in_cognito;
           // Have to set the return token or market creation will fail
           setUclusionLocalStorageItem('auth', authInfo);
           return getClient();

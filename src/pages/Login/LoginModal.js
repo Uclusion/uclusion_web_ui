@@ -136,7 +136,7 @@ function LoginModal(props) {
         setPoolId(response.user_pool_id);
         setClientId(response.cognito_client_id);
         const { newLogin } = loginParams;
-        if (newLogin) {
+        if (newLogin && response.allow_cognito) {
           setAllowChangePassword(true);
         }
       }
@@ -271,12 +271,19 @@ function LoginModal(props) {
   return (
     <Dialog onClose={() => null} aria-labelledby="simple-dialog-title" open={open}>
       <DialogTitle id="simple-dialog-title">
-        {allowChangePassword ? 'Change Password' : (allowResetPassword ? 'Reset Password' : 'Log In')}
+        {allowChangePassword && (intl.formatMessage({ id: 'new_password_header' }))}
+        {allowResetPassword && (intl.formatMessage({ id: 'reset_password_header' }))}
+        {!allowResetPassword && !allowChangePassword && (intl.formatMessage({ id: 'login_header' }))}
       </DialogTitle>
       <List className={classes.content}>
         {allowResetPassword && (
           <Typography className={classes.helpText}>
             {intl.formatMessage({ id: 'check_email_code' })}
+          </Typography>
+        )}
+        {allowChangePassword && (
+          <Typography className={classes.helpText}>
+            {intl.formatMessage({ id: 'check_email_password' })}
           </Typography>
         )}
         {allowCognitoLogin && ([
@@ -337,11 +344,6 @@ function LoginModal(props) {
                 value={email}
                 onChange={event => setEmail(event.target.value)}
               />
-              {allowChangePassword && (
-                <Typography className={classes.content}>
-                  {intl.formatMessage({ id: 'check_email_password' })}
-                </Typography>
-              )}
               <TextValidator
                 className={classes.input}
                 label="Password"

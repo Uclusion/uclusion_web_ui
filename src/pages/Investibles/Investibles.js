@@ -93,6 +93,10 @@ function InvestiblesPage(props) {
     const { selectedStage } = props;
     if (selectedStage && selectedStage[marketId]) {
       const stage = selectedStage[marketId];
+      if (stage.includes('_')) {
+        const values = stage.split('_');
+        return searched.filter(element => element.stage !== values[1]);
+      }
       return searched.filter(element => element.stage === stage);
     }
     return searched;

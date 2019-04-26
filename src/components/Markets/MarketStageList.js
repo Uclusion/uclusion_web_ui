@@ -28,10 +28,21 @@ function MarketStageList(props) {
     classes,
   } = props;
 
+  function getCompleteStages(stageList) {
+    return stageList.filter((stage) => {
+      return !stage.appears_in_market_summary;
+    });
+  }
   function convertStagesToItems(stageList) {
-    return stageList.map((stage, index) => (
+    const items = stageList.map((stage, index) => (
       <MenuItem key={index} value={stage.id}>{stage.name}</MenuItem>
     ));
+    const completeStages = getCompleteStages(stageList);
+    const completeItems = completeStages.map((stage, index) => (
+      <MenuItem key={`complete${index}`} value={`not_${stage.id}`}>{intl.formatMessage({ id: 'stageNotHelper' }) + stage.name}</MenuItem>
+    ));
+    items.push(...completeItems);
+    return items;
   }
 
   const activeStage = selectedStage && selectedStage[marketId];
@@ -43,11 +54,11 @@ function MarketStageList(props) {
     dispatch(changeStageSelection(realValue, marketId));
   }
 
-  function getSelectList(stageItems) {
+  function getSelectList(stageItems, defaultSelected) {
     return (
       <FormControl className={classes.root}>
         <InputLabel shrink htmlFor="adornment-stage">{intl.formatMessage({ id: 'stageSelectLabel' })}</InputLabel>
-        <Select id="adornment-stage" value={activeStage || 'unselected'} onChange={handleChange}>
+        <Select id="adornment-stage" value={activeStage || defaultSelected} onChange={handleChange}>
           <MenuItem value="helper" disabled>
             {intl.formatMessage({ id: 'stageSelectHelper' })}
           </MenuItem>
@@ -68,7 +79,12 @@ function MarketStageList(props) {
     stageList = stageList.concat(stages);
   }
   const stageItems = convertStagesToItems(stageList);
-  return getSelectList(stageItems);
+  let defaultSelected = 'unselected';
+  const completed = getCompleteStages(stageList);
+  if (completed.length > 0) {
+    defaultSelected = `not_${completed[0].id}`;
+  }
+  return getSelectList(stageItems, defaultSelected);
 }
 
 function mapStateToProps(state) {

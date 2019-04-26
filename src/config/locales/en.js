@@ -230,6 +230,7 @@ const messages = defineMessages({
   stageSelectAllStages: 'All',
   stageSelectLabel: 'Stage',
   stageSelectHelper: 'Select to filter view',
+  stageNotHelper: 'Not ',
   // auth messages
   authorizationFailed: 'We\'re sorry, authorization failed. Please try again',
   authorizationInProgress: 'Logging you in...',

@@ -291,8 +291,10 @@ const messages = defineMessages({
   investibleEditAddNewLabelButton: 'Add Label',
   investibleEditCurrentInvestmentLine: 'Current Investment: {shares} uShares',
   investibleEditCurrentInvestmentLabel: 'Current investment for next stage',
-
-  //Landing Page
+  // investment list for user
+  investmentListSharesInvested: 'uShares invested: {quantity}',
+  investmentListDateInvested: 'Date Invested: {date}',
+  // Landing Page
   landingPageSigninTooltip: 'Sign In',
   landingPageHelpTooltip: 'Need help with this page? Click here to access the user\'s guide.',
   landingPageFormHelpTooltip: 'Need help with this form? Click here to access the guide.',

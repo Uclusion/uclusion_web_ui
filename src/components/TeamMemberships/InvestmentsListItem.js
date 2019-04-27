@@ -46,6 +46,7 @@ function InvestmentsListItem(props) {
   const {
     investible,
     quantity,
+    createdAt,
     classes,
     userIsOwner,
     intl,
@@ -92,13 +93,30 @@ function InvestmentsListItem(props) {
     }
     return () => {};
   }, [calculatedQuantity]);
+
+  // if we don't have the investible at least we can render the presence of the investment, but not the name
+  const investibleName = (investible && investible.name) || '';
+
+  const dateFormatOptions = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  };
+  const createdTimestamp = intl.formatDate(createdAt, dateFormatOptions);
+  const investmentDate = intl.formatMessage({ id: 'investmentListDateInvested' }, {
+    date: createdTimestamp,
+  });
+
   return (
     <Paper className={classes.paper}>
       <div className={classes.content}>
         <div className={classes.infoContainer}>
-          <Typography className={classes.username}>{investible.name}</Typography>
+          <Typography className={classes.username}>{investibleName}</Typography>
+          <Typography>{investmentDate}</Typography>
           <Typography>
-            {`uShares invested: ${calculatedQuantity}`}
+            {intl.formatMessage({ id: 'investmentListSharesInvested' }, { quantity: calculatedQuantity })}
           </Typography>
           {(userIsOwner && calculatedQuantity > 0) && (
             <div>
@@ -135,6 +153,7 @@ InvestmentsListItem.propTypes = {
   users: PropTypes.object.isRequired, //eslint-disable-line
   setUsers: PropTypes.func, //eslint-disable-line
   intl: PropTypes.object.isRequired,
+  createdAt: PropTypes.instanceOf(Date).isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

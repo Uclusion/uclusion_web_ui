@@ -5,6 +5,7 @@ import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
+import _ from 'lodash';
 
 function InvestmentsList(props) {
   const [investments, setInvestments] = useState(undefined);
@@ -16,7 +17,7 @@ function InvestmentsList(props) {
     teams,
     setTeams,
     users,
-    setUsers
+    setUsers,
   } = props;
   useEffect(() => {
     const clientPromise = getClient();
@@ -34,9 +35,21 @@ function InvestmentsList(props) {
   function getInvestible(typeObjectId) {
     return investibles.find(({ id }) => typeObjectId.includes(id));
   }
+
+  function getSortedInvestments() {
+    if (!investments || investments.length === 0) {
+      return [];
+    }
+    const cloned = [...investments];
+    const sorted = _.sortBy(cloned, ['updated_at', 'id']);
+    return sorted;
+  }
+
+  const sortedInvestments = getSortedInvestments();
+
   return (
     <div>
-      {investments && investibles && investments.map(investment => (
+      {investments && investibles && sortedInvestments.map(investment => (
         <InvestmentsListItem
           key={investment.type_object_id}
           quantity={investment.quantity}
@@ -47,6 +60,7 @@ function InvestmentsList(props) {
           userId={userId}
           users={users}
           setUsers={setUsers}
+          createdAt={investment.created_at}
         />
       ))}
     </div>

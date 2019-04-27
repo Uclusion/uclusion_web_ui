@@ -302,7 +302,7 @@ const messages = defineMessages({
   landingPageUclusionRegistration: 'Uclusion Registration',
   landingPageCreateAccountWith: 'CREATE ACCOUNT WITH IDENTITY FROM:',
   landingPageOpenUclusion: 'Open Uclusion',
-  ladningPageOpenUclusionHelp: 'Open Uclusion Help',
+  landingPageOpenUclusionHelp: 'Open Uclusion Help',
   landingPageCognito: 'Uclusion',
   landingPageOkta: 'Okta',
   landingPageGoogle: 'Google',
@@ -333,6 +333,13 @@ const messages = defineMessages({
   landingPageEndpointBaseUrlErrorMissing: 'Endpoint Base URL is required',
   landingPageEndpointBaseUrlErrorInvalid: 'Endpoint Base URL is invalid',
   landingPageSubmit: 'Create account',
+
+  // Login
+  loginNewPassword: 'New Password',
+  loginNewPasswordToolTip: 'Passwords must be at least 8 characters and contain at least one capital letter, lowercase letter, and number.',
+  loginNewPasswordMissing: 'A new password is required',
+  loginNewPasswordErrorInvalid: 'Passwords must be at least 8 characters and contain at least one capital letter, lowercase letter, and number.',
+
 
 });
 

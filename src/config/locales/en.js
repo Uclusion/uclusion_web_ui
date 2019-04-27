@@ -348,6 +348,8 @@ const messages = defineMessages({
   loginCompleteRegistrationButton: 'Finish Registration',
   loginLoginCognitoButton: 'Login',
   loginSignupWithEmail: 'Signup with Email',
+  loginResetCognitoPassword: 'Reset Uclusion Pasword',
+
 
 });
 

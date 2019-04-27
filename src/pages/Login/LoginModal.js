@@ -350,7 +350,7 @@ function LoginModal(props) {
                 color="primary"
                 fullWidth
               >
-                Reset Cognito Password
+                {intl.formatMessage({ id: 'loginResetCognitoPassword' })} 
               </Button>
             </ValidatorForm>
           </ListItem>,

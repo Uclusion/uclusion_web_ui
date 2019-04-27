@@ -338,7 +338,13 @@ const messages = defineMessages({
   loginNewPassword: 'New Password',
   loginNewPasswordToolTip: 'Passwords must be at least 8 characters and contain at least one capital letter, lowercase letter, and number.',
   loginNewPasswordMissing: 'A new password is required',
-  loginNewPasswordErrorInvalid: 'Passwords must be at least 8 characters and contain at least one capital letter, lowercase letter, and number.',
+  loginNewPasswordErrorInvalid: 'Passwords must be at least 8 characters and contain at least one capital letter, lowercase letter, and number. ',
+  loginCode: 'Code',
+  loginCodeMissing: 'Code is required',
+  loginConfirmPassword: 'Confirm Password',
+  loginConfirmPasswordErrorMissing: 'Password confirmation is required',
+  loginConfirmPasswordErrorNoMatch: 'New Password and Confirm Password do not match',
+
 
 
 });

@@ -26,14 +26,15 @@ function PostAuth(props) {
       // Have to do here or get warning about setting state before component mounted
       const { dispatch, webSocket, usersReducer } = props;
       const {
-        uclusion_token, destination_page, market_id, user,
+        uclusion_token, destination_page, market_id, user, deployed_version
       } = resolve;
       const currentPage = new URL(destination_page);
       let realMarketId = market_id;
       if (currentPage.search.includes('authMarketId')) {
         realMarketId = currentPage.pathname.split('/')[1];
       }
-      postAuthTasks(usersReducer, uclusion_token, authorizerType, dispatch, realMarketId, user, webSocket);
+      console.log(resolve);
+      postAuthTasks(usersReducer, deployed_version, uclusion_token, authorizerType, dispatch, realMarketId, user, webSocket);
       setPath(getPathAndQueryPart(destination_page));
     } else {
       const pageUrl = window.location.href;

@@ -26,6 +26,7 @@ import { getAuthMarketId, formCurrentMarketLink, getMarketId } from '../../utils
 import { postAuthTasks } from '../../utils/postAuthFunctions';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { setUclusionLocalStorageItem } from '../../components/utils';
+import { forceApplicationVersion } from "../../utils/loginFunctions";
 
 const styles = theme => ({
   content: {
@@ -116,9 +117,9 @@ function LoginModal(props) {
     const redirectUrl = getPostAuthPage();
     const pageUrl = window.location.href;
     const uclusionUrl = appConfig.api_configuration.baseURL;
-    console.log(`page = ${page}`);
-    console.log(`destinationPage = ${destinationPage}`);
-    console.log(`redirectUrl = ${redirectUrl}`);
+    console.debug(`page = ${page}`);
+    console.debug(`destinationPage = ${destinationPage}`);
+    console.debug(`redirectUrl = ${redirectUrl}`);
     return {
       marketId,
       destinationPage,
@@ -156,7 +157,7 @@ function LoginModal(props) {
     const { pageUrl, destinationPage, redirectUrl } = loginParams;
     const redirectPromise = authorizer.authorize(pageUrl, destinationPage, redirectUrl);
     redirectPromise.then((location) => {
-      console.log(location);
+      console.debug(location);
       window.location = location;
     });
   }
@@ -173,10 +174,11 @@ function LoginModal(props) {
     doLoginRedirect(authorizer, loginParams);
   }
 
-  function cognitoTokenGenerated() {
+  function cognitoTokenGenerated(response) {
     const { dispatch, webSocket, history, usersReducer } = props;
     const { marketId, page } = getLoginParams();
-    postAuthTasks(usersReducer, cognitoAuthorizer.storedToken, cognitoAuthorizer.getType(), dispatch,
+    console.log(response);
+    postAuthTasks(usersReducer, response.deployed_version, cognitoAuthorizer.storedToken, cognitoAuthorizer.getType(), dispatch,
       marketId, cognitoAuthorizer.user, webSocket);
     setProcessing(false);
     history.push(page);
@@ -205,8 +207,9 @@ function LoginModal(props) {
     };
     cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
     setError('');
-    cognitoAuthorizer.authorize().then(() => {
-      cognitoTokenGenerated();
+    cognitoAuthorizer.authorize().then((response) => {
+      console.log(response);
+      cognitoTokenGenerated(response);
     }).catch((error) => {
       if ('newPasswordRequired' in error && error.newPasswordRequired) {
         if (newPassword) {
@@ -271,9 +274,9 @@ function LoginModal(props) {
     const authorizer = new AnonymousAuthorizer(loginParams);
     authorizer.doPostAuthorize().then((resolve) => {
       const {
-        uclusion_token, market_id, user,
+        uclusion_token, market_id, user, deployed_version,
       } = resolve;
-      postAuthTasks(usersReducer, uclusion_token, authorizer.getType(), dispatch, market_id, user, webSocket);
+      postAuthTasks(usersReducer, deployed_version, uclusion_token, authorizer.getType(), dispatch, market_id, user, webSocket);
       history.push(formCurrentMarketLink('investibles'));
     });
   }

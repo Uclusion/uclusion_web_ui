@@ -4,10 +4,9 @@ export const getUclusionLocalStorage = () => {
   return data;
 };
 
-export const getUclusionLocalStorageItem = (subkey) => {
-  const key = Object.keys(localStorage).find(e => e.match(/uclusion:root/));
-  const data = JSON.parse(localStorage.getItem(key));
-  return data && subkey in data ? data[subkey] : null;
+export const getUclusionLocalStorageItem = (key) => {
+  const data = getUclusionLocalStorage();
+  return data && key in data ? data[key] : null;
 };
 
 export const setUclusionLocalStorageItem = (key, value) => {

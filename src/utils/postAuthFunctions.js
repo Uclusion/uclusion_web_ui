@@ -1,9 +1,24 @@
 import { fetchUser } from '../store/Users/actions';
-import { setUclusionLocalStorageItem } from '../components/utils';
+
+import { setUclusionLocalStorageItem, getUclusionLocalStorageItem } from '../components/utils';
 import { fetchMarket, fetchMarketStages } from '../store/Markets/actions';
 import { clearReduxStore } from './userStateFunctions';
 
-
+/**
+ * Checks the current application version against the version of the application
+ * we have stored in the state. If they don't match, force reloads the page.
+ * @param currentVersion
+ */
+function forceApplicationVersion(currentVersion){
+  const key = 'applicationVersion';
+  const myVersion = getUclusionLocalStorageItem(key);
+  if (currentVersion !== myVersion) {
+    console.debug('Reloading to version ' + currentVersion);
+    setUclusionLocalStorageItem(key, currentVersion);
+    // deprecated, but basically the only way to do this
+  //  window.location.reload(true);
+  }
+}
 
 export function marketChangeTasks(dispatch, market_id, user, webSocket) {
   // console.log('Destination ' + destination_page + ' for user ' + JSON.stringify(user))
@@ -15,15 +30,17 @@ export function marketChangeTasks(dispatch, market_id, user, webSocket) {
   webSocket.subscribe(user.id, { market_id });
 }
 
-export function postAuthTasks(usersReducer, uclusionToken, tokenType, dispatch, market_id, user, webSocket) {
+export function postAuthTasks(usersReducer, deployedVersion, uclusionToken, tokenType, dispatch, market_id, user, webSocket) {
   if (uclusionToken) {
     const authInfo = { token: uclusionToken, type: tokenType };
     setUclusionLocalStorageItem('auth', authInfo);
   }
+  forceApplicationVersion(deployedVersion);
   // if we're not sure the user is the same as we loaded redux with, zero out redux
   if (!usersReducer || !usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {
     console.debug('Clearing user redux');
     clearReduxStore(dispatch);
   }
   marketChangeTasks(dispatch, market_id, user, webSocket);
+
 }

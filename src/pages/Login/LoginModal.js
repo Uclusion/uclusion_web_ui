@@ -218,10 +218,19 @@ function LoginModal(props) {
         }
       } else {
         setProcessing(false);
-        setError(error.message);
-        console.log(error);
+        setError(getErrorMessage(error));
+        console.error(error);
       }
     });
+  }
+
+  function getErrorMessage(error){
+    switch (error.name) {
+      case 'UserNotFoundException':
+        return intl.formatMessage({ id: 'loginErrorUserNotFound' });
+      default:
+        return error.message;
+    }
   }
 
   function forgotCognitoPassword() {
@@ -241,8 +250,8 @@ function LoginModal(props) {
       setNewPassword('');
       setConfirmPassword('');
     }).catch((error) => {
-      setError(error.message);
-      console.log(error);
+      setError(getErrorMessage(error));
+      console.error(error);
     });
   }
 
@@ -350,7 +359,7 @@ function LoginModal(props) {
                 color="primary"
                 fullWidth
               >
-                {intl.formatMessage({ id: 'loginResetCognitoPassword' })} 
+                {intl.formatMessage({ id: 'loginResetCognitoPassword' })}
               </Button>
             </ValidatorForm>
           </ListItem>,

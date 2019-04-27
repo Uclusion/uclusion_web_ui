@@ -349,7 +349,7 @@ const messages = defineMessages({
   loginLoginCognitoButton: 'Login',
   loginSignupWithEmail: 'Signup with Email',
   loginResetCognitoPassword: 'Reset Uclusion Pasword',
-
+  loginErrorUserNotFound: 'No user with that email exists',
 
 });
 

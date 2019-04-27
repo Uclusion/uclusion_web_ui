@@ -2,7 +2,6 @@ import { defineMessages } from 'react-intl';
 const messages = defineMessages({
   app_name: 'Uclusion',
   about: 'About',
-  signup: 'Signup with Email',
   page_not_found_demo: 'Page not found demo',
   404: '404',
   warning_404_message: '404 Page not found',
@@ -27,7 +26,7 @@ const messages = defineMessages({
   night_mode: 'Night Mode',
   sign_in: 'Sign in',
   sign_up: 'Sign up',
-  new_password_header: 'Complete Registration',
+
   reset_password_header: 'Reset Password',
   login_header: 'Log In',
   sign_in_with_google: 'Sign in with Google',
@@ -64,7 +63,6 @@ const messages = defineMessages({
   email_verified: 'E-Mail is verified',
   send_verification_email: 'Send verification E-Mail',
   send_verification_email_again: 'Send verification E-Mail again',
-  check_email_password: 'Please check your email for a temporary password',
   check_email_code: 'Please check your email for a code',
   investibles: 'Investibles',
   members: 'Members',
@@ -338,14 +336,18 @@ const messages = defineMessages({
   loginNewPassword: 'New Password',
   loginNewPasswordToolTip: 'Passwords must be at least 8 characters and contain at least one capital letter, lowercase letter, and number.',
   loginNewPasswordMissing: 'A new password is required',
-  loginNewPasswordErrorInvalid: 'Passwords must be at least 8 characters and contain at least one capital letter, lowercase letter, and number. ',
+  loginNewPasswordErrorInvalid: 'Passwords must be at least 8 characters and contain at least one capital letter, lowercase letter, and number.',
   loginCode: 'Code',
   loginCodeMissing: 'Code is required',
   loginConfirmPassword: 'Confirm Password',
   loginConfirmPasswordErrorMissing: 'Password confirmation is required',
   loginConfirmPasswordErrorNoMatch: 'New Password and Confirm Password do not match',
-
-
+  loginCompleteRegistration: 'Complete New Account Registration',
+  loginNewRegistrationExplanation: 'To protect your account we have sent you an email with a temporary password. Please confirm your email, enter the sent password, and change your password below.',
+  loginForgotPassword: 'Forgot Password',
+  loginCompleteRegistrationButton: 'Finish Registration',
+  loginLoginCognitoButton: 'Login',
+  loginSignupWithEmail: 'Signup with Email',
 
 });
 

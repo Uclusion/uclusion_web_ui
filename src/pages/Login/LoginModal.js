@@ -67,7 +67,7 @@ function LoginModal(props) {
   const [allowCognitoLogin, setAllowCognitoLogin] = useState(false);
   const [allowUserLogin, setAllowUserLogin] = useState(false);
   const [allowOidcLogin, setAllowOidcLogin] = useState(false);
-  const [allowChangePassword, setAllowChangePassword] = useState(false);
+  const [isNewRegistration, setIsNewRegistration] = useState(false);
   const [allowResetPassword, setAllowResetPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -144,7 +144,7 @@ function LoginModal(props) {
         setClientId(response.cognito_client_id);
         const { newLogin } = loginParams;
         if (newLogin && response.allow_cognito) {
-          setAllowChangePassword(true);
+          setIsNewRegistration(true);
         }
       }
     });
@@ -212,7 +212,7 @@ function LoginModal(props) {
         if (newPassword) {
           changePasswordCognito();
         } else {
-          setAllowChangePassword(true);
+          setIsNewRegistration(true);
           setNewPassword('');
           setConfirmPassword('');
         }
@@ -313,9 +313,9 @@ function LoginModal(props) {
   return (
     <Dialog onClose={() => null} aria-labelledby="simple-dialog-title" open={open}>
       <DialogTitle id="simple-dialog-title">
-        {allowChangePassword && (intl.formatMessage({ id: 'new_password_header' }))}
+        {isNewRegistration && (intl.formatMessage({ id: 'loginCompleteRegistration' }))}
         {allowResetPassword && (intl.formatMessage({ id: 'reset_password_header' }))}
-        {!allowResetPassword && !allowChangePassword && (intl.formatMessage({ id: 'login_header' }))}
+        {!allowResetPassword && !isNewRegistration && (intl.formatMessage({ id: 'login_header' }))}
       </DialogTitle>
       <List className={classes.content}>
         {allowResetPassword && (
@@ -323,9 +323,9 @@ function LoginModal(props) {
             {intl.formatMessage({ id: 'check_email_code' })}
           </Typography>
         )}
-        {allowChangePassword && (
+        {isNewRegistration && (
           <Typography className={classes.helpText}>
-            {intl.formatMessage({ id: 'check_email_password' })}
+            {intl.formatMessage({ id: 'loginNewRegistrationExplanation' })}
           </Typography>
         )}
         {allowCognitoLogin && ([
@@ -377,8 +377,8 @@ function LoginModal(props) {
                 value={password}
                 onChange={event => setPassword(event.target.value)}
               />
-              {allowChangePassword && getNewPasswordField()}
-              {allowChangePassword && getConfirmPasswordField()}
+              {isNewRegistration && getNewPasswordField()}
+              {isNewRegistration && getConfirmPasswordField()}
               <Typography className={classes.errorText}>{error}</Typography>
               <Button
                 type="submit"
@@ -387,11 +387,11 @@ function LoginModal(props) {
                 disabled={processing}
                 fullWidth
               >
-                Login Cognito
+                {isNewRegistration? intl.formatMessage({ id: 'loginCompleteRegistrationButton' }) : intl.formatMessage({ id: 'loginLoginCognitoButton' })}
               </Button>
             </ValidatorForm>
           </ListItem>,
-          <ListItem
+          !isNewRegistration && (<ListItem
             key="resetCognito"
             className={classNames(classes.noVertPadding, {
               [classes.hidden]: allowResetPassword,
@@ -402,9 +402,9 @@ function LoginModal(props) {
               onClick={forgotCognitoPassword}
               fullWidth
             >
-              Forgot Password
+              {intl.formatMessage({ id: 'loginForgotPassword' })}
             </Button>
-          </ListItem>,
+          </ListItem>),
         ])}
         {(allowOidcLogin || allowUserLogin) && (
           <ListItem>
@@ -450,12 +450,12 @@ function LoginModal(props) {
             </Button>
           </ListItem>
         )}
-        {!allowUserLogin && allowCognitoLogin && (
+        {!isNewRegistration && !allowUserLogin && allowCognitoLogin && (
           <ListItem>
             <div className={classes.separator}/>
           </ListItem>
         )}
-        {!allowUserLogin && allowCognitoLogin && (
+        {!isNewRegistration && !allowUserLogin && allowCognitoLogin && (
           <ListItem>
             <Button
               onClick={signup}
@@ -463,7 +463,7 @@ function LoginModal(props) {
               color="primary"
               fullWidth
             >
-              {intl.formatMessage({ id: 'signup' })}
+              {intl.formatMessage({ id: 'loginSignupWithEmail' })}
             </Button>
           </ListItem>
         )}

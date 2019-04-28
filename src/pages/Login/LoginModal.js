@@ -185,8 +185,8 @@ function LoginModal(props) {
 
   function changePasswordCognito() {
     cognitoAuthorizer.completeNewPasswordChallenge(newPassword)
-      .then(() => {
-        cognitoTokenGenerated();
+      .then((response) => {
+        cognitoTokenGenerated(response);
       })
       .catch((err) => {
         console.log(err);

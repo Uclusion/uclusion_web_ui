@@ -184,7 +184,7 @@ function LoginModal(props) {
       planningToken: response.uclusion_planning_token,
       planningType: cognitoAuthorizer.getType,
     };
-    postAuthTasks(usersReducer, response.deployed_version, uclusionTokenInfo, cognitoAuthorizer.getType(), dispatch,
+    postAuthTasks(usersReducer, response.deployed_version, uclusionTokenInfo, dispatch,
       marketId, cognitoAuthorizer.user, webSocket);
     setProcessing(false);
     history.push(page);

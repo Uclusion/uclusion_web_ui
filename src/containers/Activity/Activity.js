@@ -29,6 +29,7 @@ import { getClient } from '../../config/uclusionClient';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { marketChangeTasks } from '../../utils/postAuthFunctions';
 import { listUserMarkets } from '../../utils/marketSelectionFunctions';
+import { getUclusionLocalStorageItem } from "../../components/utils";
 
 const drawerWidth = 240;
 
@@ -134,9 +135,7 @@ function Activity(props) {
     } = props;
     if (newMarketId !== marketId) {
       marketChangeTasks(dispatch, newMarketId, user, webSocket);
-      const markets = listUserMarkets(user);
-      const newMarket = markets.find(market => market.id === newMarketId);
-      history.push(getDifferentMarketLink(newMarket, 'investibles'));
+      history.push(getDifferentMarketLink(newMarketId, 'investibles'));
     }
   }
   const {
@@ -163,14 +162,20 @@ function Activity(props) {
   if (!showLogin && !newCognitoUser) {
     getClient(); // Will verify the token
   }
-  let marketChoices;
+  // we allways have the planning market
+  const planningName = intl.formatMessage({ id: 'uclusionPlanningMarket' });
+  const planningMarketId = getUclusionLocalStorageItem('planningMarketId');
+  let marketChoices = [
+    <MenuItem key={planningName} value={planningMarketId}>{planningName}</MenuItem>
+  ];
 
   if (user && user.team_presences) {
     const markets = listUserMarkets(user);
-    marketChoices = markets.map(
+    const userMarketChoices = markets.map(
     // eslint-disable-next-line comma-dangle
       market => <MenuItem key={market.name} value={market.id}>{market.name}</MenuItem>
     );
+    marketChoices = marketChoices.concat(userMarketChoices);
   }
   let headerTitle = '';
 

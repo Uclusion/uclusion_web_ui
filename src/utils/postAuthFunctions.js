@@ -38,11 +38,13 @@ export function marketChangeTasks(dispatch, market_id, user, webSocket) {
 
 export function postAuthTasks(usersReducer, deployedVersion, uclusionTokenInfo, dispatch, market_id, user, webSocket) {
   if (uclusionTokenInfo) {
-    const { token, planningToken, type, planningType } = uclusionTokenInfo;
+    console.debug(uclusionTokenInfo);
+    const { token, planningToken, type, planningType, planningMarketId } = uclusionTokenInfo;
     const authInfo = { token, type };
     setUclusionLocalStorageItem('auth', authInfo);
     const planningAuthInfo = { token: planningToken, type: planningType };
     setUclusionLocalStorageItem('planningAuth', planningAuthInfo);
+    setUclusionLocalStorageItem('planningMarketId', planningMarketId);
   }
   notifyNewApplicationVersion(deployedVersion);
   // if we're not sure the user is the same as we loaded redux with, zero out redux

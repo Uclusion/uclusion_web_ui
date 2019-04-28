@@ -354,6 +354,10 @@ const messages = defineMessages({
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
 
+  // Proper names - DO NOT TRANSLATE
+  uclusionPlanningMarket: 'Uclusion Planning Market',
+
+
 });
 
 export default messages;

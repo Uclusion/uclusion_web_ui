@@ -183,6 +183,7 @@ function LoginModal(props) {
       type: cognitoAuthorizer.getType,
       planningToken: response.uclusion_planning_token,
       planningType: cognitoAuthorizer.getType,
+      planningMarketId: response.uclusion_market_id,
     };
     postAuthTasks(usersReducer, response.deployed_version, uclusionTokenInfo, dispatch,
       marketId, cognitoAuthorizer.user, webSocket);
@@ -280,13 +281,15 @@ function LoginModal(props) {
     const authorizer = new AnonymousAuthorizer(loginParams);
     authorizer.doPostAuthorize().then((resolve) => {
       const {
-        uclusion_token, market_id, user, deployed_version, uclusion_planning_token,
+        uclusion_token, market_id, user, deployed_version,
+        uclusion_planning_token, uclusion_market_id,
       } = resolve;
       const uclusionTokenInfo = {
         token: uclusion_token,
         type: authorizer.getType(),
         planningToken: uclusion_planning_token,
         planningType: authorizer.getType(),
+        planningMarketId: uclusion_market_id,
       };
       postAuthTasks(usersReducer, deployed_version, uclusionTokenInfo, dispatch, market_id, user, webSocket);
       history.push(formCurrentMarketLink('investibles'));

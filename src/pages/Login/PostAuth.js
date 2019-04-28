@@ -26,7 +26,8 @@ function PostAuth(props) {
       // Have to do here or get warning about setting state before component mounted
       const { dispatch, webSocket, usersReducer } = props;
       const {
-        uclusion_token, uclusion_planning_token, destination_page, market_id, user, deployed_version
+        uclusion_token, uclusion_planning_token, destination_page,
+        market_id, user, deployed_version, uclusion_market_id,
       } = resolve;
       const currentPage = new URL(destination_page);
       let realMarketId = market_id;
@@ -39,6 +40,7 @@ function PostAuth(props) {
         type: authorizerType,
         planningToken: uclusion_planning_token,
         planningType: authorizerType,
+        planningMarketId: uclusion_market_id,
       };
       postAuthTasks(usersReducer, deployed_version, uclusionTokenInfo, dispatch, realMarketId, user, webSocket);
       setPath(getPathAndQueryPart(destination_page));

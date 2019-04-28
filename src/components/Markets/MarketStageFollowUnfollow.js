@@ -1,6 +1,6 @@
 import React from 'react';
-import Favorite from '@material-ui/icons/Favorite';
-import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
+import VolumeUp from '@material-ui/icons/VolumeUp';
+import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { getSelectedStage } from '../../store/ActiveSearches/reducer';
@@ -12,7 +12,7 @@ function MarketStageFollowUnfollow(props) {
     marketId,
     dispatch,
     selectedStage,
-    marketStages
+    marketStages,
   } = props;
   const currentStage = selectedStage && selectedStage[marketId];
 
@@ -39,10 +39,10 @@ function MarketStageFollowUnfollow(props) {
 
   function getIcon() {
     if (following) {
-      return <Favorite onClick={() => doFollowingToggle()} />;
+      return <VolumeUp onClick={() => doFollowingToggle()} />;
     }
-    if (currentStage) {
-      return <FavoriteBorder onClick={() => doFollowingToggle()}/>;
+    if (!following) {
+      return <VolumeOffSharp onClick={() => doFollowingToggle()} />;
     }
     return <div />;
   }

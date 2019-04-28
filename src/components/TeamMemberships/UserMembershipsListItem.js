@@ -13,8 +13,8 @@ import {
 } from '@material-ui/core';
 import withWidth from '@material-ui/core/withWidth';
 import { withStyles } from '@material-ui/core/styles';
-import StarIcon from '@material-ui/icons/Star';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
+import VolumeUp from '@material-ui/icons/VolumeUp';
+import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import _ from 'lodash';
 import moment from 'moment';
 import { injectIntl } from 'react-intl';
@@ -182,7 +182,7 @@ function UserMembershipsListItem(props) {
             className={classes.favoriteButton}
             onClick={() => onToggleFavorite(team)}
           >
-            {favorite ? <StarIcon /> : <StarBorderIcon />}
+            {favorite ? <VolumeUp /> : <VolumeOffSharp />}
           </IconButton>
         </div>
         {last_investment_updated_at && (

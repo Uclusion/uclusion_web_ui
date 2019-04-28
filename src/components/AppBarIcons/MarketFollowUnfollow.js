@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core';
-import Favorite from '@material-ui/icons/Favorite';
-import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
+import VolumeUp from '@material-ui/icons/VolumeUp';
+import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import { getCurrentMarketPresence } from '../../utils/marketSelectionFunctions';
 import { followUnfollowMarket } from '../../store/Markets/actions';
 
@@ -24,7 +24,7 @@ function MarketFollowUnfollow(props) {
   const marketPresence = getCurrentMarketPresence(user);
   // if we don't know the market presence, just render an unfollowed version
   if (!marketPresence || marketPresence.id !== marketId) {
-    return <FavoriteBorder className={classes.root} />;
+    return <VolumeOffSharp className={classes.root} />;
   }
   const { following } = marketPresence;
 
@@ -35,10 +35,10 @@ function MarketFollowUnfollow(props) {
   function getIcon() {
     const onclick = () => doFollowingToggle();
     if (following) {
-      return <Favorite className={classes.root} onClick={onclick} />;
+      return <VolumeUp className={classes.root} onClick={onclick} />;
     }
 
-    return <FavoriteBorder className={classes.root} onClick={onclick} />;
+    return <VolumeOffSharp className={classes.root} onClick={onclick} />;
   }
 
   return getIcon();

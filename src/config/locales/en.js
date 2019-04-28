@@ -351,6 +351,9 @@ const messages = defineMessages({
   loginResetCognitoPassword: 'Reset Uclusion Pasword',
   loginErrorUserNotFound: 'No user with that email exists',
 
+  // Notices
+  noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
+
 });
 
 export default messages;

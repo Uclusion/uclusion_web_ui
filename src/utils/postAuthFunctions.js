@@ -3,22 +3,28 @@ import { fetchUser } from '../store/Users/actions';
 import { setUclusionLocalStorageItem, getUclusionLocalStorageItem } from '../components/utils';
 import { fetchMarket, fetchMarketStages } from '../store/Markets/actions';
 import { clearReduxStore } from './userStateFunctions';
+import { sendInfoPersistent } from './userMessage';
 
 /**
  * Checks the current application version against the version of the application
  * we have stored in the state. If they don't match, force reloads the page.
  * @param currentVersion
  */
-function forceApplicationVersion(currentVersion){
+function notifyNewApplicationVersion(currentVersion){
   const key = 'applicationVersion';
   const myVersion = getUclusionLocalStorageItem(key);
-  if (currentVersion !== myVersion) {
-    console.debug('Reloading to version ' + currentVersion);
+  // if we don't have any version stored, we're either in dev, or we've dumped our data
+  if (myVersion && currentVersion !== myVersion) {
+    console.debug('Upgrading to version ' + currentVersion);
     setUclusionLocalStorageItem(key, currentVersion);
-    // deprecated, but basically the only way to do this
+    // deprecated, but the simplest way to ignore cache
+    const reloader = () => { window.location.reload(true); };
+    sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
+
   //  window.location.reload(true);
   }
 }
+
 
 export function marketChangeTasks(dispatch, market_id, user, webSocket) {
   // console.log('Destination ' + destination_page + ' for user ' + JSON.stringify(user))
@@ -35,7 +41,7 @@ export function postAuthTasks(usersReducer, deployedVersion, uclusionToken, toke
     const authInfo = { token: uclusionToken, type: tokenType };
     setUclusionLocalStorageItem('auth', authInfo);
   }
-  forceApplicationVersion(deployedVersion);
+  notifyNewApplicationVersion(deployedVersion);
   // if we're not sure the user is the same as we loaded redux with, zero out redux
   if (!usersReducer || !usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {
     console.debug('Clearing user redux');

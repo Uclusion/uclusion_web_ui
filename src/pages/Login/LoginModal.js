@@ -26,7 +26,6 @@ import { getAuthMarketId, formCurrentMarketLink, getMarketId } from '../../utils
 import { postAuthTasks } from '../../utils/postAuthFunctions';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { setUclusionLocalStorageItem } from '../../components/utils';
-import { forceApplicationVersion } from "../../utils/loginFunctions";
 
 const styles = theme => ({
   content: {

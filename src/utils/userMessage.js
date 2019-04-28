@@ -15,8 +15,8 @@ export const SUCCESS = 'success';
  * @param level
  * @param i18nMessage
  */
-export function sendIntlMessage(level, i18nMessageDescription, ii18nMessageVales) {
-  const message = intl.formatMessage(i18nMessageDescription, ii18nMessageVales);
+export function sendIntlMessage(level, i18nMessageDescription, ii18nMessageValues) {
+  const message = intl.formatMessage(i18nMessageDescription, ii18nMessageValues);
   // it's expected this function will bet more complex as we customize toasts
   switch (level) {
     case INFO:
@@ -34,4 +34,15 @@ export function sendIntlMessage(level, i18nMessageDescription, ii18nMessageVales
     default:
       toast(message);
   }
+}
+
+/**
+ * Sends an info level user message that does not automatically go away
+ * @param i18nMessageDescription the i18n key of the message
+ * @param i18nMessageValues the i18n values for any variable in the message
+ * @param onClose a handler that can be called when the message closes
+ */
+export function sendInfoPersistent(i18nMessageDescription, i18nMessageValues, onClose){
+  const message = intl.formatMessage(i18nMessageDescription, i18nMessageValues);
+  toast.info(message, { autoClose: false, onClose });
 }

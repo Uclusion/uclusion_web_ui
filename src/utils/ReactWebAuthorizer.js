@@ -1,10 +1,16 @@
 import { OidcAuthorizer, SsoAuthorizer, AnonymousAuthorizer, CognitoAuthorizer } from 'uclusion_authorizer_sdk';
 import decode from 'jwt-decode';
 import { getUclusionLocalStorageItem } from '../components/utils';
-import { getAuthMarketId, getMarketId } from './marketIdPathFunctions';
+import { getAuthMarketInfo, getMarketId } from './marketIdPathFunctions';
 
-const getLocalAuthInfo = () => {
-  const authInfo = getUclusionLocalStorageItem('auth');
+/**
+ * Returns the stored auth info for authorization
+ * @param inUclusionPlanning are we authorizing in the uclusion planning market?
+ * @returns {null|*} the correct token for either the uclusion planning or the regular market
+ */
+const getLocalAuthInfo = (inUclusionPlanning) => {
+  const storageKey = inUclusionPlanning ? 'planningAuth' : 'auth';
+  const authInfo = getUclusionLocalStorageItem(storageKey);
   if (!authInfo) {
     return null;
   }
@@ -48,13 +54,13 @@ class ReactWebAuthorizer {
   }
 
   getAuthorizer() {
-    const marketId = getAuthMarketId();
-    const authInfo = getLocalAuthInfo();
+    const { authMarketId, inUclusionPlanning } = getAuthMarketInfo();
+    const authInfo = getLocalAuthInfo(inUclusionPlanning);
     if (authInfo === null || !authInfo || !authInfo.type) {
       doGenericAuthRedirect();
     }
     let authorizer = null;
-    const config = { uclusionUrl: this.uclusionUrl, marketId };
+    const config = { uclusionUrl: this.uclusionUrl, marketId: authMarketId };
     switch (authInfo.type) {
       case 'oidc':
         authorizer = new OidcAuthorizer(config);
@@ -98,7 +104,8 @@ class ReactWebAuthorizer {
   }
 
   authorize() {
-    const authInfo = getLocalAuthInfo();
+    const { inUclusionPlanning } = getAuthMarketInfo();
+    const authInfo = getLocalAuthInfo(inUclusionPlanning);
     if (authInfo && authInfo.token) {
       return new Promise(((resolve, reject) => {
         resolve(authInfo.token);
@@ -108,7 +115,8 @@ class ReactWebAuthorizer {
   }
 
   getToken() {
-    const authInfo = getLocalAuthInfo();
+    const { inUclusionPlanning } = getAuthMarketInfo();
+    const authInfo = getLocalAuthInfo(inUclusionPlanning);
     if (authInfo) {
       return authInfo.token;
     }

@@ -12,16 +12,19 @@ export function getMarketId() {
 }
 
 /**
- * Gets the market id of the market used for authorization
- * @returns {string}
+ * Returns an object containing the auth market id, the
+ * current market id, and a boolean if we're in the planning market
+ * (which only happens when auth market id != current market)
+ * @returns {object}
  */
-export function getAuthMarketId() {
+export function getAuthMarketInfo() {
+  const marketId = getMarketId();
   const urlParams = new URLSearchParams(window.location.search);
-  const authMarket = urlParams.get('authMarketId');
-  if (authMarket != null) {
-    return authMarket;
+  const authMarketId = urlParams.get('authMarketId');
+  if (authMarketId) {
+    return { authMarketId, marketId, inUclusionPlanning: true };
   }
-  return getMarketId();
+  return { authMarketId: marketId, marketId, inUclusionPlanning: false };
 }
 
 /**
@@ -58,9 +61,9 @@ function formMarketIdLink(marketId, subPath) {
  * @returns {string}
  */
 function formAuthAppendedLink(destMarket, destLink) {
-  const authMarket = getAuthMarketId();
-  if (destMarket !== authMarket) {
-    return appendAuthMarket(authMarket, destLink);
+  const { authMarketId } = getAuthMarketInfo();
+  if (destMarket !== authMarketId) {
+    return appendAuthMarket(authMarketId, destLink);
   }
   return destLink;
 }
@@ -89,8 +92,8 @@ export function getDifferentMarketLink(market, subPath) {
   const marketLink = formMarketIdLink(market.id, subPath);
   if (market.external_market_auth_type === 'ALL') {
     // Since the destination type is all we should continue to use the current token
-    const authMarket = getAuthMarketId();
-    return appendAuthMarket(authMarket, marketLink);
+    const { authMarketId } = getAuthMarketInfo();
+    return appendAuthMarket(authMarketId, marketLink);
   }
   return marketLink;
 }

@@ -38,11 +38,13 @@ function MarketStageFollowUnfollow(props) {
   }
 
   function getIcon() {
-    if (following) {
-      return <VolumeUp onClick={() => doFollowingToggle()} />;
-    }
-    if (!following) {
-      return <VolumeOffSharp onClick={() => doFollowingToggle()} />;
+    if (currentStage) {
+      if (following) {
+        return <VolumeUp onClick={() => doFollowingToggle()} />;
+      }
+      if (!following) {
+        return <VolumeOffSharp onClick={() => doFollowingToggle()} />;
+      }
     }
     return <div />;
   }

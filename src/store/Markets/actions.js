@@ -58,9 +58,11 @@ export const followUnfollowMarket = (params = {}) => (dispatch) => {
   return clientPromise.then(client => client.markets.followMarket(marketId, following))
     .then((response) => {
       dispatch(followedMarket(marketId, response.following));
+      const followMsg = response.following ? 'marketFollowSuccess' : 'marketUnfollowSuccess';
+      sendIntlMessage(SUCCESS, { id: followMsg });
     }).catch((error) => {
       console.log(error);
-      sendIntlMessage(ERROR, { id: 'marketFollowFailed'});
+      sendIntlMessage(ERROR, { id: 'marketFollowFailed' });
     });
 };
 
@@ -70,9 +72,11 @@ export const followUnFollowMarketStage = (params = {}) => (dispatch) => {
   return clientPromise.then(client => client.markets.followStage(stageId, marketId, following))
     .then((response) => {
       dispatch(followedMarketStage(marketId, stageId, response.following));
+      const followMsg = response.following ? 'stageFollowSuccess' : 'stageUnfollowSuccess';
+      sendIntlMessage(SUCCESS, { id: followMsg });
     }).catch((error) => {
       console.log(error);
-      sendIntlMessage(error, { id: 'stageFollowFailed'});
+      sendIntlMessage(error, { id: 'stageFollowFailed' });
     });
 };
 

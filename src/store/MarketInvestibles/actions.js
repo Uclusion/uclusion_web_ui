@@ -74,6 +74,8 @@ export const followUnfollowInvestible = (params = {}) => (dispatch) => {
   return clientPromise.then(client => client.investibles.follow(investible.id, stopFollowing))
     .then((result) => {
       dispatch(investibleFollowed(investible, result.following));
+      const followMsg = result.following ? 'investibleFollowSuccess' : 'investibleUnfollowSuccess';
+      sendIntlMessage(SUCCESS, { id: followMsg });
     }).catch((error) => {
       console.error(error);
       sendIntlMessage(ERROR, { id: 'investibleFollowFailed' });

@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { fetchInvestibles, investibleDeleted } from '../../store/MarketInvestibles/actions';
 import { fetchComments, commentDeleted } from '../../store/Comments/actions';
+import { notifyNewApplicationVersion } from "../../utils/postAuthFunctions";
 
 /**
  * Class which fires and manages a websocket connection to the server. It may need to become a service worker
@@ -16,26 +17,30 @@ class WebSocketRunner {
   getMessageHandler() {
     const handler = (event) => {
       // console.debug(event);
-      const payload = JSON.parse(event.data);
-      switch (payload.event_type) {
+      const message = JSON.parse(event.data);
+      const { payload, object_id, sub_object_id } = message;
+      switch (message.event_type) {
         case 'MARKET_INVESTIBLE_UPDATED':
         case 'MARKET_INVESTIBLE_CREATED':
           this.dispatch(fetchInvestibles({
-            marketId: payload.indirect_object_id,
-            idList: [payload.object_id],
+            marketId: message.indirect_object_id,
+            idList: [object_id],
           }));
           break;
         case 'INVESTIBLE_COMMENT_DELETED':
-          this.dispatch(commentDeleted(payload.associated_object_id, payload.sub_object_id, payload.object_id));
+          this.dispatch(commentDeleted(message.associated_object_id, sub_object_id, object_id));
           break;
         case 'INVESTIBLE_COMMENT_UPDATED':
           this.dispatch(fetchComments({
-            idList: [payload.object_id],
-            marketId: payload.associated_object_id,
+            idList: [object_id],
+            marketId: message.associated_object_id,
           }));
           break;
         case 'MARKET_INVESTIBLE_DELETED':
-          this.dispatch(investibleDeleted(payload.indirect_object_id, payload.object_id));
+          this.dispatch(investibleDeleted(message.indirect_object_id, object_id));
+          break;
+        case 'UI_UPDATE_REQUIRED':
+          notifyNewApplicationVersion(payload.deployed_version);
           break;
         default:
           console.debug('unknown event:', event);

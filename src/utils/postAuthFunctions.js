@@ -1,22 +1,22 @@
 import { fetchUser } from '../store/Users/actions';
 
-import { setUclusionLocalStorageItem, getUclusionLocalStorageItem } from '../components/utils';
+import { setUclusionLocalStorageItem } from '../components/utils';
 import { fetchMarket, fetchMarketStages } from '../store/Markets/actions';
 import { clearReduxStore } from './userStateFunctions';
 import { sendInfoPersistent } from './userMessage';
+import config from '../config/config';
 
 /**
  * Checks the current application version against the version of the application
  * we have stored in the state. If they don't match, force reloads the page.
  * @param currentVersion
  */
-function notifyNewApplicationVersion(currentVersion){
-  const key = 'applicationVersion';
-  const myVersion = getUclusionLocalStorageItem(key);
+export function notifyNewApplicationVersion(currentVersion){
+  const { version } = config;
   // if we don't have any version stored, we're either in dev, or we've dumped our data
-  if (myVersion && currentVersion !== myVersion) {
+  if (currentVersion !== config) {
+    console.debug('Current version ' + version);
     console.debug('Upgrading to version ' + currentVersion);
-    setUclusionLocalStorageItem(key, currentVersion);
     // deprecated, but the simplest way to ignore cache
     const reloader = () => { window.location.reload(true); };
     sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);

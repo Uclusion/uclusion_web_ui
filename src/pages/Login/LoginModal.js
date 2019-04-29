@@ -4,8 +4,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {
-  OidcAuthorizer,
-  SsoAuthorizer,
   AnonymousAuthorizer,
   CognitoAuthorizer,
 } from 'uclusion_authorizer_sdk';
@@ -21,11 +19,10 @@ import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import appConfig from '../../config/config';
-import { getAuthMarketInfo, formCurrentMarketLink, getMarketId } from '../../utils/marketIdPathFunctions';
-import { postAuthTasks } from '../../utils/postAuthFunctions';
+import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { setUclusionLocalStorageItem } from '../../components/utils';
+import { getLoginParams, loginOidc, loginSso, loginAnonymous, cognitoTokenGenerated } from '../../utils/loginFunctions';
 
 const styles = theme => ({
   content: {
@@ -84,48 +81,6 @@ function LoginModal(props) {
 
   ValidatorForm.addValidationRule('isPasswordMatch', value => (value === newPassword));
 
-  function getDestinationPage(subPath, includeAuthMarket) {
-    const currentPage = new URL(window.location.href);
-    const { authMarketId, marketId } = getAuthMarketInfo();
-    currentPage.pathname = `/${marketId}/${subPath}`;
-    currentPage.search = includeAuthMarket ? `authMarketId=${authMarketId}` : '';
-    return currentPage.toString();
-  }
-
-  const getPostAuthPage = () => {
-    const currentPage = new URL(window.location.href);
-    currentPage.pathname = '/post_auth';
-    currentPage.search = '';
-    return currentPage.toString();
-  };
-
-  function getLoginParams() {
-    const authMarketInfo = getAuthMarketInfo();
-    const { authMarketId } = authMarketInfo;
-    const parsed = new URL(window.location.href);
-    let page = parsed.searchParams.get('destinationPage') || 'investibles';
-    if (parsed.href.includes('#')) {
-      page += `#${parsed.href.split('#')[1]}`;
-    }
-    const newLogin = parsed.searchParams.get('newLogin');
-    const destinationPage = getDestinationPage(page, true);
-    const redirectUrl = getPostAuthPage();
-    const pageUrl = window.location.href;
-    const uclusionUrl = appConfig.api_configuration.baseURL;
-    console.debug(`page = ${page}`);
-    console.debug(`destinationPage = ${destinationPage}`);
-    console.debug(`redirectUrl = ${redirectUrl}`);
-    return {
-      marketId: authMarketId,
-      destinationPage,
-      redirectUrl,
-      pageUrl,
-      uclusionUrl,
-      newLogin,
-      page,
-    };
-  }
-
   useEffect(() => {
     const loginParams = getLoginParams();
     const authorizer = new AnonymousAuthorizer(loginParams);
@@ -148,51 +103,24 @@ function LoginModal(props) {
     };
   }, []);
 
-  function doLoginRedirect(authorizer, loginParams) {
-    const { pageUrl, destinationPage, redirectUrl } = loginParams;
-    const redirectPromise = authorizer.authorize(pageUrl, destinationPage, redirectUrl);
-    redirectPromise.then((location) => {
-      console.debug(location);
-      window.location = location;
-    });
+
+
+  function getErrorMessage(error){
+    switch (error.name) {
+      case 'UserNotFoundException':
+        return intl.formatMessage({ id: 'loginErrorUserNotFound' });
+      default:
+        return error.message;
+    }
   }
 
-  function loginOidc() {
-    const loginParams = getLoginParams();
-    const authorizer = new OidcAuthorizer(loginParams);
-    doLoginRedirect(authorizer, loginParams);
-  }
-
-  function loginSso() {
-    const loginParams = getLoginParams();
-    const authorizer = new SsoAuthorizer(loginParams);
-    doLoginRedirect(authorizer, loginParams);
-  }
-
-  function cognitoTokenGenerated(response) {
-    const { dispatch, webSocket, history, usersReducer } = props;
-    const { marketId, page } = getLoginParams();
-    console.debug(response);
-    const uclusionTokenInfo = {
-      token: cognitoAuthorizer.storedToken,
-      type: cognitoAuthorizer.getType,
-      planningToken: response.uclusion_planning_token,
-      planningType: cognitoAuthorizer.getType,
-      planningMarketId: response.uclusion_market_id,
-    };
-    postAuthTasks(usersReducer, response.deployed_version, uclusionTokenInfo, dispatch,
-      marketId, cognitoAuthorizer.user, webSocket);
-    setProcessing(false);
-    history.push(page);
-  }
-
-  function changePasswordCognito() {
+  function changePasswordCognito(cognitoAuthorizer) {
     cognitoAuthorizer.completeNewPasswordChallenge(newPassword)
       .then((response) => {
-        cognitoTokenGenerated(response);
+        cognitoTokenGenerated(props, response, cognitoAuthorizer, () => { setProcessing(false); });
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   }
 
@@ -210,12 +138,12 @@ function LoginModal(props) {
     cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
     setError('');
     cognitoAuthorizer.authorize().then((response) => {
-      console.log(response);
-      cognitoTokenGenerated(response);
+      console.debug(response);
+      cognitoTokenGenerated(props, response, cognitoAuthorizer, () => { setProcessing(false); });
     }).catch((error) => {
       if ('newPasswordRequired' in error && error.newPasswordRequired) {
         if (newPassword) {
-          changePasswordCognito();
+          changePasswordCognito(props, cognitoAuthorizer);
         } else {
           setIsNewRegistration(true);
           setNewPassword('');
@@ -227,15 +155,6 @@ function LoginModal(props) {
         console.error(error);
       }
     });
-  }
-
-  function getErrorMessage(error){
-    switch (error.name) {
-      case 'UserNotFoundException':
-        return intl.formatMessage({ id: 'loginErrorUserNotFound' });
-      default:
-        return error.message;
-    }
   }
 
   function forgotCognitoPassword() {
@@ -260,36 +179,16 @@ function LoginModal(props) {
     });
   }
 
-  function resetCognitoPassword() {
+  function resetCognitoPassword(cognitoAuthorizer) {
     setError('');
     cognitoAuthorizer.confirmPassword(code, newPassword).then(() => {
       setAllowResetPassword(false);
     }).catch((error) => {
       setError(error.message);
-      console.log(error);
+      console.error(error);
     });
   }
 
-  function loginAnonymous() {
-    const { dispatch, history, webSocket, usersReducer } = props;
-    const loginParams = getLoginParams();
-    const authorizer = new AnonymousAuthorizer(loginParams);
-    authorizer.doPostAuthorize().then((resolve) => {
-      const {
-        uclusion_token, market_id, user, deployed_version,
-        uclusion_planning_token, uclusion_market_id,
-      } = resolve;
-      const uclusionTokenInfo = {
-        token: uclusion_token,
-        type: authorizer.getType(),
-        planningToken: uclusion_planning_token,
-        planningType: authorizer.getType(),
-        planningMarketId: uclusion_market_id,
-      };
-      postAuthTasks(usersReducer, deployed_version, uclusionTokenInfo, dispatch, market_id, user, webSocket);
-      history.push(formCurrentMarketLink('investibles'));
-    });
-  }
 
   function signup() {
     const { history } = props;

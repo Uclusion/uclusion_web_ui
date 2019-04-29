@@ -100,6 +100,7 @@ function UserMemberships(props) {
     return () => {};
   }, [marketId]);
 
+  let selectedTeamId = null;
   let investibleDetail = null;
   let userDetail = null;
   if (hash) {
@@ -117,6 +118,8 @@ function UserMemberships(props) {
         }
       } else if (hashKey === 'user') {
         userDetail = allUsers[hashValue];
+      } else if (hashKey === 'team') {
+        selectedTeamId = hashValue;
       }
     }
   }
@@ -148,6 +151,7 @@ function UserMemberships(props) {
             investibles={getMarketInvestibles()}
             setUsers={setAllUsers}
             allUsers={allUsers}
+            selectedTeamId={selectedTeamId}
             onToggleFavorite={toggleFavoriteTeam}
           />
         )}

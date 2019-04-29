@@ -1,5 +1,6 @@
 /* eslint-disable react/forbid-prop-types */
 import React, { useState, useEffect } from 'react';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
@@ -34,6 +35,9 @@ const styles = theme => ({
     height: '100%',
     padding: theme.spacing.unit,
     boxSizing: 'border-box',
+  },
+  teamSelected: {
+    boxShadow: '0 0 5px blue',
   },
   container: {
     padding: theme.spacing.unit * 2,
@@ -103,6 +107,7 @@ function UserMembershipsListItem(props) {
     numTeams,
     userPermissions,
     intl,
+    selected,
     onToggleFavorite,
   } = props;
   const {
@@ -173,7 +178,7 @@ function UserMembershipsListItem(props) {
 
   return (
     <div className={classes.root}>
-      <Card className={classes.container}>
+      <Card className={classNames(classes.container, { [classes.teamSelected]: selected })}>
         <div className={classes.header}>
           <Typography className={classes.title} variant="h6" paragraph>
             {name}

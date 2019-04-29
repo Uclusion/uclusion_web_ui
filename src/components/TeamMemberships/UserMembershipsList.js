@@ -16,7 +16,32 @@ const styles = theme => ({
   },
 });
 
+const cardWidth = 400;
+
 class UserMembershipsList extends React.PureComponent {
+  componentDidMount() {
+    this.handleScrollToSelectedTeam();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.selectedTeamId !== prevProps.selectedTeamId) {
+      this.handleScrollToSelectedTeam();
+    }
+  }
+
+  handleScrollToSelectedTeam() {
+    const { teams, selectedTeamId } = this.props;
+    if (selectedTeamId) {
+      for (let i = 0; i < teams.length; i++) {
+        if (teams[i].id === selectedTeamId) {
+          const scrollOffset = i * cardWidth;
+          this.scrollContainer.scrollLeft = scrollOffset;
+          break;
+        }
+      }
+    }
+  }
+
   render() {
     const {
       teams,
@@ -25,17 +50,24 @@ class UserMembershipsList extends React.PureComponent {
       classes,
       setUsers,
       allUsers,
+      selectedTeamId,
       onToggleFavorite,
     } = this.props;
     const allTeamsUsers = {};
     return (
-      <div className={classes.root}>
+      <div
+        className={classes.root}
+        ref={(ref) => {
+          this.scrollContainer = ref;
+        }}
+      >
         {teams.map(team => (
           <LazyLoad
             key={team.id}
-            width={400}
+            width={cardWidth}
           >
             <UserMembershipsListItem
+              selected={team.id === selectedTeamId}
               team={team}
               teams={teams}
               setTeams={setTeams}
@@ -61,6 +93,7 @@ UserMembershipsList.propTypes = {
   classes: PropTypes.object.isRequired,
   setUsers: PropTypes.func.isRequired,
   allUsers: PropTypes.object.isRequired, //eslint-disable-line
+  selectedTeamId: PropTypes.string,
   onToggleFavorite: PropTypes.func,
 };
 

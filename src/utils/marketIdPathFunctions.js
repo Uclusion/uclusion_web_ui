@@ -12,37 +12,6 @@ export function getMarketId() {
 }
 
 /**
- * Returns an object containing the auth market id, the
- * current market id, and a boolean if we're in the planning market
- * (which only happens when auth market id != current market)
- * @returns {object}
- */
-export function getAuthMarketInfo() {
-  const marketId = getMarketId();
-  const urlParams = new URLSearchParams(window.location.search);
-  const authMarketId = urlParams.get('authMarketId');
-  if (authMarketId) {
-    return { authMarketId, marketId, inUclusionPlanning: true };
-  }
-  return { authMarketId: marketId, marketId, inUclusionPlanning: false };
-}
-
-/**
- * Appends the auth market id to the relative link given and returns the new relative link so formed
- * @param authMarketId
- * @param relativeDestination
- * @returns {string}
- */
-function appendAuthMarket(authMarketId, relativeDestination) {
-  // window.location.href is just to make the parser happy.
-  // We'll discard it to make sure we give a relative link
-  const url = new URL(relativeDestination, window.location.href);
-  const { searchParams } = url;
-  searchParams.append('authMarketId', authMarketId);
-  return `${url.pathname}?${searchParams.toString()}`;
-}
-
-/**
  * Helper function to centralize market id subpath link formation
  * @param marketId
  * @param subPath
@@ -51,21 +20,6 @@ function appendAuthMarket(authMarketId, relativeDestination) {
 function formMarketIdLink(marketId, subPath) {
   const dest = `/${marketId}/${subPath}`;
   return dest;
-}
-
-/**
- * Determines if the auth market is the same as the dest market and
- * appends the auth market id if needed
- * @param destMarket
- * @param destLink
- * @returns {string}
- */
-function formAuthAppendedLink(destMarket, destLink) {
-  const { authMarketId } = getAuthMarketInfo();
-  if (destMarket !== authMarketId) {
-    return appendAuthMarket(authMarketId, destLink);
-  }
-  return destLink;
 }
 
 /**
@@ -78,7 +32,7 @@ export function formCurrentMarketLink(subPath) {
     return '';
   }
   const marketLink = formMarketIdLink(market, subPath);
-  return formAuthAppendedLink(market, marketLink);
+  return marketLink;
 }
 
 /**
@@ -90,9 +44,5 @@ export function formCurrentMarketLink(subPath) {
  */
 export function getDifferentMarketLink(marketId, subPath) {
   const marketLink = formMarketIdLink(marketId, subPath);
-  const { authMarketId } = getAuthMarketInfo();
-  if (authMarketId !== marketId) {
-    return appendAuthMarket(authMarketId, marketLink);
-  }
   return marketLink;
 }

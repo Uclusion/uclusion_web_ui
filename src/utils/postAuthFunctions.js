@@ -25,31 +25,26 @@ export function notifyNewApplicationVersion(currentVersion) {
   }
 }
 
-export function marketChangeTasks(dispatch, market_id, userId, webSocket) {
-  // console.log('Destination ' + destination_page + ' for user ' + JSON.stringify(user))
+export function marketChangeTasks(dispatch, market_id, user, webSocket) {
   // pre-emptively fetch the market and user, since we're likely to need it
-  dispatch(fetchMarket({ market_id }));
+  dispatch(fetchMarket({ market_id, user }));
   // fetch the user, to make sure everything lines up with the auth market
   dispatch(fetchUser({ marketId: market_id }));
   dispatch(fetchMarketStages({ marketId: market_id }));
-  webSocket.subscribe(userId, { market_id });
+  webSocket.subscribe(user.id, { market_id });
 }
 
 export function postAuthTasks(usersReducer, deployedVersion, uclusionTokenInfo, dispatch, market_id, user, webSocket) {
   console.debug(uclusionTokenInfo);
-  const { token, planningToken, type, planningType, planningMarketId, planningUserId } = uclusionTokenInfo;
+  const { token, type } = uclusionTokenInfo;
   const authInfo = { token, type };
   setUclusionLocalStorageItem('auth', authInfo);
-  const planningAuthInfo = { token: planningToken, type: planningType };
-  setUclusionLocalStorageItem('planningAuth', planningAuthInfo);
-  setUclusionLocalStorageItem('planningMarketId', planningMarketId);
-  setUclusionLocalStorageItem('planningUserId', planningUserId);
   notifyNewApplicationVersion(deployedVersion);
   // if we're not sure the user is the same as we loaded redux with, zero out redux
   if (!usersReducer || !usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {
     console.debug('Clearing user redux');
     clearReduxStore(dispatch);
   }
-  marketChangeTasks(dispatch, market_id, planningUserId, webSocket);
+  marketChangeTasks(dispatch, market_id, user, webSocket);
 
 }

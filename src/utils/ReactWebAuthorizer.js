@@ -1,15 +1,14 @@
 import { OidcAuthorizer, SsoAuthorizer, AnonymousAuthorizer, CognitoAuthorizer } from 'uclusion_authorizer_sdk';
 import decode from 'jwt-decode';
 import { getUclusionLocalStorageItem } from '../components/utils';
-import { getAuthMarketInfo, getMarketId } from './marketIdPathFunctions';
+import { getMarketId } from './marketIdPathFunctions';
 
 /**
  * Returns the stored auth info for authorization
- * @param inUclusionPlanning are we authorizing in the uclusion planning market?
  * @returns {null|*} the correct token for either the uclusion planning or the regular market
  */
-const getLocalAuthInfo = (inUclusionPlanning) => {
-  const storageKey = inUclusionPlanning ? 'planningAuth' : 'auth';
+const getLocalAuthInfo = () => {
+  const storageKey = 'auth';
   const authInfo = getUclusionLocalStorageItem(storageKey);
   if (!authInfo) {
     return null;
@@ -33,11 +32,6 @@ const getPostAuthPage = () => {
 const doGenericAuthRedirect = () => {
   let location = `/${getMarketId()}/Login?destinationPage=${window.location.pathname.split('/')[2]}`;
   const currentPage = new URL(window.location.href);
-  if (currentPage.search.includes('authMarketId')) {
-    const parsed = currentPage.search.substr(currentPage.search.indexOf('authMarketId'));
-    const authMarketId = parsed.split('=')[1];
-    location += `&authMarketId=${authMarketId}`;
-  }
   if (currentPage.search.includes('newLogin')) {
     location += '&newLogin=true';
   }
@@ -54,13 +48,13 @@ class ReactWebAuthorizer {
   }
 
   getAuthorizer() {
-    const { authMarketId, inUclusionPlanning } = getAuthMarketInfo();
-    const authInfo = getLocalAuthInfo(inUclusionPlanning);
+    const marketId = getMarketId();
+    const authInfo = getLocalAuthInfo();
     if (authInfo === null || !authInfo || !authInfo.type) {
       doGenericAuthRedirect();
     }
     let authorizer = null;
-    const config = { uclusionUrl: this.uclusionUrl, marketId: authMarketId };
+    const config = { uclusionUrl: this.uclusionUrl, marketId};
     switch (authInfo.type) {
       case 'oidc':
         authorizer = new OidcAuthorizer(config);
@@ -104,8 +98,7 @@ class ReactWebAuthorizer {
   }
 
   authorize() {
-    const { inUclusionPlanning } = getAuthMarketInfo();
-    const authInfo = getLocalAuthInfo(inUclusionPlanning);
+    const authInfo = getLocalAuthInfo();
     if (authInfo && authInfo.token) {
       return new Promise(((resolve, reject) => {
         resolve(authInfo.token);
@@ -115,8 +108,7 @@ class ReactWebAuthorizer {
   }
 
   getToken() {
-    const { inUclusionPlanning } = getAuthMarketInfo();
-    const authInfo = getLocalAuthInfo(inUclusionPlanning);
+    const authInfo = getLocalAuthInfo();
     if (authInfo) {
       return authInfo.token;
     }

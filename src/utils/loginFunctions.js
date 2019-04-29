@@ -1,4 +1,4 @@
-import { formCurrentMarketLink, getAuthMarketInfo } from './marketIdPathFunctions';
+import { formCurrentMarketLink, getMarketId } from './marketIdPathFunctions';
 import appConfig from '../config/config';
 import { AnonymousAuthorizer, OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk';
 import { postAuthTasks } from './postAuthFunctions';
@@ -10,17 +10,15 @@ const getPostAuthPage = () => {
   return currentPage.toString();
 };
 
-function getDestinationPage(subPath, includeAuthMarket) {
+function getDestinationPage(subPath) {
   const currentPage = new URL(window.location.href);
-  const { authMarketId, marketId } = getAuthMarketInfo();
+  const marketId = getMarketId();
   currentPage.pathname = `/${marketId}/${subPath}`;
-  currentPage.search = includeAuthMarket ? `authMarketId=${authMarketId}` : '';
   return currentPage.toString();
 }
 
 export function getLoginParams() {
-  const authMarketInfo = getAuthMarketInfo();
-  const { authMarketId } = authMarketInfo;
+  const marketId = getMarketId();
   const parsed = new URL(window.location.href);
   let page = parsed.searchParams.get('destinationPage') || 'investibles';
   if (parsed.href.includes('#')) {
@@ -35,7 +33,7 @@ export function getLoginParams() {
   console.debug(`destinationPage = ${destinationPage}`);
   console.debug(`redirectUrl = ${redirectUrl}`);
   return {
-    marketId: authMarketId,
+    marketId,
     destinationPage,
     redirectUrl,
     pageUrl,

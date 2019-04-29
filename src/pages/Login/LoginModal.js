@@ -86,14 +86,9 @@ function LoginModal(props) {
 
   function getDestinationPage(subPath, includeAuthMarket) {
     const currentPage = new URL(window.location.href);
-    let authMarketId;
-    if (currentPage.search.includes('authMarketId')) {
-      const parsed = currentPage.search.substr(currentPage.search.indexOf('authMarketId'));
-      authMarketId = parsed.split('=')[1];
-    }
-    const marketId = includeAuthMarket || !authMarketId ? getMarketId() : authMarketId;
+    const { authMarketId, marketId } = getAuthMarketInfo();
     currentPage.pathname = `/${marketId}/${subPath}`;
-    currentPage.search = authMarketId && includeAuthMarket ? `authMarketId=${authMarketId}` : '';
+    currentPage.search = includeAuthMarket ? `authMarketId=${authMarketId}` : '';
     return currentPage.toString();
   }
 

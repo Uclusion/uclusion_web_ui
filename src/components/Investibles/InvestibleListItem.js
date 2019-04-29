@@ -94,7 +94,6 @@ class InvestibleListItem extends React.PureComponent {
           <Typography component="div">
             <div className={classes.flex}>
               <div className={classes.investibleName}>{investible.name}</div>
-              {!isGuest && (<InvestibleFollowUnfollow investible={investible} />)}
             </div>
             <div className={classNames(classes.flex, classes.row)}>
               <span className={classes.stageLabel}>

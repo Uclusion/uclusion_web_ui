@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core';
+import { withStyles, IconButton } from '@material-ui/core';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import { getCurrentMarketPresence } from '../../utils/marketSelectionFunctions';
@@ -9,7 +9,7 @@ import { followUnfollowMarket } from '../../store/Markets/actions';
 
 const styles = theme => ({
   root: {
-    marginLeft: theme.spacing.unit,
+   
   },
 });
 
@@ -35,10 +35,9 @@ function MarketFollowUnfollow(props) {
   function getIcon() {
     const onclick = () => doFollowingToggle();
     if (following) {
-      return <VolumeUp className={classes.root} onClick={onclick} />;
+      return <IconButton className={classes.root} onClick={onclick}><VolumeUp color='secondary'/></IconButton>;
     }
-
-    return <VolumeOffSharp className={classes.root} onClick={onclick} />;
+    return <IconButton className={classes.root} onClick={onclick}><VolumeOffSharp/></IconButton>;
   }
 
   return getIcon();

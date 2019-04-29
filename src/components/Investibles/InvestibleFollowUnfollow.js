@@ -8,30 +8,23 @@ import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import { followUnfollowInvestible } from '../../store/MarketInvestibles/actions';
 
-function InvestibleFollowUnfollow(props){
+function InvestibleFollowUnfollow(props) {
   const { dispatch, investible, useIconButton } = props;
   const { current_user_is_following } = investible;
 
-  function doFollowToggle(){
+  function doFollowToggle() {
     dispatch(followUnfollowInvestible({
       investible,
       stopFollowing: current_user_is_following,
     }));
   }
 
-  /** THis sucks, refs suck too. Need to figure out how to clean this code up **/
-  function getButton(){
+  function getButton() {
     const onclick = () => doFollowToggle();
-    if (useIconButton) {
-      if (current_user_is_following) {
-        return  <IconButton onClick={onclick}><VolumeUp /></IconButton>;
-      }
-      return <IconButton onClick={onclick}><VolumeOffSharp /></IconButton>;
-    }
     if (current_user_is_following) {
-      return <VolumeUp onClick={onclick} />;
+      return <IconButton onClick={onclick}><VolumeUp/></IconButton>;
     }
-    return <VolumeOffSharp onClick={onclick} />;
+    return <IconButton onClick={onclick}><VolumeOffSharp/></IconButton>;
   }
 
   return getButton();

@@ -105,10 +105,6 @@ export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPost
   const uclusionTokenInfo = {
     token: cognitoAuthorizer.storedToken,
     type: cognitoAuthorizer.getType,
-    planningToken: response.uclusion_planning_token,
-    planningType: cognitoAuthorizer.getType,
-    planningMarketId: response.uclusion_market_id,
-    planningUserId: response.uclusion_user.id,
   };
   postAuthTasks(usersReducer, response.deployed_version, uclusionTokenInfo, dispatch,
     marketId, cognitoAuthorizer.user, webSocket);

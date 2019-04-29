@@ -28,6 +28,7 @@ function PostAuth(props) {
       const {
         uclusion_token, uclusion_planning_token, destination_page,
         market_id, user, deployed_version, uclusion_market_id,
+        uclusion_user,
       } = resolve;
       const currentPage = new URL(destination_page);
       let realMarketId = market_id;
@@ -41,6 +42,7 @@ function PostAuth(props) {
         planningToken: uclusion_planning_token,
         planningType: authorizerType,
         planningMarketId: uclusion_market_id,
+        planningUserId: uclusion_user.id,
       };
       postAuthTasks(usersReducer, deployed_version, uclusionTokenInfo, dispatch, realMarketId, user, webSocket);
       setPath(getPathAndQueryPart(destination_page));

@@ -9,7 +9,7 @@ import { followUnfollowMarket } from '../../store/Markets/actions';
 
 const styles = theme => ({
   root: {
-   
+    color: 'white',
   },
 });
 
@@ -35,9 +35,9 @@ function MarketFollowUnfollow(props) {
   function getIcon() {
     const onclick = () => doFollowingToggle();
     if (following) {
-      return <IconButton className={classes.root} onClick={onclick}><VolumeUp color='secondary'/></IconButton>;
+      return <IconButton className={classes.root} onClick={onclick}><VolumeUp /></IconButton>;
     }
-    return <IconButton className={classes.root} onClick={onclick}><VolumeOffSharp/></IconButton>;
+    return <IconButton className={classes.root} onClick={onclick}><VolumeOffSharp /></IconButton>;
   }
 
   return getIcon();

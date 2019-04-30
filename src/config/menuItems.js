@@ -1,12 +1,8 @@
 import React from 'react';
 
-// import LanguageIcon from '@material-ui/icons/Language';
+import StarIcon from '@material-ui/icons/Star';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-// import StyleIcon from '@material-ui/icons/Style';
-// import Brightness2 from '@material-ui/icons/Brightness2';
-// import Brightness7 from '@material-ui/icons/Brightness7';
-// import SettingsIcon from '@material-ui/icons/SettingsApplications';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import LockIcon from '@material-ui/icons/Lock';
@@ -15,8 +11,6 @@ import ViewColumn from '@material-ui/icons/ViewColumn';
 import Timeline from '@material-ui/icons/Timeline';
 import GroupIcon from '@material-ui/icons/Group';
 import SecurityIcon from '@material-ui/icons/Security';
-// import { themes } from './themes';
-// import allLocales from './locales';
 import { formCurrentMarketLink } from '../utils/marketIdPathFunctions';
 import { getUclusionLocalStorageItem } from '../components/utils';
 
@@ -141,6 +135,15 @@ const getMenuItems = (props) => {
         win.focus();
       },
       leftIcon: <QuestionAnswerIcon />,
+    },
+    {
+      primaryText: intl.formatMessage({ id: 'uclusionPlanningMarket' }),
+      onClick: () => {
+        const win = window.open('https://stage.uclusion.com/016c5dd4-e254-4340-8cbd-e3157d9499ca/investibles', '_blank');
+        win.focus();
+      },
+      visible: isMarketAdmin,
+      leftIcon: <StarIcon />,
     },
     {
       value: formCurrentMarketLink('Login'),

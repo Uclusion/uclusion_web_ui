@@ -223,7 +223,7 @@ const messages = defineMessages({
   login_guest: 'Login Guest',
   // favorite toggle
   showAll: 'Show All',
-  showFavorite: 'Show Favorite',
+  showFavorite: 'Show Subscribed',
   //search box
   searchBoxLabel: 'Search Investibles',
   searchBoxHelper: 'Type to search',
@@ -364,7 +364,7 @@ const messages = defineMessages({
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
 
   // Proper names - DO NOT TRANSLATE
-  uclusionPlanningMarket: 'Uclusion Planning Market',
+  uclusionPlanningMarket: 'Uclusion Planning',
 
 
 });

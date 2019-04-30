@@ -9,7 +9,7 @@ import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import { followUnfollowInvestible } from '../../store/MarketInvestibles/actions';
 
 function InvestibleFollowUnfollow(props) {
-  const { dispatch, investible, useIconButton } = props;
+  const { dispatch, investible } = props;
   const { current_user_is_following } = investible;
 
   function doFollowToggle() {
@@ -32,7 +32,6 @@ function InvestibleFollowUnfollow(props) {
 
 InvestibleFollowUnfollow.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  useIconButton: PropTypes.bool,
   investible: PropTypes.object,
 };
 

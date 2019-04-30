@@ -199,7 +199,7 @@ function InvestibleDetail(props) {
       </div>
 
       <div className={classNames(classes.bottomActions)}>
-        {!isGuest && (<InvestibleFollowUnfollow investible={myInvestible} useIconButton />)}
+        {!isGuest && (<InvestibleFollowUnfollow investible={myInvestible} />)}
         {canDeleteMarketInvestible
         && <InvestibleDelete investible={myInvestible} onCloseDetail={onClose} />}
         {canEditMarketInvestible && <InvestibleEdit investibleId={myInvestible.id} />}

@@ -30,9 +30,9 @@ function MarketStageFollowUnfollow(props) {
 
   function doFollowingToggle() {
     // check if we have a current stage and if we have accurate follow info
-    console.log("checking following");
+    console.debug("checking following");
     if (currentStage && marketStages && marketStages[marketId]) {
-      console.log("Following");
+      console.debug("Following");
       dispatch(followUnFollowMarketStage({ marketId, stageId: currentStage, following }));
     }
   }

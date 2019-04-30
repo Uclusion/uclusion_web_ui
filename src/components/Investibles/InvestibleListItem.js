@@ -8,8 +8,6 @@ import {
   Card,
   Typography,
 } from '@material-ui/core';
-import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
-import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({
   card: {
@@ -83,10 +81,7 @@ class InvestibleListItem extends React.PureComponent {
       intl,
       investible,
       selected,
-      userPermissions,
     } = this.props;
-
-    const { isGuest } = userPermissions;
 
     return (
       <Card className={classNames(classes.card, { [classes.cardSelected]: selected })}>
@@ -127,4 +122,4 @@ InvestibleListItem.propTypes = {
   selected: PropTypes.bool, //eslint-disable-line
 };
 
-export default injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItem)));
+export default injectIntl(withStyles(styles)(InvestibleListItem));

@@ -29,7 +29,6 @@ function PostAuth(props) {
         uclusion_token, destination_page,
         market_id, user, deployed_version,
       } = resolve;
-      const currentPage = new URL(destination_page);
       let realMarketId = market_id;
       console.debug(resolve);
       const uclusionTokenInfo = {

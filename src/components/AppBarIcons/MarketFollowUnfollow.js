@@ -9,7 +9,7 @@ import { followUnfollowMarket } from '../../store/Markets/actions';
 
 const styles = theme => ({
   root: {
-    color: 'white',
+    color: 'inherit',
   },
 });
 
@@ -35,7 +35,11 @@ function MarketFollowUnfollow(props) {
   function getIcon() {
     const onclick = () => doFollowingToggle();
     if (following) {
+<<<<<<< HEAD
       return <IconButton className={classes.root} onClick={onclick}><VolumeUp /></IconButton>;
+=======
+      return <IconButton className={classes.root} onClick={onclick}><VolumeUp/></IconButton>;
+>>>>>>> Fix: cleaned a bunch of compile errors, and fixed text color on subscribe
     }
     return <IconButton className={classes.root} onClick={onclick}><VolumeOffSharp /></IconButton>;
   }

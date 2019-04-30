@@ -2,7 +2,6 @@
 import AppBar from '@material-ui/core/AppBar';
 import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
-import ArrowDropdown from '@material-ui/icons/ArrowDropDown';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import MenuIcon from '@material-ui/icons/Menu';
 import PropTypes from 'prop-types';
@@ -16,20 +15,10 @@ import { compose, bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
-import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import { withRouter } from 'react-router-dom';
 import drawerActions from '../../store/drawer/actions';
-import { withMarketId } from '../../components/PathProps/MarketId';
-import { getCurrentUser } from '../../store/Users/reducer';
-import { getDifferentMarketLink } from '../../utils/marketIdPathFunctions';
 import { getClient } from '../../config/uclusionClient';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
-import { marketChangeTasks } from '../../utils/postAuthFunctions';
-import { listUserMarkets } from '../../utils/marketSelectionFunctions';
-import { getUclusionLocalStorageItem } from "../../components/utils";
 
 const drawerWidth = 240;
 
@@ -128,23 +117,13 @@ function Activity(props) {
     setDrawerOpen(true);
   }
 
-  function handleMarketChange(event) {
-    const newMarketId = event.target.value;
-    const {
-      webSocket, marketId, user, dispatch, history,
-    } = props;
-    if (newMarketId !== marketId) {
-      marketChangeTasks(dispatch, newMarketId, user, webSocket);
-      history.push(getDifferentMarketLink(newMarketId, 'investibles'));
-    }
-  }
+
   const {
     classes,
     theme,
     children,
     drawer,
     intl,
-    hideMarketSelect,
     title,
     pageTitle,
     width,
@@ -152,8 +131,6 @@ function Activity(props) {
     isLoading,
     onBackClick,
     isOffline,
-    marketId,
-    user,
     titleButtons,
   } = props;
 
@@ -161,21 +138,6 @@ function Activity(props) {
   const newCognitoUser = /(.+)\/newCognito/.test(window.location.href.toLowerCase());
   if (!showLogin && !newCognitoUser) {
     getClient(); // Will verify the token
-  }
-  // we allways have the planning market
-  const planningName = intl.formatMessage({ id: 'uclusionPlanningMarket' });
-  const planningMarketId = getUclusionLocalStorageItem('planningMarketId');
-  let marketChoices = [
-    <MenuItem key={planningName} value={planningMarketId}>{planningName}</MenuItem>
-  ];
-
-  if (user && user.team_presences) {
-    const markets = listUserMarkets(user);
-    const userMarketChoices = markets.map(
-    // eslint-disable-next-line comma-dangle
-      market => <MenuItem key={market.name} value={market.id}>{market.name}</MenuItem>
-    );
-    marketChoices = marketChoices.concat(userMarketChoices);
   }
   let headerTitle = '';
 
@@ -237,24 +199,6 @@ function Activity(props) {
           {titleButtons}
           <div className={classes.grow} />
           {appBarContent}
-          {marketChoices && !hideMarketSelect && (
-            <form className={classes.form} autoComplete="off">
-              <Typography className={classes.formLabel}>{intl.formatMessage({ id: 'marketDropDown' })}</Typography>
-              <FormControl className={classes.formControl}>
-                <Select
-                  className={classes.marketSelect}
-                  disableUnderline
-                  value={marketId}
-                  onChange={handleMarketChange}
-                  IconComponent={() => <ArrowDropdown className={classes.selectArrow} />}
-                  input={<Input name="market" id="market-switch" />}
-                >
-                  {marketChoices}
-                </Select>
-              </FormControl>
-            </form>
-          )}
-
         </Toolbar>
       </AppBar>
       <div className={classes.toolbar} />
@@ -290,7 +234,6 @@ Activity.propTypes = {
   children: PropTypes.object,
   intl: PropTypes.object.isRequired,
   title: PropTypes.string,
-  hideMarketSelect: PropTypes.bool,
   pageTitle: PropTypes.string,
   width: PropTypes.string.isRequired,
   appBarContent: PropTypes.object,
@@ -298,8 +241,6 @@ Activity.propTypes = {
   onBackClick: PropTypes.object,
   isOffline: PropTypes.bool.isRequired,
   webSocket: PropTypes.object.isRequired,
-  marketId: PropTypes.string.isRequired,
-  user: PropTypes.object,
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
 };
@@ -310,7 +251,6 @@ const mapStateToProps = (state) => {
   return {
     drawer,
     isOffline: connection ? !connection.isConnected : false,
-    user: getCurrentUser(state.usersReducer),
   };
 };
 
@@ -324,4 +264,4 @@ export default withBackgroundProcesses(compose(
   withWidth(),
   withStyles(styles, { withTheme: true }),
   injectIntl,
-)(withRouter(withMarketId(React.memo(Activity)))));
+)(withRouter(React.memo(Activity))));

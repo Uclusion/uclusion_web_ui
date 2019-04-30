@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTheme, withStyles } from '@material-ui/core/styles';
+import { Button } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
@@ -31,10 +32,14 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  topActions: {
+  toolbar: {
     width: '100%',
     display: 'flex',
+    alignItems: 'flex-end',
     flexWrap: 'wrap',
+  },
+  favoriteButton: {
+    margin: theme.spacing.unit,
   },
   content: {
     flex: 1,
@@ -55,6 +60,7 @@ const styles = theme => ({
 
 function InvestiblesPage(props) {
   const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
+  const [showFavorite, setShowFavorite] = useState(false);
   const { marketId } = props;
 
   function getMarketInvestibles() {
@@ -124,6 +130,10 @@ function InvestiblesPage(props) {
     }
   }
 
+  function toggleShowFavorite() {
+    setShowFavorite(!showFavorite);
+  }
+
   useEffect(() => {
     if (lastFetchedMarketId !== marketId) {
       // useEffect may happen many  times but initial fetch only when market changes
@@ -148,7 +158,10 @@ function InvestiblesPage(props) {
   const { location: { hash, pathname } } = history;
   const { isGuest } = userPermissions;
   const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
-  const currentInvestibleList = getCurrentInvestibleList();
+  let currentInvestibleList = getCurrentInvestibleList();
+  if (showFavorite) {
+    currentInvestibleList = currentInvestibleList.filter(({ current_user_is_following }) => current_user_is_following);
+  }
 
   const categories = allCategories[marketId];
 
@@ -185,17 +198,22 @@ function InvestiblesPage(props) {
         {currentInvestibleList && user && user.market_presence
         && (
           <div className={classes.root}>
-            <div className={classes.topActions}>
+            <div className={classes.toolbar}>
               <InvestibleSearchBox />
               <div className={classes.stageSelector}>
                 <MarketStageList marketId={marketId} />
                 {!isGuest && (<MarketStageFollowUnfollow marketId={marketId} />)}
               </div>
-
+              <Button
+                className={classes.favoriteButton}
+                variant="contained"
+                color="primary"
+                onClick={toggleShowFavorite}
+              >
+                {intl.formatMessage({ id: showFavorite ? 'showAll' : 'showFavorite' })}
+              </Button>
             </div>
             <div className={classes.content}>
-
-
               <InvestibleList
                 location={location}
                 teamId={user.default_team_id}

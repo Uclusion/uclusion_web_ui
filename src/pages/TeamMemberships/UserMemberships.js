@@ -140,7 +140,7 @@ function UserMemberships(props) {
               color="primary"
               onClick={toggleShowFavorite}
             >
-              {showFavorite ? 'Show All' : 'Show Favorite'}
+              {intl.formatMessage({ id: showFavorite ? 'showAll' : 'showFavorite' })}
             </Button>
           </div>
         )}

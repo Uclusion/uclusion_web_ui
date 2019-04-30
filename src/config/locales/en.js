@@ -221,6 +221,9 @@ const messages = defineMessages({
   login_admin: 'Login Admin',
   login_user: 'Login User',
   login_guest: 'Login Guest',
+  // favorite toggle
+  showAll: 'Show All',
+  showFavorite: 'Show Favorite',
   //search box
   searchBoxLabel: 'Search Investibles',
   searchBoxHelper: 'Type to search',

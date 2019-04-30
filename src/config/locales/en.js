@@ -361,6 +361,7 @@ const messages = defineMessages({
   loginErrorUserNotFound: 'No user with that email exists',
 
   //teamMemberships
+  teamMembershipsMyInvestmentsTitle: 'My Investments',
   teamMembershipsTeamUshares: 'uShares:',
   teamMembershipsMemberListItemUsharesAvailable: 'uShares available: {quantity}',
   teamMembershipsMemberListItemUsharesSpent: 'uShares spent: {quantityInvested}',

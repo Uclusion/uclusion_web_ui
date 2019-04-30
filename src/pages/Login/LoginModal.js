@@ -143,7 +143,7 @@ function LoginModal(props) {
     }).catch((error) => {
       if ('newPasswordRequired' in error && error.newPasswordRequired) {
         if (newPassword) {
-          changePasswordCognito(props, cognitoAuthorizer);
+          changePasswordCognito(cognitoAuthorizer);
         } else {
           setIsNewRegistration(true);
           setNewPassword('');

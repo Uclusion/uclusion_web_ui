@@ -360,6 +360,10 @@ const messages = defineMessages({
   loginResetCognitoPassword: 'Reset Uclusion Pasword',
   loginErrorUserNotFound: 'No user with that email exists',
 
+  //teamMemberships
+  teamMembershipsTeamUshares: 'uShares:',
+  teamMembershipsMemberListItemUsharesAvailable: 'uShares available: {quantity}',
+  teamMembershipsMemberListItemUsharesSpent: 'uShares spent: {quantityInvested}',
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
 

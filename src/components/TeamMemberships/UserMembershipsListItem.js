@@ -144,7 +144,7 @@ function UserMembershipsListItem(props) {
       Object.keys(allTeamUsers).forEach((teamId) => {
         flattened = { ...flattened, ...allTeamUsers[teamId] };
       });
-      console.log(flattened);
+      console.debug(flattened);
       setUsers(flattened);
     }
   }
@@ -197,7 +197,7 @@ function UserMembershipsListItem(props) {
           </Typography>
         )}
         <div className={classes.ushares}>
-          <Typography>uShares:</Typography>
+          <Typography>{intl.formatMessage({ id: 'teamMembershipsTeamUshares'})}</Typography>
           <Badge
             classes={{ badge: classes.investiblesBadge }}
             max={1000000}

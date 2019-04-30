@@ -19,6 +19,8 @@ import { withRouter } from 'react-router-dom';
 import drawerActions from '../../store/drawer/actions';
 import { getClient } from '../../config/uclusionClient';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
+import { getCurrentUser } from '../../store/Users/reducer';
+import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 
 const drawerWidth = 240;
 
@@ -43,6 +45,9 @@ const styles = theme => ({
     alignItems: 'center',
     justifyContent: 'flex-end',
     ...theme.mixins.toolbar,
+  },
+  availableShares: {
+    paddingRight: theme.spacing.unit * 4,
   },
   content: {
     flex: 1,
@@ -132,8 +137,10 @@ function Activity(props) {
     onBackClick,
     isOffline,
     titleButtons,
+    user,
+    userPermissions,
   } = props;
-
+  const { canInvest } = userPermissions;
   const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
   const newCognitoUser = /(.+)\/newCognito/.test(window.location.href.toLowerCase());
   if (!showLogin && !newCognitoUser) {
@@ -198,6 +205,13 @@ function Activity(props) {
           </Typography>
           {titleButtons}
           <div className={classes.grow} />
+          {user && user.market_presence && user.market_presence.quantity >= 0 && (
+            <Typography variant="h6" color="inherit" noWrap className={classes.availableShares}>
+              {user.name}
+              {' '}
+              {canInvest && (intl.formatMessage({ id: 'availableSharesToInvest' }, { shares: user.market_presence.quantity }))}
+            </Typography>
+          )}
           {appBarContent}
         </Toolbar>
       </AppBar>
@@ -241,8 +255,10 @@ Activity.propTypes = {
   onBackClick: PropTypes.object,
   isOffline: PropTypes.bool.isRequired,
   webSocket: PropTypes.object.isRequired,
+  user: PropTypes.object,
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
+  userPermissions: PropTypes.object,
 };
 
 const mapStateToProps = (state) => {
@@ -251,11 +267,12 @@ const mapStateToProps = (state) => {
   return {
     drawer,
     isOffline: connection ? !connection.isConnected : false,
+    user: getCurrentUser(state.usersReducer),
   };
 };
 
 function mapDispatchToProps(dispatch) {
-  const boundCreators = bindActionCreators({...drawerActions}, dispatch);
+  const boundCreators = bindActionCreators({ ...drawerActions }, dispatch);
   return { ...boundCreators, dispatch };
 }
 
@@ -264,4 +281,4 @@ export default withBackgroundProcesses(compose(
   withWidth(),
   withStyles(styles, { withTheme: true }),
   injectIntl,
-)(withRouter(React.memo(Activity))));
+)(withUserAndPermissions(withRouter(React.memo(Activity)))));

@@ -173,7 +173,7 @@ const messages = defineMessages({
   investmentForNextStageChip: 'Needs {shares} additional investment',
   currentStageLabel: 'Current Stage:',
   nextStageLabel: 'Next Stage:',
-  availableSharesToInvest: 'You have Ȗ{shares} available',
+  availableSharesToInvest: 'you have Ȗ{shares} available',
   userInvestedShares: 'You have already invested Ȗ{shares}',
   teamInvestedShares: 'Team invested Ȗ{shares}',
   defaultCategoryName: 'Uncategorized',

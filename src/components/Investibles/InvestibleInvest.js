@@ -143,8 +143,6 @@ class InvestibleInvest extends React.PureComponent {
         <Typography className={classes.availableShares}>
           *
           {' '}
-          {intl.formatMessage({ id: 'availableSharesToInvest' }, { shares: sharesAvailable })}
-          <br />
           {currentUserInvestment > 0 && `* ${intl.formatMessage({ id: 'userInvestedShares' }, { shares: currentUserInvestment })}`}
         </Typography>
       </div>

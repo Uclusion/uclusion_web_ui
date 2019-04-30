@@ -44,6 +44,8 @@ const styles = theme => ({
 
 function InvestmentsListItem(props) {
   const {
+    id,
+    stageId,
     investible,
     quantity,
     createdAt,
@@ -64,7 +66,7 @@ function InvestmentsListItem(props) {
     } = props;
     if (calculatedQuantity === 0 && quantity > 0) {
       const clientPromise = getClient();
-      clientPromise.then(client => client.markets.deleteInvestments(marketId, investible.id))
+      clientPromise.then(client => client.markets.deleteInvestment(marketId, id))
         .then((response) => {
           dispatch(investmentsDeleted(marketId, investible.id, response.quantity));
           const teamQuantities = response.team_quantities;
@@ -109,6 +111,13 @@ function InvestmentsListItem(props) {
     date: createdTimestamp,
   });
 
+  function canRefundInvestment(){
+    const isOwnerAndElgible = userIsOwner && calculatedQuantity > 0;
+    const sameStage = investible.stage === stageId;
+    //console.debug("Investible stage: " + investible.stage + " investment stage: " + stageId);
+    return isOwnerAndElgible && sameStage;
+  }
+
   return (
     <Paper className={classes.paper}>
       <div className={classes.content}>
@@ -118,7 +127,7 @@ function InvestmentsListItem(props) {
           <Typography>
             {intl.formatMessage({ id: 'investmentListSharesInvested' }, { quantity: calculatedQuantity })}
           </Typography>
-          {(userIsOwner && calculatedQuantity > 0) && (
+          {canRefundInvestment() && (
             <div>
               <br/>
               <Button
@@ -141,6 +150,7 @@ InvestmentsListItem.propTypes = {
   investible: PropTypes.shape({
     id: PropTypes.string,
     name: PropTypes.string,
+    stage: PropTypes.string,
   }).isRequired,
   marketId: PropTypes.string.isRequired,
   quantity: PropTypes.number.isRequired,
@@ -153,6 +163,8 @@ InvestmentsListItem.propTypes = {
   users: PropTypes.object.isRequired, //eslint-disable-line
   setUsers: PropTypes.func, //eslint-disable-line
   intl: PropTypes.object.isRequired,
+  stageId: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
   createdAt: PropTypes.instanceOf(Date).isRequired,
 };
 

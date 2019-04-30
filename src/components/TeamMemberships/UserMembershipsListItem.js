@@ -162,7 +162,7 @@ function UserMembershipsListItem(props) {
       const teamUsers = _.remove(processedUsers, user => user.type !== 'USER');
       setTeamUser(teamUsers[0]);
       usersFetched(team.id, processedUsers);
-      return globalClient.markets.listUserInvestments(marketId, team.user_id, 10000);
+      return globalClient.markets.summarizeUserInvestments(marketId, team.user_id);
     }).then((investments) => {
       setInvestiblesForTeam(investments.map((investment) => {
         const processedInvestment = { ...investment };

@@ -9,7 +9,7 @@ import Activity from '../../containers/Activity/Activity';
 import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getClient } from '../../config/uclusionClient';
-import { ERROR, sendIntlMessage } from '../../utils/userMessage';
+import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import UserDetail from '../../components/TeamMemberships/UserDetail';
@@ -71,18 +71,19 @@ function UserMemberships(props) {
 
   function toggleFavoriteTeam(team) {
     const clientPromise = getClient();
-    return clientPromise.then(client => client.teams.followTeam(team.id, marketId, team.current_user_is_following))
+    return clientPromise
+      .then(client => client.teams.followTeam(team.id, marketId, !team.current_user_is_following))
       .then((result) => {
         const newTeams = teams.map(t => ({
           ...t,
           current_user_is_following: result.teams_followed.includes(t.id),
         }));
         setTeams(newTeams);
-        // const followMsg = result.following ? 'investibleFollowSuccess' : 'investibleUnfollowSuccess';
-        // sendIntlMessage(SUCCESS, { id: followMsg });
+        const followMsg = team.current_user_is_following ? 'teamFollowSuccess' : 'teamUnfollowSuccess';
+        sendIntlMessage(SUCCESS, { id: followMsg });
       }).catch((error) => {
         console.error(error);
-        // sendIntlMessage(ERROR, { id: 'investibleFollowFailed' });
+        sendIntlMessage(ERROR, { id: 'teamFollowFailed' });
       });
   }
 

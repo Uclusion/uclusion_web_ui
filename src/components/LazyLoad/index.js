@@ -11,9 +11,13 @@ class LazyLoad extends React.PureComponent {
     this.checkVisible();
   }
 
+  componentWillUnmount() {
+    this.element.parentNode.removeEventListener('scroll', this.checkVisible);
+  }
+
   checkVisible = () => {
     const { visible } = this.state;
-    if (visible) {
+    if (visible || !this.element) {
       return;
     }
 

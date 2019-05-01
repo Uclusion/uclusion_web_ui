@@ -79,7 +79,7 @@ function UserMemberships(props) {
           current_user_is_following: result.teams_followed.includes(t.id),
         }));
         setTeams(newTeams);
-        const followMsg = team.current_user_is_following ? 'teamFollowSuccess' : 'teamUnfollowSuccess';
+        const followMsg = result.teams_followed.includes(team.id) ? 'teamFollowSuccess' : 'teamUnfollowSuccess';
         sendIntlMessage(SUCCESS, { id: followMsg });
       }).catch((error) => {
         console.error(error);
@@ -90,8 +90,9 @@ function UserMemberships(props) {
   function getFilteredTeams() {
     let filtered = teams;
     if (searchQuery) {
-      filtered = teams.filter((team) => searchResults.includes(team.id));
+      filtered = teams.filter(team => searchResults.includes(team.id));
     }
+
     // now filter search by favorites
     if (showFavorite) {
       filtered = filtered.filter(({ current_user_is_following }) => current_user_is_following);

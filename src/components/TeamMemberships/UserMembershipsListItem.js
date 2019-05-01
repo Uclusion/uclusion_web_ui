@@ -118,7 +118,7 @@ function UserMembershipsListItem(props) {
     quantity_invested,
     quantity,
     last_investment_updated_at,
-    favorite,
+    current_user_is_following,
   } = team;
   const { canGrant } = userPermissions;
   const lastInvestDate = moment(last_investment_updated_at).format('MM/DD/YYYY hh:mm A');
@@ -187,7 +187,7 @@ function UserMembershipsListItem(props) {
             className={classes.favoriteButton}
             onClick={() => onToggleFavorite(team)}
           >
-            {favorite ? <VolumeUp /> : <VolumeOffSharp />}
+            {current_user_is_following ? <VolumeUp /> : <VolumeOffSharp />}
           </IconButton>
         </div>
         {last_investment_updated_at && (

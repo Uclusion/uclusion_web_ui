@@ -9,7 +9,7 @@ import Activity from '../../containers/Activity/Activity';
 import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getClient } from '../../config/uclusionClient';
-import { ERROR, sendIntlMessage } from '../../utils/userMessage';
+import { SUCCESS, ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import UserDetail from '../../components/TeamMemberships/UserDetail';
@@ -35,7 +35,6 @@ const styles = theme => ({
 function UserMemberships(props) {
   const [teams, setTeams] = useState(undefined);
   const [allUsers, setAllUsers] = useState({});
-  const [favoriteTeams, setFavoriteTeams] = useState([]);
   const [showFavorite, setShowFavorite] = useState(false);
   const {
     intl,
@@ -61,22 +60,28 @@ function UserMemberships(props) {
   }
 
   function toggleFavoriteTeam(team) {
-    let newFavoriteTeams;
-    if (favoriteTeams.includes(team.id)) {
-      newFavoriteTeams = favoriteTeams.filter(id => id !== team.id);
-    } else {
-      newFavoriteTeams = [...favoriteTeams, team.id];
-    }
-    setFavoriteTeams(newFavoriteTeams);
+    const clientPromise = getClient();
+    return clientPromise.then(client => client.teams.followTeam(team.id, marketId, team.current_user_is_following))
+      .then((result) => {
+        const newTeams = teams.map(t => ({
+          ...t,
+          current_user_is_following: result.teams_followed.includes(t.id),
+        }));
+        setTeams(newTeams);
+        // const followMsg = result.following ? 'investibleFollowSuccess' : 'investibleUnfollowSuccess';
+        // sendIntlMessage(SUCCESS, { id: followMsg });
+      }).catch((error) => {
+        console.error(error);
+        // sendIntlMessage(ERROR, { id: 'investibleFollowFailed' });
+      });
   }
 
   function getFilteredTeams() {
-    const teamsWithFavorite = teams.map(team => ({ ...team, favorite: favoriteTeams.includes(team.id) }));
     if (showFavorite) {
-      return teamsWithFavorite.filter(({ favorite }) => favorite);
+      return teams.filter(({ current_user_is_following }) => current_user_is_following);
     }
 
-    return teamsWithFavorite;
+    return teams;
   }
 
   // Second argument prevents re-running on teams property changes - only for changes in listed

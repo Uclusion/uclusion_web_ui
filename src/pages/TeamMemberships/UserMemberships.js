@@ -72,7 +72,7 @@ function UserMemberships(props) {
   function toggleFavoriteTeam(team) {
     const clientPromise = getClient();
     return clientPromise
-      .then(client => client.teams.followTeam(team.id, marketId, !team.current_user_is_following))
+      .then(client => client.teams.followTeam(team.id, marketId, team.current_user_is_following))
       .then((result) => {
         const newTeams = teams.map(t => ({
           ...t,

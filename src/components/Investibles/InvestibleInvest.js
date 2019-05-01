@@ -88,7 +88,6 @@ class InvestibleInvest extends React.PureComponent {
     const {
       classes,
       intl,
-      sharesAvailable,
       currentUserInvestment,
     } = this.props;
     const { quantityToInvest } = this.state;

@@ -9,7 +9,7 @@ import Activity from '../../containers/Activity/Activity';
 import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getClient } from '../../config/uclusionClient';
-import { SUCCESS, ERROR, sendIntlMessage } from '../../utils/userMessage';
+import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import UserDetail from '../../components/TeamMemberships/UserDetail';
@@ -36,6 +36,8 @@ function UserMemberships(props) {
   const [teams, setTeams] = useState(undefined);
   const [allUsers, setAllUsers] = useState({});
   const [showFavorite, setShowFavorite] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const {
     intl,
     userPermissions,
@@ -54,6 +56,13 @@ function UserMemberships(props) {
     }
 
     return [];
+  }
+
+  function onSearch(searchInfo){
+    const { query, results } = searchInfo;
+    setSearchQuery(query);
+    const usableResults = results.map(result => result.ref);
+    setSearchResults(usableResults);
   }
 
   function toggleShowFavorite() {
@@ -78,11 +87,15 @@ function UserMemberships(props) {
   }
 
   function getFilteredTeams() {
-    if (showFavorite) {
-      return teams.filter(({ current_user_is_following }) => current_user_is_following);
+    let filtered = teams;
+    if (searchQuery) {
+      filtered = teams.filter((team) => searchResults.includes(team.id));
     }
-
-    return teams;
+    // now filter search by favorites
+    if (showFavorite) {
+      filtered = filtered.filter(({ current_user_is_following }) => current_user_is_following);
+    }
+    return filtered;
   }
 
   // Second argument prevents re-running on teams property changes - only for changes in listed
@@ -141,7 +154,7 @@ function UserMemberships(props) {
       <div className={classes.content}>
         {teams && teams.length > 10 && (
           <div className={classes.toolbar}>
-            <TeamsSearchBox />
+            <TeamsSearchBox teams={teams} onSearch={onSearch}/>
             <Button
               className={classes.favoriteButton}
               variant="contained"

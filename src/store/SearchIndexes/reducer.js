@@ -178,6 +178,7 @@ function handleIndexDocumentDelete(serializedIndex, marketId, items) {
 
 function createNewIndex() {
   return elasticlunr(function () {
+    this.addField('id');
     this.addField('name');
     this.addField('description');
     this.addField('comments');

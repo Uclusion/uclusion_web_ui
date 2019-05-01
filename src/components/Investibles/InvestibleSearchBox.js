@@ -9,7 +9,7 @@ import {
   InputLabel,
   InputAdornment,
 } from '@material-ui/core';
-import ClearIcon from '@material-ui/icons/Clear'
+import ClearIcon from '@material-ui/icons/Clear';
 import SearchIcon from '@material-ui/icons/Search';
 import { updateSearchResults } from '../../store/ActiveSearches/actions';
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';

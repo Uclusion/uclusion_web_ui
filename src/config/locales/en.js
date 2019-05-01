@@ -365,6 +365,10 @@ const messages = defineMessages({
   teamMembershipsTeamUshares: 'uShares:',
   teamMembershipsMemberListItemUsharesAvailable: 'uShares available: {quantity}',
   teamMembershipsMemberListItemUsharesSpent: 'uShares spent: {quantityInvested}',
+
+  //teamsSearch
+  teamsSearchBoxSearchTeams: 'Search Teams',
+
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
 

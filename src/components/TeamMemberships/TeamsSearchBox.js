@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
+
 import { withTheme, withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import {
@@ -9,7 +9,8 @@ import {
   InputAdornment,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { withMarketId } from '../PathProps/MarketId';
+import elasticlunr from 'elasticlunr/example/elasticlunr';
+import ClearIcon from '@material-ui/icons/Clear';
 
 const styles = theme => ({
   root: {
@@ -27,21 +28,66 @@ function TeamsSearchBox(props) {
   const {
     classes,
     intl,
+    teams,
+    onSearch,
   } = props;
 
+  function getNewIndex(){
+    return elasticlunr(function () {
+      this.addField('id');
+      this.addField('name');
+      this.addField('description');
+      this.setRef('id');
+      this.pipeline.remove(elasticlunr.stopWordFilter);
+      this.saveDocument(true);
+    });
+  }
+
+  function clearSearch(){
+    setSearchQuery('');
+  }
+
+  function getTeamDoc(team){
+    return team;
+  }
+
+
+
   function doSearch(newQuery) {
+    // since we have teams passed in, we'll just immediately load
+    const index = getNewIndex();
+    console.log("Building new index");
+    for (const team of teams) {
+      const doc = getTeamDoc(team);
+      index.addDoc(doc);
+    }
+    console.log("added docs");
+    console.log(index.toJSON());
+    console.log("querying with " + newQuery);
+    const results = index.search(newQuery, { expand: true });
+
+    console.log(results);
+    if (onSearch) {
+      onSearch({ query: newQuery, results });
+    }
+    console.log("Updating query");
     setSearchQuery(newQuery);
   }
 
   return (
     <FormControl className={classes.root}>
-      <InputLabel htmlFor="adornment-search" shrink>Search Teams</InputLabel>
+      <InputLabel htmlFor="adornment-search" shrink>{intl.formatMessage({ id: 'teamsSearchBoxSearchTeams' })}</InputLabel>
       <Input
         id="adornment-search"
         type="text"
         placeholder={intl.formatMessage({ id: 'searchBoxHelper' })}
         value={searchQuery}
         onChange={event => doSearch(event.target.value)}
+        startAdornment={(searchQuery && (
+          <InputAdornment position="start">
+            <ClearIcon onClick={() => clearSearch() }/>
+          </InputAdornment>
+        ))}
         endAdornment={(
           <InputAdornment position="end">
             <SearchIcon />
@@ -52,16 +98,5 @@ function TeamsSearchBox(props) {
   );
 }
 
-function mapStateToProps(state) {
-  return {
-    //
-  };
-}
 
-function mapDispatchToProps(dispatch) {
-  return { dispatch };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(withTheme()(withMarketId(injectIntl(TeamsSearchBox)))),
-);
+export default withStyles(styles)(withTheme()(injectIntl(TeamsSearchBox)));

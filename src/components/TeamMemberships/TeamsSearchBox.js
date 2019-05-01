@@ -56,21 +56,14 @@ function TeamsSearchBox(props) {
   function doSearch(newQuery) {
     // since we have teams passed in, we'll just immediately load
     const index = getNewIndex();
-    console.log("Building new index");
     for (const team of teams) {
       const doc = getTeamDoc(team);
       index.addDoc(doc);
     }
-    console.log("added docs");
-    console.log(index.toJSON());
-    console.log("querying with " + newQuery);
     const results = index.search(newQuery, { expand: true });
-
-    console.log(results);
     if (onSearch) {
       onSearch({ query: newQuery, results });
     }
-    console.log("Updating query");
     setSearchQuery(newQuery);
   }
 

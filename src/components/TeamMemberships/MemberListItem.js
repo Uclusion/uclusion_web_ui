@@ -34,7 +34,7 @@ const styles = theme => ({
 
 class MemberListItem extends React.PureComponent {
   render() {
-    const { user, classes } = this.props;
+    const { user, classes, intl } = this.props;
     const {
       name = 'Anonymous',
       email,
@@ -51,10 +51,10 @@ class MemberListItem extends React.PureComponent {
               <Typography className={classes.username}>{name}</Typography>
               <Typography className={classes.email}>{email}</Typography>
               <Typography>
-                {`uShares available: ${quantity}`}
+                {intl.formatMessage({ id: 'teamMembershipsMemberListItemUsharesAvailable' }, { quantity })}
               </Typography>
               <Typography>
-                {`uShares spent: ${quantityInvested}`}
+                {intl.formatMessage({ id: 'teamMembershipsMemberListItemUsharesSpent' }, { quantityInvested })}
               </Typography>
             </div>
           </div>
@@ -73,6 +73,7 @@ MemberListItem.propTypes = {
     quantityInvested: PropTypes.number,
   }).isRequired,
   classes: PropTypes.object.isRequired,
+  intl: PropTypes.func.isRequired,
 };
 
 

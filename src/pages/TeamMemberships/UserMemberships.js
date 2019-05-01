@@ -43,6 +43,7 @@ function UserMemberships(props) {
     investibles,
     history,
     classes,
+    upUser,
   } = props;
   const { canListAccountTeams } = userPermissions;
   const { location: { hash, pathname } } = history;
@@ -108,6 +109,7 @@ function UserMemberships(props) {
   let selectedTeamId = null;
   let investibleDetail = null;
   let userDetail = null;
+  let userDetailIsMe = null;
   if (hash) {
     const hashPart = hash.substr(1).split(':');
     if (hashPart.length >= 2) {
@@ -123,6 +125,7 @@ function UserMemberships(props) {
         }
       } else if (hashKey === 'user') {
         userDetail = allUsers[hashValue];
+        userDetailIsMe = upUser && (hashValue === upUser.id);
       } else if (hashKey === 'team') {
         selectedTeamId = hashValue;
       }
@@ -133,7 +136,7 @@ function UserMemberships(props) {
     <Activity
       isLoading={teams === undefined}
       containerStyle={{ overflow: 'hidden' }}
-      title={intl.formatMessage({ id: 'myTeamsMenu' })}
+      title={userDetailIsMe ? intl.formatMessage({ id: 'teamMembershipsMyInvestmentsTitle' }) : intl.formatMessage({ id: 'myTeamsMenu' })}
     >
       <div className={classes.content}>
         {teams && teams.length > 10 && (
@@ -184,6 +187,7 @@ function UserMemberships(props) {
 
 UserMemberships.propTypes = {
   userPermissions: PropTypes.object.isRequired,
+  upUser: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
   investibles: PropTypes.object, //eslint-disable-line

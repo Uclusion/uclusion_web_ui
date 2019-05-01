@@ -144,7 +144,7 @@ function UserMembershipsListItem(props) {
       Object.keys(allTeamUsers).forEach((teamId) => {
         flattened = { ...flattened, ...allTeamUsers[teamId] };
       });
-      console.log(flattened);
+      console.debug(flattened);
       setUsers(flattened);
     }
   }
@@ -162,7 +162,7 @@ function UserMembershipsListItem(props) {
       const teamUsers = _.remove(processedUsers, user => user.type !== 'USER');
       setTeamUser(teamUsers[0]);
       usersFetched(team.id, processedUsers);
-      return globalClient.markets.listUserInvestments(marketId, team.user_id, 10000);
+      return globalClient.markets.summarizeUserInvestments(marketId, team.user_id);
     }).then((investments) => {
       setInvestiblesForTeam(investments.map((investment) => {
         const processedInvestment = { ...investment };
@@ -197,7 +197,7 @@ function UserMembershipsListItem(props) {
           </Typography>
         )}
         <div className={classes.ushares}>
-          <Typography>uShares:</Typography>
+          <Typography>{intl.formatMessage({ id: 'teamMembershipsTeamUshares'})}</Typography>
           <Badge
             classes={{ badge: classes.investiblesBadge }}
             max={1000000}

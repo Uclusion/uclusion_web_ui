@@ -23,7 +23,7 @@ function InvestmentsList(props) {
     const clientPromise = getClient();
     clientPromise.then((client) => {
       console.log(`User ID is ${userId} and logged in user ${upUser.id}`);
-      return client.markets.listUserInvestments(marketId, userId, 10000);
+      return client.markets.listUserInvestments(marketId, userId);
     }).then((response) => {
       setInvestments(response);
     }).catch((error) => {
@@ -32,8 +32,8 @@ function InvestmentsList(props) {
     });
     return () => {};
   }, [userId]);
-  function getInvestible(typeObjectId) {
-    return investibles.find(({ id }) => typeObjectId.includes(id));
+  function getInvestible(investibleId) {
+    return investibles.find(({ id }) => id === investibleId);
   }
 
   function getSortedInvestments() {
@@ -51,9 +51,9 @@ function InvestmentsList(props) {
     <div>
       {investments && investibles && sortedInvestments.map(investment => (
         <InvestmentsListItem
-          key={investment.type_object_id}
+          key={investment.id}
           quantity={investment.quantity}
-          investible={getInvestible(investment.type_object_id)}
+          investible={getInvestible(investment.investible_id)}
           userIsOwner={userId === upUser.id}
           teams={teams}
           setTeams={setTeams}
@@ -61,6 +61,8 @@ function InvestmentsList(props) {
           users={users}
           setUsers={setUsers}
           createdAt={investment.created_at}
+          id={investment.id}
+          stageId={investment.stage_id}
         />
       ))}
     </div>

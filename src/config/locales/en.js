@@ -168,6 +168,7 @@ const messages = defineMessages({
   investTab: 'Invest',
   activityTab: 'Activity',
   commentsTab: 'Comments',
+  investorsTab: 'Investors',
   moreDetailsButton: 'More Details',
   totalCurrentInvestmentChip: '{shares} uShares',
   investmentForNextStageChip: 'Needs {shares} additional investment',

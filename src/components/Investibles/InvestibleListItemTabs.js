@@ -8,13 +8,17 @@ import { injectIntl } from 'react-intl';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import InvestibleInvest from './InvestibleInvest';
 import CommentsList from './Comments/CommentsList';
-import { withBackgroundProcesses } from "../BackgroundProcesses/BackgroundProcessWrapper";
+import InvestingTeamsList from './InvestingTeamsList';
+import { withBackgroundProcesses } from '../BackgroundProcesses/BackgroundProcessWrapper';
 import { getCurrentUser } from '../../store/Users/reducer';
+import { getClient } from '../../config/uclusionClient';
 
 const styles = theme => ({
   paper: {
     flexGrow: 1,
     width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
   },
   tab: {
     minWidth: 'unset',
@@ -24,6 +28,10 @@ const styles = theme => ({
   tabBar: {
     marginBottom: theme.spacing.unit * 2,
   },
+  tabContent: {
+    flex: 1,
+    overflow: 'auto',
+  },
 });
 
 class InvestibleListItemTabs extends React.PureComponent {
@@ -31,8 +39,24 @@ class InvestibleListItemTabs extends React.PureComponent {
     super(props);
     this.state = {
       value: props.userPermissions.canInvest ? 'invest' : 'comments',
+      investingTeams: [],
     };
     this.handleChange = this.handleChange.bind(this);
+  }
+
+  componentDidMount() {
+    const { investibleId, userPermissions } = this.props;
+    const { isMarketAdmin } = userPermissions;
+    if (isMarketAdmin) {
+      const clientPromise = getClient();
+      clientPromise.then(client => client.investibles.getInvestingTeams(investibleId))
+        .then((response) => {
+          this.setState({ investingTeams: response });
+        })
+        .catch((error) => {
+          console.log('####', error);
+        });
+    }
   }
 
   handleChange = (event, value) => {
@@ -49,9 +73,9 @@ class InvestibleListItemTabs extends React.PureComponent {
       currentUserInvestment,
       userPermissions,
     } = this.props;
-    const { canInvest, canReadComments } = userPermissions;
+    const { canInvest, canReadComments, isMarketAdmin } = userPermissions;
 
-    const { value } = this.state;
+    const { value, investingTeams } = this.state;
 
     return (
       <div className={classes.paper}>
@@ -63,25 +87,48 @@ class InvestibleListItemTabs extends React.PureComponent {
           textColor="primary"
         >
           {canInvest && (
-            <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })} value='invest' />
+            <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })} value="invest" />
           )}
-          { canReadComments && (<Tab
-            className={classes.tab}
-            label={intl.formatMessage({ id: 'commentsTab' })}
-            value='comments'
-          />)}
+          {canReadComments && (
+            <Tab
+              className={classes.tab}
+              label={intl.formatMessage({ id: 'commentsTab' })}
+              value="comments"
+            />
+          )}
+          {isMarketAdmin && (
+            <Tab
+              className={classes.tab}
+              label={intl.formatMessage({ id: 'investorsTab' })}
+              value="investors"
+            />
+          )}
         </Tabs>
 
-        {value === 'invest' && canInvest && user && (
-          <InvestibleInvest
-            teamId={user.default_team_id}
-            marketId={marketId}
-            sharesAvailable={user.market_presence.quantity}
-            currentUserInvestment={currentUserInvestment}
-            investibleId={investibleId}
-          />
-        )}
-        {value === 'comments' && <CommentsList marketId={marketId} currentUserInvestment={currentUserInvestment} investibleId={investibleId}/>}
+        <div className={classes.tabContent}>
+          {value === 'invest' && canInvest && user && (
+            <InvestibleInvest
+              teamId={user.default_team_id}
+              marketId={marketId}
+              sharesAvailable={user.market_presence.quantity}
+              currentUserInvestment={currentUserInvestment}
+              investibleId={investibleId}
+            />
+          )}
+          {value === 'comments' && (
+            <CommentsList
+              marketId={marketId}
+              currentUserInvestment={currentUserInvestment}
+              investibleId={investibleId}
+            />
+          )}
+          {value === 'investors' && isMarketAdmin && (
+            <InvestingTeamsList
+              marketId={marketId}
+              teams={investingTeams}
+            />
+          )}
+        </div>
       </div>
     );
   }

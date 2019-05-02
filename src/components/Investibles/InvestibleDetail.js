@@ -39,6 +39,11 @@ const styles = theme => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
   },
+  content: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+  },
   detailOpen: {
     right: 0,
   },
@@ -187,7 +192,7 @@ function InvestibleDetail(props) {
       {getNextStageContent(myInvestible)}
       {renderLabelChips()}
 
-      <div style={{ flex: 1, overflow: 'auto' }}>
+      <div className={classes.content}>
         <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={myInvestible.description} readOnly />
         <InvestibleListItemTabs
           name={myInvestible.name}

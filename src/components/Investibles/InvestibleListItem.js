@@ -71,8 +71,8 @@ class InvestibleListItem extends React.PureComponent {
         </div>
       );
     }
-    return (<div/>);
 
+    return <div />;
   }
 
   render() {

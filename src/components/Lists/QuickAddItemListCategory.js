@@ -1,6 +1,6 @@
 /* eslint-disable react/forbid-prop-types */
 import React from 'react';
-import { Grid, ListSubheader, IconButton, Typography } from '@material-ui/core'
+import { Grid, ListSubheader, IconButton, Typography, Tooltip } from '@material-ui/core';
 import Add from '@material-ui/icons/Add';
 import PropTypes from 'prop-types';
 import { compose } from 'redux';
@@ -106,6 +106,7 @@ class QuickAddItemListCategory extends React.PureComponent {
       quickAdd,
       width,
       userPermissions,
+      tooltip
     } = this.props;
     const { canCreateInvestible } = userPermissions;
     const myQuickAdd = React.cloneElement(
@@ -125,7 +126,7 @@ class QuickAddItemListCategory extends React.PureComponent {
         <div className={classes.subList}>
           <ListSubheader component="div" className={classes.subListHeader}>
             <Typography className={classes.titleText}>{title}</Typography>
-            {canCreateInvestible && (<IconButton onClick={this.addOnClick}><Add/></IconButton>)}
+            {canCreateInvestible && (<Tooltip title={tooltip}><IconButton onClick={this.addOnClick}><Add/></IconButton></Tooltip>)}
           </ListSubheader>
           <div
             className={classes.subListContent}
@@ -155,6 +156,7 @@ QuickAddItemListCategory.propTypes = {
   items: PropTypes.arrayOf(PropTypes.object).isRequired,
   title: PropTypes.string.isRequired,
   userPermissions: PropTypes.object.isRequired,
+  tooltip: PropTypes.string.isRequired,
   selectedInvestibleIndex: PropTypes.number.isRequired,
 };
 

@@ -289,6 +289,7 @@ const messages = defineMessages({
   investibleFollowFailed: 'We could not change your subscription to this investible. Please try again.',
   investibleEditFailed: 'We could not update your investible. Please try again',
   investibleEditSuccess: 'We are saving your edits. They should appear shortly',
+
   //InvestibleEdit
   investibleEditHeader: 'Edit Investible',
   investibleEditStageHelper: 'Select to change stage',
@@ -378,7 +379,15 @@ const messages = defineMessages({
   teamsSearchBoxSearchTeams: 'Search Teams',
 
   //investibles
-  intestiblesQuickAddTooltip: 'Add a new investible',
+  investiblesQuickAddTooltip: 'Add a new investible',
+  investiblesFollowTooltip: 'Subscribe',
+  investiblesUnFollowTooltip: 'Unsubscribe',
+  investiblesEditTooltip: 'Edit',
+  investiblesDeleteToolTip: 'Delete',
+  investiblesDeleteTitle: 'Delete \'{title}\'?',
+  investiblesDeleteWarning: 'Deleting an investible cannot be undone. Are you sure?',
+  investiblesDeleteCancel: 'No, keep it',
+  investiblesDeleteConfirm: 'Yes, delete it',
 
 
   // Notices

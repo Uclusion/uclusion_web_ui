@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { IconButton } from '@material-ui/core';
+import { IconButton, Tooltip } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core/styles/index';
@@ -9,7 +9,7 @@ import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import { followUnfollowInvestible } from '../../store/MarketInvestibles/actions';
 
 function InvestibleFollowUnfollow(props) {
-  const { dispatch, investible } = props;
+  const { dispatch, investible, intl } = props;
   const { current_user_is_following } = investible;
 
   function doFollowToggle() {
@@ -22,9 +22,9 @@ function InvestibleFollowUnfollow(props) {
   function getButton() {
     const onclick = () => doFollowToggle();
     if (current_user_is_following) {
-      return <IconButton onClick={onclick}><VolumeUp/></IconButton>;
+      return <Tooltip title={intl.formatMessage({ id: 'investiblesFollowTooltip' })}><IconButton onClick={onclick}><VolumeUp/></IconButton></Tooltip>;
     }
-    return <IconButton onClick={onclick}><VolumeOffSharp/></IconButton>;
+    return <Tooltip title={intl.formatMessage({ id: 'investiblesUnFollowTooltip' })}><IconButton onClick={onclick}><VolumeOffSharp/></IconButton></Tooltip>;
   }
 
   return getButton();
@@ -33,6 +33,7 @@ function InvestibleFollowUnfollow(props) {
 InvestibleFollowUnfollow.propTypes = {
   dispatch: PropTypes.func.isRequired,
   investible: PropTypes.object,
+  intl: PropTypes.object,
 };
 
 function mapStateToProps(state) {

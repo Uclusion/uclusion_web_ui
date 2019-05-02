@@ -66,7 +66,7 @@ class InvestibleListCategory extends React.PureComponent {
         selectedInvestibleIndex={selectedInvestibleIndex}
         title={category}
         quickAdd={quickAddBox}
-        tooltip={intl.formatMessage({ id: 'intestiblesQuickAddTooltip' })}
+        tooltip={intl.formatMessage({ id: 'investiblesQuickAddTooltip' })}
       />
     );
   }

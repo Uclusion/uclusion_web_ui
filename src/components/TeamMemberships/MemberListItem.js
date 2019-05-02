@@ -73,7 +73,7 @@ MemberListItem.propTypes = {
     quantityInvested: PropTypes.number,
   }).isRequired,
   classes: PropTypes.object.isRequired,
-  intl: PropTypes.func.isRequired,
+  intl: PropTypes.object.isRequired,
 };
 
 

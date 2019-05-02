@@ -45,6 +45,9 @@ function TeamsSearchBox(props) {
 
   function clearSearch(){
     setSearchQuery('');
+    if (onSearch) {
+      onSearch({ query: '', results: [] });
+    }
   }
 
   function getTeamDoc(team){

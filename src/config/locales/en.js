@@ -386,6 +386,10 @@ const messages = defineMessages({
   // Proper names - DO NOT TRANSLATE
   uclusionPlanningMarket: 'Uclusion Planning',
 
+  //stages
+  marketStageFollowTooltip: 'Subscribe',
+  marketStageUnFollowTooltip: 'Unsubscribe',
+
 
 });
 

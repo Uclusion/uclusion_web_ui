@@ -97,18 +97,19 @@ function createMarket(client, accountCreationInfo, setLoading) {
   client.markets.createMarket({
     name: accountCreationInfo.marketName,
     description: accountCreationInfo.marketDescription,
+    default_categories: true,
   }).then((market) => {
     if (accountCreationInfo.email) {
       // Un setting return auth token because need them to login again from email sent
       // (otherwise identity not confirmed)
       setUclusionLocalStorageItem('auth', null);
       if (accountCreationInfo.isExistingLogin) {
-        window.location = `${window.location.origin}/${market.market_id}/marketCategories`;
+        window.location = `${window.location.origin}/${market.market_id}/Login`;
       } else {
-        window.location = `${window.location.origin}/${market.market_id}/marketCategories?newLogin=true`;
+        window.location = `${window.location.origin}/${market.market_id}/Login?newLogin=true`;
       }
     } else {
-      window.location = `${window.location.origin}/${market.market_id}/marketCategories`;
+      window.location = `${window.location.origin}/${market.market_id}/Login`;
     }
   }).catch((error) => {
     console.error(error);

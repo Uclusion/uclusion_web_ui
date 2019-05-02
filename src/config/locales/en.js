@@ -198,6 +198,7 @@ const messages = defineMessages({
   aboutApplicationVersionLabel: 'Application Version:',
 
   // Sidebar menu names
+  advancedMenus: 'Advanced',
   marketCategoriesMenu: 'Categories',
   help: 'Help',
   myInvestmentsMenu: 'My Investments',
@@ -217,7 +218,7 @@ const messages = defineMessages({
   teamsLoading: 'Loading your Team Memberships.',
   categoriesLoading: 'Loading Categories.',
   myTeamsMenu: 'Team Memberships',
-  inviteMenu: 'Management',
+  inviteMenu: 'Team Management',
   inviteMarketText: 'This page is only for special case invitations. For new team you might be using single sign on but want to invite a team not yet using your product or you are using sign up but want to invite to a specific team. New admin is if you are using user name and password login and need to invite another administrator.',
   login_admin: 'Login Admin',
   login_user: 'Login User',

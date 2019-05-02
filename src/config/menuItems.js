@@ -11,6 +11,7 @@ import ViewColumn from '@material-ui/icons/ViewColumn';
 import Timeline from '@material-ui/icons/Timeline';
 import GroupIcon from '@material-ui/icons/Group';
 import SecurityIcon from '@material-ui/icons/Security';
+import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 import { formCurrentMarketLink } from '../utils/marketIdPathFunctions';
 import { getUclusionLocalStorageItem } from '../components/utils';
 
@@ -72,12 +73,6 @@ const getMenuItems = (props) => {
       leftIcon: <ListIcon />,
     },
     {
-      value: formCurrentMarketLink('marketCategories'),
-      visible: canCategorize,
-      primaryText: intl.formatMessage({ id: 'marketCategoriesMenu' }),
-      leftIcon: <ViewColumn />,
-    },
-    {
       value: formCurrentMarketLink(myInvestmentsSubpath),
       visible: upUser && userPermissions.canInvest,
       primaryText: intl.formatMessage({ id: 'myInvestmentsMenu' }),
@@ -88,12 +83,23 @@ const getMenuItems = (props) => {
       primaryText: intl.formatMessage({ id: 'myTeamsMenu' }),
       visible: !isGuest,
       leftIcon: <GroupIcon />,
+    },
+    {
+      primaryText: intl.formatMessage({ id: 'advancedMenus' }),
+      visible: (!isGuest && authInfo && authInfo.type === 'cognito') || isMarketAdmin,
+      leftIcon: <PlaylistAddIcon />,
       nestedItems: [
         {
           value: formCurrentMarketLink('invite'),
           primaryText: intl.formatMessage({ id: 'inviteMenu' }),
           visible: (loginInfo && loginInfo.allow_cognito) && ((!isGuest && authInfo && authInfo.type === 'cognito') || isMarketAdmin),
           leftIcon: <SecurityIcon />,
+        },
+        {
+          value: formCurrentMarketLink('marketCategories'),
+          visible: canCategorize,
+          primaryText: intl.formatMessage({ id: 'marketCategoriesMenu' }),
+          leftIcon: <ViewColumn />,
         },
       ],
     },

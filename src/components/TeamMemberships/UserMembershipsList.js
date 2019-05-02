@@ -53,7 +53,6 @@ class UserMembershipsList extends React.PureComponent {
       selectedTeamId,
       onToggleFavorite,
     } = this.props;
-    const allTeamsUsers = {};
     return (
       <div
         className={classes.root}
@@ -73,9 +72,7 @@ class UserMembershipsList extends React.PureComponent {
               setTeams={setTeams}
               investibles={investibles}
               setUsers={setUsers}
-              allTeamUsers={allTeamsUsers}
               allUsers={allUsers}
-              numTeams={teams.length}
               onToggleFavorite={onToggleFavorite}
             />
           </LazyLoad>

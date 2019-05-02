@@ -101,7 +101,6 @@ function UserMembershipsListItem(props) {
     marketId,
     classes,
     allUsers,
-    allTeamUsers,
     setUsers,
     setTeams,
     numTeams,
@@ -133,20 +132,13 @@ function UserMembershipsListItem(props) {
 
   function usersFetched(teamId, users) {
     const newUserIds = [];
-    allTeamUsers[teamId] = {};
+    let usersHash = {};
     users.forEach((user) => {
-      allTeamUsers[teamId][user.id] = user;
+      usersHash[user.id] = user;
       newUserIds.push(user.id);
     });
     setUserIds(newUserIds);
-    if (Object.keys(allTeamUsers).length === numTeams) {
-      let flattened = {};
-      Object.keys(allTeamUsers).forEach((teamId) => {
-        flattened = { ...flattened, ...allTeamUsers[teamId] };
-      });
-      console.debug(flattened);
-      setUsers(flattened);
-    }
+    setUsers({ ...usersHash, ...allUsers });
   }
   function getInvestible(typeObjectId) {
     return investibles.find(({ id }) => typeObjectId.includes(id));
@@ -300,7 +292,6 @@ UserMembershipsListItem.propTypes = {
   width: PropTypes.string.isRequired,
   setUsers: PropTypes.func.isRequired,
   allUsers: PropTypes.object.isRequired, //eslint-disable-line
-  numTeams: PropTypes.number.isRequired,
   setTeams: PropTypes.func, //eslint-disable-line
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   userPermissions: PropTypes.object.isRequired, //eslint-disable-line

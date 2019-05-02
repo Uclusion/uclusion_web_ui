@@ -5,6 +5,7 @@ import InvestibleListItem from './InvestibleListItem';
 import InvestibleListQuickAdd from './InvestibleListQuickAdd';
 import _ from 'lodash';
 import { formatInvestibles } from '../../utils/reduxHelperFunctions';
+import { injectIntl } from "react-intl";
 class InvestibleListCategory extends React.PureComponent {
   getSortedAndFormattedInvestiblesList(investibles) {
     const formatted = formatInvestibles(investibles);
@@ -39,6 +40,7 @@ class InvestibleListCategory extends React.PureComponent {
       marketId,
       category,
       investibles,
+      intl,
     } = this.props;
     const sortedInvestibles = this.getSortedAndFormattedInvestiblesList(investibles);
     const selectedInvestibleIndex = this.getSelectedInvestibleIndex(sortedInvestibles);
@@ -64,6 +66,7 @@ class InvestibleListCategory extends React.PureComponent {
         selectedInvestibleIndex={selectedInvestibleIndex}
         title={category}
         quickAdd={quickAddBox}
+        tooltip={intl.formatMessage({ id: 'intestiblesQuickAddTooltip' })}
       />
     );
   }
@@ -78,4 +81,4 @@ InvestibleListCategory.propTypes = {
   location: PropTypes.object.isRequired, //eslint-disable-line
 };
 
-export default InvestibleListCategory;
+export default injectIntl(InvestibleListCategory);

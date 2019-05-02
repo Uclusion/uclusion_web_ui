@@ -373,6 +373,9 @@ const messages = defineMessages({
   //teamsSearch
   teamsSearchBoxSearchTeams: 'Search Teams',
 
+  //investibles
+  intestiblesQuickAddTooltip: 'Add a new investible',
+
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
 

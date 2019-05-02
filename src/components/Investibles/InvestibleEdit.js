@@ -1,13 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import EditIcon from '@material-ui/icons/Edit';
-import { IconButton } from '@material-ui/core';
-import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
+import { IconButton, Tooltip } from '@material-ui/core';
+import { injectIntl } from "react-intl";
 import { withRouter } from 'react-router';
+import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
+
 
 function InvestibleEdit(props){
 
-  const { investibleId, history } = props;
+  const { investibleId, history, intl } = props;
 
   function handleClick() {
     const subpath = `investibleEdit/${investibleId}`;
@@ -16,7 +18,7 @@ function InvestibleEdit(props){
   }
 
   return (
-    <IconButton onClick={handleClick}><EditIcon/></IconButton>
+    <Tooltip title={intl.formatMessage({ id: 'investiblesEditTooltip' })}><IconButton onClick={handleClick}><EditIcon/></IconButton></Tooltip>
   );
 }
 
@@ -24,4 +26,4 @@ InvestibleEdit.propTypes = {
   investibleId: PropTypes.string.isRequired,
 };
 
-export default withRouter(InvestibleEdit)
+export default injectIntl(withRouter(InvestibleEdit));

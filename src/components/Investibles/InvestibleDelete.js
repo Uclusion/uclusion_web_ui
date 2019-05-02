@@ -8,7 +8,7 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
+  DialogTitle, Tooltip,
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
@@ -28,44 +28,44 @@ class InvestibleDelete extends React.PureComponent {
     }));
     this.handleCloseDialog();
     onCloseDetail();
-  }
+  };
 
   showPrompt = () => {
     this.setState({ promptDeleteInvestible: true });
-  }
+  };
 
   handleCloseDialog = () => {
     this.setState({ promptDeleteInvestible: false });
-  }
+  };
 
   render() {
     const { promptDeleteInvestible } = this.state;
-
+    const { intl, investible } = this.props;
     return (
       <span>
-        <IconButton
-          onClick={this.showPrompt}
-        >
+        <Tooltip title={intl.formatMessage( { id: 'investiblesDeleteToolTip'} )}>
+          <IconButton onClick={this.showPrompt}>
           <DeleteForever />
         </IconButton>
+        </Tooltip>
         <Dialog
           open={promptDeleteInvestible}
           onClose={this.handleCloseDialog}
         >
           <DialogTitle>
-            Delete Investible?
+            {intl.formatMessage({ id: 'investiblesDeleteTitle' }, { title: investible.name })}
           </DialogTitle>
           <DialogContent>
             <DialogContentText>
-              This cannot be undone. Please make sure you are deleting the right investible.
+              {intl.formatMessage({ id: 'investiblesDeleteWarning' })}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleCloseDialog} color="primary">
-              Cancel
+              {intl.formatMessage({ id: 'investiblesDeleteCancel' })}
             </Button>
             <Button onClick={this.doDelete} color="primary">
-              OK
+              {intl.formatMessage({ id: 'investiblesDeleteConfirm' })}
             </Button>
           </DialogActions>
         </Dialog>

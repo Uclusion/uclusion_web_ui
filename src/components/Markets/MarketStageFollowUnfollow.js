@@ -1,4 +1,6 @@
 import React from 'react';
+import { injectIntl } from 'react-intl';
+import { Tooltip, IconButton } from '@material-ui/core';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import { connect } from 'react-redux';
@@ -13,6 +15,7 @@ function MarketStageFollowUnfollow(props) {
     dispatch,
     selectedStage,
     marketStages,
+    intl,
   } = props;
   const currentStage = selectedStage && selectedStage[marketId];
 
@@ -30,9 +33,9 @@ function MarketStageFollowUnfollow(props) {
 
   function doFollowingToggle() {
     // check if we have a current stage and if we have accurate follow info
-    console.debug("checking following");
+    console.debug('checking following');
     if (currentStage && marketStages && marketStages[marketId]) {
-      console.debug("Following");
+      console.debug('Following');
       dispatch(followUnFollowMarketStage({ marketId, stageId: currentStage, following }));
     }
   }
@@ -40,13 +43,25 @@ function MarketStageFollowUnfollow(props) {
   function getIcon() {
     if (currentStage) {
       if (following) {
-        return <VolumeUp onClick={() => doFollowingToggle()} />;
+        return (
+          <Tooltip title={intl.formatMessage({ id: 'marketStageUnFollowTooltip' })}>
+            <IconButton onClick={() => doFollowingToggle()}>
+              <VolumeUp />
+            </IconButton>
+          </Tooltip>
+        );
       }
       if (!following) {
-        return <VolumeOffSharp onClick={() => doFollowingToggle()} />;
+        return (
+          <Tooltip title={intl.formatMessage({ id: 'marketStageFollowTooltip' })}>
+            <IconButton onClick={() => doFollowingToggle()}>
+              <VolumeOffSharp />
+            </IconButton>
+          </Tooltip>
+        );
       }
     }
-    return <div />;
+    return <div/>;
   }
 
   return getIcon();
@@ -70,4 +85,4 @@ MarketStageFollowUnfollow.propTypes = {
   selectedStage: PropTypes.object,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(MarketStageFollowUnfollow);
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(MarketStageFollowUnfollow));

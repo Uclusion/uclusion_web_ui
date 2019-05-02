@@ -1,7 +1,8 @@
 import React from 'react';
+import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { withStyles, IconButton } from '@material-ui/core';
+import { withStyles, IconButton, Tooltip } from '@material-ui/core';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import { getCurrentMarketPresence } from '../../utils/marketSelectionFunctions';
@@ -19,6 +20,7 @@ function MarketFollowUnfollow(props) {
     user,
     marketId,
     classes,
+    intl,
   } = props;
 
   const marketPresence = getCurrentMarketPresence(user);
@@ -35,9 +37,9 @@ function MarketFollowUnfollow(props) {
   function getIcon() {
     const onclick = () => doFollowingToggle();
     if (following) {
-      return <IconButton className={classes.root} onClick={onclick}><VolumeUp /></IconButton>;
+      return <Tooltip title={intl.formatMessage({ id: 'marketUnFollowTooltip'})}><IconButton className={classes.root} onClick={onclick}><VolumeUp /></IconButton></Tooltip>;
     }
-    return <IconButton className={classes.root} onClick={onclick}><VolumeOffSharp /></IconButton>;
+    return <Tooltip title={intl.formatMessage({ id: 'marketFollowTooltip'})}><IconButton className={classes.root} onClick={onclick}><VolumeOffSharp /></IconButton></Tooltip>;
   }
 
   return getIcon();
@@ -58,5 +60,5 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(MarketFollowUnfollow),
+  withStyles(styles)(injectIntl(MarketFollowUnfollow)),
 );

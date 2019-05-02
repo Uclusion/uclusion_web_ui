@@ -380,6 +380,7 @@ const messages = defineMessages({
   //investibles
   intestiblesQuickAddTooltip: 'Add a new investible',
 
+
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
 
@@ -389,6 +390,10 @@ const messages = defineMessages({
   //stages
   marketStageFollowTooltip: 'Subscribe',
   marketStageUnFollowTooltip: 'Unsubscribe',
+
+  //markets
+  marketFollowTooltip: 'Subscrbe',
+  marketUnFollowTooltip: 'Unsubscribe',
 
 
 });

@@ -1,6 +1,6 @@
 /* eslint-disable react/forbid-prop-types */
 import React from 'react';
-import { Grid, ListSubheader } from '@material-ui/core'
+import { Grid, ListSubheader, IconButton, Typography } from '@material-ui/core'
 import Add from '@material-ui/icons/Add';
 import PropTypes from 'prop-types';
 import { compose } from 'redux';
@@ -27,7 +27,7 @@ const styles = theme => ({
   subListHeader: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'baseline',
+    alignItems: 'center',
   },
   subListContent: {
     flex: 1,
@@ -69,20 +69,20 @@ class QuickAddItemListCategory extends React.PureComponent {
 
   addOnClick = () => {
     this.setState({ quickAddVisible: !this.state.quickAddVisible });
-  }
+  };
 
   addCancelOnClick = () => {
     this.setState({ quickAddVisible: false });
-  }
+  };
 
   addSubmitOnClick = () => {
     this.setState({ quickAddVisible: false });
-  }
+  };
 
   addSaveOnClick = (addOnSave, value) => {
     addOnSave(value); // save the item out, and then hide this
     this.setState({ quickAddVisible: false });
-  }
+  };
 
   persistSelectedInvestibleScroll() {
     const { selectedInvestibleIndex } = this.props;
@@ -124,8 +124,8 @@ class QuickAddItemListCategory extends React.PureComponent {
       >
         <div className={classes.subList}>
           <ListSubheader component="div" className={classes.subListHeader}>
-            <div className={classes.titleText}>{title}</div>
-            {canCreateInvestible && (<Add onClick={this.addOnClick} />)}
+            <Typography className={classes.titleText}>{title}</Typography>
+            {canCreateInvestible && (<IconButton onClick={this.addOnClick}><Add/></IconButton>)}
           </ListSubheader>
           <div
             className={classes.subListContent}

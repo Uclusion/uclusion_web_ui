@@ -61,7 +61,11 @@ class InvestibleListQuickAdd extends React.PureComponent {
     const payload = {
       marketId, category, teamId, canInvest, title, description,
     };
-    if (description.length > appConfig.maxRichTextEditorSize){
+    if (description.length === 0) {
+      sendIntlMessage(ERROR, { id: 'investibleDescriptionRequired' });
+      return;
+    }
+    if (description.length > appConfig.maxRichTextEditorSize) {
       sendIntlMessage(ERROR, { id: 'investibleDescriptionTooManyBytes' });
       return;
     }

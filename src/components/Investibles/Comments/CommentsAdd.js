@@ -1,10 +1,12 @@
 import React from 'react';
-import HtmlRichTextEditor from '../../TextEditors/HtmlRichTextEditor';
-import { createComment } from "../../../store/Comments/actions";
-import Paper from "@material-ui/core/es/Paper/Paper";
+import Paper from '@material-ui/core/es/Paper/Paper';
 import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import Button from '@material-ui/core/es/Button/Button';
+import { ERROR, sendIntlMessage } from '../../../utils/userMessage';
+import HtmlRichTextEditor from '../../TextEditors/HtmlRichTextEditor';
+import { createComment } from '../../../store/Comments/actions';
+import withAppConfigs from '../../../utils/withAppConfigs';
 
 class CommentsAdd extends React.Component {
 
@@ -16,8 +18,18 @@ class CommentsAdd extends React.Component {
   }
 
   addOnClick() {
-    const { dispatch, marketId,  investibleId } = this.props;
+    const {
+      dispatch, marketId,  investibleId, appConfig,
+    } = this.props;
     const { body } = this.state;
+    if (body.length === 0) {
+      sendIntlMessage(ERROR, { id: 'commentRequired' });
+      return;
+    }
+    if (body.length > appConfig.maxRichTextEditorSize) {
+      sendIntlMessage(ERROR, { id: 'commentTooManyBytes' });
+      return;
+    }
     dispatch(createComment({ investibleId, body, marketId }));
     this.setState({ body: '' });
   }
@@ -58,4 +70,4 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(CommentsAdd));
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withAppConfigs(CommentsAdd)));

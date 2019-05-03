@@ -364,7 +364,7 @@ function LoginModal(props) {
             <Button
               variant="contained"
               color="primary"
-              onClick={loginAnonymous}
+              onClick={() => loginAnonymous(props)}
               fullWidth
             >
               {intl.formatMessage({ id: 'login_guest' })}

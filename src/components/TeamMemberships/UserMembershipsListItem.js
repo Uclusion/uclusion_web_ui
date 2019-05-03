@@ -54,7 +54,7 @@ const styles = theme => ({
     flex: 1,
     marginBottom: 0,
   },
-  favoriteButton: {
+  toolbarButton: {
     padding: theme.spacing.unit * 0.5,
     color: theme.palette.primary.main,
   },
@@ -177,7 +177,7 @@ function UserMembershipsListItem(props) {
             {name}
           </Typography>
           <IconButton
-            className={classes.favoriteButton}
+            className={classes.toolbarButton}
             onClick={() => onToggleFavorite(team)}
           >
             {current_user_is_following ? <VolumeUp /> : <VolumeOffSharp />}

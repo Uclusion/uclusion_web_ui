@@ -145,7 +145,7 @@ const getMenuItems = (props) => {
     {
       primaryText: intl.formatMessage({ id: 'uclusionPlanningMarket' }),
       onClick: () => {
-        const win = window.open('https://stage.uclusion.com/016c5dd4-e254-4340-8cbd-e3157d9499ca/investibles', '_blank');
+        const win = window.open('https://stage.uclusion.com/44147040-156d-4f60-b4c2-dcea7c2e9689/NewCognito', '_blank');
         win.focus();
       },
       visible: isMarketAdmin,

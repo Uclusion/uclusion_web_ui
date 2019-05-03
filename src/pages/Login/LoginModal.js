@@ -62,6 +62,7 @@ let cognitoAuthorizer = null;
 function LoginModal(props) {
   const [allowGuestLogin, setAllowGuestLogin] = useState(false);
   const [allowCognitoLogin, setAllowCognitoLogin] = useState(false);
+  const [allowPublicSignup, setAllowPublicSignup] = useState(false);
   const [allowUserLogin, setAllowUserLogin] = useState(false);
   const [allowOidcLogin, setAllowOidcLogin] = useState(false);
   const [isNewRegistration, setIsNewRegistration] = useState(false);
@@ -90,6 +91,7 @@ function LoginModal(props) {
       setAllowGuestLogin(response.allow_anonymous);
       setAllowUserLogin(response.allow_user);
       setAllowOidcLogin(response.allow_oidc);
+      setAllowPublicSignup(response.allow_public_signup);
       if (response.allow_cognito) {
         setPoolId(response.user_pool_id);
         setClientId(response.cognito_client_id);
@@ -376,7 +378,7 @@ function LoginModal(props) {
             <div className={classes.separator}/>
           </ListItem>
         )}
-        {!isNewRegistration && !allowUserLogin && allowCognitoLogin && (
+        {!isNewRegistration && !allowUserLogin && allowCognitoLogin && allowPublicSignup && (
           <ListItem>
             <Button
               onClick={signup}

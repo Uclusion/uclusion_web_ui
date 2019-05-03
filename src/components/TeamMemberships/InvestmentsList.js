@@ -25,9 +25,10 @@ function InvestmentsList(props) {
       console.log(`User ID is ${userId} and logged in user ${upUser.id}`);
       return client.markets.listUserInvestments(marketId, userId);
     }).then((response) => {
+
       setInvestments(response);
     }).catch((error) => {
-      console.log(error);
+      console.error(error);
       sendIntlMessage(ERROR, { id: 'investmentsLoadFailed' });
     });
     return () => {};
@@ -46,10 +47,13 @@ function InvestmentsList(props) {
   }
 
   const sortedInvestments = getSortedInvestments();
+  // we can't render an investment if we don't have the investible.
+  // this can happen if we haven't loaded the investibles yet
+  const filteredInvestments = investibles? sortedInvestments.filter(investment => getInvestible(investment.investible_id)) : [];
 
   return (
     <div>
-      {investments && investibles && sortedInvestments.map(investment => (
+      {investments && investibles && filteredInvestments.map(investment => (
         <InvestmentsListItem
           key={investment.id}
           quantity={investment.quantity}

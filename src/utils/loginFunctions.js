@@ -70,7 +70,7 @@ export function loginSso() {
  * @param props a properties object that has at least dispatch, history, webSocket and usersReducer defined
  */
 export function loginAnonymous(props) {
-  const { dispatch, history, webSocket, usersReducer } = props;
+  const { history } = props;
   const loginParams = getLoginParams();
   const authorizer = new AnonymousAuthorizer(loginParams);
   authorizer.doPostAuthorize().then((resolve) => {
@@ -86,7 +86,7 @@ export function loginAnonymous(props) {
       planningMarketId: uclusion_market_id,
       planningUserId: uclusion_user.id,
     };
-    postAuthTasks(usersReducer, deployed_version, uclusionTokenInfo, dispatch, market_id, user, webSocket);
+    postAuthTasks(props, deployed_version, uclusionTokenInfo, market_id, user);
     history.push(formCurrentMarketLink('investibles'));
   });
 }
@@ -99,15 +99,15 @@ export function loginAnonymous(props) {
  * @param uiPostAutTasks any ui tasks that need to be run after auth
  */
 export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks) {
-  const { dispatch, webSocket, history, usersReducer } = props;
+  const { history } = props;
   const { marketId, page } = getLoginParams();
   console.debug(response);
   const uclusionTokenInfo = {
     token: cognitoAuthorizer.storedToken,
     type: cognitoAuthorizer.getType,
   };
-  postAuthTasks(usersReducer, response.deployed_version, uclusionTokenInfo, dispatch,
-    marketId, cognitoAuthorizer.user, webSocket);
+  postAuthTasks(props, response.deployed_version, uclusionTokenInfo,
+    marketId, cognitoAuthorizer.user);
   uiPostAuthTasks();
   history.push(page);
 }

@@ -155,13 +155,15 @@ function UserMembershipsListItem(props) {
       usersFetched(team.id, processedUsers);
       return globalClient.markets.summarizeUserInvestments(marketId, team.user_id);
     }).then((investments) => {
-      setInvestiblesForTeam(investments.map((investment) => {
+      // only process investments which we have investibles for
+      const filtered = investments.filter(investment => getInvestible(investment.type_object_id));
+      setInvestiblesForTeam(filtered.map((investment) => {
         const processedInvestment = { ...investment };
         processedInvestment.quantityInvested = investment.quantity;
-        return { ...processedInvestment, ...getInvestible(investment.type_object_id) };
+        return { ...processedInvestment, ...getInvestible(investment.type_object_id)};
       }));
     }).catch((error) => {
-      console.log(error);
+      console.error(error);
       sendIntlMessage(ERROR, { id: 'teamMemberLoadFailed' });
     });
     return () => {};

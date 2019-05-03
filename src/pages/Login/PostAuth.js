@@ -24,7 +24,6 @@ function PostAuth(props) {
   useEffect(() => {
     if (resolve) {
       // Have to do here or get warning about setting state before component mounted
-      const { dispatch, webSocket, usersReducer } = props;
       const {
         uclusion_token, destination_page,
         market_id, user, deployed_version,
@@ -35,7 +34,7 @@ function PostAuth(props) {
         token: uclusion_token,
         type: authorizerType,
       };
-      postAuthTasks(usersReducer, deployed_version, uclusionTokenInfo, dispatch, realMarketId, user, webSocket);
+      postAuthTasks(props, deployed_version, uclusionTokenInfo, realMarketId, user);
       setPath(getPathAndQueryPart(destination_page));
     } else {
       const pageUrl = window.location.href;

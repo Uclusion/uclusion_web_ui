@@ -11,18 +11,16 @@ import { getCurrentUser } from '../../store/Users/reducer';
 import InvestibleList from '../../components/Investibles/InvestibleList';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import { fetchInvestibleList } from '../../store/MarketInvestibles/actions';
 import LoginModal from '../Login/LoginModal';
 import InvestibleSearchBox from '../../components/Investibles/InvestibleSearchBox';
 import { getActiveInvestibleSearches, getSelectedStage } from '../../store/ActiveSearches/reducer';
-import { fetchCommentList } from '../../store/Comments/actions';
 import { getComments } from '../../store/Comments/reducer';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getMarketPresenceName } from '../../utils/marketSelectionFunctions';
 import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfollow';
 import MarketStageList from '../../components/Markets/MarketStageList';
 import MarketStageFollowUnfollow from '../../components/Markets/MarketStageFollowUnfollow';
-import { fetchMarketStages } from '../../store/Markets/actions';
+import { fetchMarketInvestibleList } from '../../utils/postAuthFunctions';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -110,7 +108,7 @@ function InvestiblesPage(props) {
 
   function getItems() {
     const {
-      investibles, dispatch, comments, userPermissions,
+      userPermissions,
       history: { location: { pathname } },
     } = props;
     const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
@@ -119,14 +117,7 @@ function InvestiblesPage(props) {
       if (lastFetchedMarketId !== marketId) {
         setLastFetchedMarketId(marketId);
       }
-      console.log('Fetching investibles with marketId:', marketId);
-      const currentInvestibleList = marketId in investibles ? investibles[marketId] : [];
-      const currentCommentList = marketId in comments ? comments[marketId] : [];
-      dispatch(fetchInvestibleList({ marketId, currentInvestibleList }));
-      dispatch(fetchMarketStages({ marketId }));
-      if (canReadComments) {
-        dispatch(fetchCommentList({ marketId, currentCommentList }));
-      }
+      fetchMarketInvestibleList({ fetchComments: canReadComments, ...props });
     }
   }
 

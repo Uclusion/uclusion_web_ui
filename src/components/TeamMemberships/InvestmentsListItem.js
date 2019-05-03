@@ -114,7 +114,7 @@ function InvestmentsListItem(props) {
   function canRefundInvestment(){
     const isOwnerAndElgible = userIsOwner && calculatedQuantity > 0;
     const sameStage = investible.stage === stageId;
-    //console.debug("Investible stage: " + investible.stage + " investment stage: " + stageId);
+    // console.debug("Investible stage: " + investible.stage + " investment stage: " + stageId);
     return isOwnerAndElgible && sameStage;
   }
 

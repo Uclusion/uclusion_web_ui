@@ -10,6 +10,7 @@ import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import withAppConfigs from '../../utils/withAppConfigs';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 const styles = theme => ({
 
@@ -42,6 +43,7 @@ class InvestibleListQuickAdd extends React.PureComponent {
     this.state = {title: '', description: '' };
     this.handleChange = this.handleChange.bind(this);
     this.addOnClick = this.addOnClick.bind(this);
+    this.validateAddState = this.validateAddState.bind(this);
   }
 
   handleChange = name => (event) => {
@@ -56,10 +58,10 @@ class InvestibleListQuickAdd extends React.PureComponent {
       dispatch, marketId, teamId, category, userPermissions, appConfig
     } = this.props;
 
-    const { title, description } = this.state;
+    const { title, description, quantityToInvest } = this.state;
     const { canInvest } = userPermissions;
     const payload = {
-      marketId, category, teamId, canInvest, title, description,
+      marketId, category, teamId, canInvest, title, description, quantity: parseInt(quantityToInvest, 10),
     };
     if (description.length === 0) {
       sendIntlMessage(ERROR, { id: 'investibleDescriptionRequired' });
@@ -71,9 +73,17 @@ class InvestibleListQuickAdd extends React.PureComponent {
     }
     dispatch(createMarketInvestible(payload));
     addSubmitOnClick();
-    this.setState({ title: '', description: '' });
+    this.setState({ title: '', description: '', quantityToInvest: 1 });
   };
 
+  validateAddState = () => {
+    const { title, description, quantityToInvest } = this.state;
+    const { userPermissions } = this.props;
+    const { canInvest } = userPermissions;
+    // console.log(description);
+    const quantityValid = (!canInvest) || (quantityToInvest > 0);
+    return title && description && quantityValid;
+  };
 
   render() {
     const {
@@ -82,16 +92,23 @@ class InvestibleListQuickAdd extends React.PureComponent {
       intl,
       addSubmitOnClick,
       addCancelOnClick,
+      userPermissions,
     } = this.props;
 
-    const { description } = this.state;
+    const { canInvest } = userPermissions;
+
+    const { description, quantityToInvest, title } = this.state;
     if (!visible) {
       return null;
     }
+
+    const addEnabled = this.validateAddState();
+
     return (
       <div>
         <Paper className={classes.container}>
           <TextField
+            value={title}
             className={classes.textField}
             InputProps={{ className: classes.textInput, maxLength: 255 }}
             id="title"
@@ -102,6 +119,25 @@ class InvestibleListQuickAdd extends React.PureComponent {
             onChange={this.handleChange('title')}
           />
           <HtmlRichTextEditor value={description} placeHolder={intl.formatMessage({ id: 'descriptionBody' })} onChange={this.handleChange('description')} />
+          {canInvest && (<TextField
+            id="quantityToInvest"
+            label={intl.formatMessage({ id: 'investModalQuantityLabel' })}
+            className={classes.textField}
+            margin="normal"
+            type="number"
+            value={quantityToInvest}
+            onChange={this.handleChange('quantityToInvest')}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment
+                  style={{ paddingBottom: 4 }}
+                  position="start"
+                >
+                  Ȗ
+                </InputAdornment>
+              ),
+            }}
+          />)}
         </Paper>
         <div className={classes.actionContainer}>
           <Button
@@ -109,6 +145,7 @@ class InvestibleListQuickAdd extends React.PureComponent {
             variant="contained"
             fullWidth
             color="primary"
+            disabled={!addEnabled}
             onClick={() => this.addOnClick(addSubmitOnClick)}
           >
             {intl.formatMessage({ id: 'addButton' })}
@@ -134,6 +171,7 @@ InvestibleListQuickAdd.propTypes = {
   visible: PropTypes.bool.isRequired,
   addCancelOnClick: PropTypes.func.isRequired,
   addSubmitOnClick: PropTypes.func.isRequired,
+  userPermissions: PropTypes.object.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

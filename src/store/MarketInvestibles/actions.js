@@ -155,7 +155,7 @@ export const createMarketInvestible = (params = {}) => (dispatch) => {
         marketId: params.marketId,
         teamId: params.teamId,
         investibleId: investible.id,
-        quantity: 1,
+        quantity: params.quantity,
         categoryList: [params.category],
         canInvest: params.canInvest,
       };

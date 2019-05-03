@@ -76,15 +76,10 @@ export function loginAnonymous(props) {
   authorizer.doPostAuthorize().then((resolve) => {
     const {
       uclusion_token, market_id, user, deployed_version,
-      uclusion_planning_token, uclusion_market_id, uclusion_user
     } = resolve;
     const uclusionTokenInfo = {
       token: uclusion_token,
       type: authorizer.getType(),
-      planningToken: uclusion_planning_token,
-      planningType: authorizer.getType(),
-      planningMarketId: uclusion_market_id,
-      planningUserId: uclusion_user.id,
     };
     postAuthTasks(props, deployed_version, uclusionTokenInfo, market_id, user);
     history.push(formCurrentMarketLink('investibles'));

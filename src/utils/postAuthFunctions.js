@@ -14,7 +14,7 @@ import config from '../config/config';
 export function notifyNewApplicationVersion(currentVersion) {
   const { version } = config;
   // if we don't have any version stored, we're either in dev, or we've dumped our data
-  if (currentVersion !== config) {
+  if (currentVersion !== version) {
     console.debug('Current version ' + version);
     console.debug('Upgrading to version ' + currentVersion);
     // deprecated, but the simplest way to ignore cache

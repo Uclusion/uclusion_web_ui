@@ -58,6 +58,13 @@ function UserMemberships(props) {
     return [];
   }
 
+  function addToUsers(usersHash) {
+    console.log('adding to users');
+    console.log(usersHash);
+    console.log(allUsers);
+    setAllUsers({ ...usersHash, ...allUsers });
+  }
+
   function onSearch(searchInfo){
     const { query, results } = searchInfo;
     setSearchQuery(query);
@@ -172,7 +179,7 @@ function UserMemberships(props) {
             teams={getFilteredTeams()}
             setTeams={setTeams}
             investibles={getMarketInvestibles()}
-            setUsers={setAllUsers}
+            setUsers={addToUsers}
             allUsers={allUsers}
             selectedTeamId={selectedTeamId}
             onToggleFavorite={toggleFavoriteTeam}

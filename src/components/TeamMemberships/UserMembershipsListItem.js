@@ -132,13 +132,13 @@ function UserMembershipsListItem(props) {
 
   function usersFetched(teamId, users) {
     const newUserIds = [];
-    let usersHash = {};
+    const usersHash = {};
     users.forEach((user) => {
       usersHash[user.id] = user;
       newUserIds.push(user.id);
     });
     setUserIds(newUserIds);
-    setUsers({ ...usersHash, ...allUsers });
+    setUsers(usersHash);
   }
   function getInvestible(typeObjectId) {
     return investibles.find(({ id }) => typeObjectId.includes(id));

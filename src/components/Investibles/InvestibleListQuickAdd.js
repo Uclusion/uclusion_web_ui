@@ -121,7 +121,7 @@ class InvestibleListQuickAdd extends React.PureComponent {
           <HtmlRichTextEditor value={description} placeHolder={intl.formatMessage({ id: 'descriptionBody' })} onChange={this.handleChange('description')} />
           {canInvest && (<TextField
             id="quantityToInvest"
-            label={intl.formatMessage({ id: 'investModalQuantityLabel' })}
+            label={intl.formatMessage({ id: 'investibleAddInvestLabel' })}
             className={classes.textField}
             margin="normal"
             type="number"

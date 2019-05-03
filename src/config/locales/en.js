@@ -214,6 +214,7 @@ const messages = defineMessages({
   noComments: 'There are no comments yet.',
   loadingMessage: 'Loading',
   investibleAddDescriptionDefault: 'Add a description...',
+  investibleAddInvestLabel: 'Quantity to invest',
   // Team Memberships pages
   teamsLoading: 'Loading your Team Memberships.',
   categoriesLoading: 'Loading Categories.',

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import {
   IconButton,
@@ -12,7 +13,6 @@ import Tab from '@material-ui/core/Tab';
 import InvestmentsList from './InvestmentsList';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import AdminUserItem from './AdminUserItem';
-import { injectIntl } from 'react-intl';
 
 const styles = theme => ({
   root: {
@@ -63,8 +63,6 @@ function UserDetail(props) {
     investibles,
     teams,
     setTeams,
-    users,
-    setUsers,
     userPermissions,
     user,
     intl,
@@ -123,8 +121,6 @@ function UserDetail(props) {
             <InvestmentsList
               teams={teams}
               setTeams={setTeams}
-              users={users}
-              setUsers={setUsers}
               userId={myUser.id}
               investibles={investibles}
             />
@@ -133,8 +129,6 @@ function UserDetail(props) {
             <AdminUserItem
               teams={teams}
               setTeams={setTeams}
-              users={users}
-              setUsers={setUsers}
               user={myUser}
             />
           )}
@@ -150,8 +144,6 @@ UserDetail.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   setTeams: PropTypes.func, //eslint-disable-line
-  users: PropTypes.object.isRequired, //eslint-disable-line
-  setUsers: PropTypes.func, //eslint-disable-line
   onClose: PropTypes.func.isRequired,
   userPermissions: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired, //eslint-disable-line

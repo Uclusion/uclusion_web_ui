@@ -14,6 +14,8 @@ import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
 import { investmentsDeleted } from '../../store/MarketInvestibles/actions';
+import { getAllUsers } from '../../store/Users/reducer';
+import { usersFetched } from '../../store/Users/actions';
 
 const styles = theme => ({
   paper: {
@@ -60,8 +62,7 @@ function InvestmentsListItem(props) {
       dispatch,
       teams,
       setTeams,
-      users,
-      setUsers,
+      allUsers,
       userId,
     } = props;
     if (calculatedQuantity === 0 && quantity > 0) {
@@ -79,13 +80,11 @@ function InvestmentsListItem(props) {
             newTeams.push(newTeam);
           });
           setTeams(_.unionBy(newTeams, teams, 'id'));
-          const oldUser = users[userId];
+          const oldUser = allUsers[userId];
           const newUser = { ...oldUser };
           newUser.quantity += response.quantity;
           newUser.quantityInvested -= response.quantity;
-          const newUsers = { ...users };
-          newUsers[userId] = newUser;
-          setUsers(newUsers);
+          dispatch(usersFetched({ [userId]: newUser }));
         })
         .catch((error) => {
           setCalculatedQuantity(quantity);
@@ -160,19 +159,20 @@ InvestmentsListItem.propTypes = {
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   setTeams: PropTypes.func, //eslint-disable-line
   userId: PropTypes.string.isRequired,
-  users: PropTypes.object.isRequired, //eslint-disable-line
-  setUsers: PropTypes.func, //eslint-disable-line
+  allUsers: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired,
   stageId: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   createdAt: PropTypes.instanceOf(Date).isRequired,
 };
 
+const mapStateToProps = state => ({
+  allUsers: getAllUsers(state.usersReducer),
+});
+
 function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
-
-const mapStateToProps = () => ({});
 
 export default connect(
   mapStateToProps,

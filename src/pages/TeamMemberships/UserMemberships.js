@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { withStyles, Button } from '@material-ui/core';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
+import { getAllUsers } from '../../store/Users/reducer';
 import Activity from '../../containers/Activity/Activity';
 import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
@@ -35,7 +36,6 @@ const styles = theme => ({
 
 function UserMemberships(props) {
   const [teams, setTeams] = useState(undefined);
-  const [allUsers, setAllUsers] = useState({});
   const [showFavorite, setShowFavorite] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,6 +47,7 @@ function UserMemberships(props) {
     history,
     classes,
     upUser,
+    allUsers,
   } = props;
   const { canListAccountTeams } = userPermissions;
   const { location: { hash, pathname } } = history;
@@ -57,13 +58,6 @@ function UserMemberships(props) {
     }
 
     return [];
-  }
-
-  function addToUsers(usersHash) {
-    console.debug('adding to users');
-    console.debug(usersHash);
-    console.debug(allUsers);
-    setAllUsers({ ...usersHash, ...allUsers });
   }
 
   function onSearch(searchInfo){
@@ -200,8 +194,6 @@ function UserMemberships(props) {
             teams={getFilteredTeams()}
             setTeams={setTeams}
             investibles={getMarketInvestibles()}
-            setUsers={addToUsers}
-            allUsers={allUsers}
             selectedTeamId={selectedTeamId}
             onToggleFavorite={toggleFavoriteTeam}
           />
@@ -217,8 +209,6 @@ function UserMemberships(props) {
             user={userDetail}
             teams={teams}
             setTeams={setTeams}
-            users={allUsers}
-            setUsers={setAllUsers}
             investibles={getMarketInvestibles()}
             onClose={() => history.push(pathname)}
           />
@@ -238,6 +228,7 @@ UserMemberships.propTypes = {
 
 const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
+  allUsers: getAllUsers(state.usersReducer),
 });
 
 function mapDispatchToProps(dispatch) {

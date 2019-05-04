@@ -2,9 +2,8 @@
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
-import {
-  Typography,
-} from '@material-ui/core';
+import { Typography } from '@material-ui/core';
+import { connect } from 'react-redux';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import { withStyles } from '@material-ui/core/styles';
@@ -15,6 +14,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
+import { usersFetched } from '../../store/Users/actions';
 
 const styles = theme => ({
   paper: {
@@ -61,8 +61,7 @@ function AdminUserItem(props) {
       marketId,
       teams,
       setTeams,
-      users,
-      setUsers,
+      dispatch,
     } = props;
     if (quantity > 0 && !gatheringInput) {
       const clientPromise = getClient();
@@ -73,9 +72,7 @@ function AdminUserItem(props) {
       }).then(() => {
         const newUser = { ...user };
         newUser.quantity += quantity;
-        const newUsers = { ...users };
-        newUsers[user.id] = newUser;
-        setUsers(newUsers);
+        dispatch(usersFetched({ [user.id]: newUser }));
         return globalClient.users.getPresences(user.id);
       }).then((teamPresences) => {
         const newTeams = [];
@@ -166,9 +163,18 @@ AdminUserItem.propTypes = {
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   setTeams: PropTypes.func, //eslint-disable-line
   user: PropTypes.object.isRequired,
-  users: PropTypes.object.isRequired, //eslint-disable-line
-  setUsers: PropTypes.func, //eslint-disable-line
   intl: PropTypes.object.isRequired,
 };
 
-export default withMarketId(injectIntl(withStyles(styles)(withMarketId(AdminUserItem))));
+const mapStateToProps = () => ({
+  //
+});
+
+function mapDispatchToProps(dispatch) {
+  return { dispatch };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withMarketId(injectIntl(withStyles(styles)(withMarketId(AdminUserItem)))));

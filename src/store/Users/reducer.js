@@ -2,7 +2,11 @@ import { combineReducers } from 'redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import {
-  RECEIVE_USER, RECEIVE_CURRENT_USER, REQUEST_CURRENT_USER, formatUsers,
+  RECEIVE_USER,
+  RECEIVE_CURRENT_USER,
+  REQUEST_CURRENT_USER,
+  USERS_FETCHED,
+  formatUsers,
 } from './actions';
 
 import { FOLLOWED_MARKET } from '../Markets/actions';
@@ -28,6 +32,15 @@ const userItems = (state = [], action) => {
     case RECEIVE_USER:
       const user = [action.user];
       return _.unionBy(user, state, 'id');
+    default:
+      return state;
+  }
+};
+
+const allUsers = (state = {}, action) => {
+  switch (action.type) {
+    case USERS_FETCHED:
+      return { ...state, ...action.users };
     default:
       return state;
   }
@@ -80,7 +93,10 @@ export const getUsers = state => formatUsers(state.userItems);
 
 export const getCurrentUser = state => state.currentUser;
 
+export const getAllUsers = state => state.allUsers;
+
 export default combineReducers({
+  allUsers,
   userItems,
   currentUser,
 });

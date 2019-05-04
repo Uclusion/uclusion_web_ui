@@ -36,7 +36,7 @@ const styles = theme => ({
     alignItems: 'flex-end',
     flexWrap: 'wrap',
   },
-  favoriteButton: {
+  toolbarButton: {
     margin: theme.spacing.unit,
   },
   content: {
@@ -196,7 +196,7 @@ function InvestiblesPage(props) {
                 {!isGuest && (<MarketStageFollowUnfollow marketId={marketId} />)}
               </div>
               <Button
-                className={classes.favoriteButton}
+                className={classes.toolbarButton}
                 variant="contained"
                 color="primary"
                 onClick={toggleShowFavorite}

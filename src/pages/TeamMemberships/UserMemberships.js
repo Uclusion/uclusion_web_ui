@@ -14,6 +14,7 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import UserDetail from '../../components/TeamMemberships/UserDetail';
 import TeamsSearchBox from '../../components/TeamMemberships/TeamsSearchBox';
+import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 
 const styles = theme => ({
   content: {
@@ -22,12 +23,12 @@ const styles = theme => ({
     flexDirection: 'column',
   },
   toolbar: {
+    width: '100%',
     display: 'flex',
-    justifyContent: 'space-between',
     alignItems: 'flex-end',
     flexWrap: 'wrap',
   },
-  favoriteButton: {
+  toolbarButton: {
     margin: theme.spacing.unit,
   },
 });
@@ -59,9 +60,9 @@ function UserMemberships(props) {
   }
 
   function addToUsers(usersHash) {
-    console.log('adding to users');
-    console.log(usersHash);
-    console.log(allUsers);
+    console.debug('adding to users');
+    console.debug(usersHash);
+    console.debug(allUsers);
     setAllUsers({ ...usersHash, ...allUsers });
   }
 
@@ -153,19 +154,39 @@ function UserMemberships(props) {
       }
     }
   }
+  function copyToClipboard(text){
+    navigator.clipboard.writeText(text);
+  }
 
+  function getCognitoLink(){
+    const cognitoLink = formCurrentMarketLink('NewCognito');
+    const location = window.location.href;
+    const newURL = new URL(location);
+    newURL.pathname = cognitoLink;
+    return newURL.toString();
+  }
+
+  const cognitoLink = getCognitoLink();
   return (
     <Activity
       isLoading={teams === undefined}
       containerStyle={{ overflow: 'hidden' }}
       title={userDetailIsMe ? intl.formatMessage({ id: 'teamMembershipsMyInvestmentsTitle' }) : intl.formatMessage({ id: 'myTeamsMenu' })}
     >
+
       <div className={classes.content}>
-        {teams && teams.length > 10 && (
+        {canListAccountTeams && teams && (
           <div className={classes.toolbar}>
             <TeamsSearchBox teams={teams} onSearch={onSearch}/>
             <Button
-              className={classes.favoriteButton}
+              className={classes.toolbarButton}
+              variant="contained"
+              color="primary"
+              onClick={() => copyToClipboard(cognitoLink)}>
+              {intl.formatMessage({ id: 'teamMembershipsEmailButton'})}
+            </Button>
+            <Button
+              className={classes.toolbarButton}
               variant="contained"
               color="primary"
               onClick={toggleShowFavorite}

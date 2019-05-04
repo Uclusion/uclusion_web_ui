@@ -62,9 +62,7 @@ export function marketChangeTasks(params, market_id, user) {
 
 export function postAuthTasks(params, deployedVersion, uclusionTokenInfo, market_id, user) {
   const { usersReducer, dispatch } = params;
-  const { token, type } = uclusionTokenInfo;
-  const authInfo = { token, type };
-  setUclusionLocalStorageItem('auth', authInfo);
+  setUclusionLocalStorageItem('auth', uclusionTokenInfo);
   notifyNewApplicationVersion(deployedVersion);
   // if we're not sure the user is the same as we loaded redux with, zero out redux
   if (!usersReducer || !usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {

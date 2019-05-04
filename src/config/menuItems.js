@@ -32,6 +32,7 @@ const getMenuItems = (props) => {
   const authInfo = getUclusionLocalStorageItem('auth');
   const loginInfo = getUclusionLocalStorageItem('loginInfo');
   const myInvestmentsSubpath = upUser ? 'teams#user:' + upUser.id : '';
+  const myUclusionPlanningURLSuffix = authInfo && 'uclusion_user_id' in authInfo ? 'investibles' : 'NewCognito';
 
 /*  const themeItems = themes.map(t => ({
     value: undefined,
@@ -145,7 +146,7 @@ const getMenuItems = (props) => {
     {
       primaryText: intl.formatMessage({ id: 'uclusionPlanningMarket' }),
       onClick: () => {
-        const win = window.open('https://stage.uclusion.com/44147040-156d-4f60-b4c2-dcea7c2e9689/NewCognito', '_blank');
+        const win = window.open(`https://stage.uclusion.com/44147040-156d-4f60-b4c2-dcea7c2e9689/${myUclusionPlanningURLSuffix}`, '_blank');
         win.focus();
       },
       visible: isMarketAdmin,

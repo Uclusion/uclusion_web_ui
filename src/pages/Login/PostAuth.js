@@ -26,7 +26,7 @@ function PostAuth(props) {
       // Have to do here or get warning about setting state before component mounted
       const {
         uclusion_token, destination_page,
-        market_id, user, deployed_version,
+        market_id, user, deployed_version, uclusion_user_id,
       } = resolve;
       let realMarketId = market_id;
       console.debug(resolve);
@@ -34,6 +34,9 @@ function PostAuth(props) {
         token: uclusion_token,
         type: authorizerType,
       };
+      if (uclusion_user_id) {
+        uclusionTokenInfo.uclusion_user_id = uclusion_user_id;
+      }
       postAuthTasks(props, deployed_version, uclusionTokenInfo, realMarketId, user);
       setPath(getPathAndQueryPart(destination_page));
     } else {

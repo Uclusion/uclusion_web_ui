@@ -24,7 +24,8 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
 import MemberList from './MemberList';
 import InvestiblesList from './InvestiblesList';
-import { getCurrentUser } from '../../store/Users/reducer';
+import { getCurrentUser, getAllUsers } from '../../store/Users/reducer';
+import { usersFetched } from '../../store/Users/actions';
 import AdminUserItem from './AdminUserItem';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
@@ -101,12 +102,12 @@ function UserMembershipsListItem(props) {
     marketId,
     classes,
     allUsers,
-    setUsers,
     setTeams,
     userPermissions,
     intl,
     selected,
     onToggleFavorite,
+    dispatch,
   } = props;
   const {
     name,
@@ -129,7 +130,7 @@ function UserMembershipsListItem(props) {
     return processed;
   }
 
-  function usersFetched(teamId, users) {
+  function teamUsersFetched(teamId, users) {
     const newUserIds = [];
     const usersHash = {};
     users.forEach((user) => {
@@ -137,7 +138,7 @@ function UserMembershipsListItem(props) {
       newUserIds.push(user.id);
     });
     setUserIds(newUserIds);
-    setUsers(usersHash);
+    dispatch(usersFetched(usersHash));
   }
   function getInvestible(typeObjectId) {
     return investibles.find(({ id }) => typeObjectId.includes(id));
@@ -152,7 +153,7 @@ function UserMembershipsListItem(props) {
       const processedUsers = response.users.map(user => processUser(user));
       const teamUsers = _.remove(processedUsers, user => user.type !== 'USER');
       setTeamUser(teamUsers[0]);
-      usersFetched(team.id, processedUsers);
+      teamUsersFetched(team.id, processedUsers);
       return globalClient.markets.summarizeUserInvestments(marketId, team.user_id);
     }).then((investments) => {
       // only process investments which we have investibles for
@@ -269,8 +270,6 @@ function UserMembershipsListItem(props) {
             <AdminUserItem
               teams={teams}
               setTeams={setTeams}
-              users={allUsers}
-              setUsers={setUsers}
               user={teamUser}
             />
           )}
@@ -291,7 +290,6 @@ UserMembershipsListItem.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   classes: PropTypes.object.isRequired,
   width: PropTypes.string.isRequired,
-  setUsers: PropTypes.func.isRequired,
   allUsers: PropTypes.object.isRequired, //eslint-disable-line
   setTeams: PropTypes.func, //eslint-disable-line
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
@@ -302,8 +300,16 @@ UserMembershipsListItem.propTypes = {
 const mapStateToProps = state => ({
   user: getCurrentUser(state.usersReducer),
   investibleDetail: state.detail.investible,
+  allUsers: getAllUsers(state.usersReducer),
 });
 
-export default connect(mapStateToProps)(withUserAndPermissions(
+function mapDispatchToProps(dispatch) {
+  return { dispatch };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withUserAndPermissions(
   injectIntl(withWidth()(withStyles(styles)(withMarketId(UserMembershipsListItem)))),
 ));

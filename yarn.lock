@@ -6745,7 +6745,7 @@ material-ui-image@^3.0.0:
   dependencies:
     prop-types "^15.5.8"
 
-material-ui-pickers@^1.0.0-rc.14:
+material-ui-pickers@^1.0.0-rc.17:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/material-ui-pickers/-/material-ui-pickers-1.0.1.tgz#396f90fff2f2dbb7c477bce2b9a62101eb3bd26d"
   dependencies:

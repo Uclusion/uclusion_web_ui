@@ -16,8 +16,6 @@ function InvestmentsList(props) {
     upUser,
     teams,
     setTeams,
-    users,
-    setUsers,
   } = props;
   useEffect(() => {
     const clientPromise = getClient();
@@ -62,8 +60,6 @@ function InvestmentsList(props) {
           teams={teams}
           setTeams={setTeams}
           userId={userId}
-          users={users}
-          setUsers={setUsers}
           createdAt={investment.created_at}
           id={investment.id}
           stageId={investment.stage_id}
@@ -79,8 +75,6 @@ InvestmentsList.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   setTeams: PropTypes.func, //eslint-disable-line
-  users: PropTypes.object.isRequired, //eslint-disable-line
-  setUsers: PropTypes.func, //eslint-disable-line
   upUser: PropTypes.shape({
     id: PropTypes.string,
   }).isRequired,

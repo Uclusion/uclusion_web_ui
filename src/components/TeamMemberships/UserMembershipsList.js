@@ -48,8 +48,6 @@ class UserMembershipsList extends React.PureComponent {
       setTeams,
       investibles,
       classes,
-      setUsers,
-      allUsers,
       selectedTeamId,
       onToggleFavorite,
     } = this.props;
@@ -71,8 +69,6 @@ class UserMembershipsList extends React.PureComponent {
               teams={teams}
               setTeams={setTeams}
               investibles={investibles}
-              setUsers={setUsers}
-              allUsers={allUsers}
               onToggleFavorite={onToggleFavorite}
             />
           </LazyLoad>
@@ -88,8 +84,6 @@ UserMembershipsList.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object.isRequired,
-  setUsers: PropTypes.func.isRequired,
-  allUsers: PropTypes.object.isRequired, //eslint-disable-line
   selectedTeamId: PropTypes.string,
   onToggleFavorite: PropTypes.func,
 };

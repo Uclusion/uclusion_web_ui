@@ -74,6 +74,7 @@ const styles = theme => ({
 function NewCognito(props) {
   const [email, setEmail] = useState(undefined);
   const [name, setName] = useState(undefined);
+  const [processing, setProcessing] = useState(false);
 
   function handleEmailChange(event) {
     setEmail(event.target.value);
@@ -86,25 +87,35 @@ function NewCognito(props) {
   const { classes, theme, marketId } = props;
 
   function handleSubmit(event) {
-    event.preventDefault();
-    const authorizer = new AnonymousAuthorizer({
-      uclusionUrl: appConfig.api_configuration.baseURL,
-    });
-    const urlParams = new URLSearchParams(window.location.search);
-    const creationToken = urlParams.get('creationToken');
-    let promise;
-    if (creationToken) {
-      promise = authorizer.cognitoUserCreate(name, email, creationToken);
-    } else {
-      promise = authorizer.cognitoUserSignup(marketId, name, email);
-    }
-    promise.then((user) => {
-      let location = `${window.location.origin}/${marketId}/investibles`;
-      if (!user.exists_in_cognito) {
-        location += '?newLogin=true';
+    if (!processing) {
+      setProcessing(true);
+      event.preventDefault();
+      const authorizer = new AnonymousAuthorizer({
+        uclusionUrl: appConfig.api_configuration.baseURL,
+      });
+      const urlParams = new URLSearchParams(window.location.search);
+      const creationToken = urlParams.get('creationToken');
+      let promise;
+      if (creationToken) {
+        promise = authorizer.cognitoUserCreate(name, email, creationToken);
+      } else {
+        promise = authorizer.cognitoUserSignup(marketId, name, email);
       }
-      window.location = location;
-    });
+      promise.then((user) => {
+        let location = `${window.location.origin}/${marketId}/investibles`;
+        if (!user.exists_in_cognito) {
+          location += '?newLogin=true';
+        }
+        window.location = location;
+      }).catch((error) => {
+        console.error(error);
+        throw error;
+      }).finally(() => {
+        if (processing) {
+          setProcessing(false);
+        }
+      });
+    }
   }
 
   return (
@@ -176,6 +187,7 @@ function NewCognito(props) {
                   className={classes.loginButton}
                   type="submit"
                   variant="contained"
+                  disabled={processing}
                   color="primary"
                   fullWidth
                 >

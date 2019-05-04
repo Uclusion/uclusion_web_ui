@@ -75,12 +75,15 @@ export function loginAnonymous(props) {
   const authorizer = new AnonymousAuthorizer(loginParams);
   authorizer.doPostAuthorize().then((resolve) => {
     const {
-      uclusion_token, market_id, user, deployed_version,
+      uclusion_token, market_id, user, deployed_version, uclusion_user_id,
     } = resolve;
     const uclusionTokenInfo = {
       token: uclusion_token,
       type: authorizer.getType(),
     };
+    if (uclusion_user_id) {
+      uclusionTokenInfo.uclusion_user_id = uclusion_user_id;
+    }
     postAuthTasks(props, deployed_version, uclusionTokenInfo, market_id, user);
     history.push(formCurrentMarketLink('investibles'));
   });
@@ -99,8 +102,11 @@ export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPost
   console.debug(response);
   const uclusionTokenInfo = {
     token: cognitoAuthorizer.storedToken,
-    type: cognitoAuthorizer.getType,
+    type: cognitoAuthorizer.getType(),
   };
+  if (response.uclusion_user_id) {
+    uclusionTokenInfo.uclusion_user_id = response.uclusion_user_id;
+  }
   postAuthTasks(props, response.deployed_version, uclusionTokenInfo,
     marketId, cognitoAuthorizer.user);
   uiPostAuthTasks();

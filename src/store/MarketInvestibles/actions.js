@@ -26,11 +26,10 @@ export const investibleDeleted = (marketId, investibleId) => ({
 });
 
 
-export const investmentsDeleted = (marketId, investibleId, quantity) => ({
+export const investmentsDeleted = (marketId, investibleId) => ({
   type: INVESTMENTS_DELETED,
   marketId,
   investibleId,
-  quantity,
 });
 
 export const receiveInvestibleList = (marketId, investibleList) => ({

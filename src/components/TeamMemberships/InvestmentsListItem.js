@@ -15,7 +15,9 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
 import { investmentsDeleted } from '../../store/MarketInvestibles/actions';
 import { getAllUsers } from '../../store/Users/reducer';
-import { usersFetched } from '../../store/Users/actions';
+import { fetchUser, usersFetched } from '../../store/Users/actions';
+import { loadTeams } from '../../utils/userMembershipFunctions';
+import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({
   paper: {
@@ -54,12 +56,15 @@ function InvestmentsListItem(props) {
     classes,
     userIsOwner,
     intl,
+    userPermissions,
   } = props;
+  const { canListAccountTeams } = userPermissions;
   const [calculatedQuantity, setCalculatedQuantity] = useState(quantity);
   useEffect(() => {
     const {
       marketId,
       dispatch,
+      teamId,
       teams,
       setTeams,
       allUsers,
@@ -67,26 +72,15 @@ function InvestmentsListItem(props) {
     } = props;
     if (calculatedQuantity === 0 && quantity > 0) {
       const clientPromise = getClient();
-      clientPromise.then(client => client.markets.deleteInvestment(marketId, id))
-        .then((response) => {
-          dispatch(investmentsDeleted(marketId, investible.id, response.quantity));
-          const teamQuantities = response.team_quantities;
-          const newTeams = [];
-          Object.keys(teamQuantities).forEach((teamId) => {
-            const oldTeam = teams.find(item => item.id === teamId);
-            const newTeam = { ...oldTeam };
-            newTeam.quantity += teamQuantities[teamId];
-            newTeam.quantity_invested -= teamQuantities[teamId];
-            newTeams.push(newTeam);
-          });
-          setTeams(_.unionBy(newTeams, teams, 'id'));
-          const oldUser = allUsers[userId];
-          const newUser = { ...oldUser };
-          newUser.quantity += response.quantity;
-          newUser.quantityInvested -= response.quantity;
-          dispatch(usersFetched({ [userId]: newUser }));
-        })
-        .catch((error) => {
+      let clientObject = null;
+      clientPromise.then((client) => {
+        clientObject = client;
+        return client.markets.deleteInvestment(marketId, id);
+      }).then((response) => {
+        dispatch(investmentsDeleted(marketId, investible.id));
+        dispatch(fetchUser({ marketId }));
+        loadTeams(canListAccountTeams, marketId, setTeams);
+      }).catch((error) => {
           setCalculatedQuantity(quantity);
           console.log(error);
           sendIntlMessage(ERROR, { id: 'refundFailed' });
@@ -156,6 +150,7 @@ InvestmentsListItem.propTypes = {
   userIsOwner: PropTypes.bool.isRequired,
   classes: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
+  teamId: PropTypes.string.isRequired,
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   setTeams: PropTypes.func, //eslint-disable-line
   userId: PropTypes.string.isRequired,
@@ -177,4 +172,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withStyles(styles)(withMarketId(InvestmentsListItem))));
+)(injectIntl(withStyles(styles)(withMarketId(withUserAndPermissions(InvestmentsListItem)))));

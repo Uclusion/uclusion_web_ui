@@ -16,6 +16,7 @@ import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import UserDetail from '../../components/TeamMemberships/UserDetail';
 import TeamsSearchBox from '../../components/TeamMemberships/TeamsSearchBox';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
+import { loadTeams, processUserForDisplay } from '../../utils/userMembershipFunctions';
 
 const styles = theme => ({
   content: {
@@ -104,22 +105,7 @@ function UserMemberships(props) {
 
   // Second argument prevents re-running on teams property changes - only for changes in listed
   useEffect(() => {
-    const clientPromise = getClient();
-    if (canListAccountTeams) {
-      clientPromise.then(client => client.teams.list(marketId)).then((marketTeams) => {
-        setTeams(marketTeams);
-      }).catch((error) => {
-        console.log(error);
-        sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
-      });
-    } else {
-      clientPromise.then(client => client.teams.mine(marketId)).then((myTeams) => {
-        setTeams(myTeams);
-      }).catch((error) => {
-        console.log(error);
-        sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
-      });
-    }
+    loadTeams(canListAccountTeams, marketId, setTeams);
     return () => {};
   }, [marketId]);
 
@@ -141,7 +127,7 @@ function UserMemberships(props) {
           }
         }
       } else if (hashKey === 'user') {
-        userDetail = allUsers[hashValue];
+        userDetail = processUserForDisplay(allUsers[hashValue], marketId);
         userDetailIsMe = upUser && (hashValue === upUser.id);
       } else if (hashKey === 'team') {
         selectedTeamId = hashValue;

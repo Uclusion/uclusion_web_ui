@@ -122,13 +122,6 @@ function UserMembershipsListItem(props) {
   const { canGrant } = userPermissions;
   const lastInvestDate = moment(last_investment_updated_at).format('MM/DD/YYYY hh:mm A');
 
-  function processUser(user) {
-    const processed = { ...user };
-    const marketPresence = user.market_presences.find(presence => presence.market_id === marketId);
-    processed.quantity = marketPresence.quantity;
-    processed.quantityInvested = marketPresence.quantity_invested;
-    return processed;
-  }
 
   function teamUsersFetched(teamId, users) {
     const newUserIds = [];
@@ -150,10 +143,10 @@ function UserMembershipsListItem(props) {
       globalClient = client;
       return client.teams.get(team.id);
     }).then((response) => {
-      const processedUsers = response.users.map(user => processUser(user));
-      const teamUsers = _.remove(processedUsers, user => user.type !== 'USER');
+      const { users } = response;
+      const teamUsers = _.remove(users, user => user.type !== 'USER');
       setTeamUser(teamUsers[0]);
-      teamUsersFetched(team.id, processedUsers);
+      teamUsersFetched(team.id, users);
       return globalClient.markets.summarizeUserInvestments(marketId, team.user_id);
     }).then((investments) => {
       // only process investments which we have investibles for
@@ -259,6 +252,7 @@ function UserMembershipsListItem(props) {
             <MemberList
               allUsers={allUsers}
               userIds={userIds}
+              marketId={marketId}
             />
           )}
           {tabIndex === 1 && investiblesForTeam && (

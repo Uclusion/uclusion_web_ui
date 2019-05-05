@@ -39,7 +39,7 @@ class MemberListItem extends React.PureComponent {
       name = 'Anonymous',
       email,
       quantity,
-      quantityInvested,
+      quantity_invested,
     } = user;
     // for now, don't bother rendering the TEAM user
 
@@ -54,7 +54,7 @@ class MemberListItem extends React.PureComponent {
                 {intl.formatMessage({ id: 'teamMembershipsMemberListItemUsharesAvailable' }, { quantity })}
               </Typography>
               <Typography>
-                {intl.formatMessage({ id: 'teamMembershipsMemberListItemUsharesSpent' }, { quantityInvested })}
+                {intl.formatMessage({ id: 'teamMembershipsMemberListItemUsharesSpent' }, { quantity_invested })}
               </Typography>
             </div>
           </div>
@@ -70,7 +70,7 @@ MemberListItem.propTypes = {
     name: PropTypes.string,
     type: PropTypes.string,
     quantity: PropTypes.number,
-    quantityInvested: PropTypes.number,
+    quantity_invested: PropTypes.number,
   }).isRequired,
   classes: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,

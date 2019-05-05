@@ -16,6 +16,7 @@ import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import UserDetail from '../../components/TeamMemberships/UserDetail';
 import TeamsSearchBox from '../../components/TeamMemberships/TeamsSearchBox';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
+import { processUserForDisplay } from '../../utils/userMembershipFunctions';
 
 const styles = theme => ({
   content: {
@@ -141,7 +142,7 @@ function UserMemberships(props) {
           }
         }
       } else if (hashKey === 'user') {
-        userDetail = allUsers[hashValue];
+        userDetail = processUserForDisplay(allUsers[hashValue], marketId);
         userDetailIsMe = upUser && (hashValue === upUser.id);
       } else if (hashKey === 'team') {
         selectedTeamId = hashValue;

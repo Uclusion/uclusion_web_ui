@@ -8,9 +8,8 @@ import {
   USERS_FETCHED,
   formatUsers,
 } from './actions';
-
+import { processUser } from '../../utils/userMembershipFunctions';
 import { FOLLOWED_MARKET } from '../Markets/actions';
-import { INVESTMENTS_DELETED } from '../MarketInvestibles/actions';
 
 export const userPropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -37,10 +36,29 @@ const userItems = (state = [], action) => {
   }
 };
 
+function getUserObj(oldState, action){
+  const userObj = {};
+  const { user } = action;
+  const oldUser = oldState[user.id];
+  if (oldUser) {
+    // get all old presences, removing mine
+    const filteredOldPresences = oldUser.market_presences.filter(presence => presence.market_id != user.market_presence.market_id);
+    user.market_presences = [...filteredOldPresences, user.market_presence];
+  } else {
+    user.market_presences = [user.market_presence];
+  }
+  userObj[user.id] = user;
+  console.log(userObj);
+  return userObj;
+}
+
 const allUsers = (state = {}, action) => {
   switch (action.type) {
     case USERS_FETCHED:
       return { ...state, ...action.users };
+    case RECEIVE_CURRENT_USER:
+    case RECEIVE_USER:
+      return { ...state, ...getUserObj(state, action) };
     default:
       return state;
   }
@@ -60,19 +78,7 @@ const updateMarketFollowState = (state, action) => {
   return newState;
 };
 
-const updateInvestmentsDeletedState = (state, action) => {
-  if (!state) {
-    return state;
-  }
-  const { marketId, quantity } = action;
-  const newState = { ...state };
-  if (newState.market_presence.id !== marketId) {
-    return state;
-  }
-  // update the current presence
-  newState.market_presence.quantity -= quantity;
-  return newState;
-};
+
 
 const currentUser = (state = null, action) => {
   switch (action.type) {
@@ -82,8 +88,6 @@ const currentUser = (state = null, action) => {
       return action.user ? action.user : state;
     case FOLLOWED_MARKET:
       return updateMarketFollowState(state, action);
-    case INVESTMENTS_DELETED:
-      return updateInvestmentsDeletedState(state, action);
     default:
       return state;
   }

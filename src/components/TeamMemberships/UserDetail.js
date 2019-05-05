@@ -79,6 +79,7 @@ function UserDetail(props) {
   const show = !!user;
   const myUser = user || lastUser || {};
   const { canGrant } = userPermissions;
+  const { quantity, quantity_invested } = myUser;
   return (
     <div
       className={classNames(classes.root, {
@@ -99,10 +100,10 @@ function UserDetail(props) {
           {myUser.email}
         </Typography>
         <Typography>
-          {`uShares available: ${myUser.quantity}`}
+          {intl.formatMessage({ id: 'teamMembershipsUserDetailUsharesAvailable' }, { quantity })}
         </Typography>
         <Typography>
-          {`uShares spent: ${myUser.quantityInvested}`}
+          {intl.formatMessage({ id: 'teamMembershipsUserDetailUsharesSpent' }, { quantity_invested })}
         </Typography>
         <div className={classes.paper}>
           <Tabs

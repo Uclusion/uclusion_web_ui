@@ -15,7 +15,7 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
 import { investmentsDeleted } from '../../store/MarketInvestibles/actions';
 import { getAllUsers } from '../../store/Users/reducer';
-import { usersFetched } from '../../store/Users/actions';
+import { fetchUser, usersFetched } from '../../store/Users/actions';
 
 const styles = theme => ({
   paper: {
@@ -69,22 +69,8 @@ function InvestmentsListItem(props) {
       const clientPromise = getClient();
       clientPromise.then(client => client.markets.deleteInvestment(marketId, id))
         .then((response) => {
-          dispatch(investmentsDeleted(marketId, investible.id, response.quantity));
-          const teamQuantities = response.team_quantities;
-          const newTeams = [];
-          Object.keys(teamQuantities).forEach((teamId) => {
-            const oldTeam = teams.find(item => item.id === teamId);
-            const newTeam = { ...oldTeam };
-            newTeam.quantity += teamQuantities[teamId];
-            newTeam.quantity_invested -= teamQuantities[teamId];
-            newTeams.push(newTeam);
-          });
-          setTeams(_.unionBy(newTeams, teams, 'id'));
-          const oldUser = allUsers[userId];
-          const newUser = { ...oldUser };
-          newUser.quantity += response.quantity;
-          newUser.quantityInvested -= response.quantity;
-          dispatch(usersFetched({ [userId]: newUser }));
+          dispatch(investmentsDeleted(marketId, investible.id));
+          dispatch(fetchUser({ marketId }));
         })
         .catch((error) => {
           setCalculatedQuantity(quantity);

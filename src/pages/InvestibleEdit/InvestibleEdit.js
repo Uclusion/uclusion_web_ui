@@ -24,6 +24,7 @@ import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import Activity from '../../containers/Activity/Activity';
 import { getStages } from '../../store/Markets/reducer';
 import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 const styles = theme => ({
   root: {
@@ -107,6 +108,8 @@ function InvestibleEdit (props) {
   const [investible, setInvestible] = useState({});
   const [saved, setSaved] = useState(undefined);
   const [dirty, setDirty] = useState(false);
+  const [stageChange, setStageChange] = useState(true);
+  const [additionalInvestmentRequired, setAdditionalInvestmentRequired] = useState(false);
 
   useEffect(() => {
     const clientPromise = getClient();
@@ -130,20 +133,19 @@ function InvestibleEdit (props) {
         return;
       }
       const newInvestible = { ...investible };
-      // if we've changed stage, zero out the additional investible to make sure
-      // the default value changes in the additional investment field
-      if (name === 'stage') {
-        delete newInvestible.additional_investment;
-      }
       let validatedValue = value;
       if (name === 'additional_investment') {
         validatedValue = parseInt(value, 10);
       }
-      if (!dirty && newInvestible[name] !== validatedValue) {
-        setDirty(true);
+      const isDirty = newInvestible[name] !== validatedValue;
+      if (name === 'stage' && isDirty) {
+        setStageChange(true);
       }
       newInvestible[name] = validatedValue;
       setInvestible(newInvestible);
+      if (!dirty && isDirty) {
+        setDirty(true);
+      }
     };
   }
 
@@ -189,7 +191,7 @@ function InvestibleEdit (props) {
   }
 
   const {
-    description = '', stage, name, label_scratch, category_list, label_list
+    description = '', name, label_scratch, category_list, label_list
   } = investible;
 
   function handleLabelDelete(label) {
@@ -236,47 +238,62 @@ function InvestibleEdit (props) {
       </div>
     );
   }
+  function calculateInvestmentFieldValue(stage, additionalInvestment) {
+    if (stageChange) {
+      setStageChange(false);
+      let investmentFieldValue = additionalInvestment;
+      if (investible.current_stage_id === stage) {
+        investmentFieldValue = investible.next_stage_threshold - investible.quantity;
+      }
+      const newInvestible = { ...investible };
+      newInvestible.additional_investment = investmentFieldValue;
+      setInvestible(newInvestible);
+    }
+  }
 
   function getNextStageInfo() {
+    const { stage } = investible;
     const currentStages = marketStages && marketStages[marketId];
     const currentStage = currentStages && currentStages.find(element => element.id === stage);
     if (currentStage && currentStage.automatic_transition) {
+      if (!additionalInvestmentRequired) {
+        setAdditionalInvestmentRequired(true);
+      }
       const { next_stage, additional_investment } = currentStage.automatic_transition;
-      const nextStageData = marketStages[marketId].find((element) => element.id === next_stage);
+      const nextStageData = currentStages.find(element => element.id === next_stage);
       if (nextStageData) {
-        let investmentFieldValue = investible.additional_investment;
-        if (!investmentFieldValue || investmentFieldValue <= 0) {
-          investmentFieldValue = additional_investment ? additional_investment > 0 : 1;
-          if (investible.current_stage_id === stage) {
-            investmentFieldValue = investible.next_stage_threshold - investible.quantity;
-          }
-        }
+        calculateInvestmentFieldValue(stage, additional_investment);
         return (
           <div>
             <TextField
-              id="additional_investment"
+              id="next_stage"
               label={intl.formatMessage({ id: 'investibleEditNextStageLabel' })}
-              defaultValue={nextStageData.name}
+              value={nextStageData.name}
               inputProps={{ readOnly: true }}
             />
             <TextField
               className={classNames(classes.leftMargin)}
               id="additional_investment"
               label={intl.formatMessage({ id: 'investibleEditNextStageInvestmentLabel' })}
-              value={investmentFieldValue}
+              value={investible.additional_investment}
               onChange={handleChange('additional_investment')}
-              inputProps={{ size: 24 }}
               type="number"
+              required
               fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment
+                    style={{ paddingBottom: 4 }}
+                    position="start"
+                  >
+                    Ȗ
+                  </InputAdornment>
+                ),
+              }}
             />
           </div>
         );
       }
-
-      // zero  out the additional investment if we have no next stage
-      const newInvestible = { ...investible };
-      delete newInvestible.additional_investment;
-      setInvestible(newInvestible);
     }
 
     return <div />;
@@ -342,7 +359,7 @@ function InvestibleEdit (props) {
               <StageSelectList
                 label={intl.formatMessage({ id: 'currentStageLabel' })}
                 onChange={handleChange('stage')}
-                value={stage}
+                value={investible.stage}
                 marketId={marketId}
               />
               <IconButton
@@ -356,7 +373,7 @@ function InvestibleEdit (props) {
               >
                 <Info />
               </IconButton>
-              {investible.current_stage_id === stage && investible.next_stage && (
+              {investible.current_stage_id === investible.stage && investible.next_stage && (
                 <TextField
                   className={classNames(classes.moreLeftMargin)}
                   label={intl.formatMessage({ id: 'investibleEditCurrentInvestmentLabel' })}
@@ -379,7 +396,8 @@ function InvestibleEdit (props) {
             <Button
               variant="contained"
               color="primary"
-              disabled={!dirty}
+              disabled={!dirty
+              || (additionalInvestmentRequired && !(investible.additional_investment > 0))}
               onClick={() => onSave()}
             >
               {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
@@ -391,7 +409,7 @@ function InvestibleEdit (props) {
   )
 }
 
-function mapStateToProps (state) {
+function mapStateToProps(state) {
   return {
     marketStages: getStages(state.marketsReducer),
   };

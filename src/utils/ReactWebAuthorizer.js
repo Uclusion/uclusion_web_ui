@@ -50,27 +50,28 @@ class ReactWebAuthorizer {
   getAuthorizer() {
     const marketId = getMarketId();
     const authInfo = getLocalAuthInfo();
+    let authorizer = null;
     if (authInfo === null || !authInfo || !authInfo.type) {
       doGenericAuthRedirect();
-    }
-    let authorizer = null;
-    const config = { uclusionUrl: this.uclusionUrl, marketId};
-    switch (authInfo.type) {
-      case 'oidc':
-        authorizer = new OidcAuthorizer(config);
-        break;
-      case 'sso':
-        authorizer = new SsoAuthorizer(config);
-        break;
-      case 'anonymous':
-        authorizer = new AnonymousAuthorizer(config);
-        break;
-      case 'cognito':
-        authorizer = new CognitoAuthorizer(config);
-        break;
-      default:
-        // I don't recognize this type of authorizer, so I'm going to make you log in again
-        doGenericAuthRedirect();
+    } else {
+      const config = {uclusionUrl: this.uclusionUrl, marketId};
+      switch (authInfo.type) {
+        case 'oidc':
+          authorizer = new OidcAuthorizer(config);
+          break;
+        case 'sso':
+          authorizer = new SsoAuthorizer(config);
+          break;
+        case 'anonymous':
+          authorizer = new AnonymousAuthorizer(config);
+          break;
+        case 'cognito':
+          authorizer = new CognitoAuthorizer(config);
+          break;
+        default:
+          // I don't recognize this type of authorizer, so I'm going to make you log in again
+          doGenericAuthRedirect();
+      }
     }
     return authorizer;
   }

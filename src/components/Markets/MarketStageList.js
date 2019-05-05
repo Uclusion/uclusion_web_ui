@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
@@ -10,7 +10,6 @@ import InputLabel from '@material-ui/core/InputLabel';
 
 import { changeStageSelection } from '../../store/ActiveSearches/actions';
 import { getStages } from '../../store/Markets/reducer';
-import { getSelectedStage } from '../../store/ActiveSearches/reducer';
 
 const styles = theme => ({
   root: {
@@ -19,12 +18,12 @@ const styles = theme => ({
 });
 
 function MarketStageList(props) {
+  const [activeStage, setActiveStage] = useState(undefined);
   const {
     marketStages,
     intl,
     marketId,
     dispatch,
-    selectedStage,
     classes,
   } = props;
 
@@ -45,10 +44,9 @@ function MarketStageList(props) {
     return items;
   }
 
-  const activeStage = selectedStage && selectedStage[marketId];
-
   function handleChange(event) {
     const { value } = event.target;
+    setActiveStage(value);
     // we map 'unselected' to undefined in order to zero out the selection in the reducer without
     const realValue = value === 'unselected' ? undefined : value;
     dispatch(changeStageSelection(realValue, marketId));
@@ -90,7 +88,6 @@ function MarketStageList(props) {
 function mapStateToProps(state) {
   return {
     marketStages: getStages(state.marketsReducer),
-    selectedStage: getSelectedStage(state.activeSearches),
   };
 }
 
@@ -103,7 +100,6 @@ MarketStageList.propTypes = {
   marketStages: PropTypes.object.isRequired,
   marketId: PropTypes.string,
   dispatch: PropTypes.func.isRequired,
-  selectedStage: PropTypes.object,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(

@@ -161,7 +161,7 @@ function UserMembershipsListItem(props) {
       sendIntlMessage(ERROR, { id: 'teamMemberLoadFailed' });
     });
     return () => {};
-  }, [marketId]);
+  }, [marketId, investibles]);
 
   return (
     <div className={classes.root}>

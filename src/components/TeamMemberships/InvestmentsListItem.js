@@ -13,7 +13,7 @@ import Button from '@material-ui/core/Button';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
-import { investmentsDeleted } from '../../store/MarketInvestibles/actions';
+import { fetchInvestibles, investmentsDeleted } from '../../store/MarketInvestibles/actions';
 import { getAllUsers } from '../../store/Users/reducer';
 import { fetchUser, usersFetched } from '../../store/Users/actions';
 import { loadTeams } from '../../utils/userMembershipFunctions';
@@ -77,6 +77,8 @@ function InvestmentsListItem(props) {
         clientObject = client;
         return client.markets.deleteInvestment(marketId, id);
       }).then((response) => {
+        // refetch the investible to trigger a reload of team investible info
+        dispatch(fetchInvestibles({ idList: [investible.id], marketId }));
         dispatch(investmentsDeleted(marketId, investible.id));
         dispatch(fetchUser({ marketId }));
         loadTeams(canListAccountTeams, marketId, setTeams);

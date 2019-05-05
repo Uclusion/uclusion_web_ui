@@ -73,21 +73,27 @@ class ReactWebAuthorizer {
           doGenericAuthRedirect();
       }
     }
+    if (!authorizer) {
+      // Failing so try simpler redirect
+      window.location = `/${getMarketId()}/Login`;
+    }
     return authorizer;
   }
 
   doAuthFromCurrentPage() {
     // / we're not pre-authorized, so kick them into authorization flow
     const authorizer = this.getAuthorizer();
-    const pageUrl = window.location.href;
-    const postAuthPage = getPostAuthPage();
-    authorizer.authorize(pageUrl, pageUrl, postAuthPage)
-      .then((redirectUrl) => {
-        window.location = redirectUrl;
-      }).catch((reject) => {
-        console.log(reject);
-        doGenericAuthRedirect();
-      });
+    if (authorizer) {
+      const pageUrl = window.location.href;
+      const postAuthPage = getPostAuthPage();
+      authorizer.authorize(pageUrl, pageUrl, postAuthPage)
+        .then((redirectUrl) => {
+          window.location = redirectUrl;
+        }).catch((reject) => {
+          console.log(reject);
+          doGenericAuthRedirect();
+        });
+    }
   }
 
   /**

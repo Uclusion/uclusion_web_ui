@@ -48,7 +48,7 @@ function getUserObj(oldState, action){
     user.market_presences = [user.market_presence];
   }
   userObj[user.id] = user;
-  console.log(userObj);
+  console.debug(userObj);
   return userObj;
 }
 

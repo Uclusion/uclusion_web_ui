@@ -57,6 +57,7 @@ function InvestmentsList(props) {
           quantity={investment.quantity}
           investible={getInvestible(investment.investible_id)}
           userIsOwner={userId === upUser.id}
+          teamId={investment.team_id}
           teams={teams}
           setTeams={setTeams}
           userId={userId}

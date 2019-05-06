@@ -376,6 +376,7 @@ const messages = defineMessages({
   teamMembershipsMemberListItemUsharesAvailable: 'uShares available: {quantity}',
   teamMembershipsMemberListItemUsharesSpent: 'uShares spent: {quantity_invested}',
   teamMembershipsEmailButton: 'Copy Market Invite Link To Clipboard',
+  teamMembershipsEmailButtonTooltip: 'Send this link to your user to invite them into your market',
   //UserDetail
   teamMembershipsUserDetailUsharesAvailable: 'uShares available: {quantity}',
   teamMembershipsUserDetailUsharesSpent: 'uShares spent: {quantity_invested}',

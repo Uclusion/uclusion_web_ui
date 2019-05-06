@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
-import { withStyles, Button } from '@material-ui/core';
+import { withStyles, Button, Tooltip } from '@material-ui/core';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import { getAllUsers } from '../../store/Users/reducer';
 import Activity from '../../containers/Activity/Activity';
@@ -158,13 +158,15 @@ function UserMemberships(props) {
         {canListAccountTeams && teams && (
           <div className={classes.toolbar}>
             <TeamsSearchBox teams={teams} onSearch={onSearch}/>
-            <Button
-              className={classes.toolbarButton}
-              variant="contained"
-              color="primary"
-              onClick={() => copyToClipboard(cognitoLink)}>
-              {intl.formatMessage({ id: 'teamMembershipsEmailButton'})}
-            </Button>
+            <Tooltip title={intl.formatMessage({ id: 'teamMembershipsEmailButtonTooltip' })}>
+              <Button
+                className={classes.toolbarButton}
+                variant="contained"
+                color="primary"
+                onClick={() => copyToClipboard(cognitoLink)}>
+                {intl.formatMessage({ id: 'teamMembershipsEmailButton' })}
+              </Button>
+            </Tooltip>
             <Button
               className={classes.toolbarButton}
               variant="contained"

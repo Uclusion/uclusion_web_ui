@@ -42,9 +42,8 @@ class HtmlRichTextEditor extends React.Component {
     if (!readOnly) {
       // When the document changes, save the serialized HTML to Local Storage.
       if (value.document !== this.state.value.document) {
-        const html = this.html.serialize(value);
+        const string = this.html.serialize(value);
         // make sure we're not an empty p value
-        const string = (html === '<p></p>') ? '' : html;
         // check if we're outside of our 350K limit. If so, throw an error to the ui
         // and ignore the update
         if (string.length > appConfig.maxRichTextEditorSize) {

@@ -15,6 +15,7 @@ class CommentsAdd extends React.Component {
     this.state = { body: '' };
     this.handleChange = this.handleChange.bind(this);
     this.addOnClick = this.addOnClick.bind(this);
+    this.validateAddState = this.validateAddState.bind(this);
   }
 
   addOnClick() {
@@ -43,6 +44,14 @@ class CommentsAdd extends React.Component {
     };
   }
 
+
+  validateAddState = () => {
+    const { body } = this.state;
+    const bodyValid = body && (body !== '<p></p>');
+    // console.log(description);
+    return bodyValid;
+  };
+
   render() {
     const { intl } = this.props;
     const { body } = this.state;
@@ -54,6 +63,7 @@ class CommentsAdd extends React.Component {
           fullWidth
           color="primary"
           onClick={this.addOnClick}
+          disabled={!this.validateAddState()}
         >
           {intl.formatMessage({ id: 'saveCommentButton' })}
         </Button>

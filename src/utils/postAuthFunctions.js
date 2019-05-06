@@ -1,6 +1,6 @@
 import { fetchUser } from '../store/Users/actions';
 
-import { setUclusionLocalStorageItem } from '../components/utils';
+import { setMarketAuth } from '../components/utils';
 import { fetchMarket, fetchMarketStages } from '../store/Markets/actions';
 import { clearReduxStore } from './userStateFunctions';
 import { sendInfoPersistent } from './userMessage';
@@ -64,7 +64,7 @@ export function marketChangeTasks(params, market_id, user) {
 
 export function postAuthTasks(params, deployedVersion, uclusionTokenInfo, market_id, user) {
   const { usersReducer, dispatch, webSocket } = params;
-  setUclusionLocalStorageItem('auth', uclusionTokenInfo);
+  setMarketAuth(market_id, uclusionTokenInfo);
   notifyNewApplicationVersion(deployedVersion);
   // if we're not sure the user is the same as we loaded redux with, zero out redux
   if (!usersReducer || !usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {

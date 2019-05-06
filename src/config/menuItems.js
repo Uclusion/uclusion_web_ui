@@ -28,8 +28,9 @@ const getMenuItems = (props) => {
     userPermissions,
   } = props;
 
-  const { canCategorize, isMarketAdmin, isGuest } = userPermissions;
-  const authInfo = getUclusionLocalStorageItem('auth');
+  const { canCategorize, isMarketAdmin, isGuest, marketId } = userPermissions;
+  const authValues = getUclusionLocalStorageItem('auth') || {};
+  const authInfo = authValues[marketId];
   const loginInfo = getUclusionLocalStorageItem('loginInfo');
   const myInvestmentsSubpath = upUser ? 'teams#user:' + upUser.id : '';
   const myUclusionPlanningURLSuffix = authInfo && 'uclusion_user_id' in authInfo ? 'investibles' : 'NewCognito';

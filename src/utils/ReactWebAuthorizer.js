@@ -1,6 +1,6 @@
 import { OidcAuthorizer, SsoAuthorizer, AnonymousAuthorizer, CognitoAuthorizer } from 'uclusion_authorizer_sdk';
 import decode from 'jwt-decode';
-import { getUclusionLocalStorageItem } from '../components/utils';
+import { getMarketAuth } from '../components/utils';
 import { getMarketId } from './marketIdPathFunctions';
 
 /**
@@ -8,8 +8,8 @@ import { getMarketId } from './marketIdPathFunctions';
  * @returns {null|*} the correct token for either the uclusion planning or the regular market
  */
 const getLocalAuthInfo = () => {
-  const storageKey = 'auth';
-  const authInfo = getUclusionLocalStorageItem(storageKey);
+  const marketId = getMarketId() || 'account'; //dirty hack for account creation before market exists
+  const authInfo = getMarketAuth(marketId);
   if (!authInfo) {
     return null;
   }

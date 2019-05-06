@@ -25,7 +25,12 @@ import {
 } from '@material-ui/core';
 import { getCurrentUser } from '../../store/Users/reducer';
 import appConfig from '../../config/config';
-import { setUclusionLocalStorageItem, getUclusionLocalStorageItem } from '../../components/utils';
+import {
+  setUclusionLocalStorageItem,
+  getUclusionLocalStorageItem,
+  clearAuth,
+  setMarketAuth
+} from '../../components/utils';
 import { getClient } from '../../config/uclusionClient';
 import { validURL } from '../../utils/validators';
 import { sendIntlMessage, ERROR } from "../../utils/userMessage";
@@ -102,7 +107,7 @@ function createMarket(client, accountCreationInfo, setLoading) {
     if (accountCreationInfo.email) {
       // Un setting return auth token because need them to login again from email sent
       // (otherwise identity not confirmed)
-      setUclusionLocalStorageItem('auth', null);
+      clearAuth();
       if (accountCreationInfo.isExistingLogin) {
         window.location = `${window.location.origin}/${market.market_id}/Login`;
       } else {
@@ -152,7 +157,7 @@ function LandingPage(props) {
         const authInfo = {
           token: response.login_capability, type: authorizer.getType(),
         };
-        setUclusionLocalStorageItem('auth', authInfo);
+        setMarketAuth('account', authInfo);
         return getClient();
       }).then((client) => {
         // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
@@ -216,7 +221,7 @@ function LandingPage(props) {
           };
           accountCreationInfo.isExistingLogin = response.user.exists_in_cognito;
           // Have to set the return token or market creation will fail
-          setUclusionLocalStorageItem('auth', authInfo);
+          setMarketAuth('account', authInfo);
           return getClient();
         }).then((client) => {
         console.debug('Now pausing before create market so will need spinner');

@@ -21,3 +21,20 @@ export const setUclusionLocalStorageItem = (key, value) => {
   }
   localStorage.setItem('uclusion:root', JSON.stringify(data));
 };
+
+const authKey = 'auth';
+
+export function clearAuth() {
+  setUclusionLocalStorageItem(authKey, null);
+}
+
+export function setMarketAuth(marketId, uclusionTokenInfo) {
+  const authValues = getUclusionLocalStorageItem(authKey) || {};
+  authValues[marketId] = uclusionTokenInfo;
+  setUclusionLocalStorageItem(authKey, authValues);
+}
+
+export function getMarketAuth(marketId) {
+  const authValues = getUclusionLocalStorageItem(authKey) || {};
+  return authValues[marketId];
+}

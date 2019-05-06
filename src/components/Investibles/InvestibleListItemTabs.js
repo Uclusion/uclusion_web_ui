@@ -70,9 +70,12 @@ class InvestibleListItemTabs extends React.PureComponent {
       intl,
       user,
       currentUserInvestment,
+      openForInvestment,
       userPermissions,
     } = this.props;
     const { canInvest, canReadComments, isMarketAdmin } = userPermissions;
+
+    const investmentAllowed = canInvest && openForInvestment;
 
     const { value, investingTeams } = this.state;
 
@@ -85,7 +88,7 @@ class InvestibleListItemTabs extends React.PureComponent {
           indicatorColor="primary"
           textColor="primary"
         >
-          {canInvest && (
+          {investmentAllowed && (
             <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })} value="invest" />
           )}
           {canReadComments && (
@@ -105,7 +108,7 @@ class InvestibleListItemTabs extends React.PureComponent {
         </Tabs>
 
         <div className={classes.tabContent}>
-          {value === 'invest' && canInvest && user && (
+          {value === 'invest' && investmentAllowed && user && (
             <InvestibleInvest
               teamId={user.default_team_id}
               marketId={marketId}
@@ -140,6 +143,7 @@ InvestibleListItemTabs.propTypes = {
   user: PropTypes.object,
   currentUserInvestment: PropTypes.number.isRequired,
   userPermissions: PropTypes.object.isRequired,
+  openForInvestment: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = state => ({

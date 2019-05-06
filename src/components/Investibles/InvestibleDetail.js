@@ -200,6 +200,7 @@ function InvestibleDetail(props) {
           investibleId={myInvestible.id}
           marketId={myInvestible.market_id}
           currentUserInvestment={myInvestible.current_user_investment}
+          openForInvestment={myInvestible.open_for_investment}
         />
       </div>
 

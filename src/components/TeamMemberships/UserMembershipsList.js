@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
@@ -42,15 +43,21 @@ class UserMembershipsList extends React.PureComponent {
     }
   }
 
+  getSortedTeams() {
+    const { teams } = this.props;
+    const sortedTeams = _.sortBy(teams, 'name');
+    return sortedTeams;
+  }
+
   render() {
     const {
-      teams,
       setTeams,
       investibles,
       classes,
       selectedTeamId,
       onToggleFavorite,
     } = this.props;
+    const sortedTeams = this.getSortedTeams();
     return (
       <div
         className={classes.root}
@@ -58,7 +65,7 @@ class UserMembershipsList extends React.PureComponent {
           this.scrollContainer = ref;
         }}
       >
-        {teams.map(team => (
+        {sortedTeams.map(team => (
           <LazyLoad
             key={team.id}
             width={cardWidth}
@@ -66,7 +73,7 @@ class UserMembershipsList extends React.PureComponent {
             <UserMembershipsListItem
               selected={team.id === selectedTeamId}
               team={team}
-              teams={teams}
+              teams={sortedTeams}
               setTeams={setTeams}
               investibles={investibles}
               onToggleFavorite={onToggleFavorite}

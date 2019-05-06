@@ -121,6 +121,7 @@ function UserDetail(props) {
           {value === 'investments' && (
             <InvestmentsList
               setTeams={setTeams}
+              userId={myUser.id}
               investibles={investibles}
             />
           )}

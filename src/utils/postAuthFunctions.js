@@ -50,6 +50,8 @@ export function marketChangeTasks(params, market_id, user) {
   // fetch the user, to make sure everything lines up with the auth market
   dispatch(fetchUser({ marketId: market_id }));
   dispatch(fetchMarketStages({ marketId: market_id }));
+  //clear all old subscriptions
+  webSocket.unsubscribeAll();
   webSocket.subscribe(user.id, { market_id });
   const { investiblesReducer, commentsReducer } = params;
   fetchMarketInvestibleList({
@@ -61,12 +63,13 @@ export function marketChangeTasks(params, market_id, user) {
 }
 
 export function postAuthTasks(params, deployedVersion, uclusionTokenInfo, market_id, user) {
-  const { usersReducer, dispatch } = params;
+  const { usersReducer, dispatch, webSocket } = params;
   setUclusionLocalStorageItem('auth', uclusionTokenInfo);
   notifyNewApplicationVersion(deployedVersion);
   // if we're not sure the user is the same as we loaded redux with, zero out redux
   if (!usersReducer || !usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {
     console.debug('Clearing user redux');
+    webSocket.unsubscribeAll();
     clearReduxStore(dispatch);
   }
   marketChangeTasks(params, market_id, user);

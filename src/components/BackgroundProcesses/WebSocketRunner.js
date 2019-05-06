@@ -2,10 +2,14 @@ import _ from 'lodash';
 import { fetchInvestibles, investibleDeleted } from '../../store/MarketInvestibles/actions';
 import { fetchComments, commentDeleted } from '../../store/Comments/actions';
 import { notifyNewApplicationVersion } from "../../utils/postAuthFunctions";
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
 
 /**
  * Class which fires and manages a websocket connection to the server. It may need to become a service worker
  */
+const localStorageKey = 'websocket_subscriptions';
+
+
 class WebSocketRunner {
   constructor(config) {
     this.wsUrl = config.wsUrl;
@@ -69,11 +73,26 @@ class WebSocketRunner {
     const compacted = _.uniqWith(this.subscribeQueue, _.isEqual);
     this.subscribeQueue = compacted;
     console.debug('Subscribe queue at end of subscribe:', JSON.stringify(this.subscribeQueue));
+    this.storeSubscribeQueue();
+  }
+
+  unsubscribeAll(){
+    this.subscribeQueue = [];
+    this.storeSubscribeQueue();
+  }
+
+  loadSubscribeQueue(){
+    this.subscribeQueue = getUclusionLocalStorageItem(localStorageKey);
+  }
+
+  storeSubscribeQueue(){
+    setUclusionLocalStorageItem(localStorageKey, this.subscribeQueue);
   }
 
   onOpenFactory() {
     // we have to assign queue this to prevent the handler's
     // this from being retargeted to the websocket
+    this.loadSubscribeQueue();
     const queue = this.subscribeQueue;
     console.debug('Subcribing to:', queue);
     const factory = (event) => {

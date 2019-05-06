@@ -18,7 +18,6 @@ import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 import drawerActions from '../../store/drawer/actions';
 import { getClient } from '../../config/uclusionClient';
-import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { getCurrentUser } from '../../store/Users/reducer';
 import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 
@@ -276,9 +275,9 @@ function mapDispatchToProps(dispatch) {
   return { ...boundCreators, dispatch };
 }
 
-export default withBackgroundProcesses(compose(
+export default compose(
   connect(mapStateToProps, mapDispatchToProps),
   withWidth(),
   withStyles(styles, { withTheme: true }),
   injectIntl,
-)(withUserAndPermissions(withRouter(React.memo(Activity)))));
+)(withUserAndPermissions(withRouter(React.memo(Activity))));

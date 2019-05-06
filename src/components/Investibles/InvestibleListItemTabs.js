@@ -9,7 +9,6 @@ import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import InvestibleInvest from './InvestibleInvest';
 import CommentsList from './Comments/CommentsList';
 import InvestingTeamsList from './InvestingTeamsList';
-import { withBackgroundProcesses } from '../BackgroundProcesses/BackgroundProcessWrapper';
 import { getCurrentUser } from '../../store/Users/reducer';
 import { getClient } from '../../config/uclusionClient';
 
@@ -151,4 +150,4 @@ function mapDispatchToProps(dispatch){
   return { dispatch };
 }
 
-export default withBackgroundProcesses(connect(mapStateToProps, mapDispatchToProps)(injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs)))));
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs))));

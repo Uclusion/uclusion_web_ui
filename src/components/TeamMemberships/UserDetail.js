@@ -120,9 +120,7 @@ function UserDetail(props) {
           </Tabs>
           {value === 'investments' && (
             <InvestmentsList
-              teams={teams}
               setTeams={setTeams}
-              userId={myUser.id}
               investibles={investibles}
             />
           )}

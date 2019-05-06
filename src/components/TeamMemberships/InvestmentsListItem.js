@@ -1,5 +1,4 @@
 /* eslint-disable react/forbid-prop-types */
-import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import {
@@ -14,8 +13,7 @@ import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
 import { fetchInvestibles, investmentsDeleted } from '../../store/MarketInvestibles/actions';
-import { getAllUsers } from '../../store/Users/reducer';
-import { fetchUser, usersFetched } from '../../store/Users/actions';
+import { fetchUser } from '../../store/Users/actions';
 import { loadTeams } from '../../utils/userMembershipFunctions';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
@@ -64,17 +62,11 @@ function InvestmentsListItem(props) {
     const {
       marketId,
       dispatch,
-      teamId,
-      teams,
       setTeams,
-      allUsers,
-      userId,
     } = props;
     if (calculatedQuantity === 0 && quantity > 0) {
       const clientPromise = getClient();
-      let clientObject = null;
       clientPromise.then((client) => {
-        clientObject = client;
         return client.markets.deleteInvestment(marketId, id);
       }).then((response) => {
         // refetch the investible to trigger a reload of team investible info
@@ -84,7 +76,7 @@ function InvestmentsListItem(props) {
         loadTeams(canListAccountTeams, marketId, setTeams);
       }).catch((error) => {
           setCalculatedQuantity(quantity);
-          console.log(error);
+          console.error(error);
           sendIntlMessage(ERROR, { id: 'refundFailed' });
         });
     }
@@ -152,11 +144,7 @@ InvestmentsListItem.propTypes = {
   userIsOwner: PropTypes.bool.isRequired,
   classes: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
-  teamId: PropTypes.string.isRequired,
-  teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   setTeams: PropTypes.func, //eslint-disable-line
-  userId: PropTypes.string.isRequired,
-  allUsers: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired,
   stageId: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
@@ -164,7 +152,6 @@ InvestmentsListItem.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  allUsers: getAllUsers(state.usersReducer),
 });
 
 function mapDispatchToProps(dispatch) {

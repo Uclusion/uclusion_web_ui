@@ -8,7 +8,6 @@ import {
   USERS_FETCHED,
   formatUsers,
 } from './actions';
-import { processUser } from '../../utils/userMembershipFunctions';
 import { FOLLOWED_MARKET } from '../Markets/actions';
 
 export const userPropType = PropTypes.shape({
@@ -42,7 +41,7 @@ function getUserObj(oldState, action){
   const oldUser = oldState[user.id];
   if (oldUser) {
     // get all old presences, removing mine
-    const filteredOldPresences = oldUser.market_presences.filter(presence => presence.market_id != user.market_presence.market_id);
+    const filteredOldPresences = oldUser.market_presences.filter(presence => presence.market_id !== user.market_presence.market_id);
     user.market_presences = [...filteredOldPresences, user.market_presence];
   } else {
     user.market_presences = [user.market_presence];

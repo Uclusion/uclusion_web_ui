@@ -80,9 +80,10 @@ class InvestibleListQuickAdd extends React.PureComponent {
     const { title, description, quantityToInvest } = this.state;
     const { userPermissions } = this.props;
     const { canInvest } = userPermissions;
+    const descriptionValid = description && (description !== '<p></p>');
     // console.log(description);
     const quantityValid = (!canInvest) || (quantityToInvest > 0);
-    return title && description && quantityValid;
+    return title && descriptionValid && quantityValid;
   };
 
   render() {

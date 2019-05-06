@@ -279,6 +279,7 @@ function InvestibleEdit (props) {
               onChange={handleChange('additional_investment')}
               type="number"
               required
+              error={!(investible.additional_investment > 0)}
               fullWidth
               InputProps={{
                 startAdornment: (

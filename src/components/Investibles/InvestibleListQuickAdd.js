@@ -127,6 +127,7 @@ class InvestibleListQuickAdd extends React.PureComponent {
             type="number"
             value={quantityToInvest}
             onChange={this.handleChange('quantityToInvest')}
+            error={!(quantityToInvest > 0)}
             InputProps={{
               startAdornment: (
                 <InputAdornment

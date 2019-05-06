@@ -81,8 +81,11 @@ class WebSocketRunner {
     this.storeSubscribeQueue();
   }
 
-  loadSubscribeQueue(){
+  loadSubscribeQueue() {
     this.subscribeQueue = getUclusionLocalStorageItem(localStorageKey);
+    if (!this.subscribeQueue) {
+      this.subscribeQueue = [];
+    }
   }
 
   storeSubscribeQueue(){
@@ -98,8 +101,8 @@ class WebSocketRunner {
     const factory = (event) => {
       console.debug('Here in open factory with queue:', JSON.stringify(queue));
       console.debug('My socket is:', this.socket);
-      queue.forEach(action => {
-        const actionString = JSON.stringify(action)
+      queue.forEach((action) => {
+        const actionString = JSON.stringify(action);
         console.debug('Sending to my socket:', this.socket, actionString);
         this.socket.send(actionString);
       });

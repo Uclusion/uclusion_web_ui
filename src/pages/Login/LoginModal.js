@@ -113,8 +113,12 @@ function LoginModal(props) {
       .then((response) => {
         cognitoTokenGenerated(props, response, cognitoAuthorizer, () => { setProcessing(false); });
       })
-      .catch((err) => {
-        console.error(err);
+      .catch((error) => {
+        getErrorMessage(error)
+          .then((message) => {
+            setError(message);
+          });
+        console.error(error);
       });
   }
 
@@ -170,7 +174,10 @@ function LoginModal(props) {
       setNewPassword('');
       setConfirmPassword('');
     }).catch((error) => {
-      setError(getErrorMessage(error));
+      getErrorMessage(error)
+        .then((message) => {
+          setError(message);
+        });
       console.error(error);
     });
   }
@@ -180,7 +187,10 @@ function LoginModal(props) {
     cognitoAuthorizer.confirmPassword(code, newPassword).then(() => {
       setAllowResetPassword(false);
     }).catch((error) => {
-      setError(error.message);
+      getErrorMessage(error)
+        .then((message) => {
+          setError(message);
+        });
       console.error(error);
     });
   }

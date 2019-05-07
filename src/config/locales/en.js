@@ -383,7 +383,8 @@ const messages = defineMessages({
   loginErrorEmailMissing: 'Email is required',
   loginErrorEmailInvalid: 'Email is invalid',
   loginErrorInvalidMarket: 'You can\'t log into a market that does not exist',
-  loginErrorInvalidCognitoResetCode: 'Invalid verification code. Please try again.',
+  loginErrorInvalidCognitoResetCode: 'Invalid verification code. Please try again',
+  loginPasswordResetSuccess: 'Password changed. Please log in with your new password.',
 
 
   //teamMemberships

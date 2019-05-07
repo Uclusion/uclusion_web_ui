@@ -77,6 +77,7 @@ function LoginModal(props) {
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(false);
   const [loginInfoError, setLoginInfoError] = useState(false);
+  const [helpMessage, setHelpMessage] = useState('');
   const {
     intl, classes, open,
   } = props;
@@ -99,6 +100,7 @@ function LoginModal(props) {
         const { newLogin } = loginParams;
         if (newLogin && response.allow_cognito) {
           setIsNewRegistration(true);
+          setHelpMessage(intl.formatMessage({ id: 'loginNewRegistrationExplanation' }));
         }
       }
     }).catch((error) => {
@@ -151,6 +153,7 @@ function LoginModal(props) {
           changePasswordCognito(cognitoAuthorizer);
         } else {
           setIsNewRegistration(true);
+          setHelpMessage(intl.formatMessage({ id: 'loginNewRegistrationExplanation' }));
           setNewPassword('');
           setConfirmPassword('');
         }
@@ -177,6 +180,7 @@ function LoginModal(props) {
     setError('');
     cognitoAuthorizer.forgotPassword().then(() => {
       setAllowResetPassword(true);
+      setHelpMessage(intl.formatMessage({ id: 'check_email_code' }))
       setCode('');
       setNewPassword('');
       setConfirmPassword('');
@@ -192,7 +196,9 @@ function LoginModal(props) {
   function resetCognitoPassword() {
     setError('');
     cognitoAuthorizer.confirmPassword(code, newPassword).then(() => {
+      setHelpMessage(intl.formatMessage({ id: 'loginPasswordResetSuccess'} ));
       setAllowResetPassword(false);
+
     }).catch((error) => {
       getErrorMessage(error)
         .then((message) => {
@@ -251,16 +257,9 @@ function LoginModal(props) {
         {!allowResetPassword && !isNewRegistration && (intl.formatMessage({ id: 'login_header' }))}
       </DialogTitle>
       <List className={classes.content}>
-        {allowResetPassword && (
-          <Typography className={classes.helpText}>
-            {intl.formatMessage({ id: 'check_email_code' })}
-          </Typography>
-        )}
-        {isNewRegistration && (
-          <Typography className={classes.helpText}>
-            {intl.formatMessage({ id: 'loginNewRegistrationExplanation' })}
-          </Typography>
-        )}
+        <Typography className={classes.helpText}>
+          {helpMessage}
+        </Typography>
         {allowCognitoLogin && ([
           <ListItem key="resetPassword" className={classNames({ [classes.hidden]: !allowResetPassword })}>
             <ValidatorForm className={classes.form} onSubmit={resetCognitoPassword}>

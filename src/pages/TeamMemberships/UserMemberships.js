@@ -108,7 +108,7 @@ function UserMemberships(props) {
   useEffect(() => {
     loadTeams(canListAccountTeams, marketId, setTeams);
     return () => {};
-  }, [marketId]);
+  }, [marketId, canListAccountTeams]);
 
   let selectedTeamId = null;
   let investibleDetail = null;

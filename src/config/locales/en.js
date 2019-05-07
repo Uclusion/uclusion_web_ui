@@ -369,6 +369,8 @@ const messages = defineMessages({
   loginSignupWithEmail: 'Signup with Email',
   loginResetCognitoPassword: 'Reset Uclusion Pasword',
   loginErrorUserNotFound: 'No user with that email exists',
+  loginErrorInvalidLogin: 'Invalid username or password',
+  loginUnknownLoginError: 'Login not accepted. Please try again.',
 
   //teamMemberships
   teamMembershipsMyInvestmentsTitle: 'My Investments',

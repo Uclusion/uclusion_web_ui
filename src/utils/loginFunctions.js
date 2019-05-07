@@ -2,6 +2,7 @@ import { formCurrentMarketLink, getMarketId } from './marketIdPathFunctions';
 import appConfig from '../config/config';
 import { AnonymousAuthorizer, OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk';
 import { postAuthTasks } from './postAuthFunctions';
+import { intl } from '../components/IntlComponents/IntlGlobalProvider';
 
 const getPostAuthPage = () => {
   const currentPage = new URL(window.location.href);
@@ -114,5 +115,35 @@ export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPost
 }
 
 
+function convertErrorToString(error) {
+  if (error.name) {
+    //cognito section
+    const { name } = error;
+    if (name === 'UserNotFoundException') {
+      return intl.formatMessage({ id: 'loginErrorUserNotFound' });
+    }
+    return error.message;
+  }
+  // our cognito sso section
+  if (error.error_message) {
+    const errorMessage = error.error_message;
+    if (errorMessage.includes('Account id email mismatch')) {
+      return intl.formatMessage({ id: 'loginErrorInvalidLogin' });
+    }
+    return errorMessage;
+  }
+  return intl.formatMessage({ id: 'loginUnknownLoginError' });
+}
 
-
+/**
+ *  This function is insane because it's colappsing errors from two or three systems
+ *   returns an i18n string for errors on login
+ * @param error
+ * @returns promise resulting in string error to display to user
+ */
+export function getErrorMessage(response) {
+  return Promise.resolve(response)
+    .then(result => response.json())
+    .then(json => convertErrorToString(json))
+    .catch(result => convertErrorToString(response));
+}

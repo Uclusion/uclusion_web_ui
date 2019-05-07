@@ -22,7 +22,7 @@ import { withRouter } from 'react-router-dom';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { setUclusionLocalStorageItem } from '../../components/utils';
-import { getLoginParams, loginOidc, loginSso, loginAnonymous, cognitoTokenGenerated } from '../../utils/loginFunctions';
+import { getLoginParams, loginOidc, loginSso, loginAnonymous, cognitoTokenGenerated, getErrorMessage } from '../../utils/loginFunctions';
 
 const styles = theme => ({
   content: {
@@ -107,14 +107,6 @@ function LoginModal(props) {
 
 
 
-  function getErrorMessage(error){
-    switch (error.name) {
-      case 'UserNotFoundException':
-        return intl.formatMessage({ id: 'loginErrorUserNotFound' });
-      default:
-        return error.message;
-    }
-  }
 
   function changePasswordCognito(cognitoAuthorizer) {
     cognitoAuthorizer.completeNewPasswordChallenge(newPassword)
@@ -152,9 +144,11 @@ function LoginModal(props) {
           setConfirmPassword('');
         }
       } else {
-        setProcessing(false);
-        setError(getErrorMessage(error));
-        console.error(error);
+        getErrorMessage(error)
+          .then((errorString) => {
+            setProcessing(false);
+            setError(errorString);
+          });
       }
     });
   }

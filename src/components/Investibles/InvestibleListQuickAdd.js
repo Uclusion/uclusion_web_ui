@@ -103,7 +103,6 @@ class InvestibleListQuickAdd extends React.PureComponent {
       addSubmitOnClick,
       addCancelOnClick,
       userPermissions,
-      sharesAvailable,
     } = this.props;
 
     const { canInvest } = userPermissions;

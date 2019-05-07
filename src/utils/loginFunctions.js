@@ -119,10 +119,14 @@ function convertErrorToString(error) {
   if (error.name) {
     //cognito section
     const { name } = error;
-    if (name === 'UserNotFoundException') {
-      return intl.formatMessage({ id: 'loginErrorUserNotFound' });
+    switch(name) {
+      case 'UserNotFoundException':
+        return intl.formatMessage({ id: 'loginErrorUserNotFound' });
+      case 'CodeMismatchException':
+        return intl.formatMessage({ id: 'loginErrorInvalidCognitoResetCode' });
+      default:
+        return error.message;
     }
-    return error.message;
   }
   // our cognito sso section
   if (error.error_message) {

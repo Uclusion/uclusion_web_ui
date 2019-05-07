@@ -63,7 +63,7 @@ const messages = defineMessages({
   email_verified: 'E-Mail is verified',
   send_verification_email: 'Send verification E-Mail',
   send_verification_email_again: 'Send verification E-Mail again',
-  check_email_code: 'Please check your email for a code',
+  check_email_code: 'Please check your email for a verification code',
   investibles: 'Investibles',
   members: 'Members',
   investments: 'Investments',
@@ -362,7 +362,7 @@ const messages = defineMessages({
   loginNewPasswordToolTip: 'Passwords must be at least 8 characters and contain at least one capital letter, lowercase letter, and number.',
   loginNewPasswordMissing: 'A new password is required',
   loginNewPasswordErrorInvalid: 'Passwords must be at least 8 characters and contain at least one capital letter, lowercase letter, and number.',
-  loginCode: 'Code',
+  loginCode: 'Verification Code',
   loginCodeMissing: 'Code is required',
   loginConfirmPassword: 'Confirm Password',
   loginConfirmPasswordErrorMissing: 'Password confirmation is required',
@@ -383,6 +383,7 @@ const messages = defineMessages({
   loginErrorEmailMissing: 'Email is required',
   loginErrorEmailInvalid: 'Email is invalid',
   loginErrorInvalidMarket: 'You can\'t log into a market that does not exist',
+  loginErrorInvalidCognitoResetCode: 'Invalid verification code. Please try again.',
 
 
   //teamMemberships

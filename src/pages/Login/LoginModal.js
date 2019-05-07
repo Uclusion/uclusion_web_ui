@@ -189,7 +189,7 @@ function LoginModal(props) {
     });
   }
 
-  function resetCognitoPassword(cognitoAuthorizer) {
+  function resetCognitoPassword() {
     setError('');
     cognitoAuthorizer.confirmPassword(code, newPassword).then(() => {
       setAllowResetPassword(false);

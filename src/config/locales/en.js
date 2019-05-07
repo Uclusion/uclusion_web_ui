@@ -350,6 +350,8 @@ const messages = defineMessages({
   landingPageEndpointBaseUrlErrorMissing: 'Endpoint Base URL is required',
   landingPageEndpointBaseUrlErrorInvalid: 'Endpoint Base URL is invalid',
   landingPageSubmit: 'Create account',
+  landingPageErrorAccountNameDuplicate: 'An account with that name already exists',
+  landingPageCreatingYourAccount: 'We are creating your account. This will take about 30 seconds...',
 
   // Login
   loginNewPassword: 'New Password',
@@ -371,6 +373,13 @@ const messages = defineMessages({
   loginErrorUserNotFound: 'No user with that email exists',
   loginErrorInvalidLogin: 'Invalid username or password',
   loginUnknownLoginError: 'Login not accepted. Please try again.',
+  loginErrorPasswordMissing: 'Password is required',
+  loginPassword: 'Password',
+  loginEmail: 'Email',
+  loginErrorEmailMissing: 'Email is required',
+  loginErrorEmailInvalid: 'Email is invalid',
+  loginErrorInvalidMarket: 'You can\'t log into a market that does not exist',
+
 
   //teamMemberships
   teamMembershipsMyInvestmentsTitle: 'My Investments',

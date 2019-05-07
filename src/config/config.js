@@ -25,7 +25,7 @@ const config = {
   getMenuItems,
   webSockets: {
     wsUrl: process.env.REACT_APP_WEBSOCKET_URL,
-    reconnectInterval: 3000,
+    reconnectInterval: 2000,
   },
   api_configuration: {
     authorizer,

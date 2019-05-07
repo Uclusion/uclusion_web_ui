@@ -13,7 +13,7 @@ import GroupIcon from '@material-ui/icons/Group';
 import SecurityIcon from '@material-ui/icons/Security';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 import { formCurrentMarketLink } from '../utils/marketIdPathFunctions';
-import { getUclusionLocalStorageItem } from '../components/utils';
+import { getMarketAuth, getUclusionLocalStorageItem } from '../components/utils';
 
 const getMenuItems = (props) => {
   const {
@@ -26,11 +26,11 @@ const getMenuItems = (props) => {
     handleSignOut,
     upUser,
     userPermissions,
+    marketId,
   } = props;
 
-  const { canCategorize, isMarketAdmin, isGuest, marketId } = userPermissions;
-  const authValues = getUclusionLocalStorageItem('auth') || {};
-  const authInfo = authValues[marketId];
+  const { canCategorize, isMarketAdmin, isGuest } = userPermissions;
+  const authInfo = getMarketAuth(marketId);
   const loginInfo = getUclusionLocalStorageItem('loginInfo');
   const myInvestmentsSubpath = upUser ? 'teams#user:' + upUser.id : '';
   const myUclusionPlanningURLSuffix = authInfo && 'uclusion_user_id' in authInfo ? 'investibles' : 'NewCognito';

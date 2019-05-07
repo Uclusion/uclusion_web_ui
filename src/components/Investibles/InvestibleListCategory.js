@@ -41,6 +41,7 @@ class InvestibleListCategory extends React.PureComponent {
       category,
       investibles,
       intl,
+      user,
     } = this.props;
     const sortedInvestibles = this.getSortedAndFormattedInvestiblesList(investibles);
     const selectedInvestibleIndex = this.getSelectedInvestibleIndex(sortedInvestibles);
@@ -57,6 +58,7 @@ class InvestibleListCategory extends React.PureComponent {
         category={category}
         teamId={teamId}
         marketId={marketId}
+        sharesAvailable={user.market_presence.quantity}
       />
     );
 

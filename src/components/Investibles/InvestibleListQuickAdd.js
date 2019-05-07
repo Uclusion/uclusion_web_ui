@@ -47,10 +47,20 @@ class InvestibleListQuickAdd extends React.PureComponent {
   }
 
   handleChange = name => (event) => {
-    const value = event.target.value;
-    this.setState({
-      [name]: value,
-    });
+    const { value } = event.target;
+    let valid = true;
+    if (name === 'quantityToInvest') {
+      const numValue = parseInt(value, 10);
+      if (!isNaN(numValue) && (numValue < 0 || numValue > this.props.sharesAvailable)) {
+        valid = false;
+      }
+    }
+
+    if (valid) {
+      this.setState({
+        [name]: value,
+      });
+    }
   };
 
   addOnClick = (addSubmitOnClick) => {
@@ -78,11 +88,10 @@ class InvestibleListQuickAdd extends React.PureComponent {
 
   validateAddState = () => {
     const { title, description, quantityToInvest } = this.state;
-    const { userPermissions } = this.props;
+    const { userPermissions, sharesAvailable } = this.props;
     const { canInvest } = userPermissions;
     const descriptionValid = description && (description !== '<p></p>');
-    // console.log(description);
-    const quantityValid = (!canInvest) || (quantityToInvest > 0);
+    const quantityValid = !canInvest || ((quantityToInvest > 0) && (quantityToInvest <= sharesAvailable));
     return title && descriptionValid && quantityValid;
   };
 
@@ -94,6 +103,7 @@ class InvestibleListQuickAdd extends React.PureComponent {
       addSubmitOnClick,
       addCancelOnClick,
       userPermissions,
+      sharesAvailable,
     } = this.props;
 
     const { canInvest } = userPermissions;
@@ -174,6 +184,7 @@ InvestibleListQuickAdd.propTypes = {
   addCancelOnClick: PropTypes.func.isRequired,
   addSubmitOnClick: PropTypes.func.isRequired,
   userPermissions: PropTypes.object.isRequired,
+  sharesAvailable: PropTypes.number.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

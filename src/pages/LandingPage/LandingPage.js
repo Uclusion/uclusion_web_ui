@@ -46,6 +46,15 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column',
   },
+  progressText: {
+    marginTop: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
+  },
+  errorText: {
+    marginTop: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
+    color: '#f44336',
+  },
   root: {
     flex: 1,
     display: 'flex',
@@ -138,7 +147,10 @@ function LandingPage(props) {
   const [name, setName] = useState(undefined);
   const [marketProductLoginUrl, setMarketProductLoginUrl] = useState(undefined);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [progressMessage, setProgressMessage] = useState('');
   ValidatorForm.addValidationRule('isURL', value => !value || validURL(value));
+  const { intl } = props;
 
   useEffect(() => {
     const authorizer = new AnonymousAuthorizer({
@@ -204,6 +216,13 @@ function LandingPage(props) {
     setMarketProductLoginUrl(event.target.value);
   }
 
+  function getErrorMessage(e){
+    if (e.error_message && e.error_message.error_message === 'Account name already exists'){
+      return intl.formatMessage({ id: 'landingPageErrorAccountNameDuplicate' });
+    }
+    return 'Form invalid'; //this sucks
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     const authorizer = new AnonymousAuthorizer({
@@ -214,6 +233,7 @@ function LandingPage(props) {
     };
     if (loginType === LOGIN_COGNITO) {
       setLoading(true);
+      setProgressMessage(intl.formatMessage({ id: 'landingPageCreatingYourAccount' }));
       authorizer.cognitoAccountCreate(accountCreationInfo)
         .then((response) => {
           const authInfo = {
@@ -223,14 +243,13 @@ function LandingPage(props) {
           // Have to set the return token or market creation will fail
           setMarketAuth('account', authInfo);
           return getClient();
-        }).then((client) => {
-        console.debug('Now pausing before create market so will need spinner');
-        // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
-        setTimeout(createMarket, 25000, client, accountCreationInfo, setLoading);
-      }).catch((e) => {
-        sendIntlMessage(ERROR, { id: 'landingPageErrorSigningIn' });
-        console.error(e);
-      });
+        }).then(client => setTimeout(createMarket, 30000, client, accountCreationInfo, setLoading)) // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
+        .catch((e) => {
+          setLoading(false);
+          setError(getErrorMessage(e));
+          //sendIntlMessage(ERROR, { id: 'landingPageErrorSigningIn' });
+          console.error(e);
+        });
     } else {
       setLoading(true);
       setUclusionLocalStorageItem('accountCreationInfo', accountCreationInfo);
@@ -253,8 +272,7 @@ function LandingPage(props) {
     }
   }
 
-  const { classes, theme, user, intl } = props;
-
+  const { classes, theme, user } = props;
   return (
     <div className={classes.main}>
       <Helmet>
@@ -442,8 +460,13 @@ function LandingPage(props) {
                     />
                   </Tooltip>
                 )}
+                <Typography className={classes.errorText}>{error}</Typography>
+
                 {loading ? (
-                  <CircularProgress className={classes.progress}/>
+                  <div>
+                    <Typography className={classes.progressText}>{progressMessage}</Typography>
+                    <CircularProgress className={classes.progress}/>
+                  </div>
                 ) : (
                   <Button
                     className={classes.loginButton}

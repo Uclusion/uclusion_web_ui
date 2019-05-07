@@ -38,7 +38,7 @@ const doGenericAuthRedirect = () => {
   if (currentPage.href.includes('#')) {
     location += `#${currentPage.href.split('#')[1]}`;
   }
-  console.log(`redirecting you to login at ${location}`);
+  console.debug(`redirecting you to login at ${location}`);
   window.location = location;
 };
 

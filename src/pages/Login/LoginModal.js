@@ -76,6 +76,7 @@ function LoginModal(props) {
   const [clientId, setClientId] = useState('');
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [loginInfoError, setLoginInfoError] = useState(false);
   const {
     intl, classes, open,
   } = props;
@@ -100,6 +101,12 @@ function LoginModal(props) {
           setIsNewRegistration(true);
         }
       }
+    }).catch((error) => {
+      getErrorMessage(error)
+        .then((errorString) => {
+          setLoginInfoError(true);
+          setError(errorString);
+        });
     });
     return () => {
     };
@@ -236,7 +243,6 @@ function LoginModal(props) {
     );
   }
 
-
   return (
     <Dialog onClose={() => null} aria-labelledby="simple-dialog-title" open={open}>
       <DialogTitle id="simple-dialog-title">
@@ -285,21 +291,21 @@ function LoginModal(props) {
             <ValidatorForm className={classes.form} onSubmit={loginCognito}>
               <TextValidator
                 className={classes.input}
-                label="Email"
+                label={intl.formatMessage({ id: 'loginEmail' })}
                 name="email"
                 validators={['required', 'isEmail']}
-                errorMessages={['Email is required', 'Email is not valid']}
+                errorMessages={[intl.formatMessage({ id: 'loginErrorEmailMissing' }), intl.formatMessage({ id: 'loginErrorEmailInvalid' })]}
                 fullWidth
                 value={email}
                 onChange={event => setEmail(event.target.value)}
               />
               <TextValidator
                 className={classes.input}
-                label="Password"
+                label={intl.formatMessage({ id: 'loginPassword' })}
                 name="password"
                 type="password"
                 validators={['required']}
-                errorMessages={['Password is required']}
+                errorMessages={[intl.formatMessage({ id: 'loginErrorPasswordMissing' })]}
                 fullWidth
                 value={password}
                 onChange={event => setPassword(event.target.value)}
@@ -395,6 +401,13 @@ function LoginModal(props) {
           </ListItem>
         )}
       </List>
+      {loginInfoError &&
+      <List>
+        <ListItem>
+          <Typography className={classes.errorText}>{error}</Typography>
+        </ListItem>
+      </List>
+      }
     </Dialog>
   );
 }

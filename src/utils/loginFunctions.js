@@ -130,6 +130,9 @@ function convertErrorToString(error) {
     if (errorMessage.includes('Account id email mismatch')) {
       return intl.formatMessage({ id: 'loginErrorInvalidLogin' });
     }
+    if (errorMessage.includes('Item does not exist')) {
+      return intl.formatMessage({ id: 'loginErrorInvalidMarket' });
+    }
     return errorMessage;
   }
   return intl.formatMessage({ id: 'loginUnknownLoginError' });

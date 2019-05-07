@@ -253,7 +253,6 @@ Activity.propTypes = {
   isLoading: PropTypes.bool,
   onBackClick: PropTypes.object,
   isOffline: PropTypes.bool.isRequired,
-  webSocket: PropTypes.object.isRequired,
   user: PropTypes.object,
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,

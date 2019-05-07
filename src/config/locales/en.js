@@ -367,7 +367,7 @@ const messages = defineMessages({
   loginCompleteRegistrationButton: 'Finish Registration',
   loginLoginCognitoButton: 'Login',
   loginSignupWithEmail: 'Signup with Email',
-  loginResetCognitoPassword: 'Reset Uclusion Pasword',
+  loginResetCognitoPassword: 'Reset Uclusion Password',
   loginErrorUserNotFound: 'No user with that email exists',
   loginErrorInvalidLogin: 'Invalid username or password',
   loginUnknownLoginError: 'Login not accepted. Please try again.',

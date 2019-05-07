@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
@@ -36,6 +35,7 @@ class UserMembershipsList extends React.PureComponent {
       for (let i = 0; i < teams.length; i++) {
         if (teams[i].id === selectedTeamId) {
           const scrollOffset = i * cardWidth;
+          console.log("Scrolling to " + scrollOffset);
           this.scrollContainer.scrollLeft = scrollOffset;
           break;
         }
@@ -43,11 +43,6 @@ class UserMembershipsList extends React.PureComponent {
     }
   }
 
-  getSortedTeams() {
-    const { teams } = this.props;
-    const sortedTeams = _.sortBy(teams, 'name');
-    return sortedTeams;
-  }
 
   render() {
     const {
@@ -56,8 +51,8 @@ class UserMembershipsList extends React.PureComponent {
       classes,
       selectedTeamId,
       onToggleFavorite,
+      teams,
     } = this.props;
-    const sortedTeams = this.getSortedTeams();
     return (
       <div
         className={classes.root}
@@ -65,7 +60,7 @@ class UserMembershipsList extends React.PureComponent {
           this.scrollContainer = ref;
         }}
       >
-        {sortedTeams.map(team => (
+        {teams.map(team => (
           <LazyLoad
             key={team.id}
             width={cardWidth}
@@ -73,7 +68,7 @@ class UserMembershipsList extends React.PureComponent {
             <UserMembershipsListItem
               selected={team.id === selectedTeamId}
               team={team}
-              teams={sortedTeams}
+              teams={teams}
               setTeams={setTeams}
               investibles={investibles}
               onToggleFavorite={onToggleFavorite}

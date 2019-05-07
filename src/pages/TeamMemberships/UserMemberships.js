@@ -1,5 +1,6 @@
 /* eslint-disable react/forbid-prop-types */
 import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
@@ -146,6 +147,11 @@ function UserMemberships(props) {
     return newURL.toString();
   }
 
+  function getSortedTeams(teams){
+     const sortedTeams = _.sortBy(teams, 'name');
+     return sortedTeams;
+  }
+
   const cognitoLink = getCognitoLink();
   return (
     <Activity
@@ -179,7 +185,7 @@ function UserMemberships(props) {
         )}
         {teams && (
           <UserMembershipsList
-            teams={getFilteredTeams()}
+            teams={getSortedTeams(getFilteredTeams())}
             setTeams={setTeams}
             investibles={getMarketInvestibles()}
             selectedTeamId={selectedTeamId}

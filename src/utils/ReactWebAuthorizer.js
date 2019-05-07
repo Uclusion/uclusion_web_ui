@@ -50,37 +50,27 @@ class ReactWebAuthorizer {
   getAuthorizer() {
     const marketId = getMarketId();
     const authInfo = getLocalAuthInfo();
-    let authorizer = null;
     if (authInfo === null || !authInfo || !authInfo.type) {
-      doGenericAuthRedirect();
-    } else {
-      const config = {uclusionUrl: this.uclusionUrl, marketId};
-      switch (authInfo.type) {
-        case 'oidc':
-          authorizer = new OidcAuthorizer(config);
-          break;
-        case 'sso':
-          authorizer = new SsoAuthorizer(config);
-          break;
-        case 'anonymous':
-          authorizer = new AnonymousAuthorizer(config);
-          break;
-        case 'cognito':
-          authorizer = new CognitoAuthorizer(config);
-          break;
-        default:
-          // I don't recognize this type of authorizer, so I'm going to make you log in again
-          doGenericAuthRedirect();
-      }
+      return doGenericAuthRedirect();
     }
-    if (!authorizer) {
-      // Failing so try simpler redirect
-      window.location = `/${getMarketId()}/Login`;
+    const config = { uclusionUrl: this.uclusionUrl, marketId };
+    switch (authInfo.type) {
+      case 'oidc':
+        return new OidcAuthorizer(config);
+      case 'sso':
+        return new SsoAuthorizer(config);
+      case 'anonymous':
+        return new AnonymousAuthorizer(config);
+      case 'cognito':
+        return new CognitoAuthorizer(config);
+      default:
+        // I don't recognize this type of authorizer, so I'm going to make you log in again
+        return doGenericAuthRedirect();
     }
-    return authorizer;
   }
 
   doAuthFromCurrentPage() {
+    console.log('We are here in crazy');
     // / we're not pre-authorized, so kick them into authorization flow
     const authorizer = this.getAuthorizer();
     if (authorizer) {

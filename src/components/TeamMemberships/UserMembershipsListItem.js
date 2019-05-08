@@ -89,7 +89,7 @@ const styles = theme => ({
 });
 
 function UserMembershipsListItem(props) {
-  const [tabIndex, setTabIndex] = useState(0);
+  const [tabIndex, setTabIndex] = useState("investibles");
   const [investiblesForTeam, setInvestiblesForTeam] = useState(undefined);
   const [userIds, setUserIds] = useState(undefined);
   const [teamUser, setTeamUser] = useState(undefined);
@@ -199,17 +199,20 @@ function UserMembershipsListItem(props) {
           textColor="primary"
         >
           <Tab
+            value="members"
             className={classes.tab}
             classes={{ labelContainer: classes.tabLabelContainer }}
             label={`${team_size} ${intl.formatMessage({ id: 'members' })}`}
           />
           <Tab
+            value="investibles"
             className={classes.tab}
             classes={{ labelContainer: classes.tabLabelContainer }}
             label={intl.formatMessage({ id: 'investibles' })}
           />
           {canGrant && (
             <Tab
+              value="administer"
               className={classes.tab}
               classes={{ labelContainer: classes.tabLabelContainer }}
               label={intl.formatMessage({ id: 'administer' })}
@@ -217,19 +220,19 @@ function UserMembershipsListItem(props) {
           )}
         </Tabs>
         <div className={classes.tabContent}>
-          {tabIndex === 0 && (
+          {tabIndex === "members" && (
             <MemberList
               allUsers={allUsers}
               userIds={userIds}
               marketId={marketId}
             />
           )}
-          {tabIndex === 1 && investiblesForTeam && (
+          {tabIndex === "investibles" && investiblesForTeam && (
             <InvestiblesList
               investibles={investiblesForTeam}
             />
           )}
-          {tabIndex === 2 && teamUser && (
+          {tabIndex === "administer" && teamUser && (
             <AdminUserItem
               teams={teams}
               setTeams={setTeams}

@@ -199,7 +199,7 @@ function Activity(props) {
             <Icon>chevron_left</Icon>
           </IconButton>
           {!onBackClick && drawer.open && <div style={{ marginRight: 32 }} />}
-          {!drawer.open && <img className={classes.logo} src="/images/logo-white.svg" alt="logo" />}
+          {!drawer.open && !canInvest && <img className={classes.logo} src="/images/logo-white.svg" alt="logo" />}
           <Typography variant="h6" color="inherit" noWrap>
             {headerTitle}
           </Typography>

@@ -12,6 +12,7 @@ import withWidth from '@material-ui/core/withWidth';
 import ChevronLeft from '@material-ui/icons/ChevronLeft';
 import ChevronRight from '@material-ui/icons/ChevronRight';
 import withAppConfigs from '../../utils/withAppConfigs';
+import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({
   paper: {
@@ -41,19 +42,19 @@ export const DrawerHeader = (props) => {
     intl,
 
     classes,
-
+    userPermissions,
     setDrawerUseMinified,
     width,
   } = props;
-
+  const { canInvest } = userPermissions;
   const headerHeight = (width === 'xs') ? 40 : 48;
 
   return (
     <Paper className={classes.paper}>
       <List>
         <ListItem style={{ height: headerHeight }}>
-          <img className={classes.logo} src="/images/logo-white.svg" alt="logo" />
-          <ListItemText classes={{ primary: classes.listItem }} primary={intl.formatMessage({ id: 'app_name' })} />
+          {!canInvest && (<img className={classes.logo} src="/images/logo-white.svg" alt="logo" />)}
+          {!canInvest && (<ListItemText classes={{ primary: classes.listItem }} primary={intl.formatMessage({ id: 'app_name' })} />)}
           <Hidden smDown implementation="css">
             <ListItemSecondaryAction>
               <IconButton className={classes.button} onClick={() => { setDrawerUseMinified(false); }}>
@@ -70,4 +71,4 @@ export const DrawerHeader = (props) => {
   );
 };
 
-export default injectIntl(withWidth()(withTheme()(withAppConfigs(withStyles(styles, { withTheme: true })(DrawerHeader)))));
+export default injectIntl(withWidth()(withTheme()(withAppConfigs(withStyles(styles, { withTheme: true })(withUserAndPermissions(DrawerHeader))))));

@@ -20,6 +20,7 @@ import { Block } from 'slate';
 import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
 import React from 'react';
+import { injectIntl } from 'react-intl';
 import {
   Button as MaterialButton,
   TextField,
@@ -138,7 +139,6 @@ const schema = {
 const DialogTypes = {
   LINK: 'link',
   LINK_WITH_TEXT: 'link_with_text',
-  IMAGE: 'image',
 };
 
 /**
@@ -148,12 +148,15 @@ const DialogTypes = {
  */
 
 class RichTextEditor extends React.Component {
-  state = {
-    dialog: null,
-    link: '',
-    linkText: '',
-  };
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      dialog: null,
+      link: '',
+      linkText: '',
+    };
+  }
   /**
    * Check if the current selection has a mark with `type` in it.
    *
@@ -229,11 +232,11 @@ class RichTextEditor extends React.Component {
     this.setState({
       [name]: event.target.value,
     });
-  }
+  };
 
   handleCloseDialog = () => {
     this.setState({ dialog: null });
-  }
+  };
 
   handleSaveLink = () => {
     const { dialog, link, linkText } = this.state;
@@ -249,12 +252,14 @@ class RichTextEditor extends React.Component {
           .insertText(linkText)
           .moveFocusBackward(linkText.length)
           .command(wrapLink, link);
-      } else if (dialog === DialogTypes.IMAGE) {
-        if (!link.trim()) return;
-        this.editor.command(insertImage, link);
       }
     });
-  }
+  };
+
+
+  handleImageUpload = () => {
+    this.insertImagesFromFiles(this.refs.fileUploader.files);
+  };
 
   /**
    * Render.
@@ -263,11 +268,12 @@ class RichTextEditor extends React.Component {
    */
 
   render() {
-    const { value, onChange, readOnly, placeHolder } = this.props;
+    const { value, onChange, readOnly, placeHolder, intl } = this.props;
     const { dialog, link, linkText } = this.state;
-
     return (
       <div style={{ width: '100%' }}>
+        <input type="file" id="fileElem" multiple accept="image/*" ref="fileUploader" style={{display: "none"}}
+                                 onChange={() => this.handleImageUpload()}/>
         {this.toolBar()}
         <Typography
           style={{
@@ -299,19 +305,18 @@ class RichTextEditor extends React.Component {
           fullWidth
         >
           <DialogTitle>
-            {(dialog === DialogTypes.IMAGE) ? 'Add Image' : 'Add Link'}
+            {intl.formatMessage({ id: 'RichTextEditorAddLink' })}
           </DialogTitle>
           <DialogContent>
             <DialogContentText>
-              {(dialog === DialogTypes.IMAGE) && 'Enter the URL of the image:'}
-              {(dialog === DialogTypes.LINK) && 'Enter the URL of the link:'}
-              {(dialog === DialogTypes.LINK_WITH_TEXT) && 'Enter the URL and text of the link:'}
+              {(dialog === DialogTypes.LINK) && intl.formatMessage({ id: 'RichTextEditorEnterUrl' })}
+              {(dialog === DialogTypes.LINK_WITH_TEXT) && intl.formatMessage({ id: 'RichTextEditorEnterTextAndLink' })}
             </DialogContentText>
             <TextField
               autoFocus
               margin="dense"
               id="link"
-              label="Link"
+              label={intl.formatMessage({ id: 'RichTextEditorLinkLabel' })}
               fullWidth
               value={link}
               onChange={this.handleChangeDialogValue('link')}
@@ -320,7 +325,7 @@ class RichTextEditor extends React.Component {
               <TextField
                 margin="dense"
                 id="text"
-                label="Text"
+                label={intl.formatMessage({ id: 'RichTextEditorTextLabel' })}
                 fullWidth
                 value={linkText}
                 onChange={this.handleChangeDialogValue('linkText')}
@@ -590,6 +595,7 @@ class RichTextEditor extends React.Component {
     }
   };
 
+
   /** Image editor stuff again */
   /**
    * On clicking the image button, prompt for an image and insert it.
@@ -599,11 +605,21 @@ class RichTextEditor extends React.Component {
 
   onClickImage = event => {
     event.preventDefault();
-    this.setState({
-      dialog: DialogTypes.IMAGE,
-      link: '',
-      linkText: '',
-    });
+    this.refs.fileUploader.click();
+  };
+
+  insertImagesFromFiles = (files, target) => {
+    for (const file of files) {
+      const reader = new FileReader();
+      const [mime] = file.type.split('/');
+      if (mime !== 'image') continue;
+
+      reader.addEventListener('load', () => {
+        this.editor.command(insertImage, reader.result, target);
+      });
+
+      reader.readAsDataURL(file);
+    }
   };
 
   /**
@@ -622,17 +638,7 @@ class RichTextEditor extends React.Component {
     const { type, text, files } = transfer;
 
     if (type === 'files') {
-      for (const file of files) {
-        const reader = new FileReader();
-        const [mime] = file.type.split('/');
-        if (mime !== 'image') continue;
-
-        reader.addEventListener('load', () => {
-          editor.command(insertImage, reader.result, target);
-        });
-
-        reader.readAsDataURL(file);
-      }
+      this.insertImagesFromFiles(files, target);
       return;
     }
     // console.log(text)
@@ -657,4 +663,4 @@ class RichTextEditor extends React.Component {
  * Export.
  */
 
-export default RichTextEditor;
+export default injectIntl(RichTextEditor);

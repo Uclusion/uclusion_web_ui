@@ -434,6 +434,13 @@ const messages = defineMessages({
   //Invite list
   inviteListMemberCount: '{count} Members',
 
+  //Rich text editor
+  RichTextEditorAddLinkTitle: 'Add Link',
+  RichTextEditorEnterUrl: 'Enter the URL of the link:',
+  RichTextEditorEnterTextAndLink: 'Enter the URL and text of the link:',
+  RichTextEditorLinkLabel: 'Link',
+  RichTextEditorTextLabel: 'Text',
+
 
 });
 

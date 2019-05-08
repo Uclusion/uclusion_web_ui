@@ -115,8 +115,6 @@ function LoginModal(props) {
   }, []);
 
 
-
-
   function changePasswordCognito(cognitoAuthorizer) {
     cognitoAuthorizer.completeNewPasswordChallenge(newPassword)
       .then((response) => {

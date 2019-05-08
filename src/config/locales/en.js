@@ -287,7 +287,6 @@ const messages = defineMessages({
   commentDeleteSucceeded: 'The comment has been deleted',
   commentDeleteFailed: 'We\'re sorry, the comment could not be deleted',
   editBoxTooManyBytes: 'There is too much data in the editor. Please remove some text or images',
-  investibleDescriptionTooManyBytes: 'The investible description is too large. Please remove some text or images',
   investibleDescriptionRequired: 'Must include description.',
   commentTooManyBytes: 'The comment is too large. Please remove some text or images',
   commentRequired: 'Comment cannot be empty.',

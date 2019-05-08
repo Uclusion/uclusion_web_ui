@@ -339,7 +339,7 @@ class RichTextEditor extends React.Component {
         const { data } = node;
         const href = data.get('href');
         return (
-          <a {...attributes} href={href}>
+          <a {...attributes} href={href} rel="noopener noreferrer" target="_blank">
             {children}
           </a>
         );

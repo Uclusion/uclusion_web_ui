@@ -138,6 +138,7 @@ function Activity(props) {
     titleButtons,
     user,
     userPermissions,
+    containerStyle,
   } = props;
   const { canInvest } = userPermissions;
   const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
@@ -230,7 +231,7 @@ function Activity(props) {
         </Typography>
       </div>
       )}
-      <main className={contentClassName}>
+      <main className={contentClassName} style={containerStyle}>
         {children}
       </main>
     </div>
@@ -257,6 +258,7 @@ Activity.propTypes = {
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   userPermissions: PropTypes.object,
+  containerStyle: PropTypes.object,
 };
 
 const mapStateToProps = (state) => {

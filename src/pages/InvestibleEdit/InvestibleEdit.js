@@ -303,7 +303,7 @@ function InvestibleEdit (props) {
   return (
     <Activity
       isLoading={Object.keys(investible).length === 0}
-      containerStyle={{ overflow: 'hidden' }}
+      containerStyle={{ overflow: 'auto' }}
       title={intl.formatMessage({ id: 'investibleEditHeader' })}
     >
       <div className={classes.root}>

@@ -113,7 +113,7 @@ function MarketManagement(props) {
   return (
     <Activity
       isLoading={Object.keys(market).length === 0}
-      containerStyle={{ overflow: 'hidden' }}
+      containerStyle={{ overflow: 'auto' }}
       title={intl.formatMessage({ id: 'marketEditHeader' })}
     >
       <div className={classes.root}>

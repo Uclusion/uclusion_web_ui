@@ -221,6 +221,8 @@ const messages = defineMessages({
   myTeamsMenu: 'Team Memberships',
   inviteMenu: 'Team Management',
   inviteMarketText: 'This page is only for special case invitations. For new team you might be using single sign on but want to invite a team not yet using your product or you are using sign up but want to invite to a specific team. New admin is if you are using user name and password login and need to invite another administrator.',
+  marketManagement: 'Market Management',
+  marketEditHeader: 'Edit Market',
   login_admin: 'Login Admin',
   login_user: 'Login User',
   login_guest: 'Login Guest',
@@ -242,6 +244,8 @@ const messages = defineMessages({
   officialCommentResponse: 'OFFICIAL RESPONSE',
   // User messages
   marketFetchFailed: 'There was a problem loading the market. Please try again',
+  marketEditSuccess: 'We are saving your edits. They should appear shortly',
+  marketEditFailed: 'We could not update your market. Please try again',
   marketFollowFailed: 'We could not change your subscription to this market. Please try again.',
   marketFollowSuccess: 'You are subscribed to this market and will receive email notifications.',
   marketUnfollowSuccess: 'You are unsubscribed from this market and will not receive email notifications.',

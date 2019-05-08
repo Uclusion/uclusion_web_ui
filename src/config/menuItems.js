@@ -12,6 +12,7 @@ import Timeline from '@material-ui/icons/Timeline';
 import GroupIcon from '@material-ui/icons/Group';
 import SecurityIcon from '@material-ui/icons/Security';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
+import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import { formCurrentMarketLink } from '../utils/marketIdPathFunctions';
 import { getMarketAuth, getUclusionLocalStorageItem } from '../components/utils';
 
@@ -102,6 +103,12 @@ const getMenuItems = (props) => {
           visible: canCategorize,
           primaryText: intl.formatMessage({ id: 'marketCategoriesMenu' }),
           leftIcon: <ViewColumn />,
+        },
+        {
+          value: formCurrentMarketLink('market'),
+          visible: isMarketAdmin,
+          primaryText: intl.formatMessage({ id: 'marketManagement' }),
+          leftIcon: <ShoppingCartIcon />,
         },
       ],
     },

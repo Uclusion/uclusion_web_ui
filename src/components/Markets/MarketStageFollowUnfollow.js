@@ -42,18 +42,18 @@ function MarketStageFollowUnfollow(props) {
 
   function getIcon() {
     if (currentStage) {
-      if (following) {
+      if (!following) {
         return (
-          <Tooltip title={intl.formatMessage({ id: 'marketStageUnFollowTooltip' })}>
+          <Tooltip title={intl.formatMessage({ id: 'marketStageFollowTooltip' })}>
             <IconButton onClick={() => doFollowingToggle()}>
               <VolumeUp />
             </IconButton>
           </Tooltip>
         );
       }
-      if (!following) {
+      if (following) {
         return (
-          <Tooltip title={intl.formatMessage({ id: 'marketStageFollowTooltip' })}>
+          <Tooltip title={intl.formatMessage({ id: 'marketStageUnFollowTooltip' })}>
             <IconButton onClick={() => doFollowingToggle()}>
               <VolumeOffSharp />
             </IconButton>
@@ -61,7 +61,7 @@ function MarketStageFollowUnfollow(props) {
         );
       }
     }
-    return <div/>;
+    return <div />;
   }
 
   return getIcon();

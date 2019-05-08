@@ -174,7 +174,7 @@ function UserMembershipsListItem(props) {
             className={classes.toolbarButton}
             onClick={() => onToggleFavorite(team)}
           >
-            {current_user_is_following ? <VolumeUp /> : <VolumeOffSharp />}
+            {current_user_is_following ? <VolumeOffSharp /> : <VolumeUp />}
           </IconButton>
         </div>
         {last_investment_updated_at && (

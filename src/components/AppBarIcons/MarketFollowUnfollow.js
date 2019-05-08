@@ -26,7 +26,7 @@ function MarketFollowUnfollow(props) {
   const marketPresence = getCurrentMarketPresence(user);
   // if we don't know the market presence, just render an unfollowed version
   if (!marketPresence || marketPresence.id !== marketId) {
-    return <VolumeOffSharp className={classes.root} />;
+    return <Tooltip title={intl.formatMessage({ id: 'marketFollowTooltip' })}><IconButton className={classes.root} onClick={onclick}><VolumeUp /></IconButton></Tooltip>;
   }
   const { following } = marketPresence;
 
@@ -36,10 +36,10 @@ function MarketFollowUnfollow(props) {
 
   function getIcon() {
     const onclick = () => doFollowingToggle();
-    if (following) {
-      return <Tooltip title={intl.formatMessage({ id: 'marketUnFollowTooltip'})}><IconButton className={classes.root} onClick={onclick}><VolumeUp /></IconButton></Tooltip>;
+    if (!following) {
+      return <Tooltip title={intl.formatMessage({ id: 'marketFollowTooltip' })}><IconButton className={classes.root} onClick={onclick}><VolumeUp /></IconButton></Tooltip>;
     }
-    return <Tooltip title={intl.formatMessage({ id: 'marketFollowTooltip'})}><IconButton className={classes.root} onClick={onclick}><VolumeOffSharp /></IconButton></Tooltip>;
+    return <Tooltip title={intl.formatMessage({ id: 'marketUnFollowTooltip' })}><IconButton className={classes.root} onClick={onclick}><VolumeOffSharp /></IconButton></Tooltip>;
   }
 
   return getIcon();

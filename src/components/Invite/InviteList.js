@@ -42,4 +42,7 @@ InviteList.propTypes = {
   teams: PropTypes.array.isRequired, //eslint-disable-line
 };
 
+
+
+
 export default injectIntl(withStyles(styles)(InviteList));

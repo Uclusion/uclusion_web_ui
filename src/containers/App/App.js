@@ -14,6 +14,12 @@ addLocalizationData(locales);
 
 
 class App extends PureComponent {
+
+  preventDragHandler = (e) => {
+    alert(e);
+    e.preventDefault();
+  };
+
   render() {
     const { appConfig, locale, isLanding } = this.props;
     let myLocale = locale;
@@ -32,8 +38,8 @@ class App extends PureComponent {
           <Provider store={store}>
             <AppConfigProvider appConfig={configs}>
               {
-                (isLanding && <Root appConfig={configs} isLanding />)
-                || (!isLanding && <Root appConfig={configs} />)
+                (isLanding && <Root appConfig={configs} isLanding onDragStart={this.preventDragHandler} />)
+                || (!isLanding && <Root appConfig={configs} onDragStart={this.preventDragHandler} />)
               }
             </AppConfigProvider>
           </Provider>

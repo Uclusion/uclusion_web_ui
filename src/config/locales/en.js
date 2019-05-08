@@ -393,6 +393,11 @@ const messages = defineMessages({
   teamMembershipsMemberListItemUsharesSpent: 'uShares spent: {quantity_invested}',
   teamMembershipsEmailButton: 'Copy Market Invite Link To Clipboard',
   teamMembershipsEmailButtonTooltip: 'Send this link to your user to invite them into your market',
+  teamMembershipsSharesAvailableToTeamAndUsers: 'Ȗ Available',
+  teamMembershipsSharesInvested: 'Ȗ Invested',
+  teamMembershipsSharesInvestedPercentage: '% Invested',
+  teamMembershipsLastInvested: 'Last invested at: {date}',
+
   //UserDetail
   teamMembershipsUserDetailUsharesAvailable: 'uShares available: {quantity}',
   teamMembershipsUserDetailUsharesSpent: 'uShares spent: {quantity_invested}',
@@ -425,6 +430,9 @@ const messages = defineMessages({
   //markets
   marketFollowTooltip: 'Subscrbe',
   marketUnFollowTooltip: 'Unsubscribe',
+
+  //Invite list
+  inviteListMemberCount: '{count} Members',
 
 
 });

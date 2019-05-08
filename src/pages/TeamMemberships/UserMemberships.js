@@ -204,6 +204,7 @@ function UserMemberships(props) {
             teams={teams}
             setTeams={setTeams}
             investibles={getMarketInvestibles()}
+            selectedTeamId={selectedTeamId}
             onClose={() => history.push(pathname)}
           />
         )}

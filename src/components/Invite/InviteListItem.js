@@ -5,13 +5,12 @@ import {
   Grid,
   Card,
   Typography,
-  Badge,
-  Chip,
   Button,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { getClient } from '../../config/uclusionClient';
+import TeamSharesSummary from '../TeamMemberships/TeamSharesSummary';
 
 const styles = theme => ({
   container: {
@@ -49,12 +48,11 @@ const styles = theme => ({
 
 function InviteListItem(props) {
   const [inviteUrl, setInviteUrl] = useState(undefined);
-  const { classes, team } = props;
+  const { classes, team, intl } = props;
   const {
     id,
     name,
     description,
-    shared_quantity,
     team_size,
     quantity_invested,
     quantity,
@@ -89,44 +87,9 @@ function InviteListItem(props) {
           {name}
         </Typography>
         <Typography>
-          {`${team_size} Members`}
+          {intl.formatMessage({ id: 'inviteListMemberCount'}, {count: team_size})}
         </Typography>
-        <div className={classes.ushares}>
-          <Typography>uShares:</Typography>
-          <Badge
-            classes={{ badge: classes.investiblesBadge }}
-            max={1000000}
-            badgeContent={shared_quantity}
-            color="primary"
-          >
-            <Chip
-              label="Shared"
-              variant="outlined"
-            />
-          </Badge>
-          <Badge
-            classes={{ badge: classes.investiblesBadge }}
-            max={1000000}
-            badgeContent={quantity}
-            color="primary"
-          >
-            <Chip
-              label="Available"
-              variant="outlined"
-            />
-          </Badge>
-          <Badge
-            classes={{ badge: classes.investiblesBadge }}
-            max={1000000}
-            badgeContent={quantity_invested}
-            color="primary"
-          >
-            <Chip
-              label="Invested"
-              variant="outlined"
-            />
-          </Badge>
-        </div>
+        <TeamSharesSummary quantity={quantity} quantity_invested={quantity_invested}/>
         <Typography className={classes.description}>
           {description}
         </Typography>

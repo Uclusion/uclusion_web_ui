@@ -6,8 +6,6 @@ import { connect } from 'react-redux';
 import {
   Card,
   Typography,
-  Badge,
-  Chip,
   Tabs,
   Tab,
   IconButton,
@@ -17,7 +15,6 @@ import { withStyles } from '@material-ui/core/styles';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import _ from 'lodash';
-import moment from 'moment';
 import { injectIntl } from 'react-intl';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
@@ -28,6 +25,7 @@ import { getCurrentUser, getAllUsers } from '../../store/Users/reducer';
 import { usersFetched } from '../../store/Users/actions';
 import AdminUserItem from './AdminUserItem';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
+import TeamSharesSummary from './TeamSharesSummary';
 
 const styles = theme => ({
   root: {
@@ -112,7 +110,6 @@ function UserMembershipsListItem(props) {
   const {
     name,
     description,
-    shared_quantity,
     team_size,
     quantity_invested,
     quantity,
@@ -120,7 +117,15 @@ function UserMembershipsListItem(props) {
     current_user_is_following,
   } = team;
   const { canGrant } = userPermissions;
-  const lastInvestDate = moment(last_investment_updated_at).format('MM/DD/YYYY hh:mm A');
+
+  const dateFormatOptions = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  };
+  const lastInvestDate = intl.formatDate(last_investment_updated_at, dateFormatOptions);
 
 
   function teamUsersFetched(teamId, users) {
@@ -179,46 +184,10 @@ function UserMembershipsListItem(props) {
         </div>
         {last_investment_updated_at && (
           <Typography className={classes.lastInvestmentDate}>
-            {'Last invested at:  '}
-            {lastInvestDate}
+            {intl.formatMessage({id: 'teamMembershipsLastInvested' }, { date: lastInvestDate})}
           </Typography>
         )}
-        <div className={classes.ushares}>
-          <Typography>{intl.formatMessage({ id: 'teamMembershipsTeamUshares'})}</Typography>
-          <Badge
-            classes={{ badge: classes.investiblesBadge }}
-            max={1000000}
-            badgeContent={shared_quantity}
-            color="primary"
-          >
-            <Chip
-              label="Shared"
-              variant="outlined"
-            />
-          </Badge>
-          <Badge
-            classes={{ badge: classes.investiblesBadge }}
-            max={1000000}
-            badgeContent={quantity}
-            color="primary"
-          >
-            <Chip
-              label="Available"
-              variant="outlined"
-            />
-          </Badge>
-          <Badge
-            classes={{ badge: classes.investiblesBadge }}
-            max={1000000}
-            badgeContent={quantity_invested}
-            color="primary"
-          >
-            <Chip
-              label="Invested"
-              variant="outlined"
-            />
-          </Badge>
-        </div>
+        <TeamSharesSummary quantity={quantity} quantity_invested={quantity_invested}/>
         <Typography>
           {description}
         </Typography>

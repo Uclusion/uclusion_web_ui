@@ -21,10 +21,10 @@ function InvestibleFollowUnfollow(props) {
 
   function getButton() {
     const onclick = () => doFollowToggle();
-    if (current_user_is_following) {
-      return <Tooltip title={intl.formatMessage({ id: 'investiblesFollowTooltip' })}><IconButton onClick={onclick}><VolumeUp/></IconButton></Tooltip>;
+    if (!current_user_is_following) {
+      return <Tooltip title={intl.formatMessage({ id: 'investiblesFollowTooltip' })}><IconButton onClick={onclick}><VolumeUp /></IconButton></Tooltip>;
     }
-    return <Tooltip title={intl.formatMessage({ id: 'investiblesUnFollowTooltip' })}><IconButton onClick={onclick}><VolumeOffSharp/></IconButton></Tooltip>;
+    return <Tooltip title={intl.formatMessage({ id: 'investiblesUnFollowTooltip' })}><IconButton onClick={onclick}><VolumeOffSharp /></IconButton></Tooltip>;
   }
 
   return getButton();

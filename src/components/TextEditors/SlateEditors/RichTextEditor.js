@@ -20,7 +20,16 @@ import { Block } from 'slate';
 import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
+import {
+  Button as MaterialButton,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Typography,
+ } from '@material-ui/core';
 import { isKeyHotkey } from 'is-hotkey';
 import { Button, Icon, Toolbar, Image } from './components';
 
@@ -126,6 +135,12 @@ const schema = {
   },
 };
 
+const DialogTypes = {
+  LINK: 'link',
+  LINK_WITH_TEXT: 'link_with_text',
+  IMAGE: 'image',
+};
+
 /**
  * The rich text example.
  *
@@ -133,6 +148,11 @@ const schema = {
  */
 
 class RichTextEditor extends React.Component {
+  state = {
+    dialog: null,
+    link: '',
+    linkText: '',
+  };
 
   /**
    * Check if the current selection has a mark with `type` in it.
@@ -205,6 +225,37 @@ class RichTextEditor extends React.Component {
       </div>);
   };
 
+  handleChangeDialogValue = name => (event) => {
+    this.setState({
+      [name]: event.target.value,
+    });
+  }
+
+  handleCloseDialog = () => {
+    this.setState({ dialog: null });
+  }
+
+  handleSaveLink = () => {
+    const { dialog, link, linkText } = this.state;
+
+    this.setState({ dialog: null }, () => {
+      if (dialog === DialogTypes.LINK) {
+        if (!link.trim()) return;
+        this.editor.command(wrapLink, link);
+      } else if (dialog === DialogTypes.LINK_WITH_TEXT) {
+        if (!link.trim()) return;
+        if (!linkText.trim()) return;
+        this.editor
+          .insertText(linkText)
+          .moveFocusBackward(linkText.length)
+          .command(wrapLink, link);
+      } else if (dialog === DialogTypes.IMAGE) {
+        if (!link.trim()) return;
+        this.editor.command(insertImage, link);
+      }
+    });
+  }
+
   /**
    * Render.
    *
@@ -213,6 +264,8 @@ class RichTextEditor extends React.Component {
 
   render() {
     const { value, onChange, readOnly, placeHolder } = this.props;
+    const { dialog, link, linkText } = this.state;
+
     return (
       <div style={{ width: '100%' }}>
         {this.toolBar()}
@@ -240,6 +293,49 @@ class RichTextEditor extends React.Component {
             readOnly={readOnly}
           />
         </Typography>
+        <Dialog
+          open={!!dialog}
+          onClose={this.handleCloseDialog}
+          fullWidth
+        >
+          <DialogTitle>
+            {(dialog === DialogTypes.IMAGE) ? 'Add Image' : 'Add Link'}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              {(dialog === DialogTypes.IMAGE) && 'Enter the URL of the image:'}
+              {(dialog === DialogTypes.LINK) && 'Enter the URL of the link:'}
+              {(dialog === DialogTypes.LINK_WITH_TEXT) && 'Enter the URL and text of the link:'}
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="link"
+              label="Link"
+              fullWidth
+              value={link}
+              onChange={this.handleChangeDialogValue('link')}
+            />
+            {(dialog === DialogTypes.LINK_WITH_TEXT) && (
+              <TextField
+                margin="dense"
+                id="text"
+                label="Text"
+                fullWidth
+                value={linkText}
+                onChange={this.handleChangeDialogValue('linkText')}
+              />
+            )}
+          </DialogContent>
+          <DialogActions>
+            <MaterialButton onClick={this.handleCloseDialog} color="primary">
+              Cancel
+            </MaterialButton>
+            <MaterialButton onClick={this.handleSaveLink} color="primary">
+              Save
+            </MaterialButton>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }
@@ -480,30 +576,17 @@ class RichTextEditor extends React.Component {
     if (hasLinks) {
       editor.command(unwrapLink);
     } else if (value.selection.isExpanded) {
-      const href = window.prompt('Enter the URL of the link:');
-
-      if (href === null) {
-        return;
-      }
-
-      editor.command(wrapLink, href);
+      this.setState({
+        dialog: DialogTypes.LINK,
+        link: '',
+        linkText: '',
+      });
     } else {
-      const href = window.prompt('Enter the URL of the link:');
-
-      if (href === null) {
-        return;
-      }
-
-      const text = window.prompt('Enter the text for the link:');
-
-      if (text === null) {
-        return;
-      }
-
-      editor
-        .insertText(text)
-        .moveFocusBackward(text.length)
-        .command(wrapLink, href);
+      this.setState({
+        dialog: DialogTypes.LINK_WITH_TEXT,
+        link: '',
+        linkText: '',
+      });
     }
   };
 
@@ -516,9 +599,11 @@ class RichTextEditor extends React.Component {
 
   onClickImage = event => {
     event.preventDefault();
-    const src = window.prompt('Enter the URL of the image:');
-    if (!src) return;
-    this.editor.command(insertImage, src);
+    this.setState({
+      dialog: DialogTypes.IMAGE,
+      link: '',
+      linkText: '',
+    });
   };
 
   /**

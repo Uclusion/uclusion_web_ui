@@ -415,6 +415,7 @@ const messages = defineMessages({
   investiblesDeleteWarning: 'Deleting an investible cannot be undone. Are you sure?',
   investiblesDeleteCancel: 'No, keep it',
   investiblesDeleteConfirm: 'Yes, delete it',
+  investiblesLastInvestment: 'Last investment: {date}',
 
 
   // Notices

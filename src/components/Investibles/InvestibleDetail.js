@@ -45,6 +45,9 @@ const styles = theme => ({
     flexDirection: 'column',
     overflow: 'auto',
   },
+  lastInvestmentDate: {
+    paddingBottom: theme.spacing.unit * 1,
+  },
   detailOpen: {
     right: 0,
   },
@@ -163,7 +166,12 @@ function InvestibleDetail(props) {
   const show = !!investible;
   const myInvestible = investible || lastInvestible;
   const { canDeleteMarketInvestible, canEditMarketInvestible, isGuest } = userPermissions;
-
+  const dateFormatOptions = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  };
+  const lastInvestDate = intl.formatDate(myInvestible.updated_at, dateFormatOptions);
   return (
     <div
       className={classNames(classes.root, {
@@ -179,6 +187,9 @@ function InvestibleDetail(props) {
           <CloseIcon />
         </IconButton>
       </div>
+      <Typography className={classes.lastInvestmentDate}>
+        {intl.formatMessage({id: 'investiblesLastInvestment' }, { date: lastInvestDate})}
+      </Typography>
       <Typography component="div" className={classNames(classes.flex, classes.row)}>
         <span className={classes.stageLabel}>
           {intl.formatMessage({ id: 'currentStageLabel' })}

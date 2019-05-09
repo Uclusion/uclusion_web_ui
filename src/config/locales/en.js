@@ -220,7 +220,7 @@ const messages = defineMessages({
   categoriesLoading: 'Loading Categories.',
   myTeamsMenu: 'Team Memberships',
   inviteMenu: 'Team Management',
-  inviteMarketText: 'This page is only for special case invitations. For new team you might be using single sign on but want to invite a team not yet using your product or you are using sign up but want to invite to a specific team. New admin is if you are using user name and password login and need to invite another administrator.',
+  inviteMarketText: 'Use this page only if you need to invite someone that cannot single sign on or that you want on a different team then by email domain.',
   marketManagement: 'Market Management',
   marketEditHeader: 'Edit Market',
   login_admin: 'Login Admin',

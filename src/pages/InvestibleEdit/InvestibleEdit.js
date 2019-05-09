@@ -122,6 +122,7 @@ function InvestibleEdit (props) {
         // set the current stage on it to keep the save happy
         investible.current_stage_id = investible.stage;
         setInvestible(investibles[0]);
+        setStageChange(true);
         dispatch(fetchMarket({ market_id: marketId }));
       }).catch((error) => {
         console.log(error);

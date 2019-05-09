@@ -43,6 +43,7 @@ const styles = theme => ({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'auto',
   },
   detailOpen: {
     right: 0,

@@ -86,6 +86,10 @@ function LoginModal(props) {
 
   useEffect(() => {
     const loginParams = getLoginParams();
+    const { anonymousLogin } = loginParams;
+    if (anonymousLogin) {
+      loginAnonymous(props);
+    }
     const authorizer = new AnonymousAuthorizer(loginParams);
     authorizer.marketLoginInfo().then((response) => {
       setUclusionLocalStorageItem('loginInfo', response);

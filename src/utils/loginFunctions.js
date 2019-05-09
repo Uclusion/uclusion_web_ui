@@ -26,6 +26,7 @@ export function getLoginParams() {
     page += `#${parsed.href.split('#')[1]}`;
   }
   const newLogin = parsed.searchParams.get('newLogin');
+  const anonymousLogin = parsed.searchParams.get('anonymousLogin');
   const destinationPage = getDestinationPage(page, true);
   const redirectUrl = getPostAuthPage();
   const pageUrl = window.location.href;
@@ -41,6 +42,7 @@ export function getLoginParams() {
     uclusionUrl,
     newLogin,
     page,
+    anonymousLogin,
   };
 }
 

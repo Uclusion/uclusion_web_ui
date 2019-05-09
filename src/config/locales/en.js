@@ -246,6 +246,8 @@ const messages = defineMessages({
   marketFetchFailed: 'There was a problem loading the market. Please try again',
   marketEditSuccess: 'We are saving your edits. They should appear shortly',
   marketEditFailed: 'We could not update your market. Please try again',
+  marketAnonymousActiveSuccess: 'This market will now allow anonymous access. See anonymous access URL on this page.',
+  marketAnonymousActiveFailed: 'We could not allow anonymous access. Please try again',
   marketFollowFailed: 'We could not change your subscription to this market. Please try again.',
   marketFollowSuccess: 'You are subscribed to this market and will receive email notifications.',
   marketUnfollowSuccess: 'You are unsubscribed from this market and will not receive email notifications.',
@@ -386,7 +388,7 @@ const messages = defineMessages({
   loginPasswordResetSuccess: 'Password changed. Please log in with your new password.',
 
 
-  //teamMemberships
+  // teamMemberships
   teamMembershipsMyInvestmentsTitle: 'My Investments',
   teamMembershipsTeamUshares: 'uShares:',
   teamMembershipsMemberListItemUsharesAvailable: 'uShares available: {quantity}',
@@ -398,14 +400,17 @@ const messages = defineMessages({
   teamMembershipsSharesInvestedPercentage: '% Invested',
   teamMembershipsLastInvested: 'Last invested at: {date}',
 
-  //UserDetail
+  // MarketManagement
+  copyAnonymousLoginLink: 'Copy Anonymous Login Link',
+
+  // UserDetail
   teamMembershipsUserDetailUsharesAvailable: 'uShares available: {quantity}',
   teamMembershipsUserDetailUsharesSpent: 'uShares spent: {quantity_invested}',
 
-  //teamsSearch
+  // teamsSearch
   teamsSearchBoxSearchTeams: 'Search Teams',
 
-  //investibles
+  // investibles
   investiblesQuickAddTooltip: 'Add a new investible',
   investiblesFollowTooltip: 'Subscribe',
   investiblesUnFollowTooltip: 'Unsubscribe',

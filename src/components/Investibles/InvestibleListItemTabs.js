@@ -28,7 +28,6 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit * 2,
   },
   tabContent: {
-    flex: 1,
     overflow: 'auto',
   },
 });

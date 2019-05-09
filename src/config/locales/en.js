@@ -430,6 +430,8 @@ const messages = defineMessages({
   //markets
   marketFollowTooltip: 'Subscrbe',
   marketUnFollowTooltip: 'Unsubscribe',
+  marketUnspent: 'Total unspent in this market',
+  marketActiveInvestments: 'Total active investment in this market',
 
   //Invite list
   inviteListMemberCount: '{count} Members',

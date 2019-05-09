@@ -15,6 +15,9 @@ import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
 import { usersFetched } from '../../store/Users/actions';
+import MarketSharesSummary from '../Markets/MarketSharesSummary';
+import { getMarkets } from '../../store/Markets/reducer';
+import { fetchMarket } from '../../store/Markets/actions';
 
 const styles = theme => ({
   paper: {
@@ -53,9 +56,12 @@ function AdminUserItem(props) {
     classes,
     user,
     intl,
+    marketId,
+    markets,
   } = props;
   const [quantity, setQuantity] = useState(undefined);
   const [gatheringInput, setGatheringInput] = useState(true);
+  const currentMarket = markets && markets.find(element => element.id === marketId);
   useEffect(() => {
     const {
       marketId,
@@ -85,6 +91,8 @@ function AdminUserItem(props) {
           }
           newTeams.push(newTeam);
         });
+        // Attempt to update numbers after the grant but has race condition
+        dispatch(fetchMarket({ market_id: marketId }));
         setTeams(_.unionBy(newTeams, teams, 'id'));
         setQuantity('');
         setGatheringInput(true);
@@ -153,6 +161,13 @@ function AdminUserItem(props) {
           <Info />
         </IconButton>
       </form>
+      {currentMarket && (
+        <MarketSharesSummary
+          unspent={currentMarket.unspent}
+          activeInvestments={currentMarket.active_investments}
+          stacked
+        />
+      )}
     </div>
   );
 }
@@ -164,11 +179,14 @@ AdminUserItem.propTypes = {
   setTeams: PropTypes.func, //eslint-disable-line
   user: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
+  markets: PropTypes.object.isRequired,  //eslint-disable-line
 };
 
-const mapStateToProps = () => ({
-  //
-});
+function mapStateToProps(state) {
+  return {
+    markets: getMarkets(state.marketsReducer),
+  };
+}
 
 function mapDispatchToProps(dispatch) {
   return { dispatch };

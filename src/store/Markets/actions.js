@@ -137,7 +137,6 @@ export const fetchMarket = (params = {}) => (dispatch) => {
     dispatch(receiveMarket(market));
   }).catch((error) => {
     console.error(error);
-    dispatch(receiveMarket([]));
   });
 };
 

@@ -15,6 +15,7 @@ import {
 } from '@material-ui/core';
 import Info from '@material-ui/icons/Info';
 import IconButton from '@material-ui/core/IconButton';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
 import StageSelectList from './StageSelectList';
 import CategorySelectList from './CategorySelectList';
@@ -22,9 +23,10 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import Activity from '../../containers/Activity/Activity';
-import { getStages } from '../../store/Markets/reducer';
+import { getStages, getMarkets } from '../../store/Markets/reducer';
 import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
-import InputAdornment from '@material-ui/core/InputAdornment';
+import MarketSharesSummary from '../../components/Markets/MarketSharesSummary';
+import { fetchMarket } from '../../store/Markets/actions';
 
 const styles = theme => ({
   root: {
@@ -100,6 +102,7 @@ function InvestibleEdit (props) {
     match,
     marketId,
     marketStages,
+    markets,
     dispatch,
     classes,
     intl,
@@ -119,6 +122,7 @@ function InvestibleEdit (props) {
         // set the current stage on it to keep the save happy
         investible.current_stage_id = investible.stage;
         setInvestible(investibles[0]);
+        dispatch(fetchMarket({ market_id: marketId }));
       }).catch((error) => {
         console.log(error);
         sendIntlMessage(ERROR, { id: 'investibleEditInvestibleFetchFailed' });
@@ -254,6 +258,7 @@ function InvestibleEdit (props) {
   function getNextStageInfo() {
     const { stage } = investible;
     const currentStages = marketStages && marketStages[marketId];
+    const currentMarket = markets && markets.find(element => element.id === marketId);
     const currentStage = currentStages && currentStages.find(element => element.id === stage);
     if (currentStage && currentStage.automatic_transition) {
       if (!additionalInvestmentRequired) {
@@ -292,6 +297,12 @@ function InvestibleEdit (props) {
                 ),
               }}
             />
+            {currentMarket && (
+              <MarketSharesSummary
+                unspent={currentMarket.unspent}
+                activeInvestments={currentMarket.active_investments}
+              />
+            )}
           </div>
         );
       }
@@ -413,6 +424,7 @@ function InvestibleEdit (props) {
 function mapStateToProps(state) {
   return {
     marketStages: getStages(state.marketsReducer),
+    markets: getMarkets(state.marketsReducer),
   };
 }
 
@@ -426,6 +438,7 @@ InvestibleEdit.propTypes = {
   match: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired, //eslint-disable-line
   marketStages: PropTypes.object.isRequired,  //eslint-disable-line
+  markets: PropTypes.object.isRequired,  //eslint-disable-line
   dispatch: PropTypes.func.isRequired,
 };
 

@@ -118,9 +118,9 @@ function createMarket(client, accountCreationInfo, setLoading) {
       // (otherwise identity not confirmed)
       clearAuth();
       if (accountCreationInfo.isExistingLogin) {
-        window.location = `${window.location.origin}/${market.market_id}/Login`;
+        window.location = `${window.location.origin}/${market.market_id}/market`;
       } else {
-        window.location = `${window.location.origin}/${market.market_id}/Login?newLogin=true`;
+        window.location = `${window.location.origin}/${market.market_id}/market?newLogin=true`;
       }
     } else {
       window.location = `${window.location.origin}/${market.market_id}/Login`;
@@ -377,19 +377,20 @@ function LandingPage(props) {
                     onChange={handleMarketNameChange}
                   />
                 </Tooltip>
-                <Tooltip title={intl.formatMessage({ id: 'landingPageMarketDescriptionTooltip' })}>
-                  <TextValidator
-                    className={classes.formField}
-                    label={intl.formatMessage({ id: 'landingPageMarketDescription' })}
-                    name="marketDescriptionId"
-                    validators={['required']}
-                    errorMessages={[intl.formatMessage({ id: 'landingPageMarketDescriptionError' })]}
-                    fullWidth
-                    value={marketDescription}
-                    onChange={handleMarketDescriptionChange}
-                  />
-                </Tooltip>
-
+                {loginType !== LOGIN_COGNITO && (
+                  <Tooltip title={intl.formatMessage({ id: 'landingPageMarketDescriptionTooltip' })}>
+                    <TextValidator
+                      className={classes.formField}
+                      label={intl.formatMessage({ id: 'landingPageMarketDescription' })}
+                      name="marketDescriptionId"
+                      validators={['required']}
+                      errorMessages={[intl.formatMessage({ id: 'landingPageMarketDescriptionError' })]}
+                      fullWidth
+                      value={marketDescription}
+                      onChange={handleMarketDescriptionChange}
+                    />
+                  </Tooltip>
+                )}
                 {loginType === LOGIN_COGNITO && (
                   <Tooltip title={intl.formatMessage({ id: 'landingPageEmailTooltip' })}>
                     <TextValidator
@@ -418,18 +419,20 @@ function LandingPage(props) {
                     />
                   </Tooltip>
                 )}
-                <Tooltip title={intl.formatMessage({ id: 'landingPageLoginUrlTooltip' })}>
-                  <TextValidator
-                    className={classes.formField}
-                    label={intl.formatMessage({ id: 'landingPageLoginUrl' })}
-                    name="marketProductLoginUrl"
-                    validators={['isURL']}
-                    errorMessages={[intl.formatMessage({ id: 'landingPageLoginUrlError' })]}
-                    fullWidth
-                    value={marketProductLoginUrl}
-                    onChange={handleMarketProductLoginUrlChange}
-                  />
-                </Tooltip>
+                {loginType !== LOGIN_COGNITO && (
+                  <Tooltip title={intl.formatMessage({ id: 'landingPageLoginUrlTooltip' })}>
+                    <TextValidator
+                      className={classes.formField}
+                      label={intl.formatMessage({ id: 'landingPageLoginUrl' })}
+                      name="marketProductLoginUrl"
+                      validators={['isURL']}
+                      errorMessages={[intl.formatMessage({ id: 'landingPageLoginUrlError' })]}
+                      fullWidth
+                      value={marketProductLoginUrl}
+                      onChange={handleMarketProductLoginUrlChange}
+                    />
+                  </Tooltip>
+                )}
                 {loginType !== LOGIN_COGNITO && (
                   <Tooltip title={intl.formatMessage({ id: 'landingPageAuthorizationClientIdTooltip' })}>
 

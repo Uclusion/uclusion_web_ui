@@ -127,7 +127,7 @@ function MarketManagement(props) {
     setDirty(false);
 
     const {
-      name, description, is_public_signup, trending_window, initial_stage_id, allowAnonymous,
+      name, description, is_public_signup, trending_window, initial_stage_id, allowAnonymous, product_login_url,
     } = market;
     const updateOptions = {
       name,
@@ -195,6 +195,17 @@ function MarketManagement(props) {
                 onChange={handleChange('description')}
               />
             </div>
+            <TextField
+              className={classes.row}
+              inputProps={{ maxLength: 255 }}
+              InputLabelProps={{ shrink: true }}
+              id="marketProductLoginUrl"
+              label={intl.formatMessage({ id: 'landingPageLoginUrl' })}
+              margin="normal"
+              fullWidth
+              value={market.product_login_url}
+              onChange={handleChange('product_login_url')}
+            />
             <FormControlLabel
               className={classes.fullWidth}
               control={(

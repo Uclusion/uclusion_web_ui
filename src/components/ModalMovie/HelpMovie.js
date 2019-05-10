@@ -16,6 +16,7 @@ import withAppConfigs from '../../utils/withAppConfigs';
 import ModalMovie from './ModalMovie';
 import { getUiPreference, setUiPreference } from '../../utils/userPreferencesFunctions';
 import { updateUserUiPrefereneces } from '../../store/Users/actions';
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
 
 function HelpMovie(props) {
   const { dispatch, name, open, user, appConfig, marketId } = props;
@@ -27,19 +28,27 @@ function HelpMovie(props) {
     return helpMovies[name];
   }
 
+  function getMoviePrefs(user) {
+    const moviePrefs = getUiPreference(user, helpMoviesSeen);
+    return moviePrefs;
+  }
+
   function getHasUserSeen() {
+    // first check local storage. If it says they have seen, then don't play
+    const moviesList = getUclusionLocalStorageItem(helpMoviesSeen) || {};
+    const seenMovie = moviesList[name];
+    if (seenMovie) {
+      return true;
+    }
     if (user) {
-      const moviePrefs = getUiPreference(user, helpMoviesSeen);
+      const moviePrefs = getMoviePrefs(user);
       return !moviePrefs || !moviePrefs[name];
     }
     return false;
   }
 
   function getShouldBeOpen() {
-    if (user) {
-      return open || getHasUserSeen();
-    }
-    return open;
+    return open || !getHasUserSeen();
   }
 
   function setNewUiPreferences() {
@@ -49,12 +58,21 @@ function HelpMovie(props) {
     return newUser;
   }
 
+  function updateUserPrefs() {
+    const newUser = setNewUiPreferences();
+    dispatch(updateUserUiPrefereneces({ user: newUser, marketId }));
+  }
+
   function onClose() {
+    // special hack to make sure the video really isn't seen more than once
+    const moviesList = getUclusionLocalStorageItem(helpMoviesSeen) || {};
+    moviesList[name] = true;
+    setUclusionLocalStorageItem(helpMoviesSeen, moviesList);
     if (user) {
-      const newUser = setNewUiPreferences();
-      dispatch(updateUserUiPrefereneces({ user: newUser, marketId }));
+      updateUserPrefs();
     }
   }
+
 
   const movieUrl = getMovieUrl(name);
   const shouldBeOpen = getShouldBeOpen();

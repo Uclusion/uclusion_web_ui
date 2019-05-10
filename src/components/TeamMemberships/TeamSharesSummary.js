@@ -53,7 +53,7 @@ function TeamSharesSummary(props) {
     <Badge
       classes={{ badge: classes.investiblesBadge }}
       max={1000000}
-      badgeContent={Math.round((100.0 * quantity_invested / quantity))}
+      badgeContent={quantity === 0 ? 0 : Math.round((100.0 * quantity_invested / quantity))}
       color="primary"
     >
       <Chip

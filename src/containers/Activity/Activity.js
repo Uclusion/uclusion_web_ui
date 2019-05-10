@@ -1,9 +1,9 @@
 /* eslint-disable react/forbid-prop-types */
 import AppBar from '@material-ui/core/AppBar';
-import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import MenuIcon from '@material-ui/icons/Menu';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -196,7 +196,7 @@ function Activity(props) {
             onClick={onBackClick}
             className={classNames(!smDown && classes.menuButton, !onBackClick && classes.hide)}
           >
-            <Icon>chevron_left</Icon>
+            <ChevronLeftIcon />
           </IconButton>
           {!onBackClick && drawer.open && <div style={{ marginRight: 32 }} />}
           {!drawer.open && !canInvest && <img className={classes.logo} src="/images/logo-white.svg" alt="logo" />}

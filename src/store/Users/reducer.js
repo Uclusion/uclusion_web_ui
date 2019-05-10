@@ -6,7 +6,7 @@ import {
   RECEIVE_CURRENT_USER,
   REQUEST_CURRENT_USER,
   USERS_FETCHED,
-  formatUsers,
+  formatUsers, USER_UI_PREFERENCES_UPDATED,
 } from './actions';
 import { FOLLOWED_MARKET } from '../Markets/actions';
 
@@ -83,6 +83,7 @@ const currentUser = (state = null, action) => {
   switch (action.type) {
     case RECEIVE_CURRENT_USER:
     case REQUEST_CURRENT_USER:
+    case USER_UI_PREFERENCES_UPDATED:
       // This user object on request won't have market presences but better than nothing
       return action.user ? action.user : state;
     case FOLLOWED_MARKET:

@@ -21,6 +21,7 @@ import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfol
 import MarketStageList from '../../components/Markets/MarketStageList';
 import MarketStageFollowUnfollow from '../../components/Markets/MarketStageFollowUnfollow';
 import { fetchMarketInvestibleList } from '../../utils/postAuthFunctions';
+import HelpMovie from '../../components/ModalMovie/HelpMovie';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -189,6 +190,7 @@ function InvestiblesPage(props) {
         {currentInvestibleList && user && user.market_presence
         && (
           <div className={classes.root}>
+            {!showLogin && <HelpMovie name="playerDemo"/> }
             <div className={classes.toolbar}>
               <InvestibleSearchBox />
               <div className={classes.stageSelector}>

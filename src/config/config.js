@@ -34,7 +34,10 @@ const config = {
   version: process.env.REACT_APP_VERSION,
   uclusionSupportInfo: {
     email: process.env.REACT_APP_UCLUSION_SUPPORT_EMAIL
-  }
+  },
+  helpMovies: {
+    playerDemo: 'https://media.w3.org/2010/05/sintel/trailer_hd.mp4',
+  },
 };
 
 export default config;

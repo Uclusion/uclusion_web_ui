@@ -4,9 +4,15 @@ export const REQUEST_CURRENT_USER = 'REQUEST_CURRENT_USER';
 export const RECEIVE_USER = 'RECEIVE_USER';
 export const RECEIVE_CURRENT_USER = 'RECEIVE_CURRENT_USER';
 export const USERS_FETCHED = 'USERS_FETCHED';
+export const USER_UI_PREFERENCES_UPDATED = 'USER_UI_PREFERENCES_UPDATED';
 
 export const requestCurrentUser = user => ({
   type: REQUEST_CURRENT_USER,
+  user,
+});
+
+export const uiPrefsUpdated = user => ({
+  type: USER_UI_PREFERENCES_UPDATED,
   user,
 });
 
@@ -48,6 +54,23 @@ export const fetchUser = (params = {}) => (dispatch) => {
   }).catch((error) => {
     console.log(error);
     dispatch(receiveUser([]));
+  });
+};
+
+/**
+ * Requires in params a user with the UI preferences already set
+ * and the market Id
+ * @param params
+ * @returns {Function}
+ */
+export const updateUserUiPrefereneces = (params = {}) => (dispatch) => {
+  const { user, marketId } = params;
+  const clientPromise = getClient();
+  clientPromise.then((client) => {
+    dispatch(uiPrefsUpdated(user));
+    return client.users.update(undefined, undefined, undefined, user.ui_preferences);
+  }).then((result) => {
+    dispatch(fetchUser({ marketId }));
   });
 };
 

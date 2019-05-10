@@ -15,12 +15,14 @@ import {
   CardContent,
   CardActions, Typography,
 } from '@material-ui/core';
+import classNames from 'classnames';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import Activity from '../../containers/Activity/Activity';
 import { receiveMarket } from '../../store/Markets/actions';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
+import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
 
 const styles = theme => ({
   root: {
@@ -31,6 +33,12 @@ const styles = theme => ({
     '&:last-child': {
       marginBottom: 0,
     },
+  },
+  description: {
+    padding: theme.spacing.unit * 1.5,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: theme.palette.grey[300],
   },
   actions: {
     padding: theme.spacing.unit * 2,
@@ -53,6 +61,7 @@ const styles = theme => ({
 
 function MarketManagement(props) {
   const [anonymousUrl, setAnonymousUrl] = useState(undefined);
+  const [anonymousFlag, setAnonymousFlag] = useState(false);
   const {
     intl,
     classes,
@@ -142,6 +151,11 @@ function MarketManagement(props) {
       });
   }
 
+  function handleAnonymousChange(event) {
+    const { checked } = event.target;
+    setAnonymousFlag(checked);
+  }
+
   function handleCopyLink() {
     const el = document.createElement('textarea');
     el.value = anonymousUrl;
@@ -171,18 +185,15 @@ function MarketManagement(props) {
               value={market.name}
               onChange={handleChange('name')}
             />
-            <TextField
-              className={classes.row}
-              InputLabelProps={{ shrink: true }}
-              id="description"
-              label={intl.formatMessage({ id: 'descriptionLabel' })}
-              margin="normal"
-              fullWidth
-              multiline
-              rows={5}
-              value={market.description}
-              onChange={handleChange('description')}
-            />
+            <Typography variant="h6" className={classes.row}>
+              {intl.formatMessage({ id: 'marketDescriptionText' })}
+            </Typography>
+            <div className={classNames(classes.description, classes.row)}>
+              <HtmlRichTextEditor
+                value={market.description}
+                onChange={handleChange('description')}
+              />
+            </div>
             <FormControlLabel
               className={classes.fullWidth}
               control={(
@@ -193,7 +204,7 @@ function MarketManagement(props) {
                   color="primary"
                 />
               )}
-              label="Login modal shows sign up"
+              label={intl.formatMessage({ id: 'marketSignupText' })}
               fullWidth
             />
             {!anonymousUrl && (
@@ -201,12 +212,13 @@ function MarketManagement(props) {
                 className={classes.fullWidth}
                 control={(
                   <Checkbox
-                    checked={false}
+                    checked={anonymousFlag}
+                    onChange={handleAnonymousChange}
                     value="allowAnonymous"
                     color="primary"
                   />
                 )}
-                label="Turn on anonymous access"
+                label={intl.formatMessage({ id: 'marketAnonymousText' })}
               />
             )}
           </CardContent>

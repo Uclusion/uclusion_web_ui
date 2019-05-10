@@ -180,7 +180,7 @@ const messages = defineMessages({
   defaultCategoryName: 'Uncategorized',
   teamsListNotFound: 'No Teams found',
   categoriesListNotFound: 'No Categories found',
-  titleLabel: 'Title',
+  titleLabel: 'Name',
   descriptionLabel: 'Description',
   teamNameLabel: 'Name of new team',
   teamDescriptionLabel: 'Description',
@@ -387,6 +387,8 @@ const messages = defineMessages({
   loginErrorInvalidCognitoResetCode: 'Invalid verification code. Please try again',
   loginPasswordResetSuccess: 'Password changed. Please log in with your new password.',
 
+  // New Cognito
+  cognitoRegistrationTitle: 'Registration',
 
   // teamMemberships
   teamMembershipsMyInvestmentsTitle: 'My Investments',
@@ -402,6 +404,9 @@ const messages = defineMessages({
 
   // MarketManagement
   copyAnonymousLoginLink: 'Copy Anonymous Login Link',
+  marketDescriptionText: 'Enter a description and logo image for display with username / password signup.',
+  marketSignupText: 'Show signup button on login',
+  marketAnonymousText: 'Make market visible to public',
 
   // UserDetail
   teamMembershipsUserDetailUsharesAvailable: 'uShares available: {quantity}',

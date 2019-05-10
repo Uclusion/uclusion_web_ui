@@ -2,7 +2,7 @@
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';
 import LockIcon from '@material-ui/icons/Lock';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Helmet } from 'react-helmet';
@@ -10,6 +10,7 @@ import { withRouter } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import PropTypes from 'prop-types';
+import { injectIntl } from 'react-intl';
 import { AnonymousAuthorizer } from 'uclusion_authorizer_sdk';
 import {
   Card,
@@ -17,10 +18,12 @@ import {
   FormControl,
   InputLabel,
   Input,
-  Button,
+  Button, Typography,
 } from '@material-ui/core';
 import appConfig from '../../config/config';
 import { withMarketId } from '../../components/PathProps/MarketId';
+import { getErrorMessage, getLoginParams, loginAnonymous } from '../../utils/loginFunctions';
+import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
 
 const styles = theme => ({
   main: {
@@ -60,8 +63,8 @@ const styles = theme => ({
     },
   },
   logo: {
-    width: 300,
-    height: 300,
+    minWidth: 300,
+    minHeight: 300,
   },
   formField: {
     marginBottom: theme.spacing.unit,
@@ -74,7 +77,10 @@ const styles = theme => ({
 function NewCognito(props) {
   const [email, setEmail] = useState(undefined);
   const [name, setName] = useState(undefined);
+  const [marketName, setMarketName] = useState('');
+  const [marketDescription, setMarketDescription] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState('');
 
   function handleEmailChange(event) {
     setEmail(event.target.value);
@@ -84,7 +90,29 @@ function NewCognito(props) {
     setName(event.target.value);
   }
 
-  const { classes, theme, marketId } = props;
+  const {
+    classes, theme, marketId, intl,
+  } = props;
+
+  useEffect(() => {
+    const loginParams = getLoginParams();
+    const { anonymousLogin } = loginParams;
+    if (anonymousLogin) {
+      loginAnonymous(props);
+    }
+    const authorizer = new AnonymousAuthorizer(loginParams);
+    authorizer.marketLoginInfo().then((response) => {
+      setMarketDescription(response.description);
+      setMarketName(response.name);
+    }).catch((error) => {
+      getErrorMessage(error)
+        .then((errorString) => {
+          setError(errorString);
+        });
+    });
+    return () => {
+    };
+  }, []);
 
   function handleSubmit(event) {
     if (!processing) {
@@ -108,8 +136,10 @@ function NewCognito(props) {
         }
         window.location = location;
       }).catch((error) => {
-        console.error(error);
-        throw error;
+        getErrorMessage(error)
+          .then((errorString) => {
+            setError(errorString);
+          });
       }).finally(() => {
         if (processing) {
           setProcessing(false);
@@ -124,7 +154,7 @@ function NewCognito(props) {
         <meta name="theme-color" content={theme.palette.primary.main} />
         <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
         <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
-        <title>Uclusion Registration</title>
+        <title>{intl.formatMessage({ id: 'cognitoRegistrationTitle' })}</title>
       </Helmet>
       <AppBar position="static">
         <Toolbar disableGutters>
@@ -161,11 +191,15 @@ function NewCognito(props) {
         <Card className={classes.card}>
           <CardContent>
             <div className={classes.content}>
-              <img
-                className={classes.logo}
-                src="/watermark.png"
-                alt="Uclusion Logo"
-              />
+              <Typography variant="h3">
+                {error}
+              </Typography>
+              <Typography variant="h3">
+                {marketName}
+              </Typography>
+              <div className={classes.logo}>
+                <HtmlRichTextEditor value={marketDescription} readOnly />
+              </div>
               <form onSubmit={handleSubmit}>
                 <FormControl className={classes.formField} fullWidth>
                   <InputLabel htmlFor="email">Email:</InputLabel>
@@ -206,6 +240,7 @@ NewCognito.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
+  intl: PropTypes.object.isRequired,
 };
 
-export default withRouter(withStyles(styles, { withTheme: true })(withMarketId(NewCognito)));
+export default injectIntl(withRouter(withStyles(styles, { withTheme: true })(withMarketId(NewCognito))));

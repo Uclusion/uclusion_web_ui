@@ -147,6 +147,7 @@ function MarketManagement(props) {
         sendIntlMessage(SUCCESS, { id: 'marketEditSuccess' });
       }).catch((error) => {
         console.log(error);
+        setDirty(true);
         sendIntlMessage(ERROR, { id: 'marketEditFailed' });
       });
   }

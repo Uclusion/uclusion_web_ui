@@ -5,7 +5,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
@@ -107,10 +107,18 @@ const styles = theme => ({
   selectEmpty: {
     marginTop: 5,
   },
+  offline: {
+    textAlign: 'center',
+    height: theme.spacing.unit * 2,
+    padding: theme.spacing.unit * 0.5,
+    backgroundColor: theme.palette.secondary.main,
+    color: 'white',
+  },
 });
 
-
 function Activity(props) {
+  const [offline, setOffline] = useState(!navigator.onLine);
+
   function handleDrawerToggle() {
     const { setDrawerMobileOpen, drawer } = props;
     setDrawerMobileOpen(!drawer.mobileOpen);
@@ -121,6 +129,12 @@ function Activity(props) {
     setDrawerOpen(true);
   }
 
+  function handleConnectionStatusChange() {
+    setOffline(!navigator.onLine);
+  }
+
+  window.addEventListener('online', handleConnectionStatusChange);
+  window.addEventListener('offline', handleConnectionStatusChange);
 
   const {
     classes,
@@ -134,7 +148,6 @@ function Activity(props) {
     appBarContent,
     isLoading,
     onBackClick,
-    isOffline,
     titleButtons,
     user,
     userPermissions,
@@ -217,19 +230,14 @@ function Activity(props) {
       </AppBar>
       <div className={classes.toolbar} />
       {isLoading && <LinearProgress />}
-      {isOffline && (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        width: '100%',
-        height: 15,
-        backgroundColor: theme.palette.secondary.main,
-      }}
-      >
-        <Typography variant="caption" color="textSecondary" noWrap>
+      {offline && (
+        <Typography
+          variant="caption"
+          className={classes.offline}
+          noWrap
+        >
           {intl.formatMessage({ id: 'offline' })}
         </Typography>
-      </div>
       )}
       <main className={contentClassName} style={containerStyle}>
         {children}
@@ -253,7 +261,6 @@ Activity.propTypes = {
   appBarContent: PropTypes.object,
   isLoading: PropTypes.bool,
   onBackClick: PropTypes.object,
-  isOffline: PropTypes.bool.isRequired,
   user: PropTypes.object,
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
@@ -262,11 +269,10 @@ Activity.propTypes = {
 };
 
 const mapStateToProps = (state) => {
-  const { drawer, connection } = state;
+  const { drawer } = state;
 
   return {
     drawer,
-    isOffline: connection ? !connection.isConnected : false,
     user: getCurrentUser(state.usersReducer),
   };
 };

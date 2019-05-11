@@ -112,12 +112,13 @@ function UserMembershipsListItem(props) {
     description,
     team_size,
     quantity_invested,
+    shared_quantity,
     quantity,
     last_investment_updated_at,
     current_user_is_following,
   } = team;
   const { canGrant } = userPermissions;
-
+  const totalQuantity = shared_quantity + quantity;
   const dateFormatOptions = {
     year: 'numeric',
     month: 'numeric',
@@ -187,7 +188,7 @@ function UserMembershipsListItem(props) {
             {intl.formatMessage({id: 'teamMembershipsLastInvested' }, { date: lastInvestDate})}
           </Typography>
         )}
-        <TeamSharesSummary quantity={quantity} quantity_invested={quantity_invested}/>
+        <TeamSharesSummary quantity={totalQuantity} quantity_invested={quantity_invested}/>
         <Typography>
           {description}
         </Typography>

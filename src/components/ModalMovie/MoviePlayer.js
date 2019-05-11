@@ -4,10 +4,26 @@ import '../../../node_modules/video-react/dist/video-react.css';
 import { Player } from 'video-react';
 
 function MoviePlayer(props){
-  const { autoPlay, url } = props;
+  const { autoPlay, url, onFinish } = props;
+
+  let player = null;
+
+  function handlePlayerStateChange(state, prevState){
+    const { ended } = state;
+    if (ended ){
+      onFinish();
+    }
+  }
+
+  function setPlayerRef(element) {
+    player = element;
+    if (player) {
+      player.subscribeToStateChange(handlePlayerStateChange);
+    }
+  }
 
   return (
-    <Player src={url} autoPlay={autoPlay}/>
+    <Player src={url} autoPlay={autoPlay} ref={setPlayerRef} />
   );
 }
 

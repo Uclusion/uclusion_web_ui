@@ -25,6 +25,13 @@ function TeamSharesSummary(props) {
 
   const { intl, quantity_invested, quantity, classes } = props;
 
+  function getPercentInvested(quantity, quantityInvested){
+    const totalShares = quantity + quantityInvested;
+    if (totalShares === 0) {
+      return 0;
+    }
+    return Math.round((100.0 * quantity_invested / totalShares))
+  }
 
   return (<div className={classes.ushares}>
     <Typography>{intl.formatMessage({ id: 'teamMembershipsTeamUshares' })}</Typography>
@@ -53,7 +60,7 @@ function TeamSharesSummary(props) {
     <Badge
       classes={{ badge: classes.investiblesBadge }}
       max={1000000}
-      badgeContent={quantity === 0 ? 0 : Math.round((100.0 * quantity_invested / quantity))}
+      badgeContent={getPercentInvested(quantity, quantity_invested)}
       color="primary"
     >
       <Chip

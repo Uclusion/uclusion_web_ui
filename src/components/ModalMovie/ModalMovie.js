@@ -8,7 +8,7 @@ function ModalMovie(props){
   const { url, onClose, autoPlay, open } = props;
   const [amOpen, setAmOpen] = useState(open);
 
-  function myOnClose(){
+  function myOnClose() {
     setAmOpen(false);
     onClose();
   }
@@ -16,8 +16,8 @@ function ModalMovie(props){
   return (
     <Modal open={amOpen}>
       <Card>
-      <MoviePlayer autoPlay={autoPlay} url={url} />
-      <Button onClick={myOnClose}>Close</Button>
+        <MoviePlayer autoPlay={autoPlay} url={url} onFinish={myOnClose} />
+        <Button onClick={myOnClose}>Close</Button>
       </Card>
     </Modal>
   );

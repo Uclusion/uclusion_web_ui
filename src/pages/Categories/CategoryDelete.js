@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { DeleteForever } from '@material-ui/icons';
+import { IconButton, Tooltip } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core/styles/index';
@@ -19,7 +20,14 @@ class CategoryDelete extends React.Component {
   }
 
   render() {
-    return <DeleteForever onClick={() => this.doDelete()} />;
+    const { intl } = this.props;
+    return (
+      <Tooltip title={intl.formatMessage({ id: 'categoriesDeleteTooltip' })}>
+        <IconButton onClick={() => this.doDelete()}>
+          <DeleteForever />
+        </IconButton>
+      </Tooltip>
+    );
   }
 }
 

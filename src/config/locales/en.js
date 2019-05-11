@@ -441,7 +441,7 @@ const messages = defineMessages({
   //markets
   marketFollowTooltip: 'Subscrbe',
   marketUnFollowTooltip: 'Unsubscribe',
-  marketUnspent: 'Total unspent in this market',
+  marketUnspent: 'Total unspent uShares in market:',
   marketActiveInvestments: 'Total active investment in this market',
 
   //Invite list
@@ -453,6 +453,9 @@ const messages = defineMessages({
   RichTextEditorEnterTextAndLink: 'Enter the URL and text of the link:',
   RichTextEditorLinkLabel: 'Link',
   RichTextEditorTextLabel: 'Text',
+
+  //Categories
+  categoriesDeleteTooltip: 'Delete',
 
 
 });

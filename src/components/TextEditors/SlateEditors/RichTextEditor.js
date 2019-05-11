@@ -305,7 +305,7 @@ class RichTextEditor extends React.Component {
           fullWidth
         >
           <DialogTitle>
-            {intl.formatMessage({ id: 'RichTextEditorAddLink' })}
+            {intl.formatMessage({ id: 'RichTextEditorAddLinkTitle' })}
           </DialogTitle>
           <DialogContent>
             <DialogContentText>

@@ -10,11 +10,14 @@ const styles = theme => ({
     padding: theme.spacing.unit,
   },
   itemContent: {
+    display: 'flex',
     padding: theme.spacing.unit * 2,
+    justifyContent: 'space-between',
   },
   title: {
     display: 'flex',
     marginBottom: theme.spacing.unit,
+
   },
   titleText: {
     flex: 1,
@@ -32,16 +35,19 @@ const CategoryListItem = ({
 }) => (
   <Grid className={classes.itemCell} item xs={12} sm={6} md={4} lg={3} xl={2}>
     <Paper className={classes.itemContent}>
-      <div className={classes.title}>
-        <Typography className={classes.titleText}>{name}</Typography>
-        {(!investiblesIn || investiblesIn === 0) && <CategoryDelete name={name} />}
+      <div>
+        <div className={classes.title}>
+          <Typography className={classes.titleText}>{name}</Typography>
+
+        </div>
+        <Typography>
+          {(investiblesIn > 0)
+            ? `${investiblesIn} ${intl.formatMessage({ id: 'investibles' })}`
+            : intl.formatMessage({ id: 'investibleListNotFound' })
+          }
+        </Typography>
       </div>
-      <Typography>
-        {(investiblesIn > 0)
-          ? `${investiblesIn} ${intl.formatMessage({ id: 'investibles' })}`
-          : intl.formatMessage({ id: 'investibleListNotFound' })
-        }
-      </Typography>
+      {(!investiblesIn || investiblesIn === 0) && <CategoryDelete name={name} />}
     </Paper>
   </Grid>
 );

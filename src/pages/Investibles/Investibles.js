@@ -190,7 +190,7 @@ function InvestiblesPage(props) {
         {currentInvestibleList && user && user.market_presence
         && (
           <div className={classes.root}>
-            {!showLogin && <HelpMovie name="playerDemo"/> }
+            {!showLogin && <HelpMovie name="usersInvestiblesIntro"/> }
             <div className={classes.toolbar}>
               <InvestibleSearchBox />
               <div className={classes.stageSelector}>

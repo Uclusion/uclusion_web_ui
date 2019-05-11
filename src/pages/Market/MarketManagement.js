@@ -127,7 +127,7 @@ function MarketManagement(props) {
     setDirty(false);
 
     const {
-      name, description, is_public_signup, trending_window, initial_stage_id, allowAnonymous, product_login_url,
+      name, description, is_public_signup, trending_window, initial_stage_id, allowAnonymous,
     } = market;
     const updateOptions = {
       name,

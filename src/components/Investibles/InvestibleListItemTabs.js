@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
@@ -11,6 +11,7 @@ import CommentsList from './Comments/CommentsList';
 import InvestingTeamsList from './InvestingTeamsList';
 import { getCurrentUser } from '../../store/Users/reducer';
 import { getClient } from '../../config/uclusionClient';
+import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 
 const styles = theme => ({
   paper: {
@@ -32,107 +33,98 @@ const styles = theme => ({
   },
 });
 
-class InvestibleListItemTabs extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      value: props.userPermissions.canInvest ? 'invest' : 'comments',
-      investingTeams: [],
-    };
-    this.handleChange = this.handleChange.bind(this);
-  }
+function InvestibleListItemTabs(props) {
+  const [value, setValue] = useState(undefined);
+  const [investingTeams, setInvestingTeams] = useState([]);
 
-  componentDidMount() {
-    const { investibleId, userPermissions } = this.props;
-    const { isMarketAdmin } = userPermissions;
+  const {
+    classes,
+    marketId,
+    investibleId,
+    intl,
+    user,
+    currentUserInvestment,
+    openForInvestment,
+    userPermissions,
+    quantity,
+  } = props;
+  const { isMarketAdmin, canInvest, canReadComments } = userPermissions;
+  const investmentAllowed = canInvest && openForInvestment;
+  useEffect(() => {
+    if (value === undefined) {
+      setValue(canInvest ? 'invest' : 'comments');
+    }
     if (isMarketAdmin) {
       const clientPromise = getClient();
       clientPromise.then(client => client.investibles.getInvestingTeams(investibleId))
         .then((response) => {
-          this.setState({ investingTeams: response });
+          setInvestingTeams(response);
         })
         .catch((error) => {
-          console.log('####', error);
+          console.error(error);
+          sendIntlMessage(ERROR, { id: 'investingTeamsFailed' });
         });
     }
+  }, [investibleId, quantity]);
+
+  function handleChange(event, value) {
+    setValue(value);
   }
 
-  handleChange = (event, value) => {
-    this.setState({ value });
-  };
+  return (
+    <div className={classes.paper}>
+      <Tabs
+        value={value}
+        className={classes.tabBar}
+        onChange={handleChange}
+        indicatorColor="primary"
+        textColor="primary"
+      >
+        {investmentAllowed && (
+          <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })} value="invest" />
+        )}
+        {canReadComments && (
+          <Tab
+            className={classes.tab}
+            label={intl.formatMessage({ id: 'commentsTab' })}
+            value="comments"
+          />
+        )}
+        {isMarketAdmin && (
+          <Tab
+            className={classes.tab}
+            label={intl.formatMessage({ id: 'investorsTab' })}
+            value="investors"
+          />
+        )}
+      </Tabs>
 
-  render() {
-    const {
-      classes,
-      marketId,
-      investibleId,
-      intl,
-      user,
-      currentUserInvestment,
-      openForInvestment,
-      userPermissions,
-    } = this.props;
-    const { canInvest, canReadComments, isMarketAdmin } = userPermissions;
-
-    const investmentAllowed = canInvest && openForInvestment;
-
-    const { value, investingTeams } = this.state;
-
-    return (
-      <div className={classes.paper}>
-        <Tabs
-          value={value}
-          className={classes.tabBar}
-          onChange={this.handleChange}
-          indicatorColor="primary"
-          textColor="primary"
-        >
-          {investmentAllowed && (
-            <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })} value="invest" />
-          )}
-          {canReadComments && (
-            <Tab
-              className={classes.tab}
-              label={intl.formatMessage({ id: 'commentsTab' })}
-              value="comments"
-            />
-          )}
-          {isMarketAdmin && (
-            <Tab
-              className={classes.tab}
-              label={intl.formatMessage({ id: 'investorsTab' })}
-              value="investors"
-            />
-          )}
-        </Tabs>
-
-        <div className={classes.tabContent}>
-          {value === 'invest' && investmentAllowed && user && (
-            <InvestibleInvest
-              teamId={user.default_team_id}
-              marketId={marketId}
-              sharesAvailable={user.market_presence.quantity}
-              currentUserInvestment={currentUserInvestment}
-              investibleId={investibleId}
-            />
-          )}
-          {value === 'comments' && (
-            <CommentsList
-              marketId={marketId}
-              currentUserInvestment={currentUserInvestment}
-              investibleId={investibleId}
-            />
-          )}
-          {value === 'investors' && isMarketAdmin && (
-            <InvestingTeamsList
-              marketId={marketId}
-              teams={investingTeams}
-            />
-          )}
-        </div>
+      <div className={classes.tabContent}>
+        {value === 'invest' && investmentAllowed && user && (
+          <InvestibleInvest
+            teamId={user.default_team_id}
+            marketId={marketId}
+            sharesAvailable={user.market_presence.quantity}
+            currentUserInvestment={currentUserInvestment}
+            investibleId={investibleId}
+          />
+        )}
+        {value === 'comments' && (
+          <CommentsList
+            marketId={marketId}
+            currentUserInvestment={currentUserInvestment}
+            investibleId={investibleId}
+          />
+        )}
+        {value === 'investors' && isMarketAdmin && (
+          <InvestingTeamsList
+            marketId={marketId}
+            teams={investingTeams}
+          />
+        )}
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 InvestibleListItemTabs.propTypes = {
@@ -143,6 +135,8 @@ InvestibleListItemTabs.propTypes = {
   currentUserInvestment: PropTypes.number.isRequired,
   userPermissions: PropTypes.object.isRequired,
   openForInvestment: PropTypes.bool.isRequired,
+  intl: PropTypes.object.isRequired, //eslint-disable-line
+  quantity: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = state => ({

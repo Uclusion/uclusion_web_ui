@@ -411,6 +411,7 @@ const messages = defineMessages({
   // UserDetail
   teamMembershipsUserDetailUsharesAvailable: 'uShares available: {quantity}',
   teamMembershipsUserDetailUsharesSpent: 'uShares spent: {quantity_invested}',
+  investingTeamsFailed: 'There was a problem retrieving investors. Please refresh',
 
   // teamsSearch
   teamsSearchBoxSearchTeams: 'Search Teams',
@@ -434,20 +435,20 @@ const messages = defineMessages({
   // Proper names - DO NOT TRANSLATE
   uclusionPlanningMarket: 'Uclusion Planning',
 
-  //stages
+  // stages
   marketStageFollowTooltip: 'Subscribe',
   marketStageUnFollowTooltip: 'Unsubscribe',
 
-  //markets
+  // markets
   marketFollowTooltip: 'Subscrbe',
   marketUnFollowTooltip: 'Unsubscribe',
   marketUnspent: 'Total unspent in this market',
   marketActiveInvestments: 'Total active investment in this market',
 
-  //Invite list
+  // Invite list
   inviteListMemberCount: '{count} Members',
 
-  //Rich text editor
+  // Rich text editor
   RichTextEditorAddLinkTitle: 'Add Link',
   RichTextEditorEnterUrl: 'Enter the URL of the link:',
   RichTextEditorEnterTextAndLink: 'Enter the URL and text of the link:',

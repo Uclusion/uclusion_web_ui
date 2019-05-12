@@ -14,8 +14,10 @@ import withWidth from '@material-ui/core/withWidth';
 import { withStyles } from '@material-ui/core/styles';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
+import Paper from '@material-ui/core/Paper';
 import _ from 'lodash';
 import { injectIntl } from 'react-intl';
+import Rating from 'react-rating';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
@@ -86,6 +88,9 @@ const styles = theme => ({
     flex: 1,
     overflowY: 'auto',
   },
+  badRating: {
+    color: '#f44336',
+  },
 });
 
 function UserMembershipsListItem(props) {
@@ -116,6 +121,7 @@ function UserMembershipsListItem(props) {
     quantity,
     last_investment_updated_at,
     current_user_is_following,
+    health_score,
   } = team;
   const { canGrant } = userPermissions;
   const totalQuantity = shared_quantity + quantity;
@@ -192,6 +198,13 @@ function UserMembershipsListItem(props) {
         <Typography>
           {description}
         </Typography>
+        <Rating
+          initialRating={health_score/100}
+          stop={10}
+          emptySymbol={<Paper square />}
+          fullSymbol={<Paper square className={classes.badRating} />}
+          readonly
+        />
         <Tabs
           value={tabIndex}
           className={classes.tabBar}

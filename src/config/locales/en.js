@@ -420,8 +420,8 @@ const messages = defineMessages({
   investiblesQuickAddTooltip: 'Add a new investible',
   investiblesFollowTooltip: 'Subscribe',
   investiblesUnFollowTooltip: 'Unsubscribe',
-  investiblesEditTooltip: 'Edit',
-  investiblesDeleteToolTip: 'Delete',
+  investiblesEditTooltip: 'Edit Investible',
+  investiblesDeleteToolTip: 'Delete Investible',
   investiblesDeleteTitle: 'Delete \'{title}\'?',
   investiblesDeleteWarning: 'Deleting an investible cannot be undone. Are you sure?',
   investiblesDeleteCancel: 'No, keep it',
@@ -442,8 +442,8 @@ const messages = defineMessages({
   // markets
   marketFollowTooltip: 'Subscrbe',
   marketUnFollowTooltip: 'Unsubscribe',
-  marketUnspent: 'Total unspent uShares in market:',
-  marketActiveInvestments: 'Total active investment in this market',
+  marketUnspent: 'Total unspent uShares in this market',
+  marketActiveInvestments: 'Total actively invested uShares in this market',
 
   // Invite list
   inviteListMemberCount: '{count} Members',
@@ -458,6 +458,8 @@ const messages = defineMessages({
   //Categories
   categoriesDeleteTooltip: 'Delete',
 
+  //Investible detail
+  investibleDetailClose: 'Close',
 
 });
 

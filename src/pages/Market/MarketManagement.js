@@ -127,7 +127,12 @@ function MarketManagement(props) {
     setDirty(false);
 
     const {
-      name, description, is_public_signup, trending_window, initial_stage_id, allowAnonymous,
+      name,
+      description,
+      is_public_signup,
+      trending_window,
+      initial_stage_id,
+      allowAnonymous,
     } = market;
     const updateOptions = {
       name,
@@ -173,87 +178,88 @@ function MarketManagement(props) {
       title={intl.formatMessage({ id: 'marketEditHeader' })}
     >
       <div className={classes.root}>
-        <Card>
-          <CardContent>
-            <TextField
-              className={classes.row}
-              inputProps={{ maxLength: 255 }}
-              InputLabelProps={{ shrink: true }}
-              id="name"
-              label={intl.formatMessage({ id: 'titleLabel' })}
-              margin="normal"
-              fullWidth
-              value={market.name}
-              onChange={handleChange('name')}
-            />
-            <Typography variant="h6" className={classes.row}>
-              {intl.formatMessage({ id: 'marketDescriptionText' })}
-            </Typography>
-            <div className={classNames(classes.description, classes.row)}>
-              <HtmlRichTextEditor
-                value={market.description}
-                onChange={handleChange('description')}
+        {(Object.keys(market).length !== 0) && (
+          <Card>
+            <CardContent>
+              <TextField
+                className={classes.row}
+                inputProps={{ maxLength: 255 }}
+                InputLabelProps={{ shrink: true }}
+                id="name"
+                label={intl.formatMessage({ id: 'titleLabel' })}
+                margin="normal"
+                fullWidth
+                value={market.name}
+                onChange={handleChange('name')}
               />
-            </div>
-            <TextField
-              className={classes.row}
-              inputProps={{ maxLength: 255 }}
-              InputLabelProps={{ shrink: true }}
-              id="marketProductLoginUrl"
-              label={intl.formatMessage({ id: 'landingPageLoginUrl' })}
-              margin="normal"
-              fullWidth
-              value={market.product_login_url}
-              onChange={handleChange('product_login_url')}
-            />
-            <FormControlLabel
-              className={classes.fullWidth}
-              control={(
-                <Checkbox
-                  checked={market.is_public_signup}
-                  onChange={handleChange('is_public_signup')}
-                  value="is_public_signup"
-                  color="primary"
+              <Typography variant="h6" className={classes.row}>
+                {intl.formatMessage({ id: 'marketDescriptionText' })}
+              </Typography>
+              <div className={classNames(classes.description, classes.row)}>
+                <HtmlRichTextEditor
+                  value={market.description}
+                  onChange={handleChange('description')}
                 />
-              )}
-              label={intl.formatMessage({ id: 'marketSignupText' })}
-              fullWidth
-            />
-            {!anonymousUrl && (
+              </div>
+              <TextField
+                className={classes.row}
+                inputProps={{ maxLength: 255 }}
+                InputLabelProps={{ shrink: true }}
+                id="marketProductLoginUrl"
+                label={intl.formatMessage({ id: 'landingPageLoginUrl' })}
+                margin="normal"
+                fullWidth
+                value={market.product_login_url}
+                onChange={handleChange('product_login_url')}
+              />
               <FormControlLabel
                 className={classes.fullWidth}
                 control={(
                   <Checkbox
-                    checked={anonymousFlag}
-                    onChange={handleAnonymousChange}
-                    value="allowAnonymous"
+                    checked={market.is_public_signup}
+                    onChange={handleChange('is_public_signup')}
+                    value="is_public_signup"
                     color="primary"
                   />
                 )}
-                label={intl.formatMessage({ id: 'marketAnonymousText' })}
+                label={intl.formatMessage({ id: 'marketSignupText' })}
               />
+              {!anonymousUrl && (
+                <FormControlLabel
+                  className={classes.fullWidth}
+                  control={(
+                    <Checkbox
+                      checked={anonymousFlag}
+                      onChange={handleAnonymousChange}
+                      value="allowAnonymous"
+                      color="primary"
+                    />
+                  )}
+                  label={intl.formatMessage({ id: 'marketAnonymousText' })}
+                />
+              )}
+            </CardContent>
+            <CardActions className={classes.actions}>
+              <Button
+                variant="contained"
+                color="primary"
+                disabled={!dirty}
+                onClick={onSave}
+              >
+                {intl.formatMessage({ id: 'save' })}
+              </Button>
+            </CardActions>
+            {anonymousUrl && (<Typography className={classes.inviteUrl}>{anonymousUrl}</Typography>)}
+            {anonymousUrl && (
+              <Button
+                variant="contained"
+                onClick={handleCopyLink}
+              >
+                {intl.formatMessage({ id: 'copyAnonymousLoginLink' })}
+              </Button>
             )}
-          </CardContent>
-          <CardActions className={classes.actions}>
-            <Button
-              variant="contained"
-              color="primary"
-              disabled={!dirty}
-              onClick={onSave}
-            >
-              {intl.formatMessage({ id: 'save' })}
-            </Button>
-          </CardActions>
-          {anonymousUrl && (<Typography className={classes.inviteUrl}>{anonymousUrl}</Typography>)}
-          {anonymousUrl && (
-            <Button
-              variant="contained"
-              onClick={handleCopyLink}
-            >
-              {intl.formatMessage({ id: 'copyAnonymousLoginLink' })}
-            </Button>
-          )}
-        </Card>
+          </Card>
+        )}
       </div>
     </Activity>
   );

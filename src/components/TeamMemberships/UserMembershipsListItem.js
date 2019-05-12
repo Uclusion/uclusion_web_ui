@@ -126,8 +126,8 @@ function UserMembershipsListItem(props) {
     hour: 'numeric',
     minute: 'numeric',
   };
-  const lastInvestDate = intl.formatDate(last_investment_updated_at, dateFormatOptions);
-
+  const lastInvestDate = last_investment_updated_at ?
+    intl.formatDate(last_investment_updated_at, dateFormatOptions) : '';
 
   function teamUsersFetched(teamId, users) {
     const newUserIds = [];
@@ -183,9 +183,9 @@ function UserMembershipsListItem(props) {
             {current_user_is_following ? <VolumeOffSharp /> : <VolumeUp />}
           </IconButton>
         </div>
-        {last_investment_updated_at && (
+        {lastInvestDate && (
           <Typography className={classes.lastInvestmentDate}>
-            {intl.formatMessage({id: 'teamMembershipsLastInvested' }, { date: lastInvestDate})}
+            {intl.formatMessage({ id: 'teamMembershipsLastInvested' }, { date: lastInvestDate })}
           </Typography>
         )}
         <TeamSharesSummary quantity={totalQuantity} quantity_invested={quantity_invested}/>

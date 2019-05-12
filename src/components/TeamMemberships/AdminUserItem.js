@@ -179,7 +179,7 @@ AdminUserItem.propTypes = {
   setTeams: PropTypes.func, //eslint-disable-line
   user: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
-  markets: PropTypes.object.isRequired,  //eslint-disable-line
+  markets: PropTypes.array.isRequired,  //eslint-disable-line
 };
 
 function mapStateToProps(state) {

@@ -78,8 +78,14 @@ class HtmlRichTextEditor extends React.Component {
 
 HtmlRichTextEditor.propTypes = {
   value: PropTypes.string,
-  placeHolder: PropTypes.string.isRequired,
+  placeHolder: PropTypes.string,
   onChange: PropTypes.func,
+};
+
+HtmlRichTextEditor.defaultProps = {
+  value: '',
+  placeHolder: '',
+  onChange: () => null,
 };
 
 export default withAppConfigs(HtmlRichTextEditor);

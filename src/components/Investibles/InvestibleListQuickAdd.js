@@ -123,7 +123,6 @@ class InvestibleListQuickAdd extends React.PureComponent {
             InputProps={{ className: classes.textInput, maxLength: 255 }}
             id="title"
             placeholder={intl.formatMessage({ id: 'titleLabel' })}
-            defaultValue=""
             margin="normal"
             fullWidth
             onChange={this.handleChange('title')}

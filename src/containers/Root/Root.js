@@ -6,7 +6,6 @@ import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
 import MomentUtils from 'material-ui-pickers/utils/moment-utils';
 import { IntlProvider } from 'react-intl';
-import createHistory from 'history/createBrowserHistory';
 import { Router, Route, Switch } from 'react-router-dom';
 import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvider';
 import AppLayout from '../AppLayout';
@@ -15,7 +14,8 @@ import getThemeSource from '../../config/themes';
 import locales, { getLocaleMessages } from '../../config/locales';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 
-const history = createHistory();
+// eslint-disable-next-line
+const history = require("history").createBrowserHistory();
 
 class Root extends Component {
   constructor(props) {

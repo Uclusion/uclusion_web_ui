@@ -61,12 +61,20 @@ class SelectableMenuList extends Component {
     return null;
   };
 
+  handleClickItem = item => (e) => {
+    const { onIndexChange } = this.props;
+
+    if (item.value) {
+      onIndexChange(e, item.value);
+    }
+    this.handleNestedItemsClick(item);
+    if (item.onClick) {
+      item.onClick();
+    }
+  }
+
   getItem = (item, i) => {
-    const {
-      onIndexChange,
-      useMinified,
-      classes,
-    } = this.props;
+    const { useMinified, classes } = this.props;
 
     delete item.visible;
 
@@ -94,15 +102,7 @@ class SelectableMenuList extends Component {
         <ListItem
           button
           key={i}
-          onClick={(e) => {
-            if (item.value) {
-              onIndexChange(e, item.value);
-            }
-            this.handleNestedItemsClick(item);
-            if (item.onClick) {
-              item.onClick();
-            }
-          }}
+          onClick={this.handleClickItem(item)}
           onMouseDown={(e) => {
             if (e.button === 1) {
               const win = window.open(`${item.value}`, '_blank');
@@ -118,17 +118,20 @@ class SelectableMenuList extends Component {
             )
           }
 
+          <ListItemText primary={item.primaryText} />
+
           {item.nestedItems
             && (
             <ListItemSecondaryAction>
-              <IconButton style={{ paddingLeft: useMinified ? 30 : undefined }}>
+              <IconButton
+                style={{ paddingLeft: useMinified ? 30 : undefined }}
+                onClick={this.handleClickItem(item)}
+              >
                 <KeyboardArrowRight color="action" />
               </IconButton>
             </ListItemSecondaryAction>
             )
           }
-
-          <ListItemText primary={item.primaryText} />
         </ListItem>
       );
     }

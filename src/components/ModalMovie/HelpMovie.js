@@ -14,12 +14,20 @@ import PropTypes from 'prop-types';
 import { getCurrentUser } from '../../store/Users/reducer';
 import withAppConfigs from '../../utils/withAppConfigs';
 import ModalMovie from './ModalMovie';
+import { withMarketId } from '../PathProps/MarketId';
 import { getUiPreference, setUiPreference } from '../../utils/userPreferencesFunctions';
 import { updateUserUiPrefereneces } from '../../store/Users/actions';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
 
 function HelpMovie(props) {
-  const { dispatch, name, open, user, appConfig, marketId } = props;
+  const {
+    dispatch,
+    name,
+    open,
+    user,
+    appConfig,
+    marketId,
+  } = props;
 
   const helpMoviesSeen = 'helpMoviesSeen';
 
@@ -102,4 +110,7 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withAppConfigs(HelpMovie));
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withMarketId(withAppConfigs(HelpMovie)));

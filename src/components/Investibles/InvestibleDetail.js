@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import {
   IconButton,
   Typography,
-  Chip,
+  Chip, Tooltip,
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import InvestibleListItemTabs from './InvestibleListItemTabs';
@@ -179,13 +179,22 @@ function InvestibleDetail(props) {
         [classes.detailClose]: !show,
       })}
     >
+      <div className={classNames(classes.bottomActions)}>
+        {!isGuest && (<InvestibleFollowUnfollow investible={myInvestible} />)}
+        {canDeleteMarketInvestible
+        && <InvestibleDelete investible={myInvestible} onCloseDetail={onClose} />}
+        {canEditMarketInvestible && <InvestibleEdit investibleId={myInvestible.id} />}
+        <Tooltip title={intl.formatMessage({ id: 'investibleDetailClose' })}>
+          <IconButton aria-label="Close" onClick={onClose}>
+            <CloseIcon />
+          </IconButton>
+        </Tooltip>
+      </div>
       <div className={classes.flex}>
         <Typography variant="h6" className={classes.investibleName}>
           {myInvestible.name}
         </Typography>
-        <IconButton aria-label="Close" onClick={onClose}>
-          <CloseIcon />
-        </IconButton>
+
       </div>
       <Typography className={classes.lastInvestmentDate}>
         {intl.formatMessage({id: 'investiblesLastInvestment' }, { date: lastInvestDate})}
@@ -216,12 +225,7 @@ function InvestibleDetail(props) {
         />
       </div>
 
-      <div className={classNames(classes.bottomActions)}>
-        {!isGuest && (<InvestibleFollowUnfollow investible={myInvestible} />)}
-        {canDeleteMarketInvestible
-        && <InvestibleDelete investible={myInvestible} onCloseDetail={onClose} />}
-        {canEditMarketInvestible && <InvestibleEdit investibleId={myInvestible.id} />}
-      </div>
+
     </div>
   );
 }

@@ -34,9 +34,6 @@ const styles = theme => ({
 });
 
 function InvestibleListItemTabs(props) {
-  const [value, setValue] = useState(undefined);
-  const [investingTeams, setInvestingTeams] = useState([]);
-
   const {
     classes,
     marketId,
@@ -50,10 +47,19 @@ function InvestibleListItemTabs(props) {
   } = props;
   const { isMarketAdmin, canInvest, canReadComments } = userPermissions;
   const investmentAllowed = canInvest && openForInvestment;
+
+  let initialTab = '';
+  if (investmentAllowed) {
+    initialTab = 'invest';
+  } else if (canReadComments) {
+    initialTab = 'comments';
+  } else if (isMarketAdmin) {
+    initialTab = 'investors';
+  }
+  const [value, setValue] = useState(initialTab);
+  const [investingTeams, setInvestingTeams] = useState([]);
+
   useEffect(() => {
-    if (value === undefined) {
-      setValue(canInvest ? 'invest' : 'comments');
-    }
     if (isMarketAdmin) {
       const clientPromise = getClient();
       clientPromise.then(client => client.investibles.getInvestingTeams(investibleId))
@@ -81,7 +87,11 @@ function InvestibleListItemTabs(props) {
         textColor="primary"
       >
         {investmentAllowed && (
-          <Tab className={classes.tab} label={intl.formatMessage({ id: 'investTab' })} value="invest" />
+          <Tab
+            className={classes.tab}
+            label={intl.formatMessage({ id: 'investTab' })}
+            value="invest"
+          />
         )}
         {canReadComments && (
           <Tab
@@ -143,8 +153,11 @@ const mapStateToProps = state => ({
   user: getCurrentUser(state.usersReducer),
 });
 
-function mapDispatchToProps(dispatch){
+function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs))));
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs))));

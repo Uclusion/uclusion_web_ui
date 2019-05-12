@@ -57,7 +57,7 @@ class CategoryAdd extends React.Component {
       <div className={classes.addBox}>
         <TextField
           className={classes.textField}
-          inputProps={{ maxlength: 255 }}
+          inputProps={{ maxLength: 255 }}
           id="category"
           label={intl.formatMessage({ id: 'categoryLabel' })}
           value={title}

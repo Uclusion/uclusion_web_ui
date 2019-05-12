@@ -38,20 +38,29 @@ function Dashboard(props) {
   let usersChart = null;
   let totalSharesChart = null;
 
-  function setupChart(data, dom) {
+  /**
+   * ChartConfig is object of the form {data, xLabel, yLabel}
+   * @param chartConfig
+   * @param dom
+   * @returns {XYChart}
+   */
+  function  setupChart(chartConfig, dom) {
+    const {data, xLabel, yLabel } = chartConfig;
     const chart = am4core.create(dom, am4charts.XYChart);
 
     chart.paddingRight = 20;
     chart.data = data;
 
     const dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+    dateAxis.title.text = xLabel;
     dateAxis.renderer.grid.template.location = 0;
 
     const valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-    valueAxis.tooltip.disabled = true;
+    valueAxis.title.text = yLabel;
+    valueAxis.tooltip.disabled = false;
     valueAxis.renderer.minWidth = 35;
 
-    const series = chart.series.push(new am4charts.ColumnSeries());
+    const series = chart.series.push(new am4charts.LineSeries());
     series.dataFields.dateX = 'date';
     series.dataFields.valueY = 'value';
 
@@ -79,8 +88,18 @@ function Dashboard(props) {
           date,
           value: total_shares,
         }));
-        usersChart = setupChart(usersChartData, 'users-chart');
-        totalSharesChart = setupChart(totalSharesChartData, 'total-shares-chart');
+        const usersChartConfig = {
+          data: usersChartData,
+          xLabel: intl.formatMessage({ id: 'dashboardUsersChartXLabel' }),
+          yLabel: intl.formatMessage({ id: 'dashboardUsersChartYLabel' }),
+        };
+        usersChart = setupChart(usersChartConfig, 'users-chart');
+        const totalSharesChartConfig = {
+          data: totalSharesChartData,
+          xLabel: intl.formatMessage({ id: 'dashboardTotalSharesChartXLabel' }),
+          yLabel: intl.formatMessage({ id: 'dashboardTotalSharesChartYLabel' }),
+        };
+        totalSharesChart = setupChart(totalSharesChartConfig, 'total-shares-chart');
       })
       .catch((error) => {
         console.log(error);

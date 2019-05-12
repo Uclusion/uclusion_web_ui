@@ -461,6 +461,13 @@ const messages = defineMessages({
   //Investible detail
   investibleDetailClose: 'Close',
 
+  //DashBoard
+  dashboardUsersChartXLabel: 'Date',
+  dashboardUsersChartYLabel: '# Users in Market',
+  dashboardTotalSharesChartXLabel: 'Date',
+  dashboardTotalSharesChartYLabel: '# uShares in Market',
+
+
 });
 
 export default messages;

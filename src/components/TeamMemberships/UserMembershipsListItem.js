@@ -14,6 +14,7 @@ import withWidth from '@material-ui/core/withWidth';
 import { withStyles } from '@material-ui/core/styles';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
+import CropSquare from '@material-ui/icons/CropSquare';
 import Paper from '@material-ui/core/Paper';
 import _ from 'lodash';
 import { injectIntl } from 'react-intl';
@@ -88,8 +89,17 @@ const styles = theme => ({
     flex: 1,
     overflowY: 'auto',
   },
+  poorRating: {
+    color: '#ffe680',
+  },
   badRating: {
     color: '#f44336',
+  },
+  goodRating: {
+    color: '#00cc00',
+  },
+  emptyRating: {
+    color: '#ffffff',
   },
 });
 
@@ -174,7 +184,13 @@ function UserMembershipsListItem(props) {
     });
     return () => {};
   }, [marketId, investibles]);
-
+  let ratingColor = classes.goodRating;
+  if (health_score <= 500) {
+    ratingColor = classes.badRating;
+  }
+  else if (health_score <= 700) {
+    ratingColor = classes.poorRating;
+  }
   return (
     <div className={classes.root}>
       <Card className={classNames(classes.container, { [classes.teamSelected]: selected })}>
@@ -198,11 +214,12 @@ function UserMembershipsListItem(props) {
         <Typography>
           {description}
         </Typography>
+        <br />
         <Rating
           initialRating={health_score/100}
           stop={10}
-          emptySymbol={<Paper square />}
-          fullSymbol={<Paper square className={classes.badRating} />}
+          emptySymbol={<Paper square className={classes.emptyRating}><CropSquare /></Paper>}
+          fullSymbol={<Paper square className={ratingColor}><CropSquare /></Paper>}
           readonly
         />
         <Tabs

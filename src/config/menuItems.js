@@ -35,6 +35,7 @@ const getMenuItems = (props) => {
   const loginInfo = getUclusionLocalStorageItem('loginInfo');
   const myInvestmentsSubpath = upUser ? 'teams#user:' + upUser.id : '';
   const myUclusionPlanningURLSuffix = authInfo && 'uclusion_user_id' in authInfo ? 'investibles' : 'NewCognito';
+  const uclusionHelpType = isMarketAdmin ? 'admins' : 'users';
 
 /*  const themeItems = themes.map(t => ({
     value: undefined,
@@ -146,9 +147,10 @@ const getMenuItems = (props) => {
     {
       primaryText: intl.formatMessage({ id: 'help' }),
       onClick: () => {
-        const win = window.open('https://uclusion.zendesk.com/hc/en-us', '_blank');
+        const win = window.open(`https://www.uclusion.com/help_videos/${uclusionHelpType}/help.html`, '_blank');
         win.focus();
       },
+      visible: !isGuest,
       leftIcon: <QuestionAnswerIcon />,
     },
     {

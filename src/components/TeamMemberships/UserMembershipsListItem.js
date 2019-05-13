@@ -208,8 +208,8 @@ function UserMembershipsListItem(props) {
             width={350}
             height={220}
             label={intl.formatMessage({ id: 'teamHealthScore' })}
-            topLabelStyle={{ fontSize: 20 }}
-            valueLabelStyle={{ fontSize: 30 }}
+            topLabelStyle={{ fontSize: 20, fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif" }}
+            valueLabelStyle={{ fontSize: 30, fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif" }}
           />
         )}
         <Tabs

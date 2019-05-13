@@ -23,6 +23,7 @@ import Activity from '../../containers/Activity/Activity';
 import { receiveMarket } from '../../store/Markets/actions';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
+import HelpMovie from "../../components/ModalMovie/HelpMovie";
 
 const styles = theme => ({
   root: {
@@ -181,6 +182,7 @@ function MarketManagement(props) {
         {(Object.keys(market).length !== 0) && (
           <Card>
             <CardContent>
+              <HelpMovie name="adminsMarketEditIntro"/>
               <TextField
                 className={classes.row}
                 inputProps={{ maxLength: 255 }}

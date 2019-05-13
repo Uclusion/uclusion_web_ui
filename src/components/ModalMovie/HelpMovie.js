@@ -50,13 +50,14 @@ function HelpMovie(props) {
     }
     if (user) {
       const moviePrefs = getMoviePrefs(user);
-      return !moviePrefs || !moviePrefs[name];
+      return moviePrefs && moviePrefs[name];
     }
     return false;
   }
 
   function getShouldBeOpen() {
-    return open || !getHasUserSeen();
+    const userSeen = getHasUserSeen();
+    return open || !userSeen;
   }
 
   function setNewUiPreferences() {

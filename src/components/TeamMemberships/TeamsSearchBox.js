@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 import { withTheme, withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import {
@@ -25,6 +24,7 @@ const styles = theme => ({
 
 function TeamsSearchBox(props) {
   const [searchQuery, setSearchQuery] = useState(undefined);
+  const [searchInProgress, setSearchInProgress] = useState(undefined);
   const {
     classes,
     intl,
@@ -32,7 +32,7 @@ function TeamsSearchBox(props) {
     onSearch,
   } = props;
 
-  function getNewIndex(){
+  function getNewIndex() {
     return elasticlunr(function () {
       this.addField('id');
       this.addField('name');
@@ -54,9 +54,7 @@ function TeamsSearchBox(props) {
     return team;
   }
 
-
-
-  function doSearch(newQuery) {
+  function runSearch(newQuery) {
     // since we have teams passed in, we'll just immediately load
     const index = getNewIndex();
     for (const team of teams) {
@@ -67,7 +65,22 @@ function TeamsSearchBox(props) {
     if (onSearch) {
       onSearch({ query: newQuery, results });
     }
+  }
+  function resetSearchTimer(newQuery) {
+    // search time is 1000ms after current time
+    const timerDuration = 1000;
+    if (searchInProgress) {
+      clearTimeout(searchInProgress);
+    }
+    const timer = setTimeout(() => {
+      setSearchInProgress(undefined);
+      runSearch(newQuery);
+    }, timerDuration);
+    setSearchInProgress(timer);
+  }
+  function doSearch(newQuery) {
     setSearchQuery(newQuery);
+    resetSearchTimer(newQuery);
   }
 
   return (
@@ -81,7 +94,7 @@ function TeamsSearchBox(props) {
         onChange={event => doSearch(event.target.value)}
         startAdornment={(searchQuery && (
           <InputAdornment position="start">
-            <ClearIcon onClick={() => clearSearch() }/>
+            <ClearIcon onClick={() => clearSearch()} />
           </InputAdornment>
         ))}
         endAdornment={(

@@ -68,8 +68,8 @@ function InvestibleSearchBox(props) {
   }
 
   function resetSearchTimer() {
-    // search time is 250ms after current time
-    const timerDuration = 250;
+    // search time is 1000ms after current time
+    const timerDuration = 1000;
     if (searchInProgress) {
       clearTimeout(searchInProgress);
     }

@@ -10,7 +10,7 @@
     "classnames": "^2.2.6",
     "downshift": "^2.2.1",
     "elasticlunr": "^0.9.5",
-    "react-rating": "^1.7.2",
+    "react-svg-gauge": "^1.0.10",
     "emotion": "^9.2.12",
     "github-markdown-css": "^2.10.0",
     "image-extensions": "^1.1.0",

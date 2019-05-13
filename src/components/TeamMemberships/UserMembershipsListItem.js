@@ -14,11 +14,9 @@ import withWidth from '@material-ui/core/withWidth';
 import { withStyles } from '@material-ui/core/styles';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
-import CropSquare from '@material-ui/icons/CropSquare';
-import Paper from '@material-ui/core/Paper';
+import Gauge from 'react-svg-gauge';
 import _ from 'lodash';
 import { injectIntl } from 'react-intl';
-import Rating from 'react-rating';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
@@ -89,18 +87,6 @@ const styles = theme => ({
     flex: 1,
     overflowY: 'auto',
   },
-  poorRating: {
-    color: '#ffe680',
-  },
-  badRating: {
-    color: '#f44336',
-  },
-  goodRating: {
-    color: '#00cc00',
-  },
-  emptyRating: {
-    color: '#ffffff',
-  },
 });
 
 function UserMembershipsListItem(props) {
@@ -133,7 +119,7 @@ function UserMembershipsListItem(props) {
     current_user_is_following,
     health_score,
   } = team;
-  const { canGrant } = userPermissions;
+  const { canGrant, isMarketAdmin } = userPermissions;
   const totalQuantity = shared_quantity + quantity;
   const dateFormatOptions = {
     year: 'numeric',
@@ -184,12 +170,12 @@ function UserMembershipsListItem(props) {
     });
     return () => {};
   }, [marketId, investibles]);
-  let ratingColor = classes.goodRating;
+  let ratingColor = '#00cc00';
   if (health_score <= 500) {
-    ratingColor = classes.badRating;
+    ratingColor = '#f44336';
   }
   else if (health_score <= 700) {
-    ratingColor = classes.poorRating;
+    ratingColor = '#ffe680';
   }
   return (
     <div className={classes.root}>
@@ -214,14 +200,18 @@ function UserMembershipsListItem(props) {
         <Typography>
           {description}
         </Typography>
-        <br />
-        <Rating
-          initialRating={health_score/100}
-          stop={10}
-          emptySymbol={<Paper square className={classes.emptyRating}><CropSquare /></Paper>}
-          fullSymbol={<Paper square className={ratingColor}><CropSquare /></Paper>}
-          readonly
-        />
+        {isMarketAdmin && (
+          <Gauge
+            value={health_score}
+            max="1000"
+            color={ratingColor}
+            width={350}
+            height={220}
+            label={intl.formatMessage({ id: 'teamHealthScore' })}
+            topLabelStyle={{ fontSize: 20 }}
+            valueLabelStyle={{ fontSize: 30 }}
+          />
+        )}
         <Tabs
           value={tabIndex}
           className={classes.tabBar}

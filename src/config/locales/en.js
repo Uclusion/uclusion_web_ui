@@ -404,6 +404,7 @@ const messages = defineMessages({
   teamMembershipsSharesInvested: 'Ȗ Invested',
   teamMembershipsSharesInvestedPercentage: '% Invested',
   teamMembershipsLastInvested: 'Last invested at: {date}',
+  teamHealthScore: 'Health',
 
   // MarketManagement
   copyAnonymousLoginLink: 'Copy Anonymous Login Link',

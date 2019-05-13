@@ -29,6 +29,7 @@ const styles = theme => ({
 
 function InvestibleSearchBox(props) {
   const [searchQuery, setSearchQuery] = useState(undefined);
+  const [searchInProgress, setSearchInProgress] = useState(undefined);
   const {
     dispatch,
     marketId,
@@ -49,7 +50,7 @@ function InvestibleSearchBox(props) {
     setSearchQuery('');
   }
 
-  useEffect(() => {
+  function runSearch() {
     if (marketId && searchQuery !== undefined) {
       const serializedIndex = serializedIndexes[marketId];
       // if we don't have an index, there's nothing to search against
@@ -64,6 +65,24 @@ function InvestibleSearchBox(props) {
         dispatch(updateSearchResults(searchQuery, results, marketId));
       }
     }
+  }
+
+  function resetSearchTimer() {
+    // search time is 250ms after current time
+    const timerDuration = 250;
+    if (searchInProgress) {
+      clearTimeout(searchInProgress);
+    }
+    const timer = setTimeout(() => {
+      setSearchInProgress(undefined);
+      runSearch();
+    }, timerDuration);
+    setSearchInProgress(timer);
+  }
+
+
+  useEffect(() => {
+    resetSearchTimer();
     return () => {};
   }, [marketId, searchQuery]);
 

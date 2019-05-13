@@ -308,7 +308,7 @@ function LandingPage(props) {
               name="questionanswer"
               aria-label={intl.formatMessage({ id: 'landingPageOpenUclusionHelp' })}
               color="inherit"
-              href="https://uclusion.zendesk.com/hc/en-us"
+              href="https://www.uclusion.com/help_videos/admins/help.html"
               target="_blank"
               rel="noopener"
             >

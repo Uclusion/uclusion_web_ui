@@ -7,7 +7,7 @@
  E.G. once the user has watched it, we don't auto open it later
  We ALSO let you override the open etc, so you can play it when you
  need to from a link
- **/
+ * */
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -27,6 +27,7 @@ function HelpMovie(props) {
     user,
     appConfig,
     marketId,
+    dontAutoOpen,
   } = props;
 
   const helpMoviesSeen = 'helpMoviesSeen';
@@ -37,8 +38,7 @@ function HelpMovie(props) {
   }
 
   function getMoviePrefs(user) {
-    const moviePrefs = getUiPreference(user, helpMoviesSeen);
-    return moviePrefs;
+    return getUiPreference(user, helpMoviesSeen);
   }
 
   function getHasUserSeen() {
@@ -56,15 +56,20 @@ function HelpMovie(props) {
   }
 
   function getShouldBeOpen() {
+    if (open) {
+      return true;
+    }
+    if (dontAutoOpen) {
+      return false;
+    }
     const userSeen = getHasUserSeen();
-    return open || !userSeen;
+    return !userSeen;
   }
 
   function setNewUiPreferences() {
     const moviePrefs = getUiPreference(helpMoviesSeen) || {};
     moviePrefs[name] = true;
-    const newUser = setUiPreference(user, helpMoviesSeen, moviePrefs);
-    return newUser;
+    return setUiPreference(user, helpMoviesSeen, moviePrefs);
   }
 
   function updateUserPrefs() {
@@ -73,6 +78,9 @@ function HelpMovie(props) {
   }
 
   function onClose() {
+    if (dontAutoOpen) {
+      return;
+    }
     // special hack to make sure the video really isn't seen more than once
     const moviesList = getUclusionLocalStorageItem(helpMoviesSeen) || {};
     moviesList[name] = true;
@@ -82,22 +90,30 @@ function HelpMovie(props) {
     }
   }
 
-
   const movieUrl = getMovieUrl(name);
   const shouldBeOpen = getShouldBeOpen();
 
-  return (<ModalMovie url={movieUrl}
-                      onClose={onClose}
-                      autoPlay={true}
-                      open={shouldBeOpen} />);
+  return (
+    <ModalMovie
+      url={movieUrl}
+      onClose={onClose}
+      autoPlay
+      open={shouldBeOpen}
+    />
+  );
 }
 
 HelpMovie.propTypes = {
   dispatch: PropTypes.func.isRequired,
   name: PropTypes.string.isRequired,
+  // eslint-disable-next-line react/require-default-props
   open: PropTypes.bool,
+  // eslint-disable-next-line react/require-default-props
+  dontAutoOpen: PropTypes.bool,
+  // eslint-disable-next-line react/forbid-prop-types
   appConfig: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   user: PropTypes.object.isRequired,
 };
 

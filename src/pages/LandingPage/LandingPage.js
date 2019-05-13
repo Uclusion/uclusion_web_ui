@@ -35,6 +35,7 @@ import { getClient } from '../../config/uclusionClient';
 import { validURL } from '../../utils/validators';
 import { sendIntlMessage, ERROR } from '../../utils/userMessage';
 import CheckboxValidator from '../../components/ValidatorComponents/CheckboxValidator';
+import HelpMovie from '../../components/ModalMovie/HelpMovie';
 
 
 const LOGIN_GOOGLE = 0;
@@ -150,6 +151,7 @@ function LandingPage(props) {
   const [error, setError] = useState('');
   const [progressMessage, setProgressMessage] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showSignupHelp, setShowSignupHelp] = useState(false);
   ValidatorForm.addValidationRule('isURL', value => !value || validURL(value));
   ValidatorForm.addValidationRule('isTruthy', value => value);
   const { intl } = props;
@@ -179,7 +181,7 @@ function LandingPage(props) {
     }
     return () => {
     };
-  });
+  }, []);
 
   function handleAccountNameChange(event) {
     setAccountName(event.target.value);
@@ -276,6 +278,7 @@ function LandingPage(props) {
   const { classes, theme, user } = props;
   return (
     <div className={classes.main}>
+      <HelpMovie name="accountSignupHelp" open={showSignupHelp} onClose={() => setShowSignupHelp(false)} dontAutoOpen />
       <Helmet>
         <meta name="theme-color" content={theme.palette.primary.main}/>
         <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main}/>
@@ -296,7 +299,7 @@ function LandingPage(props) {
                 }}
                 rel="noopener"
               >
-                <LockIcon/>
+                <LockIcon />
               </IconButton>
             </Tooltip>
           )}
@@ -309,7 +312,7 @@ function LandingPage(props) {
               target="_blank"
               rel="noopener"
             >
-              <QuestionAnswerIcon/>
+              <QuestionAnswerIcon />
             </IconButton>
           </Tooltip>
         </Toolbar>
@@ -332,11 +335,12 @@ function LandingPage(props) {
                     aria-label="Account Help"
                     className={classes.button}
                     color="primary"
-                    href="https://uclusion.zendesk.com/hc/en-us/articles/360026630212"
-                    target="_blank"
-                    rel="noopener"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      setShowSignupHelp(true);
+                    }}
                   >
-                    <Info/>
+                    <Info />
                   </IconButton>
                 </Tooltip>
                 {intl.formatMessage({ id: 'landingPageCreateAccountWith' })}

@@ -22,7 +22,9 @@ import { withRouter } from 'react-router-dom';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { setUclusionLocalStorageItem } from '../../components/utils';
-import { getLoginParams, loginOidc, loginSso, loginAnonymous, cognitoTokenGenerated, getErrorMessage } from '../../utils/loginFunctions';
+import {
+  getLoginParams, loginOidc, loginSso, loginAnonymous, cognitoTokenGenerated, getErrorMessage,
+} from '../../utils/loginFunctions';
 
 const styles = theme => ({
   content: {
@@ -182,7 +184,7 @@ function LoginModal(props) {
     setError('');
     cognitoAuthorizer.forgotPassword().then(() => {
       setAllowResetPassword(true);
-      setHelpMessage(intl.formatMessage({ id: 'check_email_code' }))
+      setHelpMessage(intl.formatMessage({ id: 'check_email_code' }));
       setCode('');
       setNewPassword('');
       setConfirmPassword('');
@@ -198,9 +200,8 @@ function LoginModal(props) {
   function resetCognitoPassword() {
     setError('');
     cognitoAuthorizer.confirmPassword(code, newPassword).then(() => {
-      setHelpMessage(intl.formatMessage({ id: 'loginPasswordResetSuccess'} ));
+      setHelpMessage(intl.formatMessage({ id: 'loginPasswordResetSuccess' }));
       setAllowResetPassword(false);
-
     }).catch((error) => {
       getErrorMessage(error)
         .then((message) => {
@@ -321,28 +322,30 @@ function LoginModal(props) {
                 disabled={processing}
                 fullWidth
               >
-                {isNewRegistration? intl.formatMessage({ id: 'loginCompleteRegistrationButton' }) : intl.formatMessage({ id: 'loginLoginCognitoButton' })}
+                {isNewRegistration ? intl.formatMessage({ id: 'loginCompleteRegistrationButton' }) : intl.formatMessage({ id: 'loginLoginCognitoButton' })}
               </Button>
             </ValidatorForm>
           </ListItem>,
-          !isNewRegistration && (<ListItem
-            key="resetCognito"
-            className={classNames(classes.noVertPadding, {
-              [classes.hidden]: allowResetPassword,
-            })}
-          >
-            <Button
-              color="primary"
-              onClick={forgotCognitoPassword}
-              fullWidth
+          !isNewRegistration && (
+            <ListItem
+              key="resetCognito"
+              className={classNames(classes.noVertPadding, {
+                [classes.hidden]: allowResetPassword,
+              })}
             >
-              {intl.formatMessage({ id: 'loginForgotPassword' })}
-            </Button>
-          </ListItem>),
+              <Button
+                color="primary"
+                onClick={forgotCognitoPassword}
+                fullWidth
+              >
+                {intl.formatMessage({ id: 'loginForgotPassword' })}
+              </Button>
+            </ListItem>
+          ),
         ])}
         {(allowOidcLogin || allowUserLogin) && (
           <ListItem>
-            <div className={classes.separator}/>
+            <div className={classes.separator} />
           </ListItem>
         )}
         {allowOidcLogin
@@ -386,7 +389,7 @@ function LoginModal(props) {
         )}
         {!isNewRegistration && !allowUserLogin && allowCognitoLogin && (
           <ListItem>
-            <div className={classes.separator}/>
+            <div className={classes.separator} />
           </ListItem>
         )}
         {!isNewRegistration && !allowUserLogin && allowCognitoLogin && allowPublicSignup && (
@@ -402,24 +405,27 @@ function LoginModal(props) {
           </ListItem>
         )}
       </List>
-      {loginInfoError &&
-      <List>
-        <ListItem>
-          <Typography className={classes.errorText}>{error}</Typography>
-        </ListItem>
-      </List>
-      }
+      {loginInfoError && (
+        <List>
+          <ListItem>
+            <Typography className={classes.errorText}>{error}</Typography>
+          </ListItem>
+        </List>
+      )}
     </Dialog>
   );
 }
 
 LoginModal.propTypes = {
+  // eslint-disable-next-line react/no-unused-prop-types
   dispatch: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/no-unused-prop-types
   webSocket: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
+  // eslint-disable-next-line react/no-unused-prop-types
   usersReducer: PropTypes.object.isRequired,
 };
 

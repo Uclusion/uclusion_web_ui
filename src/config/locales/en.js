@@ -319,7 +319,7 @@ const messages = defineMessages({
   // Landing Page
   landingPageSigninTooltip: 'Sign In',
   landingPageHelpTooltip: 'Need help with this page? Click here to access the user\'s guide.',
-  landingPageFormHelpTooltip: 'Need help with this form? Click here to access the guide.',
+  landingPageFormHelpTooltip: 'Need help with this form? Click here to play the video.',
   landingPageErrorSigningIn: 'There was a problem signing in. Please try again',
   landingPageUclusionRegistration: 'Uclusion Registration',
   landingPageCreateAccountWith: 'CREATE ACCOUNT WITH IDENTITY FROM:',

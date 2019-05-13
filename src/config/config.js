@@ -39,6 +39,7 @@ const config = {
     playerDemo: 'https://media.w3.org/2010/05/sintel/trailer_hd.mp4',
     usersInvestiblesIntro: 'https://www.uclusion.com/help_videos/users/UclusionIntroUserInvestibles.mp4',
   },
+  termsOfUseLink: 'https://app.termly.io/document/terms-of-use-for-saas/02fc002b-2cab-4027-8c49-ed2589077551',
 };
 
 export default config;

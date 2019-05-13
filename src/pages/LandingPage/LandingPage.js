@@ -3,7 +3,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import LockIcon from '@material-ui/icons/Lock';
 import React, { useState, useEffect } from 'react';
-import { injectIntl } from 'react-intl';
+import { injectIntl, FormattedHTMLMessage } from 'react-intl';
 import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Helmet } from 'react-helmet';
@@ -33,7 +33,8 @@ import {
 } from '../../components/utils';
 import { getClient } from '../../config/uclusionClient';
 import { validURL } from '../../utils/validators';
-import { sendIntlMessage, ERROR } from "../../utils/userMessage";
+import { sendIntlMessage, ERROR } from '../../utils/userMessage';
+import CheckboxValidator from '../../components/ValidatorComponents/CheckboxValidator';
 
 
 const LOGIN_GOOGLE = 0;
@@ -148,7 +149,9 @@ function LandingPage(props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [progressMessage, setProgressMessage] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   ValidatorForm.addValidationRule('isURL', value => !value || validURL(value));
+  ValidatorForm.addValidationRule('isTruthy', value => value);
   const { intl } = props;
 
   useEffect(() => {
@@ -200,6 +203,10 @@ function LandingPage(props) {
 
   function handleEmailChange(event) {
     setEmail(event.target.value);
+  }
+
+  function handleAgreedToTermsChange(event) {
+    setAgreedToTerms(event.target.checked);
   }
 
   function handleNameChange(event) {
@@ -487,15 +494,28 @@ function LandingPage(props) {
                     <CircularProgress className={classes.progress}/>
                   </div>
                 ) : (
-                  <Button
-                    className={classes.loginButton}
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                  >
-                    {intl.formatMessage({ id: 'landingPageSubmit' })}
-                  </Button>
+                  <div>
+                    <CheckboxValidator
+                      validators={['isTruthy']}
+                      errorMessages={[intl.formatMessage({ id: 'landingPageMustAgreeToTerms' })]}
+                      value={agreedToTerms}
+                      onChange={handleAgreedToTermsChange}
+                      label={
+                        <Typography><FormattedHTMLMessage
+                          id="landingPageTermsLabel"
+                          values={{ termsLink: appConfig.termsOfUseLink }}/>
+                        </Typography>
+                      }/>
+                    <Button
+                      className={classes.loginButton}
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                    >
+                      {intl.formatMessage({ id: 'landingPageSubmit' })}
+                    </Button>
+                  </div>
                 )}
               </ValidatorForm>
             </div>

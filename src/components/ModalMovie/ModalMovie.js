@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Card, Button } from '@material-ui/core';
+import { Modal, IconButton } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 import MoviePlayer from './MoviePlayer';
 
 function ModalMovie(props) {
@@ -20,11 +21,33 @@ function ModalMovie(props) {
   }, [open]);
 
   return (
-    <Modal open={amOpen}>
-      <Card>
-        <MoviePlayer autoPlay={autoPlay} url={url} onFinish={myOnClose} />
-        <Button onClick={myOnClose}>Close</Button>
-      </Card>
+    <Modal
+      open={amOpen}
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '10%',
+      }}
+    >
+      <div style={{ width: '100%', position: 'relative', outline: 'none' }}>
+        <MoviePlayer
+          autoPlay={autoPlay}
+          url={url}
+          onFinish={myOnClose}
+        />
+        <IconButton
+          style={{
+            position: 'absolute',
+            top: -40,
+            right: -40,
+          }}
+          aria-label="Close"
+          onClick={myOnClose}
+        >
+          <CloseIcon style={{ fontSize: 32, color: 'white' }} />
+        </IconButton>
+      </div>
     </Modal>
   );
 }

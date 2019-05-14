@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import '../../../node_modules/video-react/dist/video-react.css';
 import { Player } from 'video-react';
 
-function MoviePlayer(props){
+function MoviePlayer(props) {
   const { autoPlay, url, onFinish } = props;
 
   let player = null;
 
-  function handlePlayerStateChange(state, prevState){
+  function handlePlayerStateChange(state, prevState) {
     const { ended } = state;
-    if (ended ){
+    if (ended) {
       onFinish();
     }
   }
@@ -23,7 +23,11 @@ function MoviePlayer(props){
   }
 
   return (
-    <Player src={url} autoPlay={autoPlay} ref={setPlayerRef} />
+    <Player
+      src={url}
+      autoPlay={autoPlay}
+      ref={setPlayerRef}
+    />
   );
 }
 

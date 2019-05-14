@@ -11,6 +11,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import Info from '@material-ui/icons/Info';
 import { createInvestment } from '../../store/MarketInvestibles/actions';
+import HelpMovie from '../ModalMovie/HelpMovie';
 
 const styles = theme => ({
 
@@ -44,6 +45,7 @@ class InvestibleInvest extends React.PureComponent {
     this.state = {
       ...props,
       quantityToInvest: '',
+      showInvestHelp: false,
     };
   }
 
@@ -90,11 +92,12 @@ class InvestibleInvest extends React.PureComponent {
       intl,
       currentUserInvestment,
     } = this.props;
-    const { quantityToInvest } = this.state;
+    const { quantityToInvest, showInvestHelp } = this.state;
     const investEnabled = this.validateQuantityToInvest(parseInt(quantityToInvest, 10));
 
     return (
       <div>
+        <HelpMovie name="investHelp" open={showInvestHelp} onClose={() => this.setState({ showInvestHelp: false })} dontAutoOpen />
         <Typography>
           {intl.formatMessage({ id: 'investModalText' })}
         </Typography>
@@ -132,9 +135,10 @@ class InvestibleInvest extends React.PureComponent {
             aria-label="Invest Help"
             className={classes.button}
             color="primary"
-            href="https://uclusion.zendesk.com/hc/en-us/articles/360026659811"
-            target="_blank"
-            rel="noopener"
+            onClick={(event) => {
+              event.preventDefault();
+              this.setState({ showInvestHelp: true });
+            }}
           >
             <Info />
           </IconButton>

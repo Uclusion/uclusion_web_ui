@@ -27,6 +27,7 @@ import { getStages, getMarkets } from '../../store/Markets/reducer';
 import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
 import MarketSharesSummary from '../../components/Markets/MarketSharesSummary';
 import { fetchMarket } from '../../store/Markets/actions';
+import HelpMovie from '../../components/ModalMovie/HelpMovie';
 
 const styles = theme => ({
   root: {
@@ -113,6 +114,7 @@ function InvestibleEdit (props) {
   const [dirty, setDirty] = useState(false);
   const [stageChange, setStageChange] = useState(true);
   const [additionalInvestmentRequired, setAdditionalInvestmentRequired] = useState(false);
+  const [showInvestibleEditHelp, setShowInvestibleEditHelp] = useState(false);
 
   useEffect(() => {
     const clientPromise = getClient();
@@ -375,14 +377,16 @@ function InvestibleEdit (props) {
                 value={investible.stage}
                 marketId={marketId}
               />
+              <HelpMovie name="investibleEditHelp" open={showInvestibleEditHelp} onClose={() => setShowInvestibleEditHelp(false)} dontAutoOpen />
               <IconButton
                 name="stageinfo"
                 aria-label="Edit Investible Help"
                 className={classes.button}
                 color="primary"
-                href="https://uclusion.zendesk.com/hc/en-us/articles/360027638651"
-                target="_blank"
-                rel="noopener"
+                onClick={(event) => {
+                  event.preventDefault();
+                  setShowInvestibleEditHelp(true);
+                }}
               >
                 <Info />
               </IconButton>

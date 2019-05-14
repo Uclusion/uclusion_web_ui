@@ -28,6 +28,7 @@ function HelpMovie(props) {
     appConfig,
     marketId,
     dontAutoOpen,
+    onClose,
   } = props;
 
   const helpMoviesSeen = 'helpMoviesSeen';
@@ -77,16 +78,18 @@ function HelpMovie(props) {
     dispatch(updateUserUiPrefereneces({ user: newUser, marketId }));
   }
 
-  function onClose() {
-    if (dontAutoOpen) {
-      return;
+  function myOnClose() {
+    if (!dontAutoOpen) {
+      // special hack to make sure the video really isn't seen more than once
+      const moviesList = getUclusionLocalStorageItem(helpMoviesSeen) || {};
+      moviesList[name] = true;
+      setUclusionLocalStorageItem(helpMoviesSeen, moviesList);
+      if (user) {
+        updateUserPrefs();
+      }
     }
-    // special hack to make sure the video really isn't seen more than once
-    const moviesList = getUclusionLocalStorageItem(helpMoviesSeen) || {};
-    moviesList[name] = true;
-    setUclusionLocalStorageItem(helpMoviesSeen, moviesList);
-    if (user) {
-      updateUserPrefs();
+    if (onClose) {
+      onClose();
     }
   }
 
@@ -96,7 +99,7 @@ function HelpMovie(props) {
   return (
     <ModalMovie
       url={movieUrl}
-      onClose={onClose}
+      onClose={myOnClose}
       autoPlay
       open={shouldBeOpen}
     />
@@ -115,6 +118,7 @@ HelpMovie.propTypes = {
   marketId: PropTypes.string.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   user: PropTypes.object.isRequired,
+  onClose: PropTypes.func,
 };
 
 function mapStateToProps(state) {

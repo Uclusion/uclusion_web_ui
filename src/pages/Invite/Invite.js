@@ -12,6 +12,7 @@ import TeamAdd from '../../components/Invite/TeamAdd';
 import InviteList from '../../components/Invite/InviteList';
 import AdminAdd from '../../components/Invite/AdminAdd';
 import Typography from '@material-ui/core/Typography';
+import HelpMovie from '../../components/ModalMovie/HelpMovie';
 
 const styles = theme => ({
   content: {
@@ -62,6 +63,8 @@ function Invite(props) {
       title={intl.formatMessage({ id: 'inviteMenu' })}
     >
       <div className={classes.content}>
+        {canListAccountTeams && (<HelpMovie name="inviteAdminIntro" />)}
+        {canInvest && (<HelpMovie name="inviteUserIntro" />)}
         {canListAccountTeams && (
           <Typography variant="h5" className={classes.directions}>
             {intl.formatMessage({ id: 'inviteMarketText' })}

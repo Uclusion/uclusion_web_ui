@@ -321,6 +321,7 @@ function InvestibleEdit (props) {
       title={intl.formatMessage({ id: 'investibleEditHeader' })}
     >
       <div className={classes.root}>
+        <HelpMovie name="investibleEditIntro" />
         <Card>
           <CardContent>
             <TextField

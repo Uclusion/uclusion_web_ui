@@ -182,7 +182,7 @@ function MarketManagement(props) {
         {(Object.keys(market).length !== 0) && (
           <Card>
             <CardContent>
-              <HelpMovie name="adminsMarketEditIntro"/>
+              <HelpMovie name="adminsMarketEditIntro" />
               <TextField
                 className={classes.row}
                 inputProps={{ maxLength: 255 }}

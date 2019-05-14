@@ -4,15 +4,11 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import {
   AppBar,
-  IconButton,
   Toolbar,
-  Tooltip,
   Card,
   CardContent,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import LockIcon from '@material-ui/icons/Lock';
-import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import { injectIntl } from 'react-intl';
 import { Helmet } from 'react-helmet';
 import { getCurrentUser } from '../../store/Users/reducer';
@@ -57,7 +53,7 @@ const styles = theme => ({
 
 function LandingPage(props) {
   const { intl } = props;
-  const { classes, theme, user } = props;
+  const { classes, theme } = props;
   return (
     <div className={classes.main}>
       <Helmet>

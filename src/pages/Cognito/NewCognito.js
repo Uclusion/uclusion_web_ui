@@ -131,8 +131,11 @@ function NewCognito(props) {
       }
       promise.then((user) => {
         let location = `${window.location.origin}/${marketId}/investibles`;
+        const encodedEmail = encodeURIComponent(email);
         if (!user.exists_in_cognito) {
-          location += '?newLogin=true';
+          location += `?newLogin=true&email=${encodedEmail}`;
+        } else {
+          location += `?email=${encodedEmail}`;
         }
         window.location = location;
       }).catch((error) => {
@@ -177,7 +180,7 @@ function NewCognito(props) {
               name="questionanswer"
               aria-label="Open Uclusion Help"
               color="inherit"
-              href="https://uclusion.zendesk.com/hc/en-us"
+              href="https://www.uclusion.com/help_videos/users/help.html"
               target="_blank"
               rel="noopener"
             >

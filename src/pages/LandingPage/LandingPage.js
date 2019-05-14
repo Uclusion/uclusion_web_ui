@@ -119,10 +119,11 @@ function createMarket(client, accountCreationInfo, setLoading) {
       // Un setting return auth token because need them to login again from email sent
       // (otherwise identity not confirmed)
       clearAuth();
+      const encodedEmail = encodeURIComponent(accountCreationInfo.email);
       if (accountCreationInfo.isExistingLogin) {
-        window.location = `${window.location.origin}/${market.market_id}/market`;
+        window.location = `${window.location.origin}/${market.market_id}/market?email=${encodedEmail}`;
       } else {
-        window.location = `${window.location.origin}/${market.market_id}/market?newLogin=true`;
+        window.location = `${window.location.origin}/${market.market_id}/market?newLogin=true&email=${encodedEmail}`;
       }
     } else {
       window.location = `${window.location.origin}/${market.market_id}/Login`;
@@ -504,12 +505,15 @@ function LandingPage(props) {
                       errorMessages={[intl.formatMessage({ id: 'landingPageMustAgreeToTerms' })]}
                       value={agreedToTerms}
                       onChange={handleAgreedToTermsChange}
-                      label={
-                        <Typography><FormattedHTMLMessage
-                          id="landingPageTermsLabel"
-                          values={{ termsLink: appConfig.termsOfUseLink }}/>
+                      label={(
+                        <Typography>
+                          <FormattedHTMLMessage
+                            id="landingPageTermsLabel"
+                            values={{ termsLink: appConfig.termsOfUseLink }}
+                          />
                         </Typography>
-                      }/>
+                      )}
+                    />
                     <Button
                       className={classes.loginButton}
                       type="submit"

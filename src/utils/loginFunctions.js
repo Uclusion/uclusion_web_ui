@@ -26,6 +26,10 @@ export function getLoginParams() {
     page += `#${parsed.href.split('#')[1]}`;
   }
   const newLogin = parsed.searchParams.get('newLogin');
+  let email = null;
+  if (parsed.searchParams.get('email')) {
+    email = decodeURIComponent(parsed.searchParams.get('email'));
+  }
   const anonymousLogin = parsed.searchParams.get('anonymousLogin');
   const destinationPage = getDestinationPage(page, true);
   const redirectUrl = getPostAuthPage();
@@ -34,7 +38,7 @@ export function getLoginParams() {
   console.debug(`page = ${page}`);
   console.debug(`destinationPage = ${destinationPage}`);
   console.debug(`redirectUrl = ${redirectUrl}`);
-  return {
+  const response = {
     marketId,
     destinationPage,
     redirectUrl,
@@ -44,6 +48,10 @@ export function getLoginParams() {
     page,
     anonymousLogin,
   };
+  if (email) {
+    response.email = email;
+  }
+  return response;
 }
 
 function doLoginRedirect(authorizer, loginParams) {

@@ -357,7 +357,7 @@ const messages = defineMessages({
   landingPageSubmit: 'Create account',
   landingPageErrorAccountNameDuplicate: 'An account with that name already exists',
   landingPageCreatingYourAccount: 'We are creating your account. This will take about 30 seconds...',
-  landingPageTermsLabel: 'I agree to Uclusions <a target="_blank" href="{termsLink}">Terms of Use</a>',
+  landingPageTermsLabel: 'I agree to Uclusion\'s <a target="_blank" href="{termsLink}">Terms of Use</a>',
   landingPageMustAgreeToTerms: 'You must agree to our Terms of Use to create an account',
 
 

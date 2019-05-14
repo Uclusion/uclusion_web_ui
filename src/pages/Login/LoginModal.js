@@ -88,9 +88,12 @@ function LoginModal(props) {
 
   useEffect(() => {
     const loginParams = getLoginParams();
-    const { anonymousLogin } = loginParams;
+    const { anonymousLogin, email } = loginParams;
     if (anonymousLogin) {
       loginAnonymous(props);
+    }
+    if (email) {
+      setEmail(email);
     }
     const authorizer = new AnonymousAuthorizer(loginParams);
     authorizer.marketLoginInfo().then((response) => {

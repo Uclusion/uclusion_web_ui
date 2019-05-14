@@ -35,6 +35,9 @@ const doGenericAuthRedirect = () => {
   if (currentPage.search.includes('newLogin')) {
     location += '&newLogin=true';
   }
+  if (currentPage.search.includes('email')) {
+    location += `&email=${currentPage.search.split('email=')[1]}`;
+  }
   if (currentPage.href.includes('#')) {
     location += `#${currentPage.href.split('#')[1]}`;
   }

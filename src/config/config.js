@@ -39,7 +39,7 @@ const config = {
     accountSignupHelp: 'https://www.uclusion.com/help_videos/admins/UclusionAccountSetup.mp4',
     usersInvestiblesIntro: 'https://www.uclusion.com/help_videos/users/UclusionIntroUserInvestibles.mp4',
     adminInvestiblesIntro: 'https://www.uclusion.com/help_videos/admins/UclusionAdminInvestibles.mp4',
-    investHelp: 'https://www.uclusion.com/help_videos/users/UclusionIntroUserInvestibles.mp4',
+    investHelp: 'https://www.uclusion.com/help_videos/users/UclusionUserInvest.mp4',
     teamAddHelp: 'https://www.uclusion.com/help_videos/admins/UclusionAdminTeamManagement.mp4',
     inviteAdminIntro: 'https://www.uclusion.com/help_videos/admins/UclusionAdminTeamManagement.mp4',
     inviteUserIntro: 'https://www.uclusion.com/help_videos/users/UclusionUsersTeamManagement.mp4',
@@ -51,6 +51,7 @@ const config = {
     investibleEditHelp: 'https://www.uclusion.com/help_videos/admins/UclusionAdminEditInvestible.mp4',
     investibleEditIntro: 'https://www.uclusion.com/help_videos/admins/UclusionAdminEditInvestible.mp4',
     categoriesIntro: 'https://www.uclusion.com/help_videos/admins/UclusionAdminCategories.mp4',
+    subscriptionsHelp: 'https://www.uclusion.com/help_videos/UclusionSubscriptions.mp4',
   },
   termsOfUseLink: 'https://app.termly.io/document/terms-of-use-for-saas/02fc002b-2cab-4027-8c49-ed2589077551',
 };

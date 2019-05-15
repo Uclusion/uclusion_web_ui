@@ -13,6 +13,7 @@ import { getMarketCategories } from '../../store/Markets/reducer';
 import CategoryListItem from './CategoryListItem';
 import CategoryAdd from './CategoryAdd';
 import { fetchMarketCategories } from '../../store/Markets/actions';
+import HelpMovie from '../../components/ModalMovie/HelpMovie';
 
 const styles = theme => ({
   content: {
@@ -55,6 +56,7 @@ function CategoryList(props) {
         title={intl.formatMessage({ id: 'marketCategoriesMenu' })}
       >
         <div className={classes.content}>
+          <HelpMovie name="categoriesIntro" />
           <CategoryAdd marketId={marketId} />
           {categories && categories.length > 0 && (
             <div className={classes.gridContainer}>

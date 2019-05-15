@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { withStyles, IconButton, Tooltip } from '@material-ui/core';
+import Info from '@material-ui/icons/Info';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import { getCurrentMarketPresence } from '../../utils/marketSelectionFunctions';
 import { followUnfollowMarket } from '../../store/Markets/actions';
+import HelpMovie from '../ModalMovie/HelpMovie';
 
 const styles = theme => ({
   root: {
@@ -15,6 +17,7 @@ const styles = theme => ({
 });
 
 function MarketFollowUnfollow(props) {
+  const [showSubscriptionHelp, setShowSubscriptionHelp] = useState(false);
   const {
     dispatch,
     user,
@@ -42,7 +45,23 @@ function MarketFollowUnfollow(props) {
     return <Tooltip title={intl.formatMessage({ id: 'marketUnFollowTooltip' })}><IconButton className={classes.root} onClick={onclick}><VolumeOffSharp /></IconButton></Tooltip>;
   }
 
-  return getIcon();
+  return (
+    <div>
+      {getIcon()}
+      <HelpMovie name="subscriptionsHelp" open={showSubscriptionHelp} onClose={() => setShowSubscriptionHelp(false)} dontAutoOpen />
+      <IconButton
+        name="subscriptioninfo"
+        aria-label="Subscription Help"
+        className={classes.root}
+        onClick={(event) => {
+          event.preventDefault();
+          setShowSubscriptionHelp(true);
+        }}
+      >
+        <Info />
+      </IconButton>
+    </div>
+  );
 }
 
 MarketFollowUnfollow.propTypes = {

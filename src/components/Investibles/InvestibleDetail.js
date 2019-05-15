@@ -10,6 +10,7 @@ import {
   Chip, Tooltip,
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
+import Info from '@material-ui/icons/Info';
 import InvestibleListItemTabs from './InvestibleListItemTabs';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
@@ -19,6 +20,7 @@ import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
 import { fetchUser } from '../../store/Users/actions';
 import { getCurrentUser } from '../../store/Users/reducer';
+import HelpMovie from '../ModalMovie/HelpMovie';
 
 const styles = theme => ({
   root: {
@@ -102,11 +104,15 @@ const styles = theme => ({
   labelChip: {
     margin: theme.spacing.unit * 0.25,
   },
+  button: {
+    marginLeft: theme.spacing.unit,
+    padding: 0,
+  },
 });
 
 function InvestibleDetail(props) {
   const [lastInvestible, setLastInvestible] = useState({});
-
+  const [showStagesHelp, setShowStagesHelp] = useState(false);
   const {
     investible, intl, classes, onClose, userPermissions, dispatch, user,
   } = props;
@@ -199,12 +205,29 @@ function InvestibleDetail(props) {
       <Typography className={classes.lastInvestmentDate}>
         {intl.formatMessage({id: 'investiblesLastInvestment' }, { date: lastInvestDate})}
       </Typography>
+      <HelpMovie name="stagesHelp" open={showStagesHelp} onClose={() => setShowStagesHelp(false)} dontAutoOpen />
       <Typography component="div" className={classNames(classes.flex, classes.row)}>
         <span className={classes.stageLabel}>
           {intl.formatMessage({ id: 'currentStageLabel' })}
         </span>
         <div className={classes.stageContent}>
-          <div>{myInvestible.stage_name}</div>
+          <div>
+            {myInvestible.stage_name}
+            {canEditMarketInvestible && (
+              <IconButton
+                name="stagesinfo"
+                aria-label="Stages Help"
+                className={classes.button}
+                color="primary"
+                onClick={(event) => {
+                  event.preventDefault();
+                  setShowStagesHelp(true);
+                }}
+              >
+                <Info />
+              </IconButton>
+            )}
+          </div>
           <div className={classes.numSharesText}>
             {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: myInvestible.quantity })}
           </div>

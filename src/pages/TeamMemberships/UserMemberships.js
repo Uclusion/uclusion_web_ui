@@ -18,6 +18,7 @@ import UserDetail from '../../components/TeamMemberships/UserDetail';
 import TeamsSearchBox from '../../components/TeamMemberships/TeamsSearchBox';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 import { loadTeams, processUserForDisplay } from '../../utils/userMembershipFunctions';
+import HelpMovie from '../../components/ModalMovie/HelpMovie';
 
 const styles = theme => ({
   content: {
@@ -51,7 +52,7 @@ function UserMemberships(props) {
     upUser,
     allUsers,
   } = props;
-  const { canListAccountTeams } = userPermissions;
+  const { canListAccountTeams, canInvest } = userPermissions;
   const { location: { hash, pathname } } = history;
 
   function getMarketInvestibles() {
@@ -147,9 +148,8 @@ function UserMemberships(props) {
     return newURL.toString();
   }
 
-  function getSortedTeams(teams){
-     const sortedTeams = _.sortBy(teams, 'name');
-     return sortedTeams;
+  function getSortedTeams(teams) {
+    return _.sortBy(teams, 'name');
   }
 
   const cognitoLink = getCognitoLink();
@@ -161,9 +161,12 @@ function UserMemberships(props) {
     >
 
       <div className={classes.content}>
+        {canListAccountTeams && (<HelpMovie name="teamMembershipsAdminIntro" />)}
+        {canInvest && (<HelpMovie name="teamMembershipsUserIntro" />)}
+        {userDetailIsMe && (<HelpMovie name="myInvestmentsIntro" />)}
         {canListAccountTeams && teams && (
           <div className={classes.toolbar}>
-            <TeamsSearchBox teams={teams} onSearch={onSearch}/>
+            <TeamsSearchBox teams={teams} onSearch={onSearch} />
             <Tooltip title={intl.formatMessage({ id: 'teamMembershipsEmailButtonTooltip' })}>
               <Button
                 className={classes.toolbarButton}

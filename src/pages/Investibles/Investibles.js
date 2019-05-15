@@ -148,7 +148,7 @@ function InvestiblesPage(props) {
     userPermissions,
   } = props;
   const { location: { hash, pathname } } = history;
-  const { isGuest } = userPermissions;
+  const { isGuest, isMarketAdmin, canInvest } = userPermissions;
   const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
   let currentInvestibleList = getCurrentInvestibleList();
   if (showFavorite) {
@@ -190,7 +190,8 @@ function InvestiblesPage(props) {
         {currentInvestibleList && user && user.market_presence
         && (
           <div className={classes.root}>
-            {!showLogin && <HelpMovie name="usersInvestiblesIntro"/> }
+            {!showLogin && isMarketAdmin && <HelpMovie name="adminInvestiblesIntro" /> }
+            {!showLogin && canInvest && <HelpMovie name="usersInvestiblesIntro" /> }
             <div className={classes.toolbar}>
               <InvestibleSearchBox />
               <div className={classes.stageSelector}>

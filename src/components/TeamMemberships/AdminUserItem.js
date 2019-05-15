@@ -18,6 +18,7 @@ import { usersFetched } from '../../store/Users/actions';
 import MarketSharesSummary from '../Markets/MarketSharesSummary';
 import { getMarkets } from '../../store/Markets/reducer';
 import { fetchMarket } from '../../store/Markets/actions';
+import HelpMovie from '../ModalMovie/HelpMovie';
 
 const styles = theme => ({
   paper: {
@@ -61,6 +62,7 @@ function AdminUserItem(props) {
   } = props;
   const [quantity, setQuantity] = useState(undefined);
   const [gatheringInput, setGatheringInput] = useState(true);
+  const [showUshareGrantHelp, setShowUshareGrantHelp] = useState(false);
   const currentMarket = markets && markets.find(element => element.id === marketId);
   useEffect(() => {
     const {
@@ -149,14 +151,16 @@ function AdminUserItem(props) {
         >
           {intl.formatMessage({ id: 'grantButton' })}
         </Button>
+        <HelpMovie name="uShareGrantHelp" open={showUshareGrantHelp} onClose={() => setShowUshareGrantHelp(false)} dontAutoOpen />
         <IconButton
           name="teaminfo"
           aria-label="Grant Help"
           className={classes.button}
           color="primary"
-          href="https://uclusion.zendesk.com/hc/en-us/articles/360026366572"
-          target="_blank"
-          rel="noopener"
+          onClick={(event) => {
+            event.preventDefault();
+            setShowUshareGrantHelp(true);
+          }}
         >
           <Info />
         </IconButton>

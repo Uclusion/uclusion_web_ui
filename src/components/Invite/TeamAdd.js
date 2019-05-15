@@ -9,6 +9,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Info from '@material-ui/icons/Info';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import { getClient } from '../../config/uclusionClient';
+import HelpMovie from '../ModalMovie/HelpMovie';
 
 const styles = theme => ({
   form: {
@@ -36,6 +37,7 @@ function TeamAdd(props) {
   const [name, setName] = useState(undefined);
   const [description, setDescription] = useState(undefined);
   const [processing, setProcessing] = useState(false);
+  const [showTeamAddHelp, setShowTeamAddHelp] = useState(false);
 
   function addOnClick() {
     const { teams, teamsSet, marketId } = props;
@@ -111,14 +113,16 @@ function TeamAdd(props) {
           >
             {intl.formatMessage({ id: 'addButton' })}
           </Button>
+          <HelpMovie name="teamAddHelp" open={showTeamAddHelp} onClose={() => setShowTeamAddHelp(false)} dontAutoOpen />
           <IconButton
             name="teaminfo"
             aria-label="Team Help"
             className={classes.button}
             color="primary"
-            href="https://uclusion.zendesk.com/hc/en-us/articles/360026358152"
-            target="_blank"
-            rel="noopener"
+            onClick={(event) => {
+              event.preventDefault();
+              setShowTeamAddHelp(true);
+            }}
           >
             <Info />
           </IconButton>

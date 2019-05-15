@@ -360,6 +360,8 @@ const messages = defineMessages({
   landingPageTermsLabel: 'I agree to Uclusion\'s <a target="_blank" href="{termsLink}">Terms of Use</a>',
   landingPageMustAgreeToTerms: 'You must agree to our Terms of Use to create an account',
 
+  // Markets
+  chooseMarket: 'Choose Market',
 
   // Login
   loginNewPassword: 'New Password',

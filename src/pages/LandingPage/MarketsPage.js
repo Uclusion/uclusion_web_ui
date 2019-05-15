@@ -1,20 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import {
   AppBar,
-  IconButton,
   Toolbar,
-  Tooltip,
+  Button,
+  Typography,
   Card,
   CardContent,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import LockIcon from '@material-ui/icons/Lock';
-import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { injectIntl } from 'react-intl';
 import { Helmet } from 'react-helmet';
+import { UclusionSSO } from 'uclusion_authorizer_sdk';
 import { getCurrentUser } from '../../store/Users/reducer';
 
 const styles = theme => ({
@@ -29,6 +33,7 @@ const styles = theme => ({
     flexDirection: 'column',
     alignItems: 'center',
     overflow: 'auto',
+    backgroundColor: 'white',
     [theme.breakpoints.only('xs')]: {
       paddingTop: 0,
       paddingBottom: 0,
@@ -53,50 +58,75 @@ const styles = theme => ({
     width: 300,
     height: 300,
   },
+  form: {
+    width: '100%',
+  },
+  input: {
+    display: 'block',
+    marginBottom: theme.spacing.unit * 2,
+  },
+  errorText: {
+    marginTop: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
+    color: '#f44336',
+  },
 });
 
-function LandingPage(props) {
+function MarketsPage(props) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [processing, setProcessing] = useState(false);
+
   const { intl } = props;
-  const { classes, theme, user } = props;
+  const { classes, theme } = props;
+
+  function loginCognito() {
+    setProcessing(true);
+    // const { marketId, uclusionUrl } = getLoginParams();
+    // const authorizerConfiguration = {
+    //   username: email,
+    //   password,
+    //   poolId,
+    //   clientId,
+    //   marketId,
+    //   baseURL: uclusionUrl,
+    // };
+    // cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
+    // setError('');
+    // cognitoAuthorizer.authorize().then((response) => {
+    //   console.debug(response);
+    //   cognitoTokenGenerated(props, response, cognitoAuthorizer, () => { setProcessing(false); });
+    // }).catch((error) => {
+    //   if ('newPasswordRequired' in error && error.newPasswordRequired) {
+    //     if (newPassword) {
+    //       changePasswordCognito(cognitoAuthorizer);
+    //     } else {
+    //       setIsNewRegistration(true);
+    //       setHelpMessage(intl.formatMessage({ id: 'loginNewRegistrationExplanation' }));
+    //       setNewPassword('');
+    //       setConfirmPassword('');
+    //     }
+    //   } else {
+    //     getErrorMessage(error)
+    //       .then((errorString) => {
+    //         setProcessing(false);
+    //         setError(errorString);
+    //       });
+    //   }
+    // });
+  }
+
   return (
     <div className={classes.main}>
       <Helmet>
         <meta name="theme-color" content={theme.palette.primary.main} />
         <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
         <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
-        <title>{intl.formatMessage({ id: 'landingPageUclusionRegistration' })}</title>
+        <title>{intl.formatMessage({ id: 'chooseMarket' })}</title>
       </Helmet>
       <AppBar position="static">
-        <Toolbar disableGutters>
-          {/* <div style={{ flex: 1 }} />
-          {user && user.default_market_id && (
-            <Tooltip title={intl.formatMessage({ id: 'landingPageSigninTooltip' })}>
-              <IconButton
-                name="signin"
-                aria-label={intl.formatMessage({ id: 'landingPageOpenUclusion' })}
-                color="inherit"
-                onClick={() => {
-                  window.location = `${window.location.href}${user.default_market_id}/Login`;
-                }}
-                rel="noopener"
-              >
-                <LockIcon />
-              </IconButton>
-            </Tooltip>
-          )}
-          <Tooltip title={intl.formatMessage({ id: 'landingPageHelpTooltip' })}>
-            <IconButton
-              name="questionanswer"
-              aria-label={intl.formatMessage({ id: 'landingPageOpenUclusionHelp' })}
-              color="inherit"
-              href="https://www.uclusion.com/help_videos/admins/help.html"
-              target="_blank"
-              rel="noopener"
-            >
-              <QuestionAnswerIcon />
-            </IconButton>
-          </Tooltip> */}
-        </Toolbar>
+        <Toolbar disableGutters />
       </AppBar>
 
       <div className={classes.root}>
@@ -108,6 +138,59 @@ function LandingPage(props) {
                 src="/watermark.png"
                 alt="Uclusion Logo"
               />
+              <FormControl className={classes.input} fullWidth>
+                <InputLabel htmlFor="market">Select Market</InputLabel>
+                <Select
+                  fullWidth
+                  inputProps={{
+                    name: 'market',
+                    id: 'market',
+                  }}
+                >
+                  <MenuItem value="market1">
+                    Market1
+                  </MenuItem>
+                  <MenuItem value="market2">
+                    Market2
+                  </MenuItem>
+                  <MenuItem value="market3">
+                    Market3
+                  </MenuItem>
+                </Select>
+              </FormControl>
+              <ValidatorForm className={classes.form} onSubmit={loginCognito}>
+                <TextValidator
+                  className={classes.input}
+                  label={intl.formatMessage({ id: 'loginEmail' })}
+                  name="email"
+                  validators={['required', 'isEmail']}
+                  errorMessages={[intl.formatMessage({ id: 'loginErrorEmailMissing' }), intl.formatMessage({ id: 'loginErrorEmailInvalid' })]}
+                  fullWidth
+                  value={email}
+                  onChange={event => setEmail(event.target.value)}
+                />
+                <TextValidator
+                  className={classes.input}
+                  label={intl.formatMessage({ id: 'loginPassword' })}
+                  name="password"
+                  type="password"
+                  validators={['required']}
+                  errorMessages={[intl.formatMessage({ id: 'loginErrorPasswordMissing' })]}
+                  fullWidth
+                  value={password}
+                  onChange={event => setPassword(event.target.value)}
+                />
+                <Typography className={classes.errorText}>{error}</Typography>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  disabled={processing}
+                  fullWidth
+                >
+                  {intl.formatMessage({ id: 'loginLoginCognitoButton' })}
+                </Button>
+              </ValidatorForm>
             </div>
           </CardContent>
         </Card>
@@ -116,7 +199,7 @@ function LandingPage(props) {
   );
 }
 
-LandingPage.propTypes = {
+MarketsPage.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
   user: PropTypes.object,
@@ -134,4 +217,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(withRouter(withStyles(styles, { withTheme: true })(injectIntl(LandingPage))));
+)(withRouter(withStyles(styles, { withTheme: true })(injectIntl(MarketsPage))));

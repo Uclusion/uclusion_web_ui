@@ -373,7 +373,7 @@ const messages = defineMessages({
   loginConfirmPassword: 'Confirm Password',
   loginConfirmPasswordErrorMissing: 'Password confirmation is required',
   loginConfirmPasswordErrorNoMatch: 'New Password and Confirm Password do not match',
-  loginCompleteRegistration: 'Complete New Account Registration',
+  loginCompleteRegistration: 'Complete New Registration',
   loginNewRegistrationExplanation: 'To protect your account we have sent you an email with a temporary password. Please confirm your email, enter the sent password, and change your password below.',
   loginForgotPassword: 'Forgot Password',
   loginCompleteRegistrationButton: 'Finish Registration',
@@ -418,6 +418,9 @@ const messages = defineMessages({
   teamMembershipsUserDetailUsharesAvailable: 'uShares available: {quantity}',
   teamMembershipsUserDetailUsharesSpent: 'uShares spent: {quantity_invested}',
   investingTeamsFailed: 'There was a problem retrieving investors. Please refresh',
+
+  // Menu Items
+  planningMarketSignupFailed: 'There was a problem signing up for Uclusion planning market. Please try again.',
 
   // teamsSearch
   teamsSearchBoxSearchTeams: 'Search Teams',

@@ -13,8 +13,11 @@ import GroupIcon from '@material-ui/icons/Group';
 import SecurityIcon from '@material-ui/icons/Security';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
+import { AnonymousAuthorizer } from 'uclusion_authorizer_sdk';
 import { formCurrentMarketLink } from '../utils/marketIdPathFunctions';
 import { getMarketAuth, getUclusionLocalStorageItem } from '../components/utils';
+import appConfig from './config';
+import { ERROR, sendIntlMessage } from '../utils/userMessage';
 
 const getMenuItems = (props) => {
   const {
@@ -34,7 +37,6 @@ const getMenuItems = (props) => {
   const authInfo = getMarketAuth(marketId);
   const loginInfo = getUclusionLocalStorageItem('loginInfo');
   const myInvestmentsSubpath = upUser ? 'teams#user:' + upUser.id : '';
-  const myUclusionPlanningURLSuffix = authInfo && 'uclusion_user_id' in authInfo ? 'investibles' : 'NewCognito';
   const uclusionHelpType = isMarketAdmin ? 'admins' : 'users';
 
 /*  const themeItems = themes.map(t => ({
@@ -156,8 +158,30 @@ const getMenuItems = (props) => {
     {
       primaryText: intl.formatMessage({ id: 'uclusionPlanningMarket' }),
       onClick: () => {
-        const win = window.open(`https://stage.uclusion.com/44147040-156d-4f60-b4c2-dcea7c2e9689/${myUclusionPlanningURLSuffix}`, '_blank');
-        win.focus();
+        const planningMarketId = '44147040-156d-4f60-b4c2-dcea7c2e9689';
+        const planningMarketLocation = `https://stage.uclusion.com/${planningMarketId}/investibles`;
+        if (authInfo && 'uclusion_user_id' in authInfo) {
+          const win = window.open(planningMarketLocation, '_blank');
+          win.focus();
+        } else {
+          const authorizer = new AnonymousAuthorizer({
+            uclusionUrl: appConfig.api_configuration.baseURL,
+          });
+          const promise = authorizer.cognitoUserSignup(planningMarketId, upUser.name, upUser.email);
+          promise.then((user) => {
+            let location = planningMarketLocation;
+            const encodedEmail = encodeURIComponent(user.email);
+            if (!user.exists_in_cognito) {
+              location += `?newLogin=true&email=${encodedEmail}`;
+            } else {
+              location += `?email=${encodedEmail}`;
+            }
+            const win = window.open(location, '_blank');
+            win.focus();
+          }).catch(() => {
+            sendIntlMessage(ERROR, { id: 'planningMarketSignupFailed' });
+          });
+        }
       },
       visible: isMarketAdmin,
       leftIcon: <StarIcon />,

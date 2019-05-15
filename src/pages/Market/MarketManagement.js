@@ -63,6 +63,7 @@ const styles = theme => ({
 function MarketManagement(props) {
   const [anonymousUrl, setAnonymousUrl] = useState(undefined);
   const [anonymousFlag, setAnonymousFlag] = useState(false);
+  const [reloadToggle, setReloadToggle] = useState(false);
   const {
     intl,
     classes,
@@ -88,7 +89,7 @@ function MarketManagement(props) {
         console.log(error);
         sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
       });
-  }, [marketId]);
+  }, [marketId, reloadToggle]);
 
   function handleChange(name) {
     return (event) => {
@@ -149,8 +150,8 @@ function MarketManagement(props) {
         if (allowAnonymous) {
           onAllowAnonymous();
         }
-        dispatch(receiveMarket({ ...market, ...updateOptions }));
         sendIntlMessage(SUCCESS, { id: 'marketEditSuccess' });
+        setReloadToggle(!reloadToggle);
       }).catch((error) => {
         console.log(error);
         setDirty(true);

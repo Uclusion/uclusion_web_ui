@@ -7,7 +7,7 @@
 export function getUiPreferences(user) {
   const { ui_preferences } = user;
   if (ui_preferences) {
-    const unpacked = JSON.parse((ui_preferences));
+    const unpacked = JSON.parse(ui_preferences);
     return unpacked;
   }
   return {};

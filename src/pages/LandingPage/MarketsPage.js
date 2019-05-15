@@ -18,7 +18,6 @@ import { withStyles } from '@material-ui/core/styles';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { injectIntl } from 'react-intl';
 import { Helmet } from 'react-helmet';
-import { UclusionSSO } from 'uclusion_authorizer_sdk';
 import { getCurrentUser } from '../../store/Users/reducer';
 
 const styles = theme => ({
@@ -83,6 +82,7 @@ function MarketsPage(props) {
 
   function loginCognito() {
     setProcessing(true);
+    setError('fix build cause complained unused');
     // const { marketId, uclusionUrl } = getLoginParams();
     // const authorizerConfiguration = {
     //   username: email,

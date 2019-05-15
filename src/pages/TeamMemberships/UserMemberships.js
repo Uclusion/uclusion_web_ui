@@ -141,7 +141,7 @@ function UserMemberships(props) {
   }
 
   function getCognitoLink(){
-    const cognitoLink = formCurrentMarketLink('NewCognito');
+    const cognitoLink = formCurrentMarketLink('Login');
     const location = window.location.href;
     const newURL = new URL(location);
     newURL.pathname = cognitoLink;

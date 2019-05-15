@@ -68,7 +68,7 @@ function HelpMovie(props) {
   }
 
   function setNewUiPreferences() {
-    const moviePrefs = getUiPreference(helpMoviesSeen) || {};
+    const moviePrefs = getUiPreference(user, helpMoviesSeen) || {};
     moviePrefs[name] = true;
     return setUiPreference(user, helpMoviesSeen, moviePrefs);
   }

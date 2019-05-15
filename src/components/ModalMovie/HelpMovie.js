@@ -134,4 +134,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(withMarketId(withAppConfigs(HelpMovie)));
+)(withMarketId(withAppConfigs(React.memo(HelpMovie))));

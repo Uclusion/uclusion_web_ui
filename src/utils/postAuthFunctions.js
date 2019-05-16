@@ -74,5 +74,3 @@ export function postAuthTasks(params, deployedVersion, uclusionTokenInfo, market
   }
   marketChangeTasks(params, market_id, user);
 }
-
-

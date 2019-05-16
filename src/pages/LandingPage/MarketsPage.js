@@ -18,7 +18,13 @@ import { withStyles } from '@material-ui/core/styles';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { injectIntl } from 'react-intl';
 import { Helmet } from 'react-helmet';
-import { getCurrentUser } from '../../store/Users/reducer';
+import {
+  CognitoAuthorizer,
+  UclusionSSO,
+} from 'uclusion_authorizer_sdk';
+import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
+import appConfig from '../../config/config';
+import { cognitoTokenGenerated, getErrorMessage } from '../../utils/loginFunctions';
 
 const styles = theme => ({
   main: {
@@ -76,45 +82,70 @@ function MarketsPage(props) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [markets, setMarkets] = useState(undefined);
+  const [selectedMarket, setSelectedMarket] = useState('');
 
   const { intl } = props;
   const { classes, theme } = props;
 
+  function getMarkets() {
+    setProcessing(true);
+    setError('');
+    const authorizerConfiguration = {
+      username: email,
+      password,
+      poolId: appConfig.api_configuration.poolId,
+      clientId: appConfig.api_configuration.clientId,
+      baseURL: appConfig.api_configuration.baseURL,
+    };
+    new CognitoAuthorizer(authorizerConfiguration).authorize()
+      .then((token) => {
+        new UclusionSSO(appConfig.api_configuration.baseURL).loginsInfo(token)
+          .then((response) => {
+            setProcessing(false);
+            setMarkets(Object.keys(response).map(marketId => ({ value: marketId, name: response[marketId].name })));
+          }).catch((error) => {
+            setProcessing(false);
+            getErrorMessage(error)
+              .then((errorString) => {
+                setError(errorString);
+              });
+          });
+      })
+      .catch((error) => {
+        setProcessing(false);
+        getErrorMessage(error)
+          .then((errorString) => {
+            setError(errorString);
+          });
+      });
+  }
+
+  function changeMarket(event) {
+    setSelectedMarket(event.target.value);
+  }
+
   function loginCognito() {
     setProcessing(true);
-    setError('fix build cause complained unused');
-    // const { marketId, uclusionUrl } = getLoginParams();
-    // const authorizerConfiguration = {
-    //   username: email,
-    //   password,
-    //   poolId,
-    //   clientId,
-    //   marketId,
-    //   baseURL: uclusionUrl,
-    // };
-    // cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
-    // setError('');
-    // cognitoAuthorizer.authorize().then((response) => {
-    //   console.debug(response);
-    //   cognitoTokenGenerated(props, response, cognitoAuthorizer, () => { setProcessing(false); });
-    // }).catch((error) => {
-    //   if ('newPasswordRequired' in error && error.newPasswordRequired) {
-    //     if (newPassword) {
-    //       changePasswordCognito(cognitoAuthorizer);
-    //     } else {
-    //       setIsNewRegistration(true);
-    //       setHelpMessage(intl.formatMessage({ id: 'loginNewRegistrationExplanation' }));
-    //       setNewPassword('');
-    //       setConfirmPassword('');
-    //     }
-    //   } else {
-    //     getErrorMessage(error)
-    //       .then((errorString) => {
-    //         setProcessing(false);
-    //         setError(errorString);
-    //       });
-    //   }
-    // });
+    setError('');
+    const authorizerConfiguration = {
+      username: email,
+      password,
+      poolId: appConfig.api_configuration.poolId,
+      clientId: appConfig.api_configuration.clientId,
+      marketId: selectedMarket,
+      baseURL: appConfig.api_configuration.baseURL,
+    };
+    const cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
+    cognitoAuthorizer.authorize().then((response) => {
+      cognitoTokenGenerated(props, response, cognitoAuthorizer, () => { setProcessing(false); });
+    }).catch((error) => {
+      getErrorMessage(error)
+        .then((errorString) => {
+          setProcessing(false);
+          setError(errorString);
+        });
+    });
   }
 
   return (
@@ -138,59 +169,72 @@ function MarketsPage(props) {
                 src="/watermark.png"
                 alt="Uclusion Logo"
               />
-              <FormControl className={classes.input} fullWidth>
-                <InputLabel htmlFor="market">Select Market</InputLabel>
-                <Select
-                  fullWidth
-                  inputProps={{
-                    name: 'market',
-                    id: 'market',
-                  }}
-                >
-                  <MenuItem value="market1">
-                    Market1
-                  </MenuItem>
-                  <MenuItem value="market2">
-                    Market2
-                  </MenuItem>
-                  <MenuItem value="market3">
-                    Market3
-                  </MenuItem>
-                </Select>
-              </FormControl>
-              <ValidatorForm className={classes.form} onSubmit={loginCognito}>
-                <TextValidator
-                  className={classes.input}
-                  label={intl.formatMessage({ id: 'loginEmail' })}
-                  name="email"
-                  validators={['required', 'isEmail']}
-                  errorMessages={[intl.formatMessage({ id: 'loginErrorEmailMissing' }), intl.formatMessage({ id: 'loginErrorEmailInvalid' })]}
-                  fullWidth
-                  value={email}
-                  onChange={event => setEmail(event.target.value)}
-                />
-                <TextValidator
-                  className={classes.input}
-                  label={intl.formatMessage({ id: 'loginPassword' })}
-                  name="password"
-                  type="password"
-                  validators={['required']}
-                  errorMessages={[intl.formatMessage({ id: 'loginErrorPasswordMissing' })]}
-                  fullWidth
-                  value={password}
-                  onChange={event => setPassword(event.target.value)}
-                />
-                <Typography className={classes.errorText}>{error}</Typography>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  disabled={processing}
-                  fullWidth
-                >
-                  {intl.formatMessage({ id: 'loginLoginCognitoButton' })}
-                </Button>
-              </ValidatorForm>
+              {markets ? (
+                <div style={{ width: '100%' }}>
+                  <FormControl className={classes.input} fullWidth>
+                    <InputLabel htmlFor="market">Select Market</InputLabel>
+                    <Select
+                      fullWidth
+                      inputProps={{
+                        name: 'market',
+                        id: 'market',
+                      }}
+                      value={selectedMarket}
+                      onChange={changeMarket}
+                    >
+                      {markets.map(({ name, value }) => (
+                        <MenuItem key={value} value={value}>
+                          {name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Typography className={classes.errorText}>{error}</Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    disabled={!selectedMarket || processing}
+                    fullWidth
+                    onClick={loginCognito}
+                  >
+                    {intl.formatMessage({ id: 'continue' })}
+                  </Button>
+                </div>
+              ) : (
+                <ValidatorForm className={classes.form} onSubmit={getMarkets}>
+                  <TextValidator
+                    className={classes.input}
+                    label={intl.formatMessage({ id: 'loginEmail' })}
+                    name="email"
+                    validators={['required', 'isEmail']}
+                    errorMessages={[intl.formatMessage({ id: 'loginErrorEmailMissing' }), intl.formatMessage({ id: 'loginErrorEmailInvalid' })]}
+                    fullWidth
+                    value={email}
+                    onChange={event => setEmail(event.target.value)}
+                  />
+                  <TextValidator
+                    className={classes.input}
+                    label={intl.formatMessage({ id: 'loginPassword' })}
+                    name="password"
+                    type="password"
+                    validators={['required']}
+                    errorMessages={[intl.formatMessage({ id: 'loginErrorPasswordMissing' })]}
+                    fullWidth
+                    value={password}
+                    onChange={event => setPassword(event.target.value)}
+                  />
+                  <Typography className={classes.errorText}>{error}</Typography>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={processing}
+                    fullWidth
+                  >
+                    {intl.formatMessage({ id: 'loginLoginCognitoButton' })}
+                  </Button>
+                </ValidatorForm>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -202,19 +246,18 @@ function MarketsPage(props) {
 MarketsPage.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
-  user: PropTypes.object,
-  intl: PropTypes.func.isRequired,
+  intl: PropTypes.object.isRequired,
 };
-
-const mapStateToProps = state => ({
-  user: getCurrentUser(state.usersReducer),
-});
 
 function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(
+function mapStateToProps(state) {
+  return { ...state };
+}
+
+export default withBackgroundProcesses(connect(
   mapStateToProps,
   mapDispatchToProps,
-)(withRouter(withStyles(styles, { withTheme: true })(injectIntl(MarketsPage))));
+)(withRouter(withStyles(styles, { withTheme: true })(injectIntl(MarketsPage)))));

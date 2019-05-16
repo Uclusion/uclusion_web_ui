@@ -11,19 +11,20 @@ const getPostAuthPage = () => {
   return currentPage.toString();
 };
 
-function getDestinationPage(subPath) {
+function getDestinationPage(subPath, marketId) {
   const currentPage = new URL(window.location.href);
-  const marketId = getMarketId();
   currentPage.pathname = `/${marketId}/${subPath}`;
   return currentPage.toString();
 }
 
-export function getLoginParams() {
-  const marketId = getMarketId();
+export function getLoginParams(marketId) {
   const parsed = new URL(window.location.href);
   let page = parsed.searchParams.get('destinationPage') || 'investibles';
   if (parsed.href.includes('#')) {
     page += `#${parsed.href.split('#')[1]}`;
+  }
+  if (!marketId) {
+    marketId = getMarketId();
   }
   const newLogin = parsed.searchParams.get('newLogin');
   let email = null;
@@ -31,7 +32,7 @@ export function getLoginParams() {
     email = decodeURIComponent(parsed.searchParams.get('email'));
   }
   const anonymousLogin = parsed.searchParams.get('anonymousLogin');
-  const destinationPage = getDestinationPage(page, true);
+  const destinationPage = getDestinationPage(page, marketId);
   const redirectUrl = getPostAuthPage();
   const pageUrl = window.location.href;
   const uclusionUrl = appConfig.api_configuration.baseURL;
@@ -109,7 +110,8 @@ export function loginAnonymous(props) {
  */
 export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks) {
   const { history } = props;
-  const { marketId, page } = getLoginParams();
+  const { market_id: marketId } = response;
+  const { page } = getLoginParams(marketId);
   console.debug(response);
   const uclusionTokenInfo = {
     token: cognitoAuthorizer.storedToken,
@@ -123,7 +125,6 @@ export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPost
   uiPostAuthTasks();
   history.push(page);
 }
-
 
 function convertErrorToString(error) {
   if (error.name) {

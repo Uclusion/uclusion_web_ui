@@ -26,6 +26,7 @@ const messages = defineMessages({
   night_mode: 'Night Mode',
   sign_in: 'Sign in',
   sign_up: 'Sign up',
+  continue: 'Continue',
 
   reset_password_header: 'Reset Password',
   login_header: 'Log In',

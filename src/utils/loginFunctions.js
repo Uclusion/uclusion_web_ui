@@ -108,7 +108,7 @@ export function loginAnonymous(props) {
  * @param cognitoAuthorizer the authorizer that handled the response
  * @param uiPostAutTasks any ui tasks that need to be run after auth
  */
-export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks) {
+export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks, doNotPush) {
   const { history } = props;
   const { market_id: marketId } = response;
   const { page } = getLoginParams(marketId);
@@ -123,7 +123,9 @@ export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPost
   postAuthTasks(props, response.deployed_version, uclusionTokenInfo,
     marketId, cognitoAuthorizer.user);
   uiPostAuthTasks();
-  history.push(page);
+  if (!doNotPush) {
+    history.push(page);
+  }
 }
 
 function convertErrorToString(error) {

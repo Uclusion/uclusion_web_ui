@@ -25,6 +25,7 @@ import {
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import appConfig from '../../config/config';
 import { cognitoTokenGenerated, getErrorMessage } from '../../utils/loginFunctions';
+import { setMarketAuth } from '../../components/utils';
 
 const styles = theme => ({
   main: {
@@ -135,7 +136,13 @@ function MarketsPage(props) {
     };
     const cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
     cognitoAuthorizer.authorize().then((response) => {
-      cognitoTokenGenerated(props, response, cognitoAuthorizer, () => { setProcessing(false); });
+      const authInfo = {
+        token: response.uclusion_token, type: cognitoAuthorizer.getType(),
+      };
+      setMarketAuth('account', authInfo);
+      cognitoTokenGenerated(props, response, cognitoAuthorizer, () => { setProcessing(false); },
+        true);
+      window.location = `${window.location.origin}/${selectedMarket}/investibles`;
     }).catch((error) => {
       getErrorMessage(error)
         .then((errorString) => {

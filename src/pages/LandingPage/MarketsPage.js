@@ -88,7 +88,11 @@ function MarketsPage(props) {
   const { intl } = props;
   const { classes, theme } = props;
 
-  function getMarkets() {
+  function changeMarket(event) {
+    setSelectedMarket(event.target.value);
+  }
+
+  function loginCognito() {
     setProcessing(true);
     setError('');
     const authorizerConfiguration = {
@@ -98,34 +102,27 @@ function MarketsPage(props) {
       clientId: appConfig.api_configuration.clientId,
       baseURL: appConfig.api_configuration.baseURL,
     };
-    new CognitoAuthorizer(authorizerConfiguration).authorize()
-      .then((token) => {
-        new UclusionSSO(appConfig.api_configuration.baseURL).loginsInfo(token)
-          .then((response) => {
-            setProcessing(false);
-            setMarkets(Object.keys(response).map(marketId => ({ value: marketId, name: response[marketId].name })));
-          }).catch((error) => {
-            setProcessing(false);
-            getErrorMessage(error)
-              .then((errorString) => {
-                setError(errorString);
-              });
-          });
-      })
-      .catch((error) => {
+    const cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
+    const uclusionSSO = new UclusionSSO(appConfig.api_configuration.baseURL);
+    cognitoAuthorizer.authorize().then(token => uclusionSSO.loginsInfo(token))
+      .then((response) => {
         setProcessing(false);
+        const markets = Object.keys(response).map(
+          marketId => ({ value: marketId, name: response[marketId].name }),
+        );
+        setMarkets(markets);
+        return response;
+      }).catch((error) => {
         getErrorMessage(error)
           .then((errorString) => {
+            setProcessing(false);
             setError(errorString);
           });
       });
   }
 
-  function changeMarket(event) {
-    setSelectedMarket(event.target.value);
-  }
-
-  function loginCognito() {
+  function loginCognitoWithMarket(event) {
+    event.preventDefault();
     setProcessing(true);
     setError('');
     const authorizerConfiguration = {
@@ -195,13 +192,13 @@ function MarketsPage(props) {
                     color="primary"
                     disabled={!selectedMarket || processing}
                     fullWidth
-                    onClick={loginCognito}
+                    onClick={loginCognitoWithMarket}
                   >
                     {intl.formatMessage({ id: 'continue' })}
                   </Button>
                 </div>
               ) : (
-                <ValidatorForm className={classes.form} onSubmit={getMarkets}>
+                <ValidatorForm className={classes.form} onSubmit={loginCognito}>
                   <TextValidator
                     className={classes.input}
                     label={intl.formatMessage({ id: 'loginEmail' })}

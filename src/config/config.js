@@ -56,7 +56,8 @@ const config = {
     investibleEditIntro: 'https://www.uclusion.com/help_videos/admins/UclusionAdminEditInvestible.mp4',
     categoriesIntro: 'https://www.uclusion.com/help_videos/admins/UclusionAdminCategories.mp4',
     subscriptionsHelp: 'https://www.uclusion.com/help_videos/UclusionSubscriptions.mp4',
-    stagesHelp: 'https://www.uclusion.com/help_videos/admins/UclusionAdminStages.mp4',
+    usersStagesHelp: 'https://www.uclusion.com/help_videos/users/UclusionUsersStages.mp4',
+    adminStagesHelp: 'https://www.uclusion.com/help_videos/admins/UclusionAdminStages.mp4',
   },
   termsOfUseLink: 'https://app.termly.io/document/terms-of-use-for-saas/02fc002b-2cab-4027-8c49-ed2589077551',
 };

@@ -203,9 +203,9 @@ function InvestibleDetail(props) {
 
       </div>
       <Typography className={classes.lastInvestmentDate}>
-        {intl.formatMessage({id: 'investiblesLastInvestment' }, { date: lastInvestDate})}
+        {intl.formatMessage({id: 'investiblesLastInvestment' }, { date: lastInvestDate })}
       </Typography>
-      <HelpMovie name="stagesHelp" open={showStagesHelp} onClose={() => setShowStagesHelp(false)} dontAutoOpen />
+      <HelpMovie name="usersStagesHelp" open={showStagesHelp} onClose={() => setShowStagesHelp(false)} dontAutoOpen />
       <Typography component="div" className={classNames(classes.flex, classes.row)}>
         <span className={classes.stageLabel}>
           {intl.formatMessage({ id: 'currentStageLabel' })}

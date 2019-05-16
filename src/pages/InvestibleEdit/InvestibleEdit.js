@@ -96,6 +96,10 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit * 2,
     padding: 0,
   },
+  topButton: {
+    marginLeft: theme.spacing.unit,
+    padding: 0,
+  },
 });
 
 function InvestibleEdit (props) {
@@ -115,7 +119,7 @@ function InvestibleEdit (props) {
   const [stageChange, setStageChange] = useState(true);
   const [additionalInvestmentRequired, setAdditionalInvestmentRequired] = useState(false);
   const [showInvestibleEditHelp, setShowInvestibleEditHelp] = useState(false);
-
+  const [showStagesHelp, setShowStagesHelp] = useState(false);
   useEffect(() => {
     const clientPromise = getClient();
     clientPromise.then(client => client.markets.getMarketInvestibles(marketId, [investibleId]))
@@ -324,6 +328,19 @@ function InvestibleEdit (props) {
         <HelpMovie name="investibleEditIntro" />
         <Card>
           <CardContent>
+            <HelpMovie name="investibleEditHelp" open={showInvestibleEditHelp} onClose={() => setShowInvestibleEditHelp(false)} dontAutoOpen />
+            <IconButton
+              name="stageinfo"
+              aria-label="Edit Investible Help"
+              className={classes.topButton}
+              color="primary"
+              onClick={(event) => {
+                event.preventDefault();
+                setShowInvestibleEditHelp(true);
+              }}
+            >
+              <Info />
+            </IconButton>
             <TextField
               className={classes.row}
               inputProps={{ maxLength: 255 }}
@@ -378,7 +395,7 @@ function InvestibleEdit (props) {
                 value={investible.stage}
                 marketId={marketId}
               />
-              <HelpMovie name="investibleEditHelp" open={showInvestibleEditHelp} onClose={() => setShowInvestibleEditHelp(false)} dontAutoOpen />
+              <HelpMovie name="adminStagesHelp" open={showStagesHelp} onClose={() => setShowStagesHelp(false)} dontAutoOpen />
               <IconButton
                 name="stageinfo"
                 aria-label="Edit Investible Help"
@@ -386,7 +403,7 @@ function InvestibleEdit (props) {
                 color="primary"
                 onClick={(event) => {
                   event.preventDefault();
-                  setShowInvestibleEditHelp(true);
+                  setShowStagesHelp(true);
                 }}
               >
                 <Info />

@@ -15,14 +15,16 @@ import { getComments } from '../store/Comments/reducer';
  * we have stored in the state. If they don't match, force reloads the page.
  * @param currentVersion
  */
-export function notifyNewApplicationVersion(currentVersion) {
+export function notifyNewApplicationVersion(dispatch, currentVersion) {
   const { version } = config;
   // if we don't have any version stored, we're either in dev, or we've dumped our data
   if (currentVersion !== version) {
     console.debug('Current version ' + version);
     console.debug('Upgrading to version ' + currentVersion);
     // deprecated, but the simplest way to ignore cache
-    const reloader = () => { window.location.reload(true); };
+    const reloader = () => {
+      clearReduxStore(dispatch);
+      window.location.reload(true); };
     sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
 
     //  window.location.reload(true);
@@ -65,7 +67,7 @@ export function marketChangeTasks(params, market_id, user) {
 export function postAuthTasks(params, deployedVersion, uclusionTokenInfo, market_id, user) {
   const { usersReducer, dispatch, webSocket } = params;
   setMarketAuth(market_id, uclusionTokenInfo);
-  notifyNewApplicationVersion(deployedVersion);
+  notifyNewApplicationVersion(dispatch, deployedVersion);
   // if we're not sure the user is the same as we loaded redux with, zero out redux
   if (!usersReducer || !usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {
     console.debug('Clearing user redux');

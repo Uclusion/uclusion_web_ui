@@ -17,7 +17,7 @@ import AdminUserItem from './AdminUserItem';
 const styles = theme => ({
   root: {
     position: 'fixed',
-    width: 400,
+    width: '100%',
     height: '100%',
     bottom: 0,
     display: 'flex',
@@ -32,6 +32,9 @@ const styles = theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
+    [theme.breakpoints.up('sm')]: {
+      width: 400,
+    },
   },
   detailOpen: {
     right: 0,

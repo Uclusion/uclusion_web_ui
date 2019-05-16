@@ -94,9 +94,7 @@ function MarketManagement(props) {
   function handleChange(name) {
     return (event) => {
       const { value, checked } = event.target;
-      const checkboxNames = [
-        'is_public_signup',
-      ];
+      const checkboxNames = ['']; // Currently there are no check box updates
       if (checkboxNames.includes(name)) {
         setMarket({
           ...market,
@@ -131,7 +129,6 @@ function MarketManagement(props) {
     const {
       name,
       description,
-      is_public_signup,
       trending_window,
       initial_stage_id,
       allowAnonymous,
@@ -139,7 +136,6 @@ function MarketManagement(props) {
     const updateOptions = {
       name,
       description,
-      is_public_signup,
       trending_window,
       initial_stage_id,
     };
@@ -214,18 +210,6 @@ function MarketManagement(props) {
                 fullWidth
                 value={market.product_login_url}
                 onChange={handleChange('product_login_url')}
-              />
-              <FormControlLabel
-                className={classes.fullWidth}
-                control={(
-                  <Checkbox
-                    checked={market.is_public_signup}
-                    onChange={handleChange('is_public_signup')}
-                    value="is_public_signup"
-                    color="primary"
-                  />
-                )}
-                label={intl.formatMessage({ id: 'marketSignupText' })}
               />
               {!anonymousUrl && (
                 <FormControlLabel

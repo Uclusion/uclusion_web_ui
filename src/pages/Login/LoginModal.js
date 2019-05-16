@@ -395,7 +395,7 @@ function LoginModal(props) {
             <div className={classes.separator} />
           </ListItem>
         )}
-        {!isNewRegistration && !allowUserLogin && allowCognitoLogin && allowPublicSignup && (
+        {!isNewRegistration && !allowUserLogin && allowCognitoLogin && (
           <ListItem>
             <Button
               onClick={signup}

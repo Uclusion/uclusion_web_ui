@@ -412,7 +412,6 @@ const messages = defineMessages({
   // MarketManagement
   copyAnonymousLoginLink: 'Copy Anonymous Login Link',
   marketDescriptionText: 'Enter a description and logo image for display with username / password signup.',
-  marketSignupText: 'Show signup button on login',
   marketAnonymousText: 'Make market visible to public',
 
   // UserDetail

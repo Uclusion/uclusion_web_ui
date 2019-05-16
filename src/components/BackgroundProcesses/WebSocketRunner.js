@@ -44,7 +44,7 @@ class WebSocketRunner {
           this.dispatch(investibleDeleted(message.indirect_object_id, object_id));
           break;
         case 'UI_UPDATE_REQUIRED':
-          notifyNewApplicationVersion(payload.deployed_version);
+          notifyNewApplicationVersion(this.dispatch, payload.deployed_version);
           break;
         default:
           console.debug('unknown event:', event);

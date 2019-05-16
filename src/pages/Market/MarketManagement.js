@@ -72,18 +72,18 @@ function MarketManagement(props) {
   } = props;
   const [market, setMarket] = useState({});
   const [dirty, setDirty] = useState(false);
-  const loginInfo = getUclusionLocalStorageItem('loginInfo');
-  const { allow_anonymous } = loginInfo;
   useEffect(() => {
     const clientPromise = getClient();
+    const loginInfo = getUclusionLocalStorageItem('loginInfo');
+    const { allow_anonymous } = loginInfo;
     clientPromise.then(client => client.markets.get(marketId))
       .then((m) => {
-        setMarket(m);
         if (allow_anonymous) {
           const location = window.location.href;
           const lastIndex = location.lastIndexOf('/') + 1;
           setAnonymousUrl(`${location.substring(0, lastIndex)}Login?anonymousLogin=true`);
         }
+        setMarket(m);
         dispatch(receiveMarket(m));
       }).catch((error) => {
         console.log(error);
@@ -93,19 +93,11 @@ function MarketManagement(props) {
 
   function handleChange(name) {
     return (event) => {
-      const { value, checked } = event.target;
-      const checkboxNames = ['']; // Currently there are no check box updates
-      if (checkboxNames.includes(name)) {
-        setMarket({
-          ...market,
-          [name]: checked,
-        });
-      } else {
-        setMarket({
-          ...market,
-          [name]: value,
-        });
-      }
+      const { value } = event.target;
+      setMarket({
+        ...market,
+        [name]: value,
+      });
       setDirty(true);
     };
   }
@@ -114,8 +106,10 @@ function MarketManagement(props) {
     const clientPromise = getClient();
     clientPromise.then(client => client.teams.bindAnonymous(marketId))
       .then(() => {
+        const loginInfo = getUclusionLocalStorageItem('loginInfo');
         loginInfo.allow_anonymous = true;
         setUclusionLocalStorageItem('loginInfo', loginInfo);
+        setReloadToggle(!reloadToggle);
         sendIntlMessage(SUCCESS, { id: 'marketAnonymousActiveSuccess' });
       }).catch((error) => {
         console.log(error);
@@ -131,7 +125,6 @@ function MarketManagement(props) {
       description,
       trending_window,
       initial_stage_id,
-      allowAnonymous,
     } = market;
     const updateOptions = {
       name,
@@ -143,11 +136,12 @@ function MarketManagement(props) {
     const clientPromise = getClient();
     clientPromise.then(client => client.markets.updateMarket(marketId, updateOptions))
       .then(() => {
-        if (allowAnonymous) {
-          onAllowAnonymous();
-        }
         sendIntlMessage(SUCCESS, { id: 'marketEditSuccess' });
-        setReloadToggle(!reloadToggle);
+        if (anonymousFlag) {
+          onAllowAnonymous();
+        } else {
+          setReloadToggle(!reloadToggle);
+        }
       }).catch((error) => {
         console.log(error);
         setDirty(true);
@@ -218,7 +212,6 @@ function MarketManagement(props) {
                     <Checkbox
                       checked={anonymousFlag}
                       onChange={handleAnonymousChange}
-                      value="allowAnonymous"
                       color="primary"
                     />
                   )}
@@ -236,7 +229,9 @@ function MarketManagement(props) {
                 {intl.formatMessage({ id: 'save' })}
               </Button>
             </CardActions>
-            {anonymousUrl && (<Typography className={classes.inviteUrl}>{anonymousUrl}</Typography>)}
+            {anonymousUrl && (
+              <Typography className={classes.inviteUrl}>{anonymousUrl}</Typography>
+            )}
             {anonymousUrl && (
               <Button
                 variant="contained"

@@ -14,6 +14,9 @@ const styles = theme => ({
   root: {
     color: 'inherit',
   },
+  container: {
+    flexShrink: 0,
+  },
 });
 
 function MarketFollowUnfollow(props) {
@@ -46,7 +49,7 @@ function MarketFollowUnfollow(props) {
   }
 
   return (
-    <div>
+    <div className={classes.container}>
       {getIcon()}
       <HelpMovie name="subscriptionsHelp" open={showSubscriptionHelp} onClose={() => setShowSubscriptionHelp(false)} dontAutoOpen />
       <IconButton

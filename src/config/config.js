@@ -30,10 +30,8 @@ const config = {
   api_configuration: {
     authorizer,
     baseURL: process.env.REACT_APP_UCLUSION_URL,
-    // poolId: process.env.AWS_POOL_ID,
-    // clientId: process.env.AWS_CLIENT_ID,
-    poolId: 'us-west-2_NVPcNPhKS',
-    clientId: '4knr08iqujrprrkpimqm04dnp',
+    poolId: process.env.REACT_APP_AWS_POOL_ID,
+    clientId: process.env.REACT_APP_AWS_CLIENT_ID,
   },
   version: process.env.REACT_APP_VERSION,
   uclusionSupportInfo: {

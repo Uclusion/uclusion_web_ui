@@ -12,6 +12,7 @@ import InvestingTeamsList from './InvestingTeamsList';
 import { getCurrentUser } from '../../store/Users/reducer';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
+import WorkgroupList from './WorkgroupList';
 
 const styles = theme => ({
   paper: {
@@ -58,18 +59,24 @@ function InvestibleListItemTabs(props) {
   }
   const [value, setValue] = useState(initialTab);
   const [investingTeams, setInvestingTeams] = useState([]);
+  const [workingUsers, setWorkingUsers] = useState([]);
 
   useEffect(() => {
     if (isMarketAdmin) {
       const clientPromise = getClient();
-      clientPromise.then(client => client.investibles.getInvestingTeams(investibleId))
-        .then((response) => {
-          setInvestingTeams(response);
-        })
-        .catch((error) => {
-          console.error(error);
-          sendIntlMessage(ERROR, { id: 'investingTeamsFailed' });
-        });
+      let globalClient;
+      clientPromise.then((client) => {
+        globalClient = client;
+        return client.investibles.getInvestingTeams(investibleId);
+      }).then((response) => {
+        setInvestingTeams(response);
+        return globalClient.investibles.getWorkgroup(investibleId);
+      }).then((response) => {
+        setWorkingUsers(response);
+      }).catch((error) => {
+        console.error(error);
+        sendIntlMessage(ERROR, { id: 'investingTeamsFailed' });
+      });
     }
   }, [investibleId, quantity]);
 
@@ -130,6 +137,12 @@ function InvestibleListItemTabs(props) {
           <InvestingTeamsList
             marketId={marketId}
             teams={investingTeams}
+          />
+        )}
+        {value === 'workinggroup' && isMarketAdmin && (
+          <WorkgroupList
+            marketId={marketId}
+            users={workingUsers}
           />
         )}
       </div>

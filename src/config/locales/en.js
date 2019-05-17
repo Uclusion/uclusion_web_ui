@@ -418,6 +418,7 @@ const messages = defineMessages({
   teamMembershipsUserDetailUsharesAvailable: 'uShares available: {quantity}',
   teamMembershipsUserDetailUsharesSpent: 'uShares spent: {quantity_invested}',
   investingTeamsFailed: 'There was a problem retrieving investors. Please refresh',
+  workgroupFetchFailed: 'There was a problem retrieving workgroup. Please refresh',
 
   // Menu Items
   planningMarketSignupFailed: 'There was a problem signing up for Uclusion planning market. Please try again.',

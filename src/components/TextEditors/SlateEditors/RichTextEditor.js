@@ -258,7 +258,9 @@ class RichTextEditor extends React.Component {
 
 
   handleImageUpload = () => {
-    this.insertImagesFromFiles(this.refs.fileUploader.files);
+    const uploader = this.refs.fileUploader;
+    this.insertImagesFromFiles(uploader.files);
+    uploader.value = '';
   };
 
   /**

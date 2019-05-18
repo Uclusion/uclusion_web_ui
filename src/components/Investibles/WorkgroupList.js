@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import { Card, Typography } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
-import _ from 'lodash';
+import classNames from "classnames";
 
 const styles = theme => ({
   root: {
@@ -26,35 +26,133 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'space-between',
   },
+  flex: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  itemLabel: {
+    minWidth: 100,
+  },
+  row: {
+
+  },
+  itemContent: {
+    flex: 1,
+  },
 });
 
-class WorkgroupList extends React.PureComponent {
-  render() {
-    const { classes, users, marketId } = this.props;
-    const sortedUsers = _.sortBy(users, ['team_name', 'quantity_invested']);
+
+function getBucketedUsers(users, myTeam) {
+  // crapy awkward code but it's fast to write
+  const isMyTeam = user => user.default_team_id === myTeam;
+  const subscriberOnly = user => !isMyTeam(user) && user.quantity_invested < 1;
+  const investor = user => user.quantity_invested > 0;
+  const onMyTeam = users.filter(isMyTeam);
+  const subscribed = users.filter(subscriberOnly);
+  const investors = users.filter(investor);
+  const mySorted = { onMyTeam, investors, subscribed };
+  console.log(mySorted);
+  return mySorted;
+}
+
+function WorkgroupList(props) {
+
+  const { classes, users, teamId, marketId, intl } = props;
+  const bucketedUsers = getBucketedUsers(users, teamId);
+
+
+  function getUserDetails(user) {
     return (
-      <div className={classes.root}>
-        {sortedUsers.map(user => (
-          <Card key={user.id} className={classes.card}>
-            <Link className={classes.link} to={`/${marketId}/teams#team:${user.default_team_id}`}>
-              <Typography className={classes.content} component="div">
-                <b>{user.team_name}</b>
-                <b>{user.name}</b>
-                {user.invested_quantity}
-                {user.email}
-              </Typography>
-            </Link>
-          </Card>
-        ))}
-      </div>
+      <Typography component="div">
+        <div className={classNames(classes.flex, classes.row)}>
+              <span className={classes.itemLabel}>
+                {intl.formatMessage({ id: 'workgroupListName' })}
+              </span>
+          <div className={classes.itemContent}>
+            <div>{user.name}</div>
+          </div>
+        </div>
+        <div className={classNames(classes.flex, classes.row)}>
+              <span className={classes.itemLabel}>
+                {intl.formatMessage({ id: 'workgroupListEmail' })}
+              </span>
+          <div className={classes.itemContent}>
+            <div>{user.email}</div>
+          </div>
+        </div>
+      </Typography>
     );
   }
+
+
+  function getMyTeamMember(user) {
+    return (
+      <Card key={user.id} className={classes.card}>
+        <Link className={classes.link} to={`/${marketId}/teams#team:${user.default_team_id}`}>
+          <Typography color={'primary'}>{intl.formatMessage({ id: 'workgroupListYourTeam' })}</Typography>
+          {getUserDetails(user)}
+        </Link>
+      </Card>
+    );
+  }
+
+  function getSubscriber(user) {
+    return (
+      <Card key={user.id} className={classes.card}>
+        <Link className={classes.link} to={`/${marketId}/teams#team:${user.default_team_id}`}>
+          <Typography color={'inherit'}>{intl.formatMessage({ id: 'workgroupListSubscribed' })}</Typography>
+          {getUserDetails(user)}
+        </Link>
+      </Card>
+    );
+  }
+
+  function getInvestor(user) {
+    return (
+      <Card key={user.id} className={classes.card}>
+        <Link className={classes.link} to={`/${marketId}/teams#team:${user.default_team_id}`}>
+          <Typography color={'secondary'}>{intl.formatMessage({ id: 'workgroupListInvestor' })}</Typography>
+          {getUserDetails(user)}
+          <Typography component="div">
+            <div className={classNames(classes.flex, classes.row)}>
+              <span className={classes.itemLabel}>
+                {intl.formatMessage({ id: 'workgroupListTeam' })}
+              </span>
+              <div className={classes.itemContent}>
+                <div>{user.team_name}</div>
+              </div>
+            </div>
+            <div className={classNames(classes.flex, classes.row)}>
+              <span className={classes.itemLabel}>
+                {intl.formatMessage({ id: 'workgroupListQuantityInvested' })}
+              </span>
+              <div className={classes.itemContent}>
+                <div>{user.quantity_invested}</div>
+              </div>
+            </div>
+          </Typography>
+        </Link>
+      </Card>
+    );
+  }
+
+
+  return (
+    <div className={classes.root}>
+      {bucketedUsers.onMyTeam.map(user => getMyTeamMember(user))}
+      {bucketedUsers.investors.map(user => getInvestor(user))}
+      {bucketedUsers.subscribed.map(user => getSubscriber(user))}
+    </div>
+  );
+
 }
 
 WorkgroupList.propTypes = {
   classes: PropTypes.object.isRequired,
   users: PropTypes.array.isRequired,
   marketId: PropTypes.string.isRequired,
+  teamId: PropTypes.string.isRequired,
+  intl: PropTypes.object.isRequired,
 };
 
 export default injectIntl(withStyles(styles)(WorkgroupList));

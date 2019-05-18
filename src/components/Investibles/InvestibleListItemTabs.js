@@ -114,6 +114,13 @@ function InvestibleListItemTabs(props) {
             value="investors"
           />
         )}
+        {isMarketAdmin && (
+          <Tab
+            className={classes.tab}
+            label={intl.formatMessage({ id: 'workgroupTab' })}
+            value="workgroup"
+          />
+        )}
       </Tabs>
 
       <div className={classes.tabContent}>
@@ -139,10 +146,11 @@ function InvestibleListItemTabs(props) {
             teams={investingTeams}
           />
         )}
-        {value === 'workinggroup' && isMarketAdmin && (
+        {value === 'workgroup' && isMarketAdmin && (
           <WorkgroupList
             marketId={marketId}
             users={workingUsers}
+            teamId={user.default_team_id}
           />
         )}
       </div>

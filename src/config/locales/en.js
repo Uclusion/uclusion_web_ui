@@ -170,6 +170,7 @@ const messages = defineMessages({
   activityTab: 'Activity',
   commentsTab: 'Comments',
   investorsTab: 'Investors',
+  workgroupTab: 'Workgroup',
   moreDetailsButton: 'More Details',
   totalCurrentInvestmentChip: '{shares} uShares',
   investmentForNextStageChip: 'Needs {shares} additional investment',
@@ -417,8 +418,7 @@ const messages = defineMessages({
   // UserDetail
   teamMembershipsUserDetailUsharesAvailable: 'uShares available: {quantity}',
   teamMembershipsUserDetailUsharesSpent: 'uShares spent: {quantity_invested}',
-  investingTeamsFailed: 'There was a problem retrieving investors. Please refresh',
-  workgroupFetchFailed: 'There was a problem retrieving workgroup. Please refresh',
+  investingTeamsFailed: 'There was a problem retrieving investible information. Please refresh',
 
   // Menu Items
   planningMarketSignupFailed: 'There was a problem signing up for Uclusion planning market. Please try again.',
@@ -477,6 +477,14 @@ const messages = defineMessages({
   dashboardTotalSharesChartXLabel: 'Date',
   dashboardTotalSharesChartYLabel: '# uShares in Market',
 
+  workgroupListYourTeam: 'Administrator',
+  workgroupListInvestor: 'Investor',
+  workgroupListSubscribed: 'Subscriber Only',
+  workgroupListTeamName: 'Team Name:',
+  workgroupListQuantityInvested: 'Investment:',
+  workgroupListName: 'Name:',
+  workgroupListEmail: 'Email:',
+  workgroupListTeam: 'Team:',
 
 });
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -26,6 +26,8 @@ import { withBackgroundProcesses } from '../../components/BackgroundProcesses/Ba
 import appConfig from '../../config/config';
 import { cognitoTokenGenerated, getErrorMessage } from '../../utils/loginFunctions';
 import { setMarketAuth } from '../../components/utils';
+import { getCurrentUser } from '../../store/Users/reducer';
+import { clearUserState } from "../../utils/userStateFunctions";
 
 const styles = theme => ({
   main: {
@@ -86,12 +88,21 @@ function MarketsPage(props) {
   const [markets, setMarkets] = useState(undefined);
   const [selectedMarket, setSelectedMarket] = useState('');
 
-  const { intl } = props;
-  const { classes, theme } = props;
+  const { intl, history, classes, theme, currentUser, allCategories, dispatch } = props;
 
   function changeMarket(event) {
     setSelectedMarket(event.target.value);
   }
+
+  useEffect(() => {
+    // zero us if we just arrived
+    if (!selectedMarket) {
+      clearUserState(dispatch);
+    }
+    if (currentUser && selectedMarket && allCategories) {
+      history.push(`${selectedMarket}/investibles`);
+    }
+  }, [currentUser, allCategories]);
 
   function loginCognito() {
     setProcessing(true);
@@ -142,7 +153,6 @@ function MarketsPage(props) {
       setMarketAuth('account', authInfo);
       cognitoTokenGenerated(props, response, cognitoAuthorizer, () => { setProcessing(false); },
         true);
-      window.location = `${window.location.origin}/${selectedMarket}/investibles`;
     }).catch((error) => {
       getErrorMessage(error)
         .then((errorString) => {
@@ -258,7 +268,10 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-  return { ...state };
+  return { ...state,
+    currentUser: getCurrentUser(state.usersReducer),
+    allCategories: state.marketsReducer.marketCategories
+  };
 }
 
 export default withBackgroundProcesses(connect(

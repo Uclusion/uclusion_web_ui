@@ -88,7 +88,7 @@ function MarketsPage(props) {
   const [markets, setMarkets] = useState(undefined);
   const [selectedMarket, setSelectedMarket] = useState('');
 
-  const { intl, history, classes, theme, currentUser, allCategories, dispatch } = props;
+  const { intl, classes, theme, currentUser, allCategories, dispatch } = props;
 
   function changeMarket(event) {
     setSelectedMarket(event.target.value);
@@ -100,7 +100,7 @@ function MarketsPage(props) {
       clearUserState(dispatch);
     }
     if (currentUser && selectedMarket && allCategories) {
-      history.push(`${selectedMarket}/investibles`);
+      window.location = `${window.location.origin}/${selectedMarket}/investibles`;
     }
   }, [currentUser, allCategories]);
 

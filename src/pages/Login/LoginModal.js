@@ -139,8 +139,9 @@ function LoginModal(props) {
   function loginCognito() {
     setProcessing(true);
     const { marketId, uclusionUrl } = getLoginParams();
+    const canonicalEmail = email.toLocaleLowerCase();
     const authorizerConfiguration = {
-      username: email,
+      username: canonicalEmail,
       password,
       poolId,
       clientId,
@@ -174,8 +175,9 @@ function LoginModal(props) {
 
   function forgotCognitoPassword() {
     const { marketId, uclusionUrl } = getLoginParams();
+    const canonicalEmail = email.toLocaleLowerCase();
     const authorizerConfiguration = {
-      username: email,
+      username: canonicalEmail,
       poolId,
       clientId,
       marketId,

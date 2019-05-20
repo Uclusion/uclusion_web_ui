@@ -15,7 +15,6 @@ const LPAsync = Loadable({
   loading: () => <LoadingComponent />,
 });
 
-
 ReactDOM.render(
   <A2HSProvider>
     <Router>

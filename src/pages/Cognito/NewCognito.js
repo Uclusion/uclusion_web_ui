@@ -124,14 +124,15 @@ function NewCognito(props) {
       const urlParams = new URLSearchParams(window.location.search);
       const creationToken = urlParams.get('creationToken');
       let promise;
+      const canonicalEmail = email.toLowerCase();
       if (creationToken) {
-        promise = authorizer.cognitoUserCreate(name, email, creationToken);
+        promise = authorizer.cognitoUserCreate(name, canonicalEmail, creationToken);
       } else {
-        promise = authorizer.cognitoUserSignup(marketId, name, email);
+        promise = authorizer.cognitoUserSignup(marketId, name, canonicalEmail);
       }
       promise.then((user) => {
         let location = `${window.location.origin}/${marketId}/investibles`;
-        const encodedEmail = encodeURIComponent(email);
+        const encodedEmail = encodeURIComponent(canonicalEmail);
         if (!user.exists_in_cognito) {
           location += `?newLogin=true&email=${encodedEmail}`;
         } else {

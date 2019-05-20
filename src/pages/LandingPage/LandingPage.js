@@ -232,9 +232,11 @@ function LandingPage(props) {
     const authorizer = new AnonymousAuthorizer({
       uclusionUrl: appConfig.api_configuration.baseURL,
     });
+    const canonicalEmail = email.toLowerCase();
     const accountCreationInfo = {
-      marketName, accountName, clientId, loginType, email, name,
+      marketName, accountName, clientId, loginType, canonicalEmail, name,
     };
+
     if (loginType === LOGIN_COGNITO) {
       setLoading(true);
       setProgressMessage(intl.formatMessage({ id: 'landingPageCreatingYourAccount' }));
@@ -251,7 +253,7 @@ function LandingPage(props) {
         .catch((e) => {
           setLoading(false);
           setError(getErrorMessage(e));
-          //sendIntlMessage(ERROR, { id: 'landingPageErrorSigningIn' });
+          // sendIntlMessage(ERROR, { id: 'landingPageErrorSigningIn' });
           console.error(e);
         });
     } else {

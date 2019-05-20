@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import { Card, Typography } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
-import classNames from "classnames";
+import classNames from 'classnames';
+
 
 const styles = theme => ({
   root: {
@@ -50,9 +52,13 @@ function getBucketedUsers(users, myTeam) {
   const onMyTeam = users.filter(isMyTeam);
   const subscribed = users.filter(subscriberOnly);
   const investors = users.filter(investor);
-  const mySorted = { onMyTeam, investors, subscribed };
-  console.log(mySorted);
+  const sortedInvestors = sortInvestors(investors);
+  const mySorted = { onMyTeam, investors: sortedInvestors, subscribed };
   return mySorted;
+}
+
+function sortInvestors(users){
+  return _.sortBy(users, 'team_name');
 }
 
 function WorkgroupList(props) {

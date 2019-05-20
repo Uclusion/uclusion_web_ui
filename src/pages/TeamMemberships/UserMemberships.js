@@ -162,7 +162,7 @@ function UserMemberships(props) {
 
       <div className={classes.content}>
         {canListAccountTeams && (<HelpMovie name="teamMembershipsAdminIntro" />)}
-        {canInvest && (<HelpMovie name="teamMembershipsUserIntro" />)}
+        {!userDetailIsMe && canInvest && (<HelpMovie name="teamMembershipsUserIntro" />)}
         {userDetailIsMe && (<HelpMovie name="myInvestmentsIntro" />)}
         {canListAccountTeams && teams && (
           <div className={classes.toolbar}>

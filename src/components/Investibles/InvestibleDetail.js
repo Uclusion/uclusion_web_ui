@@ -248,6 +248,7 @@ function InvestibleDetail(props) {
           marketId={myInvestible.market_id}
           currentUserInvestment={myInvestible.current_user_investment}
           openForInvestment={myInvestible.open_for_investment}
+          subscribed={myInvestible.current_user_is_following}
         />
       </div>
 

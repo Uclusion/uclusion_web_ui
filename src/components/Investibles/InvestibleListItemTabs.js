@@ -45,6 +45,7 @@ function InvestibleListItemTabs(props) {
     openForInvestment,
     userPermissions,
     quantity,
+    subscribed,
   } = props;
   const { isMarketAdmin, canInvest, canReadComments } = userPermissions;
   const investmentAllowed = canInvest && openForInvestment;
@@ -78,7 +79,7 @@ function InvestibleListItemTabs(props) {
         sendIntlMessage(ERROR, { id: 'investingTeamsFailed' });
       });
     }
-  }, [investibleId, quantity]);
+  }, [investibleId, quantity, subscribed]);
 
   function handleChange(event, value) {
     setValue(value);
@@ -168,6 +169,7 @@ InvestibleListItemTabs.propTypes = {
   openForInvestment: PropTypes.bool.isRequired,
   intl: PropTypes.object.isRequired, //eslint-disable-line
   quantity: PropTypes.number.isRequired,
+  subscribed: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = state => ({

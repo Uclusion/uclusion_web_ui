@@ -44,22 +44,38 @@ const styles = theme => ({
 });
 
 
+
+function sortInvestors(users) {
+  return _.sortBy(users, 'team_name');
+}
+
+function sortAdmins(users) {
+  return _.sortBy(users, 'name');
+}
+
+function sortSubscribers(users) {
+  return _.sortBy(users, 'name');
+}
+
 function getBucketedUsers(users, myTeam) {
-  // crapy awkward code but it's fast to write
+  // crappy awkward code but it's fast to write
   const isMyTeam = user => user.default_team_id === myTeam;
   const subscriberOnly = user => !isMyTeam(user) && user.quantity_invested < 1;
   const investor = user => user.quantity_invested > 0;
   const onMyTeam = users.filter(isMyTeam);
+  const sortedOnMyTeam = sortAdmins(onMyTeam);
   const subscribed = users.filter(subscriberOnly);
+  const sortedSubscribed = sortSubscribers(subscribed);
   const investors = users.filter(investor);
   const sortedInvestors = sortInvestors(investors);
-  const mySorted = { onMyTeam, investors: sortedInvestors, subscribed };
+  const mySorted = {
+    onMyTeam: sortedOnMyTeam,
+    investors: sortedInvestors,
+    subscribed: sortedSubscribed,
+  };
   return mySorted;
 }
 
-function sortInvestors(users){
-  return _.sortBy(users, 'team_name');
-}
 
 function WorkgroupList(props) {
 

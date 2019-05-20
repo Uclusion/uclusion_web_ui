@@ -3,6 +3,8 @@ import decode from 'jwt-decode';
 import { getMarketAuth } from '../components/utils';
 import { getMarketId } from './marketIdPathFunctions';
 
+
+
 /**
  * Returns the stored auth info for authorization
  * @returns {null|*} the correct token for either the uclusion planning or the regular market
@@ -19,6 +21,15 @@ const getLocalAuthInfo = () => {
   }
   return authInfo;
 };
+
+
+export function amAlreadyLoggedIn(){
+  const authInfo = getLocalAuthInfo();
+  if (authInfo) {
+    return true;
+  }
+  return false;
+}
 
 const getPostAuthPage = () => {
   const currentPage = new URL(window.location.href);
@@ -115,5 +126,6 @@ class ReactWebAuthorizer {
     return undefined;
   }
 }
+
 
 export default ReactWebAuthorizer;

@@ -22,6 +22,7 @@ import MarketStageList from '../../components/Markets/MarketStageList';
 import MarketStageFollowUnfollow from '../../components/Markets/MarketStageFollowUnfollow';
 import { fetchMarketInvestibleList } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
+import { amAlreadyLoggedIn } from '../../utils/ReactWebAuthorizer';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -60,7 +61,20 @@ const styles = theme => ({
 function InvestiblesPage(props) {
   const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
   const [showFavorite, setShowFavorite] = useState(false);
-  const { marketId } = props;
+
+  const {
+    marketId,
+    intl,
+    allCategories,
+    user,
+    history,
+    classes,
+    investibles,
+    location,
+    userPermissions,
+  } = props;
+  const { location: { hash, pathname } } = history;
+  const { isGuest, isMarketAdmin, canInvest } = userPermissions;
 
   function getMarketInvestibles() {
     const { investibles, allCategories } = props;
@@ -126,6 +140,11 @@ function InvestiblesPage(props) {
     setShowFavorite(!showFavorite);
   }
 
+  function shouldIShowLogin() {
+    const shouldLogin = /(.+)\/login/.test(pathname.toLowerCase()) && !amAlreadyLoggedIn();
+    return shouldLogin;
+  }
+
   useEffect(() => {
     if (lastFetchedMarketId !== marketId) {
       // useEffect may happen many  times but initial fetch only when market changes
@@ -137,19 +156,8 @@ function InvestiblesPage(props) {
     };
   });
 
-  const {
-    intl,
-    allCategories,
-    user,
-    history,
-    classes,
-    investibles,
-    location,
-    userPermissions,
-  } = props;
-  const { location: { hash, pathname } } = history;
-  const { isGuest, isMarketAdmin, canInvest } = userPermissions;
-  const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
+
+  const showLogin = shouldIShowLogin();
   let currentInvestibleList = getCurrentInvestibleList();
   if (showFavorite) {
     currentInvestibleList = currentInvestibleList.filter(({ current_user_is_following }) => current_user_is_following);

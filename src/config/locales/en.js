@@ -339,7 +339,7 @@ const messages = defineMessages({
   landingPageMarketDescription: 'Product Description:',
   landingPageMarketDescriptionTooltip: 'This is a short description to help keep products organized.',
   landingPageMarketDescriptionError: 'Product Description is required',
-  landingPageLoginUrl: 'Single Sign On (SSO) Login URL (Optional):',
+  landingPageLoginUrl: 'Did you set up Single Sign On with us? If so enter your login page URL here:',
   landingPageLoginUrlTooltip: 'If you have set up a SSO integration with Uclusion, enter your login page URL here.',
   landingPageLoginUrlError: 'SSO URL is invalid',
   landingPageEmail: 'Your Email:',
@@ -412,7 +412,7 @@ const messages = defineMessages({
 
   // MarketManagement
   copyAnonymousLoginLink: 'Copy Anonymous Login Link',
-  marketDescriptionText: 'Enter a description and logo image for display with username / password signup.',
+  marketDescriptionText: 'Enter a description and logo image for display during new user signup.',
   marketAnonymousText: 'Make market visible to public',
 
   // UserDetail

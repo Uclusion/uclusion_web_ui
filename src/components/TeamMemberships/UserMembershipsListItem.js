@@ -107,8 +107,10 @@ function UserMembershipsListItem(props) {
     selected,
     onToggleFavorite,
     dispatch,
+    upUser,
   } = props;
   const {
+    team_id,
     name,
     description,
     team_size,
@@ -121,6 +123,7 @@ function UserMembershipsListItem(props) {
   } = team;
   const { canGrant, isMarketAdmin } = userPermissions;
   const totalQuantity = shared_quantity + quantity;
+  const is_my_team = upUser && upUser.default_team_id === team_id;
   const dateFormatOptions = {
     year: 'numeric',
     month: 'numeric',
@@ -200,7 +203,7 @@ function UserMembershipsListItem(props) {
         <Typography>
           {description}
         </Typography>
-        {isMarketAdmin && (
+        {isMarketAdmin && !is_my_team && (
           <Gauge
             value={health_score}
             max="1000"
@@ -225,13 +228,15 @@ function UserMembershipsListItem(props) {
             classes={{ labelContainer: classes.tabLabelContainer }}
             label={`${team_size} ${intl.formatMessage({ id: 'members' })}`}
           />
-          <Tab
-            value="investibles"
-            className={classes.tab}
-            classes={{ labelContainer: classes.tabLabelContainer }}
-            label={intl.formatMessage({ id: 'investibles' })}
-          />
-          {canGrant && (
+          {(!canGrant || !is_my_team) && (
+            <Tab
+              value="investibles"
+              className={classes.tab}
+              classes={{ labelContainer: classes.tabLabelContainer }}
+              label={intl.formatMessage({ id: 'investibles' })}
+            />
+          )}
+          {canGrant && !is_my_team && (
             <Tab
               value="administer"
               className={classes.tab}

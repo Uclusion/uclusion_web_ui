@@ -30,7 +30,7 @@ export default function configureStore() {
   const persistorConfig = {
     key: 'root',
     storage: localForage,
-    blacklist: ['auth', 'form', 'connection', 'initialization'],
+    blacklist: ['auth', 'form', 'connection', 'initialization', 'drawer'],
   };
 
   const reducer = persistReducer(persistorConfig, reducers);

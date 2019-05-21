@@ -74,7 +74,7 @@ class SelectableMenuList extends Component {
   }
 
   getItem = (item, i) => {
-    const { useMinified, classes } = this.props;
+    const { classes } = this.props;
 
     delete item.visible;
 
@@ -123,10 +123,7 @@ class SelectableMenuList extends Component {
           {item.nestedItems
             && (
             <ListItemSecondaryAction>
-              <IconButton
-                style={{ paddingLeft: useMinified ? 30 : undefined }}
-                onClick={this.handleClickItem(item)}
-              >
+              <IconButton onClick={this.handleClickItem(item)}>
                 <KeyboardArrowRight color="action" />
               </IconButton>
             </ListItemSecondaryAction>

@@ -120,13 +120,8 @@ function Activity(props) {
   const [offline, setOffline] = useState(!navigator.onLine);
 
   function handleDrawerToggle() {
-    const { setDrawerMobileOpen, drawer } = props;
-    setDrawerMobileOpen(!drawer.mobileOpen);
-  }
-
-  function handleDrawerOpen() {
-    const { setDrawerOpen } = props;
-    setDrawerOpen(true);
+    const { setDrawerOpen, drawer } = props;
+    setDrawerOpen(!drawer.open);
   }
 
   function handleConnectionStatusChange() {
@@ -197,7 +192,7 @@ function Activity(props) {
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            onClick={!drawer.open ? handleDrawerOpen : handleDrawerToggle}
+            onClick={handleDrawerToggle}
             className={classNames(!smDown && classes.menuButton,
               drawer.open && !smDown && classes.hide, onBackClick && classes.hide)}
           >
@@ -247,8 +242,6 @@ function Activity(props) {
 }
 
 Activity.propTypes = {
-  setDrawerMobileOpen: PropTypes.func.isRequired,
-  setDrawerUseMinified: PropTypes.func.isRequired,
   setDrawerOpen: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,

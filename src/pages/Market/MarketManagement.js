@@ -230,7 +230,10 @@ function MarketManagement(props) {
               </Button>
             </CardActions>
             {anonymousUrl && (
-              <Typography className={classes.inviteUrl}>{anonymousUrl}</Typography>
+              <div>
+                <Typography className={classes.inviteUrl}>{intl.formatMessage({ id: 'marketEditInviteLinkDescription' })}</Typography>
+                <Typography className={classes.inviteUrl}>{anonymousUrl}</Typography>
+              </div>
             )}
             {anonymousUrl && (
               <Button

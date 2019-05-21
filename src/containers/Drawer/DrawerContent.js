@@ -20,7 +20,6 @@ const DrawerContent = (props) => {
     appConfig,
     history,
     match,
-    drawerOpen,
     width,
     setDrawerOpen,
   } = props;
@@ -57,12 +56,8 @@ const DrawerContent = (props) => {
   );
 };
 
-const mapStateToProps = state => ({
-  drawerOpen: state.drawer.open,
-});
-
 export default connect(
-  mapStateToProps,
+  null,
   {
     updateTheme,
     switchNightMode,

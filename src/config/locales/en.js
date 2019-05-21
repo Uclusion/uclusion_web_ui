@@ -361,6 +361,7 @@ const messages = defineMessages({
   landingPageCreatingYourAccount: 'We are creating your account. This will take about 30 seconds...',
   landingPageTermsLabel: 'I agree to Uclusion\'s <a target="_blank" href="{termsLink}">Terms of Use</a>',
   landingPageMustAgreeToTerms: 'You must agree to our Terms of Use to create an account',
+  landingPageGenericError: 'We could not process your form. Please try again',
 
   // Markets
   chooseMarket: 'Choose Market',

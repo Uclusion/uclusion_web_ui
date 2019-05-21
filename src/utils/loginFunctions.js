@@ -156,14 +156,22 @@ function convertErrorToString(error) {
 }
 
 /**
- *  This function is insane because it's colappsing errors from two or three systems
+ *  This function is insane because it's colapsing errors from two or three systems
  *   returns an i18n string for errors on login
  * @param error
+ * @param stringConverter
+ * function which takes error message and converts it to a string
+ *
  * @returns promise resulting in string error to display to user
  */
-export function getErrorMessage(response) {
+export function getErrorMessageStringConverter(response, stringConverter){
   return Promise.resolve(response)
     .then(result => response.json())
-    .then(json => convertErrorToString(json))
-    .catch(result => convertErrorToString(response));
+    .then(json => stringConverter(json))
+    .catch(result => stringConverter(response));
+}
+
+
+export function getErrorMessage(response) {
+  return getErrorMessageStringConverter(response, convertErrorToString);
 }

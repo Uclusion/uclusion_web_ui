@@ -36,6 +36,7 @@ import { validURL } from '../../utils/validators';
 import { sendIntlMessage, ERROR } from '../../utils/userMessage';
 import CheckboxValidator from '../../components/ValidatorComponents/CheckboxValidator';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
+import { getErrorMessageStringConverter } from '../../utils/loginFunctions';
 
 
 const LOGIN_GOOGLE = 0;
@@ -220,11 +221,25 @@ function LandingPage(props) {
     setMarketProductLoginUrl(event.target.value);
   }
 
-  function getErrorMessage(e){
-    if (e.error_message && e.error_message.error_message === 'Account name already exists'){
-      return intl.formatMessage({ id: 'landingPageErrorAccountNameDuplicate' });
+  function getErrorString(e){
+    if (e.error_message) {
+      const message = e.error_message;
+      let decoded = null;
+      try {
+        decoded = JSON.parse(message);
+      } catch (error) {
+        decoded = message;
+      }
+      if (decoded && decoded.error_message) {
+        return decoded.error_message;
+      }
+      return decoded;
     }
-    return 'Form invalid'; //this sucks
+    return intl.formatMessage({ id: 'landingPageGenericError' });
+  }
+
+  function getErrorMessage(e) {
+    return getErrorMessageStringConverter(e, getErrorString);
   }
 
   function handleSubmit(event) {
@@ -234,7 +249,7 @@ function LandingPage(props) {
     });
     const canonicalEmail = email.toLowerCase();
     const accountCreationInfo = {
-      marketName, accountName, clientId, loginType, canonicalEmail, name,
+      marketName, accountName, clientId, loginType, email: canonicalEmail, name,
     };
 
     if (loginType === LOGIN_COGNITO) {
@@ -252,8 +267,10 @@ function LandingPage(props) {
         }).then(client => setTimeout(createMarket, 30000, client, accountCreationInfo, setLoading)) // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
         .catch((e) => {
           setLoading(false);
-          setError(getErrorMessage(e));
-          // sendIntlMessage(ERROR, { id: 'landingPageErrorSigningIn' });
+          getErrorMessage(e)
+            .then((message) => {
+              setError(message);
+            });
           console.error(e);
         });
     } else {

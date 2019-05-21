@@ -159,6 +159,7 @@ function LoginModal(props) {
           changePasswordCognito(cognitoAuthorizer);
         } else {
           setIsNewRegistration(true);
+          setProcessing(false);
           setHelpMessage(intl.formatMessage({ id: 'loginNewRegistrationExplanation' }));
           setNewPassword('');
           setConfirmPassword('');

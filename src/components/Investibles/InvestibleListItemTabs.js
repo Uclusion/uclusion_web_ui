@@ -16,7 +16,6 @@ import WorkgroupList from './WorkgroupList';
 
 const styles = theme => ({
   paper: {
-    flexGrow: 1,
     width: '100%',
     display: 'flex',
     flexDirection: 'column',

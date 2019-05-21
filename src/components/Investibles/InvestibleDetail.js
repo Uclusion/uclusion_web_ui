@@ -27,6 +27,7 @@ const styles = theme => ({
     position: 'fixed',
     width: '100%',
     height: '100%',
+    overflow: 'auto',
     bottom: 0,
     display: 'flex',
     flexDirection: 'column',
@@ -45,10 +46,7 @@ const styles = theme => ({
     },
   },
   content: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'auto',
+    //
   },
   lastInvestmentDate: {
     paddingBottom: theme.spacing.unit * 1,
@@ -199,47 +197,47 @@ function InvestibleDetail(props) {
           </IconButton>
         </Tooltip>
       </div>
-      <div className={classes.flex}>
-        <Typography variant="h6" className={classes.investibleName}>
-          {myInvestible.name}
-        </Typography>
-
-      </div>
-      <Typography className={classes.lastInvestmentDate}>
-        {intl.formatMessage({id: 'investiblesLastInvestment' }, { date: lastInvestDate })}
-      </Typography>
-      <HelpMovie name="usersStagesHelp" open={showStagesHelp} onClose={() => setShowStagesHelp(false)} dontAutoOpen />
-      <Typography component="div" className={classNames(classes.flex, classes.row)}>
-        <span className={classes.stageLabel}>
-          {intl.formatMessage({ id: 'currentStageLabel' })}
-        </span>
-        <div className={classes.stageContent}>
-          <div>
-            {myInvestible.stage_name}
-            {canEditMarketInvestible && (
-              <IconButton
-                name="stagesinfo"
-                aria-label="Stages Help"
-                className={classes.button}
-                color="primary"
-                onClick={(event) => {
-                  event.preventDefault();
-                  setShowStagesHelp(true);
-                }}
-              >
-                <Info />
-              </IconButton>
-            )}
-          </div>
-          <div className={classes.numSharesText}>
-            {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: myInvestible.quantity })}
-          </div>
-        </div>
-      </Typography>
-      {getNextStageContent(myInvestible)}
-      {renderLabelChips()}
-
       <div className={classes.content}>
+        <div className={classes.flex}>
+          <Typography variant="h6" className={classes.investibleName}>
+            {myInvestible.name}
+          </Typography>
+
+        </div>
+        <Typography className={classes.lastInvestmentDate}>
+          {intl.formatMessage({id: 'investiblesLastInvestment' }, { date: lastInvestDate })}
+        </Typography>
+        <HelpMovie name="usersStagesHelp" open={showStagesHelp} onClose={() => setShowStagesHelp(false)} dontAutoOpen />
+        <Typography component="div" className={classNames(classes.flex, classes.row)}>
+          <span className={classes.stageLabel}>
+            {intl.formatMessage({ id: 'currentStageLabel' })}
+          </span>
+          <div className={classes.stageContent}>
+            <div>
+              {myInvestible.stage_name}
+              {canEditMarketInvestible && (
+                <IconButton
+                  name="stagesinfo"
+                  aria-label="Stages Help"
+                  className={classes.button}
+                  color="primary"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setShowStagesHelp(true);
+                  }}
+                >
+                  <Info />
+                </IconButton>
+              )}
+            </div>
+            <div className={classes.numSharesText}>
+              {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: myInvestible.quantity })}
+            </div>
+          </div>
+        </Typography>
+        {getNextStageContent(myInvestible)}
+        {renderLabelChips()}
+
         <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={myInvestible.description} readOnly />
         <InvestibleListItemTabs
           name={myInvestible.name}
@@ -251,8 +249,6 @@ function InvestibleDetail(props) {
           subscribed={myInvestible.current_user_is_following}
         />
       </div>
-
-
     </div>
   );
 }

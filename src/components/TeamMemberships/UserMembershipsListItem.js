@@ -45,6 +45,7 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column',
     boxSizing: 'border-box',
+    overflow: 'auto',
   },
   header: {
     display: 'flex',
@@ -82,10 +83,6 @@ const styles = theme => ({
   },
   tabLabelContainer: {
     padding: 6,
-  },
-  tabContent: {
-    flex: 1,
-    overflowY: 'auto',
   },
 });
 
@@ -204,16 +201,18 @@ function UserMembershipsListItem(props) {
           {description}
         </Typography>
         {isMarketAdmin && !is_my_team && (
-          <Gauge
-            value={health_score}
-            max="1000"
-            color={ratingColor}
-            width={350}
-            height={220}
-            label={intl.formatMessage({ id: 'teamHealthScore' })}
-            topLabelStyle={{ fontSize: 20, fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif" }}
-            valueLabelStyle={{ fontSize: 30, fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif" }}
-          />
+          <div style={{ height: 220 }}>
+            <Gauge
+              value={health_score}
+              max="1000"
+              color={ratingColor}
+              width={350}
+              height={220}
+              label={intl.formatMessage({ id: 'teamHealthScore' })}
+              topLabelStyle={{ fontSize: 20, fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif" }}
+              valueLabelStyle={{ fontSize: 30, fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif" }}
+            />
+          </div>
         )}
         <Tabs
           value={tabIndex}
@@ -245,7 +244,7 @@ function UserMembershipsListItem(props) {
             />
           )}
         </Tabs>
-        <div className={classes.tabContent}>
+        <div>
           {tabIndex === "members" && (
             <MemberList
               allUsers={allUsers}

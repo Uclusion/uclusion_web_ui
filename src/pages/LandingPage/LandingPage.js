@@ -141,7 +141,6 @@ function createMarket(client, accountCreationInfo, setLoading) {
 
 function LandingPage(props) {
   const [accountName, setAccountName] = useState(undefined);
-  const [marketName, setMarketName] = useState(undefined);
   const [clientId, setClientId] = useState(undefined);
   const [loginType, setLoginType] = useState(LOGIN_COGNITO);
   const [processing, setProcessing] = useState(false);
@@ -167,7 +166,6 @@ function LandingPage(props) {
       setProcessing(true);
       const accountCreationInfo = getUclusionLocalStorageItem('accountCreationInfo');
       setAccountName(accountCreationInfo.accountName);
-      setMarketName(accountCreationInfo.marketName);
       setClientId(accountCreationInfo.clientId);
       setLoginType(accountCreationInfo.loginType);
       authorizer.doPostAccount(pageUrl).then((response) => {
@@ -187,10 +185,6 @@ function LandingPage(props) {
 
   function handleAccountNameChange(event) {
     setAccountName(event.target.value);
-  }
-
-  function handleMarketNameChange(event) {
-    setMarketName(event.target.value);
   }
 
   function handleClientIdChange(event) {
@@ -244,6 +238,7 @@ function LandingPage(props) {
 
   function handleSubmit(event) {
     event.preventDefault();
+    const marketName = accountName;
     const authorizer = new AnonymousAuthorizer({
       uclusionUrl: appConfig.api_configuration.baseURL,
     });
@@ -307,7 +302,7 @@ function LandingPage(props) {
       </Helmet>
       <AppBar position="static">
         <Toolbar disableGutters>
-          <div style={{ flex: 1 }}/>
+          <div style={{ flex: 1 }} />
           {user && user.default_market_id && (
             <Tooltip title={intl.formatMessage({ id: 'landingPageSigninTooltip' })}>
               <IconButton
@@ -397,27 +392,6 @@ function LandingPage(props) {
                     fullWidth
                     value={accountName}
                     onChange={handleAccountNameChange}
-                  />
-                </Tooltip>
-                <Tooltip
-                  title={
-                    (
-                      <React.Fragment>
-                        <Typography variant="h5" color="inherit">{intl.formatMessage({ id: 'landingPageMarketNameTooltip' })}</Typography>
-                      </React.Fragment>
-                    )
-                  }
-                  placement="right-end"
-                >
-                  <TextValidator
-                    className={classes.formField}
-                    label={intl.formatMessage({ id: 'landingPageMarketName' })}
-                    name="marketNameId"
-                    validators={['required']}
-                    errorMessages={[intl.formatMessage({ id: 'landingPageMarketNameError' })]}
-                    fullWidth
-                    value={marketName}
-                    onChange={handleMarketNameChange}
                   />
                 </Tooltip>
                 {loginType === LOGIN_COGNITO && (

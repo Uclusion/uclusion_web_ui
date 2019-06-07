@@ -1,7 +1,7 @@
 import { fetchUser } from '../store/Users/actions';
 
 import { setMarketAuth } from '../components/utils';
-import { fetchMarket, fetchMarketStages } from '../store/Markets/actions';
+import { fetchMarket, fetchMarketStages } from '../api/markets;
 import { clearReduxStore } from './userStateFunctions';
 import { sendInfoPersistent } from './userMessage';
 import config from '../config/config';
@@ -31,18 +31,24 @@ export function notifyNewApplicationVersion(dispatch, currentVersion) {
   }
 }
 
-export function fetchMarketInvestibleList(params) {
+/**
+ * Returns a promise that when resolved will fetch all needed investible info
+ * @param params
+ * @returns {*}
+ */
+export function fetchMarketInvestibleInfo(params) {
   const {
     investibles, dispatch, comments, marketId, fetchComments,
   } = params;
   console.debug('Fetching investibles with marketId:', marketId);
   const currentInvestibleList = marketId in investibles ? investibles[marketId] : [];
   const currentCommentList = marketId in comments ? comments[marketId] : [];
-  dispatch(fetchInvestibleList({ marketId, currentInvestibleList }));
-  dispatch(fetchMarketStages({ marketId }));
+  let promises = fetchInvestibleList(currentInvestibleList)
+    .then(result => fetchMarketStages());
   if (fetchComments) {
-    dispatch(fetchCommentList({ marketId, currentCommentList }));
+    promises = promises.then((result) => fetchCommentList(currentCommentList));
   }
+  return promises;
 }
 
 export function marketChangeTasks(params, market_id, user) {

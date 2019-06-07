@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { getSelectedStage } from '../../store/ActiveSearches/reducer';
 import { getStages } from '../../store/Markets/reducer';
-import { followUnFollowMarketStage } from '../../store/Markets/actions';
+import { followUnFollowMarketStage } from '../../api/markets';
 
 function MarketStageFollowUnfollow(props) {
   const {
@@ -36,7 +36,7 @@ function MarketStageFollowUnfollow(props) {
     console.debug('checking following');
     if (currentStage && marketStages && marketStages[marketId]) {
       console.debug('Following');
-      dispatch(followUnFollowMarketStage({ marketId, stageId: currentStage, following }));
+      followUnFollowMarketStage(currentStage, following, dispatch);
     }
   }
 

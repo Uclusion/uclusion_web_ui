@@ -6,9 +6,8 @@ import {
   followedMarket,
   followedMarketStage, receiveMarket,
   receiveMarketCategories,
-  receiveMarketStages
+  receiveMarketStages,
 } from '../store/Markets/actions';
-import
 
 export function followUnfollowMarket(following, dispatch) {
   const clientPromise = getClient();
@@ -18,6 +17,7 @@ export function followUnfollowMarket(following, dispatch) {
       const followMsg = response.following ? 'marketFollowSuccess' : 'marketUnfollowSuccess';
       sendIntlMessage(SUCCESS, { id: followMsg });
     }).catch((error) => {
+      console.error(error);
       sendIntlMessage(ERROR, { id: 'marketFollowFailed' });
     });
 }
@@ -36,7 +36,7 @@ export function followUnFollowMarketStage(stageId, following, dispatch) {
 }
 
 
-export function fetchMarketStages(dispatch){
+export function fetchMarketStages(dispatch) {
   const clientPromise = getClient();
   console.debug('Fetching market stages');
   return clientPromise.then(client => client.markets.listStages())
@@ -72,11 +72,11 @@ export function deleteMarketCategory(name, dispatch) {
     });
 }
 
-export function createMarketCategory(name, dispatch)  {
+export function createMarketCategory(name, dispatch) {
   const clientPromise = getClient();
   return clientPromise.then(client => client.investibles.createCategory(name))
     .then((category) => {
-      const newCategory = {...category, investiblesIn: 0};
+      const newCategory = { ...category, investiblesIn: 0 };
       dispatch(categoryCreated(newCategory));
       sendIntlMessage(SUCCESS, { id: 'marketCategoryCreated' });
     }).catch((error) => {
@@ -85,13 +85,13 @@ export function createMarketCategory(name, dispatch)  {
     });
 }
 
-export function fetchMarket(dispatch){
+export function fetchMarket(dispatch) {
   const clientPromise = getClient();
   return clientPromise.then(client => client.markets.get())
     .then((market) => {
-    dispatch(receiveMarket(market));
-  }).catch((error) => {
-    console.error(error);
-  });
+      dispatch(receiveMarket(market));
+    }).catch((error) => {
+      console.error(error);
+    });
 }
 

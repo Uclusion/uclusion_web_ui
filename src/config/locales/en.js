@@ -225,7 +225,7 @@ const messages = defineMessages({
   inviteMarketText: 'Use this page only if you need to invite someone that cannot single sign on or that you want on a different team then by email domain.',
   marketManagement: 'Market Management',
   marketEditHeader: 'Edit Market',
-  marketEditInviteLinkDescription: 'The link below can be used to view the market without logging in.',
+  marketEditInviteLinkDescription: 'The link below can be used to vi  ew the market without logging in.',
   login_admin: 'Login Admin',
   login_user: 'Login User',
   login_guest: 'Login Guest',

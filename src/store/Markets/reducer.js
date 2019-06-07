@@ -4,11 +4,10 @@ import _ from 'lodash';
 import {
   RECEIVE_MARKET,
   RECEIVE_MARKET_CATEGORIES,
-  formatMarkets,
   MARKET_CATEGORY_DELETED,
   MARKET_CATEGORY_CREATED,
   RECEIVE_MARKET_STAGES,
-  FOLLOWED_MARKET_STAGE
+  FOLLOWED_MARKET_STAGE,
 } from './actions';
 
 export const marketPropType = PropTypes.shape({
@@ -44,7 +43,7 @@ const marketItems = (state = [], action) => {
 const marketStages = (state = {}, action) => {
   const newState = { ...state };
   const { marketId } = action;
-  switch(action.type) {
+  switch (action.type) {
     case RECEIVE_MARKET_STAGES:
       const { stages } = action;
       newState[marketId] = stages;
@@ -81,6 +80,21 @@ const marketCategories = (state = {}, action) => {
   }
 };
 
+
+const formatMarket = (market) => {
+  const newMarket = {
+    ...market,
+    created_at: new Date(market.created_at),
+    updated_at: new Date(market.updated_at),
+  };
+  return newMarket;
+};
+
+export const formatMarkets = (markets) => {
+  const formatted = markets.map(market => formatMarket(market));
+  return formatted;
+};
+
 export const getMarkets = state => formatMarkets(state.marketItems);
 
 export const getStages = state => state.marketStages;
@@ -90,5 +104,5 @@ export const getMarketCategories = state => state.marketCategories;
 export default combineReducers({
   marketItems,
   marketCategories,
-  marketStages
+  marketStages,
 });

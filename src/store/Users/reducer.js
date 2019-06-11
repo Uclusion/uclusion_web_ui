@@ -81,7 +81,7 @@ const formatUser = (user) => {
   const newUser = {
     ...user,
     created_at: new Date(user.created_at),
-    updated_at: new Date(user.updated_at)
+    updated_at: new Date(user.updated_at),
   };
   return newUser;
 };

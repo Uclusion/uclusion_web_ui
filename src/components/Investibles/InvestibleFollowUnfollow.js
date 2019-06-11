@@ -6,17 +6,14 @@ import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core/styles/index';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
-import { followUnfollowInvestible } from '../../store/MarketInvestibles/actions';
+import { followUnfollowInvestible } from '../../api/marketInvestibles';
 
 function InvestibleFollowUnfollow(props) {
   const { dispatch, investible, intl } = props;
-  const { current_user_is_following } = investible;
+  const { current_user_is_following } = investible; //eslint-disable-line
 
   function doFollowToggle() {
-    dispatch(followUnfollowInvestible({
-      investible,
-      stopFollowing: current_user_is_following,
-    }));
+    followUnfollowInvestible(investible, current_user_is_following, dispatch);
   }
 
   function getButton() {
@@ -32,8 +29,8 @@ function InvestibleFollowUnfollow(props) {
 
 InvestibleFollowUnfollow.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  investible: PropTypes.object,
-  intl: PropTypes.object,
+  investible: PropTypes.object, //eslint-disable-line
+  intl: PropTypes.object, //eslint-disable-line
 };
 
 function mapStateToProps(state) {

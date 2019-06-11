@@ -1,7 +1,8 @@
 import _ from 'lodash';
-import { fetchInvestibles, investibleDeleted } from '../../store/MarketInvestibles/actions';
+import { fetchInvestibles } from '../../api/marketInvestibles';
+import { investibleDeleted } from '../../store/MarketInvestibles/actions';
 import { fetchComments, commentDeleted } from '../../store/Comments/actions';
-import { notifyNewApplicationVersion } from "../../utils/postAuthFunctions";
+import { notifyNewApplicationVersion } from '../../utils/postAuthFunctions';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
 
 /**
@@ -26,10 +27,7 @@ class WebSocketRunner {
       switch (message.event_type) {
         case 'MARKET_INVESTIBLE_UPDATED':
         case 'MARKET_INVESTIBLE_CREATED':
-          this.dispatch(fetchInvestibles({
-            marketId: message.indirect_object_id,
-            idList: [object_id],
-          }));
+          fetchInvestibles([object_id], message.indirect_object_id, this.dispatch);
           break;
         case 'INVESTIBLE_COMMENT_DELETED':
           this.dispatch(commentDeleted(message.associated_object_id, sub_object_id, object_id));

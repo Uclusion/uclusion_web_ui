@@ -12,7 +12,8 @@ import Button from '@material-ui/core/Button';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
-import { fetchInvestibles, investmentsDeleted } from '../../store/MarketInvestibles/actions';
+import { fetchInvestibles } from '../../api/marketInvestibles';
+import { investmentsDeleted } from '../../store/MarketInvestibles/actions';
 import { fetchSelf } from '../../api/users';
 import { loadTeams } from '../../utils/userMembershipFunctions';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
@@ -68,22 +69,24 @@ function InvestmentsListItem(props) {
       const clientPromise = getClient();
       clientPromise.then((client) => {
         return client.markets.deleteInvestment(marketId, id);
-      }).then(response => fetchSelf())
-        .then((response) => {
-          // refetch the investible to trigger a reload of team investible info
-          dispatch(fetchInvestibles({ idList: [investible.id], marketId }));
-          dispatch(investmentsDeleted(marketId, investible.id));
-          loadTeams(canListAccountTeams, marketId, setTeams);
-        }).catch((error) => {
-          setCalculatedQuantity(quantity);
-          console.error(error);
-          sendIntlMessage(ERROR, { id: 'refundFailed' });
-        });
+      }).then(() => {
+        dispatch(investmentsDeleted(marketId, investible.id));
+      }).all([
+        fetchSelf(dispatch),
+        // refetch the investible to trigger a reload of team investible info
+        fetchInvestibles([investible.id], marketId, dispatch),
+      ]).then(() => {
+        loadTeams(canListAccountTeams, marketId, setTeams);
+      }).catch((error) => { //eslint-disable-line
+        setCalculatedQuantity(quantity);
+        console.error(error);
+        sendIntlMessage(ERROR, { id: 'refundFailed' });
+      });
     }
     return () => {};
   }, [calculatedQuantity]);
 
-  // if we don't have the investible at least we can render the presence of the investment, but not the name
+  // if we don't have the investible we can render the presence of the investment, but not the name
   const investibleName = (investible && investible.name) || '';
 
   const dateFormatOptions = {

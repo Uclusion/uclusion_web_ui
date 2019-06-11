@@ -10,7 +10,7 @@ import { bindActionCreators } from 'redux';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import Info from '@material-ui/icons/Info';
-import { createInvestment } from '../../store/MarketInvestibles/actions';
+import { createInvestment } from '../../api/marketInvestibles';
 import HelpMovie from '../ModalMovie/HelpMovie';
 
 const styles = theme => ({
@@ -53,17 +53,11 @@ class InvestibleInvest extends React.PureComponent {
     const {
       investibleId,
       teamId,
-      marketId,
       dispatch,
     } = this.props;
     const { quantityToInvest } = this.state;
     const quantity = parseInt(quantityToInvest, 10);
-    dispatch(createInvestment({
-      investibleId,
-      teamId,
-      marketId,
-      quantity,
-    }));
+    createInvestment(teamId, investibleId, quantity, dispatch);
     this.setState({ ...this.props, quantityToInvest: '' });
   };
 
@@ -152,15 +146,17 @@ class InvestibleInvest extends React.PureComponent {
 }
 
 InvestibleInvest.propTypes = {
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired, //eslint-disable-line
   investibleId: PropTypes.string.isRequired,
-  marketId: PropTypes.string.isRequired,
   teamId: PropTypes.string.isRequired,
   sharesAvailable: PropTypes.number.isRequired,
+  dispatch: PropTypes.func.isRequired,
+  intl: PropTypes.object.isRequired, //eslint-disable-line
+  currentUserInvestment: PropTypes.number.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
-  return Object.assign({ dispatch }, bindActionCreators({ createInvestment }, dispatch));
+  return { dispatch };
 }
 
 export default connect(mapDispatchToProps)(injectIntl(withStyles(styles)(InvestibleInvest)));

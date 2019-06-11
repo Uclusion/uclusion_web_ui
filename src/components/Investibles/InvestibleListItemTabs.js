@@ -127,7 +127,6 @@ function InvestibleListItemTabs(props) {
         {value === 'invest' && investmentAllowed && user && (
           <InvestibleInvest
             teamId={user.default_team_id}
-            marketId={marketId}
             sharesAvailable={user.market_presence.quantity}
             currentUserInvestment={currentUserInvestment}
             investibleId={investibleId}
@@ -159,12 +158,12 @@ function InvestibleListItemTabs(props) {
 }
 
 InvestibleListItemTabs.propTypes = {
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired, //eslint-disable-line
   investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
-  user: PropTypes.object,
+  user: PropTypes.object, //eslint-disable-line
   currentUserInvestment: PropTypes.number.isRequired,
-  userPermissions: PropTypes.object.isRequired,
+  userPermissions: PropTypes.object.isRequired, //eslint-disable-line
   openForInvestment: PropTypes.bool.isRequired,
   intl: PropTypes.object.isRequired, //eslint-disable-line
   quantity: PropTypes.number.isRequired,

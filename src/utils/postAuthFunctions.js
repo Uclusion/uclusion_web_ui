@@ -4,7 +4,7 @@ import { fetchMarket, fetchMarketStages } from '../api/markets';
 import { clearReduxStore } from './userStateFunctions';
 import { sendInfoPersistent } from './userMessage';
 import config from '../config/config';
-import { fetchInvestibleList } from '../store/MarketInvestibles/actions';
+import { fetchInvestibleList } from '../api/marketInvestibles';
 import { fetchCommentList } from '../store/Comments/actions';
 import { getInvestibles } from '../store/MarketInvestibles/reducer';
 import { getComments } from '../store/Comments/reducer';
@@ -41,8 +41,10 @@ export function fetchMarketInvestibleInfo(params) {
   console.debug(`Fetching investibles with marketId: ${marketId}`);
   const currentInvestibleList = marketId in investibles ? investibles[marketId] : [];
   const currentCommentList = marketId in comments ? comments[marketId] : [];
-  let promises = fetchInvestibleList(currentInvestibleList)
-    .then(result => fetchMarketStages(marketId, dispatch)); //eslint-disable-line
+  let promises = Promise.all([
+    fetchInvestibleList(currentInvestibleList, marketId, dispatch),
+    fetchMarketStages(marketId, dispatch),
+  ]);
   if (fetchComments) {
     promises = promises.then((result) => fetchCommentList(currentCommentList)); //eslint-disable-line
   }
@@ -53,14 +55,13 @@ export function marketChangeTasks(params, marketId, user) {
   const { dispatch, webSocket } = params;
   // preemptively fetch the market and user, since we're likely to need it
   const promises = fetchMarket(dispatch)
-  // fetch the user, to make sure everything is up to date in presences
-    .then((result) => fetchSelf(dispatch)) //eslint-disable-line
-    .then((result) => fetchMarketStages(marketId, dispatch)) //eslint-disable-line
-    .then((result) => { //eslint-disable-line
+  // fetch the user, and stages to make sure everything is up to date in presences
+    .all([fetchSelf(dispatch), fetchMarketStages(marketId, dispatch)])
+    .then(() => {
       webSocket.unsubscribeAll();
       return webSocket.subscribe(user.id, { market_id: marketId });
     })
-    .then((result) => { //eslint-disable-line
+    .then(() => {
       // clear all old subscriptions
       const { investiblesReducer, commentsReducer } = params;
       return fetchMarketInvestibleInfo({

@@ -49,5 +49,3 @@ export const followedMarketStage = (stageId, marketId, following) => ({
   stageId,
   following,
 });
-
-

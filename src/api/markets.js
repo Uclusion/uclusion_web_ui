@@ -63,7 +63,7 @@ export function fetchMarketCategories(marketId, dispatch) {
 export function deleteMarketCategory(name, marketId, dispatch) {
   const clientPromise = getClient();
   return clientPromise.then(client => client.investibles.deleteCategory(name))
-    .then((deleted) => {
+    .then(() => {
       dispatch(categoryDeleted(name, marketId));
       sendIntlMessage(SUCCESS, { id: 'marketCategoryDeleted' });
     }).catch((error) => {

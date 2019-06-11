@@ -50,7 +50,7 @@ export function fetchUser(userId, dispatch) {
 export function updateMyUiPrefereneces(me, dispatch) {
   const clientPromise = getClient();
   return clientPromise.then((client) => {
-    dispatch(uiPrefsUpdated(user));
+    dispatch(uiPrefsUpdated(me));
     return client.users.update(undefined, undefined, undefined, user.ui_preferences);
-  }).then(result => fetchSelf()); // eslint-disable-line
+  }).then(() => fetchSelf(dispatch));
 }

@@ -24,7 +24,7 @@ import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import Activity from '../../containers/Activity/Activity';
 import { getStages, getMarkets } from '../../store/Markets/reducer';
-import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
+import { fetchInvestibles } from '../../api/marketInvestibles';
 import MarketSharesSummary from '../../components/Markets/MarketSharesSummary';
 import { fetchMarket } from '../../store/Markets/actions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
@@ -183,16 +183,16 @@ function InvestibleEdit (props) {
       };
       return clientHolder.investibles.stateChange(id, stateOptions);
     }).then(() => {
-      // instead of doing fancy logic to merge stuff, lets just refetch that investible
-      dispatch(fetchInvestibles({ idList: [id], marketId: market_id }));
       sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });
       setSaved(true);
-    }).catch((error) => {
-      console.error(error);
-      sendIntlMessage(ERROR, { id: 'investibleEditFailed' });
-      setSaved(false);
-      setDirty(false);
-    });
+      // instead of doing fancy logic to merge stuff, lets just refetch that investible
+    }).then(() => fetchInvestibles([id], marketId, dispatch))
+      .catch((error) => {
+        console.error(error);
+        sendIntlMessage(ERROR, { id: 'investibleEditFailed' });
+        setSaved(false);
+        setDirty(false);
+      });
   }
 
   function onCancel() {

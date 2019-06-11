@@ -88,7 +88,12 @@ function MarketsPage(props) {
   const [markets, setMarkets] = useState(undefined);
   const [selectedMarket, setSelectedMarket] = useState('');
 
-  const { intl, classes, theme, currentUser, allCategories, dispatch } = props;
+  const {
+    intl,
+    classes,
+    theme,
+    dispatch,
+  } = props;
 
   function changeMarket(event) {
     setSelectedMarket(event.target.value);
@@ -99,10 +104,10 @@ function MarketsPage(props) {
     if (!selectedMarket) {
       clearUserState(dispatch);
     }
-    if (currentUser && selectedMarket && allCategories) {
+    if (selectedMarket) {
       window.location = `${window.location.origin}/${selectedMarket}/investibles`;
     }
-  }, [currentUser, allCategories]);
+  });
 
   function loginCognito() {
     setProcessing(true);
@@ -151,7 +156,8 @@ function MarketsPage(props) {
         token: response.uclusion_token, type: cognitoAuthorizer.getType(),
       };
       setMarketAuth('account', authInfo);
-      cognitoTokenGenerated(props, response, cognitoAuthorizer, () => { setProcessing(false); },
+      const uiPostAuthTasks = () => { setProcessing(false); };
+      return cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks,
         true);
     }).catch((error) => {
       getErrorMessage(error)
@@ -258,20 +264,18 @@ function MarketsPage(props) {
 }
 
 MarketsPage.propTypes = {
-  classes: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired,
-  intl: PropTypes.object.isRequired,
+  classes: PropTypes.object.isRequired, //eslint-disable-line
+  theme: PropTypes.object.isRequired,  //eslint-disable-line
+  intl: PropTypes.object.isRequired,  //eslint-disable-line
+  dispatch: PropTypes.func.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-function mapStateToProps(state) {
-  return { ...state,
-    currentUser: getCurrentUser(state.usersReducer),
-    allCategories: state.marketsReducer.marketCategories
-  };
+function mapStateToProps() {
+  return {};
 }
 
 export default withBackgroundProcesses(connect(

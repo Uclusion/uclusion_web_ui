@@ -13,7 +13,7 @@ import {
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core/styles/index';
-import { deleteMarketInvestible } from '../../store/MarketInvestibles/actions';
+import { deleteMarketInvestible } from '../../api/marketInvestibles';
 
 class InvestibleDelete extends React.PureComponent {
   state = {
@@ -22,12 +22,11 @@ class InvestibleDelete extends React.PureComponent {
 
   doDelete = () => {
     const { dispatch, investible, onCloseDetail } = this.props;
-    dispatch(deleteMarketInvestible({
-      marketId: investible.market_id,
-      investibleId: investible.id,
-    }));
-    this.handleCloseDialog();
-    onCloseDetail();
+    deleteMarketInvestible(investible.id, investible.market_id, dispatch)
+      .then(() => {
+        this.handleCloseDialog();
+        onCloseDetail();
+      });
   };
 
   showPrompt = () => {
@@ -77,10 +76,11 @@ class InvestibleDelete extends React.PureComponent {
 InvestibleDelete.propTypes = {
   dispatch: PropTypes.func.isRequired,
   investible: PropTypes.object, //eslint-disable-line
-  onCloseDetail: PropTypes.func,
+  onCloseDetail: PropTypes.func.isRequired,
+  intl: PropTypes.object.isRequired, //eslint-disable-line
 };
 
-function mapStateToProps(state) {
+function mapStateToProps() {
   return {}; // not used yet
 }
 

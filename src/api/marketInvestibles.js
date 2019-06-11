@@ -72,7 +72,14 @@ export function createInvestment(teamId, investibleId, quantity, dispatch) {
     });
 }
 
-function createNewBoundInvestible(canInvest, teamId, investibleId, quantity, categoryList, dispatch){
+function createNewBoundInvestible(params, dispatch) {
+  const {
+    canInvest,
+    teamId,
+    investibleId,
+    quantity,
+    categoryList,
+  } = params;
   const clientPromise = getClient();
   return clientPromise.then((client) => {
     if (canInvest) {
@@ -85,43 +92,46 @@ function createNewBoundInvestible(canInvest, teamId, investibleId, quantity, cat
     dispatch(marketInvestibleCreated(response.investment, investible));
     sendIntlMessage(SUCCESS, { id: 'investibleAddSucceeded' });
     return fetchSelf(dispatch);
-  }).catch((error) => {
-    console.error(error);
-    sendIntlMessage(ERROR, { id: 'investibleBindFailed' });
   });
 }
 
-export const createMarketInvestible = (params = {}) => (dispatch) => {
+/**
+ * Creates a market investible
+ * @param params a package of arguments including the title, description, quantity etc
+ * @param dispatch the dispatch to redux
+ * @returns {Q.Promise<any> | * | Promise<T | never>}
+ */
+export function createMarketInvestible(params, dispatch) {
+  const { title, description } = params;
   const clientPromise = getClient();
-  return clientPromise.then(client => client.investibles.create(params.title, params.description))
+  return clientPromise.then(client => client.investibles.create(title, description))
     .then((investible) => {
       dispatch(investibleCreated(investible));
       // inform the invest they need to fetch the new market investible
       const payload = {
-        marketId: params.marketId,
         teamId: params.teamId,
         investibleId: investible.id,
         quantity: params.quantity,
         categoryList: [params.category],
         canInvest: params.canInvest,
       };
-      dispatch(createNewBoundInvestible(payload));
+      return createNewBoundInvestible(payload);
     }).catch((error) => {
-      console.log(error);
+      // eslint-disable-next-line no-console
+      console.error(error);
       sendIntlMessage(ERROR, { id: 'investibleAddFailed' });
       dispatch(investibleCreated([]));
     });
-};
+}
 
-export const deleteMarketInvestible = (params = {}) => (dispatch) => {
-  const { marketId, investibleId } = params;
+export function deleteMarketInvestible(investibleId, marketId, dispatch){
   const clientPromise = getClient();
   return clientPromise.then(client => client.investibles.delete(investibleId))
-    .then((deleted) => {
+    .then(() => {
       dispatch(investibleDeleted(marketId, investibleId));
       sendIntlMessage(SUCCESS, { id: 'marketInvestibleDeleted' });
     }).catch((error) => {
       console.log(error);
       sendIntlMessage(ERROR, { id: 'marketInvestibleDeleteFailed' });
     });
-};
+}

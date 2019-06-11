@@ -173,7 +173,7 @@ function InvestibleEdit (props) {
     let clientHolder = null;
     return clientPromise.then((client) => {
       clientHolder = client;
-      return clientHolder.investibles.updateInMarket(id, market_id,
+      return clientHolder.investibles.updateInMarket(id,
         name, description, category_list, label_list);
     }).then(() => {
       const stateOptions = {
@@ -182,12 +182,12 @@ function InvestibleEdit (props) {
         next_stage_additional_investment: additional_investment,
       };
       return clientHolder.investibles.stateChange(id, stateOptions);
-    }).then(() => {
-      sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });
-      setSaved(true);
       // instead of doing fancy logic to merge stuff, lets just refetch that investible
     }).then(() => fetchInvestibles([id], marketId, dispatch))
-      .catch((error) => {
+      .then(() => {
+        sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });
+        setSaved(true);
+      }).catch((error) => {
         console.error(error);
         sendIntlMessage(ERROR, { id: 'investibleEditFailed' });
         setSaved(false);

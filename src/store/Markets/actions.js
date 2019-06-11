@@ -43,7 +43,7 @@ export const followedMarket = (marketId, following) => ({
   following,
 });
 
-export const followedMarketStage = (marketId, stageId, following) => ({
+export const followedMarketStage = (stageId, marketId, following) => ({
   type: FOLLOWED_MARKET_STAGE,
   marketId,
   stageId,

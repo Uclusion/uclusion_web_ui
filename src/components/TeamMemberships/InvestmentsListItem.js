@@ -13,7 +13,7 @@ import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
 import { fetchInvestibles, investmentsDeleted } from '../../store/MarketInvestibles/actions';
-import { fetchUser } from '../../store/Users/actions';
+import { fetchSelf } from '../../api/users';
 import { loadTeams } from '../../utils/userMembershipFunctions';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
@@ -68,13 +68,13 @@ function InvestmentsListItem(props) {
       const clientPromise = getClient();
       clientPromise.then((client) => {
         return client.markets.deleteInvestment(marketId, id);
-      }).then((response) => {
-        // refetch the investible to trigger a reload of team investible info
-        dispatch(fetchInvestibles({ idList: [investible.id], marketId }));
-        dispatch(investmentsDeleted(marketId, investible.id));
-        dispatch(fetchUser({ marketId }));
-        loadTeams(canListAccountTeams, marketId, setTeams);
-      }).catch((error) => {
+      }).then(response => fetchSelf())
+        .then((response) => {
+          // refetch the investible to trigger a reload of team investible info
+          dispatch(fetchInvestibles({ idList: [investible.id], marketId }));
+          dispatch(investmentsDeleted(marketId, investible.id));
+          loadTeams(canListAccountTeams, marketId, setTeams);
+        }).catch((error) => {
           setCalculatedQuantity(quantity);
           console.error(error);
           sendIntlMessage(ERROR, { id: 'refundFailed' });
@@ -98,7 +98,7 @@ function InvestmentsListItem(props) {
     date: createdTimestamp,
   });
 
-  function canRefundInvestment(){
+  function canRefundInvestment() {
     const isOwnerAndElgible = userIsOwner && calculatedQuantity > 0;
     const sameStage = investible.stage === stageId;
     // console.debug("Investible stage: " + investible.stage + " investment stage: " + stageId);
@@ -151,8 +151,7 @@ InvestmentsListItem.propTypes = {
   createdAt: PropTypes.instanceOf(Date).isRequired,
 };
 
-const mapStateToProps = state => ({
-});
+const mapStateToProps = state => ({});
 
 function mapDispatchToProps(dispatch) {
   return { dispatch };

@@ -18,7 +18,7 @@ import InvestibleDelete from './InvestibleDelete';
 import InvestibleEdit from './InvestibleEdit';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
-import { fetchUser } from '../../store/Users/actions';
+import { fetchSelf } from '../../api/users';
 import { getCurrentUser } from '../../store/Users/reducer';
 import HelpMovie from '../ModalMovie/HelpMovie';
 
@@ -122,7 +122,7 @@ function InvestibleDetail(props) {
       setLastInvestible(investible);
       dispatch(fetchInvestibles({ idList: [investible.id], marketId: investible.market_id }));
       // Required if someone on team has spent shared uShares or there was a grant
-      dispatch(fetchUser({ marketId: investible.market_id, user }));
+      fetchSelf(dispatch);
     }
   }, [investible]);
 

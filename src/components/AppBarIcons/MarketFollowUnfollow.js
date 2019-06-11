@@ -37,7 +37,7 @@ function MarketFollowUnfollow(props) {
   const { following } = marketPresence;
 
   function doFollowingToggle() {
-    followUnfollowMarket(following, dispatch);
+    followUnfollowMarket(following, marketId, dispatch);
   }
 
   function getIcon() {
@@ -68,6 +68,8 @@ function MarketFollowUnfollow(props) {
 }
 
 MarketFollowUnfollow.propTypes = {
+  classes: PropTypes.object.isRequired, //eslint-disable-line
+  intl: PropTypes.object.isRequired, //eslint-disable-line
   dispatch: PropTypes.func.isRequired,
   user: PropTypes.object,
   marketId: PropTypes.string.isRequired,

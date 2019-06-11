@@ -16,8 +16,8 @@ import withAppConfigs from '../../utils/withAppConfigs';
 import ModalMovie from './ModalMovie';
 import { withMarketId } from '../PathProps/MarketId';
 import { getUiPreference, setUiPreference } from '../../utils/userPreferencesFunctions';
-import { updateUserUiPrefereneces } from '../../store/Users/actions';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
+import { updateMyUiPrefereneces } from '../../api/users';
 
 function HelpMovie(props) {
   const {
@@ -75,7 +75,7 @@ function HelpMovie(props) {
 
   function updateUserPrefs() {
     const newUser = setNewUiPreferences();
-    dispatch(updateUserUiPrefereneces({ user: newUser, marketId }));
+    updateMyUiPrefereneces(newUser);
   }
 
   function myOnClose() {

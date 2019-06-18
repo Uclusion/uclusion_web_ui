@@ -4,19 +4,13 @@ import { DeleteForever } from '@material-ui/icons';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core/styles/index';
-import { deleteComment } from '../../../store/Comments/actions';
-
+import { deleteComment } from '../../../api/comments';
 
 function CommentDelete(props) {
 
-
-  function doDelete(){
+  function doDelete() {
     const { dispatch, marketId, investibleId, commentId } = props;
-    dispatch(deleteComment({
-      marketId,
-      investibleId,
-      commentId,
-    }));
+    deleteComment(commentId, marketId, investibleId, dispatch);
   }
 
   return (<DeleteForever onClick={() => doDelete()} />);

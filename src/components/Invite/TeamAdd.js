@@ -50,7 +50,7 @@ function TeamAdd(props) {
       return client.teams.create(name, description);
     }).then((team) => {
       globalTeam = team;
-      return globalClient.teams.bind(team.id, marketId, { isCognito: true });
+      return globalClient.teams.bind(team.id, { isCognito: true });
     }).then((marketTeam) => {
       const team = { ...globalTeam, ...marketTeam };
       const newTeams = _.unionBy([team], teams, 'id');

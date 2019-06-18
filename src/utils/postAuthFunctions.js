@@ -5,7 +5,7 @@ import { clearReduxStore } from './userStateFunctions';
 import { sendInfoPersistent } from './userMessage';
 import config from '../config/config';
 import { fetchInvestibleList } from '../api/marketInvestibles';
-import { fetchCommentList } from '../store/Comments/actions';
+import { fetchCommentList } from '../api/comments';
 import { getInvestibles } from '../store/MarketInvestibles/reducer';
 import { getComments } from '../store/Comments/reducer';
 
@@ -46,7 +46,7 @@ export function fetchMarketInvestibleInfo(params) {
     fetchMarketStages(marketId, dispatch),
   ]);
   if (fetchComments) {
-    promises = promises.then((result) => fetchCommentList(currentCommentList)); //eslint-disable-line
+    promises = promises.then((result) => fetchCommentList(currentCommentList, marketId, dispatch)); //eslint-disable-line
   }
   return promises;
 }

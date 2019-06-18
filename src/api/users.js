@@ -2,10 +2,10 @@ import { getClient } from '../config/uclusionClient';
 
 import {
   receiveCurrentUser,
-  receiveUser,
   requestCurrentUser,
   uiPrefsUpdated,
 } from '../store/Users/actions';
+import { ERROR, sendIntlMessage } from '../utils/userMessage';
 
 export function fetchSelf(dispatch) {
   let userClient = null;
@@ -24,6 +24,26 @@ export function fetchSelf(dispatch) {
       return newUser;
     });
   });
+}
+
+
+export function loadTeams(canListAccountTeams, setTeams) {
+  const clientPromise = getClient();
+  if (canListAccountTeams) {
+    clientPromise.then(client => client.teams.list()).then((marketTeams) => {
+      setTeams(marketTeams);
+    }).catch((error) => {
+      console.error(error);
+      sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
+    });
+  } else {
+    clientPromise.then(client => client.teams.mine()).then((myTeams) => {
+      setTeams(myTeams);
+    }).catch((error) => {
+      console.error(error);
+      sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
+    });
+  }
 }
 
 /*

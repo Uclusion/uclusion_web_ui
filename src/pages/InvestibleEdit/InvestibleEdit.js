@@ -122,7 +122,7 @@ function InvestibleEdit (props) {
   const [showStagesHelp, setShowStagesHelp] = useState(false);
   useEffect(() => {
     const clientPromise = getClient();
-    clientPromise.then(client => client.markets.getMarketInvestibles(marketId, [investibleId]))
+    clientPromise.then(client => client.markets.getMarketInvestibles([investibleId]))
       .then((investibles) => {
         const investible = investibles[0];
         // set the current stage on it to keep the save happy

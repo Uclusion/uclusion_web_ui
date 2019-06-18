@@ -17,8 +17,9 @@ import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import UserDetail from '../../components/TeamMemberships/UserDetail';
 import TeamsSearchBox from '../../components/TeamMemberships/TeamsSearchBox';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
-import { loadTeams, processUserForDisplay } from '../../utils/userMembershipFunctions';
+import { processUserForDisplay } from '../../utils/userMembershipFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
+import { loadTeams } from '../../api/users';
 
 const styles = theme => ({
   content: {
@@ -77,7 +78,7 @@ function UserMemberships(props) {
   function toggleFavoriteTeam(team) {
     const clientPromise = getClient();
     return clientPromise
-      .then(client => client.teams.followTeam(team.id, marketId, team.current_user_is_following))
+      .then(client => client.teams.followTeam(team.id, team.current_user_is_following))
       .then((result) => {
         const newTeams = teams.map(t => ({
           ...t,
@@ -107,7 +108,7 @@ function UserMemberships(props) {
 
   // Second argument prevents re-running on teams property changes - only for changes in listed
   useEffect(() => {
-    loadTeams(canListAccountTeams, marketId, setTeams);
+    loadTeams(canListAccountTeams, setTeams);
     return () => {};
   }, [marketId, canListAccountTeams]);
 

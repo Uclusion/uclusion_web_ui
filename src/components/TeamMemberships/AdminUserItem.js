@@ -76,7 +76,7 @@ function AdminUserItem(props) {
       let globalClient;
       clientPromise.then((client) => {
         globalClient = client;
-        return client.users.grant(user.id, marketId, quantity);
+        return client.users.grant(user.id, quantity);
       }).then(() => {
         const newUser = { ...user };
         newUser.quantity += quantity;

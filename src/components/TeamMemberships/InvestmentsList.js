@@ -11,7 +11,6 @@ function InvestmentsList(props) {
   const [investments, setInvestments] = useState(undefined);
   const {
     userId,
-    marketId,
     investibles,
     upUser,
     setTeams,
@@ -20,7 +19,7 @@ function InvestmentsList(props) {
     const clientPromise = getClient();
     clientPromise.then((client) => {
       console.log(`User ID is ${userId} and logged in user ${upUser.id}`);
-      return client.markets.listUserInvestments(marketId, userId);
+      return client.markets.listUserInvestments(userId);
     }).then((response) => {
 
       setInvestments(response);
@@ -68,7 +67,6 @@ function InvestmentsList(props) {
 
 InvestmentsList.propTypes = {
   userId: PropTypes.string.isRequired,
-  marketId: PropTypes.string.isRequired,
   investibles: PropTypes.arrayOf(PropTypes.object),
   setTeams: PropTypes.func, //eslint-disable-line
   upUser: PropTypes.shape({

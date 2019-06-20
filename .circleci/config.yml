@@ -38,7 +38,7 @@ jobs:
           command: |
             cd ~/repo
             echo 'export MY_RELEASE_VAR=`git rev-parse HEAD | head -c 16`' >> $BASH_ENV
-            npm install
+            yarn install
       - run:
           name: Copy env file
           command: |

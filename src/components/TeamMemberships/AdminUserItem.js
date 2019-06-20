@@ -17,7 +17,7 @@ import { withMarketId } from '../PathProps/MarketId';
 import { usersFetched } from '../../store/Users/actions';
 import MarketSharesSummary from '../Markets/MarketSharesSummary';
 import { getMarkets } from '../../store/Markets/reducer';
-import { fetchMarket } from '../../store/Markets/actions';
+import { fetchMarket } from '../../api/markets';
 import HelpMovie from '../ModalMovie/HelpMovie';
 
 const styles = theme => ({
@@ -59,24 +59,22 @@ function AdminUserItem(props) {
     intl,
     marketId,
     markets,
+    teams,
+    setTeams,
+    dispatch,
   } = props;
   const [quantity, setQuantity] = useState(undefined);
   const [gatheringInput, setGatheringInput] = useState(true);
   const [showUshareGrantHelp, setShowUshareGrantHelp] = useState(false);
   const currentMarket = markets && markets.find(element => element.id === marketId);
+
   useEffect(() => {
-    const {
-      marketId,
-      teams,
-      setTeams,
-      dispatch,
-    } = props;
     if (quantity > 0 && !gatheringInput) {
       const clientPromise = getClient();
       let globalClient;
       clientPromise.then((client) => {
         globalClient = client;
-        return client.users.grant(user.id, marketId, quantity);
+        return client.users.grant(user.id, quantity);
       }).then(() => {
         const newUser = { ...user };
         newUser.quantity += quantity;
@@ -94,7 +92,7 @@ function AdminUserItem(props) {
           newTeams.push(newTeam);
         });
         // Attempt to update numbers after the grant but has race condition
-        dispatch(fetchMarket({ market_id: marketId }));
+        fetchMarket(dispatch);
         setTeams(_.unionBy(newTeams, teams, 'id'));
         setQuantity('');
         setGatheringInput(true);
@@ -105,7 +103,7 @@ function AdminUserItem(props) {
       });
     }
     return () => {};
-  }, [quantity, gatheringInput]);
+  }, [quantity, gatheringInput, setTeams, teams, dispatch, user]);
   function handleChange(event) {
     const intValue = parseInt(event.target.value, 10);
     if (intValue > 0 && quantity !== intValue) {
@@ -183,6 +181,7 @@ AdminUserItem.propTypes = {
   setTeams: PropTypes.func, //eslint-disable-line
   user: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
+  dispatch: PropTypes.func.isRequired,
   markets: PropTypes.array.isRequired,  //eslint-disable-line
 };
 

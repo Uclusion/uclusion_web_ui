@@ -27,11 +27,7 @@ export function determineNeedsUpdate(currentItems, newItemsList) {
  */
 export function updateInChunks(dispatch, currentItemList, newItemList, fetchFunction, marketId) {
   const needsUpdate = determineNeedsUpdate(currentItemList, newItemList);
-  const chunks = _.chunk(needsUpdate, 50); // hard coded to 50 as it's safe
-  for (let i = 0; i < chunks.length; i++) {
-    const chunk = chunks[i];
-    dispatch(fetchFunction({ marketId, idList: chunk }));
-  }
+  const chunks = _.chunk(needsUpdate, 75); // hard coded to 75 as it's safe
+  const promises = chunks.map((chunk) => fetchFunction(chunk, marketId, dispatch));
+  return Promise.all(promises);
 }
-
-

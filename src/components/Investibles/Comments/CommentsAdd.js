@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import Button from '@material-ui/core/es/Button/Button';
 import { ERROR, sendIntlMessage } from '../../../utils/userMessage';
 import HtmlRichTextEditor from '../../TextEditors/HtmlRichTextEditor';
-import { createComment } from '../../../store/Comments/actions';
+import { createComment } from '../../../api/comments';
 import withAppConfigs from '../../../utils/withAppConfigs';
 
 class CommentsAdd extends React.Component {
@@ -31,8 +31,10 @@ class CommentsAdd extends React.Component {
       sendIntlMessage(ERROR, { id: 'commentTooManyBytes' });
       return;
     }
-    dispatch(createComment({ investibleId, body, marketId }));
-    this.setState({ body: '' });
+    createComment(investibleId, body, marketId, dispatch)
+      .then(() => {
+        this.setState({ body: '' });
+      });
   }
 
   handleChange(name) {

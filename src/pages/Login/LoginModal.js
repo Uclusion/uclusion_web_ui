@@ -125,7 +125,8 @@ function LoginModal(props) {
   function changePasswordCognito(cognitoAuthorizer) {
     cognitoAuthorizer.completeNewPasswordChallenge(newPassword)
       .then((response) => {
-        cognitoTokenGenerated(props, response, cognitoAuthorizer, () => { setProcessing(false); });
+        const uiPostAuthTasks = () => { setProcessing(false); };
+        return cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks);
       })
       .catch((error) => {
         getErrorMessage(error)
@@ -152,7 +153,8 @@ function LoginModal(props) {
     setError('');
     cognitoAuthorizer.authorize().then((response) => {
       console.debug(response);
-      cognitoTokenGenerated(props, response, cognitoAuthorizer, () => { setProcessing(false); });
+      const uiPostAuthTasks = () => { setProcessing(false); };
+      return cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks);
     }).catch((error) => {
       if ('newPasswordRequired' in error && error.newPasswordRequired) {
         if (newPassword) {

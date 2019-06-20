@@ -24,9 +24,9 @@ import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import Activity from '../../containers/Activity/Activity';
 import { getStages, getMarkets } from '../../store/Markets/reducer';
-import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
+import { fetchInvestibles } from '../../api/marketInvestibles';
 import MarketSharesSummary from '../../components/Markets/MarketSharesSummary';
-import { fetchMarket } from '../../store/Markets/actions';
+import { fetchMarket } from '../../api/markets';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 
 const styles = theme => ({
@@ -122,14 +122,14 @@ function InvestibleEdit (props) {
   const [showStagesHelp, setShowStagesHelp] = useState(false);
   useEffect(() => {
     const clientPromise = getClient();
-    clientPromise.then(client => client.markets.getMarketInvestibles(marketId, [investibleId]))
+    clientPromise.then(client => client.markets.getMarketInvestibles([investibleId]))
       .then((investibles) => {
         const investible = investibles[0];
         // set the current stage on it to keep the save happy
         investible.current_stage_id = investible.stage;
         setInvestible(investibles[0]);
         setStageChange(true);
-        dispatch(fetchMarket({ market_id: marketId }));
+        fetchMarket(dispatch);
       }).catch((error) => {
         console.log(error);
         sendIntlMessage(ERROR, { id: 'investibleEditInvestibleFetchFailed' });
@@ -166,14 +166,14 @@ function InvestibleEdit (props) {
     // then we sync the state information (e.g. stage, etc) off to the markets service
     const clientPromise = getClient();
     const {
-      id, name, description, category_list, market_id, label_list,
+      id, name, description, category_list, label_list,
       stage, current_stage_id, additional_investment
     } = investible;
     // store the client so we can use it for second half
     let clientHolder = null;
     return clientPromise.then((client) => {
       clientHolder = client;
-      return clientHolder.investibles.updateInMarket(id, market_id,
+      return clientHolder.investibles.updateInMarket(id,
         name, description, category_list, label_list);
     }).then(() => {
       const stateOptions = {
@@ -182,17 +182,17 @@ function InvestibleEdit (props) {
         next_stage_additional_investment: additional_investment,
       };
       return clientHolder.investibles.stateChange(id, stateOptions);
-    }).then(() => {
       // instead of doing fancy logic to merge stuff, lets just refetch that investible
-      dispatch(fetchInvestibles({ idList: [id], marketId: market_id }));
-      sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });
-      setSaved(true);
-    }).catch((error) => {
-      console.error(error);
-      sendIntlMessage(ERROR, { id: 'investibleEditFailed' });
-      setSaved(false);
-      setDirty(false);
-    });
+    }).then(() => fetchInvestibles([id], marketId, dispatch))
+      .then(() => {
+        sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });
+        setSaved(true);
+      }).catch((error) => {
+        console.error(error);
+        sendIntlMessage(ERROR, { id: 'investibleEditFailed' });
+        setSaved(false);
+        setDirty(false);
+      });
   }
 
   function onCancel() {

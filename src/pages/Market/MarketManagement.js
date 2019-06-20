@@ -104,7 +104,7 @@ function MarketManagement(props) {
 
   function onAllowAnonymous() {
     const clientPromise = getClient();
-    clientPromise.then(client => client.teams.bindAnonymous(marketId))
+    clientPromise.then(client => client.teams.bindAnonymous())
       .then(() => {
         const loginInfo = getUclusionLocalStorageItem('loginInfo');
         loginInfo.allow_anonymous = true;
@@ -134,7 +134,7 @@ function MarketManagement(props) {
     };
 
     const clientPromise = getClient();
-    clientPromise.then(client => client.markets.updateMarket(marketId, updateOptions))
+    clientPromise.then(client => client.markets.updateMarket(updateOptions))
       .then(() => {
         sendIntlMessage(SUCCESS, { id: 'marketEditSuccess' });
         if (anonymousFlag) {

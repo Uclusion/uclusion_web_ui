@@ -40,7 +40,7 @@ function TeamAdd(props) {
   const [showTeamAddHelp, setShowTeamAddHelp] = useState(false);
 
   function addOnClick() {
-    const { teams, teamsSet, marketId } = props;
+    const { teams, teamsSet } = props;
     const clientPromise = getClient();
     setProcessing(true);
     let globalClient;
@@ -50,7 +50,7 @@ function TeamAdd(props) {
       return client.teams.create(name, description);
     }).then((team) => {
       globalTeam = team;
-      return globalClient.teams.bind(team.id, marketId, { isCognito: true });
+      return globalClient.teams.bind(team.id, { isCognito: true });
     }).then((marketTeam) => {
       const team = { ...globalTeam, ...marketTeam };
       const newTeams = _.unionBy([team], teams, 'id');
@@ -133,7 +133,7 @@ function TeamAdd(props) {
 }
 
 TeamAdd.propTypes = {
-  marketId: PropTypes.string.isRequired,
+
   classes: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
   teamsSet: PropTypes.func.isRequired,

@@ -17,8 +17,8 @@ import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
 import InvestibleDelete from './InvestibleDelete';
 import InvestibleEdit from './InvestibleEdit';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
-import { fetchInvestibles } from '../../store/MarketInvestibles/actions';
-import { fetchUser } from '../../store/Users/actions';
+import { fetchInvestibles } from '../../api/marketInvestibles';
+import { fetchSelf } from '../../api/users';
 import { getCurrentUser } from '../../store/Users/reducer';
 import HelpMovie from '../ModalMovie/HelpMovie';
 
@@ -115,14 +115,14 @@ function InvestibleDetail(props) {
   const [lastInvestible, setLastInvestible] = useState({});
   const [showStagesHelp, setShowStagesHelp] = useState(false);
   const {
-    investible, intl, classes, onClose, userPermissions, dispatch, user,
+    investible, intl, classes, onClose, userPermissions, dispatch,
   } = props;
   useEffect(() => {
     if (investible.id !== lastInvestible.id) {
       setLastInvestible(investible);
-      dispatch(fetchInvestibles({ idList: [investible.id], marketId: investible.market_id }));
+      fetchInvestibles([investible.id], investible.market_id, dispatch);
       // Required if someone on team has spent shared uShares or there was a grant
-      dispatch(fetchUser({ marketId: investible.market_id, user }));
+      fetchSelf(dispatch);
     }
   }, [investible]);
 
@@ -268,7 +268,7 @@ InvestibleDetail.propTypes = {
   userPermissions: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired, //eslint-disable-line
   dispatch: PropTypes.func.isRequired,
-  user: PropTypes.object, //eslint-disable-line
+
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(

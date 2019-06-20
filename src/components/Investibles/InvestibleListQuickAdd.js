@@ -4,8 +4,7 @@ import { Paper, Button, TextField } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { createMarketInvestible } from '../../store/MarketInvestibles/actions';
+import { createMarketInvestible } from '../../api/marketInvestibles';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import withAppConfigs from '../../utils/withAppConfigs';
@@ -65,13 +64,13 @@ class InvestibleListQuickAdd extends React.PureComponent {
 
   addOnClick = (addSubmitOnClick) => {
     const {
-      dispatch, marketId, teamId, category, userPermissions, appConfig
+      dispatch, teamId, category, userPermissions, appConfig
     } = this.props;
 
     const { title, description, quantityToInvest } = this.state;
     const { canInvest } = userPermissions;
     const payload = {
-      marketId, category, teamId, canInvest, title, description, quantity: parseInt(quantityToInvest, 10),
+      category, teamId, canInvest, title, description, quantity: parseInt(quantityToInvest, 10),
     };
     if (description.length === 0) {
       sendIntlMessage(ERROR, { id: 'investibleDescriptionRequired' });
@@ -81,9 +80,10 @@ class InvestibleListQuickAdd extends React.PureComponent {
       sendIntlMessage(ERROR, { id: 'investibleDescriptionTooManyBytes' });
       return;
     }
-    dispatch(createMarketInvestible(payload));
-    addSubmitOnClick();
-    this.setState({ title: '', description: '', quantityToInvest: 1 });
+    createMarketInvestible(payload, dispatch).then(() => {
+      addSubmitOnClick();
+      this.setState({ title: '', description: '', quantityToInvest: 1 });
+    });
   };
 
   validateAddState = () => {
@@ -181,12 +181,12 @@ InvestibleListQuickAdd.propTypes = {
   visible: PropTypes.bool.isRequired,
   addCancelOnClick: PropTypes.func.isRequired,
   addSubmitOnClick: PropTypes.func.isRequired,
-  userPermissions: PropTypes.object.isRequired,
+  userPermissions: PropTypes.object.isRequired, //eslint-disable-line
   sharesAvailable: PropTypes.number.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
-  return Object.assign({ dispatch }, bindActionCreators({ createMarketInvestible }, dispatch));
+  return { dispatch };
 }
 
 export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, { withTheme: true })(withUserAndPermissions(withAppConfigs(InvestibleListQuickAdd)))));

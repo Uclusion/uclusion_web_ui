@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { getSelectedStage } from '../../store/ActiveSearches/reducer';
 import { getStages } from '../../store/Markets/reducer';
-import { followUnFollowMarketStage } from '../../store/Markets/actions';
+import { followUnFollowMarketStage } from '../../api/markets';
 
 function MarketStageFollowUnfollow(props) {
   const {
@@ -33,10 +33,8 @@ function MarketStageFollowUnfollow(props) {
 
   function doFollowingToggle() {
     // check if we have a current stage and if we have accurate follow info
-    console.debug('checking following');
     if (currentStage && marketStages && marketStages[marketId]) {
-      console.debug('Following');
-      dispatch(followUnFollowMarketStage({ marketId, stageId: currentStage, following }));
+      followUnFollowMarketStage(currentStage, marketId, following, dispatch);
     }
   }
 
@@ -79,10 +77,11 @@ function mapDispatchToProps(dispatch) {
 }
 
 MarketStageFollowUnfollow.propTypes = {
-  marketStages: PropTypes.object.isRequired,
+  marketStages: PropTypes.object.isRequired,  //eslint-disable-line
   marketId: PropTypes.string.isRequired,
   dispatch: PropTypes.func.isRequired,
-  selectedStage: PropTypes.object,
+  selectedStage: PropTypes.object,  //eslint-disable-line
+  intl: PropTypes.object.isRequired, //eslint-disable-line
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(MarketStageFollowUnfollow));

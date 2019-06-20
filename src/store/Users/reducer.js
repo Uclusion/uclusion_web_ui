@@ -6,7 +6,7 @@ import {
   RECEIVE_CURRENT_USER,
   REQUEST_CURRENT_USER,
   USERS_FETCHED,
-  formatUsers, USER_UI_PREFERENCES_UPDATED,
+  USER_UI_PREFERENCES_UPDATED,
 } from './actions';
 import { FOLLOWED_MARKET } from '../Markets/actions';
 
@@ -68,16 +68,28 @@ const updateMarketFollowState = (state, action) => {
     return state;
   }
   const { marketId, following } = action;
-  const newState = { ...state };
-  if (newState.market_presence.id !== marketId) {
+  if (state.market_presence.id !== marketId) {
     return state;
   }
+  const newState = { ...state };
   // update the current presence
   newState.market_presence.following = following;
   return newState;
 };
 
+const formatUser = (user) => {
+  const newUser = {
+    ...user,
+    created_at: new Date(user.created_at),
+    updated_at: new Date(user.updated_at),
+  };
+  return newUser;
+};
 
+export const formatUsers = (users) => {
+  const formatted = users.map(user => formatUser(user));
+  return formatted;
+};
 
 const currentUser = (state = null, action) => {
   switch (action.type) {

@@ -7,7 +7,7 @@ import Info from '@material-ui/icons/Info';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import { getCurrentMarketPresence } from '../../utils/marketSelectionFunctions';
-import { followUnfollowMarket } from '../../store/Markets/actions';
+import { followUnfollowMarket } from '../../api/markets';
 import HelpMovie from '../ModalMovie/HelpMovie';
 
 const styles = theme => ({
@@ -37,7 +37,7 @@ function MarketFollowUnfollow(props) {
   const { following } = marketPresence;
 
   function doFollowingToggle() {
-    dispatch(followUnfollowMarket({ marketId, following }));
+    followUnfollowMarket(following, marketId, dispatch);
   }
 
   function getIcon() {
@@ -68,6 +68,8 @@ function MarketFollowUnfollow(props) {
 }
 
 MarketFollowUnfollow.propTypes = {
+  classes: PropTypes.object.isRequired, //eslint-disable-line
+  intl: PropTypes.object.isRequired, //eslint-disable-line
   dispatch: PropTypes.func.isRequired,
   user: PropTypes.object,
   marketId: PropTypes.string.isRequired,

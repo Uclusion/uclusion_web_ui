@@ -96,8 +96,10 @@ export function loginAnonymous(props) {
     if (uclusion_user_id) {
       uclusionTokenInfo.uclusion_user_id = uclusion_user_id;
     }
-    postAuthTasks(props, deployed_version, uclusionTokenInfo, market_id, user);
-    history.push(formCurrentMarketLink('investibles'));
+    return postAuthTasks(props, deployed_version, uclusionTokenInfo, market_id, user)
+      .then(() => {
+        history.push(formCurrentMarketLink('investibles'));
+      });
   });
 }
 
@@ -120,17 +122,19 @@ export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPost
   if (response.uclusion_user_id) {
     uclusionTokenInfo.uclusion_user_id = response.uclusion_user_id;
   }
-  postAuthTasks(props, response.deployed_version, uclusionTokenInfo,
-    marketId, cognitoAuthorizer.user);
-  uiPostAuthTasks();
-  if (!doNotPush) {
-    history.push(page);
-  }
+  return postAuthTasks(props, response.deployed_version, uclusionTokenInfo,
+    marketId, cognitoAuthorizer.user)
+    .then(() => {
+      uiPostAuthTasks();
+      if (!doNotPush) {
+        history.push(page);
+      }
+    });
 }
 
 function convertErrorToString(error) {
   if (error.name) {
-    //cognito section
+    // cognito section
     const { name } = error;
     switch(name) {
       case 'UserNotFoundException':

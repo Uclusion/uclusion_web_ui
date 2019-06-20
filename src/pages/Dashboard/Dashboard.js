@@ -77,7 +77,7 @@ function Dashboard(props) {
   useEffect(() => {
     const clientPromise = getClient();
     clientPromise
-      .then(client => client.summaries.marketSummary(marketId))
+      .then(client => client.summaries.marketSummary())
       .then((data) => {
         setSummaries(data.summaries);
         const usersChartData = data.summaries.map(({ date, num_users }) => ({

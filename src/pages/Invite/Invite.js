@@ -39,14 +39,14 @@ function Invite(props) {
   useEffect(() => {
     const clientPromise = getClient();
     if (canListAccountTeams) {
-      clientPromise.then(client => client.teams.list(marketId)).then((marketTeams) => {
+      clientPromise.then(client => client.teams.list()).then((marketTeams) => {
         setTeams(marketTeams.filter(team => !('external_id' in team)));
       }).catch((error) => {
         console.log(error);
         sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
       });
     } else if (canInvest) {
-      clientPromise.then(client => client.teams.mine(marketId)).then((marketTeams) => {
+      clientPromise.then(client => client.teams.mine()).then((marketTeams) => {
         setTeams(marketTeams.filter(team => !('external_id' in team)));
       }).catch((error) => {
         console.log(error);

@@ -27,6 +27,7 @@
     "material-ui-pickers": "^1.0.1",
     "material-ui-responsive-menu": "^1.19.3",
     "material-ui-selectable-menu-list": "^1.19.5",
+    "acorn": "^6.0.5",
     "moment": "^2.24.0",
     "muishift": "^1.0.16",
     "prop-types": "^15.7.2",
@@ -69,10 +70,7 @@
     "video-react": "^0.13.7"
   },
   "scripts": {
-    "check": "npm-check -s -u",
-    "analyze": "source-map-explorer build/static/js/main.*",
     "start": "REACT_APP_VERSION=`git rev-parse HEAD | head -c 16` react-scripts start",
-    "standard": "standard src/**/*.js",
     "build": "REACT_APP_VERSION=`git rev-parse HEAD | head -c 16` react-scripts build",
     "deploy": "aws s3 sync --delete build/ s3://uclusion-web-ui",
     "test": "react-scripts test --env=jsdom",
@@ -88,15 +86,10 @@
     ]
   },
   "devDependencies": {
-    "enzyme": "^3.6.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-react": "^7.12.4",
     "query-string": "^4.3.4",
-    "react-scripts": "^3.0.1",
-    "redux-testkit": "^1.0.6",
-    "selenium-webdriver": "^4.0.0-alpha.1",
-    "source-map-explorer": "^1.6.0",
-    "standard": "^11.0.1"
+    "react-scripts": "^3.0.1"
   }
 }

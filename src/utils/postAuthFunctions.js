@@ -76,7 +76,7 @@ export function marketChangeTasks(params, marketId, user) {
 
 export function postAuthTasks(params, deployedVersion, uclusionTokenInfo, marketId, user) {
   const { usersReducer, dispatch, webSocket } = params;
-  setMarketAuth(market_id, uclusionTokenInfo);
+  setMarketAuth(marketId, uclusionTokenInfo);
   notifyNewApplicationVersion(dispatch, deployedVersion);
   // if we're not sure the user is the same as we loaded redux with, zero out redux
   if (!usersReducer || !usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {

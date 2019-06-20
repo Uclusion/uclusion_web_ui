@@ -26,7 +26,6 @@ import { withBackgroundProcesses } from '../../components/BackgroundProcesses/Ba
 import appConfig from '../../config/config';
 import { cognitoTokenGenerated, getErrorMessage } from '../../utils/loginFunctions';
 import { setMarketAuth } from '../../components/utils';
-import { getCurrentUser } from '../../store/Users/reducer';
 import { clearUserState } from "../../utils/userStateFunctions";
 
 const styles = theme => ({

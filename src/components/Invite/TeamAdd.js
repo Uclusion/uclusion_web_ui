@@ -40,7 +40,7 @@ function TeamAdd(props) {
   const [showTeamAddHelp, setShowTeamAddHelp] = useState(false);
 
   function addOnClick() {
-    const { teams, teamsSet, marketId } = props;
+    const { teams, teamsSet } = props;
     const clientPromise = getClient();
     setProcessing(true);
     let globalClient;
@@ -133,7 +133,7 @@ function TeamAdd(props) {
 }
 
 TeamAdd.propTypes = {
-  marketId: PropTypes.string.isRequired,
+
   classes: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
   teamsSet: PropTypes.func.isRequired,

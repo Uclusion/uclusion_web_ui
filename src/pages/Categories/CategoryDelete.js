@@ -5,8 +5,8 @@ import { IconButton, Tooltip } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core/styles/index';
-import { deleteMarketCategory } from '../../store/Markets/actions';
 import { withMarketId } from '../../components/PathProps/MarketId';
+import { deleteMarketCategory } from '../../api/markets';
 
 class CategoryDelete extends React.Component {
   constructor(props) {
@@ -16,7 +16,7 @@ class CategoryDelete extends React.Component {
 
   doDelete() {
     const { dispatch, name, marketId } = this.props;
-    dispatch(deleteMarketCategory({ name, marketId }));
+    deleteMarketCategory(name, marketId, dispatch);
   }
 
   render() {
@@ -33,7 +33,9 @@ class CategoryDelete extends React.Component {
 
 CategoryDelete.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  investible: PropTypes.object,
+  investible: PropTypes.object, //eslint-disable-line
+  name: PropTypes.string.isRequired,
+  marketId: PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state) {

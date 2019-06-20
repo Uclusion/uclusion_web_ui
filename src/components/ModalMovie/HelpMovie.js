@@ -14,7 +14,6 @@ import PropTypes from 'prop-types';
 import { getCurrentUser } from '../../store/Users/reducer';
 import withAppConfigs from '../../utils/withAppConfigs';
 import ModalMovie from './ModalMovie';
-import { withMarketId } from '../PathProps/MarketId';
 import { getUiPreference, setUiPreference } from '../../utils/userPreferencesFunctions';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
 import { updateMyUiPrefereneces } from '../../api/users';
@@ -26,7 +25,6 @@ function HelpMovie(props) {
     open,
     user,
     appConfig,
-    marketId,
     dontAutoOpen,
     onClose,
   } = props;
@@ -75,7 +73,7 @@ function HelpMovie(props) {
 
   function updateUserPrefs() {
     const newUser = setNewUiPreferences();
-    updateMyUiPrefereneces(newUser);
+    updateMyUiPrefereneces(newUser, dispatch);
   }
 
   function myOnClose() {
@@ -115,7 +113,6 @@ HelpMovie.propTypes = {
   dontAutoOpen: PropTypes.bool,
   // eslint-disable-next-line react/forbid-prop-types
   appConfig: PropTypes.object.isRequired,
-  marketId: PropTypes.string.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   user: PropTypes.object.isRequired,
   onClose: PropTypes.func,
@@ -134,4 +131,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(withMarketId(withAppConfigs(React.memo(HelpMovie))));
+)(withAppConfigs(React.memo(HelpMovie)));

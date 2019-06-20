@@ -71,6 +71,6 @@ export function updateMyUiPrefereneces(me, dispatch) {
   const clientPromise = getClient();
   return clientPromise.then((client) => {
     dispatch(uiPrefsUpdated(me));
-    return client.users.update(undefined, undefined, undefined, user.ui_preferences);
+    return client.users.update(undefined, undefined, undefined, me.ui_preferences);
   }).then(() => fetchSelf(dispatch));
 }

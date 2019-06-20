@@ -115,7 +115,7 @@ function InvestibleDetail(props) {
   const [lastInvestible, setLastInvestible] = useState({});
   const [showStagesHelp, setShowStagesHelp] = useState(false);
   const {
-    investible, intl, classes, onClose, userPermissions, dispatch, user,
+    investible, intl, classes, onClose, userPermissions, dispatch,
   } = props;
   useEffect(() => {
     if (investible.id !== lastInvestible.id) {
@@ -268,7 +268,7 @@ InvestibleDetail.propTypes = {
   userPermissions: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired, //eslint-disable-line
   dispatch: PropTypes.func.isRequired,
-  user: PropTypes.object, //eslint-disable-line
+
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(

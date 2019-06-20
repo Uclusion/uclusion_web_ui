@@ -12,7 +12,7 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import { getMarketCategories } from '../../store/Markets/reducer';
 import CategoryListItem from './CategoryListItem';
 import CategoryAdd from './CategoryAdd';
-import { fetchMarketCategories } from '../../store/Markets/actions';
+import { fetchMarketCategories } from '../../api/markets';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 
 const styles = theme => ({
@@ -38,7 +38,7 @@ function CategoryList(props) {
   } = props;
   useEffect(() => {
     // Otherwise categories can be missing or cardinality can be wrong
-    dispatch(fetchMarketCategories({ marketId }));
+    fetchMarketCategories(marketId, dispatch);
     return () => {};
   }, [marketId]);
 

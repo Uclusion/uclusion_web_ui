@@ -14,8 +14,7 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../PathProps/MarketId';
 import { fetchInvestibles } from '../../api/marketInvestibles';
 import { investmentsDeleted } from '../../store/MarketInvestibles/actions';
-import { fetchSelf } from '../../api/users';
-import { loadTeams } from '../../utils/userMembershipFunctions';
+import { fetchSelf, loadTeams } from '../../api/users';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({

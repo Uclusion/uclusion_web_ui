@@ -26,7 +26,7 @@ import Activity from '../../containers/Activity/Activity';
 import { getStages, getMarkets } from '../../store/Markets/reducer';
 import { fetchInvestibles } from '../../api/marketInvestibles';
 import MarketSharesSummary from '../../components/Markets/MarketSharesSummary';
-import { fetchMarket } from '../../store/Markets/actions';
+import { fetchMarket } from '../../api/markets';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 
 const styles = theme => ({
@@ -129,7 +129,7 @@ function InvestibleEdit (props) {
         investible.current_stage_id = investible.stage;
         setInvestible(investibles[0]);
         setStageChange(true);
-        dispatch(fetchMarket({ market_id: marketId }));
+        fetchMarket(dispatch);
       }).catch((error) => {
         console.log(error);
         sendIntlMessage(ERROR, { id: 'investibleEditInvestibleFetchFailed' });
@@ -166,7 +166,7 @@ function InvestibleEdit (props) {
     // then we sync the state information (e.g. stage, etc) off to the markets service
     const clientPromise = getClient();
     const {
-      id, name, description, category_list, market_id, label_list,
+      id, name, description, category_list, label_list,
       stage, current_stage_id, additional_investment
     } = investible;
     // store the client so we can use it for second half

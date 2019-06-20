@@ -4,7 +4,6 @@ import { Paper, Button, TextField } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { createMarketInvestible } from '../../api/marketInvestibles';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
@@ -65,7 +64,7 @@ class InvestibleListQuickAdd extends React.PureComponent {
 
   addOnClick = (addSubmitOnClick) => {
     const {
-      dispatch, marketId, teamId, category, userPermissions, appConfig
+      dispatch, teamId, category, userPermissions, appConfig
     } = this.props;
 
     const { title, description, quantityToInvest } = this.state;

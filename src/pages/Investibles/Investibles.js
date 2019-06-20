@@ -20,7 +20,7 @@ import { getMarketPresenceName } from '../../utils/marketSelectionFunctions';
 import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfollow';
 import MarketStageList from '../../components/Markets/MarketStageList';
 import MarketStageFollowUnfollow from '../../components/Markets/MarketStageFollowUnfollow';
-import { fetchMarketInvestibleList } from '../../utils/postAuthFunctions';
+import { fetchMarketInvestibleInfo } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { amAlreadyLoggedIn } from '../../utils/ReactWebAuthorizer';
 
@@ -132,7 +132,7 @@ function InvestiblesPage(props) {
       if (lastFetchedMarketId !== marketId) {
         setLastFetchedMarketId(marketId);
       }
-      fetchMarketInvestibleList({ fetchComments: canReadComments, ...props });
+      fetchMarketInvestibleInfo({ fetchComments: canReadComments, ...props });
     }
   }
 

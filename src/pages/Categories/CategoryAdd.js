@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { Button, TextField } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import { createMarketCategory } from '../../store/Markets/actions';
+import { createMarketCategory } from '../../api/markets';
 
 const styles = theme => ({
   addBox: {
@@ -39,8 +38,7 @@ class CategoryAdd extends React.Component {
   addOnClick = (marketId) => {
     const { dispatch } = this.props;
     const { title } = this.state;
-    const payload = { marketId, name: title };
-    dispatch(createMarketCategory(payload));
+    createMarketCategory(title, marketId, dispatch);
     this.setState({ title: '' });
   };
 
@@ -79,10 +77,11 @@ class CategoryAdd extends React.Component {
 
 CategoryAdd.propTypes = {
   marketId: PropTypes.string.isRequired,
+  dispatch: PropTypes.func.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
-  return Object.assign({ dispatch }, bindActionCreators({ createMarketCategory }, dispatch));
+  return { dispatch };
 }
 
 export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, { withTheme: true })(CategoryAdd)));

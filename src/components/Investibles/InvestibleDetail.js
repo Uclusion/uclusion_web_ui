@@ -16,7 +16,6 @@ import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
 import InvestibleDelete from './InvestibleDelete';
 import InvestibleEdit from './InvestibleEdit';
-import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import { fetchInvestibles } from '../../api/marketInvestibles';
 import { fetchSelf } from '../../api/users';
 import { getCurrentUser } from '../../store/Users/reducer';
@@ -115,7 +114,7 @@ function InvestibleDetail(props) {
   const [lastInvestible, setLastInvestible] = useState({});
   const [showStagesHelp, setShowStagesHelp] = useState(false);
   const {
-    investible, intl, classes, onClose, userPermissions, dispatch,
+    investible, intl, classes, onClose, dispatch, user,
   } = props;
   useEffect(() => {
     if (investible.id !== lastInvestible.id) {
@@ -172,7 +171,7 @@ function InvestibleDetail(props) {
   }
   const show = !!investible;
   const myInvestible = investible || lastInvestible;
-  const { canDeleteMarketInvestible, canEditMarketInvestible, isGuest } = userPermissions;
+  const { isAdmin, isUser, isGuest } = user.market_presence.flags;
   const dateFormatOptions = {
     year: 'numeric',
     month: 'numeric',
@@ -188,9 +187,9 @@ function InvestibleDetail(props) {
     >
       <div className={classNames(classes.bottomActions)}>
         {!isGuest && (<InvestibleFollowUnfollow investible={myInvestible} />)}
-        {canDeleteMarketInvestible
+        {isAdmin
         && <InvestibleDelete investible={myInvestible} onCloseDetail={onClose} />}
-        {canEditMarketInvestible && <InvestibleEdit investibleId={myInvestible.id} />}
+        {isAdmin && <InvestibleEdit investibleId={myInvestible.id} />}
         <Tooltip title={intl.formatMessage({ id: 'investibleDetailClose' })}>
           <IconButton aria-label="Close" onClick={onClose}>
             <CloseIcon />
@@ -215,7 +214,7 @@ function InvestibleDetail(props) {
           <div className={classes.stageContent}>
             <div>
               {myInvestible.stage_name}
-              {canEditMarketInvestible && (
+              {isAdmin && (
                 <IconButton
                   name="stagesinfo"
                   aria-label="Stages Help"
@@ -265,12 +264,11 @@ InvestibleDetail.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
   investible: PropTypes.object.isRequired, //eslint-disable-line
   onClose: PropTypes.func.isRequired,
-  userPermissions: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired, //eslint-disable-line
   dispatch: PropTypes.func.isRequired,
 
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(
-  injectIntl(withUserAndPermissions(withStyles(styles)(InvestibleDetail))),
+  injectIntl(withStyles(styles)(InvestibleDetail)),
 );

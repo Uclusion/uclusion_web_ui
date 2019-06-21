@@ -11,8 +11,6 @@ import CloseIcon from '@material-ui/icons/Close';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import InvestmentsList from './InvestmentsList';
-import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
-import AdminUserItem from './AdminUserItem';
 
 const styles = theme => ({
   root: {
@@ -66,10 +64,11 @@ function UserDetail(props) {
     investibles,
     teams,
     setTeams,
-    userPermissions,
     user,
     intl,
   } = props;
+
+
   useEffect(() => {
     if (!lastUser) {
       setLastUser(user);
@@ -81,7 +80,6 @@ function UserDetail(props) {
   }
   const show = !!user;
   const myUser = user || lastUser || {};
-  const { canGrant } = userPermissions;
   const { quantity, quantity_invested } = myUser;
   return (
     <div
@@ -117,22 +115,13 @@ function UserDetail(props) {
             onChange={handleTabChange}
           >
             <Tab className={classes.tab} label={intl.formatMessage({ id: 'investments' })} value="investments" />
-            {canGrant && (
-              <Tab className={classes.tab} label={intl.formatMessage({ id: 'administer' })} value="administer" />
-            )}
           </Tabs>
           {value === 'investments' && (
             <InvestmentsList
               setTeams={setTeams}
               userId={myUser.id}
+              user={user}
               investibles={investibles}
-            />
-          )}
-          {value === 'administer' && (
-            <AdminUserItem
-              teams={teams}
-              setTeams={setTeams}
-              user={myUser}
             />
           )}
         </div>
@@ -148,8 +137,7 @@ UserDetail.propTypes = {
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
   setTeams: PropTypes.func, //eslint-disable-line
   onClose: PropTypes.func.isRequired,
-  userPermissions: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired, //eslint-disable-line
 };
 
-export default injectIntl(withUserAndPermissions(withStyles(styles)(UserDetail)));
+export default injectIntl(withStyles(styles)(UserDetail));

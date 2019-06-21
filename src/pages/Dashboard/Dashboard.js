@@ -7,7 +7,6 @@ import * as am4core from '@amcharts/amcharts4/core';
 import * as am4charts from '@amcharts/amcharts4/charts';
 import am4themes_animated from '@amcharts/amcharts4/themes/animated';
 import Activity from '../../containers/Activity/Activity';
-import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import withAppConfigs from '../../utils/withAppConfigs';
@@ -146,5 +145,5 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(
-  injectIntl(withUserAndPermissions(withAppConfigs(withMarketId(withStyles(styles)(Dashboard))))),
+  injectIntl(withAppConfigs(withMarketId(withStyles(styles)(Dashboard)))),
 );

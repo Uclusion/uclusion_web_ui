@@ -5,7 +5,6 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
-import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import InvestibleInvest from './InvestibleInvest';
 import CommentsList from './Comments/CommentsList';
 import InvestingTeamsList from './InvestingTeamsList';
@@ -42,27 +41,26 @@ function InvestibleListItemTabs(props) {
     user,
     currentUserInvestment,
     openForInvestment,
-    userPermissions,
     quantity,
     subscribed,
   } = props;
-  const { isMarketAdmin, canInvest, canReadComments } = userPermissions;
+  const { isAdmin, canInvest } = user.market_presence.flags;
   const investmentAllowed = canInvest && openForInvestment;
 
   let initialTab = '';
   if (investmentAllowed) {
     initialTab = 'invest';
-  } else if (canReadComments) {
-    initialTab = 'comments';
-  } else if (isMarketAdmin) {
+  } else if (isAdmin) {
     initialTab = 'investors';
+  } else {
+    initialTab = 'comments';
   }
   const [value, setValue] = useState(initialTab);
   const [investingTeams, setInvestingTeams] = useState([]);
   const [workingUsers, setWorkingUsers] = useState([]);
 
   useEffect(() => {
-    if (isMarketAdmin) {
+    if (isAdmin) {
       const clientPromise = getClient();
       let globalClient;
       clientPromise.then((client) => {
@@ -100,21 +98,19 @@ function InvestibleListItemTabs(props) {
             value="invest"
           />
         )}
-        {canReadComments && (
-          <Tab
+        <Tab
             className={classes.tab}
             label={intl.formatMessage({ id: 'commentsTab' })}
             value="comments"
-          />
-        )}
-        {isMarketAdmin && (
+        />
+        {isAdmin && (
           <Tab
             className={classes.tab}
             label={intl.formatMessage({ id: 'investorsTab' })}
             value="investors"
           />
         )}
-        {isMarketAdmin && (
+        {isAdmin && (
           <Tab
             className={classes.tab}
             label={intl.formatMessage({ id: 'workgroupTab' })}
@@ -136,16 +132,17 @@ function InvestibleListItemTabs(props) {
           <CommentsList
             marketId={marketId}
             currentUserInvestment={currentUserInvestment}
+            user={user}
             investibleId={investibleId}
           />
         )}
-        {value === 'investors' && isMarketAdmin && (
+        {value === 'investors' && isAdmin && (
           <InvestingTeamsList
             marketId={marketId}
             teams={investingTeams}
           />
         )}
-        {value === 'workgroup' && isMarketAdmin && (
+        {value === 'workgroup' && isAdmin && (
           <WorkgroupList
             marketId={marketId}
             users={workingUsers}
@@ -163,7 +160,6 @@ InvestibleListItemTabs.propTypes = {
   marketId: PropTypes.string.isRequired,
   user: PropTypes.object, //eslint-disable-line
   currentUserInvestment: PropTypes.number.isRequired,
-  userPermissions: PropTypes.object.isRequired, //eslint-disable-line
   openForInvestment: PropTypes.bool.isRequired,
   intl: PropTypes.object.isRequired, //eslint-disable-line
   quantity: PropTypes.number.isRequired,
@@ -181,4 +177,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withStyles(styles)(withUserAndPermissions(InvestibleListItemTabs))));
+)(injectIntl(withStyles(styles)(InvestibleListItemTabs)));

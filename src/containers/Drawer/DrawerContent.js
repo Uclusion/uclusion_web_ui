@@ -7,7 +7,6 @@ import { withRouter } from 'react-router-dom';
 import { withA2HS } from 'a2hs';
 import SelectableMenuList from '../SelectableMenuList';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import withAppConfigs from '../../utils/withAppConfigs';
 import { setUclusionLocalStorageItem } from '../../components/utils';
 import { updateTheme, switchNightMode } from '../../store/themeSource/actions';
@@ -66,5 +65,5 @@ export default connect(
     ...drawerActions,
   },
 )(injectIntl(withWidth()(withTheme()(
-  withRouter(withAppConfigs(withA2HS(withMarketId(withUserAndPermissions(DrawerContent))))),
+  withRouter(withAppConfigs(withA2HS(withMarketId(DrawerContent)))),
 ))));

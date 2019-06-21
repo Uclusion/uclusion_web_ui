@@ -15,7 +15,6 @@ import { withMarketId } from '../PathProps/MarketId';
 import { fetchInvestibles } from '../../api/marketInvestibles';
 import { investmentsDeleted } from '../../store/MarketInvestibles/actions';
 import { fetchSelf, loadTeams } from '../../api/users';
-import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({
   paper: {
@@ -54,9 +53,9 @@ function InvestmentsListItem(props) {
     classes,
     userIsOwner,
     intl,
-    userPermissions,
+    user,
   } = props;
-  const { canListAccountTeams } = userPermissions;
+  const { isAdmin } = user.market_presence.flags;
   const [calculatedQuantity, setCalculatedQuantity] = useState(quantity);
   useEffect(() => {
     const {
@@ -75,7 +74,7 @@ function InvestmentsListItem(props) {
         // refetch the investible to trigger a reload of team investible info
         fetchInvestibles([investible.id], marketId, dispatch),
       ]).then(() => {
-        loadTeams(canListAccountTeams, marketId, setTeams);
+        loadTeams(isAdmin, marketId, setTeams);
       }).catch((error) => { //eslint-disable-line
         setCalculatedQuantity(quantity);
         console.error(error);
@@ -151,6 +150,7 @@ InvestmentsListItem.propTypes = {
   stageId: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   createdAt: PropTypes.instanceOf(Date).isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({});
@@ -162,4 +162,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withStyles(styles)(withMarketId(withUserAndPermissions(InvestmentsListItem)))));
+)(injectIntl(withStyles(styles)(withMarketId(InvestmentsListItem))));

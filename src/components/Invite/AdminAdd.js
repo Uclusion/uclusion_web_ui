@@ -30,12 +30,13 @@ function AdminAdd(props) {
   const [name, setName] = useState(undefined);
   const [email, setEmail] = useState(undefined);
   const [processing, setProcessing] = useState(false);
+  const { user } = props;
+
 
   function addOnClick() {
-    const { upUser } = props;
     const clientPromise = getClient();
     clientPromise.then((client) => {
-      return client.users.create(upUser.default_team_id, name, email);
+      return client.users.create(user.default_team_id, name, email);
     }).then((user) => {
       console.log(JSON.stringify(user));
       setName('');
@@ -46,10 +47,9 @@ function AdminAdd(props) {
       console.log(error);
       setProcessing(false);
       sendIntlMessage(ERROR, { id: 'userCreateFailed' });
-    })
-      .finally(() => {
-        setProcessing(false);
-      });
+    }).finally(() => {
+      setProcessing(false);
+    });
   }
 
   function handleNameChange(event) {
@@ -105,7 +105,7 @@ function AdminAdd(props) {
 AdminAdd.propTypes = {
   classes: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
-  upUser: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 export default injectIntl(withStyles(styles, { withTheme: true })(AdminAdd));

@@ -19,7 +19,6 @@ import { withRouter } from 'react-router-dom';
 import drawerActions from '../../store/drawer/actions';
 import { getClient } from '../../config/uclusionClient';
 import { getCurrentUser } from '../../store/Users/reducer';
-import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 
 const drawerWidth = 240;
 
@@ -145,10 +144,9 @@ function Activity(props) {
     onBackClick,
     titleButtons,
     user,
-    userPermissions,
     containerStyle,
   } = props;
-  const { canInvest } = userPermissions;
+  const { canInvest } = user.market_presence.flags;
   const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
   const newCognitoUser = /(.+)\/newCognito/.test(window.location.href.toLowerCase());
   if (!showLogin && !newCognitoUser) {
@@ -257,7 +255,6 @@ Activity.propTypes = {
   user: PropTypes.object,
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
-  userPermissions: PropTypes.object,
   containerStyle: PropTypes.object,
 };
 
@@ -280,4 +277,4 @@ export default compose(
   withWidth(),
   withStyles(styles, { withTheme: true }),
   injectIntl,
-)(withUserAndPermissions(withRouter(React.memo(Activity))));
+)(withRouter(React.memo(Activity)));

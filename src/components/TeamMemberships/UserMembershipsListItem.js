@@ -24,8 +24,6 @@ import MemberList from './MemberList';
 import InvestiblesList from './InvestiblesList';
 import { getCurrentUser, getAllUsers } from '../../store/Users/reducer';
 import { usersFetched } from '../../store/Users/actions';
-import AdminUserItem from './AdminUserItem';
-import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import TeamSharesSummary from './TeamSharesSummary';
 
 const styles = theme => ({
@@ -90,22 +88,19 @@ function UserMembershipsListItem(props) {
   const [tabIndex, setTabIndex] = useState("investibles");
   const [investiblesForTeam, setInvestiblesForTeam] = useState(undefined);
   const [userIds, setUserIds] = useState(undefined);
-  const [teamUser, setTeamUser] = useState(undefined);
   const {
     team,
-    teams,
     investibles,
     marketId,
     classes,
     allUsers,
-    setTeams,
-    userPermissions,
     intl,
     selected,
     onToggleFavorite,
+    user,
     dispatch,
-    upUser,
   } = props;
+
   const {
     team_id,
     name,
@@ -118,9 +113,9 @@ function UserMembershipsListItem(props) {
     current_user_is_following,
     health_score,
   } = team;
-  const { canGrant, isMarketAdmin } = userPermissions;
+  const { isAdmin } = user.market_presence.flags;
   const totalQuantity = shared_quantity + quantity;
-  const is_my_team = upUser && upUser.default_team_id === team_id;
+  const is_my_team = user && user.default_team_id === team_id;
   const dateFormatOptions = {
     year: 'numeric',
     month: 'numeric',
@@ -153,7 +148,6 @@ function UserMembershipsListItem(props) {
     }).then((response) => {
       const { users } = response;
       const teamUsers = _.remove(users, user => user.type !== 'USER');
-      setTeamUser(teamUsers[0]);
       teamUsersFetched(team.id, users);
       return globalClient.markets.summarizeUserInvestments(marketId, team.user_id);
     }).then((investments) => {
@@ -200,7 +194,7 @@ function UserMembershipsListItem(props) {
         <Typography>
           {description}
         </Typography>
-        {isMarketAdmin && !is_my_team && (
+        {isAdmin && !is_my_team && (
           <div style={{ height: 220 }}>
             <Gauge
               value={health_score}
@@ -227,7 +221,7 @@ function UserMembershipsListItem(props) {
             classes={{ labelContainer: classes.tabLabelContainer }}
             label={`${team_size} ${intl.formatMessage({ id: 'members' })}`}
           />
-          {(!canGrant || !is_my_team) && (
+          {(!isAdmin || !is_my_team) && (
             <Tab
               value="investibles"
               className={classes.tab}
@@ -235,14 +229,7 @@ function UserMembershipsListItem(props) {
               label={intl.formatMessage({ id: 'investibles' })}
             />
           )}
-          {canGrant && !is_my_team && (
-            <Tab
-              value="administer"
-              className={classes.tab}
-              classes={{ labelContainer: classes.tabLabelContainer }}
-              label={intl.formatMessage({ id: 'administer' })}
-            />
-          )}
+
         </Tabs>
         <div>
           {tabIndex === "members" && (
@@ -255,13 +242,6 @@ function UserMembershipsListItem(props) {
           {tabIndex === "investibles" && investiblesForTeam && (
             <InvestiblesList
               investibles={investiblesForTeam}
-            />
-          )}
-          {tabIndex === "administer" && teamUser && (
-            <AdminUserItem
-              teams={teams}
-              setTeams={setTeams}
-              user={teamUser}
             />
           )}
         </div>
@@ -282,9 +262,7 @@ UserMembershipsListItem.propTypes = {
   classes: PropTypes.object.isRequired,
   width: PropTypes.string.isRequired,
   allUsers: PropTypes.object.isRequired, //eslint-disable-line
-  setTeams: PropTypes.func, //eslint-disable-line
   teams: PropTypes.arrayOf(PropTypes.object), //eslint-disable-line
-  userPermissions: PropTypes.object.isRequired, //eslint-disable-line
   intl: PropTypes.object.isRequired,
 };
 
@@ -301,6 +279,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(withUserAndPermissions(
-  injectIntl(withWidth()(withStyles(styles)(withMarketId(UserMembershipsListItem)))),
-));
+)(injectIntl(withWidth()(withStyles(styles)(withMarketId(UserMembershipsListItem)))));

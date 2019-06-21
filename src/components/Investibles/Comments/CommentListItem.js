@@ -2,7 +2,6 @@ import React from 'react';
 import { Typography, Paper } from '@material-ui/core';
 import HtmlRichTextEditor from '../../TextEditors/HtmlRichTextEditor';
 import { injectIntl } from "react-intl";
-import { withUserAndPermissions } from '../../UserPermissions/UserPermissions';
 import CommentDelete from './CommentDelete'
 import PropTypes from 'prop-types';
 
@@ -10,9 +9,9 @@ import PropTypes from 'prop-types';
 function CommentListItem(props) {
 
   function canDeleteComment(){
-    const { created_by, userPermissions, upUser } = props;
-    const { canDeleteOwnComments, canDeleteOthersComments } = userPermissions;
-    return canDeleteOthersComments || (canDeleteOwnComments && upUser.id === created_by);
+    const { created_by, user } = props;
+    const { isAdmin } = user.market_presence.flagss;
+    return isAdmin || (user.id === created_by);
   }
 
 
@@ -40,6 +39,7 @@ function CommentListItem(props) {
 
 CommentListItem.propTypes = {
   intl: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   id: PropTypes.string.isRequired,
   investible_id: PropTypes.string.isRequired,
   market_id: PropTypes.string.isRequired,
@@ -50,4 +50,4 @@ CommentListItem.propTypes = {
   is_official: PropTypes.bool.isRequired,
 };
 
-export default withUserAndPermissions(injectIntl(CommentListItem));
+export default injectIntl(CommentListItem);

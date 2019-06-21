@@ -5,13 +5,13 @@ import { Paper, Typography, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import Activity from '../../containers/Activity/Activity';
-import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import withAppConfigs from '../../utils/withAppConfigs';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 import { clearUserState } from '../../utils/userStateFunctions';
+import { getCurrentUser } from "../../store/Users/reducer";
 
 const styles = theme => ({
   root: {
@@ -43,8 +43,7 @@ const styles = theme => ({
 
 function About(props) {
   const {
-    upUser,
-    userPermissions,
+    user,
     appConfig,
     marketId,
     classes,
@@ -53,7 +52,7 @@ function About(props) {
     intl,
   } = props;
 
-  const { isMarketAdmin } = userPermissions;
+  const { isAdmin } = user.market_presence.flags;
   const { version } = appConfig;
 
   const [market, setMarket] = useState(undefined);
@@ -109,18 +108,18 @@ function About(props) {
           <Paper className={classes.section}>
             <Typography className={classes.row}>
               <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserIdLabel' })}</span>
-              <span className={classes.value}>{!!upUser && upUser.id}</span>
+              <span className={classes.value}>{!!user && user.id}</span>
             </Typography>
             <Typography className={classes.row}>
               <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserNameLabel' })}</span>
-              <span className={classes.value}>{!!upUser && upUser.name}</span>
+              <span className={classes.value}>{!!user && user.name}</span>
             </Typography>
             <Typography className={classes.row}>
               <span className={classes.label}>{intl.formatMessage({ id: 'aboutTeamIdLabel' })}</span>
-              <span className={classes.value}>{!!upUser && upUser.team_id}</span>
+              <span className={classes.value}>{!!user && user.team_id}</span>
             </Typography>
           </Paper>
-          {isMarketAdmin && (
+          {isAdmin && (
             <Paper className={classes.section}>
               <Typography className={classes.row}>
                 <span className={classes.label}>{intl.formatMessage({ id: 'aboutUclusionEmailLabel' })}</span>
@@ -137,20 +136,21 @@ function About(props) {
 }
 
 About.propTypes = {
-  upUser: PropTypes.object,
-  userPermissions: PropTypes.object,
   appConfig: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    user: getCurrentUser(state.usersReducer),
+  };
 }
 
 function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withUserAndPermissions(withAppConfigs(withMarketId(withStyles(styles)(About))))));
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withAppConfigs(withMarketId(withStyles(styles)(About)))));

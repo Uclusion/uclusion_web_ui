@@ -6,7 +6,6 @@ import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { createMarketInvestible } from '../../api/marketInvestibles';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
-import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 import withAppConfigs from '../../utils/withAppConfigs';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -189,4 +188,4 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, { withTheme: true })(withUserAndPermissions(withAppConfigs(InvestibleListQuickAdd)))));
+export default connect(mapDispatchToProps)(injectIntl(withStyles(styles, { withTheme: true })(withAppConfigs(InvestibleListQuickAdd))));

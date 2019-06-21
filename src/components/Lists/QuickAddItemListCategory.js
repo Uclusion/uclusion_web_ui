@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
 import withWidth from '@material-ui/core/withWidth';
-import { withUserAndPermissions } from '../UserPermissions/UserPermissions';
 
 const styles = theme => ({
   subListWrapper: {
@@ -105,10 +104,11 @@ class QuickAddItemListCategory extends React.PureComponent {
       items,
       quickAdd,
       width,
-      userPermissions,
+      user,
       tooltip
     } = this.props;
-    const { canCreateInvestible } = userPermissions;
+    const { isUser, isAdmin } = user.market_presence.flags;
+    const canCreateInvestible = isUser || isAdmin;
     const myQuickAdd = React.cloneElement(
       quickAdd,
       {
@@ -157,10 +157,11 @@ QuickAddItemListCategory.propTypes = {
   title: PropTypes.string.isRequired,
   userPermissions: PropTypes.object.isRequired,
   tooltip: PropTypes.string.isRequired,
+  user: PropTypes.object.isRequired,
   selectedInvestibleIndex: PropTypes.number.isRequired,
 };
 
 export default compose(
   withWidth(),
   withStyles(styles, { withTheme: true }),
-)(withUserAndPermissions(QuickAddItemListCategory));
+)(QuickAddItemListCategory);

@@ -6,10 +6,9 @@ import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { withStyles, Button, Tooltip } from '@material-ui/core';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
-import { getAllUsers } from '../../store/Users/reducer';
+import { getAllUsers, getCurrentUser } from '../../store/Users/reducer';
 import Activity from '../../containers/Activity/Activity';
 import UserMembershipsList from '../../components/TeamMemberships/UserMembershipsList';
-import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
@@ -45,15 +44,15 @@ function UserMemberships(props) {
   const [searchQuery, setSearchQuery] = useState('');
   const {
     intl,
-    userPermissions,
     marketId,
     investibles,
     history,
     classes,
-    upUser,
     allUsers,
+    user,
   } = props;
-  const { canListAccountTeams, canInvest } = userPermissions;
+  const { flags } = user.market_presence;
+  const { isAdmin, canInvest } = flags;
   const { location: { hash, pathname } } = history;
 
   function getMarketInvestibles() {
@@ -108,9 +107,9 @@ function UserMemberships(props) {
 
   // Second argument prevents re-running on teams property changes - only for changes in listed
   useEffect(() => {
-    loadTeams(canListAccountTeams, setTeams);
+    loadTeams(isAdmin, setTeams);
     return () => {};
-  }, [marketId, canListAccountTeams]);
+  }, [marketId, isAdmin]);
 
   let selectedTeamId = null;
   let investibleDetail = null;
@@ -131,7 +130,7 @@ function UserMemberships(props) {
         }
       } else if (hashKey === 'user') {
         userDetail = processUserForDisplay(allUsers[hashValue], marketId);
-        userDetailIsMe = upUser && (hashValue === upUser.id);
+        userDetailIsMe = user && (hashValue === user.id);
       } else if (hashKey === 'team') {
         selectedTeamId = hashValue;
       }
@@ -162,10 +161,10 @@ function UserMemberships(props) {
     >
 
       <div className={classes.content}>
-        {canListAccountTeams && (<HelpMovie name="teamMembershipsAdminIntro" />)}
+        {isAdmin && (<HelpMovie name="teamMembershipsAdminIntro" />)}
         {!userDetailIsMe && canInvest && (<HelpMovie name="teamMembershipsUserIntro" />)}
         {userDetailIsMe && (<HelpMovie name="myInvestmentsIntro" />)}
-        {canListAccountTeams && teams && (
+        {isAdmin && teams && (
           <div className={classes.toolbar}>
             <TeamsSearchBox teams={teams} onSearch={onSearch} />
             <Tooltip title={intl.formatMessage({ id: 'teamMembershipsEmailButtonTooltip' })}>
@@ -218,8 +217,7 @@ function UserMemberships(props) {
 }
 
 UserMemberships.propTypes = {
-  userPermissions: PropTypes.object.isRequired,
-  upUser: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
   investibles: PropTypes.object, //eslint-disable-line
@@ -228,6 +226,7 @@ UserMemberships.propTypes = {
 const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
   allUsers: getAllUsers(state.usersReducer),
+  user: getCurrentUser(state.usersReducer),
 });
 
 function mapDispatchToProps(dispatch) {
@@ -237,4 +236,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withUserAndPermissions(withMarketId(withStyles(styles)(UserMemberships)))));
+)(injectIntl(withMarketId(withStyles(styles)(UserMemberships))));

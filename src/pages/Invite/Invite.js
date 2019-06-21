@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core';
 import Activity from '../../containers/Activity/Activity';
-import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
@@ -13,6 +12,8 @@ import InviteList from '../../components/Invite/InviteList';
 import AdminAdd from '../../components/Invite/AdminAdd';
 import Typography from '@material-ui/core/Typography';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
+import { connect } from 'react-redux';
+import { getCurrentUser } from '../../store/Users/reducer';
 
 const styles = theme => ({
   content: {
@@ -29,32 +30,31 @@ function Invite(props) {
   const [teams, setTeams] = useState([]);
   const {
     intl,
-    userPermissions,
-    upUser,
     marketId,
     classes,
+    user,
   } = props;
-  const { canListAccountTeams, canInvest } = userPermissions;
+  const { isAdmin, canInvest } = user.market_presence.flags;
 
   useEffect(() => {
     const clientPromise = getClient();
-    if (canListAccountTeams) {
+    if (isAdmin) {
       clientPromise.then(client => client.teams.list()).then((marketTeams) => {
         setTeams(marketTeams.filter(team => !('external_id' in team)));
       }).catch((error) => {
-        console.log(error);
+        console.error(error);
         sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
       });
     } else if (canInvest) {
       clientPromise.then(client => client.teams.mine()).then((marketTeams) => {
         setTeams(marketTeams.filter(team => !('external_id' in team)));
       }).catch((error) => {
-        console.log(error);
+        console.error(error);
         sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
       });
     }
     return () => {};
-  }, [marketId, canListAccountTeams, canInvest]);
+  }, [marketId, isAdmin, canInvest]);
 
   return (
     <Activity
@@ -63,18 +63,18 @@ function Invite(props) {
       title={intl.formatMessage({ id: 'inviteMenu' })}
     >
       <div className={classes.content}>
-        {canListAccountTeams && (<HelpMovie name="inviteAdminIntro" />)}
+        {isAdmin && (<HelpMovie name="inviteAdminIntro" />)}
         {canInvest && (<HelpMovie name="inviteUserIntro" />)}
-        {canListAccountTeams && (
+        {isAdmin && (
           <Typography variant="h5" className={classes.directions}>
             {intl.formatMessage({ id: 'inviteMarketText' })}
           </Typography>
         )}
-        {canListAccountTeams && (
+        {isAdmin && (
           <TeamAdd marketId={marketId} teams={teams} teamsSet={setTeams} />
         )}
-        {canListAccountTeams && (
-          <AdminAdd upUser={upUser} />
+        {isAdmin && (
+          <AdminAdd user={user} />
         )}
         <InviteList teams={teams} />
       </div>
@@ -83,9 +83,13 @@ function Invite(props) {
 }
 
 Invite.propTypes = {
-  userPermissions: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
 };
 
-export default injectIntl(withUserAndPermissions(withMarketId(withStyles(styles)(Invite))));
+const mapStateToProps = state => ({
+  user: getCurrentUser(state.usersReducer),
+});
+
+export default connect(mapStateToProps)(injectIntl(withMarketId(withStyles(styles)(Invite))));

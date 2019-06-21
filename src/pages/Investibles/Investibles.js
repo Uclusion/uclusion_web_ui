@@ -15,7 +15,6 @@ import LoginModal from '../Login/LoginModal';
 import InvestibleSearchBox from '../../components/Investibles/InvestibleSearchBox';
 import { getActiveInvestibleSearches, getSelectedStage } from '../../store/ActiveSearches/reducer';
 import { getComments } from '../../store/Comments/reducer';
-import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 import { getMarketPresenceName } from '../../utils/marketSelectionFunctions';
 import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfollow';
 import MarketStageList from '../../components/Markets/MarketStageList';
@@ -71,10 +70,9 @@ function InvestiblesPage(props) {
     classes,
     investibles,
     location,
-    userPermissions,
   } = props;
   const { location: { hash, pathname } } = history;
-  const { isGuest, isMarketAdmin, canInvest } = userPermissions;
+  const { isGuest, isAdmin, canInvest } = user.market_presence.flags;
 
   function getMarketInvestibles() {
     const { investibles, allCategories } = props;
@@ -123,16 +121,14 @@ function InvestiblesPage(props) {
 
   function getItems() {
     const {
-      userPermissions,
       history: { location: { pathname } },
     } = props;
     const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
-    const { canReadComments } = userPermissions;
-    if (!showLogin && canReadComments !== undefined) {
+    if (!showLogin) {
       if (lastFetchedMarketId !== marketId) {
         setLastFetchedMarketId(marketId);
       }
-      fetchMarketInvestibleInfo({ fetchComments: canReadComments, ...props });
+      fetchMarketInvestibleInfo({ fetchComments: true, ...props });
     }
   }
 
@@ -198,7 +194,7 @@ function InvestiblesPage(props) {
         {currentInvestibleList && user && user.market_presence
         && (
           <div className={classes.root}>
-            {!showLogin && isMarketAdmin && <HelpMovie name="adminInvestiblesIntro" /> }
+            {!showLogin && isAdmin && <HelpMovie name="adminInvestiblesIntro" /> }
             {!showLogin && canInvest && <HelpMovie name="usersInvestiblesIntro" /> }
             <div className={classes.toolbar}>
               <InvestibleSearchBox />
@@ -256,7 +252,6 @@ InvestiblesPage.propTypes = {
   activeInvestibleSearches: PropTypes.object,
   selectedStage: PropTypes.object,
   history: PropTypes.object.isRequired,
-  userPermissions: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
 };
 
@@ -276,4 +271,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withStyles(styles)(withTheme()(withUserAndPermissions(withMarketId(React.memo(InvestiblesPage)))))));
+)(injectIntl(withStyles(styles)(withTheme()(withMarketId(React.memo(InvestiblesPage))))));

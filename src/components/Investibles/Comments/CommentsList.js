@@ -7,13 +7,12 @@ import Typography from '@material-ui/core/es/Typography/Typography';
 import { injectIntl } from 'react-intl';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { withUserAndPermissions } from '../../UserPermissions/UserPermissions';
 import { reFormatComments } from '../../../utils/reduxHelperFunctions';
 
 function CommentsList(props) {
 
-  const { marketId, investibleId, intl, userPermissions } = props;
-  const { isMarketAdmin } = userPermissions;
+  const { marketId, investibleId, intl, user } = props;
+  const { isAdmin } = user.market_presence.flags;
 
   function sortComments(comments) {
     const formatted = reFormatComments(comments);
@@ -29,14 +28,14 @@ function CommentsList(props) {
     }
     const sorted = sortComments(myComments);
     return sorted.map(comment => (
-      <CommentListItem key={comment.id} {...comment}/>
+      <CommentListItem user={user} key={comment.id} {...comment}/>
     ));
   }
 
 
   function userCanComment() {
     const { currentUserInvestment } = props;
-    return isMarketAdmin || currentUserInvestment > 0;
+    return isAdmin || currentUserInvestment > 0;
   }
 
   function getCommentAddSection() {
@@ -61,7 +60,7 @@ CommentsList.propTypes = {
   investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
   currentUserInvestment: PropTypes.number,
-  userPermissions: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -70,4 +69,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default withUserAndPermissions(connect(mapStateToProps)(injectIntl(CommentsList)));
+export default connect(mapStateToProps)(injectIntl(CommentsList));

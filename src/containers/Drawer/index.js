@@ -10,6 +10,7 @@ import DrawerHeader from './DrawerHeader';
 import Scrollbar from '../../components/Scrollbar';
 import withAppConfigs from '../../utils/withAppConfigs';
 import drawerActions from '../../store/drawer/actions';
+import { getCurrentUser } from "../../store/Users/reducer";
 
 const drawerWidth = 240;
 
@@ -66,6 +67,7 @@ export class DrawerLayout extends Component {
       theme,
       width,
       drawerOpen,
+      user,
     } = this.props;
 
     const smDown = isWidthDown('sm', width);
@@ -91,7 +93,7 @@ export class DrawerLayout extends Component {
           keepMounted: true, // Better open performance on mobile.
         }}
       >
-        <Header />
+        <Header user={user}/>
         <Scrollbar>
           <DrawerContent path={path} history={history} />
         </Scrollbar>
@@ -102,6 +104,7 @@ export class DrawerLayout extends Component {
 
 const mapStateToProps = state => ({
   drawerOpen: state.drawer.open,
+  user: getCurrentUser(state.usersReducer),
 });
 
 export default connect(mapStateToProps, drawerActions)(

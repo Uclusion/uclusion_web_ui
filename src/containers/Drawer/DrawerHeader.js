@@ -16,7 +16,6 @@ import ChevronRight from '@material-ui/icons/ChevronRight';
 import { injectIntl } from 'react-intl';
 import withAppConfigs from '../../utils/withAppConfigs';
 import drawerActions from '../../store/drawer/actions';
-import { withUserAndPermissions } from '../../components/UserPermissions/UserPermissions';
 
 const styles = theme => ({
   paper: {
@@ -45,11 +44,11 @@ const DrawerHeader = (props) => {
     theme,
     intl,
     classes,
-    userPermissions,
     setDrawerOpen,
     width,
+    user,
   } = props;
-  const { canInvest } = userPermissions;
+  const { canInvest } = user.market_presence.flags;
   const headerHeight = (width === 'xs') ? 40 : 48;
 
   return (
@@ -80,7 +79,7 @@ export default connect(null, drawerActions)(
       withTheme()(
         withAppConfigs(
           withStyles(styles, { withTheme: true })(
-            withUserAndPermissions(DrawerHeader),
+            DrawerHeader,
           ),
         ),
       ),

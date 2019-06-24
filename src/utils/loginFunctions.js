@@ -1,79 +1,25 @@
 import { formCurrentMarketLink, getMarketId } from './marketIdPathFunctions';
 import appConfig from '../config/config';
-import { AnonymousAuthorizer, OidcAuthorizer, SsoAuthorizer } from 'uclusion_authorizer_sdk';
+
 import { postAuthTasks } from './postAuthFunctions';
 import { intl } from '../components/IntlComponents/IntlGlobalProvider';
+import { setMarketAuth } from '../components/utils';
+import ReactWebAuthorizer from './ReactWebAuthorizer';
 
-const getPostAuthPage = () => {
-  const currentPage = new URL(window.location.href);
-  currentPage.pathname = '/post_auth';
-  currentPage.search = '';
-  return currentPage.toString();
-};
-
-function getDestinationPage(subPath, marketId) {
-  const currentPage = new URL(window.location.href);
-  currentPage.pathname = `/${marketId}/${subPath}`;
-  return currentPage.toString();
-}
-
-export function getLoginParams(marketId) {
-  const parsed = new URL(window.location.href);
-  let page = parsed.searchParams.get('destinationPage') || 'investibles';
-  if (parsed.href.includes('#')) {
-    page += `#${parsed.href.split('#')[1]}`;
-  }
-  if (!marketId) {
-    marketId = getMarketId();
-  }
-  const newLogin = parsed.searchParams.get('newLogin');
-  let email = null;
-  if (parsed.searchParams.get('email')) {
-    email = decodeURIComponent(parsed.searchParams.get('email'));
-  }
-  const anonymousLogin = parsed.searchParams.get('anonymousLogin');
-  const destinationPage = getDestinationPage(page, marketId);
-  const redirectUrl = getPostAuthPage();
-  const pageUrl = window.location.href;
-  const uclusionUrl = appConfig.api_configuration.baseURL;
-  console.debug(`page = ${page}`);
-  console.debug(`destinationPage = ${destinationPage}`);
-  console.debug(`redirectUrl = ${redirectUrl}`);
-  const response = {
-    marketId,
-    destinationPage,
-    redirectUrl,
-    pageUrl,
-    uclusionUrl,
-    newLogin,
-    page,
-    anonymousLogin,
-  };
-  if (email) {
-    response.email = email;
-  }
-  return response;
-}
-
-function doLoginRedirect(authorizer, loginParams) {
-  const { pageUrl, destinationPage, redirectUrl } = loginParams;
-  const redirectPromise = authorizer.authorize(pageUrl, destinationPage, redirectUrl);
-  redirectPromise.then((location) => {
-    console.debug(location);
-    window.location = location;
-  });
+function login(type) {
+  // set our market auth info so the react authorizer knows what kind we're doing
+  setMarketAuth(getMarketId(), { type });
+  // make an authorizer to kick off the flow
+  const authorizer = new ReactWebAuthorizer(appConfig.api_configuration);
+  return authorizer.authorize();
 }
 
 export function loginOidc() {
-  const loginParams = getLoginParams();
-  const authorizer = new OidcAuthorizer(loginParams);
-  doLoginRedirect(authorizer, loginParams);
+  return login('oidc');
 }
 
 export function loginSso() {
-  const loginParams = getLoginParams();
-  const authorizer = new SsoAuthorizer(loginParams);
-  doLoginRedirect(authorizer, loginParams);
+  return login('sso');
 }
 
 /**
@@ -83,12 +29,12 @@ export function loginSso() {
  */
 export function loginAnonymous(props) {
   const { history } = props;
-  const loginParams = getLoginParams();
-  const authorizer = new AnonymousAuthorizer(loginParams);
-  authorizer.doPostAuthorize().then((resolve) => {
+  setMarketAuth(getMarketId(), 'anonymous');
+  const authorizer = new ReactWebAuthorizer(appConfig.api_configuration);
+  authorizer.authorize().then((uclusionLogin) => {
     const {
       uclusion_token, market_id, user, deployed_version, uclusion_user_id,
-    } = resolve;
+    } = uclusionLogin;
     const uclusionTokenInfo = {
       token: uclusion_token,
       type: authorizer.getType(),
@@ -111,7 +57,7 @@ export function loginAnonymous(props) {
  * @param uiPostAutTasks any ui tasks that need to be run after auth
  */
 export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks, doNotPush) {
-  const { history } = props;
+/*  const { history } = props;
   const { market_id: marketId } = response;
   const { page } = getLoginParams(marketId);
   console.debug(response);
@@ -130,6 +76,8 @@ export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPost
         history.push(page);
       }
     });
+    */
+
 }
 
 function convertErrorToString(error) {

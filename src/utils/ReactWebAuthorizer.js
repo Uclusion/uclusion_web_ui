@@ -7,28 +7,29 @@ import { getMarketId } from './marketIdPathFunctions';
 
 /**
  * Returns the stored auth info for authorization
- * @returns {null|*} the correct token for either the uclusion planning or the regular market
+ * @returns object an object containing a validity flag, and any other auth info
  */
 const getLocalAuthInfo = () => {
   const marketId = getMarketId() || 'account'; //dirty hack for account creation before market exists
   const authInfo = getMarketAuth(marketId);
   if (!authInfo) {
-    return null;
+    return { valid: false };
+  }
+  if (!authInfo.token){
+    return { ...authInfo, valid: false};
   }
   const decodedToken = decode(authInfo.token);
-  if (decodedToken.exp < Date.now() / 1000) {
-    return null;
+  if (decodedToken.exp < Date.now() / 1000) { //expiry is in _seconds_ past the epoch not millis
+    return { ...authInfo, valid: false };
   }
-  return authInfo;
+  return { ...authInfo, valid: true };
 };
 
 
-export function amAlreadyLoggedIn(){
+export function amAlreadyLoggedIn() {
   const authInfo = getLocalAuthInfo();
-  if (authInfo) {
-    return true;
-  }
-  return false;
+  const { valid } = authInfo;
+  return valid;
 }
 
 const getPostAuthPage = () => {
@@ -37,10 +38,7 @@ const getPostAuthPage = () => {
   return currentPage.toString();
 };
 
-/**
- * Used when I don't know anything about you (e.g. I have no authorization context)
- */
-const doGenericAuthRedirect = () => {
+const getUnknownLoginTypeLocation = () => {
   let location = `/${getMarketId()}/Login?destinationPage=${window.location.pathname.split('/')[2]}`;
   const currentPage = new URL(window.location.href);
   if (currentPage.search.includes('newLogin')) {
@@ -52,9 +50,18 @@ const doGenericAuthRedirect = () => {
   if (currentPage.href.includes('#')) {
     location += `#${currentPage.href.split('#')[1]}`;
   }
-  console.debug(`redirecting you to login at ${location}`);
-  window.location = location;
+  return location;
 };
+/** Returns an authroizer which just rejects, and
+ * proveds the unknown login type url
+ * @returns {ReactWebAuthorizer}
+ */
+const getUknownLoginTypeAuthorizer = () => {
+  return new Promise((resolve, reject) => {
+    reject(getUnknownLoginTypeLocation());
+  });
+};
+
 
 class ReactWebAuthorizer {
   constructor(uclusionUrl) {
@@ -65,9 +72,9 @@ class ReactWebAuthorizer {
     const marketId = getMarketId();
     const authInfo = getLocalAuthInfo();
     if (authInfo === null || !authInfo || !authInfo.type) {
-      return doGenericAuthRedirect();
+      return getUknownLoginTypeAuthorizer();
     }
-    const config = { uclusionUrl: this.uclusionUrl, marketId };
+    const config = { baseURL: this.uclusionUrl, marketId };
     switch (authInfo.type) {
       case 'oidc':
         return new OidcAuthorizer(config);
@@ -79,43 +86,38 @@ class ReactWebAuthorizer {
         return new CognitoAuthorizer(config);
       default:
         // I don't recognize this type of authorizer, so I'm going to make you log in again
-        return doGenericAuthRedirect();
+        return getUknownLoginTypeAuthorizer();
     }
   }
 
   doAuthFromCurrentPage() {
-    console.log('We are here in crazy');
-    // / we're not pre-authorized, so kick them into authorization flow
     const authorizer = this.getAuthorizer();
-    if (authorizer) {
-      const pageUrl = window.location.href;
-      const postAuthPage = getPostAuthPage();
-      authorizer.authorize(pageUrl, pageUrl, postAuthPage)
-        .then((redirectUrl) => {
-          window.location = redirectUrl;
-        }).catch((reject) => {
-          console.log(reject);
-          doGenericAuthRedirect();
-        });
-    }
+    const pageUrl = window.location.href;
+    const postAuthPage = getPostAuthPage();
+    return authorizer.authorize(pageUrl, pageUrl, postAuthPage)
+      .then((redirectUrl) => {
+        window.location = redirectUrl;
+      }).catch((preAuthUrl) => {
+        window.location = preAuthUrl;
+      });
   }
 
   /**
    * According to the contract we should use the redirect, etc, but we
    * can figure it out from the current page
    */
-  reauthorize(redirectUrl, destinationUrl) {
-    this.doAuthFromCurrentPage();
+  reauthorize() {
+    return this.doAuthFromCurrentPage();
   }
 
   authorize() {
     const authInfo = getLocalAuthInfo();
-    if (authInfo && authInfo.token) {
-      return new Promise(((resolve, reject) => {
+    if (authInfo && authInfo.valid && authInfo.token) {
+      return new Promise(((resolve) => {
         resolve(authInfo.token);
       }));
     }
-    this.doAuthFromCurrentPage();
+    return this.doAuthFromCurrentPage();
   }
 
   getToken() {

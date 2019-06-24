@@ -4,10 +4,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {
-  AnonymousAuthorizer,
-  CognitoAuthorizer,
-} from 'uclusion_authorizer_sdk';
-import {
   Button,
   Dialog,
   DialogTitle,
@@ -20,11 +16,13 @@ import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
+import { withMarketId } from '../../components/PathProps/MarketId';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { setUclusionLocalStorageItem } from '../../components/utils';
-import {
-  getLoginParams, loginOidc, loginSso, loginAnonymous, cognitoTokenGenerated, getErrorMessage,
+import { loginOidc, loginSso, loginAnonymous, cognitoTokenGenerated, getErrorMessage,
 } from '../../utils/loginFunctions';
+import { getMarketLoginInfo } from '../../api/sso';
+import withAppConfigs from '../../utils/withAppConfigs';
 
 const styles = theme => ({
   content: {
@@ -80,13 +78,13 @@ function LoginModal(props) {
   const [loginInfoError, setLoginInfoError] = useState(false);
   const [helpMessage, setHelpMessage] = useState('');
   const {
-    intl, classes, open,
+    intl, classes, open, marketId, appConfig
   } = props;
 
   ValidatorForm.addValidationRule('isPasswordMatch', value => (value === newPassword));
 
   useEffect(() => {
-    const loginParams = getLoginParams();
+
     const { anonymousLogin, email } = loginParams;
     if (anonymousLogin) {
       loginAnonymous(props);
@@ -94,8 +92,7 @@ function LoginModal(props) {
     if (email) {
       setEmail(email);
     }
-    const authorizer = new AnonymousAuthorizer(loginParams);
-    authorizer.marketLoginInfo().then((response) => {
+    getMarketLoginInfo(appConfig.api_configuration, marketId).then((response) => {
       setUclusionLocalStorageItem('loginInfo', response);
       setAllowCognitoLogin(response.allow_cognito);
       setAllowGuestLogin(response.allow_anonymous);
@@ -444,4 +441,4 @@ function mapStateToProps(state) {
 }
 
 export default withBackgroundProcesses(withStyles(styles)(connect(mapStateToProps,
-  mapDispatchToProps)(injectIntl(withRouter(React.memo(LoginModal))))));
+  mapDispatchToProps)(injectIntl(withRouter(React.memo(withMarketId(withAppConfigs(LoginModal))))))));

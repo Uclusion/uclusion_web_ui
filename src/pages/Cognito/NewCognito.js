@@ -11,7 +11,6 @@ import { withStyles } from '@material-ui/core/styles';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
-import { AnonymousAuthorizer } from 'uclusion_authorizer_sdk';
 import {
   Card,
   CardContent,
@@ -22,8 +21,9 @@ import {
 } from '@material-ui/core';
 import appConfig from '../../config/config';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import { getErrorMessage, getLoginParams, loginAnonymous } from '../../utils/loginFunctions';
+import { getErrorMessage, loginAnonymous } from '../../utils/loginFunctions';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
+import { getMarketLoginInfo } from '../../api/sso';
 
 const styles = theme => ({
   main: {
@@ -95,32 +95,26 @@ function NewCognito(props) {
   } = props;
 
   useEffect(() => {
-    const loginParams = getLoginParams();
-    const { anonymousLogin } = loginParams;
-    if (anonymousLogin) {
-      loginAnonymous(props);
-    }
-    const authorizer = new AnonymousAuthorizer(loginParams);
-    authorizer.marketLoginInfo().then((response) => {
-      setMarketDescription(response.description);
-      setMarketName(response.name);
-    }).catch((error) => {
-      getErrorMessage(error)
-        .then((errorString) => {
-          setError(errorString);
-        });
-    });
+    getMarketLoginInfo(appConfig.api_configuration, marketId)
+      .then((marketInfo) => {
+        const { description, name } = marketInfo;
+        setMarketDescription(description);
+        setMarketName(name);
+      }).catch((error) => {
+        getErrorMessage(error)
+          .then((errorString) => {
+            setError(errorString);
+          });
+      });
     return () => {
     };
   }, []);
 
   function handleSubmit(event) {
-    if (!processing) {
+  /*  if (!processing) {
       setProcessing(true);
       event.preventDefault();
-      const authorizer = new AnonymousAuthorizer({
-        uclusionUrl: appConfig.api_configuration.baseURL,
-      });
+
       const urlParams = new URLSearchParams(window.location.search);
       const creationToken = urlParams.get('creationToken');
       let promise;
@@ -150,6 +144,7 @@ function NewCognito(props) {
         }
       });
     }
+   */
   }
 
   return (

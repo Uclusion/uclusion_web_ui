@@ -9,6 +9,10 @@ import PropTypes from 'prop-types';
 import appConfig from '../../config/config';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { postAuthTasks } from '../../utils/postAuthFunctions';
+import ReactWebAuthorizer from "../../utils/ReactWebAuthorizer";
+import {setMarketAuth} from "../../components/utils";
+import {getHashParams} from "uclusion_authorizer_sdk/src/utils";
+import {getMarketId} from "../../utils/marketIdPathFunctions";
 
 
 function PostAuth(props) {
@@ -45,9 +49,15 @@ function PostAuth(props) {
         pageUrl,
         uclusionUrl: appConfig.api_configuration.baseURL,
       };
+      // this code is crap, but the page only supports oidc and sso right now. We should really
+      // just bundle in the response what the type is
       console.log(`pageUrl is ${pageUrl}`);
-      const authorizer = constructAuthorizer(configuration);
-      authorizer.authorize(pageUrl).then((resolve) => {
+      const hashParams = getHashParams(pageUrl);
+      const marketId = getMarketId();
+      const authType = hashParams.has('id_token') ? 'oidc' : 'sso';
+      setMarketAuth(marketId, { type: authType });
+      const authorizer = new ReactWebAuthorizer(configuration);
+      authorizer.authorize().then((resolve) => {
         console.log(resolve);
         setAuthorizerType(authorizer.getType());
         setFailed(false);

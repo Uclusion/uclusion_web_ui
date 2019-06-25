@@ -64,26 +64,25 @@ const getUknownLoginTypeAuthorizer = () => {
 
 
 class ReactWebAuthorizer {
-  constructor(uclusionUrl) {
-    this.uclusionUrl = uclusionUrl;
+  constructor(config) {
+    this.config = config;
   }
 
   getAuthorizer() {
-    const marketId = getMarketId();
     const authInfo = getLocalAuthInfo();
     if (authInfo === null || !authInfo || !authInfo.type) {
       return getUknownLoginTypeAuthorizer();
     }
-    const config = { baseURL: this.uclusionUrl, marketId };
+
     switch (authInfo.type) {
       case 'oidc':
-        return new OidcAuthorizer(config);
+        return new OidcAuthorizer(this.config);
       case 'sso':
-        return new SsoAuthorizer(config);
+        return new SsoAuthorizer(this.config);
       case 'anonymous':
-        return new AnonymousAuthorizer(config);
+        return new AnonymousAuthorizer(this.config);
       case 'cognito':
-        return new CognitoAuthorizer(config);
+        return new CognitoAuthorizer(this.config);
       default:
         // I don't recognize this type of authorizer, so I'm going to make you log in again
         return getUknownLoginTypeAuthorizer();
@@ -126,6 +125,10 @@ class ReactWebAuthorizer {
       return authInfo.token;
     }
     return undefined;
+  }
+
+  getType() {
+    return this.getAuthorizer().getType();
   }
 }
 

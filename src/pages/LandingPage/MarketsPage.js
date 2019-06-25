@@ -27,6 +27,7 @@ import appConfig from '../../config/config';
 import { cognitoTokenGenerated, getErrorMessage } from '../../utils/loginFunctions';
 import { setMarketAuth } from '../../components/utils';
 import { clearUserState } from "../../utils/userStateFunctions";
+import {formCurrentMarketLink} from "../../utils/marketIdPathFunctions";
 
 const styles = theme => ({
   main: {
@@ -119,7 +120,7 @@ function MarketsPage(props) {
       baseURL: appConfig.api_configuration.baseURL,
     };
     const cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
-    const uclusionSSO = new UclusionSSO(appConfig.api_configuration.baseURL);
+  /*  const uclusionSSO = new UclusionSSO(appConfig.api_configuration.baseURL);
     cognitoAuthorizer.authorize().then(token => uclusionSSO.loginsInfo(token))
       .then((response) => {
         setProcessing(false);
@@ -134,7 +135,7 @@ function MarketsPage(props) {
             setProcessing(false);
             setError(errorString);
           });
-      });
+      });*/
   }
 
   function loginCognitoWithMarket(event) {
@@ -156,8 +157,8 @@ function MarketsPage(props) {
       };
       setMarketAuth('account', authInfo);
       const uiPostAuthTasks = () => { setProcessing(false); };
-      return cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks,
-        true);
+      const destination = formCurrentMarketLink('investibles');
+      return cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks, destination, true);
     }).catch((error) => {
       getErrorMessage(error)
         .then((errorString) => {

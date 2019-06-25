@@ -18,11 +18,12 @@ import { withRouter } from 'react-router-dom';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
-import { setUclusionLocalStorageItem } from '../../components/utils';
+import {setMarketAuth, setUclusionLocalStorageItem} from '../../components/utils';
 import { loginOidc, loginSso, loginAnonymous, cognitoTokenGenerated, getErrorMessage,
 } from '../../utils/loginFunctions';
 import { getMarketLoginInfo } from '../../api/sso';
 import withAppConfigs from '../../utils/withAppConfigs';
+import ReactWebAuthorizer from '../../utils/ReactWebAuthorizer';
 
 const styles = theme => ({
   content: {
@@ -85,13 +86,7 @@ function LoginModal(props) {
 
   useEffect(() => {
 
-    const { anonymousLogin, email } = loginParams;
-    if (anonymousLogin) {
-      loginAnonymous(props);
-    }
-    if (email) {
-      setEmail(email);
-    }
+
     getMarketLoginInfo(appConfig.api_configuration, marketId).then((response) => {
       setUclusionLocalStorageItem('loginInfo', response);
       setAllowCognitoLogin(response.allow_cognito);
@@ -101,11 +96,11 @@ function LoginModal(props) {
       if (response.allow_cognito) {
         setPoolId(response.user_pool_id);
         setClientId(response.cognito_client_id);
-        const { newLogin } = loginParams;
+        /*const { newLogin } = loginParams;
         if (newLogin && response.allow_cognito) {
           setIsNewRegistration(true);
           setHelpMessage(intl.formatMessage({ id: 'loginNewRegistrationExplanation' }));
-        }
+        }*/
       }
     }).catch((error) => {
       getErrorMessage(error)
@@ -136,7 +131,6 @@ function LoginModal(props) {
 
   function loginCognito() {
     setProcessing(true);
-    const { marketId, uclusionUrl } = getLoginParams();
     const canonicalEmail = email.toLocaleLowerCase();
     const authorizerConfiguration = {
       username: canonicalEmail,
@@ -144,14 +138,15 @@ function LoginModal(props) {
       poolId,
       clientId,
       marketId,
-      baseURL: uclusionUrl,
+      baseURL: appConfig.api_configuration.baseURL,
     };
-    cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
+    setMarketAuth(marketId, { type: 'cognito'} );
+    const authorizer = new ReactWebAuthorizer(authorizerConfiguration);
     setError('');
-    cognitoAuthorizer.authorize().then((response) => {
+    authorizer.authorize().then((response) => {
       console.debug(response);
       const uiPostAuthTasks = () => { setProcessing(false); };
-      return cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks);
+      return cognitoTokenGenerated(props, response, authorizer, uiPostAuthTasks);
     }).catch((error) => {
       if ('newPasswordRequired' in error && error.newPasswordRequired) {
         if (newPassword) {
@@ -174,7 +169,7 @@ function LoginModal(props) {
   }
 
   function forgotCognitoPassword() {
-    const { marketId, uclusionUrl } = getLoginParams();
+    /*const { marketId, uclusionUrl } = getLoginParams();
     const canonicalEmail = email.toLocaleLowerCase();
     const authorizerConfiguration = {
       username: canonicalEmail,
@@ -197,7 +192,7 @@ function LoginModal(props) {
           setError(message);
         });
       console.error(error);
-    });
+    }); */
   }
 
   function resetCognitoPassword() {

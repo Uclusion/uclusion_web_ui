@@ -56,10 +56,9 @@ export function loginAnonymous(props) {
  * @param cognitoAuthorizer the authorizer that handled the response
  * @param uiPostAutTasks any ui tasks that need to be run after auth
  */
-export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks, doNotPush) {
-/*  const { history } = props;
+export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks, destination, doNotPush) {
+  const { history } = props;
   const { market_id: marketId } = response;
-  const { page } = getLoginParams(marketId);
   console.debug(response);
   const uclusionTokenInfo = {
     token: cognitoAuthorizer.storedToken,
@@ -68,23 +67,20 @@ export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPost
   if (response.uclusion_user_id) {
     uclusionTokenInfo.uclusion_user_id = response.uclusion_user_id;
   }
-  return postAuthTasks(props, response.deployed_version, uclusionTokenInfo,
-    marketId, cognitoAuthorizer.user)
+  return postAuthTasks(props, response.deployed_version, uclusionTokenInfo, marketId, cognitoAuthorizer.user)
     .then(() => {
       uiPostAuthTasks();
       if (!doNotPush) {
-        history.push(page);
+        history.push(destination);
       }
     });
-    */
-
 }
 
 function convertErrorToString(error) {
   if (error.name) {
     // cognito section
     const { name } = error;
-    switch(name) {
+    switch (name) {
       case 'UserNotFoundException':
         return intl.formatMessage({ id: 'loginErrorUserNotFound' });
       case 'CodeMismatchException':
@@ -116,7 +112,7 @@ function convertErrorToString(error) {
  *
  * @returns promise resulting in string error to display to user
  */
-export function getErrorMessageStringConverter(response, stringConverter){
+export function getErrorMessageStringConverter(response, stringConverter) {
   return Promise.resolve(response)
     .then(result => response.json())
     .then(json => stringConverter(json))

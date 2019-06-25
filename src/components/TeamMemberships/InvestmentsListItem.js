@@ -15,6 +15,7 @@ import { withMarketId } from '../PathProps/MarketId';
 import { fetchInvestibles } from '../../api/marketInvestibles';
 import { investmentsDeleted } from '../../store/MarketInvestibles/actions';
 import { fetchSelf, loadTeams } from '../../api/users';
+import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
   paper: {
@@ -55,7 +56,7 @@ function InvestmentsListItem(props) {
     intl,
     user,
   } = props;
-  const { isAdmin } = user.market_presence.flags;
+  const { isAdmin } = getFlags(user);
   const [calculatedQuantity, setCalculatedQuantity] = useState(quantity);
   useEffect(() => {
     const {

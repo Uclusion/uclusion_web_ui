@@ -58,9 +58,7 @@ const styles = theme => ({
   },
 });
 
-let cognitoAuthorizer = null;
-
-function LoginModal(props) {
+function Login(props) {
   const [allowGuestLogin, setAllowGuestLogin] = useState(false);
   const [allowCognitoLogin, setAllowCognitoLogin] = useState(false);
   const [allowUserLogin, setAllowUserLogin] = useState(false);
@@ -79,7 +77,7 @@ function LoginModal(props) {
   const [loginInfoError, setLoginInfoError] = useState(false);
   const [helpMessage, setHelpMessage] = useState('');
   const {
-    intl, classes, open, marketId, appConfig
+    intl, classes, marketId, appConfig
   } = props;
 
   ValidatorForm.addValidationRule('isPasswordMatch', value => (value === newPassword));
@@ -115,7 +113,7 @@ function LoginModal(props) {
 
 
   function changePasswordCognito(cognitoAuthorizer) {
-    cognitoAuthorizer.completeNewPasswordChallenge(newPassword)
+   /* cognitoAuthorizer.completeNewPasswordChallenge(newPassword)
       .then((response) => {
         const uiPostAuthTasks = () => { setProcessing(false); };
         return cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks);
@@ -127,6 +125,8 @@ function LoginModal(props) {
           });
         console.error(error);
       });
+      */
+
   }
 
   function loginCognito() {
@@ -150,7 +150,7 @@ function LoginModal(props) {
     }).catch((error) => {
       if ('newPasswordRequired' in error && error.newPasswordRequired) {
         if (newPassword) {
-          changePasswordCognito(cognitoAuthorizer);
+        //  changePasswordCognito(cognitoAuthorizer);
         } else {
           setIsNewRegistration(true);
           setProcessing(false);
@@ -197,7 +197,7 @@ function LoginModal(props) {
 
   function resetCognitoPassword() {
     setError('');
-    cognitoAuthorizer.confirmPassword(code, newPassword).then(() => {
+   /* cognitoAuthorizer.confirmPassword(code, newPassword).then(() => {
       setHelpMessage(intl.formatMessage({ id: 'loginPasswordResetSuccess' }));
       setAllowResetPassword(false);
     }).catch((error) => {
@@ -207,6 +207,7 @@ function LoginModal(props) {
         });
       console.error(error);
     });
+    */
   }
 
 
@@ -251,7 +252,8 @@ function LoginModal(props) {
   }
 
   return (
-    <Dialog onClose={() => null} aria-labelledby="simple-dialog-title" open={open}>
+    <div>
+    <Dialog onClose={() => null} aria-labelledby="simple-dialog-title" open={true}>
       <DialogTitle id="simple-dialog-title">
         {isNewRegistration && (intl.formatMessage({ id: 'loginCompleteRegistration' }))}
         {allowResetPassword && (intl.formatMessage({ id: 'reset_password_header' }))}
@@ -411,10 +413,11 @@ function LoginModal(props) {
         </List>
       )}
     </Dialog>
+    </div>
   );
 }
 
-LoginModal.propTypes = {
+Login.propTypes = {
   // eslint-disable-next-line react/no-unused-prop-types
   dispatch: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
@@ -422,7 +425,7 @@ LoginModal.propTypes = {
   // eslint-disable-next-line react/no-unused-prop-types
   webSocket: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
-  open: PropTypes.bool.isRequired,
+
   // eslint-disable-next-line react/no-unused-prop-types
   usersReducer: PropTypes.object.isRequired,
 };
@@ -436,4 +439,4 @@ function mapStateToProps(state) {
 }
 
 export default withBackgroundProcesses(withStyles(styles)(connect(mapStateToProps,
-  mapDispatchToProps)(injectIntl(withRouter(React.memo(withMarketId(withAppConfigs(LoginModal))))))));
+  mapDispatchToProps)(injectIntl(withRouter(React.memo(withMarketId(withAppConfigs(Login))))))));

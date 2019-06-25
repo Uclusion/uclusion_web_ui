@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
 import withWidth from '@material-ui/core/withWidth';
+import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
   subListWrapper: {
@@ -107,7 +108,7 @@ class QuickAddItemListCategory extends React.PureComponent {
       user,
       tooltip
     } = this.props;
-    const { isUser, isAdmin } = user.market_presence.flags;
+    const { isUser, isAdmin } = getFlags(user);
     const canCreateInvestible = isUser || isAdmin;
     const myQuickAdd = React.cloneElement(
       quickAdd,

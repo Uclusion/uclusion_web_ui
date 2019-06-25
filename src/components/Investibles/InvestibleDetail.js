@@ -20,6 +20,7 @@ import { fetchInvestibles } from '../../api/marketInvestibles';
 import { fetchSelf } from '../../api/users';
 import { getCurrentUser } from '../../store/Users/reducer';
 import HelpMovie from '../ModalMovie/HelpMovie';
+import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
   root: {
@@ -171,7 +172,7 @@ function InvestibleDetail(props) {
   }
   const show = !!investible;
   const myInvestible = investible || lastInvestible;
-  const { isAdmin, isUser, isGuest } = user.market_presence.flags;
+  const { isAdmin, isUser, isGuest } = getFlags(user);
   const dateFormatOptions = {
     year: 'numeric',
     month: 'numeric',

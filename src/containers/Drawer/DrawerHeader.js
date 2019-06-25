@@ -16,6 +16,7 @@ import ChevronRight from '@material-ui/icons/ChevronRight';
 import { injectIntl } from 'react-intl';
 import withAppConfigs from '../../utils/withAppConfigs';
 import drawerActions from '../../store/drawer/actions';
+import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
   paper: {
@@ -48,7 +49,7 @@ const DrawerHeader = (props) => {
     width,
     user,
   } = props;
-  const { canInvest } = user.market_presence.flags;
+  const { canInvest } = getFlags(user);
   const headerHeight = (width === 'xs') ? 40 : 48;
 
   return (

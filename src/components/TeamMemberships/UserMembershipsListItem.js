@@ -25,6 +25,7 @@ import InvestiblesList from './InvestiblesList';
 import { getCurrentUser, getAllUsers } from '../../store/Users/reducer';
 import { usersFetched } from '../../store/Users/actions';
 import TeamSharesSummary from './TeamSharesSummary';
+import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
   root: {
@@ -113,7 +114,7 @@ function UserMembershipsListItem(props) {
     current_user_is_following,
     health_score,
   } = team;
-  const { isAdmin } = user.market_presence.flags;
+  const { isAdmin } = getFlags(user);
   const totalQuantity = shared_quantity + quantity;
   const is_my_team = user && user.default_team_id === team_id;
   const dateFormatOptions = {

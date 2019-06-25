@@ -57,9 +57,14 @@ const getUnknownLoginTypeLocation = () => {
  * @returns {ReactWebAuthorizer}
  */
 const getUknownLoginTypeAuthorizer = () => {
-  return new Promise((resolve, reject) => {
-    reject(getUnknownLoginTypeLocation());
-  });
+  function UnknownAuthorizer() {
+    this.authorize = () => {
+      return new Promise((resolve, reject) => {
+        reject(getUnknownLoginTypeLocation());
+      });
+    }
+  }
+  return new UnknownAuthorizer();
 };
 
 

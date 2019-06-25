@@ -14,6 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../store/Users/reducer';
+import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
   content: {
@@ -34,7 +35,7 @@ function Invite(props) {
     classes,
     user,
   } = props;
-  const { isAdmin, canInvest } = user.market_presence.flags;
+  const { isAdmin, canInvest } = getFlags(user);
 
   useEffect(() => {
     const clientPromise = getClient();

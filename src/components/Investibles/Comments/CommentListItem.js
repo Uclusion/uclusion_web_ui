@@ -4,13 +4,14 @@ import HtmlRichTextEditor from '../../TextEditors/HtmlRichTextEditor';
 import { injectIntl } from "react-intl";
 import CommentDelete from './CommentDelete'
 import PropTypes from 'prop-types';
+import { getFlags } from '../../../utils/userFunctions'
 
 
 function CommentListItem(props) {
 
   function canDeleteComment(){
     const { created_by, user } = props;
-    const { isAdmin } = user.market_presence.flagss;
+    const { isAdmin } = getFlags(user);
     return isAdmin || (user.id === created_by);
   }
 

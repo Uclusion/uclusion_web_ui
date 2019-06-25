@@ -18,6 +18,7 @@ import { formCurrentMarketLink } from '../utils/marketIdPathFunctions';
 import { getMarketAuth, getUclusionLocalStorageItem } from '../components/utils';
 import appConfig from './config';
 import { ERROR, sendIntlMessage } from '../utils/userMessage';
+import { getFlags } from '../utils/userFunctions'
 
 const getMenuItems = (props) => {
   const {
@@ -28,15 +29,15 @@ const getMenuItems = (props) => {
 //    themeSource,
     isAuthMenu,
     handleSignOut,
-    upUser,
-    userPermissions,
+    user,
     marketId,
   } = props;
 
-  const { canCategorize, isMarketAdmin, isGuest } = userPermissions;
+  const permissions = getFlags(user);
+  const { canCategorize, isMarketAdmin, isGuest, canInvest } = permissions;
   const authInfo = getMarketAuth(marketId);
   const loginInfo = getUclusionLocalStorageItem('loginInfo');
-  const myInvestmentsSubpath = upUser ? 'teams#user:' + upUser.id : '';
+  const myInvestmentsSubpath = user ? 'teams#user:' + user.id : '';
   const uclusionHelpType = isMarketAdmin ? 'admins' : 'users';
 
 /*  const themeItems = themes.map(t => ({
@@ -80,7 +81,7 @@ const getMenuItems = (props) => {
     },
     {
       value: formCurrentMarketLink(myInvestmentsSubpath),
-      visible: upUser && userPermissions.canInvest,
+      visible: canInvest,
       primaryText: intl.formatMessage({ id: 'myInvestmentsMenu' }),
       leftIcon: <Timeline />,
     },
@@ -167,7 +168,7 @@ const getMenuItems = (props) => {
           const authorizer = new AnonymousAuthorizer({
             uclusionUrl: appConfig.api_configuration.baseURL,
           });
-          const promise = authorizer.cognitoUserSignup(planningMarketId, upUser.name, upUser.email);
+          const promise = authorizer.cognitoUserSignup(planningMarketId, user.name, user.email);
           promise.then((user) => {
             let location = planningMarketLocation;
             const encodedEmail = encodeURIComponent(user.email);

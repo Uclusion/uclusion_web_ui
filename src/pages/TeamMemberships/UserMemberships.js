@@ -19,6 +19,7 @@ import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 import { processUserForDisplay } from '../../utils/userMembershipFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { loadTeams } from '../../api/users';
+import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
   content: {
@@ -51,8 +52,8 @@ function UserMemberships(props) {
     allUsers,
     user,
   } = props;
-  const { flags } = user.market_presence;
-  const { isAdmin, canInvest } = flags;
+
+  const { isAdmin, canInvest } = getFlags(user);
   const { location: { hash, pathname } } = history;
 
   function getMarketInvestibles() {

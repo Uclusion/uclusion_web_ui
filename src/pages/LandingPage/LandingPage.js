@@ -162,7 +162,7 @@ function LandingPage(props) {
       uclusionUrl: appConfig.api_configuration.baseURL,
     });
     const pageUrl = window.location.href;
-    if (authorizer.amIOnPostAuthorizePage(pageUrl) && !processing) {
+/*    if (authorizer.amIOnPostAuthorizePage(pageUrl) && !processing) {
       setProcessing(true);
       const accountCreationInfo = getUclusionLocalStorageItem('accountCreationInfo');
       setAccountName(accountCreationInfo.accountName);
@@ -178,7 +178,7 @@ function LandingPage(props) {
         // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
         setTimeout(createMarket, 10000, client, accountCreationInfo);
       });
-    }
+    }*/
     return () => {
     };
   }, []);

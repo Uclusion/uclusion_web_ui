@@ -12,6 +12,7 @@ import { getCurrentUser } from '../../store/Users/reducer';
 import { getClient } from '../../config/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import WorkgroupList from './WorkgroupList';
+import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
   paper: {
@@ -44,7 +45,7 @@ function InvestibleListItemTabs(props) {
     quantity,
     subscribed,
   } = props;
-  const { isAdmin, canInvest } = user.market_presence.flags;
+  const { isAdmin, canInvest } = getFlags(user);
   const investmentAllowed = canInvest && openForInvestment;
 
   let initialTab = '';

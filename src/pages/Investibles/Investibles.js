@@ -11,7 +11,7 @@ import { getCurrentUser } from '../../store/Users/reducer';
 import InvestibleList from '../../components/Investibles/InvestibleList';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import LoginModal from '../Login/LoginModal';
+import LoginModal from '../Login/Login';
 import InvestibleSearchBox from '../../components/Investibles/InvestibleSearchBox';
 import { getActiveInvestibleSearches, getSelectedStage } from '../../store/ActiveSearches/reducer';
 import { getComments } from '../../store/Comments/reducer';
@@ -22,6 +22,7 @@ import MarketStageFollowUnfollow from '../../components/Markets/MarketStageFollo
 import { fetchMarketInvestibleInfo } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { amAlreadyLoggedIn } from '../../utils/ReactWebAuthorizer';
+import { getFlags } from '../../utils/userFunctions'
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -72,7 +73,7 @@ function InvestiblesPage(props) {
     location,
   } = props;
   const { location: { hash, pathname } } = history;
-  const { isGuest, isAdmin, canInvest } = user.market_presence.flags;
+  const { isGuest, isAdmin, canInvest } = getFlags(user);
 
   function getMarketInvestibles() {
     const { investibles, allCategories } = props;

@@ -12,6 +12,7 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 import { clearUserState } from '../../utils/userStateFunctions';
 import { getCurrentUser } from "../../store/Users/reducer";
+import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
   root: {
@@ -52,7 +53,7 @@ function About(props) {
     intl,
   } = props;
 
-  const { isAdmin } = user.market_presence.flags;
+  const { isAdmin } = getFlags(user);
   const { version } = appConfig;
 
   const [market, setMarket] = useState(undefined);

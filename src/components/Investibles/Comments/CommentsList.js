@@ -8,11 +8,12 @@ import { injectIntl } from 'react-intl';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { reFormatComments } from '../../../utils/reduxHelperFunctions';
+import { getFlags } from '../../../utils/userFunctions'
 
 function CommentsList(props) {
 
   const { marketId, investibleId, intl, user } = props;
-  const { isAdmin } = user.market_presence.flags;
+  const { isAdmin } = getFlags(user);
 
   function sortComments(comments) {
     const formatted = reFormatComments(comments);

@@ -19,6 +19,7 @@ import { withRouter } from 'react-router-dom';
 import drawerActions from '../../store/drawer/actions';
 import { getClient } from '../../config/uclusionClient';
 import { getCurrentUser } from '../../store/Users/reducer';
+import { getFlags } from '../../utils/userFunctions'
 
 const drawerWidth = 240;
 
@@ -146,7 +147,7 @@ function Activity(props) {
     user,
     containerStyle,
   } = props;
-  const { canInvest } = user.market_presence.flags;
+  const { canInvest } = getFlags(user);
   const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
   const newCognitoUser = /(.+)\/newCognito/.test(window.location.href.toLowerCase());
   if (!showLogin && !newCognitoUser) {

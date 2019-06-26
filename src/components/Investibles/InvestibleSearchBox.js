@@ -67,7 +67,7 @@ function InvestibleSearchBox(props) {
     }
   }
 
-  function resetSearchTimer() {
+  useEffect(() => {
     // search time is 1000ms after current time
     const timerDuration = 1000;
     if (searchInProgress) {
@@ -78,11 +78,6 @@ function InvestibleSearchBox(props) {
       runSearch();
     }, timerDuration);
     setSearchInProgress(timer);
-  }
-
-
-  useEffect(() => {
-    resetSearchTimer();
     return () => {};
   }, [marketId, searchQuery]);
 

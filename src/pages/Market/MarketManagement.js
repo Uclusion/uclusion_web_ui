@@ -89,7 +89,7 @@ function MarketManagement(props) {
         console.log(error);
         sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
       });
-  }, [marketId, reloadToggle]);
+  }, [marketId, reloadToggle, dispatch]);
 
   function handleChange(name) {
     return (event) => {

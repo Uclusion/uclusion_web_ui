@@ -42,7 +42,7 @@ export function formCurrentMarketLink(subPath) {
  * @param subPath
  * @returns {string}
  */
-export function getDifferentMarketLink(marketId, subPath) {
+export function formMarketLink(marketId, subPath) {
   const marketLink = formMarketIdLink(marketId, subPath);
   return marketLink;
 }

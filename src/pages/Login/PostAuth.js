@@ -1,6 +1,6 @@
 /* eslint-disable react/forbid-prop-types */
 import React, { useState, useEffect } from 'react';
-import { constructAuthorizer } from 'uclusion_authorizer_sdk';
+
 import Typography from '@material-ui/core/es/Typography/Typography';
 import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
@@ -9,10 +9,10 @@ import PropTypes from 'prop-types';
 import appConfig from '../../config/config';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { postAuthTasks } from '../../utils/postAuthFunctions';
-import ReactWebAuthorizer from "../../utils/ReactWebAuthorizer";
-import {updateMarketAuth} from "../../components/utils";
-import {getHashParams} from "uclusion_authorizer_sdk/src/utils";
-import {getMarketId} from "../../utils/marketIdPathFunctions";
+import ReactWebAuthorizer from '../../utils/ReactWebAuthorizer';
+import {updateMarketAuth} from '../../components/utils';
+import {getHashParams} from 'uclusion_authorizer_sdk/src/utils';
+import {getMarketId} from '../../utils/marketIdPathFunctions';
 
 
 function PostAuth(props) {
@@ -27,7 +27,7 @@ function PostAuth(props) {
   useEffect(() => {
     if (resolve) {
       // Have to do here or get warning about setting state before component mounted
-      const { market_id, destination_page } = resolve;
+      const { destination_page } = resolve;
       postAuthTasks(props, resolve)
         .then(() => {
           setPath(getPathAndQueryPart(destination_page));
@@ -50,7 +50,7 @@ function PostAuth(props) {
       });
     }
     return () => {};
-  }, [resolve]);
+  }, [resolve, props]);
 
   const { intl } = props;
   return (

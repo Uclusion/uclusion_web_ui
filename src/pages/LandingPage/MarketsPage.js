@@ -18,16 +18,15 @@ import { withStyles } from '@material-ui/core/styles';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { injectIntl } from 'react-intl';
 import { Helmet } from 'react-helmet';
-import {
-  CognitoAuthorizer,
-  UclusionSSO,
-} from 'uclusion_authorizer_sdk';
+import uclusion from 'uclusion_sdk';
+import { CognitoAuthorizer } from 'uclusion_authorizer_sdk';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import appConfig from '../../config/config';
 import { cognitoTokenGenerated, getErrorMessage } from '../../utils/loginFunctions';
 import { updateMarketAuth } from '../../components/utils';
-import { clearUserState } from "../../utils/userStateFunctions";
-import {formCurrentMarketLink} from "../../utils/marketIdPathFunctions";
+import { clearUserState } from '../../utils/userStateFunctions';
+import { formMarketLink } from '../../utils/marketIdPathFunctions';
+import ReactWebAuthorizer from '../../utils/ReactWebAuthorizer';
 
 const styles = theme => ({
   main: {
@@ -113,52 +112,48 @@ function MarketsPage(props) {
     setProcessing(true);
     setError('');
     const authorizerConfiguration = {
+      ...appConfig.api_configuration,
       username: email,
       password,
-      poolId: appConfig.api_configuration.poolId,
-      clientId: appConfig.api_configuration.clientId,
-      baseURL: appConfig.api_configuration.baseURL,
     };
     const cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
-  /*  const uclusionSSO = new UclusionSSO(appConfig.api_configuration.baseURL);
-    cognitoAuthorizer.authorize().then(token => uclusionSSO.loginsInfo(token))
-      .then((response) => {
-        setProcessing(false);
-        const markets = Object.keys(response).map(
-          marketId => ({ value: marketId, name: response[marketId].name }),
-        );
-        setMarkets(markets);
-        return response;
+    uclusion.constructSSOClient(appConfig.api_configuration)
+      .then((ssoClient) => {
+        return cognitoAuthorizer.authorize()
+          .then(cognitoToken => ssoClient.cognitoEmailLoginInfo(cognitoToken))
+          .then((response) => {
+            setProcessing(false);
+            const markets = Object.keys(response).map(
+              marketId => ({ value: marketId, name: response[marketId].name }),
+            );
+            setMarkets(markets);
+            return response;
+          });
       }).catch((error) => {
         getErrorMessage(error)
           .then((errorString) => {
             setProcessing(false);
             setError(errorString);
           });
-      });*/
+      });
   }
 
   function loginCognitoWithMarket(event) {
     event.preventDefault();
     setProcessing(true);
     setError('');
-    const authorizerConfiguration = {
+    const authConfig = {
+      ...appConfig.api_configuration,
       username: email,
       password,
-      poolId: appConfig.api_configuration.poolId,
-      clientId: appConfig.api_configuration.clientId,
       marketId: selectedMarket,
-      baseURL: appConfig.api_configuration.baseURL,
+      destination_page: formMarketLink(selectedMarket, 'investibles'),
     };
-    const cognitoAuthorizer = new CognitoAuthorizer(authorizerConfiguration);
-    cognitoAuthorizer.authorize().then((response) => {
-      const authInfo = {
-        token: response.uclusion_token, type: cognitoAuthorizer.getType(),
-      };
-      updateMarketAuth('account', authInfo);
+    updateMarketAuth('account', { type: 'cognito', config: authConfig });
+    const authorizer = new ReactWebAuthorizer(authConfig);
+    authorizer.authorize().then((authInfo) => {
       const uiPostAuthTasks = () => { setProcessing(false); };
-      const destination = formCurrentMarketLink('investibles');
-      return cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks, destination, true);
+      return cognitoTokenGenerated(props, authInfo, uiPostAuthTasks());
     }).catch((error) => {
       getErrorMessage(error)
         .then((errorString) => {

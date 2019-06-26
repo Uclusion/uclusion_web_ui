@@ -80,7 +80,7 @@ class ReactWebAuthorizer {
     }
     const { config, type } = authInfo;
     // use the auth info stored config if it's available othwerise the one we were made with
-    const usedConfig = config ? config : this.config;
+    const usedConfig = config || this.config;
     switch (type) {
       case 'oidc':
         return new OidcAuthorizer(usedConfig);

@@ -27,7 +27,7 @@ function InvestmentsList(props) {
       sendIntlMessage(ERROR, { id: 'investmentsLoadFailed' });
     });
     return () => {};
-  }, [userId]);
+  }, [userId, user]);
   function getInvestible(investibleId) {
     return investibles.find(({ id }) => id === investibleId);
   }

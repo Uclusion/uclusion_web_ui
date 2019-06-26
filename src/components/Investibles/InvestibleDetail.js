@@ -124,7 +124,7 @@ function InvestibleDetail(props) {
       // Required if someone on team has spent shared uShares or there was a grant
       fetchSelf(dispatch);
     }
-  }, [investible]);
+  }, [investible, lastInvestible, dispatch]);
 
   function getNextStageContent(investible) {
     if (investible.next_stage_name) {
@@ -172,7 +172,7 @@ function InvestibleDetail(props) {
   }
   const show = !!investible;
   const myInvestible = investible || lastInvestible;
-  const { isAdmin, isUser, isGuest } = getFlags(user);
+  const { isAdmin, isGuest } = getFlags(user);
   const dateFormatOptions = {
     year: 'numeric',
     month: 'numeric',

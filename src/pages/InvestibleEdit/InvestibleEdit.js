@@ -134,7 +134,7 @@ function InvestibleEdit (props) {
         console.log(error);
         sendIntlMessage(ERROR, { id: 'investibleEditInvestibleFetchFailed' });
       });
-  }, [marketId, investibleId, saved]);
+  }, [marketId, investibleId, saved, dispatch]);
 
   function handleChange(name) {
     return (event) => {

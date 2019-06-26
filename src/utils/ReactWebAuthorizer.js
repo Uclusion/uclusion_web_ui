@@ -79,16 +79,17 @@ class ReactWebAuthorizer {
       return getUknownLoginTypeAuthorizer();
     }
     const { config, type } = authInfo;
-
+    // use the auth info stored config if it's available othwerise the one we were made with
+    const usedConfig = config ? config : this.config;
     switch (type) {
       case 'oidc':
-        return new OidcAuthorizer(config);
+        return new OidcAuthorizer(usedConfig);
       case 'sso':
-        return new SsoAuthorizer(config);
+        return new SsoAuthorizer(usedConfig);
       case 'anonymous':
-        return new AnonymousAuthorizer(config);
+        return new AnonymousAuthorizer(usedConfig);
       case 'cognito':
-        return new CognitoAuthorizer(config);
+        return new CognitoAuthorizer(usedConfig);
       default:
         // I don't recognize this type of authorizer, so I'm going to make you log in again
         return getUknownLoginTypeAuthorizer();

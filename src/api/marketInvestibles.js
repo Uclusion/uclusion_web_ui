@@ -28,7 +28,7 @@ export function followUnfollowInvestible(investible, stopFollowing, dispatch) {
 export function fetchInvestibles(idList, marketId, dispatch) {
   const clientPromise = getClient();
   console.debug(`Fetching idList ${idList}`);
-  return clientPromise.then(client => client.markets.getMarketInvestibles(marketId, idList))
+  return clientPromise.then(client => client.markets.getMarketInvestibles(idList))
     .then((investibles) => {
       dispatch(receiveInvestibles(marketId, investibles));
     }).catch((error) => {
@@ -40,7 +40,7 @@ export function fetchInvestibles(idList, marketId, dispatch) {
 export function fetchInvestibleList(currentInvestibleList, marketId, dispatch) {
   const clientPromise = getClient();
   console.debug(`Fetching investibles list for: ${marketId}`);
-  return clientPromise.then(client => client.markets.listInvestibles(marketId))
+  return clientPromise.then(client => client.markets.listInvestibles())
     .then((response) => {
       const { investibles, categories } = response;
       dispatch(receiveMarketCategories(categories, marketId));

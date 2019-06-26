@@ -18,7 +18,6 @@ import {getMarketId} from "../../utils/marketIdPathFunctions";
 function PostAuth(props) {
   const [resolve, setResolve] = useState(undefined);
   const [failed, setFailed] = useState(undefined);
-  const [authorizerType, setAuthorizerType] = useState(undefined);
   const [path, setPath] = useState(undefined);
   function getPathAndQueryPart(url) {
     const parsed = new URL(url);
@@ -28,38 +27,22 @@ function PostAuth(props) {
   useEffect(() => {
     if (resolve) {
       // Have to do here or get warning about setting state before component mounted
-      const {
-        uclusion_token, destination_page,
-        market_id, user, deployed_version, uclusion_user_id,
-      } = resolve;
-      let realMarketId = market_id;
-      console.debug(resolve);
-      const uclusionTokenInfo = {
-        token: uclusion_token,
-        type: authorizerType,
-      };
-      if (uclusion_user_id) {
-        uclusionTokenInfo.uclusion_user_id = uclusion_user_id;
-      }
-      postAuthTasks(props, deployed_version, uclusionTokenInfo, realMarketId, user);
-      setPath(getPathAndQueryPart(destination_page));
+      const { market_id, destination_page } = resolve;
+      postAuthTasks(props, resolve)
+        .then(() => {
+          setPath(getPathAndQueryPart(destination_page));
+        });
     } else {
-      const pageUrl = window.location.href;
-      const configuration = {
-        pageUrl,
-        uclusionUrl: appConfig.api_configuration.baseURL,
-      };
       // this code is crap, but the page only supports oidc and sso right now. We should really
       // just bundle in the response what the type is
+      const pageUrl = window.location.href;
       console.log(`pageUrl is ${pageUrl}`);
       const hashParams = getHashParams(pageUrl);
       const marketId = getMarketId();
       const authType = hashParams.has('id_token') ? 'oidc' : 'sso';
-      updateMarketAuth(marketId, { type: authType , config: configuration});
-      const authorizer = new ReactWebAuthorizer(configuration);
+      updateMarketAuth(marketId, { type: authType, config: appConfig.api_configuration });
+      const authorizer = new ReactWebAuthorizer(appConfig.api_configuration);
       authorizer.authorize().then((resolve) => {
-        console.log(resolve);
-        setAuthorizerType(authorizer.getType());
         setFailed(false);
         setResolve(resolve);
       }, () => {

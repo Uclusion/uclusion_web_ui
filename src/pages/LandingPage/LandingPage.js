@@ -29,7 +29,7 @@ import {
   setUclusionLocalStorageItem,
   getUclusionLocalStorageItem,
   clearAuth,
-  setMarketAuth
+  updateMarketAuth
 } from '../../components/utils';
 import { getClient } from '../../config/uclusionClient';
 import { validURL } from '../../utils/validators';
@@ -172,7 +172,7 @@ function LandingPage(props) {
         const authInfo = {
           token: response.login_capability, type: authorizer.getType(),
         };
-        setMarketAuth('account', authInfo);
+        updateMarketAuth('account', authInfo);
         return getClient();
       }).then((client) => {
         // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
@@ -257,7 +257,7 @@ function LandingPage(props) {
           };
           accountCreationInfo.isExistingLogin = response.user.exists_in_cognito;
           // Have to set the return token or market creation will fail
-          setMarketAuth('account', authInfo);
+          updateMarketAuth('account', authInfo);
           return getClient();
         }).then(client => setTimeout(createMarket, 30000, client, accountCreationInfo, setLoading)) // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
         .catch((e) => {

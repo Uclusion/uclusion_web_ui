@@ -10,7 +10,7 @@ import appConfig from '../../config/config';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { postAuthTasks } from '../../utils/postAuthFunctions';
 import ReactWebAuthorizer from "../../utils/ReactWebAuthorizer";
-import {setMarketAuth} from "../../components/utils";
+import {updateMarketAuth} from "../../components/utils";
 import {getHashParams} from "uclusion_authorizer_sdk/src/utils";
 import {getMarketId} from "../../utils/marketIdPathFunctions";
 
@@ -55,7 +55,7 @@ function PostAuth(props) {
       const hashParams = getHashParams(pageUrl);
       const marketId = getMarketId();
       const authType = hashParams.has('id_token') ? 'oidc' : 'sso';
-      setMarketAuth(marketId, { type: authType });
+      updateMarketAuth(marketId, { type: authType , config: configuration});
       const authorizer = new ReactWebAuthorizer(configuration);
       authorizer.authorize().then((resolve) => {
         console.log(resolve);

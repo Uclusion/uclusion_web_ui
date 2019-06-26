@@ -15,8 +15,8 @@ const getLocalAuthInfo = () => {
   if (!authInfo) {
     return { valid: false };
   }
-  if (!authInfo.token){
-    return { ...authInfo, valid: false};
+  if (!authInfo.uclusion_token){
+    return { ...authInfo, valid: false };
   }
   const decodedToken = decode(authInfo.token);
   if (decodedToken.exp < Date.now() / 1000) { //expiry is in _seconds_ past the epoch not millis
@@ -52,7 +52,7 @@ const getUnknownLoginTypeLocation = () => {
   }
   return location;
 };
-/** Returns an authroizer which just rejects, and
+/** Returns an authorizer which just rejects, and
  * proveds the unknown login type url
  * @returns {ReactWebAuthorizer}
  */
@@ -78,16 +78,17 @@ class ReactWebAuthorizer {
     if (authInfo === null || !authInfo || !authInfo.type) {
       return getUknownLoginTypeAuthorizer();
     }
+    const { config, type } = authInfo;
 
-    switch (authInfo.type) {
+    switch (type) {
       case 'oidc':
-        return new OidcAuthorizer(this.config);
+        return new OidcAuthorizer(config);
       case 'sso':
-        return new SsoAuthorizer(this.config);
+        return new SsoAuthorizer(config);
       case 'anonymous':
-        return new AnonymousAuthorizer(this.config);
+        return new AnonymousAuthorizer(config);
       case 'cognito':
-        return new CognitoAuthorizer(this.config);
+        return new CognitoAuthorizer(config);
       default:
         // I don't recognize this type of authorizer, so I'm going to make you log in again
         return getUknownLoginTypeAuthorizer();
@@ -99,8 +100,9 @@ class ReactWebAuthorizer {
     const pageUrl = window.location.href;
     const postAuthPage = getPostAuthPage();
     return authorizer.authorize(pageUrl, pageUrl, postAuthPage)
-      .then((redirectUrl) => {
-        window.location = redirectUrl;
+      .then((uclusionLogin) => {
+        console.log(uclusionLogin);
+        return uclusionLogin;
       }).catch((preAuthUrl) => {
         window.location = preAuthUrl;
       });
@@ -114,11 +116,15 @@ class ReactWebAuthorizer {
     return this.doAuthFromCurrentPage();
   }
 
+  isAuthInfoValid(authInfo){
+    return authInfo && authInfo.valid && authInfo.uclusion_token;
+  }
+
   authorize() {
     const authInfo = getLocalAuthInfo();
-    if (authInfo && authInfo.valid && authInfo.token) {
+    if (this.isAuthInfoValid(authInfo)) {
       return new Promise(((resolve) => {
-        resolve(authInfo.token);
+        resolve(authInfo);
       }));
     }
     return this.doAuthFromCurrentPage();
@@ -126,8 +132,8 @@ class ReactWebAuthorizer {
 
   getToken() {
     const authInfo = getLocalAuthInfo();
-    if (authInfo) {
-      return authInfo.token;
+    if (this.isAuthInfoValid(authInfo)) {
+      return authInfo.uclusion_token;
     }
     return undefined;
   }

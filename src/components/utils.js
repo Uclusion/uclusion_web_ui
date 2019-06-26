@@ -28,10 +28,12 @@ export function clearAuth() {
   setUclusionLocalStorageItem(authKey, null);
 }
 
-export function setMarketAuth(marketId, uclusionTokenInfo) {
-  const authValues = getUclusionLocalStorageItem(authKey) || {};
-  authValues[marketId] = uclusionTokenInfo;
-  setUclusionLocalStorageItem(authKey, authValues);
+export function updateMarketAuth(marketId, newInfo) {
+  const oldAuthValues = getUclusionLocalStorageItem(authKey) || {};
+  const oldMarketValues = oldAuthValues[marketId] || {};
+  const newMarketValues = { ...oldMarketValues, ...newInfo };
+  const newAuthValues = {...oldAuthValues, [marketId]: newMarketValues };
+  setUclusionLocalStorageItem(authKey, newAuthValues);
 }
 
 export function getMarketAuth(marketId) {

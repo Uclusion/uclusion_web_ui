@@ -9,6 +9,7 @@ import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import withAppConfigs from '../../utils/withAppConfigs';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
 
@@ -63,11 +64,11 @@ class InvestibleListQuickAdd extends React.PureComponent {
 
   addOnClick = (addSubmitOnClick) => {
     const {
-      dispatch, teamId, category, userPermissions, appConfig
+      dispatch, teamId, category, user, appConfig
     } = this.props;
 
     const { title, description, quantityToInvest } = this.state;
-    const { canInvest } = userPermissions;
+    const { canInvest } = getFlags(user);
     const payload = {
       category, teamId, canInvest, title, description, quantity: parseInt(quantityToInvest, 10),
     };
@@ -87,8 +88,8 @@ class InvestibleListQuickAdd extends React.PureComponent {
 
   validateAddState = () => {
     const { title, description, quantityToInvest } = this.state;
-    const { userPermissions, sharesAvailable } = this.props;
-    const { canInvest } = userPermissions;
+    const { sharesAvailable, user } = this.props;
+    const { canInvest } = getFlags(user);
     const descriptionValid = description && (description !== '<p></p>');
     const quantityValid = !canInvest || ((quantityToInvest > 0) && (quantityToInvest <= sharesAvailable));
     return title && descriptionValid && quantityValid;
@@ -101,10 +102,10 @@ class InvestibleListQuickAdd extends React.PureComponent {
       intl,
       addSubmitOnClick,
       addCancelOnClick,
-      userPermissions,
+      user,
     } = this.props;
 
-    const { canInvest } = userPermissions;
+    const { canInvest } = getFlags(user);
 
     const { description, quantityToInvest, title } = this.state;
     if (!visible) {

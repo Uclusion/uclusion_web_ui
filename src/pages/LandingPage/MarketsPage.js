@@ -25,7 +25,7 @@ import {
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import appConfig from '../../config/config';
 import { cognitoTokenGenerated, getErrorMessage } from '../../utils/loginFunctions';
-import { setMarketAuth } from '../../components/utils';
+import { updateMarketAuth } from '../../components/utils';
 import { clearUserState } from "../../utils/userStateFunctions";
 import {formCurrentMarketLink} from "../../utils/marketIdPathFunctions";
 
@@ -155,7 +155,7 @@ function MarketsPage(props) {
       const authInfo = {
         token: response.uclusion_token, type: cognitoAuthorizer.getType(),
       };
-      setMarketAuth('account', authInfo);
+      updateMarketAuth('account', authInfo);
       const uiPostAuthTasks = () => { setProcessing(false); };
       const destination = formCurrentMarketLink('investibles');
       return cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks, destination, true);

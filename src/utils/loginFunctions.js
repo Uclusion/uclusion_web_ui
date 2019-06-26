@@ -3,12 +3,12 @@ import appConfig from '../config/config';
 
 import { postAuthTasks } from './postAuthFunctions';
 import { intl } from '../components/IntlComponents/IntlGlobalProvider';
-import { setMarketAuth } from '../components/utils';
+import { updateMarketAuth } from '../components/utils';
 import ReactWebAuthorizer from './ReactWebAuthorizer';
 
 function login(type) {
   // set our market auth info so the react authorizer knows what kind we're doing
-  setMarketAuth(getMarketId(), { type });
+  updateMarketAuth(getMarketId(), { type, config: appConfig.api_configuration });
   // make an authorizer to kick off the flow
   const authorizer = new ReactWebAuthorizer(appConfig.api_configuration);
   return authorizer.authorize();
@@ -29,7 +29,7 @@ export function loginSso() {
  */
 export function loginAnonymous(props) {
   const { history } = props;
-  setMarketAuth(getMarketId(), 'anonymous');
+  updateMarketAuth(getMarketId(), {type: 'anonymous', config: appConfig.api_configuration});
   const authorizer = new ReactWebAuthorizer(appConfig.api_configuration);
   authorizer.authorize().then((uclusionLogin) => {
     const {
@@ -56,22 +56,13 @@ export function loginAnonymous(props) {
  * @param cognitoAuthorizer the authorizer that handled the response
  * @param uiPostAutTasks any ui tasks that need to be run after auth
  */
-export function cognitoTokenGenerated(props, response, cognitoAuthorizer, uiPostAuthTasks, destination, doNotPush) {
+export function cognitoTokenGenerated(props, authInfo, uiPostAuthTasks, doNotPush) {
   const { history } = props;
-  const { market_id: marketId } = response;
-  console.debug(response);
-  const uclusionTokenInfo = {
-    token: cognitoAuthorizer.storedToken,
-    type: cognitoAuthorizer.getType(),
-  };
-  if (response.uclusion_user_id) {
-    uclusionTokenInfo.uclusion_user_id = response.uclusion_user_id;
-  }
-  return postAuthTasks(props, response.deployed_version, uclusionTokenInfo, marketId, cognitoAuthorizer.user)
+  return postAuthTasks(props, { ...authInfo })
     .then(() => {
       uiPostAuthTasks();
       if (!doNotPush) {
-        history.push(destination);
+        history.push(authInfo.destination_page);
       }
     });
 }

@@ -1,4 +1,4 @@
-import { setMarketAuth } from '../components/utils';
+import { updateMarketAuth } from '../components/utils';
 import { fetchSelf } from '../api/users';
 import { fetchMarket, fetchMarketStages } from '../api/markets';
 import { clearReduxStore } from './userStateFunctions';
@@ -53,10 +53,10 @@ export function fetchMarketInvestibleInfo(params) {
 
 export function marketChangeTasks(params, marketId, user) {
   const { dispatch, webSocket } = params;
-  // preemptively fetch the market and user, since we're likely to need it
+  // fetch the market, user, and stages to make sure everything is up to date in presences
   const promises = fetchMarket(dispatch)
-  // fetch the user, and stages to make sure everything is up to date in presences
-    .all([fetchSelf(dispatch), fetchMarketStages(marketId, dispatch)])
+
+    .then(() => Promise.all([fetchSelf(dispatch), fetchMarketStages(marketId, dispatch)]))
     .then(() => {
       webSocket.unsubscribeAll();
       return webSocket.subscribe(user.id, { market_id: marketId });
@@ -74,15 +74,16 @@ export function marketChangeTasks(params, marketId, user) {
   return promises;
 }
 
-export function postAuthTasks(params, deployedVersion, uclusionTokenInfo, marketId, user) {
+export function postAuthTasks(params, authInfo) {
   const { usersReducer, dispatch, webSocket } = params;
-  setMarketAuth(marketId, uclusionTokenInfo);
-  notifyNewApplicationVersion(dispatch, deployedVersion);
+  const { market_id, user, deployed_version } = authInfo;
+  updateMarketAuth(market_id, authInfo);
+  notifyNewApplicationVersion(dispatch, deployed_version);
   // if we're not sure the user is the same as we loaded redux with, zero out redux
   if (!usersReducer || !usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {
     console.debug('Clearing user redux');
     webSocket.unsubscribeAll();
     clearReduxStore(dispatch);
   }
-  marketChangeTasks(params, marketId, user);
+  return marketChangeTasks(params, market_id, user);
 }

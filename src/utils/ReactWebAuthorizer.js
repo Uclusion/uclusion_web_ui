@@ -18,7 +18,7 @@ const getLocalAuthInfo = () => {
   if (!authInfo.uclusion_token){
     return { ...authInfo, valid: false };
   }
-  const decodedToken = decode(authInfo.token);
+  const decodedToken = decode(authInfo.uclusion_token);
   if (decodedToken.exp < Date.now() / 1000) { //expiry is in _seconds_ past the epoch not millis
     return { ...authInfo, valid: false };
   }

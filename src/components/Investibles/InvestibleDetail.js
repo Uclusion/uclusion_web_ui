@@ -126,26 +126,7 @@ function InvestibleDetail(props) {
     }
   }, [investible, lastInvestible, dispatch]);
 
-  function getNextStageContent(investible) {
-    if (investible.next_stage_name) {
-      return (
-        <Typography component="div" className={classNames(classes.flex, classes.row)}>
-          <span className={classes.stageLabel}>
-            {intl.formatMessage({ id: 'nextStageLabel' })}
-          </span>
-          <div className={classes.stageContent}>
-            <div>{investible.next_stage_name}</div>
-            <div className={classes.numSharesText}>
-              {investible.next_stage_threshold && intl.formatMessage({ id: 'investmentForNextStageChip' },
-                { shares: investible.next_stage_threshold - investible.quantity })}
-            </div>
-          </div>
-        </Typography>
-      );
-    }
-    return (<div />);
-  }
-
+  
   function renderLabelChips() {
     const { label_list = [] } = investible || lastInvestible;
 
@@ -235,7 +216,6 @@ function InvestibleDetail(props) {
             </div>
           </div>
         </Typography>
-        {getNextStageContent(myInvestible)}
         {renderLabelChips()}
 
         <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={myInvestible.description} readOnly />

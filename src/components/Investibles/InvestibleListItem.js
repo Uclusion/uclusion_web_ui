@@ -54,7 +54,7 @@ const styles = theme => ({
 
 class InvestibleListItem extends React.PureComponent {
 
- 
+
 
   render() {
     const {

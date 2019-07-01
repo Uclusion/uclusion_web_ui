@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import InvestiblesListItem from './InvestiblesListItem';
+import InvestiblesListItem from '../Investibles/InvestibleListItem';
 
 function InvestiblesList(props) {
   const { investibles } = props;

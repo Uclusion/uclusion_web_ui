@@ -5,7 +5,7 @@ import { injectIntl } from 'react-intl';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import {
-  Card,
+  Paper,
   Typography,
 } from '@material-ui/core';
 
@@ -36,7 +36,6 @@ const styles = theme => ({
   },
   investibleName: {
     marginBottom: theme.spacing.unit,
-    fontWeight: 'bold',
     cursor: 'pointer',
     wordWrap: 'break-word',
   },
@@ -64,7 +63,7 @@ class InvestibleListItem extends React.PureComponent {
     } = this.props;
 
     return (
-      <Card className={classNames(classes.card, { [classes.cardSelected]: selected })}>
+      <Paper square={true} className={classNames(classes.card, { [classes.cardSelected]: selected })}>
         <Link className={classes.link} to={`#investible:${investible.id}`}>
           <Typography component="div">
             <div className={classes.flex}>
@@ -78,7 +77,7 @@ class InvestibleListItem extends React.PureComponent {
             {investible.current_user_investment > 0 && `* ${intl.formatMessage({ id: 'userInvestedShares' }, { shares: investible.current_user_investment })}`}
           </Typography>
         </Link>
-      </Card>
+      </Paper>
     );
   }
 }

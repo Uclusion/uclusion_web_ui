@@ -17,13 +17,18 @@ import { getSerializedMarketIndexes } from '../../store/SearchIndexes/reducer';
 import { withMarketId } from '../PathProps/MarketId';
 
 const styles = theme => ({
+
   root: {
+    color: 'inherit',
     margin: theme.spacing.unit,
     marginTop: theme.spacing.unit * 2,
     width: 384,
     [theme.breakpoints.only('xs')]: {
       width: '100%',
     },
+  },
+  input: {
+    color: 'inherit',
   },
 });
 
@@ -83,8 +88,9 @@ function InvestibleSearchBox(props) {
 
   return (
     <FormControl className={classes.root}>
-      <InputLabel htmlFor="adornment-search" shrink>{intl.formatMessage({ id: 'searchBoxLabel' })}</InputLabel>
+      <InputLabel className={classes.input} htmlFor="adornment-search" shrink>{intl.formatMessage({ id: 'searchBoxLabel' })}</InputLabel>
       <Input
+        className={classes.input}
         id="adornment-search"
         type="text"
         placeholder={intl.formatMessage({ id: 'searchBoxHelper' })}

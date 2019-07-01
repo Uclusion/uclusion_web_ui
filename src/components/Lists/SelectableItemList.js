@@ -39,7 +39,6 @@ const styles = theme => ({
     paddingTop: theme.spacing.unit * 0.5,
   },
   titleText: {
-    maxWidth: 315,
     wordWrap: 'break-word',
     lineHeight: '2em',
   },

@@ -211,6 +211,7 @@ function Activity(props) {
             {headerTitle}
           </Typography>
           {titleButtons}
+          {appBarContent}
           <div className={classes.grow} />
           {user && user.market_presence && user.market_presence.quantity >= 0 && (
             <Typography variant="h6" color="inherit" noWrap className={classes.availableShares}>
@@ -219,7 +220,6 @@ function Activity(props) {
               {canInvest && (intl.formatMessage({ id: 'availableSharesToInvest' }, { shares: user.market_presence.quantity }))}
             </Typography>
           )}
-          {appBarContent}
         </Toolbar>
       </AppBar>
       <div className={classes.toolbar} />

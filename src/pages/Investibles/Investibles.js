@@ -165,8 +165,16 @@ function InvestiblesPage(props) {
       <Activity
         isLoading={currentInvestibleList === undefined || user === undefined}
         containerStyle={{ overflow: 'hidden' }}
-        title={intl.formatMessage({ id: 'marketInvestiblesTitle' }, { marketName: currentMarketName })}
-        titleButtons={!isGuest && (<MarketFollowUnfollow user={user} marketId={marketId} />)}
+        appBarContent={<InvestibleSearchBox />}
+        title={currentMarketName || 'Example Market Name'}
+        titleButtons={[<MarketFollowUnfollow user={user} marketId={marketId} />,  <Button
+          className={classes.toolbarButton}
+          variant="contained"
+          color="primary"
+          onClick={toggleShowFavorite}
+        >
+          {intl.formatMessage({ id: showFavorite ? 'showAll' : 'showFavorite' })}
+        </Button>]}
       >
         {currentInvestibleList && user && user.market_presence
         && (
@@ -174,15 +182,7 @@ function InvestiblesPage(props) {
             {isAdmin && <HelpMovie name="adminInvestiblesIntro" /> }
             {canInvest && <HelpMovie name="usersInvestiblesIntro" /> }
             <div className={classes.toolbar}>
-              <InvestibleSearchBox />
-              <Button
-                className={classes.toolbarButton}
-                variant="contained"
-                color="primary"
-                onClick={toggleShowFavorite}
-              >
-                {intl.formatMessage({ id: showFavorite ? 'showAll' : 'showFavorite' })}
-              </Button>
+
             </div>
             <div className={classes.content}>
               <InvestibleList

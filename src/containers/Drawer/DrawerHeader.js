@@ -20,17 +20,11 @@ import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
   paper: {
-    backgroundColor: theme.palette.primary.dark,
     borderRadius: 0,
     margin: 0,
     padding: 0,
   },
-  listItem: {
-    color: theme.palette.primary.contrastText,
-  },
-  icon: {
-    color: theme.palette.primary.contrastText,
-  },
+
   button: {
     // width: 15
   },
@@ -56,17 +50,9 @@ const DrawerHeader = (props) => {
     <Paper className={classes.paper}>
       <List>
         <ListItem style={{ height: headerHeight }}>
-          {!canInvest && (<img className={classes.logo} src="/images/logo-white.svg" alt="logo" />)}
-          {!canInvest && (<ListItemText classes={{ primary: classes.listItem }} primary={intl.formatMessage({ id: 'app_name' })} />)}
+          <img className={classes.logo} src="/images/logo-color.svg" alt="logo" />
+          <ListItemText classes={{ primary: classes.listItem }} primary={intl.formatMessage({ id: 'app_name' })} />
           <Hidden smDown implementation="css">
-            <ListItemSecondaryAction>
-              <IconButton className={classes.button} onClick={() => { setDrawerOpen(false); }}>
-
-                {theme.direction === 'rtl' && <ChevronRight classes={{ root: classes.icon }} />}
-                {theme.direction !== 'rtl' && <ChevronLeft classes={{ root: classes.icon }} />}
-
-              </IconButton>
-            </ListItemSecondaryAction>
           </Hidden>
         </ListItem>
       </List>

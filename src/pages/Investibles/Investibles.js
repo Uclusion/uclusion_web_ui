@@ -11,15 +11,13 @@ import { getCurrentUser } from '../../store/Users/reducer';
 import InvestibleList from '../../components/Investibles/InvestibleList';
 import InvestibleDetail from '../../components/Investibles/InvestibleDetail';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import LoginModal from '../Login/Login';
 import InvestibleSearchBox from '../../components/Investibles/InvestibleSearchBox';
-import { getActiveInvestibleSearches, getSelectedStage } from '../../store/ActiveSearches/reducer';
+import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 import { getComments } from '../../store/Comments/reducer';
 import { getMarketPresenceName } from '../../utils/marketSelectionFunctions';
 import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfollow';
 import { fetchMarketInvestibleInfo } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
-import { amAlreadyLoggedIn } from '../../utils/ReactWebAuthorizer';
 import { getFlags } from '../../utils/userFunctions'
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
@@ -63,7 +61,6 @@ function InvestiblesPage(props) {
   const {
     marketId,
     intl,
-    allCategories,
     user,
     history,
     classes,
@@ -74,12 +71,9 @@ function InvestiblesPage(props) {
   const { isGuest, isAdmin, canInvest } = getFlags(user);
 
   function getMarketInvestibles() {
-    const { investibles, allCategories } = props;
+    const { investibles } = props;
     if (marketId in investibles) {
       return investibles[marketId];
-    }
-    if (marketId in allCategories || investibles) {
-      return [];
     }
     return undefined;
   }
@@ -106,15 +100,6 @@ function InvestiblesPage(props) {
 
   function getCurrentInvestibleList() {
     const searched = getSearchFilteredInvestibles();
-    const { selectedStage } = props;
-    if (selectedStage && selectedStage[marketId]) {
-      const stage = selectedStage[marketId];
-      if (stage.includes('_')) {
-        const values = stage.split('_');
-        return searched.filter(element => element.stage !== values[1]);
-      }
-      return searched.filter(element => element.stage === stage);
-    }
     return searched;
   }
 
@@ -228,22 +213,18 @@ InvestiblesPage.propTypes = {
   intl: PropTypes.object.isRequired,
   investibles: PropTypes.object,
   comments: PropTypes.object,
-  allCategories: PropTypes.object,
   marketId: PropTypes.string,
   user: PropTypes.object,
   activeInvestibleSearches: PropTypes.object,
-  selectedStage: PropTypes.object,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
-  allCategories: state.marketsReducer.marketCategories,
   comments: getComments(state.commentsReducer),
   user: getCurrentUser(state.usersReducer),
   activeInvestibleSearches: getActiveInvestibleSearches(state.activeSearches),
-  selectedStage: getSelectedStage(state.activeSearches),
 });
 
 function mapDispatchToProps(dispatch) {

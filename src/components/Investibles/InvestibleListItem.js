@@ -54,26 +54,7 @@ const styles = theme => ({
 
 class InvestibleListItem extends React.PureComponent {
 
-  getNextStageContent(investible) {
-    const { classes, intl } = this.props;
-    if (investible.next_stage_name) {
-      return (
-        <div className={classNames(classes.flex, classes.row)}>
-              <span className={classes.stageLabel}>
-                {intl.formatMessage({ id: 'nextStageLabel' })}
-              </span>
-          <div className={classes.stageContent}>
-            <div>{investible.next_stage_name}</div>
-            <div className={classes.numSharesText}>
-              {investible.next_stage_threshold && intl.formatMessage({ id: 'investmentForNextStageChip' }, { shares: investible.next_stage_threshold })}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return <div />;
-  }
+ 
 
   render() {
     const {
@@ -102,7 +83,6 @@ class InvestibleListItem extends React.PureComponent {
               </div>
             </div>
 
-            {this.getNextStageContent(investible)}
 
           </Typography>
           {investible.current_user_investment > 0 && (<br />)}

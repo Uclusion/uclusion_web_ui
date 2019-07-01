@@ -92,31 +92,6 @@ const getMenuItems = (props) => {
       leftIcon: <GroupIcon />,
     },
     {
-      primaryText: intl.formatMessage({ id: 'advancedMenus' }),
-      visible: (!isGuest && authInfo && authInfo.type === 'cognito') || isMarketAdmin,
-      leftIcon: <PlaylistAddIcon />,
-      nestedItems: [
-        {
-          value: formCurrentMarketLink('invite'),
-          primaryText: intl.formatMessage({ id: 'inviteMenu' }),
-          visible: (loginInfo && loginInfo.allow_cognito) && ((!isGuest && authInfo && authInfo.type === 'cognito') || isMarketAdmin),
-          leftIcon: <SecurityIcon />,
-        },
-        {
-          value: formCurrentMarketLink('marketCategories'),
-          visible: canCategorize,
-          primaryText: intl.formatMessage({ id: 'marketCategoriesMenu' }),
-          leftIcon: <ViewColumn />,
-        },
-        {
-          value: formCurrentMarketLink('market'),
-          visible: isMarketAdmin,
-          primaryText: intl.formatMessage({ id: 'marketManagement' }),
-          leftIcon: <ShoppingCartIcon />,
-        },
-      ],
-    },
-    {
       divider: true,
     },
     {

@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import QuickAddItemListCategory from '../Lists/QuickAddItemListCategory';
 import InvestibleListItem from './InvestibleListItem';
-import InvestibleListQuickAdd from './InvestibleListQuickAdd';
 import _ from 'lodash';
 import { formatInvestibles } from '../../utils/reduxHelperFunctions';
 import { injectIntl } from "react-intl";

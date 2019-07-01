@@ -33,7 +33,7 @@ const styles = theme => ({
   },
 });
 
-function InvestibleListItemTabs(props) {
+function InvestibleDetailTabs(props) {
   const {
     classes,
     marketId,
@@ -155,7 +155,7 @@ function InvestibleListItemTabs(props) {
   );
 }
 
-InvestibleListItemTabs.propTypes = {
+InvestibleDetailTabs.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
   investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
@@ -178,4 +178,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withStyles(styles)(InvestibleListItemTabs)));
+)(injectIntl(withStyles(styles)(InvestibleDetailTabs)));

@@ -11,7 +11,7 @@ import {
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import Info from '@material-ui/icons/Info';
-import InvestibleListItemTabs from './InvestibleListItemTabs';
+import InvestibleDetailTabs from './InvestibleDetailTabs';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
 import InvestibleDelete from './InvestibleDelete';
@@ -126,7 +126,7 @@ function InvestibleDetail(props) {
     }
   }, [investible, lastInvestible, dispatch]);
 
-  
+
   function renderLabelChips() {
     const { label_list = [] } = investible || lastInvestible;
 
@@ -219,7 +219,7 @@ function InvestibleDetail(props) {
         {renderLabelChips()}
 
         <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={myInvestible.description} readOnly />
-        <InvestibleListItemTabs
+        <InvestibleDetailTabs
           name={myInvestible.name}
           quantity={myInvestible.quantity}
           investibleId={myInvestible.id}

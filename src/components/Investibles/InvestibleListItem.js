@@ -38,7 +38,6 @@ const styles = theme => ({
     marginBottom: theme.spacing.unit,
     fontWeight: 'bold',
     cursor: 'pointer',
-    maxWidth: 300,
     wordWrap: 'break-word',
   },
   stageLabel: {
@@ -70,17 +69,6 @@ class InvestibleListItem extends React.PureComponent {
           <Typography component="div">
             <div className={classes.flex}>
               <div className={classes.investibleName}>{investible.name}</div>
-            </div>
-            <div className={classNames(classes.flex, classes.row)}>
-              <span className={classes.stageLabel}>
-                {intl.formatMessage({ id: 'currentStageLabel' })}
-              </span>
-              <div className={classes.stageContent}>
-                <div>{investible.stage_name}</div>
-                <div className={classes.numSharesText}>
-                  {intl.formatMessage({ id: 'totalCurrentInvestmentChip' }, { shares: investible.quantity })}
-                </div>
-              </div>
             </div>
 
 

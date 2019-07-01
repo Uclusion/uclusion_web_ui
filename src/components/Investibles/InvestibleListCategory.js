@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import QuickAddItemListCategory from '../Lists/QuickAddItemListCategory';
+import SelectableItemList from '../Lists/SelectableItemList';
 import InvestibleListItem from './InvestibleListItem';
 import _ from 'lodash';
 import { formatInvestibles } from '../../utils/reduxHelperFunctions';
@@ -50,7 +50,7 @@ class InvestibleListCategory extends React.PureComponent {
       />
     ));
         return (
-      <QuickAddItemListCategory
+      <SelectableItemList
         items={items}
         selectedInvestibleIndex={selectedInvestibleIndex}
         title={category}

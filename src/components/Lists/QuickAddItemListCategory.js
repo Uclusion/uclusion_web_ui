@@ -48,13 +48,6 @@ const styles = theme => ({
 });
 
 class QuickAddItemListCategory extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = { ...props, quickAddVisible: false };
-    this.addOnClick = this.addOnClick.bind(this);
-    this.addCancelOnClick = this.addCancelOnClick.bind(this);
-    this.addSubmitOnClick = this.addSubmitOnClick.bind(this);
-  }
 
   componentDidMount() {
     this.persistSelectedInvestibleScroll();
@@ -67,22 +60,6 @@ class QuickAddItemListCategory extends React.PureComponent {
     }
   }
 
-  addOnClick = () => {
-    this.setState({ quickAddVisible: !this.state.quickAddVisible });
-  };
-
-  addCancelOnClick = () => {
-    this.setState({ quickAddVisible: false });
-  };
-
-  addSubmitOnClick = () => {
-    this.setState({ quickAddVisible: false });
-  };
-
-  addSaveOnClick = (addOnSave, value) => {
-    addOnSave(value); // save the item out, and then hide this
-    this.setState({ quickAddVisible: false });
-  };
 
   persistSelectedInvestibleScroll() {
     const { selectedInvestibleIndex } = this.props;
@@ -103,39 +80,22 @@ class QuickAddItemListCategory extends React.PureComponent {
       classes,
       title,
       items,
-      quickAdd,
       width,
       user,
       tooltip
     } = this.props;
     const { isUser, isAdmin } = getFlags(user);
-    const canCreateInvestible = isUser || isAdmin;
-    const myQuickAdd = React.cloneElement(
-      quickAdd,
-      {
-        visible: this.state.quickAddVisible,
-        addSubmitOnClick: this.addSubmitOnClick,
-        addCancelOnClick: this.addCancelOnClick,
-      },
-    );
-
     return (
       <div
         className={classes.subListWrapper}
-        style={width === 'xs' ? {} : { minWidth: 400, maxWidth: 400 }}
-      >
+       >
         <div className={classes.subList}>
-          <ListSubheader component="div" className={classes.subListHeader}>
-            <Typography className={classes.titleText}>{title}</Typography>
-            {canCreateInvestible && (<Tooltip title={tooltip}><IconButton onClick={this.addOnClick}><Add/></IconButton></Tooltip>)}
-          </ListSubheader>
           <div
             className={classes.subListContent}
             ref={(ref) => {
               this.scrollableWrapper = ref;
             }}
           >
-            {myQuickAdd}
             <Grid
               container
               direction="column"

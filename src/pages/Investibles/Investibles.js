@@ -17,8 +17,6 @@ import { getActiveInvestibleSearches, getSelectedStage } from '../../store/Activ
 import { getComments } from '../../store/Comments/reducer';
 import { getMarketPresenceName } from '../../utils/marketSelectionFunctions';
 import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfollow';
-import MarketStageList from '../../components/Markets/MarketStageList';
-import MarketStageFollowUnfollow from '../../components/Markets/MarketStageFollowUnfollow';
 import { fetchMarketInvestibleInfo } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { amAlreadyLoggedIn } from '../../utils/ReactWebAuthorizer';
@@ -137,10 +135,6 @@ function InvestiblesPage(props) {
     setShowFavorite(!showFavorite);
   }
 
-  function shouldIShowLogin() {
-    const shouldLogin = /(.+)\/login/.test(pathname.toLowerCase()) && !amAlreadyLoggedIn();
-    return shouldLogin;
-  }
 
   useEffect(() => {
     if (lastFetchedMarketId !== marketId) {
@@ -154,13 +148,10 @@ function InvestiblesPage(props) {
   });
 
 
-  const showLogin = shouldIShowLogin();
   let currentInvestibleList = getCurrentInvestibleList();
   if (showFavorite) {
     currentInvestibleList = currentInvestibleList.filter(({ current_user_is_following }) => current_user_is_following);
   }
-
-  const categories = allCategories[marketId];
 
   let investibleDetail = null;
   if (hash) {
@@ -195,14 +186,10 @@ function InvestiblesPage(props) {
         {currentInvestibleList && user && user.market_presence
         && (
           <div className={classes.root}>
-            {!showLogin && isAdmin && <HelpMovie name="adminInvestiblesIntro" /> }
-            {!showLogin && canInvest && <HelpMovie name="usersInvestiblesIntro" /> }
+            {isAdmin && <HelpMovie name="adminInvestiblesIntro" /> }
+            {canInvest && <HelpMovie name="usersInvestiblesIntro" /> }
             <div className={classes.toolbar}>
               <InvestibleSearchBox />
-              <div className={classes.stageSelector}>
-                <MarketStageList marketId={marketId} />
-                {!isGuest && (<MarketStageFollowUnfollow marketId={marketId} />)}
-              </div>
               <Button
                 className={classes.toolbarButton}
                 variant="contained"
@@ -219,7 +206,6 @@ function InvestiblesPage(props) {
                 user={user}
                 marketId={marketId}
                 investibles={currentInvestibleList}
-                categories={categories}
               />
               {investibleDetail && (
                 <InvestibleDetail
@@ -232,11 +218,6 @@ function InvestiblesPage(props) {
         )}
       </Activity>
 
-      {showLogin && (
-        <LoginModal
-          open={showLogin}
-        />
-      )}
     </div>
 
   );

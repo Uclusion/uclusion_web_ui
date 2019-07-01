@@ -36,8 +36,6 @@ class InvestibleListCategory extends React.PureComponent {
 
   render() {
     const {
-      teamId,
-      marketId,
       category,
       investibles,
       intl,
@@ -52,22 +50,11 @@ class InvestibleListCategory extends React.PureComponent {
         selected={index === selectedInvestibleIndex}
       />
     ));
-    const quickAddBox = (
-      <InvestibleListQuickAdd
-        key="quickadd"
-        category={category}
-        teamId={teamId}
-        marketId={marketId}
-        sharesAvailable={user.market_presence.quantity}
-      />
-    );
-
-    return (
+        return (
       <QuickAddItemListCategory
         items={items}
         selectedInvestibleIndex={selectedInvestibleIndex}
         title={category}
-        quickAdd={quickAddBox}
         user={user}
         tooltip={intl.formatMessage({ id: 'investiblesQuickAddTooltip' })}
       />
@@ -78,9 +65,7 @@ class InvestibleListCategory extends React.PureComponent {
 InvestibleListCategory.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
   category: PropTypes.string.isRequired,
-  marketId: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired, //eslint-disable-line
-  teamId: PropTypes.string.isRequired,
   location: PropTypes.object.isRequired, //eslint-disable-line
 };
 

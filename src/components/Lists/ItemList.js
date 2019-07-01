@@ -41,7 +41,7 @@ class ItemList extends React.PureComponent {
   // TODO: this may need to change to pasing in the panels, sice we probably want to customize the entire list (e.g. just render the children in the list
   render() {
     const {
-      classes, categoryLists, headerActions, width,
+      classes, items, headerActions, width,
     } = this.props;
     const positionedHeaderActions = headerActions.map((element, index) => (
       <div
@@ -65,11 +65,11 @@ class ItemList extends React.PureComponent {
             enableMouseEvents
             resistance
           >
-            {categoryLists}
+            {items}
           </SwipeableViews>
         ) : (
           <div className={classes.mainGrid}>
-            {categoryLists}
+            {items}
           </div>
         )}
       </div>
@@ -79,7 +79,7 @@ class ItemList extends React.PureComponent {
 
 
 ItemList.propTypes = {
-  categoryLists: PropTypes.arrayOf(PropTypes.object).isRequired,
+  items: PropTypes.arrayOf(PropTypes.object).isRequired,
   headerActions: PropTypes.arrayOf(PropTypes.object),
 };
 

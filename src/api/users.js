@@ -46,19 +46,6 @@ export function loadTeams(canListAccountTeams, setTeams) {
   }
 }
 
-/*
-export function fetchUser(userId, dispatch) {
-  const clientPromise = getClient();
-  return clientPromise.then(client => client.users.get(userId))
-    .then((user) => {
-      dispatch(receiveUser(user));
-    }).catch((error) => {
-      console.log(error);
-      dispatch(receiveUser([]));
-    });
-}
-*/
-
 
 /**
  * Requires in params a user with the UI preferences already set

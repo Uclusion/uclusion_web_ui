@@ -3,19 +3,12 @@ import React from 'react';
 import StarIcon from '@material-ui/icons/Star';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import DashboardIcon from '@material-ui/icons/Dashboard';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import LockIcon from '@material-ui/icons/Lock';
 import ListIcon from '@material-ui/icons/List';
-import ViewColumn from '@material-ui/icons/ViewColumn';
-import Timeline from '@material-ui/icons/Timeline';
-import GroupIcon from '@material-ui/icons/Group';
-import SecurityIcon from '@material-ui/icons/Security';
-import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
-import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import { AnonymousAuthorizer } from 'uclusion_authorizer_sdk';
 import { formCurrentMarketLink } from '../utils/marketIdPathFunctions';
-import { getMarketAuth, getUclusionLocalStorageItem } from '../components/utils';
+import { getMarketAuth } from '../components/utils';
 import appConfig from './config';
 import { ERROR, sendIntlMessage } from '../utils/userMessage';
 import { getFlags } from '../utils/userFunctions'
@@ -34,11 +27,9 @@ const getMenuItems = (props) => {
   } = props;
 
   const permissions = getFlags(user);
-  const { canCategorize, isMarketAdmin, isGuest, canInvest } = permissions;
+  const {  isAdmin, isGuest} = permissions;
   const authInfo = getMarketAuth(marketId);
-  const loginInfo = getUclusionLocalStorageItem('loginInfo');
-  const myInvestmentsSubpath = user ? 'teams#user:' + user.id : '';
-  const uclusionHelpType = isMarketAdmin ? 'admins' : 'users';
+  const uclusionHelpType = isAdmin ? 'admins' : 'users';
 
 /*  const themeItems = themes.map(t => ({
     value: undefined,
@@ -141,7 +132,7 @@ const getMenuItems = (props) => {
           });
         }
       },
-      visible: isMarketAdmin,
+      visible: isAdmin,
       leftIcon: <StarIcon />,
     },
     {

@@ -68,7 +68,7 @@ function InvestiblesPage(props) {
     location,
   } = props;
   const { location: { hash, pathname } } = history;
-  const { isGuest, isAdmin, canInvest } = getFlags(user);
+  const { isAdmin, canInvest } = getFlags(user);
 
   function getMarketInvestibles() {
     const { investibles } = props;

@@ -76,7 +76,6 @@ class SelectableItemList extends React.PureComponent {
     const {
       classes,
       items,
-      user,
     } = this.props;
     return (
       <div

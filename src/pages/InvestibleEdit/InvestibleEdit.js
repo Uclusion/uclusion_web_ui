@@ -102,8 +102,6 @@ function InvestibleEdit (props) {
   const {
     match,
     marketId,
-    marketStages,
-    markets,
     dispatch,
     classes,
     intl,
@@ -112,9 +110,7 @@ function InvestibleEdit (props) {
   const [investible, setInvestible] = useState({});
   const [saved, setSaved] = useState(undefined);
   const [dirty, setDirty] = useState(false);
-  const [stageChange, setStageChange] = useState(true);
   const [showInvestibleEditHelp, setShowInvestibleEditHelp] = useState(false);
-  const [showStagesHelp, setShowStagesHelp] = useState(false);
   useEffect(() => {
     const clientPromise = getClient();
     clientPromise.then(client => client.markets.getMarketInvestibles([investibleId]))
@@ -123,7 +119,6 @@ function InvestibleEdit (props) {
         // set the current stage on it to keep the save happy
         investible.current_stage_id = investible.stage;
         setInvestible(investibles[0]);
-        setStageChange(true);
         fetchMarket(dispatch);
       }).catch((error) => {
         console.log(error);
@@ -135,18 +130,12 @@ function InvestibleEdit (props) {
     return (event) => {
       const { value } = event.target;
       // if the name is the category list, and none are selected, disallow the change
-      if (name === 'category_list' && value.length === 0) {
-        return;
-      }
       const newInvestible = { ...investible };
       let validatedValue = value;
       if (name === 'additional_investment') {
         validatedValue = parseInt(value, 10);
       }
       const isDirty = newInvestible[name] !== validatedValue;
-      if (name === 'stage' && isDirty) {
-        setStageChange(true);
-      }
       newInvestible[name] = validatedValue;
       setInvestible(newInvestible);
       if (!dirty && isDirty) {
@@ -161,8 +150,7 @@ function InvestibleEdit (props) {
     // then we sync the state information (e.g. stage, etc) off to the markets service
     const clientPromise = getClient();
     const {
-      id, name, description, category_list, label_list,
-      stage
+      id, name, description, label_list
     } = investible;
     // store the client so we can use it for second half
     let clientHolder = null;

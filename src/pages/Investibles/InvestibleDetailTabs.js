@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
@@ -7,11 +7,7 @@ import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import InvestibleInvest from './InvestibleInvest';
 import CommentsList from './Comments/CommentsList';
-import InvestingTeamsList from './InvestingTeamsList';
 import { getCurrentUser } from '../../store/Users/reducer';
-import { getClient } from '../../config/uclusionClient';
-import { ERROR, sendIntlMessage } from '../../utils/userMessage';
-import WorkgroupList from './WorkgroupList';
 import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
@@ -42,42 +38,17 @@ function InvestibleDetailTabs(props) {
     user,
     currentUserInvestment,
     openForInvestment,
-    quantity,
-    subscribed,
   } = props;
-  const { isAdmin, canInvest } = getFlags(user);
+  const { canInvest } = getFlags(user);
   const investmentAllowed = canInvest && openForInvestment;
 
   let initialTab = '';
   if (investmentAllowed) {
     initialTab = 'invest';
-  } else if (isAdmin) {
-    initialTab = 'investors';
   } else {
     initialTab = 'comments';
   }
   const [value, setValue] = useState(initialTab);
-  const [investingTeams, setInvestingTeams] = useState([]);
-  const [workingUsers, setWorkingUsers] = useState([]);
-
-  useEffect(() => {
-    if (isAdmin) {
-      const clientPromise = getClient();
-      let globalClient;
-      clientPromise.then((client) => {
-        globalClient = client;
-        return client.investibles.getInvestingTeams(investibleId);
-      }).then((response) => {
-        setInvestingTeams(response);
-        return globalClient.investibles.getWorkgroup(investibleId);
-      }).then((response) => {
-        setWorkingUsers(response);
-      }).catch((error) => {
-        console.error(error);
-        sendIntlMessage(ERROR, { id: 'investingTeamsFailed' });
-      });
-    }
-  }, [investibleId, quantity, subscribed]);
 
   function handleChange(event, value) {
     setValue(value);
@@ -104,20 +75,6 @@ function InvestibleDetailTabs(props) {
             label={intl.formatMessage({ id: 'commentsTab' })}
             value="comments"
         />
-        {isAdmin && (
-          <Tab
-            className={classes.tab}
-            label={intl.formatMessage({ id: 'investorsTab' })}
-            value="investors"
-          />
-        )}
-        {isAdmin && (
-          <Tab
-            className={classes.tab}
-            label={intl.formatMessage({ id: 'workgroupTab' })}
-            value="workgroup"
-          />
-        )}
       </Tabs>
 
       <div className={classes.tabContent}>
@@ -137,20 +94,7 @@ function InvestibleDetailTabs(props) {
             investibleId={investibleId}
           />
         )}
-        {value === 'investors' && isAdmin && (
-          <InvestingTeamsList
-            marketId={marketId}
-            teams={investingTeams}
-          />
-        )}
-        {value === 'workgroup' && isAdmin && (
-          <WorkgroupList
-            marketId={marketId}
-            users={workingUsers}
-            teamId={user.default_team_id}
-          />
-        )}
-      </div>
+       </div>
     </div>
   );
 }

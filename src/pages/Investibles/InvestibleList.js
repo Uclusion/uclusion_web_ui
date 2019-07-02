@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { formatInvestibles } from '../../utils/reduxHelperFunctions';
 import InvestibleListItem from './InvestibleListItem';
-import SelectableItemList from '../Lists/SelectableItemList';
+import SelectableItemList from '../../components/Lists/SelectableItemList';
 
 
 class InvestibleList extends React.PureComponent {

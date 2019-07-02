@@ -69,27 +69,9 @@ const getMenuItems = (props) => {
 
   return [
     {
-      value: formCurrentMarketLink('dashboard'),
-      primaryText: intl.formatMessage({ id: 'dashboardMenu' }),
-      visible: isMarketAdmin,
-      leftIcon: <DashboardIcon />,
-    },
-    {
       value: formCurrentMarketLink('investibles'),
       primaryText: intl.formatMessage({ id: 'investiblesMenu' }),
       leftIcon: <ListIcon />,
-    },
-    {
-      value: formCurrentMarketLink(myInvestmentsSubpath),
-      visible: canInvest,
-      primaryText: intl.formatMessage({ id: 'myInvestmentsMenu' }),
-      leftIcon: <Timeline />,
-    },
-    {
-      value: formCurrentMarketLink('teams'),
-      primaryText: intl.formatMessage({ id: 'myTeamsMenu' }),
-      visible: !isGuest,
-      leftIcon: <GroupIcon />,
     },
     {
       divider: true,

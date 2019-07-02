@@ -11,14 +11,14 @@ import {
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import InvestibleDetailTabs from './InvestibleDetailTabs';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
 import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
 import InvestibleDelete from './InvestibleDelete';
 import InvestibleEdit from './InvestibleEdit';
 import { fetchInvestibles } from '../../api/marketInvestibles';
 import { fetchSelf } from '../../api/users';
 import { getCurrentUser } from '../../store/Users/reducer';
-import HelpMovie from '../ModalMovie/HelpMovie';
+import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({

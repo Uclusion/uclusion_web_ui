@@ -10,7 +10,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import Info from '@material-ui/icons/Info';
 import { createInvestment } from '../../api/marketInvestibles';
-import HelpMovie from '../ModalMovie/HelpMovie';
+import HelpMovie from '../../components/ModalMovie/HelpMovie';
 
 const styles = theme => ({
 

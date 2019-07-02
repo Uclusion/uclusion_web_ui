@@ -4,7 +4,7 @@ import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import Button from '@material-ui/core/es/Button/Button';
 import { ERROR, sendIntlMessage } from '../../../utils/userMessage';
-import HtmlRichTextEditor from '../../TextEditors/HtmlRichTextEditor';
+import HtmlRichTextEditor from '../../../components/TextEditors/HtmlRichTextEditor';
 import { createComment } from '../../../api/comments';
 import withAppConfigs from '../../../utils/withAppConfigs';
 

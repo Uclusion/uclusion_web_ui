@@ -14,7 +14,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import { updateSearchResults } from '../../store/ActiveSearches/actions';
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 import { getSerializedMarketIndexes } from '../../store/SearchIndexes/reducer';
-import { withMarketId } from '../PathProps/MarketId';
+import { withMarketId } from '../../components/PathProps/MarketId';
 
 const styles = theme => ({
 

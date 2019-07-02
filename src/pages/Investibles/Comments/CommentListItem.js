@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography, Paper } from '@material-ui/core';
-import HtmlRichTextEditor from '../../TextEditors/HtmlRichTextEditor';
+import HtmlRichTextEditor from '../../../components/TextEditors/HtmlRichTextEditor';
 import { injectIntl } from "react-intl";
 import CommentDelete from './CommentDelete'
 import PropTypes from 'prop-types';

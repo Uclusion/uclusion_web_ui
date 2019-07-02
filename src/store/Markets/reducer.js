@@ -3,11 +3,6 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import {
   RECEIVE_MARKET,
-  RECEIVE_MARKET_CATEGORIES,
-  MARKET_CATEGORY_DELETED,
-  MARKET_CATEGORY_CREATED,
-  RECEIVE_MARKET_STAGES,
-  FOLLOWED_MARKET_STAGE,
 } from './actions';
 
 export const marketPropType = PropTypes.shape({
@@ -40,46 +35,6 @@ const marketItems = (state = [], action) => {
   }
 };
 
-const marketStages = (state = {}, action) => {
-  const newState = { ...state };
-  const { marketId } = action;
-  switch (action.type) {
-    case RECEIVE_MARKET_STAGES:
-      const { stages } = action;
-      newState[marketId] = stages;
-      return newState;
-    case FOLLOWED_MARKET_STAGE:
-      const { stageId, following } = action;
-      if (newState[marketId]) {
-        const stage = newState[marketId].find(element => element.id === stageId);
-        stage.following = following;
-      }
-      return newState;
-    default:
-      return state;
-  }
-};
-
-const marketCategories = (state = {}, action) => {
-  switch (action.type) {
-    case RECEIVE_MARKET_CATEGORIES:
-      const newState = { ...state };
-      newState[action.marketId] = action.categories;
-      return newState;
-    case MARKET_CATEGORY_DELETED:
-      const newStateForCategories = { ...state };
-      newStateForCategories[action.marketId] = state[action.marketId].filter(item => item.name !== action.name);
-      return newStateForCategories;
-    case MARKET_CATEGORY_CREATED:
-      const categories = [action.category];
-      const newStateAddCategories = { ...state };
-      newStateAddCategories[action.marketId] = _.unionBy(categories, state[action.marketId], 'name');
-      return newStateAddCategories;
-    default:
-      return state;
-  }
-};
-
 
 const formatMarket = (market) => {
   const newMarket = {
@@ -97,12 +52,7 @@ export const formatMarkets = (markets) => {
 
 export const getMarkets = state => formatMarkets(state.marketItems);
 
-export const getStages = state => state.marketStages;
-
-export const getMarketCategories = state => state.marketCategories;
 
 export default combineReducers({
   marketItems,
-  marketCategories,
-  marketStages,
 });

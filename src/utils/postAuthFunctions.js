@@ -1,6 +1,6 @@
 import { updateMarketAuth } from '../components/utils';
 import { fetchSelf } from '../api/users';
-import { fetchMarket, fetchMarketStages } from '../api/markets';
+import { fetchMarket } from '../api/markets';
 import { clearReduxStore } from './userStateFunctions';
 import { sendInfoPersistent } from './userMessage';
 import config from '../config/config';
@@ -41,10 +41,7 @@ export function fetchMarketInvestibleInfo(params) {
   console.debug(`Fetching investibles with marketId: ${marketId}`);
   const currentInvestibleList = marketId in investibles ? investibles[marketId] : [];
   const currentCommentList = marketId in comments ? comments[marketId] : [];
-  let promises = Promise.all([
-    fetchInvestibleList(currentInvestibleList, marketId, dispatch),
-    fetchMarketStages(marketId, dispatch),
-  ]);
+  let promises = fetchInvestibleList(currentInvestibleList, marketId, dispatch);
   if (fetchComments) {
     promises = promises.then((result) => fetchCommentList(currentCommentList, marketId, dispatch)); //eslint-disable-line
   }
@@ -55,8 +52,7 @@ export function marketChangeTasks(params, marketId, user) {
   const { dispatch, webSocket } = params;
   // fetch the market, user, and stages to make sure everything is up to date in presences
   const promises = fetchMarket(dispatch)
-
-    .then(() => Promise.all([fetchSelf(dispatch), fetchMarketStages(marketId, dispatch)]))
+    .then(() => fetchSelf(dispatch))
     .then(() => {
       webSocket.unsubscribeAll();
       return webSocket.subscribe(user.id, { market_id: marketId });

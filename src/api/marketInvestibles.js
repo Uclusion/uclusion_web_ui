@@ -1,6 +1,5 @@
 import { getClient } from '../config/uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../utils/userMessage';
-import { receiveMarketCategories } from '../store/Markets/actions';
 import { updateInChunks } from '../store/reducer_helpers';
 import { updateInvestibleDetailInvestment } from '../store/Detail/actions';
 import { fetchSelf } from './users';
@@ -42,8 +41,7 @@ export function fetchInvestibleList(currentInvestibleList, marketId, dispatch) {
   console.debug(`Fetching investibles list for: ${marketId}`);
   return clientPromise.then(client => client.markets.listInvestibles())
     .then((response) => {
-      const { investibles, categories } = response;
-      dispatch(receiveMarketCategories(categories, marketId));
+      const { investibles } = response;
       dispatch(receiveInvestibleList(marketId, investibles));
       return updateInChunks(
         dispatch,

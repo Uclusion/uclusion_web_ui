@@ -17,7 +17,8 @@ function CommentsList(props) {
 
   function sortComments(comments) {
     const formatted = reFormatComments(comments);
-    return _.sortBy(formatted, ['created_at']);
+    const sorted = _.sortBy(formatted, ['created_at']);
+    return sorted.reverse();
   }
 
   function getListItems() {
@@ -40,16 +41,14 @@ function CommentsList(props) {
   }
 
   function getCommentAddSection() {
-    if (userCanComment()) {
-      return <CommentsAdd investibleId={investibleId} marketId={marketId} />;
-    }
-    return <Typography>{intl.formatMessage({ id: 'investToComment' })}</Typography>;
+    return <CommentsAdd investibleId={investibleId} marketId={marketId} />;
   }
 
   return (
     <div>
-      {getListItems()}
       {getCommentAddSection()}
+      {getListItems()}
+
     </div>
   );
 }

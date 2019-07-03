@@ -80,12 +80,14 @@ HtmlRichTextEditor.propTypes = {
   value: PropTypes.string,
   placeHolder: PropTypes.string,
   onChange: PropTypes.func,
+  readOnly: PropTypes.bool,
 };
 
 HtmlRichTextEditor.defaultProps = {
   value: '',
   placeHolder: '',
   onChange: () => null,
+  readOnly: false,
 };
 
 export default withAppConfigs(HtmlRichTextEditor);

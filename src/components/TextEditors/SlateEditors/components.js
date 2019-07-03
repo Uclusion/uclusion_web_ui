@@ -23,7 +23,7 @@ export const Button = styled('span')`
   color: ${props =>
   props.reversed
     ? props.active ? 'white' : '#aaa'
-    : props.active ? 'black' : '#ccc'};
+    : props.active ? 'blue' : '#00cccc'};
 `
 
 export const Icon = styled(({ className, ...rest }) => {

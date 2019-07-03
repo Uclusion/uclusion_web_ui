@@ -223,7 +223,6 @@ class RichTextEditor extends React.Component {
           {this.renderBlockButton('bulleted-list', 'format_list_bulleted')}
           {this.renderImageButton()}
           {this.renderLinkButton()}
-
         </Toolbar>
       </div>);
   };

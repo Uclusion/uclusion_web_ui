@@ -18,7 +18,6 @@ import InvestibleEdit from './InvestibleEdit';
 import { fetchInvestibles } from '../../api/marketInvestibles';
 import { fetchSelf } from '../../api/users';
 import { getCurrentUser } from '../../store/Users/reducer';
-import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
@@ -142,11 +141,8 @@ function InvestibleDetail(props) {
               />
             ))}
           </div>
-        ) : (
-          <Typography className={classes.noLabelsText}>
-            No labels
-          </Typography>
-        )}
+        ) : null
+        }
       </div>
     );
   }
@@ -158,7 +154,6 @@ function InvestibleDetail(props) {
     month: 'numeric',
     day: 'numeric',
   };
-  const lastInvestDate = intl.formatDate(myInvestible.updated_at, dateFormatOptions);
   return (
     <div
       className={classNames(classes.root, {
@@ -184,10 +179,6 @@ function InvestibleDetail(props) {
           </Typography>
 
         </div>
-        <Typography className={classes.lastInvestmentDate}>
-          {intl.formatMessage({id: 'investiblesLastInvestment' }, { date: lastInvestDate })}
-        </Typography>
-        <HelpMovie name="usersStagesHelp" open={showStagesHelp} onClose={() => setShowStagesHelp(false)} dontAutoOpen />
         {renderLabelChips()}
 
         <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={myInvestible.description} readOnly />

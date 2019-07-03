@@ -30,7 +30,7 @@ function CommentListItem(props) {
     date: createdTimestamp,
   });
   return (
-    <Paper>
+    <Paper square={true}>
       {is_official && <Typography color={'primary'}>{intl.formatMessage({id: 'officialCommentResponse'})}</Typography>}
       <Typography>{commentHeader}{canDeleteComment() && <CommentDelete marketId={market_id} investibleId={investible_id}  commentId={id} />}</Typography>
       <HtmlRichTextEditor value={body} readOnly={true}/>

@@ -156,8 +156,7 @@ function InvestibleEdit (props) {
     let clientHolder = null;
     return clientPromise.then((client) => {
       clientHolder = client;
-      return clientHolder.investibles.updateInMarket(id,
-        name, description, label_list);
+      return clientHolder.investibles.update(id, name, description, label_list);
     }).then(() => fetchInvestibles([id], marketId, dispatch))
       .then(() => {
         sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });

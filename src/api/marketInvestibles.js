@@ -70,28 +70,7 @@ export function createInvestment(teamId, investibleId, quantity, dispatch) {
     });
 }
 
-function createNewBoundInvestible(params, dispatch) {
-  const {
-    canInvest,
-    teamId,
-    investibleId,
-    quantity,
-    categoryList,
-  } = params;
-  const clientPromise = getClient();
-  return clientPromise.then((client) => {
-    if (canInvest) {
-      return client.markets.investAndBind(teamId, investibleId, quantity, categoryList);
-    }
-    return client.investibles.bindToMarket(investibleId, categoryList);
-  }).then((response) => {
-    const investible = response.investible ? response.investible : response;
-    investible.copiedInvestibleId = investibleId;
-    dispatch(marketInvestibleCreated(response.investment, investible));
-    sendIntlMessage(SUCCESS, { id: 'investibleAddSucceeded' });
-    return fetchSelf(dispatch);
-  });
-}
+
 
 /**
  * Creates a market investible
@@ -100,26 +79,24 @@ function createNewBoundInvestible(params, dispatch) {
  * @returns {Q.Promise<any> | * | Promise<T | never>}
  */
 export function createMarketInvestible(params, dispatch) {
-  const { title, description } = params;
+  const { title, description, canInvest, quantity, teamId } = params;
   const clientPromise = getClient();
-  return clientPromise.then(client => client.investibles.create(title, description))
-    .then((investible) => {
-      dispatch(investibleCreated(investible));
-      // inform the invest they need to fetch the new market investible
-      const payload = {
-        teamId: params.teamId,
-        investibleId: investible.id,
-        quantity: params.quantity,
-        categoryList: [params.category],
-        canInvest: params.canInvest,
-      };
-      return createNewBoundInvestible(payload);
-    }).catch((error) => {
-      // eslint-disable-next-line no-console
-      console.error(error);
-      sendIntlMessage(ERROR, { id: 'investibleAddFailed' });
-      dispatch(investibleCreated([]));
-    });
+  return clientPromise.then((client) => {
+    return client.investibles.create(title, description)
+      .then((investible) => {
+        dispatch(investibleCreated(investible));
+        if (canInvest && quantity) {
+          return client.markets.createInvestment(teamId, investible.id, quantity);
+        }
+        return true;
+      }).then(() => {
+        sendIntlMessage(SUCCESS, { id: 'investibleAddSucceeded' });
+      });
+  }).catch((error) => {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    sendIntlMessage(ERROR, { id: 'investibleAddFailed' });
+  });
 }
 
 export function deleteMarketInvestible(investibleId, marketId, dispatch){

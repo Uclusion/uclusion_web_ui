@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -10,7 +11,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import Info from '@material-ui/icons/Info';
 import { createInvestment } from '../../api/marketInvestibles';
-import HelpMovie from '../../components/ModalMovie/HelpMovie';
+import { Add, Remove } from '@material-ui/icons';
 
 const styles = theme => ({
 
@@ -39,16 +40,22 @@ const styles = theme => ({
 });
 
 class InvestibleInvest extends React.PureComponent {
+
   constructor(props) {
     super(props);
     this.state = {
       ...props,
-      quantityToInvest: '',
-      showInvestHelp: false,
+      quantityToInvest: props.currentUserInvestment,
     };
+    // wait 1/2 second to actually do investment
+    this.debouncedInvestment = _.debounce(this.doInvestment, 500, { trailing: true });
+    this.addClicked = this.addClicked.bind(this);
+    this.deleteClicked = this.deleteClicked.bind(this);
+    this.updateStateAndInvest = this.updateStateAndInvest.bind(this);
+    this.checkQuantity = this.checkQuantity.bind(this);
   }
 
-  handleInvest = () => {
+  doInvestment() {
     const {
       investibleId,
       teamId,
@@ -57,44 +64,65 @@ class InvestibleInvest extends React.PureComponent {
     const { quantityToInvest } = this.state;
     const quantity = parseInt(quantityToInvest, 10);
     createInvestment(teamId, investibleId, quantity, dispatch);
-    this.setState({ ...this.props, quantityToInvest: '' });
-  };
+  }
 
-  validateQuantityToInvest = quantity => (quantity <= this.props.sharesAvailable) && (quantity > 0)
 
-  handleChange = name => (event) => {
-    const { value } = event.target;
-    let valid = true;
-    if (name === 'quantityToInvest') {
-      const numValue = parseInt(value, 10);
-      if (!isNaN(numValue) && (numValue < 0 || numValue > this.props.sharesAvailable)) {
-        valid = false;
-      }
-    }
+  validateQuantityToInvest(quantity) {
+    const { sharesAvailable } = this.props;
+    return (quantity <= sharesAvailable) && (quantity > 0);
+  }
 
+
+  checkQuantity(newQuantity) {
+    const { sharesAvailable } = this.props;
+    const numValue = isNaN(newQuantity) ? parseInt(newQuantity, 10) : newQuantity;
+    const invalid = (!isNaN(numValue) && (numValue < 0 || numValue > sharesAvailable));
+    return !invalid;
+  }
+
+  updateStateAndInvest(newQuantity) {
+    const valid = this.checkQuantity(newQuantity);
     if (valid) {
       this.setState({
-        [name]: value,
+        quantityToInvest: newQuantity,
       });
+      this.debouncedInvestment();
     }
-  };
+  }
+
+  handleQuantityChange(event) {
+    const { value } = event.target;
+    this.updateStateAndInvest(value);
+  }
+
+  addClicked() {
+    const { quantityToInvest } = this.state;
+    const newQuantity = quantityToInvest + 1;
+    this.updateStateAndInvest(newQuantity);
+  }
+
+  deleteClicked() {
+    const { quantityToInvest } = this.state;
+    const newQuantity = quantityToInvest - 1;
+    this.updateStateAndInvest(newQuantity);
+  }
 
   render() {
     const {
       classes,
       intl,
-      currentUserInvestment,
     } = this.props;
-    const { quantityToInvest, showInvestHelp } = this.state;
-    const investEnabled = this.validateQuantityToInvest(parseInt(quantityToInvest, 10));
+    const { quantityToInvest } = this.state;
 
     return (
       <div>
-        <HelpMovie name="investHelp" open={showInvestHelp} onClose={() => this.setState({ showInvestHelp: false })} dontAutoOpen />
-        <Typography>
-          {intl.formatMessage({ id: 'investModalText' })}
-        </Typography>
+
         <form className={classes.container} noValidate autoComplete="off">
+
+          <IconButton onClick={this.deleteClicked}>
+            <Remove />
+          </IconButton>
+
           <TextField
             id="quantityToInvest"
             label={intl.formatMessage({ id: 'investModalQuantityLabel' })}
@@ -102,7 +130,7 @@ class InvestibleInvest extends React.PureComponent {
             margin="normal"
             type="number"
             value={quantityToInvest}
-            onChange={this.handleChange('quantityToInvest')}
+            onChange={this.handleQuantityChange}
             InputProps={{
               startAdornment: (
                 <InputAdornment
@@ -114,31 +142,11 @@ class InvestibleInvest extends React.PureComponent {
               ),
             }}
           />
-          <Button
-            className={classes.investButton}
-            variant="contained"
-            color="primary"
-            disabled={!investEnabled}
-            onClick={this.handleInvest}
-          >
-            {intl.formatMessage({ id: 'investButton' })}
-          </Button>
-          <IconButton
-            name="investinfo"
-            aria-label="Invest Help"
-            className={classes.button}
-            color="primary"
-            onClick={(event) => {
-              event.preventDefault();
-              this.setState({ showInvestHelp: true });
-            }}
-          >
-            <Info />
+          <IconButton onClick={this.addClicked}>
+            <Add />
           </IconButton>
+
         </form>
-        <Typography className={classes.availableShares}>
-          {currentUserInvestment > 0 && `* ${intl.formatMessage({ id: 'userInvestedShares' }, { shares: currentUserInvestment })}`}
-        </Typography>
       </div>
     );
   }

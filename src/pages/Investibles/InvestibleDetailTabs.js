@@ -39,8 +39,7 @@ function InvestibleDetailTabs(props) {
     currentUserInvestment,
     openForInvestment,
   } = props;
-  const { canInvest } = getFlags(user);
-  const investmentAllowed = canInvest && openForInvestment;
+  const investmentAllowed = true;
 
   let initialTab = '';
   if (investmentAllowed) {
@@ -81,7 +80,7 @@ function InvestibleDetailTabs(props) {
         {value === 'invest' && investmentAllowed && user && (
           <InvestibleInvest
             teamId={user.default_team_id}
-            sharesAvailable={user.market_presence.quantity}
+            sharesAvailable={100}//{user.market_presence.quantity}
             currentUserInvestment={currentUserInvestment}
             investibleId={investibleId}
           />

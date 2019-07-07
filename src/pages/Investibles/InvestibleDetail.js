@@ -15,6 +15,7 @@ import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
 import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
 import InvestibleDelete from './InvestibleDelete';
 import InvestibleEdit from './InvestibleEdit';
+import InvestibleInvest from './InvestibleInvest';
 import { fetchInvestibles } from '../../api/marketInvestibles';
 import { fetchSelf } from '../../api/users';
 import { getCurrentUser } from '../../store/Users/reducer';
@@ -180,7 +181,6 @@ function InvestibleDetail(props) {
 
         </div>
         {renderLabelChips()}
-
         <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={myInvestible.description} readOnly />
         <InvestibleDetailTabs
           name={myInvestible.name}

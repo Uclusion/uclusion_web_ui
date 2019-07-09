@@ -7,7 +7,7 @@ import { withRouter } from 'react-router';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 
 
-function InvestibleEdit(props){
+function InvestibleEditButton(props){
 
   const { investibleId, history, intl } = props;
 
@@ -22,8 +22,8 @@ function InvestibleEdit(props){
   );
 }
 
-InvestibleEdit.propTypes = {
+InvestibleEditButton.propTypes = {
   investibleId: PropTypes.string.isRequired,
 };
 
-export default injectIntl(withRouter(InvestibleEdit));
+export default injectIntl(withRouter(InvestibleEditButton));

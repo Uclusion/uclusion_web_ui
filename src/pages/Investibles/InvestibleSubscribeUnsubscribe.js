@@ -8,7 +8,7 @@ import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import { followUnfollowInvestible } from '../../api/marketInvestibles';
 
-function InvestibleFollowUnfollow(props) {
+function InvestibleSubscribeUnsubscribe(props) {
   const { dispatch, investible, intl } = props;
   const { current_user_is_following } = investible; //eslint-disable-line
 
@@ -27,7 +27,7 @@ function InvestibleFollowUnfollow(props) {
   return getButton();
 }
 
-InvestibleFollowUnfollow.propTypes = {
+InvestibleSubscribeUnsubscribe.propTypes = {
   dispatch: PropTypes.func.isRequired,
   investible: PropTypes.object, //eslint-disable-line
   intl: PropTypes.object, //eslint-disable-line
@@ -41,4 +41,4 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withTheme()(InvestibleFollowUnfollow)));
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withTheme()(InvestibleSubscribeUnsubscribe)));

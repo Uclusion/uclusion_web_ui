@@ -12,9 +12,9 @@ import {
 import CloseIcon from '@material-ui/icons/Close';
 import InvestibleDetailTabs from './InvestibleDetailTabs';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
-import InvestibleFollowUnfollow from './InvestibleFollowUnfollow';
+import InvestibleFollowUnfollow from './InvestibleSubscribeUnsubscribe';
 import InvestibleDelete from './InvestibleDelete';
-import InvestibleEdit from './InvestibleEdit';
+import InvestibleEdit from './InvestibleEditButton';
 import InvestibleInvest from './InvestibleInvest';
 import { fetchInvestibles } from '../../api/marketInvestibles';
 import { fetchSelf } from '../../api/users';

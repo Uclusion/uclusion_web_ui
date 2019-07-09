@@ -271,7 +271,6 @@ const messages = defineMessages({
   investmentsLoadFailed: 'There was a problem retrieving investments. Please try again.',
   teamMemberLoadFailed: 'There was a problem retrieving the members of your team. Please try again',
   investibleAddFailed: 'There was a problem saving your investible. Please try again',
-  investibleBindFailed: 'There was a problem making your investible available to others. Please try again',
   investibleAddSucceeded: 'Your new investible has been created! It may take a few minutes to be visible.',
   marketInvestibleDeleted: 'The investible has been removed from the market.',
   marketInvestibleDeleteFailed: 'There was a problem removing the investible from the market. Please try again',
@@ -299,7 +298,8 @@ const messages = defineMessages({
   investibleEditFailed: 'We could not update your investible. Please try again',
   investibleEditSuccess: 'We are saving your edits. They should appear shortly',
 
-  //InvestibleEdit
+  // InvestibleAddEdit
+  investibleAddHeader: 'Add Investible',
   investibleEditHeader: 'Edit Investible',
   investibleEditStageHelper: 'Select to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
@@ -316,9 +316,7 @@ const messages = defineMessages({
   investibleEditAddNewLabelButton: 'Add Label',
   investibleEditCurrentInvestmentLine: 'Current Investment: {shares} uShares',
   investibleEditCurrentInvestmentLabel: 'Current investment for next stage',
-  // investment list for user
-  investmentListSharesInvested: 'uShares invested: {quantity}',
-  investmentListDateInvested: 'Date Invested: {date}',
+
   // Landing Page
   landingPageSigninTooltip: 'Sign In',
   landingPageHelpTooltip: 'Need Uclusion help? Click here to access the admin\'s guide.',
@@ -429,7 +427,7 @@ const messages = defineMessages({
   teamsSearchBoxSearchTeams: 'Search Teams',
 
   // investibles
-  investiblesQuickAddTooltip: 'Add a new investible',
+  investiblesAddTooltip: 'Add a new investible',
   investiblesFollowTooltip: 'Subscribe',
   investiblesUnFollowTooltip: 'Unsubscribe',
   investiblesEditTooltip: 'Edit Investible',

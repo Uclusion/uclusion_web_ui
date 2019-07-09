@@ -18,7 +18,12 @@ import { getMarketPresenceName } from '../../utils/marketSelectionFunctions';
 import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfollow';
 import { fetchMarketInvestibleInfo } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
-import { getFlags } from '../../utils/userFunctions'
+import { getFlags } from '../../utils/userFunctions';
+import { IconButton } from '@material-ui/core';
+import { Add } from '@material-ui/icons';
+import { Link } from 'react-router-dom';
+import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions'
+import InvestibleAddButton from './InvestibleAddButton'
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -165,16 +170,17 @@ function InvestiblesPage(props) {
       <Activity
         isLoading={currentInvestibleList === undefined || user === undefined}
         containerStyle={{ overflow: 'hidden' }}
-        appBarContent={<InvestibleSearchBox />}
+        appBarContent={[<InvestibleSearchBox />, <InvestibleAddButton />]}
         title={currentMarketName || 'Example Market Name'}
-        titleButtons={[<MarketFollowUnfollow user={user} marketId={marketId} />,  <Button
+        titleButtons={[<MarketFollowUnfollow user={user} marketId={marketId}/>, <Button
           className={classes.toolbarButton}
           variant="contained"
           color="primary"
           onClick={toggleShowFavorite}
         >
           {intl.formatMessage({ id: showFavorite ? 'showAll' : 'showFavorite' })}
-        </Button>]}
+        </Button>,
+          ]}
       >
         {currentInvestibleList && user && user.market_presence
         && (

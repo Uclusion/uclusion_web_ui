@@ -24,6 +24,7 @@ import { getMarkets } from '../../store/Markets/reducer';
 import { fetchInvestibles } from '../../api/marketInvestibles';
 import { fetchMarket } from '../../api/markets';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
+import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions'
 
 const styles = theme => ({
   root: {
@@ -98,45 +99,42 @@ const styles = theme => ({
   },
 });
 
-function InvestibleEdit (props) {
+function InvestibleAddEdit (props) {
   const {
     match,
     marketId,
     dispatch,
     classes,
     intl,
+    history
   } = props;
   const { investibleId } = match.params;
+  const addMode = !investibleId;
   const [investible, setInvestible] = useState({});
   const [saved, setSaved] = useState(undefined);
   const [dirty, setDirty] = useState(false);
   const [showInvestibleEditHelp, setShowInvestibleEditHelp] = useState(false);
   useEffect(() => {
-    const clientPromise = getClient();
-    clientPromise.then(client => client.markets.getMarketInvestibles([investibleId]))
-      .then((investibles) => {
-        const investible = investibles[0];
-        // set the current stage on it to keep the save happy
-        investible.current_stage_id = investible.stage;
-        setInvestible(investibles[0]);
-        fetchMarket(dispatch);
-      }).catch((error) => {
-        console.log(error);
-        sendIntlMessage(ERROR, { id: 'investibleEditInvestibleFetchFailed' });
-      });
-  }, [marketId, investibleId, saved, dispatch]);
+    if (!addMode) {
+      getClient().then(client => client.markets.getMarketInvestibles([investibleId]))
+        .then((investibles) => {
+          const investible = investibles[0];
+          setInvestible(investible);
+          fetchMarket(dispatch);
+        }).catch((error) => {
+          console.log(error);
+          sendIntlMessage(ERROR, { id: 'investibleEditInvestibleFetchFailed' });
+        });
+    }
+  }, [marketId, addMode, investibleId, saved, dispatch]);
 
   function handleChange(name) {
     return (event) => {
       const { value } = event.target;
       // if the name is the category list, and none are selected, disallow the change
       const newInvestible = { ...investible };
-      let validatedValue = value;
-      if (name === 'additional_investment') {
-        validatedValue = parseInt(value, 10);
-      }
-      const isDirty = newInvestible[name] !== validatedValue;
-      newInvestible[name] = validatedValue;
+      const isDirty = newInvestible[name] !== value;
+      newInvestible[name] = value;
       setInvestible(newInvestible);
       if (!dirty && isDirty) {
         setDirty(true);
@@ -144,30 +142,52 @@ function InvestibleEdit (props) {
     };
   }
 
+  function saveEdits(){
+    const { id, name, description, label_list } = investible;
+    return getClient().then(client => client.investibles.update(id, name, description, label_list))
+      .then(() => fetchInvestibles([id], marketId, dispatch))
+      .then(() => {
+        sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });
+        setSaved(true);
+      })
+      .catch((error) => {
+        console.error(error);
+        sendIntlMessage(ERROR, { id: 'investibleEditFailed' });
+        setSaved(false);
+        setDirty(true);
+      });
+  }
+
+  function saveNew() {
+    const { name, description } = investible;
+    return getClient().then(client => client.investibles.create(name, description))
+      .then((investible) => {
+        setSaved(true);
+        setDirty(false);
+        const { id } = investible;
+        sendIntlMessage(SUCCESS, { id: 'investibleAddSucceeded'});
+        history.push(formCurrentMarketLink(`investibles/#investible:${id}`));
+      })
+      .catch((error) => {
+        console.error(error);
+        sendIntlMessage(ERROR, { id: 'investibleAddFailed' });
+        setSaved(false);
+        setDirty(true);
+      });
+  }
+
   function onSave() {
     setDirty(false);
     // first we sync the name and description to the investments service,
     // then we sync the state information (e.g. stage, etc) off to the markets service
-    const clientPromise = getClient();
-    const {
-      id, name, description, label_list
-    } = investible;
-    // store the client so we can use it for second half
-    let clientHolder = null;
-    return clientPromise.then((client) => {
-      clientHolder = client;
-      return clientHolder.investibles.update(id, name, description, label_list);
-    }).then(() => fetchInvestibles([id], marketId, dispatch))
-      .then(() => {
-        sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });
-        setSaved(true);
-      }).catch((error) => {
-        console.error(error);
-        sendIntlMessage(ERROR, { id: 'investibleEditFailed' });
-        setSaved(false);
-        setDirty(false);
-      });
+    if (addMode) {
+      return saveNew();
+    }
+    return saveEdits();
   }
+
+
+
 
   function onCancel() {
     const { match: { params }, history } = props;
@@ -175,9 +195,7 @@ function InvestibleEdit (props) {
     history.push(`/${marketId}/investibles#investible:${investibleId}`);
   }
 
-  const {
-    description = '', name, label_scratch,  label_list
-  } = investible;
+  const { description, name, label_scratch,  label_list } = investible;
 
   function handleLabelDelete(label) {
     const { label_list } = investible;
@@ -196,39 +214,70 @@ function InvestibleEdit (props) {
     }
   }
 
+  function renderLabelEditor() {
+    if (addMode) {
+      return <div />;
+    }
+    const { label_list } = investible;
+    return (
+      <div className={classNames(classes.row, classes.newLabelRow)}>
+        <TextField
+          className={classes.fullFlex}
+          inputProps={{ maxLength: 255 }}
+          label={intl.formatMessage({ id: 'investibleEditAddNewLabelLabel' })}
+          InputLabelProps={{ shrink: true }}
+          name="label_scratch"
+          onChange={handleChange('label_scratch')}
+          value={label_scratch}
+        />
+        {(!label_list || label_list.length < 5) && (
+          <Button
+            className={classes.newLabelButton}
+            variant="contained"
+            onClick={handleLabelAdd}
+          >
+            {intl.formatMessage({ id: 'investibleEditAddNewLabelButton' })}
+          </Button>
+        )}
+      </div>
+    )
+  }
+
   function renderLabelChips() {
     const usedList = label_list || [];
-
+    if (addMode) {
+      return <div />;
+    }
     return (
-      <div>
-        <Typography className={classes.controlLabel}>
-          {intl.formatMessage({ id: 'investibleEditLabelsLabel' })}
-        </Typography>
-        {usedList.length > 0 ? (
-          <div className={classes.labelChips}>
-            {usedList.map((label, index) => (
-              <Chip
-                className={classes.labelChip}
-                key={index}
-                label={label}
-                onDelete={() => handleLabelDelete(label)}
-              />
-            ))}
-          </div>
-        ) : (
-          <Typography className={classes.noLabelsText}>
-            No labels
+      <div className={classes.row}>
+        <div>
+          <Typography className={classes.controlLabel}>
+            {intl.formatMessage({ id: 'investibleEditLabelsLabel' })}
           </Typography>
-        )}
+          {usedList.length > 0 ? (
+            <div className={classes.labelChips}>
+              {usedList.map((label, index) => (
+                <Chip
+                  className={classes.labelChip}
+                  key={index}
+                  label={label}
+                  onDelete={() => handleLabelDelete(label)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div/>
+          )}
+        </div>
       </div>
     );
   }
 
   return (
     <Activity
-      isLoading={Object.keys(investible).length === 0}
+      isLoading={!addMode && Object.keys(investible).length === 0}
       containerStyle={{ overflow: 'auto' }}
-      title={intl.formatMessage({ id: 'investibleEditHeader' })}
+      title={addMode? intl.formatMessage({ id: 'investibleAddHeader' }) : intl.formatMessage({ id: 'investibleEditHeader' })}
     >
       <div className={classes.root}>
         <HelpMovie name="investibleEditIntro" />
@@ -261,39 +310,19 @@ function InvestibleEdit (props) {
             <div className={classNames(classes.description, classes.row)}>
               <HtmlRichTextEditor
                 value={description}
+                placeHolder={intl.formatMessage({ id: 'description_hint' })}
                 onChange={handleChange('description')}
               />
             </div>
-            <div className={classes.row}>
-              {renderLabelChips()}
-            </div>
-            <div className={classNames(classes.row, classes.newLabelRow)}>
-              <TextField
-                className={classes.fullFlex}
-                inputProps={{ maxLength: 255 }}
-                label={intl.formatMessage({ id: 'investibleEditAddNewLabelLabel' })}
-                InputLabelProps={{ shrink: true }}
-                name="label_scratch"
-                onChange={handleChange('label_scratch')}
-                value={label_scratch}
-              />
-              {(!label_list || label_list.length < 5) && (
-                <Button
-                  className={classes.newLabelButton}
-                  variant="contained"
-                  onClick={handleLabelAdd}
-                >
-                  {intl.formatMessage({ id: 'investibleEditAddNewLabelButton' })}
-                </Button>
-              )}
-            </div>
+            {renderLabelChips()}
+            {renderLabelEditor()}
           </CardContent>
           <CardActions className={classes.actions}>
             <Button
               onClick={() => onCancel()}
             >
-              {dirty && intl.formatMessage({ id: 'investibleEditCancelLabel' })}
-              {!dirty && intl.formatMessage({ id: 'investibleEditCloseLabel' })}
+              {(addMode || dirty) && intl.formatMessage({ id: 'investibleEditCancelLabel' })}
+              {(!addMode && !dirty) && intl.formatMessage({ id: 'investibleEditCloseLabel' })}
             </Button>
             <Button
               variant="contained"
@@ -320,7 +349,7 @@ function mapDispatchToProps (dispatch) {
   return { dispatch };
 }
 
-InvestibleEdit.propTypes = {
+InvestibleAddEdit.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
   marketId: PropTypes.string.isRequired,
   match: PropTypes.object.isRequired, //eslint-disable-line
@@ -330,4 +359,4 @@ InvestibleEdit.propTypes = {
   dispatch: PropTypes.func.isRequired,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withMarketId(withStyles(styles)(InvestibleEdit))));
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withMarketId(withStyles(styles)(InvestibleAddEdit))));

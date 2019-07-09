@@ -4,19 +4,16 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
+// ListItemSecondaryAction,
   Paper,
-  IconButton,
+// IconButton,
   Hidden,
   withWidth,
 } from '@material-ui/core';
 import { withTheme, withStyles } from '@material-ui/core/styles';
-import ChevronLeft from '@material-ui/icons/ChevronLeft';
-import ChevronRight from '@material-ui/icons/ChevronRight';
 import { injectIntl } from 'react-intl';
 import withAppConfigs from '../../utils/withAppConfigs';
 import drawerActions from '../../store/drawer/actions';
-import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
   paper: {
@@ -36,14 +33,10 @@ const styles = theme => ({
 
 const DrawerHeader = (props) => {
   const {
-    theme,
     intl,
     classes,
-    setDrawerOpen,
     width,
-    user,
   } = props;
-  const { canInvest } = getFlags(user);
   const headerHeight = (width === 'xs') ? 40 : 48;
 
   return (

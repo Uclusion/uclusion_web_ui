@@ -6,7 +6,7 @@ import { fetchSelf } from './users';
 import {
   investibleCreated, investibleDeleted,
   investibleFollowed,
-  investmentCreated, marketInvestibleCreated,
+  investmentCreated,
   receiveInvestibleList,
   receiveInvestibles
 } from '../store/MarketInvestibles/actions';

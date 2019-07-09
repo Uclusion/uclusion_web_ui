@@ -3,7 +3,7 @@ import { getComments } from '../../../store/Comments/reducer';
 import CommentListItem from './CommentListItem';
 import CommentsAdd from './CommentsAdd';
 import React from 'react';
-import { injectIntl } from 'react-intl';
+
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { reFormatComments } from '../../../utils/reduxHelperFunctions';
@@ -11,7 +11,7 @@ import { reFormatComments } from '../../../utils/reduxHelperFunctions';
 
 function CommentsList(props) {
 
-  const { marketId, investibleId, intl, user } = props;
+  const { marketId, investibleId, user } = props;
 
   function sortComments(comments) {
     const formatted = reFormatComments(comments);
@@ -47,7 +47,7 @@ function CommentsList(props) {
 
 
 CommentsList.propTypes = {
-  intl: PropTypes.object.isRequired,
+
   comments: PropTypes.object,
   investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
@@ -59,4 +59,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(injectIntl(CommentsList));
+export default connect(mapStateToProps)(CommentsList);

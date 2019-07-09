@@ -9,7 +9,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import { IconButton, Button } from '@material-ui/core';
 
 import { createInvestment } from '../../api/marketInvestibles';
-import { Add, Remove, Save } from '@material-ui/icons';
+import { Add, Remove } from '@material-ui/icons';
 
 const styles = theme => ({
 

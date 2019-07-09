@@ -112,7 +112,7 @@ const styles = theme => ({
 
 function InvestibleDetail(props) {
   const [lastInvestible, setLastInvestible] = useState({});
-  const [showStagesHelp, setShowStagesHelp] = useState(false);
+
   const {
     investible, intl, classes, onClose, dispatch, user,
   } = props;
@@ -158,11 +158,7 @@ function InvestibleDetail(props) {
 
   const show = !!investible;
   const myInvestible = investible || lastInvestible;
-  const dateFormatOptions = {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  };
+
   return (
     <div
       className={classNames(classes.root, {

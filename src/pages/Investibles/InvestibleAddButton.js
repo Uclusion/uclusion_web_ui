@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { IconButton, Tooltip, withStyles } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';

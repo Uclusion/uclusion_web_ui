@@ -10,7 +10,6 @@ import {
   Chip, Tooltip,
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
-import InvestibleDetailTabs from './InvestibleDetailTabs';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
 import InvestibleFollowUnfollow from './InvestibleSubscribeUnsubscribe';
 import InvestibleDelete from './InvestibleDelete';
@@ -20,6 +19,7 @@ import { fetchInvestibles } from '../../api/marketInvestibles';
 import { fetchSelf } from '../../api/users';
 import { getCurrentUser } from '../../store/Users/reducer';
 import { getFlags } from '../../utils/userFunctions'
+import CommentsList from './Comments/CommentsList';
 
 const styles = theme => ({
   root: {
@@ -116,6 +116,9 @@ function InvestibleDetail(props) {
   const {
     investible, intl, classes, onClose, dispatch, user,
   } = props;
+  const { isAdmin, isGuest } = getFlags(user);
+
+
   useEffect(() => {
     if (investible.id !== lastInvestible.id) {
       setLastInvestible(investible);
@@ -147,9 +150,14 @@ function InvestibleDetail(props) {
       </div>
     );
   }
+
+  function canEdit() {
+    return isAdmin || (investible.created_by === user.id);
+  }
+
+
   const show = !!investible;
   const myInvestible = investible || lastInvestible;
-  const { isAdmin, isGuest } = getFlags(user);
   const dateFormatOptions = {
     year: 'numeric',
     month: 'numeric',
@@ -164,9 +172,9 @@ function InvestibleDetail(props) {
     >
       <div className={classNames(classes.bottomActions)}>
         {!isGuest && (<InvestibleFollowUnfollow investible={myInvestible} />)}
-        {isAdmin
+        {canEdit()
         && <InvestibleDelete investible={myInvestible} onCloseDetail={onClose} />}
-        {isAdmin && <InvestibleEdit investibleId={myInvestible.id} />}
+        {canEdit() && <InvestibleEdit investibleId={myInvestible.id} />}
         <Tooltip title={intl.formatMessage({ id: 'investibleDetailClose' })}>
           <IconButton aria-label="Close" onClick={onClose}>
             <CloseIcon />
@@ -182,14 +190,16 @@ function InvestibleDetail(props) {
         </div>
         {renderLabelChips()}
         <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={myInvestible.description} readOnly />
-        <InvestibleDetailTabs
-          name={myInvestible.name}
-          quantity={myInvestible.quantity}
-          investibleId={myInvestible.id}
-          marketId={myInvestible.market_id}
+        <InvestibleInvest
+          teamId={user.default_team_id}
+          sharesAvailable={100} // {user.market_presence.quantity}
           currentUserInvestment={myInvestible.current_user_investment}
-          openForInvestment={myInvestible.open_for_investment}
-          subscribed={myInvestible.current_user_is_following}
+          investibleId={myInvestible.id}
+        />
+        <CommentsList
+          marketId={myInvestible.market_id}
+          user={user}
+          investibleId={myInvestible.id}
         />
       </div>
     </div>

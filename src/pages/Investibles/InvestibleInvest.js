@@ -1,17 +1,15 @@
 import React from 'react';
-import _ from 'lodash';
+
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import IconButton from '@material-ui/core/IconButton';
-import Info from '@material-ui/icons/Info';
+import { IconButton, Button } from '@material-ui/core';
+
 import { createInvestment } from '../../api/marketInvestibles';
-import { Add, Remove } from '@material-ui/icons';
+import { Add, Remove, Save } from '@material-ui/icons';
 
 const styles = theme => ({
 
@@ -46,13 +44,15 @@ class InvestibleInvest extends React.PureComponent {
     this.state = {
       ...props,
       quantityToInvest: props.currentUserInvestment,
+      saveEnabled: false,
     };
-    // wait 1/2 second to actually do investment
-    this.debouncedInvestment = _.debounce(this.doInvestment, 500, { trailing: true });
+
     this.addClicked = this.addClicked.bind(this);
     this.deleteClicked = this.deleteClicked.bind(this);
-    this.updateStateAndInvest = this.updateStateAndInvest.bind(this);
+    this.updateState = this.updateState.bind(this);
     this.checkQuantity = this.checkQuantity.bind(this);
+    this.doInvestment = this.doInvestment.bind(this);
+    this.handleQuantityChange = this.handleQuantityChange.bind(this);
   }
 
   doInvestment() {
@@ -80,31 +80,34 @@ class InvestibleInvest extends React.PureComponent {
     return !invalid;
   }
 
-  updateStateAndInvest(newQuantity) {
+  updateState(newQuantity) {
     const valid = this.checkQuantity(newQuantity);
+    const { currentUserInvestment } = this.props;
     if (valid) {
+      // eslint-disable-next-line eqeqeq
+      const saveEnabled = newQuantity != currentUserInvestment;
       this.setState({
         quantityToInvest: newQuantity,
+        saveEnabled: saveEnabled,
       });
-      this.debouncedInvestment();
     }
   }
 
   handleQuantityChange(event) {
     const { value } = event.target;
-    this.updateStateAndInvest(value);
+    this.updateState(value);
   }
 
   addClicked() {
     const { quantityToInvest } = this.state;
     const newQuantity = quantityToInvest + 1;
-    this.updateStateAndInvest(newQuantity);
+    this.updateState(newQuantity);
   }
 
   deleteClicked() {
     const { quantityToInvest } = this.state;
     const newQuantity = quantityToInvest - 1;
-    this.updateStateAndInvest(newQuantity);
+    this.updateState(newQuantity);
   }
 
   render() {
@@ -112,12 +115,12 @@ class InvestibleInvest extends React.PureComponent {
       classes,
       intl,
     } = this.props;
-    const { quantityToInvest } = this.state;
+    const { quantityToInvest, saveEnabled } = this.state;
 
     return (
       <div>
 
-        <form className={classes.container} noValidate autoComplete="off">
+        <form className={classes.container} noValidate autoComplete="off" onSubmit={ e=> e.preventDefault()}>
 
           <IconButton onClick={this.deleteClicked}>
             <Remove />
@@ -145,7 +148,15 @@ class InvestibleInvest extends React.PureComponent {
           <IconButton onClick={this.addClicked}>
             <Add />
           </IconButton>
-
+          {saveEnabled &&
+          <Button
+            className={classes.investButton}
+            variant="contained"
+            color="primary"
+            onClick={this.handleInvest}>
+            {intl.formatMessage({ id: 'investButton' })}
+          </Button>
+          }
         </form>
       </div>
     );

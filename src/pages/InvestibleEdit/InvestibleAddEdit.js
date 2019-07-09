@@ -240,7 +240,17 @@ function InvestibleAddEdit (props) {
           </Button>
         )}
       </div>
-    )
+    );
+  }
+
+  function renderCloseButtonLabel() {
+    if (addMode) {
+      return intl.formatMessage({ id: 'investibleEditCancelLabel' });
+    }
+    if (dirty) {
+      return intl.formatMessage({ id: 'investibleEditCancelLabel' });
+    }
+    return intl.formatMessage({ id: 'investibleEditCloseLabel' });
   }
 
   function renderLabelChips() {
@@ -318,11 +328,8 @@ function InvestibleAddEdit (props) {
             {renderLabelEditor()}
           </CardContent>
           <CardActions className={classes.actions}>
-            <Button
-              onClick={() => onCancel()}
-            >
-              {(addMode || dirty) && intl.formatMessage({ id: 'investibleEditCancelLabel' })}
-              {(!addMode && !dirty) && intl.formatMessage({ id: 'investibleEditCloseLabel' })}
+            <Button onClick={() => onCancel()}>
+              {renderCloseButtonLabel()}
             </Button>
             <Button
               variant="contained"

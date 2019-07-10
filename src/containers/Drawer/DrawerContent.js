@@ -9,7 +9,7 @@ import SelectableMenuList from '../SelectableMenuList';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import withAppConfigs from '../../utils/withAppConfigs';
 import { setUclusionLocalStorageItem } from '../../components/utils';
-import { updateTheme, switchNightMode } from '../../store/themeSource/actions';
+
 import { updateLocale } from '../../store/locale/actions';
 import { userLogout } from '../../store/auth/actions';
 import drawerActions from '../../store/drawer/actions';
@@ -58,8 +58,6 @@ const DrawerContent = (props) => {
 export default connect(
   null,
   {
-    updateTheme,
-    switchNightMode,
     updateLocale,
     userLogout,
     ...drawerActions,

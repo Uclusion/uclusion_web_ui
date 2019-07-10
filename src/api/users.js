@@ -5,7 +5,6 @@ import {
   requestCurrentUser,
   uiPrefsUpdated,
 } from '../store/Users/actions';
-import { ERROR, sendIntlMessage } from '../utils/userMessage';
 
 export function fetchSelf(dispatch) {
   let userClient = null;
@@ -19,32 +18,13 @@ export function fetchSelf(dispatch) {
     return userClient.users.getPresences().then((teamPresences) => {
       newUser.team_presences = teamPresences;
       console.debug('Receiving user');
-      console.debug(user);
-      dispatch(receiveCurrentUser(user));
+   //   console.debug(user);
+      dispatch(receiveCurrentUser(newUser));
       return newUser;
     });
   });
 }
 
-
-export function loadTeams(canListAccountTeams, setTeams) {
-  const clientPromise = getClient();
-  if (canListAccountTeams) {
-    clientPromise.then(client => client.teams.list()).then((marketTeams) => {
-      setTeams(marketTeams);
-    }).catch((error) => {
-      console.error(error);
-      sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
-    });
-  } else {
-    clientPromise.then(client => client.teams.mine()).then((myTeams) => {
-      setTeams(myTeams);
-    }).catch((error) => {
-      console.error(error);
-      sendIntlMessage(ERROR, { id: 'teamsLoadFailed' });
-    });
-  }
-}
 
 
 /**

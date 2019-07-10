@@ -40,16 +40,16 @@ const DrawerHeader = (props) => {
   const headerHeight = (width === 'xs') ? 40 : 48;
 
   return (
-    <Paper className={classes.paper}>
+    <div className={classes.paper}>
       <List>
         <ListItem style={{ height: headerHeight }}>
-          <img className={classes.logo} src="/images/logo-color.svg" alt="logo" />
+          <img className={classes.logo} src="/images/logo-white.svg" alt="logo" />
           <ListItemText classes={{ primary: classes.listItem }} primary={intl.formatMessage({ id: 'app_name' })} />
           <Hidden smDown implementation="css">
           </Hidden>
         </ListItem>
       </List>
-    </Paper>
+    </div>
   );
 };
 

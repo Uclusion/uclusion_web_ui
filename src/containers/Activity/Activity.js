@@ -185,6 +185,7 @@ function Activity(props) {
       <AppBar
         position={(width !== 'sm' && width !== 'xs') ? 'absolute' : undefined}
         className={appBarClassName}
+        color='default'
       >
         <Toolbar disableGutters>
           <LinearProgress />
@@ -215,8 +216,6 @@ function Activity(props) {
           <div className={classes.grow} />
           {user && user.market_presence && user.market_presence.quantity >= 0 && (
             <Typography variant="h6" color="inherit" noWrap className={classes.availableShares}>
-              {user.name}
-              {' '}
               {canInvest && (intl.formatMessage({ id: 'availableSharesToInvest' }, { shares: user.market_presence.quantity }))}
             </Typography>
           )}

@@ -167,11 +167,10 @@ function InvestiblesPage(props) {
         isLoading={currentInvestibleList === undefined || user === undefined}
         containerStyle={{ overflow: 'hidden' }}
         appBarContent={[<InvestibleSearchBox />, <InvestibleAddButton />]}
-        title={currentMarketName || 'Example Market Name'}
+        title={currentMarketName}
         titleButtons={[<MarketFollowUnfollow user={user} marketId={marketId}/>, <Button
           className={classes.toolbarButton}
           variant="contained"
-          color="primary"
           onClick={toggleShowFavorite}
         >
           {intl.formatMessage({ id: showFavorite ? 'showAll' : 'showFavorite' })}

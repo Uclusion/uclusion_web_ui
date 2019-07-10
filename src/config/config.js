@@ -10,16 +10,11 @@ const authorizer = new ReactWebAuthorizer(process.env.REACT_APP_UCLUSION_URL);
 
 const config = {
   initial_state: {
-    themeSource: {
-      isNightModeOn: false,
-      source: 'light',
-    },
     locale: 'en',
   },
   maxRichTextEditorSize: 7340032,
   drawer_width: 256,
   locales,
-  themes,
   grants,
   routes,
   getMenuItems,

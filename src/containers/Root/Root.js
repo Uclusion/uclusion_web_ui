@@ -10,7 +10,7 @@ import { Router, Route, Switch } from 'react-router-dom';
 import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvider';
 import AppLayout from '../AppLayout';
 import LandingPage from '../../pages/LandingPage';
-import getThemeSource from '../../config/themes';
+import { defaultTheme } from '../../config/themes';
 import locales, { getLocaleMessages } from '../../config/locales';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 
@@ -29,15 +29,13 @@ class Root extends Component {
     const {
       appConfig,
       locale,
-      themeSource,
       isLanding,
     } = this.props;
     const messages = { ...(getLocaleMessages(locale, locales)),
       ...(getLocaleMessages(locale, appConfig.locales)),
     };
-    const source = getThemeSource(themeSource, appConfig.themes);
-    const theme = createMuiTheme(source);
 
+    const theme = defaultTheme;
     return (
       <MuiPickersUtilsProvider utils={MomentUtils}>
         <MuiThemeProvider theme={theme}>
@@ -64,7 +62,7 @@ Root.propTypes = {
   isLanding: PropTypes.bool,
 };
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   const { locale, themeSource } = state;
 
   return {

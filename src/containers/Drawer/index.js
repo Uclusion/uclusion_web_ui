@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import classNames from 'classnames';
-import { withTheme, withStyles } from '@material-ui/core/styles';
+import { withTheme, withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import Drawer from '@material-ui/core/Drawer';
 import DrawerContent from './DrawerContent';
@@ -10,7 +10,8 @@ import DrawerHeader from './DrawerHeader';
 import Scrollbar from '../../components/Scrollbar';
 import withAppConfigs from '../../utils/withAppConfigs';
 import drawerActions from '../../store/drawer/actions';
-import { getCurrentUser } from "../../store/Users/reducer";
+import { sideBarTheme } from '../../config/themes';
+import { getCurrentUser } from '../../store/Users/reducer';
 
 const drawerWidth = 240;
 
@@ -53,11 +54,13 @@ const styles = theme => ({
   },
 });
 
+
 export class DrawerLayout extends Component {
   handleDrawerToggle = () => {
     const { setDrawerOpen, drawerOpen } = this.props;
     setDrawerOpen(!drawerOpen);
   };
+
 
   render() {
     const {
@@ -75,6 +78,7 @@ export class DrawerLayout extends Component {
     const Header = appConfig.drawerHeader ? appConfig.drawerHeader : DrawerHeader;
 
     return (
+      <MuiThemeProvider theme={sideBarTheme}>
       <Drawer
         variant={smDown ? 'temporary' : 'permanent'}
         onClose={this.handleDrawerToggle}
@@ -98,6 +102,7 @@ export class DrawerLayout extends Component {
           <DrawerContent path={path} history={history} />
         </Scrollbar>
       </Drawer>
+      </MuiThemeProvider>
     );
   }
 }

@@ -12,10 +12,10 @@ import { listUserMarkets } from '../utils/marketFunctions';
 function getMarketsItems(user) {
   const markets = listUserMarkets(user);
   const menuItems = markets.map(market => {
-    const { market_id, market_name } = market;
+    const { id, name } = market;
     return {
-      primaryText: market_name,
-      value: formMarketLink(market_id, 'investibles'),
+      primaryText: name,
+      value: formMarketLink(id, 'investibles'),
       leftIcon: <ListIcon />,
     };
   });

@@ -7,16 +7,17 @@ import { withRouter } from 'react-router-dom';
 import { withA2HS } from 'a2hs';
 import SelectableMenuList from '../SelectableMenuList';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import withAppConfigs from '../../utils/withAppConfigs';
+import menuItems from '../../config/menuItems';
 import { setUclusionLocalStorageItem } from '../../components/utils';
 
-import { updateLocale } from '../../store/locale/actions';
+
 import { userLogout } from '../../store/auth/actions';
 import drawerActions from '../../store/drawer/actions';
+import { getCurrentUser } from '../../store/Users/reducer';
+import { bindActionCreators } from 'redux';
 
 const DrawerContent = (props) => {
   const {
-    appConfig,
     history,
     match,
     width,
@@ -45,7 +46,7 @@ const DrawerContent = (props) => {
     }}
     >
       <SelectableMenuList
-        items={appConfig.getMenuItems({ ...props, handleSignOut })}
+        items={menuItems({ ...props, handleSignOut })}
         onIndexChange={handleChange}
         index={match ? match.path : '/'}
       />
@@ -55,13 +56,17 @@ const DrawerContent = (props) => {
   );
 };
 
-export default connect(
-  null,
-  {
-    updateLocale,
+function mapStateToProps(state){
+  return {
+    user: getCurrentUser(state.usersReducer),
     userLogout,
-    ...drawerActions,
-  },
-)(injectIntl(withWidth()(withTheme()(
-  withRouter(withAppConfigs(withA2HS(withMarketId(DrawerContent)))),
-))));
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  const boundCreators = bindActionCreators({ ...drawerActions }, dispatch);
+  return { ...boundCreators, dispatch };
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withWidth()(withTheme()(withRouter(withA2HS(withMarketId(DrawerContent)))))));

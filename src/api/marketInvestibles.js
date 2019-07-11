@@ -56,9 +56,9 @@ export function fetchInvestibleList(currentInvestibleList, marketId, dispatch) {
     });
 }
 
-export function createInvestment(teamId, investibleId, quantity, dispatch) {
+export function createInvestment(teamId, investibleId, quantity, currentQuantity, dispatch) {
   const clientPromise = getClient();
-  return clientPromise.then(client => client.markets.createInvestment(teamId, investibleId, quantity))
+  return clientPromise.then(client => client.markets.updateInvestment(teamId, investibleId, quantity, currentQuantity))
     .then((investment) => {
       dispatch(investmentCreated(investment));
       sendIntlMessage(SUCCESS, { id: 'investmentSucceeded' }, { shares: quantity });

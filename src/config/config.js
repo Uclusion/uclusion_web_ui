@@ -1,8 +1,5 @@
-import menuItems from './menuItems';
-
 import locales from './locales';
 import routes from './routes';
-import { themes } from './themes';
 import grants from './grants';
 import ReactWebAuthorizer from '../utils/ReactWebAuthorizer';
 
@@ -17,7 +14,6 @@ const config = {
   locales,
   grants,
   routes,
-  getMenuItems: menuItems,
   webSockets: {
     wsUrl: process.env.REACT_APP_WEBSOCKET_URL,
     reconnectInterval: 2000,

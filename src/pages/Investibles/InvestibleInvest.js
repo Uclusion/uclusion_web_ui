@@ -60,10 +60,11 @@ class InvestibleInvest extends React.PureComponent {
       investibleId,
       teamId,
       dispatch,
+      currentUserInvestment,
     } = this.props;
     const { quantityToInvest } = this.state;
     const quantity = parseInt(quantityToInvest, 10);
-    createInvestment(teamId, investibleId, quantity, dispatch);
+    createInvestment(teamId, investibleId, quantity, currentUserInvestment, dispatch);
   }
 
 

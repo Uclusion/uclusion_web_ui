@@ -9,6 +9,7 @@ export const listUserMarkets = (user) => {
   return teamPresence.market_list;
 };
 
+/* TO BE KILLED */
 export const getCurrentMarketPresence = (user) => {
   if (!user) {
     return undefined;

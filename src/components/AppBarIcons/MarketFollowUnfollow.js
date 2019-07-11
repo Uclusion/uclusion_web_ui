@@ -6,7 +6,7 @@ import { withStyles, IconButton, Tooltip } from '@material-ui/core';
 import Info from '@material-ui/icons/Info';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
-import { getCurrentMarketPresence } from '../../utils/marketSelectionFunctions';
+import { getCurrentMarketPresence } from '../../utils/marketFunctions';
 import { followUnfollowMarket } from '../../api/markets';
 import HelpMovie from '../ModalMovie/HelpMovie';
 

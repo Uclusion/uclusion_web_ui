@@ -14,7 +14,7 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import InvestibleSearchBox from './InvestibleSearchBox';
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 import { getComments } from '../../store/Comments/reducer';
-import { getMarketPresenceName } from '../../utils/marketSelectionFunctions';
+import { getMarketPresenceName } from '../../utils/marketFunctions';
 import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfollow';
 import { fetchMarketInvestibleInfo } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';

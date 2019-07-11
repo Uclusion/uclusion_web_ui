@@ -161,9 +161,7 @@ const messages = defineMessages({
   grantModalText: 'Please enter the quantity of uShares to grant:',
   investModalQuantityLabel: 'Quantity',
   grantModalQuantityLabel: 'Quantity',
-  investButton: 'Invest',
-  grantButton: 'Grant',
-  unInvestButton: 'Refund',
+  investButton: 'Save',
   cancelButton: 'Cancel',
   addButton: 'Add',
   investTab: 'Invest',
@@ -173,9 +171,6 @@ const messages = defineMessages({
   workgroupTab: 'Workgroup',
   moreDetailsButton: 'More Details',
   totalCurrentInvestmentChip: '{shares} uShares',
-  investmentForNextStageChip: 'Needs {shares} additional investment',
-  currentStageLabel: 'Current Stage:',
-  nextStageLabel: 'Next Stage:',
   availableSharesToInvest: 'you have Ȗ{shares} available',
   userInvestedShares: 'You have already invested Ȗ{shares}',
   teamInvestedShares: 'Team invested Ȗ{shares}',
@@ -204,24 +199,13 @@ const messages = defineMessages({
   marketCategoriesMenu: 'Categories',
   help: 'Help',
   myInvestmentsMenu: 'My Investments',
-  marketTeamsMenu: 'Market Teams',
-  marketDropDown: 'Market:',
-  addInvestibleMenu: 'Add Investible',
-  investiblesMenu: 'Investibles',
-  dashboardMenu: 'Dashboard',
-  categoryLabel: 'Category',
   saveCommentButton: 'Save Comment',
-  saveInvestibleButton: 'Save investible',
   investToComment: 'You must invest to comment.',
-  noComments: 'There are no comments yet.',
   loadingMessage: 'Loading',
   investibleAddDescriptionDefault: 'Add a description...',
   investibleAddInvestLabel: 'Quantity to invest',
   // Team Memberships pages
-  teamsLoading: 'Loading your Team Memberships.',
   categoriesLoading: 'Loading Categories.',
-  myTeamsMenu: 'Team Memberships',
-  inviteMenu: 'Team Management',
   inviteMarketText: 'Use this page only if you need to invite someone that cannot single sign on or that you want on a different team then by email domain.',
   marketManagement: 'Market Management',
   marketEditHeader: 'Edit Market',
@@ -235,11 +219,6 @@ const messages = defineMessages({
   //search box
   searchBoxLabel: 'Search Investibles',
   searchBoxHelper: 'Type to search',
-  // marketStages drop down
-  stageSelectAllStages: 'All',
-  stageSelectLabel: 'Stage',
-  stageSelectHelper: 'Select to filter view',
-  stageNotHelper: 'Not ',
   // auth messages
   authorizationFailed: 'We\'re sorry, authorization failed. Please try again',
   authorizationInProgress: 'Logging you in...',
@@ -254,9 +233,6 @@ const messages = defineMessages({
   marketFollowFailed: 'We could not change your subscription to this market. Please try again.',
   marketFollowSuccess: 'You are subscribed to this market and will receive email notifications.',
   marketUnfollowSuccess: 'You are unsubscribed from this market and will not receive email notifications.',
-  stageFollowFailed: 'We could not change your subscription to this stage. Please try again.',
-  stageFollowSuccess: 'You are subscribed to this stage and will receive email notifications.',
-  stageUnfollowSuccess: 'You are unsubscribed from this stage and will not receive email notifications.',
   teamFollowFailed: 'We could not change your subscription to this team. Please try again.',
   teamFollowSuccess: 'You are subscribed to this team and will receive email notifications.',
   teamUnfollowSuccess: 'You are unsubscribed from this team and will not receive email notifications.',
@@ -465,26 +441,9 @@ const messages = defineMessages({
   RichTextEditorLinkLabel: 'Link',
   RichTextEditorTextLabel: 'Text',
 
-  //Categories
-  categoriesDeleteTooltip: 'Delete',
-
   //Investible detail
   investibleDetailClose: 'Close',
 
-  //DashBoard
-  dashboardUsersChartXLabel: 'Date',
-  dashboardUsersChartYLabel: '# Users in Market',
-  dashboardTotalSharesChartXLabel: 'Date',
-  dashboardTotalSharesChartYLabel: '# uShares in Market',
-
-  workgroupListYourTeam: 'Administrator',
-  workgroupListInvestor: 'Investor',
-  workgroupListSubscribed: 'Subscriber Only',
-  workgroupListTeamName: 'Team Name:',
-  workgroupListQuantityInvested: 'Investment:',
-  workgroupListName: 'Name:',
-  workgroupListEmail: 'Email:',
-  workgroupListTeam: 'Team:',
 
 });
 

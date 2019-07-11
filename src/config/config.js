@@ -1,4 +1,4 @@
-import getMenuItems from './menuItems';
+import menuItems from './menuItems';
 
 import locales from './locales';
 import routes from './routes';
@@ -17,7 +17,7 @@ const config = {
   locales,
   grants,
   routes,
-  getMenuItems,
+  getMenuItems: menuItems,
   webSockets: {
     wsUrl: process.env.REACT_APP_WEBSOCKET_URL,
     reconnectInterval: 2000,

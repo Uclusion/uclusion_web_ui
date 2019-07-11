@@ -111,17 +111,20 @@ const styles = theme => ({
 });
 
 function InvestibleDetail(props) {
-  const [lastInvestible, setLastInvestible] = useState({});
-
   const {
     investible, intl, classes, onClose, dispatch, user,
   } = props;
+  const [lastInvestible, setLastInvestible] = useState({});
+  const [ quantityToInvest, setQuantityToInvest ] = useState(investible.current_user_investment);
+
   const { isAdmin, isGuest } = getFlags(user);
+
 
 
   useEffect(() => {
     if (investible.id !== lastInvestible.id) {
       setLastInvestible(investible);
+      setQuantityToInvest(investible.current_user_investment);
       fetchInvestibles([investible.id], investible.market_id, dispatch);
       // Required if someone on team has spent shared uShares or there was a grant
       fetchSelf(dispatch);
@@ -191,6 +194,8 @@ function InvestibleDetail(props) {
           sharesAvailable={100} // {user.market_presence.quantity}
           currentUserInvestment={myInvestible.current_user_investment}
           investibleId={myInvestible.id}
+          quantityToInvest={quantityToInvest}
+          setQuantityToInvest={setQuantityToInvest}
         />
         <CommentsList
           marketId={myInvestible.market_id}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -37,131 +37,99 @@ const styles = theme => ({
   },
 });
 
-class InvestibleInvest extends React.PureComponent {
+function InvestibleInvest(props){
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      ...props,
-      quantityToInvest: props.currentUserInvestment,
-      saveEnabled: false,
-    };
+  const {
+    investibleId,
+    teamId,
+    dispatch,
+    currentUserInvestment,
+    sharesAvailable,
+    classes,
+    intl,
+    setQuantityToInvest,
+    quantityToInvest,
+  } = props;
 
-    this.addClicked = this.addClicked.bind(this);
-    this.deleteClicked = this.deleteClicked.bind(this);
-    this.updateState = this.updateState.bind(this);
-    this.checkQuantity = this.checkQuantity.bind(this);
-    this.doInvestment = this.doInvestment.bind(this);
-    this.handleQuantityChange = this.handleQuantityChange.bind(this);
-  }
 
-  doInvestment() {
-    const {
-      investibleId,
-      teamId,
-      dispatch,
-      currentUserInvestment,
-    } = this.props;
-    const { quantityToInvest } = this.state;
+  function doInvestment() {
     const quantity = parseInt(quantityToInvest, 10);
     createInvestment(teamId, investibleId, quantity, currentUserInvestment, dispatch);
   }
 
-
-  validateQuantityToInvest(quantity) {
-    const { sharesAvailable } = this.props;
-    return (quantity <= sharesAvailable) && (quantity > 0);
-  }
-
-
-  checkQuantity(newQuantity) {
-    const { sharesAvailable } = this.props;
+  function checkQuantity(newQuantity) {
     const numValue = isNaN(newQuantity) ? parseInt(newQuantity, 10) : newQuantity;
     const invalid = (!isNaN(numValue) && (numValue < 0 || numValue > sharesAvailable));
     return !invalid;
   }
 
-  updateState(newQuantity) {
-    const valid = this.checkQuantity(newQuantity);
-    const { currentUserInvestment } = this.props;
+  function updateState(newQuantity) {
+    const valid = checkQuantity(newQuantity);
     if (valid) {
-      // eslint-disable-next-line eqeqeq
-      const saveEnabled = newQuantity != currentUserInvestment;
-      this.setState({
-        quantityToInvest: newQuantity,
-        saveEnabled: saveEnabled,
-      });
+      const numValue = isNaN(newQuantity) ? parseInt(newQuantity, 10) : newQuantity;
+      setQuantityToInvest(numValue);
+    } else {
     }
   }
 
-  handleQuantityChange(event) {
+  function handleQuantityChange(event) {
     const { value } = event.target;
-    this.updateState(value);
+    updateState(value);
   }
 
-  addClicked() {
-    const { quantityToInvest } = this.state;
+  function addClicked() {
     const newQuantity = quantityToInvest + 1;
-    this.updateState(newQuantity);
+    updateState(newQuantity);
   }
 
-  deleteClicked() {
-    const { quantityToInvest } = this.state;
+  function deleteClicked() {
     const newQuantity = quantityToInvest - 1;
-    this.updateState(newQuantity);
+    updateState(newQuantity);
   }
 
-  render() {
-    const {
-      classes,
-      intl,
-    } = this.props;
-    const { quantityToInvest, saveEnabled } = this.state;
+  return (
+    <div>
 
-    return (
-      <div>
+      <form className={classes.container} noValidate autoComplete="off" onSubmit={e => e.preventDefault()}>
 
-        <form className={classes.container} noValidate autoComplete="off" onSubmit={ e=> e.preventDefault()}>
+        <IconButton onClick={deleteClicked}>
+          <Remove/>
+        </IconButton>
 
-          <IconButton onClick={this.deleteClicked}>
-            <Remove />
-          </IconButton>
-
-          <TextField
-            id="quantityToInvest"
-            label={intl.formatMessage({ id: 'investModalQuantityLabel' })}
-            className={classes.textField}
-            margin="normal"
-            type="number"
-            value={quantityToInvest}
-            onChange={this.handleQuantityChange}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment
-                  style={{ paddingBottom: 4 }}
-                  position="start"
-                >
-                  Ȗ
-                </InputAdornment>
-              ),
-            }}
-          />
-          <IconButton onClick={this.addClicked}>
-            <Add />
-          </IconButton>
-          {saveEnabled &&
-          <Button
-            className={classes.investButton}
-            variant="contained"
-            color="primary"
-            onClick={this.handleInvest}>
-            {intl.formatMessage({ id: 'investButton' })}
-          </Button>
-          }
-        </form>
-      </div>
-    );
-  }
+        <TextField
+          id="quantityToInvest"
+          label={intl.formatMessage({ id: 'investModalQuantityLabel' })}
+          className={classes.textField}
+          margin="normal"
+          type="number"
+          value={quantityToInvest}
+          onChange={handleQuantityChange}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment
+                style={{ paddingBottom: 4 }}
+                position="start"
+              >
+                Ȗ
+              </InputAdornment>
+            ),
+          }}
+        />
+        <IconButton onClick={addClicked}>
+          <Add/>
+        </IconButton>
+        {(currentUserInvestment != quantityToInvest) &&
+        <Button
+          className={classes.investButton}
+          variant="contained"
+          color="primary"
+          onClick={doInvestment}>
+          {intl.formatMessage({ id: 'investButton' })}
+        </Button>
+        }
+      </form>
+    </div>
+  );
 }
 
 InvestibleInvest.propTypes = {

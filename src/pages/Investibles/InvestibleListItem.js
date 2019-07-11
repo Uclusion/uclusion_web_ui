@@ -69,12 +69,6 @@ class InvestibleListItem extends React.PureComponent {
             <div className={classes.flex}>
               <div className={classes.investibleName}>{investible.name}</div>
             </div>
-
-
-          </Typography>
-          {investible.current_user_investment > 0 && (<br />)}
-          <Typography className={classes.availableShares}>
-            {investible.current_user_investment > 0 && `* ${intl.formatMessage({ id: 'userInvestedShares' }, { shares: investible.current_user_investment })}`}
           </Typography>
         </Link>
       </Paper>

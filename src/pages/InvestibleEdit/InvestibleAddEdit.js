@@ -364,6 +364,7 @@ InvestibleAddEdit.propTypes = {
   marketStages: PropTypes.object.isRequired,  //eslint-disable-line
   markets: PropTypes.object.isRequired,  //eslint-disable-line
   dispatch: PropTypes.func.isRequired,
+  history: PropTypes.object.isRequired,  //eslint-disable-line
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withMarketId(withStyles(styles)(InvestibleAddEdit))));

@@ -66,7 +66,7 @@ export function createInvestment(teamId, investibleId, quantity, currentQuantity
       return fetchSelf(dispatch);
     }).catch((error) => {
       console.error(error);
-      sendIntlMessage(ERROR, { id: 'investibleListFetchFailed' });
+      sendIntlMessage(ERROR, { id: 'investmentFailed' });
     });
 }
 

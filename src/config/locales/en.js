@@ -34,10 +34,6 @@ const messages = defineMessages({
   sign_in_with_facebook: 'Sign in with Facebook',
   sign_in_with_twitter: 'Sign in with Twitter',
   sign_in_with_github: 'Sign in with Github',
-  'link_with_google.com': 'Link with Google',
-  'link_with_facebook.com': 'Link with Facebook',
-  'link_with_twitter.com': 'Link with Twitter',
-  'link_with_github.com': 'Link with Github',
   my_account: 'My account',
   name: 'Name',
   adminName: 'Name of new admin',
@@ -66,12 +62,6 @@ const messages = defineMessages({
   send_verification_email_again: 'Send verification E-Mail again',
   check_email_code: 'Please check your email for a verification code',
   investibles: 'Investibles',
-  members: 'Members',
-  investments: 'Investments',
-  administer: 'Manage uShares',
-  marketInvestiblesTitle: '{marketName} Investibles',
-  create_task: 'Create task',
-  edit_task: 'Edit task',
   users: 'Users',
   edit: 'Edit',
   online: 'Online',
@@ -85,12 +75,6 @@ const messages = defineMessages({
   error: 'Error!',
   create_company: 'Create company',
   edit_company: 'Edit company',
-  delete_company_title: 'Delete company?',
-  delete_company_message: 'The company will be deleted!',
-  full_name_label: 'Full name',
-  full_name_hint: 'Enter full name',
-  vat_label: 'UID',
-  vat_hint: 'Enter UID',
   description_label: 'Description',
   description_hint: 'Enter description',
   name_label: 'Name',
@@ -151,14 +135,8 @@ const messages = defineMessages({
   select_operator: 'Select operator',
   not_match_found: 'No match found',
   edit_user: 'Edit user',
-  hot_dog_status: 'Hot dog status',
-  user_label_search: 'Search user',
-  collection: 'Collection',
-  infinitelist: 'Infinitelist',
   investibleListNotFound: 'No Investibles Found.',
   investibleListHeader: 'Investibles',
-  investModalText: 'Please enter the quantity of uShares to invest:',
-  grantModalText: 'Please enter the quantity of uShares to grant:',
   investModalQuantityLabel: 'Quantity',
   grantModalQuantityLabel: 'Quantity',
   investButton: 'Save',
@@ -168,19 +146,10 @@ const messages = defineMessages({
   activityTab: 'Activity',
   commentsTab: 'Comments',
   investorsTab: 'Investors',
-  workgroupTab: 'Workgroup',
   moreDetailsButton: 'More Details',
   totalCurrentInvestmentChip: '{shares} uShares',
-  availableSharesToInvest: 'you have Ȗ{shares} available',
-  userInvestedShares: 'You have already invested Ȗ{shares}',
-  teamInvestedShares: 'Team invested Ȗ{shares}',
-  defaultCategoryName: 'Uncategorized',
-  teamsListNotFound: 'No Teams found',
-  categoriesListNotFound: 'No Categories found',
   titleLabel: 'Name',
   descriptionLabel: 'Description',
-  teamNameLabel: 'Name of new team',
-  teamDescriptionLabel: 'Description',
   descriptionBody: 'Your description...',
   commentBody: 'Your comment...',
   // About pages
@@ -200,10 +169,8 @@ const messages = defineMessages({
   help: 'Help',
   myInvestmentsMenu: 'My Investments',
   saveCommentButton: 'Save Comment',
-  investToComment: 'You must invest to comment.',
   loadingMessage: 'Loading',
   investibleAddDescriptionDefault: 'Add a description...',
-  investibleAddInvestLabel: 'Quantity to invest',
   // Team Memberships pages
   categoriesLoading: 'Loading Categories.',
   inviteMarketText: 'Use this page only if you need to invite someone that cannot single sign on or that you want on a different team then by email domain.',
@@ -250,14 +217,6 @@ const messages = defineMessages({
   investibleAddSucceeded: 'Your new investible has been created! It may take a few minutes to be visible.',
   marketInvestibleDeleted: 'The investible has been removed from the market.',
   marketInvestibleDeleteFailed: 'There was a problem removing the investible from the market. Please try again',
-  marketCategoryDeleted: 'The category has been removed from the market.',
-  marketCategoryDeleteFailed: 'There was a problem removing the category from the market. Please try again',
-  marketCategoryCreated: 'The category has been added to the market.',
-  marketCategoryCreateFailed: 'There was a problem adding the category to the market. Please try again',
-  marketTeamCreated: 'The team has been added to the market.',
-  marketTeamCreateFailed: 'There was a problem adding the team to the market. Please try again',
-  userCreated: 'The user has been added as an admin.',
-  userCreateFailed: 'There was a problem adding the user to your team. Please try again',
   investibleListFetchFailed: 'Unable to fetch your list of investibles. Please refresh the page',
   investibleFetchFailed: 'Unable to fetch your investibles. Please refresh the page',
   commentsFetchFailed: 'We\'re sorry comments can not be fetched right now. Please reload the page',
@@ -373,19 +332,6 @@ const messages = defineMessages({
   // New Cognito
   cognitoRegistrationTitle: 'Registration',
 
-  // teamMemberships
-  teamMembershipsMyInvestmentsTitle: 'My Investments',
-  teamMembershipsTeamUshares: 'uShares:',
-  teamMembershipsMemberListItemUsharesAvailable: 'uShares available: {quantity}',
-  teamMembershipsMemberListItemUsharesSpent: 'uShares spent: {quantity_invested}',
-  teamMembershipsEmailButton: 'Copy Market Invite Link To Clipboard',
-  teamMembershipsEmailButtonTooltip: 'Send this link to your user to invite them into your market',
-  teamMembershipsSharesAvailableToTeamAndUsers: 'Ȗ Available',
-  teamMembershipsSharesInvested: 'Ȗ Invested',
-  teamMembershipsSharesInvestedPercentage: '% Invested',
-  teamMembershipsLastInvested: 'Last invested at: {date}',
-  teamHealthScore: 'Health',
-
   // MarketManagement
   copyAnonymousLoginLink: 'Copy public access Link',
   marketDescriptionText: 'Enter a description and logo image for display during new user signup.',
@@ -431,9 +377,6 @@ const messages = defineMessages({
   marketUnspent: 'Total unspent uShares in this market',
   marketActiveInvestments: 'Total actively invested uShares in this market',
 
-  // Invite list
-  inviteListMemberCount: '{count} Members',
-
   // Rich text editor
   RichTextEditorAddLinkTitle: 'Add Link',
   RichTextEditorEnterUrl: 'Enter the URL of the link:',
@@ -443,7 +386,6 @@ const messages = defineMessages({
 
   //Investible detail
   investibleDetailClose: 'Close',
-
 
 });
 

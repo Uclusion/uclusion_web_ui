@@ -50,30 +50,27 @@ const styles = theme => ({
   },
 });
 
-class InvestibleListItem extends React.PureComponent {
+function InvestibleListItem(props) {
 
+  const {
+    classes,
+    // intl,
+    investible,
+    selected,
+  } = props;
 
+  return (
+    <Paper square={true} className={classNames(classes.card, { [classes.cardSelected]: selected })}>
+      <Link className={classes.link} to={`#investible:${investible.id}`}>
+        <Typography component="div">
+          <div className={classes.flex}>
+            <div className={classes.investibleName}>{investible.name}</div>
+          </div>
+        </Typography>
+      </Link>
+    </Paper>
+  );
 
-  render() {
-    const {
-      classes,
-      intl,
-      investible,
-      selected,
-    } = this.props;
-
-    return (
-      <Paper square={true} className={classNames(classes.card, { [classes.cardSelected]: selected })}>
-        <Link className={classes.link} to={`#investible:${investible.id}`}>
-          <Typography component="div">
-            <div className={classes.flex}>
-              <div className={classes.investibleName}>{investible.name}</div>
-            </div>
-          </Typography>
-        </Link>
-      </Paper>
-    );
-  }
 }
 
 InvestibleListItem.propTypes = {

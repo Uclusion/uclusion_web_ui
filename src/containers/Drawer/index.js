@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import classNames from 'classnames';
-import { withTheme, withStyles, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { withTheme, withStyles, MuiThemeProvider } from '@material-ui/core/styles';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import Drawer from '@material-ui/core/Drawer';
 import DrawerContent from './DrawerContent';

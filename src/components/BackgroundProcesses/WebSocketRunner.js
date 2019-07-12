@@ -26,8 +26,8 @@ class WebSocketRunner {
       const message = JSON.parse(event.data);
       const { payload, object_id, sub_object_id } = message;
       switch (message.event_type) {
-        case 'MARKET_INVESTIBLE_UPDATED':
-        case 'MARKET_INVESTIBLE_CREATED':
+        case 'INVESTIBLE_UPDATED':
+        case 'INVESTIBLE_CREATED':
           fetchInvestibles([object_id], message.indirect_object_id, this.dispatch);
           break;
         case 'INVESTIBLE_COMMENT_DELETED':
@@ -36,7 +36,7 @@ class WebSocketRunner {
         case 'INVESTIBLE_COMMENT_UPDATED':
           fetchComments(object_id, message.associated_object_id);
           break;
-        case 'MARKET_INVESTIBLE_DELETED':
+        case 'INVESTIBLE_DELETED':
           this.dispatch(investibleDeleted(message.indirect_object_id, object_id));
           break;
         case 'UI_UPDATE_REQUIRED':

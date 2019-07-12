@@ -1,12 +1,9 @@
 import React from 'react';
 
-import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import LockIcon from '@material-ui/icons/Lock';
 import ListIcon from '@material-ui/icons/List';
 import { formMarketLink } from '../utils/marketIdPathFunctions';
 import { listUserMarkets } from '../utils/marketFunctions';
-
-
 
 
 function getMarketsItems(user) {

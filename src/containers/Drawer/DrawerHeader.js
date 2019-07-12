@@ -5,7 +5,7 @@ import {
   ListItem,
   ListItemText,
 // ListItemSecondaryAction,
-  Paper,
+//  Paper,
 // IconButton,
   Hidden,
   withWidth,

@@ -4,9 +4,8 @@ import { combineReducers } from 'redux';
 import _ from 'lodash';
 import {
   RECEIVE_INVESTIBLES, RECEIVE_INVESTIBLE_LIST,
-  INVESTMENT_CREATED,
-  INVESTIBLE_CREATED, MARKET_INVESTIBLE_CREATED, MARKET_INVESTIBLE_DELETED, INVESTMENTS_DELETED,
-  INVESTIBLE_FOLLOW_UNFOLLOW,
+  INVESTIBLE_CREATED, INVESTIBLE_DELETED,
+  INVESTIBLE_FOLLOW_UNFOLLOW, INVESTMENT_UPDATED,
 } from './actions';
 
 
@@ -20,36 +19,27 @@ export function getInvestibleCreatedState(state, action){
   return newState;
 }
 
-// exported for use by the search reducer
-export function getMarketInvestibleCreatedState(state, action){
+
+function updateSingleInvestible(state, marketId, investibleId, newValues) {
   const newState = { ...state };
-  const { investment, marketInvestible } = action;
-  const investibleId = marketInvestible ? marketInvestible.investible_id
-    : investment.investible_id;
-  const findInvestibleId = marketInvestible ? marketInvestible.copiedInvestibleId
-    : investibleId;
-  const investibleMarketId = marketInvestible ? 'template' : investment.market_id;
-  const investible = state[investibleMarketId].find(element => element.id === findInvestibleId);
-  let investibleCopy;
-  if (marketInvestible) {
-    // This is a bind to market
-    investibleCopy = { ...investible, ...marketInvestible };
-  } else {
-    investibleCopy = { ...investible };
+  const marketInvestibles = newState[marketId];
+  if (marketInvestibles) {
+    const oldInvestible = marketInvestibles.find(item => item.id === investibleId);
+    if (oldInvestible) {
+      const newInvestible = { ...oldInvestible, ...newValues };
+      const newMarketInvestibles = _.unionBy([newInvestible], marketInvestibles, 'id');
+      newState[marketId] = newMarketInvestibles;
+    }
   }
-  investibleCopy.id = investibleId;
-  investibleCopy.quantity = investment ? investment.investible_quantity : 0;
-  investibleCopy.current_user_investment = investment ? investment.current_user_investment : 0;
-  newState[investibleCopy.market_id] = _.unionBy([investibleCopy],
-    state[investibleCopy.market_id], 'id');
   return newState;
 }
 
-export function getMarketInvestibleDeletedState(state, action){
-  if (state[action.marketId]) {
+export function getInvestibleDeletedState(state, action){
+  const { marketId, investibleId } = action;
+  if (state[marketId]) {
     const newState = { ...state };
-    newState[action.marketId] = state[action.marketId].filter(
-      item => (item.id !== action.investibleId),
+    newState[marketId] = state[marketId].filter(
+      item => (item.id !== investibleId),
     );
     return newState;
   }
@@ -57,36 +47,16 @@ export function getMarketInvestibleDeletedState(state, action){
   return state;
 }
 
-function getInvestibleFollowUnfollowState(state, action){
-  const newState = { ...state };
-  const { investible, isFollowing } = action;
-  const marketInvestibles = newState[investible.market_id];
-  if (marketInvestibles) {
-    const oldInvestible = marketInvestibles.find(item => item.id === investible.id);
-    if (oldInvestible) {
-      const newInvestible = { ...oldInvestible };
-      newInvestible.current_user_is_following = isFollowing;
-      const newMarketInvestibles = _.unionBy([newInvestible], marketInvestibles, 'id');
-      newState[investible.market_id] = newMarketInvestibles;
-    }
-  }
-  return newState;
+function getInvestibleFollowUnfollowState(state, action) {
+  const { marketId, investibleId, isFollowing } = action;
+  const newValues = { current_user_is_following: isFollowing };
+  return updateSingleInvestible(state, marketId, investibleId, newValues);
 }
 
-function getInvestmentsDeletedState(state, action) {
-  const newState = { ...state };
+function getInvestmentUpdateState(state, action){
   const { marketId, investibleId, quantity } = action;
-  const marketInvestibles = newState[marketId];
-  if (marketInvestibles) {
-    const oldInvestible = marketInvestibles.find(item => item.id === investibleId);
-    if (oldInvestible) {
-      const newInvestible = { ...oldInvestible };
-      newInvestible.quantity -= quantity;
-      const newMarketInvestibles = _.unionBy([newInvestible], marketInvestibles, 'id');
-      newState[marketId] = newMarketInvestibles;
-    }
-  }
-  return newState;
+  const newValues = { current_user_investment: quantity };
+  return updateSingleInvestible(state, marketId, investibleId, newValues);
 }
 
 /**
@@ -126,15 +96,12 @@ const items = (state = [], action) => {
     case RECEIVE_INVESTIBLES:
     case INVESTIBLE_CREATED:
       return getInvestibleCreatedState(state, action);
-    case MARKET_INVESTIBLE_DELETED:
-      return getMarketInvestibleDeletedState(state, action);
-    case INVESTMENT_CREATED:
-    case MARKET_INVESTIBLE_CREATED:
-      return getMarketInvestibleCreatedState(state, action);
+    case INVESTIBLE_DELETED:
+      return getInvestibleDeletedState(state, action);
     case INVESTIBLE_FOLLOW_UNFOLLOW:
       return getInvestibleFollowUnfollowState(state, action);
-    case INVESTMENTS_DELETED:
-      return getInvestmentsDeletedState(state, action);
+    case INVESTMENT_UPDATED:
+      return getInvestmentUpdateState(state, action);
     default:
       return state;
   }

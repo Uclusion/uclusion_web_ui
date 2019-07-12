@@ -1,28 +1,19 @@
 export const RECEIVE_INVESTIBLES = 'RECEIVE_INVESTIBLES';
 export const INVEST_INVESTIBLE = 'INVEST_INVESTIBLE';
-export const INVESTMENT_CREATED = 'INVESTMENT_CREATED';
+export const INVESTMENT_UPDATED = 'INVESTMENT_UPDATED';
 export const INVESTIBLE_CREATED = 'INVESTIBLE_CREATED';
-export const DELETE_MARKET_INVESTIBLE = 'DELETE_MARKET_INVESTIBLE';
-export const MARKET_INVESTIBLE_DELETED = 'MARKET_INVESTIBLE_DELETED';
-export const INVESTMENTS_DELETED = 'INVESTMENTS_DELETED';
-export const MARKET_INVESTIBLE_CREATED = 'MARKET_INVESTIBLE_CREATED';
-export const RECEIVE_MARKET_INVESTIBLE_LIST = 'RECEIVE_MARKET_INVESTIBLE_LIST';
+export const DELETE_INVESTIBLE = 'DELETE_INVESTIBLE';
+export const INVESTIBLE_DELETED = 'INVESTIBLE_DELETED';
 export const INVESTIBLE_FOLLOW_UNFOLLOW = 'INVESTIBLE_FOLLOW_UNFOLLOW';
 export const MARKET_INVESTIBLE_EDITED = 'MARKET_INVESTIBLE_EDITED';
 export const RECEIVE_INVESTIBLE_LIST = 'RECEIVE_INVESTIBLE_LIST';
 
 export const investibleDeleted = (marketId, investibleId) => ({
-  type: MARKET_INVESTIBLE_DELETED,
+  type: INVESTIBLE_DELETED,
   investibleId,
   marketId,
 });
 
-
-export const investmentsDeleted = (marketId, investibleId) => ({
-  type: INVESTMENTS_DELETED,
-  marketId,
-  investibleId,
-});
 
 export const receiveInvestibleList = (marketId, investibleList) => ({
   type: RECEIVE_INVESTIBLE_LIST,
@@ -36,16 +27,13 @@ export const receiveInvestibles = (marketId, investibles) => ({
   marketId,
 });
 
-export const investmentCreated = investment => ({
-  type: INVESTMENT_CREATED,
-  investment,
+export const investmentUpdated = (marketId, investibleId, quantity) => ({
+  type: INVESTMENT_UPDATED,
+  marketId,
+  investibleId,
+  quantity,
 });
 
-export const marketInvestibleCreated = (investment, marketInvestible) => ({
-  type: MARKET_INVESTIBLE_CREATED,
-  investment,
-  marketInvestible,
-});
 
 export const investibleCreated = investible => ({
   type: INVESTIBLE_CREATED,

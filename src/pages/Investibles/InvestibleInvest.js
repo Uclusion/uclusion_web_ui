@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-
+import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -8,7 +7,7 @@ import { injectIntl } from 'react-intl';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import { IconButton, Button } from '@material-ui/core';
 
-import { createInvestment } from '../../api/marketInvestibles';
+import { updateInvestment } from '../../api/marketInvestibles';
 import { Add, Remove } from '@material-ui/icons';
 
 const styles = theme => ({
@@ -40,6 +39,7 @@ const styles = theme => ({
 function InvestibleInvest(props){
 
   const {
+    marketId,
     investibleId,
     teamId,
     dispatch,
@@ -54,7 +54,7 @@ function InvestibleInvest(props){
 
   function doInvestment() {
     const quantity = parseInt(quantityToInvest, 10);
-    createInvestment(teamId, investibleId, quantity, currentUserInvestment, dispatch);
+    updateInvestment(teamId, marketId, investibleId, quantity, currentUserInvestment, dispatch);
   }
 
   function checkQuantity(newQuantity) {
@@ -118,7 +118,7 @@ function InvestibleInvest(props){
         <IconButton onClick={addClicked}>
           <Add/>
         </IconButton>
-        {(currentUserInvestment != quantityToInvest) &&
+        {(currentUserInvestment != quantityToInvest) && //eslint-disable-line
         <Button
           className={classes.investButton}
           variant="contained"
@@ -135,6 +135,7 @@ function InvestibleInvest(props){
 InvestibleInvest.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
   investibleId: PropTypes.string.isRequired,
+  marketId: PropTypes.string.isRequired,
   teamId: PropTypes.string.isRequired,
   sharesAvailable: PropTypes.number.isRequired,
   dispatch: PropTypes.func.isRequired,

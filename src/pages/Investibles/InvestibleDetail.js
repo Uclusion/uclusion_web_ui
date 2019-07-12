@@ -191,6 +191,7 @@ function InvestibleDetail(props) {
         <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={myInvestible.description} readOnly />
         <InvestibleInvest
           teamId={user.default_team_id}
+          marketId={myInvestible.market_id}
           sharesAvailable={100} // {user.market_presence.quantity}
           currentUserInvestment={myInvestible.current_user_investment}
           investibleId={myInvestible.id}

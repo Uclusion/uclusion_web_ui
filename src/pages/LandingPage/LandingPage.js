@@ -27,10 +27,10 @@ import { getCurrentUser } from '../../store/Users/reducer';
 import appConfig from '../../config/config';
 import {
   setUclusionLocalStorageItem,
-  getUclusionLocalStorageItem,
   clearAuth,
   updateMarketAuth
 } from '../../components/utils';
+import client from 'uclusion_sdk';
 import { getClient } from '../../config/uclusionClient';
 import { validURL } from '../../utils/validators';
 import { sendIntlMessage, ERROR } from '../../utils/userMessage';
@@ -114,20 +114,21 @@ function createMarket(client, accountCreationInfo, setLoading) {
   client.markets.createMarket({
     name: accountCreationInfo.marketName,
     description: accountCreationInfo.marketDescription,
-    default_categories: true,
   }).then((market) => {
-    if (accountCreationInfo.email) {
-      // Un setting return auth token because need them to login again from email sent
-      // (otherwise identity not confirmed)
-      clearAuth();
-      const encodedEmail = encodeURIComponent(accountCreationInfo.email);
-      if (accountCreationInfo.isExistingLogin) {
-        window.location = `${window.location.origin}/${market.market_id}/market?email=${encodedEmail}`;
+    if (market.market_id) {
+      if (accountCreationInfo.email) {
+        // Un setting return auth token because need them to login again from email sent
+        // (otherwise identity not confirmed)
+        clearAuth();
+        const encodedEmail = encodeURIComponent(accountCreationInfo.email);
+        if (accountCreationInfo.isExistingLogin) {
+          window.location = `${window.location.origin}/${market.market_id}/market?email=${encodedEmail}`;
+        } else {
+          window.location = `${window.location.origin}/${market.market_id}/market?newLogin=true&email=${encodedEmail}`;
+        }
       } else {
-        window.location = `${window.location.origin}/${market.market_id}/market?newLogin=true&email=${encodedEmail}`;
+        window.location = `${window.location.origin}/${market.market_id}/Login`;
       }
-    } else {
-      window.location = `${window.location.origin}/${market.market_id}/Login`;
     }
   }).catch((error) => {
     console.error(error);
@@ -239,9 +240,6 @@ function LandingPage(props) {
   function handleSubmit(event) {
     event.preventDefault();
     const marketName = accountName;
-    const authorizer = new AnonymousAuthorizer({
-      uclusionUrl: appConfig.api_configuration.baseURL,
-    });
     const canonicalEmail = email.toLowerCase();
     const accountCreationInfo = {
       marketName, accountName, clientId, loginType, email: canonicalEmail, name,
@@ -250,16 +248,19 @@ function LandingPage(props) {
     if (loginType === LOGIN_COGNITO) {
       setLoading(true);
       setProgressMessage(intl.formatMessage({ id: 'landingPageCreatingYourAccount' }));
-      authorizer.cognitoAccountCreate(accountCreationInfo)
-        .then((response) => {
-          const authInfo = {
-            token: response.login_capability, type: authorizer.getType(),
-          };
-          accountCreationInfo.isExistingLogin = response.user.exists_in_cognito;
-          // Have to set the return token or market creation will fail
-          updateMarketAuth('account', authInfo);
-          return getClient();
-        }).then(client => setTimeout(createMarket, 30000, client, accountCreationInfo, setLoading)) // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
+      client.constructSSOClient({
+        baseURL: appConfig.api_configuration.baseURL,
+        websocketURL: appConfig.webSockets.wsUrl,
+      }).then(client => client.cognitoAccountCreate(accountCreationInfo.accountName,
+        accountCreationInfo.name, accountCreationInfo.email, 'Advanced')).then((response) => {
+        const authInfo = {
+          token: response.login_capability, type: 'cognito',
+        };
+        accountCreationInfo.isExistingLogin = response.user.exists_in_cognito;
+        // Have to set the return token or market creation will fail
+        updateMarketAuth('account', authInfo);
+        return getClient();
+      }).then(client => setTimeout(createMarket, 30000, client, accountCreationInfo, setLoading)) // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
         .catch((e) => {
           setLoading(false);
           getErrorMessage(e)
@@ -271,7 +272,10 @@ function LandingPage(props) {
     } else {
       setLoading(true);
       setUclusionLocalStorageItem('accountCreationInfo', accountCreationInfo);
-      authorizer.accountRedirect({
+      client.constructSSOClient({
+        baseURL: appConfig.api_configuration.baseURL,
+        websocketURL: appConfig.webSockets.wsUrl,
+      }).then(client => client.accountRedirect({
         uclusion_client_id: clientId,
         op_endpoint_base_url: loginType === LOGIN_GOOGLE ? 'https://accounts.google.com' : baseURL,
         account_name: accountName,
@@ -279,14 +283,15 @@ function LandingPage(props) {
         team_description: `${marketName} administrators`,
         redirect_url: `${window.location.href}`,
         oidc_type: loginType === LOGIN_GOOGLE ? 'GOOGLE' : 'OKTA',
-      }).then((redirectUrl) => {
+      })).then((redirectUrl) => {
         window.location = redirectUrl;
       }).catch((e) => {
         sendIntlMessage(ERROR, { id: 'landingPageErrorSigningIn' });
         console.error(e);
-      }).finally(() => {
-        setLoading(false);
-      });
+      })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   }
 

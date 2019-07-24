@@ -14,8 +14,7 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import InvestibleSearchBox from './InvestibleSearchBox';
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 import { getComments } from '../../store/Comments/reducer';
-import { getMarketPresenceName } from '../../utils/marketFunctions';
-import MarketFollowUnfollow from '../../components/AppBarIcons/MarketFollowUnfollow';
+import { getMarketPresenceName } from '../../utils/marketF`unctions';
 import { fetchMarketInvestibleInfo } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { getFlags } from '../../utils/userFunctions';
@@ -168,7 +167,7 @@ function InvestiblesPage(props) {
         containerStyle={{ overflow: 'hidden' }}
         appBarContent={[<InvestibleSearchBox />, <InvestibleAddButton />]}
         title={currentMarketName}
-        titleButtons={[<MarketFollowUnfollow user={user} marketId={marketId}/>, <Button
+        titleButtons={[<Button
           className={classes.toolbarButton}
           variant="contained"
           onClick={toggleShowFavorite}

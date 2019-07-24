@@ -28,8 +28,7 @@ export const categoryPropType = PropTypes.shape({
 const marketItems = (state = [], action) => {
   switch (action.type) {
     case RECEIVE_MARKET:
-      const markets = [action.market];
-      return _.unionBy(markets, state, 'id');
+      return _.unionBy([action.market], state, 'id');
     default:
       return state;
   }

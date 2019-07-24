@@ -34,7 +34,6 @@ const marketItems = (state = [], action) => {
   }
 };
 
-
 const formatMarket = (market) => {
   const newMarket = {
     ...market,

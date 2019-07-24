@@ -14,11 +14,11 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import InvestibleSearchBox from './InvestibleSearchBox';
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 import { getComments } from '../../store/Comments/reducer';
-import { getMarketPresenceName } from '../../utils/marketF`unctions';
 import { fetchMarketInvestibleInfo } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { getFlags } from '../../utils/userFunctions';
 import InvestibleAddButton from './InvestibleAddButton';
+import { getMarkets } from '../../store/Markets/reducer';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -65,6 +65,7 @@ function InvestiblesPage(props) {
     history,
     classes,
     investibles,
+    markets,
     location,
   } = props;
   const { location: { hash, pathname } } = history;
@@ -155,7 +156,8 @@ function InvestiblesPage(props) {
       }
     }
   }
-  const currentMarketName = getMarketPresenceName(user, marketId);
+  const currentMarket = markets.find(market => marketId === market.id);
+  const currentMarketName = currentMarket.name || '';
 
   // TODO: give choice of teamId instead of default
   return (
@@ -173,8 +175,7 @@ function InvestiblesPage(props) {
           onClick={toggleShowFavorite}
         >
           {intl.formatMessage({ id: showFavorite ? 'showAll' : 'showFavorite' })}
-        </Button>,
-          ]}
+        </Button>]}
       >
         {currentInvestibleList && user && user.market_presence
         && (
@@ -216,6 +217,8 @@ InvestiblesPage.propTypes = {
   marketId: PropTypes.string,
   user: PropTypes.object,
   activeInvestibleSearches: PropTypes.object,
+  markets: PropTypes.arrayOf(PropTypes.object),
+  classes: PropTypes.arrayOf(PropTypes.object),
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
 };
@@ -225,7 +228,7 @@ const mapStateToProps = state => ({
   comments: getComments(state.commentsReducer),
   user: getCurrentUser(state.usersReducer),
   activeInvestibleSearches: getActiveInvestibleSearches(state.activeSearches),
-});
+  markets: getMarkets(state.marketsReducer), });
 
 function mapDispatchToProps(dispatch) {
   return { dispatch };

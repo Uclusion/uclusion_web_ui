@@ -3,11 +3,9 @@ import React from 'react';
 import LockIcon from '@material-ui/icons/Lock';
 import ListIcon from '@material-ui/icons/List';
 import { formMarketLink } from '../utils/marketIdPathFunctions';
-import { listUserMarkets } from '../utils/marketFunctions';
 
 
-function getMarketsItems(user) {
-  const markets = listUserMarkets(user);
+function getMarketsItems(markets) {
   const menuItems = markets.map(market => {
     const { id, name } = market;
     return {
@@ -23,7 +21,7 @@ const menuItems = (props) => {
   const {
     intl,
     handleSignOut,
-    user,
+    markets,
   } = props;
 
 
@@ -35,7 +33,7 @@ const menuItems = (props) => {
       leftIcon: <LockIcon />,
     },
   ];
-  const marketsItems = getMarketsItems(user);
+  const marketsItems = getMarketsItems(markets);
   return [...marketsItems, ...universalItems];
 };
 

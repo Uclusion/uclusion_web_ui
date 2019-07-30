@@ -5059,9 +5059,10 @@ intl-format-cache@^2.0.5:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/intl-format-cache/-/intl-format-cache-2.1.0.tgz#04a369fecbfad6da6005bae1f14333332dcf9316"
 
-intl-locales-supported@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/intl-locales-supported/-/intl-locales-supported-1.0.0.tgz#9a9d94dbf104a87818881952dcb782053f0aeefa"
+intl-locales-supported@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/intl-locales-supported/-/intl-locales-supported-1.4.2.tgz#56863218ad71ff0e23590d19247f64852be20dc2"
+  integrity sha512-NBa2+cqGqitzWwUa+A50Qp986bU0S3fzds6ZHCZxZYsOy6xTUb7HuJ+1XPM7ti19LSFLq2pjma0K3StZ9hZ/fQ==
 
 intl-messageformat-parser@1.4.0:
   version "1.4.0"
@@ -9882,7 +9883,7 @@ typedarray@^0.0.6:
   version "0.0.1"
   dependencies:
     amazon-cognito-identity-js "^2.0.11"
-    uclusion_sdk "file:../../../../.cache/yarn/v4/npm-uclusion-authorizer-sdk-0.0.1-325a94ca-b7f1-490a-a4b5-2c742e5b50af-1564519584026/node_modules/uclusion_sdk"
+    uclusion_sdk "file:../../../../.cache/yarn/v4/npm-uclusion-authorizer-sdk-0.0.1-fd9993b1-d769-456e-873a-24e46d308593-1564519820192/node_modules/uclusion_sdk"
 
 "uclusion_sdk@file:../uclusion_sdk":
   version "0.0.2"

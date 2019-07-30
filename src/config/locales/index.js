@@ -1,4 +1,6 @@
 import { addLocaleData } from 'react-intl';
+import localesSupported from 'intl-locales-supported';
+import IntlPolyfill from 'intl';
 import en from 'react-intl/locale-data/en';
 import de from 'react-intl/locale-data/de';
 import ru from 'react-intl/locale-data/ru';
@@ -9,6 +11,7 @@ import de_messages from './de';
 import ru_messages from './ru';
 import bs_messages from './bs';
 import es_messages from './es';
+
 
 const locales = [
   {
@@ -39,9 +42,6 @@ const locales = [
 
 ];
 
-
-const areIntlLocalesSupported = require('intl-locales-supported');
-
 // START: Intl polyfill
 // Required for working on Safari
 // Code from here: https://formatjs.io/guides/runtime-environments/
@@ -51,16 +51,15 @@ const localesMyAppSupports = [
 
 if (global.Intl) {
   // Determine if the built-in `Intl` has the locale data we need.
-  if (!areIntlLocalesSupported(localesMyAppSupports)) {
+  if (!localesSupported(localesMyAppSupports)) {
     // `Intl` exists, but it doesn't have the data we need, so load the
     // polyfill and replace the constructors with need with the polyfill's.
-    const IntlPolyfill = require('intl');
     Intl.NumberFormat = IntlPolyfill.NumberFormat;
     Intl.DateTimeFormat = IntlPolyfill.DateTimeFormat;
   }
 } else {
   // No `Intl`, so use and load the polyfill.
-  global.Intl = require('intl');
+  global.Intl = IntlPolyfill;
 }
 // END: Intl polyfill
 

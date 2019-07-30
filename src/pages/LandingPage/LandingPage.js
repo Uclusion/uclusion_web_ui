@@ -162,24 +162,6 @@ function LandingPage(props) {
     const authorizer = new AnonymousAuthorizer({
       uclusionUrl: appConfig.api_configuration.baseURL,
     });
-    const pageUrl = window.location.href;
-/*    if (authorizer.amIOnPostAuthorizePage(pageUrl) && !processing) {
-      setProcessing(true);
-      const accountCreationInfo = getUclusionLocalStorageItem('accountCreationInfo');
-      setAccountName(accountCreationInfo.accountName);
-      setClientId(accountCreationInfo.clientId);
-      setLoginType(accountCreationInfo.loginType);
-      authorizer.doPostAccount(pageUrl).then((response) => {
-        const authInfo = {
-          token: response.login_capability, type: authorizer.getType(),
-        };
-        updateMarketAuth('account', authInfo);
-        return getClient();
-      }).then((client) => {
-        // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
-        setTimeout(createMarket, 10000, client, accountCreationInfo);
-      });
-    }*/
     return () => {
     };
   }, []);

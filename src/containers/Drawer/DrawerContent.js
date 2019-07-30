@@ -1,10 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { withTheme } from '@material-ui/core/styles';
+
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router-dom';
-import { withA2HS } from 'a2hs';
 import { withMarketId } from '../../components/PathProps/MarketId';
 // import { setUclusionLocalStorageItem } from '../../components/utils';
 
@@ -64,4 +63,4 @@ function mapDispatchToProps(dispatch) {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withWidth()(withTheme()(withRouter(withA2HS(withMarketId(DrawerContent)))))));
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withWidth()(withRouter(withMarketId(DrawerContent)))));

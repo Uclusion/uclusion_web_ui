@@ -1,9 +1,9 @@
 import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { withTheme } from '@material-ui/core/styles';
+
 
 const Scrollbar = (props) => {
-  const { theme, ...rest } = props;
+  const { ...rest } = props;
 
   /*  const thumbStyle = {
     backgroundColor: theme.palette.primary.dark,
@@ -18,4 +18,4 @@ const Scrollbar = (props) => {
   );
 };
 
-export default withTheme()(Scrollbar);
+export default Scrollbar;

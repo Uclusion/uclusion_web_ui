@@ -10,7 +10,7 @@ import {
   Hidden,
   withWidth,
 } from '@material-ui/core';
-import { withTheme, withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import withAppConfigs from '../../utils/withAppConfigs';
 import drawerActions from '../../store/drawer/actions';
@@ -56,13 +56,11 @@ const DrawerHeader = (props) => {
 export default connect(null, drawerActions)(
   injectIntl(
     withWidth()(
-      withTheme()(
         withAppConfigs(
           withStyles(styles, { withTheme: true })(
             DrawerHeader,
           ),
         ),
-      ),
     ),
   ),
 );

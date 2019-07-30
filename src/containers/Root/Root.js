@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
-import MuiPickersUtilsProvider from 'material-ui-pickers/MuiPickersUtilsProvider';
-import MomentUtils from 'material-ui-pickers/utils/moment-utils';
 import { IntlProvider } from 'react-intl';
 import { Router, Route, Switch } from 'react-router-dom';
 import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvider';
@@ -36,7 +34,6 @@ class Root extends Component {
 
     const theme = defaultTheme;
     return (
-      <MuiPickersUtilsProvider utils={MomentUtils}>
         <MuiThemeProvider theme={theme}>
           <IntlProvider locale={locale} key={locale} messages={messages}>
             <IntlGlobalProvider>
@@ -50,7 +47,6 @@ class Root extends Component {
             </IntlGlobalProvider>
           </IntlProvider>
         </MuiThemeProvider>
-      </MuiPickersUtilsProvider>
     );
   }
 }

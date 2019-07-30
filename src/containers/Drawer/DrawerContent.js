@@ -5,10 +5,8 @@ import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router-dom';
 import { withA2HS } from 'a2hs';
-import SelectableMenuList from '../SelectableMenuList';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import menuItems from '../../config/menuItems';
-import { setUclusionLocalStorageItem } from '../../components/utils';
+// import { setUclusionLocalStorageItem } from '../../components/utils';
 
 
 import { userLogout } from '../../store/auth/actions';
@@ -25,7 +23,7 @@ const DrawerContent = (props) => {
     setDrawerOpen,
   } = props;
 
-  const handleChange = (event, index) => {
+/*  const handleChange = (event, index) => {
     const smDown = isWidthDown('sm', width);
     if (index !== undefined && smDown) {
       setDrawerOpen(false);
@@ -39,18 +37,13 @@ const DrawerContent = (props) => {
   const handleSignOut = () => {
     setUclusionLocalStorageItem('auth', null);
   };
-
+*/
   return (
     <div style={{
       display: 'flex',
       flexDirection: 'column',
     }}
     >
-      <SelectableMenuList
-        items={menuItems({ ...props, handleSignOut })}
-        onIndexChange={handleChange}
-        index={match ? match.path : '/'}
-      />
 
     </div>
 

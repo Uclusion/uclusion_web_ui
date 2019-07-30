@@ -1,4 +1,3 @@
-import filterReducer from 'material-ui-filter/lib/store/reducer';
 import investiblesReducer from './MarketInvestibles/reducer';
 import marketsReducer from './Markets/reducer';
 import usersReducer from './Users/reducer';
@@ -13,7 +12,6 @@ import { initState } from './init';
 import * as authTypes from './auth/types';
 
 export const appReducers = {
-  filters: filterReducer,
   locale,
   drawer,
   themeSource,

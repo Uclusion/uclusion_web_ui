@@ -27,7 +27,7 @@
     "react-helmet": "^6.0.0-beta",
     "react-intl": "^2.4.0",
     "react-loadable": "^5.5.0",
-    "react-material-ui-form-validator": "^2.0.6",
+    "react-material-ui-form-validator": "^2.0.9",
     "react-redux": "^7.1.0",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
@@ -37,12 +37,12 @@
     "redux-persist": "^5.10.0",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
-    "slate": "^0.44.6",
-    "slate-html-serializer": "^0.7.30",
-    "slate-react": "^0.21.12",
+    "slate": "^0.47.4",
+    "slate-html-serializer": "^0.8.6",
+    "slate-react": "^0.22.4",
     "uclusion_authorizer_sdk": "file:../uclusion_authorizer_sdk",
     "uclusion_sdk": "file:../uclusion_sdk",
-    "video-react": "^0.13.7"
+    "video-react": "^0.14.1"
   },
   "scripts": {
     "check": "npm-check -s -u",
@@ -64,7 +64,7 @@
     ]
   },
   "devDependencies": {
-    "enzyme": "^3.6.0",
+    "enzyme": "^3.10.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-react": "^7.12.4",

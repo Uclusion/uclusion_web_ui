@@ -5,8 +5,8 @@
   "dependencies": {
     "@material-ui/core": "^4.3.0",
     "@material-ui/icons": "^4.2.1",
-    "@aws-amplify/api": "^1.0.39",
-    "@aws-amplify/pubsub": "^1.0.30",
+    "aws-amplify": "^1.1.33",
+    "aws-amplify-react": "^2.3.12",
     "a2hs": "^1.0.2",
     "classnames": "^2.2.6",
     "elasticlunr": "^0.9.5",

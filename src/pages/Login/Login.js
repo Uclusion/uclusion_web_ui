@@ -23,7 +23,6 @@ import { loginOidc, loginSso, loginAnonymous, cognitoTokenGenerated, getErrorMes
 } from '../../utils/loginFunctions';
 import { getMarketLoginInfo } from '../../api/sso';
 import withAppConfigs from '../../utils/withAppConfigs';
-import ReactWebAuthorizer from '../../utils/ReactWebAuthorizer';
 
 const styles = theme => ({
   content: {
@@ -142,7 +141,7 @@ function Login(props) {
       baseURL: appConfig.api_configuration.baseURL,
     };
     updateMarketAuth(marketId, { type: 'cognito', config: authorizerConfiguration });
-    const authorizer = new ReactWebAuthorizer(authorizerConfiguration);
+  /*  const authorizer = new ReactWebAuthorizer(authorizerConfiguration);
     setError('');
     authorizer.authorize().then((response) => {
       console.debug(response);
@@ -167,6 +166,8 @@ function Login(props) {
           });
       }
     });
+
+   */
   }
 
   function forgotCognitoPassword() {

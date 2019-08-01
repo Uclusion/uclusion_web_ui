@@ -4,14 +4,13 @@ import appConfig from '../config/config';
 import { postAuthTasks } from './postAuthFunctions';
 import { intl } from '../components/IntlComponents/IntlGlobalProvider';
 import { updateMarketAuth } from '../components/utils';
-import ReactWebAuthorizer from './ReactWebAuthorizer';
+
 
 function login(type) {
   // set our market auth info so the react authorizer knows what kind we're doing
   updateMarketAuth(getMarketId(), { type, config: appConfig.api_configuration });
   // make an authorizer to kick off the flow
-  const authorizer = new ReactWebAuthorizer(appConfig.api_configuration);
-  return authorizer.authorize();
+
 }
 
 export function loginOidc() {
@@ -30,23 +29,7 @@ export function loginSso() {
 export function loginAnonymous(props) {
   const { history } = props;
   updateMarketAuth(getMarketId(), {type: 'anonymous', config: appConfig.api_configuration});
-  const authorizer = new ReactWebAuthorizer(appConfig.api_configuration);
-  authorizer.authorize().then((uclusionLogin) => {
-    const {
-      uclusion_token, market_id, user, deployed_version, uclusion_user_id,
-    } = uclusionLogin;
-    const uclusionTokenInfo = {
-      token: uclusion_token,
-      type: authorizer.getType(),
-    };
-    if (uclusion_user_id) {
-      uclusionTokenInfo.uclusion_user_id = uclusion_user_id;
-    }
-    return postAuthTasks(props, deployed_version, uclusionTokenInfo, market_id, user)
-      .then(() => {
-        history.push(formCurrentMarketLink('investibles'));
-      });
-  });
+
 }
 
 /**

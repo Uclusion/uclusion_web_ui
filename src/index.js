@@ -10,17 +10,10 @@ const MainAsync = Loadable({
   loading: () => <LoadingComponent />,
 });
 
-const LPAsync = Loadable({
-  loader: () => import('./containers/MainLanding'),
-  loading: () => <LoadingComponent />,
-});
-
 ReactDOM.render(
   <A2HSProvider>
     <Router>
       <Switch>
-        <Route path="/" exact component={LPAsync} />
-        <Route path="/markets" exact component={LPAsync} />
         <Route component={MainAsync} />
       </Switch>
     </Router>

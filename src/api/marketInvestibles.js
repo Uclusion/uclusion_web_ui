@@ -1,4 +1,4 @@
-import { getClient } from '../config/uclusionClient';
+import { getMarketClient } from './uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../utils/userMessage';
 import { updateInChunks } from '../store/reducer_helpers';
 import { fetchSelf } from './users';
@@ -11,7 +11,7 @@ import {
 } from '../store/MarketInvestibles/actions';
 
 export function followUnfollowInvestible(investible, stopFollowing, dispatch) {
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient(marketId);
   return clientPromise.then(client => client.investibles.follow(investible.id, stopFollowing))
     .then((result) => {
       dispatch(investibleFollowed(investible, result.following));
@@ -24,7 +24,7 @@ export function followUnfollowInvestible(investible, stopFollowing, dispatch) {
 }
 
 export function fetchInvestibles(idList, marketId, dispatch) {
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient(marketId);
   console.debug(`Fetching idList ${idList}`);
   return clientPromise.then(client => client.markets.getMarketInvestibles(idList))
     .then((investibles) => {
@@ -36,7 +36,7 @@ export function fetchInvestibles(idList, marketId, dispatch) {
 }
 
 export function fetchInvestibleList(currentInvestibleList, marketId, dispatch) {
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient(marketId);
   console.debug(`Fetching investibles list for: ${marketId}`);
   return clientPromise.then(client => client.markets.listInvestibles())
     .then((response) => {
@@ -56,7 +56,7 @@ export function fetchInvestibleList(currentInvestibleList, marketId, dispatch) {
 }
 
 export function updateInvestment(teamId, marketId, investibleId, quantity, currentQuantity, dispatch) {
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient(marketId);
   return clientPromise.then(client => client.markets.updateInvestment(teamId, investibleId, quantity, currentQuantity))
     .then((investment) => {
       dispatch(investmentUpdated(marketId, investibleId, quantity));
@@ -78,7 +78,7 @@ export function updateInvestment(teamId, marketId, investibleId, quantity, curre
  */
 export function createMarketInvestible(params, dispatch) {
   const { title, description, canInvest, quantity, teamId } = params;
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient(marketId);
   return clientPromise.then((client) => {
     return client.investibles.create(title, description)
       .then((investible) => {
@@ -98,7 +98,7 @@ export function createMarketInvestible(params, dispatch) {
 }
 
 export function deleteMarketInvestible(investibleId, marketId, dispatch){
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient(marketId);
   return clientPromise.then(client => client.investibles.delete(investibleId))
     .then(() => {
       dispatch(investibleDeleted(marketId, investibleId));

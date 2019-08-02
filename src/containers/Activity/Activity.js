@@ -17,7 +17,7 @@ import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 import drawerActions from '../../store/drawer/actions';
-import { getClient } from '../../config/uclusionClient';
+import { getMarketClient } from '../../api/uclusionClient';
 import { getCurrentUser } from '../../store/Users/reducer';
 import { getFlags } from '../../utils/userFunctions'
 
@@ -151,7 +151,7 @@ function Activity(props) {
   const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
   const newCognitoUser = /(.+)\/newCognito/.test(window.location.href.toLowerCase());
   if (!showLogin && !newCognitoUser) {
-    getClient(); // Will verify the token
+    getMarketClient(); // Will verify the token
   }
   let headerTitle = '';
 

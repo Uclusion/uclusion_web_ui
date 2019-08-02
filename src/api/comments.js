@@ -1,10 +1,10 @@
-import { getClient } from '../config/uclusionClient';
+import { getMarketClient } from './uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../utils/userMessage';
 import { commentCreated, commentDeleted, commentsReceived } from '../store/Comments/actions';
 import { updateInChunks } from '../store/reducer_helpers';
 
 export function createComment(investibleId, marketId, body, dispatch) {
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient();
   return clientPromise.then((client) => {
     client.investibles.createComment(investibleId, body)
       .then((comment) => {
@@ -18,7 +18,7 @@ export function createComment(investibleId, marketId, body, dispatch) {
 }
 
 export function deleteComment(commentId, investibleId, marketId, dispatch){
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient();
   return clientPromise.then((client) => {
     client.investibles.deleteComment(commentId)
       .then(() => {
@@ -32,7 +32,7 @@ export function deleteComment(commentId, investibleId, marketId, dispatch){
 }
 
 export function fetchComments(idList, marketId, dispatch) {
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient();
   return clientPromise.then(client => client.investibles.getMarketComments(idList))
     .then((comments) => {
       dispatch(commentsReceived(marketId, comments));
@@ -43,7 +43,7 @@ export function fetchComments(idList, marketId, dispatch) {
 }
 
 export function fetchCommentList(currentCommentList, marketId, dispatch) {
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient();
   console.debug('Fetching investibles list for:', marketId);
   return clientPromise.then(client => client.investibles.listCommentsByMarket())
     .then((commentList) => {

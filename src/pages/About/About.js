@@ -7,7 +7,7 @@ import { injectIntl } from 'react-intl';
 import Activity from '../../containers/Activity/Activity';
 import withAppConfigs from '../../utils/withAppConfigs';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import { getClient } from '../../config/uclusionClient';
+import { getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 import { clearUserState } from '../../utils/userStateFunctions';
@@ -59,7 +59,7 @@ function About(props) {
   const [market, setMarket] = useState(undefined);
 
   useEffect(() => {
-    const clientPromise = getClient();
+    const clientPromise = getMarketClient(marketId);
     clientPromise.then(client => client.markets.get(marketId))
       .then((market) => {
         setMarket(market);

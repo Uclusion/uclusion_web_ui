@@ -1,6 +1,7 @@
 /*
-Class that manages the known tokens inside the system. It _does not_ manage identity's, but does
-subscribe to new identities in order to use that identity to get new tokens
+Class that manages the tokens for a particular type and market.
+It _does not_ manage identity's, but does
+ask the identity source for new identities when needed
  */
 
 import TokenStorageManager from './TokenStorageManager';
@@ -11,25 +12,27 @@ export { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET };
 
 class TokenManager {
 
-  constructor(identityProvider, ssoClient){
+  constructor(identitySource, ssoClient, tokenType, itemId) {
     this.ssoClient = ssoClient;
-    this.identityProvider = identityProvider;
+    this.identitySource = identitySource;
     this.tokenStorageManager = new TokenStorageManager();
+    this.tokenType = tokenType;
+    this.itemId = itemId;
   }
 
-  requestToken(tokenType, itemId){
-    const token = this.tokenStorageManager.getValidToken(tokenType, itemId);
+  getToken() {
+    const token = this.tokenStorageManager.getValidToken(this.tokenType, this.itemId);
     if (token) {
       return Promise.resolve(token);
     }
     // we don't have token, time to request a new one.
-    return this.identityProvider.getIdentity()
+    return this.identitySource.getIdentity()
       .then((identity) => {
-        switch(tokenType){
+        switch(this.tokenType){
           case TOKEN_TYPE_MARKET:
-            return this.getMarketToken(identity, itemId);
+            return this.getMarketToken(identity, this.itemId);
           case TOKEN_TYPE_ACCOUNT:
-            return this.getAccountToken(identity, itemId);
+            return this.getAccountToken(identity, this.itemId);
           default:
             throw new Error('Unknown token type');
         }

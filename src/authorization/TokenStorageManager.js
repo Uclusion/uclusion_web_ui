@@ -2,17 +2,20 @@ import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../com
 import jwt_decode from 'jwt-decode';
 import { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET } from './TokenManager';
 
-const TOKEN_STORAGE_KEY = 'TOKEN_STORAGe_MANAGER';
+const TOKEN_STORAGE_KEY = 'TOKEN_STORAGE_MANAGER';
 
-const EMPTY_STORAGE = {
-  [TOKEN_TYPE_MARKET]: {},
-  [TOKEN_TYPE_ACCOUNT]: {},
-};
 
 class TokenStorageManager {
 
+  getEmptyStorage() {
+    return {
+      [TOKEN_TYPE_MARKET]: {},
+      [TOKEN_TYPE_ACCOUNT]: {},
+    };
+  }
+
   getTokenStorage() {
-    const tokenStorage = getUclusionLocalStorageItem(TOKEN_STORAGE_KEY) || EMPTY_STORAGE;
+    const tokenStorage = getUclusionLocalStorageItem(TOKEN_STORAGE_KEY) || this.getEmptyStorage();
     return tokenStorage;
   }
 
@@ -21,7 +24,7 @@ class TokenStorageManager {
   }
 
   clearTokenStorage() {
-    setUclusionLocalStorageItem(TOKEN_STORAGE_KEY, EMPTY_STORAGE);
+    setUclusionLocalStorageItem(TOKEN_STORAGE_KEY, this.getEmptyStorage());
   }
 
   /**

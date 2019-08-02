@@ -4,6 +4,7 @@ import Loadable from 'react-loadable';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import A2HSProvider from 'a2hs';
 import LoadingComponent from './components/LoadingComponent';
+import Main from './containers/Main';
 
 const MainAsync = Loadable({
   loader: () => import('./containers/Main'),
@@ -14,7 +15,7 @@ ReactDOM.render(
   <A2HSProvider>
     <Router>
       <Switch>
-        <Route component={MainAsync} />
+        <Route component={Main} />
       </Switch>
     </Router>
   </A2HSProvider>,

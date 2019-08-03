@@ -41,18 +41,20 @@ class TokenManager {
 
   getMarketToken(identity, marketId){
     return this.ssoClient.marketCognitoLogin(identity, marketId)
-      .then((uclusionToken) => {
-        this.tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, uclusionToken);
-        return uclusionToken;
+      .then((loginData) => {
+        const { uclusion_token } = loginData;
+        this.tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, uclusion_token);
+        return uclusion_token;
       });
 
   }
 
   getAccountToken(identity, accountId){
     return this.ssoClient.accountCognitoLogin(identity, accountId)
-      .then((uclusionToken) => {
-        this.tokenStorageManager.storeToken(TOKEN_TYPE_ACCOUNT, uclusionToken);
-        return uclusionToken;
+      .then((loginData) => {
+        const { uclusion_token } = loginData;
+        this.tokenStorageManager.storeToken(TOKEN_TYPE_ACCOUNT, uclusion_token);
+        return uclusion_token;
       });
   }
 

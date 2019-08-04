@@ -26,7 +26,6 @@ import { cognitoTokenGenerated, getErrorMessage } from '../../utils/loginFunctio
 import { updateMarketAuth } from '../../components/utils';
 import { clearUserState } from '../../utils/userStateFunctions';
 import { formMarketLink } from '../../utils/marketIdPathFunctions';
-import ReactWebAuthorizer from '../../utils/ReactWebAuthorizer';
 
 const styles = theme => ({
   main: {
@@ -150,7 +149,7 @@ function MarketsPage(props) {
       destination_page: formMarketLink(selectedMarket, 'investibles'),
     };
     updateMarketAuth('account', { type: 'cognito', config: authConfig });
-    const authorizer = new ReactWebAuthorizer(authConfig);
+  /*  const authorizer = new ReactWebAuthorizer(authConfig);
     authorizer.authorize().then((authInfo) => {
       const uiPostAuthTasks = () => { setProcessing(false); };
       return cognitoTokenGenerated(props, authInfo, uiPostAuthTasks());
@@ -161,6 +160,8 @@ function MarketsPage(props) {
           setError(errorString);
         });
     });
+
+   */
   }
 
   return (

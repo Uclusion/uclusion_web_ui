@@ -17,7 +17,7 @@ import Info from '@material-ui/icons/Info';
 import IconButton from '@material-ui/core/IconButton';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import { getClient } from '../../config/uclusionClient';
+import { getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import Activity from '../../containers/Activity/Activity';
 import { getMarkets } from '../../store/Markets/reducer';
@@ -116,7 +116,7 @@ function InvestibleAddEdit (props) {
   const [showInvestibleEditHelp, setShowInvestibleEditHelp] = useState(false);
   useEffect(() => {
     if (!addMode) {
-      getClient().then(client => client.markets.getMarketInvestibles([investibleId]))
+      getMarketClient(marketId).then(client => client.markets.getMarketInvestibles([investibleId]))
         .then((investibles) => {
           const investible = investibles[0];
           setInvestible(investible);
@@ -144,7 +144,7 @@ function InvestibleAddEdit (props) {
 
   function saveEdits(){
     const { id, name, description, label_list } = investible;
-    return getClient().then(client => client.investibles.update(id, name, description, label_list))
+    return getMarketClient(marketId).then(client => client.investibles.update(id, name, description, label_list))
       .then(() => fetchInvestibles([id], marketId, dispatch))
       .then(() => {
         sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });
@@ -160,7 +160,7 @@ function InvestibleAddEdit (props) {
 
   function saveNew() {
     const { name, description } = investible;
-    return getClient().then(client => client.investibles.create(name, description))
+    return getMarketClient(marketId).then(client => client.investibles.create(name, description))
       .then((investible) => {
         setSaved(true);
         setDirty(false);

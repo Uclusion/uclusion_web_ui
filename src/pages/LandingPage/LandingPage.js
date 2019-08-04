@@ -31,7 +31,7 @@ import {
   updateMarketAuth
 } from '../../components/utils';
 import client from 'uclusion_sdk';
-import { getClient } from '../../config/uclusionClient';
+import { getMarketClient } from '../../api/uclusionClient';
 import { validURL } from '../../utils/validators';
 import { sendIntlMessage, ERROR } from '../../utils/userMessage';
 import CheckboxValidator from '../../components/ValidatorComponents/CheckboxValidator';
@@ -241,7 +241,7 @@ function LandingPage(props) {
         accountCreationInfo.isExistingLogin = response.user.exists_in_cognito;
         // Have to set the return token or market creation will fail
         updateMarketAuth('account', authInfo);
-        return getClient();
+        return getMarketClient();
       }).then(client => setTimeout(createMarket, 30000, client, accountCreationInfo, setLoading)) // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
         .catch((e) => {
           setLoading(false);

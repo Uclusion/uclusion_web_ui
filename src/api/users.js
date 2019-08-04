@@ -1,4 +1,4 @@
-import { getClient } from '../config/uclusionClient';
+import { getMarketClient } from './uclusionClient';
 
 import {
   receiveCurrentUser,
@@ -8,7 +8,7 @@ import {
 
 export function fetchSelf(dispatch) {
   let userClient = null;
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient();
   return clientPromise.then((client) => {
     userClient = client;
     dispatch(requestCurrentUser());
@@ -35,7 +35,7 @@ export function fetchSelf(dispatch) {
  * @returns {Function}
  */
 export function updateMyUiPrefereneces(me, dispatch) {
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient();
   return clientPromise.then((client) => {
     dispatch(uiPrefsUpdated(me));
     return client.users.update(undefined, undefined, undefined, me.ui_preferences);

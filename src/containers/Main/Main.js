@@ -6,8 +6,13 @@ import config from '../../config';
 import configureStore from '../../store';
 import locales, { addLocalizationData } from '../../config/locales';
 import 'react-toastify/dist/ReactToastify.css';
+import { withAuthenticator } from 'aws-amplify-react';
+import Amplify from 'aws-amplify';
+import awsconfig from '../../config/amplify';
 
 addLocalizationData(locales);
+console.log(awsconfig);
+Amplify.configure(awsconfig);
 
 class Main extends PureComponent {
   render() {
@@ -20,4 +25,4 @@ class Main extends PureComponent {
   }
 }
 
-export default withA2HS(Main);
+export default withA2HS(withAuthenticator(Main));

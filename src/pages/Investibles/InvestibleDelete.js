@@ -13,7 +13,7 @@ import {
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core/styles/index';
-import { deleteMarketInvestible } from '../../api/marketInvestibles';
+import { deleteInvestible } from '../../api/marketInvestibles';
 
 class InvestibleDelete extends React.PureComponent {
   state = {
@@ -22,7 +22,7 @@ class InvestibleDelete extends React.PureComponent {
 
   doDelete = () => {
     const { dispatch, investible, onCloseDetail } = this.props;
-    deleteMarketInvestible(investible.id, investible.market_id, dispatch)
+    deleteInvestible(investible.id, investible.market_id, dispatch)
       .then(() => {
         this.handleCloseDialog();
         onCloseDetail();

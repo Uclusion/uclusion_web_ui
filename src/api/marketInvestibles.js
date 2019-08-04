@@ -1,4 +1,4 @@
-import { getClient } from '../config/uclusionClient';
+import { getMarketClient } from './uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../utils/userMessage';
 import { updateInChunks } from '../store/reducer_helpers';
 import { fetchSelf } from './users';
@@ -11,7 +11,7 @@ import {
 } from '../store/MarketInvestibles/actions';
 
 export function followUnfollowInvestible(investible, stopFollowing, dispatch) {
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient(investible.marketId);
   return clientPromise.then(client => client.investibles.follow(investible.id, stopFollowing))
     .then((result) => {
       dispatch(investibleFollowed(investible, result.following));
@@ -24,7 +24,7 @@ export function followUnfollowInvestible(investible, stopFollowing, dispatch) {
 }
 
 export function fetchInvestibles(idList, marketId, dispatch) {
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient(marketId);
   console.debug(`Fetching idList ${idList}`);
   return clientPromise.then(client => client.markets.getMarketInvestibles(idList))
     .then((investibles) => {
@@ -36,7 +36,7 @@ export function fetchInvestibles(idList, marketId, dispatch) {
 }
 
 export function fetchInvestibleList(currentInvestibleList, marketId, dispatch) {
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient(marketId);
   console.debug(`Fetching investibles list for: ${marketId}`);
   return clientPromise.then(client => client.markets.listInvestibles())
     .then((response) => {
@@ -56,7 +56,7 @@ export function fetchInvestibleList(currentInvestibleList, marketId, dispatch) {
 }
 
 export function updateInvestment(teamId, marketId, investibleId, quantity, currentQuantity, dispatch) {
-  const clientPromise = getClient();
+  const clientPromise = getMarketClient(marketId);
   return clientPromise.then(client => client.markets.updateInvestment(teamId, investibleId, quantity, currentQuantity))
     .then((investment) => {
       dispatch(investmentUpdated(marketId, investibleId, quantity));
@@ -68,37 +68,8 @@ export function updateInvestment(teamId, marketId, investibleId, quantity, curre
     });
 }
 
-
-
-/**
- * Creates a market investible
- * @param params a package of arguments including the title, description, quantity etc
- * @param dispatch the dispatch to redux
- * @returns {Q.Promise<any> | * | Promise<T | never>}
- */
-export function createMarketInvestible(params, dispatch) {
-  const { title, description, canInvest, quantity, teamId } = params;
-  const clientPromise = getClient();
-  return clientPromise.then((client) => {
-    return client.investibles.create(title, description)
-      .then((investible) => {
-        dispatch(investibleCreated(investible));
-        if (canInvest && quantity) {
-          return client.markets.createInvestment(teamId, investible.id, quantity);
-        }
-        return true;
-      }).then(() => {
-        sendIntlMessage(SUCCESS, { id: 'investibleAddSucceeded' });
-      });
-  }).catch((error) => {
-    // eslint-disable-next-line no-console
-    console.error(error);
-    sendIntlMessage(ERROR, { id: 'investibleAddFailed' });
-  });
-}
-
-export function deleteMarketInvestible(investibleId, marketId, dispatch){
-  const clientPromise = getClient();
+export function deleteInvestible(investibleId, marketId, dispatch){
+  const clientPromise = getMarketClient(marketId);
   return clientPromise.then(client => client.investibles.delete(investibleId))
     .then(() => {
       dispatch(investibleDeleted(marketId, investibleId));

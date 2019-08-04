@@ -1,9 +1,6 @@
 import locales from './locales';
 import routes from './routes';
-import grants from './grants';
-import ReactWebAuthorizer from '../utils/ReactWebAuthorizer';
 
-const authorizer = new ReactWebAuthorizer(process.env.REACT_APP_UCLUSION_URL);
 
 const config = {
   initial_state: {
@@ -12,17 +9,15 @@ const config = {
   maxRichTextEditorSize: 7340032,
   drawer_width: 256,
   locales,
-  grants,
   routes,
   webSockets: {
     wsUrl: process.env.REACT_APP_WEBSOCKET_URL,
     reconnectInterval: 2000,
   },
+  aws: process.env.REACT_APP_AWS_USER_POOL_ID,
   api_configuration: {
-    authorizer,
+
     baseURL: process.env.REACT_APP_UCLUSION_URL,
-    poolId: process.env.REACT_APP_AWS_POOL_ID,
-    clientId: process.env.REACT_APP_AWS_CLIENT_ID,
   },
   version: process.env.REACT_APP_VERSION,
   uclusionSupportInfo: {

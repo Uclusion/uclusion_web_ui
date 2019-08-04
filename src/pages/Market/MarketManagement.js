@@ -16,7 +16,7 @@ import {
   CardActions, Typography,
 } from '@material-ui/core';
 import classNames from 'classnames';
-import { getClient } from '../../config/uclusionClient';
+import { getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import Activity from '../../containers/Activity/Activity';
@@ -73,7 +73,7 @@ function MarketManagement(props) {
   const [market, setMarket] = useState({});
   const [dirty, setDirty] = useState(false);
   useEffect(() => {
-    const clientPromise = getClient();
+    const clientPromise = getMarketClient();
     const loginInfo = getUclusionLocalStorageItem('loginInfo');
     const { allow_anonymous } = loginInfo;
     clientPromise.then(client => client.markets.get(marketId))
@@ -103,7 +103,7 @@ function MarketManagement(props) {
   }
 
   function onAllowAnonymous() {
-    const clientPromise = getClient();
+    const clientPromise = getMarketClient();
     clientPromise.then(client => client.teams.bindAnonymous())
       .then(() => {
         const loginInfo = getUclusionLocalStorageItem('loginInfo');
@@ -133,7 +133,7 @@ function MarketManagement(props) {
       initial_stage_id,
     };
 
-    const clientPromise = getClient();
+    const clientPromise = getMarketClient();
     clientPromise.then(client => client.markets.updateMarket(updateOptions))
       .then(() => {
         sendIntlMessage(SUCCESS, { id: 'marketEditSuccess' });

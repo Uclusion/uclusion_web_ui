@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import appConfig from '../../config/config';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { postAuthTasks } from '../../utils/postAuthFunctions';
-import ReactWebAuthorizer from '../../utils/ReactWebAuthorizer';
+
 import {updateMarketAuth} from '../../components/utils';
 import {getHashParams} from 'uclusion_authorizer_sdk/src/utils';
 import {getMarketId} from '../../utils/marketIdPathFunctions';
@@ -41,13 +41,7 @@ function PostAuth(props) {
       const marketId = getMarketId();
       const authType = hashParams.has('id_token') ? 'oidc' : 'sso';
       updateMarketAuth(marketId, { type: authType, config: appConfig.api_configuration });
-      const authorizer = new ReactWebAuthorizer(appConfig.api_configuration);
-      authorizer.authorize().then((resolve) => {
-        setFailed(false);
-        setResolve(resolve);
-      }, () => {
-        setFailed(true);
-      });
+
     }
     return () => {};
   }, [resolve, props]);

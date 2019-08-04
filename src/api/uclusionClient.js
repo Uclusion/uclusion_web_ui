@@ -8,7 +8,8 @@ export const getMarketClient = (marketId) => {
   return ssoClient.then((sso) => {
     const identitySource = new AmplifyIdentitySource();
     const tokenManager = new TokenManager(identitySource, sso, TOKEN_TYPE_MARKET, marketId);
-    return client.constructClient({ ...config.api_configuration, tokenManager });
+    return tokenManager.getToken() // force login
+      .then(() => client.constructClient({ ...config.api_configuration, tokenManager }));
   });
 };
 
@@ -17,6 +18,7 @@ export const getAccountClient = (accountId) => {
   return ssoClient.then((sso) => {
     const identitySource = new AmplifyIdentitySource();
     const tokenManager = new TokenManager(identitySource, sso, TOKEN_TYPE_ACCOUNT, accountId);
-    return client.constructClient({ ...config.api_configuration, tokenManager });
+    return tokenManager.getToken() // force login
+      .then(() => client.constructClient({ ...config.api_configuration, tokenManager }));
   });
 };

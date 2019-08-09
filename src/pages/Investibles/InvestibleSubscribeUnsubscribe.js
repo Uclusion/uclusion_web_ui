@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { IconButton, Tooltip } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
-import { withTheme } from '@material-ui/core/styles/index';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOffSharp from '@material-ui/icons/VolumeOffSharp';
 import { followUnfollowInvestible } from '../../api/marketInvestibles';
@@ -41,4 +40,4 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withTheme()(InvestibleSubscribeUnsubscribe)));
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(InvestibleSubscribeUnsubscribe));

@@ -12,7 +12,6 @@ import {
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
-import { withTheme } from '@material-ui/core/styles/index';
 import { deleteInvestible } from '../../api/marketInvestibles';
 
 class InvestibleDelete extends React.PureComponent {
@@ -88,4 +87,4 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withTheme()(InvestibleDelete)));
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(InvestibleDelete));

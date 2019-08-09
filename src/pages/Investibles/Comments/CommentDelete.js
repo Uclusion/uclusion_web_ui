@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { DeleteForever } from '@material-ui/icons';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
-import { withTheme } from '@material-ui/core/styles/index';
 import { deleteComment } from '../../../api/comments';
 
 function CommentDelete(props) {
@@ -31,4 +30,4 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withTheme()(CommentDelete)));
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(CommentDelete));

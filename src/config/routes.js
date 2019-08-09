@@ -2,9 +2,9 @@ import React from 'react';
 import { Route } from 'react-router';
 import makeLoadable from '../containers/MyLoadable/MyLoadable';
 
-const MyLoadable = (opts, preloadComponents) => makeLoadable({ ...opts }, preloadComponents);
 
-const AsyncInvestibles = MyLoadable({ loader: () => import('../pages/Investibles/Investibles') });
+const MyLoadable = (opts, preloadComponents) => makeLoadable({ ...opts }, preloadComponents);
+const AsyncInvestibles = MyLoadable({ loader: () => import('../pages/Market/Investibles') });
 const AsyncInvestibleEdit = MyLoadable({ loader: () => import('../pages/InvestibleEdit/InvestibleAddEdit') });
 const AsyncPostAuth = MyLoadable({ loader: () => import('../pages/Login/PostAuth') });
 const AsyncMarket = MyLoadable({ loader: () => import('../pages/Market/MarketManagement') });
@@ -13,7 +13,7 @@ const AsyncAbout = MyLoadable({ loader: () => import('../pages/About/About') });
 const AsyncLogin = MyLoadable({ loader: () => import('../pages/Login/Login') });
 
 const routes = [
-  <Route type="public" path="/:marketId/investibles" exact component={AsyncInvestibles} />,
+  <Route type="public" path="/:marketId/" exact component={AsyncInvestibles} />,
   <Route type="public" path="/:marketId/market" exact component={AsyncMarket} />,
   <Route type="public" path="/post_auth" exact component={AsyncPostAuth} />,
   <Route type="public" path="/:marketId/login" exact component={AsyncLogin} />,

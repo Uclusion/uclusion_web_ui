@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { withTheme, withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import elasticlunr from 'elasticlunr';
 import {
@@ -125,4 +125,4 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTheme()(withMarketId(injectIntl(InvestibleSearchBox)))));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withMarketId(injectIntl(InvestibleSearchBox))));

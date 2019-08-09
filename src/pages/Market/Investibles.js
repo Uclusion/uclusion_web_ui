@@ -2,22 +2,22 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { withTheme, withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
 import { getCurrentUser } from '../../store/Users/reducer';
-import InvestibleList from './InvestibleList';
-import InvestibleDetail from './InvestibleDetail';
+import InvestibleList from '../Investibles/InvestibleList';
+import InvestibleDetail from '../Investibles/InvestibleDetail';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import InvestibleSearchBox from './InvestibleSearchBox';
+import InvestibleSearchBox from '../Investibles/InvestibleSearchBox';
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 import { getComments } from '../../store/Comments/reducer';
 import { fetchMarketInvestibleInfo } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { getFlags } from '../../utils/userFunctions';
-import InvestibleAddButton from './InvestibleAddButton';
+import InvestibleAddButton from '../Investibles/InvestibleAddButton';
 import { getMarkets } from '../../store/Markets/reducer';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
@@ -237,4 +237,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withStyles(styles)(withTheme()(withMarketId(React.memo(InvestiblesPage))))));
+)(injectIntl(withStyles(styles)(withMarketId(React.memo(InvestiblesPage)))));

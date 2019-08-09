@@ -6,7 +6,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Divider from '@material-ui/core/Divider';
-import { withTheme, withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import ArrowBack from '@material-ui/icons/ArrowBack';
@@ -184,4 +184,4 @@ SelectableMenuList.propTypes = {
   index: PropTypes.string.isRequired,
 };
 
-export default withTheme()(withStyles(styles, { withTheme: true })(SelectableMenuList));
+export default withStyles(styles, { withTheme: true })(SelectableMenuList);

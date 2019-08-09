@@ -45,7 +45,7 @@ class TokenStorageManager {
 
   storeToken(tokenType, itemId, token) {
     const tokenStorage = this.getTokenStorage();
-    tokenStorage[TOKEN_STORAGE_KEY][itemId] = token;
+    tokenStorage[tokenType][itemId] = token;
     this.putTokenStorage(tokenStorage);
   }
 

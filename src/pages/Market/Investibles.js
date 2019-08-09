@@ -54,7 +54,7 @@ const styles = theme => ({
   },
 });
 
-function InvestiblesPage(props) {
+function Investibles(props) {
   const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
   const [showFavorite, setShowFavorite] = useState(false);
 
@@ -109,12 +109,10 @@ function InvestiblesPage(props) {
       history: { location: { pathname } },
     } = props;
     const showLogin = /(.+)\/login/.test(pathname.toLowerCase());
-    if (!showLogin) {
-      if (lastFetchedMarketId !== marketId) {
-        setLastFetchedMarketId(marketId);
-      }
-      fetchMarketInvestibleInfo({ fetchComments: true, ...props });
+    if (lastFetchedMarketId !== marketId) {
+      setLastFetchedMarketId(marketId);
     }
+    fetchMarketInvestibleInfo({ fetchComments: true, marketId, ...props });
   }
 
   function toggleShowFavorite() {
@@ -157,7 +155,7 @@ function InvestiblesPage(props) {
     }
   }
   const currentMarket = markets.find(market => marketId === market.id);
-  const currentMarketName = currentMarket.name || '';
+  const currentMarketName = ( currentMarket && currentMarket.name) || '';
 
   // TODO: give choice of teamId instead of default
   return (
@@ -209,7 +207,7 @@ function InvestiblesPage(props) {
   );
 }
 
-InvestiblesPage.propTypes = {
+Investibles.propTypes = {
   dispatch: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
   investibles: PropTypes.object,
@@ -237,4 +235,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(injectIntl(withStyles(styles)(withMarketId(React.memo(InvestiblesPage)))));
+)(injectIntl(withStyles(styles)(withMarketId(React.memo(Investibles)))));

@@ -43,7 +43,7 @@ class TokenManager {
     return this.ssoClient.marketCognitoLogin(identity, marketId)
       .then((loginData) => {
         const { uclusion_token } = loginData;
-        this.tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, uclusion_token);
+        this.tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, uclusion_token);
         return uclusion_token;
       });
 
@@ -53,7 +53,7 @@ class TokenManager {
     return this.ssoClient.accountCognitoLogin(identity, accountId)
       .then((loginData) => {
         const { uclusion_token } = loginData;
-        this.tokenStorageManager.storeToken(TOKEN_TYPE_ACCOUNT, uclusion_token);
+        this.tokenStorageManager.storeToken(TOKEN_TYPE_ACCOUNT, accountId, uclusion_token);
         return uclusion_token;
       });
   }

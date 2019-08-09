@@ -7,6 +7,9 @@ export function getMarketId() {
   // console.log('Current location ' + path)
   const noSlash = path.substr(1);
   const end = noSlash.indexOf('/');
+  if (end === -1) {
+    return noSlash;
+  }
   const marketId = noSlash.substr(0, end);
   return marketId;
 }

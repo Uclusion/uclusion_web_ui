@@ -148,11 +148,6 @@ function Activity(props) {
     containerStyle,
   } = props;
   const { canInvest } = getFlags(user);
-  const showLogin = /(.+)\/login/.test(window.location.href.toLowerCase());
-  const newCognitoUser = /(.+)\/newCognito/.test(window.location.href.toLowerCase());
-  if (!showLogin && !newCognitoUser) {
-    getMarketClient(); // Will verify the token
-  }
   let headerTitle = '';
 
   if (typeof title === 'string' || title instanceof String) {

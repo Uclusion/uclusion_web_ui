@@ -18,7 +18,7 @@ import { withRouter } from 'react-router-dom';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
-import {updateMarketAuth, setUclusionLocalStorageItem} from '../../components/utils';
+import { setUclusionLocalStorageItem} from '../../components/utils';
 import { loginOidc, loginSso, loginAnonymous, cognitoTokenGenerated, getErrorMessage,
 } from '../../utils/loginFunctions';
 import { getMarketLoginInfo } from '../../api/sso';
@@ -140,7 +140,6 @@ function Login(props) {
       destination_page: formCurrentMarketLink('investibles'),
       baseURL: appConfig.api_configuration.baseURL,
     };
-    updateMarketAuth(marketId, { type: 'cognito', config: authorizerConfiguration });
   /*  const authorizer = new ReactWebAuthorizer(authorizerConfiguration);
     setError('');
     authorizer.authorize().then((response) => {

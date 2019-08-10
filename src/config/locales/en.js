@@ -372,6 +372,7 @@ const messages = defineMessages({
   marketStageUnFollowTooltip: 'Unsubscribe',
 
   // markets
+  marketSelectDefault: 'Your Dialogs',
   marketFollowTooltip: 'Subscrbe',
   marketUnFollowTooltip: 'Unsubscribe',
   marketUnspent: 'Total unspent uShares in this market',

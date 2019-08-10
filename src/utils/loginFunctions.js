@@ -3,12 +3,10 @@ import appConfig from '../config/config';
 
 import { postAuthTasks } from './postAuthFunctions';
 import { intl } from '../components/IntlComponents/IntlGlobalProvider';
-import { updateMarketAuth } from '../components/utils';
 
 
 function login(type) {
   // set our market auth info so the react authorizer knows what kind we're doing
-  updateMarketAuth(getMarketId(), { type, config: appConfig.api_configuration });
   // make an authorizer to kick off the flow
 
 }
@@ -28,7 +26,6 @@ export function loginSso() {
  */
 export function loginAnonymous(props) {
   const { history } = props;
-  updateMarketAuth(getMarketId(), {type: 'anonymous', config: appConfig.api_configuration});
 
 }
 

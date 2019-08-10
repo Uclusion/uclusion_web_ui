@@ -10,7 +10,6 @@ import appConfig from '../../config/config';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { postAuthTasks } from '../../utils/postAuthFunctions';
 
-import {updateMarketAuth} from '../../components/utils';
 import {getHashParams} from 'uclusion_authorizer_sdk/src/utils';
 import {getMarketId} from '../../utils/marketIdPathFunctions';
 
@@ -40,8 +39,7 @@ function PostAuth(props) {
       const hashParams = getHashParams(pageUrl);
       const marketId = getMarketId();
       const authType = hashParams.has('id_token') ? 'oidc' : 'sso';
-      updateMarketAuth(marketId, { type: authType, config: appConfig.api_configuration });
-
+ 
     }
     return () => {};
   }, [resolve, props]);

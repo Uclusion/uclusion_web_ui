@@ -22,21 +22,3 @@ export const setUclusionLocalStorageItem = (key, value) => {
   localStorage.setItem('uclusion:root', JSON.stringify(data));
 };
 
-const authKey = 'auth';
-
-export function clearAuth() {
-  setUclusionLocalStorageItem(authKey, null);
-}
-
-export function updateMarketAuth(marketId, newInfo) {
-  const oldAuthValues = getUclusionLocalStorageItem(authKey) || {};
-  const oldMarketValues = oldAuthValues[marketId] || {};
-  const newMarketValues = { ...oldMarketValues, ...newInfo };
-  const newAuthValues = {...oldAuthValues, [marketId]: newMarketValues };
-  setUclusionLocalStorageItem(authKey, newAuthValues);
-}
-
-export function getMarketAuth(marketId) {
-  const authValues = getUclusionLocalStorageItem(authKey) || {};
-  return authValues[marketId];
-}

@@ -27,8 +27,6 @@ import { getCurrentUser } from '../../store/Users/reducer';
 import appConfig from '../../config/config';
 import {
   setUclusionLocalStorageItem,
-  clearAuth,
-  updateMarketAuth
 } from '../../components/utils';
 import client from 'uclusion_sdk';
 import { getMarketClient } from '../../api/uclusionClient';
@@ -119,7 +117,6 @@ function createMarket(client, accountCreationInfo, setLoading) {
       if (accountCreationInfo.email) {
         // Un setting return auth token because need them to login again from email sent
         // (otherwise identity not confirmed)
-        clearAuth();
         const encodedEmail = encodeURIComponent(accountCreationInfo.email);
         if (accountCreationInfo.isExistingLogin) {
           window.location = `${window.location.origin}/${market.market_id}/market?email=${encodedEmail}`;
@@ -240,7 +237,6 @@ function LandingPage(props) {
         };
         accountCreationInfo.isExistingLogin = response.user.exists_in_cognito;
         // Have to set the return token or market creation will fail
-        updateMarketAuth('account', authInfo);
         return getMarketClient();
       }).then(client => setTimeout(createMarket, 30000, client, accountCreationInfo, setLoading)) // https://forums.aws.amazon.com/thread.jspa?threadID=298683&tstart=0
         .catch((e) => {

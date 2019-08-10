@@ -8,6 +8,7 @@ import { fetchInvestibleList } from '../api/marketInvestibles';
 import { fetchCommentList } from '../api/comments';
 import { getInvestibles } from '../store/MarketInvestibles/reducer';
 import { getComments } from '../store/Comments/reducer';
+import { getActiveMarkeList } from '../api/sso';
 
 /**
  * Checks the current application version against the version of the application
@@ -70,10 +71,19 @@ export function marketChangeTasks(params, marketId, user) {
   return promises;
 }
 
+
+function fetchMarkets(dispatch) {
+  return getActiveMarkeList()
+    .then((markets) => {
+      const marketIds = Object.keys(markets);
+      const marketFetches = marketIds.map((marketId) => fetchMarket(dispatch, marketId));
+      return Promise.all(marketFetches);
+    });
+}
+
 export function postAuthTasks(params, authInfo) {
   const { usersReducer, dispatch, webSocket } = params;
   const { market_id, user, deployed_version } = authInfo;
-  updateMarketAuth(market_id, authInfo);
   notifyNewApplicationVersion(dispatch, deployed_version);
   // if we're not sure the user is the same as we loaded redux with, zero out redux
   if (!usersReducer || !usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {
@@ -81,5 +91,5 @@ export function postAuthTasks(params, authInfo) {
     webSocket.unsubscribeAll();
     clearReduxStore(dispatch);
   }
-  return marketChangeTasks(params, market_id, user);
+  return fetchMarkets(dispatch);
 }

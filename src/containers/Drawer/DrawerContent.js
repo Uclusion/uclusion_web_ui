@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-
+import MarketSelect from './MarketSelect';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router-dom';
 import { withMarketId } from '../../components/PathProps/MarketId';
-// import { setUclusionLocalStorageItem } from '../../components/utils';
+
 
 
 import { userLogout } from '../../store/auth/actions';
@@ -20,19 +20,10 @@ const DrawerContent = (props) => {
     match,
     width,
     setDrawerOpen,
+    markets,
   } = props;
 
-/*  const handleChange = (event, index) => {
-    const smDown = isWidthDown('sm', width);
-    if (index !== undefined && smDown) {
-      setDrawerOpen(false);
-    }
-
-    if (index !== undefined && index !== Object(index)) {
-      history.push(index);
-    }
-  };
-
+  /*
   const handleSignOut = () => {
     setUclusionLocalStorageItem('auth', null);
   };
@@ -43,7 +34,7 @@ const DrawerContent = (props) => {
       flexDirection: 'column',
     }}
     >
-
+      <MarketSelect markets={markets} />
     </div>
 
   );

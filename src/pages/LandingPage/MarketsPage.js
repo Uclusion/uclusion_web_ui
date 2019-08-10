@@ -23,7 +23,6 @@ import { CognitoAuthorizer } from 'uclusion_authorizer_sdk';
 import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import appConfig from '../../config/config';
 import { cognitoTokenGenerated, getErrorMessage } from '../../utils/loginFunctions';
-import { updateMarketAuth } from '../../components/utils';
 import { clearUserState } from '../../utils/userStateFunctions';
 import { formMarketLink } from '../../utils/marketIdPathFunctions';
 
@@ -148,7 +147,6 @@ function MarketsPage(props) {
       marketId: selectedMarket,
       destination_page: formMarketLink(selectedMarket, 'investibles'),
     };
-    updateMarketAuth('account', { type: 'cognito', config: authConfig });
   /*  const authorizer = new ReactWebAuthorizer(authConfig);
     authorizer.authorize().then((authInfo) => {
       const uiPostAuthTasks = () => { setProcessing(false); };

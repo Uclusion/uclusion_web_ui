@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { MenuItem, InputLabel, FormControl, Select } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
+import { formMarketLink } from '../../utils/marketIdPathFunctions';
+import { withRouter } from 'react-router';
 
 function MarketSelect(props) {
 
   const [market, setMarket] = useState('');
-  const { markets, intl } = props;
+  const { markets, intl, history } = props;
 
   function handleChange(event) {
-    setMarket(event.target.value);
+    const marketId = event.target.value;
+    setMarket(marketId);
+    history.push(formMarketLink(marketId, ''));
   }
 
   function getMenuItems() {
@@ -35,6 +39,6 @@ function MarketSelect(props) {
 
 }
 
-export default injectIntl(MarketSelect);
+export default injectIntl(withRouter(MarketSelect));
 
 

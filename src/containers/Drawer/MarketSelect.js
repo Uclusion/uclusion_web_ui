@@ -15,7 +15,7 @@ function MarketSelect(props) {
     if (!markets) {
       return [];
     }
-    return markets.map(market => <MenuItem key={market.id} value={market.id}>market.name</MenuItem>);
+    return markets.map(market => <MenuItem key={market.id} value={market.id}>{market.name}</MenuItem>);
   }
 
   return (

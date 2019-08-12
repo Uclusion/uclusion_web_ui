@@ -7,13 +7,13 @@
 */
 
 import { Auth } from 'aws-amplify';
-import jwt_decode from 'jwt-decode';
+// import jwt_decode from 'jwt-decode';
 class AmplifyIdentitySource {
   getIdentity() {
     return Auth.currentSession().then((sessionData) => {
       const { idToken } = sessionData;
       const { jwtToken } = idToken;
-      console.log(jwt_decode(jwtToken));
+      // console.debug(jwt_decode(jwtToken));
       return jwtToken;
     });
   }

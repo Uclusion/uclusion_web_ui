@@ -11,7 +11,6 @@ import Scrollbar from '../../components/Scrollbar';
 import withAppConfigs from '../../utils/withAppConfigs';
 import drawerActions from '../../store/drawer/actions';
 import { sideBarTheme } from '../../config/themes';
-import { getCurrentUser } from '../../store/Users/reducer';
 
 const drawerWidth = 240;
 
@@ -109,7 +108,6 @@ export class DrawerLayout extends Component {
 
 const mapStateToProps = state => ({
   drawerOpen: state.drawer.open,
-  user: getCurrentUser(state.usersReducer),
 });
 
 export default connect(mapStateToProps, drawerActions)(

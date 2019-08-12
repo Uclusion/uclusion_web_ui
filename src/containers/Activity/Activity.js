@@ -18,7 +18,6 @@ import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 import drawerActions from '../../store/drawer/actions';
 import { getMarketClient } from '../../api/uclusionClient';
-import { getCurrentUser } from '../../store/Users/reducer';
 import { getFlags } from '../../utils/userFunctions'
 
 const drawerWidth = 240;
@@ -258,7 +257,7 @@ const mapStateToProps = (state) => {
 
   return {
     drawer,
-    user: getCurrentUser(state.usersReducer),
+
   };
 };
 

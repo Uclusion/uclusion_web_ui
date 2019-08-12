@@ -11,7 +11,6 @@ import { getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 import { clearUserState } from '../../utils/userStateFunctions';
-import { getCurrentUser } from "../../store/Users/reducer";
 import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
@@ -146,7 +145,6 @@ About.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    user: getCurrentUser(state.usersReducer),
   };
 }
 

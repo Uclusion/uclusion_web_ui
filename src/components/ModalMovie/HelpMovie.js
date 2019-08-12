@@ -9,14 +9,12 @@
  need to from a link
  * */
 import React from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { getCurrentUser } from '../../store/Users/reducer';
 import withAppConfigs from '../../utils/withAppConfigs';
 import ModalMovie from './ModalMovie';
 import { getUiPreference, setUiPreference } from '../../utils/userPreferencesFunctions';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
-import { updateMyUiPrefereneces } from '../../api/users';
+
 
 function HelpMovie(props) {
   const {
@@ -73,7 +71,7 @@ function HelpMovie(props) {
 
   function updateUserPrefs() {
     const newUser = setNewUiPreferences();
-    updateMyUiPrefereneces(newUser, dispatch);
+  //  updateMyUiPrefereneces(newUser, dispatch);
   }
 
   function myOnClose() {
@@ -118,17 +116,9 @@ HelpMovie.propTypes = {
   onClose: PropTypes.func,
 };
 
-function mapStateToProps(state) {
-  return {
-    user: getCurrentUser(state.usersReducer),
-  };
-}
 
 function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(withAppConfigs(React.memo(HelpMovie)));
+export default withAppConfigs(React.memo(HelpMovie));

@@ -1,6 +1,5 @@
 import investiblesReducer from './MarketInvestibles/reducer';
-import marketsReducer from './Markets/reducer';
-import usersReducer from './Users/reducer';
+
 import locale from './locale/reducer';
 import themeSource from './themeSource/reducer';
 import drawer from './drawer/reducer';
@@ -21,8 +20,6 @@ export const appReducers = {
 const myReducers = {
   ...appReducers,
   investiblesReducer,
-  marketsReducer,
-  usersReducer,
   commentsReducer,
   activeSearches,
 };

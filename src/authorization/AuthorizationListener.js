@@ -21,7 +21,7 @@ class AuthorizationListener {
 
   signInHappened(payload) {
     console.log(`Handling user signin ${payload}`);
-    postAuthTasks({ webSocket: this.webSocket, dispatch: this.reduxDispatch });
+    postAuthTasks({ webSocket: this.webSocket});
   }
 
   listenForAuthorization(reduxDispatch, webSocket) {

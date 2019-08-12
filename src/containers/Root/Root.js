@@ -6,7 +6,6 @@ import { IntlProvider } from 'react-intl';
 import { Router, Route, Switch } from 'react-router-dom';
 import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvider';
 import AppLayout from '../AppLayout';
-import LandingPage from '../../pages/LandingPage';
 import { defaultTheme } from '../../config/themes';
 import locales, { getLocaleMessages } from '../../config/locales';
 // eslint-disable-next-line

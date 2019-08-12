@@ -16,9 +16,8 @@ import InvestibleDelete from './InvestibleDelete';
 import InvestibleEdit from './InvestibleEditButton';
 import InvestibleInvest from './InvestibleInvest';
 import { fetchInvestibles } from '../../api/marketInvestibles';
-import { fetchSelf } from '../../api/users';
-import { getCurrentUser } from '../../store/Users/reducer';
-import { getFlags } from '../../utils/userFunctions'
+
+import { getFlags } from '../../utils/userFunctions';
 import CommentsList from './Comments/CommentsList';
 
 const styles = theme => ({
@@ -126,8 +125,6 @@ function InvestibleDetail(props) {
       setLastInvestible(investible);
       setQuantityToInvest(investible.current_user_investment);
       fetchInvestibles([investible.id], investible.market_id, dispatch);
-      // Required if someone on team has spent shared uShares or there was a grant
-      fetchSelf(dispatch);
     }
   }, [investible, lastInvestible, dispatch]);
 
@@ -213,7 +210,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 const mapStateToProps = state => ({
-  user: getCurrentUser(state.usersReducer),
+
 });
 
 InvestibleDetail.propTypes = {

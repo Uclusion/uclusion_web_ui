@@ -1,5 +1,4 @@
-import { fetchSelf } from '../api/users';
-import { fetchMarket } from '../api/markets';
+
 import { clearReduxStore } from './userStateFunctions';
 import { sendInfoPersistent } from './userMessage';
 import config from '../config/config';
@@ -8,6 +7,7 @@ import { fetchCommentList } from '../api/comments';
 import { getInvestibles } from '../store/MarketInvestibles/reducer';
 import { getComments } from '../store/Comments/reducer';
 import { getActiveMarkeList } from '../api/sso';
+
 
 /**
  * Checks the current application version against the version of the application
@@ -48,43 +48,9 @@ export function fetchMarketInvestibleInfo(params) {
   return promises;
 }
 
-export function marketChangeTasks(params, marketId, user) {
-  const { dispatch, webSocket } = params;
-  // fetch the market, user, and stages to make sure everything is up to date in presences
-  const promises = fetchMarket(dispatch)
-    .then(() => fetchSelf(dispatch))
-    .then(() => {
-      webSocket.unsubscribeAll();
-      return webSocket.subscribe(user.id, { market_id: marketId });
-    })
-    .then(() => {
-      // clear all old subscriptions
-      const { investiblesReducer, commentsReducer } = params;
-      return fetchMarketInvestibleInfo({
-        investibles: getInvestibles(investiblesReducer),
-        dispatch,
-        comments: getComments(commentsReducer),
-        marketId,
-      });
-    });
-  return promises;
-}
 
 
-function fetchMarkets(dispatch) {
-  return getActiveMarkeList()
-    .then((markets) => {
-      const marketIds = Object.keys(markets);
-      const marketFetches = marketIds.map((marketId) => fetchMarket(dispatch, marketId));
-      return Promise.all(marketFetches);
-    });
-}
 
 export function postAuthTasks(params) {
-  const { usersReducer, dispatch, webSocket } = params;
-  // if we're not sure the user is the same as we loaded redux with, zero out redux
-  console.debug('Clearing user redux');
-  webSocket.unsubscribeAll();
-  clearReduxStore(dispatch);
-  return fetchMarkets(dispatch);
+
 }

@@ -5,14 +5,11 @@ import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router-dom';
 import { withMarketId } from '../../components/PathProps/MarketId';
-
-
-
 import { userLogout } from '../../store/auth/actions';
 import drawerActions from '../../store/drawer/actions';
-import { getCurrentUser } from '../../store/Users/reducer';
+
 import { bindActionCreators } from 'redux';
-import { getMarkets } from '../../store/Markets/reducer';
+
 
 const DrawerContent = (props) => {
   const {
@@ -42,9 +39,7 @@ const DrawerContent = (props) => {
 
 function mapStateToProps(state){
   return {
-    user: getCurrentUser(state.usersReducer),
     userLogout,
-    markets: getMarkets(state.marketsReducer),
   };
 }
 

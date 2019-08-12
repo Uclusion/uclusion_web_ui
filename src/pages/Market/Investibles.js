@@ -1,5 +1,5 @@
 /* eslint-disable react/forbid-prop-types */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
@@ -7,18 +7,16 @@ import { Button } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import { getInvestibles } from '../../store/MarketInvestibles/reducer';
 import Activity from '../../containers/Activity/Activity';
-import { getCurrentUser } from '../../store/Users/reducer';
 import InvestibleList from '../Investibles/InvestibleList';
 import InvestibleDetail from '../Investibles/InvestibleDetail';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import InvestibleSearchBox from '../Investibles/InvestibleSearchBox';
 import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 import { getComments } from '../../store/Comments/reducer';
 import { fetchMarketInvestibleInfo } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { getFlags } from '../../utils/userFunctions';
 import InvestibleAddButton from '../Investibles/InvestibleAddButton';
-import { getMarkets } from '../../store/Markets/reducer';
+import  MarketsContext  from '../../contexts/MarketsContext';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -57,17 +55,18 @@ const styles = theme => ({
 function Investibles(props) {
   const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
   const [showFavorite, setShowFavorite] = useState(false);
+  const marketsContext = useContext(MarketsContext);
 
   const {
-    marketId,
     intl,
     user,
     history,
     classes,
     investibles,
-    markets,
     location,
   } = props;
+  const { currentMarket }  = marketsContext
+  const marketId = currentMarket.id;
   const { location: { hash, pathname } } = history;
   const { isAdmin, canInvest } = getFlags(user);
 
@@ -154,8 +153,7 @@ function Investibles(props) {
       }
     }
   }
-  const currentMarket = markets.find(market => marketId === market.id);
-  const currentMarketName = ( currentMarket && currentMarket.name) || '';
+
 
   // TODO: give choice of teamId instead of default
   return (
@@ -165,8 +163,8 @@ function Investibles(props) {
       <Activity
         isLoading={currentInvestibleList === undefined || user === undefined}
         containerStyle={{ overflow: 'hidden' }}
-        appBarContent={[<InvestibleSearchBox />, <InvestibleAddButton />]}
-        title={currentMarketName}
+        appBarContent={[<InvestibleAddButton />]}
+        title={currentMarket.name}
         titleButtons={[<Button
           className={classes.toolbarButton}
           variant="contained"
@@ -224,9 +222,9 @@ Investibles.propTypes = {
 const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
   comments: getComments(state.commentsReducer),
-  user: getCurrentUser(state.usersReducer),
+
   activeInvestibleSearches: getActiveInvestibleSearches(state.activeSearches),
-  markets: getMarkets(state.marketsReducer), });
+});
 
 function mapDispatchToProps(dispatch) {
   return { dispatch };

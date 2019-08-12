@@ -20,11 +20,9 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 import { getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../../utils/userMessage';
 import Activity from '../../containers/Activity/Activity';
-import { getMarkets } from '../../store/Markets/reducer';
 import { fetchInvestibles } from '../../api/marketInvestibles';
-import { fetchMarket } from '../../api/markets';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
-import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions'
+import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 
 const styles = theme => ({
   root: {
@@ -120,7 +118,6 @@ function InvestibleAddEdit (props) {
         .then((investibles) => {
           const investible = investibles[0];
           setInvestible(investible);
-          fetchMarket(dispatch);
         }).catch((error) => {
           console.log(error);
           sendIntlMessage(ERROR, { id: 'investibleEditInvestibleFetchFailed' });
@@ -348,7 +345,7 @@ function InvestibleAddEdit (props) {
 
 function mapStateToProps(state) {
   return {
-    markets: getMarkets(state.marketsReducer),
+
   };
 }
 

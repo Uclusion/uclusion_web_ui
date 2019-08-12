@@ -1,9 +1,9 @@
 import { getMarketClient } from './uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../utils/userMessage';
 import { updateInChunks } from '../store/reducer_helpers';
-import { fetchSelf } from './users';
+
 import {
-  investibleCreated, investibleDeleted,
+  investibleDeleted,
   investibleFollowed,
   investmentUpdated,
   receiveInvestibleList,
@@ -61,7 +61,7 @@ export function updateInvestment(teamId, marketId, investibleId, quantity, curre
     .then((investment) => {
       dispatch(investmentUpdated(marketId, investibleId, quantity));
       sendIntlMessage(SUCCESS, { id: 'investmentSucceeded' }, { shares: quantity });
-      return fetchSelf(dispatch);
+      return Promise.resolve(true);
     }).catch((error) => {
       console.error(error);
       sendIntlMessage(ERROR, { id: 'investmentFailed' });

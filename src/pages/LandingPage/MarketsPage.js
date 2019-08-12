@@ -20,7 +20,6 @@ import { injectIntl } from 'react-intl';
 import { Helmet } from 'react-helmet';
 import uclusion from 'uclusion_sdk';
 import { CognitoAuthorizer } from 'uclusion_authorizer_sdk';
-import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import appConfig from '../../config/config';
 import { cognitoTokenGenerated, getErrorMessage } from '../../utils/loginFunctions';
 import { clearUserState } from '../../utils/userStateFunctions';
@@ -272,7 +271,7 @@ function mapStateToProps() {
   return {};
 }
 
-export default withBackgroundProcesses(connect(
+export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(withRouter(withStyles(styles, { withTheme: true })(injectIntl(MarketsPage)))));
+)(withRouter(withStyles(styles, { withTheme: true })(injectIntl(MarketsPage))));

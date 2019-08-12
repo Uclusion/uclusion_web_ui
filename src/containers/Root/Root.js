@@ -9,44 +9,37 @@ import AppLayout from '../AppLayout';
 import LandingPage from '../../pages/LandingPage';
 import { defaultTheme } from '../../config/themes';
 import locales, { getLocaleMessages } from '../../config/locales';
-import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
-
 // eslint-disable-next-line
 const history = require("history").createBrowserHistory();
 
 class Root extends Component {
-  constructor(props) {
-    super(props);
-    const { webSocket } = props;
-    this.state = { webSocket };
-    webSocket.connect();
-  }
 
   render() {
     const {
       appConfig,
       locale,
       isLanding,
+
     } = this.props;
-    const messages = { ...(getLocaleMessages(locale, locales)),
+    const messages = {
+      ...(getLocaleMessages(locale, locales)),
       ...(getLocaleMessages(locale, appConfig.locales)),
     };
 
+
     const theme = defaultTheme;
     return (
-        <MuiThemeProvider theme={theme}>
-          <IntlProvider locale={locale} key={locale} messages={messages}>
-            <IntlGlobalProvider>
-              <Router history={history}>
-                <Switch>
-                  {(isLanding && <Route children={props => <LandingPage {...props} />} />)
-                    || (!isLanding && <Route children={props => <AppLayout {...props} />} />)
-                  }
-                </Switch>
-              </Router>
-            </IntlGlobalProvider>
-          </IntlProvider>
-        </MuiThemeProvider>
+      <MuiThemeProvider theme={theme}>
+        <IntlProvider locale={locale} key={locale} messages={messages}>
+          <IntlGlobalProvider>
+            <Router history={history}>
+              <Switch>
+                <Route children={props => <AppLayout {...props} />}/>
+              </Switch>
+            </Router>
+          </IntlGlobalProvider>
+        </IntlProvider>
+      </MuiThemeProvider>
     );
   }
 }
@@ -66,6 +59,5 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default withBackgroundProcesses(connect(
-  mapStateToProps,
-)(Root));
+
+export default connect(mapStateToProps)(Root);

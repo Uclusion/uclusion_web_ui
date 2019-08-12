@@ -1,4 +1,3 @@
-import { updateMarketAuth } from '../components/utils';
 import { fetchSelf } from '../api/users';
 import { fetchMarket } from '../api/markets';
 import { clearReduxStore } from './userStateFunctions';
@@ -81,15 +80,11 @@ function fetchMarkets(dispatch) {
     });
 }
 
-export function postAuthTasks(params, authInfo) {
+export function postAuthTasks(params) {
   const { usersReducer, dispatch, webSocket } = params;
-  const { market_id, user, deployed_version } = authInfo;
-  notifyNewApplicationVersion(dispatch, deployed_version);
   // if we're not sure the user is the same as we loaded redux with, zero out redux
-  if (!usersReducer || !usersReducer.currentUser || usersReducer.currentUser.id !== user.id) {
-    console.debug('Clearing user redux');
-    webSocket.unsubscribeAll();
-    clearReduxStore(dispatch);
-  }
+  console.debug('Clearing user redux');
+  webSocket.unsubscribeAll();
+  clearReduxStore(dispatch);
   return fetchMarkets(dispatch);
 }

@@ -17,7 +17,6 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import { withBackgroundProcesses } from '../../components/BackgroundProcesses/BackgroundProcessWrapper';
 import { setUclusionLocalStorageItem} from '../../components/utils';
 import { loginOidc, loginSso, loginAnonymous, cognitoTokenGenerated, getErrorMessage,
 } from '../../utils/loginFunctions';
@@ -439,5 +438,5 @@ function mapStateToProps(state) {
   return { ...state };
 }
 
-export default withBackgroundProcesses(withStyles(styles)(connect(mapStateToProps,
-  mapDispatchToProps)(injectIntl(withRouter(React.memo(withMarketId(withAppConfigs(Login))))))));
+export default withStyles(styles)(connect(mapStateToProps,
+  mapDispatchToProps)(injectIntl(withRouter(React.memo(withMarketId(withAppConfigs(Login)))))));

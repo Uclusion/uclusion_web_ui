@@ -21,7 +21,7 @@ const styles = theme => ({
   root: {
     color: 'inherit',
     margin: theme.spacing.unit,
-    marginTop: theme.spacing.unit * 2,
+    marginTop: theme.spacing(2),
     width: 384,
     [theme.breakpoints.only('xs')]: {
       width: '100%',

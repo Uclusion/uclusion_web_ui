@@ -18,7 +18,7 @@ const styles = theme => ({
   },
   textField: {
     marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit * 2,
+    marginRight: theme.spacing(2),
     width: 100,
   },
   investButton: {
@@ -31,7 +31,7 @@ const styles = theme => ({
   },
   button: {
     marginLeft: theme.spacing.unit,
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: theme.spacing(2),
     padding: 0,
   },
 });

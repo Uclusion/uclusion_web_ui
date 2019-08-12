@@ -16,18 +16,18 @@ import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
   root: {
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
   },
   section: {
-    padding: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
+    marginBottom: theme.spacing(2),
     '&:last-child': {
       marginBottom: 0,
     },
   },
   row: {
     display: 'flex',
-    marginBottom: theme.spacing.unit * 0.5,
+    marginBottom: theme.spacing(0.5),
     '&:last-child': {
       marginBottom: 0,
     },

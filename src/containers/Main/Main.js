@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { withA2HS } from 'a2hs';
 import { ToastContainer } from 'react-toastify';
 import App from '../App/App';
@@ -20,7 +20,12 @@ Amplify.configure(awsconfig);
 
 const WebSocketContext = React.createContext();
 
-class Main extends PureComponent {
+class Main extends Component {
+
+  constructor(props){
+    super(props);
+    this.state = { webSocket: null };
+  }
 
   createStore() {
     const store = configureStore();
@@ -28,10 +33,15 @@ class Main extends PureComponent {
   }
 
   createWebSocket(dispatch, config) {
-    const { webSockets } = config;
-    const sockConfig = { wsUrl: webSockets.wsUrl, dispatch, reconnectInterval: webSockets.reconnectInterval };
-    const webSocket = new WebSocketRunner(sockConfig);
-    webSocket.connect();
+    const { webSocket } = this.state;
+    if (!webSocket) {
+      const { webSockets } = config;
+      const sockConfig = { wsUrl: webSockets.wsUrl, dispatch, reconnectInterval: webSockets.reconnectInterval };
+      const newSocket = new WebSocketRunner(sockConfig);
+      newSocket.connect();
+      this.setState({ webSocket: newSocket });
+      return newSocket;
+    }
     return webSocket;
   }
 

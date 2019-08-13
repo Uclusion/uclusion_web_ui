@@ -55,9 +55,10 @@ function Investibles(props) {
     history,
     classes,
     location,
+    marketId,
   } = props;
 
-  const marketId = currentMarket.id;
+
   const { location: { hash, pathname } } = history;
 
 
@@ -67,7 +68,7 @@ function Investibles(props) {
     return () => {
       clearInterval(timer);
     };
-  }, [marketId, refreshInvestibles]);
+  }, [marketId]);
 /*
   let investibleDetail = null;
   if (hash) {

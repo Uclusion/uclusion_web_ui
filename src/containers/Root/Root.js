@@ -17,7 +17,6 @@ class Root extends Component {
     const {
       appConfig,
       locale,
-      isLanding,
 
     } = this.props;
     const messages = {

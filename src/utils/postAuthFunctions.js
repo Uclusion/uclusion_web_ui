@@ -2,11 +2,6 @@
 import { clearReduxStore } from './userStateFunctions';
 import { sendInfoPersistent } from './userMessage';
 import config from '../config/config';
-import { fetchInvestibleList } from '../api/marketInvestibles';
-import { fetchCommentList } from '../api/comments';
-import useMarketContext from '../contexts/useMarketsContext';
-import { getActiveMarkeList } from '../api/sso';
-
 
 /**
  * Checks the current application version against the version of the application
@@ -28,28 +23,3 @@ export function notifyNewApplicationVersion(dispatch, currentVersion) {
   }
 }
 
-/**
- * Returns a promise that when resolved will fetch all needed investible info
- * @param params
- * @returns {*}
- */
-export function fetchMarketInvestibleInfo(params) {
-  const {
-    investibles, dispatch, comments, marketId, fetchComments,
-  } = params;
-  console.debug(`Fetching investibles with marketId: ${marketId}`);
-  const currentInvestibleList = marketId in investibles ? investibles[marketId] : [];
-  const currentCommentList = marketId in comments ? comments[marketId] : [];
-  let promises = fetchInvestibleList(currentInvestibleList, marketId, dispatch);
-  if (fetchComments) {
-    promises = promises.then((result) => fetchCommentList(currentCommentList, marketId, dispatch)); //eslint-disable-line
-  }
-  return promises;
-}
-
-
-
-
-export function postAuthTasks() {
-
-}

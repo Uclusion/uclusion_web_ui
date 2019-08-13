@@ -13,7 +13,7 @@ addLocalizationData(locales);
 class App extends Component {
 
   render() {
-    const { appConfig, locale, isLanding } = this.props;
+    const { appConfig, locale } = this.props;
     let myLocale = locale;
     if (!myLocale) {
       myLocale = 'en';

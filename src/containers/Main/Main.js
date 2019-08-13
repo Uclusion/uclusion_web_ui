@@ -9,10 +9,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import Amplify from 'aws-amplify';
 import awsconfig from '../../config/amplify';
 import WebSocketRunner from '../../components/BackgroundProcesses/WebSocketRunner';
-
 import { Provider } from 'react-redux';
 
 import { MarketsProvider } from '../../contexts/MarketsContext';
+import { InvestiblesProvider } from '../../contexts/InvestiblesContext';
+
 addLocalizationData(locales);
 console.log(awsconfig);
 Amplify.configure(awsconfig);
@@ -21,21 +22,21 @@ const WebSocketContext = React.createContext();
 
 class Main extends Component {
 
-  constructor(props){
+  constructor (props) {
     super(props);
     this.state = { webSocket: null };
   }
 
-  createStore() {
+  createStore () {
     const store = configureStore();
     return store;
   }
 
-  createWebSocket(dispatch, config) {
+  createWebSocket (config) {
     const { webSocket } = this.state;
     if (!webSocket) {
       const { webSockets } = config;
-      const sockConfig = { wsUrl: webSockets.wsUrl, dispatch, reconnectInterval: webSockets.reconnectInterval };
+      const sockConfig = { wsUrl: webSockets.wsUrl, reconnectInterval: webSockets.reconnectInterval };
       const newSocket = new WebSocketRunner(sockConfig);
       newSocket.connect();
       this.setState({ webSocket: newSocket });
@@ -44,20 +45,21 @@ class Main extends Component {
     return webSocket;
   }
 
-  render() {
+  render () {
+    const webSocket = this.createWebSocket(config);
     const store = this.createStore();
-    const { dispatch } = store;
-    const webSocket = this.createWebSocket(dispatch, config);
     return (
       <div>
-        <MarketsProvider>
-        <ToastContainer/>
-        <Provider store={store}>
-          <WebSocketContext.Provider value={webSocket}>
-            <App appConfig={{ ...config }}/>
-          </WebSocketContext.Provider>
-        </Provider>
-        </MarketsProvider>
+        <InvestiblesProvider>
+          <MarketsProvider>
+            <Provider store={store}>
+              <ToastContainer/>
+              <WebSocketContext.Provider value={webSocket}>
+                <App appConfig={{ ...config }}/>
+              </WebSocketContext.Provider>
+            </Provider>
+          </MarketsProvider>
+        </InvestiblesProvider>
       </div>
     );
   }

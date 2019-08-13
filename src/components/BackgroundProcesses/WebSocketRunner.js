@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import { fetchInvestibles } from '../../api/marketInvestibles';
-import { investibleDeleted } from '../../store/MarketInvestibles/actions';
 import { commentDeleted } from '../../store/Comments/actions';
 import { fetchComments } from '../../api/comments';
 import { notifyNewApplicationVersion } from '../../utils/postAuthFunctions';
@@ -31,13 +30,13 @@ class WebSocketRunner {
           fetchInvestibles([object_id], message.indirect_object_id, this.dispatch);
           break;
         case 'INVESTIBLE_COMMENT_DELETED':
-          this.dispatch(commentDeleted(message.associated_object_id, sub_object_id, object_id));
+ //         this.dispatch(commentDeleted(message.associated_object_id, sub_object_id, object_id));
           break;
         case 'INVESTIBLE_COMMENT_UPDATED':
-          fetchComments(object_id, message.associated_object_id);
+//          fetchComments(object_id, message.associated_object_id);
           break;
         case 'INVESTIBLE_DELETED':
-          this.dispatch(investibleDeleted(message.indirect_object_id, object_id));
+//          this.dispatch(investibleDeleted(message.indirect_object_id, object_id));
           break;
         case 'UI_UPDATE_REQUIRED':
           notifyNewApplicationVersion(this.dispatch, payload.deployed_version);

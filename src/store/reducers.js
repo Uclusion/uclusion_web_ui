@@ -1,9 +1,7 @@
-import investiblesReducer from './MarketInvestibles/reducer';
-
 import locale from './locale/reducer';
 import themeSource from './themeSource/reducer';
 import drawer from './drawer/reducer';
-import commentsReducer from './Comments/reducer';
+
 import detailReducer from './Detail/reducer';
 import { initState } from './init';
 import * as authTypes from './auth/types';
@@ -17,8 +15,7 @@ export const appReducers = {
 
 const myReducers = {
   ...appReducers,
-  investiblesReducer,
-  commentsReducer,
+
 };
 
 // give the search reducer the comments and the investibles,

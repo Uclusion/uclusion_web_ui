@@ -10,7 +10,6 @@ import Activity from '../../containers/Activity/Activity';
 import InvestibleList from '../Investibles/InvestibleList';
 import InvestibleDetail from '../Investibles/InvestibleDetail';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import { getActiveInvestibleSearches } from '../../store/ActiveSearches/reducer';
 import { getComments } from '../../store/Comments/reducer';
 import { fetchMarketInvestibleInfo } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
@@ -53,7 +52,6 @@ const styles = theme => ({
 });
 
 function Investibles(props) {
-  const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
   const [showFavorite, setShowFavorite] = useState(false);
   const { currentMarket } = useMarketsContext();
 
@@ -70,38 +68,8 @@ function Investibles(props) {
   const { location: { hash, pathname } } = history;
   const { isAdmin, canInvest } = getFlags(user);
 
-  function getMarketInvestibles() {
-    const { investibles } = props;
-    if (marketId in investibles) {
-      return investibles[marketId];
-    }
-    return undefined;
-  }
 
-  function getFilteredSearchList(marketInvestibles, searchResults) {
-    const selector = {};
-    for (let x = 0; x < searchResults.length; x += 1) {
-      selector[searchResults[x].ref] = true;
-    }
-    return marketInvestibles.filter(investible => (selector[investible.id]));
-  }
 
-  function getSearchFilteredInvestibles() {
-    const marketInvestibles = getMarketInvestibles();
-    const { activeInvestibleSearches } = props;
-    const currentSearch = activeInvestibleSearches[marketId];
-    if (marketInvestibles && marketInvestibles.length > 0 && currentSearch
-      && currentSearch.results && currentSearch.query !== '') {
-      // now render the filtered list
-      return getFilteredSearchList(marketInvestibles, currentSearch.results);
-    }
-    return marketInvestibles;
-  }
-
-  function getCurrentInvestibleList() {
-    const searched = getSearchFilteredInvestibles();
-    return searched;
-  }
 
   function getItems() {
     const {
@@ -112,10 +80,6 @@ function Investibles(props) {
       setLastFetchedMarketId(marketId);
     }
     fetchMarketInvestibleInfo({ fetchComments: true, marketId, ...props });
-  }
-
-  function toggleShowFavorite() {
-    setShowFavorite(!showFavorite);
   }
 
 
@@ -131,10 +95,8 @@ function Investibles(props) {
   });
 
 
-  let currentInvestibleList = getCurrentInvestibleList();
-  if (showFavorite) {
-    currentInvestibleList = currentInvestibleList.filter(({ current_user_is_following }) => current_user_is_following);
-  }
+  let currentInvestibleList = [];
+
 
   let investibleDetail = null;
   if (hash) {
@@ -165,14 +127,7 @@ function Investibles(props) {
         containerStyle={{ overflow: 'hidden' }}
         appBarContent={[<InvestibleAddButton />]}
         title={currentMarket.name}
-        titleButtons={[<Button
-          className={classes.toolbarButton}
-          variant="contained"
-          onClick={toggleShowFavorite}
-        >
-          {intl.formatMessage({ id: showFavorite ? 'showAll' : 'showFavorite' })}
-        </Button>]}
-      >
+       >
         {currentInvestibleList && user && user.market_presence
         && (
           <div className={classes.root}>
@@ -212,8 +167,6 @@ Investibles.propTypes = {
   comments: PropTypes.object,
   marketId: PropTypes.string,
   user: PropTypes.object,
-  activeInvestibleSearches: PropTypes.object,
-  markets: PropTypes.arrayOf(PropTypes.object),
   classes: PropTypes.arrayOf(PropTypes.object),
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
@@ -222,8 +175,6 @@ Investibles.propTypes = {
 const mapStateToProps = state => ({
   investibles: getInvestibles(state.investiblesReducer),
   comments: getComments(state.commentsReducer),
-
-  activeInvestibleSearches: getActiveInvestibleSearches(state.activeSearches),
 });
 
 function mapDispatchToProps(dispatch) {

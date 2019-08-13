@@ -4,8 +4,6 @@ import locale from './locale/reducer';
 import themeSource from './themeSource/reducer';
 import drawer from './drawer/reducer';
 import commentsReducer from './Comments/reducer';
-import activeSearches from './ActiveSearches/reducer';
-import searchReducer from './SearchIndexes/reducer';
 import detailReducer from './Detail/reducer';
 import { initState } from './init';
 import * as authTypes from './auth/types';
@@ -21,7 +19,6 @@ const myReducers = {
   ...appReducers,
   investiblesReducer,
   commentsReducer,
-  activeSearches,
 };
 
 // give the search reducer the comments and the investibles,
@@ -41,12 +38,6 @@ function mainReducer(state, action) {
     const reducer = myReducers[key];
     newState[key] = reducer(currentState[key], action);
   });
-  newState.searchIndexes = searchReducer(currentState.searchIndexes,
-    {
-      ...action,
-      investiblesReducer: currentState.investiblesReducer,
-      commentsReducer: currentState.commentsReducer,
-    });
   return newState;
 }
 

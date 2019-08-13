@@ -9,11 +9,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import Amplify from 'aws-amplify';
 import awsconfig from '../../config/amplify';
 import WebSocketRunner from '../../components/BackgroundProcesses/WebSocketRunner';
-import AuthorizationListener from '../../authorization/AuthorizationListener';
-import { Provider } from 'react-redux';
-import { IntlProvider } from 'react-intl';
-import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvider';
 
+import { Provider } from 'react-redux';
+
+import { MarketsProvider } from '../../contexts/MarketsContext';
 addLocalizationData(locales);
 console.log(awsconfig);
 Amplify.configure(awsconfig);
@@ -49,16 +48,16 @@ class Main extends Component {
     const store = this.createStore();
     const { dispatch } = store;
     const webSocket = this.createWebSocket(dispatch, config);
-    const authListener = new AuthorizationListener();
-    authListener.listenForAuthorization(dispatch, webSocket);
     return (
       <div>
+        <MarketsProvider>
         <ToastContainer/>
         <Provider store={store}>
           <WebSocketContext.Provider value={webSocket}>
             <App appConfig={{ ...config }}/>
           </WebSocketContext.Provider>
         </Provider>
+        </MarketsProvider>
       </div>
     );
   }

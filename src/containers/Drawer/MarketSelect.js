@@ -4,28 +4,21 @@ import { injectIntl } from 'react-intl';
 import { formMarketLink } from '../../utils/marketIdPathFunctions';
 import { withRouter } from 'react-router';
 import { getActiveMarkeList } from '../../api/sso';
-import MarketsContext from '../../contexts/MarketsContext';
+import useMarketContext from '../../contexts/useMarketsContext';
 
 function MarketSelect (props) {
 
   const [market, setMarket] = useState('');
-  const [markets, setMarkets] = useState([]);
-  const activeMarket = useContext(MarketsContext);
+
+  const { switchMarket, markets } = useMarketContext();
   const { intl, history } = props;
 
   function handleChange (event) {
     const market = event.target.value;
     setMarket(market);
-    activeMarket.switchMarket(market);
+    switchMarket(market.id);
     history.push(formMarketLink(market.id, ''));
   }
-  useEffect(() => {
-    getActiveMarkeList()
-      .then((markets) => {
-        console.log(markets);
-        setMarkets(markets);
-      });
-  }, [market]);
 
   function getMenuItems(markets) {
     if (!markets) {

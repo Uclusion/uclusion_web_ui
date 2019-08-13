@@ -4,8 +4,7 @@ import { sendInfoPersistent } from './userMessage';
 import config from '../config/config';
 import { fetchInvestibleList } from '../api/marketInvestibles';
 import { fetchCommentList } from '../api/comments';
-import { getInvestibles } from '../store/MarketInvestibles/reducer';
-import { getComments } from '../store/Comments/reducer';
+import useMarketContext from '../contexts/useMarketsContext';
 import { getActiveMarkeList } from '../api/sso';
 
 
@@ -51,6 +50,6 @@ export function fetchMarketInvestibleInfo(params) {
 
 
 
-export function postAuthTasks(params) {
+export function postAuthTasks() {
 
 }

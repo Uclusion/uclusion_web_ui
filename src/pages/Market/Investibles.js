@@ -16,7 +16,7 @@ import { fetchMarketInvestibleInfo } from '../../utils/postAuthFunctions';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { getFlags } from '../../utils/userFunctions';
 import InvestibleAddButton from '../Investibles/InvestibleAddButton';
-import  MarketsContext  from '../../contexts/MarketsContext';
+import useMarketsContext from '../../contexts/useMarketsContext';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -55,7 +55,7 @@ const styles = theme => ({
 function Investibles(props) {
   const [lastFetchedMarketId, setLastFetchedMarketId] = useState(undefined);
   const [showFavorite, setShowFavorite] = useState(false);
-  const marketsContext = useContext(MarketsContext);
+  const { currentMarket } = useMarketsContext();
 
   const {
     intl,
@@ -65,7 +65,7 @@ function Investibles(props) {
     investibles,
     location,
   } = props;
-  const { currentMarket }  = marketsContext
+
   const marketId = currentMarket.id;
   const { location: { hash, pathname } } = history;
   const { isAdmin, canInvest } = getFlags(user);

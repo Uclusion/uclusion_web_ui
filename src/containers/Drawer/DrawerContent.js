@@ -5,7 +5,7 @@ import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router-dom';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import { userLogout } from '../../store/auth/actions';
+
 import drawerActions from '../../store/drawer/actions';
 
 import { bindActionCreators } from 'redux';
@@ -39,7 +39,6 @@ const DrawerContent = (props) => {
 
 function mapStateToProps(state){
   return {
-    userLogout,
   };
 }
 

@@ -2,15 +2,13 @@ import locale from './locale/reducer';
 import themeSource from './themeSource/reducer';
 import drawer from './drawer/reducer';
 
-import detailReducer from './Detail/reducer';
 import { initState } from './init';
-import * as authTypes from './auth/types';
+
 
 export const appReducers = {
   locale,
   drawer,
   themeSource,
-  detail: detailReducer,
 };
 
 const myReducers = {
@@ -27,9 +25,7 @@ function mainReducer(state, action) {
   // we want to be able to reset the used state to the reducers to the init
   // state on logout
   let currentState = state;
-  if (action.type === authTypes.USER_LOGOUT) {
-    currentState = { ...initState };
-  }
+
   const newState = {};
   Object.keys(myReducers).forEach((key) => {
     const reducer = myReducers[key];

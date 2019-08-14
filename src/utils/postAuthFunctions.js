@@ -1,5 +1,3 @@
-
-import { clearReduxStore } from './userStateFunctions';
 import { sendInfoPersistent } from './userMessage';
 import config from '../config/config';
 
@@ -16,7 +14,6 @@ export function notifyNewApplicationVersion(dispatch, currentVersion) {
     console.debug(`Upgrading to version: ${currentVersion}`);
     // deprecated, but the simplest way to ignore cache
     const reloader = () => {
-      clearReduxStore(dispatch);
       window.location.reload(true);
     };
     sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);

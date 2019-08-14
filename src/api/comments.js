@@ -3,7 +3,7 @@ import { ERROR, sendIntlMessage, SUCCESS } from '../utils/userMessage';
 // import { commentCreated, commentDeleted, commentsReceived } from '../store/Comments/actions';
 
 
-export function createComment(investibleId, marketId, body, dispatch) {
+export function createComment(investibleId, marketId, body) {
   const clientPromise = getMarketClient(marketId);
   return clientPromise.then((client) => {
     client.investibles.createComment(investibleId, body)

@@ -1,7 +1,7 @@
 import { getMarketClient } from './uclusionClient';
 import { ERROR, sendIntlMessage, SUCCESS } from '../utils/userMessage';
 // import { commentCreated, commentDeleted, commentsReceived } from '../store/Comments/actions';
-import { updateInChunks } from '../store/reducer_helpers';
+
 
 export function createComment(investibleId, marketId, body, dispatch) {
   const clientPromise = getMarketClient(marketId);

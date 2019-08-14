@@ -18,7 +18,7 @@ export function getInvestibleIdFromHash(history) {
   if (key === 'investible') {
     return value;
   }
-  return ''
+  return '';
 }
 
 

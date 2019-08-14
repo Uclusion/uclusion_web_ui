@@ -17,7 +17,6 @@ import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 import drawerActions from '../../store/drawer/actions';
-import { getMarketClient } from '../../api/uclusionClient';
 import { getFlags } from '../../utils/userFunctions'
 
 const drawerWidth = 240;

@@ -40,7 +40,6 @@
     "slate": "^0.47.4",
     "slate-html-serializer": "^0.8.6",
     "slate-react": "^0.22.4",
-    "uclusion_authorizer_sdk": "file:../uclusion_authorizer_sdk",
     "uclusion_sdk": "file:../uclusion_sdk",
     "video-react": "^0.14.1"
   },

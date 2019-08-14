@@ -8,10 +8,11 @@ function useInvestiblesContext() {
 
   function refreshInvestibles(marketId) {
     return fetchInvestibleList(marketId)
-      .then(idList => {
-        if (_.isEmpty(idList)){
+      .then((investibleList) => {
+        if (_.isEmpty(investibleList)){
           return Promise.resolve([]);
         }
+        const idList = investibleList.map(investible => investible.id);
         return fetchInvestibles(idList, marketId);
       }).then((investibles) => {
         setState({ [marketId]: investibles });

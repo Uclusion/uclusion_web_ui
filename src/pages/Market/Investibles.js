@@ -48,7 +48,7 @@ const styles = theme => ({
 });
 
 function Investibles(props) {
-  const { currentMarket } = useMarketsContext();
+  const { currentMarket, markets, refreshMarkets, switchMarket } = useMarketsContext();
   const { getInvestibles, refreshInvestibles } = useInvestiblesContext();
   const {
     intl,
@@ -59,10 +59,16 @@ function Investibles(props) {
   } = props;
 
 
-  const { location: { hash, pathname } } = history;
-
+  useEffect(() => {
+    if(markets) {
+      switchMarket(marketId);
+    }
+  }, [markets]);
 
   useEffect(() => {
+    if (!markets) {
+      refreshMarkets();
+    }
     refreshInvestibles(marketId);
     const timer = setInterval(() => refreshInvestibles(marketId), pollRate);
     return () => {
@@ -70,6 +76,7 @@ function Investibles(props) {
     };
   }, [marketId]);
 /*
+ const { location: { hash, pathname } } = history;
   let investibleDetail = null;
   if (hash) {
     const hashPart = hash.substr(1).split(':');
@@ -97,17 +104,16 @@ function Investibles(props) {
               )}
  */
   const investibles = getInvestibles(marketId) || [];
-
-  // TODO: give choice of teamId instead of default
+  const currentMarketName = (currentMarket && currentMarket.name) || '';
   return (
 
     <div>
 
       <Activity
-        isLoading={!investibles}
+        isLoading={!currentMarketName}
         containerStyle={{ overflow: 'hidden' }}
         appBarContent={[<InvestibleAddButton/>]}
-        title={currentMarket.name}
+        title={currentMarketName}
       >
         <div className={classes.root}>
           <div className={classes.content}>

@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { MarketsContext } from './MarketsContext';
+import { getActiveMarkeList } from '../api/sso';
 
 
 function useMarketsContext() {
@@ -15,10 +16,19 @@ function useMarketsContext() {
     setState({ ...state, markets });
   }
 
+  function refreshMarkets() {
+    return getActiveMarkeList()
+      .then((markets) => {
+        const newState = { ...state, markets };
+        setState(newState);
+      });
+  }
+
   return {
     currentMarket: state.currentMarket,
     markets: state.markets,
     setMarkets,
+    refreshMarkets,
     switchMarket,
   };
 

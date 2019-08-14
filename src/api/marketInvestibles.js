@@ -3,6 +3,7 @@ import { ERROR, sendIntlMessage, SUCCESS } from '../utils/userMessage';
 
 export function fetchInvestibles(idList, marketId) {
   const clientPromise = getMarketClient(marketId);
+  console.log(idList);
   console.debug(`Fetching idList ${idList}`);
   return clientPromise.then(client => client.markets.getMarketInvestibles(idList))
     .catch((error) => {

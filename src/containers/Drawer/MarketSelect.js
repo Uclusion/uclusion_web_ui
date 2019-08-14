@@ -5,26 +5,28 @@ import { formMarketLink } from '../../utils/marketIdPathFunctions';
 import { withRouter } from 'react-router';
 import { getActiveMarkeList } from '../../api/sso';
 import useMarketContext from '../../contexts/useMarketsContext';
+import { withMarketId } from '../../components/PathProps/MarketId';
 
 function MarketSelect (props) {
 
-  const [market, setMarket] = useState('');
+  const { intl, history, marketId } = props;
+
+  const [market, setMarket] = useState(marketId);
 
   const { switchMarket, markets } = useMarketContext();
-  const { intl, history } = props;
 
   function handleChange (event) {
-    const market = event.target.value;
-    setMarket(market);
-    switchMarket(market.id);
-    history.push(formMarketLink(market.id, ''));
+    const marketId = event.target.value;
+    setMarket(marketId);
+    switchMarket(marketId);
+    history.push(formMarketLink(marketId, ''));
   }
 
   function getMenuItems(markets) {
     if (!markets) {
       return [];
     }
-    return markets.map(market => <MenuItem key={market.id} value={market}>{market.name}</MenuItem>);
+    return markets.map(market => <MenuItem key={market.id} value={market.id}>{market.name}</MenuItem>);
   }
 
   return (
@@ -44,6 +46,6 @@ function MarketSelect (props) {
 
 }
 
-export default injectIntl(withRouter(MarketSelect));
+export default injectIntl(withRouter(withMarketId(MarketSelect)));
 
 

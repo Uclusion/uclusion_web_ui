@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Hub } from 'aws-amplify';
 import { getActiveMarkeList } from '../api/sso';
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
 
 const MarketsContext = React.createContext([{}, () => {}]);
 const AUTH_HUB_CHANNEL = 'auth';
+//const LOCAL_STORAGE_KEY = 'markets_context';
 
 function MarketsProvider(props) {
 
-  const [state, setState] = useState({});
+  // const defaultState = [getUclusionLocalStorageItem(LOCAL_STORAGE_KEY), () => {}];
+  const defaultState = [{}, () => {}];
+  const [state, setState] = useState(defaultState);
+
+ /*
+  // persist state locally on change
+  useEffect(() => {
+    setUclusionLocalStorageItem(LOCAL_STORAGE_KEY, state);
+  }, [state]);
+*/
 
   Hub.listen(AUTH_HUB_CHANNEL, (data) => {
     const { payload: { event } } = data;

@@ -1,7 +1,7 @@
 import React from 'react';
 import Paper from '@material-ui/core/es/Paper/Paper';
 import { injectIntl } from 'react-intl';
-import { connect } from 'react-redux';
+
 import Button from '@material-ui/core/es/Button/Button';
 import { ERROR, sendIntlMessage } from '../../../utils/userMessage';
 import HtmlRichTextEditor from '../../../components/TextEditors/HtmlRichTextEditor';
@@ -74,12 +74,4 @@ class CommentsAdd extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {};
-}
-
-function mapDispatchToProps(dispatch) {
-  return { dispatch };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withAppConfigs(CommentsAdd)));
+export default injectIntl(CommentsAdd);

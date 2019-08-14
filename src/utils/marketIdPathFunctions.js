@@ -21,8 +21,10 @@ export function getMarketId() {
  * @returns {string}
  */
 function formMarketIdLink(marketId, subPath) {
-  const dest = `/${marketId}/${subPath}`;
-  return dest;
+  if (!subPath) {
+    return `/${marketId}`;
+  }
+  return `/${marketId}/${subPath}`;
 }
 
 /**

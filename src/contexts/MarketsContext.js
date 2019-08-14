@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Hub } from 'aws-amplify';
 import { getActiveMarkeList } from '../api/sso';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
+// import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
 
 const MarketsContext = React.createContext([{}, () => {}]);
 const AUTH_HUB_CHANNEL = 'auth';
-//const LOCAL_STORAGE_KEY = 'markets_context';
+// const LOCAL_STORAGE_KEY = 'markets_context';
 
 function MarketsProvider(props) {
 

@@ -1,5 +1,4 @@
-import { connect } from 'react-redux';
-import { getComments } from '../../../store/Comments/reducer';
+
 import CommentListItem from './CommentListItem';
 import CommentsAdd from './CommentsAdd';
 import React from 'react';
@@ -53,10 +52,5 @@ CommentsList.propTypes = {
   marketId: PropTypes.string.isRequired,
 };
 
-function mapStateToProps(state) {
-  return {
-    comments: getComments(state.commentsReducer),
-  };
-}
 
-export default connect(mapStateToProps)(CommentsList);
+export default CommentsList;

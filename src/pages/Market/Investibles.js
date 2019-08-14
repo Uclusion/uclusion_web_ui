@@ -5,13 +5,14 @@ import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import Activity from '../../containers/Activity/Activity';
 import InvestibleList from '../Investibles/InvestibleList';
-// import InvestibleDetail from '../Investibles/InvestibleDetail';
+import InvestibleDetail from '../Investibles/InvestibleDetail';
 import { withMarketId } from '../../components/PathProps/MarketId';
 // import { getComments } from '../../store/Comments/reducer';
 // import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import InvestibleAddButton from '../Investibles/InvestibleAddButton';
 import useMarketsContext from '../../contexts/useMarketsContext';
 import useInvestiblesContext from '../../contexts/useInvestiblesContext';
+import { getInvestibleForUrl } from './detailHelper';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -75,35 +76,10 @@ function Investibles(props) {
       clearInterval(timer);
     };
   }, [marketId]);
-/*
- const { location: { hash, pathname } } = history;
-  let investibleDetail = null;
-  if (hash) {
-    const hashPart = hash.substr(1).split(':');
-    if (hashPart.length >= 2) {
-      const hashKey = hashPart[0];
-      const hashValue = hashPart[1];
-      if (hashKey === 'investible') {
-        const allInvestibles = investibles[marketId] || [];
-        for (const investible of allInvestibles) { //eslint-disable-line
-          if (investible.id === hashValue) {
-            investibleDetail = investible;
-            break;
-          }
-        }
-      }
-    }
-  }
-*/
-/*
-{investibleDetail && (
-                <InvestibleDetail
-                  investible={investibleDetail}
-                  onClose={() => history.push(pathname)}
-                />
-              )}
- */
+
   const investibles = getInvestibles(marketId) || [];
+  const { location: { pathname }} = history;
+  const investibleDetail = getInvestibleForUrl(history, investibles);
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   return (
 
@@ -123,6 +99,12 @@ function Investibles(props) {
               investibles={investibles}
             />
           </div>
+          { investibleDetail && (
+            <InvestibleDetail
+              investible={investibleDetail}
+              onClose={() => history.push(pathname)}
+            />
+          )}
         </div>
       </Activity>
     </div>

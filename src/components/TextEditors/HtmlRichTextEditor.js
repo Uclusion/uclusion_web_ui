@@ -13,7 +13,7 @@ import PropTypes from 'prop-types';
 import { rules } from './SlateEditors/html_rules';
 import RichTextEditor from './SlateEditors/RichTextEditor';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
-import withAppConfigs from '../../utils/withAppConfigs';
+
 
 class HtmlRichTextEditor extends React.Component {
   constructor(props) {
@@ -90,4 +90,4 @@ HtmlRichTextEditor.defaultProps = {
   readOnly: false,
 };
 
-export default withAppConfigs(HtmlRichTextEditor);
+export default HtmlRichTextEditor;

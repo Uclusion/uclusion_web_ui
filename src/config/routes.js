@@ -10,7 +10,7 @@ const AsyncInvestibleEdit = MyLoadable({ loader: () => import('../pages/Investib
 const AsyncAbout = MyLoadable({ loader: () => import('../pages/About/About') });
 
 const routes = [
-  <Route type="public" path="/:marketId/" exact component={Investibles} />,
+  <Route type="public" path="/:marketId" exact component={Investibles} />,
   <Route type="public" path="/:marketId/about" exact component={AsyncAbout} />,
   <Route type="public" path="/:marketId/investibleEdit/:investibleId" exact component={AsyncInvestibleEdit} />,
   <Route type="public" path="/:marketId/investibleAdd/" exact component={AsyncInvestibleEdit} />,

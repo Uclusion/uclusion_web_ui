@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
+
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import {
@@ -11,13 +11,10 @@ import {
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
-import InvestibleFollowUnfollow from './InvestibleSubscribeUnsubscribe';
 import InvestibleDelete from './InvestibleDelete';
 import InvestibleEdit from './InvestibleEditButton';
 import InvestibleInvest from './InvestibleInvest';
-import { fetchInvestibles } from '../../api/marketInvestibles';
 
-import { getFlags } from '../../utils/userFunctions';
 import CommentsList from './Comments/CommentsList';
 
 const styles = theme => ({
@@ -111,26 +108,14 @@ const styles = theme => ({
 
 function InvestibleDetail(props) {
   const {
-    investible, intl, classes, onClose, dispatch, user,
+    investible, intl, classes, onClose,
   } = props;
-  const [lastInvestible, setLastInvestible] = useState({});
   const [ quantityToInvest, setQuantityToInvest ] = useState(investible.current_user_investment);
 
-  const { isAdmin, isGuest } = getFlags(user);
-
-
-
-  useEffect(() => {
-    if (investible.id !== lastInvestible.id) {
-      setLastInvestible(investible);
-      setQuantityToInvest(investible.current_user_investment);
-      fetchInvestibles([investible.id], investible.market_id, dispatch);
-    }
-  }, [investible, lastInvestible, dispatch]);
 
 
   function renderLabelChips() {
-    const { label_list = [] } = investible || lastInvestible;
+    const { label_list = [] } = investible;
 
     return (
       <div className={classes.row}>
@@ -151,14 +136,18 @@ function InvestibleDetail(props) {
     );
   }
 
-  function canEdit() {
-    return isAdmin || (investible.created_by === user.id);
-  }
-
 
   const show = !!investible;
-  const myInvestible = investible || lastInvestible;
+  const myInvestible = investible;
 
+  /**
+   *         <CommentsList
+   marketId={myInvestible.market_id}
+   user={user}
+   investibleId={myInvestible.id}
+   />
+
+   */
   return (
     <div
       className={classNames(classes.root, {
@@ -167,10 +156,8 @@ function InvestibleDetail(props) {
       })}
     >
       <div className={classNames(classes.bottomActions)}>
-        {!isGuest && (<InvestibleFollowUnfollow investible={myInvestible} />)}
-        {canEdit()
-        && <InvestibleDelete investible={myInvestible} onCloseDetail={onClose} />}
-        {canEdit() && <InvestibleEdit investibleId={myInvestible.id} />}
+        <InvestibleDelete investible={myInvestible} onCloseDetail={onClose} />
+        <InvestibleEdit investibleId={myInvestible.id} />
         <Tooltip title={intl.formatMessage({ id: 'investibleDetailClose' })}>
           <IconButton aria-label="Close" onClick={onClose}>
             <CloseIcon />
@@ -187,7 +174,6 @@ function InvestibleDetail(props) {
         {renderLabelChips()}
         <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={myInvestible.description} readOnly />
         <InvestibleInvest
-          teamId={user.default_team_id}
           marketId={myInvestible.market_id}
           sharesAvailable={100} // {user.market_presence.quantity}
           currentUserInvestment={myInvestible.current_user_investment}
@@ -195,33 +181,20 @@ function InvestibleDetail(props) {
           quantityToInvest={quantityToInvest}
           setQuantityToInvest={setQuantityToInvest}
         />
-        <CommentsList
-          marketId={myInvestible.market_id}
-          user={user}
-          investibleId={myInvestible.id}
-        />
       </div>
     </div>
   );
 }
 
-function mapDispatchToProps(dispatch) {
-  return { dispatch };
-}
 
-const mapStateToProps = state => ({
-
-});
 
 InvestibleDetail.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
   investible: PropTypes.object.isRequired, //eslint-disable-line
   onClose: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired, //eslint-disable-line
-  dispatch: PropTypes.func.isRequired,
+
 
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  injectIntl(withStyles(styles)(InvestibleDetail)),
-);
+export default injectIntl(withStyles(styles)(InvestibleDetail));

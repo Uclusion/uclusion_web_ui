@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { fetchInvestibles } from '../../api/marketInvestibles';
-import { commentDeleted } from '../../store/Comments/actions';
-import { fetchComments } from '../../api/comments';
+
 import { notifyNewApplicationVersion } from '../../utils/postAuthFunctions';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
 

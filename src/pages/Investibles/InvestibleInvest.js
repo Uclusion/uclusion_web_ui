@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import { IconButton, Button } from '@material-ui/core';
@@ -42,7 +41,6 @@ function InvestibleInvest(props){
     marketId,
     investibleId,
     teamId,
-    dispatch,
     currentUserInvestment,
     sharesAvailable,
     classes,
@@ -54,7 +52,7 @@ function InvestibleInvest(props){
 
   function doInvestment() {
     const quantity = parseInt(quantityToInvest, 10);
-    updateInvestment(teamId, marketId, investibleId, quantity, currentUserInvestment, dispatch);
+    updateInvestment(teamId, marketId, investibleId, quantity, currentUserInvestment);
   }
 
   function checkQuantity(newQuantity) {
@@ -138,13 +136,9 @@ InvestibleInvest.propTypes = {
   marketId: PropTypes.string.isRequired,
   teamId: PropTypes.string.isRequired,
   sharesAvailable: PropTypes.number.isRequired,
-  dispatch: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired, //eslint-disable-line
   currentUserInvestment: PropTypes.number.isRequired,
 };
 
-function mapDispatchToProps(dispatch) {
-  return { dispatch };
-}
 
-export default connect(mapDispatchToProps)(injectIntl(withStyles(styles)(InvestibleInvest)));
+export default injectIntl(withStyles(styles)(InvestibleInvest));

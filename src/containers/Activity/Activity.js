@@ -239,7 +239,6 @@ Activity.propTypes = {
   isLoading: PropTypes.bool,
   onBackClick: PropTypes.object,
   user: PropTypes.object,
-  dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   containerStyle: PropTypes.object,
 };

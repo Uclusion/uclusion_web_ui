@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { DeleteForever } from '@material-ui/icons';
 import {
   IconButton,
@@ -20,8 +19,8 @@ class InvestibleDelete extends React.PureComponent {
   };
 
   doDelete = () => {
-    const { dispatch, investible, onCloseDetail } = this.props;
-    deleteInvestible(investible.id, investible.market_id, dispatch)
+    const { investible, onCloseDetail } = this.props;
+    deleteInvestible(investible.id, investible.market_id)
       .then(() => {
         this.handleCloseDialog();
         onCloseDetail();
@@ -73,18 +72,9 @@ class InvestibleDelete extends React.PureComponent {
 }
 
 InvestibleDelete.propTypes = {
-  dispatch: PropTypes.func.isRequired,
   investible: PropTypes.object, //eslint-disable-line
   onCloseDetail: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired, //eslint-disable-line
 };
 
-function mapStateToProps() {
-  return {}; // not used yet
-}
-
-function mapDispatchToProps(dispatch) {
-  return { dispatch };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(InvestibleDelete));
+export default injectIntl(InvestibleDelete);

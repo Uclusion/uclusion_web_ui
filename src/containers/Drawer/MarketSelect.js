@@ -3,7 +3,6 @@ import { MenuItem, InputLabel, FormControl, Select } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import { formMarketLink } from '../../utils/marketIdPathFunctions';
 import { withRouter } from 'react-router';
-import { getActiveMarkeList } from '../../api/sso';
 import useMarketContext from '../../contexts/useMarketsContext';
 import { withMarketId } from '../../components/PathProps/MarketId';
 

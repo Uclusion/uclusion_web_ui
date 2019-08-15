@@ -16,7 +16,7 @@ function getSSOInfo() {
     });
 }
 
-export function getActiveMarkeList() {
+export function getActiveMarketList() {
   return getSSOInfo()
     .then((ssoInfo) => {
       const { ssoClient, idToken } = ssoInfo;

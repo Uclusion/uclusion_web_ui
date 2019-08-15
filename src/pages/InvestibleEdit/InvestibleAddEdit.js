@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import {
@@ -101,7 +100,6 @@ function InvestibleAddEdit (props) {
   const {
     match,
     marketId,
-    dispatch,
     classes,
     intl,
     history
@@ -123,7 +121,7 @@ function InvestibleAddEdit (props) {
           sendIntlMessage(ERROR, { id: 'investibleEditInvestibleFetchFailed' });
         });
     }
-  }, [marketId, addMode, investibleId, saved, dispatch]);
+  }, [marketId, addMode, investibleId, saved]);
 
   function handleChange(name) {
     return (event) => {
@@ -142,7 +140,7 @@ function InvestibleAddEdit (props) {
   function saveEdits(){
     const { id, name, description, label_list } = investible;
     return getMarketClient(marketId).then(client => client.investibles.update(id, name, description, label_list))
-      .then(() => fetchInvestibles([id], marketId, dispatch))
+      .then(() => fetchInvestibles([id], marketId))
       .then(() => {
         sendIntlMessage(SUCCESS, { id: 'investibleEditSuccess' });
         setSaved(true);
@@ -343,15 +341,6 @@ function InvestibleAddEdit (props) {
   )
 }
 
-function mapStateToProps(state) {
-  return {
-
-  };
-}
-
-function mapDispatchToProps (dispatch) {
-  return { dispatch };
-}
 
 InvestibleAddEdit.propTypes = {
   classes: PropTypes.object.isRequired, //eslint-disable-line
@@ -360,8 +349,7 @@ InvestibleAddEdit.propTypes = {
   intl: PropTypes.object.isRequired, //eslint-disable-line
   marketStages: PropTypes.object.isRequired,  //eslint-disable-line
   markets: PropTypes.object.isRequired,  //eslint-disable-line
-  dispatch: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,  //eslint-disable-line
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withMarketId(withStyles(styles)(InvestibleAddEdit))));
+export default injectIntl(withMarketId(withStyles(styles)(InvestibleAddEdit)));

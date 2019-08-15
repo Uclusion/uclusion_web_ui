@@ -14,7 +14,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import withAppConfigs from '../../utils/withAppConfigs';
 
-const styles = theme => ({
+const styles = {
   paper: {
     borderRadius: 0,
     margin: 0,
@@ -28,7 +28,7 @@ const styles = theme => ({
     width: 40,
     height: 40,
   },
-});
+};
 
 const DrawerHeader = (props) => {
   const {
@@ -43,7 +43,7 @@ const DrawerHeader = (props) => {
       <List>
         <ListItem style={{ height: headerHeight }}>
           <img className={classes.logo} src="/images/logo-white.svg" alt="logo"/>
-          <ListItemText classes={{ primary: classes.listItem }} primary={intl.formatMessage({ id: 'app_name' })}/>
+          <ListItemText classes={{ primary: classes.listItem }} primary={intl.formatMessage({ id: 'app_name' })} />
           <Hidden smDown implementation="css">
           </Hidden>
         </ListItem>
@@ -55,7 +55,7 @@ const DrawerHeader = (props) => {
 export default injectIntl(
   withWidth()(
     withAppConfigs(
-      withStyles(styles, { withTheme: true })(
+      withStyles(styles)(
         DrawerHeader,
       ),
     ),

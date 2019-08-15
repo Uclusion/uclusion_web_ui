@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Paper, Typography, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
@@ -9,8 +8,6 @@ import withAppConfigs from '../../utils/withAppConfigs';
 import { withMarketId } from '../../components/PathProps/MarketId';
 import { getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
-import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
-import { clearUserState } from '../../utils/userStateFunctions';
 import { getFlags } from '../../utils/userFunctions'
 
 const styles = theme => ({
@@ -33,7 +30,7 @@ const styles = theme => ({
   },
   label: {
     fontWeight: 600,
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing(),
     minWidth: 140,
   },
   value: {
@@ -47,8 +44,6 @@ function About(props) {
     appConfig,
     marketId,
     classes,
-    history,
-    dispatch,
     intl,
   } = props;
 
@@ -72,8 +67,7 @@ function About(props) {
 
 
   function handleClear() {
-    clearUserState(dispatch);
-    history.push(formCurrentMarketLink('Login'));
+
 
   }
 
@@ -139,17 +133,7 @@ About.propTypes = {
   appConfig: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
-  dispatch: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
 };
 
-function mapStateToProps(state) {
-  return {
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return { dispatch };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withAppConfigs(withMarketId(withStyles(styles)(About)))));
+export default injectIntl(withAppConfigs(withMarketId(withStyles(styles)(About))));

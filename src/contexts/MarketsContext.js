@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Hub } from 'aws-amplify';
-import { getActiveMarkeList } from '../api/sso';
+import { getActiveMarketList } from '../api/sso';
 // import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
 
 const MarketsContext = React.createContext([{}, () => {}]);
@@ -26,7 +26,7 @@ function MarketsProvider(props) {
 
     switch (event) {
       case 'signIn':
-        getActiveMarkeList()
+        getActiveMarketList()
           .then((markets) => {
             setState({ ...state, markets });
           });

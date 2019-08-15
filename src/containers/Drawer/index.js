@@ -1,7 +1,7 @@
 import React from 'react';
 
 import classNames from 'classnames';
-import { withStyles, withTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import { withStyles, MuiThemeProvider } from '@material-ui/core/styles';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import Drawer from '@material-ui/core/Drawer';
 import DrawerContent from './DrawerContent';

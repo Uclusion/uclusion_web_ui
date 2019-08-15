@@ -3,17 +3,16 @@ import { withA2HS } from 'a2hs';
 import { ToastContainer } from 'react-toastify';
 import App from '../App/App';
 import config from '../../config';
-import configureStore from '../../store';
 import locales, { addLocalizationData } from '../../config/locales';
 import 'react-toastify/dist/ReactToastify.css';
 import Amplify from 'aws-amplify';
 import awsconfig from '../../config/amplify';
 import WebSocketRunner from '../../components/BackgroundProcesses/WebSocketRunner';
-import { Provider } from 'react-redux';
 
 import { MarketsProvider } from '../../contexts/MarketsContext';
 import { InvestiblesProvider } from '../../contexts/InvestiblesContext';
 import { DrawerProvider } from '../../contexts/DrawerContext';
+import { LocaleProvider } from '../../contexts/LocaleContext';
 
 addLocalizationData(locales);
 console.log(awsconfig);
@@ -26,11 +25,6 @@ class Main extends Component {
   constructor (props) {
     super(props);
     this.state = { webSocket: null };
-  }
-
-  createStore () {
-    const store = configureStore();
-    return store;
   }
 
   createWebSocket (config) {
@@ -48,18 +42,17 @@ class Main extends Component {
 
   render () {
     const webSocket = this.createWebSocket(config);
-    const store = this.createStore();
     return (
       <div>
         <InvestiblesProvider>
           <MarketsProvider>
             <DrawerProvider>
-            <Provider store={store}>
-              <ToastContainer/>
-              <WebSocketContext.Provider value={webSocket}>
-                <App appConfig={{ ...config }} />
-              </WebSocketContext.Provider>
-            </Provider>
+              <LocaleProvider>
+                <ToastContainer/>
+                <WebSocketContext.Provider value={webSocket}>
+                  <App appConfig={{ ...config }} />
+                </WebSocketContext.Provider>
+              </LocaleProvider>
             </DrawerProvider>
           </MarketsProvider>
         </InvestiblesProvider>

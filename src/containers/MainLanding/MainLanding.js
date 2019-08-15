@@ -3,7 +3,6 @@ import { withA2HS } from 'a2hs';
 import { ToastContainer } from 'react-toastify';
 import App from '../App/App';
 import config from '../../config';
-import configureStore from '../../store';
 import locales, { addLocalizationData } from '../../config/locales';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -14,7 +13,7 @@ class MainLanding extends PureComponent {
     return (
       <div style={{ height: '100%' }}>
         <ToastContainer />
-        <App appConfig={{ configureStore, ...config }} isLanding />
+        <App appConfig={{ ...config }} isLanding />
       </div>
     );
   }

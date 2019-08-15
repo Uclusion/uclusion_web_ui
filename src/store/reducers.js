@@ -1,13 +1,11 @@
 import locale from './locale/reducer';
 import themeSource from './themeSource/reducer';
-import drawer from './drawer/reducer';
 
 import { initState } from './init';
 
 
 export const appReducers = {
   locale,
-  drawer,
   themeSource,
 };
 

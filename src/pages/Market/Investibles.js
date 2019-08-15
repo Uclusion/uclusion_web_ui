@@ -29,7 +29,7 @@ const styles = theme => ({
     flexWrap: 'wrap',
   },
   toolbarButton: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing(),
   },
   content: {
     flex: 1,
@@ -39,8 +39,8 @@ const styles = theme => ({
   stageSelector: {
     display: 'flex',
     alignItems: 'center',
-    margin: theme.spacing.unit,
-    marginTop: theme.spacing.unit * 2,
+    margin: theme.spacing(),
+    marginTop: theme.spacing(2),
     width: 384,
     [theme.breakpoints.only('xs')]: {
       width: '100%',

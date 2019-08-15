@@ -9,43 +9,39 @@ import AppLayout from '../AppLayout';
 import { defaultTheme } from '../../config/themes';
 import locales, { getLocaleMessages } from '../../config/locales';
 // eslint-disable-next-line
-const history = require("history").createBrowserHistory();
+const history = require('history').createBrowserHistory();
 
-class Root extends Component {
+function Root (props) {
 
-  render() {
-    const {
-      appConfig,
-      locale,
+  const {
+    appConfig,
+    locale,
+  } = props;
 
-    } = this.props;
-    const messages = {
-      ...(getLocaleMessages(locale, locales)),
-      ...(getLocaleMessages(locale, appConfig.locales)),
-    };
+  const messages = {
+    ...(getLocaleMessages(locale, locales)),
+    ...(getLocaleMessages(locale, appConfig.locales)),
+  };
+  const theme = defaultTheme;
+  return (
+    <MuiThemeProvider theme={theme}>
+      <IntlProvider locale={locale} key={locale} messages={messages}>
+        <IntlGlobalProvider>
+          <Router history={history}>
+            <Switch>
+              <Route children={props => <AppLayout {...props } appConfig={appConfig} />}/>
+            </Switch>
+          </Router>
+        </IntlGlobalProvider>
+      </IntlProvider>
+    </MuiThemeProvider>
+  );
 
-
-    const theme = defaultTheme;
-    return (
-      <MuiThemeProvider theme={theme}>
-        <IntlProvider locale={locale} key={locale} messages={messages}>
-          <IntlGlobalProvider>
-            <Router history={history}>
-              <Switch>
-                <Route children={props => <AppLayout {...props} />}/>
-              </Switch>
-            </Router>
-          </IntlGlobalProvider>
-        </IntlProvider>
-      </MuiThemeProvider>
-    );
-  }
 }
 
 Root.propTypes = {
   locale: PropTypes.string.isRequired,
   themeSource: PropTypes.object.isRequired,
-  isLanding: PropTypes.bool,
 };
 
 const mapStateToProps = (state) => {
@@ -56,6 +52,5 @@ const mapStateToProps = (state) => {
     themeSource,
   };
 };
-
 
 export default connect(mapStateToProps)(Root);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
+
 import {
   List,
   ListItem,
@@ -13,7 +13,6 @@ import {
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import withAppConfigs from '../../utils/withAppConfigs';
-import drawerActions from '../../store/drawer/actions';
 
 const styles = theme => ({
   paper: {
@@ -43,8 +42,8 @@ const DrawerHeader = (props) => {
     <div className={classes.paper}>
       <List>
         <ListItem style={{ height: headerHeight }}>
-          <img className={classes.logo} src="/images/logo-white.svg" alt="logo" />
-          <ListItemText classes={{ primary: classes.listItem }} primary={intl.formatMessage({ id: 'app_name' })} />
+          <img className={classes.logo} src="/images/logo-white.svg" alt="logo"/>
+          <ListItemText classes={{ primary: classes.listItem }} primary={intl.formatMessage({ id: 'app_name' })}/>
           <Hidden smDown implementation="css">
           </Hidden>
         </ListItem>
@@ -53,14 +52,12 @@ const DrawerHeader = (props) => {
   );
 };
 
-export default connect(null, drawerActions)(
-  injectIntl(
-    withWidth()(
-        withAppConfigs(
-          withStyles(styles, { withTheme: true })(
-            DrawerHeader,
-          ),
-        ),
+export default injectIntl(
+  withWidth()(
+    withAppConfigs(
+      withStyles(styles, { withTheme: true })(
+        DrawerHeader,
+      ),
     ),
   ),
 );

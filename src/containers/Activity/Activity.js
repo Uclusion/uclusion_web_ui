@@ -11,13 +11,12 @@ import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import { Helmet } from 'react-helmet';
-import { compose, bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
-import drawerActions from '../../store/drawer/actions';
-import { getFlags } from '../../utils/userFunctions'
+import { getFlags } from '../../utils/userFunctions';
+import useDrawerContext from '../../contexts/useDrawerContext';
 
 const drawerWidth = 240;
 
@@ -116,11 +115,7 @@ const styles = theme => ({
 
 function Activity(props) {
   const [offline, setOffline] = useState(!navigator.onLine);
-
-  function handleDrawerToggle() {
-    const { setDrawerOpen, drawer } = props;
-    setDrawerOpen(!drawer.open);
-  }
+  const { open, toggleDrawerOpen } = useDrawerContext();
 
   function handleConnectionStatusChange() {
     setOffline(!navigator.onLine);
@@ -133,7 +128,6 @@ function Activity(props) {
     classes,
     theme,
     children,
-    drawer,
     intl,
     title,
     pageTitle,
@@ -160,10 +154,10 @@ function Activity(props) {
   const smDown = isWidthDown('sm', width);
 
   const appBarClassName = (width !== 'sm' && width !== 'xs')
-    ? classNames(classes.appBar, drawer.open && classes.appBarShift)
+    ? classNames(classes.appBar, open && classes.appBarShift)
     : classes.appBar;
   const contentClassName = (width !== 'sm' && width !== 'xs')
-    ? classNames(classes.content, drawer.open && classes.contentShift)
+    ? classNames(classes.content, open && classes.contentShift)
     : classes.content;
 
   return (
@@ -185,9 +179,9 @@ function Activity(props) {
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            onClick={handleDrawerToggle}
+            onClick={toggleDrawerOpen}
             className={classNames(!smDown && classes.menuButton,
-              drawer.open && !smDown && classes.hide, onBackClick && classes.hide)}
+              open && !smDown && classes.hide, onBackClick && classes.hide)}
           >
             <MenuIcon />
           </IconButton>
@@ -199,8 +193,8 @@ function Activity(props) {
           >
             <ChevronLeftIcon />
           </IconButton>
-          {!onBackClick && drawer.open && <div style={{ marginRight: 32 }} />}
-          {!drawer.open && !canInvest && <img className={classes.logo} src="/images/logo-white.svg" alt="logo" />}
+          {!onBackClick && open && <div style={{ marginRight: 32 }} />}
+          {!open && !canInvest && <img className={classes.logo} src="/images/logo-white.svg" alt="logo" />}
           <Typography variant="h6" color="inherit" noWrap>
             {headerTitle}
           </Typography>
@@ -233,7 +227,6 @@ function Activity(props) {
 }
 
 Activity.propTypes = {
-  setDrawerOpen: PropTypes.func.isRequired,
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
   drawer: PropTypes.object.isRequired,
@@ -251,23 +244,6 @@ Activity.propTypes = {
   containerStyle: PropTypes.object,
 };
 
-const mapStateToProps = (state) => {
-  const { drawer } = state;
 
-  return {
-    drawer,
+export default withWidth()(withStyles(styles, { withTheme: true })(injectIntl(withRouter(React.memo(Activity)))));
 
-  };
-};
-
-function mapDispatchToProps(dispatch) {
-  const boundCreators = bindActionCreators({ ...drawerActions }, dispatch);
-  return { ...boundCreators, dispatch };
-}
-
-export default compose(
-  connect(mapStateToProps, mapDispatchToProps),
-  withWidth(),
-  withStyles(styles, { withTheme: true }),
-  injectIntl,
-)(withRouter(React.memo(Activity)));

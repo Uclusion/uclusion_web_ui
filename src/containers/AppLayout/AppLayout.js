@@ -1,11 +1,9 @@
-import React, { Component } from 'react';
-
+import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { injectIntl } from 'react-intl';
 import Routes from '../Routes';
 import Drawer from '../Drawer';
 
-const styles = theme => ({
+const styles = {
   body: {
     height: '100%',
   },
@@ -17,21 +15,18 @@ const styles = theme => ({
     display: 'flex',
     width: '100%',
   },
-});
+};
 
-export class AppLayout extends Component {
-  render() {
-    const { classes } = this.props;
-    return (
-      <div className={classes.body}>
-        <div className={classes.root}>
-          <Drawer />
-          <Routes />
-
-        </div>
+function AppLayout (props) {
+  const { classes, appConfig } = props;
+  return (
+    <div className={classes.body}>
+      <div className={classes.root}>
+        <Drawer appConfig={appConfig} />
+        <Routes/>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
-export default injectIntl(withStyles(styles, { withTheme: true })(AppLayout));
+export default withStyles(styles)(AppLayout);

@@ -28,7 +28,7 @@ class App extends Component {
       <IntlProvider locale={myLocale} key={myLocale} messages={messages}>
         <IntlGlobalProvider>
           <AppConfigProvider appConfig={configs}>
-            <Root appConfig={configs} isLanding onDragStart={this.preventDragHandler}/>
+            <Root appConfig={configs} />
           </AppConfigProvider>
         </IntlGlobalProvider>
       </IntlProvider>

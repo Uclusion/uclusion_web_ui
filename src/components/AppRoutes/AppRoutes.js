@@ -2,6 +2,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import makeLoadable from '../../containers/MyLoadable';
 
+
 const getAppRoutes = () => {
   const MyLoadable = (opts, preloadComponents) => makeLoadable({ ...opts }, preloadComponents);
 

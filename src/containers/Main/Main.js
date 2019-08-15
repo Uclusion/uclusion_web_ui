@@ -13,6 +13,7 @@ import { Provider } from 'react-redux';
 
 import { MarketsProvider } from '../../contexts/MarketsContext';
 import { InvestiblesProvider } from '../../contexts/InvestiblesContext';
+import { DrawerProvider } from '../../contexts/DrawerContext';
 
 addLocalizationData(locales);
 console.log(awsconfig);
@@ -52,12 +53,14 @@ class Main extends Component {
       <div>
         <InvestiblesProvider>
           <MarketsProvider>
+            <DrawerProvider>
             <Provider store={store}>
               <ToastContainer/>
               <WebSocketContext.Provider value={webSocket}>
-                <App appConfig={{ ...config }}/>
+                <App appConfig={{ ...config }} />
               </WebSocketContext.Provider>
             </Provider>
+            </DrawerProvider>
           </MarketsProvider>
         </InvestiblesProvider>
       </div>

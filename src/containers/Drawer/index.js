@@ -1,16 +1,16 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import React from 'react';
+
 import classNames from 'classnames';
-import { withStyles, MuiThemeProvider } from '@material-ui/core/styles';
+import { withStyles, withTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import Drawer from '@material-ui/core/Drawer';
 import DrawerContent from './DrawerContent';
 import DrawerHeader from './DrawerHeader';
 import Scrollbar from '../../components/Scrollbar';
-import withAppConfigs from '../../utils/withAppConfigs';
-import drawerActions from '../../store/drawer/actions';
+
 import { sideBarTheme } from '../../config/themes';
+import useDrawerContext from '../../contexts/useDrawerContext';
+
 
 const drawerWidth = 240;
 
@@ -53,69 +53,48 @@ const styles = theme => ({
   },
 });
 
+function DrawerLayout(props) {
+  const {
+    appConfig,
+    classes,
+    theme,
+    width,
+    user,
+  } = props;
 
-export class DrawerLayout extends Component {
-  handleDrawerToggle = () => {
-    const { setDrawerOpen, drawerOpen } = this.props;
-    setDrawerOpen(!drawerOpen);
-  };
+  const { open, toggleDrawerOpen } = useDrawerContext();
 
+  const smDown = isWidthDown('sm', width);
+  const Header = appConfig.drawerHeader ? appConfig.drawerHeader : DrawerHeader;
 
-  render() {
-    const {
-      history,
-      appConfig,
-      classes,
-      theme,
-      width,
-      drawerOpen,
-      user,
-    } = this.props;
-
-    const smDown = isWidthDown('sm', width);
-    const path = history.location.pathname;
-    const Header = appConfig.drawerHeader ? appConfig.drawerHeader : DrawerHeader;
-
-    return (
-      <MuiThemeProvider theme={sideBarTheme}>
+  return (
+    <MuiThemeProvider theme={sideBarTheme}>
       <Drawer
         variant={smDown ? 'temporary' : 'permanent'}
-        onClose={this.handleDrawerToggle}
+        onClose={toggleDrawerOpen}
         anchor={smDown ? undefined : (theme.direction === 'rtl' ? 'right' : 'left')}
         classes={{
           paper: smDown
             ? classes.drawerPaper
             : classNames(
               classes.drawerPaperOpen,
-              !drawerOpen && classes.drawerPaperClose,
-              !drawerOpen && classes.hide,
+              !open && classes.drawerPaperClose,
+              !open && classes.hide,
             ),
         }}
-        open={drawerOpen}
+        open={open}
         ModalProps={{
           keepMounted: true, // Better open performance on mobile.
         }}
       >
         <Header user={user}/>
         <Scrollbar>
-          <DrawerContent path={path} history={history} />
+          <DrawerContent/>
         </Scrollbar>
       </Drawer>
-      </MuiThemeProvider>
-    );
-  }
+    </MuiThemeProvider>
+  );
+
 }
 
-const mapStateToProps = state => ({
-  drawerOpen: state.drawer.open,
-});
-
-export default connect(mapStateToProps, drawerActions)(
-  withRouter(
-    withAppConfigs(
-      withWidth()(
-          withStyles(styles, { withTheme: true })(DrawerLayout),
-      ),
-    ),
-  ),
-);
+export default withWidth()(withStyles(styles, {withTheme: true} )(DrawerLayout));

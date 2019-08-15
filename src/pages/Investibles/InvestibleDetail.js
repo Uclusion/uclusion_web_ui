@@ -193,8 +193,6 @@ InvestibleDetail.propTypes = {
   investible: PropTypes.object.isRequired, //eslint-disable-line
   onClose: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired, //eslint-disable-line
-
-
 };
 
 export default injectIntl(withStyles(styles)(InvestibleDetail));

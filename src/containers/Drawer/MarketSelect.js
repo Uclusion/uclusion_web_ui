@@ -46,5 +46,3 @@ function MarketSelect (props) {
 }
 
 export default injectIntl(withRouter(withMarketId(MarketSelect)));
-
-

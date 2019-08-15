@@ -11,7 +11,7 @@ function getSSOInfo() {
     .then((idToken) => {
       return uclusion.constructSSOClient(config.api_configuration)
         .then((ssoClient) => {
-          return { ssoClient, idToken }
+          return { ssoClient, idToken };
         });
     });
 }

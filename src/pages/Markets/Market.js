@@ -77,7 +77,7 @@ function Market (props) {
   return (
     <div>
       <Typography>{currentMarketName}</Typography>
-      <MarketNav/>
+      <MarketNav initialTab="context" marketId={marketId} />
     </div>
   );
 }

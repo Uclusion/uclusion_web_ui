@@ -19,8 +19,8 @@ function useInvestiblesContext() {
       });
   }
 
-  function getInvestibles(marketId){
-    return state[marketId];
+  function getInvestibles(marketId) {
+    return state[marketId] || [];
   }
 
   return {

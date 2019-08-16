@@ -1,20 +1,49 @@
 import React, { useState } from 'react';
 import { AppBar, Typography, Tabs, Tab } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
-function MarketNav(props){
-  const { intl } = props;
-  const [ selectedTab, setSelectedTab ] = useState('context');
+import PropTypes from 'prop-types';
+import TabPanel from '../../components/Tabs/TabPanel';
+import InvestiblesNav from './InvestiblesNav';
+
+function MarketNav(props) {
+  const { intl, marketId, initialTab } = props;
+  const [selectedTab, setSelectedTab] = useState(initialTab);
+
+  function switchTab(event, newValue) {
+    setSelectedTab(newValue);
+  }
 
   return (
-    <AppBar>
-      <Tabs value={selectedTab} position="static" color="default">
-        <Tab label="Context" value="context" />
-      </Tabs>
-    </AppBar>
-
-  )
-
-
+    <div>
+      <AppBar position="static" color="default">
+        <Tabs value={selectedTab}
+              indicatorColor="primary"
+              textColor="primary"
+              variant="scrollable"
+              onChange={switchTab}
+        >
+          <Tab label="Context" value="context"/>
+          <Tab label="Ideas" value="ideas"/>
+          <Tab label="Action Items" value="action_items"/>
+        </Tabs>
+      </AppBar>
+      <TabPanel index="context" value={selectedTab}>
+        My Context
+      </TabPanel>
+      <TabPanel index="ideas" value={selectedTab}>
+        <InvestiblesNav marketId={marketId} />
+      </TabPanel>
+      <TabPanel index="action_items" value={selectedTab}>
+        My Action Items
+      </TabPanel>
+    </div>
+  );
 }
+
+MarketNav.propTypes = {
+  intl: PropTypes.object.isRequired,
+  initialTab: PropTypes.string.isRequired,
+  marketId: PropTypes.string.isRequired,
+};
 
 export default injectIntl(MarketNav);

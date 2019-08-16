@@ -8,7 +8,7 @@ import withWidth from '@material-ui/core/withWidth';
 
 const styles = theme => ({
   subListWrapper: {
-    padding: theme.spacing.unit,
+    padding: theme.spacing(1),
     height: '100%',
     boxSizing: 'border-box',
   },
@@ -17,7 +17,7 @@ const styles = theme => ({
     boxSizing: 'border-box',
     display: 'flex',
     flexDirection: 'column',
-    padding: theme.spacing.unit,
+    padding: theme.spacing(1),
     paddingTop: 0,
     backgroundColor: theme.palette.grey[theme.palette.type === 'dark' ? 900 : 100],
     borderRadius: 0,
@@ -30,13 +30,13 @@ const styles = theme => ({
   subListContent: {
     flex: 1,
     overflowY: 'auto',
-    marginLeft: -theme.spacing.unit,
-    marginRight: -theme.spacing.unit,
-    marginBottom: -theme.spacing.unit,
-    paddingLeft: 0, // theme.spacing.unit * 0.25,
-    paddingRight: 0, //theme.spacing.unit * 0.25,
-    paddingBottom: 0,// theme.spacing.unit,
-    paddingTop: 0 //theme.spacing.unit * 0.5,
+    marginLeft: -theme.spacing(1),
+    marginRight: -theme.spacing(1),
+    marginBottom: -theme.spacing(1),
+    paddingLeft: 0, // theme.spacing(0.25),
+    paddingRight: 0, //theme.spacing(0.25),
+    paddingBottom: 0,// theme.spacing(1),
+    paddingTop: 0 //theme.spacing(0.5),
   },
   titleText: {
     wordWrap: 'break-word',

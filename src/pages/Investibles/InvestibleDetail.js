@@ -29,8 +29,8 @@ const styles = theme => ({
     backgroundColor: 'white',
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)',
     zIndex: 999,
-    padding: theme.spacing.unit * 2,
-    paddingTop: 64 + theme.spacing.unit * 2,
+    padding: theme.spacing(2),
+    paddingTop: 64 + theme.spacing(2),
     boxSizing: 'border-box',
     transition: theme.transitions.create(['right'], {
       easing: theme.transitions.easing.sharp,
@@ -44,7 +44,7 @@ const styles = theme => ({
     //
   },
   lastInvestmentDate: {
-    paddingBottom: theme.spacing.unit * 1,
+    paddingBottom: theme.spacing(1),
   },
   detailOpen: {
     right: 0,
@@ -58,7 +58,7 @@ const styles = theme => ({
     alignItems: 'flex-start',
   },
   row: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: theme.spacing(1),
     '&:last-child': {
       marginBottom: 0,
     },
@@ -78,8 +78,8 @@ const styles = theme => ({
     alignItems: 'center',
   },
   investibleName: {
-    paddingTop: theme.spacing.unit * 1.25,
-    paddingBottom: theme.spacing.unit,
+    paddingTop: theme.spacing(1.25),
+    paddingBottom: theme.spacing(1),
     fontWeight: 'bold',
     maxWidth: 380,
     wordWrap: 'break-word',
@@ -98,10 +98,10 @@ const styles = theme => ({
     flexWrap: 'wrap',
   },
   labelChip: {
-    margin: theme.spacing.unit * 0.25,
+    margin: theme.spacing(0.25),
   },
   button: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: theme.spacing(1),
     padding: 0,
   },
 });

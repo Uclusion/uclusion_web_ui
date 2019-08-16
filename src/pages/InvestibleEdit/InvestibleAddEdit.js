@@ -25,10 +25,10 @@ import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
 
 const styles = theme => ({
   root: {
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
   },
   row: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: theme.spacing(2),
     '&:last-child': {
       marginBottom: 0,
     },
@@ -37,22 +37,22 @@ const styles = theme => ({
     flex: 1,
   },
   leftMargin: {
-    marginLeft: theme.spacing.unit * 4,
+    marginLeft: theme.spacing(4),
     maxWidth: 250,
   },
   moreLeftMargin: {
-    marginLeft: theme.spacing.unit * 10,
+    marginLeft: theme.spacing(10),
     maxWidth: 250,
   },
   actions: {
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
     justifyContent: 'flex-end',
     borderTopWidth: 1,
     borderTopStyle: 'solid',
     borderTopColor: theme.palette.grey[300],
   },
   description: {
-    padding: theme.spacing.unit * 1.5,
+    padding: theme.spacing(1.5),
     borderWidth: 1,
     borderStyle: 'solid',
     borderColor: theme.palette.grey[300],
@@ -71,7 +71,7 @@ const styles = theme => ({
     flexWrap: 'wrap',
   },
   labelChip: {
-    margin: theme.spacing.unit * 0.25,
+    margin: theme.spacing(0.25),
   },
   newLabelRow: {
     display: 'flex',
@@ -79,19 +79,19 @@ const styles = theme => ({
     maxWidth: 480,
   },
   newLabelButton: {
-    marginLeft: theme.spacing.unit * 2,
+    marginLeft: theme.spacing(2),
   },
   newLabelRowBottom: {
-    marginBottom: theme.spacing.unit * 2,
-    marginTop: theme.spacing.unit * 4,
+    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(4),
   },
   button: {
-    marginLeft: theme.spacing.unit,
-    marginBottom: theme.spacing.unit * 2,
+    marginLeft: theme.spacing(1),
+    marginBottom: theme.spacing(2),
     padding: 0,
   },
   topButton: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: theme.spacing(1),
     padding: 0,
   },
 });

@@ -3,16 +3,13 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
-import Activity from '../../containers/Activity/Activity';
-import InvestibleList from '../Investibles/InvestibleList';
-import InvestibleDetail from '../Investibles/InvestibleDetail';
 import { withMarketId } from '../../components/PathProps/MarketId';
-// import { getComments } from '../../store/Comments/reducer';
-// import HelpMovie from '../../components/ModalMovie/HelpMovie';
-import InvestibleAddButton from '../Investibles/InvestibleAddButton';
+
 import useMarketsContext from '../../contexts/useMarketsContext';
 import useInvestiblesContext from '../../contexts/useInvestiblesContext';
 import { getInvestibleForUrl } from './detailHelper';
+import MarketNav from './MarketNav';
+import { Typography } from '@material-ui/core';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -29,7 +26,7 @@ const styles = theme => ({
     flexWrap: 'wrap',
   },
   toolbarButton: {
-    margin: theme.spacing(),
+    margin: theme.spacing(1),
   },
   content: {
     flex: 1,
@@ -48,7 +45,7 @@ const styles = theme => ({
   },
 });
 
-function Market(props) {
+function Market (props) {
   const { currentMarket, markets, refreshMarkets, switchMarket } = useMarketsContext();
   const { getInvestibles, refreshInvestibles } = useInvestiblesContext();
   const {
@@ -59,9 +56,8 @@ function Market(props) {
     marketId,
   } = props;
 
-
   useEffect(() => {
-    if(markets) {
+    if (markets) {
       switchMarket(marketId);
     }
   }, [markets]);
@@ -77,44 +73,18 @@ function Market(props) {
     };
   }, [marketId]);
 
-  const investibles = getInvestibles(marketId) || [];
-  const { location: { pathname }} = history;
-  const investibleDetail = getInvestibleForUrl(history, investibles);
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   return (
-
     <div>
-
-      <Activity
-        isLoading={!currentMarketName}
-        containerStyle={{ overflow: 'hidden' }}
-        appBarContent={[<InvestibleAddButton/>]}
-        title={currentMarketName}
-      >
-        <div className={classes.root}>
-          <div className={classes.content}>
-            <InvestibleList
-              location={location}
-              marketId={marketId}
-              investibles={investibles}
-            />
-          </div>
-          { investibleDetail && (
-            <InvestibleDetail
-              investible={investibleDetail}
-              onClose={() => history.push(pathname)}
-            />
-          )}
-        </div>
-      </Activity>
+      <Typography>{currentMarketName}</Typography>
+      <MarketNav/>
     </div>
-
   );
 }
 
 Market.propTypes = {
   intl: PropTypes.object.isRequired,
-  classes: PropTypes.arrayOf(PropTypes.object),
+  classes: PropTypes.object,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
 };

@@ -30,7 +30,7 @@ const styles = theme => ({
   },
   label: {
     fontWeight: 600,
-    marginRight: theme.spacing(),
+    marginRight: theme.spacing(1),
     minWidth: 140,
   },
   value: {

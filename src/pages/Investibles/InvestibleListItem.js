@@ -11,8 +11,8 @@ import {
 
 const styles = theme => ({
   card: {
-    marginBottom: theme.spacing.unit,
-    padding: theme.spacing.unit * 1.5,
+    marginBottom: theme.spacing(1),
+    padding: theme.spacing(1.5),
     boxShadow: 'none',
     '&:last-child': {
       marginBottom: 0,
@@ -29,13 +29,13 @@ const styles = theme => ({
     justifyContent: 'space-between',
   },
   row: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: theme.spacing(1),
     '&:last-child': {
       marginBottom: 0,
     },
   },
   investibleName: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: theme.spacing(1),
     cursor: 'pointer',
     wordWrap: 'break-word',
   },

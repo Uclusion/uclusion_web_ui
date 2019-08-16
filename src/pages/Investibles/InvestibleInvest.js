@@ -16,20 +16,20 @@ const styles = theme => ({
     alignItems: 'flex-end',
   },
   textField: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: theme.spacing(1),
     marginRight: theme.spacing(2),
     width: 100,
   },
   investButton: {
-    marginLeft: theme.spacing.unit,
-    marginBottom: theme.spacing.unit,
+    marginLeft: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
   availableShares: {
     fontSize: 14,
-    paddingLeft: theme.spacing.unit,
+    paddingLeft: theme.spacing(1),
   },
   button: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: theme.spacing(1),
     marginBottom: theme.spacing(2),
     padding: 0,
   },

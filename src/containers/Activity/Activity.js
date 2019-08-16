@@ -43,7 +43,7 @@ const styles = theme => ({
     ...theme.mixins.toolbar,
   },
   availableShares: {
-    paddingRight: theme.spacing.unit * 4,
+    paddingRight: theme.spacing(4),
   },
   content: {
     flex: 1,
@@ -74,7 +74,7 @@ const styles = theme => ({
   logo: {
     width: 40,
     height: 40,
-    marginRight: theme.spacing.unit * 2,
+    marginRight: theme.spacing(2),
   },
   marketSelect: {
     color: 'inherit',
@@ -89,7 +89,7 @@ const styles = theme => ({
     color: 'inherit',
     position: 'relative',
     top: -1,
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing(1),
     fontSize: 20,
   },
   formControl: {
@@ -106,8 +106,8 @@ const styles = theme => ({
   },
   offline: {
     textAlign: 'center',
-    height: theme.spacing.unit * 2,
-    padding: theme.spacing.unit * 0.5,
+    height: theme.spacing(2),
+    padding: theme.spacing(0.5),
     backgroundColor: theme.palette.secondary.main,
     color: 'white',
   },

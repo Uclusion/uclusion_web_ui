@@ -48,7 +48,7 @@ const styles = theme => ({
   },
 });
 
-function Investibles(props) {
+function Market(props) {
   const { currentMarket, markets, refreshMarkets, switchMarket } = useMarketsContext();
   const { getInvestibles, refreshInvestibles } = useInvestiblesContext();
   const {
@@ -112,11 +112,11 @@ function Investibles(props) {
   );
 }
 
-Investibles.propTypes = {
+Market.propTypes = {
   intl: PropTypes.object.isRequired,
   classes: PropTypes.arrayOf(PropTypes.object),
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
 };
 
-export default injectIntl(withStyles(styles)(withMarketId(React.memo(Investibles))));
+export default injectIntl(withStyles(styles)(withMarketId(React.memo(Market))));

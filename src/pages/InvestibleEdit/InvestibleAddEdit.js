@@ -22,6 +22,7 @@ import Activity from '../../containers/Activity/Activity';
 import { fetchInvestibles } from '../../api/marketInvestibles';
 import HelpMovie from '../../components/ModalMovie/HelpMovie';
 import { formCurrentMarketLink } from '../../utils/marketIdPathFunctions';
+import withAppConfigs from '../../utils/withAppConfigs';
 
 const styles = theme => ({
   root: {
@@ -102,7 +103,8 @@ function InvestibleAddEdit (props) {
     marketId,
     classes,
     intl,
-    history
+    history,
+    appConfig
   } = props;
   const { investibleId } = match.params;
   const addMode = !investibleId;
@@ -200,43 +202,7 @@ function InvestibleAddEdit (props) {
     setInvestible(newInvestible);
   }
 
-  function handleLabelAdd() {
-    if (label_scratch) {
-      const oldList = label_list || [];
-      const newLabels = oldList.includes(label_scratch) ? oldList : [...oldList, label_scratch];
-      const newInvestible = { ...investible, label_list: newLabels, label_scratch: '' };
-      setInvestible(newInvestible);
-    }
-  }
 
-  function renderLabelEditor() {
-    if (addMode) {
-      return <div />;
-    }
-    const { label_list } = investible;
-    return (
-      <div className={classNames(classes.row, classes.newLabelRow)}>
-        <TextField
-          className={classes.fullFlex}
-          inputProps={{ maxLength: 255 }}
-          label={intl.formatMessage({ id: 'investibleEditAddNewLabelLabel' })}
-          InputLabelProps={{ shrink: true }}
-          name="label_scratch"
-          onChange={handleChange('label_scratch')}
-          value={label_scratch}
-        />
-        {(!label_list || label_list.length < 5) && (
-          <Button
-            className={classes.newLabelButton}
-            variant="contained"
-            onClick={handleLabelAdd}
-          >
-            {intl.formatMessage({ id: 'investibleEditAddNewLabelButton' })}
-          </Button>
-        )}
-      </div>
-    );
-  }
 
   function renderCloseButtonLabel() {
     if (addMode) {
@@ -248,35 +214,7 @@ function InvestibleAddEdit (props) {
     return intl.formatMessage({ id: 'investibleEditCloseLabel' });
   }
 
-  function renderLabelChips() {
-    const usedList = label_list || [];
-    if (addMode) {
-      return <div />;
-    }
-    return (
-      <div className={classes.row}>
-        <div>
-          <Typography className={classes.controlLabel}>
-            {intl.formatMessage({ id: 'investibleEditLabelsLabel' })}
-          </Typography>
-          {usedList.length > 0 ? (
-            <div className={classes.labelChips}>
-              {usedList.map((label, index) => (
-                <Chip
-                  className={classes.labelChip}
-                  key={index}
-                  label={label}
-                  onDelete={() => handleLabelDelete(label)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div/>
-          )}
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <Activity
@@ -315,12 +253,11 @@ function InvestibleAddEdit (props) {
             <div className={classNames(classes.description, classes.row)}>
               <HtmlRichTextEditor
                 value={description}
+                maxSize={appConfig.maxRichTextEditorSize}
                 placeHolder={intl.formatMessage({ id: 'description_hint' })}
                 onChange={handleChange('description')}
               />
             </div>
-            {renderLabelChips()}
-            {renderLabelEditor()}
           </CardContent>
           <CardActions className={classes.actions}>
             <Button onClick={() => onCancel()}>
@@ -352,4 +289,4 @@ InvestibleAddEdit.propTypes = {
   history: PropTypes.object.isRequired,  //eslint-disable-line
 };
 
-export default injectIntl(withMarketId(withStyles(styles)(InvestibleAddEdit)));
+export default injectIntl(withMarketId(withStyles(styles)(withAppConfigs(InvestibleAddEdit))));

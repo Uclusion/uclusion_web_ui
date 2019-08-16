@@ -5,8 +5,6 @@
  and an ObjectId which will be used to search for state that hasn't been flushed (eg. we reloaded) without saving
  It's onchange handler emulates the material ui input type onChange emission
  * */
-
-
 import React from 'react';
 import Html from 'slate-html-serializer';
 import PropTypes from 'prop-types';
@@ -38,14 +36,14 @@ class HtmlRichTextEditor extends React.Component {
   }
 
   onChange = ({ value }) => {
-    const { readOnly, onChange, appConfig } = this.props;
+    const { readOnly, onChange, maxSize } = this.props;
     if (!readOnly) {
       // When the document changes, save the serialized HTML to Local Storage.
       if (value.document !== this.state.value.document) {
         const string = this.html.serialize(value);
         // check if we're outside of our 7MB limit. If so, throw an error to the ui
         // and ignore the update
-        if (string.length > appConfig.maxRichTextEditorSize) {
+        if (string.length > maxSize) {
           sendIntlMessage(ERROR, { id: 'editBoxTooManyBytes' });
         }
         // call the parent onChange with the string html value
@@ -81,6 +79,7 @@ HtmlRichTextEditor.propTypes = {
   placeHolder: PropTypes.string,
   onChange: PropTypes.func,
   readOnly: PropTypes.bool,
+  maxSize: PropTypes.number,
 };
 
 HtmlRichTextEditor.defaultProps = {
@@ -88,6 +87,7 @@ HtmlRichTextEditor.defaultProps = {
   placeHolder: '',
   onChange: () => null,
   readOnly: false,
+  maxSize: 0,
 };
 
 export default HtmlRichTextEditor;

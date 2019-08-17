@@ -6,7 +6,7 @@ import config from '../config/config';
  * we have stored in the state. If they don't match, force reloads the page.
  * @param currentVersion
  */
-export function notifyNewApplicationVersion(dispatch, currentVersion) {
+export function notifyNewApplicationVersion(currentVersion) {
   const { version } = config;
   // if we don't have any version stored, we're either in dev, or we've dumped our data
   if (currentVersion !== version) {

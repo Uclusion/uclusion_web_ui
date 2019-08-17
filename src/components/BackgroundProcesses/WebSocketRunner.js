@@ -1,7 +1,4 @@
 import _ from 'lodash';
-import { fetchInvestibles } from '../../api/marketInvestibles';
-
-import { notifyNewApplicationVersion } from '../../utils/postAuthFunctions';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
 
 /**
@@ -9,42 +6,28 @@ import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../uti
  */
 const localStorageKey = 'websocket_subscriptions';
 
-
 class WebSocketRunner {
   constructor(config) {
     this.wsUrl = config.wsUrl;
-    this.dispatch = config.dispatch;
     this.reconnectInterval = config.reconnectInterval;
     this.subscribeQueue = [];
+    this.messageHandlers = [];
+    this.registerHandler = this.registerHandler.bind(this);
   }
 
   getMessageHandler() {
-    const handler = (event) => {
-      // console.debug(event);
+    const handlerFinder = (event) => {
       const message = JSON.parse(event.data);
-      const { payload, object_id, sub_object_id } = message;
-      switch (message.event_type) {
-        case 'INVESTIBLE_UPDATED':
-        case 'INVESTIBLE_CREATED':
-          fetchInvestibles([object_id], message.indirect_object_id, this.dispatch);
-          break;
-        case 'INVESTIBLE_COMMENT_DELETED':
- //         this.dispatch(commentDeleted(message.associated_object_id, sub_object_id, object_id));
-          break;
-        case 'INVESTIBLE_COMMENT_UPDATED':
-//          fetchComments(object_id, message.associated_object_id);
-          break;
-        case 'INVESTIBLE_DELETED':
-//          this.dispatch(investibleDeleted(message.indirect_object_id, object_id));
-          break;
-        case 'UI_UPDATE_REQUIRED':
-          notifyNewApplicationVersion(this.dispatch, payload.deployed_version);
-          break;
-        default:
-          console.debug('unknown event:', event);
-      }
+      const { event_type } = message;
+      const handlerEntry = this.messageHandlers.find((entry) => entry.type === event_type);
+      return handlerEntry.handler(message);
     };
-    return handler.bind(this);
+    return handlerFinder.bind(this);
+  }
+
+  registerHandler(messageType, handler) {
+    console.debug(`Registering handler for ${messageType}`);
+    this.messageHandlers.push({ type: messageType, handler });
   }
 
   /**
@@ -70,7 +53,7 @@ class WebSocketRunner {
     this.storeSubscribeQueue();
   }
 
-  unsubscribeAll(){
+  unsubscribeAll() {
     this.subscribeQueue = [];
     this.storeSubscribeQueue();
   }
@@ -82,7 +65,7 @@ class WebSocketRunner {
     }
   }
 
-  storeSubscribeQueue(){
+  storeSubscribeQueue() {
     setUclusionLocalStorageItem(localStorageKey, this.subscribeQueue);
   }
 
@@ -121,6 +104,12 @@ class WebSocketRunner {
     this.socket.onmessage = this.getMessageHandler();
     // make us retry
     this.socket.onclose = this.onCloseFactory();
+  }
+
+  terminate(){
+    // kill the reconnect handler and close the socket
+    this.socket.onclose = (event) => {};
+    this.socket.close();
   }
 }
 

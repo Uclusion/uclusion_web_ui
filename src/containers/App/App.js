@@ -8,13 +8,14 @@ import locales, { addLocalizationData, getLocaleMessages } from '../../config/lo
 import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvider';
 import { withAuthenticator } from 'aws-amplify-react';
 import useLocaleContext from '../../contexts/useLocaleContext';
+import { WebSocketProvider } from '../../contexts/WebSocketContext';
 
 addLocalizationData(locales);
 
 function App(props) {
 
   const { appConfig } = props;
-  const { locale, } = useLocaleContext();
+  const { locale } = useLocaleContext();
   const messages = {
     ...(getLocaleMessages(locale, locales)),
     ...(getLocaleMessages(locale, appConfig.locales)),
@@ -22,13 +23,15 @@ function App(props) {
   const configs = { ...config, ...appConfig };
 
   return (
-    <IntlProvider locale={locale} key={locale} messages={messages}>
-      <IntlGlobalProvider>
-        <AppConfigProvider appConfig={configs}>
-          <Root appConfig={configs} />
-        </AppConfigProvider>
-      </IntlGlobalProvider>
-    </IntlProvider>
+    <WebSocketProvider config={config}>
+      <IntlProvider locale={locale} key={locale} messages={messages}>
+        <IntlGlobalProvider>
+          <AppConfigProvider appConfig={configs}>
+            <Root appConfig={configs}/>
+          </AppConfigProvider>
+        </IntlGlobalProvider>
+      </IntlProvider>
+    </WebSocketProvider>
   );
 }
 

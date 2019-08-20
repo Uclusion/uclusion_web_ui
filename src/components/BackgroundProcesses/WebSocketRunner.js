@@ -37,8 +37,8 @@ class WebSocketRunner {
    * @param userId the user id to subscribe with
    * @param subscriptions the object ids to subscribe too
    */
-  subscribe(userId, subscriptions) {
-    const action = { action: 'subscribe', user_id: userId, ...subscriptions };
+  subscribe(identity) {
+    const action = { action: 'subscribe', identity};
     // push the action onto the subscribe queue so if we reconnect we'll track it
     this.subscribeQueue.push(action);
     // if socket is open, just go ahead and send it

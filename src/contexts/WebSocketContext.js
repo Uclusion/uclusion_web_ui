@@ -28,6 +28,7 @@ function WebSocketProvider(props) {
       newSocket.registerHandler('IDENTITY_UPDATED', () => {
         return refreshMarkets();
       });
+      newSocket.subscribe(identity);
     });
     // we also want to always be subscribed to new app versions
     newSocket.registerHandler('UI_UPDATE_REQUIRED', (message) => {

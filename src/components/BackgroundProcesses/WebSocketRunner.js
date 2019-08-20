@@ -20,7 +20,10 @@ class WebSocketRunner {
       const message = JSON.parse(event.data);
       const { event_type } = message;
       const handlerEntry = this.messageHandlers.find((entry) => entry.type === event_type);
-      return handlerEntry.handler(message);
+      if (handlerEntry) {
+        return handlerEntry.handler(message);
+      }
+      return () => {};
     };
     return handlerFinder.bind(this);
   }

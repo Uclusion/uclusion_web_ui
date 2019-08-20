@@ -5,7 +5,7 @@ import App from '../App/App';
 import config from '../../config';
 import locales, { addLocalizationData } from '../../config/locales';
 import 'react-toastify/dist/ReactToastify.css';
-import Amplify from 'aws-amplify';
+import Amplify, { Auth } from 'aws-amplify';
 import awsconfig from '../../config/amplify';
 
 import { MarketsProvider } from '../../contexts/MarketsContext';
@@ -16,6 +16,15 @@ import { LocaleProvider } from '../../contexts/LocaleContext';
 addLocalizationData(locales);
 console.log(awsconfig);
 Amplify.configure(awsconfig);
+const oauth = {
+  domain: 'uclusion-dev.auth.us-west-2.amazoncognito.com',
+  scope: ['email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],
+  redirectSignIn: 'http://localhost:3000/',
+  redirectSignOut: 'http://localhost:3000/',
+  responseType: 'code' // or 'token', note that REFRESH token will only be generated when the responseType is code
+};
+
+Auth.configure({ oauth });
 
 class Main extends Component {
 

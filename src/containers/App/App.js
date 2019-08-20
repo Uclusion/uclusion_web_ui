@@ -6,7 +6,7 @@ import AppConfigProvider from '../../components/AppConfigProvider';
 import config from '../../config';
 import locales, { addLocalizationData, getLocaleMessages } from '../../config/locales';
 import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvider';
-import { withAuthenticator } from 'aws-amplify-react';
+import { withOAuth, withAuthenticator } from 'aws-amplify-react';
 import useLocaleContext from '../../contexts/useLocaleContext';
 import { WebSocketProvider } from '../../contexts/WebSocketContext';
 

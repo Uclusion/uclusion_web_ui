@@ -17,13 +17,7 @@ function NavItems(props) {
       name: 'dialogs',
       link: '/dialogs',
       badge: Badge,
-    },
-    {
-      text: intl.formatMessage({ id: 'sidebarNavActionItems' }),
-      icon: <DirectionsRunIcon />,
-      name: 'action_items',
-      link: '/actionItems',
-      badge: Badge,
+      badgeProps: {variant: 'dot', color: 'secondary' },
     },
     {
       text: intl.formatMessage({ id: 'sidebarNavNotifications' }),
@@ -37,7 +31,6 @@ function NavItems(props) {
       icon: <DescriptionOutlinedIcon />,
       name: 'templates',
       link: '/templates',
-      badge: Badge,
     },
   ];
 
@@ -47,18 +40,31 @@ function NavItems(props) {
     };
   }
 
+  function getItemDisplayContent(item) {
+    const { icon, text } = item;
+    return (
+      <React.Fragment>
+        <ListItemIcon>
+          {icon}
+        </ListItemIcon>
+        <ListItemText primary={text} />
+      </React.Fragment>
+    );
+  }
+
+
   function getListItems() {
     return items.map((item) => {
-      const { icon, name, text, link, badge } = item;
-      const NotificationBadge = badge;
+      const { link, name, badge, badgeProps } = item;
+      const Wrapper = badge;
       return (
         <ListItem button key={name} component="nav" onClick={itemOnClick(link)}>
-          <NotificationBadge>
-            <ListItemIcon>
-              {icon}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </NotificationBadge>
+          { badge && (
+            <Wrapper {...props} {...badgeProps} >
+              {getItemDisplayContent(item)}
+            </Wrapper>
+          )}
+          {!badge && getItemDisplayContent(item)}
         </ListItem>
       );
     });

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AppBar, Tabs, Tab } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import Investible from '../../pages/Investibles/Investible';
+import Investible from '../Investibles/Investible';
 import useInvestiblesContext from '../../contexts/useInvestiblesContext';
 import TabPanel from '../../components/Tabs/TabPanel';
 import _ from 'lodash';

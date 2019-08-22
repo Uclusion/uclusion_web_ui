@@ -1,11 +1,11 @@
 import React from 'react';
 import { Route } from 'react-router';
 import makeLoadable from '../containers/MyLoadable/MyLoadable';
-import Market from '../pages/Markets/Market';
+import Market from '../pages/Market/Market';
 
 const MyLoadable = (opts, preloadComponents) => makeLoadable({ ...opts }, preloadComponents);
 
-const AsyncMarket = MyLoadable({ loader: () => import('../pages/Markets/Market') });
+const AsyncMarket = MyLoadable({ loader: () => import('../pages/Market/Market') });
 const AsyncInvestibleEdit = MyLoadable({ loader: () => import('../pages/InvestibleEdit/InvestibleAddEdit') });
 const AsyncAbout = MyLoadable({ loader: () => import('../pages/About/About') });
 

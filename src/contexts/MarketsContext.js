@@ -40,7 +40,7 @@ function MarketsProvider(props) {
   });
 
   return (
-    <MarketsContext.Provider value={[state, setState]} >
+    <MarketsContext.Provider value={[state, setState]}>
       { props.children }
     </MarketsContext.Provider>
   );

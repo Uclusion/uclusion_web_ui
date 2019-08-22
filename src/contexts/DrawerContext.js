@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
 
 
-const DrawerContext = React.createContext([{}, () => {}]);
+const DrawerContext = React.createContext([{open:true}, () => {}]);
 
 const DRAWER_CONTEXT_KEY = 'drawer_context';
 

@@ -33,9 +33,6 @@ function MarketNav(props) {
       <TabPanel index="ideas" value={selectedTab}>
         <InvestiblesNav marketId={marketId} />
       </TabPanel>
-      <TabPanel index="action_items" value={selectedTab}>
-        My Action Items
-      </TabPanel>
     </div>
   );
 }

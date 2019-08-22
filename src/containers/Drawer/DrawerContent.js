@@ -1,5 +1,5 @@
 import React from 'react';
-import MarketSelect from './MarketSelect';
+import NavItems from './NavItems';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import { injectIntl } from 'react-intl';
 import { withRouter } from 'react-router-dom';
@@ -10,7 +10,7 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 const DrawerContent = (props) => {
   const {
     width,
-    markets,
+    history
   } = props;
 
   return (
@@ -19,7 +19,7 @@ const DrawerContent = (props) => {
       flexDirection: 'column',
     }}
     >
-      <MarketSelect markets={markets} />
+    <NavItems history={history} />
     </div>
 
   );

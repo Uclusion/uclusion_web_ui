@@ -6,7 +6,7 @@ import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
 
 function Investible(props) {
 
-  const { intl, investible } = props;
+  const { investible } = props;
 
   const { description } = investible;
   return (

@@ -8,14 +8,6 @@ import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
-  root: {
-    width: '100%',
-    maxWidth: 360,
-    backgroundColor: theme.palette.background.paper,
-  },
-  icon: {
-    color: theme.palette.primary.contrastText,
-  },
   listItemIcon: {
     marginRight: 0,
   },
@@ -59,7 +51,7 @@ function NavItems(props) {
     const { icon, text } = item;
     return (
       <React.Fragment>
-        <ListItemIcon >
+        <ListItemIcon className={classes.listItemIcon}>
           {icon}
         </ListItemIcon>
         <ListItemText primary={text} />
@@ -98,4 +90,4 @@ NavItems.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default injectIntl(NavItems);
+export default injectIntl(withStyles(styles)(NavItems));

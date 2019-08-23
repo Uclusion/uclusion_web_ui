@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
 
-
-const DrawerContext = React.createContext([{open:true}, () => {}]);
+const DrawerContext = React.createContext([{}, () => {}]);
 
 const DRAWER_CONTEXT_KEY = 'drawer_context';
 
 function DrawerProvider(props) {
 
   const { children } = props;
-  const defaultValue = getUclusionLocalStorageItem(DRAWER_CONTEXT_KEY) || {};
+  const defaultValue = getUclusionLocalStorageItem(DRAWER_CONTEXT_KEY) || { open: true };
   const [state, setState] = useState(defaultValue);
 
   useEffect(() => {

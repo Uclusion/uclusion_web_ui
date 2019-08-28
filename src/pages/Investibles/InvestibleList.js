@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { formatInvestibles } from '../../utils/reduxHelperFunctions';
+
 import InvestibleListItem from './InvestibleListItem';
 import SelectableItemList from '../../components/Lists/SelectableItemList';
 
@@ -9,7 +9,7 @@ import SelectableItemList from '../../components/Lists/SelectableItemList';
 class InvestibleList extends React.PureComponent {
 
   getSortedAndFormattedInvestiblesList(investibles) {
-    const formatted = formatInvestibles(investibles);
+    const formatted = investibles;
     // use a copy
     const sorted = _.sortBy(formatted, ['updated_at', 'current_user_investment', 'id']);
     return sorted.reverse();

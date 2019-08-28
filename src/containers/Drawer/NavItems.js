@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import ForumIcon from '@material-ui/icons/Forum';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
+import LockIcon from '@material-ui/icons/Lock';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -39,11 +40,23 @@ function NavItems(props) {
       name: 'templates',
       link: '/templates',
     },
+    {
+      text: intl.formatMessage({ id: 'sideBarNavTempSignout' }),
+      icon: <LockIcon />,
+      name: 'tempSignout',
+      onClick: () => { localStorage.clear(); },
+    },
   ];
 
-  function itemOnClick(link) {
+  function itemOnClick(item) {
     return () => {
-      history.push(link);
+      const { onClick, link } = item;
+      if (onClick) {
+        onClick();
+      }
+      if (link) {
+        history.push(link);
+      }
     };
   }
 
@@ -62,12 +75,12 @@ function NavItems(props) {
 
   function getListItems() {
     return items.map((item) => {
-      const { link, name, badge, badgeProps } = item;
+      const { name, badge, badgeProps } = item;
       const Wrapper = badge;
       return (
-        <ListItem button key={name} component="nav" onClick={itemOnClick(link)}>
+        <ListItem button key={name} component="nav" onClick={itemOnClick(item)}>
           { badge && (
-            <Wrapper {...props} {...badgeProps} >
+            <Wrapper {...badgeProps}>
               {getItemDisplayContent(item)}
             </Wrapper>
           )}

@@ -5,7 +5,6 @@ import React from 'react';
 
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { reFormatComments } from '../../../utils/reduxHelperFunctions';
 
 
 function CommentsList(props) {
@@ -13,7 +12,7 @@ function CommentsList(props) {
   const { marketId, investibleId, user } = props;
 
   function sortComments(comments) {
-    const formatted = reFormatComments(comments);
+    const formatted = comments;
     const sorted = _.sortBy(formatted, ['created_at']);
     return sorted.reverse();
   }

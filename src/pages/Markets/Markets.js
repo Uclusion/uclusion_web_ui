@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react';
 import useMarketContext from '../../contexts/useMarketsContext';
 import MarketsList from './MarketsList';
-const pollRate = 300000; // 5 mins = 400 seconds * 1000 for millis
+import _ from 'lodash';
+
+const pollRate = 25000; // 5 mins = 300 seconds * 1000 for millis
 
 function Markets(props) {
 
-  const { markets, refreshMarkets } = useMarketContext();
+  const { marketDetails, activeMarkets, refreshMarkets } = useMarketContext();
 
   useEffect(() => {
-    if (!markets) {
+    // this if conditional is crap. Fix it with something better
+    if (!marketDetails || (_.isEmpty(marketDetails) && !_.isEmpty(activeMarkets))){
       refreshMarkets();
     }
     const timer = setInterval(() => refreshMarkets(), pollRate);
@@ -16,9 +19,10 @@ function Markets(props) {
       clearInterval(timer);
     };
   });
-
+  console.log('Rendering market details');
+  console.log(marketDetails);
   return (
-    <MarketsList markets={markets} />
+    <MarketsList markets={marketDetails} />
   );
 }
 export default Markets;

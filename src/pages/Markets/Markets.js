@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import useMarketContext from '../../contexts/useMarketsContext';
 import MarketsList from './MarketsList';
 
-const pollRate = 60000; // 1 mins = 60 seconds * 1000 for millis
+const pollRate = 3600000; // 60 mins = 3600 seconds * 1000 for millis
 
 function Markets(props) {
 

@@ -2,6 +2,18 @@ import React from 'react';
 import _ from 'lodash';
 import localforage from "localforage";
 
+/**
+ * Cached async contexts allow a bridge from the indexDB or promise based storage
+ * to the props/mutated context variables that react is expecting.
+ * Essentially the context makes sure that when the underlying storage index is updated
+ * that a variable that is understood by react is also updated.
+ * Renders should be written to use the values in the variable, instead of the results
+ * of the getter functions.
+ * @param contextNamespace
+ * @param emptyState
+ * @returns {{getState: (function(): Promise<any | never>), setStateValues: (function(*): Promise<* | never>), context: React.Context<{getState: (function(): Promise<{}>), setStateValues: (function(): Promise<{}>), stateModifierWrapper: (function(): Promise<{}>), setState: (function(): Promise<{}>), clearState: (function(): Promise<{}>), stateCache: *}>, setState: (function(*=): Promise<*>), clearState: (function(): Promise<void>), stateCache: *, addStateCache: addStateCache}}
+ */
+
 export function createCachedAsyncContext(contextNamespace, emptyState) {
 
   let stateCache = emptyState;

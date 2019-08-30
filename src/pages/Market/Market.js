@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { withMarketId } from '../../components/PathProps/MarketId';
 
-import useMarketsContext from '../../contexts/useMarketsContext';
+import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
 import useInvestiblesContext from '../../contexts/useInvestiblesContext';
 import { getInvestibleForUrl } from './detailHelper';
 import MarketNav from './MarketNav';
@@ -46,7 +46,8 @@ const styles = theme => ({
 });
 
 function Market (props) {
-  const { currentMarket, markets, refreshMarkets, switchMarket } = useMarketsContext();
+  const { stateCache, switchMarket } = useAsyncMarketsContext();
+  const { currentMarket } = stateCache;
   const { getInvestibles, refreshInvestibles } = useInvestiblesContext();
   const {
     intl,
@@ -57,15 +58,11 @@ function Market (props) {
   } = props;
 
   useEffect(() => {
-    if (markets) {
-      switchMarket(marketId);
-    }
-  }, [markets]);
+    switchMarket(marketId);
+  });
 
   useEffect(() => {
-    if (!markets) {
-      refreshMarkets();
-    }
+
     refreshInvestibles(marketId);
     const timer = setInterval(() => refreshInvestibles(marketId), pollRate);
     return () => {

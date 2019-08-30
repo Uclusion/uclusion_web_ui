@@ -1,0 +1,75 @@
+import React from 'react';
+import _ from 'lodash';
+import localforage from "localforage";
+
+export function createCachedAsyncContext(contextNamespace, emptyState) {
+
+  let stateCache = emptyState;
+  let setStateCache = () => { console.debug('Null set state cache call'); };
+  /**
+   * Returns a promise that will resolve to the current state
+   */
+  function getState() {
+    return localforage.getItem(contextNamespace)
+      .then((state) => {
+        const usedState = state || emptyState;
+        if (!_.isEqual(usedState, stateCache)) {
+          console.debug('Updating state cache in get state');
+          console.debug(usedState);
+          setStateCache(usedState);
+        }
+        return usedState;
+      });
+  }
+
+  function setState(state) {
+    console.debug('Invoked set state');
+    console.debug(state);
+    setStateCache(state);
+    return localforage.setItem(contextNamespace, state);
+  }
+
+  function clearState() {
+    setStateCache(emptyState);
+    return localforage.removeItem(contextNamespace)
+  }
+
+  function setStateValues(valuesObject) {
+    return getState()
+      .then((state) => {
+        const newState = { ...state, ...valuesObject };
+        return setState(newState);
+      });
+  }
+
+  function addStateCache(newStateCache, newSetStateCache){
+    console.debug('Replacing state cache');
+    stateCache = newStateCache;
+    setStateCache = (newState) => {
+      console.debug('Invoking wrapped set state');
+      console.debug(newState);
+      return newSetStateCache(newState);
+    };
+  }
+
+  const emptyFunc = () => Promise.resolve({});
+  const context = React.createContext({
+    setState: emptyFunc,
+    getState: emptyFunc,
+    clearState: emptyFunc,
+    setStateValues: emptyFunc,
+    stateModifierWrapper: emptyFunc,
+    stateCache: emptyState,
+  });
+
+
+  return {
+    context,
+    getState,
+    setState,
+    clearState,
+    setStateValues,
+    addStateCache,
+    stateCache,
+  };
+}

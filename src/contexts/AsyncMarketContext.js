@@ -13,7 +13,7 @@ const emptyState = {
   markets: [],
 };
 
-const topLevelContext = createCachedAsyncContext(STATE_NAMESPACE, emptyState);
+const contextPackage = createCachedAsyncContext(STATE_NAMESPACE, emptyState);
 
 const {
   context,
@@ -22,7 +22,7 @@ const {
   addStateCache,
   clearState,
   setStateValues
-} = topLevelContext;
+} = contextPackage;
 
 
 function getOutdatedMarketIds(markets, marketDetails) {
@@ -109,10 +109,10 @@ function AsyncMarketsProvider(props) {
         console.debug(`Ignoring auth event ${event}`);
     }
   });
-  // this is a bit wierd, since we've already updated the value in topLevelContext via addStateCache
-  // but if we don't explicitly list the stateCache here, then the provider won't
-  // pick up changes to the state and we won't rerender
-  const providerState = { ...topLevelContext, refreshMarkets, stateCache: myState };
+  // we've updated the context's internal state cache variable via addState above,
+  // howwever the variable in providerState is the default which isn't any good
+  // hence we need to use myState as the stateCache that we give the provider
+  const providerState = { ...contextPackage, refreshMarkets, stateCache: myState };
   return (
     <AsyncMarketsContext.Provider value={providerState}>
       {props.children}

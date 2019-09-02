@@ -1,5 +1,5 @@
 /* eslint-disable react/forbid-prop-types */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
@@ -7,7 +7,7 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 
 import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
 import useInvestiblesContext from '../../contexts/useInvestiblesContext';
-import { getInvestibleForUrl } from './detailHelper';
+
 import MarketNav from './MarketNav';
 import { Typography } from '@material-ui/core';
 
@@ -46,9 +46,10 @@ const styles = theme => ({
 });
 
 function Market (props) {
-  const { stateCache, switchMarket } = useAsyncMarketsContext();
-  const { currentMarket } = stateCache;
-  const { getInvestibles, refreshInvestibles } = useInvestiblesContext();
+  const { stateCache, switchMarket, currentMarket } = useAsyncMarketsContext();
+
+  const { refreshInvestibles } = useInvestiblesContext();
+  const { firstLoad, setFirstLoad } = useState(true);
   const {
     intl,
     history,
@@ -62,8 +63,10 @@ function Market (props) {
   });
 
   useEffect(() => {
-
-    refreshInvestibles(marketId);
+    if (firstLoad && marketId) {
+      refreshInvestibles(marketId);
+      setFirstLoad(false);
+    }
     const timer = setInterval(() => refreshInvestibles(marketId), pollRate);
     return () => {
       clearInterval(timer);

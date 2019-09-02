@@ -3,14 +3,14 @@ import { AppBar, Tabs, Tab } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Investible from '../Investibles/Investible';
-import useInvestiblesContext from '../../contexts/useInvestiblesContext';
+import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import TabPanel from '../../components/Tabs/TabPanel';
 import _ from 'lodash';
 
 function InvestiblesNav(props) {
   const { intl, marketId, investibleId } = props;
-  const { getInvestibles } = useInvestiblesContext();
-  const investibles = getInvestibles(marketId);
+  const { getCachedInvestibles } = useAsyncInvestiblesContext();
+  const investibles = getCachedInvestibles(marketId);
   const startingTab = investibleId || (!_.isEmpty(investibles) && investibles[0].id);
   console.log(startingTab);
   const [selectedTab, setSelectedTab] = useState(startingTab);

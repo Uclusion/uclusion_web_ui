@@ -3,7 +3,7 @@
  * properly update it
  */
 import React, { useState } from 'react';
-import useMarketsContext from './useMarketsContext';
+import useAsyncMarketsContext from './useAsyncMarketsContext';
 import { Hub } from 'aws-amplify';
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner';
 import AmplifyIdentitySource from '../authorization/AmplifyIdentitySource';
@@ -16,7 +16,7 @@ function WebSocketProvider(props) {
 
   const { children, config } = props;
   const [state, setState] = useState();
-  const { refreshMarkets } = useMarketsContext();
+  const { refreshMarkets } = useAsyncMarketsContext();
 
   function createWebSocket() {
     const { webSockets } = config;

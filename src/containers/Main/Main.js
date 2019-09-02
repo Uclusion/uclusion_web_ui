@@ -9,7 +9,7 @@ import Amplify, { Auth } from 'aws-amplify';
 import awsconfig from '../../config/amplify';
 
 import { AsyncMarketsProvider } from '../../contexts/AsyncMarketContext';
-import { InvestiblesProvider } from '../../contexts/InvestiblesContext';
+import { AsyncInvestiblesProvider } from '../../contexts/AsyncInvestiblesContext';
 import { DrawerProvider } from '../../contexts/DrawerContext';
 import { LocaleProvider } from '../../contexts/LocaleContext';
 
@@ -31,7 +31,7 @@ class Main extends Component {
   render() {
     return (
       <div>
-        <InvestiblesProvider>
+        <AsyncInvestiblesProvider>
           <AsyncMarketsProvider>
             <DrawerProvider>
               <LocaleProvider>
@@ -40,7 +40,7 @@ class Main extends Component {
               </LocaleProvider>
             </DrawerProvider>
           </AsyncMarketsProvider>
-        </InvestiblesProvider>
+        </AsyncInvestiblesProvider>
       </div>
     );
   }

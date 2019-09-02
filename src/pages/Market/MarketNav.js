@@ -24,7 +24,6 @@ function MarketNav(props) {
         >
           <Tab label="Context" value="context"/>
           <Tab label="Ideas" value="ideas"/>
-          <Tab label="Action Items" value="action_items"/>
         </Tabs>
       </AppBar>
       <TabPanel index="context" value={selectedTab}>

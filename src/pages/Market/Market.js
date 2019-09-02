@@ -6,7 +6,7 @@ import { injectIntl } from 'react-intl';
 import { withMarketId } from '../../components/PathProps/MarketId';
 
 import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
-import useInvestiblesContext from '../../contexts/useInvestiblesContext';
+import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 
 import MarketNav from './MarketNav';
 import { Typography } from '@material-ui/core';
@@ -48,7 +48,7 @@ const styles = theme => ({
 function Market (props) {
   const { stateCache, switchMarket, currentMarket } = useAsyncMarketsContext();
 
-  const { refreshInvestibles } = useInvestiblesContext();
+  const { refreshInvestibles } = useAsyncInvestiblesContext();
   const { firstLoad, setFirstLoad } = useState(true);
   const {
     intl,

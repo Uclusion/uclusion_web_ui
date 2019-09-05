@@ -35,15 +35,13 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
   }
 
   function setState(state) {
-    console.debug('Invoked set state');
-    console.debug(state);
-    setStateCache(state);
-    return localforage.setItem(contextNamespace, state);
+    return localforage.setItem(contextNamespace, state)
+      .then(() => setStateCache(state));
   }
 
   function clearState() {
     setStateCache(emptyState);
-    return localforage.removeItem(contextNamespace)
+    return localforage.removeItem(contextNamespace);
   }
 
   function setStateValues(valuesObject) {
@@ -58,8 +56,6 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
     console.debug('Replacing state cache');
     stateCache = newStateCache;
     setStateCache = (newState) => {
-      console.debug('Invoking wrapped set state');
-      console.debug(newState);
       return newSetStateCache(newState);
     };
   }

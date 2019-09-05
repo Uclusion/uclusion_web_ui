@@ -9,6 +9,7 @@ function useInvestiblesContext() {
   function refreshInvestibles(marketId) {
     return fetchInvestibleList(marketId)
       .then((investibleList) => {
+        console.debug(investibleList);
         if (_.isEmpty(investibleList)) {
           return Promise.resolve([]);
         }

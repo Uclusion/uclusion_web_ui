@@ -24,4 +24,4 @@ function AsyncInvestiblesProvider(props) {
   );
 }
 
-export { AsyncInvestiblesContext, AsyncInvestiblesProvider };
+export { AsyncInvestiblesProvider, AsyncInvestiblesContext };

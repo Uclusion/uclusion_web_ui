@@ -49,7 +49,7 @@ function Market (props) {
   const { stateCache, switchMarket, currentMarket } = useAsyncMarketsContext();
 
   const { refreshInvestibles } = useAsyncInvestiblesContext();
-  const { firstLoad, setFirstLoad } = useState(true);
+  const [ firstLoad, setFirstLoad ] = useState(true);
   const {
     intl,
     history,
@@ -64,8 +64,13 @@ function Market (props) {
 
   useEffect(() => {
     if (firstLoad && marketId) {
+      console.log('Refreshing investibles');
       refreshInvestibles(marketId);
       setFirstLoad(false);
+    }else{
+      console.debug('Not first load');
+      console.debug(firstLoad);
+      console.debug(marketId);
     }
     const timer = setInterval(() => refreshInvestibles(marketId), pollRate);
     return () => {

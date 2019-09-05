@@ -45,6 +45,7 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
   }
 
   function setStateValues(valuesObject) {
+    console.debug(valuesObject);
     return getState()
       .then((state) => {
         const newState = { ...state, ...valuesObject };
@@ -60,6 +61,12 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
     };
   }
 
+  function loadingWrapper(loadingFunc){
+    return setStateValues({ loading: true })
+      .then(loadingFunc)
+      .then(() => setStateValues({ loading: false }));
+  }
+
   const emptyFunc = () => Promise.resolve({});
   const context = React.createContext({
     setState: emptyFunc,
@@ -67,6 +74,7 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
     clearState: emptyFunc,
     setStateValues: emptyFunc,
     stateModifierWrapper: emptyFunc,
+    loadingWrapper: emptyFunc,
     stateCache: emptyState,
   });
 
@@ -78,6 +86,7 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
     clearState,
     setStateValues,
     addStateCache,
+    loadingWrapper,
     stateCache,
   };
 }

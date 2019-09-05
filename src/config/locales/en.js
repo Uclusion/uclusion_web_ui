@@ -113,7 +113,7 @@ const messages = defineMessages({
   public: 'Public',
 
   // Sidebar Nav menu names
-  sidebarNavDialogs: 'Dialogs',
+  sidebarNavDialogs: 'Personal Dialogs',
   sidebarNavActionItems: 'Action Items',
   sidebarNavTemplates: 'Templates',
   sidebarNavNotifications: 'Notifications',

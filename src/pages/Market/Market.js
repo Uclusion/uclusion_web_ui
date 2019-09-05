@@ -9,8 +9,8 @@ import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 
 import MarketNav from './MarketNav';
+import Activity from '../../containers/Activity'
 import { Typography } from '@material-ui/core';
-
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
 const styles = theme => ({
@@ -45,11 +45,11 @@ const styles = theme => ({
   },
 });
 
-function Market (props) {
-  const { stateCache, switchMarket, currentMarket } = useAsyncMarketsContext();
+function Market(props) {
+  const { switchMarket, currentMarket } = useAsyncMarketsContext();
 
   const { refreshInvestibles } = useAsyncInvestiblesContext();
-  const [ firstLoad, setFirstLoad ] = useState(true);
+  const [firstLoad, setFirstLoad] = useState(true);
   const {
     intl,
     history,
@@ -67,7 +67,7 @@ function Market (props) {
       console.log('Refreshing investibles');
       refreshInvestibles(marketId);
       setFirstLoad(false);
-    }else{
+    } else {
       console.debug('Not first load');
       console.debug(firstLoad);
       console.debug(marketId);
@@ -80,10 +80,11 @@ function Market (props) {
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   return (
-    <div>
-      <Typography>{currentMarketName}</Typography>
-      <MarketNav initialTab="context" marketId={marketId} />
-    </div>
+    <Activity title={currentMarketName} isLoading={false}>
+      <div>
+        <MarketNav initialTab="context" marketId={marketId}/>
+      </div>
+    </Activity>
   );
 }
 

@@ -21,7 +21,8 @@ const {
   setState,
   addStateCache,
   clearState,
-  setStateValues
+  setStateValues,
+  loadingWrapper,
 } = contextPackage;
 
 
@@ -62,7 +63,7 @@ function getAllCurrentMarketDetails(markets, oldDetails) {
   return newDetails;
 }
 
-function refreshMarkets() {
+const marketRefresher = () => {
   console.debug('Refreshing markets');
   return getState()
     .then((state) => {
@@ -87,7 +88,13 @@ function refreshMarkets() {
             });
         });
     });
+};
+
+
+function refreshMarkets() {
+  return loadingWrapper(marketRefresher);
 }
+
 
 const AsyncMarketsContext = context;
 function AsyncMarketsProvider(props) {

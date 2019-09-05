@@ -28,13 +28,6 @@ function NavItems(props) {
       badgeProps: {variant: 'dot', color: 'secondary' },
     },
     {
-      text: intl.formatMessage({ id: 'sidebarNavNotifications' }),
-      icon: <NotificationsIcon />,
-      name: 'notifications',
-      link: '/notifications',
-      badge: Badge,
-    },
-    {
       text: intl.formatMessage({ id: 'sidebarNavTemplates' }),
       icon: <DescriptionOutlinedIcon />,
       name: 'templates',

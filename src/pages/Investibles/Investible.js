@@ -20,7 +20,6 @@ function Investible(props) {
 }
 
 Investible.propTypes = {
-  intl: PropTypes.object.isRequired,
   investible: PropTypes.object.isRequired,
 };
 

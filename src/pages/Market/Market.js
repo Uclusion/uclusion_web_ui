@@ -48,7 +48,7 @@ const styles = theme => ({
 function Market(props) {
   const { switchMarket, currentMarket } = useAsyncMarketsContext();
 
-  const { refreshInvestibles } = useAsyncInvestiblesContext();
+  const { refreshInvestibles, loading } = useAsyncInvestiblesContext();
   const [firstLoad, setFirstLoad] = useState(true);
   const {
     intl,
@@ -64,13 +64,9 @@ function Market(props) {
 
   useEffect(() => {
     if (firstLoad && marketId) {
-      console.log('Refreshing investibles');
       refreshInvestibles(marketId);
       setFirstLoad(false);
     } else {
-      console.debug('Not first load');
-      console.debug(firstLoad);
-      console.debug(marketId);
     }
     const timer = setInterval(() => refreshInvestibles(marketId), pollRate);
     return () => {
@@ -80,7 +76,7 @@ function Market(props) {
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   return (
-    <Activity title={currentMarketName} isLoading={false}>
+    <Activity title={currentMarketName} isLoading={loading}>
       <div>
         <MarketNav initialTab="context" marketId={marketId}/>
       </div>

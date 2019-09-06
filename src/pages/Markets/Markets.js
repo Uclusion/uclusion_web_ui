@@ -24,8 +24,8 @@ function Markets(props) {
       clearInterval(timer);
     };
   });
-  console.log('Rendering market details');
-  console.log(marketDetails);
+  // console.log('Rendering market details');
+  // console.log(marketDetails);
   return (
     <Activity
       title={intl.formatMessage({ id: 'sidebarNavDialogs' })}

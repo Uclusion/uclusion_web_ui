@@ -40,8 +40,8 @@ function getOutdatedMarketIds(markets, marketDetails) {
       accumulated.push(id);
     } else {
       // we have the market, so check if it's up to date
-      console.debug(`Market detail updated ${marketDetail.updated_at}`);
-      console.debug(`Market list updated ${updated_at}`);
+      // console.debug(`Market detail updated ${marketDetail.updated_at}`);
+      // console.debug(`Market list updated ${updated_at}`);
       if (marketDetail.updated_at < updated_at) {
         accumulated.push(id);
       }
@@ -67,7 +67,7 @@ const marketRefresher = () => {
   console.debug('Refreshing markets');
   return getState()
     .then((state) => {
-      getMarketList()
+      return getMarketList()
         .then((markets) => {
           console.debug(`Active markets ${markets}`);
           const filteredDetails = getAllCurrentMarketDetails(markets, state.marketDetails);

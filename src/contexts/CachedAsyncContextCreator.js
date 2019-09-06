@@ -61,10 +61,17 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
     };
   }
 
-  function loadingWrapper(loadingFunc){
+  function loadingWrapper(loadingFunc) {
+    console.log('Turning on loading');
     return setStateValues({ loading: true })
-      .then(loadingFunc)
-      .then(() => setStateValues({ loading: false }));
+      .then(() => {
+        console.log('Firing state mutator');
+        return loadingFunc();
+      })
+      .then(() => {
+        console.log('Turning off loading');
+        return setStateValues({ loading: false });
+      });
   }
 
   const emptyFunc = () => Promise.resolve({});

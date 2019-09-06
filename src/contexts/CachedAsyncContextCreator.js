@@ -62,6 +62,7 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
   }
 
   function loadingWrapper(loadingFunc) {
+    const startTime = new Date();
     console.log('Turning on loading');
     return setStateValues({ loading: true })
       .then(() => {
@@ -69,7 +70,8 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
         return loadingFunc();
       })
       .then(() => {
-        console.log('Turning off loading');
+        const endTime = new Date();
+        console.log(`Turning off loading. Load time was ${endTime - startTime}ms`);
         return setStateValues({ loading: false });
       });
   }

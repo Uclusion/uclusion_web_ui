@@ -3,7 +3,8 @@ import _ from 'lodash';
 import { createCachedAsyncContext } from './CachedAsyncContextCreator';
 import { Hub } from 'aws-amplify';
 import { getMarketList } from '../api/sso';
-import { convertDates, getMarketDetails } from '../api/markets';
+import { getMarketDetails } from '../api/markets';
+import { getOutdatedObjectIds, removeDeletedObjects, convertDates } from './ContextUtils';
 
 const STATE_NAMESPACE = 'async_markets';
 const AUTH_HUB_CHANNEL = 'auth';
@@ -26,42 +27,8 @@ const {
 } = contextPackage;
 
 
-function getOutdatedMarketIds(markets, marketDetails) {
-  // if we don't have market details we're starting from empty, so everything is needed
-  if (_.isEmpty(marketDetails)) {
-    return markets.map(market => market.id);
-  }
 
-  const needsUpdate = markets.reduce((accumulated, market) => {
-    const { updated_at, id } = market;
-    const marketDetail = marketDetails.find((details => details.id === id));
-    if (!marketDetail) {
-      // we found a new market, so we need to pull it
-      accumulated.push(id);
-    } else {
-      // we have the market, so check if it's up to date
-      // console.debug(`Market detail updated ${marketDetail.updated_at}`);
-      // console.debug(`Market list updated ${updated_at}`);
-      if (marketDetail.updated_at < updated_at) {
-        accumulated.push(id);
-      }
-    }
-    return accumulated;
-  }, []);
-  return needsUpdate;
-}
 
-function getAllCurrentMarketDetails(markets, oldDetails) {
-
-  if (_.isEmpty(oldDetails)) {
-    return oldDetails; // nothing to do
-  }
-  const newDetails = oldDetails.filter((detail) => {
-    const found = markets.find(market => market.id === detail.id);
-    return found;
-  });
-  return newDetails;
-}
 
 const marketRefresher = () => {
   console.debug('Refreshing markets');
@@ -69,17 +36,17 @@ const marketRefresher = () => {
     .then((state) => {
       return getMarketList()
         .then((markets) => {
-          console.debug(`Active markets ${markets}`);
-          const filteredDetails = getAllCurrentMarketDetails(markets, state.marketDetails);
-          console.debug(`Filtered Details ${filteredDetails}`);
-          const outdated = getOutdatedMarketIds(markets, filteredDetails);
-          console.debug(`Outdated markets ${outdated}`);
+          // console.debug(`Active markets ${markets}`);
+          const filteredDetails = removeDeletedObjects(markets, state.marketDetails);
+          // console.debug(`Filtered Details ${filteredDetails}`);
+          const outdated = getOutdatedObjectIds(markets, state.markets);
+          // console.debug(`Outdated markets ${outdated}`);
           const promises = outdated.map(marketId => getMarketDetails(marketId));
           return setStateValues({ markets })
             .then(() => {
               return Promise.all(promises)
                 .then((markets) => {
-                  console.debug('Got new details');
+                  //  onsole.debug('Got new details');
                   const dateConverted = markets.map(market => convertDates(market));
                   const newDetails = _.unionBy(dateConverted, filteredDetails, 'id');
                   console.log(newDetails);

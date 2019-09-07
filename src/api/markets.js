@@ -1,14 +1,5 @@
 import { getMarketClient } from './uclusionClient';
-
-export function convertDates(market) {
-  const { created_at, updated_at } = market;
-  const newMarket = {
-    ...market,
-    created_at: new Date(created_at),
-    updated_at: new Date(updated_at),
-  };
-  return newMarket;
-}
+import { convertDates } from '../contexts/ContextUtils';
 
 export function getMarketDetails(marketId) {
   return getMarketClient(marketId)

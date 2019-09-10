@@ -26,10 +26,11 @@ const {
   loadingWrapper,
 } = contextPackage;
 
-
-
-
-
+/**
+ * Refreshes the markets. This and refresh markets are here instead of the use context because we need
+ * it in the HUB listening components
+ * @returns {Promise<any | never | never>}
+ */
 const marketRefresher = () => {
   console.debug('Refreshing markets');
   return getState()

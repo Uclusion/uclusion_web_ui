@@ -50,8 +50,21 @@ function useInvestiblesContext() {
       });
   }
 
+  function getCachedMarketComments(marketId) {
+    const { comments } = stateCache;
+    const marketComments = comments[marketId] || [];
+    return marketComments;
+  }
+
+  function getCachedCommentsHash(marketId) {
+    const marketComments = getCachedMarketComments(marketId);
+    return _.keyBy(marketComments, 'id');
+  }d
+
   return {
     ...stateCache,
+    getCachedMarketComments,
+    getCachedCommentsHash,
     refreshMarketComments,
   };
 }

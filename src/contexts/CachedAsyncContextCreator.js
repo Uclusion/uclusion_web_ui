@@ -24,12 +24,16 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
   function getState() {
     return localforage.getItem(contextNamespace)
       .then((state) => {
+        console.log('Local forage state');
+        console.log(state);
         const usedState = state || emptyState;
         if (!_.isEqual(usedState, stateCache)) {
           console.debug('Updating state cache in get state');
           console.debug(usedState);
           setStateCache(usedState);
         }
+        console.log('Used state');
+        console.log(usedState);
         return usedState;
       });
   }
@@ -78,7 +82,6 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
 
   const emptyFunc = () => Promise.resolve({});
   const context = React.createContext({
-    setState: emptyFunc,
     getState: emptyFunc,
     clearState: emptyFunc,
     setStateValues: emptyFunc,
@@ -91,7 +94,6 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
   return {
     context,
     getState,
-    setState,
     clearState,
     setStateValues,
     addStateCache,

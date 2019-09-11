@@ -3,7 +3,7 @@ import _ from 'lodash';
 function getOutdatedObjectIds(currentList, oldList) {
   // if we don't have market details we're starting from empty, so everything is needed
   if (_.isEmpty(oldList)) {
-    return currentList;
+    return currentList.map(item => item.id);
   }
   const outOfDate = [];
   const oldListMap = _.keyBy(oldList, 'id');

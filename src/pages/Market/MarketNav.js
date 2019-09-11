@@ -4,6 +4,7 @@ import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import TabPanel from '../../components/Tabs/TabPanel';
 import InvestiblesNav from './InvestiblesNav';
+import CommentBox from '../../containers/CommentBox/CommentBox';
 
 function MarketNav(props) {
   const { intl, marketId, initialTab } = props;

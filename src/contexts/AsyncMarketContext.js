@@ -41,17 +41,17 @@ const marketRefresher = () => {
           const filteredDetails = removeDeletedObjects(markets, state.marketDetails);
           // console.debug(`Filtered Details ${filteredDetails}`);
           const outdated = getOutdatedObjectIds(markets, state.markets);
-          // console.debug(`Outdated markets ${outdated}`);
+          console.debug(`Outdated markets ${outdated}`);
           const promises = outdated.map(marketId => getMarketDetails(marketId));
           return setStateValues({ markets })
             .then(() => {
               return Promise.all(promises)
                 .then((markets) => {
-                  //  onsole.debug('Got new details');
+                  //  console.debug('Got new details');
                   const dateConverted = markets.map(market => convertDates(market));
                   const newDetails = _.unionBy(dateConverted, filteredDetails, 'id');
                   console.log(newDetails);
-                  return setState({ ...state, marketDetails: newDetails });
+                  return setStateValues({ marketDetails: newDetails });
                 });
             });
         });

@@ -12,6 +12,7 @@ import { AsyncMarketsProvider } from '../../contexts/AsyncMarketContext';
 import { AsyncInvestiblesProvider } from '../../contexts/AsyncInvestiblesContext';
 import { DrawerProvider } from '../../contexts/DrawerContext';
 import { LocaleProvider } from '../../contexts/LocaleContext';
+import { AsyncCommentsProvider } from '../../contexts/AsyncCommentsContext';
 
 addLocalizationData(locales);
 console.log(awsconfig);
@@ -31,16 +32,18 @@ class Main extends Component {
   render() {
     return (
       <div>
-        <AsyncInvestiblesProvider>
-          <AsyncMarketsProvider>
-            <DrawerProvider>
-              <LocaleProvider>
-                <ToastContainer/>
-                <App appConfig={{ ...config }}/>
-              </LocaleProvider>
-            </DrawerProvider>
-          </AsyncMarketsProvider>
-        </AsyncInvestiblesProvider>
+        <AsyncCommentsProvider>
+          <AsyncInvestiblesProvider>
+            <AsyncMarketsProvider>
+              <DrawerProvider>
+                <LocaleProvider>
+                  <ToastContainer/>
+                  <App appConfig={{ ...config }}/>
+                </LocaleProvider>
+              </DrawerProvider>
+            </AsyncMarketsProvider>
+          </AsyncInvestiblesProvider>
+        </AsyncCommentsProvider>
       </div>
     );
   }

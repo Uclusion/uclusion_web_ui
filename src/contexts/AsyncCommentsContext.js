@@ -6,7 +6,7 @@ const emptyState = {
   commentsList: {},
 };
 
-const contextPackage = createCachedAsyncContext('async_investibles', emptyState);
+const contextPackage = createCachedAsyncContext('async_comments', emptyState);
 
 const { context, addStateCache } = contextPackage;
 
@@ -14,7 +14,7 @@ const AsyncCommentsContext = context;
 
 function AsyncCommentsProvider(props) {
 
-  const [state, setState] = useState({});
+  const [state, setState] = useState(emptyState);
   // set the new state cache to something we control, so that our
   // provider descendants will pick up changes to it
   addStateCache(state, setState);

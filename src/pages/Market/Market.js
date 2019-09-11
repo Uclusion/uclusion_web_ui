@@ -7,10 +7,11 @@ import { withMarketId } from '../../components/PathProps/MarketId';
 
 import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
+import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 
 import MarketNav from './MarketNav';
 import Activity from '../../containers/Activity'
-import { Typography } from '@material-ui/core';
+
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
 const styles = theme => ({
@@ -48,7 +49,9 @@ const styles = theme => ({
 function Market(props) {
   const { switchMarket, currentMarket } = useAsyncMarketsContext();
 
-  const { refreshInvestibles, loading } = useAsyncInvestiblesContext();
+  const { refreshInvestibles, loading: investiblesLoading } = useAsyncInvestiblesContext();
+  const { refreshMarketComments, loading: commentsLoading } = useAsyncCommentsContext();
+
   const [firstLoad, setFirstLoad] = useState(true);
   const {
     intl,
@@ -60,13 +63,13 @@ function Market(props) {
 
   useEffect(() => {
     switchMarket(marketId);
-  });
+  }, [marketId]);
 
   useEffect(() => {
     if (firstLoad && marketId) {
       refreshInvestibles(marketId);
+      refreshMarketComments(marketId);
       setFirstLoad(false);
-    } else {
     }
     const timer = setInterval(() => refreshInvestibles(marketId), pollRate);
     return () => {
@@ -76,7 +79,7 @@ function Market(props) {
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   return (
-    <Activity title={currentMarketName} isLoading={loading}>
+    <Activity title={currentMarketName} isLoading={investiblesLoading || commentsLoading}>
       <div>
         <MarketNav initialTab="context" marketId={marketId}/>
       </div>

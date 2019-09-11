@@ -21,18 +21,25 @@ function useInvestiblesContext() {
   function refreshMarketComments(marketId) {
     return getState()
       .then((state) => {
+        console.log('Old State');
+        console.log(state);
         const { commentsList, comments } = state;
         const oldCommentsList = commentsList[marketId];
         const oldComments = comments[marketId];
         return fetchCommentList(marketId)
-          .then((commentsList) => {
+          .then((marketCommentsList) => {
+            const { comments: commentsList } = marketCommentsList;
             const needsUpdating = getOutdatedObjectIds(commentsList, oldCommentsList);
             const deletedRemoved = removeDeletedObjects(commentsList, oldComments);
             // the api supports max of 100 at a time
+            console.log('Update list');
+            console.log(needsUpdating);
             const fetchChunks = _.chunk(needsUpdating, 100);
+            console.log('Chunks formed');
+            console.log(fetchChunks);
             const promises = fetchChunks.reduce((acc, chunk) => {
-              const chunkPromises = chunk.map((ids) => fetchComments(ids, marketId));
-              return acc.concat(chunkPromises);
+              const chunkPromise = fetchComments(chunk, marketId);
+              return acc.concat(chunkPromise);
             }, []);
             const newCommentsList = { ...commentsList, [marketId]: commentsList };
             return setStateValues({ commentsList: newCommentsList })
@@ -59,7 +66,7 @@ function useInvestiblesContext() {
   function getCachedCommentsHash(marketId) {
     const marketComments = getCachedMarketComments(marketId);
     return _.keyBy(marketComments, 'id');
-  }d
+  }
 
   return {
     ...stateCache,

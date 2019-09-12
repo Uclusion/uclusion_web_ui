@@ -4,14 +4,14 @@ import Comment from '../../components/Comments/Comment';
 
 function CommentBox(props) {
 
-  const { comments, commentsHash } = props;
+  const { comments, commentsHash, marketId } = props;
   const threadRoots = comments.filter(comment => !comment.reply_id);
 
   function getCommentCards() {
     return threadRoots.map((comment) => {
       return (
         <Card>
-          <Comment comment={comment} commentsHash={commentsHash} />
+          <Comment marketId={marketId} comment={comment} commentsHash={commentsHash} />
         </Card>
       );
     });

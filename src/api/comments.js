@@ -19,3 +19,8 @@ export function fetchCommentList(marketId) {
   console.debug(`Fetching comments list for: ${marketId}`);
   return clientPromise.then(client => client.investibles.listCommentsByMarket());
 }
+
+export function saveComment(marketId, investibleId, replyId, body) {
+  return getMarketClient(marketId)
+    .then(client => client.investibles.createComment(investibleId, replyId, body));
+}

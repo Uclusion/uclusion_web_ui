@@ -39,7 +39,7 @@ function MarketNav(props) {
       <TabPanel index="context" value={selectedTab}>
         <Card>
           <HtmlRichTextEditor value={description} readOnly={true}/>
-          <CommentBox comments={marketComments} commentsHash={commentsHash} depth={0} />
+          <CommentBox marketId={marketId} comments={marketComments} commentsHash={commentsHash} depth={0} />
         </Card>
       </TabPanel>
       <TabPanel index="ideas" value={selectedTab}>

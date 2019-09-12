@@ -9,14 +9,14 @@ function Investible(props) {
 
   const { investible, comments, commentsHash } = props;
 
-  const { description } = investible;
+  const { description, marketId } = investible;
   return (
     <Card>
       <CardContent>
         Test
         <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={description} readOnly/>
       </CardContent>
-      <CommentBox comments={comments} depth={0} commentsHash={commentsHash} />
+      <CommentBox marketId={marketId} comments={comments} depth={0} commentsHash={commentsHash} />
     </Card>
   );
 }

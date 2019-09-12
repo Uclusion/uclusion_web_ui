@@ -144,6 +144,10 @@ const messages = defineMessages({
   investibleEditCurrentInvestmentLine: 'Current Investment: {shares} uShares',
   investibleEditCurrentInvestmentLabel: 'Current investment for next stage',
 
+  //Comments
+  commentReplyDefault: 'Your reply...',
+  commentReplyLabel: 'Reply',
+  commentReplySaveLabel: 'Save',
 
 
 

@@ -22,5 +22,5 @@ export function fetchCommentList(marketId) {
 
 export function saveComment(marketId, investibleId, replyId, body) {
   return getMarketClient(marketId)
-    .then(client => client.investibles.createComment(investibleId, replyId, body));
+    .then(client => client.investibles.createComment(investibleId, body, replyId));
 }

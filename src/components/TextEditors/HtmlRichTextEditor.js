@@ -44,7 +44,7 @@ class HtmlRichTextEditor extends React.Component {
         // check if we're outside of our 7MB limit. If so, throw an error to the ui
         // and ignore the update
         if (string.length > maxSize) {
-          sendIntlMessage(ERROR, { id: 'editBoxTooManyBytes' });
+          sendIntlMessage(ERROR, { id: 'RichTextEditorToManyBytes' });
         }
         // call the parent onChange with the string html value
         // in order emulate material ui field's onchange symantics
@@ -87,7 +87,7 @@ HtmlRichTextEditor.defaultProps = {
   placeHolder: '',
   onChange: () => null,
   readOnly: false,
-  maxSize: 0,
+  maxSize: 300000, // dynamodb element size - 100k for other things
 };
 
 export default HtmlRichTextEditor;

@@ -26,7 +26,9 @@ function Comment(props) {
         const child = commentsHash[childId];
         const childDepth = depth + 1;
         // we are rendering ourselves, so we don't get the injection automagically
-        return <Comment intl={intl} comment={child} depth={childDepth} commentsHash={commentsHash} />;
+        return <Comment key={childId} intl={intl}
+                        comment={child} depth={childDepth}
+                        commentsHash={commentsHash}/>;
       });
     }
     return <div/>;

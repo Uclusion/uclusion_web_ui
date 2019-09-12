@@ -17,6 +17,7 @@ function AsyncCommentsProvider(props) {
   const [state, setState] = useState(emptyState);
   // set the new state cache to something we control, so that our
   // provider descendants will pick up changes to it
+  console.log('Replacing comments state cache');
   addStateCache(state, setState);
   // the provider value needs the new state cache object in order to allert
   // provider descendants to changes

@@ -8,7 +8,7 @@ import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 function CommentReply(props) {
 
   const { parent, intl, marketId } = props;
-  const { refreshMarketComments } = useAsyncCommentsContext();
+  const { addCommentLocally } = useAsyncCommentsContext();
   const [body, setBody] = useState('');
 
   const placeHolder = intl.formatMessage({ id: 'commentReplyDefault' });
@@ -20,9 +20,9 @@ function CommentReply(props) {
 
   function handleSave(){
     const usedParent = parent || {};
-    const { investible_id, id } = parent;
-    return saveComment(marketId, investible_id, id, body)
-      .then(() => refreshMarketComments(marketId));
+    const { investible_id, id: parentId } = usedParent;
+    return saveComment(marketId, investible_id, parentId, body)
+      .then(result => addCommentLocally(result));
   }
 
   return (

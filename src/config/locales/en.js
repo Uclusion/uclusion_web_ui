@@ -174,6 +174,7 @@ const messages = defineMessages({
   RichTextEditorEnterTextAndLink: 'Enter the URL and text of the link:',
   RichTextEditorLinkLabel: 'Link',
   RichTextEditorTextLabel: 'Text',
+  RichTextEditorToManyBytes: 'To much data. Please remove items from the editor',
 
   //Investible detail
   investibleDetailClose: 'Close',

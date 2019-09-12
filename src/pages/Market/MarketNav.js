@@ -12,11 +12,12 @@ import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor'
 function MarketNav(props) {
   const { intl, marketId, initialTab, market } = props;
   const [selectedTab, setSelectedTab] = useState(initialTab);
-  const { getCachedMarketComments, getCachedCommentsHash } = useAsyncCommentsContext();
-
-  const comments = getCachedMarketComments(marketId);
-  const marketComments = comments.filter(comment => !comment.investible_id);
-  const commentsHash = getCachedCommentsHash(marketId);
+  const { comments, createCommentsHash } = useAsyncCommentsContext();
+  console.log(comments);
+  const marketComments = comments[marketId] || [];
+  const marketTargetedComments = marketComments.filter(comment => !comment.investible_id);
+  console.log(marketTargetedComments);
+  const commentsHash = createCommentsHash(marketComments);
 
   const { description } = market;
   function switchTab(event, newValue) {
@@ -39,11 +40,11 @@ function MarketNav(props) {
       <TabPanel index="context" value={selectedTab}>
         <Card>
           <HtmlRichTextEditor value={description} readOnly={true}/>
-          <CommentBox marketId={marketId} comments={marketComments} commentsHash={commentsHash} depth={0} />
+          <CommentBox marketId={marketId} comments={marketTargetedComments} commentsHash={commentsHash} depth={0} />
         </Card>
       </TabPanel>
       <TabPanel index="ideas" value={selectedTab}>
-        <InvestiblesNav comments={comments} commentsHash={commentsHash} marketId={marketId} />
+        <InvestiblesNav comments={marketTargetedComments} commentsHash={commentsHash} marketId={marketId} />
       </TabPanel>
     </div>
   );

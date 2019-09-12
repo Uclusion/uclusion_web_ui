@@ -47,7 +47,7 @@ const styles = theme => ({
 });
 
 function Market(props) {
-  const { switchMarket, currentMarket } = useAsyncMarketsContext();
+  const { switchMarket, currentMarket, marketDetails } = useAsyncMarketsContext();
 
   const { refreshInvestibles, loading: investiblesLoading } = useAsyncInvestiblesContext();
   const { refreshMarketComments, loading: commentsLoading } = useAsyncCommentsContext();
@@ -55,9 +55,6 @@ function Market(props) {
   const [firstLoad, setFirstLoad] = useState(true);
   const {
     intl,
-    history,
-    classes,
-    location,
     marketId,
   } = props;
 
@@ -78,10 +75,13 @@ function Market(props) {
   }, [marketId]);
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
+  console.debug(marketDetails);
+  const renderableMarket = marketDetails.find(market => market.id === marketId) || {};
+
   return (
     <Activity title={currentMarketName} isLoading={investiblesLoading || commentsLoading}>
       <div>
-        <MarketNav initialTab="context" marketId={marketId}/>
+        <MarketNav market={renderableMarket} initialTab="context" marketId={marketId} />
       </div>
     </Activity>
   );
@@ -92,6 +92,7 @@ Market.propTypes = {
   classes: PropTypes.object,
   history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
+  marketId: PropTypes.string.isRequired,
 };
 
 export default injectIntl(withStyles(styles)(withMarketId(React.memo(Market))));

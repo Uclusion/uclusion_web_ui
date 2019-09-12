@@ -5,11 +5,19 @@ import PropTypes from 'prop-types';
 import TabPanel from '../../components/Tabs/TabPanel';
 import InvestiblesNav from './InvestiblesNav';
 import CommentBox from '../../containers/CommentBox/CommentBox';
+import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
+import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
+
 
 function MarketNav(props) {
-  const { intl, marketId, initialTab } = props;
+  const { intl, marketId, initialTab, market } = props;
   const [selectedTab, setSelectedTab] = useState(initialTab);
+  const { getCachedMarketComments, getCachedCommentsHash } = useAsyncCommentsContext();
 
+  const comments = getCachedMarketComments(marketId);
+  const commentsHash = getCachedCommentsHash(marketId);
+
+  const { description } = market;
   function switchTab(event, newValue) {
     setSelectedTab(newValue);
   }
@@ -28,7 +36,8 @@ function MarketNav(props) {
         </Tabs>
       </AppBar>
       <TabPanel index="context" value={selectedTab}>
-        My Context
+        <HtmlRichTextEditor value={description} readOnly={true}/>
+        <CommentBox comments={comments} commentsHash={commentsHash}/>
       </TabPanel>
       <TabPanel index="ideas" value={selectedTab}>
         <InvestiblesNav marketId={marketId} />

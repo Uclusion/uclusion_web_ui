@@ -1,28 +1,37 @@
 import React from 'react';
-import { Card } from '@material-ui/core';
+import { Paper } from '@material-ui/core';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    padding: theme.spacing(3, 2),
+  },
+}));
 
 function Comment(props) {
 
-  const { comment, commentsHash } = props;
+  const classes = useStyles();
+  const { comment, commentsHash, depth } = props;
   const { body, children } = comment;
 
   function getChildComments() {
     if (children) {
       return children.map((childId) => {
         const child = commentsHash[childId];
-        return <Comment comment={child} commentsHash={commentsHash} />;
+        const childDepth = depth + 1;
+        return <Comment comment={child} depth={childDepth} commentsHash={commentsHash} />;
       });
     }
     return <div/>;
   }
 
   return (
-    <Card>
-      <HtmlRichTextEditor value={comment.body}/>
+    <Paper className={classes.root}>
+      <HtmlRichTextEditor readOnly={true} value={comment.body}/>
       {getChildComments()}
-    </Card>
+    </Paper>
   );
 }
 
-export default Comment
+export default Comment;

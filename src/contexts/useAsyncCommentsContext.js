@@ -32,11 +32,11 @@ function useInvestiblesContext() {
             const needsUpdating = getOutdatedObjectIds(commentsList, oldCommentsList);
             const deletedRemoved = removeDeletedObjects(commentsList, oldComments);
             // the api supports max of 100 at a time
-            console.log('Update list');
-            console.log(needsUpdating);
+            console.debug('Update list');
+            console.debug(needsUpdating);
             const fetchChunks = _.chunk(needsUpdating, 100);
-            console.log('Chunks formed');
-            console.log(fetchChunks);
+            console.debug('Chunks formed');
+            console.debug(fetchChunks);
             const promises = fetchChunks.reduce((acc, chunk) => {
               const chunkPromise = fetchComments(chunk, marketId);
               return acc.concat(chunkPromise);

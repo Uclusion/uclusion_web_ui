@@ -75,7 +75,7 @@ function useInvestiblesContext() {
     const parent = oldMarketComments.find(comment => comment.id === commentUpdate.reply_id);
     const updateList = [newComment];
     if (parent && !oldComment) {
-      const oldChildren = parent.children;
+      const oldChildren = parent.children || [];
       const newChildren = [...oldChildren, id];
       const newParent = { ...parent, children: newChildren };
       updateList.push(newParent);

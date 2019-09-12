@@ -28,7 +28,7 @@ function Comment(props) {
         // we are rendering ourselves, so we don't get the injection automagically
         return <Comment key={childId} intl={intl}
                         comment={child} depth={childDepth}
-                        commentsHash={commentsHash}/>;
+                        marketId={marketId} commentsHash={commentsHash}/>;
       });
     }
     return <div />;

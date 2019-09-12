@@ -8,7 +8,7 @@ import TabPanel from '../../components/Tabs/TabPanel';
 import _ from 'lodash';
 
 function InvestiblesNav(props) {
-  const { intl, marketId, investibleId } = props;
+  const { intl, marketId, investibleId, comments, commentsHash } = props;
   const { getCachedInvestibles } = useAsyncInvestiblesContext();
   const investibles = getCachedInvestibles(marketId);
   const startingTab = investibleId || (!_.isEmpty(investibles) && investibles[0].id);
@@ -25,9 +25,11 @@ function InvestiblesNav(props) {
 
   function getTabContent() {
     return investibles.map((inv) => {
+      const { id } = inv;
+      const investibleComments = comments.filter(comment => comment.investible_id === id);
       return (
-        <TabPanel key={inv.id} index={inv.id} value={selectedTab}>
-          <Investible investible={inv}/>
+        <TabPanel key={id} index={id} value={selectedTab}>
+          <Investible investible={inv} comments={investibleComments} commentsHash={commentsHash} />
         </TabPanel>
       );
     });

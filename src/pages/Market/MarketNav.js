@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppBar, Typography, Tabs, Tab } from '@material-ui/core';
+import { AppBar, Tabs, Tab, Card } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import TabPanel from '../../components/Tabs/TabPanel';
@@ -15,6 +15,7 @@ function MarketNav(props) {
   const { getCachedMarketComments, getCachedCommentsHash } = useAsyncCommentsContext();
 
   const comments = getCachedMarketComments(marketId);
+  const marketComments = comments.filter(comment => !comment.investible_id);
   const commentsHash = getCachedCommentsHash(marketId);
 
   const { description } = market;
@@ -36,11 +37,13 @@ function MarketNav(props) {
         </Tabs>
       </AppBar>
       <TabPanel index="context" value={selectedTab}>
-        <HtmlRichTextEditor value={description} readOnly={true}/>
-        <CommentBox comments={comments} commentsHash={commentsHash}/>
+        <Card>
+          <HtmlRichTextEditor value={description} readOnly={true}/>
+          <CommentBox comments={marketComments} commentsHash={commentsHash} depth={0} />
+        </Card>
       </TabPanel>
       <TabPanel index="ideas" value={selectedTab}>
-        <InvestiblesNav marketId={marketId} />
+        <InvestiblesNav comments={comments} commentsHash={commentsHash} marketId={marketId} />
       </TabPanel>
     </div>
   );

@@ -19,7 +19,7 @@ function useInvestiblesContext() {
           const idList = investibleList.map(investible => investible.id);
           return fetchInvestibles(idList, marketId);
         }).then((investibles) => {
-          setStateValues({ [marketId]: investibles });
+          return setStateValues({ [marketId]: investibles });
         });
     };
     return loadingWrapper(refresher);

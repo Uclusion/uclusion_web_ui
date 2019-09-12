@@ -2,11 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Card, CardContent } from '@material-ui/core';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
+import CommentBox from '../../containers/CommentBox/CommentBox';
 
 
 function Investible(props) {
 
-  const { investible } = props;
+  const { investible, comments, commentsHash } = props;
 
   const { description } = investible;
   return (
@@ -15,6 +16,7 @@ function Investible(props) {
         Test
         <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={description} readOnly/>
       </CardContent>
+      <CommentBox comments={comments} depth={0} commentsHash={commentsHash} />
     </Card>
   );
 }

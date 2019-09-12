@@ -31,7 +31,7 @@ function Comment(props) {
                         commentsHash={commentsHash}/>;
       });
     }
-    return <div/>;
+    return <div />;
   }
 
   function toggleReply() {
@@ -44,7 +44,7 @@ function Comment(props) {
       <Button onClick={toggleReply}>
         {intl.formatMessage({ id: 'commentReplyLabel' })}
       </Button>
-      {replyOpen && <CommentReply marketId={marketId} parent={comment}/>}
+      {replyOpen && <CommentReply marketId={marketId} parent={comment} onSave={toggleReply}/>}
       {getChildComments()}
     </Paper>
   );

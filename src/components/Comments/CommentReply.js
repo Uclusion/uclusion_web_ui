@@ -7,7 +7,7 @@ import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 
 function CommentReply(props) {
 
-  const { parent, intl, marketId } = props;
+  const { parent, intl, marketId, onSave } = props;
   const { addCommentLocally } = useAsyncCommentsContext();
   const [body, setBody] = useState('');
 
@@ -22,7 +22,8 @@ function CommentReply(props) {
     const usedParent = parent || {};
     const { investible_id, id: parentId } = usedParent;
     return saveComment(marketId, investible_id, parentId, body)
-      .then(result => addCommentLocally(result));
+      .then(result => addCommentLocally(result))
+      .then(onSave());
   }
 
   return (

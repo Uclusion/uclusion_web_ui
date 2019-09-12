@@ -21,8 +21,8 @@ function useInvestiblesContext() {
   function refreshMarketComments(marketId) {
     return getState()
       .then((state) => {
-        console.log('Old State');
-        console.log(state);
+        console.debug('Old State');
+        console.debug(state);
         const { commentsList, comments } = state;
         const oldMarketCommentsList = commentsList[marketId];
         const oldMarketComments = comments[marketId];
@@ -72,7 +72,15 @@ function useInvestiblesContext() {
       console.debug('Updating old comment');
       newComment = { ...oldComment, ...commentUpdate };
     }
-    const newMarketComments = _.unionBy([newComment], oldMarketComments, 'id');
+    const parent = oldMarketComments.find(comment => comment.id === commentUpdate.reply_id);
+    const updateList = [newComment];
+    if (parent && !oldComment) {
+      const oldChildren = parent.children;
+      const newChildren = [...oldChildren, id];
+      const newParent = { ...parent, children: newChildren };
+      updateList.push(newParent);
+    }
+    const newMarketComments = _.unionBy(updateList, oldMarketComments, 'id');
 
     // now we update the comments list
     let newMarketCommentsList = oldMarketCommentsList;

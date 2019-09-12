@@ -3,13 +3,13 @@ import { injectIntl } from 'react-intl';
 import { Card, Button } from '@material-ui/core';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import { saveComment } from '../../api/comments';
-import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
+import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 
 function CommentReply(props) {
 
   const { parent, intl, marketId } = props;
-  const { refreshMarketComments } = useAsyncMarketsContext();
-  const [ body, setBody ] = useState('');
+  const { refreshMarketComments } = useAsyncCommentsContext();
+  const [body, setBody] = useState('');
 
   const placeHolder = intl.formatMessage({ id: 'commentReplyDefault' });
 

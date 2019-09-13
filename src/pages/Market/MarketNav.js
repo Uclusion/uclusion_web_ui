@@ -44,7 +44,7 @@ function MarketNav(props) {
         </Card>
       </TabPanel>
       <TabPanel index="ideas" value={selectedTab}>
-        <InvestiblesNav comments={marketTargetedComments} commentsHash={commentsHash} marketId={marketId} />
+        <InvestiblesNav comments={marketComments} commentsHash={commentsHash} marketId={marketId} />
       </TabPanel>
     </div>
   );

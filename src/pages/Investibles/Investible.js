@@ -9,7 +9,7 @@ function Investible(props) {
 
   const { investible, comments, commentsHash } = props;
 
-  const { description, marketId } = investible;
+  const { description, market_id: marketId } = investible;
   return (
     <Card>
       <CardContent>

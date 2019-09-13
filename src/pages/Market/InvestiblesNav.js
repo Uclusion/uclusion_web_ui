@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AppBar, Tabs, Tab } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import Investible from '../Investibles/Investible';
+import InvestibleView from '../../components/Investibles/InvestibleView';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import TabPanel from '../../components/Tabs/TabPanel';
 import _ from 'lodash';
@@ -12,7 +12,6 @@ function InvestiblesNav(props) {
   const { getCachedInvestibles } = useAsyncInvestiblesContext();
   const investibles = getCachedInvestibles(marketId);
   const startingTab = investibleId || (!_.isEmpty(investibles) && investibles[0].id);
-  console.log(startingTab);
   const [selectedTab, setSelectedTab] = useState(startingTab);
 
   function switchTab(event, newValue) {
@@ -29,7 +28,7 @@ function InvestiblesNav(props) {
       const investibleComments = comments.filter(comment => comment.investible_id === id);
       return (
         <TabPanel key={id} index={id} value={selectedTab}>
-          <Investible investible={inv} comments={investibleComments} commentsHash={commentsHash} />
+          <InvestibleView investible={inv} comments={investibleComments} commentsHash={commentsHash} />
         </TabPanel>
       );
     });

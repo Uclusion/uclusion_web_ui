@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { withMarketId } from '../../components/PathProps/MarketId';
-
+import ExpirationCountDown from '../../components/Market/ExpirationCountDown';
 import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
@@ -79,7 +79,10 @@ function Market(props) {
   const renderableMarket = marketDetails.find(market => market.id === marketId) || {};
 
   return (
-    <Activity title={currentMarketName} isLoading={investiblesLoading || commentsLoading}>
+    <Activity title={currentMarketName}
+              isLoading={investiblesLoading || commentsLoading}
+              appBarContent={<ExpirationCountDown {...currentMarket} />}
+    >
       <div>
         <MarketNav market={renderableMarket} initialTab="context" marketId={marketId} />
       </div>

@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Card, CardContent } from '@material-ui/core';
-import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
+import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import CommentBox from '../../containers/CommentBox/CommentBox';
 
 
-function Investible(props) {
+function InvestibleView(props) {
 
   const { investible, comments, commentsHash } = props;
 
@@ -21,8 +21,8 @@ function Investible(props) {
   );
 }
 
-Investible.propTypes = {
+InvestibleView.propTypes = {
   investible: PropTypes.object.isRequired,
 };
 
-export default Investible;
+export default InvestibleView;

@@ -124,6 +124,9 @@ const messages = defineMessages({
   loadingMessage: 'Loading',
   investibleAddDescriptionDefault: 'Add a description...',
 
+  // InvestibleEdit
+  investibleEditTitleLabel: 'Title',
+
 
   // InvestibleAddEdit
   investibleAddHeader: 'Add Investible',

@@ -6,22 +6,26 @@ import TabPanel from '../../components/Tabs/TabPanel';
 import InvestiblesNav from './InvestiblesNav';
 import CommentBox from '../../containers/CommentBox/CommentBox';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
-import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
+import MarketView from '../../components/Market/MarketView';
 
 
 function MarketNav(props) {
   const { intl, marketId, initialTab, market } = props;
   const [selectedTab, setSelectedTab] = useState(initialTab);
+  const [edit, setEdit] = useState(false);
   const { comments, createCommentsHash } = useAsyncCommentsContext();
-  console.log(comments);
+  console.debug(comments);
   const marketComments = comments[marketId] || [];
   const marketTargetedComments = marketComments.filter(comment => !comment.investible_id);
-  console.log(marketTargetedComments);
+  console.debug(marketTargetedComments);
   const commentsHash = createCommentsHash(marketComments);
 
-  const { description } = market;
   function switchTab(event, newValue) {
     setSelectedTab(newValue);
+  }
+
+  function toggleEdit() {
+    setEdit(!edit);
   }
 
   return (
@@ -38,10 +42,12 @@ function MarketNav(props) {
         </Tabs>
       </AppBar>
       <TabPanel index="context" value={selectedTab}>
-        <Card>
-          <HtmlRichTextEditor value={description} readOnly={true}/>
-          <CommentBox marketId={marketId} comments={marketTargetedComments} commentsHash={commentsHash} depth={0} />
-        </Card>
+        <MarketView
+          market={market}
+          comments={marketTargetedComments}
+          commentsHash={commentsHash}
+          toggleEdit={toggleEdit}
+        />
       </TabPanel>
       <TabPanel index="ideas" value={selectedTab}>
         <InvestiblesNav comments={marketComments} commentsHash={commentsHash} marketId={marketId} />

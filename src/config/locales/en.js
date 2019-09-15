@@ -124,6 +124,9 @@ const messages = defineMessages({
   loadingMessage: 'Loading',
   investibleAddDescriptionDefault: 'Add a description...',
 
+  // MarketEditButton:
+  marketEditButtonTooltip: 'Edit',
+
   // InvestibleEditButton
   investibleEditButtonTooltip: 'Edit',
 

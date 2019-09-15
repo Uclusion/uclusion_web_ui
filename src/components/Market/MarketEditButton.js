@@ -4,18 +4,18 @@ import EditIcon from '@material-ui/icons/Edit';
 import { IconButton, Tooltip } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 
-function InvestibleEditButton(props){
+function MarketEditButton(props){
 
   const { onClick, intl } = props;
 
   return (
-    <Tooltip title={intl.formatMessage({ id: 'investibleEditButtonTooltip' })}><IconButton onClick={onClick}><EditIcon /></IconButton></Tooltip>
+    <Tooltip title={intl.formatMessage({ id: 'marketEditButtonTooltip' })}><IconButton onClick={onClick}><EditIcon /></IconButton></Tooltip>
   );
 }
 
-InvestibleEditButton.propTypes = {
+MarketEditButton.propTypes = {
   onClick: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
 };
 
-export default injectIntl(InvestibleEditButton);
+export default injectIntl(MarketEditButton);

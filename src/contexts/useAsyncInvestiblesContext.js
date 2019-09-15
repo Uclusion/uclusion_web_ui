@@ -4,7 +4,7 @@ import { fetchInvestibles, fetchInvestibleList } from '../api/marketInvestibles'
 import _ from 'lodash';
 
 function useInvestiblesContext() {
-  const { stateCache, setStateValues, loadingWrapper } = useContext(AsyncInvestiblesContext);
+  const { stateCache, getState, setStateValues, loadingWrapper } = useContext(AsyncInvestiblesContext);
 
   function refreshInvestibles(marketId) {
     // the loading wrapper can't pass arguments, so we
@@ -26,7 +26,13 @@ function useInvestiblesContext() {
   }
 
   function updateInvestibleLocally(investible) {
-    return Promise.resolve(true); // do nothing for now
+    const { market_id: marketId } = investible;
+    return getState()
+      .then((state) => {
+        const marketInvestibles = state[marketId] || [];
+        const newMarketInvestbles = _.unionBy([investible], marketInvestibles, 'id');
+        return setStateValues({[marketId]: newMarketInvestbles});
+      });
   }
 
   function getCachedInvestibles(marketId) {

@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { AppBar, Tabs, Tab, Card } from '@material-ui/core';
+import { AppBar, Tabs, Tab } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import TabPanel from '../../components/Tabs/TabPanel';
+import TabPanel from '../Tabs/TabPanel';
 import InvestiblesNav from './InvestiblesNav';
-import CommentBox from '../../containers/CommentBox/CommentBox';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
-import MarketView from '../../components/Market/MarketView';
-
+import MarketView from './MarketView';
+import MarketEdit from './MarketEdit';
 
 function MarketNav(props) {
   const { intl, marketId, initialTab, market } = props;
@@ -24,7 +23,7 @@ function MarketNav(props) {
     setSelectedTab(newValue);
   }
 
-  function toggleEdit() {
+  function editToggle() {
     setEdit(!edit);
   }
 
@@ -42,15 +41,18 @@ function MarketNav(props) {
         </Tabs>
       </AppBar>
       <TabPanel index="context" value={selectedTab}>
-        <MarketView
+        {edit && <MarketEdit market={market}
+                             onSave={editToggle}
+                             editToggle={editToggle}/>}
+        {!edit && <MarketView
           market={market}
           comments={marketTargetedComments}
           commentsHash={commentsHash}
-          toggleEdit={toggleEdit}
-        />
+          editToggle={editToggle}/>}
+
       </TabPanel>
       <TabPanel index="ideas" value={selectedTab}>
-        <InvestiblesNav comments={marketComments} commentsHash={commentsHash} marketId={marketId} />
+        <InvestiblesNav comments={marketComments} commentsHash={commentsHash} marketId={marketId}/>
       </TabPanel>
     </div>
   );

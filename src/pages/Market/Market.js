@@ -9,7 +9,7 @@ import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 
-import MarketNav from './MarketNav';
+import MarketNav from '../../components/Market/MarketNav';
 import Activity from '../../containers/Activity'
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
@@ -51,12 +51,8 @@ function Market(props) {
 
   const { refreshInvestibles, loading: investiblesLoading } = useAsyncInvestiblesContext();
   const { refreshMarketComments, loading: commentsLoading } = useAsyncCommentsContext();
-
   const [firstLoad, setFirstLoad] = useState(true);
-  const {
-    intl,
-    marketId,
-  } = props;
+  const { intl, marketId } = props;
 
   useEffect(() => {
     switchMarket(marketId);

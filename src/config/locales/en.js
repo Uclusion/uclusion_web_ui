@@ -124,6 +124,11 @@ const messages = defineMessages({
   loadingMessage: 'Loading',
   investibleAddDescriptionDefault: 'Add a description...',
 
+  // Market Edit
+  marketEditTitleLabel: 'Name',
+  marketEditCancelLabel: 'Cancel',
+  marketEditSaveLabel: 'Save',
+
   // MarketEditButton:
   marketEditButtonTooltip: 'Edit',
 

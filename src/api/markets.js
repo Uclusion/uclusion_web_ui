@@ -8,3 +8,7 @@ export function getMarketDetails(marketId) {
       return convertDates(market);
     });
 }
+
+export function updateMarket(marketId, name, description) {
+  return Promise.resolve(true);
+}

@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { AppBar, Tabs, Tab } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import InvestibleView from '../../components/Investibles/InvestibleView';
+import InvestibleView from '../Investibles/InvestibleView';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
-import TabPanel from '../../components/Tabs/TabPanel';
+import TabPanel from '../Tabs/TabPanel';
 import _ from 'lodash';
-import InvestibleEdit from '../../components/Investibles/InvestibleEdit';
+import InvestibleEdit from '../Investibles/InvestibleEdit';
 
 function InvestiblesNav(props) {
   const { intl, marketId, investibleId, comments, commentsHash } = props;

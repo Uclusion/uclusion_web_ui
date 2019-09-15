@@ -18,7 +18,7 @@ function CommentReply(props) {
     setBody(value);
   }
 
-  function handleSave(){
+  function handleSave() {
     const usedParent = parent || {};
     const { investible_id, id: parentId } = usedParent;
     return saveComment(marketId, investible_id, parentId, body)

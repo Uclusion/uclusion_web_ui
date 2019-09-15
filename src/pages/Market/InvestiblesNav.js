@@ -6,6 +6,7 @@ import InvestibleView from '../../components/Investibles/InvestibleView';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import TabPanel from '../../components/Tabs/TabPanel';
 import _ from 'lodash';
+import InvestibleEdit from '../../components/Investibles/InvestibleEdit';
 
 function InvestiblesNav(props) {
   const { intl, marketId, investibleId, comments, commentsHash } = props;
@@ -13,9 +14,14 @@ function InvestiblesNav(props) {
   const investibles = getCachedInvestibles(marketId);
   const startingTab = investibleId || (!_.isEmpty(investibles) && investibles[0].id);
   const [selectedTab, setSelectedTab] = useState(startingTab);
+  const [editOpen, setEditOpen] = useState({});
 
   function switchTab(event, newValue) {
     setSelectedTab(newValue);
+  }
+
+  function toggleEditMode(id) {
+    return () => setEditOpen({ [id]: !editOpen[id] });
   }
 
   function getTabs() {
@@ -26,9 +32,16 @@ function InvestiblesNav(props) {
     return investibles.map((inv) => {
       const { id } = inv;
       const investibleComments = comments.filter(comment => comment.investible_id === id);
+      const editMode = editOpen[id];
       return (
         <TabPanel key={id} index={id} value={selectedTab}>
-          <InvestibleView investible={inv} comments={investibleComments} commentsHash={commentsHash} />
+          {editMode && <InvestibleEdit investible={inv}
+                                       editToggle={toggleEditMode(id)}
+                                       onSave={toggleEditMode(id)}/>}
+          {!editMode && <InvestibleView investible={inv}
+                                        comments={investibleComments}
+                                        editToggle={toggleEditMode(id)}
+                                        commentsHash={commentsHash}/>}
         </TabPanel>
       );
     });
@@ -57,6 +70,8 @@ InvestiblesNav.propTypes = {
   intl: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   investibleId: PropTypes.string.isRequired,
+  comments: PropTypes.arrayOf(PropTypes.object),
+  commentsHash: PropTypes.object,
 };
 
 export default injectIntl(InvestiblesNav);

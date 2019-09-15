@@ -12,7 +12,7 @@ import {
 import CloseIcon from '@material-ui/icons/Close';
 import HtmlRichTextEditor from '../../components/TextEditors/HtmlRichTextEditor';
 import InvestibleDelete from './InvestibleDelete';
-import InvestibleEdit from './InvestibleEditButton';
+import InvestibleEdit from '../../components/Investibles/InvestibleEditButton';
 import InvestibleInvest from './InvestibleInvest';
 
 import CommentsList from './Comments/CommentsList';

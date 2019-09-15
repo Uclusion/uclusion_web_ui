@@ -124,9 +124,14 @@ const messages = defineMessages({
   loadingMessage: 'Loading',
   investibleAddDescriptionDefault: 'Add a description...',
 
+  // InvestibleEditButton
+  investibleEditButtonTooltip: 'Edit',
+
+
   // InvestibleEdit
   investibleEditTitleLabel: 'Title',
-
+  investibleEditCancelLabel: 'Cancel',
+  investibleEditSaveLabel: 'Save',
 
   // InvestibleAddEdit
   investibleAddHeader: 'Add Investible',
@@ -136,9 +141,7 @@ const messages = defineMessages({
   investibleEditCurrentStageLabel: 'Current Stage:',
   investibleEditNextStageLabel: 'Next Stage:',
   investibleEditNextStageInvestmentLabel: 'New investment for next stage:',
-  investibleEditCancelLabel: 'Cancel',
-  investibleEditCloseLabel: 'Close',
-  investibleEditSaveLabel: 'Save',
+
   investibleCategoriesLabel: 'Categories:',
   investibleEditCategoriesHelper: 'Select One or More',
   investibleEditLabelsLabel: 'Labels:',

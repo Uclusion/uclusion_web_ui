@@ -25,6 +25,10 @@ function useInvestiblesContext() {
     return loadingWrapper(refresher);
   }
 
+  function updateInvestibleLocally(investible) {
+    return Promise.resolve(true); // do nothing for now
+  }
+
   function getCachedInvestibles(marketId) {
     return stateCache[marketId] || [];
   }
@@ -32,6 +36,7 @@ function useInvestiblesContext() {
   return {
     refreshInvestibles,
     getCachedInvestibles,
+    updateInvestibleLocally,
     ...stateCache,
   };
 }

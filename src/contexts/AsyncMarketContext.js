@@ -19,7 +19,6 @@ const contextPackage = createCachedAsyncContext(STATE_NAMESPACE, emptyState);
 const {
   context,
   getState,
-  setState,
   addStateCache,
   clearState,
   setStateValues,

@@ -32,12 +32,18 @@ function useAsyncMarketsContext() {
       .then((state) => state.markets);
   }
 
+  function updateMarketLocally(market) {
+    console.debug(market);
+    return Promise.resolve(true);
+  }
+
   return {
     getCurrentMarket,
     getMarketDetails,
     getMarkets,
     refreshMarkets,
     switchMarket,
+    updateMarketLocally,
     ...stateCache,
   };
 

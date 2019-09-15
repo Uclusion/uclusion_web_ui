@@ -10,5 +10,7 @@ export function getMarketDetails(marketId) {
 }
 
 export function updateMarket(marketId, name, description) {
-  return Promise.resolve(true);
+  const updateOptions = { name, description };
+  return getMarketClient(marketId)
+    .then(client => client.markets.updateMarket(updateOptions));
 }

@@ -34,7 +34,29 @@ function useAsyncMarketsContext() {
 
   function updateMarketLocally(market) {
     console.debug(market);
-    return Promise.resolve(true);
+    const { id } = market;
+    return getState()
+      .then((state) => {
+        const { marketDetails: oldDetails, markets: oldMarkets } = state;
+        // update the name in the market list, or add if new
+        const oldListItem = oldMarkets.find(item => item.id === id);
+        const newMarkets = (oldListItem) ?
+          _.unionBy([{...oldListItem, name: market.name}], oldMarkets, 'id')
+          : [...oldMarkets, market];
+        // there's no token in the market above, and extra stuff, but name, etc lines up
+        // it'll also be replaced at the next refresh
+        const newDetails = _.unionBy([market], oldDetails, 'id');
+        // lastly update the current market to the new data, or if it's not set, leave it alone
+        const { currentMarket } = state;
+        const newCurrentMarket = (!currentMarket) ? currentMarket
+          : newMarkets.find(item => item.id === currentMarket.id);
+
+        return setStateValues({
+          markets: newMarkets,
+          marketDetails: newDetails,
+          currentMarket: newCurrentMarket,
+        });
+      });
   }
 
   return {

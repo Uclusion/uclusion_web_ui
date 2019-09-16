@@ -21,21 +21,22 @@ const styles = theme => ({
 function MarketEdit(props) {
 
   const { editToggle, onSave, market, classes, intl } = props;
+  const { id } = market;
   const { updateMarketLocally } = useAsyncMarketsContext();
   const [currentValues, setCurrentValues] = useState(market);
+  const { name, description } = currentValues;
 
-  const { id, name, description } = currentValues;
 
   function handleChange(name) {
     return (event) => {
       const { value } = event.target;
-      setCurrentValues({ [name]: value });
+      setCurrentValues({ ...currentValues, [name]: value });
     };
   }
 
   function handleSave() {
     return updateMarket(id, name, description)
-      .then(market => updateMarketLocally(market))
+      .then(() => updateMarketLocally(currentValues))
       .then(() => onSave());
   }
 

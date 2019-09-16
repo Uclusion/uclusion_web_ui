@@ -11,6 +11,8 @@ import { Typography } from '@material-ui/core';
  */
 function ExpirationCountdown(props){
 
+  const { expiration_minutes, created_at } = props;
+
   function convertMillisToTimeLeft(millisLeft) {
     const hours = Math.floor((millisLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const mins = Math.floor((millisLeft % (1000 * 60 * 60)) / (1000 * 60));
@@ -20,7 +22,7 @@ function ExpirationCountdown(props){
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  const { expiration_minutes, created_at } = props;
+  console.debug(expiration_minutes);
   const usedExpiration = expiration_minutes || 0;
   const usedCreatedAt = created_at || new Date();
 

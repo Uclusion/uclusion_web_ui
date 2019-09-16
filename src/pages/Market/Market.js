@@ -71,13 +71,13 @@ function Market(props) {
   }, [marketId]);
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
-  console.debug(marketDetails);
+  // console.debug(marketDetails);
   const renderableMarket = marketDetails.find(market => market.id === marketId) || {};
 
   return (
     <Activity title={currentMarketName}
               isLoading={investiblesLoading || commentsLoading}
-              appBarContent={<ExpirationCountDown {...currentMarket} />}
+              appBarContent={<ExpirationCountDown {...renderableMarket} />}
     >
       <div>
         <MarketNav market={renderableMarket} initialTab="context" marketId={marketId} />

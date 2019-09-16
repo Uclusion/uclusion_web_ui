@@ -33,6 +33,8 @@ import {
  } from '@material-ui/core';
 import { isKeyHotkey } from 'is-hotkey';
 import { Button, Icon, Toolbar, Image } from './components';
+import { uploadFileToS3 } from '../../../api/files';
+import { withMarketId } from '../../PathProps/MarketId';
 
 /** This portion is from the image example, so we'll also support images!
  *
@@ -610,17 +612,17 @@ class RichTextEditor extends React.Component {
   };
 
   insertImagesFromFiles = (files, target) => {
+    const { marketId } = this.props;
+
     for (const file of files) {
-      const reader = new FileReader();
-      const [mime] = file.type.split('/');
-      //console.log(mime);
+      const { type } = file;
+      const [mime] = type.split('/');
+      // console.log(mime);
       if (mime !== 'image') continue;
-
-      reader.addEventListener('load', () => {
-        this.editor.command(insertImage, reader.result, target);
-      });
-
-      reader.readAsDataURL(file);
+      uploadFileToS3(marketId, file)
+        .then((url) => {
+          this.editor.command(insertImage, url, target);
+        });
     }
   };
 
@@ -665,4 +667,4 @@ class RichTextEditor extends React.Component {
  * Export.
  */
 
-export default injectIntl(RichTextEditor);
+export default withMarketId(injectIntl(RichTextEditor));

@@ -3,29 +3,32 @@ import { AppBar, Tabs, Tab } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import TabPanel from '../Tabs/TabPanel';
-import InvestiblesNav from './InvestiblesNav';
+import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 import MarketView from './MarketView';
 import MarketEdit from './MarketEdit';
+import { getTabsForInvestibles } from './tabHelpers';
 
 function MarketNav(props) {
   const { intl, marketId, initialTab, market } = props;
   const [selectedTab, setSelectedTab] = useState(initialTab);
-  const [edit, setEdit] = useState(false);
+  const [edit, setEdit] = useState({});
   const { comments, createCommentsHash } = useAsyncCommentsContext();
-  console.debug(comments);
+  const { getCachedInvestibles } = useAsyncInvestiblesContext();
+  const investibles = getCachedInvestibles(marketId);
   const marketComments = comments[marketId] || [];
   const marketTargetedComments = marketComments.filter(comment => !comment.investible_id);
-  console.debug(marketTargetedComments);
   const commentsHash = createCommentsHash(marketComments);
 
   function switchTab(event, newValue) {
     setSelectedTab(newValue);
   }
 
-  function editToggle() {
-    setEdit(!edit);
+  function editToggle(id) {
+    return () => setEdit({ [id]: !edit[id] });
   }
+
+  const invTabs = getTabsForInvestibles(investibles, marketComments, commentsHash, edit, editToggle, selectedTab);
 
   return (
     <div>
@@ -36,24 +39,21 @@ function MarketNav(props) {
               variant="scrollable"
               onChange={switchTab}
         >
-          <Tab label="Context" value="context"/>
-          <Tab label="Ideas" value="ideas"/>
+          <Tab label={intl.formatMessage({ id: 'marketNavTabContextLabel' })} value="context"/>
+          {invTabs.tabs}
         </Tabs>
       </AppBar>
       <TabPanel index="context" value={selectedTab}>
-        {edit && <MarketEdit market={market}
-                             onSave={editToggle}
-                             editToggle={editToggle}/>}
-        {!edit && <MarketView
+        {edit[marketId] && <MarketEdit market={market}
+                             onSave={editToggle(marketId)}
+                             editToggle={editToggle(marketId)}/>}
+        {!edit[marketId] && <MarketView
           market={market}
           comments={marketTargetedComments}
           commentsHash={commentsHash}
-          editToggle={editToggle}/>}
-
+          editToggle={editToggle(marketId)}/>}
       </TabPanel>
-      <TabPanel index="ideas" value={selectedTab}>
-        <InvestiblesNav comments={marketComments} commentsHash={commentsHash} marketId={marketId}/>
-      </TabPanel>
+      {invTabs.tabContent}
     </div>
   );
 }

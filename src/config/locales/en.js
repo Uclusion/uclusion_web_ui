@@ -124,6 +124,9 @@ const messages = defineMessages({
   loadingMessage: 'Loading',
   investibleAddDescriptionDefault: 'Add a description...',
 
+  // Market Nav
+  marketNavTabContextLabel: 'Context',
+
   // Market Edit
   marketEditTitleLabel: 'Name',
   marketEditCancelLabel: 'Cancel',

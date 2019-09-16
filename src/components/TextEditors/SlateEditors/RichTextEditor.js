@@ -613,6 +613,7 @@ class RichTextEditor extends React.Component {
     for (const file of files) {
       const reader = new FileReader();
       const [mime] = file.type.split('/');
+      //console.log(mime);
       if (mime !== 'image') continue;
 
       reader.addEventListener('load', () => {

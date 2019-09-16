@@ -23,10 +23,10 @@ export const renderBlocks = (node, children) => {
         return <Image src={src}/>
       }
       default:
-        return undefined
+        return undefined;
     }
   }
-}
+};
 
 export const renderMarks = (node, children) => {
   if (node.object === 'mark') {
@@ -40,20 +40,20 @@ export const renderMarks = (node, children) => {
       case 'underlined':
         return <u>{children}</u>
       default:
-        return undefined
+        return undefined;
     }
   }
-}
+};
 
 export const renderInlines = (node, children) => {
   if (node.object === 'inline') {
     switch (node.type) {
       case 'link': {
-        const href = node.data.get('href')
+        const href = node.data.get('href');
         return <a href={href}>{children}</a>
       }
       default:
         return undefined
     }
   }
-}
+};

@@ -25,8 +25,6 @@ function MarketEdit(props) {
   const { updateMarketLocally } = useAsyncMarketsContext();
   const [currentValues, setCurrentValues] = useState(market);
   const { name, description } = currentValues;
-
-
   function handleChange(name) {
     return (event) => {
       const { value } = event.target;

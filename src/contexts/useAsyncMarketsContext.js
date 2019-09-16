@@ -24,12 +24,12 @@ function useAsyncMarketsContext() {
 
   function getMarketDetails() {
     return getState()
-      .then((state) => state.marketDetails);
+      .then(state => state.marketDetails);
   }
 
   function getMarkets() {
     return getState()
-      .then((state) => state.markets);
+      .then(state => state.markets);
   }
 
   function updateMarketLocally(market) {

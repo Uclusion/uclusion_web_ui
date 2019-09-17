@@ -38,8 +38,6 @@ function ExpirationCountdown(props){
   }
 
   const [currentTime, setCurrentTime] = useState(new Date());
-
-  console.debug(expiration_minutes);
   const usedExpiration = expiration_minutes || 0;
   const usedCreatedAt = created_at || new Date();
 

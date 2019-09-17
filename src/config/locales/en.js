@@ -122,10 +122,11 @@ const messages = defineMessages({
 
 
   loadingMessage: 'Loading',
-  investibleAddDescriptionDefault: 'Add a description...',
+
 
   // Market Nav
   marketNavTabContextLabel: 'Context',
+  marketNavTabAddIdeaLabel: 'Add New',
 
   // Market Edit
   marketEditTitleLabel: 'Name',
@@ -139,6 +140,14 @@ const messages = defineMessages({
   investibleEditButtonTooltip: 'Edit',
 
 
+  // InvestibleAdd
+  investibleAddTitleDefault: 'Add a name...',
+  investibleAddTitleLabel: 'Name',
+  investibleAddDescriptionDefault: 'Add a description...',
+  investibleAddCancelLabel: 'Cancel',
+  investibleAddSaveLabel: 'Save',
+
+
   // InvestibleEdit
   investibleEditTitleLabel: 'Title',
   investibleEditCancelLabel: 'Cancel',
@@ -149,17 +158,7 @@ const messages = defineMessages({
   investibleEditHeader: 'Edit Investible',
   investibleEditStageHelper: 'Select to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
-  investibleEditCurrentStageLabel: 'Current Stage:',
-  investibleEditNextStageLabel: 'Next Stage:',
-  investibleEditNextStageInvestmentLabel: 'New investment for next stage:',
 
-  investibleCategoriesLabel: 'Categories:',
-  investibleEditCategoriesHelper: 'Select One or More',
-  investibleEditLabelsLabel: 'Labels:',
-  investibleEditAddNewLabelLabel: 'New Label:',
-  investibleEditAddNewLabelButton: 'Add Label',
-  investibleEditCurrentInvestmentLine: 'Current Investment: {shares} uShares',
-  investibleEditCurrentInvestmentLabel: 'Current investment for next stage',
 
   //Comments
   commentReplyDefault: 'Your reply...',

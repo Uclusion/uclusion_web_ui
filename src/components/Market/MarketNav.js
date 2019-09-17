@@ -7,7 +7,9 @@ import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContex
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 import MarketView from './MarketView';
 import MarketEdit from './MarketEdit';
+import InvestibleAdd from '../Investibles/InvestibleAdd';
 import { getTabsForInvestibles } from './tabHelpers';
+import AddIcon from '@material-ui/icons/Add';
 
 function MarketNav(props) {
   const { intl, marketId, initialTab, market } = props;
@@ -19,13 +21,28 @@ function MarketNav(props) {
   const marketComments = comments[marketId] || [];
   const marketTargetedComments = marketComments.filter(comment => !comment.investible_id);
   const commentsHash = createCommentsHash(marketComments);
+  const [ previousTab, setPreviousTab ] = useState();
 
   function switchTab(event, newValue) {
+    setPreviousTab(selectedTab);
     setSelectedTab(newValue);
   }
 
   function editToggle(id) {
     return () => setEdit({ [id]: !edit[id] });
+  }
+
+  function onAddSave(newId) {
+    setSelectedTab(newId);
+  }
+
+  function cancelAdd() {
+    if (previousTab) {
+      setSelectedTab(previousTab);
+    } else {
+      setSelectedTab('context');
+    }
+    setPreviousTab(undefined);
   }
 
   const invTabs = getTabsForInvestibles(investibles, marketComments, commentsHash, edit, editToggle, selectedTab);
@@ -41,6 +58,7 @@ function MarketNav(props) {
         >
           <Tab label={intl.formatMessage({ id: 'marketNavTabContextLabel' })} value="context"/>
           {invTabs.tabs}
+          <Tab label={intl.formatMessage({ id: 'marketNavTabAddIdeaLabel' })} icon={<AddIcon />} value="add"/>
         </Tabs>
       </AppBar>
       <TabPanel index="context" value={selectedTab}>
@@ -54,6 +72,9 @@ function MarketNav(props) {
           editToggle={editToggle(marketId)}/>}
       </TabPanel>
       {invTabs.tabContent}
+      <TabPanel index="add" value={selectedTab}>
+        <InvestibleAdd marketId={marketId} onSave={onAddSave} onCancel={cancelAdd}/>
+      </TabPanel>
     </div>
   );
 }

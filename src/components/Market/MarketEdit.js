@@ -44,11 +44,11 @@ function MarketEdit(props) {
         <TextField
           className={classes.row}
           inputProps={{ maxLength: 255 }}
-          InputLabelProps={{ shrink: true }}
           id="name"
-          label={intl.formatMessage({ id: 'marketEditTitleLabel' })}
+          helperText={intl.formatMessage({ id: 'marketEditTitleLabel' })}
           margin="normal"
           fullWidth
+          variant="outlined"
           value={name}
           onChange={handleChange('name')}
         />

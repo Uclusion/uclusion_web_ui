@@ -13,11 +13,28 @@ function ExpirationCountdown(props){
 
   const { expiration_minutes, created_at } = props;
 
-  function convertMillisToTimeLeft(millisLeft) {
+  function getClockTimeRemaining(millisLeft) {
     const hours = Math.floor((millisLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const mins = Math.floor((millisLeft % (1000 * 60 * 60)) / (1000 * 60));
-    const secs = Math.floor((millisLeft % (1000 * 60)) / 1000);
-    return `${hours}:${mins}:${secs}`;
+    const minutes = Math.floor((millisLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((millisLeft % (1000 * 60)) / 1000);
+    return { hours, minutes, seconds };
+  }
+
+  // TODO: This is crap and Not I18n freindly. Fix it
+  function convertMillisToTimeLeft(millisLeft) {
+    const { hours, minutes, seconds } = getClockTimeRemaining(millisLeft);
+    if (hours > 0 ) {
+      return `${hours}h:${minutes}m`;
+    }
+    return `${minutes}m:${seconds}s`;
+  }
+
+  function getRenderPeriod(millisLeft) {
+    const { hours } = getClockTimeRemaining(millisLeft);
+    if (hours > 0) {
+      return 60000; // 1 minute
+    }
+    return 1000; // 1 second
   }
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -31,7 +48,7 @@ function ExpirationCountdown(props){
   const expirationTimeMillis = (usedCreatedAt.getTime() + expirationMillis);
   const expirationDate = new Date(expirationTimeMillis);
 
-  const millisRemaining = expirationDate.getTime() - currentTime.getTime();
+  const millisRemaining = Math.max(0, expirationDate.getTime() - currentTime.getTime());
   const moreThanOneDayLeft = (millisRemaining >= oneDayMillis);
   const renderPeriod = moreThanOneDayLeft ? oneDayMillis : 1000;
 

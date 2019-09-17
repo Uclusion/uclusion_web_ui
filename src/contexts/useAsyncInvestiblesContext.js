@@ -35,6 +35,12 @@ function useInvestiblesContext() {
       });
   }
 
+  function addInvestibleLocally(investible) {
+    // since it's a full investible, we can just do the same thing as
+    // updateInvestibleLocally
+    return updateInvestibleLocally(investible);
+  }
+
   function getCachedInvestibles(marketId) {
     return stateCache[marketId] || [];
   }
@@ -43,6 +49,7 @@ function useInvestiblesContext() {
     refreshInvestibles,
     getCachedInvestibles,
     updateInvestibleLocally,
+    addInvestibleLocally,
     ...stateCache,
   };
 }

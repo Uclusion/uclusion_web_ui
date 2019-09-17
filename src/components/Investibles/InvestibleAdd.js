@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
 import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@material-ui/core';
-import { updateInvestible } from '../../api/investibles';
+import { addInvestible, updateInvestible } from '../../api/investibles';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 
@@ -17,11 +17,11 @@ const styles = theme => ({
   },
 });
 
-function InvestibleEdit(props) {
-  const { updateInvestibleLocally } = useAsyncInvestiblesContext();
-  const { investible, intl, classes, editToggle, onSave } = props;
-  const [currentValues, setCurrentValues] = useState(investible);
-  const { name, description, id, market_id } = currentValues;
+function InvestibleAdd(props) {
+  const { addInvestibleLocally } = useAsyncInvestiblesContext();
+  const { marketId, intl, classes, onSave, onCancel } = props;
+  const [currentValues, setCurrentValues] = useState({ name: '', description: '' });
+  const { name, description } = currentValues;
 
   function handleChange(field) {
     return (event) => {
@@ -31,10 +31,23 @@ function InvestibleEdit(props) {
     };
   }
 
+  function zeroCurrentValues() {
+    setCurrentValues({ name: '', description: '' });
+  }
+
+  function handleCancel() {
+    zeroCurrentValues();
+    onCancel();
+  }
+
   function handleSave() {
-    return updateInvestible(market_id, id, name, description)
-      .then(investible => updateInvestibleLocally(investible))
-      .then(() => onSave());
+    return addInvestible(marketId, name, description)
+      .then((investible) => {
+        const { id } = investible;
+        return addInvestibleLocally(investible)
+          .then(() => zeroCurrentValues())
+          .then(() => onSave(id));
+      });
   }
 
   return (
@@ -44,7 +57,8 @@ function InvestibleEdit(props) {
           className={classes.row}
           inputProps={{ maxLength: 255 }}
           id="name"
-          helperText={intl.formatMessage({ id: 'investibleEditTitleLabel' })}
+          helperText={intl.formatMessage({ id: 'investibleAddTitleLabel' })}
+          placeholder={intl.formatMessage({ id: 'investibleAddTitleDefault' })}
           margin="normal"
           fullWidth
           variant="outlined"
@@ -53,18 +67,19 @@ function InvestibleEdit(props) {
         />
         <HtmlRichTextEditor
           onChange={handleChange('description')}
+          placeHolder={intl.formatMessage({id: 'investibleAddDescriptionDefault' })}
           value={description} />
       </CardContent>
       <CardActions>
-        <Button onClick={editToggle}>
-          {intl.formatMessage({ id: 'investibleEditCancelLabel'})}
+        <Button onClick={handleCancel}>
+          {intl.formatMessage({ id: 'investibleAddCancelLabel'})}
         </Button>
         <Button
           variant="contained"
           color="primary"
           onClick={handleSave}
         >
-          {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
+          {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
         </Button>
       </CardActions>
     </Card>
@@ -72,4 +87,4 @@ function InvestibleEdit(props) {
   );
 }
 
-export default withStyles(styles)(injectIntl(InvestibleEdit));
+export default withStyles(styles)(injectIntl(InvestibleAdd));

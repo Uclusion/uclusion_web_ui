@@ -28,10 +28,11 @@ export function uploadFileToS3(marketId, file) {
           const { url, fields } = destination;
           // load up the fields and file data into the post body
           const body = new FormData();
-            body.append('files', file, 'uploadedFile');
           for (const [field, value] of Object.entries(fields)) {
             body.append(field, value);
           }
+          // aws ignores all fields after the file field, so the data has to be last
+          body.append('file', file);
           const fetchParams = { method: 'POST', body };
           return fetch(url, fetchParams)
             .then(() => url); // just want to give back the successful url

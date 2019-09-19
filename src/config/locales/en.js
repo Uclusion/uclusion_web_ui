@@ -123,6 +123,19 @@ const messages = defineMessages({
 
   loadingMessage: 'Loading',
 
+  // ExpirationSelector
+  expirationSelectorOneDay: '1 day',
+  expirationSelectorXDays: '{x} days',
+
+
+
+  // Market Add
+  marketAddTitleDefault: 'Add a name...',
+  marketAddTitleLabel: 'Name',
+  marketAddDescriptionDefault: 'Add a description...',
+  marketAddCancelLabel: 'Cancel',
+  marketAddSaveLabel: 'Save',
+  marketAddExpirationLabel: 'Days dialog lasts',
 
   // Market Nav
   marketNavTabContextLabel: 'Context',

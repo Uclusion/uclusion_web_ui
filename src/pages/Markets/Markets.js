@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import useAsyncMarketContext from '../../contexts/useAsyncMarketsContext';
-import MarketsList from './MarketsList';
-import Activity from '../../containers/Activity';
 import { injectIntl } from 'react-intl';
+import useAsyncMarketContext from '../../contexts/useAsyncMarketsContext';
+import MarketsList from '../../components/Markets/MarketsList';
+import Activity from '../../containers/Activity';
+import AddIcon from '@material-ui/icons/Add';
+import { IconButton } from '@material-ui/core';
+import MarketAdd from '../../components/Markets/MarketAdd';
 
 const pollRate = 3600000; // 60 mins = 3600 seconds * 1000 for millis
 
@@ -10,6 +13,8 @@ function Markets(props) {
 
   const { intl } = props;
   const { refreshMarkets, marketDetails, loading } = useAsyncMarketContext();
+  const [addMode, setAddMode] = useState(false);
+
   const [firstLoad, setFirstLoad] = useState(true);
 
   // refresh on first load of the page, and every pollRate millis thereafter
@@ -24,14 +29,19 @@ function Markets(props) {
       clearInterval(timer);
     };
   });
-  // console.log('Rendering market details');
-  // console.log(marketDetails);
+
+  function toggleAdd() {
+    setAddMode(!addMode);
+  }
+
   return (
     <Activity
       title={intl.formatMessage({ id: 'sidebarNavDialogs' })}
       isLoading={loading}
+      titleButtons={[<IconButton onClick={toggleAdd}><AddIcon /></IconButton>]}
     >
-      <MarketsList markets={marketDetails} />
+      {!addMode && <MarketsList markets={marketDetails} /> }
+      {addMode && <MarketAdd onCancel={toggleAdd} onSave={toggleAdd} />}
     </Activity>
   );
 }

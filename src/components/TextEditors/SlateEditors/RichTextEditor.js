@@ -264,6 +264,11 @@ class RichTextEditor extends React.Component {
     uploader.value = '';
   };
 
+  renderingPlugins = [{
+    renderNode: this.renderNode,
+    renderMark: this.renderMark,
+  }];
+
   /**
    * Render.
    *
@@ -294,12 +299,12 @@ class RichTextEditor extends React.Component {
             value={value}
             onChange={onChange}
             onKeyDown={this.onKeyDown}
-            renderNode={this.renderNode}
-            renderMark={this.renderMark}
+
             schema={schema}
             onDrop={this.onDropOrPaste}
             onPaste={this.onDropOrPaste}
             readOnly={readOnly}
+            plugins={this.renderingPlugins}
           />
         </Typography>
         <Dialog

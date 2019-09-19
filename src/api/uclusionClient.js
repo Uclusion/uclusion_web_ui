@@ -13,11 +13,11 @@ export const getMarketClient = (marketId) => {
   });
 };
 
-export const getAccountClient = (accountId) => {
+export const getAccountClient = () => {
   const ssoClient = client.constructSSOClient(config.api_configuration);
   return ssoClient.then((sso) => {
     const identitySource = new AmplifyIdentitySource();
-    const tokenManager = new TokenManager(identitySource, sso, TOKEN_TYPE_ACCOUNT, accountId);
+    const tokenManager = new TokenManager(identitySource, sso, TOKEN_TYPE_ACCOUNT, 'home_account');
     return tokenManager.getToken() // force login
       .then(() => client.constructClient({ ...config.api_configuration, tokenManager }));
   });

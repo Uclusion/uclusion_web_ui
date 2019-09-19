@@ -20,7 +20,8 @@ const styles = theme => ({
 function InvestibleAdd(props) {
   const { addInvestibleLocally } = useAsyncInvestiblesContext();
   const { marketId, intl, classes, onSave, onCancel } = props;
-  const [currentValues, setCurrentValues] = useState({ name: '', description: '' });
+  const emptyInvestible = { name: '', description: '' };
+  const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const { name, description } = currentValues;
 
   function handleChange(field) {
@@ -32,7 +33,7 @@ function InvestibleAdd(props) {
   }
 
   function zeroCurrentValues() {
-    setCurrentValues({ name: '', description: '' });
+    setCurrentValues(emptyInvestible);
   }
 
   function handleCancel() {

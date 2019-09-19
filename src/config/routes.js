@@ -9,15 +9,12 @@ import Markets from '../pages/Markets/Markets';
 const MyLoadable = (opts, preloadComponents) => makeLoadable({ ...opts }, preloadComponents);
 
 const AsyncMarket = MyLoadable({ loader: () => import('../pages/Market/Market') });
-const AsyncInvestibleEdit = MyLoadable({ loader: () => import('../pages/InvestibleEdit/InvestibleAddEdit') });
 const AsyncAbout = MyLoadable({ loader: () => import('../pages/About/About') });
 
 const routes = [
   <Route type="public" path="/dialogs" exact component={Markets} />,
   <Route type="public" path="/:marketId" exact component={Market} />,
   <Route type="public" path="/:marketId/about" exact component={AsyncAbout} />,
-  <Route type="public" path="/:marketId/investibleEdit/:investibleId" exact component={AsyncInvestibleEdit} />,
-  <Route type="public" path="/:marketId/investibleAdd/" exact component={AsyncInvestibleEdit} />,
 ];
 
 

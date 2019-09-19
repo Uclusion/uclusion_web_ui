@@ -6,6 +6,12 @@ import _ from 'lodash';
 function useInvestiblesContext() {
   const { stateCache, getState, setStateValues, loadingWrapper } = useContext(AsyncInvestiblesContext);
 
+  function updateInvestibles(state, updateHash) {
+    const { investibles } = state;
+    const newInvestibles = { ...investibles, ...updateHash };
+    return setStateValues({ investibles: newInvestibles });
+  }
+
   function refreshInvestibles(marketId) {
     // the loading wrapper can't pass arguments, so we
     // need to bind market id with a closure
@@ -22,9 +28,7 @@ function useInvestiblesContext() {
           const investibleHash = _.keyBy(investibles, 'id');
           return getState()
             .then((state) => {
-              const { investibles } = state;
-              const newInvestibles = { ...investibles, ...investibleHash };
-              return setStateValues({ investibles: newInvestibles });
+              return updateInvestibles(state, investibleHash);
             });
         });
     };
@@ -35,9 +39,7 @@ function useInvestiblesContext() {
     const { id } = investible;
     return getState()
       .then((state) => {
-        const { investibles } = state;
-        const newInvestibles = { ...investibles, [id]: investible };
-        return setStateValues({ investibles: newInvestibles });
+        return updateInvestibles({ [id]: investible });
       });
   }
 

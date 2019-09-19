@@ -27,9 +27,7 @@ function useInvestiblesContext() {
         }).then((investibles) => {
           const investibleHash = _.keyBy(investibles, 'id');
           return getState()
-            .then((state) => {
-              return updateInvestibles(state, investibleHash);
-            });
+            .then((state) => updateInvestibles(state, investibleHash));
         });
     };
     return loadingWrapper(refresher);
@@ -38,9 +36,7 @@ function useInvestiblesContext() {
   function updateInvestibleLocally(investible) {
     const { id } = investible;
     return getState()
-      .then((state) => {
-        return updateInvestibles({ [id]: investible });
-      });
+      .then((state) => updateInvestibles(state, { [id]: investible }));
   }
 
   function addInvestibleLocally(investible) {

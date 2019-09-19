@@ -19,19 +19,25 @@ function useInvestiblesContext() {
           const idList = investibleList.map(investible => investible.id);
           return fetchInvestibles(idList, marketId);
         }).then((investibles) => {
-          return setStateValues({ [marketId]: investibles });
+          const investibleHash = _.keyBy(investibles, 'id');
+          return getState()
+            .then((state) => {
+              const { investibles } = state;
+              const newInvestibles = { ...investibles, ...investibleHash };
+              return setStateValues({ investibles: newInvestibles });
+            });
         });
     };
     return loadingWrapper(refresher);
   }
 
   function updateInvestibleLocally(investible) {
-    const { market_id: marketId } = investible;
+    const { id } = investible;
     return getState()
       .then((state) => {
-        const marketInvestibles = state[marketId] || [];
-        const newMarketInvestbles = _.unionBy([investible], marketInvestibles, 'id');
-        return setStateValues({[marketId]: newMarketInvestbles});
+        const { investibles } = state;
+        const newInvestibles = { ...investibles, [id]: investible };
+        return setStateValues({ investibles: newInvestibles });
       });
   }
 
@@ -42,7 +48,11 @@ function useInvestiblesContext() {
   }
 
   function getCachedInvestibles(marketId) {
-    return stateCache[marketId] || [];
+    const { investibles } = stateCache;
+
+    const values = Object.values(investibles);
+    const found = values.filter((inv) => (marketId === inv.market_id) || inv.market_ids.includes(marketId));
+    return found;
   }
 
   return {

@@ -4,21 +4,18 @@ import { IntlProvider } from 'react-intl';
 import Root from '../Root';
 import AppConfigProvider from '../../components/AppConfigProvider';
 import config from '../../config';
-import locales, { addLocalizationData, getLocaleMessages } from '../../config/locales';
+import { getLocaleMessages } from '../../config/locales';
 import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvider';
-import { withOAuth, withAuthenticator } from 'aws-amplify-react';
+import { withAuthenticator } from 'aws-amplify-react';
 import useLocaleContext from '../../contexts/useLocaleContext';
 import { WebSocketProvider } from '../../contexts/WebSocketContext';
-
-addLocalizationData(locales);
 
 function App(props) {
 
   const { appConfig } = props;
   const { locale } = useLocaleContext();
   const messages = {
-    ...(getLocaleMessages(locale, locales)),
-    ...(getLocaleMessages(locale, appConfig.locales)),
+    ...getLocaleMessages(locale),
   };
   const configs = { ...config, ...appConfig };
 

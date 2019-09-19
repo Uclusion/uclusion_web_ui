@@ -1,6 +1,5 @@
-import locales from './locales';
 import routes from './routes';
-
+import { locales } from './locales';
 
 const config = {
   initial_state: {

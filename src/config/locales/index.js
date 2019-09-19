@@ -1,85 +1,10 @@
-import { addLocaleData } from 'react-intl';
-import localesSupported from 'intl-locales-supported';
-import IntlPolyfill from 'intl';
-import en from 'react-intl/locale-data/en';
-import de from 'react-intl/locale-data/de';
-import ru from 'react-intl/locale-data/ru';
-import bs from 'react-intl/locale-data/bs';
-import es from 'react-intl/locale-data/es';
-import en_messages from './en';
-import de_messages from './de';
-import ru_messages from './ru';
-import bs_messages from './bs';
-import es_messages from './es';
+import enMessages from './en';
 
 
-const locales = [
-  {
-    locale: 'en',
-    messages: en_messages,
-    data: en,
-  },
-  {
-    locale: 'de',
-    messages: de_messages,
-    data: de,
-  },
-  {
-    locale: 'bs',
-    messages: bs_messages,
-    data: bs,
-  },
-  {
-    locale: 'ru',
-    messages: ru_messages,
-    data: ru,
-  },
-  {
-    locale: 'es',
-    messages: es_messages,
-    data: es,
-  },
-
-];
-
-// START: Intl polyfill
-// Required for working on Safari
-// Code from here: https://formatjs.io/guides/runtime-environments/
-const localesMyAppSupports = [
-  /* list locales here */
-];
-
-if (global.Intl) {
-  // Determine if the built-in `Intl` has the locale data we need.
-  if (!localesSupported(localesMyAppSupports)) {
-    // `Intl` exists, but it doesn't have the data we need, so load the
-    // polyfill and replace the constructors with need with the polyfill's.
-    Intl.NumberFormat = IntlPolyfill.NumberFormat;
-    Intl.DateTimeFormat = IntlPolyfill.DateTimeFormat;
+export function getLocaleMessages(locale) {
+  if (locale.startsWith('en')) {
+    return enMessages;
   }
-} else {
-  // No `Intl`, so use and load the polyfill.
-  global.Intl = IntlPolyfill;
-}
-// END: Intl polyfill
-
-export function getLocaleMessages(l, ls) {
-  if (ls) {
-    for (let i = 0; i < ls.length; i++) {
-      if (ls[i].locale === l) {
-        return ls[i].messages;
-      }
-    }
-  }
-
-  return en_messages; // Default locale
 }
 
-export function addLocalizationData(ls) {
-  ls.map((l) => {
-    addLocaleData(l.data);
-    return l;
-  });
-}
-
-export default locales;
+export const locales = ['en'];

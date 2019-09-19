@@ -3,7 +3,6 @@ import { withA2HS } from 'a2hs';
 import { ToastContainer } from 'react-toastify';
 import App from '../App/App';
 import config from '../../config';
-import locales, { addLocalizationData } from '../../config/locales';
 import 'react-toastify/dist/ReactToastify.css';
 import Amplify, { Auth } from 'aws-amplify';
 import awsconfig from '../../config/amplify';
@@ -14,7 +13,6 @@ import { DrawerProvider } from '../../contexts/DrawerContext';
 import { LocaleProvider } from '../../contexts/LocaleContext';
 import { AsyncCommentsProvider } from '../../contexts/AsyncCommentsContext';
 
-addLocalizationData(locales);
 console.log(awsconfig);
 Amplify.configure(awsconfig);
 const oauth = {

@@ -15,8 +15,8 @@
 
  */
 
-import React from 'react'
-import styled from 'react-emotion'
+import React from 'react';
+import styled from '@emotion/styled';
 
 export const Button = styled('span')`
   cursor: pointer;

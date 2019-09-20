@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import useAsyncMarketContext from '../../contexts/useAsyncMarketsContext';
-import MarketsList from '../../components/Markets/MarketsList';
+import MarketsList from '../../components/DecisionDialogs/MarketsList';
 import Activity from '../../containers/Activity';
 import AddIcon from '@material-ui/icons/Add';
 import { IconButton } from '@material-ui/core';
-import MarketAdd from '../../components/Markets/MarketAdd';
+import MarketAdd from '../../components/DecisionDialogs/MarketAdd';
 
 const pollRate = 3600000; // 60 mins = 3600 seconds * 1000 for millis
 

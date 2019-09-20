@@ -9,15 +9,17 @@ function MarketView(props) {
 
   const { market, comments, commentsHash, editToggle } = props;
   const { description, id } = market;
+  const issues = comments.filter((comment) => comment.isOpenIssue);
 
   return (
     <div>
-    <Card>
-      <CardContent>
-        <MarketEditButton onClick={editToggle} />
-        <HtmlRichTextEditor value={description} readOnly={true}/>
-      </CardContent>
-    </Card>
+      <Card>
+        <CardContent>
+          <MarketEditButton onClick={editToggle}/>
+          <HtmlRichTextEditor value={description} readOnly={true}/>
+        </CardContent>
+      </Card>
+      <CommentBox marketId={id} comments={issues} commentsHash={commentsHash} depth={0} />
       <CommentBox marketId={id} comments={comments} commentsHash={commentsHash} depth={0}/>
     </div>
   );

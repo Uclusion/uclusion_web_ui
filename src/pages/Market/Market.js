@@ -10,7 +10,7 @@ import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContex
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 
 import MarketNav from '../../components/Market/MarketNav';
-import Activity from '../../containers/Activity'
+import Activity from '../../containers/Activity';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -64,7 +64,10 @@ function Market(props) {
       refreshMarketComments(marketId);
       setFirstLoad(false);
     }
-    const timer = setInterval(() => refreshInvestibles(marketId), pollRate);
+    const timer = setInterval(() => {
+      refreshInvestibles(marketId);
+      refreshMarketComments(marketId);
+    }, pollRate);
     return () => {
       clearInterval(timer);
     };
@@ -80,7 +83,7 @@ function Market(props) {
               appBarContent={<ExpirationCountDown {...renderableMarket} />}
     >
       <div>
-        <MarketNav market={renderableMarket} initialTab="context" marketId={marketId} />
+        <MarketNav market={renderableMarket} initialTab="context" marketId={marketId}/>
       </div>
     </Activity>
   );

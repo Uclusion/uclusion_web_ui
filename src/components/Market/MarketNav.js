@@ -21,7 +21,7 @@ function MarketNav(props) {
   const marketComments = comments[marketId] || [];
   const marketTargetedComments = marketComments.filter(comment => !comment.investible_id);
   const commentsHash = createCommentsHash(marketComments);
-  const [ previousTab, setPreviousTab ] = useState();
+  const [previousTab, setPreviousTab] = useState();
 
   function switchTab(event, newValue) {
     setPreviousTab(selectedTab);
@@ -58,18 +58,17 @@ function MarketNav(props) {
         >
           <Tab label={intl.formatMessage({ id: 'marketNavTabContextLabel' })} value="context"/>
           {invTabs.tabs}
-          <Tab label={intl.formatMessage({ id: 'marketNavTabAddIdeaLabel' })} icon={<AddIcon />} value="add"/>
+          <Tab label={intl.formatMessage({ id: 'marketNavTabAddIdeaLabel' })} icon={<AddIcon/>} value="add"/>
         </Tabs>
       </AppBar>
       <TabPanel index="context" value={selectedTab}>
         {edit[marketId] && <MarketEdit market={market}
-                             onSave={editToggle(marketId)}
-                             editToggle={editToggle(marketId)}/>}
-        {!edit[marketId] && <MarketView
-          market={market}
-          comments={marketTargetedComments}
-          commentsHash={commentsHash}
-          editToggle={editToggle(marketId)}/>}
+                                       onSave={editToggle(marketId)}
+                                       editToggle={editToggle(marketId)}/>}
+        {!edit[marketId] && <MarketView market={market}
+                                        comments={marketTargetedComments}
+                                        commentsHash={commentsHash}
+                                        editToggle={editToggle(marketId)}/>}
       </TabPanel>
       {invTabs.tabContent}
       <TabPanel index="add" value={selectedTab}>

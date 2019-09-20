@@ -173,7 +173,12 @@ const messages = defineMessages({
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
 
 
-  //Comments
+  // Issues
+  issueResolveLabel: 'Resolve',
+  issueReplyLabel: 'Reply',
+
+
+  // Comments
   commentReplyDefault: 'Your reply...',
   commentReplyLabel: 'Reply',
   commentReplySaveLabel: 'Save',

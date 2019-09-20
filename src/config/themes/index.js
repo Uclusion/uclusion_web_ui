@@ -1,4 +1,5 @@
 import blue from '@material-ui/core/colors/blue';
+import red from '@material-ui/core/colors/red';
 import { createMuiTheme } from '@material-ui/core/styles';
 
 const defaultThemeDefinition = {
@@ -18,4 +19,9 @@ const defaultTheme = createMuiTheme({
 
 const sideBarTheme = createMuiTheme({ ...defaultThemeDefinition, palette: { ...defaultThemeDefinition.palette, type: 'dark'}});
 
-export { defaultTheme, sideBarTheme };
+const issueTheme = createMuiTheme( {
+  ...defaultThemeDefinition,
+  color: red[500],
+});
+
+export { defaultTheme, sideBarTheme, issueTheme };

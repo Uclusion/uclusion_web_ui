@@ -20,7 +20,7 @@ function MarketsListItem(props) {
         <Typography onClick={() => history.push(formMarketLink(id))}>{name}</Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
-        Test Content
+        Fill this in when we have details for the markets list view
       </ExpansionPanelDetails>
     </ExpansionPanel>
   );

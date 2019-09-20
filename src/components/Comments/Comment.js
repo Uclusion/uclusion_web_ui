@@ -44,7 +44,7 @@ function Comment(props) {
       <Button onClick={toggleReply}>
         {intl.formatMessage({ id: 'commentReplyLabel' })}
       </Button>
-      {replyOpen && <CommentReply marketId={marketId} parent={comment} onSave={toggleReply}/>}
+      {replyOpen && <CommentReply marketId={marketId} parent={comment} onSave={toggleReply} onCancel={toggleReply}/>}
       {getChildComments()}
     </Paper>
   );

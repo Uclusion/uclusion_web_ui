@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
-import { Card, Button, CardContent } from '@material-ui/core';
+import { Card, Button } from '@material-ui/core';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import { saveComment } from '../../api/comments';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
-import CardActions from '@material-ui/core/CardActions';
+import PropTypes from 'prop-types';
 
-function CommentReply(props) {
+function CommentAdd(props) {
 
-  const { parent, intl, marketId, onSave, onCancel } = props;
+  const { intl, marketId, onSave, issue } = props;
   const { addCommentLocally } = useAsyncCommentsContext();
   const [body, setBody] = useState('');
 
@@ -27,26 +27,20 @@ function CommentReply(props) {
       .then(onSave());
   }
 
-  function handleCancel() {
-    setBody('');
-    onCancel();
-  }
-
   return (
     <Card>
-      <CardContent>
-        <HtmlRichTextEditor placeHolder={placeHolder} value={body} onChange={handleChange}/>
-      </CardContent>
-      <CardActions>
-        <Button onClick={handleSave}>
-          {intl.formatMessage({ id: 'commentReplySaveLabel' })}
-        </Button>
-        <Button onClick={handleCancel}>
-          {intl.formatMessage({ id: 'commentReplyCancelLabel' })}
-        </Button>
-      </CardActions>
+      <HtmlRichTextEditor placeHolder={placeHolder} value={body} onChange={handleChange} />
+      <Button onClick={handleSave}>
+        {intl.formatMessage({ id: 'commentReplySaveLabel' })}
+      </Button>
     </Card>
   );
 }
+CommentReply.propTypes = {
+  issue: PropTypes.bool,
+  marketId: PropTypes.string.isRequired,
+  onSave: PropTypes.func.isRequired,
+  intl: PropTypes.object.isRequired,
+};
 
-export default injectIntl(CommentReply);
+export default injectIntl(CommentAdd);

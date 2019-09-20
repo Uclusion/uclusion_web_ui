@@ -177,13 +177,21 @@ const messages = defineMessages({
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',
 
+  // CommentAdd
+  commentAddIssueDefault: 'Your issue...',
+  commentAddDefault: 'Your comment...',
+  commentAddSaveLabel: 'Save',
+  commentAddCancelLabel: 'Cancel',
+
+  // CommentBox
+  commentBoxAddIssue: 'Add Issue',
+  commentBoxAddComment: 'Add Comment',
 
   // Comments
   commentReplyDefault: 'Your reply...',
   commentReplyLabel: 'Reply',
   commentReplySaveLabel: 'Save',
-
-
+  commentReplyCancelLable: 'Cancel',
 
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',

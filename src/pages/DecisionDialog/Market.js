@@ -4,12 +4,12 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { withMarketId } from '../../components/PathProps/MarketId';
-import ExpirationCountDown from '../../components/Market/ExpirationCountDown';
+import ExpirationCountDown from '../../components/DecisionDialog/ExpirationCountDown';
 import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 
-import MarketNav from '../../components/Market/MarketNav';
+import MarketNav from '../../components/DecisionDialog/MarketNav';
 import Activity from '../../containers/Activity';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis

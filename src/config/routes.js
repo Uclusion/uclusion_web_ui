@@ -1,14 +1,14 @@
 import React from 'react';
 import { Route } from 'react-router';
 import makeLoadable from '../containers/MyLoadable/MyLoadable';
-import Market from '../pages/Market/Market';
-import Markets from '../pages/Markets/Markets';
+import Market from '../pages/DecisionDialog/Market';
+import Markets from '../pages/DecisionDialogs/Markets';
 
 // Note: I'm importing the raw stuff up above to aid debugging, before prod we should use the async load
 // in order to speed up bundle loading
 const MyLoadable = (opts, preloadComponents) => makeLoadable({ ...opts }, preloadComponents);
 
-const AsyncMarket = MyLoadable({ loader: () => import('../pages/Market/Market') });
+const AsyncMarket = MyLoadable({ loader: () => import('../pages/DecisionDialog/Market') });
 const AsyncAbout = MyLoadable({ loader: () => import('../pages/About/About') });
 
 const routes = [

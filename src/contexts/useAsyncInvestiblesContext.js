@@ -49,7 +49,7 @@ function useInvestiblesContext() {
     const { investibles } = stateCache;
 
     const values = Object.values(investibles);
-    const found = values.filter((inv) => (marketId === inv.market_id) || inv.market_ids.includes(marketId));
+    const found = values.filter((inv) => (marketId === inv.market_id));
     return found;
   }
 

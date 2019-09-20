@@ -15,8 +15,8 @@ export function updateMarket(marketId, name, description) {
     .then((client) => client.markets.updateMarket(updateOptions));
 }
 
-export function createMarket(accountId, name, description, expirationMinutes) {
+export function createMarket(name, description, expirationMinutes) {
   const addPackage = { name, description, expiration_minutes: expirationMinutes };
-  return getAccountClient(accountId)
+  return getAccountClient()
     .then((client) => client.markets.createMarket(addPackage));
 }

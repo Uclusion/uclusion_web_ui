@@ -34,14 +34,21 @@ function Markets(props) {
     setAddMode(!addMode);
   }
 
+  function onMarketSave() {
+    toggleAdd();
+    refreshMarkets();
+  }
+
   return (
     <Activity
       title={intl.formatMessage({ id: 'sidebarNavDialogs' })}
       isLoading={loading}
-      titleButtons={[<IconButton onClick={toggleAdd}><AddIcon /></IconButton>]}
+      titleButtons={<IconButton onClick={toggleAdd}><AddIcon /></IconButton>}
     >
+      <div>
       {!addMode && <MarketsList markets={marketDetails} /> }
-      {addMode && <MarketAdd onCancel={toggleAdd} onSave={toggleAdd} />}
+      {addMode && <MarketAdd onCancel={toggleAdd} onSave={onMarketSave} />}
+      </div>
     </Activity>
   );
 }

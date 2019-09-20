@@ -14,7 +14,7 @@ function ExpirationSelector(props) {
       ? intl.formatMessage({ id: 'expirationSelectorOneDay' })
       : intl.formatMessage({ id: 'expirationSelectorXDays' }, { x: numDays });
     */
-   const label = numDays;
+    const label = numDays;
     return { value, label };
   }
 
@@ -23,9 +23,12 @@ function ExpirationSelector(props) {
 
   // Sliders don't handle values the same way as every other input components, so we're
   // going to make it look like they do, so we can just drop it in
-  function myOnChange(event, value) {
-    const upperLevelObject = { target: { value: value } };
-    onChange(upperLevelObject);
+  function myOnChange(event, newValue) {
+    // sliders propegate a storm of events, this only sends one when we change
+    if (newValue !== value ) {
+      const upperLevelObject = { target: { value: newValue } };
+      onChange(upperLevelObject);
+    }
   }
 
   return (

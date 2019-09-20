@@ -135,7 +135,7 @@ const messages = defineMessages({
   marketAddDescriptionDefault: 'Add a description...',
   marketAddCancelLabel: 'Cancel',
   marketAddSaveLabel: 'Save',
-  marketAddExpirationLabel: 'Days dialog lasts',
+  marketAddExpirationLabel: 'Dialog ends after {x} day(s)',
 
   // Market Nav
   marketNavTabContextLabel: 'Context',

@@ -59,6 +59,10 @@ function useAsyncMarketsContext() {
       });
   }
 
+  function addMarketLocally(market) {
+    return updateMarketLocally(market);
+  }
+
   return {
     getCurrentMarket,
     getMarketDetails,
@@ -66,6 +70,7 @@ function useAsyncMarketsContext() {
     refreshMarkets,
     switchMarket,
     updateMarketLocally,
+    addMarketLocally,
     ...stateCache,
   };
 

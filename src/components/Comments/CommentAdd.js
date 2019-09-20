@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
-import { Card, Button } from '@material-ui/core';
+import { Card, Button, CardContent, CardActions } from '@material-ui/core';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import { saveComment } from '../../api/comments';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
@@ -8,11 +8,12 @@ import PropTypes from 'prop-types';
 
 function CommentAdd(props) {
 
-  const { intl, marketId, onSave, issue } = props;
+  const { intl, marketId, onSave, onCancel, issue, investible } = props;
   const { addCommentLocally } = useAsyncCommentsContext();
   const [body, setBody] = useState('');
 
-  const placeHolder = intl.formatMessage({ id: 'commentReplyDefault' });
+  const placeHolderLabel = (issue) ? 'commentAddIssueDefault' : 'commentAddDefault';
+  const placeHolder = intl.formatMessage({ id: placeHolderLabel });
 
   function handleChange(event) {
     const { value } = event.target;
@@ -20,23 +21,36 @@ function CommentAdd(props) {
   }
 
   function handleSave() {
-    const usedParent = parent || {};
-    const { investible_id, id: parentId } = usedParent;
-    return saveComment(marketId, investible_id, parentId, body)
-      .then(result => addCommentLocally(result))
+    const investibleId = (investible)? investible.id : null;
+    return saveComment(marketId, investibleId, null, body)
+      .then((result) => addCommentLocally(result))
       .then(onSave());
+  }
+
+  function handleCancel() {
+    setBody('');
+    onCancel();
   }
 
   return (
     <Card>
-      <HtmlRichTextEditor placeHolder={placeHolder} value={body} onChange={handleChange} />
-      <Button onClick={handleSave}>
-        {intl.formatMessage({ id: 'commentReplySaveLabel' })}
-      </Button>
+      <CardActions>
+        <Button onClick={handleSave}>
+          {intl.formatMessage({ id: 'commentAddSaveLabel' })}
+        </Button>
+        <Button onClick={handleCancel}>
+          {intl.formatMessage({ id: 'commentAddCancelLabel' })}
+        </Button>
+      </CardActions>
+      <CardContent>
+        <HtmlRichTextEditor placeHolder={placeHolder} value={body} onChange={handleChange}/>
+      </CardContent>
+
     </Card>
   );
 }
-CommentReply.propTypes = {
+
+CommentAdd.propTypes = {
   issue: PropTypes.bool,
   marketId: PropTypes.string.isRequired,
   onSave: PropTypes.func.isRequired,

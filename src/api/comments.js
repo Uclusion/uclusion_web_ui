@@ -20,7 +20,7 @@ export function fetchCommentList(marketId) {
   return clientPromise.then(client => client.investibles.listCommentsByMarket());
 }
 
-export function saveComment(marketId, investibleId, replyId, body) {
+export function saveComment(marketId, investibleId, replyId, body, isIssue) {
   return getMarketClient(marketId)
-    .then(client => client.investibles.createComment(investibleId, body, replyId));
+    .then(client => client.investibles.createComment(investibleId, body, replyId, false, isIssue));
 }

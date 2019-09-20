@@ -16,7 +16,7 @@ function InvestibleView(props) {
         <InvestibleEditButton onClick={editToggle} />
         <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={description} readOnly/>
       </CardContent>
-      <CommentBox marketId={marketId} comments={comments} depth={0} commentsHash={commentsHash}/>
+      <CommentBox investible={investible} marketId={marketId} comments={comments} depth={0} commentsHash={commentsHash}/>
     </Card>
   );
 }

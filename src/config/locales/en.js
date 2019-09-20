@@ -191,7 +191,7 @@ const messages = defineMessages({
   commentReplyDefault: 'Your reply...',
   commentReplyLabel: 'Reply',
   commentReplySaveLabel: 'Save',
-  commentReplyCancelLable: 'Cancel',
+  commentReplyCancelLabel: 'Cancel',
 
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',

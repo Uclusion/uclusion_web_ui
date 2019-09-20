@@ -7,7 +7,7 @@ import CommentAdd from '../../components/Comments/CommentAdd';
 
 function CommentBox(props) {
 
-  const { comments, commentsHash, marketId, issueBox, intl } = props;
+  const { comments, commentsHash, marketId, issueBox, intl, investible } = props;
   const [addOpen, setAddOpen] = useState(false);
   const threadRoots = comments.filter(comment => !comment.reply_id);
   const addLabel = issueBox ? 'commentBoxAddIssue' : 'commentBoxAddComment';
@@ -36,7 +36,7 @@ function CommentBox(props) {
         </Button>
       </CardActions>
       <CardContent>
-        {addOpen && <CommentAdd marketId={marketId} onSave={toggleAdd} onCancel={toggleAdd} issue={issueBox}/>}
+        {addOpen && <CommentAdd investible={investible} marketId={marketId} onSave={toggleAdd} onCancel={toggleAdd} issue={issueBox}/>}
         {getCommentCards()}
       </CardContent>
     </Card>

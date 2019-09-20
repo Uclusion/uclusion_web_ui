@@ -4,7 +4,7 @@ import { fetchCommentList, fetchComments } from '../api/comments';
 import _ from 'lodash';
 import { convertDates, getOutdatedObjectIds, removeDeletedObjects } from './ContextUtils';
 
-function useInvestiblesContext() {
+function useAsyncCommentsContext() {
   const { stateCache, setStateValues, getState } = useContext(AsyncCommentsContext);
 
   /*
@@ -21,8 +21,6 @@ function useInvestiblesContext() {
   function refreshMarketComments(marketId) {
     return getState()
       .then((state) => {
-        console.debug('Old State');
-        console.debug(state);
         const { commentsList, comments } = state;
         const oldMarketCommentsList = commentsList[marketId];
         const oldMarketComments = comments[marketId];
@@ -32,23 +30,19 @@ function useInvestiblesContext() {
             const needsUpdating = getOutdatedObjectIds(fetchedCommentsList, oldMarketCommentsList);
             const deletedRemoved = removeDeletedObjects(fetchedCommentsList, oldMarketComments);
             // the api supports max of 100 at a time
-            console.debug('Update list');
-            console.debug(needsUpdating);
             const fetchChunks = _.chunk(needsUpdating, 100);
-            console.debug('Chunks formed');
-            console.debug(fetchChunks);
             const promises = fetchChunks.reduce((acc, chunk) => {
               const chunkPromise = fetchComments(chunk, marketId);
               return acc.concat(chunkPromise);
             }, []);
-            const listDateConverted = fetchedCommentsList.map(comment => convertDates(comment));
+            const listDateConverted = fetchedCommentsList.map((comment) => convertDates(comment));
             const newCommentsList = { ...commentsList, [marketId]: listDateConverted };
             return setStateValues({ commentsList: newCommentsList })
               .then(() => {
                 return Promise.all(promises)
                   .then((commentChunks) => {
-                    const comments = _.flatten(commentChunks);
-                    const dateConverted = comments.map(comment => convertDates(comment));
+                    const flattenedComments = _.flatten(commentChunks);
+                    const dateConverted = flattenedComments.map(comment => convertDates(comment));
                     const newMarketComments = _.unionBy(dateConverted, deletedRemoved, 'id');
                     const newComments = { ...comments, [marketId]: newMarketComments };
                     return setStateValues({ comments: newComments });
@@ -87,7 +81,7 @@ function useInvestiblesContext() {
     const oldCommentsListEntry = oldMarketCommentsList.find(comment => comment.id === id);
     if (!oldCommentsListEntry) {
       console.debug('adding new comment to comment list');
-      const newEntry = { id, updated_at: newUpdated };
+      const newEntry = { ...commentUpdate, updated_at: newUpdated };
       newMarketCommentsList = [...oldMarketCommentsList, newEntry];
     }
     // and save everything
@@ -115,7 +109,7 @@ function useInvestiblesContext() {
 
   function addCommentLocally(comment) {
     const converted = convertDates(comment);
-    return getState().then(state => findAndUpdateComment(state, converted));
+    return getState().then((state) => findAndUpdateComment(state, converted));
   }
 
   function createCommentsHash(marketComments) {
@@ -131,4 +125,4 @@ function useInvestiblesContext() {
   };
 }
 
-export default useInvestiblesContext;
+export default useAsyncCommentsContext;

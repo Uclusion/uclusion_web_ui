@@ -21,8 +21,8 @@ function CommentAdd(props) {
   }
 
   function handleSave() {
-    const investibleId = (investible)? investible.id : null;
-    return saveComment(marketId, investibleId, null, body)
+    const investibleId = (investible) ? investible.id : null;
+    return saveComment(marketId, investibleId, null, body, issue)
       .then((result) => addCommentLocally(result))
       .then(onSave());
   }
@@ -55,6 +55,7 @@ CommentAdd.propTypes = {
   marketId: PropTypes.string.isRequired,
   onSave: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
+  investible: PropTypes.object,
 };
 
 export default injectIntl(CommentAdd);

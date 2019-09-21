@@ -3,7 +3,7 @@ import { AsyncInvestiblesContext } from './AsyncInvestiblesContext';
 import { fetchInvestibles, fetchInvestibleList } from '../api/marketInvestibles';
 import _ from 'lodash';
 
-function useInvestiblesContext() {
+function useAsyncInvestiblesContext() {
   const { stateCache, getState, setStateValues, loadingWrapper } = useContext(AsyncInvestiblesContext);
 
   function updateInvestibles(state, updateHash) {
@@ -62,4 +62,4 @@ function useInvestiblesContext() {
   };
 }
 
-export default useInvestiblesContext;
+export default useAsyncInvestiblesContext;

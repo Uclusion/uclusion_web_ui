@@ -2,13 +2,14 @@ import React from 'react';
 import { Slider } from '@material-ui/core';
 import PropTypes from 'prop-types';
 
-
 function VotingCertainty(props) {
 
   const { value, onChange } = props;
 
-  function myOnChange(event, value) {
-    onChange(value);
+  function myOnChange(event, newValue) {
+    if (newValue !== value) {
+      onChange(newValue);
+    }
   }
 
   return (

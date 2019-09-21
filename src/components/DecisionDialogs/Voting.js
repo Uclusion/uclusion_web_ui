@@ -12,28 +12,31 @@ function Voting(props) {
 
   const [investment, setInvestment] = useState(current_user_investment);
   const { updateInvestibleLocally } = useAsyncInvestiblesContext();
-
-  let timer = null;
+  const [timer, setTimer] = useState(null);
   const invested = investment > 0;
   const investmentChanged = invested !== current_user_investment;
 
-  function save() {
-    return updateInvestment(marketId, id, investment, current_user_investment)
-      .then((result) => {
-        return updateInvestibleLocally({ ...investible, current_user_investment: investment });
-      });
+  function save(value) {
+    return () => {
+      console.log(`Saving investment of ${value}`);
+      return updateInvestment(marketId, id, value, current_user_investment)
+        .then((result) => {
+          console.log(result);
+          return updateInvestibleLocally({ ...investible, current_user_investment: investment });
+        });
+    };
   }
 
   function handleChange(value) {
+    setInvestment(value);
     clearTimeout(timer);
-    if (investmentChanged) {
-      setInvestment(value);
-      timer = setTimeout(save(), SAVE_DELAY);
-    }
+    // we need to bind the value in the save so that we use the right one after the refresh
+    const saveFunc = save(value);
+    setTimer(setTimeout(saveFunc, SAVE_DELAY));
   }
 
   function onInvestClick() {
-    if (!invested) {
+    if (current_user_investment === 0) {
       return handleChange(10);
     }
     return handleChange(0); // uninvest us
@@ -42,7 +45,7 @@ function Voting(props) {
   return (
     <div>
       <VoteMark onClick={onInvestClick} invested={invested} disabled={!investmentEnabled} />
-      {invested && <VotingCertainty value={invested} onChange={handleChange} />}
+      {invested && <VotingCertainty value={investment} onChange={handleChange} />}
     </div>
   );
 }

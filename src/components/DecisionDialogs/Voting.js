@@ -37,7 +37,7 @@ function Voting(props) {
 
   function onInvestClick() {
     if (current_user_investment === 0) {
-      return handleChange(10);
+      return handleChange(50); // middle certainty
     }
     return handleChange(0); // uninvest us
   }

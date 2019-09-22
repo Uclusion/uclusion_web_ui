@@ -127,7 +127,8 @@ const messages = defineMessages({
   expirationSelectorOneDay: '1 day',
   expirationSelectorXDays: '{x} days',
 
-
+ // Market View
+  marketViewAddIssueLabel: 'Add an Issue',
 
   // Market Add
   marketAddTitleDefault: 'Add a name...',

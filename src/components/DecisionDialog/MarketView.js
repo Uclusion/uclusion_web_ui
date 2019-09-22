@@ -1,33 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Card, CardContent } from '@material-ui/core';
+import { Button, Card, CardActions, CardContent } from '@material-ui/core';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import CommentBox from '../../containers/CommentBox/CommentBox';
 import MarketEditButton from './MarketEditButton';
+import { useIntl } from 'react-intl';
+import CommentAdd from '../Comments/CommentAdd';
 
 function MarketView(props) {
-
+  const intl = useIntl();
   const { market, comments, commentsHash, editToggle } = props;
   const { description, id } = market;
-  const issues = comments.filter((comment) => comment.isOpenIssue);
+  const [addIssue, setAddIssue] = useState(false);
+
+  function toggleAddIssue() {
+    setAddIssue(!addIssue);
+  }
 
   return (
     <div>
       <Card>
         <CardContent>
-          <MarketEditButton onClick={editToggle}/>
-          <HtmlRichTextEditor value={description} readOnly={true}/>
+          <MarketEditButton onClick={editToggle} />
+          <HtmlRichTextEditor value={description} readOnly />
         </CardContent>
+        <CardActions>
+          <Button onClick={toggleAddIssue}>
+            {intl.formatMessage({ id: 'marketViewAddIssueLabel' })}
+          </Button>
+        </CardActions>
       </Card>
-      <CommentBox marketId={id}
-                  comments={issues}
-                  commentsHash={commentsHash}
-                  issueBox={true}
-                  depth={0}/>
+      {addIssue && <CommentAdd investible={null} marketId={id} onSave={toggleAddIssue} issue onCancel={toggleAddIssue} />}
       <CommentBox marketId={id}
                   comments={comments}
                   commentsHash={commentsHash}
-                  depth={0}/>
+                  depth={0} />
     </div>
   );
 }

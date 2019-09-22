@@ -8,9 +8,9 @@ import Voting from '../DecisionDialogs/Voting';
 
 function InvestibleView(props) {
 
-  const { investible, comments, commentsHash, editToggle } = props;
+  const { investible, comments, commentsHash, editToggle, marketId } = props;
 
-  const { description, market_id: marketId } = investible; // this will be broken for multi market investibles;
+  const { description } = investible.investible; // this will be broken for multi market investibles;
   return (
     <Card>
       <CardContent>

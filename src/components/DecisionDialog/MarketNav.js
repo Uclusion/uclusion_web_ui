@@ -45,7 +45,7 @@ function MarketNav(props) {
     setPreviousTab(undefined);
   }
 
-  const invTabs = getTabsForInvestibles(investibles, marketComments, commentsHash, edit, editToggle, selectedTab);
+  const invTabs = getTabsForInvestibles(marketId, investibles, marketComments, commentsHash, edit, editToggle, selectedTab);
 
   return (
     <div>

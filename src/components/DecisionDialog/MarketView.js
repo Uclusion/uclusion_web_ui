@@ -12,7 +12,7 @@ function MarketView(props) {
   const { market, comments, commentsHash, editToggle } = props;
   const { description, id } = market;
   const [addIssue, setAddIssue] = useState(false);
-
+  console.debug(market);
   function toggleAddIssue() {
     setAddIssue(!addIssue);
   }

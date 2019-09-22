@@ -19,9 +19,9 @@ const styles = theme => ({
 
 function InvestibleEdit(props) {
   const { updateInvestibleLocally } = useAsyncInvestiblesContext();
-  const { investible, intl, classes, editToggle, onSave } = props;
-  const [currentValues, setCurrentValues] = useState(investible);
-  const { name, description, id, market_id } = currentValues;
+  const { investible, intl, classes, editToggle, onSave, marketId } = props;
+  const [currentValues, setCurrentValues] = useState(investible.investible);
+  const { name, description, id } = currentValues;
 
   function handleChange(field) {
     return (event) => {
@@ -32,8 +32,8 @@ function InvestibleEdit(props) {
   }
 
   function handleSave() {
-    return updateInvestible(market_id, id, name, description)
-      .then(investible => updateInvestibleLocally(investible))
+    return updateInvestible(marketId, id, name, description)
+      .then((investible) => updateInvestibleLocally(investible))
       .then(() => onSave());
   }
 

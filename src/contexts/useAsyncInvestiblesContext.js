@@ -36,7 +36,7 @@ function useAsyncInvestiblesContext() {
   }
 
   function updateInvestibleLocally(investible) {
-    const { id } = investible;
+    const { id } = investible.investible;
     return getState()
       .then((state) => updateInvestibles(state, { [id]: investible }));
   }

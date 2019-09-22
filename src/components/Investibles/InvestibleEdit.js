@@ -33,7 +33,7 @@ function InvestibleEdit(props) {
 
   function handleSave() {
     return updateInvestible(marketId, id, name, description)
-      .then((investible) => updateInvestibleLocally(investible))
+      .then((data) => updateInvestibleLocally({...investible, investible:data}))
       .then(() => onSave());
   }
 

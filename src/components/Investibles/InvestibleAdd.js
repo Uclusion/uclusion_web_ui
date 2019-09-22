@@ -43,9 +43,18 @@ function InvestibleAdd(props) {
 
   function handleSave() {
     return addInvestible(marketId, name, description)
-      .then((investible) => {
-        const { id } = investible;
-        return addInvestibleLocally(investible)
+      .then((id) => {
+        const syntheticInvestible = {
+          investible: {
+            id,
+            name,
+            description,
+            updated_at: Date(0),
+            created_at: Date(0),
+          },
+          market_infos: [{ market_id: marketId }]
+        };
+        return addInvestibleLocally(syntheticInvestible)
           .then(() => zeroCurrentValues())
           .then(() => onSave(id));
       });
@@ -68,12 +77,12 @@ function InvestibleAdd(props) {
         />
         <HtmlRichTextEditor
           onChange={handleChange('description')}
-          placeHolder={intl.formatMessage({id: 'investibleAddDescriptionDefault' })}
+          placeHolder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
           value={description} />
       </CardContent>
       <CardActions>
         <Button onClick={handleCancel}>
-          {intl.formatMessage({ id: 'investibleAddCancelLabel'})}
+          {intl.formatMessage({ id: 'investibleAddCancelLabel' })}
         </Button>
         <Button
           variant="contained"

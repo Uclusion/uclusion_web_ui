@@ -3,7 +3,7 @@ import _ from 'lodash';
 import localforage from "localforage";
 
 /**
- * Cached async contexts allow a bridge from the indexDB or promise based storage
+ * Cached async contexts allow a bridge from the indexDB
  * to the props/mutated context variables that react is expecting.
  * Essentially the context makes sure that when the underlying storage index is updated
  * that a variable that is understood by react is also updated.

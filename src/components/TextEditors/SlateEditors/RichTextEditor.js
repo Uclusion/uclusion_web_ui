@@ -264,10 +264,6 @@ class RichTextEditor extends React.Component {
     uploader.value = '';
   };
 
-  renderingPlugins = [{
-    renderNode: this.renderNode,
-    renderMark: this.renderMark,
-  }];
 
   /**
    * Render.
@@ -304,7 +300,8 @@ class RichTextEditor extends React.Component {
             onDrop={this.onDropOrPaste}
             onPaste={this.onDropOrPaste}
             readOnly={readOnly}
-            plugins={this.renderingPlugins}
+            renderBlock={this.renderBlock}
+            renderMark={this.renderMark}
           />
         </Typography>
         <Dialog
@@ -423,7 +420,7 @@ class RichTextEditor extends React.Component {
    * @return {Element}
    */
 
-  renderNode = (props, editor, next) => {
+  renderBlock = (props, editor, next) => {
     const { attributes, children, node, isFocused } = props;
     switch (node.type) {
       case 'paragraph':

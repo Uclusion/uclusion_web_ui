@@ -1,6 +1,6 @@
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
 import jwt_decode from 'jwt-decode';
-import { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET } from './TokenManager';
+import { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET, TOKEN_TYPE_FILE } from './TokenManager';
 
 const TOKEN_STORAGE_KEY = 'TOKEN_STORAGE_MANAGER';
 
@@ -11,6 +11,7 @@ class TokenStorageManager {
     return {
       [TOKEN_TYPE_MARKET]: {},
       [TOKEN_TYPE_ACCOUNT]: {},
+      [TOKEN_TYPE_FILE]: {},
     };
   }
 

@@ -5,10 +5,12 @@ ask the identity source for new identities when needed
  */
 
 import TokenStorageManager from './TokenStorageManager';
+import uclusion from 'uclusion_sdk';
 
 const TOKEN_TYPE_MARKET = 'MARKET';
 const TOKEN_TYPE_ACCOUNT = 'ACCOUNT';
-export { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET };
+const TOKEN_TYPE_FILE = 'FILE';
+export { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET, TOKEN_TYPE_FILE };
 
 class TokenManager {
 
@@ -25,7 +27,7 @@ class TokenManager {
     if (token) {
       return Promise.resolve(token);
     }
-    // we don't have token, time to request a new one.
+    // For identity based tokens time to request a new one.
     return this.identitySource.getIdentity()
       .then((identity) => {
         switch(this.tokenType){

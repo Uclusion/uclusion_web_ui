@@ -33,6 +33,7 @@ import {
  } from '@material-ui/core';
 import { isKeyHotkey } from 'is-hotkey';
 import { Button, Icon, Toolbar, Image } from './components';
+import LoadableImage from './LoadableImage';
 import { uploadFileToS3 } from '../../../api/files';
 import { withMarketId } from '../../PathProps/MarketId';
 
@@ -80,14 +81,14 @@ const isCodeHotkey = isKeyHotkey('mod+`');
  * @param {Range} target
  */
 
-function insertImage(editor, src, target) {
+function insertImage(editor, metadata, target) {
   if (target) {
     editor.select(target);
   }
-
+  //console.log(metadata);
   editor.insertBlock({
     type: 'image',
-    data: { src },
+    data: { metadata },
   });
 }
 
@@ -438,8 +439,8 @@ class RichTextEditor extends React.Component {
       case 'numbered-list':
         return <ol {...attributes}>{children}</ol>;
       case 'image': {
-        const src = node.data.get('src');
-        return <Image src={src} selected={isFocused} {...attributes} />;
+        const metadata = node.data.get('metadata');
+        return <LoadableImage metadata={metadata} />
       }
       case 'link': {
         const { data } = node;
@@ -622,8 +623,8 @@ class RichTextEditor extends React.Component {
       // console.log(mime);
       if (mime !== 'image') continue;
       uploadFileToS3(marketId, file)
-        .then((url) => {
-          this.editor.command(insertImage, url, target);
+        .then((metadata) => {
+          return this.editor.command(insertImage, metadata, target);
         });
     }
   };

@@ -37,6 +37,7 @@ function MarketEdit(props) {
       .then(() => updateMarketLocally(currentValues))
       .then(() => onSave());
   }
+  console.log(currentValues);
 
   return (
     <Card>

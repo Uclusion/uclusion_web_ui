@@ -3,6 +3,7 @@ import { Route } from 'react-router';
 import makeLoadable from '../containers/MyLoadable/MyLoadable';
 import Market from '../pages/DecisionDialog/Market';
 import Markets from '../pages/DecisionDialogs/Markets';
+import Notifications from '../pages/ActionCenter/Notifications';
 
 // Note: I'm importing the raw stuff up above to aid debugging, before prod we should use the async load
 // in order to speed up bundle loading
@@ -13,6 +14,7 @@ const AsyncAbout = MyLoadable({ loader: () => import('../pages/About/About') });
 
 const routes = [
   <Route type="public" path="/dialogs" exact component={Markets} />,
+  <Route type="public" path="/notifications" exact component={Notifications} />,
   <Route type="public" path="/:marketId" exact component={Market} />,
   <Route type="public" path="/:marketId/about" exact component={AsyncAbout} />,
 ];

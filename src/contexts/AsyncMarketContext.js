@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
-import { createCachedAsyncContext } from './CachedAsyncContextCreator';
 import { Hub } from 'aws-amplify';
+import { createCachedAsyncContext } from './CachedAsyncContextCreator';
 import { getMarketList } from '../api/sso';
 import { getMarketDetails } from '../api/markets';
 import { getOutdatedObjectIds, removeDeletedObjects, convertDates } from './ContextUtils';
+import { AUTH_HUB_CHANNEL, MESSAGES_EVENT, PUSH_IDENTITY_CHANNEL } from './WebSocketContext';
 
 const STATE_NAMESPACE = 'async_markets';
-const AUTH_HUB_CHANNEL = 'auth';
 
 const emptyState = {
   marketDetails: [],
@@ -83,10 +83,22 @@ function AsyncMarketsProvider(props) {
         console.debug(`Ignoring auth event ${event}`);
     }
   });
+  Hub.listen(PUSH_IDENTITY_CHANNEL, (data) => {
+    const { payload: { event } } = data;
+    console.debug(`Markets context responding to identity event ${event}`);
+
+    switch (event) {
+      case MESSAGES_EVENT:
+        refreshMarkets();
+        break;
+      default:
+        console.debug(`Ignoring identity event ${event}`);
+    }
+  });
   // we've updated the context's internal state cache variable via addState above,
   // howwever the variable in providerState is the default which isn't any good
   // hence we need to use myState as the stateCache that we give the provider
-  const providerState = { ...contextPackage, refreshMarkets, stateCache: myState };
+  const providerState = { ...contextPackage, stateCache: myState };
   return (
     <AsyncMarketsContext.Provider value={providerState}>
       {props.children}

@@ -4,17 +4,13 @@ import config from '../config';
 import { updateTokensFromMarketList } from '../authorization/tokenStorageUtils';
 
 export function getMarketLoginInfo(config, marketId) {
-  return uclusion.constructSSOClient(config).then(client => client.marketLoginInfo(marketId));
+  return uclusion.constructSSOClient(config).then((client) => client.marketLoginInfo(marketId));
 }
 
 function getSSOInfo() {
   return new AmpifyIdentitySource().getIdentity()
-    .then((idToken) => {
-      return uclusion.constructSSOClient(config.api_configuration)
-        .then((ssoClient) => {
-          return { ssoClient, idToken };
-        });
-    });
+    .then((idToken) => uclusion.constructSSOClient(config.api_configuration)
+      .then((ssoClient) => ({ ssoClient, idToken })));
 }
 
 export function getMarketList() {
@@ -29,6 +25,19 @@ export function getMarketList() {
           console.debug(markets);
           updateTokensFromMarketList(markets);
           return markets;
+        });
+    });
+}
+
+export function getMessages() {
+  return getSSOInfo()
+    .then((ssoInfo) => {
+      const { ssoClient, idToken } = ssoInfo;
+      return ssoClient.getMessages(idToken)
+        .then((messages) => {
+          console.debug('Got messages');
+          console.debug(messages);
+          return messages;
         });
     });
 }

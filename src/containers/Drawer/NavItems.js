@@ -2,6 +2,7 @@ import React from 'react';
 import { ListItem, ListItemIcon, ListItemText, List, Badge } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import ForumIcon from '@material-ui/icons/Forum';
+import AnnouncementIcon from '@material-ui/icons/Announcement';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import LockIcon from '@material-ui/icons/Lock';
 import { injectIntl } from 'react-intl';
@@ -23,6 +24,12 @@ function NavItems(props) {
       icon: <ForumIcon />,
       name: 'dialogs',
       link: '/dialogs',
+    },
+    {
+      text: intl.formatMessage({ id: 'sidebarNavNotifications' }),
+      icon: <AnnouncementIcon />,
+      name: 'notifications',
+      link: '/notifications',
       badge: Badge,
       badgeProps: {variant: 'dot', color: 'secondary' },
     },

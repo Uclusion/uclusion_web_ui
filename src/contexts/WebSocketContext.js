@@ -3,20 +3,35 @@
  * properly update it
  */
 import React, { useState } from 'react';
-import useAsyncMarketsContext from './useAsyncMarketsContext';
 import { Hub } from 'aws-amplify';
+import PropTypes from 'prop-types';
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner';
 import AmplifyIdentitySource from '../authorization/AmplifyIdentitySource';
-import { notifyNewApplicationVersion } from '../utils/postAuthFunctions';
+import config from '../config';
+import { sendInfoPersistent } from '../utils/userMessage';
 
+export const AUTH_HUB_CHANNEL = 'auth';
+export const PUSH_HUB_CHANNEL = 'MessagesChannel';
+export const PUSH_IDENTITY_CHANNEL = 'MarketsChannel';
+export const MESSAGES_EVENT = 'webPush';
 const WebSocketContext = React.createContext([{}, () => {}]);
-const AUTH_HUB_CHANNEL = 'auth';
+function notifyNewApplicationVersion(currentVersion) {
+  const { version } = config;
+  // if we don't have any version stored, we're either in dev, or we've dumped our data
+  if (currentVersion !== version) {
+    console.debug(`Current version: ${version}`);
+    console.debug(`Upgrading to version: ${currentVersion}`);
+    // deprecated, but the simplest way to ignore cache
+    const reloader = () => {
+      window.location.reload(true);
+    };
+    sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
+  }
+}
 
 function WebSocketProvider(props) {
-
   const { children, config } = props;
   const [state, setState] = useState();
-  const { refreshMarkets } = useAsyncMarketsContext();
 
   function createWebSocket() {
     const { webSockets } = config;
@@ -25,19 +40,37 @@ function WebSocketProvider(props) {
     newSocket.connect();
     // we always want to be notified when changes happen to our identity
     new AmplifyIdentitySource().getIdentity().then((identity) => {
-      newSocket.registerHandler('IDENTITY_UPDATED', () => {
-        return refreshMarkets();
+      newSocket.registerHandler('IDENTITY_UPDATED', (message) => {
+        Hub.dispatch(
+          PUSH_IDENTITY_CHANNEL,
+          {
+            event: MESSAGES_EVENT,
+            message,
+          },
+        );
       });
       newSocket.subscribe(identity);
     });
     // we also want to always be subscribed to new app versions
     newSocket.registerHandler('UI_UPDATE_REQUIRED', (message) => {
       const { payload } = message;
+      // eslint-disable-next-line camelcase
       const { deployed_version } = payload;
       notifyNewApplicationVersion(deployed_version);
     });
-    //we need to subscribe to our identity, but that requires reworking subscribe
-    //newSocket.subscribe
+
+    newSocket.registerHandler('USER_MESSAGES_UPDATED', (message) => {
+      Hub.dispatch(
+        PUSH_HUB_CHANNEL,
+        {
+          event: MESSAGES_EVENT,
+          message,
+        },
+      );
+    });
+
+    // we need to subscribe to our identity, but that requires reworking subscribe
+    // newSocket.subscribe
     return newSocket;
   }
 
@@ -66,5 +99,12 @@ function WebSocketProvider(props) {
     </WebSocketContext.Provider>
   );
 }
+
+WebSocketProvider.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types,react/require-default-props
+  children: PropTypes.object,
+  // eslint-disable-next-line react/forbid-prop-types
+  config: PropTypes.object.isRequired,
+};
 
 export { WebSocketContext, WebSocketProvider };

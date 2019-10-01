@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { AsyncMarketsContext } from './AsyncMarketContext';
 
 function useAsyncMarketsContext() {
-  const { refreshMarkets, getState, setStateValues, stateCache } = useContext(AsyncMarketsContext);
+  const { getState, setStateValues, stateCache } = useContext(AsyncMarketsContext);
 
   function switchMarket(marketId) {
     return getState()
@@ -67,7 +67,6 @@ function useAsyncMarketsContext() {
     getCurrentMarket,
     getMarketDetails,
     getMarkets,
-    refreshMarkets,
     switchMarket,
     updateMarketLocally,
     addMarketLocally,

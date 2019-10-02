@@ -12,6 +12,8 @@ import Notifications from '../../pages/ActionCenter/Notifications';
 import Market from '../../pages/DecisionDialog/Market';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
+import useLocationContext from '../../contexts/useLocationContext';
+import { getMarketId } from '../../utils/marketIdPathFunctions';
 
 const styles = {
   body: {
@@ -31,33 +33,24 @@ function Root(props) {
   const history = useHistory();
   const { classes, appConfig } = props;
 
+  const { location } = history;
+  const { pathname } = location;
+  const marketId = getMarketId(pathname);
+  console.log(marketId);
   const theme = defaultTheme;
+
   return (
     <MuiThemeProvider theme={theme}>
-      <Router history={history}>
         <div className={classes.body}>
           <div className={classes.root}>
             <Drawer appConfig={appConfig} />
             <div style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
-              <Switch>
-                <Route type="public" path="/dialogs" exact render={Markets} />
-                <Route type="public" path="/notifications" exact>
-                  <Notifications />
-                </Route>
-                <Route type="public" path="/:marketId" exact>
-                  <Market />
-                </Route>
-                <Route type="public" path="/:marketId/about" exact>
-                  <About />
-                </Route>
-                <Route>
-                  <PageNotFound />
-                </Route>
-              </Switch>
+              <Notifications hidden={pathname !== '/notifications'} />
+              <Markets hidden={location && (pathname !== '/dialogs')} />
+              <Market hidden={marketId === null} />
             </div>
           </div>
         </div>
-      </Router>
     </MuiThemeProvider>
   );
 }

@@ -8,7 +8,7 @@ import Activity from '../../containers/Activity';
 import MarketAdd from '../../components/DecisionDialogs/MarketAdd';
 
 function Markets(props) {
-  const { intl } = props;
+  const { intl, hidden } = props;
   const { marketDetails, loading } = useAsyncMarketContext();
   const [addMode, setAddMode] = useState(false);
 
@@ -25,6 +25,7 @@ function Markets(props) {
       title={intl.formatMessage({ id: 'sidebarNavDialogs' })}
       isLoading={loading}
       titleButtons={<IconButton onClick={toggleAdd}><AddIcon /></IconButton>}
+      hidden={hidden}
     >
       <div>
       {!addMode && <MarketsList markets={marketDetails} /> }

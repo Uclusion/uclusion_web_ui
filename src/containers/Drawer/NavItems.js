@@ -8,7 +8,7 @@ import LockIcon from '@material-ui/icons/Lock';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router';
-
+import useLocationContext from '../../contexts/useLocationContext';
 const styles = theme => ({
   listItemIcon: {
     marginRight: 0,
@@ -19,7 +19,7 @@ const styles = theme => ({
 function NavItems(props) {
   const history = useHistory();
   const { intl, classes } = props;
-
+  const { setLocation } = useLocationContext();
   const items = [
     {
       text: intl.formatMessage({ id: 'sidebarNavDialogs' }),
@@ -56,6 +56,7 @@ function NavItems(props) {
         onClick();
       }
       if (link) {
+        setLocation(link);
         history.push(link);
       }
     };

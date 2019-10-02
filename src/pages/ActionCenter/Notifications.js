@@ -6,15 +6,18 @@ import useNotificationsContext from '../../contexts/useNotificationsContext';
 import NotificationsList from './NotificationsList';
 
 function Notifications(props) {
-  const { intl } = props;
+  const { intl, hidden } = props;
   const { messages, isLoading } = useNotificationsContext();
+
 
   return (
     <Activity
       title={intl.formatMessage({ id: 'sidebarNavActionItems' })}
       isLoading={isLoading}
+      hidden={hidden}
     >
       <div>
+        asdsad
         <NotificationsList messages={messages} />
       </div>
     </Activity>

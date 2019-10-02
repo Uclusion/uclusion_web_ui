@@ -52,7 +52,7 @@ function Market(props) {
   const { refreshInvestibles, loading: investiblesLoading } = useAsyncInvestiblesContext();
   const { refreshMarketComments, loading: commentsLoading } = useAsyncCommentsContext();
   const [firstLoad, setFirstLoad] = useState(true);
-  const { intl, marketId } = props;
+  const { intl, marketId, hidden } = props;
 
   useEffect(() => {
     switchMarket(marketId);
@@ -81,6 +81,7 @@ function Market(props) {
     <Activity title={currentMarketName}
               isLoading={investiblesLoading || commentsLoading}
               appBarContent={<ExpirationCountDown {...renderableMarket} />}
+              hidden={hidden}
     >
       <div>
         <MarketNav market={renderableMarket} initialTab="context" marketId={marketId}/>

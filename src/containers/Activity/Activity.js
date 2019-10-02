@@ -21,6 +21,9 @@ import useDrawerContext from '../../contexts/useDrawerContext';
 const drawerWidth = 240;
 
 const styles = theme => ({
+  hidden: {
+    display: 'none',
+  },
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -138,6 +141,7 @@ function Activity(props) {
     titleButtons,
     user,
     containerStyle,
+    hidden,
   } = props;
   const { canInvest } = getFlags(user);
   let headerTitle = '';
@@ -161,7 +165,7 @@ function Activity(props) {
     : classes.content;
 
   return (
-    <div className={classes.root}>
+    <div className={hidden? classes.hidden : classes.root}>
       <Helmet>
         <meta name="theme-color" content={theme.palette.primary.main} />
         <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />

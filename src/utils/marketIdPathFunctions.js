@@ -2,16 +2,21 @@
  * Gets the market id from the URL if it's present in it.
  * @returns {string}
  */
-export function getMarketId() {
-  const path = window.location.pathname;
-  // console.log('Current location ' + path)
-  const noSlash = path.substr(1);
-  const end = noSlash.indexOf('/');
-  if (end === -1) {
-    return noSlash;
+export function getMarketId(path) {
+  if (!path) {
+    return null;
   }
-  const marketId = noSlash.substr(0, end);
-  return marketId;
+  // console.log('Current location ' + path);
+  const search = '/dialog/';
+  if (!path.startsWith(search)) {
+    return null;
+  }
+  const pathPart = path.substr(search.length);
+  const investibleSlashLocation = pathPart.indexOf('/');
+  if (investibleSlashLocation === -1){
+    return pathPart;
+  }
+  return pathPart.substr(0, investibleSlashLocation);
 }
 
 /**
@@ -22,22 +27,9 @@ export function getMarketId() {
  */
 function formMarketIdLink(marketId, subPath) {
   if (!subPath) {
-    return `/${marketId}`;
+    return `/dialog/${marketId}`;
   }
-  return `/${marketId}/${subPath}`;
-}
-
-/**
- * Forms a relative link and embeds the active market and auth market if needed
- * @param subPath relative destination
- */
-export function formCurrentMarketLink(subPath) {
-  const market = getMarketId();
-  if (!market) {
-    return '';
-  }
-  const marketLink = formMarketIdLink(market, subPath);
-  return marketLink;
+  return `/dialog/${marketId}/${subPath}`;
 }
 
 /**

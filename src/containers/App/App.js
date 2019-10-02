@@ -9,6 +9,7 @@ import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvid
 import { withAuthenticator } from 'aws-amplify-react';
 import useLocaleContext from '../../contexts/useLocaleContext';
 import { WebSocketProvider } from '../../contexts/WebSocketContext';
+import { LocationProvider } from '../../contexts/LocationContext';
 
 function App(props) {
 
@@ -21,6 +22,7 @@ function App(props) {
 
   return (
     <WebSocketProvider config={config}>
+      <LocationProvider>
       <IntlProvider locale={locale} key={locale} messages={messages}>
         <IntlGlobalProvider>
           <AppConfigProvider appConfig={configs}>
@@ -28,6 +30,7 @@ function App(props) {
           </AppConfigProvider>
         </IntlGlobalProvider>
       </IntlProvider>
+      </LocationProvider>
     </WebSocketProvider>
   );
 }

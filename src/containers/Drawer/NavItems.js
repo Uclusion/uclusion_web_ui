@@ -7,6 +7,7 @@ import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import LockIcon from '@material-ui/icons/Lock';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router';
 
 const styles = theme => ({
   listItemIcon: {
@@ -16,7 +17,8 @@ const styles = theme => ({
 
 
 function NavItems(props) {
-  const { history, intl, classes } = props;
+  const history = useHistory();
+  const { intl, classes } = props;
 
   const items = [
     {
@@ -97,7 +99,6 @@ function NavItems(props) {
 }
 
 NavItems.propTypes = {
-  history: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
 };

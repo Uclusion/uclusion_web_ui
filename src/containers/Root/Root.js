@@ -12,7 +12,7 @@ import Notifications from '../../pages/ActionCenter/Notifications';
 import Market from '../../pages/DecisionDialog/Market';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
-import useLocationContext from '../../contexts/useLocationContext';
+
 import { getMarketId } from '../../utils/marketIdPathFunctions';
 
 const styles = {

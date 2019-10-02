@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import { withStyles } from '@material-ui/core';
-import { Route, Router, Switch } from 'react-router-dom';
+import {
+  Route, Router, Switch, useHistory,
+} from 'react-router-dom';
 import { defaultTheme } from '../../config/themes';
 import Drawer from '../Drawer';
 import Markets from '../../pages/DecisionDialogs/Markets';
@@ -10,9 +12,6 @@ import Notifications from '../../pages/ActionCenter/Notifications';
 import Market from '../../pages/DecisionDialog/Market';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
-
-// eslint-disable-next-line
-const history = require('history').createBrowserHistory();
 
 const styles = {
   body: {
@@ -29,6 +28,7 @@ const styles = {
 };
 
 function Root(props) {
+  const history = useHistory();
   const { classes, appConfig } = props;
 
   const theme = defaultTheme;

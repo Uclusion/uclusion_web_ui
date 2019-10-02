@@ -91,8 +91,6 @@ function Market(props) {
 
 Market.propTypes = {
   intl: PropTypes.object.isRequired,
-  classes: PropTypes.object,
-  history: PropTypes.object.isRequired,
   location: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
 };

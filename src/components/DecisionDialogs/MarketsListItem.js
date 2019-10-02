@@ -1,13 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Typography } from '@material-ui/core';
-import ExpandMoreIcon  from '@material-ui/icons/ExpandMore';
+import { useHistory, withRouter } from 'react-router-dom';
+import {
+  ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Typography,
+} from '@material-ui/core';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { formMarketLink } from '../../utils/marketIdPathFunctions';
-import { withRouter } from 'react-router-dom';
 
 function MarketsListItem(props) {
-
-  const { market, history } = props;
+  const history = useHistory();
+  const { market } = props;
   const { name, id } = market;
 
   return (
@@ -28,7 +30,6 @@ function MarketsListItem(props) {
 
 MarketsListItem.propTypes = {
   market: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
 };
 
 export default withRouter(MarketsListItem);

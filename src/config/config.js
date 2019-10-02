@@ -1,4 +1,3 @@
-import routes from './routes';
 import { locales } from './locales';
 
 const config = {
@@ -8,7 +7,6 @@ const config = {
   maxRichTextEditorSize: 7340032,
   drawer_width: 256,
   locales,
-  routes,
   webSockets: {
     wsUrl: process.env.REACT_APP_WEBSOCKET_URL,
     reconnectInterval: 2000,

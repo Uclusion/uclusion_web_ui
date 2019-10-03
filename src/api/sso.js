@@ -1,5 +1,5 @@
 import uclusion from 'uclusion_sdk';
-import AmpifyIdentitySource from '../authorization/AmplifyIdentitySource';
+import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher';
 import config from '../config';
 import { updateTokensFromMarketList } from '../authorization/tokenStorageUtils';
 

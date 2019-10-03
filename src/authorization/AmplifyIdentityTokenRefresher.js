@@ -8,7 +8,7 @@
 
 import { Auth } from 'aws-amplify';
 // import jwt_decode from 'jwt-decode';
-class AmplifyIdentitySource {
+class AmplifyIdentityTokenRefresher {
   getIdentity() {
     return Auth.currentSession().then((sessionData) => {
       const { idToken } = sessionData;
@@ -19,4 +19,4 @@ class AmplifyIdentitySource {
   }
 }
 
-export default AmplifyIdentitySource;
+export default AmplifyIdentityTokenRefresher;

@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { Hub } from 'aws-amplify';
 import PropTypes from 'prop-types';
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner';
-import AmplifyIdentitySource from '../authorization/AmplifyIdentitySource';
+import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityTokenRefresher';
 import config from '../config';
 import { sendInfoPersistent } from '../utils/userMessage';
 
@@ -39,7 +39,7 @@ function WebSocketProvider(props) {
     const newSocket = new WebSocketRunner(sockConfig);
     newSocket.connect();
     // we always want to be notified when changes happen to our identity
-    new AmplifyIdentitySource().getIdentity().then((identity) => {
+    new AmplifyIdentityTokenRefresher().getIdentity().then((identity) => {
       newSocket.registerHandler('IDENTITY_UPDATED', (message) => {
         Hub.dispatch(
           PUSH_IDENTITY_CHANNEL,

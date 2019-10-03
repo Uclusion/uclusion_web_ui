@@ -57,18 +57,15 @@ function Market(props) {
   const { hidden } = props;
 
   useEffect(() => {
-    switchMarket(marketId);
-  }, [marketId, switchMarket]);
-
-  useEffect(() => {
     if (marketId && loadedMarket !== marketId) {
+      switchMarket(marketId);
       refreshInvestibles(marketId);
       refreshMarketComments(marketId);
       setLoadedMarket(marketId);
     }
     return () => {
     };
-  }, [marketId, loadedMarket, refreshInvestibles, refreshMarketComments]);
+  }, [marketId, loadedMarket, switchMarket, refreshInvestibles, refreshMarketComments]);
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   // console.debug(marketDetails);

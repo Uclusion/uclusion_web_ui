@@ -17,7 +17,6 @@ function Notifications(props) {
       hidden={hidden}
     >
       <div>
-        asdsad
         <NotificationsList messages={messages} />
       </div>
     </Activity>

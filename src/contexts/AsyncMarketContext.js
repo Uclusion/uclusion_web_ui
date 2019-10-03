@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import { Hub } from 'aws-amplify';
 import { createCachedAsyncContext } from './CachedAsyncContextCreator';
-import { getMarketList } from '../api/sso';
+import { getMarketList, getMessages } from '../api/sso';
 import { getMarketDetails } from '../api/markets';
 import { getOutdatedObjectIds, removeDeletedObjects, convertDates } from './ContextUtils';
 import { AUTH_HUB_CHANNEL, MESSAGES_EVENT, PUSH_IDENTITY_CHANNEL } from './WebSocketContext';
@@ -66,7 +66,16 @@ function refreshMarkets() {
 const AsyncMarketsContext = context;
 function AsyncMarketsProvider(props) {
   const [myState, setMyState] = useState(emptyState);
+  const [isInitialization, setIsInitialization] = useState(true);
   addStateCache(myState, setMyState);
+  useEffect(() => {
+    if (isInitialization) {
+      refreshMarkets();
+      setIsInitialization(false);
+    }
+    return () => {
+    };
+  });
 
   Hub.listen(AUTH_HUB_CHANNEL, (data) => {
     const { payload: { event } } = data;

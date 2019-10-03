@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Hub } from '@aws-amplify/core';
 import { getMessages } from '../api/sso';
@@ -11,6 +11,19 @@ function NotificationsProvider(props) {
   const { children } = props;
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitialization, setIsInitialization] = useState(true);
+
+  useEffect(() => {
+    if (isInitialization) {
+      getMessages().then((messages) => {
+        setMessages(messages);
+        setIsLoading(false);
+        setIsInitialization(false);
+      });
+    }
+    return () => {
+    };
+  });
 
   Hub.listen(AUTH_HUB_CHANNEL, (data) => {
     const { payload: { event } } = data;

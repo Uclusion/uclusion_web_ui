@@ -70,8 +70,8 @@ function AsyncMarketsProvider(props) {
   addStateCache(myState, setMyState);
   useEffect(() => {
     if (isInitialization) {
-      refreshMarkets();
       setIsInitialization(false);
+      refreshMarkets();
     }
     return () => {
     };

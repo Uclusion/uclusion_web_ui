@@ -28,5 +28,5 @@ export function uploadFileToS3(marketId, file) {
 export function fetchFileFromS3(metadata) {
   const { path } = metadata;
   return getFileClient(metadata)
-    .then((client) => client.investibles.getFile(path));
+    .then((client) => client.files.getFile(path));
 }

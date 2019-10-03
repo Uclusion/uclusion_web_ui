@@ -13,8 +13,10 @@ const config = {
   },
   aws: process.env.REACT_APP_AWS_USER_POOL_ID,
   api_configuration: {
-
     baseURL: process.env.REACT_APP_UCLUSION_URL,
+  },
+  file_download_configuration: {
+    baseURL: process.env.REACT_APP_FILE_URL,
   },
   version: process.env.REACT_APP_VERSION,
   uclusionSupportInfo: {

@@ -19,10 +19,10 @@ export const parseBlocks = (el, next) => {
         className: el.getAttribute('class'),
         metadata: {
           path: el.getAttribute('path'),
-          clusion_token: el.getAttribute('uclusion_token'),
-        }
+          uclusion_token: el.getAttribute('uclusion_token'),
+        },
       },
-      nodes: next(el.childNodes)
+      nodes: next(el.childNodes),
     };
   }
 };

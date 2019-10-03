@@ -10,7 +10,7 @@ class FileTokenRefresher {
     const decoded = jwt_decode(oldToken);
     const { id: marketId } = decoded;
     return getMarketClient(marketId)
-      .then((client) => client.markets.refreshFileToken(oldToken));
+      .then((client) => client.investibles.refreshFileToken(oldToken));
   }
 }
 

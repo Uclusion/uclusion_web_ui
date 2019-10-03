@@ -67,12 +67,16 @@ class TokenStorageManager {
   storeToken(tokenType, itemId, token) {
     const tokenStorage = this.getTokenStorage();
     const existingToken = tokenStorage[tokenType][itemId];
+    console.log(existingToken);
+    console.log(token);
+    // bail out if our existing token is newer
     if (existingToken) {
       const longestLife = this.getLongestLivingToken(token, existingToken);
       if (longestLife === existingToken) {
         return;
       }
     }
+    tokenStorage[tokenType][itemId] = token;
     this.putTokenStorage(tokenStorage);
   }
 

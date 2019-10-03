@@ -18,6 +18,7 @@ class TokenManager {
   getToken() {
     const token = this.tokenStorageManager.getValidToken(this.tokenType, this.itemId);
     if (token) {
+      console.log('Returning token');
       return Promise.resolve(token);
     }
     if (this.tokenType === TOKEN_TYPE_MARKET || this.tokenType === TOKEN_TYPE_ACCOUNT) {
@@ -37,7 +38,7 @@ class TokenManager {
    */
   refreshFileToken() {
     const oldToken = this.tokenStorageManager.getToken(this.tokenType, this.itemId);
-    this.tokenRefresher.refreshFileToken(oldToken)
+    this.tokenRefresher.refreshToken(oldToken)
       .then((result) => {
         const { uclusion_token } = result;
         this.tokenStorageManager.storeToken(TOKEN_TYPE_FILE, this.itemId, uclusion_token);

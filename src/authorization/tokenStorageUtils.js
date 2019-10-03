@@ -17,7 +17,7 @@ export function updateFileTokensFromContext(context) {
   });
 }
 
-export function updateFileToken(path, token){
+export function updateFileToken(path, token) {
   const storageManager = new TokenStorageManager();
   storageManager.storeToken(TOKEN_TYPE_FILE, path, token);
 }

@@ -32,19 +32,19 @@ const styles = theme => ({
 });
 
 function PageNotFound(props) {
-  const { intl, classes } = props;
+  const { intl, classes, hidden, } = props;
 
   return (
-    <Activity>
+    <Activity hidden={hidden}>
       <Paper className={classes.paper}>
         <div className={classes.container}>
-          <Typography variant="display1">
+          <Typography variant="h2">
             {intl.formatMessage({ id: 'warning_404_message' })}
           </Typography>
-          <Typography variant="subheading">
+          <Typography variant="h2">
             {intl.formatMessage({ id: 'warning_404_description' })}
           </Typography>
-          <Button variant="fab" color="secondary" aria-label="home" href="/" className={classes.button}>
+          <Button variant="outlined" color="secondary" aria-label="home" href="/" className={classes.button}>
             <Icon>home</Icon>
           </Button>
         </div>

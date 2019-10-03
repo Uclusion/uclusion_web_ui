@@ -35,7 +35,8 @@ import { isKeyHotkey } from 'is-hotkey';
 import { Button, Icon, Toolbar, Image } from './components';
 import LoadableImage from './LoadableImage';
 import { uploadFileToS3 } from '../../../api/files';
-import { withMarketId } from '../../PathProps/MarketId';
+import { withRouter } from 'react-router-dom';
+import { getMarketId } from '../../../utils/marketIdPathFunctions';
 
 /** This portion is from the image example, so we'll also support images!
  *
@@ -615,8 +616,10 @@ class RichTextEditor extends React.Component {
   };
 
   insertImagesFromFiles = (files, target) => {
-    const { marketId } = this.props;
-
+    const { history } = this.props;
+    const { location } = history;
+    const { pathname } = location;
+    const marketId = getMarketId(pathname);
     for (const file of files) {
       const { type } = file;
       const [mime] = type.split('/');
@@ -670,4 +673,4 @@ class RichTextEditor extends React.Component {
  * Export.
  */
 
-export default withMarketId(injectIntl(RichTextEditor));
+export default injectIntl(withRouter(RichTextEditor));

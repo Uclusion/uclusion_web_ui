@@ -219,9 +219,19 @@ const messages = defineMessages({
   RichTextEditorTextLabel: 'Text',
   RichTextEditorToManyBytes: 'To much data. Please remove items from the editor',
 
-  //Investible detail
+  // Investible detail
   investibleDetailClose: 'Close',
 
+  // About
+  sidebarNavAbout: 'About',
+  aboutApplicationVersionLabel: 'Version',
+  aboutMarketIdLabel: 'Dialog ID',
+  aboutAccountIdLabel: 'Account ID',
+  aboutAccountNameLabel: 'Account Name',
+  aboutUserIdLabel: 'User ID',
+  aboutUserNameLabel: 'User Name',
+  aboutUclusionEmailLabel: 'Support',
+  aboutClearStorageButton: 'Clear Storage',
 });
 
 export default messages;

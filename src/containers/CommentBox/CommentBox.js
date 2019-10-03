@@ -47,7 +47,7 @@ CommentBox.propTypes = {
   issueBox: PropTypes.bool,
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   commentsHash: PropTypes.object.isRequired,
-  marketId: PropTypes.string.isRequired,
+  marketId: PropTypes.string,
   intl: PropTypes.object.isRequired,
 };
 

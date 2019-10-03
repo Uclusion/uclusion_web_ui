@@ -1,9 +1,7 @@
 import React from 'react';
 import withWidth from '@material-ui/core/withWidth';
 import { injectIntl } from 'react-intl';
-import { withRouter } from 'react-router-dom';
 import NavItems from './NavItems';
-import { withMarketId } from '../../components/PathProps/MarketId';
 
 const DrawerContent = () => (
   <div style={{
@@ -15,4 +13,4 @@ const DrawerContent = () => (
   </div>
 );
 
-export default injectIntl(withWidth()(withRouter(withMarketId(DrawerContent))));
+export default injectIntl(withWidth()(DrawerContent));

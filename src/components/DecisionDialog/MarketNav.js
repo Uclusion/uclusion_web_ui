@@ -81,7 +81,7 @@ function MarketNav(props) {
 MarketNav.propTypes = {
   intl: PropTypes.object.isRequired,
   initialTab: PropTypes.string.isRequired,
-  marketId: PropTypes.string.isRequired,
+  marketId: PropTypes.string,
 };
 
 export default injectIntl(MarketNav);

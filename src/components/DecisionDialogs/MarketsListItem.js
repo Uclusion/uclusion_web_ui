@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useHistory, withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import {
   ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Typography,
 } from '@material-ui/core';
@@ -32,4 +32,4 @@ MarketsListItem.propTypes = {
   market: PropTypes.object.isRequired,
 };
 
-export default withRouter(MarketsListItem);
+export default MarketsListItem;

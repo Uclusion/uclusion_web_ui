@@ -2,9 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import { withStyles } from '@material-ui/core';
-import {
-  Route, Router, Switch, useHistory,
-} from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { defaultTheme } from '../../config/themes';
 import Drawer from '../Drawer';
 import Markets from '../../pages/DecisionDialogs/Markets';
@@ -12,7 +10,6 @@ import Notifications from '../../pages/ActionCenter/Notifications';
 import Market from '../../pages/DecisionDialog/Market';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
-
 import { getMarketId } from '../../utils/marketIdPathFunctions';
 
 const styles = {
@@ -35,22 +32,40 @@ function Root(props) {
 
   const { location } = history;
   const { pathname } = location;
+  console.log(`pathname is ${pathname}`);
   const marketId = getMarketId(pathname);
-  console.log(marketId);
   const theme = defaultTheme;
-
+  function hideNotifications() {
+    return pathname !== '/notifications';
+  }
+  function hideMarkets() {
+    return pathname && (pathname !== '/') && (pathname !== '/dialogs');
+  }
+  function hideAbout() {
+    if (!pathname) {
+      return true;
+    }
+    return !pathname.startsWith('/about');
+  }
+  function hideMarket() {
+    return marketId === null;
+  }
   return (
     <MuiThemeProvider theme={theme}>
-        <div className={classes.body}>
-          <div className={classes.root}>
-            <Drawer appConfig={appConfig} />
-            <div style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
-              <Notifications hidden={pathname !== '/notifications'} />
-              <Markets hidden={location && (pathname !== '/dialogs')} />
-              <Market hidden={marketId === null} />
-            </div>
+      <div className={classes.body}>
+        <div className={classes.root}>
+          <Drawer appConfig={appConfig} />
+          <div style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
+            <Notifications hidden={hideNotifications()} />
+            <Markets hidden={hideMarkets()} />
+            <Market hidden={hideMarket()} />
+            <About hidden={hideAbout()} />
+            <PageNotFound hidden={!(hideNotifications() && hideMarkets() && hideMarket()
+              && hideAbout())}
+            />
           </div>
         </div>
+      </div>
     </MuiThemeProvider>
   );
 }

@@ -165,7 +165,7 @@ function Activity(props) {
     : classes.content;
 
   return (
-    <div className={hidden? classes.hidden : classes.root}>
+    <div className={hidden ? classes.hidden : classes.root}>
       <Helmet>
         <meta name="theme-color" content={theme.palette.primary.main} />
         <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />

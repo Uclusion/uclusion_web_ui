@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
-import { withMarketId } from '../../components/PathProps/MarketId';
 import ExpirationCountDown from '../../components/DecisionDialog/ExpirationCountDown';
 import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
@@ -11,6 +10,8 @@ import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 
 import MarketNav from '../../components/DecisionDialog/MarketNav';
 import Activity from '../../containers/Activity';
+import { useHistory } from 'react-router';
+import { getMarketId } from '../../utils/marketIdPathFunctions';
 
 const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
@@ -47,12 +48,16 @@ const styles = theme => ({
 });
 
 function Market(props) {
+  const history = useHistory();
+  const { location } = history;
+  const { pathname } = location;
+  const marketId = getMarketId(pathname);
   const { switchMarket, currentMarket, marketDetails } = useAsyncMarketsContext();
 
   const { refreshInvestibles, loading: investiblesLoading } = useAsyncInvestiblesContext();
   const { refreshMarketComments, loading: commentsLoading } = useAsyncCommentsContext();
   const [firstLoad, setFirstLoad] = useState(true);
-  const { intl, marketId, hidden } = props;
+  const { intl, hidden } = props;
 
   useEffect(() => {
     switchMarket(marketId);
@@ -92,8 +97,6 @@ function Market(props) {
 
 Market.propTypes = {
   intl: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired,
-  marketId: PropTypes.string.isRequired,
 };
 
-export default injectIntl(withStyles(styles)(withMarketId(React.memo(Market))));
+export default injectIntl(withStyles(styles)(React.memo(Market)));

@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { Paper, Typography, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import Activity from '../../containers/Activity/Activity';
 import withAppConfigs from '../../utils/withAppConfigs';
-import { withMarketId } from '../../components/PathProps/MarketId';
 import { getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
-import { getFlags } from '../../utils/userFunctions'
+import { getFlags } from '../../utils/userFunctions';
+import { getMarketId } from '../../utils/marketIdPathFunctions';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     padding: theme.spacing(2),
   },
@@ -39,12 +40,16 @@ const styles = theme => ({
 });
 
 function About(props) {
+  const history = useHistory();
+  const { location } = history;
+  const { pathname } = location;
+  const marketId = getMarketId(pathname);
   const {
     user,
     appConfig,
-    marketId,
     classes,
     intl,
+    hidden,
   } = props;
 
   const { isAdmin } = getFlags(user);
@@ -53,14 +58,17 @@ function About(props) {
   const [market, setMarket] = useState(undefined);
 
   useEffect(() => {
-    const clientPromise = getMarketClient(marketId);
-    clientPromise.then(client => client.markets.get(marketId))
-      .then((market) => {
-        setMarket(market);
-      }).catch((error) => {
-        console.debug(error);
-        sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
-      });
+    if (marketId) {
+      console.log(`Fetching market ${marketId}`);
+      const clientPromise = getMarketClient(marketId);
+      clientPromise.then((client) => client.markets.get(marketId))
+        .then((market) => {
+          setMarket(market);
+        }).catch((error) => {
+          console.debug(error);
+          sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
+        });
+    }
     return () => {
     };
   }, [marketId]);
@@ -77,6 +85,7 @@ function About(props) {
     <div>
       <Activity
         title={intl.formatMessage({ id: 'about' })}
+        hidden={hidden}
       >
         <div className={classes.root}>
           <Paper className={classes.section}>
@@ -108,10 +117,6 @@ function About(props) {
               <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserNameLabel' })}</span>
               <span className={classes.value}>{!!user && user.name}</span>
             </Typography>
-            <Typography className={classes.row}>
-              <span className={classes.label}>{intl.formatMessage({ id: 'aboutTeamIdLabel' })}</span>
-              <span className={classes.value}>{!!user && user.team_id}</span>
-            </Typography>
           </Paper>
           {isAdmin && (
             <Paper className={classes.section}>
@@ -121,8 +126,8 @@ function About(props) {
               </Typography>
             </Paper>
           )}
-          <br/>
-          <Button color='primary' onClick={handleClear}>{intl.formatMessage({ id: 'aboutClearStorageButton' })}</Button>
+          <br />
+          <Button color="primary" onClick={handleClear}>{intl.formatMessage({ id: 'aboutClearStorageButton' })}</Button>
         </div>
       </Activity>
     </div>
@@ -131,9 +136,9 @@ function About(props) {
 
 About.propTypes = {
   appConfig: PropTypes.object.isRequired,
-  marketId: PropTypes.string.isRequired,
   intl: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired,
+  user: PropTypes.object,
+  hidden: PropTypes.bool.isRequired,
 };
 
-export default injectIntl(withAppConfigs(withMarketId(withStyles(styles)(About))));
+export default injectIntl(withAppConfigs(withStyles(styles)(About)));

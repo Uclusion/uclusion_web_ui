@@ -8,6 +8,7 @@ import LockIcon from '@material-ui/icons/Lock';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router';
+import { getMarketId } from '../../utils/marketIdPathFunctions';
 const styles = theme => ({
   listItemIcon: {
     marginRight: 0,
@@ -17,6 +18,8 @@ const styles = theme => ({
 
 function NavItems(props) {
   const history = useHistory();
+  const { location } = history;
+  const { pathname } = location;
   const { intl, classes } = props;
   const items = [
     {
@@ -31,13 +34,14 @@ function NavItems(props) {
       name: 'notifications',
       link: '/notifications',
       badge: Badge,
-      badgeProps: {variant: 'dot', color: 'secondary' },
+      badgeProps: { variant: 'dot', color: 'secondary' },
     },
     {
-      text: intl.formatMessage({ id: 'sidebarNavTemplates' }),
+      text: intl.formatMessage({ id: 'sidebarNavAbout' }),
       icon: <DescriptionOutlinedIcon />,
-      name: 'templates',
-      link: '/templates',
+      name: 'about',
+      link: '/about',
+      appendMarketId: true,
     },
     {
       text: intl.formatMessage({ id: 'sideBarNavTempSignout' }),
@@ -49,12 +53,19 @@ function NavItems(props) {
 
   function itemOnClick(item) {
     return () => {
-      const { onClick, link } = item;
+      const { onClick, link, appendMarketId } = item;
       if (onClick) {
         onClick();
       }
       if (link) {
-        history.push(link);
+        let validatedLink = link;
+        if (appendMarketId) {
+          if (pathname) {
+            const marketId = getMarketId(pathname);
+            validatedLink = `${validatedLink}/${marketId}`;
+          }
+        }
+        history.push(validatedLink);
       }
     };
   }

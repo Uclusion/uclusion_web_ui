@@ -34,6 +34,7 @@ function LoadableImage(props) {
     <img className={classes.image}
          src={src}
          path={path}
+         alt='not reader compliant'
          uclusion_token={uclusion_token}
     />
   );

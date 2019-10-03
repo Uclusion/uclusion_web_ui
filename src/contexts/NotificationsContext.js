@@ -23,7 +23,7 @@ function NotificationsProvider(props) {
     }
     return () => {
     };
-  });
+  }, [isInitialization]);
 
   Hub.listen(AUTH_HUB_CHANNEL, (data) => {
     const { payload: { event } } = data;

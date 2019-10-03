@@ -8,7 +8,7 @@ export function deleteComment(commentId, investibleId, marketId) {
 }
 
 export function fetchComments(idList, marketId) {
-  const clientPromise = getMarketClient(marketId)
+  const clientPromise = getMarketClient(marketId);
   console.log('Fetching comments of list');
   console.log(idList);
   return clientPromise.then(client => client.investibles.getMarketComments(idList));

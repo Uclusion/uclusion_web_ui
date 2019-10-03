@@ -3,14 +3,7 @@ Class that manages the tokens for a particular type and market.
 It _does not_ manage identity's, but does
 ask the identity source for new identities when needed
  */
-
-import TokenStorageManager from './TokenStorageManager';
-import uclusion from 'uclusion_sdk';
-
-const TOKEN_TYPE_MARKET = 'MARKET';
-const TOKEN_TYPE_ACCOUNT = 'ACCOUNT';
-const TOKEN_TYPE_FILE = 'FILE';
-export { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET, TOKEN_TYPE_FILE };
+import TokenStorageManager, { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET, TOKEN_TYPE_FILE } from './TokenStorageManager';
 
 class TokenManager {
 

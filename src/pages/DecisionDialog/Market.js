@@ -1,5 +1,6 @@
 /* eslint-disable react/forbid-prop-types */
 import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
@@ -7,13 +8,9 @@ import ExpirationCountDown from '../../components/DecisionDialog/ExpirationCount
 import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
-
 import MarketNav from '../../components/DecisionDialog/MarketNav';
 import Activity from '../../containers/Activity';
-import { useHistory } from 'react-router';
 import { getMarketId } from '../../utils/marketIdPathFunctions';
-
-const pollRate = 5400000; // 90 mins = 5400 seconds * 1000 for millis
 
 const styles = theme => ({
   root: {
@@ -56,27 +53,22 @@ function Market(props) {
 
   const { refreshInvestibles, loading: investiblesLoading } = useAsyncInvestiblesContext();
   const { refreshMarketComments, loading: commentsLoading } = useAsyncCommentsContext();
-  const [firstLoad, setFirstLoad] = useState(true);
-  const { intl, hidden } = props;
+  const [loadedMarket, setLoadedMarket] = useState(undefined);
+  const { hidden } = props;
 
   useEffect(() => {
     switchMarket(marketId);
-  }, [marketId]);
+  }, [marketId, switchMarket]);
 
   useEffect(() => {
-    if (firstLoad && marketId) {
+    if (marketId && loadedMarket !== marketId) {
       refreshInvestibles(marketId);
       refreshMarketComments(marketId);
-      setFirstLoad(false);
+      setLoadedMarket(marketId);
     }
-    const timer = setInterval(() => {
-      refreshInvestibles(marketId);
-      refreshMarketComments(marketId);
-    }, pollRate);
     return () => {
-      clearInterval(timer);
     };
-  }, [marketId]);
+  }, [marketId, loadedMarket, refreshInvestibles, refreshMarketComments]);
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   // console.debug(marketDetails);

@@ -30,12 +30,12 @@ import {
   DialogContentText,
   DialogTitle,
   Typography,
- } from '@material-ui/core';
+} from '@material-ui/core';
 import { isKeyHotkey } from 'is-hotkey';
-import { Button, Icon, Toolbar, Image } from './components';
+import { withRouter } from 'react-router-dom';
+import { Button, Icon, Toolbar } from './components';
 import LoadableImage from './LoadableImage';
 import { uploadFileToS3 } from '../../../api/files';
-import { withRouter } from 'react-router-dom';
 import { getMarketId } from '../../../utils/marketIdPathFunctions';
 
 /** This portion is from the image example, so we'll also support images!
@@ -86,7 +86,7 @@ function insertImage(editor, metadata, target) {
   if (target) {
     editor.select(target);
   }
-  //console.log(metadata);
+  // console.log(metadata);
   editor.insertBlock({
     type: 'image',
     data: { metadata },
@@ -152,7 +152,6 @@ const DialogTypes = {
  */
 
 class RichTextEditor extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -168,9 +167,9 @@ class RichTextEditor extends React.Component {
    * @return {Boolean}
    */
 
-  hasMark = type => {
+  hasMark = (type) => {
     const { value } = this.props;
-    return value.activeMarks.some(mark => mark.type === type);
+    return value.activeMarks.some((mark) => mark.type === type);
   };
 
   /**
@@ -180,9 +179,9 @@ class RichTextEditor extends React.Component {
    * @return {Boolean}
    */
 
-  hasBlock = type => {
+  hasBlock = (type) => {
     const { value } = this.props;
-    return value.blocks.some(node => node.type === type);
+    return value.blocks.some((node) => node.type === type);
   };
 
   /**
@@ -193,7 +192,7 @@ class RichTextEditor extends React.Component {
 
   hasLinks = () => {
     const { value } = this.props;
-    return value.inlines.some(inline => inline.type === 'link');
+    return value.inlines.some((inline) => inline.type === 'link');
   };
 
   /**
@@ -202,7 +201,7 @@ class RichTextEditor extends React.Component {
    * @param {Editor} editor
    */
 
-  ref = editor => {
+  ref = (editor) => {
     this.editor = editor;
   };
 
@@ -213,8 +212,10 @@ class RichTextEditor extends React.Component {
     }
     return (
       <div>
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-              rel="stylesheet"/>
+        <link
+          href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet"
+        />
         <Toolbar>
           {this.renderMarkButton('bold', 'format_bold')}
           {this.renderMarkButton('italic', 'format_italic')}
@@ -228,10 +229,11 @@ class RichTextEditor extends React.Component {
           {this.renderImageButton()}
           {this.renderLinkButton()}
         </Toolbar>
-      </div>);
+      </div>
+    );
   };
 
-  handleChangeDialogValue = name => (event) => {
+  handleChangeDialogValue = (name) => (event) => {
     this.setState({
       [name]: event.target.value,
     });
@@ -274,12 +276,21 @@ class RichTextEditor extends React.Component {
    */
 
   render() {
-    const { value, onChange, readOnly, placeHolder, intl } = this.props;
+    const {
+      value, onChange, readOnly, placeHolder, intl,
+    } = this.props;
     const { dialog, link, linkText } = this.state;
     return (
       <div style={{ width: '100%' }}>
-        <input type="file" id="fileElem" multiple accept="image/*" ref="fileUploader" style={{display: "none"}}
-                                 onChange={() => this.handleImageUpload()}/>
+        <input
+          type="file"
+          id="fileElem"
+          multiple
+          accept="image/*"
+          ref="fileUploader"
+          style={{ display: 'none' }}
+          onChange={() => this.handleImageUpload()}
+        />
         {this.toolBar()}
         <Typography
           style={{
@@ -352,17 +363,17 @@ class RichTextEditor extends React.Component {
     );
   }
 
-  renderImageButton = () => {
-    return (<Button onMouseDown={this.onClickImage}>
+  renderImageButton = () => (
+    <Button onMouseDown={this.onClickImage}>
       <Icon>image</Icon>
-    </Button>);
-  };
+    </Button>
+  );
 
-  renderLinkButton = () => {
-    return (<Button active={this.hasLinks()} onMouseDown={this.onClickLink}>
+  renderLinkButton = () => (
+    <Button active={this.hasLinks()} onMouseDown={this.onClickLink}>
       <Icon>link</Icon>
-    </Button>);
-  };
+    </Button>
+  );
 
   /**
    * Render a mark-toggling toolbar button.
@@ -378,7 +389,7 @@ class RichTextEditor extends React.Component {
     return (
       <Button
         active={isActive}
-        onMouseDown={event => this.onClickMark(event, type)}
+        onMouseDown={(event) => this.onClickMark(event, type)}
       >
         <Icon>{icon}</Icon>
       </Button>
@@ -408,7 +419,7 @@ class RichTextEditor extends React.Component {
     return (
       <Button
         active={isActive}
-        onMouseDown={event => this.onClickBlock(event, type)}
+        onMouseDown={(event) => this.onClickBlock(event, type)}
       >
         <Icon>{icon}</Icon>
       </Button>
@@ -423,7 +434,9 @@ class RichTextEditor extends React.Component {
    */
 
   renderBlock = (props, editor, next) => {
-    const { attributes, children, node, isFocused } = props;
+    const {
+      attributes, children, node,
+    } = props;
     switch (node.type) {
       case 'paragraph':
         return <p {...attributes}>{children}</p>;
@@ -441,7 +454,7 @@ class RichTextEditor extends React.Component {
         return <ol {...attributes}>{children}</ol>;
       case 'image': {
         const metadata = node.data.get('metadata');
-        return <LoadableImage metadata={metadata} />
+        return <LoadableImage metadata={metadata} />;
       }
       case 'link': {
         const { data } = node;
@@ -550,9 +563,7 @@ class RichTextEditor extends React.Component {
     } else {
       // Handle the extra wrapping required for list buttons.
       const isList = this.hasBlock('list-item');
-      const isType = value.blocks.some(block => {
-        return !!document.getClosest(block.key, parent => parent.type === type);
-      });
+      const isType = value.blocks.some((block) => !!document.getClosest(block.key, (parent) => parent.type === type));
 
       if (isList && isType) {
         editor
@@ -562,7 +573,7 @@ class RichTextEditor extends React.Component {
       } else if (isList) {
         editor
           .unwrapBlock(
-            type === 'bulleted-list' ? 'numbered-list' : 'bulleted-list'
+            type === 'bulleted-list' ? 'numbered-list' : 'bulleted-list',
           )
           .wrapBlock(type);
       } else {
@@ -578,7 +589,7 @@ class RichTextEditor extends React.Component {
    * @param {Event} event
    */
 
-  onClickLink = event => {
+  onClickLink = (event) => {
     event.preventDefault();
 
     const { editor } = this;
@@ -610,7 +621,7 @@ class RichTextEditor extends React.Component {
    * @param {Event} event
    */
 
-  onClickImage = event => {
+  onClickImage = (event) => {
     event.preventDefault();
     this.refs.fileUploader.click();
   };
@@ -626,9 +637,7 @@ class RichTextEditor extends React.Component {
       // console.log(mime);
       if (mime !== 'image') continue;
       uploadFileToS3(marketId, file)
-        .then((metadata) => {
-          return this.editor.command(insertImage, metadata, target);
-        });
+        .then((metadata) => this.editor.command(insertImage, metadata, target));
     }
   };
 
@@ -666,7 +675,6 @@ class RichTextEditor extends React.Component {
 
     next();
   };
-
 }
 
 /**

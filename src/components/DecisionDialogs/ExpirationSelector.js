@@ -5,7 +5,7 @@ import Slider from '@material-ui/core/Slider';
 function ExpirationSelector(props) {
 
   const DAY_IN_MINUTES = 1440;
-  const { intl, onChange, value } = props;
+  const { onChange, value } = props;
 
 
   function createDaysOption(numDays) {

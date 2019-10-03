@@ -29,14 +29,6 @@ function ExpirationCountdown(props){
     return `${minutes}m:${seconds}s`;
   }
 
-  function getRenderPeriod(millisLeft) {
-    const { hours } = getClockTimeRemaining(millisLeft);
-    if (hours > 0) {
-      return 60000; // 1 minute
-    }
-    return 1000; // 1 second
-  }
-
   const [currentTime, setCurrentTime] = useState(new Date());
   const usedExpiration = expiration_minutes || 0;
   const usedCreatedAt = created_at || new Date();

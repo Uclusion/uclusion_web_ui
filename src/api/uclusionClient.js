@@ -1,6 +1,7 @@
 import client from 'uclusion_sdk';
 import config from '../config/config';
-import TokenManager, { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET, TOKEN_TYPE_FILE } from '../authorization/TokenManager';
+import TokenManager from '../authorization/TokenManager';
+import { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET, TOKEN_TYPE_FILE } from '../authorization/TokenStorageManager';
 import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityTokenRefresher';
 import FileTokenRefresher from '../authorization/FileTokenRefresher';
 import { updateFileToken } from '../authorization/tokenStorageUtils';

@@ -1,5 +1,5 @@
 import { getMarketClient } from './uclusionClient';
-import { ERROR, sendIntlMessage, SUCCESS } from '../utils/userMessage';
+import { ERROR, sendIntlMessage } from '../utils/userMessage';
 
 export function fetchInvestibles(idList, marketId) {
   const clientPromise = getMarketClient(marketId);

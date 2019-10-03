@@ -1,5 +1,4 @@
-import TokenStorageManager from './TokenStorageManager';
-import { TOKEN_TYPE_MARKET, TOKEN_TYPE_FILE } from './TokenManager';
+import TokenStorageManager, { TOKEN_TYPE_MARKET, TOKEN_TYPE_FILE } from './TokenStorageManager';
 
 export function updateTokensFromMarketList(markets) {
   const storageManager = new TokenStorageManager();

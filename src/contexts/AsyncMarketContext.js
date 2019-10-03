@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import { Hub } from 'aws-amplify';
 import { createCachedAsyncContext } from './CachedAsyncContextCreator';
-import { getMarketList, getMessages } from '../api/sso';
+import { getMarketList } from '../api/sso';
 import { getMarketDetails } from '../api/markets';
 import { getOutdatedObjectIds, removeDeletedObjects, convertDates } from './ContextUtils';
 import { AUTH_HUB_CHANNEL, MESSAGES_EVENT, PUSH_IDENTITY_CHANNEL } from './WebSocketContext';
@@ -75,7 +75,7 @@ function AsyncMarketsProvider(props) {
     }
     return () => {
     };
-  });
+  }, [isInitialization]);
 
   Hub.listen(AUTH_HUB_CHANNEL, (data) => {
     const { payload: { event } } = data;

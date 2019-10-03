@@ -14,7 +14,6 @@ function Voting(props) {
   const { updateInvestibleLocally } = useAsyncInvestiblesContext();
   const [timer, setTimer] = useState(null);
   const invested = investment > 0;
-  const investmentChanged = invested !== current_user_investment;
 
   function save(value) {
     return () => {

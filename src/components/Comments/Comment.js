@@ -5,18 +5,19 @@ import { makeStyles } from '@material-ui/core/styles';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import CommentReply from './CommentReply';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     padding: theme.spacing(3, 2),
   },
 }));
 
 function Comment(props) {
-
-  const { comment, commentsHash, depth, intl, marketId } = props;
+  const {
+    comment, commentsHash, depth, intl, marketId,
+  } = props;
   const classes = useStyles();
 
-  const { body, children } = comment;
+  const { children } = comment;
 
   const [replyOpen, setReplyOpen] = useState(false);
 
@@ -26,9 +27,16 @@ function Comment(props) {
         const child = commentsHash[childId];
         const childDepth = depth + 1;
         // we are rendering ourselves, so we don't get the injection automagically
-        return <Comment key={childId} intl={intl}
-                        comment={child} depth={childDepth}
-                        marketId={marketId} commentsHash={commentsHash}/>;
+        return (
+          <Comment
+            key={childId}
+            intl={intl}
+            comment={child}
+            depth={childDepth}
+            marketId={marketId}
+            commentsHash={commentsHash}
+          />
+        );
       });
     }
     return <div />;
@@ -40,11 +48,19 @@ function Comment(props) {
 
   return (
     <Paper className={classes.root}>
-      <HtmlRichTextEditor readOnly={true} value={comment.body}/>
+      <HtmlRichTextEditor readOnly value={comment.body} />
       <Button onClick={toggleReply}>
         {intl.formatMessage({ id: 'commentReplyLabel' })}
       </Button>
-      {replyOpen && <CommentReply marketId={marketId} parent={comment} onSave={toggleReply} onCancel={toggleReply}/>}
+      {replyOpen
+      && (
+      <CommentReply
+        marketId={marketId}
+        parent={comment}
+        onSave={toggleReply}
+        onCancel={toggleReply}
+      />
+      )}
       {getChildComments()}
     </Paper>
   );

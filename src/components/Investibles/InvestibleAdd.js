@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
 import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@material-ui/core';
-import { addInvestible, updateInvestible } from '../../api/investibles';
+import { addInvestible } from '../../api/investibles';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 

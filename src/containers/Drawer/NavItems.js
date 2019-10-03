@@ -62,7 +62,9 @@ function NavItems(props) {
         if (appendMarketId) {
           if (pathname) {
             const marketId = getMarketId(pathname);
-            validatedLink = `${validatedLink}/${marketId}`;
+            if (marketId) {
+              validatedLink = `${validatedLink}/${marketId}`;
+            }
           }
         }
         history.push(validatedLink);

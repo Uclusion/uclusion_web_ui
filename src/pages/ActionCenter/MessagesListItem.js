@@ -1,4 +1,6 @@
 import PropTypes from 'prop-types';
+import { ExpansionPanelDetails } from '@material-ui/core';
+import React from 'react';
 
 function MessagesListItem(props) {
   const { message } = props;
@@ -6,7 +8,9 @@ function MessagesListItem(props) {
   const { market_id_user_id, type_object_id, level } = message;
 
   return (
-    { market_id_user_id, type_object_id, level }
+    <ExpansionPanelDetails>
+      { `${market_id_user_id} ${type_object_id} ${level}` }
+    </ExpansionPanelDetails>
   );
 }
 

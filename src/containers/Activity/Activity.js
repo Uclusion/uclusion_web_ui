@@ -21,9 +21,6 @@ import useDrawerContext from '../../contexts/useDrawerContext';
 const drawerWidth = 240;
 
 const styles = theme => ({
-  hidden: {
-    display: 'none',
-  },
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -165,7 +162,7 @@ function Activity(props) {
     : classes.content;
 
   return (
-    <div className={hidden ? classes.hidden : classes.root}>
+    <div className={hidden ? classes.hide : classes.root}>
       <Helmet>
         <meta name="theme-color" content={theme.palette.primary.main} />
         <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />

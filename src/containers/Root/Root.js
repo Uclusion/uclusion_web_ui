@@ -11,6 +11,8 @@ import Market from '../../pages/DecisionDialog/Market';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import { getMarketId } from '../../utils/marketIdPathFunctions';
+import { getMarketClient } from '../../api/uclusionClient';
+import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 
 const styles = {
   body: {
@@ -23,6 +25,14 @@ const styles = {
     position: 'relative',
     display: 'flex',
     width: '100%',
+  },
+  content: {
+    width: '100%',
+    height: '100vh',
+    overflow: 'hidden',
+  },
+  hide: {
+    display: 'none',
   },
 };
 
@@ -50,12 +60,27 @@ function Root(props) {
   function hideMarket() {
     return marketId === null;
   }
+  function isInvite() {
+    if (!pathname) {
+      return false;
+    }
+    return pathname.startsWith('/invite');
+  }
+  const inviteMarketId = getMarketId(pathname, '/invite/');
+  if (inviteMarketId) {
+    console.log(`Logging into market ${inviteMarketId}`);
+    getMarketClient(inviteMarketId).then(() => history.push(`/dialog/${inviteMarketId}`))
+      .catch((error) => {
+        console.error(error);
+        sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
+      });
+  }
   return (
     <MuiThemeProvider theme={theme}>
       <div className={classes.body}>
         <div className={classes.root}>
-          <Drawer appConfig={appConfig} />
-          <div style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
+          {!isInvite() && (<Drawer appConfig={appConfig} />)}
+          <div className={isInvite() ? classes.hide : classes.content}>
             <Notifications hidden={hideNotifications()} />
             <Markets hidden={hideMarkets()} />
             <Market hidden={hideMarket()} />

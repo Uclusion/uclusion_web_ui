@@ -15,6 +15,7 @@ export const PUSH_HUB_CHANNEL = 'MessagesChannel';
 export const PUSH_IDENTITY_CHANNEL = 'MarketsChannel';
 export const PUSH_COMMENTS_CHANNEL = 'CommentsChannel';
 export const PUSH_INVESTIBLES_CHANNEL = 'InvestiblesChannel';
+export const PUSH_PRESENCE_CHANNEL = 'PresenceChannel';
 export const MESSAGES_EVENT = 'webPush';
 const WebSocketContext = React.createContext([{}, () => {}]);
 function notifyNewApplicationVersion(currentVersion) {
@@ -29,6 +30,18 @@ function notifyNewApplicationVersion(currentVersion) {
     };
     sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
   }
+}
+
+function registerChannel(socket, messageType, channel) {
+  socket.registerHandler(messageType, (message) => {
+    Hub.dispatch(
+      channel,
+      {
+        event: MESSAGES_EVENT,
+        message,
+      },
+    );
+  });
 }
 
 function WebSocketProvider(props) {
@@ -61,35 +74,10 @@ function WebSocketProvider(props) {
       notifyNewApplicationVersion(deployed_version);
     });
 
-    newSocket.registerHandler('USER_MESSAGES_UPDATED', (message) => {
-      Hub.dispatch(
-        PUSH_HUB_CHANNEL,
-        {
-          event: MESSAGES_EVENT,
-          message,
-        },
-      );
-    });
-
-    newSocket.registerHandler('INVESTIBLE_COMMENT_UPDATED', (message) => {
-      Hub.dispatch(
-        PUSH_COMMENTS_CHANNEL,
-        {
-          event: MESSAGES_EVENT,
-          message,
-        },
-      );
-    });
-
-    newSocket.registerHandler('MARKET_INVESTIBLE_UPDATED', (message) => {
-      Hub.dispatch(
-        PUSH_INVESTIBLES_CHANNEL,
-        {
-          event: MESSAGES_EVENT,
-          message,
-        },
-      );
-    });
+    registerChannel(newSocket, 'USER_MESSAGES_UPDATED', PUSH_HUB_CHANNEL);
+    registerChannel(newSocket, 'INVESTIBLE_COMMENT_UPDATED', PUSH_COMMENTS_CHANNEL);
+    registerChannel(newSocket, 'MARKET_INVESTIBLE_UPDATED', PUSH_INVESTIBLES_CHANNEL);
+    registerChannel(newSocket, 'USER_UPDATED', PUSH_PRESENCE_CHANNEL);
 
     // we need to subscribe to our identity, but that requires reworking subscribe
     // newSocket.subscribe

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { Hub } from '@aws-amplify/core';
 import { createCachedAsyncContext } from './CachedAsyncContextCreator';
 import { getMarketUsers } from '../api/markets';
+import { MESSAGES_EVENT, PUSH_PRESENCE_CHANNEL } from './WebSocketContext';
 
 const emptyState = {
   usersPresenceList: {},
@@ -34,6 +36,18 @@ function AsyncMarketPresencesProvider(props) {
   // the provider value needs the new state cache object in order to alert
   // provider descendants to changes
   const providerState = { ...contextPackage, stateCache: state, refreshMarketPresence };
+
+  Hub.listen(PUSH_PRESENCE_CHANNEL, (data) => {
+    const { payload: { event, message } } = data;
+
+    switch (event) {
+      case MESSAGES_EVENT:
+        refreshMarketPresence(message.indirect_object_id);
+        break;
+      default:
+        console.debug(`Ignoring push event ${event}`);
+    }
+  });
 
   return (
     <AsyncMarketPresencesContext.Provider value={providerState}>

@@ -1,39 +1,11 @@
 import { useContext } from 'react';
 import { AsyncInvestiblesContext } from './AsyncInvestiblesContext';
-import { fetchInvestibles, fetchInvestibleList } from '../api/marketInvestibles';
-import _ from 'lodash';
 
 function useAsyncInvestiblesContext() {
-  const { stateCache, getState, setStateValues, loadingWrapper } = useContext(AsyncInvestiblesContext);
-
-  function updateInvestibles(state, updateHash) {
-    const { investibles } = state;
-    const newInvestibles = { ...investibles, ...updateHash };
-    return setStateValues({ investibles: newInvestibles });
-  }
-
-  function refreshInvestibles(marketId) {
-    // the loading wrapper can't pass arguments, so we
-    // need to bind market id with a closure
-    const refresher = () => {
-      return fetchInvestibleList(marketId)
-        .then((investibleList) => {
-          console.debug(investibleList);
-          if (_.isEmpty(investibleList)) {
-            return Promise.resolve([]);
-          }
-          const idList = investibleList.map((investible) => investible.id);
-          return fetchInvestibles(idList, marketId);
-        }).then((investibles) => {
-          console.debug(investibles);
-          const investibleHash = _.keyBy(investibles, (item) => item.investible.id);
-          console.debug(investibleHash);
-          return getState()
-            .then((state) => updateInvestibles(state, investibleHash));
-        });
-    };
-    return loadingWrapper(refresher);
-  }
+  const {
+    stateCache, getState, updateInvestibles,
+    refreshInvestibles,
+  } = useContext(AsyncInvestiblesContext);
 
   function updateInvestibleLocally(investible) {
     const { id } = investible.investible;

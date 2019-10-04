@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
+import queryString from 'query-string';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
@@ -57,6 +58,8 @@ function Market(props) {
   const { refreshMarketComments, loading: commentsLoading } = useAsyncCommentsContext();
   const [loadedMarket, setLoadedMarket] = useState(undefined);
   const { hidden } = props;
+  const values = queryString.parse(history.location.hash);
+  const { investible } = values;
 
   useEffect(() => {
     if (marketId && loadedMarket !== marketId) {
@@ -90,7 +93,7 @@ function Market(props) {
       hidden={hidden}
     >
       <div>
-        <MarketNav market={renderableMarket} initialTab="context" marketId={marketId} />
+        <MarketNav market={renderableMarket} initialTab={investible || 'context'} marketId={marketId} />
       </div>
     </Activity>
   );

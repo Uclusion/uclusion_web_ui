@@ -1,56 +1,12 @@
 import { useContext } from 'react';
-import { AsyncCommentsContext } from './AsyncCommentsContext';
-import { fetchCommentList, fetchComments } from '../api/comments';
 import _ from 'lodash';
-import { convertDates, getOutdatedObjectIds, removeDeletedObjects } from './ContextUtils';
+import { AsyncCommentsContext } from './AsyncCommentsContext';
+import { convertDates } from './ContextUtils';
 
 function useAsyncCommentsContext() {
-  const { stateCache, setStateValues, getState } = useContext(AsyncCommentsContext);
-
-  /*
-   Comments are retrieved on _markets_, not investibles. That means,
-   to refresh our comments store, I need to pull the entire list back from the market,
-   do a date updated comparision, and then fetch those comments that are out of date (or new)
-   Unfortunately, we want to _read_ comments by both market and investible, so we'll have
-   to maintain two data structures. The first to deal with the updating,
-   and the second actually containing
-   the comments indexed by their market ID which we'll inspect to determine if they are
-   market or investible comments.
-   */
-
-  function refreshMarketComments(marketId) {
-    return getState()
-      .then((state) => {
-        const { commentsList, comments } = state;
-        const oldMarketCommentsList = commentsList[marketId];
-        const oldMarketComments = comments[marketId];
-        return fetchCommentList(marketId)
-          .then((marketCommentsList) => {
-            const { comments: fetchedCommentsList } = marketCommentsList;
-            const needsUpdating = getOutdatedObjectIds(fetchedCommentsList, oldMarketCommentsList);
-            const deletedRemoved = removeDeletedObjects(fetchedCommentsList, oldMarketComments);
-            // the api supports max of 100 at a time
-            const fetchChunks = _.chunk(needsUpdating, 100);
-            const promises = fetchChunks.reduce((acc, chunk) => {
-              const chunkPromise = fetchComments(chunk, marketId);
-              return acc.concat(chunkPromise);
-            }, []);
-            const listDateConverted = fetchedCommentsList.map((comment) => convertDates(comment));
-            const newCommentsList = { ...commentsList, [marketId]: listDateConverted };
-            return setStateValues({ commentsList: newCommentsList })
-              .then(() => {
-                return Promise.all(promises)
-                  .then((commentChunks) => {
-                    const flattenedComments = _.flatten(commentChunks);
-                    const dateConverted = flattenedComments.map(comment => convertDates(comment));
-                    const newMarketComments = _.unionBy(dateConverted, deletedRemoved, 'id');
-                    const newComments = { ...comments, [marketId]: newMarketComments };
-                    return setStateValues({ comments: newComments });
-                  });
-              });
-          });
-      });
-  }
+  const {
+    stateCache, setStateValues, getState, refreshMarketComments,
+  } = useContext(AsyncCommentsContext);
 
   function findAndUpdateComment(state, commentUpdate) {
     const { id, market_id: marketId } = commentUpdate;
@@ -60,13 +16,13 @@ function useAsyncCommentsContext() {
     const oldMarketComments = comments[marketId] || [];
 
     // first we update the comments theselves
-    const oldComment = oldMarketComments.find(comment => comment.id === id);
+    const oldComment = oldMarketComments.find((comment) => comment.id === id);
     let newComment = commentUpdate;
     if (oldComment) {
       console.debug('Updating old comment');
       newComment = { ...oldComment, ...commentUpdate };
     }
-    const parent = oldMarketComments.find(comment => comment.id === commentUpdate.reply_id);
+    const parent = oldMarketComments.find((comment) => comment.id === commentUpdate.reply_id);
     const updateList = [newComment];
     if (parent && !oldComment) {
       const oldChildren = parent.children || [];
@@ -78,7 +34,7 @@ function useAsyncCommentsContext() {
 
     // now we update the comments list
     let newMarketCommentsList = oldMarketCommentsList;
-    const oldCommentsListEntry = oldMarketCommentsList.find(comment => comment.id === id);
+    const oldCommentsListEntry = oldMarketCommentsList.find((comment) => comment.id === id);
     if (!oldCommentsListEntry) {
       console.debug('adding new comment to comment list');
       const newEntry = { ...commentUpdate, updated_at: newUpdated };
@@ -104,7 +60,7 @@ function useAsyncCommentsContext() {
       reply_id: replyId,
       body,
     };
-    return getState().then(state => findAndUpdateComment(state, artificialComment));
+    return getState().then((state) => findAndUpdateComment(state, artificialComment));
   }
 
   function addCommentLocally(comment) {

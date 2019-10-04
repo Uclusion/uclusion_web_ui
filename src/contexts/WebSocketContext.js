@@ -13,6 +13,7 @@ import { sendInfoPersistent } from '../utils/userMessage';
 export const AUTH_HUB_CHANNEL = 'auth';
 export const PUSH_HUB_CHANNEL = 'MessagesChannel';
 export const PUSH_IDENTITY_CHANNEL = 'MarketsChannel';
+export const PUSH_COMMENTS_CHANNEL = 'CommentsChannel';
 export const MESSAGES_EVENT = 'webPush';
 const WebSocketContext = React.createContext([{}, () => {}]);
 function notifyNewApplicationVersion(currentVersion) {
@@ -62,6 +63,16 @@ function WebSocketProvider(props) {
     newSocket.registerHandler('USER_MESSAGES_UPDATED', (message) => {
       Hub.dispatch(
         PUSH_HUB_CHANNEL,
+        {
+          event: MESSAGES_EVENT,
+          message,
+        },
+      );
+    });
+
+    newSocket.registerHandler('INVESTIBLE_COMMENT_UPDATED', (message) => {
+      Hub.dispatch(
+        PUSH_COMMENTS_CHANNEL,
         {
           event: MESSAGES_EVENT,
           message,

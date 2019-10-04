@@ -19,7 +19,7 @@ export function uploadFileToS3(marketId, file) {
       }
       // aws ignores all fields after the file field, so the data has to be last
       body.append('file', file);
-      const fetchParams = { method: 'POST', body, mode: 'no-cors' };
+      const fetchParams = { method: 'POST', body };
       return fetch(url, fetchParams)
         .then(() => metadata); // just want to give back the successful url
     });

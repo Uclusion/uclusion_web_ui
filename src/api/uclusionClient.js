@@ -33,5 +33,5 @@ export const getFileClient = (metadata) => {
   updateFileToken(path, uclusion_token);
   const tokenRefresher = new FileTokenRefresher();
   const tokenManager = new TokenManager(tokenRefresher, null, TOKEN_TYPE_FILE, path);
-  return client.constructFilesClient({ ...config.file_download_configuration, tokenManager, mode: 'no-cors' });
+  return client.constructFilesClient({ ...config.file_download_configuration, tokenManager });
 };

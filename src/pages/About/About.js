@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { Paper, Typography, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import Activity from '../../containers/Activity/Activity';
 import withAppConfigs from '../../utils/withAppConfigs';
-import { getMarketClient } from '../../api/uclusionClient';
-import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import { getFlags } from '../../utils/userFunctions';
-import { getMarketId } from '../../utils/marketIdPathFunctions';
+import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
+import useAsyncMarketPresencesContext from '../../contexts/useAsyncMarketPresencesContext';
 
 const styles = (theme) => ({
   root: {
@@ -40,43 +38,45 @@ const styles = (theme) => ({
 });
 
 function About(props) {
-  const history = useHistory();
-  const { location } = history;
-  const { pathname } = location;
-  const marketId = getMarketId(pathname);
+  const { currentMarket, getMarketDetails } = useAsyncMarketsContext();
+  const { getCurrentUser } = useAsyncMarketPresencesContext();
   const {
-    user,
     appConfig,
     classes,
     intl,
     hidden,
   } = props;
 
-  const { isAdmin } = getFlags(user);
   const { version } = appConfig;
-
   const [market, setMarket] = useState(undefined);
+  const [user, setUser] = useState(undefined);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    if (marketId) {
-      console.log(`Fetching market ${marketId}`);
-      const clientPromise = getMarketClient(marketId);
-      clientPromise.then((client) => client.markets.get(marketId))
-        .then((market) => {
-          setMarket(market);
-        }).catch((error) => {
-          console.debug(error);
-          sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
+    if (currentMarket) {
+      getMarketDetails()
+        .then((marketDetails) => {
+          const found = marketDetails
+            && marketDetails.find((marketDetail) => marketDetail.id === currentMarket.id);
+          if (found) {
+            setMarket(found);
+          }
         });
+      if (getCurrentUser) {
+        getCurrentUser(currentMarket.id)
+          .then((currentUser) => {
+            setUser(currentUser);
+            const { isAdmin } = getFlags(currentUser);
+            setIsAdmin(isAdmin);
+          });
+      }
     }
     return () => {
     };
-  }, [marketId]);
-
+  }, [currentMarket, getMarketDetails, getCurrentUser]);
 
   function handleClear() {
-
-
+    // TODO need to clear storage here
   }
 
   // Each one of the paper blocks here represent a logical section of the page. We'll probably
@@ -97,7 +97,7 @@ function About(props) {
           <Paper className={classes.section}>
             <Typography className={classes.row}>
               <span className={classes.label}>{intl.formatMessage({ id: 'aboutMarketIdLabel' })}</span>
-              <span className={classes.value}>{marketId}</span>
+              <span className={classes.value}>{!!market && market.id}</span>
             </Typography>
             <Typography className={classes.row}>
               <span className={classes.label}>{intl.formatMessage({ id: 'aboutAccountIdLabel' })}</span>
@@ -137,7 +137,6 @@ function About(props) {
 About.propTypes = {
   appConfig: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
-  user: PropTypes.object,
   hidden: PropTypes.bool.isRequired,
 };
 

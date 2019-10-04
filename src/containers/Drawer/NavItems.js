@@ -8,7 +8,6 @@ import LockIcon from '@material-ui/icons/Lock';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router';
-import { getMarketId } from '../../utils/marketIdPathFunctions';
 const styles = theme => ({
   listItemIcon: {
     marginRight: 0,
@@ -18,8 +17,6 @@ const styles = theme => ({
 
 function NavItems(props) {
   const history = useHistory();
-  const { location } = history;
-  const { pathname } = location;
   const { intl, classes } = props;
   const items = [
     {
@@ -41,7 +38,6 @@ function NavItems(props) {
       icon: <DescriptionOutlinedIcon />,
       name: 'about',
       link: '/about',
-      appendMarketId: true,
     },
     {
       text: intl.formatMessage({ id: 'sideBarNavTempSignout' }),
@@ -53,21 +49,12 @@ function NavItems(props) {
 
   function itemOnClick(item) {
     return () => {
-      const { onClick, link, appendMarketId } = item;
+      const { onClick, link } = item;
       if (onClick) {
         onClick();
       }
       if (link) {
-        let validatedLink = link;
-        if (appendMarketId) {
-          if (pathname) {
-            const marketId = getMarketId(pathname);
-            if (marketId) {
-              validatedLink = `${validatedLink}/${marketId}`;
-            }
-          }
-        }
-        history.push(validatedLink);
+        history.push(link);
       }
     };
   }

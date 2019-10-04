@@ -53,7 +53,7 @@ function About(props) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    if (currentMarket) {
+    if (currentMarket && (market === undefined || currentMarket.id !== market.id)) {
       getMarketDetails()
         .then((marketDetails) => {
           const found = marketDetails

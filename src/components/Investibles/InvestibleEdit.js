@@ -55,9 +55,11 @@ function InvestibleEdit(props) {
       } else {
         // Submit to moderation
         newStage = stages.find((stage) => !stage.appears_in_market_summary
-          && stage.visible_to_roles.length === 1);
+          && stage.visible_to_roles.length === 2);
       }
-      return updateInvestibleStage(marketId, id, newStage.id, investible.stage_id);
+      console.debug(`Submitting to stage ${newStage.name}`);
+      const marketInfo = investible.market_infos.find((info) => info.market_id === marketId);
+      return updateInvestibleStage(marketId, id, newStage.id, marketInfo.stage);
     })
       .then(() => updateInvestibleLocally({ ...investible, stage_name: newStage.name }));
   }

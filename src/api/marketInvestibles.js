@@ -25,8 +25,13 @@ export function fetchInvestibleList(marketId) {
     });
 }
 
-
 export function updateInvestment(marketId, investibleId, newQuantity, currentQuantity) {
   return getMarketClient(marketId)
     .then((client) => client.markets.updateInvestment(investibleId, newQuantity, currentQuantity));
+}
+
+export function updateInvestibleStage(marketId, investibleId, stageId, currentStageId) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.stateChange(investibleId,
+      { stage_id: stageId, current_stage_id: currentStageId }));
 }

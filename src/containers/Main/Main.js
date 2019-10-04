@@ -13,6 +13,8 @@ import { DrawerProvider } from '../../contexts/DrawerContext';
 import { LocaleProvider } from '../../contexts/LocaleContext';
 import { AsyncCommentsProvider } from '../../contexts/AsyncCommentsContext';
 import { NotificationsProvider } from '../../contexts/NotificationsContext';
+import { AsyncMarketPresencesProvider } from '../../contexts/AsyncMarketPresencesContext';
+import { AsyncMarketStagesProvider } from '../../contexts/AsyncMarketStagesContext';
 
 console.log(awsconfig);
 Amplify.configure(awsconfig);
@@ -32,18 +34,22 @@ class Main extends Component {
     return (
       <div>
         <NotificationsProvider>
-          <AsyncCommentsProvider>
-            <AsyncInvestiblesProvider>
-              <AsyncMarketsProvider>
-                <DrawerProvider>
-                  <LocaleProvider>
-                    <ToastContainer />
-                    <App appConfig={{ ...config }} />
-                  </LocaleProvider>
-                </DrawerProvider>
-              </AsyncMarketsProvider>
-            </AsyncInvestiblesProvider>
-          </AsyncCommentsProvider>
+          <AsyncMarketPresencesProvider>
+            <AsyncMarketStagesProvider>
+              <AsyncCommentsProvider>
+                <AsyncInvestiblesProvider>
+                  <AsyncMarketsProvider>
+                    <DrawerProvider>
+                      <LocaleProvider>
+                        <ToastContainer />
+                        <App appConfig={{ ...config }} />
+                      </LocaleProvider>
+                    </DrawerProvider>
+                  </AsyncMarketsProvider>
+                </AsyncInvestiblesProvider>
+              </AsyncCommentsProvider>
+            </AsyncMarketStagesProvider>
+          </AsyncMarketPresencesProvider>
         </NotificationsProvider>
       </div>
     );

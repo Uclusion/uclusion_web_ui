@@ -1,4 +1,3 @@
-/* eslint-disable react/forbid-prop-types */
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
@@ -11,8 +10,10 @@ import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 import MarketNav from '../../components/DecisionDialog/MarketNav';
 import Activity from '../../containers/Activity';
 import { getMarketId } from '../../utils/marketIdPathFunctions';
+import useAsyncMarketPresencesContext from '../../contexts/useAsyncMarketPresencesContext';
+import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     height: '100%',
     display: 'flex',
@@ -50,7 +51,8 @@ function Market(props) {
   const { pathname } = location;
   const marketId = getMarketId(pathname);
   const { switchMarket, currentMarket, marketDetails } = useAsyncMarketsContext();
-
+  const { refreshMarketPresence, loading: marketUsersLoading } = useAsyncMarketPresencesContext();
+  const { refreshStages, loading: marketStagesLoading } = useAsyncMarketStagesContext();
   const { refreshInvestibles, loading: investiblesLoading } = useAsyncInvestiblesContext();
   const { refreshMarketComments, loading: commentsLoading } = useAsyncCommentsContext();
   const [loadedMarket, setLoadedMarket] = useState(undefined);
@@ -58,34 +60,44 @@ function Market(props) {
 
   useEffect(() => {
     if (marketId && loadedMarket !== marketId) {
+      setLoadedMarket(marketId);
       switchMarket(marketId);
       refreshInvestibles(marketId);
       refreshMarketComments(marketId);
-      setLoadedMarket(marketId);
+      refreshMarketPresence(marketId);
+      refreshStages(marketId);
     }
     return () => {
     };
-  }, [marketId, loadedMarket, switchMarket, refreshInvestibles, refreshMarketComments]);
+  }, [marketId, loadedMarket, switchMarket,
+    refreshInvestibles, refreshMarketComments, refreshMarketPresence, refreshStages]);
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   // console.debug(marketDetails);
-  const renderableMarket = marketDetails.find(market => market.id === marketId) || {};
+  const renderableMarket = marketDetails.find((market) => market.id === marketId) || {};
 
   return (
-    <Activity title={currentMarketName}
-              isLoading={investiblesLoading || commentsLoading}
-              appBarContent={<ExpirationCountDown {...renderableMarket} />}
-              hidden={hidden}
+    <Activity
+      title={currentMarketName}
+      isLoading={loadedMarket !== marketId
+              || investiblesLoading || commentsLoading || marketUsersLoading || marketStagesLoading}
+      appBarContent={(
+        <ExpirationCountDown
+          expiration_minutes={renderableMarket.expiration_minutes}
+          created_at={renderableMarket.created_at}
+        />
+)}
+      hidden={hidden}
     >
       <div>
-        <MarketNav market={renderableMarket} initialTab="context" marketId={marketId}/>
+        <MarketNav market={renderableMarket} initialTab="context" marketId={marketId} />
       </div>
     </Activity>
   );
 }
 
 Market.propTypes = {
-  intl: PropTypes.object.isRequired,
+  hidden: PropTypes.bool.isRequired,
 };
 
 export default injectIntl(withStyles(styles)(React.memo(Market)));

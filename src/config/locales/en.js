@@ -166,6 +166,7 @@ const messages = defineMessages({
   investibleEditTitleLabel: 'Title',
   investibleEditCancelLabel: 'Cancel',
   investibleEditSaveLabel: 'Save',
+  investibleEditSubmitLabel: 'Submit',
 
   // InvestibleAddEdit
   investibleAddHeader: 'Add Investible',

@@ -16,9 +16,10 @@ import { getTabsForInvestibles } from './tabHelpers';
 function MarketNav(props) {
   const history = useHistory();
   const {
-    intl, marketId, market,
+    intl, market,
   } = props;
   const values = queryString.parse(history.location.hash);
+  const marketId = market.id;
   const { investible } = values;
   const [selectedTab, setSelectedTab] = useState(undefined);
   const [edit, setEdit] = useState({});
@@ -30,19 +31,27 @@ function MarketNav(props) {
   const commentsHash = createCommentsHash(marketComments);
   const [previousTab, setPreviousTab] = useState();
 
+  function pushTab(tabValue) {
+    if (marketId) {
+      history.push(`/dialog/${marketId}#investible=${tabValue}`);
+    }
+  }
+  let workAroundSelected = selectedTab;
   if (investible) {
     if (selectedTab !== investible) {
       setPreviousTab(selectedTab);
-      setSelectedTab(investible);
+      workAroundSelected = investible;
+      setSelectedTab(workAroundSelected);
     }
   } else if (selectedTab) {
-    history.push(`/dialog/${marketId}#investible=${selectedTab}`);
+    pushTab(selectedTab);
   } else {
-    history.push(`/dialog/${marketId}#investible=context`);
+    workAroundSelected = 'context';
+    pushTab('context');
   }
 
   function switchTab(event, newValue) {
-    history.push(`/dialog/${marketId}#investible=${newValue}`);
+    pushTab(newValue);
   }
 
   function editToggle(id) {
@@ -50,25 +59,25 @@ function MarketNav(props) {
   }
 
   function onAddSave(newId) {
-    setSelectedTab(newId);
+    pushTab(newId);
   }
 
   function cancelAdd() {
     if (previousTab) {
-      history.push(`/dialog/${marketId}#investible=${previousTab}`);
+      pushTab(previousTab);
     } else {
-      history.push(`/dialog/${marketId}#investible=context`);
+      pushTab('context');
     }
   }
 
   const invTabs = getTabsForInvestibles(marketId, investibles,
-    marketComments, commentsHash, edit, editToggle, selectedTab);
+    marketComments, commentsHash, edit, editToggle, workAroundSelected);
 
   return (
     <div>
       <AppBar position="static" color="default">
         <Tabs
-          value={selectedTab}
+          value={workAroundSelected}
           indicatorColor="primary"
           textColor="primary"
           variant="scrollable"
@@ -79,7 +88,7 @@ function MarketNav(props) {
           <Tab label={intl.formatMessage({ id: 'marketNavTabAddIdeaLabel' })} icon={<AddIcon />} value="add" />
         </Tabs>
       </AppBar>
-      <TabPanel index="context" value={selectedTab}>
+      <TabPanel index="context" value={workAroundSelected}>
         {edit[marketId] && (
         <MarketEdit
           market={market}
@@ -97,7 +106,7 @@ function MarketNav(props) {
         )}
       </TabPanel>
       {invTabs.tabContent}
-      <TabPanel index="add" value={selectedTab}>
+      <TabPanel index="add" value={workAroundSelected}>
         <InvestibleAdd marketId={marketId} onSave={onAddSave} onCancel={cancelAdd} />
       </TabPanel>
     </div>
@@ -105,9 +114,10 @@ function MarketNav(props) {
 }
 
 MarketNav.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
   intl: PropTypes.object.isRequired,
-  initialTab: PropTypes.string.isRequired,
-  marketId: PropTypes.string,
+  // eslint-disable-next-line react/forbid-prop-types
+  market: PropTypes.object.isRequired,
 };
 
 export default injectIntl(MarketNav);

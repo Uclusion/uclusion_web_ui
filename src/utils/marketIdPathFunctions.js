@@ -2,12 +2,10 @@
  * Gets the market id from the URL if it's present in it.
  * @returns {string}
  */
-export function getMarketId(path, mySearch) {
+export function getMarketId(path, search = '/dialog/') {
   if (!path) {
     return null;
   }
-  // console.log('Current location ' + path);
-  const search = mySearch ? mySearch : '/dialog/';
   if (!path.startsWith(search)) {
     return null;
   }

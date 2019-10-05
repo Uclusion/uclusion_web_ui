@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
-import queryString from 'query-string';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
@@ -74,24 +73,23 @@ function Market(props) {
     refreshInvestibles, refreshMarketComments, refreshMarketPresence, refreshStages]);
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
-  // console.debug(marketDetails);
-  const renderableMarket = marketDetails.find((market) => market.id === marketId) || {};
+  const renderableMarket = marketDetails.find((market) => market.id === marketId);
 
   return (
     <Activity
       title={currentMarketName}
       isLoading={loadedMarket !== marketId
               || investiblesLoading || commentsLoading || marketUsersLoading || marketStagesLoading}
-      appBarContent={(
+      appBarContent={renderableMarket && (
         <ExpirationCountDown
           expiration_minutes={renderableMarket.expiration_minutes}
           created_at={renderableMarket.created_at}
         />
-)}
+      )}
       hidden={hidden}
     >
       <div>
-        <MarketNav market={renderableMarket} marketId={marketId} />
+        {renderableMarket && (<MarketNav market={renderableMarket} />)}
       </div>
     </Activity>
   );

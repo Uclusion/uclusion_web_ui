@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { AppBar, Tabs, Tab } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
@@ -8,6 +8,8 @@ import queryString from 'query-string';
 import TabPanel from '../Tabs/TabPanel';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
+import { formInvestibleLink } from '../../utils/marketIdPathFunctions';
+import { viewed } from '../../api/markets';
 import MarketView from './MarketView';
 import MarketEdit from './MarketEdit';
 import InvestibleAdd from '../Investibles/InvestibleAdd';
@@ -31,9 +33,36 @@ function MarketNav(props) {
   const commentsHash = createCommentsHash(marketComments);
   const [previousTab, setPreviousTab] = useState();
 
+  useEffect(() => {
+    function pegView(isEntry) {
+      if (!marketId || selectedTab === 'add') {
+        return;
+      }
+      if (selectedTab === 'context') {
+        viewed(marketId, isEntry);
+      } else if (selectedTab) {
+        viewed(marketId, isEntry, selectedTab);
+      }
+    }
+    const focusListener = window.addEventListener('focus', () => {
+      pegView(true);
+    });
+    const blurListener = window.addEventListener('blur', () => {
+      pegView(false);
+    });
+    return () => {
+      if (focusListener) {
+        focusListener.remove();
+      }
+      if (blurListener) {
+        blurListener.remove();
+      }
+    };
+  }, [marketId, selectedTab]);
+
   function pushTab(tabValue) {
     if (marketId) {
-      history.push(`/dialog/${marketId}#investible=${tabValue}`);
+      history.push(formInvestibleLink(marketId, tabValue));
     }
   }
   let workAroundSelected = selectedTab;
@@ -43,9 +72,8 @@ function MarketNav(props) {
       workAroundSelected = investible;
       setSelectedTab(workAroundSelected);
     }
-  } else if (selectedTab) {
-    pushTab(selectedTab);
   } else {
+    // Someone passed us a bad URL so fall back to context tab
     workAroundSelected = 'context';
     pushTab('context');
   }

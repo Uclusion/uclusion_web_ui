@@ -10,7 +10,7 @@ import Notifications from '../../pages/ActionCenter/Notifications';
 import Market from '../../pages/DecisionDialog/Market';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
-import { getMarketId } from '../../utils/marketIdPathFunctions';
+import { formMarketLink, getMarketId } from '../../utils/marketIdPathFunctions';
 import { getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 
@@ -69,7 +69,7 @@ function Root(props) {
   const inviteMarketId = getMarketId(pathname, '/invite/');
   if (inviteMarketId) {
     console.log(`Logging into market ${inviteMarketId}`);
-    getMarketClient(inviteMarketId).then(() => history.push(`/dialog/${inviteMarketId}`))
+    getMarketClient(inviteMarketId).then(() => history.push(formMarketLink(inviteMarketId)))
       .catch((error) => {
         console.error(error);
         sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
@@ -97,6 +97,7 @@ function Root(props) {
 
 Root.propTypes = {
   appConfig: PropTypes.object.isRequired, // eslint-disable-line
+  classes: PropTypes.object.isRequired, // eslint-disable-line
 };
 
 export default withStyles(styles)(Root);

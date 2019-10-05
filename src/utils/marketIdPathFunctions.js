@@ -17,26 +17,16 @@ export function getMarketId(path, search = '/dialog/') {
   return pathPart.substr(0, investibleSlashLocation);
 }
 
-/**
- * Helper function to centralize market id subpath link formation
- * @param marketId
- * @param subPath
- * @returns {string}
- */
-function formMarketIdLink(marketId, subPath) {
-  if (!subPath) {
-    return `/dialog/${marketId}`;
-  }
-  return `/dialog/${marketId}/${subPath}`;
+export function formInvestibleLink(marketId, investibleId) {
+  return `/dialog/${marketId}#investible=${investibleId}`;
 }
 
 /**
  * Forms a link to a given market id with the given subpath. Usually used when switching
  * to a different market
  * @param marketId
- * @param subPath
  * @returns {string}
  */
-export function formMarketLink(marketId, subPath) {
-  return formMarketIdLink(marketId, subPath);
+export function formMarketLink(marketId) {
+  return formInvestibleLink(marketId, 'context');
 }

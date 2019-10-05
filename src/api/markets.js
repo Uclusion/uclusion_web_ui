@@ -21,6 +21,14 @@ export function createMarket(name, description, expirationMinutes) {
     .then((client) => client.markets.createMarket(addPackage));
 }
 
+export function viewed(marketId, isPresent, investibleId) {
+  const viewPromise = getMarketClient(marketId);
+  if (investibleId) {
+    return viewPromise.then((client) => client.markets.viewedInvestible(investibleId, isPresent));
+  }
+  return viewPromise.then((client) => client.markets.viewed(isPresent));
+}
+
 export function getMarketUsers(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.markets.listUsers());

@@ -11,7 +11,7 @@ export function getMarketId(path, search = '/dialog/') {
   }
   const pathPart = path.substr(search.length);
   const investibleSlashLocation = pathPart.indexOf('/');
-  if (investibleSlashLocation === -1){
+  if (investibleSlashLocation === -1) {
     return pathPart;
   }
   return pathPart.substr(0, investibleSlashLocation);
@@ -38,6 +38,5 @@ function formMarketIdLink(marketId, subPath) {
  * @returns {string}
  */
 export function formMarketLink(marketId, subPath) {
-  const marketLink = formMarketIdLink(marketId, subPath);
-  return marketLink;
+  return formMarketIdLink(marketId, subPath);
 }

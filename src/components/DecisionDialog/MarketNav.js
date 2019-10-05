@@ -11,13 +11,16 @@ import MarketView from './MarketView';
 import MarketEdit from './MarketEdit';
 import InvestibleAdd from '../Investibles/InvestibleAdd';
 import { getTabsForInvestibles } from './tabHelpers';
+import queryString from 'query-string';
 
 function MarketNav(props) {
   const history = useHistory();
   const {
-    intl, marketId, initialTab, market,
+    intl, marketId, market,
   } = props;
-  const [selectedTab, setSelectedTab] = useState(initialTab);
+  const values = queryString.parse(history.location.hash);
+  const { investible } = values;
+  const [selectedTab, setSelectedTab] = useState(undefined);
   const [edit, setEdit] = useState({});
   const { comments, createCommentsHash } = useAsyncCommentsContext();
   const { getCachedInvestibles } = useAsyncInvestiblesContext();
@@ -27,9 +30,16 @@ function MarketNav(props) {
   const commentsHash = createCommentsHash(marketComments);
   const [previousTab, setPreviousTab] = useState();
 
+  if (investible) {
+    if (selectedTab !== investible) {
+      setPreviousTab(selectedTab);
+      setSelectedTab(investible);
+    }
+  } else if (!selectedTab) {
+    history.push(`/dialog/${marketId}#investible=context`);
+  }
+
   function switchTab(event, newValue) {
-    setPreviousTab(selectedTab);
-    setSelectedTab(newValue);
     history.push(`/dialog/${marketId}#investible=${newValue}`);
   }
 

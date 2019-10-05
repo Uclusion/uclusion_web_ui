@@ -58,8 +58,6 @@ function Market(props) {
   const { refreshMarketComments, loading: commentsLoading } = useAsyncCommentsContext();
   const [loadedMarket, setLoadedMarket] = useState(undefined);
   const { hidden } = props;
-  const values = queryString.parse(history.location.hash);
-  const { investible } = values;
 
   useEffect(() => {
     if (marketId && loadedMarket !== marketId) {
@@ -93,7 +91,7 @@ function Market(props) {
       hidden={hidden}
     >
       <div>
-        <MarketNav market={renderableMarket} initialTab={investible || 'context'} marketId={marketId} />
+        <MarketNav market={renderableMarket} marketId={marketId} />
       </div>
     </Activity>
   );

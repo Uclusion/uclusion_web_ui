@@ -73,7 +73,7 @@ function About(props) {
     }
     return () => {
     };
-  }, [currentMarket, getMarketDetails, getCurrentUser]);
+  }, [currentMarket, market, getMarketDetails, getCurrentUser]);
 
   function handleClear() {
     // TODO need to clear storage here

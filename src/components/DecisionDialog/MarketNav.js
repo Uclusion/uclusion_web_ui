@@ -57,7 +57,7 @@ function MarketNav(props) {
       pegView(true);
     });
     // Need this or focus happens before url pushed
-    const hashChangeListener = window.addEventListener('hashchange', () => {
+    const popstateListener = window.addEventListener('popstate', () => {
       pegView(true);
     });
     const blurListener = window.addEventListener('blur', () => {
@@ -67,8 +67,8 @@ function MarketNav(props) {
       if (focusListener) {
         focusListener.remove();
       }
-      if (hashChangeListener) {
-        hashChangeListener.remove();
+      if (popstateListener) {
+        popstateListener.remove();
       }
       if (blurListener) {
         blurListener.remove();

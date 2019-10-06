@@ -35,16 +35,29 @@ function MarketNav(props) {
 
   useEffect(() => {
     function pegView(isEntry) {
-      if (!marketId || selectedTab === 'add') {
+      if (!marketId || !selectedTab || selectedTab === 'add') {
         return;
       }
+      const currentHref = window.location.href;
+      const desiredLink = formInvestibleLink(marketId, selectedTab);
+      if (!currentHref.endsWith(desiredLink)) {
+        console.log(`Not firing with ${currentHref} and ${desiredLink}`);
+        // This is a SPA so prevent firing when this page is not in focus
+        return;
+      }
+      console.log(`Firing with ${currentHref} and ${desiredLink}`);
       if (selectedTab === 'context') {
         viewed(marketId, isEntry);
-      } else if (selectedTab) {
+      } else {
         viewed(marketId, isEntry, selectedTab);
       }
     }
+    // Need this or won't see events where url doesn't change
     const focusListener = window.addEventListener('focus', () => {
+      pegView(true);
+    });
+    // Need this or focus happens before url pushed
+    const hashChangeListener = window.addEventListener('hashchange', () => {
       pegView(true);
     });
     const blurListener = window.addEventListener('blur', () => {
@@ -53,6 +66,9 @@ function MarketNav(props) {
     return () => {
       if (focusListener) {
         focusListener.remove();
+      }
+      if (hashChangeListener) {
+        hashChangeListener.remove();
       }
       if (blurListener) {
         blurListener.remove();

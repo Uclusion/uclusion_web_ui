@@ -8,6 +8,8 @@ import LockIcon from '@material-ui/icons/Lock';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router';
+import { navigate } from '../../utils/marketIdPathFunctions';
+
 const styles = theme => ({
   listItemIcon: {
     marginRight: 0,
@@ -54,7 +56,7 @@ function NavItems(props) {
         onClick();
       }
       if (link) {
-        history.push(link);
+        navigate(history, link);
       }
     };
   }

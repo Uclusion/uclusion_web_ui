@@ -5,7 +5,7 @@ import {
   ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Typography,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { formMarketLink } from '../../utils/marketIdPathFunctions';
+import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 
 function MarketsListItem(props) {
   const history = useHistory();
@@ -19,7 +19,7 @@ function MarketsListItem(props) {
         aria-controls="panel1a-content"
         id="panel1a-header"
       >
-        <Typography onClick={() => history.push(formMarketLink(id))}>{name}</Typography>
+        <Typography onClick={() => navigate(history, formMarketLink(id))}>{name}</Typography>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails>
         Fill this in when we have details for the markets list view

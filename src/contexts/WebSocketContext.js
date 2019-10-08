@@ -12,11 +12,13 @@ import { sendInfoPersistent } from '../utils/userMessage';
 
 export const AUTH_HUB_CHANNEL = 'auth';
 export const PUSH_HUB_CHANNEL = 'MessagesChannel';
-export const PUSH_IDENTITY_CHANNEL = 'MarketsChannel';
+export const PUSH_CONTEXT_CHANNEL = 'MarketsChannel';
 export const PUSH_COMMENTS_CHANNEL = 'CommentsChannel';
 export const PUSH_INVESTIBLES_CHANNEL = 'InvestiblesChannel';
 export const PUSH_PRESENCE_CHANNEL = 'PresenceChannel';
 export const MESSAGES_EVENT = 'webPush';
+export const IDENTITY_EVENT = 'identityPush';
+export const VIEW_EVENT = 'pageView';
 const WebSocketContext = React.createContext([{}, () => {}]);
 function notifyNewApplicationVersion(currentVersion) {
   const { version } = config;
@@ -55,15 +57,6 @@ function WebSocketProvider(props) {
     newSocket.connect();
     // we always want to be notified when changes happen to our identity
     new AmplifyIdentityTokenRefresher().getIdentity().then((identity) => {
-      newSocket.registerHandler('IDENTITY_UPDATED', (message) => {
-        Hub.dispatch(
-          PUSH_IDENTITY_CHANNEL,
-          {
-            event: MESSAGES_EVENT,
-            message,
-          },
-        );
-      });
       newSocket.subscribe(identity);
     });
     // we also want to always be subscribed to new app versions
@@ -77,7 +70,23 @@ function WebSocketProvider(props) {
     registerChannel(newSocket, 'USER_MESSAGES_UPDATED', PUSH_HUB_CHANNEL);
     registerChannel(newSocket, 'INVESTIBLE_COMMENT_UPDATED', PUSH_COMMENTS_CHANNEL);
     registerChannel(newSocket, 'MARKET_INVESTIBLE_UPDATED', PUSH_INVESTIBLES_CHANNEL);
-    registerChannel(newSocket, 'USER_UPDATED', PUSH_PRESENCE_CHANNEL);
+    registerChannel(newSocket, 'MARKET_UPDATED', PUSH_CONTEXT_CHANNEL);
+    newSocket.registerHandler('USER_UPDATED', (message) => {
+      Hub.dispatch(
+        PUSH_CONTEXT_CHANNEL,
+        {
+          event: IDENTITY_EVENT,
+          message,
+        },
+      );
+      Hub.dispatch(
+        PUSH_PRESENCE_CHANNEL,
+        {
+          event: MESSAGES_EVENT,
+          message,
+        },
+      );
+    });
 
     // we need to subscribe to our identity, but that requires reworking subscribe
     // newSocket.subscribe

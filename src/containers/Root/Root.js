@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
 import { withStyles } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
+import queryString from 'query-string';
 import { defaultTheme } from '../../config/themes';
 import Drawer from '../Drawer';
 import Markets from '../../pages/DecisionDialogs/Markets';
@@ -10,7 +11,9 @@ import Notifications from '../../pages/ActionCenter/Notifications';
 import Market from '../../pages/DecisionDialog/Market';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
-import { formMarketLink, getMarketId } from '../../utils/marketIdPathFunctions';
+import {
+  broadcastView, formMarketLink, getMarketId, navigate,
+} from '../../utils/marketIdPathFunctions';
 import { getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 
@@ -69,12 +72,42 @@ function Root(props) {
   const inviteMarketId = getMarketId(pathname, '/invite/');
   if (inviteMarketId) {
     console.log(`Logging into market ${inviteMarketId}`);
-    getMarketClient(inviteMarketId).then(() => history.push(formMarketLink(inviteMarketId)))
+    getMarketClient(inviteMarketId).then(() => navigate(history, formMarketLink(inviteMarketId)))
       .catch((error) => {
         console.error(error);
         sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
       });
   }
+
+  useEffect(() => {
+    function pegView(isEntry) {
+      const currentHref = window.location.href;
+      const hashStart = currentHref.indexOf('#');
+      if (hashStart > -1) {
+        const values = queryString.parse(currentHref.substring(hashStart));
+        const { investible } = values;
+        const path = currentHref.substring(currentHref.indexOf('/dialog/'), hashStart);
+        const marketId = getMarketId(path);
+        broadcastView(marketId, investible, isEntry);
+      }
+    }
+    // Need this or won't see events where url doesn't change
+    const focusListener = window.addEventListener('focus', () => {
+      pegView(true);
+    });
+    const blurListener = window.addEventListener('blur', () => {
+      pegView(false);
+    });
+    return () => {
+      if (focusListener) {
+        focusListener.remove();
+      }
+      if (blurListener) {
+        blurListener.remove();
+      }
+    };
+  }, []);
+
   return (
     <MuiThemeProvider theme={theme}>
       <div className={classes.body}>

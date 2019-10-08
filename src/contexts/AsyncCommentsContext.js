@@ -4,7 +4,7 @@ import { Hub } from '@aws-amplify/core';
 import { createCachedAsyncContext } from './CachedAsyncContextCreator';
 import { fetchCommentList, fetchComments } from '../api/comments';
 import { convertDates, getOutdatedObjectIds, removeDeletedObjects } from './ContextUtils';
-import { MESSAGES_EVENT, PUSH_COMMENTS_CHANNEL } from './WebSocketContext';
+import { MESSAGES_EVENT, PUSH_COMMENTS_CHANNEL, VIEW_EVENT } from './WebSocketContext';
 
 const emptyState = {
   comments: {},
@@ -60,6 +60,30 @@ function refreshMarketComments(marketId) {
   return loadingWrapper(refreshComments);
 }
 
+function handleViewEvent(message) {
+  const { marketId, investibleIdOrContext, isEntry } = message;
+  getState().then((state) => {
+    let comments;
+    if (investibleIdOrContext === 'context') {
+      comments = state.comments.filter((comment) => comment.market_id === marketId
+        && !comment.investible_id);
+    } else {
+      // eslint-disable-next-line max-len
+      comments = state.comments.filter((comment) => comment.investible_id === investibleIdOrContext);
+    }
+    const latestComment = Math.max.apply(null, comments.map((comment) => comment.updated_at));
+    let viewedComment;
+    if (isEntry) {
+      const { updated_at } = latestComment;
+      viewedComment = { ...latestComment, lastPresentDate: updated_at };
+    } else {
+      viewedComment = { ...latestComment, lastPresentDate: null };
+    }
+    const newComments = _.unionBy([viewedComment], state.comments, 'id');
+    return setStateValues({ comments: newComments});
+  });
+}
+
 const AsyncCommentsContext = context;
 
 function AsyncCommentsProvider(props) {
@@ -78,6 +102,9 @@ function AsyncCommentsProvider(props) {
     switch (event) {
       case MESSAGES_EVENT:
         refreshMarketComments(message.indirect_object_id);
+        break;
+      case VIEW_EVENT:
+        handleViewEvent(message);
         break;
       default:
         console.debug(`Ignoring push event ${event}`);

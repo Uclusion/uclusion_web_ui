@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { Hub } from '@aws-amplify/core';
 import { createCachedAsyncContext } from './CachedAsyncContextCreator';
 import { fetchInvestibleList, fetchInvestibles } from '../api/marketInvestibles';
-import { MESSAGES_EVENT, PUSH_INVESTIBLES_CHANNEL } from './WebSocketContext';
+import { MESSAGES_EVENT, PUSH_INVESTIBLES_CHANNEL, VIEW_EVENT } from './WebSocketContext';
 
 const EMPTY_STATE = { investibles: {} };
 const contextPackage = createCachedAsyncContext('async_investibles', EMPTY_STATE);
@@ -39,6 +39,22 @@ function refreshInvestibles(marketId) {
   return loadingWrapper(refreshMarketInvestibles);
 }
 
+function handleViewEvent(message) {
+  const { investibleIdOrContext: investibleId, isEntry } = message;
+  getState().then((state) => {
+    const investible = state.investibles.find((investible) => investible.id === investibleId);
+    let viewedInvestible;
+    if (isEntry) {
+      const { updated_at } = investible;
+      viewedInvestible = { ...investible, lastPresentDate: updated_at };
+    } else {
+      viewedInvestible = { ...investible, lastPresentDate: null };
+    }
+    const newInvestibles = _.unionBy([viewedInvestible], state.investibles, 'id');
+    return setStateValues({ investibles: newInvestibles });
+  });
+}
+
 const AsyncInvestiblesContext = context;
 
 function AsyncInvestiblesProvider(props) {
@@ -61,6 +77,9 @@ function AsyncInvestiblesProvider(props) {
     switch (event) {
       case MESSAGES_EVENT:
         refreshInvestibles(message.indirect_object_id);
+        break;
+      case VIEW_EVENT:
+        handleViewEvent(message);
         break;
       default:
         console.debug(`Ignoring push event ${event}`);

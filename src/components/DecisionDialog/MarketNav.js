@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router';
 import { AppBar, Tabs, Tab } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
@@ -8,8 +8,7 @@ import queryString from 'query-string';
 import TabPanel from '../Tabs/TabPanel';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
-import { formInvestibleLink } from '../../utils/marketIdPathFunctions';
-import { viewed } from '../../api/markets';
+import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
 import MarketView from './MarketView';
 import MarketEdit from './MarketEdit';
 import InvestibleAdd from '../Investibles/InvestibleAdd';
@@ -33,52 +32,9 @@ function MarketNav(props) {
   const commentsHash = createCommentsHash(marketComments);
   const [previousTab, setPreviousTab] = useState();
 
-  useEffect(() => {
-    function pegView(isEntry) {
-      if (!marketId || !selectedTab || selectedTab === 'add') {
-        return;
-      }
-      const currentHref = window.location.href;
-      const desiredLink = formInvestibleLink(marketId, selectedTab);
-      if (!currentHref.endsWith(desiredLink)) {
-        console.log(`Not firing with ${currentHref} and ${desiredLink}`);
-        // This is a SPA so prevent firing when this page is not in focus
-        return;
-      }
-      console.log(`Firing with ${currentHref} and ${desiredLink}`);
-      if (selectedTab === 'context') {
-        viewed(marketId, isEntry);
-      } else {
-        viewed(marketId, isEntry, selectedTab);
-      }
-    }
-    // Need this or won't see events where url doesn't change
-    const focusListener = window.addEventListener('focus', () => {
-      pegView(true);
-    });
-    // Need this or focus happens before url pushed
-    const popstateListener = window.addEventListener('popstate', () => {
-      pegView(true);
-    });
-    const blurListener = window.addEventListener('blur', () => {
-      pegView(false);
-    });
-    return () => {
-      if (focusListener) {
-        focusListener.remove();
-      }
-      if (popstateListener) {
-        popstateListener.remove();
-      }
-      if (blurListener) {
-        blurListener.remove();
-      }
-    };
-  }, [marketId, selectedTab]);
-
   function pushTab(tabValue) {
     if (marketId) {
-      history.push(formInvestibleLink(marketId, tabValue));
+      navigate(history, formInvestibleLink(marketId, tabValue));
     }
   }
   let workAroundSelected = selectedTab;

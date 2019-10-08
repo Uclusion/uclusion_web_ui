@@ -3,7 +3,7 @@ import React from 'react';
 import { useHistory } from 'react-router';
 import { Button } from '@material-ui/core';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import { formInvestibleLink } from '../../utils/marketIdPathFunctions';
+import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
 
 function MessagesListItem(props) {
   const history = useHistory();
@@ -22,7 +22,7 @@ function MessagesListItem(props) {
   }
   const link = formInvestibleLink(marketId, linkDest);
   function handleClickItem() {
-    history.push(link);
+    navigate(history, link);
   }
   return (
     <ExpansionPanelDetails>

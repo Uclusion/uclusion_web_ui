@@ -77,6 +77,7 @@ function handleViewEvent(message) {
 }
 
 const AsyncMarketsContext = context;
+
 function AsyncMarketsProvider(props) {
   const [myState, setMyState] = useState(emptyState);
   const [isInitialization, setIsInitialization] = useState(true);

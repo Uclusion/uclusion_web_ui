@@ -60,7 +60,7 @@ class HtmlRichTextEditor extends React.Component {
 
   // Render the editor.
   render() {
-    const { readOnly, placeHolder } = this.props;
+    const { readOnly, placeHolder, handleFileUpload } = this.props;
     const { value } = this.state;
     return (
       <RichTextEditor
@@ -68,6 +68,7 @@ class HtmlRichTextEditor extends React.Component {
         placeHolder={placeHolder}
         onChange={this.onChange}
         readOnly={readOnly}
+        handleFileUpload={handleFileUpload}
       />
     );
   }
@@ -80,12 +81,14 @@ HtmlRichTextEditor.propTypes = {
   onChange: PropTypes.func,
   readOnly: PropTypes.bool,
   maxSize: PropTypes.number,
+  handleFileUpload: PropTypes.func,
 };
 
 HtmlRichTextEditor.defaultProps = {
   value: '',
   placeHolder: '',
   onChange: () => null,
+  handleFileUpload: () => null,
   readOnly: false,
   maxSize: 300000, // dynamodb element size - 100k for other things
 };

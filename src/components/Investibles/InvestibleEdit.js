@@ -9,6 +9,7 @@ import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContex
 import useAsyncMarketPresencesContext from '../../contexts/useAsyncMarketPresencesContext';
 import { updateInvestibleStage } from '../../api/marketInvestibles';
 import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
+import { listUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 
 const styles = (theme) => ({
   root: {
@@ -30,7 +31,7 @@ function InvestibleEdit(props) {
     investible, intl, classes, editToggle, onSave, marketId,
   } = props;
   const [currentValues, setCurrentValues] = useState(investible.investible);
-  const { name, description, id } = currentValues;
+  const { name, description, id, uploadedFiles } = currentValues;
 
   function handleChange(field) {
     return (event) => {
@@ -40,8 +41,17 @@ function InvestibleEdit(props) {
     };
   }
 
+  function handleFileUpload(metadata) {
+    console.log(metadata);
+    const uploadedFiles = currentValues.uploadedFiles || [];
+    uploadedFiles.push(metadata);
+    const newValues = { ...currentValues, uploadedFiles };
+    setCurrentValues(newValues);
+  }
+
   function handleSave() {
-    return updateInvestible(marketId, id, name, description)
+    const filteredUploads = listUploadsUsedInText(uploadedFiles, description);
+    return updateInvestible(marketId, id, name, description, filteredUploads)
       .then((data) => updateInvestibleLocally({ ...investible, investible: data }))
       .then(() => onSave());
   }
@@ -79,6 +89,7 @@ function InvestibleEdit(props) {
           onChange={handleChange('name')}
         />
         <HtmlRichTextEditor
+          handleFileUpload={handleFileUpload}
           onChange={handleChange('description')}
           value={description}
         />

@@ -628,7 +628,7 @@ class RichTextEditor extends React.Component {
   };
 
   insertImagesFromFiles = (files, target) => {
-    const { history } = this.props;
+    const { history, handleFileUpload } = this.props;
     const { location } = history;
     const { pathname } = location;
     const marketId = getMarketId(pathname);
@@ -638,7 +638,10 @@ class RichTextEditor extends React.Component {
       // console.log(mime);
       if (mime !== 'image') continue;
       uploadFileToS3(marketId, file)
-        .then((metadata) => this.editor.command(insertImage, metadata, target));
+        .then((metadata) => {
+          this.editor.command(insertImage, metadata, target);
+          handleFileUpload(metadata);
+        });
     }
   };
 

@@ -42,7 +42,9 @@ function refreshInvestibles(marketId) {
 function handleViewEvent(message) {
   const { investibleIdOrContext: investibleId, isEntry } = message;
   getState().then((state) => {
-    const investible = state.investibles.find((investible) => investible.id === investibleId);
+    const { investibles } = state;
+    const investibleList = Object.values(investibles);
+    const investible = investibleList.find((investible) => investible.id === investibleId);
     let viewedInvestible;
     if (isEntry) {
       const { updated_at } = investible;

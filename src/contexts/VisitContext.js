@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
-import useAsyncMarketContext from './useAsyncMarketsContext'
+import useAsyncMarketContext from './useAsyncMarketsContext';
+import useAsyncInvestiblesContext from './useAsyncInvestiblesContext';
 
 const VisitContext = React.createContext([{}, () => {}]);
 

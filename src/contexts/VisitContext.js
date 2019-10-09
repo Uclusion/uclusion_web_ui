@@ -10,7 +10,7 @@ const VISIT_CONTEXT_KEY = 'visit_context';
 function VisitProvider(props) {
 
   const { children } = props;
-  const defaultValue = getUclusionLocalStorageItem(VISIT_CONTEXT_KEY) || {locale: 'en'};
+  const defaultValue = getUclusionLocalStorageItem(VISIT_CONTEXT_KEY) || {};
   const [state, setState] = useState(defaultValue);
   const { markets } = useAsyncMarketContext();
   useEffect(() => {

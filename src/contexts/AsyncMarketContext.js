@@ -63,7 +63,8 @@ function refreshMarkets() {
 function handleViewEvent(message) {
   const { marketId, isEntry } = message;
   getState().then((state) => {
-    const market = state.market.find((market) => market.id === marketId);
+    const { markets } = state;
+    const market = markets.find((market) => market.id === marketId);
     let viewedMarket;
     if (isEntry) {
       const { updated_at } = market;
@@ -72,7 +73,8 @@ function handleViewEvent(message) {
       viewedMarket = { ...market, lastPresentDate: null };
     }
     const newDetails = _.unionBy([viewedMarket], state.marketDetails, 'id');
-    return setStateValues({ marketDetails: newDetails });
+    return true;
+    // return setStateValues({ marketDetails: newDetails });
   });
 }
 

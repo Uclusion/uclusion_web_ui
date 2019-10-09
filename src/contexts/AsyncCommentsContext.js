@@ -63,15 +63,17 @@ function refreshMarketComments(marketId) {
 function handleViewEvent(message) {
   const { marketId, investibleIdOrContext, isEntry } = message;
   getState().then((state) => {
-    let comments;
+    const { comments } = state;
+    const commentsList = Object.values(comments);
+    let filteredComments;
     if (investibleIdOrContext === 'context') {
-      comments = state.comments.filter((comment) => comment.market_id === marketId
+      filteredComments = commentsList.filter((comment) => comment.market_id === marketId
         && !comment.investible_id);
     } else {
       // eslint-disable-next-line max-len
-      comments = state.comments.filter((comment) => comment.investible_id === investibleIdOrContext);
+      filteredComments = commentsList.filter((comment) => comment.investible_id === investibleIdOrContext);
     }
-    const latestComment = Math.max.apply(null, comments.map((comment) => comment.updated_at));
+    const latestComment = Math.max.apply(null, filteredComments.map((comment) => comment.updated_at));
     let viewedComment;
     if (isEntry) {
       const { updated_at } = latestComment;
@@ -80,7 +82,8 @@ function handleViewEvent(message) {
       viewedComment = { ...latestComment, lastPresentDate: null };
     }
     const newComments = _.unionBy([viewedComment], state.comments, 'id');
-    return setStateValues({ comments: newComments});
+    return true;
+    //  return setStateValues({ comments: newComments});
   });
 }
 

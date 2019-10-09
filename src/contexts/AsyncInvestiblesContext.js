@@ -51,7 +51,8 @@ function handleViewEvent(message) {
       viewedInvestible = { ...investible, lastPresentDate: null };
     }
     const newInvestibles = _.unionBy([viewedInvestible], state.investibles, 'id');
-    return setStateValues({ investibles: newInvestibles });
+    return true;
+    // return setStateValues({ investibles: newInvestibles });
   });
 }
 

@@ -8,4 +8,5 @@ export function listUploadsUsedInText(uploadedFiles, text){
     const { path } = file;
     return text.includes(path);
   });
+  return used;
 }

@@ -24,8 +24,10 @@ function LoadableImage(props) {
   useEffect(() => {
     if (!src && metadata) {
       fetchFileFromS3(metadata)
-        .then((data) => {
-          setSrc(URL.createObjectURL(data));
+        .then((response) => {
+          console.log(response);
+          const { blob } = response;
+          setSrc(URL.createObjectURL(blob));
         });
     }
   });

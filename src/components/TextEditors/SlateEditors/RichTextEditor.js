@@ -86,7 +86,8 @@ function insertImage(editor, metadata, target) {
   if (target) {
     editor.select(target);
   }
-  // console.log(metadata);
+  console.log(metadata);
+  console.log(editor);
   editor.insertBlock({
     type: 'image',
     data: { metadata },

@@ -26,12 +26,14 @@ export const getAccountClient = () => {
   });
 };
 
+
 export const getFileClient = (metadata) => {
   const { path, uclusion_token } = metadata;
   console.log(metadata);
   // since I have the token handy, I might as well update the storage with it;
   updateFileToken(path, uclusion_token);
+  // we MUST send the origin header, or the request will fail
   const tokenRefresher = new FileTokenRefresher();
   const tokenManager = new TokenManager(tokenRefresher, null, TOKEN_TYPE_FILE, path);
-  return client.constructFilesClient({ ...config.file_download_configuration, tokenManager });
+  return client.constructFilesClient({ ...config.file_download_configuration, tokenManager, responseAsBlob: true });
 };

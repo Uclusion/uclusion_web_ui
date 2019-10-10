@@ -65,10 +65,10 @@ const AsyncMarketsContext = context;
 function AsyncMarketsProvider(props) {
   const [myState, setMyState] = useState(emptyState);
   const [isInitialization, setIsInitialization] = useState(true);
-  addStateCache(myState, setMyState);
   useEffect(() => {
     if (isInitialization) {
       setIsInitialization(false);
+      addStateCache(myState, setMyState);
       Hub.listen(AUTH_HUB_CHANNEL, (data) => {
         const { payload: { event } } = data;
         console.debug(`Markets context responding to auth event ${event}`);

@@ -44,9 +44,6 @@ const AsyncInvestiblesContext = context;
 function AsyncInvestiblesProvider(props) {
   const [state, setState] = useState(EMPTY_STATE);
   const [isInitialization, setIsInitialization] = useState(true);
-  // set the new state cache to something we control, so that our
-  // provider descendants will pick up changes to it
-  addStateCache(state, setState);
   // the provider value needs the new state cache object in order to allert
   // provider descendants to changes
   const providerState = {
@@ -58,6 +55,9 @@ function AsyncInvestiblesProvider(props) {
 
   useEffect(() => {
     if (isInitialization) {
+      // set the new state cache to something we control, so that our
+      // provider descendants will pick up changes to it
+      addStateCache(state, setState);
       Hub.listen(PUSH_INVESTIBLES_CHANNEL, (data) => {
         const { payload: { event, message } } = data;
 

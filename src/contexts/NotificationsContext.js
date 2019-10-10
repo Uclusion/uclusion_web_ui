@@ -44,7 +44,6 @@ function NotificationsProvider(props) {
           case MESSAGES_EVENT:
             setIsLoading(true);
             getMessages().then((messages) => {
-              // TODO if any of these messages are about unread on a page currently on then delete
               setMessages(messages);
               setIsLoading(false);
             });
@@ -53,12 +52,7 @@ function NotificationsProvider(props) {
             console.debug(`Ignoring push event ${event}`);
         }
       });
-
-      // TODO Notifications context should put messages on bus for other contexts
-      //  update_at that they should be greater than or equal to or else refresh
-      // TODO for comments put comment ID and updated_at - then go find that comment ID and
-      // TODO check its updated_at >= - if not refresh
-
+      // TODO need another event below that is sent by all web socket listeners that need messages refreshed also
       Hub.listen(VISIT_CHANNEL, (data) => {
         const { payload: { event, message } } = data;
         switch (event) {
@@ -81,6 +75,8 @@ function NotificationsProvider(props) {
             console.debug(`Ignoring event ${event}`);
         }
       });
+      // TODO parse the messages first and add in type market investible
+      //  from underscores for easy processing
       getMessages().then((messages) => {
         setMessages(messages);
         setIsLoading(false);
@@ -90,6 +86,8 @@ function NotificationsProvider(props) {
     return () => {
     };
   }, [isInitialization]);
+
+  // TODO if any of these messages are about unread on a page currently on then delete
 
   return (
     <NotificationsContext.Provider value={[messages, isLoading]}>

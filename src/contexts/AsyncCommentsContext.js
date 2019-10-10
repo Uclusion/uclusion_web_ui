@@ -65,15 +65,15 @@ const AsyncCommentsContext = context;
 function AsyncCommentsProvider(props) {
   const [state, setState] = useState(emptyState);
   const [isInitialization, setIsInitialization] = useState(true);
-  // set the new state cache to something we control, so that our
-  // provider descendants will pick up changes to it
-  console.log('Replacing comments state cache');
-  addStateCache(state, setState);
   // the provider value needs the new state cache object in order to allert
   // provider descendants to changes
   const providerState = { ...contextPackage, stateCache: state, refreshMarketComments };
   useEffect(() => {
     if (isInitialization) {
+      // set the new state cache to something we control, so that our
+      // provider descendants will pick up changes to it
+      console.log('Replacing comments state cache');
+      addStateCache(state, setState);
       Hub.listen(PUSH_COMMENTS_CHANNEL, (data) => {
         const { payload: { event, message } } = data;
 

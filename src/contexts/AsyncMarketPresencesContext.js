@@ -32,13 +32,13 @@ const AsyncMarketPresencesContext = context;
 function AsyncMarketPresencesProvider(props) {
   const [state, setState] = useState(emptyState);
   const [isInitialization, setIsInitialization] = useState(true);
-  console.log('Replacing market presences state cache');
-  addStateCache(state, setState);
   // the provider value needs the new state cache object in order to alert
   // provider descendants to changes
   const providerState = { ...contextPackage, stateCache: state, refreshMarketPresence };
   useEffect(() => {
     if (isInitialization) {
+      console.log('Replacing market presences state cache');
+      addStateCache(state, setState);
       Hub.listen(PUSH_PRESENCE_CHANNEL, (data) => {
         const { payload: { event, message } } = data;
 

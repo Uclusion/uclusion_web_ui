@@ -5,6 +5,7 @@ import { updateMarket } from '../../api/markets';
 import { injectIntl } from 'react-intl';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
+import { listUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 
 const styles = theme => ({
   root: {
@@ -24,7 +25,7 @@ function MarketEdit(props) {
   const { id } = market;
   const { updateMarketLocally } = useAsyncMarketsContext();
   const [currentValues, setCurrentValues] = useState(market);
-  const { name, description } = currentValues;
+  const { name, description, uploadedFiles } = currentValues;
   function handleChange(name) {
     return (event) => {
       const { value } = event.target;
@@ -32,8 +33,18 @@ function MarketEdit(props) {
     };
   }
 
+  function handleFileUpload(metadata) {
+    console.log(metadata);
+    const uploadedFiles = currentValues.uploadedFiles || [];
+    uploadedFiles.push(metadata);
+    const newValues = { ...currentValues, uploadedFiles };
+    setCurrentValues(newValues);
+  }
+
+
   function handleSave() {
-    return updateMarket(id, name, description)
+    const filteredUploads = listUploadsUsedInText(uploadedFiles, description);
+    return updateMarket(id, name, description, filteredUploads)
       .then(() => updateMarketLocally(currentValues))
       .then(() => onSave());
   }
@@ -53,7 +64,10 @@ function MarketEdit(props) {
           value={name}
           onChange={handleChange('name')}
         />
-        <HtmlRichTextEditor value={description} onChange={handleChange('description')}/>
+        <HtmlRichTextEditor handleFileUpload={handleFileUpload}
+                            value={description}
+                            onChange={handleChange('description')}
+        />
       </CardContent>
       <CardActions>
         <Button onClick={editToggle}>

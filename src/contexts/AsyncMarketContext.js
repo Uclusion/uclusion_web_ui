@@ -103,12 +103,15 @@ function AsyncMarketsProvider(props) {
             console.debug(`Ignoring identity event ${event}`);
         }
         if (marketId) {
-          loadingWrapper(getState().then((state) => getMarketDetails(marketId).then((market) => {
-            const convertedMarket = convertDates(market);
-            const newDetails = _.unionBy([convertedMarket], state.marketDetails, 'id');
-            return setStateValues({ marketDetails: newDetails });
-          }).then(() => getMarketList()) // Have to call for full list in order to set token
-            .then((markets) => setStateValues({ markets }))));
+          const loadingFunc = () => {
+            return getState().then((state) => getMarketDetails(marketId).then((market) => {
+              const convertedMarket = convertDates(market);
+              const newDetails = _.unionBy([convertedMarket], state.marketDetails, 'id');
+              return setStateValues({ marketDetails: newDetails });
+            }).then(() => getMarketList()) // Have to call for full list in order to set token
+              .then((markets) => setStateValues({ markets })));
+          };
+          loadingWrapper(loadingFunc);
         }
       });
       refreshMarkets();

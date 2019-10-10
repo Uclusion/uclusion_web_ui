@@ -5,30 +5,42 @@ import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import { saveComment } from '../../api/comments';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 import PropTypes from 'prop-types';
+import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 
 function CommentAdd(props) {
 
+  const emptyComment = { body: '', uploadedFiles: []};
   const { intl, marketId, onSave, onCancel, issue, investible } = props;
   const { addCommentLocally } = useAsyncCommentsContext();
-  const [body, setBody] = useState('');
+  const [currentValues, setCurrentValues] = useState(emptyComment);
+  const { body, uploadedFiles } = currentValues;
 
   const placeHolderLabel = (issue) ? 'commentAddIssueDefault' : 'commentAddDefault';
   const placeHolder = intl.formatMessage({ id: placeHolderLabel });
 
   function handleChange(event) {
     const { value } = event.target;
-    setBody(value);
+    setCurrentValues({ body: value });
+  }
+
+  function handleFileUpload(metadata) {
+    console.log(metadata);
+    const uploadedFiles = currentValues.uploadedFiles || [];
+    uploadedFiles.push(metadata);
+    const newValues = { ...currentValues, uploadedFiles };
+    setCurrentValues(newValues);
   }
 
   function handleSave() {
+    const filteredUploads = filterUploadsUsedInText(body, uploadedFiles);
     const investibleId = (investible) ? investible.id : null;
-    return saveComment(marketId, investibleId, null, body, issue)
+    return saveComment(marketId, investibleId, null, body, issue, filteredUploads)
       .then((result) => addCommentLocally(result))
       .then(onSave());
   }
 
   function handleCancel() {
-    setBody('');
+    setCurrentValues(emptyComment);
     onCancel();
   }
 
@@ -43,7 +55,11 @@ function CommentAdd(props) {
         </Button>
       </CardActions>
       <CardContent>
-        <HtmlRichTextEditor placeHolder={placeHolder} value={body} onChange={handleChange}/>
+        <HtmlRichTextEditor
+          handleFileUpload={handleFileUpload}
+          placeHolder={placeHolder}
+          value={body}
+          onChange={handleChange}/>
       </CardContent>
 
     </Card>
@@ -56,6 +72,7 @@ CommentAdd.propTypes = {
   onSave: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
   investible: PropTypes.object,
+  onCancel: PropTypes.func,
 };
 
 export default injectIntl(CommentAdd);

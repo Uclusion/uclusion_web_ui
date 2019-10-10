@@ -5,7 +5,7 @@ import { updateMarket } from '../../api/markets';
 import { injectIntl } from 'react-intl';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
-import { listUploadsUsedInText } from '../TextEditors/fileUploadFilters';
+import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 
 const styles = theme => ({
   root: {
@@ -25,7 +25,9 @@ function MarketEdit(props) {
   const { id } = market;
   const { updateMarketLocally } = useAsyncMarketsContext();
   const [currentValues, setCurrentValues] = useState(market);
-  const { name, description, uploadedFiles } = currentValues;
+  const initialUploadedFiles = market.uploaded_files || [];
+  const [ uploadedFiles, setUploadedFiles ] = useState(initialUploadedFiles);
+  const { name, description } = currentValues;
   function handleChange(name) {
     return (event) => {
       const { value } = event.target;
@@ -34,21 +36,18 @@ function MarketEdit(props) {
   }
 
   function handleFileUpload(metadata) {
-    console.log(metadata);
-    const uploadedFiles = currentValues.uploadedFiles || [];
-    uploadedFiles.push(metadata);
-    const newValues = { ...currentValues, uploadedFiles };
-    setCurrentValues(newValues);
+    // console.log(metadata);
+    const newUploadedFiles = [...uploadedFiles, metadata];
+    setUploadedFiles(newUploadedFiles);
   }
 
 
   function handleSave() {
-    const filteredUploads = listUploadsUsedInText(uploadedFiles, description);
+    const filteredUploads = filterUploadsUsedInText(uploadedFiles, description);
     return updateMarket(id, name, description, filteredUploads)
       .then(() => updateMarketLocally(currentValues))
       .then(() => onSave());
   }
-  console.log(currentValues);
 
   return (
     <Card>

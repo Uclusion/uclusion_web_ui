@@ -9,7 +9,7 @@ import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContex
 import useAsyncMarketPresencesContext from '../../contexts/useAsyncMarketPresencesContext';
 import { updateInvestibleStage } from '../../api/marketInvestibles';
 import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
-import { listUploadsUsedInText } from '../TextEditors/fileUploadFilters';
+import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 
 const styles = (theme) => ({
   root: {
@@ -50,7 +50,7 @@ function InvestibleEdit(props) {
   }
 
   function handleSave() {
-    const filteredUploads = listUploadsUsedInText(uploadedFiles, description);
+    const filteredUploads = filterUploadsUsedInText(uploadedFiles, description);
     return updateInvestible(marketId, id, name, description, filteredUploads)
       .then((data) => updateInvestibleLocally({ ...investible, investible: data }))
       .then(() => onSave());

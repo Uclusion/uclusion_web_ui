@@ -639,8 +639,10 @@ class RichTextEditor extends React.Component {
       if (mime !== 'image') continue;
       uploadFileToS3(marketId, file)
         .then((metadata) => {
-          this.editor.command(insertImage, metadata, target);
-          handleFileUpload(metadata);
+          return Promise.resolve(this.editor.command(insertImage, metadata, target))
+            .then(() => {
+              return handleFileUpload(metadata);
+            });
         });
     }
   };

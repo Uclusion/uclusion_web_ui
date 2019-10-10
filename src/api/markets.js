@@ -7,8 +7,8 @@ export function getMarketDetails(marketId) {
     .then((market) => convertDates(market));
 }
 
-export function updateMarket(marketId, name, description) {
-  const updateOptions = { name, description };
+export function updateMarket(marketId, name, description, uploaded_files) {
+  const updateOptions = { name, description, uploaded_files };
   console.debug(`Updating market ${marketId}`);
   console.debug(updateOptions);
   return getMarketClient(marketId)

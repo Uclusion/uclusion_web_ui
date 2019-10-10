@@ -60,8 +60,8 @@ function MarketAdd(props) {
           market_type: "DECISION",
           market_stage: "Active",
           // force update  calls to consider this entry old
-          created_at: Date(0),
-          updated_at: Date(0),
+          created_at: new Date(0),
+          updated_at: new Date(0),
         };
         return addMarketLocally(artificalMarket);
       }).then(() => onSave());

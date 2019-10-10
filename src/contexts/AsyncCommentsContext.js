@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import { Hub } from '@aws-amplify/core';
 import { createCachedAsyncContext } from './CachedAsyncContextCreator';
 import { fetchCommentList, fetchComments } from '../api/comments';
 import { convertDates, getOutdatedObjectIds, removeDeletedObjects } from './ContextUtils';
-import { MESSAGES_EVENT, PUSH_COMMENTS_CHANNEL, VIEW_EVENT } from './WebSocketContext';
+import { MESSAGES_EVENT, PUSH_COMMENTS_CHANNEL } from './WebSocketContext';
 
 const emptyState = {
   comments: {},
@@ -60,37 +60,11 @@ function refreshMarketComments(marketId) {
   return loadingWrapper(refreshComments);
 }
 
-function handleViewEvent(message) {
-  const { marketId, investibleIdOrContext, isEntry } = message;
-  getState().then((state) => {
-    const { comments } = state;
-    const commentsList = Object.values(comments);
-    let filteredComments;
-    if (investibleIdOrContext === 'context') {
-      filteredComments = commentsList.filter((comment) => comment.market_id === marketId
-        && !comment.investible_id);
-    } else {
-      // eslint-disable-next-line max-len
-      filteredComments = commentsList.filter((comment) => comment.investible_id === investibleIdOrContext);
-    }
-    const latestComment = Math.max.apply(null, filteredComments.map((comment) => comment.updated_at));
-    let viewedComment;
-    if (isEntry) {
-      const { updated_at } = latestComment;
-      viewedComment = { ...latestComment, lastPresentDate: updated_at };
-    } else {
-      viewedComment = { ...latestComment, lastPresentDate: null };
-    }
-    const newComments = _.unionBy([viewedComment], state.comments, 'id');
-    return true;
-    //  return setStateValues({ comments: newComments});
-  });
-}
-
 const AsyncCommentsContext = context;
 
 function AsyncCommentsProvider(props) {
   const [state, setState] = useState(emptyState);
+  const [isInitialization, setIsInitialization] = useState(true);
   // set the new state cache to something we control, so that our
   // provider descendants will pick up changes to it
   console.log('Replacing comments state cache');
@@ -98,21 +72,26 @@ function AsyncCommentsProvider(props) {
   // the provider value needs the new state cache object in order to allert
   // provider descendants to changes
   const providerState = { ...contextPackage, stateCache: state, refreshMarketComments };
+  useEffect(() => {
+    if (isInitialization) {
+      Hub.listen(PUSH_COMMENTS_CHANNEL, (data) => {
+        const { payload: { event, message } } = data;
 
-  Hub.listen(PUSH_COMMENTS_CHANNEL, (data) => {
-    const { payload: { event, message } } = data;
-
-    switch (event) {
-      case MESSAGES_EVENT:
-        refreshMarketComments(message.indirect_object_id);
-        break;
-      case VIEW_EVENT:
-        handleViewEvent(message);
-        break;
-      default:
-        console.debug(`Ignoring push event ${event}`);
+        switch (event) {
+          case MESSAGES_EVENT: {
+            const { indirect_object_id: marketId } = message;
+            refreshMarketComments(marketId);
+            break;
+          }
+          default:
+            console.debug(`Ignoring push event ${event}`);
+        }
+      });
+      setIsInitialization(false);
     }
-  });
+    return () => {
+    };
+  }, [isInitialization]);
 
   return (
     <AsyncCommentsContext.Provider value={providerState}>

@@ -6,7 +6,7 @@ import { getMarketList } from '../api/sso';
 import { getMarketDetails } from '../api/markets';
 import { getOutdatedObjectIds, removeDeletedObjects, convertDates } from './ContextUtils';
 import {
-  AUTH_HUB_CHANNEL, MESSAGES_EVENT, IDENTITY_EVENT, PUSH_CONTEXT_CHANNEL, VIEW_EVENT,
+  AUTH_HUB_CHANNEL, MESSAGES_EVENT, IDENTITY_EVENT, PUSH_CONTEXT_CHANNEL,
 } from './WebSocketContext';
 
 const STATE_NAMESPACE = 'async_markets';
@@ -60,24 +60,6 @@ function refreshMarkets() {
   return loadingWrapper(marketRefresher);
 }
 
-function handleViewEvent(message) {
-  const { marketId, isEntry } = message;
-  getState().then((state) => {
-    const { markets } = state;
-    const market = markets.find((market) => market.id === marketId);
-    let viewedMarket;
-    if (isEntry) {
-      const { updated_at } = market;
-      viewedMarket = { ...market, lastPresentDate: updated_at };
-    } else {
-      viewedMarket = { ...market, lastPresentDate: null };
-    }
-    const newDetails = _.unionBy([viewedMarket], state.marketDetails, 'id');
-    return true;
-    // return setStateValues({ marketDetails: newDetails });
-  });
-}
-
 const AsyncMarketsContext = context;
 
 function AsyncMarketsProvider(props) {
@@ -87,53 +69,54 @@ function AsyncMarketsProvider(props) {
   useEffect(() => {
     if (isInitialization) {
       setIsInitialization(false);
+      Hub.listen(AUTH_HUB_CHANNEL, (data) => {
+        const { payload: { event } } = data;
+        console.debug(`Markets context responding to auth event ${event}`);
+
+        switch (event) {
+          case 'signIn':
+            refreshMarkets();
+            break;
+          case 'signOut':
+            clearState();
+            break;
+          default:
+            console.debug(`Ignoring auth event ${event}`);
+        }
+      });
+      Hub.listen(PUSH_CONTEXT_CHANNEL, (data) => {
+        const { payload: { event, message } } = data;
+        console.debug(`Markets context responding to identity event ${event}`);
+        let marketId;
+        switch (event) {
+          case IDENTITY_EVENT: {
+            const { indirect_object_id: foundMarketId } = message;
+            marketId = foundMarketId;
+            break;
+          }
+          case MESSAGES_EVENT: {
+            const { object_id: foundMarketId } = message;
+            marketId = foundMarketId;
+            break;
+          }
+          default:
+            console.debug(`Ignoring identity event ${event}`);
+        }
+        if (marketId) {
+          loadingWrapper(getState().then((state) => getMarketDetails(marketId).then((market) => {
+            const convertedMarket = convertDates(market);
+            const newDetails = _.unionBy([convertedMarket], state.marketDetails, 'id');
+            return setStateValues({ marketDetails: newDetails });
+          }).then(() => getMarketList()) // Have to call for full list in order to set token
+            .then((markets) => setStateValues({ markets }))));
+        }
+      });
       refreshMarkets();
     }
     return () => {
     };
-  }, [isInitialization]);
+  }, [isInitialization, getState, setStateValues]);
 
-  Hub.listen(AUTH_HUB_CHANNEL, (data) => {
-    const { payload: { event } } = data;
-    console.debug(`Markets context responding to auth event ${event}`);
-
-    switch (event) {
-      case 'signIn':
-        refreshMarkets();
-        break;
-      case 'signOut':
-        clearState();
-        break;
-      default:
-        console.debug(`Ignoring auth event ${event}`);
-    }
-  });
-  Hub.listen(PUSH_CONTEXT_CHANNEL, (data) => {
-    const { payload: { event, message } } = data;
-    console.debug(`Markets context responding to identity event ${event}`);
-    let marketId;
-    switch (event) {
-      case IDENTITY_EVENT:
-        marketId = message.indirect_object_id;
-        break;
-      case MESSAGES_EVENT:
-        marketId = message.object_id;
-        break;
-      case VIEW_EVENT:
-        handleViewEvent(message);
-        break;
-      default:
-        console.debug(`Ignoring identity event ${event}`);
-    }
-    if (marketId) {
-      loadingWrapper(getState().then((state) => getMarketDetails(marketId).then((market) => {
-        const convertedMarket = convertDates(market);
-        const newDetails = _.unionBy([convertedMarket], state.marketDetails, 'id');
-        return setStateValues({ marketDetails: newDetails });
-      }).then(() => getMarketList()) // Have to call for full list in order to set token
-        .then((markets) => setStateValues({ markets }))));
-    }
-  });
   // we've updated the context's internal state cache variable via addState above,
   // however the variable in providerState is the default which isn't any good
   // hence we need to use myState as the stateCache that we give the provider

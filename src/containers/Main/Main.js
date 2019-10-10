@@ -15,7 +15,6 @@ import { AsyncCommentsProvider } from '../../contexts/AsyncCommentsContext';
 import { NotificationsProvider } from '../../contexts/NotificationsContext';
 import { AsyncMarketPresencesProvider } from '../../contexts/AsyncMarketPresencesContext';
 import { AsyncMarketStagesProvider } from '../../contexts/AsyncMarketStagesContext';
-import { VisitProvider } from '../../contexts/VisitContext';
 
 console.log(awsconfig);
 Amplify.configure(awsconfig);
@@ -42,10 +41,8 @@ class Main extends Component {
                   <AsyncMarketsProvider>
                     <DrawerProvider>
                       <LocaleProvider>
-                        <VisitProvider>
-                          <ToastContainer />
-                          <App appConfig={{ ...config }} />
-                        </VisitProvider>
+                        <ToastContainer />
+                        <App appConfig={{ ...config }} />
                       </LocaleProvider>
                     </DrawerProvider>
                   </AsyncMarketsProvider>

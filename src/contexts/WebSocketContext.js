@@ -18,7 +18,7 @@ export const PUSH_INVESTIBLES_CHANNEL = 'InvestiblesChannel';
 export const PUSH_PRESENCE_CHANNEL = 'PresenceChannel';
 export const MESSAGES_EVENT = 'webPush';
 export const IDENTITY_EVENT = 'identityPush';
-export const VIEW_EVENT = 'pageView';
+
 const WebSocketContext = React.createContext([{}, () => {}]);
 function notifyNewApplicationVersion(currentVersion) {
   const { version } = config;

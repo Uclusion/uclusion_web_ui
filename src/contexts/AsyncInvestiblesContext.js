@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import { Hub } from '@aws-amplify/core';
 import { createCachedAsyncContext } from './CachedAsyncContextCreator';
 import { fetchInvestibleList, fetchInvestibles } from '../api/marketInvestibles';
-import { MESSAGES_EVENT, PUSH_INVESTIBLES_CHANNEL, VIEW_EVENT } from './WebSocketContext';
+import { MESSAGES_EVENT, PUSH_INVESTIBLES_CHANNEL } from './WebSocketContext';
 
 const EMPTY_STATE = { investibles: {} };
 const contextPackage = createCachedAsyncContext('async_investibles', EMPTY_STATE);
@@ -39,29 +39,11 @@ function refreshInvestibles(marketId) {
   return loadingWrapper(refreshMarketInvestibles);
 }
 
-function handleViewEvent(message) {
-  const { investibleIdOrContext: investibleId, isEntry } = message;
-  getState().then((state) => {
-    const { investibles } = state;
-    const investibleList = Object.values(investibles);
-    const investible = investibleList.find((investible) => investible.id === investibleId);
-    let viewedInvestible;
-    if (isEntry) {
-      const { updated_at } = investible;
-      viewedInvestible = { ...investible, lastPresentDate: updated_at };
-    } else {
-      viewedInvestible = { ...investible, lastPresentDate: null };
-    }
-    const newInvestibles = _.unionBy([viewedInvestible], state.investibles, 'id');
-    return true;
-    // return setStateValues({ investibles: newInvestibles });
-  });
-}
-
 const AsyncInvestiblesContext = context;
 
 function AsyncInvestiblesProvider(props) {
   const [state, setState] = useState(EMPTY_STATE);
+  const [isInitialization, setIsInitialization] = useState(true);
   // set the new state cache to something we control, so that our
   // provider descendants will pick up changes to it
   addStateCache(state, setState);
@@ -74,20 +56,26 @@ function AsyncInvestiblesProvider(props) {
     updateInvestibles,
   };
 
-  Hub.listen(PUSH_INVESTIBLES_CHANNEL, (data) => {
-    const { payload: { event, message } } = data;
+  useEffect(() => {
+    if (isInitialization) {
+      Hub.listen(PUSH_INVESTIBLES_CHANNEL, (data) => {
+        const { payload: { event, message } } = data;
 
-    switch (event) {
-      case MESSAGES_EVENT:
-        refreshInvestibles(message.indirect_object_id);
-        break;
-      case VIEW_EVENT:
-        handleViewEvent(message);
-        break;
-      default:
-        console.debug(`Ignoring push event ${event}`);
+        switch (event) {
+          case MESSAGES_EVENT: {
+            const { indirect_object_id: marketId } = message;
+            refreshInvestibles(marketId);
+            break;
+          }
+          default:
+            console.debug(`Ignoring push event ${event}`);
+        }
+      });
+      setIsInitialization(false);
     }
-  });
+    return () => {
+    };
+  }, [isInitialization]);
 
   return (
     <AsyncInvestiblesContext.Provider value={providerState}>

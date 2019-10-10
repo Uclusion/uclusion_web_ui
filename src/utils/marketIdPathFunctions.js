@@ -1,11 +1,6 @@
 import queryString from 'query-string';
 import { Hub } from '@aws-amplify/core';
-import {
-  PUSH_COMMENTS_CHANNEL,
-  PUSH_CONTEXT_CHANNEL,
-  PUSH_INVESTIBLES_CHANNEL,
-  VIEW_EVENT,
-} from '../contexts/WebSocketContext';
+import { VIEW_EVENT, VISIT_CHANNEL } from '../contexts/NotificationsContext';
 
 /**
  * Gets the market id from the URL if it's present in it.
@@ -26,40 +21,12 @@ export function getMarketId(path, search = '/dialog/') {
   return pathPart.substr(0, investibleSlashLocation);
 }
 
-function getMarketIdAndInvestible(history) {
-  const { location } = history;
-  const { pathname, hash } = location;
-  const marketId = getMarketId(pathname);
-  if (marketId) {
-    const values = queryString.parse(hash);
-    const { investible } = values;
-    return { marketId, investible };
-  }
-  return {};
-}
-
 export function broadcastView(marketId, investibleIdOrContext, isEntry) {
   if (marketId && investibleIdOrContext && investibleIdOrContext !== 'add') {
     const message = { marketId, investibleIdOrContext, isEntry };
-    if (investibleIdOrContext === 'context') {
-      Hub.dispatch(
-        PUSH_CONTEXT_CHANNEL,
-        {
-          event: VIEW_EVENT,
-          message,
-        },
-      );
-    } else {
-      Hub.dispatch(
-        PUSH_INVESTIBLES_CHANNEL,
-        {
-          event: VIEW_EVENT,
-          message,
-        },
-      );
-    }
+    console.debug('Dispatching to notification');
     Hub.dispatch(
-      PUSH_COMMENTS_CHANNEL,
+      VISIT_CHANNEL,
       {
         event: VIEW_EVENT,
         message,
@@ -69,6 +36,18 @@ export function broadcastView(marketId, investibleIdOrContext, isEntry) {
 }
 
 export function navigate(history, to) {
+  function getMarketIdAndInvestible(history) {
+    const { location } = history;
+    const { pathname, hash } = location;
+    const marketId = getMarketId(pathname);
+    if (marketId) {
+      const values = queryString.parse(hash);
+      const { investible } = values;
+      return { marketId, investible };
+    }
+    return {};
+  }
+
   const {
     marketId: fromMarketId,
     investible: fromInvestibleId,

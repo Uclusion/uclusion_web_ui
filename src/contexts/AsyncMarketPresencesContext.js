@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Hub } from '@aws-amplify/core';
 import { createCachedAsyncContext } from './CachedAsyncContextCreator';
 import { getMarketUsers } from '../api/markets';
@@ -31,23 +31,32 @@ const AsyncMarketPresencesContext = context;
 
 function AsyncMarketPresencesProvider(props) {
   const [state, setState] = useState(emptyState);
+  const [isInitialization, setIsInitialization] = useState(true);
   console.log('Replacing market presences state cache');
   addStateCache(state, setState);
   // the provider value needs the new state cache object in order to alert
   // provider descendants to changes
   const providerState = { ...contextPackage, stateCache: state, refreshMarketPresence };
+  useEffect(() => {
+    if (isInitialization) {
+      Hub.listen(PUSH_PRESENCE_CHANNEL, (data) => {
+        const { payload: { event, message } } = data;
 
-  Hub.listen(PUSH_PRESENCE_CHANNEL, (data) => {
-    const { payload: { event, message } } = data;
-
-    switch (event) {
-      case MESSAGES_EVENT:
-        refreshMarketPresence(message.indirect_object_id);
-        break;
-      default:
-        console.debug(`Ignoring push event ${event}`);
+        switch (event) {
+          case MESSAGES_EVENT: {
+            const { indirect_object_id: marketId } = message;
+            refreshMarketPresence(marketId);
+            break;
+          }
+          default:
+            console.debug(`Ignoring push event ${event}`);
+        }
+      });
+      setIsInitialization(false);
     }
-  });
+    return () => {
+    };
+  }, [isInitialization]);
 
   return (
     <AsyncMarketPresencesContext.Provider value={providerState}>

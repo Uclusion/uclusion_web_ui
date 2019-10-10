@@ -115,7 +115,7 @@ function AsyncMarketsProvider(props) {
     }
     return () => {
     };
-  }, [isInitialization, getState, setStateValues]);
+  }, [isInitialization]);
 
   // we've updated the context's internal state cache variable via addState above,
   // however the variable in providerState is the default which isn't any good

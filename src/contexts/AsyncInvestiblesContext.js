@@ -75,7 +75,7 @@ function AsyncInvestiblesProvider(props) {
     }
     return () => {
     };
-  }, [isInitialization]);
+  }, [isInitialization, state]);
 
   return (
     <AsyncInvestiblesContext.Provider value={providerState}>

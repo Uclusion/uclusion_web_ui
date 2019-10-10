@@ -56,7 +56,7 @@ function AsyncMarketPresencesProvider(props) {
     }
     return () => {
     };
-  }, [isInitialization]);
+  }, [isInitialization, state]);
 
   return (
     <AsyncMarketPresencesContext.Provider value={providerState}>

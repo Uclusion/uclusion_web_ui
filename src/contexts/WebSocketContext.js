@@ -43,6 +43,15 @@ function registerChannel(socket, messageType, channel) {
         message,
       },
     );
+    if (messageType !== 'USER_MESSAGES_UPDATED') {
+      Hub.dispatch(
+        PUSH_HUB_CHANNEL,
+        {
+          event: MESSAGES_EVENT,
+          message,
+        },
+      );
+    }
   });
 }
 
@@ -81,6 +90,13 @@ function WebSocketProvider(props) {
       );
       Hub.dispatch(
         PUSH_PRESENCE_CHANNEL,
+        {
+          event: MESSAGES_EVENT,
+          message,
+        },
+      );
+      Hub.dispatch(
+        PUSH_HUB_CHANNEL,
         {
           event: MESSAGES_EVENT,
           message,

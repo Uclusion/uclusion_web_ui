@@ -91,7 +91,7 @@ function AsyncCommentsProvider(props) {
     }
     return () => {
     };
-  }, [isInitialization]);
+  }, [isInitialization, state]);
 
   return (
     <AsyncCommentsContext.Provider value={providerState}>

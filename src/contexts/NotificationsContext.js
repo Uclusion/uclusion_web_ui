@@ -3,11 +3,33 @@ import React, { useEffect, useState } from 'react';
 import { Hub } from '@aws-amplify/core';
 import { getMessages } from '../api/sso';
 import { AUTH_HUB_CHANNEL, MESSAGES_EVENT, PUSH_HUB_CHANNEL } from './WebSocketContext';
+import { deleteMessage } from '../api/users';
 
 const NotificationsContext = React.createContext([[], true]);
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
+
+function getMassagedMessages(messages) {
+  return messages.map((message) => {
+    const {
+      type_object_id: typeObjectId,
+      market_id_user_id: marketIdUserId,
+    } = message;
+    const typeObjectIdSplit = typeObjectId.split('_');
+    const aType = typeObjectIdSplit[0];
+    const objectId = typeObjectIdSplit[1];
+    const marketIdUserIdSplit = marketIdUserId.split('_');
+    const marketId = marketIdUserIdSplit[0];
+    if (marketId === objectId) {
+      return { ...message, marketId, aType };
+    }
+    return {
+      ...message, marketId, aType, investibleId: objectId,
+    };
+  });
+}
+
 function NotificationsProvider(props) {
   // eslint-disable-next-line react/prop-types
   const { children } = props;
@@ -25,7 +47,7 @@ function NotificationsProvider(props) {
         switch (event) {
           case 'signIn':
             getMessages().then((messages) => {
-              setMessages(messages);
+              setMessages(getMassagedMessages(messages));
               setIsLoading(false);
             });
             break;
@@ -44,7 +66,7 @@ function NotificationsProvider(props) {
           case MESSAGES_EVENT:
             setIsLoading(true);
             getMessages().then((messages) => {
-              setMessages(messages);
+              setMessages(getMassagedMessages(messages));
               setIsLoading(false);
             });
             break;
@@ -52,7 +74,7 @@ function NotificationsProvider(props) {
             console.debug(`Ignoring push event ${event}`);
         }
       });
-      // TODO need another event below that is sent by all web socket listeners that need messages refreshed also
+
       Hub.listen(VISIT_CHANNEL, (data) => {
         const { payload: { event, message } } = data;
         switch (event) {
@@ -75,10 +97,9 @@ function NotificationsProvider(props) {
             console.debug(`Ignoring event ${event}`);
         }
       });
-      // TODO parse the messages first and add in type market investible
-      //  from underscores for easy processing
+
       getMessages().then((messages) => {
-        setMessages(messages);
+        setMessages(getMassagedMessages(messages));
         setIsLoading(false);
         setIsInitialization(false);
       });
@@ -87,7 +108,13 @@ function NotificationsProvider(props) {
     };
   }, [isInitialization]);
 
-  // TODO if any of these messages are about unread on a page currently on then delete
+  if (page) {
+    messages.filter((message) => {
+      const { marketId, investibleId } = page;
+      const { marketId: messageMarketId, investibleId: messageInvestibleId } = message;
+      return marketId === messageMarketId && investibleId === messageInvestibleId;
+    }).map((message) => deleteMessage(message));
+  }
 
   return (
     <NotificationsContext.Provider value={[messages, isLoading]}>

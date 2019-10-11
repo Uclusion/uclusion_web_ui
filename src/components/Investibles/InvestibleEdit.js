@@ -10,6 +10,7 @@ import useAsyncMarketPresencesContext from '../../contexts/useAsyncMarketPresenc
 import { updateInvestibleStage } from '../../api/marketInvestibles';
 import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
 import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
+import { getFlags } from '../../utils/userFunctions';
 
 const styles = (theme) => ({
   root: {
@@ -59,7 +60,8 @@ function InvestibleEdit(props) {
     let newStage;
     return handleSave().then(() => getCurrentUser(marketId)).then((currentUser) => {
       const stages = getCachedStages(marketId);
-      if (currentUser.is_admin) {
+      const { market_admin:isAdmin } = getFlags(currentUser);
+      if (isAdmin) {
         newStage = stages.find((stage) => stage.appears_in_market_summary);
       } else {
         // Submit to moderation

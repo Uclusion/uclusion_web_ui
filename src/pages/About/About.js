@@ -66,7 +66,7 @@ function About(props) {
         getCurrentUser(currentMarket.id)
           .then((currentUser) => {
             setUser(currentUser);
-            const { isAdmin } = getFlags(currentUser);
+            const { market_admin:isAdmin } = getFlags(currentUser);
             setIsAdmin(isAdmin);
           });
       }

@@ -5,7 +5,7 @@
  * @param text the body of the context
  * @return a filtered list of file uploads
  */
-export function filterUploadsUsedInText(uploadedFiles, text){
+export function filterUploadsUsedInText(uploadedFiles, text) {
   console.log(uploadedFiles);
   const used = uploadedFiles.filter((file) => {
     const { path } = file;

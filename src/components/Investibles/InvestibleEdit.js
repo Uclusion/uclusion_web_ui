@@ -60,7 +60,7 @@ function InvestibleEdit(props) {
     let newStage;
     return handleSave().then(() => getCurrentUser(marketId)).then((currentUser) => {
       const stages = getCachedStages(marketId);
-      const { market_admin:isAdmin } = getFlags(currentUser);
+      const { market_admin: isAdmin } = getFlags(currentUser);
       if (isAdmin) {
         newStage = stages.find((stage) => stage.appears_in_market_summary);
       } else {
@@ -68,8 +68,9 @@ function InvestibleEdit(props) {
         newStage = stages.find((stage) => !stage.appears_in_market_summary
           && stage.visible_to_roles.length === 2);
       }
-      console.debug(`Submitting to stage ${newStage.name}`);
-      const marketInfo = investible.market_infos.find((info) => info.market_id === marketId);
+      const { market_infos: marketInfos } = investible;
+      const marketInfo = marketInfos.find((info) => info.market_id === marketId);
+      console.debug(`Submitting to stage ${newStage.name} with previous stage ${marketInfo.stage}`);
       return updateInvestibleStage(marketId, id, newStage.id, marketInfo.stage);
     })
       .then(() => updateInvestibleLocally({ ...investible, stage_name: newStage.name }));

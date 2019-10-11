@@ -16,9 +16,8 @@ function getMassagedMessages(messages) {
       type_object_id: typeObjectId,
       market_id_user_id: marketIdUserId,
     } = message;
-    const typeObjectIdSplit = typeObjectId.split('_');
-    const aType = typeObjectIdSplit[0];
-    const objectId = typeObjectIdSplit[1];
+    const objectId = typeObjectId.substring(typeObjectId.lastIndexOf('_') + 1);
+    const aType = typeObjectId.substring(0, typeObjectId.lastIndexOf('_'));
     const marketIdUserIdSplit = marketIdUserId.split('_');
     const marketId = marketIdUserIdSplit[0];
     if (marketId === objectId) {
@@ -112,6 +111,7 @@ function NotificationsProvider(props) {
     messages.filter((message) => {
       const { marketId, investibleId } = page;
       const { marketId: messageMarketId, investibleId: messageInvestibleId } = message;
+      console.debug(`${marketId} ${investibleId} ${messageMarketId} ${messageInvestibleId}`);
       return marketId === messageMarketId && investibleId === messageInvestibleId;
     }).map((message) => deleteMessage(message));
   }

@@ -6,10 +6,12 @@
  * @return a filtered list of file uploads
  */
 export function filterUploadsUsedInText(uploadedFiles, text){
+  console.log(uploadedFiles);
   const used = uploadedFiles.filter((file) => {
     const { path } = file;
     return text.includes(path);
   });
+  console.log(used);
   return used.map((element) => {
     const { path, content_type, content_length } = element;
     return { path, content_type, content_length };

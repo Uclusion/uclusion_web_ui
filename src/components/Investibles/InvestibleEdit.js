@@ -31,7 +31,9 @@ function InvestibleEdit(props) {
     investible, intl, classes, editToggle, onSave, marketId,
   } = props;
   const [currentValues, setCurrentValues] = useState(investible.investible);
-  const { name, description, id, uploadedFiles } = currentValues;
+  const { name, description, id } = currentValues;
+  const initialUploadedFiles = investible.uploaded_files || [];
+  const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
 
   function handleChange(field) {
     return (event) => {
@@ -42,11 +44,8 @@ function InvestibleEdit(props) {
   }
 
   function handleFileUpload(metadata) {
-    console.log(metadata);
-    const uploadedFiles = currentValues.uploadedFiles || [];
-    uploadedFiles.push(metadata);
-    const newValues = { ...currentValues, uploadedFiles };
-    setCurrentValues(newValues);
+    const newUploadedFiles = [...uploadedFiles, metadata];
+    setUploadedFiles(newUploadedFiles);
   }
 
   function handleSave() {

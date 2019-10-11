@@ -15,16 +15,19 @@ function getMassagedMessages(messages) {
     const {
       type_object_id: typeObjectId,
       market_id_user_id: marketIdUserId,
+      level,
     } = message;
     const objectId = typeObjectId.substring(typeObjectId.lastIndexOf('_') + 1);
     const aType = typeObjectId.substring(0, typeObjectId.lastIndexOf('_'));
     const marketIdUserIdSplit = marketIdUserId.split('_');
     const marketId = marketIdUserIdSplit[0];
     if (marketId === objectId) {
-      return { ...message, marketId, aType };
+      return {
+        ...message, marketId, aType, level,
+      };
     }
     return {
-      ...message, marketId, aType, investibleId: objectId,
+      ...message, marketId, aType, level, investibleId: objectId,
     };
   });
 }
@@ -110,9 +113,12 @@ function NotificationsProvider(props) {
   if (page) {
     messages.filter((message) => {
       const { marketId, investibleId } = page;
-      const { marketId: messageMarketId, investibleId: messageInvestibleId } = message;
-      console.debug(`${marketId} ${investibleId} ${messageMarketId} ${messageInvestibleId}`);
-      return marketId === messageMarketId && investibleId === messageInvestibleId;
+      const {
+        marketId: messageMarketId, investibleId: messageInvestibleId,
+        level, aType,
+      } = message;
+      return marketId === messageMarketId && investibleId === messageInvestibleId
+        && (level === 'YELLOW' || aType === 'INVESTIBLE_UNREAD');
     }).map((message) => deleteMessage(message));
   }
 

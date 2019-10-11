@@ -5,22 +5,22 @@ export const renderBlocks = (node, children) => {
   if (node.object === 'block') {
     switch (node.type) {
       case 'paragraph':
-        return <p>{children}</p>
+        return <p>{children}</p>;
       case 'block-quote':
-        return <blockquote>{children}</blockquote>
+        return <blockquote>{children}</blockquote>;
       case 'bulleted-list':
-        return <ul>{children}</ul>
+        return <ul>{children}</ul>;
       case 'heading-one':
-        return <h1>{children}</h1>
+        return <h1>{children}</h1>;
       case 'heading-two':
-        return <h2>{children}</h2>
+        return <h2>{children}</h2>;
       case 'list-item':
-        return <li>{children}</li>
+        return <li>{children}</li>;
       case 'numbered-list':
-        return <ol>{children}</ol>
+        return <ol>{children}</ol>;
       case 'image': {
         const metadata = node.data.get('metadata');
-        return <LoadableImage metadata={metadata} />
+        return <img path={metadata.path} uclusion_token={metadata.uclusion_token} />;
       }
       default:
         return undefined;
@@ -32,13 +32,13 @@ export const renderMarks = (node, children) => {
   if (node.object === 'mark') {
     switch (node.type) {
       case 'bold':
-        return <strong>{children}</strong>
+        return <strong>{children}</strong>;
       case 'code':
-        return <code>{children}</code>
+        return <code>{children}</code>;
       case 'italic':
-        return <em>{children}</em>
+        return <em>{children}</em>;
       case 'underlined':
-        return <u>{children}</u>
+        return <u>{children}</u>;
       default:
         return undefined;
     }
@@ -50,10 +50,10 @@ export const renderInlines = (node, children) => {
     switch (node.type) {
       case 'link': {
         const href = node.data.get('href');
-        return <a href={href}>{children}</a>
+        return <a href={href}>{children}</a>;
       }
       default:
-        return undefined
+        return undefined;
     }
   }
 };

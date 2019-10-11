@@ -17,6 +17,7 @@ export const parseBlocks = (el, next) => {
       type: type,
       data: {
         className: el.getAttribute('class'),
+        src: el.getAttribute('src'),
         metadata: {
           path: el.getAttribute('path'),
           uclusion_token: el.getAttribute('uclusion_token'),

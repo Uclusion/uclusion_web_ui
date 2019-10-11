@@ -14,6 +14,7 @@ const useStyles = makeStyles(theme => ({
 function LoadableImage(props) {
   const classes = useStyles();
   const [src, setSrc] = useState('');
+  const [fetchFailed, setFetchFailed] = useState(false);
 
   const { metadata } = props;
   const path = metadata ? metadata.path : '';
@@ -22,7 +23,7 @@ function LoadableImage(props) {
   console.log(props);
 
   useEffect(() => {
-    if (!src && metadata) {
+    if (!src && metadata && !fetchFailed) {
       fetchFileFromS3(metadata)
         .then((response) => {
           console.log(response);
@@ -36,7 +37,6 @@ function LoadableImage(props) {
     <img className={classes.image}
          src={src}
          path={path}
-         alt='not reader compliant'
          uclusion_token={uclusion_token}
     />
   );

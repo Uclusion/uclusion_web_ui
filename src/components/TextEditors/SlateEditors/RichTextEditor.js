@@ -75,21 +75,38 @@ const isUnderlinedHotkey = isKeyHotkey('mod+u');
 const isCodeHotkey = isKeyHotkey('mod+`');
 
 /**
- * A change function to standardize inserting images.
+ * Inserts an image from it's url
+ * @param editor
+ * @param src
+ * @param target
+ */
+function insertImage(editor, src, target) {
+  if (target) {
+    editor.select(target)
+  }
+
+  editor.insertBlock({
+    type: 'image',
+    src,
+  });
+}
+
+/**
+ * A change function to standardize inserting s3 backed images.
  *
  * @param {Editor} editor
  * @param {String} src
  * @param {Range} target
  */
 
-function insertImage(editor, metadata, target) {
+function insertLoadableImage(editor, metadata, target) {
   if (target) {
     editor.select(target);
   }
-  console.log(metadata);
-  console.log(editor);
+  // console.log(metadata);
+  // console.log(editor);
   editor.insertBlock({
-    type: 'image',
+    type: 'loadable-image',
     data: { metadata },
   });
 }
@@ -436,7 +453,7 @@ class RichTextEditor extends React.Component {
 
   renderBlock = (props, editor, next) => {
     const {
-      attributes, children, node,
+      attributes, children, node, isFocused,
     } = props;
     switch (node.type) {
       case 'paragraph':
@@ -454,8 +471,13 @@ class RichTextEditor extends React.Component {
       case 'numbered-list':
         return <ol {...attributes}>{children}</ol>;
       case 'image': {
+        const src = node.data.get('src');
+        const alt=node.data.get('alt');
+        return <img src={src} alt={alt} />;
+      }
+      case 'loadable-image': {
         const metadata = node.data.get('metadata');
-        return <LoadableImage metadata={metadata} />;
+        return <LoadableImage selected={isFocused} metadata={metadata} />
       }
       case 'link': {
         const { data } = node;
@@ -639,7 +661,7 @@ class RichTextEditor extends React.Component {
       if (mime !== 'image') continue;
       uploadFileToS3(marketId, file)
         .then((metadata) => {
-          return Promise.resolve(this.editor.command(insertImage, metadata, target))
+          return Promise.resolve(this.editor.command(insertLoadableImage, metadata, target))
             .then(() => {
               return handleFileUpload(metadata);
             });
@@ -664,7 +686,7 @@ class RichTextEditor extends React.Component {
 
     if (type === 'files') {
       this.insertImagesFromFiles(files, target);
-      return;
+      return true;
     }
     // console.log(text)
     if (type === 'text') {
@@ -676,7 +698,7 @@ class RichTextEditor extends React.Component {
         if (!isImage(text)) return next();
         editor.command(insertImage, text, target);
       }
-      return;
+      return true;
     }
 
     next();

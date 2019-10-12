@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core';
 import { fetchFileFromS3 } from '../../../api/files';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles(theme => ({
   image: {
@@ -9,36 +10,43 @@ const useStyles = makeStyles(theme => ({
     maxHeight: '20em',
     boxShadow: 'none',
   },
+  selectedImage: {
+    display: 'block',
+    maxWidth: '100%',
+    maxHeight: '20em',
+    boxShadow: '0 0 0 2px blue;',
+  },
 }));
 
 function LoadableImage(props) {
   const classes = useStyles();
-  const [src, setSrc] = useState('');
-  const [fetchFailed, setFetchFailed] = useState(false);
+  const intl = useIntl();
+  const { metadata, selected } = props;
+  const [imageData, setImageData] = useState({});
 
-  const { metadata } = props;
-  const path = metadata ? metadata.path : '';
-  const uclusion_token = metadata ? metadata.uclusion_token : '';
+  const { src, loadFailed } = imageData;
 
-  console.log(props);
 
   useEffect(() => {
-    if (!src && metadata && !fetchFailed) {
+    if (!loadFailed && !src) {
       fetchFileFromS3(metadata)
         .then((response) => {
-          console.log(response);
           const { blob } = response;
-          setSrc(URL.createObjectURL(blob));
+          const src = URL.createObjectURL(blob);
+          const newImageData = { src, loadFailed: false };
+          setImageData(newImageData);
+        })
+        .catch(() => {
+          const newImageData = { src: undefined, loadFailed: true };
+          setImageData(newImageData);
         });
     }
   });
 
+  const alt = intl.formatMessage({ id: 'loadableImageAlt' });
+  const className = selected ? classes.selectedImage : classes.image;
   return (
-    <img className={classes.image}
-         src={src}
-         path={path}
-         uclusion_token={uclusion_token}
-    />
+    <img className={className} src={src} alt={alt} />
   );
 }
 

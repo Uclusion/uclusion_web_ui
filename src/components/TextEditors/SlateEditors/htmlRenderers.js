@@ -1,5 +1,4 @@
 import React from 'react'
-import LoadableImage from './LoadableImage';
 
 export const renderBlocks = (node, children) => {
   if (node.object === 'block') {
@@ -19,8 +18,13 @@ export const renderBlocks = (node, children) => {
       case 'numbered-list':
         return <ol>{children}</ol>;
       case 'image': {
+        const src = node.data.get('src');
+        const alt = node.data.get('alt');
+        return <img src={src} alt={alt} />;
+      }
+      case 'loadable-image': {
         const metadata = node.data.get('metadata');
-        return <img path={metadata.path} uclusion_token={metadata.uclusion_token} />;
+        return <ldimg path={metadata.path} uclusion_token={metadata.uclusion_token} />;
       }
       default:
         return undefined;

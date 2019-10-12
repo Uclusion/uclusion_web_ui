@@ -28,6 +28,8 @@ function MarketEdit(props) {
   const initialUploadedFiles = market.uploaded_files || [];
   const [ uploadedFiles, setUploadedFiles ] = useState(initialUploadedFiles);
   const { name, description } = currentValues;
+  console.debug(description);
+
   function handleChange(name) {
     return (event) => {
       const { value } = event.target;

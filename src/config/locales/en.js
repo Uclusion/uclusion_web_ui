@@ -112,6 +112,9 @@ const messages = defineMessages({
   private: 'Private',
   public: 'Public',
 
+  // Loadable Image
+  loadableImageAlt: 'User provided image',
+
   // Sidebar Nav menu names
   sidebarNavDialogs: 'Decision Dialogs',
   sidebarNavActionItems: 'Action Items',

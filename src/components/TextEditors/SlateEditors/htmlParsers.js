@@ -6,6 +6,7 @@ const BLOCK_TAGS = {
   'li': 'list-item',
   'ol': 'numbered-list',
   'img': 'image',
+  'ldimg': 'loadable-image',
   'p': 'paragraph'
 };
 
@@ -14,7 +15,7 @@ export const parseBlocks = (el, next) => {
   if (type) {
     return {
       object: 'block',
-      type: type,
+      type,
       data: {
         className: el.getAttribute('class'),
         src: el.getAttribute('src'),
@@ -40,8 +41,8 @@ export const parseMarks = (el, next) => {
   if (type) {
     return {
       object: 'mark',
-      type: type,
-      nodes: next(el.childNodes)
+      type,
+      nodes: next(el.childNodes),
     };
   }
 };
@@ -55,12 +56,12 @@ export const parseInlines = (el, next) => {
   if (type) {
     return {
       object: 'inline',
-      type: type,
+      type,
       data: {
         className: el.getAttribute('class'),
         href: el.getAttribute('href'),
       },
-      nodes: next(el.childNodes)
+      nodes: next(el.childNodes),
     };
   }
 };

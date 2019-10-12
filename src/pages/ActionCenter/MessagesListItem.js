@@ -8,17 +8,13 @@ import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 function MessagesListItem(props) {
   const history = useHistory();
   const { message } = props;
-  // eslint-disable-next-line camelcase
-  const { market_id_user_id, type_object_id, level } = message;
-  const marketSplit = market_id_user_id.split('_');
-  const marketId = marketSplit[0];
-  const typeSplitInt = type_object_id.lastIndexOf('_');
-  const myType = type_object_id.substring(0, typeSplitInt);
-  const objectId = type_object_id.substring(typeSplitInt + 1);
+  const {
+    marketId, aType, level, investibleId,
+  } = message;
   let linkDest = 'context';
-  if (marketId !== objectId) {
+  if (investibleId) {
     // Currently comments come in as investibles so below will be investible
-    linkDest = objectId;
+    linkDest = investibleId;
   }
   const link = formInvestibleLink(marketId, linkDest);
   function handleClickItem() {
@@ -28,7 +24,7 @@ function MessagesListItem(props) {
     <ExpansionPanelDetails>
       { `${level}` }
       <Button onClick={handleClickItem}>
-        {`${myType}`}
+        {`${aType}`}
       </Button>
     </ExpansionPanelDetails>
   );

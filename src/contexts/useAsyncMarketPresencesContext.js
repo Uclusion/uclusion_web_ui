@@ -17,10 +17,33 @@ function useAsyncMarketPresencesContext() {
       });
   }
 
+  function getCurrentUserInvestment(investibleId, marketId) {
+    return getCurrentUser(marketId).then((investingUser) => {
+      const { usersPresenceList } = stateCache;
+      const { id } = investingUser;
+      const marketUsers = usersPresenceList[marketId];
+      console.debug(marketUsers);
+      if (marketUsers) {
+        const userPresence = marketUsers.find((marketUser) => marketUser.id === id);
+        if (userPresence) {
+          const { investments } = userPresence;
+          // eslint-disable-next-line max-len
+          const investibleInvestment = investments.find((investment) => investment.investible_id === investibleId);
+          if (investibleInvestment) {
+            const { quantity } = investibleInvestment;
+            return quantity;
+          }
+        }
+      }
+      return undefined;
+    });
+  }
+
   return {
     ...stateCache,
     refreshMarketPresence,
     getCurrentUser,
+    getCurrentUserInvestment,
   };
 }
 

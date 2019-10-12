@@ -26,15 +26,7 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
       .then((state) => {
         console.log('Local forage state');
         console.log(state);
-        const usedState = state || emptyState;
-        if (!_.isEqual(usedState, stateCache)) {
-          console.debug('Updating state cache in get state');
-          console.debug(usedState);
-          setStateCache(usedState);
-        }
-        console.log('Used state');
-        console.log(usedState);
-        return usedState;
+        return state || emptyState;
       });
   }
 

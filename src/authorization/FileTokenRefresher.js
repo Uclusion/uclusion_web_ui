@@ -6,11 +6,11 @@ import { getMarketClient } from '../api/uclusionClient';
  * and refreshes
  */
 class FileTokenRefresher {
-  refreshToken(oldToken) {
+  refreshTokens(oldToken) {
     const decoded = jwt_decode(oldToken);
     const { id: marketId } = decoded;
     return getMarketClient(marketId)
-      .then((client) => client.investibles.refreshFileToken([oldToken]));
+      .then((client) => client.investibles.refreshFileTokens([oldToken]));
   }
 }
 

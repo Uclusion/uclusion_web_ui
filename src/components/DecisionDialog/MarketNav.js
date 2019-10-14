@@ -13,6 +13,7 @@ import MarketView from './MarketView';
 import MarketEdit from './MarketEdit';
 import InvestibleAdd from '../Investibles/InvestibleAdd';
 import { getTabsForInvestibles } from './tabHelpers';
+import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 
 function MarketNav(props) {
   const history = useHistory();
@@ -31,12 +32,18 @@ function MarketNav(props) {
   const marketTargetedComments = marketComments.filter((comment) => !comment.investible_id);
   const commentsHash = createCommentsHash(marketComments);
   const [previousTab, setPreviousTab] = useState();
+  const [mutableMarket, setMutableMarket] = useState(market);
+  // unfortnately we have to manage uploaded files separately from the
+  // item getting edited, othewise the render will fire and wipe out our changes
+  const initialUploadedFiles = market.uploaded_files || [];
+  const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
 
   function pushTab(tabValue) {
     if (marketId) {
       navigate(history, formInvestibleLink(marketId, tabValue));
     }
   }
+
   let workAroundSelected = selectedTab;
   if (investible) {
     if (selectedTab !== investible) {
@@ -54,8 +61,11 @@ function MarketNav(props) {
     pushTab(newValue);
   }
 
-  function editToggle(id) {
-    return () => setEdit({ [id]: !edit[id] });
+  function cancelEdit(id) {
+    return () => {
+      setEdit({ [id]: !edit[id] });
+      setMutableMarket(market);
+    };
   }
 
   function onAddSave(newId) {
@@ -70,9 +80,26 @@ function MarketNav(props) {
     }
   }
 
-  const invTabs = getTabsForInvestibles(marketId, investibles,
-    marketComments, commentsHash, edit, editToggle, workAroundSelected);
+  function handleFileUpload(metadata) {
+    // console.log(metadata);
+    const newUploadedFiles = [...uploadedFiles, metadata];
+    setUploadedFiles(newUploadedFiles);
+  }
 
+  const invTabs = getTabsForInvestibles(marketId, investibles,
+    marketComments, commentsHash, edit, cancelEdit, workAroundSelected);
+
+  function onEditorChange(event) {
+    const { value } = event.target;
+    setMutableMarket({ ...market, description: value });
+  }
+
+  // if we put the editor here, then we don't have to rerender it's contents
+  console.log(edit[marketId]);
+  const editor = <HtmlRichTextEditor onChange={onEditorChange}
+                                     value={mutableMarket.description}
+                                     handleFileUpload={handleFileUpload}
+                                     readOnly={!edit[marketId]} />;
   return (
     <div>
       <AppBar position="static" color="default">
@@ -90,19 +117,24 @@ function MarketNav(props) {
       </AppBar>
       <TabPanel index="context" value={workAroundSelected}>
         {edit[marketId] && (
-        <MarketEdit
-          market={market}
-          onSave={editToggle(marketId)}
-          editToggle={editToggle(marketId)}
-        />
+          <MarketEdit
+            market={mutableMarket}
+            setMarket={setMutableMarket}
+            editor={editor}
+            onSave={cancelEdit(marketId)}
+            editToggle={cancelEdit(marketId)}
+            uploadedFiles={uploadedFiles}
+          />
         )}
         {!edit[marketId] && (
-        <MarketView
-          market={market}
-          comments={marketTargetedComments}
-          commentsHash={commentsHash}
-          editToggle={editToggle(marketId)}
-        />
+          <MarketView
+            market={market}
+            editor={editor}
+            comments={marketTargetedComments}
+            commentsHash={commentsHash}
+            editToggle={cancelEdit(marketId)}
+
+          />
         )}
       </TabPanel>
       {invTabs.tabContent}

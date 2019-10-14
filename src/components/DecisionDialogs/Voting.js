@@ -12,23 +12,21 @@ function Voting(props) {
   const { id } = coreInvestible;
   const { getCurrentUserInvestment } = useAsyncMarketPresencesContext();
   const [investment, setInvestment] = useState(undefined);
-  const [localInvestment, setLocalInvestment] = useState(0);
   const [timer, setTimer] = useState(null);
 
   useEffect(() => {
-    if (id && marketId && investment === undefined) {
+    if (id && marketId) {
       getCurrentUserInvestment(id, marketId)
         .then((userInvestment) => setInvestment(userInvestment));
     }
-  }, [id, marketId, investment, getCurrentUserInvestment]);
+  }, [id, marketId, getCurrentUserInvestment]);
 
   function save(value) {
     return () => {
       const currentInvestment = investment || 0;
       console.log(`Saving investment of ${value}`);
       return updateInvestment(marketId, id, value, currentInvestment).then(() => {
-        setInvestment(undefined);
-        setLocalInvestment(value);
+        setInvestment(value);
       });
     };
   }
@@ -40,7 +38,7 @@ function Voting(props) {
     setTimer(setTimeout(saveFunc, SAVE_DELAY));
   }
 
-  const myInvestment = investment || localInvestment;
+  const myInvestment = investment || 0;
   console.debug(myInvestment);
   const invested = myInvestment > 0;
 

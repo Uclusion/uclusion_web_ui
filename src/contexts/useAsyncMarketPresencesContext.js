@@ -22,7 +22,6 @@ function useAsyncMarketPresencesContext() {
       const { usersPresenceList } = stateCache;
       const { id } = investingUser;
       const marketUsers = usersPresenceList[marketId];
-      console.debug(marketUsers);
       if (marketUsers) {
         const userPresence = marketUsers.find((marketUser) => marketUser.id === id);
         if (userPresence) {
@@ -31,10 +30,12 @@ function useAsyncMarketPresencesContext() {
           const investibleInvestment = investments.find((investment) => investment.investible_id === investibleId);
           if (investibleInvestment) {
             const { quantity } = investibleInvestment;
+            console.debug(`Quantity is ${quantity}`);
             return quantity;
           }
         }
       }
+      console.debug('Quantity undefined');
       return undefined;
     });
   }

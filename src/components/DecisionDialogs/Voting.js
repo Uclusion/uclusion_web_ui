@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 import VotingCertainty from './VotingCertainty';
 import VoteMark from './VoteMark';
 import { updateInvestment } from '../../api/marketInvestibles';
@@ -12,7 +13,20 @@ function Voting(props) {
   const { id } = coreInvestible;
   const { getCurrentUserInvestment } = useAsyncMarketPresencesContext();
   const [investment, setInvestment] = useState(undefined);
-  const [timer, setTimer] = useState(null);
+  function doInvestment(value) {
+    const currentInvestment = investment || 0;
+    console.log(`Saving investment of ${value} with ${currentInvestment}`);
+    return updateInvestment(marketId, id, value, currentInvestment).then(() => {
+      setInvestment(value);
+    });
+  }
+  const [debouncedCallback] = useDebouncedCallback(
+    (value) => {
+      doInvestment(value);
+    },
+    // delay in ms
+    SAVE_DELAY,
+  );
 
   useEffect(() => {
     if (id && marketId) {
@@ -21,39 +35,27 @@ function Voting(props) {
     }
   }, [id, marketId, getCurrentUserInvestment]);
 
-  function save(value) {
-    return () => {
-      const currentInvestment = investment || 0;
-      console.log(`Saving investment of ${value}`);
-      return updateInvestment(marketId, id, value, currentInvestment).then(() => {
-        setInvestment(value);
-      });
-    };
-  }
-
-  function handleChange(value) {
-    clearTimeout(timer);
-    // we need to bind the value in the save so that we use the right one after the refresh
-    const saveFunc = save(value);
-    setTimer(setTimeout(saveFunc, SAVE_DELAY));
-  }
-
   const myInvestment = investment || 0;
   console.debug(myInvestment);
   const invested = myInvestment > 0;
 
   function onInvestClick() {
     if (myInvestment === 0) {
-      return handleChange(50); // middle certainty
+      return doInvestment(50); // middle certainty
     }
-    return handleChange(0); // uninvest us
+    return doInvestment(0); // uninvest us
   }
 
   return (
     <div>
       {id && marketId
       && (<VoteMark onClick={onInvestClick} invested={invested} disabled={!investmentEnabled} />)}
-      {invested && <VotingCertainty value={myInvestment} onChange={handleChange} />}
+      {invested && (
+      <VotingCertainty
+        value={myInvestment}
+        onChange={debouncedCallback}
+      />
+      )}
     </div>
   );
 }

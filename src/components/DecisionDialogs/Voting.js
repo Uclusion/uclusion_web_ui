@@ -16,12 +16,11 @@ function Voting(props) {
   function doInvestment(value) {
     const currentInvestment = investment || 0;
     console.log(`Saving investment of ${value} with ${currentInvestment}`);
-    return updateInvestment(marketId, id, value, currentInvestment).then(() => {
-      setInvestment(value);
-    });
+    return updateInvestment(marketId, id, value, currentInvestment);
   }
   const [debouncedCallback] = useDebouncedCallback(
     (value) => {
+      setInvestment(value);
       doInvestment(value);
     },
     // delay in ms

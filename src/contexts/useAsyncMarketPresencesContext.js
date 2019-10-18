@@ -1,37 +1,28 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { AsyncMarketPresencesContext } from './AsyncMarketPresencesContext';
-import { getMarketUser } from '../api/markets';
+import useAsyncMarketContext from './useAsyncMarketsContext';
 
 function useAsyncMarketPresencesContext() {
   const { stateCache, refreshMarketPresence } = useContext(AsyncMarketPresencesContext);
-  const [currentUser, setCurrentUser] = useState(undefined);
-
-  function getCurrentUser(marketId) {
-    if (currentUser) {
-      return Promise.resolve(currentUser);
-    }
-    return getMarketUser(marketId)
-      .then((user) => {
-        setCurrentUser(user);
-        return user;
-      });
-  }
+  const { getCurrentUser } = useAsyncMarketContext();
 
   function getCurrentUserInvestment(investibleId, marketId) {
-    return getCurrentUser(marketId).then((investingUser) => {
-      const { usersPresenceList } = stateCache;
-      const { id } = investingUser;
-      const marketUsers = usersPresenceList[marketId];
-      if (marketUsers) {
-        const userPresence = marketUsers.find((marketUser) => marketUser.id === id);
-        if (userPresence) {
-          const { investments } = userPresence;
-          // eslint-disable-next-line max-len
-          const investibleInvestment = investments.find((investment) => investment.investible_id === investibleId);
-          if (investibleInvestment) {
-            const { quantity } = investibleInvestment;
-            console.debug(`Quantity is ${quantity}`);
-            return quantity;
+    return getCurrentUser().then((investingUser) => {
+      if (investingUser) {
+        const { usersPresenceList } = stateCache;
+        const { id } = investingUser;
+        const marketUsers = usersPresenceList[marketId];
+        if (marketUsers) {
+          const userPresence = marketUsers.find((marketUser) => marketUser.id === id);
+          if (userPresence) {
+            const { investments } = userPresence;
+            // eslint-disable-next-line max-len
+            const investibleInvestment = investments.find((investment) => investment.investible_id === investibleId);
+            if (investibleInvestment) {
+              const { quantity } = investibleInvestment;
+              console.debug(`Quantity is ${quantity}`);
+              return quantity;
+            }
           }
         }
       }
@@ -43,7 +34,6 @@ function useAsyncMarketPresencesContext() {
   return {
     ...stateCache,
     refreshMarketPresence,
-    getCurrentUser,
     getCurrentUserInvestment,
   };
 }

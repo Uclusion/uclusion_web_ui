@@ -6,11 +6,11 @@ import {
 import { updateInvestible } from '../../api/investibles';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
-import useAsyncMarketPresencesContext from '../../contexts/useAsyncMarketPresencesContext';
 import { updateInvestibleStage } from '../../api/marketInvestibles';
 import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
 import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 import { getFlags } from '../../utils/userFunctions';
+import useAsyncMarketContext from '../../contexts/useAsyncMarketsContext';
 
 const styles = (theme) => ({
   root: {
@@ -26,7 +26,7 @@ const styles = (theme) => ({
 
 function InvestibleEdit(props) {
   const { updateInvestibleLocally } = useAsyncInvestiblesContext();
-  const { getCurrentUser } = useAsyncMarketPresencesContext();
+  const { getCurrentUser } = useAsyncMarketContext();
   const { getCachedStages } = useAsyncMarketStagesContext();
   const {
     investible, intl, classes, editToggle, onSave, marketId,
@@ -58,7 +58,7 @@ function InvestibleEdit(props) {
 
   function handleSubmit() {
     let newStage;
-    return handleSave().then(() => getCurrentUser(marketId)).then((currentUser) => {
+    return handleSave().then(() => getCurrentUser()).then((currentUser) => {
       const stages = getCachedStages(marketId);
       const { market_admin: isAdmin } = getFlags(currentUser);
       if (isAdmin) {

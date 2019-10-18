@@ -3,8 +3,13 @@ import { convertDates } from '../contexts/ContextUtils';
 
 export function getMarketDetails(marketId) {
   return getMarketClient(marketId)
-    .then((client) => client.markets.get())
-    .then((market) => convertDates(market));
+    .then((client) => client.markets.get()
+      .then((market) => convertDates(market))
+      .then((market) => client.users.get()
+        .then((user) => ({
+          ...market,
+          currentUser: user,
+        }))));
 }
 
 export function updateMarket(marketId, name, description, uploaded_files) {
@@ -37,9 +42,4 @@ export function getMarketUsers(marketId) {
 export function getMarketStages(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.markets.listStages());
-}
-
-export function getMarketUser(marketId) {
-  return getMarketClient(marketId)
-    .then((client) => client.users.get());
 }

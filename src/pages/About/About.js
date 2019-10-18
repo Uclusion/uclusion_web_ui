@@ -7,7 +7,6 @@ import Activity from '../../containers/Activity/Activity';
 import withAppConfigs from '../../utils/withAppConfigs';
 import { getFlags } from '../../utils/userFunctions';
 import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
-import useAsyncMarketPresencesContext from '../../contexts/useAsyncMarketPresencesContext';
 
 const styles = (theme) => ({
   root: {
@@ -38,8 +37,7 @@ const styles = (theme) => ({
 });
 
 function About(props) {
-  const { currentMarket, getMarketDetails } = useAsyncMarketsContext();
-  const { getCurrentUser } = useAsyncMarketPresencesContext();
+  const { currentMarket, getMarketDetails, getCurrentUser } = useAsyncMarketsContext();
   const {
     appConfig,
     classes,
@@ -63,11 +61,13 @@ function About(props) {
           }
         });
       if (getCurrentUser) {
-        getCurrentUser(currentMarket.id)
+        getCurrentUser()
           .then((currentUser) => {
-            setUser(currentUser);
-            const { market_admin:isAdmin } = getFlags(currentUser);
-            setIsAdmin(isAdmin);
+            if (currentUser) {
+              setUser(currentUser);
+              const { market_admin: isAdmin } = getFlags(currentUser);
+              setIsAdmin(isAdmin);
+            }
           });
       }
     }

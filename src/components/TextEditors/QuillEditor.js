@@ -3,32 +3,15 @@
  **/
 import React from 'react';
 import ReactQuill, { Quill } from 'react-quill';
+import QuillS3ImageUploader from './QuillS3ImageUploader';
 import 'react-quill/dist/quill.snow.css';
-import { getS3FileUrl, uploadFileToS3 } from '../../api/files';
-import Delta from 'quill-delta';
+
+Quill.register('modules/s3Upload', QuillS3ImageUploader);
+
 
 function QuillEditor(props) {
 
   const { marketId, readOnly } = props;
-
-/*  const uploadHandler = (range, files) => {
-    const uploadPromises = files.forEach((file ) => {
-      return uploadFileToS3(marketId, file)
-        .then((metadata) => {
-          return getS3FileUrl(metadata);
-        })
-    });
-    Promise.all(uploadPromises).then(images => {
-      const update = images.reduce((delta, image) => {
-        return delta.insert({ image });
-      }, new Delta().retain(range.index).delete(range.length));
-      this.quill.updateContents(update, Quill.sources.USER);
-      this.quill.setSelection(
-        range.index + images.length,
-        Quill.sources.SILENT,
-      );
-    });
-  }; */
 
   const modules = {
     toolbar: [
@@ -36,14 +19,14 @@ function QuillEditor(props) {
       [{ header: [1, 2, false] }],
       ['bold', 'italic', 'underline', 'strike', { script: 'sub' }, { script: 'super' }],
       [{ color: [] }, { background: [] }],
-      [ { align: []}],
-      [{ list: 'ordered'}, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+      [{ align: [] }],
+      [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
       ['link', 'code-block', 'image', 'video', 'formula'],
       ['clean'],
     ],
- //   uploader: {
- //     handler: uploadHandler,
- //   }
+    s3Upload: {
+      marketId,
+    },
   };
 
   const passedProps = { ...props, modules };
@@ -55,7 +38,7 @@ function QuillEditor(props) {
     passedProps.modules = newModules;
   }
   return (
-    <ReactQuill { ...passedProps } />
+    <ReactQuill {...passedProps} />
   );
 }
 

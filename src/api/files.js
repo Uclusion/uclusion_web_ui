@@ -1,4 +1,4 @@
-import { getMarketClient, getFileClient } from './uclusionClient';
+import { getMarketClient } from './uclusionClient';
 
 /**
  *
@@ -23,10 +23,4 @@ export function uploadFileToS3(marketId, file) {
       return fetch(url, fetchParams)
         .then(() => metadata); // just want to give back the successful url
     });
-}
-
-export function fetchFileFromS3(metadata) {
-  const { path } = metadata;
-  return getFileClient(metadata)
-    .then((client) => client.files.fetchFile(path));
 }

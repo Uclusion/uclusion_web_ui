@@ -4,7 +4,8 @@ import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@
 import { addInvestible } from '../../api/investibles';
 import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
-
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 const styles = theme => ({
   root: {
     padding: theme.spacing(2),
@@ -75,10 +76,10 @@ function InvestibleAdd(props) {
           value={name}
           onChange={handleChange('name')}
         />
-        <HtmlRichTextEditor
+        <ReactQuill
           onChange={handleChange('description')}
-          placeHolder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
-          value={description} />
+          placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
+          intialValue={description} />
       </CardContent>
       <CardActions>
         <Button onClick={handleCancel}>

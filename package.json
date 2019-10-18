@@ -22,6 +22,7 @@
     "localforage": "^1.7.3",
     "lodash": "^4.17.11",
     "prop-types": "^15.7.2",
+    "quill-delta": "^4.2.1",
     "react": "^16.9.0",
     "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.9.0",

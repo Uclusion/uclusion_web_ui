@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
 import { Card, Button, CardContent } from '@material-ui/core';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 import CardActions from '@material-ui/core/CardActions';
@@ -14,16 +14,16 @@ function CommentReply(props) {
 
   const placeHolder = intl.formatMessage({ id: 'commentReplyDefault' });
 
-  function handleChange(event) {
-    const { value } = event.target;
-    setBody(value);
+  function onEditorChange(content) {
+    const body = content;
+    setBody(body);
   }
 
   function handleSave() {
     const usedParent = parent || {};
     const { investible_id, id: parentId } = usedParent;
     return saveComment(marketId, investible_id, parentId, body)
-      .then(result => addCommentLocally(result))
+      .then((result) => addCommentLocally(result))
       .then(onSave());
   }
 
@@ -35,7 +35,7 @@ function CommentReply(props) {
   return (
     <Card>
       <CardContent>
-        <HtmlRichTextEditor placeHolder={placeHolder} value={body} onChange={handleChange}/>
+        <QuillEditor placeHolder={placeHolder} initialValue={body} onChange={onEditorChange}/>
       </CardContent>
       <CardActions>
         <Button onClick={handleSave}>

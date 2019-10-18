@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
 import { Card, Button, CardContent, CardActions } from '@material-ui/core';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 import PropTypes from 'prop-types';
@@ -18,9 +18,10 @@ function CommentAdd(props) {
   const placeHolderLabel = (issue) ? 'commentAddIssueDefault' : 'commentAddDefault';
   const placeHolder = intl.formatMessage({ id: placeHolderLabel });
 
-  function handleChange(event) {
-    const { value } = event.target;
-    setCurrentValues({ body: value });
+  function onEditorChange(content) {
+    const body = content;
+    const newValues = { ...currentValues, body };
+    setCurrentValues(newValues);
   }
 
   function handleFileUpload(metadata) {
@@ -55,11 +56,11 @@ function CommentAdd(props) {
         </Button>
       </CardActions>
       <CardContent>
-        <HtmlRichTextEditor
+        <QuillEditor
           handleFileUpload={handleFileUpload}
-          placeHolder={placeHolder}
-          value={body}
-          onChange={handleChange}/>
+          placeholder={placeHolder}
+          initialValue={body}
+          onChange={onEditorChange}/>
       </CardContent>
 
     </Card>

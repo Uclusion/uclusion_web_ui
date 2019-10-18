@@ -2,22 +2,33 @@
  through, and sets up some of the options we'll always want
  **/
 import React from 'react';
-import ReactQuill from 'react-quill';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { uploadFileToS3 } from '../../api/files';
+import { getS3FileUrl, uploadFileToS3 } from '../../api/files';
+import Delta from 'quill-delta';
 
 function QuillEditor(props) {
 
-  const { marketId } = props;
+  const { marketId, readOnly } = props;
 
-  const uploadHandler = (range, files) => {
+/*  const uploadHandler = (range, files) => {
     const uploadPromises = files.forEach((file ) => {
       return uploadFileToS3(marketId, file)
         .then((metadata) => {
-
+          return getS3FileUrl(metadata);
         })
-    })
-  };
+    });
+    Promise.all(uploadPromises).then(images => {
+      const update = images.reduce((delta, image) => {
+        return delta.insert({ image });
+      }, new Delta().retain(range.index).delete(range.length));
+      this.quill.updateContents(update, Quill.sources.USER);
+      this.quill.setSelection(
+        range.index + images.length,
+        Quill.sources.SILENT,
+      );
+    });
+  }; */
 
   const modules = {
     toolbar: [
@@ -30,14 +41,21 @@ function QuillEditor(props) {
       ['link', 'code-block', 'image', 'video', 'formula'],
       ['clean'],
     ],
-    uploader: {
-      handler:
-    }
-
+ //   uploader: {
+ //     handler: uploadHandler,
+ //   }
   };
 
+  const passedProps = { ...props, modules };
+  // wipe the toolbar if read only
+  if (readOnly) {
+    const { modules } = passedProps;
+    const newModules = modules || {};
+    newModules.toolbar = false;
+    passedProps.modules = newModules;
+  }
   return (
-    <ReactQuill modules={modules} {...props} />
+    <ReactQuill { ...passedProps } />
   );
 }
 

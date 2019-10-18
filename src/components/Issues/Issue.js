@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
 import { Paper, Button, MuiThemeProvider } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import QuillEditor from '../TextEditors/QuillEditor';
 import CommentReply from '../Comments/CommentReply';
 import Comment from '../Comments/Comment';
 import { issueTheme } from '../../config/themes';
@@ -56,7 +56,7 @@ function Issue(props) {
   return (
     <MuiThemeProvider theme={issueTheme}>
       <Paper className={classes.root}>
-        <HtmlRichTextEditor readOnly value={comment.body} />
+        <QuillEditor readOnly value={comment.body} />
         <Button onClick={toggleReply}>
           {intl.formatMessage({ id: 'issueReplyLabel' })}
         </Button>

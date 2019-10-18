@@ -84,7 +84,7 @@ function MarketNav(props) {
   const invTabs = getTabsForInvestibles(marketId, investibles,
     marketComments, commentsHash, edit, cancelEdit, workAroundSelected);
 
-  function onEditorChange(content, delta, source, editor) {
+  function onEditorChange(content) {
     const description = content;
     setMutableMarket({ ...market, description });
   }

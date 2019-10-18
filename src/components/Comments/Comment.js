@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
 import { Paper, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import QuillEditor from '../TextEditors/QuillEditor';
 import CommentReply from './CommentReply';
 
 const useStyles = makeStyles((theme) => ({
@@ -48,7 +48,7 @@ function Comment(props) {
 
   return (
     <Paper className={classes.root}>
-      <HtmlRichTextEditor readOnly value={comment.body} />
+      <QuillEditor readOnly value={comment.body} />
       <Button onClick={toggleReply}>
         {intl.formatMessage({ id: 'commentReplyLabel' })}
       </Button>

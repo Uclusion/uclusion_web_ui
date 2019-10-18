@@ -24,7 +24,6 @@
     "prop-types": "^15.7.2",
     "quill-delta": "^4.2.1",
     "quill-image-resize-module-withfix": "^4.0.1",
-    "quill-image-drop-module": "^1.0.3",
     "react": "^16.9.0",
     "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.9.0",

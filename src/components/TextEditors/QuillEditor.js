@@ -4,12 +4,10 @@
 import React from 'react';
 import ReactQuill, { Quill } from 'react-quill';
 import ImageResize from 'quill-image-resize-module-withfix';
-import { ImageDrop } from 'quill-image-drop-module';
 import QuillS3ImageUploader from './QuillS3ImageUploader';
 import 'react-quill/dist/quill.snow.css';
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
-Quill.register('modules/imageDrop', ImageDrop);
 
 function QuillEditor(props) {
 
@@ -33,7 +31,6 @@ function QuillEditor(props) {
     imageResize: {
       modules: ['Resize', 'DisplaySize', 'Toolbar'],
     },
-    imageDrop: true,
   };
 
   const passedProps = { ...props, modules };

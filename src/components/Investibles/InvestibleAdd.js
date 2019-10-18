@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
 import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@material-ui/core';
 import { addInvestible } from '../../api/investibles';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import QuillEditor from '../TextEditors/QuillEditor';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
-
 const styles = theme => ({
   root: {
     padding: theme.spacing(2),
@@ -30,6 +29,12 @@ function InvestibleAdd(props) {
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
     };
+  }
+
+  function onEditorChange(content) {
+    const description = content;
+    const newValues = { ...currentValues, description };
+    setCurrentValues(newValues);
   }
 
   function zeroCurrentValues() {
@@ -75,10 +80,10 @@ function InvestibleAdd(props) {
           value={name}
           onChange={handleChange('name')}
         />
-        <HtmlRichTextEditor
-          onChange={handleChange('description')}
-          placeHolder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
-          value={description} />
+        <QuillEditor
+          onChange={onEditorChange}
+          placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
+          defaultValue={description} />
       </CardContent>
       <CardActions>
         <Button onClick={handleCancel}>

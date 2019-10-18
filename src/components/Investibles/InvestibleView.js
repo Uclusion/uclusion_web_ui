@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Card, CardContent } from '@material-ui/core';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import QuillEditor from '../TextEditors/QuillEditor';
 import CommentBox from '../../containers/CommentBox/CommentBox';
 import InvestibleEditButton from './InvestibleEditButton';
 import Voting from '../DecisionDialogs/Voting';
@@ -15,10 +15,11 @@ function InvestibleView(props) {
     <Card>
       <CardContent>
         <InvestibleEditButton onClick={editToggle} />
-        <Voting investible={investible} marketId={marketId} investmentEnabled={true}/>
-        <HtmlRichTextEditor style={{ minHeight: 'auto' }} value={description} readOnly/>
+        <Voting investible={investible} marketId={marketId} investmentEnabled={true} />
+        <QuillEditor defaultValue={description} readOnly={true} />
       </CardContent>
-      <CommentBox investible={investible} marketId={marketId} comments={comments} depth={0} commentsHash={commentsHash}/>
+      <CommentBox investible={investible} marketId={marketId} comments={comments} depth={0}
+                  commentsHash={commentsHash} />
     </Card>
   );
 }

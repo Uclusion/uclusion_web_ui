@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Card, CardActions, CardContent } from '@material-ui/core';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import QuillEditor from '../TextEditors/QuillEditor';
 import CommentBox from '../../containers/CommentBox/CommentBox';
 import MarketEditButton from './MarketEditButton';
 import { useIntl } from 'react-intl';
@@ -22,7 +22,7 @@ function MarketView(props) {
       <Card>
         <CardContent>
           <MarketEditButton onClick={editToggle} />
-          <HtmlRichTextEditor value={description} readOnly />
+          <QuillEditor value={description} readOnly />
         </CardContent>
         <CardActions>
           <Button onClick={toggleAddIssue}>

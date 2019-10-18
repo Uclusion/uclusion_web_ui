@@ -13,7 +13,7 @@ import MarketView from './MarketView';
 import MarketEdit from './MarketEdit';
 import InvestibleAdd from '../Investibles/InvestibleAdd';
 import { getTabsForInvestibles } from './tabHelpers';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import QuillEditor from '../../components/TextEditors/QuillEditor';
 
 function MarketNav(props) {
   const history = useHistory();
@@ -80,26 +80,20 @@ function MarketNav(props) {
     }
   }
 
-  function handleFileUpload(metadata) {
-    // console.log(metadata);
-    const newUploadedFiles = [...uploadedFiles, metadata];
-    setUploadedFiles(newUploadedFiles);
-  }
 
   const invTabs = getTabsForInvestibles(marketId, investibles,
     marketComments, commentsHash, edit, cancelEdit, workAroundSelected);
 
-  function onEditorChange(event) {
-    const { value } = event.target;
-    setMutableMarket({ ...market, description: value });
+  function onEditorChange(content) {
+    const description = content;
+    setMutableMarket({ ...market, description });
   }
 
   // if we put the editor here, then we don't have to rerender it's contents
   console.log(edit[marketId]);
-  const editor = <HtmlRichTextEditor onChange={onEditorChange}
-                                     value={mutableMarket.description}
-                                     handleFileUpload={handleFileUpload}
-                                     readOnly={!edit[marketId]} />;
+  const editor = <QuillEditor onChange={onEditorChange}
+                             defaultValue={mutableMarket.description}
+                             readOnly={!edit[marketId]} />;
   return (
     <div>
       <AppBar position="static" color="default">

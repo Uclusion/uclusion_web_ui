@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Button, Card, CardActions, CardContent, TextField, Typography, withStyles } from '@material-ui/core';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import QuillEditor from '../TextEditors/QuillEditor';
 import ExpirationSelector from './ExpirationSelector';
 import { createMarket } from '../../api/markets';
 import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
@@ -86,7 +86,7 @@ function MarketAdd(props) {
           {intl.formatMessage({ id: 'marketAddExpirationLabel' }, {x: expiration_minutes / 1440 })}
         </Typography>
         <ExpirationSelector value={expiration_minutes} className={classes.row} onChange={handleChange('expiration_minutes')} />
-        <HtmlRichTextEditor
+        <QuillEditor
           onChange={handleChange('description')}
           placeHolder={intl.formatMessage({id: 'marketAddDescriptionDefault' })}
           value={description} />

@@ -4,7 +4,7 @@ import {
   Button, Card, CardActions, CardContent, TextField, withStyles,
 } from '@material-ui/core';
 import { updateInvestible } from '../../api/investibles';
-import HtmlRichTextEditor from '../TextEditors/HtmlRichTextEditor';
+import QuillEditor from '../TextEditors/QuillEditor';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import { updateInvestibleStage } from '../../api/marketInvestibles';
 import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
@@ -42,6 +42,12 @@ function InvestibleEdit(props) {
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
     };
+  }
+
+  function onEditorChange(content) {
+    const description = content;
+    const newValues = { ...currentValues, description };
+    setCurrentValues(newValues);
   }
 
   function handleFileUpload(metadata) {
@@ -90,10 +96,10 @@ function InvestibleEdit(props) {
           value={name}
           onChange={handleChange('name')}
         />
-        <HtmlRichTextEditor
+        <QuillEditor
           handleFileUpload={handleFileUpload}
-          onChange={handleChange('description')}
-          value={description}
+          onChange={onEditorChange}
+          defaultValue={description}
         />
       </CardContent>
       <CardActions>

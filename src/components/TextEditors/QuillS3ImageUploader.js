@@ -10,6 +10,8 @@ class QuillS3ImageUploader {
 
   marketId;
 
+  onS3Upload;
+
   toolbar;
 
   uploader;
@@ -19,6 +21,7 @@ class QuillS3ImageUploader {
   constructor(quill, options) {
     this.quill = quill;
     this.marketId = options.marketId;
+    this.onS3Upload = options.onS3Upload;
     this.s3Uploader = this.s3Uploader.bind(this);
     this.doUpload = this.doUpload.bind(this);
     this.toolbar = this.quill.getModule('toolbar');
@@ -111,10 +114,13 @@ class QuillS3ImageUploader {
     const range = this.quill.getSelection();
     console.debug(uploads);
     return this.s3Uploader(range, uploads)
-      .then(() => {
+      .then((metadatas) => {
         if (this.uploader) {
           this.uploader.value = ''; // zero it out for the next run
         }
+      //  if (this.onS3Upload) {
+         //  this.onS3Upload(metadatas);
+     //   }
       });
   }
 
@@ -129,19 +135,25 @@ class QuillS3ImageUploader {
   }
 
   s3Uploader(range, uploads) {
+    const metadatas = [];
     const promises = uploads.map((file) => {
       return uploadFileToS3(this.marketId, file)
-        .then((metadata) => getS3FileUrl(metadata));
+        .then((metadata) => {
+          metadatas.push(metadata);
+          return getS3FileUrl(metadata);
+        });
     });
     return Promise.all(promises).then((images) => {
       const update = images.reduce((delta, image) => {
         return delta.insert({ image });
       }, new Delta().retain(range.index).delete(range.length));
       this.quill.updateContents(update, Quill.sources.USER);
-      this.quill.setSelection(
+      return this.quill.setSelection(
         range.index + images.length,
         Quill.sources.SILENT,
       );
+    }).then(() => {
+      return metadatas;
     });
   }
 }

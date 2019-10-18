@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@material-ui/core';
 import { updateMarket } from '../../api/markets';
@@ -6,6 +6,7 @@ import { injectIntl } from 'react-intl';
 
 import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
 import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
+import QuillEditor from '../TextEditors/QuillEditor';
 
 const styles = theme => ({
   root: {
@@ -24,23 +25,21 @@ function MarketEdit(props) {
   const {
     editToggle,
     onSave,
-    editor,
-    uploadedFiles,
     market,
-    setMarket,
     classes,
     intl,
   } = props;
   const { id } = market;
   const { updateMarketLocally } = useAsyncMarketsContext();
-
-  const { name, description } = market;
-  console.debug(description);
+  const [mutableMarket, setMutableMarket] = useState(market);
+  const initialUploadedFiles = market.uploaded_files || [];
+  const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
+  const { name, description } = mutableMarket;
 
   function handleChange(name) {
     return (event) => {
       const { value } = event.target;
-      setMarket({ ...market, [name]: value });
+      setMutableMarket({ ...market, [name]: value });
     };
   }
 
@@ -51,6 +50,18 @@ function MarketEdit(props) {
     return updateMarket(id, name, description, filteredUploads)
       .then(() => updateMarketLocally(market))
       .then(() => onSave());
+  }
+
+
+  function onEditorChange(content) {
+    const description = content;
+    setMutableMarket({ ...market, description });
+  }
+
+  function onS3Upload(metadatas) {
+    console.log("Firing S3 upload");
+    const newUploadedFiles = [...uploadedFiles, ...metadatas];
+    setUploadedFiles(newUploadedFiles);
   }
 
   return (
@@ -67,7 +78,12 @@ function MarketEdit(props) {
           value={name}
           onChange={handleChange('name')}
         />
-        {editor}
+        <QuillEditor onChange={onEditorChange}
+                     defaultValue={description}
+                     readOnly={false}
+                     marketId={id}
+                     onS3Upload={onS3Upload}
+        />
       </CardContent>
       <CardActions>
         <Button onClick={editToggle}>

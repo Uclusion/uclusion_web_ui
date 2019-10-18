@@ -2,6 +2,7 @@
  through, and sets up some of the options we'll always want
  **/
 import React from 'react';
+import PropTypes from 'prop-types';
 import ReactQuill, { Quill } from 'react-quill';
 import ImageResize from 'quill-image-resize-module-withfix';
 import QuillS3ImageUploader from './QuillS3ImageUploader';
@@ -9,11 +10,13 @@ import 'react-quill/dist/quill.snow.css';
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
 
+
 function QuillEditor(props) {
 
-
-  const { marketId, readOnly } = props;
-
+  const { marketId, readOnly, onS3Upload, defaultValue, onChange, placeholder } = props;
+  console.log(props);
+  // neccesary in order to make quill happy to have multiple editors open
+  const randToolbarNum = Math.floor(Math.random() * Math.floor(200000));
   const modules = {
     toolbar: [
       [{ font: [] }],
@@ -25,25 +28,48 @@ function QuillEditor(props) {
       ['link', 'code-block', 'image', 'video', 'formula'],
       ['clean'],
     ],
-    s3Upload: {
-      marketId,
-    },
     imageResize: {
       modules: ['Resize', 'DisplaySize', 'Toolbar'],
     },
-  };
+    s3Upload: {
+      marketId,
+      onS3Upload,
+    },
 
-  const passedProps = { ...props, modules };
+  };
+  const usedModules = { ...modules };
+
   // wipe the toolbar if read only
   if (readOnly) {
-    const { modules } = passedProps;
-    const newModules = modules || {};
-    newModules.toolbar = false;
-    passedProps.modules = newModules;
+    usedModules.toolbar = false;
+    usedModules.s3Upload = false;
+    usedModules.imageResize = false;
   }
   return (
-    <ReactQuill {...passedProps} />
+    <ReactQuill modules={usedModules}
+                placeholder={placeholder}
+                defaultValue={defaultValue}
+                onChange={onChange}
+                readOnly={readOnly}
+    />
   );
 }
+
+QuillEditor.propTypes = {
+  marketId: PropTypes.string.isRequired,
+  readOnly: PropTypes.bool,
+  onS3Upload: PropTypes.func,
+  defaultValue: PropTypes.string,
+  onChange: PropTypes.func,
+  placeholder: PropTypes.string,
+};
+
+QuillEditor.defaultProps = {
+  readOnly: true,
+  onS3Upload: () => {},
+  onChange: () => {},
+  defaultValue: '',
+  placeholder: '',
+};
 
 export default QuillEditor;

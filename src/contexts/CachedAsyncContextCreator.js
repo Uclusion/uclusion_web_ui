@@ -23,8 +23,8 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
   function getState() {
     return localforage.getItem(contextNamespace)
       .then((state) => {
-        console.log('Local forage state');
-        console.log(state);
+       // console.log('Local forage state');
+       // console.log(state);
         return state || emptyState;
       });
   }
@@ -57,16 +57,16 @@ export function createCachedAsyncContext(contextNamespace, emptyState) {
   }
 
   function loadingWrapper(loadingFunc) {
-    const startTime = new Date();
+    // const startTime = new Date();
     console.log(`Loading with ${loadingFunc.name}`);
     return setStateValues({ loading: true })
       .then(() => {
-        console.log('Firing state mutator');
+        // console.log('Firing state mutator');
         return loadingFunc();
       })
       .then(() => {
-        const endTime = new Date();
-        console.log(`Load time ${endTime - startTime}ms for ${loadingFunc.name}`);
+        // const endTime = new Date();
+        // console.log(`Load time ${endTime - startTime}ms for ${loadingFunc.name}`);
         return setStateValues({ loading: false });
       });
   }

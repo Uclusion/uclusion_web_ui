@@ -22,7 +22,7 @@ function MarketView(props) {
       <Card>
         <CardContent>
           <MarketEditButton onClick={editToggle} />
-          <QuillEditor value={description} readOnly />
+          <QuillEditor defaultValue={description} readOnly />
         </CardContent>
         <CardActions>
           <Button onClick={toggleAddIssue}>

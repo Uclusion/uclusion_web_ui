@@ -32,11 +32,7 @@ function MarketNav(props) {
   const marketTargetedComments = marketComments.filter((comment) => !comment.investible_id);
   const commentsHash = createCommentsHash(marketComments);
   const [previousTab, setPreviousTab] = useState();
-  const [mutableMarket, setMutableMarket] = useState(market);
-  // unfortnately we have to manage uploaded files separately from the
-  // item getting edited, othewise the render will fire and wipe out our changes
-  const initialUploadedFiles = market.uploaded_files || [];
-  const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
+
 
   function pushTab(tabValue) {
     if (marketId) {
@@ -64,7 +60,6 @@ function MarketNav(props) {
   function cancelEdit(id) {
     return () => {
       setEdit({ [id]: !edit[id] });
-      setMutableMarket(market);
     };
   }
 
@@ -84,16 +79,6 @@ function MarketNav(props) {
   const invTabs = getTabsForInvestibles(marketId, investibles,
     marketComments, commentsHash, edit, cancelEdit, workAroundSelected);
 
-  function onEditorChange(content) {
-    const description = content;
-    setMutableMarket({ ...market, description });
-  }
-
-  // if we put the editor here, then we don't have to rerender it's contents
-  console.log(edit[marketId]);
-  const editor = <QuillEditor onChange={onEditorChange}
-                             defaultValue={mutableMarket.description}
-                             readOnly={!edit[marketId]} />;
   return (
     <div>
       <AppBar position="static" color="default">
@@ -112,18 +97,14 @@ function MarketNav(props) {
       <TabPanel index="context" value={workAroundSelected}>
         {edit[marketId] && (
           <MarketEdit
-            market={mutableMarket}
-            setMarket={setMutableMarket}
-            editor={editor}
+            market={market}
             onSave={cancelEdit(marketId)}
             editToggle={cancelEdit(marketId)}
-            uploadedFiles={uploadedFiles}
           />
         )}
         {!edit[marketId] && (
           <MarketView
             market={market}
-            editor={editor}
             comments={marketTargetedComments}
             commentsHash={commentsHash}
             editToggle={cancelEdit(marketId)}

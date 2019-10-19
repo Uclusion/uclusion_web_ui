@@ -83,7 +83,7 @@ QuillEditor.propTypes = {
 };
 
 QuillEditor.defaultProps = {
-  readOnly: true,
+  readOnly: false,
   onS3Upload: () => {},
   onChange: () => {},
   defaultValue: '',

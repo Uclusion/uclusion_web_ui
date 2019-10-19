@@ -72,7 +72,6 @@ function AsyncMarketsProvider(props) {
       Hub.listen(AUTH_HUB_CHANNEL, (data) => {
         const { payload: { event } } = data;
         console.debug(`Markets context responding to auth event ${event}`);
-
         switch (event) {
           case 'signIn':
             refreshMarkets();
@@ -86,31 +85,37 @@ function AsyncMarketsProvider(props) {
       });
       Hub.listen(PUSH_CONTEXT_CHANNEL, (data) => {
         const { payload: { event, message } } = data;
-        console.debug(`Markets context responding to identity event ${event}`);
-        let marketId;
         switch (event) {
           case IDENTITY_EVENT: {
             const { indirect_object_id: foundMarketId } = message;
-            marketId = foundMarketId;
+            getState().then((state) => {
+              const { markets } = state;
+              let existing;
+              if (markets) {
+                existing = markets.find((market) => market.id === foundMarketId);
+              }
+              if (!existing) {
+                console.debug(`Markets context responding to identity event ${event}`);
+                // Only want to get token and details if this is the user just added
+                refreshMarkets();
+              }
+            });
             break;
           }
           case MESSAGES_EVENT: {
+            console.debug(`Markets context responding to updated market event ${event}`);
             const { object_id: foundMarketId } = message;
-            marketId = foundMarketId;
+            const loadingFunc = () => getState()
+              .then((state) => getMarketDetails(foundMarketId).then((market) => {
+                const convertedMarket = convertDates(market);
+                const newDetails = _.unionBy([convertedMarket], state.marketDetails, 'id');
+                return setStateValues({ marketDetails: newDetails });
+              }));
+            loadingWrapper(loadingFunc);
             break;
           }
           default:
             console.debug(`Ignoring identity event ${event}`);
-        }
-        if (marketId) {
-          const loadingFunc = () => getState()
-            .then((state) => getMarketDetails(marketId).then((market) => {
-              const convertedMarket = convertDates(market);
-              const newDetails = _.unionBy([convertedMarket], state.marketDetails, 'id');
-              return setStateValues({ marketDetails: newDetails });
-            }).then(() => getMarketList()) // Have to call for full list in order to set token
-              .then((markets) => setStateValues({ markets })));
-          loadingWrapper(loadingFunc);
         }
       });
       refreshMarkets();

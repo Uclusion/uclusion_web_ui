@@ -5,7 +5,7 @@ import VoteMark from './VoteMark';
 import { updateInvestment } from '../../api/marketInvestibles';
 import useAsyncMarketPresencesContext from '../../contexts/useAsyncMarketPresencesContext';
 
-const SAVE_DELAY = 1500;
+const SAVE_DELAY = 1000;
 
 function Voting(props) {
   const { investible, marketId, investmentEnabled } = props;
@@ -29,13 +29,13 @@ function Voting(props) {
 
   useEffect(() => {
     if (id && marketId) {
+      console.debug('Refreshing investment...');
       getCurrentUserInvestment(id, marketId)
         .then((userInvestment) => setInvestment(userInvestment));
     }
   }, [id, marketId, getCurrentUserInvestment]);
 
   const myInvestment = investment || 0;
-  console.debug(myInvestment);
   const invested = myInvestment > 0;
 
   function onInvestClick() {

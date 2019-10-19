@@ -118,9 +118,9 @@ class QuillS3ImageUploader {
         if (this.uploader) {
           this.uploader.value = ''; // zero it out for the next run
         }
-      //  if (this.onS3Upload) {
-         //  this.onS3Upload(metadatas);
-     //   }
+        if (this.onS3Upload) {
+          this.onS3Upload(metadatas);
+        }
       });
   }
 

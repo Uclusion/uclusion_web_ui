@@ -18,7 +18,6 @@
     "intl-locales-supported": "^1.4.2",
     "is-url": "^1.2.4",
     "jwt-decode": "^2.2.0",
-    "katex": "^0.11.1",
     "localforage": "^1.7.3",
     "lodash": "^4.17.11",
     "prop-types": "^15.7.2",

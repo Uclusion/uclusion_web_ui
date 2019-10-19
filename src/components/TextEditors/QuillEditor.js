@@ -3,56 +3,74 @@
  **/
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactQuill, { Quill } from 'react-quill';
+import Quill from 'quill';
 import ImageResize from 'quill-image-resize-module-withfix';
 import QuillS3ImageUploader from './QuillS3ImageUploader';
-import 'react-quill/dist/quill.snow.css';
+import 'quill/dist/quill.snow.css';
+
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
 
+// code derived from https://github.com/quilljs/quill/issues/1447
+class QuillEditor extends React.PureComponent {
 
-function QuillEditor(props) {
+  editor;
 
-  const { marketId, readOnly, onS3Upload, defaultValue, onChange, placeholder } = props;
-  console.log(props);
-  // neccesary in order to make quill happy to have multiple editors open
-  const randToolbarNum = Math.floor(Math.random() * Math.floor(200000));
-  const modules = {
-    toolbar: [
-      [{ font: [] }],
-      [{ header: [1, 2, false] }],
-      ['bold', 'italic', 'underline', 'strike', { script: 'sub' }, { script: 'super' }],
-      [{ color: [] }, { background: [] }],
-      [{ align: [] }],
-      [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
-      ['link', 'code-block', 'image', 'video', 'formula'],
-      ['clean'],
-    ],
-    imageResize: {
-      modules: ['Resize', 'DisplaySize', 'Toolbar'],
-    },
-    s3Upload: {
-      marketId,
-      onS3Upload,
-    },
 
-  };
-  const usedModules = { ...modules };
+  constructor(props){
+    super(props);
+    this.editorRef = React.createRef();
+    const { marketId, onS3Upload, readOnly, placeholder } = props;
+    const defaultModules = {
+      toolbar: [
+        [{ font: [] }],
+        [{ header: [1, 2, false] }],
+        ['bold', 'italic', 'underline', 'strike', { script: 'sub' }, { script: 'super' }],
+        [{ color: [] }, { background: [] }],
+        [{ align: [] }],
+        [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+        ['link', 'code-block', 'image', 'video', 'formula'],
+        ['clean'],
+      ],
+      imageResize: {
+        modules: ['Resize', 'DisplaySize', 'Toolbar'],
+      },
+      s3Upload: {
+        marketId,
+        onS3Upload,
+      },
+    };
+    this.modules = { ...defaultModules };
+    // wipe the toolbar if read only
+    if (readOnly) {
+      this.modules.toolbar = false;
+      this.modules.s3Upload = false;
+      this.modules.imageResize = false;
+    }
+    this.options = {
+      modules: this.modules,
+      placeholder,
+      readOnly,
+      theme: 'snow',
+    };
 
-  // wipe the toolbar if read only
-  if (readOnly) {
-    usedModules.toolbar = false;
-    usedModules.s3Upload = false;
-    usedModules.imageResize = false;
   }
-  return (
-    <ReactQuill modules={usedModules}
-                placeholder={placeholder}
-                defaultValue={defaultValue}
-                onChange={onChange}
-                readOnly={readOnly}
-    />
-  );
+
+  componentDidMount() {
+    const { defaultValue, onChange } = this.props;
+    this.editor = new Quill(this.editorRef.current, this.options);
+    this.editor.root.innerHTML = defaultValue;
+    this.editor.on('text-change', (delta) => {
+      const contents = this.editor.root.innerHTML;
+      onChange(contents, delta);
+    });
+  }
+
+  render() {
+    return (
+      <div ref={this.editorRef} />
+    );
+  }
 }
 
 QuillEditor.propTypes = {

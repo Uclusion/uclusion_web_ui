@@ -13,7 +13,7 @@ import MarketView from './MarketView';
 import MarketEdit from './MarketEdit';
 import InvestibleAdd from '../Investibles/InvestibleAdd';
 import { getTabsForInvestibles } from './tabHelpers';
-import QuillEditor from '../../components/TextEditors/QuillEditor';
+
 
 function MarketNav(props) {
   const history = useHistory();

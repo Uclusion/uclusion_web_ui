@@ -1,4 +1,4 @@
-import { Quill } from 'react-quill';
+import Quill from 'quill';
 import Delta from 'quill-delta';
 import { getS3FileUrl, uploadFileToS3 } from '../../api/files';
 

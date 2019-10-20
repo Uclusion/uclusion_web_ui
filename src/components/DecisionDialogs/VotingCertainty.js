@@ -8,7 +8,7 @@ function VotingCertainty(props) {
 
   function myOnChange(event, newValue) {
     if (newValue !== value) {
-      onChange(newValue);
+      onChange(newValue, value);
     }
   }
 

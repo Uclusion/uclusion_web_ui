@@ -128,6 +128,9 @@ function AsyncMarketsProvider(props) {
   // however the variable in providerState is the default which isn't any good
   // hence we need to use myState as the stateCache that we give the provider
   const providerState = { ...contextPackage, stateCache: myState };
+
+  console.debug('Market context being rerendered');
+
   return (
     <AsyncMarketsContext.Provider value={providerState}>
       {props.children}

@@ -60,6 +60,7 @@ function Market(props) {
 
   useEffect(() => {
     if (marketId && loadedMarket !== marketId) {
+      console.debug('Market rerendered on load new');
       setLoadedMarket(marketId);
       switchMarket(marketId);
       refreshInvestibles(marketId);

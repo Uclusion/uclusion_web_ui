@@ -27,17 +27,48 @@ function refreshMarketPresence(marketId) {
   return loadingWrapper(refreshMarketUsers);
 }
 
+function getCurrentUserInvestment(investibleId, marketId, investingUser) {
+  return getState().then((state) => {
+    if (investingUser) {
+      const { usersPresenceList } = state;
+      const { id } = investingUser;
+      const marketUsers = usersPresenceList[marketId];
+      if (marketUsers) {
+        const userPresence = marketUsers.find((marketUser) => marketUser.id === id);
+        if (userPresence) {
+          const { investments } = userPresence;
+          // eslint-disable-next-line max-len
+          const investibleInvestment = investments.find((investment) => investment.investible_id === investibleId);
+          if (investibleInvestment) {
+            const { quantity } = investibleInvestment;
+            console.debug(`Rerendered quantity is ${quantity}`);
+            return quantity;
+          }
+        }
+      }
+    }
+    console.debug('Quantity undefined');
+    return undefined;
+  });
+}
+
 const AsyncMarketPresencesContext = context;
 
 function AsyncMarketPresencesProvider(props) {
   const [state, setState] = useState(emptyState);
   const [isInitialization, setIsInitialization] = useState(true);
+
   // the provider value needs the new state cache object in order to alert
   // provider descendants to changes
-  const providerState = { ...contextPackage, stateCache: state, refreshMarketPresence };
+  const providerState = {
+    ...contextPackage,
+    stateCache: state,
+    refreshMarketPresence,
+    getCurrentUserInvestment,
+  };
   useEffect(() => {
     if (isInitialization) {
-      console.log('Replacing market presences state cache');
+      console.log('Rerendered market presences state cache');
       addStateCache(state, setState);
       Hub.listen(PUSH_PRESENCE_CHANNEL, (data) => {
         const { payload: { event, message } } = data;
@@ -45,6 +76,7 @@ function AsyncMarketPresencesProvider(props) {
         switch (event) {
           case MESSAGES_EVENT: {
             const { indirect_object_id: marketId } = message;
+            console.debug(`Rerendered for push event ${event}`);
             refreshMarketPresence(marketId);
             break;
           }
@@ -57,6 +89,8 @@ function AsyncMarketPresencesProvider(props) {
     return () => {
     };
   }, [isInitialization, state]);
+
+  console.debug('Context market presences being rerendered');
 
   return (
     <AsyncMarketPresencesContext.Provider value={providerState}>

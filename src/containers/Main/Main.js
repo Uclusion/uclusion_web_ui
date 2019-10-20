@@ -29,27 +29,26 @@ const oauth = {
 Auth.configure({ oauth });
 
 class Main extends Component {
-
   render() {
     return (
       <div>
         <NotificationsProvider>
-          <AsyncMarketPresencesProvider>
+          <AsyncMarketsProvider>
             <AsyncMarketStagesProvider>
               <AsyncCommentsProvider>
                 <AsyncInvestiblesProvider>
-                  <AsyncMarketsProvider>
+                  <AsyncMarketPresencesProvider>
                     <DrawerProvider>
                       <LocaleProvider>
                         <ToastContainer />
                         <App appConfig={{ ...config }} />
                       </LocaleProvider>
                     </DrawerProvider>
-                  </AsyncMarketsProvider>
+                  </AsyncMarketPresencesProvider>>
                 </AsyncInvestiblesProvider>
               </AsyncCommentsProvider>
             </AsyncMarketStagesProvider>
-          </AsyncMarketPresencesProvider>
+          </AsyncMarketsProvider>
         </NotificationsProvider>
       </div>
     );

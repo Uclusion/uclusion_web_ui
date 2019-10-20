@@ -74,6 +74,8 @@ function useAsyncMarketsContext() {
     return updateMarketLocally(market);
   }
 
+  console.debug('Use market context being rerendered');
+
   return {
     getCurrentMarket,
     getCurrentUser,

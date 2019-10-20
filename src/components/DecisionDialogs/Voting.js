@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import VotingCertainty from './VotingCertainty';
 import VoteMark from './VoteMark';
 import { updateInvestment } from '../../api/marketInvestibles';
-import useAsyncMarketPresencesContext from '../../contexts/useAsyncMarketPresencesContext';
+import { AsyncMarketPresencesContext } from '../../contexts/AsyncMarketPresencesContext';
+import useAsyncMarketContext from '../../contexts/useAsyncMarketsContext';
 
 const SAVE_DELAY = 1000;
 
@@ -11,17 +12,17 @@ function Voting(props) {
   const { investible, marketId, investmentEnabled } = props;
   const { investible: coreInvestible } = investible;
   const { id } = coreInvestible;
-  const { getCurrentUserInvestment } = useAsyncMarketPresencesContext();
+  const { getCurrentUserInvestment } = useContext(AsyncMarketPresencesContext);
   const [investment, setInvestment] = useState(undefined);
-  function doInvestment(value) {
-    const currentInvestment = investment || 0;
+  const { getCurrentUser } = useAsyncMarketContext();
+  function doInvestment(value, currentInvestment) {
     console.log(`Saving investment of ${value} with ${currentInvestment}`);
     return updateInvestment(marketId, id, value, currentInvestment);
   }
   const [debouncedCallback] = useDebouncedCallback(
-    (value) => {
+    (value, currentInvestment) => {
       setInvestment(value);
-      doInvestment(value);
+      doInvestment(value, currentInvestment);
     },
     // delay in ms
     SAVE_DELAY,
@@ -29,20 +30,20 @@ function Voting(props) {
 
   useEffect(() => {
     if (id && marketId) {
-      console.debug('Refreshing investment...');
-      getCurrentUserInvestment(id, marketId)
+      console.debug('Rerendering use effect for investment...');
+      getCurrentUser().then((currentUser) => getCurrentUserInvestment(id, marketId, currentUser))
         .then((userInvestment) => setInvestment(userInvestment));
     }
-  }, [id, marketId, getCurrentUserInvestment]);
+  }, [id, marketId, getCurrentUserInvestment, getCurrentUser]);
 
   const myInvestment = investment || 0;
   const invested = myInvestment > 0;
 
   function onInvestClick() {
     if (myInvestment === 0) {
-      return doInvestment(50); // middle certainty
+      return doInvestment(50, 0); // middle certainty
     }
-    return doInvestment(0); // uninvest us
+    return doInvestment(0, myInvestment); // uninvest us
   }
 
   return (

@@ -57,9 +57,9 @@ class QuillEditor extends React.PureComponent {
   }
 
   componentDidMount() {
-    const { defaultValue, onChange } = this.props;
+    const { defaultValue, onChange, value } = this.props;
     this.editor = new Quill(this.editorRef.current, this.options);
-    this.editor.root.innerHTML = defaultValue;
+    this.editor.root.innerHTML = value || defaultValue;
     this.editor.on('text-change', (delta) => {
       const contents = this.editor.root.innerHTML;
       onChange(contents, delta);
@@ -67,6 +67,10 @@ class QuillEditor extends React.PureComponent {
   }
 
   render() {
+    const { readOnly, value, defaultValue } = this.props;
+    if (this.editor && (readOnly || value)) {
+      this.editor.root.innerHTML = value || defaultValue;
+    }
     return (
       <div ref={this.editorRef} />
     );
@@ -80,6 +84,7 @@ QuillEditor.propTypes = {
   defaultValue: PropTypes.string,
   onChange: PropTypes.func,
   placeholder: PropTypes.string,
+  value: PropTypes.string,
 };
 
 QuillEditor.defaultProps = {

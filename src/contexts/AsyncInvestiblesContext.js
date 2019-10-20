@@ -77,6 +77,8 @@ function AsyncInvestiblesProvider(props) {
     };
   }, [isInitialization, state]);
 
+  console.debug('Investibles context being rerendered');
+
   return (
     <AsyncInvestiblesContext.Provider value={providerState}>
       {props.children}

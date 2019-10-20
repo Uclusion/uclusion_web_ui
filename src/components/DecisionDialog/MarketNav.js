@@ -16,6 +16,7 @@ import { getTabsForInvestibles } from './tabHelpers';
 
 
 function MarketNav(props) {
+  console.debug('Market nav being rerendered');
   const history = useHistory();
   const {
     intl, market,
@@ -43,11 +44,13 @@ function MarketNav(props) {
   let workAroundSelected = selectedTab;
   if (investible) {
     if (selectedTab !== investible) {
+      console.debug('selectedTab set causing rerendered');
       setPreviousTab(selectedTab);
       workAroundSelected = investible;
       setSelectedTab(workAroundSelected);
     }
   } else {
+    console.error('Bad url rerendered');
     // Someone passed us a bad URL so fall back to context tab
     workAroundSelected = 'context';
     pushTab('context');
@@ -74,7 +77,6 @@ function MarketNav(props) {
       pushTab('context');
     }
   }
-
 
   const invTabs = getTabsForInvestibles(marketId, investibles,
     marketComments, commentsHash, edit, cancelEdit, workAroundSelected);
@@ -127,4 +129,4 @@ MarketNav.propTypes = {
   market: PropTypes.object.isRequired,
 };
 
-export default injectIntl(MarketNav);
+export default injectIntl(React.memo(MarketNav));

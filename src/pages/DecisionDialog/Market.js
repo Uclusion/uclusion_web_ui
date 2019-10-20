@@ -75,7 +75,7 @@ function Market(props) {
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   const renderableMarket = marketDetails.find((market) => market.id === marketId);
-
+  console.debug('Market page being rerendered');
   return (
     <Activity
       title={currentMarketName}

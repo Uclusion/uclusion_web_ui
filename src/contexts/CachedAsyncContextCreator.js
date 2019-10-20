@@ -14,7 +14,7 @@ import localforage from "localforage";
  */
 
 export function createCachedAsyncContext(contextNamespace, emptyState) {
-
+  console.debug('cached context being rerendered');
   let stateCache = emptyState;
   let setStateCache = () => { console.debug('Null set state cache call'); };
   /**

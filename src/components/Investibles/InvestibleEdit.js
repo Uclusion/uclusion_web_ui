@@ -82,6 +82,8 @@ function InvestibleEdit(props) {
       .then(() => updateInvestibleLocally({ ...investible, stage_name: newStage.name }));
   }
 
+  console.debug('Investible edit being rerendered');
+
   return (
     <Card>
       <CardContent>

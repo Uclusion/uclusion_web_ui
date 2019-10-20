@@ -63,6 +63,7 @@ function refreshMarketComments(marketId) {
 const AsyncCommentsContext = context;
 
 function AsyncCommentsProvider(props) {
+  console.debug('Comments context being rerendered');
   const [state, setState] = useState(emptyState);
   const [isInitialization, setIsInitialization] = useState(true);
   // the provider value needs the new state cache object in order to allert

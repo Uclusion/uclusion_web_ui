@@ -4,6 +4,7 @@ import { AsyncCommentsContext } from './AsyncCommentsContext';
 import { convertDates } from './ContextUtils';
 
 function useAsyncCommentsContext() {
+  console.debug('use comments context being rerendered');
   const {
     stateCache, setStateValues, getState, refreshMarketComments,
   } = useContext(AsyncCommentsContext);

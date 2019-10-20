@@ -10,6 +10,7 @@ export function getTabsForInvestibles(marketId, investibles, comments, commentsH
     const { id } = inv.investible;
     const investibleComments = comments.filter(comment => comment.investible_id === id);
     const editMode = editOpen[id];
+    console.debug('Tabs being rerendered');
     return (
       <TabPanel key={id} index={id} value={selectedTab}>
         {editMode && <InvestibleEdit investible={inv}

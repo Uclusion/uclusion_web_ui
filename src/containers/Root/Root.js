@@ -40,6 +40,7 @@ const styles = {
 };
 
 function Root(props) {
+  console.debug('Root being rerendered');
   const history = useHistory();
   const { classes, appConfig } = props;
 

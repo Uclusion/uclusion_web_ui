@@ -30,6 +30,8 @@ function useAsyncInvestiblesContext() {
     return found;
   }
 
+  console.debug('use investibles context being rerendered');
+
   return {
     refreshInvestibles,
     getCachedInvestibles,

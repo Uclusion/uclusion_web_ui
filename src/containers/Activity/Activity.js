@@ -136,11 +136,9 @@ function Activity(props) {
     isLoading,
     onBackClick,
     titleButtons,
-    user,
     containerStyle,
     hidden,
   } = props;
-  const { canInvest } = getFlags(user);
   let headerTitle = '';
 
   if (typeof title === 'string' || title instanceof String) {
@@ -150,6 +148,8 @@ function Activity(props) {
   if (pageTitle) {
     headerTitle = pageTitle;
   }
+
+  console.debug(`Activity being rerendered for ${title}`);
 
   // const smDown = width === 'sm' || width === 'xs'
   const smDown = isWidthDown('sm', width);
@@ -195,18 +195,12 @@ function Activity(props) {
             <ChevronLeftIcon />
           </IconButton>
           {!onBackClick && open && <div style={{ marginRight: 32 }} />}
-          {!open && !canInvest && <img className={classes.logo} src="/images/logo-white.svg" alt="logo" />}
           <Typography variant="h6" color="inherit" noWrap>
             {headerTitle}
           </Typography>
           {titleButtons}
           {appBarContent}
           <div className={classes.grow} />
-          {user && user.market_presence && user.market_presence.quantity >= 0 && (
-            <Typography variant="h6" color="inherit" noWrap className={classes.availableShares}>
-              {canInvest && (intl.formatMessage({ id: 'availableSharesToInvest' }, { shares: user.market_presence.quantity }))}
-            </Typography>
-          )}
         </Toolbar>
       </AppBar>
       <div className={classes.toolbar} />
@@ -239,7 +233,6 @@ Activity.propTypes = {
   appBarContent: PropTypes.object,
   isLoading: PropTypes.bool,
   onBackClick: PropTypes.object,
-  user: PropTypes.object,
   containerStyle: PropTypes.object,
 };
 

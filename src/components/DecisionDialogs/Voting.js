@@ -30,7 +30,7 @@ function Voting(props) {
 
   useEffect(() => {
     if (id && marketId) {
-      console.debug('Rerendering use effect for investment...');
+      console.debug(`Rerendering use effect for investment for investible ${id}`);
       getCurrentUser().then((currentUser) => getCurrentUserInvestment(id, marketId, currentUser))
         .then((userInvestment) => setInvestment(userInvestment));
     }

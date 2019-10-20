@@ -7,7 +7,7 @@ import Quill from 'quill';
 import ImageResize from 'quill-image-resize-module-withfix';
 import QuillS3ImageUploader from './QuillS3ImageUploader';
 import 'quill/dist/quill.snow.css';
-
+import _ from 'lodash';
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
 
@@ -60,10 +60,11 @@ class QuillEditor extends React.PureComponent {
     const { defaultValue, onChange, value } = this.props;
     this.editor = new Quill(this.editorRef.current, this.options);
     this.editor.root.innerHTML = value || defaultValue;
-    this.editor.on('text-change', (delta) => {
+    const debouncedOnChange = _.debounce((delta) => {
       const contents = this.editor.root.innerHTML;
       onChange(contents, delta);
-    });
+    }, 50);
+    this.editor.on('text-change', debouncedOnChange);
   }
 
   render() {

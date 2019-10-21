@@ -30,6 +30,7 @@ Auth.configure({ oauth });
 
 class Main extends Component {
   render() {
+    console.debug('Main being rerendered');
     return (
       <div>
         <NotificationsProvider>

@@ -13,13 +13,15 @@ function Market(props) {
     market,
     selectedTab,
   } = props;
-
+  function cancelEdit() {
+    setEdit(false);
+  }
   return (
     <TabPanel index="context" value={selectedTab}>
       {edit && (
         <MarketEdit
           market={market}
-          editToggle={setEdit}
+          editToggle={cancelEdit}
         />
       )}
       {!edit && (

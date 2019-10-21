@@ -10,7 +10,7 @@ import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
 
 function Markets(props) {
   const { intl, hidden } = props;
-  const { marketDetails, loading } =  useContext(AsyncMarketsContext);
+  const { marketDetails, loading } = useContext(AsyncMarketsContext);
   const [addMode, setAddMode] = useState(false);
 
   function toggleAdd() {
@@ -20,7 +20,7 @@ function Markets(props) {
   function onMarketSave() {
     toggleAdd();
   }
-
+  console.debug(`Dialogs page being rerendered ${loading}`);
   return (
     <Activity
       title={intl.formatMessage({ id: 'sidebarNavDialogs' })}

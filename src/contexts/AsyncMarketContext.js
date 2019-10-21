@@ -33,7 +33,7 @@ const {
  * @returns {Promise<any | never | never>}
  */
 const marketRefresher = () => {
-  console.debug('Refreshing markets');
+  console.debug('Refreshing markets for rerender');
   return getState()
     .then((state) => getMarketList()
       .then((markets) => {
@@ -59,7 +59,7 @@ function refreshMarkets() {
   return loadingWrapper(marketRefresher);
 }
 
-//here's our helpwer functions
+// here's our helper functions
 
 function switchMarket(marketId) {
   return getState()
@@ -199,8 +199,8 @@ function AsyncMarketsProvider(props) {
   // however the variable in providerState is the default which isn't any good
   // hence we need to use myState as the stateCache that we give the provider
   contextPackage.stateCache = myState;
-  // We assign our helper functions and context, so that we don't trigger a different reference in the context
-  // and rerender, unless something has changed
+  // We assign our helper functions and context, so that we don't trigger a
+  // different reference in the context and rerender, unless something has changed
   const helperContext = {
     getCurrentMarket,
     getCurrentUser,

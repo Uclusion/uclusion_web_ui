@@ -11,11 +11,9 @@ import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import { Helmet } from 'react-helmet';
-
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
-import { getFlags } from '../../utils/userFunctions';
 import useDrawerContext from '../../contexts/useDrawerContext';
 
 const drawerWidth = 240;

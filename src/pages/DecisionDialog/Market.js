@@ -8,10 +8,10 @@ import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContex
 import MarketNav from '../../components/DecisionDialog/MarketNav';
 import Activity from '../../containers/Activity';
 import { getMarketId } from '../../utils/marketIdPathFunctions';
-import useAsyncMarketPresencesContext from '../../contexts/useAsyncMarketPresencesContext';
 import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
 import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
 import { AsyncCommentsContext } from '../../contexts/AsyncCommentsContext';
+import { AsyncMarketPresencesContext } from '../../contexts/AsyncMarketPresencesContext';
 
 const styles = (theme) => ({
   root: {
@@ -51,7 +51,7 @@ function Market(props) {
   const { pathname } = location;
   const marketId = getMarketId(pathname);
   const { switchMarket, currentMarket, marketDetails } = useContext(AsyncMarketsContext);
-  const { refreshMarketPresence, loading: marketUsersLoading } = useAsyncMarketPresencesContext();
+  const { refreshMarketPresence, loading: marketUsersLoading } = useContext(AsyncMarketPresencesContext);
   const { refreshStages, loading: marketStagesLoading } = useAsyncMarketStagesContext();
   const { refreshInvestibles, loading: investiblesLoading } = useAsyncInvestiblesContext();
   const { refreshMarketComments, loading: commentsLoading } = useContext(AsyncCommentsContext);
@@ -75,7 +75,7 @@ function Market(props) {
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   const renderableMarket = marketDetails.find((market) => market.id === marketId);
-  console.debug('Market page being rerendered');
+  console.debug(`Market page being rerendered ${investiblesLoading} ${commentsLoading} ${marketUsersLoading} ${marketStagesLoading}`);
   return (
     <Activity
       title={currentMarketName}

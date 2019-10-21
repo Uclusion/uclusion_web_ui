@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Hub } from '@aws-amplify/core';
+import _ from 'lodash';
 import { createCachedAsyncContext } from './CachedAsyncContextCreator';
 import { getMarketUsers } from '../api/markets';
 import { MESSAGES_EVENT, PUSH_PRESENCE_CHANNEL } from './WebSocketContext';
@@ -55,17 +56,10 @@ function getCurrentUserInvestment(investibleId, marketId, investingUser) {
 const AsyncMarketPresencesContext = context;
 
 function AsyncMarketPresencesProvider(props) {
+  console.debug('Context market presences being rerendered');
   const [state, setState] = useState(emptyState);
   const [isInitialization, setIsInitialization] = useState(true);
 
-  // the provider value needs the new state cache object in order to alert
-  // provider descendants to changes
-  const providerState = {
-    ...contextPackage,
-    stateCache: state,
-    refreshMarketPresence,
-    getCurrentUserInvestment,
-  };
   useEffect(() => {
     if (isInitialization) {
       console.log('Rerendered market presences state cache');
@@ -90,10 +84,15 @@ function AsyncMarketPresencesProvider(props) {
     };
   }, [isInitialization, state]);
 
-  console.debug('Context market presences being rerendered');
-
+  contextPackage.stateCache = state;
+  const helperContext = {
+    refreshMarketPresence,
+    getCurrentUserInvestment,
+    ...state,
+  };
+  _.assignIn(contextPackage, helperContext);
   return (
-    <AsyncMarketPresencesContext.Provider value={providerState}>
+    <AsyncMarketPresencesContext.Provider value={contextPackage}>
       {props.children}
     </AsyncMarketPresencesContext.Provider>
   );

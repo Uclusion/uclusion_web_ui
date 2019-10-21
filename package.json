@@ -11,7 +11,6 @@
     "aws-amplify": "^1.1.33",
     "aws-amplify-react": "^2.3.12",
     "classnames": "^2.2.6",
-    "emotion": "^9.2.12",
     "image-extensions": "^1.1.0",
     "immutable": "^4.0.0-rc.12",
     "intl": "^1.2.5",
@@ -35,9 +34,6 @@
     "react-router-dom": "^5.1.2",
     "react-toastify": "^5.3.2",
     "reselect": "^4.0.0",
-    "slate": "^0.47.8",
-    "slate-html-serializer": "^0.8.10",
-    "slate-react": "^0.22.8",
     "uclusion_sdk": "file:../uclusion_sdk",
     "use-debounce": "^3.1.0",
     "video-react": "^0.14.1"

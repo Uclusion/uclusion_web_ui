@@ -6,7 +6,7 @@ import beginListening from './investiblesContextMessages';
 const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
 const EMPTY_STATE = { investibles: {} };
 
-const InvestiblesContext = context;
+const InvestiblesContext = React.createContext();
 
 function InvestiblesProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);

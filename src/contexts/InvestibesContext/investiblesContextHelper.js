@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { fetchInvestibleList, fetchInvestibles } from '../../api/marketInvestibles';
 import { updateInvestibles } from './investiblesContextReducer';
-import
 
 export function getMarketInvestibles(state, marketId) {
   const values = Object.values(state);

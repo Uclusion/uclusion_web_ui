@@ -77,7 +77,8 @@ function Market(props) {
     return () => {
     };
   }, [marketId, loadedMarket, marketsDispatch,
-    refreshInvestibles, refreshMarketComments, refreshMarketPresence, refreshStages]);
+      refreshMarketComments, refreshMarketPresence,
+      refreshStages, investiblesDispatch]);
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   const renderableMarket = marketDetails.find((market) => market.id === marketId);

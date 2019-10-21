@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import AddIcon from '@material-ui/icons/Add';
 import { IconButton } from '@material-ui/core';
-import useAsyncMarketContext from '../../contexts/useAsyncMarketsContext';
+
 import MarketsList from '../../components/DecisionDialogs/MarketsList';
 import Activity from '../../containers/Activity';
 import MarketAdd from '../../components/DecisionDialogs/MarketAdd';
+import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
 
 function Markets(props) {
   const { intl, hidden } = props;
-  const { marketDetails, loading } = useAsyncMarketContext();
+  const { marketDetails, loading } =  useContext(AsyncMarketsContext);
   const [addMode, setAddMode] = useState(false);
 
   function toggleAdd() {

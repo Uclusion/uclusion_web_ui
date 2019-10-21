@@ -55,9 +55,79 @@ const marketRefresher = () => {
       }));
 };
 
-
 function refreshMarkets() {
   return loadingWrapper(marketRefresher);
+}
+
+//here's our helpwer functions
+
+function switchMarket(marketId) {
+  return getState()
+    .then((state) => {
+      const { markets } = state;
+      if (!_.isEmpty(markets)) {
+        const found = markets.find((market) => market.id === marketId);
+        return setStateValues({ currentMarket: found });
+      }
+      return Promise.resolve(null);
+    });
+}
+
+function getCurrentMarket() {
+  return getState()
+    .then((state) => state.currentMarket);
+}
+
+function getCurrentUser() {
+  return getState()
+    .then((state) => {
+      const { marketDetails, currentMarket } = state;
+      const { id: marketId } = currentMarket;
+      const currentMarketDetails = marketDetails.find((item) => item.id === marketId);
+      const { currentUser } = currentMarketDetails;
+      return currentUser;
+    });
+}
+
+function getAllMarketDetails() {
+  return getState()
+    .then((state) => state.marketDetails);
+}
+
+function getAllMarkets() {
+  return getState()
+    .then((state) => state.markets);
+}
+
+function updateMarketLocally(market) {
+  console.debug(market);
+  const { id } = market;
+  return getState()
+    .then((state) => {
+      const { marketDetails: oldDetails, markets: oldMarkets } = state;
+      // update the name in the market list, or add if new
+      const oldListItem = oldMarkets.find((item) => item.id === id);
+      const newMarkets = (oldListItem)
+        ? _.unionBy([{ ...oldListItem, name: market.name }], oldMarkets, 'id')
+        : [...oldMarkets, market];
+      // there's no token in the market above, and extra stuff, but name, etc lines up
+      // it'll also be replaced at the next refresh
+      const newDetails = _.unionBy([market], oldDetails, 'id');
+      // lastly update the current market to the new data, or if it's not set, leave it alone
+      const { currentMarket } = state;
+      const newCurrentMarket = (!currentMarket) ? currentMarket
+        : newMarkets.find((item) => item.id === currentMarket.id);
+
+      return setStateValues({
+        markets: newMarkets,
+        marketDetails: newDetails,
+        currentMarket: newCurrentMarket,
+      });
+    });
+}
+
+function addMarketLocally(market) {
+  return updateMarketLocally(market);
 }
 
 const AsyncMarketsContext = context;
@@ -124,15 +194,29 @@ function AsyncMarketsProvider(props) {
     };
   }, [isInitialization, myState]);
 
+
   // we've updated the context's internal state cache variable via addState above,
   // however the variable in providerState is the default which isn't any good
   // hence we need to use myState as the stateCache that we give the provider
-  const providerState = { ...contextPackage, stateCache: myState };
+  contextPackage.stateCache = myState;
+  // We assign our helper functions and context, so that we don't trigger a different reference in the context
+  // and rerender, unless something has changed
+  const helperContext = {
+    getCurrentMarket,
+    getCurrentUser,
+    getAllMarketDetails,
+    getAllMarkets,
+    switchMarket,
+    updateMarketLocally,
+    addMarketLocally,
+    ...myState,
+  };
+  _.assignIn(contextPackage, helperContext);
 
   console.debug('Market context being rerendered');
 
   return (
-    <AsyncMarketsContext.Provider value={providerState}>
+    <AsyncMarketsContext.Provider value={contextPackage}>
       {props.children}
     </AsyncMarketsContext.Provider>
   );

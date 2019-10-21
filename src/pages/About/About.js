@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Paper, Typography, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
@@ -6,7 +6,7 @@ import { injectIntl } from 'react-intl';
 import Activity from '../../containers/Activity/Activity';
 import withAppConfigs from '../../utils/withAppConfigs';
 import { getFlags } from '../../utils/userFunctions';
-import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
+import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
 
 const styles = (theme) => ({
   root: {
@@ -37,7 +37,7 @@ const styles = (theme) => ({
 });
 
 function About(props) {
-  const { currentMarket, getMarketDetails, getCurrentUser } = useAsyncMarketsContext();
+  const { currentMarket, getAllMarketDetails, getCurrentUser } = useContext(AsyncMarketsContext);
   const {
     appConfig,
     classes,
@@ -52,7 +52,7 @@ function About(props) {
 
   useEffect(() => {
     if (currentMarket && (market === undefined || currentMarket.id !== market.id)) {
-      getMarketDetails()
+      getAllMarketDetails()
         .then((marketDetails) => {
           const found = marketDetails
             && marketDetails.find((marketDetail) => marketDetail.id === currentMarket.id);
@@ -73,7 +73,7 @@ function About(props) {
     }
     return () => {
     };
-  }, [currentMarket, market, getMarketDetails, getCurrentUser]);
+  }, [currentMarket, market, getAllMarketDetails, getCurrentUser]);
 
   function handleClear() {
     // TODO need to clear storage here

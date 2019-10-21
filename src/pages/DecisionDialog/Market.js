@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import ExpirationCountDown from '../../components/DecisionDialog/ExpirationCountDown';
-import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
-import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 import MarketNav from '../../components/DecisionDialog/MarketNav';
 import Activity from '../../containers/Activity';
 import { getMarketId } from '../../utils/marketIdPathFunctions';
 import useAsyncMarketPresencesContext from '../../contexts/useAsyncMarketPresencesContext';
 import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
+import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
+import { AsyncCommentsContext } from '../../contexts/AsyncCommentsContext';
 
 const styles = (theme) => ({
   root: {
@@ -50,11 +50,11 @@ function Market(props) {
   const { location } = history;
   const { pathname } = location;
   const marketId = getMarketId(pathname);
-  const { switchMarket, currentMarket, marketDetails } = useAsyncMarketsContext();
+  const { switchMarket, currentMarket, marketDetails } = useContext(AsyncMarketsContext);
   const { refreshMarketPresence, loading: marketUsersLoading } = useAsyncMarketPresencesContext();
   const { refreshStages, loading: marketStagesLoading } = useAsyncMarketStagesContext();
   const { refreshInvestibles, loading: investiblesLoading } = useAsyncInvestiblesContext();
-  const { refreshMarketComments, loading: commentsLoading } = useAsyncCommentsContext();
+  const { refreshMarketComments, loading: commentsLoading } = useContext(AsyncCommentsContext);
   const [loadedMarket, setLoadedMarket] = useState(undefined);
   const { hidden } = props;
 

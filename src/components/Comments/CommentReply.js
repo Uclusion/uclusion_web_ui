@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import { Card, Button, CardContent } from '@material-ui/core';
 import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
-import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
+
 import CardActions from '@material-ui/core/CardActions';
+import { AsyncCommentsContext } from '../../contexts/AsyncCommentsContext';
 
 function CommentReply(props) {
 
   const { parent, intl, marketId, onSave, onCancel } = props;
-  const { addCommentLocally } = useAsyncCommentsContext();
+  const { addCommentLocally } = useContext(AsyncCommentsContext);
   const [body, setBody] = useState('');
 
   const placeHolder = intl.formatMessage({ id: 'commentReplyDefault' });

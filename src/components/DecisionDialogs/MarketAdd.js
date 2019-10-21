@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Button, Card, CardActions, CardContent, TextField, Typography, withStyles } from '@material-ui/core';
 import QuillEditor from '../TextEditors/QuillEditor';
 import ExpirationSelector from './ExpirationSelector';
 import { createMarket } from '../../api/markets';
-import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
+import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
+
 
 const styles = theme => ({
   root: {
@@ -24,7 +25,7 @@ function MarketAdd(props) {
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const { name, description, expiration_minutes } = currentValues;
-  const { addMarketLocally } = useAsyncMarketsContext();
+  const { addMarketLocally } = useContext(AsyncMarketsContext);
 
 
   function zeroCurrentValues() {

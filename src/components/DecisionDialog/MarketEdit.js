@@ -104,7 +104,6 @@ MarketEdit.propTypes = {
   market: PropTypes.object.isRequired,
   classes: PropTypes.object.isRequired,
   editToggle: PropTypes.func.isRequired,
-  onSave: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(injectIntl(MarketEdit));

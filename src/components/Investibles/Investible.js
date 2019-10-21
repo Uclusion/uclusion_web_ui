@@ -9,7 +9,7 @@ function Investible(props) {
   const {
     investible, marketId, comments, commentsHash, selectedTab,
   } = props;
-  const { id } = investible;
+  const { id } = investible.investible;
   const investibleComments = comments.filter((comment) => comment.investible_id === id);
   return (
     <TabPanel key={id} index={id} value={selectedTab}>
@@ -23,7 +23,7 @@ function Investible(props) {
       )}
       {!edit && (
       <InvestibleView
-        investible={investible}
+        investible={investible.investible}
         marketId={marketId}
         comments={investibleComments}
         editToggle={setEdit}

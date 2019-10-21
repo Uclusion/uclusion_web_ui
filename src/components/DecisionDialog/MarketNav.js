@@ -24,7 +24,6 @@ function MarketNav(props) {
   const marketId = market.id;
   const { investible } = values;
   const [selectedTab, setSelectedTab] = useState(undefined);
-  const [edit, setEdit] = useState({});
   const { comments, createCommentsHash } = useContext(AsyncCommentsContext);
   const { getCachedInvestibles } = useAsyncInvestiblesContext();
   const investibles = getCachedInvestibles(marketId);

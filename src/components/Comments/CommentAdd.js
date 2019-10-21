@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import { Card, Button, CardContent, CardActions } from '@material-ui/core';
 import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
-import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
+
 import PropTypes from 'prop-types';
 import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
+import { AsyncCommentsContext } from '../../contexts/AsyncCommentsContext';
 
 function CommentAdd(props) {
 
   const emptyComment = { body: '', uploadedFiles: []};
   const { intl, marketId, onSave, onCancel, issue, investible } = props;
-  const { addCommentLocally } = useAsyncCommentsContext();
+  const { addCommentLocally } = useContext(AsyncCommentsContext);
   const [currentValues, setCurrentValues] = useState(emptyComment);
   const { body, uploadedFiles } = currentValues;
 

@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@material-ui/core';
 import { updateMarket } from '../../api/markets';
 import { injectIntl } from 'react-intl';
 
-import useAsyncMarketsContext from '../../contexts/useAsyncMarketsContext';
 import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 import QuillEditor from '../TextEditors/QuillEditor';
+import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
 
 const styles = theme => ({
   root: {
@@ -30,7 +30,7 @@ function MarketEdit(props) {
     intl,
   } = props;
   const { id } = market;
-  const { updateMarketLocally } = useAsyncMarketsContext();
+  const { updateMarketLocally } = useContext(AsyncMarketsContext);
   const [mutableMarket, setMutableMarket] = useState(market);
   const initialUploadedFiles = market.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);

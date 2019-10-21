@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useHistory } from 'react-router';
 import { AppBar, Tabs, Tab } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
@@ -7,12 +7,12 @@ import AddIcon from '@material-ui/icons/Add';
 import queryString from 'query-string';
 import TabPanel from '../Tabs/TabPanel';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
-import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
 import MarketView from './MarketView';
 import MarketEdit from './MarketEdit';
 import InvestibleAdd from '../Investibles/InvestibleAdd';
 import { getTabsForInvestibles } from './tabHelpers';
+import { AsyncCommentsContext } from '../../contexts/AsyncCommentsContext';
 
 
 function MarketNav(props) {
@@ -26,7 +26,7 @@ function MarketNav(props) {
   const { investible } = values;
   const [selectedTab, setSelectedTab] = useState(undefined);
   const [edit, setEdit] = useState({});
-  const { comments, createCommentsHash } = useAsyncCommentsContext();
+  const { comments, createCommentsHash } = useContext(AsyncCommentsContext);
   const { getCachedInvestibles } = useAsyncInvestiblesContext();
   const investibles = getCachedInvestibles(marketId);
   const marketComments = comments[marketId] || [];

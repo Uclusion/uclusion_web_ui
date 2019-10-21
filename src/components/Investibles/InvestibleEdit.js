@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import {
   Button, Card, CardActions, CardContent, TextField, withStyles,
@@ -10,7 +10,8 @@ import { updateInvestibleStage } from '../../api/marketInvestibles';
 import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
 import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 import { getFlags } from '../../utils/userFunctions';
-import useAsyncMarketContext from '../../contexts/useAsyncMarketsContext';
+import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
+
 
 const styles = (theme) => ({
   root: {
@@ -26,7 +27,7 @@ const styles = (theme) => ({
 
 function InvestibleEdit(props) {
   const { updateInvestibleLocally } = useAsyncInvestiblesContext();
-  const { getCurrentUser } = useAsyncMarketContext();
+  const { getCurrentUser } =  useContext(AsyncMarketsContext);
   const { getCachedStages } = useAsyncMarketStagesContext();
   const {
     investible, intl, classes, editToggle, onSave, marketId,

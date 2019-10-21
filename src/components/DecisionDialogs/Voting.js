@@ -4,7 +4,7 @@ import VotingCertainty from './VotingCertainty';
 import VoteMark from './VoteMark';
 import { updateInvestment } from '../../api/marketInvestibles';
 import { AsyncMarketPresencesContext } from '../../contexts/AsyncMarketPresencesContext';
-import useAsyncMarketContext from '../../contexts/useAsyncMarketsContext';
+import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
 
 const SAVE_DELAY = 1000;
 
@@ -14,7 +14,7 @@ function Voting(props) {
   const { id } = coreInvestible;
   const { getCurrentUserInvestment } = useContext(AsyncMarketPresencesContext);
   const [investment, setInvestment] = useState(undefined);
-  const { getCurrentUser } = useAsyncMarketContext();
+  const { getCurrentUser } = useContext(AsyncMarketsContext);
   function doInvestment(value, currentInvestment) {
     console.log(`Saving investment of ${value} with ${currentInvestment}`);
     return updateInvestment(marketId, id, value, currentInvestment);

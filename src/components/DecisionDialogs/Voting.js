@@ -10,8 +10,7 @@ const SAVE_DELAY = 1000;
 
 function Voting(props) {
   const { investible, marketId, investmentEnabled } = props;
-  const { investible: coreInvestible } = investible;
-  const { id } = coreInvestible;
+  const { id } = investible;
   const { getCurrentUserInvestment } = useContext(AsyncMarketPresencesContext);
   const [investment, setInvestment] = useState(undefined);
   const { getCurrentUser } = useAsyncMarketContext();

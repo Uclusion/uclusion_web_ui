@@ -9,10 +9,9 @@ import TabPanel from '../Tabs/TabPanel';
 import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import useAsyncCommentsContext from '../../contexts/useAsyncCommentsContext';
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
-import MarketView from './MarketView';
-import MarketEdit from './MarketEdit';
 import InvestibleAdd from '../Investibles/InvestibleAdd';
 import { getTabsForInvestibles } from './tabHelpers';
+import Market from './Market';
 
 
 function MarketNav(props) {
@@ -25,7 +24,6 @@ function MarketNav(props) {
   const marketId = market.id;
   const { investible } = values;
   const [selectedTab, setSelectedTab] = useState(undefined);
-  const [edit, setEdit] = useState({});
   const { comments, createCommentsHash } = useAsyncCommentsContext();
   const { getCachedInvestibles } = useAsyncInvestiblesContext();
   const investibles = getCachedInvestibles(marketId);
@@ -60,12 +58,6 @@ function MarketNav(props) {
     pushTab(newValue);
   }
 
-  function cancelEdit(id) {
-    return () => {
-      setEdit({ [id]: !edit[id] });
-    };
-  }
-
   function onAddSave(newId) {
     pushTab(newId);
   }
@@ -78,8 +70,8 @@ function MarketNav(props) {
     }
   }
 
-  const invTabs = getTabsForInvestibles(marketId, investibles,
-    marketComments, commentsHash, edit, cancelEdit, workAroundSelected);
+  const invTabs = getTabsForInvestibles(marketId, investibles, marketComments, commentsHash,
+    workAroundSelected);
 
   return (
     <div>
@@ -96,24 +88,12 @@ function MarketNav(props) {
           <Tab label={intl.formatMessage({ id: 'marketNavTabAddIdeaLabel' })} icon={<AddIcon />} value="add" />
         </Tabs>
       </AppBar>
-      <TabPanel index="context" value={workAroundSelected}>
-        {edit[marketId] && (
-          <MarketEdit
-            market={market}
-            onSave={cancelEdit(marketId)}
-            editToggle={cancelEdit(marketId)}
-          />
-        )}
-        {!edit[marketId] && (
-          <MarketView
-            market={market}
-            comments={marketTargetedComments}
-            commentsHash={commentsHash}
-            editToggle={cancelEdit(marketId)}
-
-          />
-        )}
-      </TabPanel>
+      <Market
+        market={market}
+        marketTargetedComments={marketTargetedComments}
+        selectedTab={workAroundSelected}
+        commentsHash={commentsHash}
+      />
       {invTabs.tabContent}
       <TabPanel index="add" value={workAroundSelected}>
         <InvestibleAdd marketId={marketId} onSave={onAddSave} onCancel={cancelAdd} />

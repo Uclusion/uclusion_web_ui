@@ -24,7 +24,6 @@ function MarketEdit(props) {
 
   const {
     editToggle,
-    onSave,
     market,
     classes,
     intl,
@@ -49,7 +48,7 @@ function MarketEdit(props) {
     console.debug(filteredUploads);
     return updateMarket(id, name, description, filteredUploads)
       .then(() => updateMarketLocally(market))
-      .then(() => onSave());
+      .then(() => editToggle());
   }
 
 

@@ -10,7 +10,7 @@ function InvestibleView(props) {
 
   const { investible, comments, commentsHash, editToggle, marketId } = props;
 
-  const { description } = investible.investible; // this will be broken for multi market investibles;
+  const { description } = investible; // this will be broken for multi market investibles;
   return (
     <Card>
       <CardContent>

@@ -9,9 +9,12 @@ import MarketNav from '../../components/DecisionDialog/MarketNav';
 import Activity from '../../containers/Activity';
 import { getMarketId } from '../../utils/marketIdPathFunctions';
 import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
-import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { AsyncCommentsContext } from '../../contexts/AsyncCommentsContext';
 import { AsyncMarketPresencesContext } from '../../contexts/AsyncMarketPresencesContext';
+import { switchMarket } from '../../contexts/MarketsContext/marketsContextReducer';
+import { getCurrentMarket, getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
+
 
 const styles = (theme) => ({
   root: {
@@ -50,7 +53,9 @@ function Market(props) {
   const { location } = history;
   const { pathname } = location;
   const marketId = getMarketId(pathname);
-  const { switchMarket, currentMarket, marketDetails } = useContext(AsyncMarketsContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const currentMarket = getCurrentMarket(marketsState);
+  const marketDetails = getAllMarketDetails(marketsState);
   const { refreshMarketPresence, loading: marketUsersLoading } = useContext(AsyncMarketPresencesContext);
   const { refreshStages, loading: marketStagesLoading } = useAsyncMarketStagesContext();
   const { refreshInvestibles, loading: investiblesLoading } = useAsyncInvestiblesContext();
@@ -62,7 +67,7 @@ function Market(props) {
     if (marketId && loadedMarket !== marketId) {
       console.debug('Market rerendered on load new');
       setLoadedMarket(marketId);
-      switchMarket(marketId);
+      marketsDispatch(switchMarket(marketId));
       refreshInvestibles(marketId);
       refreshMarketComments(marketId);
       refreshMarketPresence(marketId);

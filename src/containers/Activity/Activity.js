@@ -5,7 +5,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
@@ -14,7 +14,7 @@ import { Helmet } from 'react-helmet';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
-import useDrawerContext from '../../contexts/useDrawerContext';
+import { DrawerContext } from '../../contexts/DrawerContext';
 
 const drawerWidth = 240;
 
@@ -113,7 +113,12 @@ const styles = theme => ({
 
 function Activity(props) {
   const [offline, setOffline] = useState(!navigator.onLine);
-  const { open, toggleDrawerOpen } = useDrawerContext();
+  const [drawerState, setDrawerState] = useContext(DrawerContext);
+  const { open } = drawerState;
+
+  function toggleDrawerOpen() {
+    setDrawerState({ open: !open });
+  }
 
   function handleConnectionStatusChange() {
     setOffline(!navigator.onLine);
@@ -162,9 +167,9 @@ function Activity(props) {
   return (
     <div className={hidden ? classes.hide : classes.root}>
       <Helmet>
-        <meta name="theme-color" content={theme.palette.primary.main} />
-        <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main} />
-        <meta name="msapplication-navbutton-color" content={theme.palette.primary.main} />
+        <meta name="theme-color" content={theme.palette.primary.main}/>
+        <meta name="apple-mobile-web-app-status-bar-style" content={theme.palette.primary.main}/>
+        <meta name="msapplication-navbutton-color" content={theme.palette.primary.main}/>
         <title>{headerTitle}</title>
       </Helmet>
 
@@ -174,7 +179,7 @@ function Activity(props) {
         color='default'
       >
         <Toolbar disableGutters>
-          <LinearProgress />
+          <LinearProgress/>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -182,7 +187,7 @@ function Activity(props) {
             className={classNames(!smDown && classes.menuButton,
               open && !smDown && classes.hide, onBackClick && classes.hide)}
           >
-            <MenuIcon />
+            <MenuIcon/>
           </IconButton>
           <IconButton
             color="inherit"
@@ -190,19 +195,19 @@ function Activity(props) {
             onClick={onBackClick}
             className={classNames(!smDown && classes.menuButton, !onBackClick && classes.hide)}
           >
-            <ChevronLeftIcon />
+            <ChevronLeftIcon/>
           </IconButton>
-          {!onBackClick && open && <div style={{ marginRight: 32 }} />}
+          {!onBackClick && open && <div style={{ marginRight: 32 }}/>}
           <Typography variant="h6" color="inherit" noWrap>
             {headerTitle}
           </Typography>
           {titleButtons}
           {appBarContent}
-          <div className={classes.grow} />
+          <div className={classes.grow}/>
         </Toolbar>
       </AppBar>
-      <div className={classes.toolbar} />
-      {isLoading && <LinearProgress />}
+      <div className={classes.toolbar}/>
+      {isLoading && <LinearProgress/>}
       {offline && (
         <Typography
           variant="caption"

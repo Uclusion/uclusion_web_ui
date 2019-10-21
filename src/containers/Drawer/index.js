@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import classNames from 'classnames';
 import { withStyles, MuiThemeProvider } from '@material-ui/core/styles';
@@ -9,7 +9,7 @@ import DrawerHeader from './DrawerHeader';
 import Scrollbar from '../../components/Scrollbar';
 
 import { sideBarTheme } from '../../config/themes';
-import useDrawerContext from '../../contexts/useDrawerContext';
+import { DrawerContext } from '../../contexts/DrawerContext';
 
 
 const drawerWidth = 240;
@@ -62,11 +62,14 @@ function DrawerLayout(props) {
     user,
   } = props;
 
-  const { open, toggleDrawerOpen } = useDrawerContext();
+  const [drawerState, setDrawerState] = useContext(DrawerContext);
+  const { open } = drawerState;
+  function toggleDrawerOpen() {
+    setDrawerState({ open: !open });
+  }
 
   const smDown = isWidthDown('sm', width);
   const Header = appConfig.drawerHeader ? appConfig.drawerHeader : DrawerHeader;
-
   return (
     <MuiThemeProvider theme={sideBarTheme}>
       <Drawer

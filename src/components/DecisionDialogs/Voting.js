@@ -4,7 +4,8 @@ import VotingCertainty from './VotingCertainty';
 import VoteMark from './VoteMark';
 import { updateInvestment } from '../../api/marketInvestibles';
 import { AsyncMarketPresencesContext } from '../../contexts/AsyncMarketPresencesContext';
-import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { getCurrentUser } from '../../contexts/MarketsContext/marketsContextHelper';
 
 const SAVE_DELAY = 1000;
 
@@ -13,7 +14,8 @@ function Voting(props) {
   const { id } = investible;
   const { getCurrentUserInvestment } = useContext(AsyncMarketPresencesContext);
   const [investment, setInvestment] = useState(undefined);
-  const { getCurrentUser } = useContext(AsyncMarketsContext);
+  const [marketsState] = useContext(MarketsContext);
+  const currentUser = getCurrentUser(marketsState);
   function doInvestment(value, currentInvestment) {
     console.log(`Saving investment of ${value} with ${currentInvestment}`);
     return updateInvestment(marketId, id, value, currentInvestment);
@@ -30,10 +32,10 @@ function Voting(props) {
   useEffect(() => {
     if (id && marketId) {
       console.debug(`Rerendering use effect for investment for investible ${id}`);
-      getCurrentUser().then((currentUser) => getCurrentUserInvestment(id, marketId, currentUser))
+      getCurrentUserInvestment(id, marketId, currentUser)
         .then((userInvestment) => setInvestment(userInvestment));
     }
-  }, [id, marketId, getCurrentUserInvestment, getCurrentUser]);
+  }, [id, marketId, getCurrentUserInvestment, currentUser]);
 
   const myInvestment = investment || 0;
   const invested = myInvestment > 0;

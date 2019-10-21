@@ -10,8 +10,8 @@ import { updateInvestibleStage } from '../../api/marketInvestibles';
 import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
 import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 import { getFlags } from '../../utils/userFunctions';
-import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
-
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { getCurrentUser } from '../../contexts/MarketsContext/marketsContextHelper';
 
 const styles = (theme) => ({
   root: {
@@ -27,7 +27,7 @@ const styles = (theme) => ({
 
 function InvestibleEdit(props) {
   const { updateInvestibleLocally } = useAsyncInvestiblesContext();
-  const { getCurrentUser } =  useContext(AsyncMarketsContext);
+  const [marketsState] =  useContext(MarketsContext);
   const { getCachedStages } = useAsyncMarketStagesContext();
   const {
     investible, intl, classes, editToggle, onSave, marketId,
@@ -65,7 +65,8 @@ function InvestibleEdit(props) {
 
   function handleSubmit() {
     let newStage;
-    return handleSave().then(() => getCurrentUser()).then((currentUser) => {
+    return handleSave().then(() =>  {
+      const currentUser = getCurrentUser(marketsState);
       const stages = getCachedStages(marketId);
       const { market_admin: isAdmin } = getFlags(currentUser);
       if (isAdmin) {

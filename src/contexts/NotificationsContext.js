@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Hub } from '@aws-amplify/core';
 import { getMessages } from '../api/sso';
-import { AUTH_HUB_CHANNEL, MESSAGES_EVENT, PUSH_HUB_CHANNEL } from './WebSocketContext';
+import { AUTH_HUB_CHANNEL, MESSAGES_EVENT, NOTIFICATIONS_HUB_CHANNEL } from './WebSocketContext';
 import { deleteMessage } from '../api/users';
 
 const NotificationsContext = React.createContext([[], true]);
@@ -60,7 +60,7 @@ function NotificationsProvider(props) {
         }
       });
 
-      Hub.listen(PUSH_HUB_CHANNEL, (data) => {
+      Hub.listen(NOTIFICATIONS_HUB_CHANNEL, (data) => {
         const { payload: { event } } = data;
         console.debug(`Notifications context responding to push event ${event}`);
 

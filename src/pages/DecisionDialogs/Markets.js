@@ -6,13 +6,15 @@ import { IconButton } from '@material-ui/core';
 import MarketsList from '../../components/DecisionDialogs/MarketsList';
 import Activity from '../../containers/Activity';
 import MarketAdd from '../../components/DecisionDialogs/MarketAdd';
-import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
 
 function Markets(props) {
   const { intl, hidden } = props;
-  const { marketDetails, loading } = useContext(AsyncMarketsContext);
+  const [marketsState] = useContext(MarketsContext);
+  const marketDetails = getAllMarketDetails(marketsState);
   const [addMode, setAddMode] = useState(false);
-
+  const loading = false; // TODO FIX
   function toggleAdd() {
     setAddMode(!addMode);
   }

@@ -4,8 +4,8 @@ import { Button, Card, CardActions, CardContent, TextField, Typography, withStyl
 import QuillEditor from '../TextEditors/QuillEditor';
 import ExpirationSelector from './ExpirationSelector';
 import { createMarket } from '../../api/markets';
-import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
-
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { addMarket } from '../../contexts/MarketsContext/marketsContextReducer';
 
 const styles = theme => ({
   root: {
@@ -25,7 +25,7 @@ function MarketAdd(props) {
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const { name, description, expiration_minutes } = currentValues;
-  const { addMarketLocally } = useContext(AsyncMarketsContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
 
 
   function zeroCurrentValues() {
@@ -64,7 +64,8 @@ function MarketAdd(props) {
           created_at: new Date(0),
           updated_at: new Date(0),
         };
-        return addMarketLocally(artificalMarket);
+        marketsDispatch(addMarket(artificalMarket));
+        return artificalMarket;
       }).then(() => onSave());
   }
 

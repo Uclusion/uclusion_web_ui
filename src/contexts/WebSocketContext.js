@@ -10,14 +10,14 @@ import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityToken
 import config from '../config';
 import { sendInfoPersistent } from '../utils/userMessage';
 
-export const AUTH_HUB_CHANNEL = 'auth';
-export const PUSH_HUB_CHANNEL = 'MessagesChannel';
+export const AUTH_HUB_CHANNEL = 'Auth';
+export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
 export const PUSH_CONTEXT_CHANNEL = 'MarketsChannel';
 export const PUSH_COMMENTS_CHANNEL = 'CommentsChannel';
 export const PUSH_INVESTIBLES_CHANNEL = 'InvestiblesChannel';
 export const PUSH_PRESENCE_CHANNEL = 'PresenceChannel';
-export const MESSAGES_EVENT = 'webPush';
-export const IDENTITY_EVENT = 'identityPush';
+export const MESSAGES_EVENT = 'web_push';
+export const INVITED_TO_NEW_MARKET_EVENT = 'invited_to_new_market';
 
 const WebSocketContext = React.createContext([{}, () => {}]);
 function notifyNewApplicationVersion(currentVersion) {
@@ -45,7 +45,7 @@ function registerChannel(socket, messageType, channel) {
     );
     if (messageType !== 'USER_MESSAGES_UPDATED') {
       Hub.dispatch(
-        PUSH_HUB_CHANNEL,
+        NOTIFICATIONS_HUB_CHANNEL,
         {
           event: MESSAGES_EVENT,
           message,
@@ -76,7 +76,7 @@ function WebSocketProvider(props) {
       notifyNewApplicationVersion(deployed_version);
     });
 
-    registerChannel(newSocket, 'USER_MESSAGES_UPDATED', PUSH_HUB_CHANNEL);
+    registerChannel(newSocket, 'USER_MESSAGES_UPDATED', NOTIFICATIONS_HUB_CHANNEL);
     registerChannel(newSocket, 'INVESTIBLE_COMMENT_UPDATED', PUSH_COMMENTS_CHANNEL);
     registerChannel(newSocket, 'MARKET_INVESTIBLE_UPDATED', PUSH_INVESTIBLES_CHANNEL);
     registerChannel(newSocket, 'MARKET_UPDATED', PUSH_CONTEXT_CHANNEL);
@@ -84,7 +84,7 @@ function WebSocketProvider(props) {
       Hub.dispatch(
         PUSH_CONTEXT_CHANNEL,
         {
-          event: IDENTITY_EVENT,
+          event: INVITED_TO_NEW_MARKET_EVENT,
           message,
         },
       );
@@ -96,7 +96,7 @@ function WebSocketProvider(props) {
         },
       );
       Hub.dispatch(
-        PUSH_HUB_CHANNEL,
+        NOTIFICATIONS_HUB_CHANNEL,
         {
           event: MESSAGES_EVENT,
           message,

@@ -6,7 +6,12 @@ import { injectIntl } from 'react-intl';
 import Activity from '../../containers/Activity/Activity';
 import withAppConfigs from '../../utils/withAppConfigs';
 import { getFlags } from '../../utils/userFunctions';
-import { AsyncMarketsContext } from '../../contexts/AsyncMarketContext';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import {
+  getCurrentUser,
+  getAllMarketDetails,
+  getCurrentMarket
+} from '../../contexts/MarketsContext/marketsContextHelper';
 
 const styles = (theme) => ({
   root: {
@@ -37,7 +42,6 @@ const styles = (theme) => ({
 });
 
 function About(props) {
-  const { currentMarket, getAllMarketDetails, getCurrentUser } = useContext(AsyncMarketsContext);
   const {
     appConfig,
     classes,
@@ -45,35 +49,30 @@ function About(props) {
     hidden,
   } = props;
 
+  const [marketsState] = useContext(MarketsContext);
   const { version } = appConfig;
   const [market, setMarket] = useState(undefined);
   const [user, setUser] = useState(undefined);
   const [isAdmin, setIsAdmin] = useState(false);
-
+  const currentMarket = getCurrentMarket(marketsState);
+  const currentUser = getCurrentUser(marketsState);
   useEffect(() => {
     if (currentMarket && (market === undefined || currentMarket.id !== market.id)) {
-      getAllMarketDetails()
-        .then((marketDetails) => {
-          const found = marketDetails
-            && marketDetails.find((marketDetail) => marketDetail.id === currentMarket.id);
-          if (found) {
-            setMarket(found);
-          }
-        });
-      if (getCurrentUser) {
-        getCurrentUser()
-          .then((currentUser) => {
-            if (currentUser) {
-              setUser(currentUser);
-              const { market_admin: isAdmin } = getFlags(currentUser);
-              setIsAdmin(isAdmin);
-            }
-          });
+      const marketDetails = getAllMarketDetails(marketsState);
+      const found = marketDetails
+        && marketDetails.find((marketDetail) => marketDetail.id === currentMarket.id);
+      if (found) {
+        setMarket(found);
       }
+    }
+    if (currentUser) {
+      setUser(currentUser);
+      const { market_admin: isAdmin } = getFlags(currentUser);
+      setIsAdmin(isAdmin);
     }
     return () => {
     };
-  }, [currentMarket, market, getAllMarketDetails, getCurrentUser]);
+  }, [currentMarket, market, currentUser]);
 
   function handleClear() {
     // TODO need to clear storage here

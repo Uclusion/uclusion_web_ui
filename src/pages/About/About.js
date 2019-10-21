@@ -56,9 +56,9 @@ function About(props) {
   const [isAdmin, setIsAdmin] = useState(false);
   const currentMarket = getCurrentMarket(marketsState);
   const currentUser = getCurrentUser(marketsState);
+  const marketDetails = getAllMarketDetails(marketsState);
   useEffect(() => {
     if (currentMarket && (market === undefined || currentMarket.id !== market.id)) {
-      const marketDetails = getAllMarketDetails(marketsState);
       const found = marketDetails
         && marketDetails.find((marketDetail) => marketDetail.id === currentMarket.id);
       if (found) {
@@ -72,7 +72,7 @@ function About(props) {
     }
     return () => {
     };
-  }, [currentMarket, market, currentUser]);
+  }, [currentMarket, market, currentUser, marketDetails]);
 
   function handleClear() {
     // TODO need to clear storage here

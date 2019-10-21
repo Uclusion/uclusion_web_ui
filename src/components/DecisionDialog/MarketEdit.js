@@ -30,7 +30,7 @@ function MarketEdit(props) {
   } = props;
   const { id } = market;
 
-  const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
   const [mutableMarket, setMutableMarket] = useState(market);
   const initialUploadedFiles = market.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);

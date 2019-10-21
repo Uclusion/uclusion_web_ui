@@ -25,7 +25,7 @@ function MarketAdd(props) {
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const { name, description, expiration_minutes } = currentValues;
-  const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
 
 
   function zeroCurrentValues() {

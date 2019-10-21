@@ -11,10 +11,15 @@ export function getCurrentMarket(state) {
 
 export function getCurrentUser(state) {
   const { marketDetails, currentMarket } = state;
-  const { id: marketId } = currentMarket;
-  const currentMarketDetails = marketDetails.find((item) => item.id === marketId);
-  const { currentUser } = currentMarketDetails;
-  return currentUser;
+  if (currentMarket) {
+    const { id: marketId } = currentMarket;
+    const currentMarketDetails = marketDetails.find((item) => item.id === marketId);
+    if (currentMarketDetails) {
+      const { currentUser } = currentMarketDetails;
+      return currentUser;
+    }
+  }
+  return undefined;
 }
 
 export function getAllMarketDetails(state) {

@@ -11,14 +11,17 @@ function Investible(props) {
   } = props;
   const { id } = investible.investible;
   const investibleComments = comments.filter((comment) => comment.investible_id === id);
+  function cancelEdit() {
+    setEdit(false);
+  }
   return (
     <TabPanel key={id} index={id} value={selectedTab}>
       {edit && (
       <InvestibleEdit
         investible={investible}
         marketId={marketId}
-        editToggle={setEdit}
-        onSave={setEdit}
+        editToggle={cancelEdit}
+        onSave={cancelEdit}
       />
       )}
       {!edit && (

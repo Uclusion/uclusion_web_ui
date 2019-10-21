@@ -5,13 +5,14 @@ import {
 } from '@material-ui/core';
 import { updateInvestible } from '../../api/investibles';
 import QuillEditor from '../TextEditors/QuillEditor';
-import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import { updateInvestibleStage } from '../../api/marketInvestibles';
 import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
 import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 import { getFlags } from '../../utils/userFunctions';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getCurrentUser } from '../../contexts/MarketsContext/marketsContextHelper';
+import { updateInvestible as localUpdateInvestible } from '../../contexts/InvestibesContext/investiblesContextReducer';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 
 const styles = (theme) => ({
   root: {
@@ -26,8 +27,8 @@ const styles = (theme) => ({
 });
 
 function InvestibleEdit(props) {
-  const { updateInvestibleLocally } = useAsyncInvestiblesContext();
-  const [marketsState] =  useContext(MarketsContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [marketsState] = useContext(MarketsContext);
   const { getCachedStages } = useAsyncMarketStagesContext();
   const {
     investible, intl, classes, editToggle, onSave, marketId,
@@ -59,8 +60,10 @@ function InvestibleEdit(props) {
   function handleSave() {
     const filteredUploads = filterUploadsUsedInText(uploadedFiles, description);
     return updateInvestible(marketId, id, name, description, filteredUploads)
-      .then((data) => updateInvestibleLocally({ ...investible, investible: data }))
-      .then(() => onSave());
+      .then((data) => {
+        investiblesDispatch(localUpdateInvestible({ ...investible, investible: data }));
+        onSave();
+      });
   }
 
   function handleSubmit() {
@@ -81,7 +84,7 @@ function InvestibleEdit(props) {
       console.debug(`Submitting to stage ${newStage.name} with previous stage ${marketInfo.stage}`);
       return updateInvestibleStage(marketId, id, newStage.id, marketInfo.stage);
     })
-      .then(() => updateInvestibleLocally({ ...investible, stage_name: newStage.name }));
+      .then(() => investiblesDispatch(localUpdateInvestible({ ...investible, stage_name: newStage.name })));
   }
 
   console.debug('Investible edit being rerendered');

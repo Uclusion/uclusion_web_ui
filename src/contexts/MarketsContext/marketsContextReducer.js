@@ -58,9 +58,11 @@ export function updateSingleMarketDetails(marketDetails) {
 export function updateAllMarketDetails(marketDetails) {
   return {
     type: UPDATE_MARKET_DETAILS,
-    marketDetails
+    marketDetails,
   };
 }
+
+/** Functions that mutate state **/
 
 function doSwitchMarket(state, action) {
   const { newMarket } = action;

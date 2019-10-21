@@ -23,9 +23,7 @@ function MarketsProvider(props) {
           if (state) {
             dispatch(initializeState(state));
           }
-          return state || EMPTY_STATE;
-        }).then((usedState) => {
-          return refreshMarkets(usedState, dispatch);
+          return refreshMarkets(dispatch);
         });
       beginListening(dispatch);
       setIsInitialization(false);

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { injectIntl } from 'react-intl';
 import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@material-ui/core';
 import { addInvestible } from '../../api/investibles';
 import QuillEditor from '../TextEditors/QuillEditor';
-import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { addInvestible as localAddInvestible } from '../../contexts/InvestibesContext/investiblesContextReducer';
+
 const styles = theme => ({
   root: {
     padding: theme.spacing(2),
@@ -17,7 +19,7 @@ const styles = theme => ({
 });
 
 function InvestibleAdd(props) {
-  const { addInvestibleLocally } = useAsyncInvestiblesContext();
+  const [, dispatch] = useContext(InvestiblesContext);
   const { marketId, intl, classes, onSave, onCancel } = props;
   const emptyInvestible = { name: '', description: '' };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
@@ -59,9 +61,9 @@ function InvestibleAdd(props) {
           },
           market_infos: [{ market_id: marketId }]
         };
-        return addInvestibleLocally(syntheticInvestible)
-          .then(() => zeroCurrentValues())
-          .then(() => onSave(id));
+        dispatch(localAddInvestible(syntheticInvestible));
+        zeroCurrentValues();
+        onSave(id);
       });
   }
 

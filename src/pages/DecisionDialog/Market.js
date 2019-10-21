@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import ExpirationCountDown from '../../components/DecisionDialog/ExpirationCountDown';
-import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
 import MarketNav from '../../components/DecisionDialog/MarketNav';
 import Activity from '../../containers/Activity';
 import { getMarketId } from '../../utils/marketIdPathFunctions';
@@ -14,7 +13,8 @@ import { AsyncCommentsContext } from '../../contexts/AsyncCommentsContext';
 import { AsyncMarketPresencesContext } from '../../contexts/AsyncMarketPresencesContext';
 import { switchMarket } from '../../contexts/MarketsContext/marketsContextReducer';
 import { getCurrentMarket, getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
-
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 
 const styles = (theme) => ({
   root: {
@@ -54,21 +54,22 @@ function Market(props) {
   const { pathname } = location;
   const marketId = getMarketId(pathname);
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
   const currentMarket = getCurrentMarket(marketsState);
   const marketDetails = getAllMarketDetails(marketsState);
   const { refreshMarketPresence, loading: marketUsersLoading } = useContext(AsyncMarketPresencesContext);
   const { refreshStages, loading: marketStagesLoading } = useAsyncMarketStagesContext();
-  const { refreshInvestibles, loading: investiblesLoading } = useAsyncInvestiblesContext();
   const { refreshMarketComments, loading: commentsLoading } = useContext(AsyncCommentsContext);
   const [loadedMarket, setLoadedMarket] = useState(undefined);
   const { hidden } = props;
+  const investiblesLoading = false;
 
   useEffect(() => {
     if (marketId && loadedMarket !== marketId) {
       console.debug('Market rerendered on load new');
       setLoadedMarket(marketId);
       marketsDispatch(switchMarket(marketId));
-      refreshInvestibles(marketId);
+      refreshInvestibles(investiblesDispatch, marketId);
       refreshMarketComments(marketId);
       refreshMarketPresence(marketId);
       refreshStages(marketId);
@@ -80,7 +81,7 @@ function Market(props) {
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   const renderableMarket = marketDetails.find((market) => market.id === marketId);
-  console.debug(`Market page being rerendered ${investiblesLoading} ${commentsLoading} ${marketUsersLoading} ${marketStagesLoading}`);
+  console.debug(`Market page being rerendered ${commentsLoading} ${marketUsersLoading} ${marketStagesLoading}`);
   return (
     <Activity
       title={currentMarketName}

@@ -15,8 +15,8 @@ function beginListening(dispatch) {
     console.debug(`Markets context responding to auth event ${event}`);
     switch (event) {
       case 'signIn':
-        refreshMarkets(dispatch);
-        break;
+        clearState(dispatch);
+        return refreshMarkets(dispatch);
       case 'signOut':
         clearState(dispatch);
         break;
@@ -28,8 +28,7 @@ function beginListening(dispatch) {
     const { payload: { event, message } } = data;
     switch (event) {
       case INVITED_TO_NEW_MARKET_EVENT:
-        refreshMarkets(dispatch);
-        break;
+        return refreshMarkets(dispatch);
       case MESSAGES_EVENT:
         console.debug(`Markets context responding to updated market event ${event}`);
         getMarketDetails(message.object_id).then((marketDetails) => {

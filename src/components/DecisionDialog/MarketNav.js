@@ -6,13 +6,14 @@ import PropTypes from 'prop-types';
 import AddIcon from '@material-ui/icons/Add';
 import queryString from 'query-string';
 import TabPanel from '../Tabs/TabPanel';
-import useAsyncInvestiblesContext from '../../contexts/useAsyncInvestiblesContext';
+
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
 import InvestibleAdd from '../Investibles/InvestibleAdd';
 import { getTabsForInvestibles } from './tabHelpers';
 import Market from './Market';
 import { AsyncCommentsContext } from '../../contexts/AsyncCommentsContext';
-
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketInvestibles} from '../../contexts/InvestibesContext/investiblesContextHelper';
 
 function MarketNav(props) {
   console.debug('Market nav being rerendered');
@@ -25,8 +26,8 @@ function MarketNav(props) {
   const { investible } = values;
   const [selectedTab, setSelectedTab] = useState(undefined);
   const { comments, createCommentsHash } = useContext(AsyncCommentsContext);
-  const { getCachedInvestibles } = useAsyncInvestiblesContext();
-  const investibles = getCachedInvestibles(marketId);
+  const [investiblesState] = useContext(InvestiblesContext);
+  const investibles = getMarketInvestibles(investiblesState, marketId);
   const marketComments = comments[marketId] || [];
   const marketTargetedComments = marketComments.filter((comment) => !comment.investible_id);
   const commentsHash = createCommentsHash(marketComments);

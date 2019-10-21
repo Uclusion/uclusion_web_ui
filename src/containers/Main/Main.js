@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import awsconfig from '../../config/amplify';
 
 import { MarketsProvider } from '../../contexts/MarketsContext/MarketsContext';
-import { AsyncInvestiblesProvider } from '../../contexts/AsyncInvestiblesContext';
+import { InvestiblesProvider } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { DrawerProvider } from '../../contexts/DrawerContext';
 import { LocaleProvider } from '../../contexts/LocaleContext';
 import { AsyncCommentsProvider } from '../../contexts/AsyncCommentsContext';
@@ -37,7 +37,7 @@ class Main extends Component {
           <MarketsProvider>
             <AsyncMarketStagesProvider>
               <AsyncCommentsProvider>
-                <AsyncInvestiblesProvider>
+                <InvestiblesProvider>
                   <AsyncMarketPresencesProvider>
                     <DrawerProvider>
                       <LocaleProvider>
@@ -46,7 +46,7 @@ class Main extends Component {
                       </LocaleProvider>
                     </DrawerProvider>
                   </AsyncMarketPresencesProvider>>
-                </AsyncInvestiblesProvider>
+                </InvestiblesProvider>
               </AsyncCommentsProvider>
             </AsyncMarketStagesProvider>
           </MarketsProvider>

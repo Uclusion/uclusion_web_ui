@@ -1,19 +1,20 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Activity from '../../containers/Activity';
-import useNotificationsContext from '../../contexts/useNotificationsContext';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import NotificationsList from './NotificationsList';
 
 function Notifications(props) {
   const { intl, hidden } = props;
-  const { messages, isLoading } = useNotificationsContext();
+  const [messagesState] = useContext(NotificationsContext);
+  const { messages } = messagesState;
 
 
   return (
     <Activity
       title={intl.formatMessage({ id: 'sidebarNavActionItems' })}
-      isLoading={isLoading}
+      isLoading={false}
       hidden={hidden}
     >
       <div>

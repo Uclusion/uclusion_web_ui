@@ -12,7 +12,7 @@ import { InvestiblesProvider } from '../../contexts/InvestibesContext/Investible
 import { DrawerProvider } from '../../contexts/DrawerContext';
 import { LocaleProvider } from '../../contexts/LocaleContext';
 import { CommentsProvider } from '../../contexts/CommentsContext/CommentsContext';
-import { NotificationsProvider } from '../../contexts/NotificationsContext';
+import { NotificationsProvider } from '../../contexts/NotificationsContext/NotificationsContext';
 import { AsyncMarketPresencesProvider } from '../../contexts/AsyncMarketPresencesContext';
 import { MarketStagesProvider } from '../../contexts/MarketStagesContext/MarketStagesContext';
 

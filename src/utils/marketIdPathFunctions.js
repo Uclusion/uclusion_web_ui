@@ -1,6 +1,6 @@
 import queryString from 'query-string';
 import { Hub } from '@aws-amplify/core';
-import { VIEW_EVENT, VISIT_CHANNEL } from '../contexts/NotificationsContext';
+import { VIEW_EVENT, VISIT_CHANNEL } from '../contexts/NotificationsContext/NotificationsContext';
 
 /**
  * Gets the market id from the URL if it's present in it.

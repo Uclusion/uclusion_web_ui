@@ -14,7 +14,7 @@ import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import {
   broadcastView, formMarketLink, getMarketId, navigate,
 } from '../../utils/marketIdPathFunctions';
-import { getMarketClient } from '../../api/uclusionClient';
+import { getAccountClient, getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 
 const styles = {
@@ -45,7 +45,7 @@ function Root(props) {
   const { classes, appConfig } = props;
 
   const { location } = history;
-  const { pathname } = location;
+  const { pathname, hash } = location;
   console.log(`pathname is ${pathname}`);
   const marketId = getMarketId(pathname);
   const theme = defaultTheme;
@@ -68,7 +68,7 @@ function Root(props) {
     if (!pathname) {
       return false;
     }
-    return pathname.startsWith('/invite');
+    return pathname.startsWith('/invite') || pathname.startsWith('/slack');
   }
   const inviteMarketId = getMarketId(pathname, '/invite/');
   if (inviteMarketId) {
@@ -78,6 +78,19 @@ function Root(props) {
         console.error(error);
         sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
       });
+  }
+  if (hash) {
+    const values = queryString.parse(hash);
+    const { nonce } = values;
+    if (nonce) {
+      getAccountClient()
+        .then((client) => client.users.register(nonce))
+        .then(() => navigate(history, '/dialogs'))
+        .catch((error) => {
+          console.error(error);
+          sendIntlMessage(ERROR, { id: 'slack_register_failed' });
+        });
+    }
   }
 
   useEffect(() => {

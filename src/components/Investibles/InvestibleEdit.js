@@ -6,7 +6,8 @@ import {
 import { updateInvestible } from '../../api/investibles';
 import QuillEditor from '../TextEditors/QuillEditor';
 import { updateInvestibleStage } from '../../api/marketInvestibles';
-import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 import { getFlags } from '../../utils/userFunctions';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
@@ -29,7 +30,7 @@ const styles = (theme) => ({
 function InvestibleEdit(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
-  const { getCachedStages } = useAsyncMarketStagesContext();
+  const [marketStagesState] = useContext(MarketStagesContext);
   const {
     investible, intl, classes, editToggle, onSave, marketId,
   } = props;
@@ -70,7 +71,7 @@ function InvestibleEdit(props) {
     let newStage;
     return handleSave().then(() =>  {
       const currentUser = getCurrentUser(marketsState);
-      const stages = getCachedStages(marketId);
+      const stages = getStages(marketStagesState, marketId);
       const { market_admin: isAdmin } = getFlags(currentUser);
       if (isAdmin) {
         newStage = stages.find((stage) => stage.appears_in_market_summary);

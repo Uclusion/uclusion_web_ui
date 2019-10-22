@@ -14,7 +14,7 @@ import { LocaleProvider } from '../../contexts/LocaleContext';
 import { CommentsProvider } from '../../contexts/CommentsContext/CommentsContext';
 import { NotificationsProvider } from '../../contexts/NotificationsContext';
 import { AsyncMarketPresencesProvider } from '../../contexts/AsyncMarketPresencesContext';
-import { AsyncMarketStagesProvider } from '../../contexts/AsyncMarketStagesContext';
+import { MarketStagesProvider } from '../../contexts/MarketStagesContext/MarketStagesContext';
 
 console.log(awsconfig);
 Amplify.configure(awsconfig);
@@ -35,7 +35,7 @@ class Main extends Component {
       <div>
         <NotificationsProvider>
           <MarketsProvider>
-            <AsyncMarketStagesProvider>
+            <MarketStagesProvider>
               <CommentsProvider>
                 <InvestiblesProvider>
                   <AsyncMarketPresencesProvider>
@@ -48,7 +48,7 @@ class Main extends Component {
                   </AsyncMarketPresencesProvider>>
                 </InvestiblesProvider>
               </CommentsProvider>
-            </AsyncMarketStagesProvider>
+            </MarketStagesProvider>
           </MarketsProvider>
         </NotificationsProvider>
       </div>

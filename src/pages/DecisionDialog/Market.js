@@ -7,7 +7,8 @@ import ExpirationCountDown from '../../components/DecisionDialog/ExpirationCount
 import MarketNav from '../../components/DecisionDialog/MarketNav';
 import Activity from '../../containers/Activity';
 import { getMarketId } from '../../utils/marketIdPathFunctions';
-import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { refreshMarketStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { AsyncMarketPresencesContext } from '../../contexts/AsyncMarketPresencesContext';
@@ -56,15 +57,17 @@ function Market(props) {
   const marketId = getMarketId(pathname);
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, marketStagesDispatch] = useContext(MarketStagesContext);
   const currentMarket = getCurrentMarket(marketsState);
   const marketDetails = getAllMarketDetails(marketsState);
   const { refreshMarketPresence, loading: marketUsersLoading } = useContext(AsyncMarketPresencesContext);
-  const { refreshStages, loading: marketStagesLoading } = useAsyncMarketStagesContext();
   const [, commentsDispatch] = useContext(CommentsContext);
   const [loadedMarket, setLoadedMarket] = useState(undefined);
   const { hidden } = props;
+  // TODO: Fix the loading
   const investiblesLoading = false;
   const commentsLoading = false;
+  const marketStagesLoading = false;
 
   useEffect(() => {
     if (marketId && loadedMarket !== marketId) {
@@ -74,14 +77,14 @@ function Market(props) {
       refreshInvestibles(investiblesDispatch, marketId);
       refreshMarketComments(commentsDispatch, marketId);
       refreshMarketPresence(marketId);
-      refreshStages(marketId);
+      refreshMarketStages(marketStagesDispatch, marketId);
     }
     return () => {
     };
   }, [
     marketId, loadedMarket, marketsDispatch,
     commentsDispatch, refreshMarketPresence,
-    refreshStages, investiblesDispatch
+    investiblesDispatch, marketStagesDispatch,
   ]);
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';

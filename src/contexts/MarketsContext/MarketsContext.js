@@ -7,7 +7,7 @@ import { refreshMarkets } from './marketsContextHelper';
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
 const EMPTY_STATE = {
   marketDetails: [],
-  marketsList: [],
+  markets: [],
 };
 
 const MarketsContext = React.createContext(EMPTY_STATE);

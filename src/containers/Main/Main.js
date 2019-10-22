@@ -11,7 +11,7 @@ import { MarketsProvider } from '../../contexts/MarketsContext/MarketsContext';
 import { InvestiblesProvider } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { DrawerProvider } from '../../contexts/DrawerContext';
 import { LocaleProvider } from '../../contexts/LocaleContext';
-import { AsyncCommentsProvider } from '../../contexts/AsyncCommentsContext';
+import { CommentsProvider } from '../../contexts/CommentsContext/CommentsContext';
 import { NotificationsProvider } from '../../contexts/NotificationsContext';
 import { AsyncMarketPresencesProvider } from '../../contexts/AsyncMarketPresencesContext';
 import { AsyncMarketStagesProvider } from '../../contexts/AsyncMarketStagesContext';
@@ -36,7 +36,7 @@ class Main extends Component {
         <NotificationsProvider>
           <MarketsProvider>
             <AsyncMarketStagesProvider>
-              <AsyncCommentsProvider>
+              <CommentsProvider>
                 <InvestiblesProvider>
                   <AsyncMarketPresencesProvider>
                     <DrawerProvider>
@@ -47,7 +47,7 @@ class Main extends Component {
                     </DrawerProvider>
                   </AsyncMarketPresencesProvider>>
                 </InvestiblesProvider>
-              </AsyncCommentsProvider>
+              </CommentsProvider>
             </AsyncMarketStagesProvider>
           </MarketsProvider>
         </NotificationsProvider>

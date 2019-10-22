@@ -5,12 +5,13 @@ import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
 
 import CardActions from '@material-ui/core/CardActions';
-import { AsyncCommentsContext } from '../../contexts/AsyncCommentsContext';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import { addComment } from '../../contexts/CommentsContext/commentsContextHelper';
 
 function CommentReply(props) {
 
   const { parent, intl, marketId, onSave, onCancel } = props;
-  const { addCommentLocally } = useContext(AsyncCommentsContext);
+  const [, commentsDispatch] = useContext(CommentsContext);
   const [body, setBody] = useState('');
 
   const placeHolder = intl.formatMessage({ id: 'commentReplyDefault' });
@@ -24,8 +25,10 @@ function CommentReply(props) {
     const usedParent = parent || {};
     const { investible_id, id: parentId } = usedParent;
     return saveComment(marketId, investible_id, parentId, body)
-      .then((result) => addCommentLocally(result))
-      .then(onSave());
+      .then((result) => {
+        addComment(commentsDispatch, marketId, result);
+        onSave();
+      });
   }
 
   function handleCancel() {

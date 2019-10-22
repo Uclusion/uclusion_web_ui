@@ -32,19 +32,15 @@ export function getAllMarkets(state) {
 }
 
 export function refreshMarkets(dispatch) {
-  console.log('Refreshing Markets');
   const lfh = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
-  console.debug(lfh);
   return lfh.getState().then((state) => {
-    console.log('got disk state');
-    console.log(state);
+    const usedState = state || EMPTY_STATE;
     return getMarketList()
       .then((marketList) => {
-        console.log('got market list');
         console.debug(marketList);
-        const filteredDetails = removeDeletedObjects(marketList, state.marketDetails);
+        const filteredDetails = removeDeletedObjects(marketList, usedState.marketDetails);
         // console.debug(`Filtered Details ${filteredDetails}`);
-        const outdated = getOutdatedObjectIds(marketList, state.marketsList);
+        const outdated = getOutdatedObjectIds(marketList, usedState.marketsList);
         console.debug(`Outdated markets ${outdated}`);
         dispatch(updateMarketsList(marketList));
         const promises = outdated.map((marketId) => getMarketDetails(marketId));

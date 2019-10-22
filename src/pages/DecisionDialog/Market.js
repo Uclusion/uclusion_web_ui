@@ -9,12 +9,13 @@ import Activity from '../../containers/Activity';
 import { getMarketId } from '../../utils/marketIdPathFunctions';
 import useAsyncMarketStagesContext from '../../contexts/useAsyncMarketStagesContext';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { AsyncCommentsContext } from '../../contexts/AsyncCommentsContext';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { AsyncMarketPresencesContext } from '../../contexts/AsyncMarketPresencesContext';
 import { switchMarket } from '../../contexts/MarketsContext/marketsContextReducer';
 import { getCurrentMarket, getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 
 const styles = (theme) => ({
   root: {
@@ -59,10 +60,11 @@ function Market(props) {
   const marketDetails = getAllMarketDetails(marketsState);
   const { refreshMarketPresence, loading: marketUsersLoading } = useContext(AsyncMarketPresencesContext);
   const { refreshStages, loading: marketStagesLoading } = useAsyncMarketStagesContext();
-  const { refreshMarketComments, loading: commentsLoading } = useContext(AsyncCommentsContext);
+  const [, commentsDispatch] = useContext(CommentsContext);
   const [loadedMarket, setLoadedMarket] = useState(undefined);
   const { hidden } = props;
   const investiblesLoading = false;
+  const commentsLoading = false;
 
   useEffect(() => {
     if (marketId && loadedMarket !== marketId) {
@@ -70,15 +72,17 @@ function Market(props) {
       setLoadedMarket(marketId);
       marketsDispatch(switchMarket(marketId));
       refreshInvestibles(investiblesDispatch, marketId);
-      refreshMarketComments(marketId);
+      refreshMarketComments(commentsDispatch, marketId);
       refreshMarketPresence(marketId);
       refreshStages(marketId);
     }
     return () => {
     };
-  }, [marketId, loadedMarket, marketsDispatch,
-      refreshMarketComments, refreshMarketPresence,
-      refreshStages, investiblesDispatch]);
+  }, [
+    marketId, loadedMarket, marketsDispatch,
+    commentsDispatch, refreshMarketPresence,
+    refreshStages, investiblesDispatch
+  ]);
 
   const currentMarketName = (currentMarket && currentMarket.name) || '';
   const renderableMarket = marketDetails.find((market) => market.id === marketId);
@@ -87,7 +91,7 @@ function Market(props) {
     <Activity
       title={currentMarketName}
       isLoading={loadedMarket !== marketId
-              || investiblesLoading || commentsLoading || marketUsersLoading || marketStagesLoading}
+      || investiblesLoading || commentsLoading || marketUsersLoading || marketStagesLoading}
       appBarContent={renderableMarket && (
         <ExpirationCountDown
           expiration_minutes={renderableMarket.expiration_minutes}
@@ -97,7 +101,7 @@ function Market(props) {
       hidden={hidden}
     >
       <div>
-        {renderableMarket && (<MarketNav market={renderableMarket} />)}
+        {renderableMarket && (<MarketNav market={renderableMarket}/>)}
       </div>
     </Activity>
   );

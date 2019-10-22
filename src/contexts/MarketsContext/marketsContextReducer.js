@@ -4,13 +4,13 @@ import { convertDates } from '../ContextUtils';
 import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext';
 
 
-export const INITIALIZE_STATE = 'INITIALIZE_STATE';
-export const SWITCH_MARKET = 'SWITCH_MARKET';
-export const UPDATE_MARKET = 'UPDATE_MARKET';
-export const ADD_MARKET = 'ADD_MARKET';
-export const UPDATE_MARKETS_LIST = 'UPDATE_MARKETS_LIST';
-export const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
-export const UPDATE_SINGLE_MARKET_DETAILS = 'UPDATE_SINGLE_MARKET_DETAILS';
+const INITIALIZE_STATE = 'INITIALIZE_STATE';
+const SWITCH_MARKET = 'SWITCH_MARKET';
+const UPDATE_MARKET = 'UPDATE_MARKET';
+const ADD_MARKET = 'ADD_MARKET';
+const UPDATE_MARKETS_LIST = 'UPDATE_MARKETS_LIST';
+const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
+const UPDATE_SINGLE_MARKET_DETAILS = 'UPDATE_SINGLE_MARKET_DETAILS';
 
 /** Possible messages to the reducer **/
 export function initializeState(newState) {

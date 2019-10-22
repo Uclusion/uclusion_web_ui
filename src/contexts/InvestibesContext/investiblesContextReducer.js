@@ -1,10 +1,10 @@
 import LocalForageHelper from '../LocalForageHelper';
 import { INVESTIBLES_CONTEXT_NAMESPACE } from './InvestiblesContext';
-import { INITIALIZE_STATE } from '../MarketsContext/marketsContextReducer';
 
-export const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
-export const UPDATE_INVESTIBLE = 'UPDATE_INVESTIBLE';
-export const ADD_INVESTIBLE = 'ADD_INVESTIBLE';
+const INITIALIZE_STATE = 'INITIALIZE_STATE';
+const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
+const UPDATE_INVESTIBLE = 'UPDATE_INVESTIBLE';
+const ADD_INVESTIBLE = 'ADD_INVESTIBLE';
 
 /** Possible messages to reducer **/
 

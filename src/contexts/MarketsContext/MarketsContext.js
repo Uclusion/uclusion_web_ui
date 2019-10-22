@@ -5,11 +5,12 @@ import LocalForageHelper from '../LocalForageHelper';
 import { refreshMarkets } from './marketsContextHelper';
 
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
-const MarketsContext = React.createContext();
 const EMPTY_STATE = {
   marketDetails: [],
   marketsList: [],
 };
+
+const MarketsContext = React.createContext(EMPTY_STATE);
 
 function MarketsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);

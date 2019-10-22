@@ -6,13 +6,14 @@ import { saveComment } from '../../api/comments';
 
 import PropTypes from 'prop-types';
 import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
-import { AsyncCommentsContext } from '../../contexts/AsyncCommentsContext';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import { addComment } from '../../contexts/CommentsContext/commentsContextHelper';
 
 function CommentAdd(props) {
 
   const emptyComment = { body: '', uploadedFiles: []};
   const { intl, marketId, onSave, onCancel, issue, investible } = props;
-  const { addCommentLocally } = useContext(AsyncCommentsContext);
+  const [, commentsDispatch] = useContext(CommentsContext);
   const [currentValues, setCurrentValues] = useState(emptyComment);
   const { body, uploadedFiles } = currentValues;
 
@@ -37,8 +38,10 @@ function CommentAdd(props) {
     const filteredUploads = filterUploadsUsedInText(body, uploadedFiles);
     const investibleId = (investible) ? investible.id : null;
     return saveComment(marketId, investibleId, null, body, issue, filteredUploads)
-      .then((result) => addCommentLocally(result))
-      .then(onSave());
+      .then((result) => {
+        addComment(commentsDispatch, marketId, result);
+        onSave();
+      });
   }
 
   function handleCancel() {

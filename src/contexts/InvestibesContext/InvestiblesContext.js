@@ -4,9 +4,9 @@ import LocalForageHelper from '../LocalForageHelper';
 import beginListening from './investiblesContextMessages';
 
 const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
-const EMPTY_STATE = { investibles: {} };
+const EMPTY_STATE = {};
 
-const InvestiblesContext = React.createContext();
+const InvestiblesContext = React.createContext(EMPTY_STATE);
 
 function InvestiblesProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
@@ -14,20 +14,19 @@ function InvestiblesProvider(props) {
 
   useEffect(() => {
     if (isInitialization) {
-      if (isInitialization) {
-        // load state from storage
-        const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
-        lfg.getState()
-          .then((state) => {
-            if (state) {
-              dispatch(initializeState(state));
-            }
-          });
-      }
+      // load state from storage
+      const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
+      lfg.getState()
+        .then((state) => {
+          if (state) {
+            dispatch(initializeState(state));
+          }
+        });
       beginListening(dispatch);
       setIsInitialization(false);
     }
-    return () => {};
+    return () => {
+    };
   }, [isInitialization, state]);
 
   console.debug('Investibles context being rerendered');

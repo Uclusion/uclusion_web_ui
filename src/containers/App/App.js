@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useContext } from 'react';
 import { IntlProvider } from 'react-intl';
 import Root from '../Root';
 import AppConfigProvider from '../../components/AppConfigProvider';
@@ -7,13 +7,14 @@ import config from '../../config';
 import { getLocaleMessages } from '../../config/locales';
 import IntlGlobalProvider from '../../components/IntlComponents/IntlGlobalProvider';
 import { withAuthenticator } from 'aws-amplify-react';
-import useLocaleContext from '../../contexts/useLocaleContext';
+import { LocaleContext } from '../../contexts/LocaleContext';
 import { WebSocketProvider } from '../../contexts/WebSocketContext';
 
 function App(props) {
 
   const { appConfig } = props;
-  const { locale } = useLocaleContext();
+  const [localeState] = useContext(LocaleContext);
+  const { locale } = localeState;
   const messages = {
     ...getLocaleMessages(locale),
   };

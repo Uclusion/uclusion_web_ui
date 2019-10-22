@@ -9,7 +9,7 @@ const LOCALE_CONTEXT_KEY = 'locale_context';
 function LocaleProvider(props) {
 
   const { children } = props;
-  const defaultValue = getUclusionLocalStorageItem(LOCALE_CONTEXT_KEY) || {locale: 'en'};
+  const defaultValue = getUclusionLocalStorageItem(LOCALE_CONTEXT_KEY) || { locale: 'en' };
   const [state, setState] = useState(defaultValue);
 
   useEffect(() => {

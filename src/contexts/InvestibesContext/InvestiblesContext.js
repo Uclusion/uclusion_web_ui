@@ -16,7 +16,7 @@ function InvestiblesProvider(props) {
     if (isInitialization) {
       if (isInitialization) {
         // load state from storage
-        const lfg = new LocalForageHelper();
+        const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
         lfg.getState()
           .then((state) => {
             if (state) {

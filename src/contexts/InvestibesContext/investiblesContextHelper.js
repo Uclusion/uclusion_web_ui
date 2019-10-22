@@ -6,6 +6,9 @@ export function getMarketInvestibles(state, marketId) {
   const values = Object.values(state);
   const found = values.filter((inv) => {
     const { market_infos } = inv;
+    if (!market_infos) {
+      return false;
+    }
     return market_infos.find((info) => info.market_id === marketId);
   });
   return found;

@@ -16,6 +16,7 @@ function getSSOInfo() {
 export function getMarketList() {
   return getSSOInfo()
     .then((ssoInfo) => {
+      console.log('Got sso info');
       const { ssoClient, idToken } = ssoInfo;
       // as a side effect, whenever we get the active market list, we'll update the
       // authorization tokens contained inside, since it's free

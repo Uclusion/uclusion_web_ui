@@ -16,14 +16,20 @@ function MarketsProvider(props) {
   const [isInitialization, setIsInitialization] = useState(true);
   useEffect(() => {
     if (isInitialization) {
+      console.debug('Loading state from disk');
       // load state from storage
-      const lfg = new LocalForageHelper();
+      const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
       lfg.getState()
-        .then((state) => {
-          if (state) {
-            dispatch(initializeState(state));
+        .then((diskState) => {
+          console.log('Got diskstate');
+          console.log(diskState);
+          if (diskState) {
+            dispatch(initializeState(diskState));
           }
-          return refreshMarkets(dispatch);
+          refreshMarkets(dispatch)
+            .then(() => {
+              console.log('call done');
+            });
         });
       beginListening(dispatch);
       setIsInitialization(false);

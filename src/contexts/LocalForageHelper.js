@@ -4,15 +4,21 @@ class LocalForageHelper {
   namespace;
 
   constructor(namespace) {
+    console.log(namespace);
     this.namespace = namespace;
   }
-
   setState(state) {
+    console.debug(`Storing state to disk for namespace ${this.namespace}`);
     return localforage.setItem(this.namespace, state);
   }
 
   getState() {
-    return localforage.getItem(this.namespace);
+    console.debug(`Getting state from disk for namespace ${this.namespace}`);
+    return localforage.getItem(this.namespace)
+      .then((state) => {
+        console.log(state);
+        return state;
+      })
   }
 }
 

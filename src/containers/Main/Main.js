@@ -13,7 +13,7 @@ import { DrawerProvider } from '../../contexts/DrawerContext';
 import { LocaleProvider } from '../../contexts/LocaleContext';
 import { CommentsProvider } from '../../contexts/CommentsContext/CommentsContext';
 import { NotificationsProvider } from '../../contexts/NotificationsContext/NotificationsContext';
-import { AsyncMarketPresencesProvider } from '../../contexts/AsyncMarketPresencesContext';
+import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketStagesProvider } from '../../contexts/MarketStagesContext/MarketStagesContext';
 
 console.log(awsconfig);
@@ -38,14 +38,14 @@ class Main extends Component {
             <MarketStagesProvider>
               <CommentsProvider>
                 <InvestiblesProvider>
-                  <AsyncMarketPresencesProvider>
+                  <MarketPresencesProvider>
                     <DrawerProvider>
                       <LocaleProvider>
                         <ToastContainer />
                         <App appConfig={{ ...config }} />
                       </LocaleProvider>
                     </DrawerProvider>
-                  </AsyncMarketPresencesProvider>>
+                  </MarketPresencesProvider>>
                 </InvestiblesProvider>
               </CommentsProvider>
             </MarketStagesProvider>

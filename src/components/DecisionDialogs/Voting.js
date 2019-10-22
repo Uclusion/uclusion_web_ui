@@ -1,21 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import VotingCertainty from './VotingCertainty';
 import VoteMark from './VoteMark';
 import { updateInvestment } from '../../api/marketInvestibles';
-import { AsyncMarketPresencesContext } from '../../contexts/AsyncMarketPresencesContext';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getCurrentUser } from '../../contexts/MarketsContext/marketsContextHelper';
+import { getCurrentUserInvestment } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 const SAVE_DELAY = 1000;
 
 function Voting(props) {
   const { investible, marketId, investmentEnabled } = props;
   const { id } = investible;
-  const { getCurrentUserInvestment } = useContext(AsyncMarketPresencesContext);
-  const [investment, setInvestment] = useState(undefined);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
   const currentUser = getCurrentUser(marketsState);
+  const currentInvestment = getCurrentUserInvestment(marketPresencesState, id, marketId, currentUser);
+  const [investment, setInvestment] = useState(currentInvestment);
+
+
   function doInvestment(value, currentInvestment) {
     console.log(`Saving investment of ${value} with ${currentInvestment}`);
     return updateInvestment(marketId, id, value, currentInvestment);
@@ -28,14 +32,6 @@ function Voting(props) {
     // delay in ms
     SAVE_DELAY,
   );
-
-  useEffect(() => {
-    if (id && marketId) {
-      console.debug(`Rerendering use effect for investment for investible ${id}`);
-      getCurrentUserInvestment(id, marketId, currentUser)
-        .then((userInvestment) => setInvestment(userInvestment));
-    }
-  }, [id, marketId, getCurrentUserInvestment, currentUser]);
 
   const myInvestment = investment || 0;
   const invested = myInvestment > 0;

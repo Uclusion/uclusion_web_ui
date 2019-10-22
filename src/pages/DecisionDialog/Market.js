@@ -11,12 +11,13 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { refreshMarketStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { AsyncMarketPresencesContext } from '../../contexts/AsyncMarketPresencesContext';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { switchMarket } from '../../contexts/MarketsContext/marketsContextReducer';
 import { getCurrentMarket, getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import { refreshMarketPresence } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 const styles = (theme) => ({
   root: {
@@ -60,7 +61,7 @@ function Market(props) {
   const [, marketStagesDispatch] = useContext(MarketStagesContext);
   const currentMarket = getCurrentMarket(marketsState);
   const marketDetails = getAllMarketDetails(marketsState);
-  const { refreshMarketPresence, loading: marketUsersLoading } = useContext(AsyncMarketPresencesContext);
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, commentsDispatch] = useContext(CommentsContext);
   const [loadedMarket, setLoadedMarket] = useState(undefined);
   const { hidden } = props;
@@ -68,6 +69,7 @@ function Market(props) {
   const investiblesLoading = false;
   const commentsLoading = false;
   const marketStagesLoading = false;
+  const marketUsersLoading = false;
 
   useEffect(() => {
     if (marketId && loadedMarket !== marketId) {
@@ -76,14 +78,14 @@ function Market(props) {
       marketsDispatch(switchMarket(marketId));
       refreshInvestibles(investiblesDispatch, marketId);
       refreshMarketComments(commentsDispatch, marketId);
-      refreshMarketPresence(marketId);
+      refreshMarketPresence(marketPresencesDispatch, marketId);
       refreshMarketStages(marketStagesDispatch, marketId);
     }
     return () => {
     };
   }, [
     marketId, loadedMarket, marketsDispatch,
-    commentsDispatch, refreshMarketPresence,
+    commentsDispatch, marketPresencesDispatch,
     investiblesDispatch, marketStagesDispatch,
   ]);
 

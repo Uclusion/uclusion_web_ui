@@ -23,8 +23,10 @@ function CommentAdd(props) {
     setBody(content);
   }
 
-  function handleFileUpload(metadata) {
-    const newUploadedFiles = [...uploadedFiles, metadata];
+  function handleFileUpload(metadatas) {
+    console.debug(metadatas);
+    const newUploadedFiles = [...uploadedFiles, ...metadatas];
+    console.debug(newUploadedFiles);
     setUploadedFiles(newUploadedFiles);
   }
 
@@ -56,7 +58,7 @@ function CommentAdd(props) {
       </CardActions>
       <CardContent>
         <QuillEditor
-          handleFileUpload={handleFileUpload}
+          onS3Upload={handleFileUpload}
           placeholder={placeHolder}
           initialValue={body}
           onChange={onEditorChange}/>

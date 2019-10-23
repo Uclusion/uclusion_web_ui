@@ -3,7 +3,7 @@ import reducer, { initializeState } from './commentsContextReducer';
 import LocalForageHelper from '../LocalForageHelper';
 import beginListening from './commentsContextMessages';
 
-const COMMENTS_CONTEXT_NAMESPACE = 'COMMENTS_CONTEXT_NAMESPACE';
+const COMMENTS_CONTEXT_NAMESPACE = 'comments_context';
 const EMPTY_STATE = {};
 
 const CommentsContext = React.createContext(EMPTY_STATE);
@@ -15,11 +15,13 @@ function CommentsProvider(props) {
     if (isInitialization) {
       // set the new state cache to something we control, so that our
       // provider descendants will pick up changes to it
-      console.log('Replacing comments state cache');
+      console.log('Loading Comments from disk');
       // load state from storage
       const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
       lfg.getState()
         .then((state) => {
+          console.debug(`Found comments ${state}`);
+          console.debug(state);
           if (state) {
             dispatch(initializeState(state));
           }

@@ -83,6 +83,7 @@ function InvestibleAdd(props) {
           onChange={handleChange('name')}
         />
         <QuillEditor
+          marketId={marketId}
           onChange={onEditorChange}
           placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
           defaultValue={description} />

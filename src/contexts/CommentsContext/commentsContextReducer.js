@@ -61,7 +61,7 @@ function doUpdateComment(state, action) {
   const newMarketComments = _.unionBy(updateList, oldMarketComments, 'id');
   const newState = {
     ...state,
-    [marketId]: newMarketComments
+    [marketId]: newMarketComments,
   };
   return newState;
 }

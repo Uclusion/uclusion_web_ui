@@ -51,7 +51,7 @@ export function refreshMarketComments(dispatch, marketId) {
               const flattenedComments = _.flatten(commentChunks);
               const dateConverted = flattenedComments.map((comment) => convertDates(comment));
               const newMarketComments = _.unionBy(dateConverted, deletedRemoved, 'id');
-              dispatch(updateMarketComments(newMarketComments));
+              dispatch(updateMarketComments(marketId, newMarketComments));
             });
         });
     });

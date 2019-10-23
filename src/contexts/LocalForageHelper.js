@@ -7,8 +7,10 @@ class LocalForageHelper {
     console.log(namespace);
     this.namespace = namespace;
   }
+
   setState(state) {
     console.debug(`Storing state to disk for namespace ${this.namespace}`);
+    console.debug(state);
     return localforage.setItem(this.namespace, state);
   }
 
@@ -18,7 +20,7 @@ class LocalForageHelper {
       .then((state) => {
         console.log(state);
         return state;
-      })
+      });
   }
 }
 

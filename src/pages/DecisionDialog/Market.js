@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -63,7 +63,6 @@ function Market(props) {
   const marketDetails = getAllMarketDetails(marketsState);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, commentsDispatch] = useContext(CommentsContext);
-  const [loadedMarket, setLoadedMarket] = useState(undefined);
   const { hidden } = props;
   // TODO: Fix the loading
   const investiblesLoading = false;
@@ -72,9 +71,8 @@ function Market(props) {
   const marketUsersLoading = false;
 
   useEffect(() => {
-    if (marketId && loadedMarket !== marketId) {
-      console.debug('Market rerendered on load new');
-      setLoadedMarket(marketId);
+    if (marketId && currentMarket !== marketId) {
+      console.debug(`Market rerendered on load ${marketId}`);
       marketsDispatch(switchMarket(marketId));
       refreshInvestibles(investiblesDispatch, marketId);
       refreshMarketComments(commentsDispatch, marketId);
@@ -84,18 +82,19 @@ function Market(props) {
     return () => {
     };
   }, [
-    marketId, loadedMarket, marketsDispatch,
+    marketId, currentMarket, marketsDispatch,
     commentsDispatch, marketPresencesDispatch,
     investiblesDispatch, marketStagesDispatch,
+    marketsState,
   ]);
 
-  const currentMarketName = (currentMarket && currentMarket.name) || '';
   const renderableMarket = marketDetails.find((market) => market.id === marketId);
   console.debug(`Market page being rerendered ${commentsLoading} ${marketUsersLoading} ${marketStagesLoading}`);
+  const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   return (
     <Activity
       title={currentMarketName}
-      isLoading={loadedMarket !== marketId
+      isLoading={currentMarket !== marketId
       || investiblesLoading || commentsLoading || marketUsersLoading || marketStagesLoading}
       appBarContent={renderableMarket && (
         <ExpirationCountDown
@@ -106,7 +105,7 @@ function Market(props) {
       hidden={hidden}
     >
       <div>
-        {renderableMarket && (<MarketNav market={renderableMarket}/>)}
+        {renderableMarket && (<MarketNav market={renderableMarket} />)}
       </div>
     </Activity>
   );

@@ -5,7 +5,7 @@ import MarketView from './MarketView';
 import TabPanel from '../Tabs/TabPanel';
 
 function Market(props) {
-  console.debug('Investible component being rerendered');
+  console.debug('Market component being rerendered');
   const [edit, setEdit] = useState(false);
   const {
     marketTargetedComments,

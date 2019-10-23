@@ -12,7 +12,7 @@ const UPDATE_MARKETS_LIST = 'UPDATE_MARKETS_LIST';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
 const UPDATE_SINGLE_MARKET_DETAILS = 'UPDATE_SINGLE_MARKET_DETAILS';
 
-/** Possible messages to the reducer **/
+/* Possible messages to the reducer */
 export function initializeState(newState) {
   return {
     type: INITIALIZE_STATE,
@@ -20,10 +20,10 @@ export function initializeState(newState) {
   };
 }
 
-export function switchMarket(newMarket) {
+export function switchMarket(marketId) {
   return {
     type: SWITCH_MARKET,
-    newMarket,
+    marketId,
   };
 }
 
@@ -62,14 +62,20 @@ export function updateAllMarketDetails(marketDetails) {
   };
 }
 
-/** Functions that mutate state **/
+/* Functions that mutate state */
 
 function doSwitchMarket(state, action) {
-  const { newMarket } = action;
+  const { marketId } = action;
   const { markets } = state;
+  console.debug(`Try switching market to ${marketId}`);
   if (!_.isEmpty(markets)) {
-    const found = markets.find((market) => market.id === newMarket);
-    return { ...state, currentMarket: found };
+    const found = markets.find((market) => market.id === marketId);
+    if (found) {
+      console.debug(`Switching to ${marketId}`);
+      return { ...state, currentMarket: found };
+    }
+  } else {
+    console.debug('Empty markets in switch');
   }
   return state;
 }
@@ -129,6 +135,7 @@ function doUpdateSingleMarketDetails(state, action) {
 }
 
 function computeNewState(state, action) {
+  console.debug(`Computing state with type ${action.type}`);
   switch (action.type) {
     case SWITCH_MARKET:
       return doSwitchMarket(state, action);

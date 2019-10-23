@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -12,7 +12,6 @@ import { refreshMarketStages } from '../../contexts/MarketStagesContext/marketSt
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { switchMarket } from '../../contexts/MarketsContext/marketsContextReducer';
 import { getCurrentMarket, getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
@@ -63,6 +62,7 @@ function Market(props) {
   const marketDetails = getAllMarketDetails(marketsState);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, commentsDispatch] = useContext(CommentsContext);
+  const [loadedMarket, setLoadedMarket] = useState(undefined);
   const { hidden } = props;
   // TODO: Fix the loading
   const investiblesLoading = false;
@@ -71,9 +71,9 @@ function Market(props) {
   const marketUsersLoading = false;
 
   useEffect(() => {
-    if (marketId && currentMarket !== marketId) {
-      console.debug(`Market rerendered on load ${marketId}`);
-      marketsDispatch(switchMarket(marketId));
+    if (marketId && loadedMarket !== marketId) {
+      console.debug('Market rerendered on load new');
+      setLoadedMarket(marketId);
       refreshInvestibles(investiblesDispatch, marketId);
       refreshMarketComments(commentsDispatch, marketId);
       refreshMarketPresence(marketPresencesDispatch, marketId);
@@ -82,7 +82,7 @@ function Market(props) {
     return () => {
     };
   }, [
-    marketId, currentMarket, marketsDispatch,
+    marketId, marketsDispatch, loadedMarket,
     commentsDispatch, marketPresencesDispatch,
     investiblesDispatch, marketStagesDispatch,
     marketsState,

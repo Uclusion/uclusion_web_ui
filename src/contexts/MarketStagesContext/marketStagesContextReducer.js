@@ -16,6 +16,7 @@ export function initializeState(newState) {
 export function updateMarketStages(marketId, stagesList) {
   return {
     type: UPDATE_MARKET_STAGES,
+    marketId,
     stagesList,
   };
 }

@@ -41,17 +41,17 @@ export function addMarket(market) {
   };
 }
 
-export function updateMarketsList(marketsList) {
+export function updateMarketsList(markets) {
   return {
     type: UPDATE_MARKETS_LIST,
-    marketsList,
+    markets,
   };
 }
 
 export function updateSingleMarketDetails(marketDetails) {
   return {
     type: UPDATE_SINGLE_MARKET_DETAILS,
-    marketDetails
+    marketDetails,
   };
 }
 
@@ -108,10 +108,10 @@ function storeMarket(state, action) {
 }
 
 function doUpdateMarketsList(state, action) {
-  const { marketsList } = action;
+  const { markets } = action;
   return {
     ...state,
-    marketsList,
+    markets,
   };
 }
 
@@ -130,7 +130,7 @@ function doUpdateSingleMarketDetails(state, action) {
   const newDetails = _.unionBy([convertedMarket], oldMarketDetails, 'id');
   return {
     ...state,
-    marketDetails: newDetails
+    marketDetails: newDetails,
   };
 }
 

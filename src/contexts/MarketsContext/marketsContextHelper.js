@@ -28,7 +28,7 @@ export function getAllMarketDetails(state) {
 }
 
 export function getAllMarkets(state) {
-  return state.marketsList;
+  return state.markets;
 }
 
 export function refreshMarkets(dispatch) {
@@ -40,7 +40,7 @@ export function refreshMarkets(dispatch) {
         console.debug(marketList);
         const filteredDetails = removeDeletedObjects(marketList, usedState.marketDetails);
         // console.debug(`Filtered Details ${filteredDetails}`);
-        const outdated = getOutdatedObjectIds(marketList, usedState.marketsList);
+        const outdated = getOutdatedObjectIds(marketList, usedState.markets);
         console.debug(`Outdated markets ${outdated}`);
         dispatch(updateMarketsList(marketList));
         const promises = outdated.map((marketId) => getMarketDetails(marketId));

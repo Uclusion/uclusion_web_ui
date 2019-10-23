@@ -2,7 +2,7 @@ import { getMarketClient } from './uclusionClient';
 import FileTokenRefresher from '../authorization/FileTokenRefresher';
 import TokenManager from '../authorization/TokenManager';
 import config from '../config';
-import TokenStorageManager, { TOKEN_TYPE_FILE } from '../authorization/TokenStorageManager';
+import { TOKEN_TYPE_FILE } from '../authorization/TokenStorageManager';
 import { getStoredFileToken, updateFileToken } from '../authorization/tokenStorageUtils';
 
 /**

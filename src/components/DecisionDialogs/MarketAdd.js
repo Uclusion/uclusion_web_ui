@@ -46,6 +46,13 @@ function MarketAdd(props) {
     };
   }
 
+  function handleEditorChange(description) {
+    const newCurrentValues = {
+      ...currentValues,
+      description,
+    };
+    setCurrentValues(newCurrentValues);
+  }
 
   function handleSave() {
     return createMarket(name, description, expiration_minutes)
@@ -89,7 +96,7 @@ function MarketAdd(props) {
         </Typography>
         <ExpirationSelector value={expiration_minutes} className={classes.row} onChange={handleChange('expiration_minutes')} />
         <QuillEditor
-          onChange={handleChange('description')}
+          onChange={handleEditorChange}
           placeHolder={intl.formatMessage({id: 'marketAddDescriptionDefault' })}
           value={description} />
       </CardContent>

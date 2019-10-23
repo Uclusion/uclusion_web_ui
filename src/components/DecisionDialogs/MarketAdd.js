@@ -24,7 +24,8 @@ function MarketAdd(props) {
   const { onSave, onCancel, classes } = props;
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
   const [currentValues, setCurrentValues] = useState(emptyMarket);
-  const { name, description, expiration_minutes } = currentValues;
+  const [description, setDescription] = useState('');
+  const { name, expiration_minutes } = currentValues;
   const [, marketsDispatch] = useContext(MarketsContext);
 
 
@@ -40,18 +41,13 @@ function MarketAdd(props) {
   function handleChange(field) {
     return (event) => {
       const { value } = event.target;
-      console.log(value);
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
     };
   }
 
-  function handleEditorChange(description) {
-    const newCurrentValues = {
-      ...currentValues,
-      description,
-    };
-    setCurrentValues(newCurrentValues);
+  function onEditorChange(description) {
+    setDescription(description);
   }
 
   function handleSave() {
@@ -96,9 +92,9 @@ function MarketAdd(props) {
         </Typography>
         <ExpirationSelector value={expiration_minutes} className={classes.row} onChange={handleChange('expiration_minutes')} />
         <QuillEditor
-          onChange={handleEditorChange}
+          onChange={onEditorChange}
           placeHolder={intl.formatMessage({id: 'marketAddDescriptionDefault' })}
-          value={description} />
+          defaultValue={description} />
       </CardContent>
       <CardActions>
         <Button onClick={handleCancel}>

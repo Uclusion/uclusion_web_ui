@@ -79,7 +79,7 @@ class QuillEditor extends React.PureComponent {
 }
 
 QuillEditor.propTypes = {
-  marketId: PropTypes.string.isRequired,
+  marketId: PropTypes.string,
   readOnly: PropTypes.bool,
   onS3Upload: PropTypes.func,
   defaultValue: PropTypes.string,
@@ -94,6 +94,7 @@ QuillEditor.defaultProps = {
   onChange: () => {},
   defaultValue: '',
   placeholder: '',
+  marketId: undefined,
 };
 
 export default QuillEditor;

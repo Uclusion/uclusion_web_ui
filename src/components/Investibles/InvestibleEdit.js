@@ -11,7 +11,7 @@ import { getStages } from '../../contexts/MarketStagesContext/marketStagesContex
 import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 import { getFlags } from '../../utils/userFunctions';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getCurrentUser } from '../../contexts/MarketsContext/marketsContextHelper';
+import { getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { updateInvestible as localUpdateInvestible } from '../../contexts/InvestibesContext/investiblesContextReducer';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 
@@ -70,7 +70,7 @@ function InvestibleEdit(props) {
   function handleSubmit() {
     let newStage;
     return handleSave().then(() =>  {
-      const currentUser = getCurrentUser(marketsState);
+      const currentUser = getMyUserForMarket(marketsState, marketId);
       const stages = getStages(marketStagesState, marketId);
       const { market_admin: isAdmin } = getFlags(currentUser);
       if (isAdmin) {

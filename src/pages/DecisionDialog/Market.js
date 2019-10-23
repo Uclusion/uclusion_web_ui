@@ -12,7 +12,7 @@ import { refreshMarketStages } from '../../contexts/MarketStagesContext/marketSt
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getCurrentMarket, getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
+import { getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
@@ -58,7 +58,6 @@ function Market(props) {
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketStagesDispatch] = useContext(MarketStagesContext);
-  const currentMarket = getCurrentMarket(marketsState);
   const marketDetails = getAllMarketDetails(marketsState);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, commentsDispatch] = useContext(CommentsContext);
@@ -94,7 +93,7 @@ function Market(props) {
   return (
     <Activity
       title={currentMarketName}
-      isLoading={currentMarket !== marketId
+      isLoading={loadedMarket !== marketId
       || investiblesLoading || commentsLoading || marketUsersLoading || marketStagesLoading}
       appBarContent={renderableMarket && (
         <ExpirationCountDown

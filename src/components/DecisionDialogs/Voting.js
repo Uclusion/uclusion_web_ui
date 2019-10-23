@@ -5,7 +5,7 @@ import VoteMark from './VoteMark';
 import { updateInvestment } from '../../api/marketInvestibles';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getCurrentUser } from '../../contexts/MarketsContext/marketsContextHelper';
+import { getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { getCurrentUserInvestment } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 const SAVE_DELAY = 1000;
@@ -15,7 +15,7 @@ function Voting(props) {
   const { id } = investible;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
-  const currentUser = getCurrentUser(marketsState);
+  const currentUser = getMyUserForMarket(marketsState, marketId);
   const currentInvestment = getCurrentUserInvestment(marketPresencesState, id, marketId, currentUser);
   const [investment, setInvestment] = useState(currentInvestment);
 

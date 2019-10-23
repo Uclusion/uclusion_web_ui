@@ -1,17 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Paper, Typography, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import Activity from '../../containers/Activity/Activity';
 import withAppConfigs from '../../utils/withAppConfigs';
-import { getFlags } from '../../utils/userFunctions';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import {
-  getCurrentUser,
-  getAllMarketDetails,
-  getCurrentMarket
-} from '../../contexts/MarketsContext/marketsContextHelper';
 
 const styles = (theme) => ({
   root: {
@@ -49,31 +42,9 @@ function About(props) {
     hidden,
   } = props;
 
-  const [marketsState] = useContext(MarketsContext);
   const { version } = appConfig;
-  const [market, setMarket] = useState(undefined);
-  const [user, setUser] = useState(undefined);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const currentMarket = getCurrentMarket(marketsState);
-  const currentUser = getCurrentUser(marketsState);
-  const marketDetails = getAllMarketDetails(marketsState);
-  useEffect(() => {
-    if (currentMarket && (market === undefined || currentMarket.id !== market.id)) {
-      const found = marketDetails
-        && marketDetails.find((marketDetail) => marketDetail.id === currentMarket.id);
-      if (found) {
-        setMarket(found);
-      }
-    }
-    if (currentUser) {
-      setUser(currentUser);
-      const { market_admin: isAdmin } = getFlags(currentUser);
-      setIsAdmin(isAdmin);
-    }
-    return () => {
-    };
-  }, [currentMarket, market, currentUser, marketDetails]);
-
+  // TODO: make this identity
+  const user = undefined;
   function handleClear() {
     // TODO need to clear storage here
   }
@@ -95,20 +66,6 @@ function About(props) {
           </Paper>
           <Paper className={classes.section}>
             <Typography className={classes.row}>
-              <span className={classes.label}>{intl.formatMessage({ id: 'aboutMarketIdLabel' })}</span>
-              <span className={classes.value}>{!!market && market.id}</span>
-            </Typography>
-            <Typography className={classes.row}>
-              <span className={classes.label}>{intl.formatMessage({ id: 'aboutAccountIdLabel' })}</span>
-              <span className={classes.value}>{!!market && market.account_id}</span>
-            </Typography>
-            <Typography className={classes.row}>
-              <span className={classes.label}>{intl.formatMessage({ id: 'aboutAccountNameLabel' })}</span>
-              <span className={classes.value}>{!!market && market.account_name}</span>
-            </Typography>
-          </Paper>
-          <Paper className={classes.section}>
-            <Typography className={classes.row}>
               <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserIdLabel' })}</span>
               <span className={classes.value}>{!!user && user.id}</span>
             </Typography>
@@ -117,14 +74,7 @@ function About(props) {
               <span className={classes.value}>{!!user && user.name}</span>
             </Typography>
           </Paper>
-          {isAdmin && (
-            <Paper className={classes.section}>
-              <Typography className={classes.row}>
-                <span className={classes.label}>{intl.formatMessage({ id: 'aboutUclusionEmailLabel' })}</span>
-                <span className={classes.value}>{appConfig.uclusionSupportInfo.email}</span>
-              </Typography>
-            </Paper>
-          )}
+
           <br />
           <Button color="primary" onClick={handleClear}>{intl.formatMessage({ id: 'aboutClearStorageButton' })}</Button>
         </div>

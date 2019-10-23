@@ -31,6 +31,7 @@ function MarketAdd(props) {
 
   function zeroCurrentValues() {
     setCurrentValues(emptyMarket);
+    setDescription('');
   }
 
   function handleCancel() {

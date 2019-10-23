@@ -28,16 +28,20 @@ const styles = (theme) => ({
 });
 
 function InvestibleEdit(props) {
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [marketsState] = useContext(MarketsContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
   const {
     investible, intl, classes, editToggle, onSave, marketId,
   } = props;
-  const [currentValues, setCurrentValues] = useState(investible.investible);
-  const { name, description, id } = currentValues;
+
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [marketsState] = useContext(MarketsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const myInvestible = investible.investible;
+  const { id, description: initialDescription } = myInvestible;
+  const [currentValues, setCurrentValues] = useState(myInvestible);
+  const { name } = currentValues;
   const initialUploadedFiles = investible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
+  const [description, setDescription] = useState(initialDescription);
 
   function handleChange(field) {
     return (event) => {
@@ -47,10 +51,8 @@ function InvestibleEdit(props) {
     };
   }
 
-  function onEditorChange(content) {
-    const description = content;
-    const newValues = { ...currentValues, description };
-    setCurrentValues(newValues);
+  function onEditorChange(description) {
+    setDescription(description);
   }
 
   function handleFileUpload(metadata) {

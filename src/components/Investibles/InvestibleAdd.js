@@ -23,7 +23,8 @@ function InvestibleAdd(props) {
   const { marketId, intl, classes, onSave, onCancel } = props;
   const emptyInvestible = { name: '', description: '' };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
-  const { name, description } = currentValues;
+  const [description, setDescription] = useState('');
+  const { name } = currentValues;
 
   function handleChange(field) {
     return (event) => {
@@ -33,14 +34,13 @@ function InvestibleAdd(props) {
     };
   }
 
-  function onEditorChange(content) {
-    const description = content;
-    const newValues = { ...currentValues, description };
-    setCurrentValues(newValues);
+  function onEditorChange(description) {
+    setDescription(description);
   }
 
   function zeroCurrentValues() {
     setCurrentValues(emptyInvestible);
+    setDescription('');
   }
 
   function handleCancel() {

@@ -1,5 +1,5 @@
 import { fetchCommentList, fetchComments } from '../../api/comments';
-import { convertDates, getOutdatedObjectIds, removeDeletedObjects } from '../ContextUtils';
+import { convertDates, fixFileLinks, getOutdatedObjectIds, removeDeletedObjects } from '../ContextUtils';
 import _ from 'lodash';
 import LocalForageHelper from '../LocalForageHelper';
 import { COMMENTS_CONTEXT_NAMESPACE, EMPTY_STATE } from './CommentsContext';
@@ -50,7 +50,8 @@ export function refreshMarketComments(dispatch, marketId) {
             .then((commentChunks) => {
               const flattenedComments = _.flatten(commentChunks);
               const dateConverted = flattenedComments.map((comment) => convertDates(comment));
-              const newMarketComments = _.unionBy(dateConverted, deletedRemoved, 'id');
+              const linksFixed = dateConverted.map((comment) => fixFileLinks(comment));
+              const newMarketComments = _.unionBy(linksFixed, deletedRemoved, 'id');
               dispatch(updateMarketComments(marketId, newMarketComments));
             });
         });

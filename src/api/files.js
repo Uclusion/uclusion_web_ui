@@ -2,8 +2,8 @@ import { getMarketClient } from './uclusionClient';
 import FileTokenRefresher from '../authorization/FileTokenRefresher';
 import TokenManager from '../authorization/TokenManager';
 import config from '../config';
-import { TOKEN_TYPE_FILE } from '../authorization/TokenStorageManager';
-import { updateFileToken } from '../authorization/tokenStorageUtils';
+import TokenStorageManager, { TOKEN_TYPE_FILE } from '../authorization/TokenStorageManager';
+import { getStoredFileToken, updateFileToken } from '../authorization/tokenStorageUtils';
 
 /**
  *
@@ -53,4 +53,37 @@ export function getS3FileUrl(metadata) {
     newURL.searchParams.set('authorization', token);
     return newURL.toString();
   });
+}
+
+/** Processes the body of the text, and replaces any authorization tokens
+ * in image sources with the latest tokens we have. Note, this function will
+ * NOT refresh the file tokens, so you might get broken images
+ * @param uploadedFiles
+ * @param text
+ * @return {Promise<unknown>|Promise<string>}
+ */
+export function preProcessUploadedFiles(uploadedFiles, text) {
+  if (!uploadedFiles) {
+    console.debug('No uploaded files');
+    return text;
+  }
+  // create temp doc element to allow us to extract the images
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = text;
+  const imageTags = tempDiv.getAllElementsbyTagName('img');
+  uploadedFiles.forEach((file) => {
+    const { path, uclusion_token } = file;
+    updateFileToken(path, uclusion_token);
+    // now replace the link in the text with the new token
+    imageTags.forEach((img) => {
+      const token = getStoredFileToken(path);
+      const url = new URL(img.src);
+      if (url.pathname === path) {
+        url.searchParams.set('authorization', token);
+        img.setAttribute('src', url.toString());
+      }
+    });
+  });
+  return tempDiv.innerHTML;
+
 }

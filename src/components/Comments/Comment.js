@@ -48,7 +48,7 @@ function Comment(props) {
 
   return (
     <Paper className={classes.root}>
-      <QuillEditor readOnly value={comment.body} />
+      <QuillEditor marketId={marketId} readOnly value={comment.body} />
       <Button onClick={toggleReply}>
         {intl.formatMessage({ id: 'commentReplyLabel' })}
       </Button>

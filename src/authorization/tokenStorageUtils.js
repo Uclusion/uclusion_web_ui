@@ -21,3 +21,8 @@ export function updateFileToken(path, token) {
   const storageManager = new TokenStorageManager();
   storageManager.storeToken(TOKEN_TYPE_FILE, path, token);
 }
+
+export function getStoredFileToken(path) {
+  const storageManager = new TokenStorageManager();
+  storageManager.getValidToken(TOKEN_TYPE_FILE, path);
+}

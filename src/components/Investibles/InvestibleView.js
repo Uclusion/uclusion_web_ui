@@ -16,7 +16,7 @@ function InvestibleView(props) {
       <CardContent>
         <InvestibleEditButton onClick={editToggle} />
         <Voting investible={investible} marketId={marketId} investmentEnabled={true} />
-        <QuillEditor defaultValue={description} readOnly={true} />
+        <QuillEditor marketId={marketId} defaultValue={description} readOnly={true} />
       </CardContent>
       <CommentBox investible={investible} marketId={marketId} comments={comments} depth={0}
                   commentsHash={commentsHash} />

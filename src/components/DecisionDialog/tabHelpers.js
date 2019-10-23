@@ -13,6 +13,7 @@ export function getTabsForInvestibles(marketId, investibles, comments, commentsH
   ));
   const tabContent = investibles.map((inv) => (
     <Investible
+      key={inv.id}
       investible={inv}
       marketId={marketId}
       comments={comments}

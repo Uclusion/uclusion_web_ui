@@ -3,7 +3,7 @@ import { injectIntl } from 'react-intl';
 import { Paper, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import QuillEditor from '../TextEditors/QuillEditor';
-import CommentReply from './CommentReply';
+import CommentAdd from './CommentAdd';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -54,7 +54,7 @@ function Comment(props) {
       </Button>
       {replyOpen
       && (
-      <CommentReply
+      <CommentAdd
         marketId={marketId}
         parent={comment}
         onSave={toggleReply}

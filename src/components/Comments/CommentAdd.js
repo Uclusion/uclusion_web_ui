@@ -11,7 +11,7 @@ import { addComment } from '../../contexts/CommentsContext/commentsContextHelper
 
 function CommentAdd(props) {
 
-  const { intl, marketId, onSave, onCancel, issue, investible } = props;
+  const { intl, marketId, onSave, onCancel, issue, investible, parent } = props;
   const [, commentsDispatch] = useContext(CommentsContext);
   const [body, setBody] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -31,9 +31,11 @@ function CommentAdd(props) {
   }
 
   function handleSave() {
+    const usedParent = parent || {};
+    const { investible_id: parentInvestible, id: parentId } = usedParent;
     const filteredUploads = filterUploadsUsedInText(uploadedFiles, body);
-    const investibleId = (investible) ? investible.id : null;
-    return saveComment(marketId, investibleId, null, body, issue, filteredUploads)
+    const investibleId = (investible) ? investible.id : parentInvestible;
+    return saveComment(marketId, investibleId, parentId, body, issue, filteredUploads)
       .then((result) => {
         addComment(commentsDispatch, marketId, result);
         onSave();
@@ -45,15 +47,17 @@ function CommentAdd(props) {
     setUploadedFiles([]);
     onCancel();
   }
+  const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
+  const commentCancelLabel = parent ? 'commentAddCancelLabel' : 'commentReplyCancelLabel';
 
   return (
     <Card>
       <CardActions>
         <Button onClick={handleSave}>
-          {intl.formatMessage({ id: 'commentAddSaveLabel' })}
+          {intl.formatMessage({ id: commentSaveLabel })}
         </Button>
         <Button onClick={handleCancel}>
-          {intl.formatMessage({ id: 'commentAddCancelLabel' })}
+          {intl.formatMessage({ id: commentCancelLabel })}
         </Button>
       </CardActions>
       <CardContent>
@@ -74,6 +78,7 @@ CommentAdd.propTypes = {
   onSave: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
   investible: PropTypes.object,
+  parent: PropTypes.string,
   onCancel: PropTypes.func,
 };
 

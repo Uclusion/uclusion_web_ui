@@ -3,7 +3,7 @@ import { injectIntl } from 'react-intl';
 import { Paper, Button, MuiThemeProvider } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import QuillEditor from '../TextEditors/QuillEditor';
-import CommentReply from '../Comments/CommentReply';
+import CommentAdd from '../Comments/CommentAdd';
 import Comment from '../Comments/Comment';
 import { issueTheme } from '../../config/themes';
 
@@ -63,7 +63,7 @@ function Issue(props) {
         <Button onClick={resolve}>
           {intl.formatMessage({ id: 'issueResolveLabel' })}
         </Button>
-        {replyOpen && <CommentReply marketId={marketId} parent={comment} onSave={toggleReply} />}
+        {replyOpen && <CommentAdd marketId={marketId} parent={comment} onSave={toggleReply} />}
         {getChildComments()}
       </Paper>
     </MuiThemeProvider>

@@ -11,31 +11,25 @@ import { addComment } from '../../contexts/CommentsContext/commentsContextHelper
 
 function CommentAdd(props) {
 
-  const emptyComment = { body: '', uploadedFiles: []};
   const { intl, marketId, onSave, onCancel, issue, investible } = props;
   const [, commentsDispatch] = useContext(CommentsContext);
-  const [currentValues, setCurrentValues] = useState(emptyComment);
-  const { body, uploadedFiles } = currentValues;
+  const [body, setBody] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState([]);
 
   const placeHolderLabel = (issue) ? 'commentAddIssueDefault' : 'commentAddDefault';
   const placeHolder = intl.formatMessage({ id: placeHolderLabel });
 
   function onEditorChange(content) {
-    const body = content;
-    const newValues = { ...currentValues, body };
-    setCurrentValues(newValues);
+    setBody(content);
   }
 
   function handleFileUpload(metadata) {
-    console.log(metadata);
-    const uploadedFiles = currentValues.uploadedFiles || [];
-    uploadedFiles.push(metadata);
-    const newValues = { ...currentValues, uploadedFiles };
-    setCurrentValues(newValues);
+    const newUploadedFiles = [...uploadedFiles, metadata];
+    setUploadedFiles(newUploadedFiles);
   }
 
   function handleSave() {
-    const filteredUploads = filterUploadsUsedInText(body, uploadedFiles);
+    const filteredUploads = filterUploadsUsedInText(uploadedFiles, body);
     const investibleId = (investible) ? investible.id : null;
     return saveComment(marketId, investibleId, null, body, issue, filteredUploads)
       .then((result) => {
@@ -45,7 +39,8 @@ function CommentAdd(props) {
   }
 
   function handleCancel() {
-    setCurrentValues(emptyComment);
+    setBody('');
+    setUploadedFiles([]);
     onCancel();
   }
 

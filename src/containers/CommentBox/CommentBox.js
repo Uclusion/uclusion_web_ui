@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Card, CardActions, CardContent } from '@material-ui/core';
-import { injectIntl } from 'react-intl';
+
 import Comment from '../../components/Comments/Comment';
 import Issue from '../../components/Issues/Issue';
 import CommentAdd from '../../components/Comments/CommentAdd';
+import { useIntl } from 'react-intl';
 
 export const QUESTION_TYPE = 'QUESTION';
 export const ISSUE_TYPE = 'ISSUE';
@@ -14,9 +15,9 @@ export const REPLY_TYPE = 'REPLY';
 const TYPES = [QUESTION_TYPE, ISSUE_TYPE, SUGGEST_CHANGE_TYPE, REPLY_TYPE];
 function CommentBox(props) {
 
-  const { comments, commentsHash, marketId, intl, investible } = props;
+  const { comments, commentsHash, marketId, investible } = props;
   const [addOpen, setAddOpen] = useState(true);
-
+  const intl = useIntl();
   const threadRoots = comments.filter(comment => !comment.reply_id);
 
   function getCommentCards() {
@@ -25,7 +26,7 @@ function CommentBox(props) {
       const RenderedComment = (isIssue) ? Issue : Comment;
       return (
         <Card key={comment.id}>
-          <RenderedComment marketId={marketId} comment={comment} commentsHash={commentsHash} />
+          <RenderedComment depth={0} marketId={marketId} comment={comment} commentsHash={commentsHash} />
         </Card>
       );
     });
@@ -75,9 +76,8 @@ CommentBox.propTypes = {
   commentsHash: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
-  investible: PropTypes.object.isRequired,
+  investible: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
-  intl: PropTypes.object.isRequired,
 };
 
-export default injectIntl(CommentBox);
+export default CommentBox;

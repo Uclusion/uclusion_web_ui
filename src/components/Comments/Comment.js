@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { injectIntl } from 'react-intl';
+
 import { Paper, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import QuillEditor from '../TextEditors/QuillEditor';
 import CommentAdd from './CommentAdd';
 import { REPLY_TYPE } from '../../containers/CommentBox/CommentBox';
+import { useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -14,10 +16,10 @@ const useStyles = makeStyles((theme) => ({
 
 function Comment(props) {
   const {
-    comment, commentsHash, depth, intl, marketId,
+    comment, commentsHash, depth, marketId,
   } = props;
   const classes = useStyles();
-
+  const intl = useIntl();
   const { children } = comment;
 
   const [replyOpen, setReplyOpen] = useState(false);
@@ -31,7 +33,6 @@ function Comment(props) {
         return (
           <Comment
             key={childId}
-            intl={intl}
             comment={child}
             depth={childDepth}
             marketId={marketId}
@@ -67,5 +68,13 @@ function Comment(props) {
     </Paper>
   );
 }
+Comment.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
+  comment: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  commentsHash: PropTypes.object.isRequired,
+  depth: PropTypes.number.isRequired,
+  marketId: PropTypes.string.isRequired,
+};
 
-export default injectIntl(Comment);
+export default Comment;

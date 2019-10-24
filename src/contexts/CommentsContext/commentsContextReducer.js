@@ -40,7 +40,7 @@ function doUpdateComment(state, action) {
   const { id } = commentUpdate;
   const newUpdated = commentUpdate.updated_at || Date(0);
   const oldMarketComments = state[marketId] || [];
-  // first we update the comments theselves
+  // first we update the comments themselves
   const oldComment = oldMarketComments.find((comment) => comment.id === id);
   let newComment = {
     ...commentUpdate,
@@ -59,6 +59,7 @@ function doUpdateComment(state, action) {
     updateList.push(newParent);
   }
   const newMarketComments = _.unionBy(updateList, oldMarketComments, 'id');
+  console.log(newMarketComments);
   const newState = {
     ...state,
     [marketId]: newMarketComments,

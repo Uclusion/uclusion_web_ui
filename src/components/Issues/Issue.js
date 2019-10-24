@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { injectIntl } from 'react-intl';
+
 import { Paper, Button, MuiThemeProvider } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import QuillEditor from '../TextEditors/QuillEditor';
 import CommentAdd from '../Comments/CommentAdd';
 import Comment from '../Comments/Comment';
 import { issueTheme } from '../../config/themes';
+import { REPLY_TYPE } from '../../containers/CommentBox/CommentBox';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -17,10 +19,10 @@ const useStyles = makeStyles((theme) => ({
 
 function Issue(props) {
   const {
-    comment, commentsHash, depth, intl, marketId,
+    comment, commentsHash, depth, marketId,
   } = props;
   const classes = useStyles();
-
+  const intl = useIntl();
   const { children } = comment;
 
   const [replyOpen, setReplyOpen] = useState(false);
@@ -34,7 +36,6 @@ function Issue(props) {
         return (
           <Comment
             key={childId}
-            intl={intl}
             comment={child}
             depth={childDepth}
             marketId={marketId}
@@ -57,29 +58,27 @@ function Issue(props) {
   return (
     <MuiThemeProvider theme={issueTheme}>
       <Paper className={classes.root}>
-        <QuillEditor readOnly value={comment.body} />
+        <QuillEditor marketId={marketId} readOnly value={comment.body} />
         <Button onClick={toggleReply}>
           {intl.formatMessage({ id: 'issueReplyLabel' })}
         </Button>
         <Button onClick={resolve}>
           {intl.formatMessage({ id: 'issueResolveLabel' })}
         </Button>
-        {replyOpen && <CommentAdd marketId={marketId} parent={comment} onSave={toggleReply} />}
+        {replyOpen && <CommentAdd type={REPLY_TYPE} marketId={marketId} parent={comment} onSave={toggleReply} />}
         {getChildComments()}
       </Paper>
     </MuiThemeProvider>
   );
 }
 
-Comment.propTypes = {
+Issue.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   comment: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   commentsHash: PropTypes.object.isRequired,
   depth: PropTypes.number.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  intl: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
 };
 
-export default injectIntl(Issue);
+export default Issue;

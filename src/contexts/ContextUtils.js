@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { preProcessUploadedFiles } from '../api/files';
+import { fixUploadedFileLinks } from '../api/files';
 
 function getOutdatedObjectIds(currentList, oldList) {
   // if we don't have market details we're starting from empty, so everything is needed
@@ -43,7 +43,7 @@ function fixFileLinks(item) {
   const { body, description, uploaded_files } = item;
   // contexts either have a body or a description
   const text = body || description;
-  const newText = preProcessUploadedFiles(uploaded_files, text);
+  const newText = fixUploadedFileLinks(uploaded_files, text);
   if (body) {
     return {
       ...item,

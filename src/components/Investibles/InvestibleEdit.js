@@ -3,17 +3,19 @@ import { injectIntl } from 'react-intl';
 import {
   Button, Card, CardActions, CardContent, TextField, withStyles,
 } from '@material-ui/core';
+import PropTypes from 'prop-types';
 import { updateInvestible } from '../../api/investibles';
 import QuillEditor from '../TextEditors/QuillEditor';
 import { updateInvestibleStage } from '../../api/marketInvestibles';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
 import { getFlags } from '../../utils/userFunctions';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { updateInvestible as localUpdateInvestible } from '../../contexts/InvestibesContext/investiblesContextReducer';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { processTextAndFilesForSave } from '../../api/files';
+
 
 const styles = (theme) => ({
   root: {
@@ -61,8 +63,11 @@ function InvestibleEdit(props) {
   }
 
   function handleSave() {
-    const filteredUploads = filterUploadsUsedInText(uploadedFiles, description);
-    return updateInvestible(marketId, id, name, description, filteredUploads)
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(uploadedFiles, description);
+    return updateInvestible(marketId, id, name, tokensRemoved, filteredUploads)
       .then((data) => {
         investiblesDispatch(localUpdateInvestible({ ...investible, investible: data }));
         onSave();
@@ -136,4 +141,20 @@ function InvestibleEdit(props) {
   );
 }
 
+InvestibleEdit.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
+  intl: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  investible: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  classes: PropTypes.object.isRequired,
+  marketId: PropTypes.string.isRequired,
+  onSave: PropTypes.func,
+  editToggle: PropTypes.func,
+};
+
+InvestibleEdit.defaultProps = {
+  onSave: () => {},
+  editToggle: () => {},
+};
 export default withStyles(styles)(injectIntl(InvestibleEdit));

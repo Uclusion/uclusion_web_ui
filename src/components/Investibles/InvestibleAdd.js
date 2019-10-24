@@ -1,12 +1,14 @@
 import React, { useState, useContext } from 'react';
 import { injectIntl } from 'react-intl';
+import PropTypes from 'prop-types';
 import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@material-ui/core';
 import { addInvestible } from '../../api/investibles';
 import QuillEditor from '../TextEditors/QuillEditor';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { addInvestible as localAddInvestible } from '../../contexts/InvestibesContext/investiblesContextReducer';
+import { processTextAndFilesForSave } from '../../api/files';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     padding: theme.spacing(2),
   },
@@ -24,6 +26,7 @@ function InvestibleAdd(props) {
   const emptyInvestible = { name: '', description: '' };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const [description, setDescription] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = currentValues;
 
   function handleChange(field) {
@@ -38,6 +41,11 @@ function InvestibleAdd(props) {
     setDescription(description);
   }
 
+  function onS3Upload(metadatas) {
+    const newUploads = [...uploadedFiles, ...metadatas];
+    setUploadedFiles(newUploads);
+  }
+
   function zeroCurrentValues() {
     setCurrentValues(emptyInvestible);
     setDescription('');
@@ -49,17 +57,21 @@ function InvestibleAdd(props) {
   }
 
   function handleSave() {
-    return addInvestible(marketId, name, description)
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(uploadedFiles, description);
+    return addInvestible(marketId, name, tokensRemoved, filteredUploads)
       .then((id) => {
         const syntheticInvestible = {
           investible: {
             id,
             name,
-            description,
+            tokensRemoved,
             updated_at: Date(0),
             created_at: Date(0),
           },
-          market_infos: [{ market_id: marketId }]
+          market_infos: [{ market_id: marketId }],
         };
         dispatch(localAddInvestible(syntheticInvestible));
         zeroCurrentValues();
@@ -86,6 +98,7 @@ function InvestibleAdd(props) {
           marketId={marketId}
           onChange={onEditorChange}
           placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
+          onS3Upload={onS3Upload}
           defaultValue={description} />
       </CardContent>
       <CardActions>
@@ -104,5 +117,20 @@ function InvestibleAdd(props) {
 
   );
 }
+
+InvestibleAdd.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
+  intl: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  classes: PropTypes.object.isRequired,
+  marketId: PropTypes.string.isRequired,
+  onSave: PropTypes.func,
+  onCancel: PropTypes.func,
+};
+
+InvestibleAdd.defaultProps = {
+  onSave: () => {},
+  onCancel: () => {},
+};
 
 export default withStyles(styles)(injectIntl(InvestibleAdd));

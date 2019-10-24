@@ -3,14 +3,13 @@ import { injectIntl } from 'react-intl';
 import { Card, Button, CardContent, CardActions } from '@material-ui/core';
 import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
-
 import PropTypes from 'prop-types';
-import { filterUploadsUsedInText } from '../TextEditors/fileUploadFilters';
+
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { addComment } from '../../contexts/CommentsContext/commentsContextHelper';
+import { processTextAndFilesForSave } from '../../api/files';
 
 function CommentAdd(props) {
-
   const { intl, marketId, onSave, onCancel, issue, investible, parent } = props;
   const [, commentsDispatch] = useContext(CommentsContext);
   const [body, setBody] = useState('');
@@ -33,9 +32,12 @@ function CommentAdd(props) {
   function handleSave() {
     const usedParent = parent || {};
     const { investible_id: parentInvestible, id: parentId } = usedParent;
-    const filteredUploads = filterUploadsUsedInText(uploadedFiles, body);
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(uploadedFiles, body);
     const investibleId = (investible) ? investible.id : parentInvestible;
-    return saveComment(marketId, investibleId, parentId, body, issue, filteredUploads)
+    return saveComment(marketId, investibleId, parentId, tokensRemoved, issue, filteredUploads)
       .then((result) => {
         addComment(commentsDispatch, marketId, result);
         onSave();
@@ -47,6 +49,7 @@ function CommentAdd(props) {
     setUploadedFiles([]);
     onCancel();
   }
+
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentAddCancelLabel' : 'commentReplyCancelLabel';
 
@@ -65,7 +68,7 @@ function CommentAdd(props) {
           onS3Upload={handleFileUpload}
           placeholder={placeHolder}
           initialValue={body}
-          onChange={onEditorChange}/>
+          onChange={onEditorChange} />
       </CardContent>
 
     </Card>
@@ -76,10 +79,20 @@ CommentAdd.propTypes = {
   issue: PropTypes.bool,
   marketId: PropTypes.string.isRequired,
   onSave: PropTypes.func.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   intl: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   investible: PropTypes.object,
-  parent: PropTypes.string,
+  // eslint-disable-next-line react/forbid-prop-types
+  parent: PropTypes.object,
   onCancel: PropTypes.func,
+};
+
+CommentAdd.defaultProps = {
+  issue: false,
+  parent: null,
+  investible: null,
+  onCancel: () => {},
 };
 
 export default injectIntl(CommentAdd);

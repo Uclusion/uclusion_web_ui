@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { Button, Card, CardActions, CardContent, TextField, Typography, withStyles } from '@material-ui/core';
 import QuillEditor from '../TextEditors/QuillEditor';
@@ -6,6 +7,7 @@ import ExpirationSelector from './ExpirationSelector';
 import { createMarket } from '../../api/markets';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { addMarket } from '../../contexts/MarketsContext/marketsContextReducer';
+import { processTextAndFilesForSave } from '../../api/files';
 
 const styles = theme => ({
   root: {
@@ -25,6 +27,7 @@ function MarketAdd(props) {
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const [description, setDescription] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes } = currentValues;
   const [, marketsDispatch] = useContext(MarketsContext);
 
@@ -47,12 +50,19 @@ function MarketAdd(props) {
     };
   }
 
+  /** This might not work if the newUploads it sees is always old **/
+  function onS3Upload(metadatas) {
+    const newUploads = [...uploadedFiles, ...metadatas];
+    setUploadedFiles(newUploads);
+  }
+
   function onEditorChange(description) {
     setDescription(description);
   }
 
   function handleSave() {
-    return createMarket(name, description, expiration_minutes)
+    const { uploadedFiles: filteredUploads, text: tokensRemoved } = processTextAndFilesForSave(uploadedFiles, description);
+    return createMarket(name, tokensRemoved, filteredUploads, expiration_minutes)
       .then((result) => {
         const { market_id } = result;
         // result only contains the ID, we need to fill in some other stuff
@@ -93,6 +103,7 @@ function MarketAdd(props) {
         </Typography>
         <ExpirationSelector value={expiration_minutes} className={classes.row} onChange={handleChange('expiration_minutes')} />
         <QuillEditor
+          onS3Upload={onS3Upload}
           onChange={onEditorChange}
           placeHolder={intl.formatMessage({id: 'marketAddDescriptionDefault' })}
           defaultValue={description} />
@@ -112,5 +123,17 @@ function MarketAdd(props) {
     </Card>
   );
 }
+
+MarketAdd.propTypes = {
+  onSave: PropTypes.func,
+  onCancel: PropTypes.func,
+  // eslint-disable-next-line react/forbid-prop-types
+  classes: PropTypes.object,
+};
+
+MarketAdd.defaultProps = {
+  onSave: () => {},
+  onCancel: () => {},
+};
 
 export default withStyles(styles)(MarketAdd);

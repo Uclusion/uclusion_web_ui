@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { Paper, Button, MuiThemeProvider } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -69,5 +70,16 @@ function Issue(props) {
     </MuiThemeProvider>
   );
 }
+
+Comment.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
+  comment: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  commentsHash: PropTypes.object.isRequired,
+  depth: PropTypes.number.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  intl: PropTypes.object.isRequired,
+  marketId: PropTypes.string.isRequired,
+};
 
 export default injectIntl(Issue);

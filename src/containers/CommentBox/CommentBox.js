@@ -44,10 +44,14 @@ function CommentBox(props) {
 }
 
 CommentBox.propTypes = {
-  issueBox: PropTypes.bool,
+  // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   commentsHash: PropTypes.object.isRequired,
-  marketId: PropTypes.string,
+  marketId: PropTypes.string.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  investible: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   intl: PropTypes.object.isRequired,
 };
 

@@ -55,6 +55,46 @@ export function getS3FileUrl(metadata) {
   });
 }
 
+/**
+ * Helper function to determine which of the uploaded files are used in the text body,
+ * and to strip out components of the upload that the backend won't accept
+ * @param uploadedFiles a data structure with at least a { path } component
+ * @param text the body of the context
+ * @return a filtered list of file uploads
+ */
+function filterUploadsUsedInText(uploadedFiles, text) {
+  console.debug(uploadedFiles);
+  const used = uploadedFiles.filter((file) => {
+    console.debug(file);
+    const { path } = file;
+    console.debug(path);
+    console.debug(text);
+    return text.includes(path);
+  });
+  console.debug(used);
+  return used.map((element) => {
+    const { path, content_type, content_length } = element;
+    return { path, content_type, content_length };
+  });
+}
+
+function removeUploadedFileTokens(text) {
+  const ourBaseURL = config.file_download_configuration.baseURL;
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = text;
+  const imageTags = tempDiv.getElementsByTagName('img');
+  for (let x = 0; x < imageTags.length; x += 1) {
+    const img = imageTags[x];
+    const { src } = img;
+    if (src.startsWith(ourBaseURL)) {
+      const url = new URL(src);
+      url.searchParams.delete('authorization');
+      img.setAttribute('src', url.toString());
+    }
+  }
+  return tempDiv.innerHTML;
+}
+
 /** Processes the body of the text, and replaces any authorization tokens
  * in image sources with the latest tokens we have. Note, this function will
  * NOT refresh the file tokens, so you might get broken images
@@ -62,7 +102,7 @@ export function getS3FileUrl(metadata) {
  * @param text
  * @return {Promise<unknown>|Promise<string>}
  */
-export function preProcessUploadedFiles(uploadedFiles, text) {
+export function fixUploadedFileLinks(uploadedFiles, text) {
   if (!uploadedFiles) {
     console.debug('No uploaded files');
     return text;
@@ -70,20 +110,33 @@ export function preProcessUploadedFiles(uploadedFiles, text) {
   // create temp doc element to allow us to extract the images
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = text;
-  const imageTags = tempDiv.getAllElementsbyTagName('img');
+  const imageTags = tempDiv.getElementsByTagName('img');
   uploadedFiles.forEach((file) => {
     const { path, uclusion_token } = file;
     updateFileToken(path, uclusion_token);
     // now replace the link in the text with the new token
-    imageTags.forEach((img) => {
+    for (let x = 0; x < imageTags.length; x += 1) {
+      const img = imageTags[x];
       const token = getStoredFileToken(path);
       const url = new URL(img.src);
       if (url.pathname === path) {
         url.searchParams.set('authorization', token);
         img.setAttribute('src', url.toString());
       }
-    });
+    }
   });
   return tempDiv.innerHTML;
+}
 
+/**
+ * Does all manipulations necessary to make the uploaded files
+ * and text safe for saving to the backend
+ * @param uploadedFiles
+ * @param text
+ * @return {{uploadedFiles: *, text: undefined}}
+ */
+export function processTextAndFilesForSave(uploadedFiles, text) {
+  const newUploaded = filterUploadsUsedInText(uploadedFiles, text);
+  const newText = removeUploadedFileTokens(text);
+  return { uploadedFiles: newUploaded, text: newText };
 }

@@ -71,7 +71,6 @@ function filterUploadsUsedInText(uploadedFiles, text) {
     console.debug(text);
     return text.includes(path);
   });
-  console.debug(used);
   return used.map((element) => {
     const { path, content_type, content_length } = element;
     return { path, content_type, content_length };

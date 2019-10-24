@@ -14,13 +14,13 @@ export function fetchComments(idList, marketId) {
   return clientPromise.then(client => client.investibles.getMarketComments(idList));
 }
 
-export function fetchCommentList(marketId) {
+export function   fetchCommentList(marketId) {
   const clientPromise = getMarketClient(marketId);
   console.debug(`Fetching comments list for: ${marketId}`);
   return clientPromise.then(client => client.investibles.listCommentsByMarket());
 }
 
-export function saveComment(marketId, investibleId, replyId, body, isIssue, uploadedFiles) {
+export function saveComment(marketId, investibleId, replyId, body, commentType, uploadedFiles) {
   return getMarketClient(marketId)
-    .then(client => client.investibles.createComment(investibleId, body, replyId, false, isIssue, uploadedFiles));
+    .then(client => client.investibles.createComment(investibleId, body, replyId, commentType, uploadedFiles));
 }

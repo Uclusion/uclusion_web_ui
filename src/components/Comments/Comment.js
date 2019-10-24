@@ -4,6 +4,7 @@ import { Paper, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import QuillEditor from '../TextEditors/QuillEditor';
 import CommentAdd from './CommentAdd';
+import { REPLY_TYPE } from '../../containers/CommentBox/CommentBox';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -59,6 +60,7 @@ function Comment(props) {
         parent={comment}
         onSave={toggleReply}
         onCancel={toggleReply}
+        type={REPLY_TYPE}
       />
       )}
       {getChildComments()}

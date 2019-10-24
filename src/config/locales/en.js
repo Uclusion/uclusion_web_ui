@@ -131,8 +131,7 @@ const messages = defineMessages({
   expirationSelectorOneDay: '1 day',
   expirationSelectorXDays: '{x} days',
 
- // Market View
-  marketViewAddIssueLabel: 'Add an Issue',
+
 
   // Market Add
   marketAddTitleDefault: 'Add a name...',
@@ -185,13 +184,16 @@ const messages = defineMessages({
 
   // CommentAdd
   commentAddIssueDefault: 'Your issue...',
-  commentAddDefault: 'Your comment...',
+  commentAddQuestionDefault: 'Your question...',
+  commentAddSuggestDefault: 'Your suggested change...',
+  commentAddReplyDefault: 'Your reply...',
   commentAddSaveLabel: 'Save',
   commentAddCancelLabel: 'Cancel',
 
   // CommentBox
-  commentBoxAddIssue: 'Add Issue',
-  commentBoxAddComment: 'Add Comment',
+  commentBoxRaiseIssueLabel: 'Raise Issue',
+  commentBoxAskQuestionLabel: 'Ask Question',
+  commentBoxSuggestChangesLabel: 'Suggest Changes',
 
   // Comments
   commentReplyDefault: 'Your reply...',

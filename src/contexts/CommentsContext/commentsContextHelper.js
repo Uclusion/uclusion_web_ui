@@ -8,7 +8,8 @@ import { updateMarketComment, updateMarketComments } from './commentsContextRedu
 
 export function addComment(dispatch, marketId, comment) {
   const converted = convertDates(comment);
-  return dispatch(updateMarketComment(marketId, converted));
+  const tokensAdded = fixFileLinks(converted);
+  return dispatch(updateMarketComment(marketId, tokensAdded));
 }
 
 /**

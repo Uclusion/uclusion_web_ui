@@ -4,19 +4,34 @@ import { Card, Button, CardContent, CardActions } from '@material-ui/core';
 import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
 import PropTypes from 'prop-types';
-
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPLY_TYPE } from '../../containers/CommentBox/CommentBox';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { addComment } from '../../contexts/CommentsContext/commentsContextHelper';
 import { processTextAndFilesForSave } from '../../api/files';
 
+function getPlaceHolderLabelId(type) {
+  switch (type) {
+    case QUESTION_TYPE:
+      return 'commentAddQuestionDefault';
+    case SUGGEST_CHANGE_TYPE:
+      return 'commentAddSuggestDefault';
+    case ISSUE_TYPE:
+      return 'commentAddIssueDefault';
+    case REPLY_TYPE:
+      return 'commentAddReplyDefault';
+    default:
+      throw new Error(`Unknown comment type:${type}`);
+  }
+}
+
 function CommentAdd(props) {
-  const { intl, marketId, onSave, onCancel, issue, investible, parent } = props;
+  const { intl, marketId, onSave, onCancel, type, investible, parent } = props;
   const [, commentsDispatch] = useContext(CommentsContext);
   const [body, setBody] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
-  const placeHolderLabel = (issue) ? 'commentAddIssueDefault' : 'commentAddDefault';
-  const placeHolder = intl.formatMessage({ id: placeHolderLabel });
+  const placeHolderLabelId = getPlaceHolderLabelId(type);
+  const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
 
   function onEditorChange(content) {
     setBody(content);
@@ -36,8 +51,10 @@ function CommentAdd(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(uploadedFiles, body);
+    // the API does _not_ want you to send reply type, so suppress if our type is reply
+    const apiType = (type === REPLY_TYPE) ? undefined : type;
     const investibleId = (investible) ? investible.id : parentInvestible;
-    return saveComment(marketId, investibleId, parentId, tokensRemoved, issue, filteredUploads)
+    return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((result) => {
         addComment(commentsDispatch, marketId, result);
         onSave();
@@ -76,7 +93,7 @@ function CommentAdd(props) {
 }
 
 CommentAdd.propTypes = {
-  issue: PropTypes.bool,
+  type: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
   onSave: PropTypes.func.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
@@ -89,7 +106,6 @@ CommentAdd.propTypes = {
 };
 
 CommentAdd.defaultProps = {
-  issue: false,
   parent: null,
   investible: null,
   onCancel: () => {},

@@ -111,7 +111,7 @@ export function fixUploadedFileLinks(text) {
       const { pathname } = url;
       if (pathname.length > 0) {
         const path = pathname.startsWith('/') ? pathname.substr(1, pathname.length) : pathname;
-        console.log(path);
+        console.debug(path);
         const token = getStoredFileToken(path);
         if (token) {
           url.searchParams.set('authorization', token);
@@ -120,7 +120,6 @@ export function fixUploadedFileLinks(text) {
       }
     }
   }
-  console.log(tempDiv.innerHTML);
   return tempDiv.innerHTML;
 }
 

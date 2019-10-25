@@ -57,9 +57,8 @@ function InvestibleEdit(props) {
     setDescription(description);
   }
 
-  function handleFileUpload(metadata) {
-    const newUploadedFiles = [...uploadedFiles, metadata];
-    setUploadedFiles(newUploadedFiles);
+  function handleFileUpload(metadatas) {
+    setUploadedFiles(metadatas);
   }
 
   function handleSave() {

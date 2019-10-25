@@ -60,9 +60,7 @@ function MarketEdit(props) {
   }
 
   function onS3Upload(metadatas) {
-    console.debug('Firing S3 upload');
-    const newUploadedFiles = [...uploadedFiles, ...metadatas];
-    setUploadedFiles(newUploadedFiles);
+    setUploadedFiles(metadatas);
   }
 
   return (

@@ -63,12 +63,8 @@ export function getS3FileUrl(metadata) {
  * @return a filtered list of file uploads
  */
 function filterUploadsUsedInText(uploadedFiles, text) {
-  console.debug(uploadedFiles);
   const used = uploadedFiles.filter((file) => {
-    console.debug(file);
     const { path } = file;
-    console.debug(path);
-    console.debug(text);
     return text.includes(path);
   });
   return used.map((element) => {
@@ -101,29 +97,30 @@ function removeUploadedFileTokens(text) {
  * @param text
  * @return {Promise<unknown>|Promise<string>}
  */
-export function fixUploadedFileLinks(uploadedFiles, text) {
-  if (!uploadedFiles) {
-    console.debug('No uploaded files');
-    return text;
-  }
+export function fixUploadedFileLinks(text) {
+  const ourBaseURL = config.file_download_configuration.baseURL;
   // create temp doc element to allow us to extract the images
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = text;
   const imageTags = tempDiv.getElementsByTagName('img');
-  uploadedFiles.forEach((file) => {
-    const { path, uclusion_token } = file;
-    updateFileToken(path, uclusion_token);
-    // now replace the link in the text with the new token
-    for (let x = 0; x < imageTags.length; x += 1) {
-      const img = imageTags[x];
-      const token = getStoredFileToken(path);
+  for (let x = 0; x < imageTags.length; x += 1) {
+    const img = imageTags[x];
+    const { src } = img;
+    if (src.startsWith(ourBaseURL)) {
       const url = new URL(img.src);
-      if (url.pathname === path) {
-        url.searchParams.set('authorization', token);
-        img.setAttribute('src', url.toString());
+      const { pathname } = url;
+      if (pathname.length > 0) {
+        const path = pathname.startsWith('/') ? pathname.substr(1, pathname.length) : pathname;
+        console.log(path);
+        const token = getStoredFileToken(path);
+        if (token) {
+          url.searchParams.set('authorization', token);
+          img.setAttribute('src', url.toString());
+        }
       }
     }
-  });
+  }
+  console.log(tempDiv.innerHTML);
   return tempDiv.innerHTML;
 }
 

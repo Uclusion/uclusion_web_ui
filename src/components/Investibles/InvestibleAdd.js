@@ -42,8 +42,7 @@ function InvestibleAdd(props) {
   }
 
   function onS3Upload(metadatas) {
-    const newUploads = [...uploadedFiles, ...metadatas];
-    setUploadedFiles(newUploads);
+    setUploadedFiles(metadatas);
   }
 
   function zeroCurrentValues() {

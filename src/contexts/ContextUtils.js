@@ -40,10 +40,10 @@ function convertDates(item) {
 }
 
 function fixFileLinks(item) {
-  const { body, description, uploaded_files } = item;
+  const { body, description} = item;
   // contexts either have a body or a description
   const text = body || description;
-  const newText = fixUploadedFileLinks(uploaded_files, text);
+  const newText = fixUploadedFileLinks(text);
   if (body) {
     return {
       ...item,

@@ -19,8 +19,9 @@ class QuillEditor extends React.PureComponent {
 
   constructor(props){
     super(props);
+    this.state = { uploads: [] };
     this.editorRef = React.createRef();
-    const { marketId, onS3Upload, readOnly, placeholder } = props;
+    const { marketId, readOnly, placeholder } = props;
     const defaultModules = {
       toolbar: [
         [{ font: [] }],
@@ -37,7 +38,7 @@ class QuillEditor extends React.PureComponent {
       },
       s3Upload: {
         marketId,
-        onS3Upload,
+        onS3Upload: this.statefulUpload.bind(this),
       },
     };
     this.modules = { ...defaultModules };
@@ -65,6 +66,16 @@ class QuillEditor extends React.PureComponent {
       onChange(contents, delta);
     }, 50);
     this.editor.on('text-change', debouncedOnChange);
+  }
+
+  statefulUpload(metadatas) {
+    const { uploads } = this.state;
+    const newUploads = [...uploads, ...metadatas];
+    this.setState({uploads: newUploads});
+    const { onS3Upload } = this.props;
+    if (onS3Upload) {
+      onS3Upload(newUploads);
+    }
   }
 
   render() {

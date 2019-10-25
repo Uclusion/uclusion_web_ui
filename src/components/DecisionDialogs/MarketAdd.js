@@ -52,8 +52,7 @@ function MarketAdd(props) {
 
   /** This might not work if the newUploads it sees is always old **/
   function onS3Upload(metadatas) {
-    const newUploads = [...uploadedFiles, ...metadatas];
-    setUploadedFiles(newUploads);
+    setUploadedFiles(metadatas);
   }
 
   function onEditorChange(description) {

@@ -38,10 +38,8 @@ function CommentAdd(props) {
   }
 
   function handleFileUpload(metadatas) {
-    console.debug(metadatas);
-    const newUploadedFiles = [...uploadedFiles, ...metadatas];
-    console.debug(newUploadedFiles);
-    setUploadedFiles(newUploadedFiles);
+    setUploadedFiles(metadatas);
+    console.log(metadatas);
   }
 
   function handleSave() {

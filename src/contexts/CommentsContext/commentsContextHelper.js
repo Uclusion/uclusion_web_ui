@@ -27,7 +27,7 @@ export function updateComment(dispatch, commentId, marketId, body) {
 }
 
 export function getMarketComments(state, marketId) {
-  return state[marketId];
+  return state[marketId] || [];
 }
 
 export function refreshMarketComments(dispatch, marketId) {

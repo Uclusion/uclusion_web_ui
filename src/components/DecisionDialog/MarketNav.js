@@ -14,6 +14,7 @@ import Market from './Market';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInvestibles} from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 
 function createCommentsHash(commentsArray){
   return _.keyBy(commentsArray, 'id');
@@ -32,7 +33,7 @@ function MarketNav(props) {
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const investibles = getMarketInvestibles(investiblesState, marketId);
-  const marketComments = commentsState[marketId] || [];
+  const marketComments = getMarketComments(commentsState, marketId);
   const marketTargetedComments = marketComments.filter((comment) => !comment.investible_id);
   const commentsHash = createCommentsHash(marketComments);
   const [previousTab, setPreviousTab] = useState();

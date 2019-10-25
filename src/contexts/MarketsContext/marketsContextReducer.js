@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import LocalForageHelper from '../LocalForageHelper';
-import { convertDates } from '../ContextUtils';
 import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext';
+import { fixupItemForStorage } from '../ContextUtils';
 
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
@@ -126,7 +126,7 @@ function doUpdateAllMarketDetails(state, action) {
 function doUpdateSingleMarketDetails(state, action) {
   const { marketDetails } = action;
   const { marketDetails: oldMarketDetails } = state;
-  const convertedMarket = convertDates(marketDetails);
+  const convertedMarket = fixupItemForStorage(marketDetails);
   const newDetails = _.unionBy([convertedMarket], oldMarketDetails, 'id');
   return {
     ...state,

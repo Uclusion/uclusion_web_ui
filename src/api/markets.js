@@ -1,10 +1,11 @@
 import { getAccountClient, getMarketClient } from './uclusionClient';
-import { convertDates } from '../contexts/ContextUtils';
+import { fixupItemForStorage } from '../contexts/ContextUtils';
+
 
 export function getMarketDetails(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.markets.get()
-      .then((market) => convertDates(market))
+      .then((market) => fixupItemForStorage(market))
       .then((market) => client.users.get()
         .then((user) => ({
           ...market,
@@ -25,7 +26,7 @@ export function createMarket(name, description, uploadedFiles, expirationMinutes
     name,
     description,
     expiration_minutes: expirationMinutes,
-    uploadedFiles,
+    uploaded_files: uploadedFiles,
   };
   return getAccountClient()
     .then((client) => client.markets.createMarket(addPackage));

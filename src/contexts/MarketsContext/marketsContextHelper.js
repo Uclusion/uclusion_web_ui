@@ -1,6 +1,10 @@
 import _ from 'lodash';
 import { getMarketList } from '../../api/sso';
-import { convertDates, getOutdatedObjectIds, removeDeletedObjects } from '../ContextUtils';
+import {
+  fixupItemsForStorage,
+  getOutdatedObjectIds,
+  removeDeletedObjects
+} from '../ContextUtils';
 import { initializeState, updateAllMarketDetails, updateMarketsList } from './marketsContextReducer';
 import { getMarketDetails } from '../../api/markets';
 import { EMPTY_STATE, MARKET_CONTEXT_NAMESPACE } from './MarketsContext';
@@ -40,8 +44,8 @@ export function refreshMarkets(dispatch) {
         return Promise.all(promises)
           .then((markets) => {
             //  console.debug('Got new details');
-            const dateConverted = markets.map((market) => convertDates(market));
-            const newDetails = _.unionBy(dateConverted, filteredDetails, 'id');
+            const fixedUp = fixupItemsForStorage(markets);
+            const newDetails = _.unionBy(fixedUp, filteredDetails, 'id');
             console.log(newDetails);
             dispatch(updateAllMarketDetails(newDetails));
           });

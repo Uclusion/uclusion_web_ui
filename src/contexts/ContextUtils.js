@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { fixUploadedFileLinks } from '../api/files';
+import { updateFileToken } from '../authorization/tokenStorageUtils';
 
 function getOutdatedObjectIds(currentList, oldList) {
   // if we don't have market details we're starting from empty, so everything is needed
@@ -40,7 +41,7 @@ function convertDates(item) {
 }
 
 function fixFileLinks(item) {
-  const { body, description} = item;
+  const { body, description } = item;
   // contexts either have a body or a description
   const text = body || description;
   const newText = fixUploadedFileLinks(text);
@@ -56,4 +57,32 @@ function fixFileLinks(item) {
   };
 }
 
-export { getOutdatedObjectIds, removeDeletedObjects, convertDates, fixFileLinks };
+/**
+ * Items from the backend are not quite ready to be displayed on the front end
+ * this function performs all manipulations required to format an item
+ * from the backend for use on the frontend.
+ * @param item
+ */
+function fixupItemForStorage(item) {
+  const dateConverted = convertDates(item);
+  if (item.uploaded_files) {
+    item.uploaded_files.forEach((uploadedFile) => {
+      const { uclusion_token, path } = uploadedFile;
+      updateFileToken(path, uclusion_token);
+    });
+    const fixed = fixFileLinks(dateConverted);
+    return fixed;
+  }
+  return dateConverted;
+}
+
+
+/**
+ * Convenience version of fixupItemForStorage that takes an array
+ * @param items
+ */
+function fixupItemsForStorage(items) {
+  return items.map((item) => fixupItemForStorage(item));
+}
+
+export { getOutdatedObjectIds, removeDeletedObjects, fixupItemsForStorage, fixupItemForStorage };

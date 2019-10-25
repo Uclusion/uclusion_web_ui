@@ -1,5 +1,9 @@
 import { fetchCommentList, fetchComments } from '../../api/comments';
-import { convertDates, fixFileLinks, getOutdatedObjectIds, removeDeletedObjects } from '../ContextUtils';
+import {
+  fixupItemForStorage, fixupItemsForStorage,
+  getOutdatedObjectIds,
+  removeDeletedObjects
+} from '../ContextUtils';
 import _ from 'lodash';
 import LocalForageHelper from '../LocalForageHelper';
 import { COMMENTS_CONTEXT_NAMESPACE, EMPTY_STATE } from './CommentsContext';
@@ -7,9 +11,8 @@ import { updateMarketComment, updateMarketComments } from './commentsContextRedu
 
 
 export function addComment(dispatch, marketId, comment) {
-  const converted = convertDates(comment);
-  const tokensAdded = fixFileLinks(converted);
-  return dispatch(updateMarketComment(marketId, tokensAdded));
+  const fixed = fixupItemForStorage(comment);
+  return dispatch(updateMarketComment(marketId, fixed));
 }
 
 /**
@@ -50,9 +53,8 @@ export function refreshMarketComments(dispatch, marketId) {
           return Promise.all(promises)
             .then((commentChunks) => {
               const flattenedComments = _.flatten(commentChunks);
-              const dateConverted = flattenedComments.map((comment) => convertDates(comment));
-              const linksFixed = dateConverted.map((comment) => fixFileLinks(comment));
-              const newMarketComments = _.unionBy(linksFixed, deletedRemoved, 'id');
+              const fixedUp = fixupItemsForStorage(flattenedComments);
+              const newMarketComments = _.unionBy(fixedUp, deletedRemoved, 'id');
               dispatch(updateMarketComments(marketId, newMarketComments));
             });
         });

@@ -29,7 +29,7 @@ export function addInvestible(investible) {
   };
 }
 
-export function updateInvestibles(investibles) {
+export function updateStorableInvestibles(investibles) {
   return {
     type: UPDATE_INVESTIBLES,
     investibles,
@@ -48,7 +48,8 @@ function doStoreInvestible(state, action) {
   };
   return newState;
 }
-
+// expects that the investibles are already in a storable state
+// since it acce
 function doUpdateInvestibles(state, action) {
   const { investibles: updateHash } = action;
   console.log(updateHash);

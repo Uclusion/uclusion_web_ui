@@ -66,7 +66,7 @@ function InvestibleAdd(props) {
           investible: {
             id,
             name,
-            tokensRemoved,
+            description, // since this is local, we want to keep the links
             updated_at: Date(0),
             created_at: Date(0),
           },

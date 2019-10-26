@@ -62,10 +62,13 @@ function InvestibleEdit(props) {
   }
 
   function handleSave() {
+    // uploaded files on edit is the union of the new uploaded files and the old uploaded files
+    const oldInvestibleUploadedFiles = investible.uploaded_files || [];
+    const newUploadedFiles = [...uploadedFiles, ...oldInvestibleUploadedFiles];
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(uploadedFiles, description);
+    } = processTextAndFilesForSave(newUploadedFiles, description);
     return updateInvestible(marketId, id, name, tokensRemoved, filteredUploads)
       .then((data) => {
         investiblesDispatch(localUpdateInvestible({ ...investible, investible: data }));

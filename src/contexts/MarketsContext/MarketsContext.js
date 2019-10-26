@@ -3,6 +3,7 @@ import beginListening from './marketsContextMessages';
 import reducer, { initializeState } from './marketsContextReducer';
 import LocalForageHelper from '../LocalForageHelper';
 import { refreshMarkets } from './marketsContextHelper';
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
 
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
 const EMPTY_STATE = {
@@ -15,8 +16,12 @@ const MarketsContext = React.createContext(EMPTY_STATE);
 function MarketsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [isInitialization, setIsInitialization] = useState(true);
+  // we dump our local data frequently. In that case we'll also want to re-initialize
+  // it's most important to do it here, since this context
+  // reloads it's data from api after loading from disk
+  const haveLocalData = getUclusionLocalStorageItem(MARKET_CONTEXT_NAMESPACE);
   useEffect(() => {
-    if (isInitialization) {
+    if (isInitialization || !haveLocalData) {
       console.debug('Loading state from disk');
       // load state from storage
       const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
@@ -34,11 +39,11 @@ function MarketsProvider(props) {
         });
       beginListening(dispatch);
       setIsInitialization(false);
-
+      setUclusionLocalStorageItem(MARKET_CONTEXT_NAMESPACE, true);
     }
     return () => {
     };
-  }, [isInitialization, state]);
+  }, [isInitialization, state, haveLocalData]);
 
 
   console.debug('Market context being rerendered');

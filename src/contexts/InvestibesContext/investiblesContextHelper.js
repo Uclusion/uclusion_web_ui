@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { fetchInvestibleList, fetchInvestibles } from '../../api/marketInvestibles';
-import { updateInvestibles } from './investiblesContextReducer';
-import { fixupItemsForStorage } from '../ContextUtils';
+import { updateStorableInvestibles } from './investiblesContextReducer';
+import { fixupItemForStorage } from '../ContextUtils';
 
 export function getMarketInvestibles(state, marketId) {
   const values = Object.values(state);
@@ -15,6 +15,7 @@ export function getMarketInvestibles(state, marketId) {
   return found;
 }
 
+
 export function refreshInvestibles(dispatch, marketId) {
   return fetchInvestibleList(marketId)
     .then((investibleList) => {
@@ -26,9 +27,13 @@ export function refreshInvestibles(dispatch, marketId) {
       return fetchInvestibles(idList, marketId);
     }).then((investibles) => {
       console.debug(investibles);
-      const fixed = fixupItemsForStorage(investibles);
+      const fixed = investibles.map((item) => {
+        const { investible, market_infos } = item;
+        const fixedInvestible = fixupItemForStorage(investible);
+        return { investible: fixedInvestible, market_infos };
+      });
       const investibleHash = _.keyBy(fixed, (item) => item.investible.id);
       console.debug(investibleHash);
-      dispatch(updateInvestibles(investibleHash));
+      dispatch(updateStorableInvestibles(investibleHash));
     });
 }

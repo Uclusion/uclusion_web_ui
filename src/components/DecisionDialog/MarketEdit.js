@@ -32,8 +32,7 @@ function MarketEdit(props) {
 
   const [, marketsDispatch] = useContext(MarketsContext);
   const [mutableMarket, setMutableMarket] = useState(market);
-  const initialUploadedFiles = market.uploaded_files || [];
-  const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, description } = mutableMarket;
 
   function handleChange(name) {
@@ -45,10 +44,13 @@ function MarketEdit(props) {
 
   function handleSave() {
     console.debug(uploadedFiles);
+    // the set of files for the market is all the old files, plus our new ones
+    const oldMarketUploadedFiles = market.uploaded_files || [];
+    const newUploadedFiles = [...uploadedFiles, ...oldMarketUploadedFiles];
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(uploadedFiles, description);
+    } = processTextAndFilesForSave(newUploadedFiles, description);
     return updateMarket(id, name, tokensRemoved, filteredUploads)
       .then(() => marketsDispatch(localUpdateMarket(market)))
       .then(() => editToggle());

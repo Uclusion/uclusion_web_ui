@@ -63,7 +63,7 @@ function InvestibleEdit(props) {
 
   function handleSave() {
     // uploaded files on edit is the union of the new uploaded files and the old uploaded files
-    const oldInvestibleUploadedFiles = investible.uploaded_files || [];
+    const oldInvestibleUploadedFiles = myInvestible.uploaded_files || [];
     const newUploadedFiles = [...uploadedFiles, ...oldInvestibleUploadedFiles];
     const {
       uploadedFiles: filteredUploads,

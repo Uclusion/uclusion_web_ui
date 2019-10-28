@@ -21,13 +21,16 @@ export function updateMarket(marketId, name, description, uploaded_files) {
     .then((client) => client.markets.updateMarket(updateOptions));
 }
 
-export function createMarket(name, description, uploadedFiles, expirationMinutes) {
+export function createMarket(name, description, uploadedFiles, marketType, expirationMinutes) {
   const addPackage = {
     name,
     description,
-    expiration_minutes: expirationMinutes,
+    market_type: marketType,
     uploaded_files: uploadedFiles,
   };
+  if (expirationMinutes) {
+    addPackage.expiration_minutes = expirationMinutes;
+  }
   return getAccountClient()
     .then((client) => client.markets.createMarket(addPackage));
 }

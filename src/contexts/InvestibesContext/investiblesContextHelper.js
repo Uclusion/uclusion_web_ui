@@ -26,6 +26,9 @@ export function refreshInvestibles(dispatch, marketId) {
       const idList = investibleList.map((investible) => investible.id);
       return fetchInvestibles(idList, marketId);
     }).then((investibles) => {
+      if (_.isEmpty(investibles)) {
+        return Promise.resolve([]);
+      }
       console.debug(investibles);
       const fixed = investibles.map((item) => {
         const { investible, market_infos } = item;

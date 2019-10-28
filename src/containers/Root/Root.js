@@ -48,12 +48,13 @@ function Root(props) {
   const { pathname, hash } = location;
   console.log(`pathname is ${pathname}`);
   const marketId = getMarketId(pathname);
+  const marketType = pathname === '/newplan' ? 'PLANNING' : 'DECISION';
   const theme = defaultTheme;
   function hideNotifications() {
     return pathname !== '/notifications';
   }
   function hideMarkets() {
-    return pathname && (pathname !== '/') && (pathname !== '/dialogs');
+    return pathname && (pathname !== '/') && (pathname !== '/dialogs') && (pathname !== '/newplan');
   }
   function hideAbout() {
     if (!pathname) {
@@ -129,7 +130,7 @@ function Root(props) {
           {!isInvite() && (<Drawer appConfig={appConfig} />)}
           <div className={isInvite() ? classes.hide : classes.content}>
             <Notifications hidden={hideNotifications()} />
-            <Markets hidden={hideMarkets()} />
+            <Markets hidden={hideMarkets()} marketType={marketType} />
             <Market hidden={hideMarket()} />
             <About hidden={hideAbout()} />
             <PageNotFound hidden={!(hideNotifications() && hideMarkets() && hideMarket()

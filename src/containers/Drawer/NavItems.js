@@ -5,6 +5,7 @@ import ForumIcon from '@material-ui/icons/Forum';
 import AnnouncementIcon from '@material-ui/icons/Announcement';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import LockIcon from '@material-ui/icons/Lock';
+import { LibraryAdd } from '@material-ui/icons';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router';
@@ -40,6 +41,12 @@ function NavItems(props) {
       icon: <DescriptionOutlinedIcon />,
       name: 'about',
       link: '/about',
+    },
+    {
+      text: intl.formatMessage({ id: 'sidebarNewPlanning' }),
+      icon: <LibraryAdd />,
+      name: 'plan',
+      link: '/newplan',
     },
     {
       text: intl.formatMessage({ id: 'sideBarNavTempSignout' }),

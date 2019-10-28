@@ -10,10 +10,11 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
 
 function Markets(props) {
-  const { intl, hidden } = props;
+  const { intl, hidden, marketType } = props;
   const [marketsState] = useContext(MarketsContext);
   const marketDetails = getAllMarketDetails(marketsState);
   const [addMode, setAddMode] = useState(false);
+  const sharedAddMode = marketType === 'PLANNING' ? true : addMode;
   const loading = false; // TODO FIX
   function toggleAdd() {
     setAddMode(!addMode);
@@ -23,16 +24,23 @@ function Markets(props) {
     toggleAdd();
   }
   console.debug(`Dialogs page being rerendered ${loading}`);
+  const titleId = marketType === 'PLANNING' ? 'sidebarNewPlanning': 'sidebarNavDialogs';
   return (
     <Activity
-      title={intl.formatMessage({ id: 'sidebarNavDialogs' })}
+      title={intl.formatMessage({ id: titleId })}
       isLoading={loading}
-      titleButtons={<IconButton onClick={toggleAdd}><AddIcon /></IconButton>}
+      titleButtons={!sharedAddMode && <IconButton onClick={toggleAdd}><AddIcon /></IconButton>}
       hidden={hidden}
     >
       <div>
-      {!addMode && <MarketsList markets={marketDetails} /> }
-      {addMode && <MarketAdd onCancel={toggleAdd} onSave={onMarketSave} />}
+        {!sharedAddMode && <MarketsList markets={marketDetails} /> }
+        {sharedAddMode && (
+        <MarketAdd
+          onCancel={toggleAdd}
+          onSave={onMarketSave}
+          marketType={marketType}
+        />
+        )}
       </div>
     </Activity>
   );

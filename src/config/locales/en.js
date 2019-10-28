@@ -122,16 +122,13 @@ const messages = defineMessages({
   sidebarNavTemplates: 'Templates',
   sidebarNavNotifications: 'Action Center',
   sideBarNavTempSignout: 'Signout(Temp)',
-
-
+  sidebarNewPlanning: 'Create New Plan',
 
   loadingMessage: 'Loading',
 
   // ExpirationSelector
   expirationSelectorOneDay: '1 day',
   expirationSelectorXDays: '{x} days',
-
-
 
   // Market Add
   marketAddTitleDefault: 'Add a name...',

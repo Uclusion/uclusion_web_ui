@@ -65,7 +65,7 @@ function MarketAdd(props) {
 
   function handleSave() {
     const { uploadedFiles: filteredUploads, text: tokensRemoved } = processTextAndFilesForSave(uploadedFiles, description);
-    return createMarket(name, tokensRemoved, filteredUploads, expiration_minutes)
+    return createMarket(name, tokensRemoved, filteredUploads, marketType, expiration_minutes)
       .then((result) => {
         const { market_id } = result;
         // result only contains the ID, we need to fill in some other stuff

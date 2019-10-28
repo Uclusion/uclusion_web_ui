@@ -20,6 +20,13 @@ export function getMyUserForMarket(state, marketId) {
   return undefined;
 }
 
+export function getMarketDetailsForType(state, marketType = 'DECISION') {
+  if (state.marketDetails) {
+    return state.marketDetails.filter((market) => market.market_type === marketType);
+  }
+  return null;
+}
+
 export function getAllMarketDetails(state) {
   return state.marketDetails;
 }

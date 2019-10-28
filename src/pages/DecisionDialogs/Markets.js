@@ -7,12 +7,12 @@ import MarketsList from '../../components/DecisionDialogs/MarketsList';
 import Activity from '../../containers/Activity';
 import MarketAdd from '../../components/DecisionDialogs/MarketAdd';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
+import { getMarketDetailsForType } from '../../contexts/MarketsContext/marketsContextHelper';
 
 function Markets(props) {
   const { intl, hidden, marketType } = props;
   const [marketsState] = useContext(MarketsContext);
-  const marketDetails = getAllMarketDetails(marketsState);
+  const marketDetails = getMarketDetailsForType(marketsState);
   const [addMode, setAddMode] = useState(false);
   const sharedAddMode = marketType === 'PLANNING' ? true : addMode;
   const loading = false; // TODO FIX

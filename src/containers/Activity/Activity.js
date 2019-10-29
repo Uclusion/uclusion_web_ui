@@ -136,7 +136,6 @@ function Activity(props) {
     pageTitle,
     width,
     appBarContent,
-    isLoading,
     onBackClick,
     titleButtons,
     containerStyle,
@@ -179,7 +178,6 @@ function Activity(props) {
         color='default'
       >
         <Toolbar disableGutters>
-          <LinearProgress/>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -207,7 +205,6 @@ function Activity(props) {
         </Toolbar>
       </AppBar>
       <div className={classes.toolbar}/>
-      {isLoading && <LinearProgress/>}
       {offline && (
         <Typography
           variant="caption"
@@ -234,7 +231,6 @@ Activity.propTypes = {
   pageTitle: PropTypes.string,
   width: PropTypes.string.isRequired,
   appBarContent: PropTypes.object,
-  isLoading: PropTypes.bool,
   onBackClick: PropTypes.object,
   containerStyle: PropTypes.object,
 };

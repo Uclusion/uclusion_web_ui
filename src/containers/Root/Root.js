@@ -113,6 +113,7 @@ function Root(props) {
     const blurListener = window.addEventListener('blur', () => {
       pegView(false);
     });
+    window.onanimationiteration = console.debug;
     return () => {
       if (focusListener) {
         focusListener.remove();

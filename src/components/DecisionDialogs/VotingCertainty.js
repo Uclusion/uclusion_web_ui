@@ -3,7 +3,7 @@ import { Slider } from '@material-ui/core';
 import PropTypes from 'prop-types';
 
 function VotingCertainty(props) {
-
+  console.debug('Voting certainty rerendered');
   const { value, onChange } = props;
 
   function myOnChange(event, newValue) {

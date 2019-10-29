@@ -11,6 +11,7 @@ import { getCurrentUserInvestment } from '../../contexts/MarketPresencesContext/
 const SAVE_DELAY = 1000;
 
 function Voting(props) {
+  console.debug('Voting being rerendered');
   const { investible, marketId, investmentEnabled } = props;
   const { id } = investible;
   const [marketPresencesState] = useContext(MarketPresencesContext);

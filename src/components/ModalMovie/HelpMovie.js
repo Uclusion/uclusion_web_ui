@@ -17,6 +17,7 @@ import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../uti
 
 
 function HelpMovie(props) {
+  console.log('Rerendered help movie');
   const {
     dispatch,
     name,

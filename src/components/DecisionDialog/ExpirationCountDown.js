@@ -9,8 +9,8 @@ import { Typography } from '@material-ui/core';
  * @returns {*}
  * @constructor
  */
-function ExpirationCountdown(props){
-
+function ExpirationCountdown(props) {
+  console.log('Rerendered expiration countdown');
   const { expiration_minutes, created_at } = props;
 
   function getClockTimeRemaining(millisLeft) {
@@ -48,7 +48,7 @@ function ExpirationCountdown(props){
     return () => {
       clearInterval(timer);
     };
-  });
+  }, [renderPeriod]);
 
   return (
     <Typography>

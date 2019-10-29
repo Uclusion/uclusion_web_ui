@@ -21,12 +21,12 @@ const styles = {
     padding: 0,
   },
 
-  button: {
-    // width: 15
-  },
+
   logo: {
-    width: 40,
-    height: 40,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    width: '75%',
+    display: 'block',
   },
 };
 
@@ -40,14 +40,7 @@ const DrawerHeader = (props) => {
 
   return (
     <div className={classes.paper}>
-      <List>
-        <ListItem style={{ height: headerHeight }}>
-          <img className={classes.logo} src="/images/logo-white.svg" alt="logo"/>
-          <ListItemText classes={{ primary: classes.listItem }} primary={intl.formatMessage({ id: 'app_name' })} />
-          <Hidden smDown implementation="css">
-          </Hidden>
-        </ListItem>
-      </List>
+      <img className={classes.logo} src="/images/Uclusion_Wordmark_Drawer_Header.png" alt="logo" />
     </div>
   );
 };

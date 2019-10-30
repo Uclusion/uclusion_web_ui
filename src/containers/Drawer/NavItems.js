@@ -29,13 +29,13 @@ function NavItems(props) {
   const items = [
     {
       text: intl.formatMessage({ id: 'sidebarNavDialogs' }),
-      icon: <ForumIcon />,
+      icon: <ForumIcon color="secondary"/>,
       name: 'dialogs',
       link: '/dialogs',
     },
     {
       text: intl.formatMessage({ id: 'sidebarNavNotifications' }),
-      icon: <AnnouncementIcon />,
+      icon: <AnnouncementIcon color="secondary"/>,
       name: 'notifications',
       link: '/notifications',
       badge: Badge,
@@ -43,19 +43,19 @@ function NavItems(props) {
     },
     {
       text: intl.formatMessage({ id: 'sidebarNavAbout' }),
-      icon: <DescriptionOutlinedIcon />,
+      icon: <DescriptionOutlinedIcon color="secondary"/>,
       name: 'about',
       link: '/about',
     },
     {
       text: intl.formatMessage({ id: 'sidebarNewPlanning' }),
-      icon: <LibraryAdd />,
+      icon: <LibraryAdd color="secondary"/>,
       name: 'plan',
       link: '/newplan',
     },
     {
       text: intl.formatMessage({ id: 'sideBarNavTempSignout' }),
-      icon: <LockIcon />,
+      icon: <LockIcon color="secondary" />,
       name: 'tempSignout',
       onClick: () => { localStorage.clear(); },
     },
@@ -77,7 +77,7 @@ function NavItems(props) {
     const { icon, text } = item;
     return (
       <React.Fragment>
-        <ListItemIcon className={classes.listItemIcon}>
+        <ListItemIcon color="secondary" className={classes.listItemIcon}>
           {icon}
         </ListItemIcon>
         <ListItemText primary={text} />

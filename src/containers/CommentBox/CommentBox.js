@@ -45,17 +45,23 @@ function CommentBox(props) {
       setAddOpen(newAddOpen);
     };
   }
+  function getButtonColor(type) {
+    if (addOpen[type]) {
+      return 'secondary';
+    }
+    return 'primary';
+  }
 
   return (
     <Card>
       <CardActions>
-        <Button onClick={toggleAdd(ISSUE_TYPE)}>
+        <Button onClick={toggleAdd(ISSUE_TYPE)} variant="contained" color={getButtonColor(ISSUE_TYPE)}>
           {intl.formatMessage({ id: 'commentBoxRaiseIssueLabel' })}
         </Button>
-        <Button onClick={toggleAdd(QUESTION_TYPE)}>
+        <Button onClick={toggleAdd(QUESTION_TYPE)} variant="contained" color={getButtonColor(QUESTION_TYPE)}>
           {intl.formatMessage({ id: 'commentBoxAskQuestionLabel' })}
         </Button>
-        <Button onClick={toggleAdd(SUGGEST_CHANGE_TYPE)}>
+        <Button onClick={toggleAdd(SUGGEST_CHANGE_TYPE)} variant="contained" color={getButtonColor(SUGGEST_CHANGE_TYPE)}>
           {intl.formatMessage({ id: 'commentBoxSuggestChangesLabel' })}
         </Button>
       </CardActions>

@@ -1,5 +1,5 @@
 import React from 'react';
-import withWidth from '@material-ui/core/withWidth';
+
 import { injectIntl } from 'react-intl';
 import NavItems from './NavItems';
 
@@ -13,4 +13,4 @@ const DrawerContent = () => (
   </div>
 );
 
-export default injectIntl(withWidth()(DrawerContent));
+export default injectIntl(DrawerContent);

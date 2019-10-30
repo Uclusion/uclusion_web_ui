@@ -81,11 +81,11 @@ function MarketNav(props) {
 
   return (
     <div>
-      <AppBar position="static" color="default">
+      <AppBar position="static" color="background">
         <Tabs
           value={workAroundSelected}
           indicatorColor="primary"
-          textColor="primary"
+          textColor="secondary"
           variant="scrollable"
           onChange={switchTab}
         >

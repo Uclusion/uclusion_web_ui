@@ -7,8 +7,7 @@ import Drawer from '@material-ui/core/Drawer';
 import DrawerContent from './DrawerContent';
 import DrawerHeader from './DrawerHeader';
 import Scrollbar from '../../components/Scrollbar';
-
-import { sideBarTheme } from '../../config/themes';
+import { defaultTheme, sidebarTheme } from '../../config/themes';
 import { DrawerContext } from '../../contexts/DrawerContext';
 
 
@@ -71,11 +70,12 @@ function DrawerLayout(props) {
   const smDown = isWidthDown('sm', width);
   const Header = appConfig.drawerHeader ? appConfig.drawerHeader : DrawerHeader;
   return (
-    <MuiThemeProvider theme={sideBarTheme}>
+    <MuiThemeProvider theme={sidebarTheme}>
       <Drawer
         variant={smDown ? 'temporary' : 'permanent'}
         onClose={toggleDrawerOpen}
         anchor={smDown ? undefined : (theme.direction === 'rtl' ? 'right' : 'left')}
+        color="secondary"
         classes={{
           paper: smDown
             ? classes.drawerPaper

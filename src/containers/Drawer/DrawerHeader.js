@@ -40,7 +40,6 @@ const DrawerHeader = (props) => {
 
   return (
     <div className={classes.paper}>
-      <img className={classes.logo} src="/images/Uclusion_Wordmark_Drawer_Header.png" alt="logo" />
     </div>
   );
 };

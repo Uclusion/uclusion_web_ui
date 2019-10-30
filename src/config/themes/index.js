@@ -2,25 +2,37 @@ import blue from '@material-ui/core/colors/blue';
 import { createMuiTheme } from '@material-ui/core/styles';
 
 const defaultThemeDefinition = {
-  id: 'default',
-  color: blue[500],
   palette: {
-    type: 'light',
-  },
-  typography: {
-    useNextVariants: true,
+    primary: {
+      main: '#8ab5c2',
+      light: '#bbe7f5',
+      dark: '#5b8592',
+      contrastText: '#ffffff',
+    },
+    secondary: {
+      main: '#3f6b72',
+      light: '#6d99a0',
+      dark: '#104047',
+      contrastText: '#ffffff',
+    },
   },
 };
 
 const defaultTheme = createMuiTheme({
   ...defaultThemeDefinition,
-});
+}, 'default');
 
-const sideBarTheme = createMuiTheme({
-  ...defaultThemeDefinition,
-  palette: { ...defaultThemeDefinition.palette, type: 'dark' },
-});
+const sidebarTheme = createMuiTheme({
+  palette: {
+    type: 'light',
+    ...defaultThemeDefinition.palette,
+    text: {
+      primary: '#3f6b72',
+      secondary: '#3f6b72',
+    },
 
+  },
+});
 const issueTheme = createMuiTheme({
   ...defaultThemeDefinition,
   palette: {
@@ -43,4 +55,4 @@ const issueTheme = createMuiTheme({
   },
 });
 
-export { defaultTheme, sideBarTheme, issueTheme };
+export { defaultTheme, sidebarTheme, issueTheme };

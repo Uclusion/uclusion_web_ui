@@ -175,7 +175,7 @@ function Activity(props) {
       <AppBar
         position={(width !== 'sm' && width !== 'xs') ? 'absolute' : undefined}
         className={appBarClassName}
-        color='default'
+        color="background"
       >
         <Toolbar disableGutters>
           <IconButton
@@ -196,7 +196,7 @@ function Activity(props) {
             <ChevronLeftIcon/>
           </IconButton>
           {!onBackClick && open && <div style={{ marginRight: 32 }}/>}
-          <Typography variant="h6" color="inherit" noWrap>
+          <Typography variant="h6" color="secondary" noWrap>
             {headerTitle}
           </Typography>
           {titleButtons}

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Card, CardActions, CardContent } from '@material-ui/core';
-import QuillEditor from '../TextEditors/QuillEditor';
+import QuillEditor from '../../components/TextEditors/QuillEditor';
 import CommentBox from '../../containers/CommentBox/CommentBox';
 import MarketEditButton from './MarketEditButton';
 

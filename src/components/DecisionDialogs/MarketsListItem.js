@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
-import {
-  ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Typography,
-} from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import {ListItem, ListItemText } from '@material-ui/core';
+
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 
 function MarketsListItem(props) {
@@ -13,18 +11,11 @@ function MarketsListItem(props) {
   const { name, id } = market;
 
   return (
-    <ExpansionPanel>
-      <ExpansionPanelSummary
-        expandIcon={<ExpandMoreIcon />}
-        aria-controls="panel1a-content"
-        id="panel1a-header"
-      >
-        <Typography onClick={() => navigate(history, formMarketLink(id))}>{name}</Typography>
-      </ExpansionPanelSummary>
-      <ExpansionPanelDetails>
-        Fill this in when we have details for the markets list view
-      </ExpansionPanelDetails>
-    </ExpansionPanel>
+    <ListItem button key={id}>
+      <ListItemText onClick={() => navigate(history, formMarketLink(id))}>
+        {name}
+      </ListItemText>
+    </ListItem>
   );
 }
 

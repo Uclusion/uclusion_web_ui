@@ -1,31 +1,31 @@
 import React, { useContext, useState } from 'react';
 import { useHistory } from 'react-router';
-import { AppBar, Tabs, Tab } from '@material-ui/core';
+import { AppBar, Tabs, Tab, makeStyles } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import AddIcon from '@material-ui/icons/Add';
 import queryString from 'query-string';
-import TabPanel from '../Tabs/TabPanel';
+import TabPanel from '../../components/Tabs/TabPanel';
 import _ from 'lodash';
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
-import InvestibleAdd from '../Investibles/InvestibleAdd';
-import { getTabsForInvestibles } from './tabHelpers';
-import Market from './Market';
+import InvestibleAdd from '../../components/Investibles/InvestibleAdd';
+import MarketPanel from './MarketPanel';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { getMarketInvestibles} from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import Investible from '../../components/Investibles/Investible';
 
-function createCommentsHash(commentsArray){
+function createCommentsHash(commentsArray) {
   return _.keyBy(commentsArray, 'id');
 }
+
 
 function MarketNav(props) {
   console.debug('Market nav being rerendered');
   const history = useHistory();
-  const {
-    intl, market,
-  } = props;
+
+  const { intl, market } = props;
   const values = queryString.parse(history.location.hash);
   const marketId = market.id;
   const { investible } = values;
@@ -37,7 +37,6 @@ function MarketNav(props) {
   const marketTargetedComments = marketComments.filter((comment) => !comment.investible_id);
   const commentsHash = createCommentsHash(marketComments);
   const [previousTab, setPreviousTab] = useState();
-
 
   function pushTab(tabValue) {
     if (marketId) {
@@ -76,9 +75,6 @@ function MarketNav(props) {
     }
   }
 
-  const invTabs = getTabsForInvestibles(marketId, investibles, marketComments, commentsHash,
-    workAroundSelected);
-
   return (
     <div>
       <AppBar position="static" color="background">
@@ -89,17 +85,30 @@ function MarketNav(props) {
           onChange={switchTab}
         >
           <Tab label={intl.formatMessage({ id: 'marketNavTabContextLabel' })} value="context" />
-          {invTabs.tabs}
-          <Tab label={intl.formatMessage({ id: 'marketNavTabAddIdeaLabel' })} icon={<AddIcon />} value="add" />
+          {investibles.map((inv) => {
+            return (<Tab
+              label={inv.investible.name}
+              value={inv.investible.id}
+              key={inv.investible.id} />)})}
+          <Tab  label={intl.formatMessage({ id: 'marketNavTabAddIdeaLabel' })} icon={<AddIcon />} value="add" />
         </Tabs>
       </AppBar>
-      <Market
+      <MarketPanel
         market={market}
         marketTargetedComments={marketTargetedComments}
         selectedTab={workAroundSelected}
         commentsHash={commentsHash}
       />
-      {invTabs.tabContent}
+      {investibles.map((inv) => {
+        return (<Investible
+          key={inv.investible.id}
+          investible={inv}
+          marketId={marketId}
+          comments={marketComments}
+          commentsHash={commentsHash}
+          selectedTab={selectedTab}
+        />);
+      })}
       <TabPanel index="add" value={workAroundSelected}>
         <InvestibleAdd marketId={marketId} onSave={onAddSave} onCancel={cancelAdd} />
       </TabPanel>

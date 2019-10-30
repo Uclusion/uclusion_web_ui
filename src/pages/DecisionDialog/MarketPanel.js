@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import MarketEdit from '../../pages/DecisionDialog/MarketEdit';
-import MarketView from '../../pages/DecisionDialog/MarketView';
-import TabPanel from '../Tabs/TabPanel';
+import MarketEdit from './MarketEdit';
+import MarketView from './MarketView';
+import TabPanel from '../../components/Tabs/TabPanel';
 
-function Market(props) {
+function MarketPanel(props) {
   console.debug('Market component being rerendered');
   const [edit, setEdit] = useState(false);
   const {
@@ -36,8 +36,8 @@ function Market(props) {
   );
 }
 
-Market.propTypes = {
+MarketPanel.propTypes = {
   market: PropTypes.object.isRequired,
 };
 
-export default Market;
+export default MarketPanel;

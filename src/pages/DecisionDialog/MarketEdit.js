@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import { updateMarket } from '../../api/markets';
-import QuillEditor from '../TextEditors/QuillEditor';
+import QuillEditor from '../../components/TextEditors/QuillEditor';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { updateMarket as localUpdateMarket } from '../../contexts/MarketsContext/marketsContextReducer';
 import { processTextAndFilesForSave } from '../../api/files';

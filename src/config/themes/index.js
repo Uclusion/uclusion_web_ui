@@ -9,6 +9,9 @@ const defaultThemeDefinition = {
       dark: '#5b8592',
       contrastText: '#ffffff',
     },
+    background: {
+      paper: '#fafafa',
+    },
     secondary: {
       main: '#3f6b72',
       light: '#6d99a0',

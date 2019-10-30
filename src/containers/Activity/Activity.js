@@ -7,7 +7,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import PropTypes from 'prop-types';
 import React, { useState, useContext } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
+import { Box, Typography } from '@material-ui/core';
 import classNames from 'classnames';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import { Helmet } from 'react-helmet';
@@ -196,8 +196,11 @@ function Activity(props) {
             <ChevronLeftIcon/>
           </IconButton>
           {!onBackClick && open && <div style={{ marginRight: 32 }}/>}
-          <Typography variant="h6" color="secondary" noWrap>
+          <Typography variant="h6">
+
+          <Box fontWeight="fontWeightBold" noWrap>
             {headerTitle}
+          </Box>
           </Typography>
           {titleButtons}
           {appBarContent}

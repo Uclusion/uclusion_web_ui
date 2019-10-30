@@ -1,5 +1,5 @@
 import blue from '@material-ui/core/colors/blue';
-import { createMuiTheme } from '@material-ui/core/styles';
+import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
 
 const defaultThemeDefinition = {
   palette: {
@@ -9,34 +9,38 @@ const defaultThemeDefinition = {
       dark: '#5b8592',
       contrastText: '#ffffff',
     },
-    background: {
-      paper: '#fafafa',
-    },
     secondary: {
       main: '#3f6b72',
       light: '#6d99a0',
       dark: '#104047',
       contrastText: '#ffffff',
     },
+    props: {
+      MuiButton: {
+        size: 'small',
+      },
+      MuiIconButton: {
+        size: 'small',
+      },
+    },
   },
 };
 
-const defaultTheme = createMuiTheme({
+const defaultTheme = responsiveFontSizes(createMuiTheme({
   ...defaultThemeDefinition,
-}, 'default');
+}, 'default'));
 
-const sidebarTheme = createMuiTheme({
+const sidebarTheme = responsiveFontSizes(createMuiTheme({
   palette: {
-    type: 'light',
+    type: 'dark',
     ...defaultThemeDefinition.palette,
-    text: {
-      primary: '#3f6b72',
-      secondary: '#3f6b72',
+    background: {
+      paper: '#3f6b72',
     },
 
   },
-});
-const issueTheme = createMuiTheme({
+}));
+const issueTheme = responsiveFontSizes(createMuiTheme({
   ...defaultThemeDefinition,
   palette: {
     text: {
@@ -56,6 +60,6 @@ const issueTheme = createMuiTheme({
       contrastText: '#000',
     },
   },
-});
+}));
 
 export { defaultTheme, sidebarTheme, issueTheme };

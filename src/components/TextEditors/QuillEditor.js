@@ -7,6 +7,7 @@ import Quill from 'quill';
 import ImageResize from 'quill-image-resize-module-withfix';
 import QuillS3ImageUploader from './QuillS3ImageUploader';
 import 'quill/dist/quill.snow.css';
+import { withTheme } from '@material-ui/core';
 import _ from 'lodash';
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
@@ -15,7 +16,6 @@ Quill.register('modules/imageResize', ImageResize);
 class QuillEditor extends React.PureComponent {
 
   editor;
-
 
   constructor(props){
     super(props);
@@ -79,12 +79,15 @@ class QuillEditor extends React.PureComponent {
   }
 
   render() {
-    const { readOnly, value, defaultValue } = this.props;
+    const { readOnly, value, defaultValue, theme } = this.props;
     if (this.editor && (readOnly || value)) {
       this.editor.root.innerHTML = value || defaultValue;
     }
+    const myStyle = {
+        fontSize: theme.typography.fontSize,
+    };
     return (
-      <div ref={this.editorRef} />
+        <div ref={this.editorRef} style={myStyle}/>
     );
   }
 }
@@ -108,4 +111,4 @@ QuillEditor.defaultProps = {
   marketId: undefined,
 };
 
-export default QuillEditor;
+export default withTheme(QuillEditor);

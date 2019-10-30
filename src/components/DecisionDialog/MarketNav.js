@@ -85,7 +85,6 @@ function MarketNav(props) {
         <Tabs
           value={workAroundSelected}
           indicatorColor="primary"
-          textColor="secondary"
           variant="scrollable"
           onChange={switchTab}
         >

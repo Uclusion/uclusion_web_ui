@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import MarketEdit from './MarketEdit';
-import MarketView from './MarketView';
+import MarketEdit from '../../pages/DecisionDialog/MarketEdit';
+import MarketView from '../../pages/DecisionDialog/MarketView';
 import TabPanel from '../Tabs/TabPanel';
 
 function Market(props) {

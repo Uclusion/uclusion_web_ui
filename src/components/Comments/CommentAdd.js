@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { injectIntl } from 'react-intl';
-import { Card, Button, CardContent, CardActions } from '@material-ui/core';
+import { Card, Button, ButtonGroup, CardContent, CardActions } from '@material-ui/core';
 import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
 import PropTypes from 'prop-types';
@@ -70,14 +70,6 @@ function CommentAdd(props) {
 
   return (
     <Card>
-      <CardActions>
-        <Button onClick={handleSave}>
-          {intl.formatMessage({ id: commentSaveLabel })}
-        </Button>
-        <Button onClick={handleCancel}>
-          {intl.formatMessage({ id: commentCancelLabel })}
-        </Button>
-      </CardActions>
       <CardContent>
         <QuillEditor
           onS3Upload={handleFileUpload}
@@ -85,7 +77,16 @@ function CommentAdd(props) {
           initialValue={body}
           onChange={onEditorChange} />
       </CardContent>
-
+      <CardActions>
+        <ButtonGroup variant="contained" size="small" color="primary">
+          <Button onClick={handleSave}>
+            {intl.formatMessage({ id: commentSaveLabel })}
+          </Button>
+          <Button onClick={handleCancel}>
+            {intl.formatMessage({ id: commentCancelLabel })}
+          </Button>
+        </ButtonGroup>
+      </CardActions>
     </Card>
   );
 }

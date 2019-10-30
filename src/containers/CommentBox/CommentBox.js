@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Card, CardActions, CardContent } from '@material-ui/core';
+import { Button, Card, CardActions, CardContent, ButtonGroup } from '@material-ui/core';
 
 import Comment from '../../components/Comments/Comment';
 import Issue from '../../components/Issues/Issue';
@@ -13,6 +13,7 @@ export const SUGGEST_CHANGE_TYPE = 'SUGGEST';
 export const REPLY_TYPE = 'REPLY';
 
 const TYPES = [QUESTION_TYPE, ISSUE_TYPE, SUGGEST_CHANGE_TYPE, REPLY_TYPE];
+
 function CommentBox(props) {
 
   const { comments, commentsHash, marketId, investible } = props;
@@ -45,6 +46,7 @@ function CommentBox(props) {
       setAddOpen(newAddOpen);
     };
   }
+
   function getButtonColor(type) {
     if (addOpen[type]) {
       return 'secondary';
@@ -55,20 +57,28 @@ function CommentBox(props) {
   return (
     <Card>
       <CardActions>
-        <Button onClick={toggleAdd(ISSUE_TYPE)} variant="contained" color={getButtonColor(ISSUE_TYPE)}>
-          {intl.formatMessage({ id: 'commentBoxRaiseIssueLabel' })}
-        </Button>
-        <Button onClick={toggleAdd(QUESTION_TYPE)} variant="contained" color={getButtonColor(QUESTION_TYPE)}>
-          {intl.formatMessage({ id: 'commentBoxAskQuestionLabel' })}
-        </Button>
-        <Button onClick={toggleAdd(SUGGEST_CHANGE_TYPE)} variant="contained" color={getButtonColor(SUGGEST_CHANGE_TYPE)}>
-          {intl.formatMessage({ id: 'commentBoxSuggestChangesLabel' })}
-        </Button>
+        <ButtonGroup variant="contained" size="small">
+          <Button onClick={toggleAdd(ISSUE_TYPE)} color={getButtonColor(ISSUE_TYPE)}>
+            {intl.formatMessage({ id: 'commentBoxRaiseIssueLabel' })}
+          </Button>
+          <Button onClick={toggleAdd(QUESTION_TYPE)} color={getButtonColor(QUESTION_TYPE)}>
+            {intl.formatMessage({ id: 'commentBoxAskQuestionLabel' })}
+          </Button>
+          <Button onClick={toggleAdd(SUGGEST_CHANGE_TYPE)} color={getButtonColor(SUGGEST_CHANGE_TYPE)}>
+            {intl.formatMessage({ id: 'commentBoxSuggestChangesLabel' })}
+          </Button>
+        </ButtonGroup>
       </CardActions>
       <CardContent>
-        {addOpen[QUESTION_TYPE] && <CommentAdd type={QUESTION_TYPE} investible={investible} marketId={marketId} onSave={toggleAdd(QUESTION_TYPE)} onCancel={toggleAdd(QUESTION_TYPE)} />}
-        {addOpen[ISSUE_TYPE] && <CommentAdd type={ISSUE_TYPE} investible={investible} marketId={marketId} onSave={toggleAdd(ISSUE_TYPE)} onCancel={toggleAdd(ISSUE_TYPE)} />}
-        {addOpen[SUGGEST_CHANGE_TYPE] && <CommentAdd type={SUGGEST_CHANGE_TYPE} investible={investible} marketId={marketId} onSave={toggleAdd(SUGGEST_CHANGE_TYPE)} onCancel={toggleAdd(SUGGEST_CHANGE_TYPE)} />}
+        {addOpen[QUESTION_TYPE] &&
+        <CommentAdd type={QUESTION_TYPE} investible={investible} marketId={marketId} onSave={toggleAdd(QUESTION_TYPE)}
+                    onCancel={toggleAdd(QUESTION_TYPE)} />}
+        {addOpen[ISSUE_TYPE] &&
+        <CommentAdd type={ISSUE_TYPE} investible={investible} marketId={marketId} onSave={toggleAdd(ISSUE_TYPE)}
+                    onCancel={toggleAdd(ISSUE_TYPE)} />}
+        {addOpen[SUGGEST_CHANGE_TYPE] &&
+        <CommentAdd type={SUGGEST_CHANGE_TYPE} investible={investible} marketId={marketId}
+                    onSave={toggleAdd(SUGGEST_CHANGE_TYPE)} onCancel={toggleAdd(SUGGEST_CHANGE_TYPE)} />}
         {getCommentCards()}
       </CardContent>
     </Card>

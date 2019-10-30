@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 
 import classNames from 'classnames';
-import { withStyles, MuiThemeProvider } from '@material-ui/core/styles';
+import { withStyles, ThemeProvider } from '@material-ui/core/styles';
 import withWidth, { isWidthDown } from '@material-ui/core/withWidth';
 import Drawer from '@material-ui/core/Drawer';
 import DrawerContent from './DrawerContent';
@@ -70,7 +70,7 @@ function DrawerLayout(props) {
   const smDown = isWidthDown('sm', width);
   const Header = appConfig.drawerHeader ? appConfig.drawerHeader : DrawerHeader;
   return (
-    <MuiThemeProvider theme={sidebarTheme}>
+    <ThemeProvider theme={sidebarTheme}>
       <Drawer
         variant={smDown ? 'temporary' : 'permanent'}
         onClose={toggleDrawerOpen}
@@ -95,7 +95,7 @@ function DrawerLayout(props) {
           <DrawerContent/>
         </Scrollbar>
       </Drawer>
-    </MuiThemeProvider>
+    </ThemeProvider>
   );
 
 }

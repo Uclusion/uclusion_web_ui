@@ -14,20 +14,11 @@ const defaultThemeDefinition = {
       dark: '#104047',
       contrastText: '#ffffff',
     },
-    props: {
-      MuiButton: {
-        size: 'small',
-      },
-      MuiIconButton: {
-        size: 'small',
-      },
-    },
   },
 };
 
-const defaultTheme = responsiveFontSizes(createMuiTheme({
-  ...defaultThemeDefinition,
-}, 'default'));
+
+const defaultTheme = responsiveFontSizes(createMuiTheme(defaultThemeDefinition));
 
 const sidebarTheme = responsiveFontSizes(createMuiTheme({
   palette: {
@@ -39,26 +30,7 @@ const sidebarTheme = responsiveFontSizes(createMuiTheme({
 
   },
 }));
-const issueTheme = responsiveFontSizes(createMuiTheme({
-  ...defaultThemeDefinition,
-  palette: {
-    text: {
-      primary: '#f00',
-      secondary: '#000',
-    },
-    primary: {
-      light: '#757ce8',
-      main: '#3f50b5',
-      dark: '#002884',
-      contrastText: '#fff',
-    },
-    secondary: {
-      light: '#ff7961',
-      main: '#f44336',
-      dark: '#ba000d',
-      contrastText: '#000',
-    },
-  },
-}));
 
-export { defaultTheme, sidebarTheme, issueTheme };
+
+
+export { defaultTheme, sidebarTheme };

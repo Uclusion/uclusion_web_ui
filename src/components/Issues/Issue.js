@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { Paper, Button, MuiThemeProvider } from '@material-ui/core';
+import { Paper, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import QuillEditor from '../TextEditors/QuillEditor';
 import CommentAdd from '../Comments/CommentAdd';
 import Comment from '../Comments/Comment';
-import { issueTheme } from '../../config/themes';
+
 import { REPLY_TYPE } from '../../containers/CommentBox/CommentBox';
 import { useIntl } from 'react-intl';
 
@@ -56,7 +56,7 @@ function Issue(props) {
   }
 
   return (
-    <MuiThemeProvider theme={issueTheme}>
+
       <Paper className={classes.root}>
         <QuillEditor marketId={marketId} readOnly value={comment.body} />
         <Button onClick={toggleReply}>
@@ -68,7 +68,7 @@ function Issue(props) {
         {replyOpen && <CommentAdd type={REPLY_TYPE} marketId={marketId} parent={comment} onSave={toggleReply} />}
         {getChildComments()}
       </Paper>
-    </MuiThemeProvider>
+
   );
 }
 

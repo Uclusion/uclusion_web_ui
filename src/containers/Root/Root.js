@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
-import { withStyles } from '@material-ui/core';
+import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 import { defaultTheme } from '../../config/themes';
@@ -17,7 +16,7 @@ import {
 import { getAccountClient, getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 
-const styles = {
+const useStyles = makeStyles({
   body: {
     height: '100%',
   },
@@ -37,19 +36,18 @@ const styles = {
   hide: {
     display: 'none',
   },
-};
+});
 
 function Root(props) {
   console.debug('Root being rerendered');
   const history = useHistory();
-  const { classes, appConfig } = props;
-
+  const {  appConfig } = props;
+  const classes = useStyles();
   const { location } = history;
   const { pathname, hash } = location;
   console.log(`pathname is ${pathname}`);
   const marketId = getMarketId(pathname);
   const marketType = pathname === '/newplan' ? 'PLANNING' : 'DECISION';
-  const theme = defaultTheme;
   function hideNotifications() {
     return pathname !== '/notifications';
   }
@@ -125,7 +123,7 @@ function Root(props) {
   }, []);
 
   return (
-    <MuiThemeProvider theme={theme}>
+    <ThemeProvider theme={defaultTheme}>
       <div className={classes.body}>
         <div className={classes.root}>
           {!isInvite() && (<Drawer appConfig={appConfig} />)}
@@ -140,13 +138,12 @@ function Root(props) {
           </div>
         </div>
       </div>
-    </MuiThemeProvider>
+    </ThemeProvider>
   );
 }
 
 Root.propTypes = {
   appConfig: PropTypes.object.isRequired, // eslint-disable-line
-  classes: PropTypes.object.isRequired, // eslint-disable-line
 };
 
-export default withStyles(styles)(Root);
+export default Root;

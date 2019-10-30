@@ -1,13 +1,6 @@
 import React from 'react';
 
 import {
-  List,
-  ListItem,
-  ListItemText,
-// ListItemSecondaryAction,
-//  Paper,
-// IconButton,
-  Hidden,
   withWidth,
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
@@ -32,11 +25,8 @@ const styles = {
 
 const DrawerHeader = (props) => {
   const {
-    intl,
     classes,
-    width,
   } = props;
-  const headerHeight = (width === 'xs') ? 40 : 48;
 
   return (
     <div className={classes.paper}>

@@ -7,7 +7,7 @@ import Drawer from '@material-ui/core/Drawer';
 import DrawerContent from './DrawerContent';
 import DrawerHeader from './DrawerHeader';
 import Scrollbar from '../../components/Scrollbar';
-import { defaultTheme, sidebarTheme } from '../../config/themes';
+import { sidebarTheme } from '../../config/themes';
 import { DrawerContext } from '../../contexts/DrawerContext';
 
 

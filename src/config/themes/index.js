@@ -1,4 +1,3 @@
-import blue from '@material-ui/core/colors/blue';
 import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
 
 const defaultThemeDefinition = {

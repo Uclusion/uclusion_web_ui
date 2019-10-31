@@ -15,7 +15,6 @@ import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router-dom';
 import { DrawerContext } from '../../contexts/DrawerContext';
 
-const drawerWidth = 240;
 
 const styles = theme => ({
   root: {
@@ -56,7 +55,7 @@ const styles = theme => ({
   },
   appBarShift: {
     // marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
+
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,

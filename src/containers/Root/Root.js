@@ -4,7 +4,6 @@ import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 import { defaultTheme } from '../../config/themes';
-import Drawer from '../Drawer';
 import Markets from '../../pages/DecisionDialogs/Markets';
 import Notifications from '../../pages/ActionCenter/Notifications';
 import Market from '../../pages/DecisionDialog/Market';
@@ -15,6 +14,7 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import { getAccountClient, getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
+import Home from '../../pages/Home/Home';
 
 const useStyles = makeStyles({
   body: {
@@ -51,8 +51,13 @@ function Root(props) {
   function hideNotifications() {
     return pathname !== '/notifications';
   }
+
+  function hideHome() {
+    return !pathname || pathname !== '/';
+  }
+
   function hideMarkets() {
-    return pathname && (pathname !== '/') && (pathname !== '/dialogs') && (pathname !== '/newplan');
+    return pathname && (pathname !== '/dialogs') && (pathname !== '/newplan');
   }
   function hideAbout() {
     if (!pathname) {
@@ -122,18 +127,19 @@ function Root(props) {
     };
   }, []);
 
+  console.log(`Hide Home ${hideHome()}`);
   return (
     <ThemeProvider theme={defaultTheme}>
       <div className={classes.body}>
         <div className={classes.root}>
-          {!isInvite() && (<Drawer appConfig={appConfig} />)}
           <div className={isInvite() ? classes.hide : classes.content}>
+            <Home hidden={hideHome()} />
             <Notifications hidden={hideNotifications()} />
             <Markets hidden={hideMarkets()} marketType={marketType} />
             <Market hidden={hideMarket()} />
             <About hidden={hideAbout()} />
             <PageNotFound hidden={!(hideNotifications() && hideMarkets() && hideMarket()
-              && hideAbout())}
+              && hideAbout() && hideHome())}
             />
           </div>
         </div>

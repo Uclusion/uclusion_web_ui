@@ -60,6 +60,7 @@ function Screen(props) {
 }
 
 Screen.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
   breadCrumbs: PropTypes.arrayOf(PropTypes.object),
   hidden: PropTypes.bool,
   title: PropTypes.string.isRequired,

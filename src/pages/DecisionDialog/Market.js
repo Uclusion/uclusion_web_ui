@@ -17,6 +17,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { refreshMarketPresence } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import Summary from './Summary';
 
 const styles = (theme) => ({
   root: {
@@ -103,9 +104,7 @@ function Market(props) {
       hidden={hidden}
       breadCrumbs={breadCrumbs}
     >
-      <div>
-        {renderableMarket && (<MarketNav market={renderableMarket} />)}
-      </div>
+      { renderableMarket && <Summary market={renderableMarket}/> }
     </Screen>
   );
 }

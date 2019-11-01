@@ -4,8 +4,6 @@ import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 import { defaultTheme } from '../../config/themes';
-import Markets from '../../pages/DecisionDialogs/Markets';
-import Notifications from '../../pages/ActionCenter/Notifications';
 import Market from '../../pages/DecisionDialog/Market';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
@@ -41,24 +39,15 @@ const useStyles = makeStyles({
 function Root(props) {
   console.debug('Root being rerendered');
   const history = useHistory();
-  const {  appConfig } = props;
   const classes = useStyles();
   const { location } = history;
   const { pathname, hash } = location;
   console.log(`pathname is ${pathname}`);
   const marketId = getMarketId(pathname);
-  const marketType = pathname === '/newplan' ? 'PLANNING' : 'DECISION';
-  function hideNotifications() {
-    return pathname !== '/notifications';
-  }
-
   function hideHome() {
     return !pathname || pathname !== '/';
   }
 
-  function hideMarkets() {
-    return pathname && (pathname !== '/dialogs') && (pathname !== '/newplan');
-  }
   function hideAbout() {
     if (!pathname) {
       return true;
@@ -134,12 +123,9 @@ function Root(props) {
         <div className={classes.root}>
           <div className={isInvite() ? classes.hide : classes.content}>
             <Home hidden={hideHome()} />
-            <Notifications hidden={hideNotifications()} />
-            <Markets hidden={hideMarkets()} marketType={marketType} />
             <Market hidden={hideMarket()} />
             <About hidden={hideAbout()} />
-            <PageNotFound hidden={!(hideNotifications() && hideMarkets() && hideMarket()
-              && hideAbout() && hideHome())}
+            <PageNotFound hidden={!(hideMarket() && hideAbout() && hideHome())}
             />
           </div>
         </div>

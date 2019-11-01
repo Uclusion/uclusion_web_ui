@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useHistory } from 'react-router';
-import { AppBar, Tabs, Tab, makeStyles } from '@material-ui/core';
+import { AppBar, Tabs, Tab } from '@material-ui/core';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import AddIcon from '@material-ui/icons/Add';

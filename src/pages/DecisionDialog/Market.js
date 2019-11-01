@@ -93,14 +93,6 @@ function Market(props) {
   return (
     <Activity
       title={currentMarketName}
-      isLoading={loadedMarket !== marketId
-      || investiblesLoading || commentsLoading || marketUsersLoading || marketStagesLoading}
-      appBarContent={renderableMarket && (
-        <ExpirationCountDown
-          expiration_minutes={renderableMarket.expiration_minutes}
-          created_at={renderableMarket.created_at}
-        />
-      )}
       hidden={hidden}
     >
       <div>

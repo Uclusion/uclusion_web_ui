@@ -3,9 +3,9 @@ import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
-import ExpirationCountDown from './ExpirationCountDown';
+import { navigate } from '../../utils/marketIdPathFunctions';
 import MarketNav from './MarketNav';
-import Activity from '../../containers/Activity';
+import Screen from '../../containers/Activity/Screen';
 import { getMarketId } from '../../utils/marketIdPathFunctions';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { refreshMarketStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -87,18 +87,26 @@ function Market(props) {
     marketsState,
   ]);
 
+  const breadCrumbs = [
+    {
+      title: 'Home',
+      onClick: () => navigate(history, '/'),
+    },
+  ];
+
   const renderableMarket = marketDetails.find((market) => market.id === marketId);
   console.debug(`Market page being rerendered ${commentsLoading} ${marketUsersLoading} ${marketStagesLoading}`);
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   return (
-    <Activity
+    <Screen
       title={currentMarketName}
       hidden={hidden}
+      breadCrumbs={breadCrumbs}
     >
       <div>
         {renderableMarket && (<MarketNav market={renderableMarket} />)}
       </div>
-    </Activity>
+    </Screen>
   );
 }
 

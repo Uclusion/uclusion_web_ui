@@ -44,8 +44,9 @@ function Root(props) {
   const { location } = history;
   const { pathname, hash } = location;
   console.log(`pathname is ${pathname}`);
+  console.log(hash);
   const marketId = getMarketId(pathname);
-  const investibleId = getInvestibleId(pathname);
+  const investibleId = getInvestibleId(hash);
   function hideHome() {
     return !pathname || pathname !== '/';
   }

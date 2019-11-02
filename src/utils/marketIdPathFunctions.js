@@ -22,17 +22,21 @@ export function getMarketId(path, search = '/dialog/') {
   return pathPart.substr(0, investibleSlashLocation);
 }
 
-export function getInvestibleId(path) {
-  if (!path) {
+export function getInvestibleId(hash) {
+  console.log(hash);
+  if (!hash) {
     return null;
   }
   const search = '#investible=';
-  const investibleStart = path.indexOf(search);
+  const investibleStart = hash.indexOf(search);
+  console.log(investibleStart);
   if (investibleStart === -1) {
     return null;
   }
   const idStart = investibleStart + search.length;
-  return path.substr(idStart);
+  const investibleId = hash.substr(idStart);
+  console.log(investibleId);
+  return investibleId;
 }
 
 export function broadcastView(marketId, investibleIdOrContext, isEntry) {
@@ -110,5 +114,5 @@ export function formInvestibleLink(marketId, investibleId) {
  * @returns {string}
  */
 export function formMarketLink(marketId) {
-  return formInvestibleLink(marketId, 'context');
+  return `/dialog/${marketId}`;
 }

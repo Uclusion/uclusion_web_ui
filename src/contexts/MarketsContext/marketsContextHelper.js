@@ -10,9 +10,15 @@ import { getMarketDetails } from '../../api/markets';
 import { EMPTY_STATE, MARKET_CONTEXT_NAMESPACE } from './MarketsContext';
 import LocalForageHelper from '../LocalForageHelper';
 
-export function getMyUserForMarket(state, marketId) {
+export function getMarket(state, marketId) {
   const { marketDetails } = state;
   const market = marketDetails.find((market) => market.id === marketId);
+  return market;
+}
+
+
+export function getMyUserForMarket(state, marketId) {
+  const market = getMarket(state, marketId);
   if (market) {
     const { currentUser } = market;
     return currentUser;
@@ -26,6 +32,7 @@ export function getMarketDetailsForType(state, marketType = 'DECISION') {
   }
   return null;
 }
+
 
 export function getAllMarketDetails(state) {
   return state.marketDetails;

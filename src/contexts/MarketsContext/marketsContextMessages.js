@@ -1,40 +1,33 @@
 import { Hub } from '@aws-amplify/core';
-import {
-  AUTH_HUB_CHANNEL,
-  INVITED_TO_NEW_MARKET_EVENT,
-  MESSAGES_EVENT,
-  PUSH_CONTEXT_CHANNEL
-} from '../WebSocketContext';
-import { refreshMarkets, clearState } from './marketsContextHelper';
 import { getMarketDetails } from '../../api/markets';
-import { updateSingleMarketDetails } from './marketsContextReducer';
+import {
+  PUSH_CONTEXT_CHANNEL,
+  REMOVED_MARKETS_CHANNEL,
+  VERSIONS_EVENT
+} from '../VersionsContext/versionsContextHelper';
+import { removeMarketDetails, updateMarketDetails } from './marketsContextReducer';
 
 function beginListening(dispatch) {
-  Hub.listen(AUTH_HUB_CHANNEL, (data) => {
-    const { payload: { event } } = data;
-    console.debug(`Markets context responding to auth event ${event}`);
+  Hub.listen(REMOVED_MARKETS_CHANNEL, (data) => {
+    const { payload: { event, message } } = data;
     switch (event) {
-      case 'signIn':
-        clearState(dispatch);
-        return refreshMarkets(dispatch);
-      case 'signOut':
-        clearState(dispatch);
+      case VERSIONS_EVENT:
+        console.debug(`Markets context responding to updated market event ${event}`);
+        dispatch(removeMarketDetails(message));
         break;
       default:
-        console.debug(`Ignoring auth event ${event}`);
+        console.debug(`Ignoring identity event ${event}`);
     }
   });
   Hub.listen(PUSH_CONTEXT_CHANNEL, (data) => {
     const { payload: { event, message } } = data;
     switch (event) {
-      case INVITED_TO_NEW_MARKET_EVENT:
-        return refreshMarkets(dispatch);
-      case MESSAGES_EVENT:
+      case VERSIONS_EVENT: {
         console.debug(`Markets context responding to updated market event ${event}`);
-        getMarketDetails(message.object_id).then((marketDetails) => {
-          return dispatch(updateSingleMarketDetails(marketDetails));
-        });
+        const promises = message.map((marketId) => getMarketDetails(marketId));
+        Promise.all(promises).then((marketDetails) => dispatch(updateMarketDetails(marketDetails)));
         break;
+      }
       default:
         console.debug(`Ignoring identity event ${event}`);
     }

@@ -1,13 +1,9 @@
 import React, { useEffect, useState, useReducer } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import reducer, { refreshVersionsAction, VERSIONS_CONTEXT_NAMESPACE } from './versionsContextReducer';
+import reducer, { EMPTY_STATE, refreshVersionsAction, VERSIONS_CONTEXT_NAMESPACE } from './versionsContextReducer';
 import beginListening from './versionsContextMessages';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
 import { getVersions } from '../../api/summaries';
-
-const EMPTY_STATE = {
-  versions: [],
-};
 
 const VersionsContext = React.createContext(EMPTY_STATE);
 

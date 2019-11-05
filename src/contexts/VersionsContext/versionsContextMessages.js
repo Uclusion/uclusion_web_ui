@@ -7,6 +7,7 @@ import {
 } from '../WebSocketContext';
 import { getVersions } from '../../api/summaries';
 import {
+  initializeState,
   refreshMarketVersionAction,
   refreshNotificationVersionAction,
   refreshVersionsAction,
@@ -20,11 +21,14 @@ function beginListening(dispatch) {
 
     switch (event) {
       case 'signIn':
+        // An optimization would be to check if newly signed is same person
+        dispatch(initializeState());
         getVersions().then((versions) => {
           dispatch(refreshVersionsAction(versions));
         });
         break;
       case 'signOut':
+        dispatch(initializeState());
         break;
       default:
         console.debug(`Ignoring auth event ${event}`);

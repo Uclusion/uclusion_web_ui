@@ -99,7 +99,8 @@ export function removeMarketVersion(marketId) {
 }
 
 export function refreshMarketVersion(state, version) {
-  const previousVersion = state.find((market) => (market.marketId === version.marketId));
+  const { marketVersions } = state;
+  const previousVersion = marketVersions.find((market) => (market.marketId === version.marketId));
   const processedVersion = compareProcessSingleVersion(version, previousVersion);
   const marketList = [processedVersion.marketId];
   if (processedVersion.marketsInfoChange) {

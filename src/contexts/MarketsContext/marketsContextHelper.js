@@ -1,13 +1,8 @@
-import { initializeState, updateAllMarketDetails } from './marketsContextReducer';
-import { getMarketDetails } from '../../api/markets';
-import { EMPTY_STATE } from './MarketsContext';
 
 export function getMarket(state, marketId) {
   const { marketDetails } = state;
-  const market = marketDetails.find((market) => market.id === marketId);
-  return market;
+  return marketDetails.find((market) => market.id === marketId);
 }
-
 
 export function getMyUserForMarket(state, marketId) {
   const market = getMarket(state, marketId);
@@ -28,19 +23,4 @@ export function getMarketDetailsForType(state, marketType = 'DECISION') {
 
 export function getAllMarketDetails(state) {
   return state.marketDetails;
-}
-
-export function getAllMarkets(state) {
-  return state.markets;
-}
-
-// TODO need below updateSelectMarketDetails and also an action removeSelectedMarketDetails(removeMarketList)
-export function refreshMarkets(dispatch, updateMarketList) {
-  const promises = updateMarketList.map((marketId) => getMarketDetails(marketId));
-  return Promise.all(promises)
-    .then((markets) => dispatch(updateSelectMarketDetails(markets)));
-}
-
-export function clearState(dispatch) {
-  dispatch(initializeState(EMPTY_STATE));
 }

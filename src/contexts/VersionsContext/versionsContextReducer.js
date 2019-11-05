@@ -6,10 +6,21 @@ import {
 } from './versionsContextHelper';
 import LocalForageHelper from '../LocalForageHelper';
 
+export const EMPTY_STATE = {
+  marketVersions: [],
+  notificationVersion: {},
+};
+
 export function refreshVersionsAction(versions) {
   return {
     type: 'UPDATE_VERSIONS',
     versions,
+  };
+}
+
+export function initializeState() {
+  return {
+    type: 'INITIALIZE_STATE',
   };
 }
 
@@ -99,6 +110,9 @@ function reducer(state, action) {
       newState = refreshStoredNotification(state, message);
       break;
     }
+    case 'INITIALIZE_STATE':
+      newState = EMPTY_STATE;
+      break;
     default:
       newState = state;
   }

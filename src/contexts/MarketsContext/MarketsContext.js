@@ -32,10 +32,6 @@ function MarketsProvider(props) {
           if (diskState) {
             dispatch(initializeState(diskState));
           }
-          refreshMarkets(dispatch)
-            .then(() => {
-              console.log('call done');
-            });
         });
       beginListening(dispatch);
       setIsInitialization(false);

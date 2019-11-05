@@ -12,7 +12,7 @@ function Home(props) {
   const { hidden } = props;
 
   const [marketsState] = useContext(MarketsContext);
-  const planningDetails = getMarketDetailsForType(marketsState, 'DECISION');
+  const planningDetails = getMarketDetailsForType(marketsState, 'PLANNING');
   //const decisionDetails = getMarketDetailsForType(marketsState, 'DECISION');
   return (
     <Screen

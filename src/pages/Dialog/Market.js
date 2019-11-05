@@ -18,6 +18,7 @@ import { refreshMarketComments } from '../../contexts/CommentsContext/commentsCo
 import { refreshMarketPresence } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import Summary from './Summary';
 import Investibles from './Investibles';
+import DecisionDialog from './Decision/DecisionDialog';
 
 const styles = (theme) => ({
   root: {
@@ -88,7 +89,7 @@ function Market(props) {
   const breadCrumbs = makeBreadCrumbs(history);
 
   const renderableMarket = marketDetails.find((market) => market.id === marketId);
-
+  const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   return (
     <Screen
@@ -96,8 +97,7 @@ function Market(props) {
       hidden={hidden}
       breadCrumbs={breadCrumbs}
     >
-      { renderableMarket && <Summary market={renderableMarket}/> }
-      { investibles && <Investibles investibles={investibles} marketId={marketId} />}
+      { marketType === 'DECISION' && <DecisionDialog market={renderableMarket} investibles={investibles} />}
     </Screen>
   );
 }

@@ -18,8 +18,15 @@ export function getVersions() {
       // authorization tokens contained inside, since it's free
       return summaryClient.versions(idToken)
         .then((versions) => {
-          const marketVersions = _.remove(versions, (versionRow) => versionRow.type_object_id.includes('market'));
+          const rawMarketVersions = _.remove(versions, (versionRow) => versionRow.type_object_id.includes('market'));
           const notificationVersion = versions.length > 0 ? versions[0] : {};
+          const marketVersions = rawMarketVersions.map((version) => {
+            const { type_object_id: typeObjectId } = version;
+            const marketId = typeObjectId.split('_')[1];
+            // eslint-disable-next-line no-param-reassign
+            delete version.type_object_id;
+            return { ...version, marketId };
+          });
           return { marketVersions, notificationVersion };
         });
     });

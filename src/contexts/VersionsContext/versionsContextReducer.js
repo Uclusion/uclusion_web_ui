@@ -1,77 +1,110 @@
-const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
-const UPDATE_PAGE = 'UPDATE_PAGE';
+import {
+  refreshMarketVersion,
+  refreshNotificationVersion,
+  refreshVersions,
+  removeMarketVersion
+} from './versionsContextHelper';
+import LocalForageHelper from '../LocalForageHelper';
 
-/** Messages you can send the reducer **/
-
-export function updateMessages(messages) {
+export function refreshVersionsAction(versions) {
   return {
-    type: UPDATE_MESSAGES,
-    messages,
+    type: 'UPDATE_VERSIONS',
+    versions,
   };
 }
 
-export function updatePage(page) {
+export function removeMarketVersionAction(marketId) {
   return {
-    type: UPDATE_PAGE,
-    page,
+    type: 'REMOVE_MARKET',
+    marketId,
   };
 }
 
-/** Helper functions **/
-function getMassagedMessages(messages) {
-  return messages.map((message) => {
-    const {
-      type_object_id: typeObjectId,
-      market_id_user_id: marketIdUserId,
-      level,
-    } = message;
-    const objectId = typeObjectId.substring(typeObjectId.lastIndexOf('_') + 1);
-    const aType = typeObjectId.substring(0, typeObjectId.lastIndexOf('_'));
-    const marketIdUserIdSplit = marketIdUserId.split('_');
-    const marketId = marketIdUserIdSplit[0];
-    if (marketId === objectId) {
-      return {
-        ...message, marketId, aType, level,
-      };
-    }
-    return {
-      ...message, marketId, aType, level, investibleId: objectId,
-    };
-  });
-}
-
-/** Functions that mutate the state **/
-
-function doUpdateMessages(state, action) {
-  const { messages } = action;
-  const massagedMessages = getMassagedMessages(messages);
+export function refreshMarketVersionAction(message) {
   return {
-    ...state,
-    messages: massagedMessages,
+    type: 'REFRESH_MARKET',
+    message,
   };
 }
 
-function doUpdatePage(state, action) {
-  const { page } = action;
+export function refreshNotificationVersionAction(message) {
+  return {
+    type: 'REFRESH_NOTIFICATION',
+    message,
+  };
+}
+
+/* Functions that mutate the state */
+
+function updateStoredVersions(state, marketVersions, notificationVersion) {
+  return {
+    marketVersions,
+    notificationVersion,
+  };
+}
+
+function removeStoredMarket(state, marketId) {
+  const { marketVersions } = state;
+  const newMarketVersions = marketVersions.filter((market) => (market.marketId !== marketId));
   return {
     ...state,
-    page,
+    marketVersions: newMarketVersions,
   };
 }
 
-function computeNewState(state, action) {
-  switch (action.type) {
-    case UPDATE_MESSAGES:
-      return doUpdateMessages(state, action);
-    case UPDATE_PAGE:
-      return doUpdatePage(state, action);
-    default:
-      return state;
-  }
+function refreshStoredMarket(state, version) {
+  const { marketVersions } = state;
+  // eslint-disable-next-line max-len
+  const existingMarketVersions = marketVersions.filter((market) => (market.marketId !== version.marketId));
+  return {
+    ...state,
+    marketVersions: { existingMarketVersions, version },
+  };
 }
+
+function refreshStoredNotification(state, version) {
+  return {
+    ...state,
+    notificationVersion: version,
+  };
+}
+
+export const VERSIONS_CONTEXT_NAMESPACE = 'versions_context';
 
 function reducer(state, action) {
-  return computeNewState(state, action);
+  let newState;
+  switch (action.type) {
+    case 'UPDATE_VERSIONS': {
+      const { versions } = action;
+      const { marketVersions, notificationVersion } = versions;
+      refreshVersions(state, marketVersions, notificationVersion);
+      newState = updateStoredVersions(state, marketVersions, notificationVersion);
+      break;
+    }
+    case 'REMOVE_MARKET': {
+      const { marketId } = action;
+      removeMarketVersion(marketId);
+      newState = removeStoredMarket(state, marketId);
+      break;
+    }
+    case 'REFRESH_MARKET': {
+      const { message } = action;
+      refreshMarketVersion(state, message);
+      newState = refreshStoredMarket(state, message);
+      break;
+    }
+    case 'REFRESH_NOTIFICATION': {
+      const { message } = action;
+      refreshNotificationVersion(state, message);
+      newState = refreshStoredNotification(state, message);
+      break;
+    }
+    default:
+      newState = state;
+  }
+  const lfh = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
+  lfh.setState(newState);
+  return newState;
 }
 
 export default reducer;

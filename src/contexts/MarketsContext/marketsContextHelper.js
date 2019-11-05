@@ -1,4 +1,3 @@
-import { fixupItemsForStorage } from '../ContextUtils';
 import { initializeState, updateAllMarketDetails } from './marketsContextReducer';
 import { getMarketDetails } from '../../api/markets';
 import { EMPTY_STATE } from './MarketsContext';
@@ -35,7 +34,7 @@ export function getAllMarkets(state) {
   return state.markets;
 }
 
-// TODO need below updateSelectMarketDetails and also an action removeSelectedMarketDetails(markets)
+// TODO need below updateSelectMarketDetails and also an action removeSelectedMarketDetails(removeMarketList)
 export function refreshMarkets(dispatch, updateMarketList) {
   const promises = updateMarketList.map((marketId) => getMarketDetails(marketId));
   return Promise.all(promises)

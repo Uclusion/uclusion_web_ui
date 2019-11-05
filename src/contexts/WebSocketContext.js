@@ -11,13 +11,9 @@ import config from '../config';
 import { sendInfoPersistent } from '../utils/userMessage';
 
 export const AUTH_HUB_CHANNEL = 'Auth';
-export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
-export const PUSH_CONTEXT_CHANNEL = 'MarketsChannel';
-export const PUSH_COMMENTS_CHANNEL = 'CommentsChannel';
-export const PUSH_INVESTIBLES_CHANNEL = 'InvestiblesChannel';
-export const PUSH_PRESENCE_CHANNEL = 'PresenceChannel';
-export const MESSAGES_EVENT = 'web_push';
-export const INVITED_TO_NEW_MARKET_EVENT = 'invited_to_new_market';
+export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
+export const MARKET_MESSAGE_EVENT = 'market_web_push';
+export const NOTIFICATION_MESSAGE_EVENT = 'notification_web_push';
 
 const WebSocketContext = React.createContext([{}, () => {}]);
 function notifyNewApplicationVersion(currentVersion) {
@@ -32,27 +28,6 @@ function notifyNewApplicationVersion(currentVersion) {
     };
     sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
   }
-}
-
-function registerChannel(socket, messageType, channel) {
-  socket.registerHandler(messageType, (message) => {
-    Hub.dispatch(
-      channel,
-      {
-        event: MESSAGES_EVENT,
-        message,
-      },
-    );
-    if (messageType !== 'USER_MESSAGES_UPDATED') {
-      Hub.dispatch(
-        NOTIFICATIONS_HUB_CHANNEL,
-        {
-          event: MESSAGES_EVENT,
-          message,
-        },
-      );
-    }
-  });
 }
 
 function WebSocketProvider(props) {
@@ -76,29 +51,21 @@ function WebSocketProvider(props) {
       notifyNewApplicationVersion(deployed_version);
     });
 
-    registerChannel(newSocket, 'USER_MESSAGES_UPDATED', NOTIFICATIONS_HUB_CHANNEL);
-    registerChannel(newSocket, 'INVESTIBLE_COMMENT_UPDATED', PUSH_COMMENTS_CHANNEL);
-    registerChannel(newSocket, 'MARKET_INVESTIBLE_UPDATED', PUSH_INVESTIBLES_CHANNEL);
-    registerChannel(newSocket, 'MARKET_UPDATED', PUSH_CONTEXT_CHANNEL);
-    newSocket.registerHandler('USER_UPDATED', (message) => {
+    newSocket.registerHandler('market', (message) => {
       Hub.dispatch(
-        PUSH_CONTEXT_CHANNEL,
+        VERSIONS_HUB_CHANNEL,
         {
-          event: INVITED_TO_NEW_MARKET_EVENT,
+          event: MARKET_MESSAGE_EVENT,
           message,
         },
       );
+    });
+
+    newSocket.registerHandler('notification', (message) => {
       Hub.dispatch(
-        PUSH_PRESENCE_CHANNEL,
+        VERSIONS_HUB_CHANNEL,
         {
-          event: MESSAGES_EVENT,
-          message,
-        },
-      );
-      Hub.dispatch(
-        NOTIFICATIONS_HUB_CHANNEL,
-        {
-          event: MESSAGES_EVENT,
+          event: NOTIFICATION_MESSAGE_EVENT,
           message,
         },
       );

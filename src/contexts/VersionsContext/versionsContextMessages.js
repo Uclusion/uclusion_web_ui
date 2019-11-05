@@ -1,18 +1,27 @@
 import { Hub } from '@aws-amplify/core';
-import { AUTH_HUB_CHANNEL, MESSAGES_EVENT, NOTIFICATIONS_HUB_CHANNEL } from '../WebSocketContext';
-import { getMessages } from '../../api/sso';
-import { updateMessages, updatePage } from './notificationsContextReducer';
-import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext';
+import {
+  AUTH_HUB_CHANNEL,
+  MARKET_MESSAGE_EVENT,
+  NOTIFICATION_MESSAGE_EVENT,
+  VERSIONS_HUB_CHANNEL,
+} from '../WebSocketContext';
+import { getVersions } from '../../api/summaries';
+import {
+  refreshMarketVersionAction,
+  refreshNotificationVersionAction,
+  refreshVersionsAction,
+  removeMarketVersionAction
+} from './versionsContextReducer';
 
 function beginListening(dispatch) {
   Hub.listen(AUTH_HUB_CHANNEL, (data) => {
     const { payload: { event } } = data;
-    console.debug(`Notifications context responding to auth event ${event}`);
+    console.debug(`Versions context responding to auth event ${event}`);
 
     switch (event) {
       case 'signIn':
-        getMessages().then((messages) => {
-          dispatch(updateMessages(messages));
+        getVersions().then((versions) => {
+          dispatch(refreshVersionsAction(versions));
         });
         break;
       case 'signOut':
@@ -22,41 +31,28 @@ function beginListening(dispatch) {
     }
   });
 
-  Hub.listen(NOTIFICATIONS_HUB_CHANNEL, (data) => {
-    const { payload: { event } } = data;
-    console.debug(`Notifications context responding to push event ${event}`);
-
-    switch (event) {
-      case MESSAGES_EVENT:
-        getMessages().then((messages) => {
-          dispatch(updateMessages(messages));
-        });
-        break;
-      default:
-        console.debug(`Ignoring push event ${event}`);
-    }
-  });
-
-  Hub.listen(VISIT_CHANNEL, (data) => {
+  Hub.listen(VERSIONS_HUB_CHANNEL, (data) => {
     const { payload: { event, message } } = data;
+    console.debug(`Versions context responding to push event ${event}`);
+
     switch (event) {
-      case VIEW_EVENT: {
-        const { marketId, investibleIdOrContext, isEntry } = message;
-        console.debug('Received:');
-        console.debug(message);
-        if (isEntry) {
-          if (investibleIdOrContext === 'context') {
-            dispatch(updatePage({ marketId }));
-          } else {
-            dispatch(updatePage({ marketId, investibleId: investibleIdOrContext }));
-          }
+      case MARKET_MESSAGE_EVENT: {
+        const { version, object_id: marketId } = message;
+        if (version < 0) {
+          dispatch(removeMarketVersionAction(marketId));
         } else {
-          dispatch(updatePage(undefined));
+          delete message.object_id;
+          dispatch(refreshMarketVersionAction({ marketId, ...message }));
         }
         break;
       }
+      case NOTIFICATION_MESSAGE_EVENT: {
+        const { version } = message;
+        dispatch(refreshNotificationVersionAction(version));
+        break;
+      }
       default:
-        console.debug(`Ignoring event ${event}`);
+        console.debug(`Ignoring push event ${event}`);
     }
   });
 }

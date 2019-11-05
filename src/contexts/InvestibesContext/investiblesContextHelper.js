@@ -15,6 +15,10 @@ export function getMarketInvestibles(state, marketId) {
   return found;
 }
 
+export function getInvestible(state, investibleId) {
+  console.log(state);
+  return state[investibleId];
+}
 
 export function refreshInvestibles(dispatch, marketId) {
   return fetchInvestibleList(marketId)

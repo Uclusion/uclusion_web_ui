@@ -3,10 +3,9 @@ import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
-import ExpirationCountDown from './ExpirationCountDown';
-import MarketNav from './MarketNav';
-import Activity from '../../containers/Activity';
-import { getMarketId } from '../../utils/marketIdPathFunctions';
+import { makeBreadCrumbs, getMarketId } from '../../utils/marketIdPathFunctions';
+
+import Screen from '../../containers/Activity/Screen';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { refreshMarketStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
@@ -14,9 +13,11 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInvestibles, refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { refreshMarketPresence } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import Summary from './Summary';
+import Investibles from './Investibles';
 
 const styles = (theme) => ({
   root: {
@@ -56,18 +57,15 @@ function Market(props) {
   const { pathname } = location;
   const marketId = getMarketId(pathname);
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketStagesDispatch] = useContext(MarketStagesContext);
   const marketDetails = getAllMarketDetails(marketsState);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, commentsDispatch] = useContext(CommentsContext);
   const [loadedMarket, setLoadedMarket] = useState(undefined);
   const { hidden } = props;
-  // TODO: Fix the loading
-  const investiblesLoading = false;
-  const commentsLoading = false;
-  const marketStagesLoading = false;
-  const marketUsersLoading = false;
+
+  const investibles = getMarketInvestibles(investiblesState, marketId);
 
   useEffect(() => {
     if (marketId && loadedMarket !== marketId) {
@@ -87,18 +85,20 @@ function Market(props) {
     marketsState,
   ]);
 
+  const breadCrumbs = makeBreadCrumbs(history);
+
   const renderableMarket = marketDetails.find((market) => market.id === marketId);
-  console.debug(`Market page being rerendered ${commentsLoading} ${marketUsersLoading} ${marketStagesLoading}`);
+
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   return (
-    <Activity
+    <Screen
       title={currentMarketName}
       hidden={hidden}
+      breadCrumbs={breadCrumbs}
     >
-      <div>
-        {renderableMarket && (<MarketNav market={renderableMarket} />)}
-      </div>
-    </Activity>
+      { renderableMarket && <Summary market={renderableMarket}/> }
+      { investibles && <Investibles investibles={investibles} marketId={marketId} />}
+    </Screen>
   );
 }
 

@@ -28,7 +28,7 @@ const messages = defineMessages({
   sign_in: 'Sign in',
   sign_up: 'Sign up',
   continue: 'Continue',
-
+  homeBreadCrumb: 'Home',
   reset_password_header: 'Reset Password',
   login_header: 'Log In',
   sign_in_with_google: 'Sign in with Google',

@@ -8,11 +8,12 @@ import Market from '../../pages/DecisionDialog/Market';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import {
-  broadcastView, formMarketLink, getMarketId, navigate,
+  broadcastView, formMarketLink, getInvestibleId, getMarketId, navigate,
 } from '../../utils/marketIdPathFunctions';
 import { getAccountClient, getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import Home from '../../pages/Home/Home';
+import Investible from '../../pages/DecisionDialog/Investible';
 
 const useStyles = makeStyles({
   body: {
@@ -43,7 +44,9 @@ function Root(props) {
   const { location } = history;
   const { pathname, hash } = location;
   console.log(`pathname is ${pathname}`);
+  console.log(hash);
   const marketId = getMarketId(pathname);
+  const investibleId = getInvestibleId(hash);
   function hideHome() {
     return !pathname || pathname !== '/';
   }
@@ -55,8 +58,13 @@ function Root(props) {
     return !pathname.startsWith('/about');
   }
   function hideMarket() {
-    return marketId === null;
+    return marketId == null || investibleId != null;
   }
+
+  function hideInvestible() {
+    return investibleId == null;
+  }
+
   function isInvite() {
     if (!pathname) {
       return false;
@@ -125,7 +133,8 @@ function Root(props) {
             <Home hidden={hideHome()} />
             <Market hidden={hideMarket()} />
             <About hidden={hideAbout()} />
-            <PageNotFound hidden={!(hideMarket() && hideAbout() && hideHome())}
+            <Investible hidden={hideInvestible()} />
+            <PageNotFound hidden={!(hideMarket() && hideAbout() && hideHome() && hideInvestible())}
             />
           </div>
         </div>

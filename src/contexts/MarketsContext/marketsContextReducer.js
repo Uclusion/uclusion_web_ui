@@ -123,6 +123,16 @@ function doUpdateAllMarketDetails(state, action) {
   };
 }
 
+function doUpdateSelectMarketsDetails(state, action) {
+  const { marketDetailList } = action;
+  const { marketDetails: oldMarketDetails } = state;
+  const newDetails = _.unionBy(marketDetailList, oldMarketDetails, 'id');
+  return {
+    ...state,
+    marketDetails: newDetails,
+  };
+}
+
 function doUpdateSingleMarketDetails(state, action) {
   const { marketDetails } = action;
   const { marketDetails: oldMarketDetails } = state;

@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import Summary from '../Summary';
 import Investibles from '../Investibles';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
+import SubSection from '../../../containers/SubSection/SubSection';
 
 function DecisionDialog(props) {
 
@@ -14,11 +15,19 @@ function DecisionDialog(props) {
 
 
   return (
-    <div>
-      <Summary market={market} />
-      {investibles && <Investibles investibles={investibles} marketId={marketId} />}
+    <div >
+      <SubSection title='Voting' />
+      <SubSection title='Description' >
+        <Summary market={market} />
+      </SubSection>
+      <SubSection title='Ideas Under Consideration'>
+        {investibles && <Investibles investibles={investibles} marketId={marketId} />}
+      </SubSection>
+        <SubSection title='Proposed Ideas' />
+      <SubSection title='Comments'>
       <CommentBox comments={comments} commentsHash={commentsHash} marketId={marketId} />
-    </div>
+      </SubSection>
+    </div >
   );
 }
 

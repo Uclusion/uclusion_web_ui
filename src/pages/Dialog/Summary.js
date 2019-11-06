@@ -24,14 +24,10 @@ function Summary(props) {
       <Card className={classes.paper}>
         <Grid
           container
-          alignItems="center"
+          alignItems="flex-start"
           justify="flex-start"
         >
-          <SubSection title="Context">
             <QuillEditor marketId={id} defaultValue={description} readOnly />
-          </SubSection>
-          <Divider orientation="vertical" />
-
         </Grid>
       </Card>
     </div>

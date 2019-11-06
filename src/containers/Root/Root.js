@@ -4,7 +4,7 @@ import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 import { defaultTheme } from '../../config/themes';
-import Market from '../../pages/DecisionDialog/Market';
+import Market from '../../pages/Dialog/Market';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import {
@@ -13,7 +13,7 @@ import {
 import { getAccountClient, getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import Home from '../../pages/Home/Home';
-import Investible from '../../pages/DecisionDialog/Investible';
+import Investible from '../../pages/Investible/Investible';
 
 const useStyles = makeStyles({
   body: {
@@ -73,7 +73,7 @@ function Root(props) {
   }
   const inviteMarketId = getMarketId(pathname, '/invite/');
   if (inviteMarketId) {
-    console.log(`Logging into market ${inviteMarketId}`);
+    console.debug(`Logging into market ${inviteMarketId}`);
     getMarketClient(inviteMarketId).then(() => navigate(history, formMarketLink(inviteMarketId)))
       .catch((error) => {
         console.error(error);

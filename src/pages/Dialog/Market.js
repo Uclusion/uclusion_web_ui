@@ -55,7 +55,7 @@ function Market(props) {
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const breadCrumbs = makeBreadCrumbs(history);
 
-  const renderableMarket = marketDetails.find((market) => market.id === marketId);
+  const renderableMarket = marketDetails.find((market) => market.id === marketId) || {};
   const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   return (

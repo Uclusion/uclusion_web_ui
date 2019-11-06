@@ -2,7 +2,7 @@ import React, { useEffect, useState, useReducer } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import reducer, { EMPTY_STATE, refreshVersionsAction, VERSIONS_CONTEXT_NAMESPACE } from './versionsContextReducer';
 import beginListening from './versionsContextMessages';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
+
 import { getVersions } from '../../api/summaries';
 
 const VersionsContext = React.createContext(EMPTY_STATE);
@@ -12,19 +12,19 @@ function VersionsProvider(props) {
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [isInitialization, setIsInitialization] = useState(true);
-  const haveLocalData = getUclusionLocalStorageItem(VERSIONS_CONTEXT_NAMESPACE);
+
   useEffect(() => {
-    if (isInitialization || !haveLocalData) {
+    if (isInitialization) {
       getVersions().then((versions) => {
         dispatch(refreshVersionsAction(versions));
         setIsInitialization(false);
       });
+      console.debug('Versions context begining listening');
       beginListening(dispatch);
-      setUclusionLocalStorageItem(VERSIONS_CONTEXT_NAMESPACE, true);
     }
     return () => {
     };
-  }, [isInitialization, haveLocalData]);
+  }, [isInitialization]);
 
   return (
     <VersionsContext.Provider value={[state, dispatch]}>

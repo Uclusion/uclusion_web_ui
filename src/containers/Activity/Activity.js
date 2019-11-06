@@ -173,7 +173,7 @@ function Activity(props) {
       <AppBar
         position={(width !== 'sm' && width !== 'xs') ? 'absolute' : undefined}
         className={appBarClassName}
-        color="background"
+        color="primary"
       >
         <Toolbar disableGutters>
           <IconButton
@@ -196,7 +196,7 @@ function Activity(props) {
           {!onBackClick && open && <div style={{ marginRight: 32 }}/>}
           <Typography variant="h6">
 
-          <Box fontWeight="fontWeightBold" noWrap>
+          <Box fontWeight="fontWeightBold">
             {headerTitle}
           </Box>
           </Typography>
@@ -210,7 +210,6 @@ function Activity(props) {
         <Typography
           variant="caption"
           className={classes.offline}
-          noWrap
         >
           {intl.formatMessage({ id: 'offline' })}
         </Typography>

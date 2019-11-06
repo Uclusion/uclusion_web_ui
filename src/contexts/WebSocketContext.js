@@ -10,7 +10,7 @@ import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityToken
 import config from '../config';
 import { sendInfoPersistent } from '../utils/userMessage';
 
-export const AUTH_HUB_CHANNEL = 'Auth';
+export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
 export const MARKET_MESSAGE_EVENT = 'market_web_push';
 export const NOTIFICATION_MESSAGE_EVENT = 'notification_web_push';

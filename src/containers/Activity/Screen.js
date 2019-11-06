@@ -16,6 +16,9 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
   },
+  appBar: {
+    background: '#ffffff',
+  },
 });
 
 function Screen(props) {
@@ -44,9 +47,9 @@ function Screen(props) {
   return (
     <div className={hidden ? classes.hidden : classes.root }>
       <AppBar
+        className={classes.appBar}
         position="static"
         hidden={hidden}
-        color="background"
       >
         <Toolbar>
           {generateTitle()}

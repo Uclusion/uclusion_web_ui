@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 const useStyles = makeStyles({
   subHeader: {
     boxShadow: 'none',
+    background: '#ffffff',
   },
 });
 
@@ -19,7 +20,6 @@ function SubSection(props) {
       <AppBar
         className={classes.subHeader}
         position="static"
-        color="background"
       >
         <Toolbar>
           <Typography color='textSecondary'>

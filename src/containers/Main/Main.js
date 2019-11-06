@@ -15,6 +15,7 @@ import { CommentsProvider } from '../../contexts/CommentsContext/CommentsContext
 import { NotificationsProvider } from '../../contexts/NotificationsContext/NotificationsContext';
 import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketStagesProvider } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { VersionsProvider } from '../../contexts/VersionsContext/VersionsContext';
 
 console.log(awsconfig);
 Amplify.configure(awsconfig);
@@ -34,22 +35,24 @@ class Main extends Component {
     return (
       <div>
         <NotificationsProvider>
-          <MarketsProvider>
-            <MarketStagesProvider>
-              <CommentsProvider>
-                <InvestiblesProvider>
-                  <MarketPresencesProvider>
-                    <DrawerProvider>
-                      <LocaleProvider>
-                        <ToastContainer />
-                        <App appConfig={{ ...config }} />
-                      </LocaleProvider>
-                    </DrawerProvider>
-                  </MarketPresencesProvider>>
-                </InvestiblesProvider>
-              </CommentsProvider>
-            </MarketStagesProvider>
-          </MarketsProvider>
+          <VersionsProvider>
+            <MarketsProvider>
+              <MarketStagesProvider>
+                <CommentsProvider>
+                  <InvestiblesProvider>
+                    <MarketPresencesProvider>
+                      <DrawerProvider>
+                        <LocaleProvider>
+                          <ToastContainer />
+                          <App appConfig={{ ...config }} />
+                        </LocaleProvider>
+                      </DrawerProvider>
+                    </MarketPresencesProvider>>
+                  </InvestiblesProvider>
+                </CommentsProvider>
+              </MarketStagesProvider>
+            </MarketsProvider>
+          </VersionsProvider>
         </NotificationsProvider>
       </div>
     );

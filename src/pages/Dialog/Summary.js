@@ -1,22 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Card, Grid, Divider, CardContent, Paper } from '@material-ui/core';
+import { Card, Grid, Divider } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import SubSection from '../../containers/SubSection/SubSection';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 
-const useStyles = makeStyles((theme) => {
-  return {
-    root: {
-      flexGrow: 1,
-      overflow: 'hidden',
-      padding: theme
-    },
-    paper: {
-
-    },
-  };
-});
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+    overflow: 'hidden',
+    padding: theme,
+  },
+  paper: {},
+}));
 
 function Summary(props) {
   const classes = useStyles();
@@ -32,7 +28,7 @@ function Summary(props) {
           justify="flex-start"
         >
           <SubSection title="Context">
-              <QuillEditor marketId={id} defaultValue={description} readOnly />
+            <QuillEditor marketId={id} defaultValue={description} readOnly />
           </SubSection>
           <Divider orientation="vertical" />
 

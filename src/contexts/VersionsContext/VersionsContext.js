@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useReducer } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import reducer, { EMPTY_STATE, refreshVersionsAction, VERSIONS_CONTEXT_NAMESPACE } from './versionsContextReducer';
+import reducer, { EMPTY_STATE, refreshVersionsAction } from './versionsContextReducer';
 import beginListening from './versionsContextMessages';
 
 import { getVersions } from '../../api/summaries';

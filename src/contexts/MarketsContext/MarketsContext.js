@@ -2,7 +2,6 @@ import React, { useEffect, useReducer, useState } from 'react';
 import beginListening from './marketsContextMessages';
 import reducer, { initializeState } from './marketsContextReducer';
 import LocalForageHelper from '../LocalForageHelper';
-import { refreshMarkets } from './marketsContextHelper';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
 
 const MARKET_CONTEXT_NAMESPACE = 'market_context';

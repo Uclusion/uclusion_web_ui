@@ -19,6 +19,9 @@ const useStyles = makeStyles({
   appBar: {
     background: '#ffffff',
   },
+  breadCrumbImage: {
+    height: 40,
+  }
 });
 
 function Screen(props) {
@@ -33,7 +36,8 @@ function Screen(props) {
           {breadCrumbs.map((crumb, index) => {
             return (
               <Link key={index} color="inherit" href="#" onClick={crumb.onClick}>
-                {crumb.title}
+                { crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage}/> }
+                { !crumb.image && crumb.title }
               </Link>
             );
           })}

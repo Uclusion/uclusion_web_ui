@@ -79,7 +79,6 @@ export function navigate(history, to) {
   broadcastView(toMarketId, toInvestibleId, true);
 }
 
-
 /**
  *
  * @param history
@@ -87,16 +86,17 @@ export function navigate(history, to) {
  * @param includeHome if Home Should be prepended to the list
  */
 export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
-  const homeName = intl.formatMessage({ id : 'homeBreadCrumb' });
+  const homeName = intl.formatMessage({ id: 'homeBreadCrumb' });
   const homeCrumb = [];
   if (includeHome) {
-    homeCrumb.push({ name: homeName, link: '/' })
+    homeCrumb.push({ name: homeName, link: '/', image: '/images/Uclusion_Wordmark_Color.png' });
   }
   const myCrumbs = homeCrumb.concat(crumbs);
   const breadCrumbs = myCrumbs.map((crumb) => {
-    const { name, link } = crumb;
+    const { name, link, image } = crumb;
     return {
       title: name,
+      image,
       onClick: () => navigate(history, link),
     };
   });

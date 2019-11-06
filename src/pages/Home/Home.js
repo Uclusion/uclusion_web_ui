@@ -17,7 +17,7 @@ function Home(props) {
   const decisionDetails = getMarketDetailsForType(marketsState, 'DECISION');
   return (
     <Screen
-      title="Home"
+      title={<img src="/images/Uclusion_Wordmark_Color.png" />}
       pageTitle="PageTitle"
       hidden={hidden}
       appBarContent={<Notifications />}

@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Paper, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
+import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import { makeStyles } from '@material-ui/styles';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -16,9 +17,9 @@ function PlanningDialogs(props) {
   const history = useHistory();
   const classes = useStyles();
   const { markets } = props;
-
+  const sortedMarkets = _.sortBy(markets, 'name');
   function getMarketItems() {
-    return markets.map((market) => {
+    return sortedMarkets.map((market) => {
       const { id, name } = market;
       return (
         <Grid

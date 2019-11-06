@@ -1,11 +1,22 @@
 import { getAccountClient, getMarketClient } from './uclusionClient';
 import { fixupItemForStorage } from '../contexts/ContextUtils';
 
+function fixupMarketForStorage(market) {
+  const itemFixed = fixupItemForStorage(market);
+  const { created_at, expiration_minutes } = itemFixed;
+  const expirationMillis = created_at.getTime() + (60000 * expiration_minutes);
+  const exipirationDate = new Date(expirationMillis);
+  const expirationAdded = {
+    ...itemFixed,
+    expires_at: expirationMillis,
+  };
+  return expirationAdded;
+}
 
 export function getMarketDetails(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.markets.get()
-      .then((market) => fixupItemForStorage(market))
+      .then((market) => fixupMarketForStorage(market))
       .then((market) => client.users.get()
         .then((user) => ({
           ...market,

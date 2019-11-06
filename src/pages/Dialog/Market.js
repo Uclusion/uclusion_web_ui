@@ -10,6 +10,7 @@ import { getAllMarketDetails } from '../../contexts/MarketsContext/marketsContex
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import DecisionDialog from './Decision/DecisionDialog';
+import PlanningDialog from './Planning/PlanningDialog';
 
 const styles = (theme) => ({
   root: {
@@ -65,6 +66,7 @@ function Market(props) {
       breadCrumbs={breadCrumbs}
     >
       { marketType === 'DECISION' && <DecisionDialog market={renderableMarket} investibles={investibles} />}
+      { marketType === 'PLANNING' && <PlanningDialog market={renderableMarket} investibles={investibles} />}
     </Screen>
   );
 }

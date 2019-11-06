@@ -230,6 +230,9 @@ const messages = defineMessages({
   homeSubsectionPlanning: 'Planning Dialogs',
   homeSubsectionDecision: 'Decision Dialogs',
 
+  //Decision Dialogs
+  decisionDialogsStartedBy: 'Started By: {name}',
+  decisionDialogsExpires: 'Expires:',
 
   // About
   sidebarNavAbout: 'About',

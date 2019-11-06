@@ -1,26 +1,33 @@
 import React from 'react';
 import { Grid, Paper, Typography } from '@material-ui/core';
+import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
-import PlanningDialogs from './PlanningDialogs';
+import { FormattedDate } from 'react-intl';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles(theme => ({
   paper: {
     padding: theme.spacing(2),
-    textAlign: 'center',
+    textAlign: 'left',
   },
+  textData: {
+    fontSize: 12,
+  }
 }));
 
 function DecisionDialogs(props) {
   const history = useHistory();
   const classes = useStyles();
   const { markets } = props;
+  const sortedMarkets = _.sortBy(markets, 'name');
+  const intl = useIntl();
 
   function getMarketItems() {
-    return markets.map((market) => {
-      const { id, name } = market;
+    return sortedMarkets.map((market) => {
+      const { id, name, expires_at } = market;
       return (
         <Grid
           item
@@ -32,6 +39,21 @@ function DecisionDialogs(props) {
           >
             <Typography>
               {name}
+            </Typography>
+            <Typography
+              color="textSecondary"
+              className={classes.textData}
+            >
+              {intl.formatMessage({ id: 'decisionDialogsStartedBy' }, { name: 'Phillme Inlater' })}
+            </Typography>
+            <Typography
+              color="textSecondary"
+              className={classes.textData}
+            >
+              {intl.formatMessage({ id: 'decisionDialogsExpires'})}
+              <FormattedDate
+                value={expires_at}
+              />
             </Typography>
           </Paper>
         </Grid>

@@ -4,7 +4,7 @@ import {
   PUSH_INVESTIBLES_CHANNEL,
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
-import { AllSequential } from '../../utils/PromiseUtils';
+import { AllSequentialMap } from '../../utils/PromiseUtils';
 
 function beginListening(dispatch) {
   Hub.listen(PUSH_INVESTIBLES_CHANNEL, (data) => {
@@ -12,8 +12,7 @@ function beginListening(dispatch) {
 
     switch (event) {
       case VERSIONS_EVENT: {
-        const promises = message.map((marketId) => refreshInvestibles(dispatch, marketId));
-        return AllSequential(promises);
+        return AllSequentialMap(message, (marketId) => refreshInvestibles(dispatch, marketId));
       }
       default:
         console.debug(`Ignoring push event ${event}`);

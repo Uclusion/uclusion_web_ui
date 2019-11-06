@@ -65,8 +65,6 @@ function Market(props) {
   const renderableMarket = marketDetails.find((market) => market.id === marketId) || {};
   const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
-  console.log('Decision investibles');
-  console.log(investibles);
   return (
     <Screen
       title={currentMarketName}

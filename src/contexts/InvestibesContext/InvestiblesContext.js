@@ -27,7 +27,7 @@ function InvestiblesProvider(props) {
     }
     return () => {
     };
-  }, [isInitialization, state]);
+  }, [isInitialization]);
 
   console.debug('Investibles context being rerendered');
 

@@ -4,23 +4,23 @@ import { getMarketClient } from './uclusionClient';
 
 export function deleteComment(commentId, investibleId, marketId) {
   const clientPromise = getMarketClient(marketId);
-  return clientPromise.then(client => client.investibles.deleteComment(commentId));
+  return clientPromise.then((client) => client.investibles.deleteComment(commentId));
 }
 
 export function fetchComments(idList, marketId) {
   const clientPromise = getMarketClient(marketId);
   console.log('Fetching comments of list');
   console.log(idList);
-  return clientPromise.then(client => client.investibles.getMarketComments(idList));
+  return clientPromise.then((client) => client.investibles.getMarketComments(idList));
 }
 
-export function   fetchCommentList(marketId) {
+export function fetchCommentList(marketId) {
   const clientPromise = getMarketClient(marketId);
   console.debug(`Fetching comments list for: ${marketId}`);
-  return clientPromise.then(client => client.investibles.listCommentsByMarket());
+  return clientPromise.then((client) => client.investibles.listCommentsByMarket());
 }
 
 export function saveComment(marketId, investibleId, replyId, body, commentType, uploadedFiles) {
   return getMarketClient(marketId)
-    .then(client => client.investibles.createComment(investibleId, body, replyId, commentType, uploadedFiles));
+    .then((client) => client.investibles.createComment(investibleId, body, replyId, commentType, uploadedFiles));
 }

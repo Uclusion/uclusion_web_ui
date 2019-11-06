@@ -6,7 +6,7 @@ import {
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
 import { removeMarketDetails, updateMarketDetails } from './marketsContextReducer';
-import { AllSequential } from '../../utils/PromiseUtils';
+import { AllSequentialMap } from '../../utils/PromiseUtils';
 
 function beginListening(dispatch) {
   Hub.listen(REMOVED_MARKETS_CHANNEL, (data) => {
@@ -25,9 +25,8 @@ function beginListening(dispatch) {
     switch (event) {
       case VERSIONS_EVENT: {
         console.debug(`Markets context responding to updated market event ${event}`);
-        const promises = message.map((marketId) => getMarketDetails(marketId));
-        AllSequential(promises).then((marketDetails) => dispatch(updateMarketDetails(marketDetails)));
-        break;
+        return AllSequentialMap(message, (marketId) => getMarketDetails(marketId))
+          .then((marketDetails) => dispatch(updateMarketDetails(marketDetails)));
       }
       default:
         console.debug(`Ignoring identity event ${event}`);

@@ -24,7 +24,13 @@ function Investibles(props) {
       const { investible } = inv;
       const { id, name, description } = investible;
       return (
-        <Grid item key={id}>
+        <Grid
+          item
+          key={id}
+          xs={12}
+          s={6}
+          md={4}
+        >
           <Paper
             className={classes.paper}
             onClick={() => navigate(history, formInvestibleLink(marketId, id))}

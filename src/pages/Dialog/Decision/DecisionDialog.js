@@ -15,9 +15,9 @@ function DecisionDialog(props) {
 
 
   return (
-    <div >
+    <div>
       <SubSection title='Voting' />
-      <SubSection title='Description' >
+      <SubSection title='Description'>
         <Summary market={market} />
       </SubSection>
       <SubSection title='Ideas Under Consideration'>
@@ -27,7 +27,7 @@ function DecisionDialog(props) {
       <SubSection title='Comments'>
       <CommentBox comments={comments} commentsHash={commentsHash} marketId={marketId} />
       </SubSection>
-    </div >
+    </div>
   );
 }
 

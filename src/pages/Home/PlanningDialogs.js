@@ -9,7 +9,7 @@ import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 const useStyles = makeStyles(theme => ({
   paper: {
     padding: theme.spacing(2),
-    textAlign: 'center',
+    textAlign: 'left',
   },
 }));
 
@@ -32,6 +32,7 @@ function PlanningDialogs(props) {
         >
           <Paper
             className={classes.paper}
+
             onClick={() => navigate(history, formMarketLink(id))}
           >
             <Typography>

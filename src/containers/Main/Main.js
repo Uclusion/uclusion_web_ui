@@ -43,11 +43,11 @@ class Main extends Component {
                     <MarketPresencesProvider>
                       <DrawerProvider>
                         <LocaleProvider>
-                          <ToastContainer />
-                          <App appConfig={{ ...config }} />
+                          <ToastContainer/>
+                          <App appConfig={{ ...config }}/>
                         </LocaleProvider>
                       </DrawerProvider>
-                    </MarketPresencesProvider>>
+                    </MarketPresencesProvider>
                   </InvestiblesProvider>
                 </CommentsProvider>
               </MarketStagesProvider>

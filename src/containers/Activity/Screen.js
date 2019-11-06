@@ -49,7 +49,7 @@ function Screen(props) {
   }
 
   return (
-    <div className={hidden ? classes.hidden : classes.root }>
+    <div className={hidden ? classes.hidden : classes.root}>
       <AppBar
         className={classes.appBar}
         position="static"

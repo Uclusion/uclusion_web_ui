@@ -65,13 +65,15 @@ function Market(props) {
   const renderableMarket = marketDetails.find((market) => market.id === marketId) || {};
   const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
+  console.log('Decision investibles');
+  console.log(investibles);
   return (
     <Screen
       title={currentMarketName}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
     >
-      { marketType === 'DECISION' && <DecisionDialog market={renderableMarket} investibles={investibles} comments={comments} commentsHash={commentsHash}/>}
+      { marketType === 'DECISION' && <DecisionDialog market={renderableMarket} investibles={investibles} comments={comments} commentsHash={commentsHash} />}
       { marketType === 'PLANNING' && <PlanningDialog market={renderableMarket} investibles={investibles} />}
     </Screen>
   );

@@ -1,8 +1,5 @@
 import React, { useEffect, useState, useReducer } from 'react';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import reducer, { updateMessages } from './notificationsContextReducer';
-import { getMessages } from '../../api/sso';
-
+import reducer from './notificationsContextReducer';
 import { deleteMessage } from '../../api/users';
 import beginListening from './notificationsContextMessages';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
@@ -26,10 +23,7 @@ function NotificationsProvider(props) {
   const haveLocalData = getUclusionLocalStorageItem(NOTIFICATIONS_CONTEXT_NAMESPACE);
   useEffect(() => {
     if (isInitialization || !haveLocalData) {
-      getMessages().then((messages) => {
-        dispatch(updateMessages(messages));
-        setIsInitialization(false);
-      });
+      setIsInitialization(false);
       beginListening(dispatch);
       setUclusionLocalStorageItem(NOTIFICATIONS_CONTEXT_NAMESPACE, true);
     }

@@ -1,15 +1,29 @@
 import { Hub } from '@aws-amplify/core';
-import { MESSAGES_EVENT, PUSH_COMMENTS_CHANNEL } from '../WebSocketContext';
 import { refreshMarketComments } from './commentsContextHelper';
+import {
+  PUSH_COMMENTS_CHANNEL,
+  REMOVED_MARKETS_CHANNEL,
+  VERSIONS_EVENT
+} from '../VersionsContext/versionsContextHelper';
+import { removeMarketsComments } from './commentsContextReducer';
 
 function beginListening(dispatch) {
+  Hub.listen(REMOVED_MARKETS_CHANNEL, (data) => {
+    const { payload: { event, message } } = data;
+    switch (event) {
+      case VERSIONS_EVENT:
+        dispatch(removeMarketsComments(message));
+        break;
+      default:
+        console.debug(`Ignoring identity event ${event}`);
+    }
+  });
   Hub.listen(PUSH_COMMENTS_CHANNEL, (data) => {
     const { payload: { event, message } } = data;
 
     switch (event) {
-      case MESSAGES_EVENT: {
-        const { indirect_object_id: marketId } = message;
-        refreshMarketComments(dispatch, marketId);
+      case VERSIONS_EVENT: {
+        message.map((marketId) => refreshMarketComments(dispatch, marketId));
         break;
       }
       default:

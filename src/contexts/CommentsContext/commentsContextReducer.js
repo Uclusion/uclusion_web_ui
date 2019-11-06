@@ -5,10 +5,9 @@ import { COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_COMMENTS = 'UPDATE_MARKET_COMMENTS';
 const UPDATE_MARKET_COMMENT = 'UPDATE_MARKET_COMMENT';
+const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
 
-
-
-/** Messages we can send to the reducer **/
+/** Messages we can send to the reducer */
 
 export function initializeState(newState) {
   return {
@@ -32,8 +31,15 @@ export function updateMarketComment(marketId, comment) {
   };
 }
 
+export function removeMarketsComments(marketIds) {
+  return {
+    type: REMOVE_MARKETS_COMMENT,
+    marketIds,
+  };
+}
 
-/** Functions that update the reducer state **/
+
+/** Functions that update the reducer state */
 
 function doUpdateComment(state, action) {
   const { marketId, comment: commentUpdate } = action;
@@ -60,11 +66,10 @@ function doUpdateComment(state, action) {
   }
   const newMarketComments = _.unionBy(updateList, oldMarketComments, 'id');
   console.log(newMarketComments);
-  const newState = {
+  return {
     ...state,
     [marketId]: newMarketComments,
   };
-  return newState;
 }
 
 function doUpdateMarketComments(state, action) {
@@ -75,12 +80,19 @@ function doUpdateMarketComments(state, action) {
   };
 }
 
+function doRemoveMarketsComments(state, action) {
+  const { marketIds } = action;
+  return _.omit(state, marketIds);
+}
+
 function computeNewState(state, action) {
   switch (action.type) {
     case UPDATE_MARKET_COMMENTS:
       return doUpdateMarketComments(state, action);
     case UPDATE_MARKET_COMMENT:
       return doUpdateComment(state, action);
+    case REMOVE_MARKETS_COMMENT:
+      return doRemoveMarketsComments(state, action);
     default:
       return state;
   }

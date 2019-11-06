@@ -9,7 +9,6 @@ import awsconfig from '../../config/amplify';
 
 import { MarketsProvider } from '../../contexts/MarketsContext/MarketsContext';
 import { InvestiblesProvider } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { DrawerProvider } from '../../contexts/DrawerContext';
 import { LocaleProvider } from '../../contexts/LocaleContext';
 import { CommentsProvider } from '../../contexts/CommentsContext/CommentsContext';
 import { NotificationsProvider } from '../../contexts/NotificationsContext/NotificationsContext';
@@ -17,7 +16,6 @@ import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/M
 import { MarketStagesProvider } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { VersionsProvider } from '../../contexts/VersionsContext/VersionsContext';
 
-console.log(awsconfig);
 Amplify.configure(awsconfig);
 const oauth = {
   domain: 'uclusion-dev.auth.us-west-2.amazoncognito.com',
@@ -41,12 +39,10 @@ class Main extends Component {
                 <CommentsProvider>
                   <InvestiblesProvider>
                     <MarketPresencesProvider>
-                      <DrawerProvider>
-                        <LocaleProvider>
-                          <ToastContainer/>
-                          <App appConfig={{ ...config }}/>
-                        </LocaleProvider>
-                      </DrawerProvider>
+                      <LocaleProvider>
+                        <ToastContainer />
+                        <App appConfig={{ ...config }} />
+                      </LocaleProvider>
                     </MarketPresencesProvider>
                   </InvestiblesProvider>
                 </CommentsProvider>

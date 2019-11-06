@@ -21,13 +21,10 @@ function MarketsProvider(props) {
   const haveLocalData = getUclusionLocalStorageItem(MARKET_CONTEXT_NAMESPACE);
   useEffect(() => {
     if (isInitialization || !haveLocalData) {
-      console.debug('Loading state from disk');
       // load state from storage
       const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
       lfg.getState()
         .then((diskState) => {
-          console.log('Got diskstate');
-          console.log(diskState);
           if (diskState) {
             dispatch(initializeState(diskState));
           }

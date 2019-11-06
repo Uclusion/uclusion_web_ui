@@ -6,6 +6,7 @@ import {
   VERSIONS_EVENT
 } from '../VersionsContext/versionsContextHelper';
 import { removeMarketsComments } from './commentsContextReducer';
+import { AllSequential } from '../../utils/PromiseUtils';
 
 function beginListening(dispatch) {
   Hub.listen(REMOVED_MARKETS_CHANNEL, (data) => {
@@ -23,8 +24,8 @@ function beginListening(dispatch) {
 
     switch (event) {
       case VERSIONS_EVENT: {
-        message.map((marketId) => refreshMarketComments(dispatch, marketId));
-        break;
+        const promises = message.map((marketId) => refreshMarketComments(dispatch, marketId));
+        return AllSequential(promises);
       }
       default:
         console.debug(`Ignoring push event ${event}`);

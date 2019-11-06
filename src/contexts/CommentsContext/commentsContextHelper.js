@@ -8,6 +8,7 @@ import _ from 'lodash';
 import LocalForageHelper from '../LocalForageHelper';
 import { COMMENTS_CONTEXT_NAMESPACE, EMPTY_STATE } from './CommentsContext';
 import { updateMarketComment, updateMarketComments } from './commentsContextReducer';
+import { AllSequential } from '../../utils/PromiseUtils';
 
 
 export function addComment(dispatch, marketId, comment) {
@@ -50,7 +51,7 @@ export function refreshMarketComments(dispatch, marketId) {
             const chunkPromise = fetchComments(chunk, marketId);
             return acc.concat(chunkPromise);
           }, []);
-          return Promise.all(promises)
+          return AllSequential(promises)
             .then((commentChunks) => {
               const flattenedComments = _.flatten(commentChunks);
               const fixedUp = fixupItemsForStorage(flattenedComments);

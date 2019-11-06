@@ -22,7 +22,6 @@ function App(props) {
 
   return (
     <WebSocketProvider config={config}>
-
       <IntlProvider locale={locale} key={locale} messages={messages}>
         <IntlGlobalProvider>
           <AppConfigProvider appConfig={configs}>

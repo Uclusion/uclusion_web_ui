@@ -5,15 +5,16 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarketDetailsForType } from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningDialogs from './PlanningDialogs';
 import SubSection from '../../containers/SubSection/SubSection';
-
+import { useIntl } from 'react-intl';
 import Notifications from '../../components/Notifications/Notifications';
+import DecisionDialogs from './DecisionDialogs';
 
 function Home(props) {
   const { hidden } = props;
-
+  const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const planningDetails = getMarketDetailsForType(marketsState, 'PLANNING');
-  //const decisionDetails = getMarketDetailsForType(marketsState, 'DECISION');
+  const decisionDetails = getMarketDetailsForType(marketsState, 'DECISION');
   return (
     <Screen
       title="Home"
@@ -22,12 +23,17 @@ function Home(props) {
       appBarContent={<Notifications />}
     >
       <SubSection
-        title='Planning Dialogs'
+        title={intl.formatMessage({ id: 'homeSubsectionPlanning' })}
       >
         <PlanningDialogs markets={planningDetails} />
       </SubSection>
+      <SubSection
+        title={intl.formatMessage({ id: 'homeSubsectionDecision' })}
+      >
+        <DecisionDialogs markets={decisionDetails} />
+      </SubSection>
     </Screen>
-);
+  );
 
 }
 

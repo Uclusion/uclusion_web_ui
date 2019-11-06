@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Grid, Paper, Typography } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
@@ -20,10 +21,14 @@ function PlanningDialogs(props) {
     return markets.map((market) => {
       const { id, name } = market;
       return (
-        <Grid item>
+        <Grid
+          item
+          key={id}
+        >
           <Paper
             className={classes.paper}
-            onClick={() => navigate(history, formMarketLink(id))}>
+            onClick={() => navigate(history, formMarketLink(id))}
+          >
             <Typography>
               {name}
             </Typography>
@@ -38,7 +43,11 @@ function PlanningDialogs(props) {
       {getMarketItems()}
     </Grid>
   );
-
 }
+
+PlanningDialogs.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
+  markets: PropTypes.arrayOf(PropTypes.object).isRequired,
+};
 
 export default PlanningDialogs;

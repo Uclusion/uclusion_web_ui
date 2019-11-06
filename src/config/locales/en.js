@@ -226,6 +226,11 @@ const messages = defineMessages({
   // Investible detail
   investibleDetailClose: 'Close',
 
+  // Home
+  homeSubsectionPlanning: 'Planning Dialogs',
+  homeSubsectionDecision: 'Decision Dialogs',
+
+
   // About
   sidebarNavAbout: 'About',
   aboutApplicationVersionLabel: 'Version',

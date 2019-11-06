@@ -3,7 +3,7 @@ import { NotificationImportant, Notifications as NotificationsIcon, ChevronRight
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { useHistory } from 'react-router';
 import { Button, makeStyles } from '@material-ui/core';
-import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles({
   red: {
@@ -35,17 +35,13 @@ function Notifications(props) {
     }
   }
 
-
   function nextOnClick() {
     if (messages.length > 0) {
       const message = messages[0];
       const { marketId, investibleId } = message;
-      let linkDest = 'context';
-      if (investibleId) {
-        // Currently comments come in as investibles so below will be investible
-        linkDest = investibleId;
-      }
-      const link = formInvestibleLink(marketId, linkDest);
+      const link = investibleId
+        ? formInvestibleLink(marketId, investibleId)
+        : formMarketLink(marketId);
       navigate(history, link);
     }
   }

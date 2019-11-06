@@ -5,16 +5,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Summary from '../Summary';
 import Investibles from '../Investibles';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
 
 function DecisionDialog(props) {
 
-  const { market, investibles } = props;
+  const { market, investibles, comments, commentsHash } = props;
   const { id: marketId } = market;
+
 
   return (
     <div>
       <Summary market={market} />
       {investibles && <Investibles investibles={investibles} marketId={marketId} />}
+      <CommentBox comments={comments} commentsHash={commentsHash} marketId={marketId} />
     </div>
   );
 }
@@ -24,6 +27,8 @@ DecisionDialog.propTypes = {
   market: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   investibles: PropTypes.arrayOf(PropTypes.object),
+  comments: PropTypes.arrayOf(PropTypes.object),
+  commentsHash: PropTypes.object,
 };
 
 DecisionDialog.defaultProps = {

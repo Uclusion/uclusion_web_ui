@@ -25,6 +25,10 @@ function PlanningDialogs(props) {
         <Grid
           item
           key={id}
+          xs={12}
+          sm={6}
+          md={4}
+          lg={3}
         >
           <Paper
             className={classes.paper}
@@ -40,7 +44,7 @@ function PlanningDialogs(props) {
   }
 
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={4}>
       {getMarketItems()}
     </Grid>
   );

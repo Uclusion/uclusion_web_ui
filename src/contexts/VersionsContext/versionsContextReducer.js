@@ -75,7 +75,7 @@ function refreshStoredMarket(state, version) {
   const existingMarketVersions = marketVersions.filter((market) => (market.marketId !== version.marketId));
   return {
     ...state,
-    marketVersions: { existingMarketVersions, version },
+    marketVersions: [...existingMarketVersions, version],
   };
 }
 

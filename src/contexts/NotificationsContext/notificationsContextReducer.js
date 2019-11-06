@@ -71,7 +71,9 @@ function computeNewState(state, action) {
 }
 
 function reducer(state, action) {
-  return computeNewState(state, action);
+  const newState = computeNewState(state, action);
+  console.debug(newState);
+  return newState;
 }
 
 export default reducer;

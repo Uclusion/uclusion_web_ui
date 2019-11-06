@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Card, Grid, Divider } from '@material-ui/core';
+import { Card, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import SubSection from '../../containers/SubSection/SubSection';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 
 const useStyles = makeStyles((theme) => ({

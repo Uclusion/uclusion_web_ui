@@ -1,23 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { makeBreadCrumbs, getMarketId } from '../../utils/marketIdPathFunctions';
-
 import Screen from '../../containers/Activity/Screen';
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
-import { refreshMarketStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { getMarketInvestibles, refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
-import { refreshMarketPresence } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import Summary from './Summary';
-import Investibles from './Investibles';
+import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import DecisionDialog from './Decision/DecisionDialog';
 
 const styles = (theme) => ({
@@ -57,35 +48,11 @@ function Market(props) {
   const { location } = history;
   const { pathname } = location;
   const marketId = getMarketId(pathname);
-  const [marketsState, marketsDispatch] = useContext(MarketsContext);
-  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, marketStagesDispatch] = useContext(MarketStagesContext);
+  const [marketsState] = useContext(MarketsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const marketDetails = getAllMarketDetails(marketsState);
-  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const [, commentsDispatch] = useContext(CommentsContext);
-  const [loadedMarket, setLoadedMarket] = useState(undefined);
   const { hidden } = props;
-
   const investibles = getMarketInvestibles(investiblesState, marketId);
-
-  useEffect(() => {
-    if (marketId && loadedMarket !== marketId) {
-      console.debug('Market rerendered on load new');
-      setLoadedMarket(marketId);
-      refreshInvestibles(investiblesDispatch, marketId);
-      refreshMarketComments(commentsDispatch, marketId);
-      refreshMarketPresence(marketPresencesDispatch, marketId);
-      refreshMarketStages(marketStagesDispatch, marketId);
-    }
-    return () => {
-    };
-  }, [
-    marketId, marketsDispatch, loadedMarket,
-    commentsDispatch, marketPresencesDispatch,
-    investiblesDispatch, marketStagesDispatch,
-    marketsState,
-  ]);
-
   const breadCrumbs = makeBreadCrumbs(history);
 
   const renderableMarket = marketDetails.find((market) => market.id === marketId);

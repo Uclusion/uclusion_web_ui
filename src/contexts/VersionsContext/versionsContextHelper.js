@@ -7,6 +7,7 @@ export const PUSH_COMMENTS_CHANNEL = 'CommentsChannel';
 export const PUSH_INVESTIBLES_CHANNEL = 'InvestiblesChannel';
 export const PUSH_PRESENCE_CHANNEL = 'PresenceChannel';
 export const REMOVED_MARKETS_CHANNEL = 'RemovedMarketsChannel';
+export const PUSH_STAGE_CHANNEL = 'MarketsStagesChannel';
 export const VERSIONS_EVENT = 'version_push';
 
 function compareProcessSingleVersion(rawUpdatedMarket, rawOldMarket) {
@@ -29,6 +30,7 @@ function compareProcessSingleVersion(rawUpdatedMarket, rawOldMarket) {
       investiblesChange: investiblesVersion !== newInvestiblesVersion,
       commentsChange: commentsVersion !== newCommentsVersion,
       marketPresenceChange: marketPresenceVersion !== newMarketPresenceVersion,
+      isNew: false,
     };
   }
   return {
@@ -37,6 +39,7 @@ function compareProcessSingleVersion(rawUpdatedMarket, rawOldMarket) {
     investiblesChange: true,
     commentsChange: true,
     marketPresenceChange: true,
+    isNew: true,
   };
 }
 
@@ -58,8 +61,7 @@ export function refreshVersions(state, newMarketVersions, newNotificationVersion
     const removedMarketList = rawRemovedMarketList.map((rawRemovedMarket) => (rawRemovedMarket.marketId));
     Hub.dispatch(REMOVED_MARKETS_CHANNEL, { event: VERSIONS_EVENT, message: removedMarketList });
   }
-  // If you are in the new but not the same in the old then you are updated
-  // (or inserted which is treated the same)
+  // If you are in the new but not the same in the old then you are updated or inserted
   const rawUpdatedMarketList = _.difference(newMarketVersions, marketVersions);
   const updatedMarketList = rawUpdatedMarketList.map((rawUpdatedMarket) => {
     // eslint-disable-next-line max-len
@@ -86,6 +88,11 @@ export function refreshVersions(state, newMarketVersions, newNotificationVersion
   if (marketPresencesChangesList) {
     const marketList = marketPresencesChangesList.map((market) => (market.marketId));
     Hub.dispatch(PUSH_PRESENCE_CHANNEL, { event: VERSIONS_EVENT, message: marketList });
+  }
+  const marketAddedList = updatedMarketList.filter((market) => (market.isNew));
+  if (marketAddedList) {
+    const marketList = marketAddedList.map((market) => (market.marketId));
+    Hub.dispatch(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, message: marketList });
   }
 }
 

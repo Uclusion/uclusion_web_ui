@@ -3,7 +3,7 @@ import { getMarketDetails } from '../../api/markets';
 import {
   PUSH_CONTEXT_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
-  VERSIONS_EVENT
+  VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
 import { removeMarketDetails, updateMarketDetails } from './marketsContextReducer';
 

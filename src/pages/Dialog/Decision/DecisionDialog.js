@@ -44,7 +44,7 @@ function DecisionDialog(props) {
     <div>
       <SubSection title="Current Voting"/>
       <SubSection
-        title="Current Ballot"
+        title="Current Options"
       >
         <Investibles investibles={underConsideration} marketId={marketId} comments={comments} />
       </SubSection>

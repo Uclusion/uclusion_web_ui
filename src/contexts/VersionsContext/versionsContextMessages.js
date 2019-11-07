@@ -7,11 +7,11 @@ import {
 } from '../WebSocketContext';
 import { getVersions } from '../../api/summaries';
 import {
-  initializeState,
+  EMPTY_STATE,
+  initializeState, initializeVersionsAction,
   refreshMarketVersionAction,
   refreshNotificationVersionAction,
-  refreshVersionsAction,
-  removeMarketVersionAction
+  removeMarketVersionAction,
 } from './versionsContextReducer';
 
 function beginListening(dispatch) {
@@ -20,13 +20,13 @@ function beginListening(dispatch) {
     console.debug(`Versions context responding to auth event ${event}`);
 
     switch (event) {
-      case 'signIn':
+      case 'signIn': {
         // An optimization would be to check if newly signed is same person
-        dispatch(initializeState());
         getVersions().then((versions) => {
-          dispatch(refreshVersionsAction(versions));
+          dispatch(initializeVersionsAction(EMPTY_STATE, versions));
         });
         break;
+      }
       case 'signOut':
         dispatch(initializeState());
         break;

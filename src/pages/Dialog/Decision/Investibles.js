@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
-import { Grid, Paper, Typography, Box } from '@material-ui/core';
+import { Grid, Paper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { Badge } from '@material-ui/core';

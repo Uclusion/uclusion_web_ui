@@ -16,7 +16,6 @@ function DecisionDialog(props) {
     investibles,
     comments,
     commentsHash,
-    marketPresences,
     marketStages,
   } = props;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);

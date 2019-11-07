@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  AppBar, Container, makeStyles, Paper, Toolbar, Typography,
+  AppBar, makeStyles, Toolbar, Typography,
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 

@@ -1,7 +1,11 @@
+import LocalForageHelper from '../LocalForageHelper';
+
+export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const UPDATE_PAGE = 'UPDATE_PAGE';
+const INITIALIZE_STATE = 'INITIALIZE_STATE';
 
-/** Messages you can send the reducer **/
+/** Messages you can send the reducer */
 
 export function updateMessages(messages) {
   return {
@@ -17,7 +21,14 @@ export function updatePage(page) {
   };
 }
 
-/** Helper functions **/
+export function initializeState(newState) {
+  return {
+    type: INITIALIZE_STATE,
+    newState,
+  };
+}
+
+/** Helper functions * */
 function getMassagedMessages(messages) {
   return messages.map((message) => {
     const {
@@ -40,7 +51,7 @@ function getMassagedMessages(messages) {
   });
 }
 
-/** Functions that mutate the state **/
+/** Functions that mutate the state */
 
 function doUpdateMessages(state, action) {
   const { messages } = action;
@@ -65,6 +76,8 @@ function computeNewState(state, action) {
       return doUpdateMessages(state, action);
     case UPDATE_PAGE:
       return doUpdatePage(state, action);
+    case INITIALIZE_STATE:
+      return action.newState;
     default:
       return state;
   }
@@ -72,7 +85,8 @@ function computeNewState(state, action) {
 
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  console.debug(newState);
+  const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
+  lfh.setState(newState);
   return newState;
 }
 

@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useReducer } from 'react';
-import reducer from './notificationsContextReducer';
+import reducer, { initializeState, NOTIFICATIONS_CONTEXT_NAMESPACE } from './notificationsContextReducer';
 import { deleteMessage } from '../../api/users';
 import beginListening from './notificationsContextMessages';
+import LocalForageHelper from '../LocalForageHelper';
 
 const EMPTY_STATE = {
   messages: [],
@@ -19,8 +20,15 @@ function NotificationsProvider(props) {
   const [isInitialization, setIsInitialization] = useState(true);
   useEffect(() => {
     if (isInitialization) {
-      setIsInitialization(false);
+      const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
+      lfg.getState()
+        .then((state) => {
+          if (state) {
+            dispatch(initializeState(state));
+          }
+        });
       beginListening(dispatch);
+      setIsInitialization(false);
     }
     return () => {
     };

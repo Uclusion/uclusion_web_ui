@@ -5,14 +5,14 @@ import { updateFileToken } from '../authorization/tokenStorageUtils';
 function getOutdatedObjectIds(currentList, oldList) {
   // if we don't have market details we're starting from empty, so everything is needed
   if (_.isEmpty(oldList)) {
-    return currentList.map(item => item.id);
+    return currentList.map((item) => item.id);
   }
   const outOfDate = [];
   const oldListMap = _.keyBy(oldList, 'id');
   currentList.forEach((item) => {
     const { id } = item;
     const oldItem = oldListMap[id];
-    if (!oldItem || (item.updated_at > oldItem.updated_at)) {
+    if (!oldItem || (item.version > oldItem.version)) {
       outOfDate.push(id);
     }
   });
@@ -24,7 +24,7 @@ function removeDeletedObjects(newObjectList, oldObjects) {
     return oldObjects; // nothing to do
   }
   const existingObjects = oldObjects.filter((object) => {
-    const found = newObjectList.find(item => item.id === object.id);
+    const found = newObjectList.find((item) => item.id === object.id);
     return found;
   });
   return existingObjects;
@@ -85,4 +85,6 @@ function fixupItemsForStorage(items) {
   return items.map((item) => fixupItemForStorage(item));
 }
 
-export { getOutdatedObjectIds, removeDeletedObjects, fixupItemsForStorage, fixupItemForStorage };
+export {
+  getOutdatedObjectIds, removeDeletedObjects, fixupItemsForStorage, fixupItemForStorage,
+};

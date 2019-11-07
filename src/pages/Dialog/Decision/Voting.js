@@ -14,7 +14,7 @@ function Voting(props) {
       const newAcc = { ...acc };
       const { id: user_id, investments } = presence;
       for (let x = 0; x < investments.length; x += 1) {
-        const { investible_id, quantity } = investment;
+        const { investible_id, quantity } = investments[x];
         const oldValue = acc[investible_id] || [];
         const newValue = [...oldValue, { user_id, quantity }];
         newAcc[investible_id] = newValue;

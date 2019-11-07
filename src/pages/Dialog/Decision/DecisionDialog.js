@@ -4,6 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Summary from '../Summary';
+import { Grid } from '@material-ui/core';
 import Investibles from './Investibles';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import SubSection from '../../../containers/SubSection/SubSection';
@@ -25,7 +26,7 @@ function DecisionDialog(props) {
     if (stage) {
       console.log(stage);
       return investibles.reduce((acc, inv) => {
-        const {market_infos} = inv;
+        const { market_infos } = inv;
         for (let x = 0; x < market_infos.length; x += 1) {
           if (market_infos[x].stage === stage.id) {
             return [...acc, inv];
@@ -36,6 +37,7 @@ function DecisionDialog(props) {
     }
     return [];
   }
+
   const underConsideration = getInvestiblesForStage(underConsiderationStage);
   console.log(underConsideration);
   const proposed = getInvestiblesForStage(proposedStage);
@@ -44,29 +46,60 @@ function DecisionDialog(props) {
 
 
   return (
-    <div>
-      <SubSection
-        title="Current Voting"
+    <Grid
+      container
+      spacing={2}
+    >
+      <Grid
+        item
+        xs={12}
+        lg={6}
+      >
+        <SubSection
+          title="Current Voting"
         >
-        <Voting/>
-      </SubSection>
-      <SubSection
-        title="Current Options"
+          <Voting/>
+        </SubSection>
+      </Grid>
+      <Grid
+        item
+        xs={12}
+        lg={6}
       >
-        <Investibles investibles={underConsideration} marketId={marketId} comments={comments} />
-      </SubSection>
-      <SubSection
-        title="Proposed Options"
+        <SubSection
+          title="Current Options"
+        >
+          <Investibles investibles={underConsideration} marketId={marketId} comments={comments}/>
+        </SubSection>
+      </Grid>
+      <Grid
+        item
+        xs={12}
+        lg={6}
       >
-        <Investibles investibles={proposed} marketId={marketId} comments={comments} />
-      </SubSection>
-      <SubSection title="Background Information">
-        <Summary market={market}/>
-      </SubSection>
-      <SubSection>
-        <CommentBox comments={comments} commentsHash={commentsHash} marketId={marketId} />
-      </SubSection>
-    </div>
+        <SubSection
+          title="Proposed Options"
+        >
+          <Investibles investibles={proposed} marketId={marketId} comments={comments}/>
+        </SubSection>
+      </Grid>
+      <Grid
+        item
+        xs={12}
+      >
+        <SubSection title="Background Information">
+          <Summary market={market}/>
+        </SubSection>
+      </Grid>
+      <Grid
+        item
+        xs={12}
+      >
+        <SubSection>
+          <CommentBox comments={comments} commentsHash={commentsHash} marketId={marketId}/>
+        </SubSection>
+      </Grid>
+    </Grid>
   );
 }
 

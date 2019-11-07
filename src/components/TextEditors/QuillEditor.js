@@ -9,6 +9,7 @@ import QuillS3ImageUploader from './QuillS3ImageUploader';
 import 'quill/dist/quill.snow.css';
 import { withTheme } from '@material-ui/core';
 import _ from 'lodash';
+
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
 
@@ -17,7 +18,7 @@ class QuillEditor extends React.PureComponent {
 
   editor;
 
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = { uploads: [] };
     this.editorRef = React.createRef();
@@ -58,20 +59,25 @@ class QuillEditor extends React.PureComponent {
   }
 
   componentDidMount() {
-    const { defaultValue, onChange, value } = this.props;
-    this.editor = new Quill(this.editorRef.current, this.options);
-    this.editor.root.innerHTML = value || defaultValue;
-    const debouncedOnChange = _.debounce((delta) => {
-      const contents = this.editor.root.innerHTML;
-      onChange(contents, delta);
-    }, 50);
-    this.editor.on('text-change', debouncedOnChange);
+    const { defaultValue, onChange, value, readOnly } = this.props;
+    if (!readOnly) {
+      this.editor = new Quill(this.editorRef.current, this.options);
+      this.editor.root.innerHTML = value || defaultValue;
+      const debouncedOnChange = _.debounce((delta) => {
+        const contents = this.editor.root.innerHTML;
+        onChange(contents, delta);
+      }, 50);
+      this.editor.on('text-change', debouncedOnChange);
+    } else {
+      this.editorRef.current.innerHTML = value || defaultValue;
+    }
+
   }
 
   statefulUpload(metadatas) {
     const { uploads } = this.state;
     const newUploads = [...uploads, ...metadatas];
-    this.setState({uploads: newUploads});
+    this.setState({ uploads: newUploads });
     const { onS3Upload } = this.props;
     if (onS3Upload) {
       onS3Upload(newUploads);
@@ -83,11 +89,19 @@ class QuillEditor extends React.PureComponent {
     if (this.editor && (readOnly || value)) {
       this.editor.root.innerHTML = value || defaultValue;
     }
-    const myStyle = {
-        fontSize: theme.typography.fontSize,
+    const editorStyle = {
+      fontSize: theme.typography.fontSize,
     };
+    const readOnlyStyle = {
+      fontFamily: theme.typography.fontFamily,
+      fontSize: theme.typography.fontSize,
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+    };
+    const usedStyle = readOnly? readOnlyStyle : editorStyle;
     return (
-        <div ref={this.editorRef} style={myStyle}/>
+      <div ref={this.editorRef} style={usedStyle} />
     );
   }
 }

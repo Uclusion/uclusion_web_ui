@@ -54,6 +54,7 @@ function Market(props) {
   const marketId = getMarketId(pathname);
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
+  console.log(investiblesState)
   const [commentsState] = useContext(CommentsContext);
   const marketDetails = getAllMarketDetails(marketsState);
   const { hidden } = props;
@@ -61,7 +62,7 @@ function Market(props) {
   const breadCrumbs = makeBreadCrumbs(history);
   const comments = getMarketComments(commentsState, marketId);
   const commentsHash = _.keyBy(comments, 'id');
-
+  console.log(investibles);
   const renderableMarket = marketDetails.find((market) => market.id === marketId) || {};
   const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';

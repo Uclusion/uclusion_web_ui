@@ -23,8 +23,6 @@ function Summary(props) {
       <Card className={classes.paper}>
         <Grid
           container
-          alignItems="flex-start"
-          justify="flex-start"
         >
             <QuillEditor marketId={id} defaultValue={description} readOnly />
         </Grid>

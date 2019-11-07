@@ -52,7 +52,7 @@ function processNewNotification(newNotificationVersion, notificationVersion) {
 }
 
 export function refreshVersions(state, newMarketVersions, newNotificationVersion) {
-  const { marketVersions, notificationVersion } = state;
+ /* const { marketVersions, notificationVersion } = state;
   processNewNotification(newNotificationVersion, notificationVersion);
   // If you are on the left but not on the right by marketId then you were removed
   const rawRemovedMarketList = _.differenceBy(marketVersions, newMarketVersions, 'marketId');
@@ -94,6 +94,7 @@ export function refreshVersions(state, newMarketVersions, newNotificationVersion
     const marketList = marketAddedList.map((market) => (market.marketId));
     Hub.dispatch(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, message: marketList });
   }
+  */
 }
 
 export function refreshNotificationVersion(state, version) {
@@ -106,7 +107,7 @@ export function removeMarketVersion(marketId) {
 }
 
 export function refreshMarketVersion(state, version) {
-  const { marketVersions } = state;
+/*  const { marketVersions } = state;
   const previousVersion = marketVersions.find((market) => (market.marketId === version.marketId));
   const processedVersion = compareProcessSingleVersion(version, previousVersion);
   const marketList = [processedVersion.marketId];
@@ -122,4 +123,6 @@ export function refreshMarketVersion(state, version) {
   if (processedVersion.marketPresenceChange) {
     Hub.dispatch(PUSH_PRESENCE_CHANNEL, { event: VERSIONS_EVENT, message: marketList });
   }
+
+ */
 }

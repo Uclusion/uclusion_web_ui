@@ -1,16 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
-import { Grid, Paper, Typography } from '@material-ui/core';
+import { Grid, Paper, Typography, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 import SubSection from '../../containers/SubSection/SubSection';
 
 const useStyles = makeStyles(theme => ({
-  paper: {
+  investibleCard: {
     padding: theme.spacing(2),
-    textAlign: 'center',
+    textAlign: 'left',
+    height: '8vh',
   },
 }));
 
@@ -32,16 +33,26 @@ function Investibles(props) {
           md={4}
         >
           <Paper
-            className={classes.paper}
+            className={classes.investibleCard}
             onClick={() => navigate(history, formInvestibleLink(marketId, id))}
           >
-            <Typography>
+            <Typography
+              noWrap
+            >
               {name}
             </Typography>
-            <QuillEditor
-              readOnly
-              defaultValue={description}
-            />
+            <Box
+              color="text.secondary"
+              className={classes.description}
+              height="60%"
+              textOverflow="ellipsis"
+              overflow="hidden"
+            >
+              <QuillEditor
+                readOnly
+                defaultValue={description}
+              />
+            </Box>
           </Paper>
         </Grid>
       );
@@ -49,11 +60,9 @@ function Investibles(props) {
   }
 
   return (
-    <SubSection title="Investibles">
-      <Grid container spacing={2}>
-        {getInvestibles()}
-      </Grid>
-    </SubSection>
+    <Grid container spacing={4}>
+      {getInvestibles()}
+    </Grid>
   );
 
 }

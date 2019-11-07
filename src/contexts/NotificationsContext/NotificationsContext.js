@@ -2,7 +2,6 @@ import React, { useEffect, useState, useReducer } from 'react';
 import reducer from './notificationsContextReducer';
 import { deleteMessage } from '../../api/users';
 import beginListening from './notificationsContextMessages';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
 
 const EMPTY_STATE = {
   messages: [],
@@ -10,7 +9,6 @@ const EMPTY_STATE = {
 
 const NotificationsContext = React.createContext(EMPTY_STATE);
 
-const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications_context';
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
 
@@ -19,17 +17,14 @@ function NotificationsProvider(props) {
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [isInitialization, setIsInitialization] = useState(true);
-  // we'll also want to re-initialize if we've cleared local data as we'll reload the markets then
-  const haveLocalData = getUclusionLocalStorageItem(NOTIFICATIONS_CONTEXT_NAMESPACE);
   useEffect(() => {
-    if (isInitialization || !haveLocalData) {
+    if (isInitialization) {
       setIsInitialization(false);
       beginListening(dispatch);
-      setUclusionLocalStorageItem(NOTIFICATIONS_CONTEXT_NAMESPACE, true);
     }
     return () => {
     };
-  }, [isInitialization, haveLocalData]);
+  }, [isInitialization]);
 
   const { page, messages } = state;
   if (page) {

@@ -52,6 +52,7 @@ function processNewNotification(newNotificationVersion, notificationVersion) {
 }
 
 export function refreshVersions(state, newMarketVersions, newNotificationVersion) {
+  console.debug('Refreshing versions');
   const { marketVersions, notificationVersion } = state;
   processNewNotification(newNotificationVersion, notificationVersion);
   // If you are on the left but not on the right by marketId then you were removed

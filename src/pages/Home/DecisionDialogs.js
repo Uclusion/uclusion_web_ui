@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
   },
   textData: {
     fontSize: 12,
-  }
+  },
 }));
 
 function DecisionDialogs(props) {

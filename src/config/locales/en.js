@@ -234,6 +234,8 @@ const messages = defineMessages({
   decisionDialogsStartedBy: 'Started By: {name}',
   decisionDialogsExpires: 'Expires:',
 
+  // Investibles in decision dialog display
+  decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
   // About
   sidebarNavAbout: 'About',
   aboutApplicationVersionLabel: 'Version',

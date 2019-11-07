@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
 import { Grid, Paper, Typography, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { Badge } from '@material-ui/core';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../containers/CommentBox/CommentBox';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../containers/CommentBox/CommentBox';
 import AnnouncementIcon from '@material-ui/icons/Announcement';
 import RateReviewIcon from '@material-ui/icons/RateReview';
 import LiveHelpIcon from '@material-ui/icons/LiveHelp';
+import { FormattedDate, useIntl } from 'react-intl';
 
 const useStyles = makeStyles(theme => ({
   investibleCard: {
@@ -16,12 +17,17 @@ const useStyles = makeStyles(theme => ({
     textAlign: 'left',
     height: '4vh',
   },
+  textData: {
+    fontSize: 12,
+  },
 }));
 
 function Investibles(props) {
   const history = useHistory();
   const classes = useStyles();
   const { investibles, marketId, comments } = props;
+  const intl = useIntl();
+  const updatedText = intl.formatMessage(({ id: 'decisionDialogInvestiblesUpdatedAt' }));
 
   function getCommentIcons(comments) {
     const issues = comments.filter((comment) => comment.type === ISSUE_TYPE);
@@ -49,13 +55,12 @@ function Investibles(props) {
         </Badge>
       );
     }
-
   }
 
   function getInvestibles() {
     return investibles.map((inv) => {
       const { investible } = inv;
-      const { id, name, } = investible;
+      const { id, name } = investible;
       const investibleComments = comments.filter((comment) => comment.investible_id === id);
       return (
         <Grid
@@ -73,6 +78,12 @@ function Investibles(props) {
               noWrap
             >
               {name}
+            </Typography>
+            <Typography
+              color="textSecondary"
+              className={classes.textData}
+            >
+              {updatedText}<FormattedDate value={investible.updated_at} />
             </Typography>
             {getCommentIcons(investibleComments)}
           </Paper>

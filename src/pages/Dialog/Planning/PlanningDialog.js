@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Summary from '../Summary';
-import Investibles from '../Investibles';
+import Investibles from '../Decision/Investibles';
 
 function PlanningDialog(props) {
 

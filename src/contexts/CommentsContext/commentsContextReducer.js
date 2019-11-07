@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import LocalForageHelper from '../LocalForageHelper';
 import { COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext';
-import { getMarketComments } from './commentsContextHelper';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_COMMENTS = 'UPDATE_MARKET_COMMENTS';
@@ -75,11 +74,9 @@ function doUpdateComment(state, action) {
 
 function doUpdateMarketComments(state, action) {
   const { marketId, comments } = action;
-  const oldComments = getMarketComments(state, marketId);
-  const updatedComments = _.unionBy(comments, oldComments, 'id');
   return {
     ...state,
-    [marketId]: updatedComments,
+    [marketId]: comments,
   };
 }
 

@@ -93,6 +93,8 @@ function computeNewState(state, action) {
       return doUpdateComment(state, action);
     case REMOVE_MARKETS_COMMENT:
       return doRemoveMarketsComments(state, action);
+    case INITIALIZE_STATE:
+      return action.newState;
     default:
       return state;
   }

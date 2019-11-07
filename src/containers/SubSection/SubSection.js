@@ -1,15 +1,18 @@
 import React from 'react';
 import {
-  AppBar, makeStyles, Paper, Toolbar, Typography,
+  AppBar, Container, makeStyles, Paper, Toolbar, Typography,
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 
-const useStyles = makeStyles({
-  subHeader: {
-    boxShadow: 'none',
-    background: '#ffffff',
-    minHeight: 32
-  },
+const useStyles = makeStyles((theme) => {
+  return {
+    subHeader: {
+      boxShadow: 'none',
+      background: '#ffffff',
+      minHeight: 32,
+    },
+    toolbar: theme.mixins.toolbar,
+  };
 });
 
 function SubSection(props) {
@@ -18,10 +21,11 @@ function SubSection(props) {
   const classes = useStyles();
 
   return (
-    <Paper hidden={hidden}>
+    <React.Fragment>
       <AppBar
         className={classes.subHeader}
         position="static"
+        hidden={hidden}
       >
         <Toolbar>
           <Typography color="textSecondary">
@@ -29,20 +33,23 @@ function SubSection(props) {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Toolbar />
-      { children }
-    </Paper>
+      <div className={classes.toolbar}>
+        {children}
+      </div>
+    </React.Fragment>
+
   );
 }
 
 SubSection.propTypes = {
   hidden: PropTypes.bool,
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   // eslint-disable-next-line react/forbid-prop-types
   children: PropTypes.object,
 };
 
 SubSection.defaultProps = {
+  title: "",
   hidden: false,
   children: undefined,
 };

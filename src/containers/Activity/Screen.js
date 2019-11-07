@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { AppBar, Toolbar, Typography, Link, Breadcrumbs, Paper } from '@material-ui/core';
+import { AppBar, Toolbar, Typography, Link, Breadcrumbs, Paper, Container } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import Notifications from '../../components/Notifications/Notifications';
 
@@ -62,9 +62,9 @@ function Screen(props) {
         </Toolbar>
       </AppBar>
       <Toolbar />
-      <Paper>
+      <Container>
       {children}
-      </Paper>
+      </Container>
     </div>
   );
 }

@@ -18,7 +18,6 @@ class TokenManager {
   getToken() {
     const token = this.tokenStorageManager.getValidToken(this.tokenType, this.itemId);
     if (token) {
-      console.log('Returning token');
       return Promise.resolve(token);
     }
     if (this.tokenType === TOKEN_TYPE_MARKET || this.tokenType === TOKEN_TYPE_ACCOUNT) {

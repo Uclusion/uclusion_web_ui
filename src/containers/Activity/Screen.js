@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { AppBar, Toolbar, Typography, Link, Breadcrumbs } from '@material-ui/core';
+import { AppBar, Toolbar, Typography, Link, Breadcrumbs, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import Notifications from '../../components/Notifications/Notifications';
 
@@ -52,7 +52,7 @@ function Screen(props) {
     <div className={hidden ? classes.hidden : classes.root}>
       <AppBar
         className={classes.appBar}
-        position="static"
+        position="fixed"
         hidden={hidden}
       >
         <Toolbar>
@@ -61,7 +61,10 @@ function Screen(props) {
           <Notifications />
         </Toolbar>
       </AppBar>
+      <Toolbar />
+      <Paper>
       {children}
+      </Paper>
     </div>
   );
 }

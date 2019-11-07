@@ -8,6 +8,7 @@ const useStyles = makeStyles({
   subHeader: {
     boxShadow: 'none',
     background: '#ffffff',
+    minHeight: 32
   },
 });
 
@@ -28,6 +29,7 @@ function SubSection(props) {
           </Typography>
         </Toolbar>
       </AppBar>
+      <Toolbar />
       { children }
     </Paper>
   );

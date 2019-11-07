@@ -10,7 +10,7 @@ import SubSection from '../../../containers/SubSection/SubSection';
 
 function DecisionDialog(props) {
 
-  const { market, investibles, comments, commentsHash } = props;
+  const { market, investibles, comments, commentsHash, marketPresences } = props;
   const { id: marketId } = market;
 
 

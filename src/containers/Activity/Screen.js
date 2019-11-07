@@ -62,8 +62,10 @@ function Screen(props) {
         </Toolbar>
       </AppBar>
       <Toolbar />
-      <Container>
-      {children}
+      <Container
+        maxWidth={false}
+      >
+          {children}
       </Container>
     </div>
   );

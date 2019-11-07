@@ -21,7 +21,7 @@ function DecisionDialog(props) {
         <Summary market={market} />
       </SubSection>
       <SubSection title='Ideas Under Consideration'>
-        {investibles && <Investibles investibles={investibles} marketId={marketId} />}
+        {investibles && <Investibles investibles={investibles} marketId={marketId} comments={comments}/>}
       </SubSection>
         <SubSection title='Proposed Ideas' />
       <SubSection title='Comments'>

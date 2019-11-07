@@ -4,26 +4,59 @@ import { useHistory } from 'react-router';
 import { Grid, Paper, Typography, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
-import QuillEditor from '../../components/TextEditors/QuillEditor';
-import SubSection from '../../containers/SubSection/SubSection';
+import { Badge } from '@material-ui/core';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../containers/CommentBox/CommentBox';
+import AnnouncementIcon from '@material-ui/icons/Announcement';
+import RateReviewIcon from '@material-ui/icons/RateReview';
+import LiveHelpIcon from '@material-ui/icons/LiveHelp';
 
 const useStyles = makeStyles(theme => ({
   investibleCard: {
     padding: theme.spacing(2),
     textAlign: 'left',
-    height: '8vh',
+    height: '4vh',
   },
 }));
 
 function Investibles(props) {
   const history = useHistory();
   const classes = useStyles();
-  const { investibles, marketId } = props;
+  const { investibles, marketId, comments } = props;
+
+  function getCommentIcons(comments) {
+    const issues = comments.filter((comment) => comment.type === ISSUE_TYPE);
+    const questions = comments.filter((comment) => comment.type === QUESTION_TYPE);
+    const suggestions = comments.filter((comment) => comment.type === SUGGEST_CHANGE_TYPE);
+    const icons = [];
+    if (issues.length > 0) {
+      icons.push(
+        <Badge badgeContent={issues.length} color="primary" id="issues">
+          <AnnouncementIcon />
+        </Badge>
+      );
+    }
+    if (suggestions.length > 0) {
+      icons.push(
+        <Badge badgeContent={suggestions.length} color="primary" id="suggestions">
+          <RateReviewIcon />
+        </Badge>
+      );
+    }
+    if (questions.length > 0) {
+      icons.push(
+        <Badge badgeContent={questions.length} color="primary" id="questions">
+          <LiveHelpIcon />
+        </Badge>
+      );
+    }
+
+  }
 
   function getInvestibles() {
     return investibles.map((inv) => {
       const { investible } = inv;
-      const { id, name, description } = investible;
+      const { id, name, } = investible;
+      const investibleComments = comments.filter((comment) => comment.investible_id === id);
       return (
         <Grid
           item
@@ -41,18 +74,7 @@ function Investibles(props) {
             >
               {name}
             </Typography>
-            <Box
-              color="text.secondary"
-              className={classes.description}
-              height="60%"
-              textOverflow="ellipsis"
-              overflow="hidden"
-            >
-              <QuillEditor
-                readOnly
-                defaultValue={description}
-              />
-            </Box>
+            {getCommentIcons(investibleComments)}
           </Paper>
         </Grid>
       );

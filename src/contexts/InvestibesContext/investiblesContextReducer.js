@@ -53,9 +53,7 @@ function doStoreInvestible(state, action) {
 function doUpdateInvestibles(state, action) {
   const { investibles: updateHash } = action;
   console.log(updateHash);
-  const { investibles } = state;
-  const newInvestibles = { ...investibles, ...updateHash };
-  return newInvestibles;
+  return { ...state, ...updateHash };
 }
 
 function computeNewState(state, action) {

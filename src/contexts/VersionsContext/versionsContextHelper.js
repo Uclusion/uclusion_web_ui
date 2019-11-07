@@ -57,7 +57,7 @@ export function refreshVersions(state, newMarketVersions, newNotificationVersion
   processNewNotification(newNotificationVersion, notificationVersion);
   // If you are on the left but not on the right by marketId then you were removed
   const rawRemovedMarketList = _.differenceBy(marketVersions, newMarketVersions, 'marketId');
-  if (rawRemovedMarketList) {
+  if (Array.isArray(rawRemovedMarketList) && rawRemovedMarketList.length) {
     // eslint-disable-next-line max-len
     const removedMarketList = rawRemovedMarketList.map((rawRemovedMarket) => (rawRemovedMarket.marketId));
     Hub.dispatch(REMOVED_MARKETS_CHANNEL, { event: VERSIONS_EVENT, message: removedMarketList });
@@ -70,28 +70,28 @@ export function refreshVersions(state, newMarketVersions, newNotificationVersion
     return compareProcessSingleVersion(rawUpdatedMarket, rawOldMarket);
   });
   const marketsInfoChangesList = updatedMarketList.filter((market) => (market.marketsInfoChange));
-  if (marketsInfoChangesList) {
+  if (Array.isArray(marketsInfoChangesList) && marketsInfoChangesList.length) {
     const marketList = marketsInfoChangesList.map((market) => (market.marketId));
     Hub.dispatch(PUSH_CONTEXT_CHANNEL, { event: VERSIONS_EVENT, message: marketList });
   }
   const investiblesChangesList = updatedMarketList.filter((market) => (market.investiblesChange));
-  if (investiblesChangesList) {
+  if (Array.isArray(investiblesChangesList) && investiblesChangesList.length) {
     const marketList = investiblesChangesList.map((market) => (market.marketId));
     Hub.dispatch(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, message: marketList });
   }
   const commentsChangesList = updatedMarketList.filter((market) => (market.commentsChange));
-  if (commentsChangesList) {
+  if (Array.isArray(commentsChangesList) && commentsChangesList.length) {
     const marketList = commentsChangesList.map((market) => (market.marketId));
     Hub.dispatch(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, message: marketList });
   }
   // eslint-disable-next-line max-len
   const marketPresencesChangesList = updatedMarketList.filter((market) => (market.marketPresenceChange));
-  if (marketPresencesChangesList) {
+  if (Array.isArray(marketPresencesChangesList) && marketPresencesChangesList.length) {
     const marketList = marketPresencesChangesList.map((market) => (market.marketId));
     Hub.dispatch(PUSH_PRESENCE_CHANNEL, { event: VERSIONS_EVENT, message: marketList });
   }
   const marketAddedList = updatedMarketList.filter((market) => (market.isNew));
-  if (marketAddedList) {
+  if (Array.isArray(marketAddedList) && marketAddedList.length) {
     const marketList = marketAddedList.map((market) => (market.marketId));
     Hub.dispatch(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, message: marketList });
   }

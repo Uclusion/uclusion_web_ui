@@ -24,7 +24,9 @@ function beginListening(dispatch) {
 
     switch (event) {
       case VERSIONS_EVENT: {
-        return AllSequentialMap(message, (marketId) => refreshMarketComments(dispatch, marketId));
+        console.debug(message);
+        AllSequentialMap(message, (marketId) => refreshMarketComments(dispatch, marketId));
+        break;
       }
       default:
         console.debug(`Ignoring push event ${event}`);

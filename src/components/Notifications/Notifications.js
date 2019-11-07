@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
+import { toast } from 'react-toastify';
 import { NotificationImportant, Notifications as NotificationsIcon, ChevronRight } from '@material-ui/icons';
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import { useHistory } from 'react-router';
 import { Button, makeStyles } from '@material-ui/core';
+import { useHistory } from 'react-router';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles({
@@ -38,11 +39,12 @@ function Notifications(props) {
   function nextOnClick() {
     if (messages.length > 0) {
       const message = messages[0];
-      const { marketId, investibleId } = message;
+      const { marketId, investibleId, text } = message;
       const link = investibleId
         ? formInvestibleLink(marketId, investibleId)
         : formMarketLink(marketId);
       navigate(history, link);
+      toast.info(text);
     }
   }
 

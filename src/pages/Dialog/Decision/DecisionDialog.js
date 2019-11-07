@@ -7,6 +7,7 @@ import Summary from '../Summary';
 import Investibles from './Investibles';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import SubSection from '../../../containers/SubSection/SubSection';
+import Voting from './Voting';
 
 function DecisionDialog(props) {
 
@@ -42,7 +43,11 @@ function DecisionDialog(props) {
 
   return (
     <div>
-      <SubSection title="Current Voting"/>
+      <SubSection
+        title="Current Voting"
+        >
+        <Voting/>
+      </SubSection>
       <SubSection
         title="Current Options"
       >

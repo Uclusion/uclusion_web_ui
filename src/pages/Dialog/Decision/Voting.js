@@ -10,18 +10,16 @@ function Voting(props) {
   const noVotesMessage = "No active votes";
 
   function computeVoteTallies() {
-    marketPresences.reduce((acc, presence) => {
-      const { id: user_id } = presence;
-      const { investments } = presence;
-      investments.forEach((investment) => {
+    return marketPresences.reduce((acc, presence) => {
+      const newAcc = { ...acc };
+      const { id: user_id, investments } = presence;
+      for (let x = 0; x < investments.length; x += 1) {
         const { investible_id, quantity } = investment;
         const oldValue = acc[investible_id] || [];
         const newValue = [...oldValue, { user_id, quantity }];
-        return {
-          ...acc,
-          [investible_id]: newValue,
-        };
-      });
+        newAcc[investible_id] = newValue;
+      }
+      return newAcc;
     }, {});
   }
 

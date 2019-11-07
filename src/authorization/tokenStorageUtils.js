@@ -1,12 +1,4 @@
-import TokenStorageManager, { TOKEN_TYPE_MARKET, TOKEN_TYPE_FILE } from './TokenStorageManager';
-
-export function updateTokensFromMarketList(markets) {
-  const storageManager = new TokenStorageManager();
-  markets.forEach((market) => {
-    const { id, uclusion_token } = market;
-    storageManager.storeToken(TOKEN_TYPE_MARKET, id, uclusion_token);
-  });
-}
+import TokenStorageManager, { TOKEN_TYPE_FILE } from './TokenStorageManager';
 
 export function updateFileTokensFromContext(context) {
   const storageManager = new TokenStorageManager();

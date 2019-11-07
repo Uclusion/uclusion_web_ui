@@ -34,7 +34,8 @@ function Voting(props) {
   const talliesCount = Object.keys(tallies).map((key) => {
     return {
       investible_id: key,
-      numSupporters: tallies[key].length
+      numSupporters: tallies[key].length,
+      total: tallies[key].reduce((sum, item) => sum + item.quantity, 0),
     };
   });
   const sortedTalliesCount = _.sortBy(talliesCount, 'numSupporters');

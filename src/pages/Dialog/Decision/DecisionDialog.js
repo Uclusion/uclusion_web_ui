@@ -22,16 +22,19 @@ function DecisionDialog(props) {
   const proposedStage = marketStages.find((stage) => !stage.allows_investment && !stage.appears_in_market_summary);
 
   function getInvestiblesForStage(stage) {
-    console.log(stage);
-    return investibles.reduce((acc, inv) => {
-      const { market_infos } = inv;
-      for (let x = 0; x < market_infos.length; x += 1) {
-        if (market_infos[x].stage === stage.id) {
-          return [...acc, inv];
+    if (stage) {
+      console.log(stage);
+      return investibles.reduce((acc, inv) => {
+        const {market_infos} = inv;
+        for (let x = 0; x < market_infos.length; x += 1) {
+          if (market_infos[x].stage === stage.id) {
+            return [...acc, inv];
+          }
         }
-      }
-      return acc;
-    }, []);
+        return acc;
+      }, []);
+    }
+    return [];
   }
   const underConsideration = getInvestiblesForStage(underConsiderationStage);
   console.log(underConsideration);

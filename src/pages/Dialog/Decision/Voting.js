@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Typography, Badge, Box } from '@material-ui/core';
+import { Typography, Badge } from '@material-ui/core';
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
 import MicroBarChart from 'react-micro-bar-chart';
 function Voting(props) {

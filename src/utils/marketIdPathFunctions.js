@@ -1,42 +1,20 @@
-import queryString from 'query-string';
 import { Hub } from '@aws-amplify/core';
 import { VIEW_EVENT, VISIT_CHANNEL } from '../contexts/NotificationsContext/NotificationsContext';
 import { intl } from '../components/IntlComponents/IntlGlobalProvider';
 
-/**
- * Gets the market id from the URL if it's present in it.
- * @returns {string}
- */
-export function getMarketId(path, search = '/dialog/') {
-  if (!path) {
-    return null;
-  }
-  if (!path.startsWith(search)) {
-    return null;
-  }
-  const pathPart = path.substr(search.length);
-  const investibleSlashLocation = pathPart.indexOf('/');
-  if (investibleSlashLocation === -1) {
-    return pathPart;
-  }
-  return pathPart.substr(0, investibleSlashLocation);
-}
 
-export function getInvestibleId(hash) {
-  console.log(hash);
-  if (!hash) {
-    return null;
-  }
-  const search = '#investible=';
-  const investibleStart = hash.indexOf(search);
-  console.log(investibleStart);
-  if (investibleStart === -1) {
-    return null;
-  }
-  const idStart = investibleStart + search.length;
-  const investibleId = hash.substr(idStart);
-  console.log(investibleId);
-  return investibleId;
+/** Given the pathpart _without the hash or query params
+ * will extract the action, the marketId and the investibleId
+ * Assumes the pathpart has a leading /
+ * @param pathpart
+ * @return {null}
+ */
+export function decomposeMarketPath(path) {
+  const split = path.split('/');
+  // first match is empty. because it's the leading / the action
+  // so well have ["", <action>, <marketid>, <investibleid>] in that order
+  const [, action, marketId, investibleId] = split;
+  return { action, marketId, investibleId };
 }
 
 export function broadcastView(marketId, investibleIdOrContext, isEntry) {
@@ -54,28 +32,16 @@ export function broadcastView(marketId, investibleIdOrContext, isEntry) {
 }
 
 export function navigate(history, to) {
-  function getMarketIdAndInvestible(history) {
-    const { location } = history;
-    const { pathname, hash } = location;
-    const marketId = getMarketId(pathname);
-    if (marketId) {
-      const values = queryString.parse(hash);
-      const { investible } = values;
-      return { marketId, investible };
-    }
-    return {};
-  }
-
   const {
     marketId: fromMarketId,
-    investible: fromInvestibleId,
-  } = getMarketIdAndInvestible(history);
+    investibleId: fromInvestibleId
+  } = decomposeMarketPath(history.location.pathname);
   broadcastView(fromMarketId, fromInvestibleId, false);
   history.push(to);
   const {
     marketId: toMarketId,
-    investible: toInvestibleId,
-  } = getMarketIdAndInvestible(history);
+    investibleId: toInvestibleId,
+  } = decomposeMarketPath(history.location.pathname);
   broadcastView(toMarketId, toInvestibleId, true);
 }
 
@@ -104,7 +70,7 @@ export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
 }
 
 export function formInvestibleLink(marketId, investibleId) {
-  return `/dialog/${marketId}#investible=${investibleId}`;
+  return `/dialog/${marketId}/${investibleId}`;
 }
 
 /**

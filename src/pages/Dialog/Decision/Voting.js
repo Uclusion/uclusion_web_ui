@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Typography, Badge } from '@material-ui/core';
+import { Typography, Badge, Paper } from '@material-ui/core';
 import {
   XYPlot,
   VerticalBarSeries,
@@ -10,8 +10,11 @@ import {
 } from 'react-vis';
 
 function Voting(props) {
+
+  const history = useHistory();
+
+  const { marketPresences, investibles, marketId } = props;
   const [value, setValue] = useState(undefined);
-  const { marketPresences, investibles } = props;
   const strippedInvestibles = investibles.map((inv) => inv.investible);
 
   function getVoteTotalsForUser(presence) {
@@ -80,7 +83,10 @@ function Voting(props) {
   function getItemVote(item) {
     const { id, investments, name } = item;
     return (
-      <div key={id}>
+      <Paper
+        key={id}
+        onClick={() => navigate(history, formInvestibleLink(marketId, id))}
+      >
         <Badge>
           {getCertaintyChart(investments)}
         </Badge>
@@ -89,7 +95,7 @@ function Voting(props) {
         >
           {name}
         </Typography>
-      </div>
+      </Paper>
     );
   }
 
@@ -102,15 +108,16 @@ function Voting(props) {
 
 
   return (
-    <>
+    <React.Fragment>
       {sortedTalliesArray.map((item) => getItemVote(item))}
-    </>
+    </React.Fragment>
   );
 }
 
 Voting.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   marketPresences: PropTypes.arrayOf(PropTypes.object),
+  marketId: PropTypes.string.isRequired,
 };
 
 Voting.defaultProps = {

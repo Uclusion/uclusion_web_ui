@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Summary from '../Summary';
-import Investibles from '../Decision/Investibles';
+import ProposedIdeas from '../Decision/ProposedIdeas';
 
 function PlanningDialog(props) {
 
@@ -14,7 +14,7 @@ function PlanningDialog(props) {
   return (
     <div>
       <Summary market={market} />
-      {investibles && <Investibles investibles={investibles} marketId={marketId} />}
+      {investibles && <ProposedIdeas investibles={investibles} marketId={marketId} />}
     </div>
   );
 }

@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function Investibles(props) {
+function ProposedIdeas(props) {
   const history = useHistory();
   const classes = useStyles();
   const { investibles, marketId, comments } = props;
@@ -104,10 +104,10 @@ function Investibles(props) {
 
 }
 
-Investibles.propTypes = {
+ProposedIdeas.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
   marketId: PropTypes.string.isRequired,
 };
 
-export default Investibles;
+export default ProposedIdeas;

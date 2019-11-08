@@ -5,7 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Summary from '../Summary';
 import { Grid } from '@material-ui/core';
-import Investibles from './Investibles';
+import ProposedIdeas from './ProposedIdeas';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import SubSection from '../../../containers/SubSection/SubSection';
 import Voting from './Voting';
@@ -54,7 +54,6 @@ function DecisionDialog(props) {
       <Grid
         item
         xs={12}
-        lg={6}
       >
         <SubSection
           title="Current Voting"
@@ -62,6 +61,7 @@ function DecisionDialog(props) {
           <Voting
             marketPresences={marketPresences}
             investibles={underConsideration}
+            marketId={marketId}
           />
         </SubSection>
       </Grid>
@@ -69,12 +69,11 @@ function DecisionDialog(props) {
       <Grid
         item
         xs={12}
-        lg={6}
       >
         <SubSection
           title="Proposed Options"
         >
-          <Investibles investibles={proposed} marketId={marketId} comments={comments}/>
+          <ProposedIdeas investibles={proposed} marketId={marketId} comments={comments}/>
         </SubSection>
       </Grid>
       <Grid

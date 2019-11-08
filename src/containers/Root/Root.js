@@ -8,7 +8,7 @@ import Market from '../../pages/Dialog/Market';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import {
-  broadcastView, formMarketLink, getInvestibleId, getMarketId, navigate,
+  broadcastView, decomposeMarketPath, formMarketLink, navigate,
 } from '../../utils/marketIdPathFunctions';
 import { getAccountClient, getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
@@ -44,9 +44,7 @@ function Root(props) {
   const { location } = history;
   const { pathname, hash } = location;
   console.log(`pathname is ${pathname}`);
-  console.log(hash);
-  const marketId = getMarketId(pathname);
-  const investibleId = getInvestibleId(hash);
+  const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   function hideHome() {
     return !pathname || pathname !== '/';
   }
@@ -55,26 +53,25 @@ function Root(props) {
     if (!pathname) {
       return true;
     }
-    return !pathname.startsWith('/about');
+    return action !== 'about';
   }
   function hideMarket() {
-    return marketId == null || investibleId != null;
+    return action !== 'dialog' || (!marketId) || (!!marketId && !!investibleId);
   }
 
   function hideInvestible() {
-    return investibleId == null;
+    return (action !== 'dialog') || !investibleId;
   }
 
   function isInvite() {
     if (!pathname) {
       return false;
     }
-    return pathname.startsWith('/invite') || pathname.startsWith('/slack');
+    return action === 'invite' || action === 'slack';
   }
-  const inviteMarketId = getMarketId(pathname, '/invite/');
-  if (inviteMarketId) {
-    console.debug(`Logging into market ${inviteMarketId}`);
-    getMarketClient(inviteMarketId).then(() => navigate(history, formMarketLink(inviteMarketId)))
+  if (action === 'invite' && marketId) {
+    console.debug(`Logging into market ${marketId}`);
+    getMarketClient(marketId).then(() => navigate(history, formMarketLink(marketId)))
       .catch((error) => {
         console.error(error);
         sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
@@ -96,14 +93,10 @@ function Root(props) {
 
   useEffect(() => {
     function pegView(isEntry) {
-      const currentHref = window.location.href;
-      const hashStart = currentHref.indexOf('#');
-      if (hashStart > -1) {
-        const values = queryString.parse(currentHref.substring(hashStart));
-        const { investible } = values;
-        const path = currentHref.substring(currentHref.indexOf('/dialog/'), hashStart);
-        const marketId = getMarketId(path);
-        broadcastView(marketId, investible, isEntry);
+      const currentPath = window.location.pathname;
+      const { marketId, investibleId } = decomposeMarketPath(currentPath);
+      if (marketId && investibleId ) {
+        broadcastView(marketId, investibleId, isEntry);
       }
     }
     // Need this or won't see events where url doesn't change

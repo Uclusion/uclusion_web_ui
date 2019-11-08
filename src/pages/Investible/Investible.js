@@ -17,7 +17,7 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import _ from 'lodash';
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import SubSection from '../../containers/SubSection/SubSection';
-import { Paper, Typography } from '@material-ui/core';
+import { Paper } from '@material-ui/core';
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };

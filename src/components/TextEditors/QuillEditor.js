@@ -84,6 +84,7 @@ class QuillEditor extends React.PureComponent {
 
   render() {
     const { readOnly, value, defaultValue, theme } = this.props;
+    const usedValue = value || defaultValue;
     const editorStyle = {
       fontSize: theme.typography.fontSize,
     };
@@ -94,9 +95,18 @@ class QuillEditor extends React.PureComponent {
       whiteSpace: 'nowrap',
       overflow: 'hidden',
     };
-    const usedStyle = readOnly? readOnlyStyle : editorStyle;
+
+    if (readOnly) {
+      return (
+        <div
+          ref={this.editorRef}
+          style={readOnlyStyle}
+          dangerouslySetInnerHTML={{ __html: usedValue }}
+        />
+      );
+    }
     return (
-      <div ref={this.editorRef} style={usedStyle} />
+      <div ref={this.editorRef} style={editorStyle} />
     );
   }
 }

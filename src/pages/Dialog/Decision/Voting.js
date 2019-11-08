@@ -1,13 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Typography, Badge } from '@material-ui/core';
+import { Typography, Badge, Paper } from '@material-ui/core';
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
 import MicroBarChart from 'react-micro-bar-chart';
+import { useHistory } from 'react-router';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function Voting(props) {
 
-  const { marketPresences, investibles } = props;
+  const history = useHistory();
+
+  const { marketPresences, investibles, marketId } = props;
   const strippedInvestibles = investibles.map((inv) => inv.investible);
 
   function getVoteTotalsForUser(presence) {
@@ -65,7 +69,10 @@ function Voting(props) {
   function getItemVote(item) {
     const { id, numSupporters, investments, name } = item;
     return (
-      <div key={id}>
+      <Paper
+        key={id}
+        onClick={() => navigate(history, formInvestibleLink(marketId, id))}
+      >
         <Badge
           showZero
           badgeContent={numSupporters}
@@ -80,7 +87,7 @@ function Voting(props) {
           {name}
         </Typography>
 
-      </div>
+      </Paper>
     );
   }
 
@@ -102,6 +109,7 @@ function Voting(props) {
 Voting.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   marketPresences: PropTypes.arrayOf(PropTypes.object),
+  marketId: PropTypes.string.isRequired,
 };
 
 Voting.defaultProps = {

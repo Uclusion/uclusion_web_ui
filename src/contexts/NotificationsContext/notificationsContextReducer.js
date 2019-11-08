@@ -4,6 +4,7 @@ export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const UPDATE_PAGE = 'UPDATE_PAGE';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
+const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
 
 /** Messages you can send the reducer */
 
@@ -11,6 +12,13 @@ export function updateMessages(messages) {
   return {
     type: UPDATE_MESSAGES,
     messages,
+  };
+}
+
+export function removeMessage(message) {
+  return {
+    type: REMOVE_MESSAGE,
+    message,
   };
 }
 
@@ -40,9 +48,10 @@ function getMassagedMessages(messages) {
     const aType = typeObjectId.substring(0, typeObjectId.lastIndexOf('_'));
     const marketIdUserIdSplit = marketIdUserId.split('_');
     const marketId = marketIdUserIdSplit[0];
-    if (marketId === objectId) {
+    const userId = marketIdUserIdSplit[1];
+    if (marketId === objectId || userId === objectId) {
       return {
-        ...message, marketId, aType, level,
+        ...message, marketId, aType, level, userId,
       };
     }
     return {
@@ -70,6 +79,18 @@ function doUpdatePage(state, action) {
   };
 }
 
+function doRemoveMessage(state, action) {
+  const { message } = action;
+  const { messages } = state;
+  const filteredMessages = messages.filter((aMessage) => !(
+    aMessage.type_object_id === message.type_object_id
+      && aMessage.market_id_user_id === message.market_id_user_id));
+  return {
+    ...state,
+    messages: filteredMessages,
+  };
+}
+
 function computeNewState(state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
@@ -78,6 +99,8 @@ function computeNewState(state, action) {
       return doUpdatePage(state, action);
     case INITIALIZE_STATE:
       return action.newState;
+    case REMOVE_MESSAGE:
+      return doRemoveMessage(state, action);
     default:
       return state;
   }

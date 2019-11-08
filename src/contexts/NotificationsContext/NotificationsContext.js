@@ -1,5 +1,9 @@
 import React, { useEffect, useState, useReducer } from 'react';
-import reducer, { initializeState, NOTIFICATIONS_CONTEXT_NAMESPACE } from './notificationsContextReducer';
+import reducer, {
+  initializeState,
+  NOTIFICATIONS_CONTEXT_NAMESPACE,
+  removeMessage,
+} from './notificationsContextReducer';
 import { deleteMessage } from '../../api/users';
 import beginListening from './notificationsContextMessages';
 import LocalForageHelper from '../LocalForageHelper';
@@ -42,8 +46,12 @@ function NotificationsProvider(props) {
         marketId: messageMarketId, investibleId: messageInvestibleId,
         level, aType,
       } = message;
-      return marketId === messageMarketId && investibleId === messageInvestibleId
-        && (level === 'YELLOW' || aType === 'INVESTIBLE_UNREAD');
+      const doRemove = marketId === messageMarketId && investibleId === messageInvestibleId
+        && (level === 'YELLOW' || aType === 'INVESTIBLE_UNREAD' || aType === 'INVESTIBLE_SUBMITTED');
+      if (doRemove) {
+        dispatch(removeMessage(message));
+      }
+      return doRemove;
     }).map((message) => deleteMessage(message));
   }
 

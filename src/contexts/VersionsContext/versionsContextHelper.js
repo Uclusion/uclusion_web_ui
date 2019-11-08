@@ -44,6 +44,7 @@ function compareProcessSingleVersion(rawUpdatedMarket, rawOldMarket) {
 }
 
 function processNewNotification(newNotificationVersion, notificationVersion) {
+  console.debug('Refreshing notifications');
   const { version: notificationVersionNumber } = notificationVersion;
   const { version: newNotificationVersionNumber } = newNotificationVersion;
   if (notificationVersionNumber !== newNotificationVersionNumber) {

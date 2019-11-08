@@ -5,6 +5,7 @@ const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const UPDATE_PAGE = 'UPDATE_PAGE';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
+const INCREMENT_CURRENT = 'INCREMENT_CURRENT';
 
 /** Messages you can send the reducer */
 
@@ -19,6 +20,12 @@ export function removeMessage(message) {
   return {
     type: REMOVE_MESSAGE,
     message,
+  };
+}
+
+export function nextMessage() {
+  return {
+    type: INCREMENT_CURRENT,
   };
 }
 
@@ -60,16 +67,22 @@ function getMassagedMessages(messages) {
   });
 }
 
-/** Functions that mutate the state */
-
-function doUpdateMessages(state, action) {
-  const { messages } = action;
-  const massagedMessages = getMassagedMessages(messages);
-  return {
-    ...state,
-    messages: massagedMessages,
-  };
+function isMessageEqual(aMessage, message) {
+  return message && aMessage.type_object_id === message.type_object_id
+    && aMessage.market_id_user_id === message.market_id_user_id;
 }
+
+function getNextCurrent(messages, current) {
+  let index = messages.findIndex((message) => isMessageEqual(message, current));
+  if (index === messages.length - 1) {
+    index = 0;
+  } else {
+    index += 1;
+  }
+  return messages[index];
+}
+
+/** Functions that mutate the state */
 
 function doUpdatePage(state, action) {
   const { page } = action;
@@ -79,15 +92,49 @@ function doUpdatePage(state, action) {
   };
 }
 
+function doUpdateMessages(state, action) {
+  const { messages, current } = action;
+  const massagedMessages = getMassagedMessages(messages);
+  let newCurrent = massagedMessages.find((aMessage) => isMessageEqual(aMessage, current));
+  if (!newCurrent && massagedMessages.length > 0) {
+    // eslint-disable-next-line prefer-destructuring
+    newCurrent = massagedMessages[0];
+  }
+  return {
+    ...state,
+    messages: massagedMessages,
+    current: newCurrent,
+  };
+}
+
 function doRemoveMessage(state, action) {
   const { message } = action;
-  const { messages } = state;
-  const filteredMessages = messages.filter((aMessage) => !(
-    aMessage.type_object_id === message.type_object_id
-      && aMessage.market_id_user_id === message.market_id_user_id));
+  const { messages, current } = state;
+  const filteredMessages = messages.filter((aMessage) => !isMessageEqual(aMessage, message));
+  let newCurrent = current;
+  if (isMessageEqual(current, message)) {
+    newCurrent = getNextCurrent(messages, current);
+    if (isMessageEqual(newCurrent, message)) {
+      // Just removed the last one
+      return {
+        ...state,
+        messages: [],
+      };
+    }
+  }
   return {
     ...state,
     messages: filteredMessages,
+    current: newCurrent,
+  };
+}
+
+function doNext(state) {
+  const { messages, current } = state;
+  const newCurrent = getNextCurrent(messages, current);
+  return {
+    ...state,
+    current: newCurrent,
   };
 }
 
@@ -101,6 +148,8 @@ function computeNewState(state, action) {
       return action.newState;
     case REMOVE_MESSAGE:
       return doRemoveMessage(state, action);
+    case INCREMENT_CURRENT:
+      return doNext(state);
     default:
       return state;
   }

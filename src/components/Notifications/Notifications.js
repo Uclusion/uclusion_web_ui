@@ -5,6 +5,7 @@ import { Button, makeStyles } from '@material-ui/core';
 import { useHistory } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
+import { nextMessage } from '../../contexts/NotificationsContext/notificationsContextReducer';
 
 const useStyles = makeStyles({
   red: {
@@ -17,15 +18,16 @@ const useStyles = makeStyles({
 });
 
 function Notifications(props) {
-  const [messagesState] = useContext(NotificationsContext);
-  const { messages } = messagesState;
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const { current } = messagesState;
   const history = useHistory();
   const classes = useStyles();
-  const nextEnabled = messages.length > 0;
 
   function getIconClass() {
-    const message = messages[0];
-    const { level } = message;
+    if (!current) {
+      return classes.uncolored;
+    }
+    const { level } = current;
     switch (level) {
       case 'RED':
         return classes.red;
@@ -37,25 +39,25 @@ function Notifications(props) {
   }
 
   function nextOnClick() {
-    if (messages.length > 0) {
-      const message = messages[0];
-      const { marketId, investibleId, text } = message;
+    if (current) {
+      const { marketId, investibleId, text } = current;
       const link = investibleId
         ? formInvestibleLink(marketId, investibleId)
         : formMarketLink(marketId);
       navigate(history, link);
       toast.info(text);
+      messagesDispatch(nextMessage());
     }
   }
 
   return (
     <Button
-      disabled={!nextEnabled}
+      disabled={!current}
       onClick={nextOnClick}
     >
-      {nextEnabled && <NotificationImportant className={getIconClass()} />}
-      {!nextEnabled && <NotificationsIcon />}
-      {nextEnabled && <ChevronRight className={getIconClass()} />}
+      {current && <NotificationImportant className={getIconClass()} />}
+      {!current && <NotificationsIcon />}
+      {current && <ChevronRight className={getIconClass()} />}
     </Button>
   );
 }

@@ -96,7 +96,7 @@ function Root(props) {
       const currentPath = window.location.pathname;
       const { marketId, investibleId } = decomposeMarketPath(currentPath);
       if (marketId && investibleId ) {
-     //   broadcastView(marketId, investibleId, isEntry);
+        broadcastView(marketId, investibleId, isEntry);
       }
     }
     // Need this or won't see events where url doesn't change

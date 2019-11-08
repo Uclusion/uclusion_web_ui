@@ -61,6 +61,7 @@ function DecisionDialog(props) {
           <Voting
             marketPresences={marketPresences}
             investibles={underConsideration}
+            marketId={marketId}
           />
         </SubSection>
       </Grid>

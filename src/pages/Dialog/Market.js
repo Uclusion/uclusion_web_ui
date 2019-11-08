@@ -4,7 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
-import { makeBreadCrumbs, getMarketId } from '../../utils/marketIdPathFunctions';
+import { makeBreadCrumbs, decomposeMarketPath } from '../../utils/marketIdPathFunctions';
 import Screen from '../../containers/Activity/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
@@ -55,7 +55,7 @@ function Market(props) {
   const history = useHistory();
   const { location } = history;
   const { pathname } = location;
-  const marketId = getMarketId(pathname);
+  const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);

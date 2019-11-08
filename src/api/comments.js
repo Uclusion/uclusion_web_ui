@@ -9,14 +9,13 @@ export function deleteComment(commentId, investibleId, marketId) {
 
 export function fetchComments(idList, marketId) {
   const clientPromise = getMarketClient(marketId);
-  console.log('Fetching comments of list');
-  console.log(idList);
+  // console.debug(idList);
   return clientPromise.then((client) => client.investibles.getMarketComments(idList));
 }
 
 export function fetchCommentList(marketId) {
   const clientPromise = getMarketClient(marketId);
-  console.debug(`Fetching comments list for: ${marketId}`);
+  // console.debug(`Fetching comments list for: ${marketId}`);
   return clientPromise.then((client) => client.investibles.listCommentsByMarket());
 }
 

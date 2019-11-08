@@ -16,7 +16,7 @@ export function getMarketInvestibles(state, marketId) {
 }
 
 export function getInvestible(state, investibleId) {
-  console.log(state);
+  // console.debug(state);
   return state[investibleId];
 }
 
@@ -33,14 +33,14 @@ export function refreshInvestibles(dispatch, marketId) {
       if (_.isEmpty(investibles)) {
         return Promise.resolve([]);
       }
-      console.debug(investibles);
+      // console.debug(investibles);
       const fixed = investibles.map((item) => {
         const { investible, market_infos } = item;
         const fixedInvestible = fixupItemForStorage(investible);
         return { investible: fixedInvestible, market_infos };
       });
       const investibleHash = _.keyBy(fixed, (item) => item.investible.id);
-      console.debug(investibleHash);
+      // console.debug(investibleHash);
       dispatch(updateStorableInvestibles(investibleHash));
     });
 }

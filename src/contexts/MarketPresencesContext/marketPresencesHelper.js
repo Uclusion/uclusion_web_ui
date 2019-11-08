@@ -8,6 +8,10 @@ export function refreshMarketPresence(dispatch, marketId) {
     });
 }
 
+export function getMarketPresences(state, marketId) {
+  return state[marketId];
+}
+
 export function getCurrentUserInvestment(state, investibleId, marketId, investingUser) {
   if (investingUser) {
     const { id } = investingUser;

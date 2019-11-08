@@ -18,6 +18,7 @@ function DecisionDialog(props) {
     comments,
     commentsHash,
     marketStages,
+    marketPresences,
   } = props;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment && !stage.appears_in_market_summary);
@@ -58,7 +59,10 @@ function DecisionDialog(props) {
         <SubSection
           title="Current Voting"
         >
-          <Voting/>
+          <Voting
+            marketPresences={marketPresences}
+            investibles={investibles}
+          />
         </SubSection>
       </Grid>
       <Grid
@@ -114,6 +118,8 @@ DecisionDialog.propTypes = {
   commentsHash: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
   marketStages: PropTypes.arrayOf(PropTypes.object),
+  // eslint-disable-next-line react/forbid-prop-types
+  marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 DecisionDialog.defaultProps = {

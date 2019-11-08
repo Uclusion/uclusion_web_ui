@@ -16,6 +16,8 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 const styles = (theme) => ({
   root: {
@@ -58,6 +60,7 @@ function Market(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState] = useContext(CommentsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketDetails = getAllMarketDetails(marketsState);
   const { hidden } = props;
   const investibles = getMarketInvestibles(investiblesState, marketId);
@@ -68,6 +71,7 @@ function Market(props) {
   const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketStages = getStages(marketStagesState, marketId);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId);
   console.log(marketStages);
   return (
     <Screen
@@ -82,6 +86,7 @@ function Market(props) {
           comments={comments}
           commentsHash={commentsHash}
           marketStages={marketStages}
+          marketPresences={marketPresences}
         />
       )}
       { marketType === 'PLANNING' && <PlanningDialog market={renderableMarket} investibles={investibles} />}

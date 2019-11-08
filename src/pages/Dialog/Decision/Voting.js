@@ -4,10 +4,11 @@ import _ from 'lodash';
 import { Typography, Badge } from '@material-ui/core';
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
 import MicroBarChart from 'react-micro-bar-chart';
+
 function Voting(props) {
 
   const { marketPresences, investibles } = props;
-  const noVotesMessage = "No active votes";
+  const strippedInvestibles = investibles.map((inv) => inv.investible);
 
   function getVoteTotalsForUser(presence) {
     const { investments } = presence;
@@ -23,20 +24,34 @@ function Voting(props) {
     return userInvestments;
   }
 
-  function computeVoteTallies() {
-    return marketPresences.reduce((acc, presence) => {
-      const userInvestments = getVoteTotalsForUser(presence);
-      Object.keys(userInvestments).forEach((investible_id) => {
-        const oldValue = acc[investible_id] || { investible_id, numSupporters: 0, investments: []}
-        const newValue = {
-          ...oldValue,
-          numSupporters: oldValue.numSupporters + 1,
-          investments: [...oldValue.investments, userInvestments[investible_id]],
-        };
-        acc[investible_id] = newValue;
-      });
+  function getInvestibleVotes() {
+    // first set every investibles support and investments to 0
+    const tallies = strippedInvestibles.reduce((acc, inv) => {
+      const { id } = inv;
+      const augmented = {
+        ...inv,
+        numSupporters: 0,
+        investments: [],
+      };
+      acc[id] = augmented;
       return acc;
     }, {});
+    // now we fill in votes from market presences
+    marketPresences.forEach((presence) => {
+      const userInvestments = getVoteTotalsForUser(presence);
+      Object.keys(userInvestments).forEach((investible_id) => {
+        const oldValue = tallies[investible_id];
+        if (oldValue) {
+          const newValue = {
+            ...oldValue,
+            numSupporters: oldValue.numSupporters + 1,
+            investments: [...oldValue.investments, userInvestments[investible_id]],
+          };
+          tallies[investible_id] = newValue;
+        }
+      });
+    });
+    return tallies;
   }
 
   function getCertaintyChart(investments) {
@@ -44,20 +59,15 @@ function Voting(props) {
       data={investments}
       height={10}
       width={20}
-    />
+    />;
   }
 
   function getItemVote(item) {
-    const { investible_id, numSupporters, investments } = item;
-    const inv = investibles.find((inv) => inv.investible.id === investible_id);
-    if (!inv) {
-      return null;
-    }
-    const { investible } = inv;
-    const { name } = investible;
+    const { id, numSupporters, investments, name } = item;
     return (
-      <div key={investible_id}>
+      <div key={id}>
         <Badge
+          showZero
           badgeContent={numSupporters}
         >
           <EmojiPeopleIcon/>
@@ -75,17 +85,11 @@ function Voting(props) {
   }
 
 
-  const tallies = computeVoteTallies();
-  const noVotes = _.isEmpty(tallies) || _.isEmpty(investibles);
-  if (noVotes) {
-    return (
-      <Typography>{noVotesMessage}</Typography>
-    );
-  }
-
+  const tallies = getInvestibleVotes();
+  console.log(tallies);
   const talliesArray = Object.values(tallies);
   // descending order of support
-  const sortedTalliesArray = _.sortBy(talliesArray, 'numSupporters').reverse();
+  const sortedTalliesArray = _.sortBy(talliesArray, 'numSupporters', 'name').reverse();
 
 
   return (

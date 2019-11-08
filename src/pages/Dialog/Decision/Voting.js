@@ -1,24 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Typography, Badge } from '@material-ui/core';
-import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
-import MicroBarChart from 'react-micro-bar-chart';
+import {
+  XYPlot,
+  VerticalBarSeries,
+  YAxis,
+  Hint,
+} from 'react-vis';
 
 function Voting(props) {
-
+  const [value, setValue] = useState(undefined);
   const { marketPresences, investibles } = props;
   const strippedInvestibles = investibles.map((inv) => inv.investible);
 
   function getVoteTotalsForUser(presence) {
-    const { investments } = presence;
+    const { investments, name } = presence;
     const userInvestments = investments.reduce((uInv, investment) => {
       const { investible_id, quantity } = investment;
-      const oldValue = uInv[investible_id] || 0;
-      const newValue = oldValue + quantity;
       return {
         ...uInv,
-        [investible_id]: newValue,
+        [investible_id]: { x: name, y: quantity },
       };
     }, {});
     return userInvestments;
@@ -44,7 +46,6 @@ function Voting(props) {
         if (oldValue) {
           const newValue = {
             ...oldValue,
-            numSupporters: oldValue.numSupporters + 1,
             investments: [...oldValue.investments, userInvestments[investible_id]],
           };
           tallies[investible_id] = newValue;
@@ -54,32 +55,40 @@ function Voting(props) {
     return tallies;
   }
 
+  function forgetValue() {
+    setValue(undefined);
+  }
+
   function getCertaintyChart(investments) {
-    return <MicroBarChart
-      data={investments}
-      height={10}
-      width={20}
-    />;
+    console.debug(investments);
+    return (
+      <XYPlot xType="ordinal" width={investments.length * 100} height={100} yDomain={[0, 100]}>
+        <YAxis
+          tickValues={[100]}
+        />
+        <VerticalBarSeries
+          onValueMouseOver={setValue}
+          onValueMouseOut={forgetValue}
+          barWidth="0.65"
+          data={investments}
+        />
+        {value ? <Hint value={value} /> : null}
+      </XYPlot>
+    );
   }
 
   function getItemVote(item) {
-    const { id, numSupporters, investments, name } = item;
+    const { id, investments, name } = item;
     return (
       <div key={id}>
-        <Badge
-          showZero
-          badgeContent={numSupporters}
-        >
-          <EmojiPeopleIcon/>
-        </Badge>
         <Badge>
           {getCertaintyChart(investments)}
         </Badge>
         <Typography
-          noWrap>
+          noWrap
+        >
           {name}
         </Typography>
-
       </div>
     );
   }
@@ -93,9 +102,9 @@ function Voting(props) {
 
 
   return (
-    <React.Fragment>
+    <>
       {sortedTalliesArray.map((item) => getItemVote(item))}
-    </React.Fragment>
+    </>
   );
 }
 

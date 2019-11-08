@@ -16,6 +16,8 @@ import CommentBox from '../../containers/CommentBox/CommentBox';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import _ from 'lodash';
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import SubSection from '../../containers/SubSection/SubSection';
+import { Paper, Typography } from '@material-ui/core';
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -30,7 +32,7 @@ function Investible(props) {
   const { hidden } = props;
   const history = useHistory();
   const { location } = history;
-  const { pathname, hash } = location;
+  const { pathname } = location;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const market = getMarket(marketsState, marketId) || emptyMarket;
@@ -39,22 +41,28 @@ function Investible(props) {
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
   const [investiblesState] = useContext(InvestiblesContext);
-
   const inv = getInvestible(investiblesState, investibleId) || emptyInvestible; // fallback for initial render
   const { investible } = inv;
   const { name, description } = investible;
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+  console.log(description);
   return (
     <Screen
       title={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
     >
+      <SubSection
+        title='Description'
+        >
+        <Paper>
       <QuillEditor
         readOnly
         defaultValue={description}
       />
+        </Paper>
+      </SubSection>
       <CommentBox comments={investibleComments} commentsHash={commentsHash} marketId={marketId} />
     </Screen>
   );

@@ -60,18 +60,16 @@ class QuillEditor extends React.PureComponent {
 
   componentDidMount() {
     const { defaultValue, onChange, value, readOnly } = this.props;
+    const usedValue = value || defaultValue;
     if (!readOnly) {
       this.editor = new Quill(this.editorRef.current, this.options);
-      this.editor.root.innerHTML = value || defaultValue;
+      this.editor.root.innerHTML = usedValue;
       const debouncedOnChange = _.debounce((delta) => {
         const contents = this.editor.root.innerHTML;
         onChange(contents, delta);
       }, 50);
       this.editor.on('text-change', debouncedOnChange);
-    } else {
-      this.editorRef.current.innerHTML = value || defaultValue;
     }
-
   }
 
   statefulUpload(metadatas) {
@@ -86,9 +84,6 @@ class QuillEditor extends React.PureComponent {
 
   render() {
     const { readOnly, value, defaultValue, theme } = this.props;
-    if (this.editor && (readOnly || value)) {
-      this.editor.root.innerHTML = value || defaultValue;
-    }
     const editorStyle = {
       fontSize: theme.typography.fontSize,
     };
@@ -123,6 +118,7 @@ QuillEditor.defaultProps = {
   defaultValue: '',
   placeholder: '',
   marketId: undefined,
+  value: '',
 };
 
 export default withTheme(QuillEditor);

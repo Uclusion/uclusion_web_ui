@@ -76,7 +76,7 @@ Screen.propTypes = {
   breadCrumbs: PropTypes.arrayOf(PropTypes.object),
   hidden: PropTypes.bool,
   // eslint-disable-next-line react/forbid-prop-types
-  title: PropTypes.object.isRequired,
+  title: PropTypes.any.isRequired,
 };
 
 Screen.defaultProps = {

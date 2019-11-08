@@ -8,6 +8,8 @@ import {
   YAxis,
   Hint,
 } from 'react-vis';
+import { useHistory } from 'react-router';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function Voting(props) {
 

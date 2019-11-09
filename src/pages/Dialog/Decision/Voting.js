@@ -1,22 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Typography, Badge, Paper } from '@material-ui/core';
+import { Typography, Paper } from '@material-ui/core';
 import {
   XYPlot,
-  VerticalBarSeries,
-  YAxis,
-  Hint,
+  VerticalBarSeries, Borders,
 } from 'react-vis';
 import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function Voting(props) {
-
   const history = useHistory();
 
   const { marketPresences, investibles, marketId } = props;
-  const [value, setValue] = useState(undefined);
   const strippedInvestibles = investibles.map((inv) => inv.investible);
 
   function getVoteTotalsForUser(presence) {
@@ -25,7 +21,7 @@ function Voting(props) {
       const { investible_id, quantity } = investment;
       return {
         ...uInv,
-        [investible_id]: { x: name, y: quantity },
+        [investible_id]: { x: name, y: quantity, color: quantity / 20 },
       };
     }, {});
     return userInvestments;
@@ -60,24 +56,35 @@ function Voting(props) {
     return tallies;
   }
 
-  function forgetValue() {
-    setValue(undefined);
-  }
+  const margin = {
+    top: 0,
+    bottom: 1,
+    left: 0,
+    right: 1,
+  };
 
   function getCertaintyChart(investments) {
-    console.debug(investments);
     return (
-      <XYPlot xType="ordinal" width={investments.length * 100} height={100} yDomain={[0, 100]}>
-        <YAxis
-          tickValues={[100]}
+      <XYPlot
+        xType="ordinal"
+        width={investments.length * 60}
+        height={100}
+        yDomain={[0, 100]}
+        colorDomain={[0, 5]}
+        colorRange={['red', 'orange', 'yellow', 'green']}
+        margin={margin}
+      >
+        <Borders style={{
+          bottom: { fill: '#16191f', height: 1 },
+          left: { fill: '#16191f', width: 1 },
+          right: { fill: '#16191f', width: 1 },
+          top: { fill: '#16191f', height: 1 },
+        }}
         />
         <VerticalBarSeries
-          onValueMouseOver={setValue}
-          onValueMouseOut={forgetValue}
-          barWidth="0.65"
+          barWidth="0.4"
           data={investments}
         />
-        {value ? <Hint value={value} /> : null}
       </XYPlot>
     );
   }
@@ -89,9 +96,7 @@ function Voting(props) {
         key={id}
         onClick={() => navigate(history, formInvestibleLink(marketId, id))}
       >
-        <Badge>
-          {getCertaintyChart(investments)}
-        </Badge>
+        {getCertaintyChart(investments)}
         <Typography
           noWrap
         >
@@ -110,9 +115,9 @@ function Voting(props) {
 
 
   return (
-    <React.Fragment>
+    <>
       {sortedTalliesArray.map((item) => getItemVote(item))}
-    </React.Fragment>
+    </>
   );
 }
 

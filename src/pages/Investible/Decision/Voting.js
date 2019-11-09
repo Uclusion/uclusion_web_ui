@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { JUSTIFY_TYPE } from '../../../containers/CommentBox/CommentBox';
 import { Paper, Typography } from '@material-ui/core';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
@@ -64,11 +65,11 @@ function Voting(props) {
   }
 
   const voters = getInvestibleVoters();
-  console.log(voters);
-
+  const sortedVoters = _.sortBy(voters, 'name');
+  
   return (
     <Paper>
-      {renderInvestibleVoters(voters)}
+      {renderInvestibleVoters(sortedVoters)}
       {reasonText && <QuillEditor readOnly defaultValue={reasonText} />}
     </Paper>
   );

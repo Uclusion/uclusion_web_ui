@@ -21,7 +21,7 @@ function Voting(props) {
       const { investible_id, quantity } = investment;
       return {
         ...uInv,
-        [investible_id]: { x: name, y: quantity, color: quantity / 20 },
+        [investible_id]: { x: name, y: quantity, color: quantity / 30 },
       };
     }, {});
     return userInvestments;
@@ -70,8 +70,8 @@ function Voting(props) {
         width={investments.length * 60}
         height={100}
         yDomain={[0, 100]}
-        colorDomain={[0, 5]}
-        colorRange={['red', 'orange', 'yellow', 'green']}
+        colorDomain={[0, 3]}
+        colorRange={['red', 'green']}
         margin={margin}
       >
         <Borders style={{

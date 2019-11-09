@@ -18,15 +18,16 @@ import _ from 'lodash';
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import SubSection from '../../containers/SubSection/SubSection';
 import { Paper } from '@material-ui/core';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import Voting from './Decision/Voting';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
 
-
 function createCommentsHash(commentsArray) {
   return _.keyBy(commentsArray, 'id');
 }
-
 
 function Investible(props) {
   const { hidden } = props;
@@ -34,6 +35,8 @@ function Investible(props) {
   const { location } = history;
   const { pathname } = location;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const [marketsState] = useContext(MarketsContext);
   const market = getMarket(marketsState, marketId) || emptyMarket;
   const [commentsState] = useContext(CommentsContext);
@@ -54,13 +57,22 @@ function Investible(props) {
       hidden={hidden}
     >
       <SubSection
+        title="Voting"
+      >
+        <Voting
+          investibleId={investibleId}
+          marketPresences={marketPresences}
+          comments={investibleComments}
+        />
+      </SubSection>
+      <SubSection
         title='Description'
-        >
+      >
         <Paper>
-      <QuillEditor
-        readOnly
-        defaultValue={description}
-      />
+          <QuillEditor
+            readOnly
+            defaultValue={description}
+          />
         </Paper>
       </SubSection>
       <CommentBox comments={investibleComments} commentsHash={commentsHash} marketId={marketId} />

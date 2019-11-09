@@ -28,7 +28,8 @@ function Voting(props) {
     marketPresences.forEach((presence) => {
       const { name, id, investments } = presence;
       investments.forEach((investment) => {
-        const { quantity, investibleId: invId } = investment;
+        const { quantity, investible_id: invId } = investment;
+        console.log(investment);
         if (investibleId === invId) {
           acc.push({ name, userId: id, quantity });
         }
@@ -63,6 +64,7 @@ function Voting(props) {
   }
 
   const voters = getInvestibleVoters();
+  console.log(voters);
 
   return (
     <Paper>

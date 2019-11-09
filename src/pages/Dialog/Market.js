@@ -72,7 +72,6 @@ function Market(props) {
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
-  console.log(marketStages);
   return (
     <Screen
       title={currentMarketName}

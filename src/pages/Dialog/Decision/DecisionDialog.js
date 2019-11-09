@@ -25,7 +25,6 @@ function DecisionDialog(props) {
 
   function getInvestiblesForStage(stage) {
     if (stage) {
-      console.log(stage);
       return investibles.reduce((acc, inv) => {
         const { market_infos } = inv;
         for (let x = 0; x < market_infos.length; x += 1) {
@@ -40,7 +39,6 @@ function DecisionDialog(props) {
   }
 
   const underConsideration = getInvestiblesForStage(underConsiderationStage);
-  console.log(underConsideration);
   const proposed = getInvestiblesForStage(proposedStage);
 
   const { id: marketId } = market;

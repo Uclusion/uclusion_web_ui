@@ -18,11 +18,23 @@ class QuillEditor extends React.PureComponent {
 
   editor;
 
+  uploadLessToolbar = [
+    [{ font: [] }],
+    [{ header: [1, 2, false] }],
+    ['bold', 'italic', 'underline', 'strike', { script: 'sub' }, { script: 'super' }],
+    [{ color: [] }, { background: [] }],
+    [{ align: [] }],
+    [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+    ['link', 'code-block'],
+    ['clean'],
+  ];
+
+
   constructor(props) {
     super(props);
     this.state = { uploads: [] };
     this.editorRef = React.createRef();
-    const { marketId, readOnly, placeholder } = props;
+    const { marketId, readOnly, placeholder, uploadDisabled } = props;
     const defaultModules = {
       toolbar: [
         [{ font: [] }],
@@ -46,6 +58,11 @@ class QuillEditor extends React.PureComponent {
     // wipe the toolbar if read only
     if (readOnly) {
       this.modules.toolbar = false;
+      this.modules.s3Upload = false;
+      this.modules.imageResize = false;
+    }
+    if (uploadDisabled) {
+      this.modules.toolbar = this.uploadLessToolbar;
       this.modules.s3Upload = false;
       this.modules.imageResize = false;
     }
@@ -119,6 +136,7 @@ QuillEditor.propTypes = {
   onChange: PropTypes.func,
   placeholder: PropTypes.string,
   value: PropTypes.string,
+  uploadDisabled: PropTypes.bool,
 };
 
 QuillEditor.defaultProps = {
@@ -129,6 +147,7 @@ QuillEditor.defaultProps = {
   placeholder: '',
   marketId: undefined,
   value: '',
+  uploadDisabled: false,
 };
 
 export default withTheme(QuillEditor);

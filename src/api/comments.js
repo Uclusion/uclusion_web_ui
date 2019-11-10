@@ -23,3 +23,8 @@ export function saveComment(marketId, investibleId, replyId, body, commentType, 
   return getMarketClient(marketId)
     .then((client) => client.investibles.createComment(investibleId, body, replyId, commentType, uploadedFiles));
 }
+
+export function updateInvestmentReason(marketId, commentId, body, uploadedFiles) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.updateComment(commentId, body, false, uploadedFiles));
+}

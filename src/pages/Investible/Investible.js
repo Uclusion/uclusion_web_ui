@@ -21,6 +21,7 @@ import { Paper } from '@material-ui/core';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import Voting from './Decision/Voting';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import YourVoting from './Decision/Voting/YourVoting';
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -49,7 +50,8 @@ function Investible(props) {
   const { name, description } = investible;
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-  console.log(description);
+  const userId = 'xxxx'; // TODO: Fix
+
   return (
     <Screen
       title={name}
@@ -57,7 +59,19 @@ function Investible(props) {
       hidden={hidden}
     >
       <SubSection
-        title="Voting"
+        title="Your Voting"
+      >
+        <YourVoting
+          investibleId={investibleId}
+          marketPresences={marketPresences}
+          comments={investibleComments}
+          userId={userId}
+          marketId={marketId}
+        />
+      </SubSection>
+
+      <SubSection
+        title="Others Voting"
       >
         <Voting
           investibleId={investibleId}

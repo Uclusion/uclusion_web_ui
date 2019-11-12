@@ -50,9 +50,14 @@ function Investible(props) {
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const amEditing = locked_by && (locked_by === userId);
+  const someoneElseEditing = locked_by && (locked_by !== userId);
+  const warning = someoneElseEditing? 'Someone else is editing this idea!' : undefined;
+  console.log(warning);
   const [editMode, setEditMode] = useState(amEditing); // if we have an edit lock, just put us into edit mode
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const isAdmin = myPresence && myPresence.is_admin;
+
+
 
   function toggleEdit() {
     if (!editMode) {
@@ -67,11 +72,17 @@ function Investible(props) {
       .then(() => setEditMode(false));
   }
 
+  function onSave() {
+    // save automagically releases the lock, so we just toggle edit
+    setEditMode(false);
+  }
+
   return (
     <Screen
       title={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
+      warning={warning}
     >
       {!editMode && (
         <DecisionInvestible
@@ -89,7 +100,7 @@ function Investible(props) {
         <DecisionInvestibleEdit
           fullInvestible={inv}
           marketId={marketId}
-          onSave={toggleEdit}
+          onSave={onSave}
           onCancel={toggleEdit}
           isAdmin={isAdmin}
         />

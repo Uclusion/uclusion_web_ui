@@ -54,7 +54,20 @@ export function viewed(marketId, isPresent, investibleId) {
 
 export function getMarketUsers(marketId) {
   return getMarketClient(marketId)
-    .then((client) => client.markets.listUsers());
+    .then((client) => {
+      return client.users.get() // this is me
+        .then((user) => {
+          return client.markets.listUsers()
+            .then((presences) => {
+              return presences.map((presence) => {
+                if (presence.id === user.id) {
+                  return { ...presence, current_user: true };
+                }
+                return presence;
+              });
+            });
+        });
+    });
 }
 
 export function getMarketStages(marketId) {

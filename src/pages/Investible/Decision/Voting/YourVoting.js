@@ -13,7 +13,7 @@ function YourVoting(props) {
     userId,
   } = props;
 
-  const yourPresence = marketPresences.find((presence) => presence.id === userId);
+  const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const yourReason = comments.find((comment) => comment.created_by === userId && comment.type === JUSTIFY_TYPE);
   const [voteForThis, setVoteForThis] = useState(false);
@@ -25,6 +25,7 @@ function YourVoting(props) {
         investibleId={investibleId}
         onCancel={() => setVoteForThis(false)}
         reason={yourReason}
+        investment={yourVote}
       />
     );
   }

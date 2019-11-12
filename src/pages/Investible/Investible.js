@@ -10,18 +10,13 @@ import { useHistory } from 'react-router';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import QuillEditor from '../../components/TextEditors/QuillEditor';
-import CommentBox from '../../containers/CommentBox/CommentBox';
+import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import _ from 'lodash';
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
-import SubSection from '../../containers/SubSection/SubSection';
-import { Paper } from '@material-ui/core';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import Voting from './Decision/Voting';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import YourVoting from './Decision/Voting/YourVoting';
+import DecisionInvestible from './Decision/DecisionInvestible';
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -40,6 +35,8 @@ function Investible(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const [marketsState] = useContext(MarketsContext);
   const market = getMarket(marketsState, marketId) || emptyMarket;
+  const user = getMyUserForMarket(marketsState, marketId) || {};
+  const userId = user.id;
   const [commentsState] = useContext(CommentsContext);
   const comments = getMarketComments(commentsState, marketId);
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
@@ -47,10 +44,10 @@ function Investible(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const inv = getInvestible(investiblesState, investibleId) || emptyInvestible; // fallback for initial render
   const { investible } = inv;
-  const { name, description } = investible;
+  const { name } = investible;
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-  const userId = 'xxxx'; // TODO: Fix
+
 
   return (
     <Screen
@@ -58,38 +55,15 @@ function Investible(props) {
       breadCrumbs={breadCrumbs}
       hidden={hidden}
     >
-      <SubSection
-        title="Your Voting"
-      >
-        <YourVoting
-          investibleId={investibleId}
-          marketPresences={marketPresences}
-          comments={investibleComments}
-          userId={userId}
-          marketId={marketId}
-        />
-      </SubSection>
-
-      <SubSection
-        title="Others Voting"
-      >
-        <Voting
-          investibleId={investibleId}
-          marketPresences={marketPresences}
-          comments={investibleComments}
-        />
-      </SubSection>
-      <SubSection
-        title='Description'
-      >
-        <Paper>
-          <QuillEditor
-            readOnly
-            defaultValue={description}
-          />
-        </Paper>
-      </SubSection>
-      <CommentBox comments={investibleComments} commentsHash={commentsHash} marketId={marketId} />
+      <DecisionInvestible
+        userId={userId}
+        investibleId={investibleId}
+        marketId={marketId}
+        investible={investible}
+        commentsHash={commentsHash}
+        marketPresences={marketPresences}
+        investibleComments={investibleComments}
+      />
     </Screen>
   );
 }

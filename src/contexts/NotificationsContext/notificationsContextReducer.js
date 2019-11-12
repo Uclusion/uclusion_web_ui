@@ -50,6 +50,7 @@ function getMassagedMessages(messages) {
       type_object_id: typeObjectId,
       market_id_user_id: marketIdUserId,
       level,
+      associated_object_id: associatedObjectId,
     } = message;
     const objectId = typeObjectId.substring(typeObjectId.lastIndexOf('_') + 1);
     const aType = typeObjectId.substring(0, typeObjectId.lastIndexOf('_'));
@@ -61,8 +62,19 @@ function getMassagedMessages(messages) {
         ...message, marketId, aType, level, userId,
       };
     }
+    if (associatedObjectId) {
+      return {
+        ...message,
+        marketId,
+        aType,
+        level,
+        investibleId: associatedObjectId,
+        commentId: objectId,
+        userId,
+      };
+    }
     return {
-      ...message, marketId, aType, level, investibleId: objectId,
+      ...message, marketId, aType, level, investibleId: objectId, userId,
     };
   });
 }

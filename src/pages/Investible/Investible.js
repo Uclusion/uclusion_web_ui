@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import Screen from '../../containers/Activity/Screen';
 import {
@@ -17,6 +17,8 @@ import { getMarketComments } from '../../contexts/CommentsContext/commentsContex
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import DecisionInvestible from './Decision/DecisionInvestible';
+import DecisionInvestibleEdit from './Decision/DecisionInvestibleEdit';
+import { lockInvestibleForEdit, realeaseInvestibleEditLock } from '../../api/investibles';
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -44,10 +46,26 @@ function Investible(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const inv = getInvestible(investiblesState, investibleId) || emptyInvestible; // fallback for initial render
   const { investible } = inv;
-  const { name } = investible;
+  const { name, locked_by } = investible;
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+  const amEditing = locked_by && (locked_by === userId);
+  const [editMode, setEditMode] = useState(amEditing); // if we have an edit lock, just put us into edit mode
+  const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
+  const isAdmin = myPresence && myPresence.is_admin;
 
+  function toggleEdit() {
+    if (!editMode) {
+      // for now, just break the lock always
+      const breakLock = true;
+      console.debug('Taking out lock');
+      return lockInvestibleForEdit(marketId, investibleId, breakLock)
+        .then(() => setEditMode(true));
+    }
+    console.debug('Releasing lock');
+    return realeaseInvestibleEditLock(marketId, investibleId)
+      .then(() => setEditMode(false));
+  }
 
   return (
     <Screen
@@ -55,15 +73,27 @@ function Investible(props) {
       breadCrumbs={breadCrumbs}
       hidden={hidden}
     >
-      <DecisionInvestible
-        userId={userId}
-        investibleId={investibleId}
-        marketId={marketId}
-        investible={investible}
-        commentsHash={commentsHash}
-        marketPresences={marketPresences}
-        investibleComments={investibleComments}
-      />
+      {!editMode && (
+        <DecisionInvestible
+          userId={userId}
+          investibleId={investibleId}
+          marketId={marketId}
+          investible={investible}
+          commentsHash={commentsHash}
+          marketPresences={marketPresences}
+          investibleComments={investibleComments}
+          toggleEdit={toggleEdit}
+          isAdmin={isAdmin}
+        />)}
+      {editMode && (
+        <DecisionInvestibleEdit
+          fullInvestible={inv}
+          marketId={marketId}
+          onSave={toggleEdit}
+          onCancel={toggleEdit}
+          isAdmin={isAdmin}
+        />
+      )}
     </Screen>
   );
 }

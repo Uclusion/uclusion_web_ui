@@ -27,7 +27,7 @@ const useStyles = makeStyles({
 function Screen(props) {
   const classes = useStyles();
 
-  const { breadCrumbs, hidden, title, children } = props;
+  const { breadCrumbs, hidden, title, children, toolbarButtons } = props;
 
   function generateTitle() {
     if (breadCrumbs) {
@@ -58,6 +58,7 @@ function Screen(props) {
         <Toolbar>
           {generateTitle()}
           <div className={classes.grow} />
+          {toolbarButtons}
           <Notifications />
         </Toolbar>
       </AppBar>
@@ -74,6 +75,8 @@ function Screen(props) {
 Screen.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   breadCrumbs: PropTypes.arrayOf(PropTypes.object),
+  // eslint-disable-next-line react/forbid-prop-types
+  toolbarButtons: PropTypes.arrayOf(PropTypes.any),
   hidden: PropTypes.bool,
   // eslint-disable-next-line react/forbid-prop-types
   title: PropTypes.any.isRequired,
@@ -82,6 +85,7 @@ Screen.propTypes = {
 Screen.defaultProps = {
   breadCrumbs: [],
   hidden: false,
+  toolbarButtons: [],
 };
 
 export default Screen;

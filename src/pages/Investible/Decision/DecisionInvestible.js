@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from './Voting/YourVoting';
 import Voting from './Voting';
-import { Paper } from '@material-ui/core';
+import { Paper, Fab } from '@material-ui/core';
+import EditIcon from '@material-ui/icons/Edit';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 
@@ -22,9 +23,11 @@ function DecisionInvestible(props) {
     marketId,
     investible,
     commentsHash,
+    toggleEdit,
+    isAdmin,
   } = props;
 
-  const { name, description } = investible;
+  const { description } = investible;
 
   return (
     <React.Fragment>
@@ -57,9 +60,17 @@ function DecisionInvestible(props) {
             readOnly
             defaultValue={description}
           />
+          {isAdmin && (
+            <Fab
+              color="primary"
+            >
+              <EditIcon onClick={toggleEdit} />
+            </Fab>
+          )}
         </Paper>
       </SubSection>
-      <CommentBox comments={investibleComments} commentsHash={commentsHash} marketId={marketId} />\
+      <CommentBox comments={investibleComments} commentsHash={commentsHash} marketId={marketId} />
+
     </React.Fragment>
   );
 }
@@ -76,11 +87,15 @@ DecisionInvestible.propTypes = {
   commentsHash: PropTypes.object,
   investibleId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
+  toggleEdit: PropTypes.func,
+  isAdmin: PropTypes.bool,
 };
 
 DecisionInvestible.defaultProps = {
   marketPresences: [],
   investibleComments: [],
   commentsHash: {},
+  toggleEdit: () => {},
+  isAdmin: false,
 };
 export default DecisionInvestible;

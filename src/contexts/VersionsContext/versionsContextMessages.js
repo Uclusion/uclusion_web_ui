@@ -45,8 +45,9 @@ function beginListening(dispatch) {
         if (version < 0) {
           dispatch(removeMarketVersionAction(marketId));
         } else {
-          delete message.object_id;
-          dispatch(refreshMarketVersionAction({ marketId, ...message }));
+          const cloneMessage = { ...message };
+          delete cloneMessage.object_id;
+          dispatch(refreshMarketVersionAction({ marketId, ...cloneMessage }));
         }
         break;
       }

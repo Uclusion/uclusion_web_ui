@@ -2,11 +2,11 @@ import React, { useState, useContext } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@material-ui/core';
-import { addInvestible } from '../../api/investibles';
-import QuillEditor from '../TextEditors/QuillEditor';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { addInvestible as localAddInvestible } from '../../contexts/InvestibesContext/investiblesContextReducer';
-import { processTextAndFilesForSave } from '../../api/files';
+import { addInvestible } from '../../../api/investibles';
+import QuillEditor from '../../../components/TextEditors/QuillEditor';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { addInvestible as localAddInvestible } from '../../../contexts/InvestibesContext/investiblesContextReducer';
+import { processTextAndFilesForSave } from '../../../api/files';
 
 const styles = (theme) => ({
   root: {
@@ -125,11 +125,13 @@ InvestibleAdd.propTypes = {
   marketId: PropTypes.string.isRequired,
   onSave: PropTypes.func,
   onCancel: PropTypes.func,
+  isAdmin: PropTypes.bool,
 };
 
 InvestibleAdd.defaultProps = {
   onSave: () => {},
   onCancel: () => {},
+  isAdmin: false,
 };
 
 export default withStyles(styles)(injectIntl(InvestibleAdd));

@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => {
 });
 
 function SubSection(props) {
-  const { children, hidden, title } = props;
+  const { children, hidden, title, actionButton } = props;
 
   const classes = useStyles();
 
@@ -31,6 +31,7 @@ function SubSection(props) {
           <Typography color="textSecondary">
             {title}
           </Typography>
+          {actionButton}
         </Toolbar>
       </AppBar>
       <div className={classes.toolbar}>
@@ -46,12 +47,15 @@ SubSection.propTypes = {
   title: PropTypes.string,
   // eslint-disable-next-line react/forbid-prop-types
   children: PropTypes.object,
+  // eslint-disable-next-line react/forbid-prop-types
+  actionButton: PropTypes.object,
 };
 
 SubSection.defaultProps = {
   title: "",
   hidden: false,
   children: undefined,
+  fab: undefined,
 };
 
 export default SubSection;

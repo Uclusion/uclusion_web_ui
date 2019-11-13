@@ -1,10 +1,12 @@
 /**
  * A component that renders a _decision_ dialog
  */
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Summary from '../Summary';
 import { Grid } from '@material-ui/core';
+import InvestibleAddButton from './InvestibleAddButton';
+import InvestibleAdd from './InvestibleAdd';
 import ProposedIdeas from './ProposedIdeas';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import SubSection from '../../../containers/SubSection/SubSection';
@@ -19,9 +21,11 @@ function DecisionDialog(props) {
     commentsHash,
     marketStages,
     marketPresences,
+    isAdmin,
   } = props;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment && !stage.appears_in_market_summary);
+  const [addInvestibleMode, setAddInvestibleMode] = useState(false);
 
   function getInvestiblesForStage(stage) {
     if (stage) {
@@ -42,6 +46,19 @@ function DecisionDialog(props) {
   const proposed = getInvestiblesForStage(proposedStage);
 
   const { id: marketId } = market;
+  function toggleAddMode() {
+    setAddInvestibleMode(!addInvestibleMode);
+  }
+  // if we're adding an investible, just render it
+  if (addInvestibleMode) {
+    return (
+      <InvestibleAdd
+        marketId={marketId}
+        onCancel={toggleAddMode}
+        onSave={toggleAddMode}
+      />
+    );
+  }
 
 
   return (
@@ -55,6 +72,7 @@ function DecisionDialog(props) {
       >
         <SubSection
           title="Current Voting"
+          actionButton={(isAdmin && <InvestibleAddButton onClick={toggleAddMode}/>) || undefined}
         >
           <Voting
             marketPresences={marketPresences}
@@ -70,6 +88,7 @@ function DecisionDialog(props) {
       >
         <SubSection
           title="Proposed Options"
+          actionButton={(!isAdmin && <InvestibleAddButton onClick={toggleAddMode}/>) || undefined}
         >
           <ProposedIdeas investibles={proposed} marketId={marketId} comments={comments}/>
         </SubSection>
@@ -107,6 +126,7 @@ DecisionDialog.propTypes = {
   marketStages: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
+  isAdmin: PropTypes.bool,
 };
 
 DecisionDialog.defaultProps = {
@@ -114,6 +134,7 @@ DecisionDialog.defaultProps = {
   comments: [],
   commentsHash: {},
   marketStages: [],
+  isAdmin: false,
 };
 
 export default DecisionDialog;

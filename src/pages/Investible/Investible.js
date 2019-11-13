@@ -60,6 +60,7 @@ function Investible(props) {
 
 
   function toggleEdit() {
+    console.log('Firing toggle edit');
     if (!editMode) {
       // for now, just break the lock always
       const breakLock = true;

@@ -30,7 +30,7 @@ const styles = (theme) => ({
 
 function DecisionInvestibleEdit(props) {
   const {
-    fullInvestible, intl, classes, editToggle, onSave, marketId,
+    fullInvestible, intl, classes, onCancel, onSave, marketId,
     isAdmin,
   } = props;
 
@@ -119,7 +119,7 @@ function DecisionInvestibleEdit(props) {
         />
       </CardContent>
       <CardActions>
-        <Button onClick={editToggle}>
+        <Button onClick={onCancel}>
           {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
         </Button>
         <Button
@@ -152,14 +152,14 @@ DecisionInvestibleEdit.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
+  onCancel: PropTypes.func,
   onSave: PropTypes.func,
-  editToggle: PropTypes.func,
   isAdmin: PropTypes.bool,
 };
 
 DecisionInvestibleEdit.defaultProps = {
   onSave: () => {},
-  editToggle: () => {},
+  onCancel: () => {},
   isAdmin: false,
 };
 export default withStyles(styles)(injectIntl(DecisionInvestibleEdit));

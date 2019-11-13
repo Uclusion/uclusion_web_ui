@@ -72,6 +72,8 @@ function Market(props) {
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
+  const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
+  const isAdmin = myPresence && myPresence.is_admin;
   return (
     <Screen
       title={currentMarketName}
@@ -86,6 +88,7 @@ function Market(props) {
           commentsHash={commentsHash}
           marketStages={marketStages}
           marketPresences={marketPresences}
+          isAdmin={isAdmin}
         />
       )}
       { marketType === 'PLANNING' && <PlanningDialog market={renderableMarket} investibles={investibles} />}

@@ -43,7 +43,7 @@ function Root(props) {
   const classes = useStyles();
   const { location } = history;
   const { pathname, hash } = location;
-  console.log(`pathname is ${pathname}`);
+  console.debug(`pathname is ${pathname}`);
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   function hideHome() {
     return !pathname || pathname !== '/';

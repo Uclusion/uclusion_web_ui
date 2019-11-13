@@ -56,6 +56,7 @@ function DecisionDialog(props) {
         marketId={marketId}
         onCancel={toggleAddMode}
         onSave={toggleAddMode}
+        isAdmin={isAdmin}
       />
     );
   }

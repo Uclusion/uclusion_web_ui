@@ -1,24 +1,27 @@
 import { getMarketClient } from './uclusionClient';
 
-function updateInvestible(marketId, investibleId, name, description, uploadedFiles) {
+export function updateInvestible(marketId, investibleId, name, description, uploadedFiles) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.update(investibleId, name,
       description, undefined, uploadedFiles));
 }
 
-function addInvestible(marketId, name, description, uploadedFiles) {
+export function changeInvestibleStage(marketId, investibleId, stageInfo) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.stateChange(investibleId, stageInfo));
+}
+
+export function addInvestible(marketId, name, description, uploadedFiles) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.create(name, description, uploadedFiles));
 }
 
-function lockInvestibleForEdit(marketId, investibleId, breakLock) {
+export function lockInvestibleForEdit(marketId, investibleId, breakLock) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.lock(investibleId, breakLock));
 }
 
-function realeaseInvestibleEditLock(marketId, investibleId) {
+export function realeaseInvestibleEditLock(marketId, investibleId) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.unlock(investibleId));
 }
-
-export { updateInvestible, addInvestible, realeaseInvestibleEditLock, lockInvestibleForEdit };

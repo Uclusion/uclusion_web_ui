@@ -53,6 +53,10 @@ export function viewed(marketId, isPresent, investibleId) {
 }
 
 export function getMarketUsers(marketId) {
+  if(!marketId) {
+    console.error('No marketId');
+    throw new Error("NO MARKET ID");
+  }
   return getMarketClient(marketId)
     .then((client) => {
       return client.users.get() // this is me

@@ -75,8 +75,8 @@ function InvestibleAdd(props) {
         // need to change stage for the new investible
         if (isAdmin) {
           const stageInfo = {
-            stage_id: investmentAllowedStage,
-            current_stage_id: createdStage,
+            stage_id: investmentAllowedStage.id,
+            current_stage_id: createdStage.id,
           };
           promiseChain = promiseChain.then((id) => changeInvestibleStage(marketId, id, stageInfo));
         }

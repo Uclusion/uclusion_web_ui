@@ -2,13 +2,13 @@ import React, { useState, useContext } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@material-ui/core';
-import { addInvestible, changeInvestibleStage } from '../../../api/investibles';
+import { addInvestible, addInvestibleToStage } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { addInvestible as localAddInvestible } from '../../../contexts/InvestibesContext/investiblesContextReducer';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { useHistory } from 'react-router';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 const styles = (theme) => ({
   root: {
@@ -23,14 +23,17 @@ const styles = (theme) => ({
 });
 
 function InvestibleAdd(props) {
-  const { marketId, intl, classes, onSave, onCancel, isAdmin } = props;
+  const { marketId, intl, classes, onCancel, isAdmin } = props;
 
-  const [, dispatch] = useContext(InvestiblesContext);
+  const history = useHistory();
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketStages = getStages(marketStagesState, marketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment);
   const createdStage = marketStages.find((stage) => !stage.allows_investment);
-  const destinationStage = (isAdmin) ? investmentAllowedStage : createdStage;
+  const stageChangeInfo = {
+    stage_id: investmentAllowedStage.id,
+    current_stage_id: createdStage.id,
+  };
   const emptyInvestible = { name: '', description: '' };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const [description, setDescription] = useState('');
@@ -68,34 +71,18 @@ function InvestibleAdd(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(uploadedFiles, description);
-    return addInvestible(marketId, name, tokensRemoved, filteredUploads)
-      .then((id) => {
-        let promiseChain = Promise.resolve(id);
-        // admins only add to the current options and hence we
-        // need to change stage for the new investible
-        if (isAdmin) {
-          const stageInfo = {
-            stage_id: investmentAllowedStage.id,
-            current_stage_id: createdStage.id,
-          };
-          promiseChain = promiseChain.then((id) => changeInvestibleStage(marketId, id, stageInfo));
-        }
-        return promiseChain.then(() => {
-          const syntheticInvestible = {
-            investible: {
-              id,
-              name,
-              description, // since this is local, we want to keep the links
-              updated_at: Date(0),
-              created_at: Date(0),
-            },
-            market_infos: [{ market_id: marketId, stage: destinationStage }],
-          };
-          dispatch(localAddInvestible(syntheticInvestible));
-          zeroCurrentValues();
-          onSave(id);
-        });
-      });
+    const addInfo = {
+      marketId,
+      uploadedFiles: filteredUploads,
+      description: tokensRemoved,
+      name,
+      stageInfo: stageChangeInfo, //ignored by add without stage info
+    };
+    const promise = isAdmin ? addInvestibleToStage(addInfo) : addInvestible(addInfo);
+    return promise.then((investibleId) => {
+      const link = formInvestibleLink(marketId, investibleId);
+      return navigate(history, link);
+    });
   }
 
   return (

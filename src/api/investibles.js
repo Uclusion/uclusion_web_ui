@@ -1,17 +1,30 @@
 import { getMarketClient } from './uclusionClient';
+import { ERROR, sendIntlMessage } from '../utils/userMessage';
 
-export function updateInvestible(marketId, investibleId, name, description, uploadedFiles) {
+export function updateInvestible(updateInfo) {
+  const {
+    marketId,
+    investibleId,
+    name,
+    description,
+    uploadedFiles
+  } = updateInfo
   return getMarketClient(marketId)
     .then((client) => client.investibles.update(investibleId, name,
-      description, undefined, uploadedFiles));
+      description, undefined, uploadedFiles))
+    .catch((error) => {
+      sendIntlMessage(ERROR, 'errorInvestibleUpdateFailed');
+      throw error;
+    });
 }
 
-export function changeInvestibleStage(marketId, investibleId, stageInfo) {
-  return getMarketClient(marketId)
-    .then((client) => client.investibles.stateChange(investibleId, stageInfo));
-}
-
-export function addInvestible(marketId, name, description, uploadedFiles) {
+export function addInvestible(addInfo) {
+  const {
+    marketId,
+    name,
+    description,
+    uploadedFiles
+  } = addInfo;
   return getMarketClient(marketId)
     .then((client) => client.investibles.create(name, description, uploadedFiles));
 }
@@ -24,4 +37,25 @@ export function lockInvestibleForEdit(marketId, investibleId, breakLock) {
 export function realeaseInvestibleEditLock(marketId, investibleId) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.unlock(investibleId));
+}
+
+export function addInvestibleToStage(addInfo) {
+  const {
+    marketId,
+    name,
+    description,
+    uploadedFiles,
+    stageInfo // contains the current and next stage like change investible stage
+  } = addInfo;
+  return getMarketClient(marketId)
+    .then((client) => {
+      return client.investibles.create(name, description, uploadedFiles)
+        .then((investibleId) => {
+          return client.investibles.stateChange(investibleId, stageInfo)
+            .then(() => investibleId); // make the return value the same as the regular add
+        });
+    }).catch((error) => {
+      sendIntlMessage(ERROR, 'errorInvestibleAddFailed');
+      throw error;
+    });
 }

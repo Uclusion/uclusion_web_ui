@@ -69,7 +69,13 @@ function DecisionInvestibleEdit(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
-    return updateInvestible(marketId, id, name, tokensRemoved, filteredUploads)
+    const updateInfo = {
+      uploadedFiles: filteredUploads,
+      description: tokensRemoved,
+      marketId,
+      investibleId: id,
+    };
+    return updateInvestible(updateInfo)
       .then((data) => {
         investiblesDispatch(localUpdateInvestible({ ...fullInvestible, investible: data }));
         onSave();

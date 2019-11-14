@@ -246,6 +246,10 @@ const messages = defineMessages({
   aboutUserNameLabel: 'User Name',
   aboutUclusionEmailLabel: 'Support',
   aboutClearStorageButton: 'Clear Storage',
+
+  // API errors
+  errorInvestibleAddFailed: 'There was a problem adding the option.',
+  errorInvestibleUpdateFailed: 'There was a problem updating the option.',
 });
 
 export default messages;

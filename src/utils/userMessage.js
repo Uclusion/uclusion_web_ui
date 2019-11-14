@@ -13,10 +13,11 @@ export const SUCCESS = 'success';
 /**
  * Accepts a message level of type INFO, WARN, ERROR, and SUCCESS
  * @param level
- * @param i18nMessage
+ * @param i18nMessageId the id in translati bunndles to display
+ * @param ii18nMessageValues any key/values the message requires
  */
-export function sendIntlMessage(level, i18nMessageDescription, ii18nMessageValues) {
-  const message = intl.formatMessage(i18nMessageDescription, ii18nMessageValues);
+export function sendIntlMessage(level, i18nMessageId, ii18nMessageValues) {
+  const message = intl.formatMessage({ id: i18nMessageId }, ii18nMessageValues);
   // it's expected this function will bet more complex as we customize toasts
   switch (level) {
     case INFO:

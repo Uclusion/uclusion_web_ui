@@ -253,6 +253,7 @@ const messages = defineMessages({
   errorCommentFetchFailed: 'There was a problem retrieving comments',
   errorCommentSaveFailed: 'There was a problem saving your comment',
   errorInvestmentUpdateFailed: 'There was a problem updating your vote',
+  errorDecisionAddFailed: 'There was a problem creating your decision',
 });
 
 export default messages;

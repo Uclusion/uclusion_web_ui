@@ -1,5 +1,6 @@
 import { getAccountClient, getMarketClient } from './uclusionClient';
 import { fixupItemForStorage } from '../contexts/ContextUtils';
+import { ERROR, sendIntlMessage } from '../utils/userMessage';
 
 function fixupMarketForStorage(market) {
   const itemFixed = fixupItemForStorage(market);
@@ -30,18 +31,12 @@ export function updateMarket(marketId, name, description, uploaded_files) {
     .then((client) => client.markets.updateMarket(updateOptions));
 }
 
-export function createMarket(name, description, uploadedFiles, marketType, expirationMinutes) {
-  const addPackage = {
-    name,
-    description,
-    market_type: marketType,
-    uploaded_files: uploadedFiles,
-  };
-  if (expirationMinutes) {
-    addPackage.expiration_minutes = expirationMinutes;
-  }
+export function createDecision(marketInfo) {
   return getAccountClient()
-    .then((client) => client.markets.createMarket(addPackage));
+    .then((client) => client.markets.createMarket(marketInfo))
+    .catch((error) => {
+      sendIntlMessage(ERROR, 'errorDecisionAddFailed');
+    });
 }
 
 export function viewed(marketId, isPresent, investibleId) {

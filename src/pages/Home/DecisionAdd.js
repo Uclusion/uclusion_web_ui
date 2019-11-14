@@ -1,17 +1,17 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import {
-  Button, Card, CardActions, CardContent, TextField, Typography, withStyles,
+  Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
 } from '@material-ui/core';
-import QuillEditor from '../TextEditors/QuillEditor';
-import ExpirationSelector from './ExpirationSelector';
-import { createMarket } from '../../api/markets';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { addMarket } from '../../contexts/MarketsContext/marketsContextReducer';
+import QuillEditor from '../../components/TextEditors/QuillEditor';
+import ExpirationSelector from '../../components/DecisionDialogs/ExpirationSelector';
+import { createDecision } from '../../api/markets';
+import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';
+import { useHistory } from 'react-router';
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     padding: theme.spacing(2),
   },
@@ -21,20 +21,21 @@ const styles = (theme) => ({
       marginBottom: 0,
     },
   },
-});
+}));
 
-function MarketAdd(props) {
+function DecisionAdd(props) {
   const intl = useIntl();
   const {
-    onSave, onCancel, classes, marketType,
+    onCancel,
+    onSave,
   } = props;
+  const history = useHistory();
+  const classes = useStyles();
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes } = currentValues;
-  const [, marketsDispatch] = useContext(MarketsContext);
-
 
   function zeroCurrentValues() {
     setCurrentValues(emptyMarket);
@@ -64,26 +65,24 @@ function MarketAdd(props) {
   }
 
   function handleSave() {
-    const { uploadedFiles: filteredUploads, text: tokensRemoved } = processTextAndFilesForSave(uploadedFiles, description);
-    return createMarket(name, tokensRemoved, filteredUploads, marketType, expiration_minutes)
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(uploadedFiles, description);
+    const addInfo = {
+      name,
+      uploaded_files: filteredUploads,
+      market_type: 'DECISION',
+      description: tokensRemoved,
+      expiration_minutes,
+    };
+    return createDecision(addInfo)
       .then((result) => {
+        onSave();
         const { market_id } = result;
-        // result only contains the ID, we need to fill in some other stuff
-        console.debug(result);
-        const artificalMarket = {
-          id: market_id,
-          name,
-          description,
-          expiration_minutes,
-          market_type: marketType,
-          market_stage: 'Active',
-          // force update  calls to consider this entry old
-          created_at: new Date(0),
-          updated_at: new Date(0),
-        };
-        marketsDispatch(addMarket(artificalMarket));
-        return artificalMarket;
-      }).then(() => onSave());
+        const marketLink = formMarketLink(market_id);
+        navigate(history, marketLink);
+      });
   }
 
   return (
@@ -101,12 +100,16 @@ function MarketAdd(props) {
           value={name}
           onChange={handleChange('name')}
         />
-        {marketType === 'DECISION' && (
-        <Typography className={classes.row}>
+        <Typography
+          className={classes.row}>
           {intl.formatMessage({ id: 'marketAddExpirationLabel' }, { x: expiration_minutes / 1440 })}
         </Typography>
-        )}
-        {marketType === 'DECISION' && (<ExpirationSelector value={expiration_minutes} className={classes.row} onChange={handleChange('expiration_minutes')} />)}
+
+        <ExpirationSelector
+          value={expiration_minutes}
+          className={classes.row}
+          onChange={handleChange('expiration_minutes')}
+        />
         <QuillEditor
           onS3Upload={onS3Upload}
           onChange={onEditorChange}
@@ -130,17 +133,12 @@ function MarketAdd(props) {
   );
 }
 
-MarketAdd.propTypes = {
-  onSave: PropTypes.func,
+DecisionAdd.propTypes = {
   onCancel: PropTypes.func,
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object,
-  marketType: PropTypes.string.isRequired,
 };
 
-MarketAdd.defaultProps = {
-  onSave: () => {},
+DecisionAdd.defaultProps = {
   onCancel: () => {},
 };
 
-export default withStyles(styles)(MarketAdd);
+export default DecisionAdd;

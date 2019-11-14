@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { IconButton } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 
-function InvestibleAddButton(props) {
+function SubsectionAddButton(props) {
 
   const {
     onClick,
@@ -19,13 +19,13 @@ function InvestibleAddButton(props) {
   );
 }
 
-InvestibleAddButton.propTypes = {
+SubsectionAddButton.propTypes = {
   onClick: PropTypes.func,
 };
 
-InvestibleAddButton.defaultProps = {
+SubsectionAddButton.defaultProps = {
   onClick: () => {},
 };
 
-export default InvestibleAddButton;
+export default SubsectionAddButton;
 

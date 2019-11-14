@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Summary from '../Summary';
 import { Grid } from '@material-ui/core';
-import InvestibleAddButton from './InvestibleAddButton';
+import SubsectionAddButton from '../../../components/Buttons/SubsectionAddButton';
 import InvestibleAdd from './InvestibleAdd';
 import ProposedIdeas from './ProposedIdeas';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
@@ -73,7 +73,7 @@ function DecisionDialog(props) {
       >
         <SubSection
           title="Current Voting"
-          actionButton={(isAdmin && <InvestibleAddButton onClick={toggleAddMode}/>) || undefined}
+          actionButton={(isAdmin && <SubsectionAddButton onClick={toggleAddMode}/>) || undefined}
         >
           <Voting
             marketPresences={marketPresences}
@@ -89,7 +89,7 @@ function DecisionDialog(props) {
       >
         <SubSection
           title="Proposed Options"
-          actionButton={(!isAdmin && <InvestibleAddButton onClick={toggleAddMode}/>) || undefined}
+          actionButton={(!isAdmin && <SubsectionAddButton onClick={toggleAddMode}/>) || undefined}
         >
           <ProposedIdeas investibles={proposed} marketId={marketId} comments={comments}/>
         </SubSection>

@@ -23,7 +23,7 @@ const styles = (theme) => ({
 });
 
 function InvestibleAdd(props) {
-  const { marketId, intl, classes, onCancel, isAdmin } = props;
+  const { marketId, intl, classes, onCancel, onSave, isAdmin } = props;
 
   const history = useHistory();
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -80,6 +80,7 @@ function InvestibleAdd(props) {
     };
     const promise = isAdmin ? addInvestibleToStage(addInfo) : addInvestible(addInfo);
     return promise.then((investibleId) => {
+      onSave();
       const link = formInvestibleLink(marketId, investibleId);
       return navigate(history, link);
     });

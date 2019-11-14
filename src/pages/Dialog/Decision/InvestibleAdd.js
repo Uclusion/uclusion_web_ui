@@ -76,7 +76,7 @@ function InvestibleAdd(props) {
       uploadedFiles: filteredUploads,
       description: tokensRemoved,
       name,
-      stageInfo: stageChangeInfo, //ignored by add without stage info
+      stageInfo: stageChangeInfo, // ignored by addInvestible
     };
     const promise = isAdmin ? addInvestibleToStage(addInfo) : addInvestible(addInfo);
     return promise.then((investibleId) => {

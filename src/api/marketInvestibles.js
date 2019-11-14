@@ -1,5 +1,6 @@
 import { getMarketClient } from './uclusionClient';
 import { ERROR, sendIntlMessage } from '../utils/userMessage';
+import { JUSTIFY_TYPE } from '../containers/CommentBox/CommentBox';
 
 export function fetchInvestibles(idList, marketId) {
   const clientPromise = getMarketClient(marketId);
@@ -25,9 +26,38 @@ export function fetchInvestibleList(marketId) {
     });
 }
 
-export function updateInvestment(marketId, investibleId, newQuantity, currentQuantity) {
+export function updateInvestment(updateInfo) {
+  const {
+    marketId,
+    investibleId,
+    newQuantity,
+    currentQuantity,
+    currentReasonId,
+    newReasonText,
+    reasonNeedsUpdate,
+  } = updateInfo;
+
   return getMarketClient(marketId)
-    .then((client) => client.markets.updateInvestment(investibleId, newQuantity, currentQuantity));
+    .then((client) => {
+      return client.markets.updateInvestment(investibleId, newQuantity, currentQuantity)
+        .then((updateResult) => {
+          if (reasonNeedsUpdate) {
+            if (currentReasonId) {
+              return client.investibles.updateComment(currentReasonId, newReasonText, false, [])
+                .then(() => updateResult);
+            }
+            return client.investibles.createComment(investibleId, newReasonText, undefined, JUSTIFY_TYPE, [])
+              .then(() => updateResult);
+          }
+          return updateResult;
+        });
+    })
+    .catch((error) => {
+      console.error('hit update error');
+      sendIntlMessage(ERROR, 'errorInvestmentUpdateFailed');
+      throw error;
+    });
+
 }
 
 export function updateInvestibleStage(marketId, investibleId, stageId, currentStageId) {

@@ -23,7 +23,7 @@ export function addInvestible(addInfo) {
     marketId,
     name,
     description,
-    uploadedFiles
+    uploadedFiles,
   } = addInfo;
   return getMarketClient(marketId)
     .then((client) => client.investibles.create(name, description, uploadedFiles));

@@ -102,7 +102,6 @@ function DecisionInvestibleEdit(props) {
     }).then(() => investiblesDispatch(localUpdateInvestible({ ...fullInvestible, stage_name: newStage.name })));
   }
 
-  console.debug('Investible edit being rerendered');
 
   return (
     <Card>

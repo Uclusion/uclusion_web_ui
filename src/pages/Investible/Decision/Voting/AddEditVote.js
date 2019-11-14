@@ -13,8 +13,6 @@ import {
 } from '@material-ui/core';
 import { updateInvestment } from '../../../../api/marketInvestibles';
 import QuillEditor from '../../../../components/TextEditors/QuillEditor';
-import { saveComment, updateInvestmentReason } from '../../../../api/comments';
-import { JUSTIFY_TYPE } from '../../../../containers/CommentBox/CommentBox';
 
 function AddEditVote(props) {
   const {
@@ -30,23 +28,24 @@ function AddEditVote(props) {
   const { quantity } = investment;
   const initialInvestment = (addMode) ? 50 : quantity;
   const [newQuantity, setNewQuantity] = useState(initialInvestment);
-  const noPreviousReason = _.isEmpty(reason);
   const { body, id: reasonId } = reason;
   const [reasonText, setReasonText] = useState(body);
 
   function mySave() {
     const oldQuantity = addMode ? 0 : quantity;
-    return updateInvestment(marketId, investibleId, newQuantity, oldQuantity)
+    // dont include reason text if it's not changing, otherwise we'll update the reason comment
+    const reasonNeedsUpdate = reasonText !== body;
+    const updateInfo = {
+      marketId,
+      investibleId,
+      newQuantity,
+      currentQuantity: oldQuantity,
+      newReasonText: reasonText,
+      currentReasonId: reasonId,
+      reasonNeedsUpdate,
+    };
+    return updateInvestment(updateInfo)
       .then(() => {
-        // do we need to save a reason?
-        if (reasonText) {
-          if (noPreviousReason) {
-            return saveComment(marketId, investibleId, undefined, reasonText, JUSTIFY_TYPE, []);
-          }
-          return updateInvestmentReason(marketId, reasonId, reasonText, []);
-        }
-        return Promise.resolve(true);
-      }).then(() => {
         onSave();
       });
   }
@@ -95,16 +94,20 @@ function AddEditVote(props) {
 }
 
 AddEditVote.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
   reason: PropTypes.object,
   marketId: PropTypes.string.isRequired,
   investibleId: PropTypes.string.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   investment: PropTypes.object,
   onSave: PropTypes.func,
+  onCancel: PropTypes.func,
 };
 
 AddEditVote.defaultProps = {
   investment: {},
   onSave: () => {},
+  onCancel: () => {},
   reason: {},
 };
 

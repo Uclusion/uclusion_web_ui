@@ -250,6 +250,9 @@ const messages = defineMessages({
   // API errors
   errorInvestibleAddFailed: 'There was a problem adding the option.',
   errorInvestibleUpdateFailed: 'There was a problem updating the option.',
+  errorCommentFetchFailed: 'There was a problem retrieving comments',
+  errorCommentSaveFailed: 'There was a problem saving your comment',
+  errorInvestmentUpdateFailed: 'There was a problem updating your vote',
 });
 
 export default messages;

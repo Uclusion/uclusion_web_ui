@@ -28,6 +28,10 @@ function DecisionInvestible(props) {
   } = props;
 
   const { description } = investible;
+  if (!investibleId) {
+    //we have no usable data;
+    return <React.Fragment />;
+  }
 
   return (
     <React.Fragment>

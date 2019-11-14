@@ -49,6 +49,7 @@ function Voting(props) {
   function renderInvestibleVoters(voters) {
     return voters.map((voter) => {
       const { name, id, quantity } = voter;
+      console.debug(voter);
       return (
         <Paper
           key={id}

@@ -31,6 +31,13 @@ function DecisionInvestible(props) {
 
   return (
     <React.Fragment>
+      {isAdmin && (
+        <Fab
+          color="primary"
+        >
+          <EditIcon onClick={toggleEdit} />
+        </Fab>
+      )}
       <SubSection
         title="Your Voting"
       >
@@ -60,15 +67,10 @@ function DecisionInvestible(props) {
             readOnly
             defaultValue={description}
           />
-          {isAdmin && (
-            <Fab
-              color="primary"
-            >
-              <EditIcon onClick={toggleEdit} />
-            </Fab>
-          )}
+
         </Paper>
       </SubSection>
+
       <CommentBox comments={investibleComments} commentsHash={commentsHash} marketId={marketId} />
 
     </React.Fragment>

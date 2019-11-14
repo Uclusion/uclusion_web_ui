@@ -33,7 +33,8 @@ class QuillEditor extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = { uploads: [] };
-    this.editorRef = React.createRef();
+    this.editorBox = React.createRef();
+    this.editorContainer = React.createRef();
     const { marketId, readOnly, placeholder, uploadDisabled } = props;
     const defaultModules = {
       toolbar: [
@@ -75,16 +76,25 @@ class QuillEditor extends React.PureComponent {
 
   }
 
+  disableToolbarTabs(editorNode) {
+    console.log(editorNode);
+    const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *');
+    toolbarButtons.forEach((button) => {
+      button.tabIndex = -1;
+    });
+  }
+
   componentDidMount() {
     const { defaultValue, onChange, value, readOnly } = this.props;
     const usedValue = value || defaultValue;
     if (!readOnly) {
-      this.editor = new Quill(this.editorRef.current, this.options);
+      this.editor = new Quill(this.editorBox.current, this.options);
       this.editor.root.innerHTML = usedValue;
       const debouncedOnChange = _.debounce((delta) => {
         const contents = this.editor.root.innerHTML;
         onChange(contents, delta);
       }, 50);
+      this.disableToolbarTabs(this.editorContainer.current);
       this.editor.on('text-change', debouncedOnChange);
     }
   }
@@ -115,15 +125,19 @@ class QuillEditor extends React.PureComponent {
 
     if (readOnly) {
       return (
-        <div
-          ref={this.editorRef}
-          style={readOnlyStyle}
-          dangerouslySetInnerHTML={{ __html: usedValue }}
-        />
+        <div ref={this.editorContainer}>
+          <div
+            ref={this.editorBox}
+            style={readOnlyStyle}
+            dangerouslySetInnerHTML={{ __html: usedValue }}
+          />
+        </div>
       );
     }
     return (
-      <div ref={this.editorRef} style={editorStyle} />
+      <div ref={this.editorContainer}>
+        <div ref={this.editorBox} style={editorStyle}/>
+      </div>
     );
   }
 }
@@ -141,8 +155,10 @@ QuillEditor.propTypes = {
 
 QuillEditor.defaultProps = {
   readOnly: false,
-  onS3Upload: () => {},
-  onChange: () => {},
+  onS3Upload: () => {
+  },
+  onChange: () => {
+  },
   defaultValue: '',
   placeholder: '',
   marketId: undefined,

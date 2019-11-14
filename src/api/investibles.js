@@ -31,12 +31,20 @@ export function addInvestible(addInfo) {
 
 export function lockInvestibleForEdit(marketId, investibleId, breakLock) {
   return getMarketClient(marketId)
-    .then((client) => client.investibles.lock(investibleId, breakLock));
+    .then((client) => client.investibles.lock(investibleId, breakLock))
+    .catch((error) => {
+      sendIntlMessage(ERROR, 'errorEditLockFailed');
+      throw error;
+    });
 }
 
 export function realeaseInvestibleEditLock(marketId, investibleId) {
   return getMarketClient(marketId)
-    .then((client) => client.investibles.unlock(investibleId));
+    .then((client) => client.investibles.unlock(investibleId))
+    .catch((error) => {
+      sendIntlMessage(ERROR, 'errorEditLockReleaseFailed');
+      throw error;
+    });
 }
 
 export function addInvestibleToStage(addInfo) {

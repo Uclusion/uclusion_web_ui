@@ -254,6 +254,9 @@ const messages = defineMessages({
   errorCommentSaveFailed: 'There was a problem saving your comment',
   errorInvestmentUpdateFailed: 'There was a problem updating your vote',
   errorDecisionAddFailed: 'There was a problem creating your decision',
+  errorFileUploadFailed: 'There was a problem uploading your file',
+  errorEditLockFailed: 'There was a problem getting permission to edit',
+  errorEditLockReleaseFailed: 'There was a problem releasing edit permission',
 });
 
 export default messages;

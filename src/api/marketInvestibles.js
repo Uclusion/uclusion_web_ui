@@ -60,8 +60,16 @@ export function updateInvestment(updateInfo) {
 
 }
 
-export function updateInvestibleStage(marketId, investibleId, stageId, currentStageId) {
+export function submitToModerator(submitInfo) {
+  const {
+    marketId,
+    investibleId,
+    stageInfo,
+  } = submitInfo;
   return getMarketClient(marketId)
-    .then((client) => client.investibles.stateChange(investibleId,
-      { stage_id: stageId, current_stage_id: currentStageId }));
+    .then((client) => client.investibles.stateChange(investibleId, stageInfo))
+    .catch((error) => {
+      sendIntlMessage(ERROR, 'errorSubmitToModeratorFailed');
+      throw error;
+    });
 }

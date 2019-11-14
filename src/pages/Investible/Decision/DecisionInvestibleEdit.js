@@ -6,7 +6,7 @@ import {
 import PropTypes from 'prop-types';
 import { updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import { updateInvestibleStage } from '../../../api/marketInvestibles';
+import { submitToModerator } from '../../../api/marketInvestibles';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getFlags } from '../../../utils/userFunctions';
@@ -98,10 +98,19 @@ function DecisionInvestibleEdit(props) {
       const { market_infos: marketInfos } = fullInvestible;
       const marketInfo = marketInfos.find((info) => info.market_id === marketId);
       console.debug(`Submitting to stage ${newStage.name} with previous stage ${marketInfo.stage}`);
-      return updateInvestibleStage(marketId, id, newStage.id, marketInfo.stage);
+      const stageInfo = {
+        current_stage_id: marketInfo.stage,
+        stage_id: newStage.id,
+      };
+      const submitInfo = {
+        marketId,
+        investibleId: id,
+        stageInfo,
+      };
+      return submitToModerator(submitInfo);
     }).then(() => investiblesDispatch(localUpdateInvestible({ ...fullInvestible, stage_name: newStage.name })));
+    //TODO: what is the result of submitting to the moderator?
   }
-
 
   return (
     <Card>

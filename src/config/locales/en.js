@@ -257,6 +257,7 @@ const messages = defineMessages({
   errorFileUploadFailed: 'There was a problem uploading your file',
   errorEditLockFailed: 'There was a problem getting permission to edit',
   errorEditLockReleaseFailed: 'There was a problem releasing edit permission',
+  errorSubmitToModeratorFailed: 'There was a problem submitting to the moderator',
 });
 
 export default messages;

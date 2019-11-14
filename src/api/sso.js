@@ -2,10 +2,6 @@ import uclusion from 'uclusion_sdk';
 import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher';
 import config from '../config';
 
-export function getMarketLoginInfo(config, marketId) {
-  return uclusion.constructSSOClient(config).then((client) => client.marketLoginInfo(marketId));
-}
-
 function getSSOInfo() {
   return new AmpifyIdentitySource().getIdentity()
     .then((idToken) => uclusion.constructSSOClient(config.api_configuration)

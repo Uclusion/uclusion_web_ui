@@ -88,6 +88,7 @@ function AddEditVote(props) {
               <FormControlLabel labelPlacement="bottom" control={<Radio />} value={25} />
             </Grid>
             <Grid
+              item
               xs={2}
             >
               <FormControlLabel labelPlacement="bottom" control={<Radio />}value={50} />

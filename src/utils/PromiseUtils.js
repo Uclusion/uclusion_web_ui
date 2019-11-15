@@ -5,10 +5,10 @@
 export function AllSequentialMap(sources, promiseGenerator) {
   return sources.reduce((acc, source) => {
     return acc.then((previous) => {
-      //console.debug(previous);
+      // console.debug(previous);
       return promiseGenerator(source)
         .then((result) => {
-          //console.debug(result);
+          // console.debug(result);
           return [...previous, result];
         });
     });

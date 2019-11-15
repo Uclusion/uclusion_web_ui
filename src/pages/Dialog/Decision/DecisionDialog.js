@@ -27,7 +27,8 @@ function DecisionDialog(props) {
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment && !stage.appears_in_market_summary);
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);
-
+  const marketComments = comments.filter((comment) => !comment.investible_id);
+  const investibleComments = comments.filter((comment) => comment.investible_id);
   function getInvestiblesForStage(stage) {
     if (stage) {
       return investibles.reduce((acc, inv) => {
@@ -74,7 +75,7 @@ function DecisionDialog(props) {
       >
         <SubSection
           title="Current Voting"
-          actionButton={(isAdmin && <SubsectionAddButton onClick={toggleAddMode}/>) || undefined}
+          actionButton={(isAdmin && <SubsectionAddButton onClick={toggleAddMode} />) || undefined}
         >
           <Voting
             marketPresences={marketPresences}
@@ -90,9 +91,9 @@ function DecisionDialog(props) {
       >
         <SubSection
           title="Proposed Options"
-          actionButton={(!isAdmin && <SubsectionAddButton onClick={toggleAddMode}/>) || undefined}
+          actionButton={(!isAdmin && <SubsectionAddButton onClick={toggleAddMode} />) || undefined}
         >
-          <ProposedIdeas investibles={proposed} marketId={marketId} comments={comments}/>
+          <ProposedIdeas investibles={proposed} marketId={marketId} comments={investibleComments}/>
         </SubSection>
       </Grid>
       <Grid
@@ -108,7 +109,7 @@ function DecisionDialog(props) {
         xs={12}
       >
         <SubSection>
-          <CommentBox comments={comments} commentsHash={commentsHash} marketId={marketId}/>
+          <CommentBox comments={marketComments} commentsHash={commentsHash} marketId={marketId}/>
         </SubSection>
       </Grid>
     </Grid>

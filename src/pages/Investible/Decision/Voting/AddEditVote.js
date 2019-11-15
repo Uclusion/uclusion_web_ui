@@ -9,7 +9,8 @@ import {
   FormControlLabel,
   FormLabel,
   Radio,
-  Typography
+  Typography,
+  Grid,
 } from '@material-ui/core';
 import { updateInvestment } from '../../../../api/marketInvestibles';
 import QuillEditor from '../../../../components/TextEditors/QuillEditor';
@@ -29,6 +30,7 @@ function AddEditVote(props) {
   const initialInvestment = (addMode) ? 50 : quantity;
   const [newQuantity, setNewQuantity] = useState(initialInvestment);
   const { body, id: reasonId } = reason;
+  console.log(reason);
   const [reasonText, setReasonText] = useState(body);
 
   function mySave() {
@@ -59,7 +61,6 @@ function AddEditVote(props) {
     setReasonText(body);
   }
 
-
   return (
     <Paper>
       <FormControl
@@ -70,23 +71,53 @@ function AddEditVote(props) {
           value={newQuantity}
           onChange={onChange}
         >
-          <FormControlLabel control={<Radio />} label="Completely Uncertain" value={0} />
-          <FormControlLabel control={<Radio />} label="Mostly Uncertain" value={25} />
-          <FormControlLabel control={<Radio />} label="Neutral Certainty" value={50} />
-          <FormControlLabel control={<Radio />} label="Mostly Certain" value={75} />
-          <FormControlLabel control={<Radio />} label="Completely Certain" value={100} />
+          <Grid
+            container
+            justify="space-between"
+          >
+            <Grid
+              item
+              xs={2}
+            >
+              <FormControlLabel labelPlacement="bottom" control={<Radio />} label="Uncertain" value={0} />
+            </Grid>
+            <Grid
+              item
+              xs={2}
+            >
+              <FormControlLabel labelPlacement="bottom" control={<Radio />} value={25} />
+            </Grid>
+            <Grid
+              xs={2}
+            >
+              <FormControlLabel labelPlacement="bottom" control={<Radio />}value={50} />
+            </Grid>
+            <Grid
+              item
+              xs={2}
+            >
+              <FormControlLabel labelPlacement="bottom" control={<Radio />}value={75} />
+            </Grid>
+            <Grid
+              item
+              xs={2}
+            >
+              <FormControlLabel labelPlacement="bottom" control={<Radio />} label="Certain" value={100} />
+            </Grid>
+          </Grid>
         </RadioGroup>
       </FormControl>
       <Typography>Why did you vote for this option?</Typography>
       <QuillEditor
         placeholder="Your reason..."
+        defaultValue={body}
         onChange={onEditorChange}
         uploadDisabled
       />
       <Button
         onClick={() => mySave()}
       >
-        Save Vote
+        {addMode ? 'Save Vote' : 'Update Vote'}
       </Button>
       {addMode && <Button onClick={() => onCancel()}> Cancel Vote</Button>}
     </Paper>

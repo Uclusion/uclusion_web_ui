@@ -6,7 +6,7 @@ import Voting from './Voting';
 import { Paper, Fab } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
+import CommentBox, { JUSTIFY_TYPE } from '../../../containers/CommentBox/CommentBox';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -26,7 +26,8 @@ function DecisionInvestible(props) {
     toggleEdit,
     isAdmin,
   } = props;
-
+  const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
+  const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const { description } = investible;
   if (!investibleId) {
     //we have no usable data;
@@ -48,7 +49,7 @@ function DecisionInvestible(props) {
         <YourVoting
           investibleId={investibleId}
           marketPresences={marketPresences}
-          comments={investibleComments}
+          comments={investmentReasons}
           userId={userId}
           marketId={marketId}
         />
@@ -60,7 +61,7 @@ function DecisionInvestible(props) {
         <Voting
           investibleId={investibleId}
           marketPresences={marketPresences}
-          comments={investibleComments}
+          comments={investmentReasons}
         />
       </SubSection>
       <SubSection
@@ -75,7 +76,7 @@ function DecisionInvestible(props) {
         </Paper>
       </SubSection>
 
-      <CommentBox comments={investibleComments} commentsHash={commentsHash} marketId={marketId} />
+      <CommentBox comments={investmentReasonsRemoved} commentsHash={commentsHash} marketId={marketId} />
 
     </React.Fragment>
   );

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Paper, Button, Typography } from '@material-ui/core';
 import AddEditVote from './AddEditVote';
-import { JUSTIFY_TYPE } from '../../../../containers/CommentBox/CommentBox';
+
 
 function YourVoting(props) {
   const {
@@ -15,7 +15,7 @@ function YourVoting(props) {
 
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
-  const yourReason = comments.find((comment) => comment.created_by === userId && comment.type === JUSTIFY_TYPE);
+  const yourReason = comments.find((comment) => comment.created_by === userId);
   const [voteForThis, setVoteForThis] = useState(false);
 
   if (yourVote || voteForThis) {

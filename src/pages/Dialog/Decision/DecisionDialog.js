@@ -1,11 +1,10 @@
 /**
  * A component that renders a _decision_ dialog
  */
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import Summary from '../Summary';
 import { Grid } from '@material-ui/core';
-import SubsectionAddButton from '../../../components/Buttons/SubsectionAddButton';
 import InvestibleAdd from './InvestibleAdd';
 import ProposedIdeas from './ProposedIdeas';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
@@ -22,11 +21,13 @@ function DecisionDialog(props) {
     marketStages,
     marketPresences,
     myPresence,
+    addInvestibleMode,
+    setAddInvestibleMode
   } = props;
   const { is_admin: isAdmin } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment && !stage.appears_in_market_summary);
-  const [addInvestibleMode, setAddInvestibleMode] = useState(false);
+
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const investibleComments = comments.filter((comment) => comment.investible_id);
   function getInvestiblesForStage(stage) {
@@ -75,7 +76,6 @@ function DecisionDialog(props) {
       >
         <SubSection
           title="Current Voting"
-          actionButton={(isAdmin && <SubsectionAddButton onClick={toggleAddMode} />) || undefined}
         >
           <Voting
             marketPresences={marketPresences}
@@ -91,7 +91,6 @@ function DecisionDialog(props) {
       >
         <SubSection
           title="Proposed Options"
-          actionButton={(!isAdmin && <SubsectionAddButton onClick={toggleAddMode} />) || undefined}
         >
           <ProposedIdeas investibles={proposed} marketId={marketId} comments={investibleComments}/>
         </SubSection>

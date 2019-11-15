@@ -4,7 +4,7 @@ import { Card, Button, ButtonGroup, CardContent, CardActions } from '@material-u
 import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
 import PropTypes from 'prop-types';
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPLY_TYPE } from '../../containers/CommentBox/CommentBox';
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPLY_TYPE } from '../../constants/comments';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { addComment } from '../../contexts/CommentsContext/commentsContextHelper';
 import { processTextAndFilesForSave } from '../../api/files';
@@ -36,11 +36,12 @@ function CommentAdd(props) {
   function onEditorChange(content) {
     setBody(content);
   }
-
+/*
   function handleFileUpload(metadatas) {
     setUploadedFiles(metadatas);
     console.log(metadatas);
   }
+ */
 
   function handleSave() {
     const usedParent = parent || {};
@@ -72,7 +73,7 @@ function CommentAdd(props) {
     <Card>
       <CardContent>
         <QuillEditor
-          onS3Upload={handleFileUpload}
+          simple
           placeholder={placeHolder}
           initialValue={body}
           onChange={onEditorChange} />
@@ -94,7 +95,7 @@ function CommentAdd(props) {
 CommentAdd.propTypes = {
   type: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
-  onSave: PropTypes.func.isRequired,
+  onSave: PropTypes.func,
   // eslint-disable-next-line react/forbid-prop-types
   intl: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
@@ -108,6 +109,7 @@ CommentAdd.defaultProps = {
   parent: null,
   investible: null,
   onCancel: () => {},
+  onSave: () => {},
 };
 
 export default injectIntl(CommentAdd);

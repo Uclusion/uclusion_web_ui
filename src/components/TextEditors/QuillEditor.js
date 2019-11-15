@@ -29,13 +29,18 @@ class QuillEditor extends React.PureComponent {
     ['clean'],
   ];
 
+  simplifiedToolBar = [
+    ['bold', 'italic', 'underline', 'strike'],
+    ['link', 'code-block'],
+    ['clean'],
+  ];
 
   constructor(props) {
     super(props);
     this.state = { uploads: [] };
     this.editorBox = React.createRef();
     this.editorContainer = React.createRef();
-    const { marketId, readOnly, placeholder, uploadDisabled } = props;
+    const { marketId, readOnly, placeholder, uploadDisabled, simple } = props;
     const defaultModules = {
       toolbar: [
         [{ font: [] }],
@@ -56,14 +61,19 @@ class QuillEditor extends React.PureComponent {
       },
     };
     this.modules = { ...defaultModules };
-    // wipe the toolbar if read only
-    if (readOnly) {
-      this.modules.toolbar = false;
+    if (simple) {
+      this.modules.toolbar = this.simplifiedToolBar;
       this.modules.s3Upload = false;
       this.modules.imageResize = false;
     }
-    if (uploadDisabled) {
+    if (uploadDisabled && !simple) {
       this.modules.toolbar = this.uploadLessToolbar;
+      this.modules.s3Upload = false;
+      this.modules.imageResize = false;
+    }
+    // wipe the toolbar if read only
+    if (readOnly) {
+      this.modules.toolbar = false;
       this.modules.s3Upload = false;
       this.modules.imageResize = false;
     }
@@ -74,14 +84,6 @@ class QuillEditor extends React.PureComponent {
       theme: 'snow',
     };
 
-  }
-
-  disableToolbarTabs(editorNode) {
-    console.log(editorNode);
-    const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *');
-    toolbarButtons.forEach((button) => {
-      button.tabIndex = -1;
-    });
   }
 
   componentDidMount() {
@@ -97,6 +99,13 @@ class QuillEditor extends React.PureComponent {
       this.disableToolbarTabs(this.editorContainer.current);
       this.editor.on('text-change', debouncedOnChange);
     }
+  }
+
+  disableToolbarTabs(editorNode) {
+    const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *');
+    toolbarButtons.forEach((button) => {
+      button.tabIndex = -1;
+    });
   }
 
   statefulUpload(metadatas) {
@@ -136,7 +145,7 @@ class QuillEditor extends React.PureComponent {
     }
     return (
       <div ref={this.editorContainer}>
-        <div ref={this.editorBox} style={editorStyle}/>
+        <div ref={this.editorBox} style={editorStyle} />
       </div>
     );
   }

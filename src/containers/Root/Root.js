@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import { CssBaseline } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 import { defaultTheme } from '../../config/themes';
@@ -120,6 +121,7 @@ function Root(props) {
   console.log(`Hide Home ${hideHome()}`);
   return (
     <ThemeProvider theme={defaultTheme}>
+      <CssBaseline />
       <div className={classes.body}>
         <div className={classes.root}>
           <div className={isInvite() ? classes.hide : classes.content}>

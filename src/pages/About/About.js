@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Paper, Typography, Button } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
-import Activity from '../../containers/Activity/Activity';
+import Screen from '../../containers/Screen/Screen';
 import withAppConfigs from '../../utils/withAppConfigs';
 
 const styles = (theme) => ({
@@ -53,7 +53,7 @@ function About(props) {
   // want to skin it with pretty headers etc.
   return (
     <div>
-      <Activity
+      <Screen
         title={intl.formatMessage({ id: 'about' })}
         hidden={hidden}
       >
@@ -78,7 +78,7 @@ function About(props) {
           <br />
           <Button color="primary" onClick={handleClear}>{intl.formatMessage({ id: 'aboutClearStorageButton' })}</Button>
         </div>
-      </Activity>
+      </Screen>
     </div>
   );
 }

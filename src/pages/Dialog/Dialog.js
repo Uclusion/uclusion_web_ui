@@ -1,11 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
 import { makeBreadCrumbs, decomposeMarketPath } from '../../utils/marketIdPathFunctions';
-import Screen from '../../containers/Activity/Screen';
+import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
@@ -18,6 +18,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import DecisionSidebarActions from './Decision/DecisionSidebarActions';
 
 const styles = (theme) => ({
   root: {
@@ -52,6 +53,7 @@ const styles = (theme) => ({
 });
 
 function Dialog(props) {
+  const [addInvestibleMode, setAddInvestibleMode] = useState(false);
   const history = useHistory();
   const { location } = history;
   const { pathname } = location;
@@ -74,15 +76,20 @@ function Dialog(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = !myPresence;
+  const sideBarActions = addInvestibleMode? undefined: <DecisionSidebarActions onClick={() => setAddInvestibleMode(true)}/>;
   return (
     <Screen
       title={currentMarketName}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
       loading={loading}
+      commentsSidebar={!addInvestibleMode}
+      sidebarActions={sideBarActions}
     >
       { marketType === 'DECISION' && !loading && (
         <DecisionDialog
+          addInvestibleMode={addInvestibleMode}
+          setAddInvestibleMode={setAddInvestibleMode}
           market={renderableMarket}
           investibles={investibles}
           comments={comments}

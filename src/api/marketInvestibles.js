@@ -1,6 +1,6 @@
 import { getMarketClient } from './uclusionClient';
 import { ERROR, sendIntlMessage } from '../utils/userMessage';
-import { JUSTIFY_TYPE } from '../containers/CommentBox/CommentBox';
+import { JUSTIFY_TYPE } from '../constants/comments';
 
 export function fetchInvestibles(idList, marketId) {
   const clientPromise = getMarketClient(marketId);

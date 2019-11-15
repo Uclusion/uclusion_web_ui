@@ -160,6 +160,7 @@ const messages = defineMessages({
   investibleAddDescriptionDefault: 'Add a description...',
   investibleAddCancelLabel: 'Cancel',
   investibleAddSaveLabel: 'Save',
+  investibleAddDirectLabel: 'Add directly to current voting',
 
 
   // InvestibleEdit
@@ -188,9 +189,9 @@ const messages = defineMessages({
   commentAddCancelLabel: 'Cancel',
 
   // CommentBox
-  commentBoxRaiseIssueLabel: 'Raise Issue',
-  commentBoxAskQuestionLabel: 'Ask Question',
-  commentBoxSuggestChangesLabel: 'Suggest Changes',
+  commentIconRaiseIssueLabel: 'Raise Issue',
+  commentIconAskQuestionLabel: 'Ask Question',
+  commentIconSuggestChangesLabel: 'Suggest Changes',
 
   // Comments
   commentReplyDefault: 'Your reply...',
@@ -246,6 +247,10 @@ const messages = defineMessages({
   aboutUserNameLabel: 'User Name',
   aboutUclusionEmailLabel: 'Support',
   aboutClearStorageButton: 'Clear Storage',
+
+  // decision sidebar
+  addOptionLabel: 'Add Option',
+
 
   // API errors
   errorInvestibleAddFailed: 'There was a problem adding the option.',

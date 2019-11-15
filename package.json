@@ -11,7 +11,7 @@
     "a2hs": "^1.0.2",
     "aws-amplify": "^1.2.3",
     "aws-amplify-react": "^2.5.3",
-    "classnames": "^2.2.6",
+    "clsx": "^1.0.4",
     "image-extensions": "^1.1.0",
     "immutable": "^4.0.0-rc.12",
     "intl": "^1.2.5",

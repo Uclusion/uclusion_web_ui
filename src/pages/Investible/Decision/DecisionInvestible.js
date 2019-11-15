@@ -6,7 +6,8 @@ import Voting from './Voting';
 import { Paper, Fab } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import CommentBox, { JUSTIFY_TYPE } from '../../../containers/CommentBox/CommentBox';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
+import { JUSTIFY_TYPE } from '../../../constants/comments';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog

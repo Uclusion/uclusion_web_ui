@@ -1,7 +1,16 @@
 import React, { useState, useContext } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@material-ui/core';
+import {
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  FormControlLabel,
+  Switch,
+  TextField,
+  withStyles
+} from '@material-ui/core';
 import { addInvestible, addInvestibleToStage } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
@@ -38,6 +47,7 @@ function InvestibleAdd(props) {
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [addDirectToVoting, setAddDirectToVoting] = useState(true);
   const { name } = currentValues;
 
   function handleChange(field) {
@@ -46,6 +56,12 @@ function InvestibleAdd(props) {
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
     };
+  }
+  console.log(addDirectToVoting);
+
+  function handleAddDirect(event) {
+    const { checked } = event.target;
+    setAddDirectToVoting(checked);
   }
 
   function onEditorChange(description) {
@@ -78,7 +94,7 @@ function InvestibleAdd(props) {
       name,
       stageInfo: stageChangeInfo, // ignored by addInvestible
     };
-    const promise = isAdmin ? addInvestibleToStage(addInfo) : addInvestible(addInfo);
+    const promise = addDirectToVoting ? addInvestibleToStage(addInfo) : addInvestible(addInfo);
     return promise.then((investibleId) => {
       onSave();
       const link = formInvestibleLink(marketId, investibleId);
@@ -89,6 +105,12 @@ function InvestibleAdd(props) {
   return (
     <Card>
       <CardContent>
+        {isAdmin && (
+          <FormControlLabel
+            control={<Switch onChange={handleAddDirect} checked={addDirectToVoting} />}
+            label={intl.formatMessage({ id: 'investibleAddDirectLabel' })}
+          />
+        )}
         <TextField
           className={classes.row}
           inputProps={{ maxLength: 255 }}
@@ -106,7 +128,7 @@ function InvestibleAdd(props) {
           onChange={onEditorChange}
           placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
           onS3Upload={onS3Upload}
-          defaultValue={description}/>
+          defaultValue={description} />
       </CardContent>
       <CardActions>
         <Button onClick={handleCancel}>

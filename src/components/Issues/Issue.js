@@ -7,7 +7,7 @@ import QuillEditor from '../TextEditors/QuillEditor';
 import CommentAdd from '../Comments/CommentAdd';
 import Comment from '../Comments/Comment';
 
-import { REPLY_TYPE } from '../../containers/CommentBox/CommentBox';
+import { REPLY_TYPE } from '../../constants/comments';
 import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles((theme) => ({

@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Card, CardActions, CardContent, ButtonGroup } from '@material-ui/core';
-
+import { Card, CardActions, CardContent } from '@material-ui/core';
+import { QUESTION_TYPE, ISSUE_TYPE, SUGGEST_CHANGE_TYPE, REPLY_TYPE } from '../../constants/comments';
 import Comment from '../../components/Comments/Comment';
 import Issue from '../../components/Issues/Issue';
 import CommentAdd from '../../components/Comments/CommentAdd';
-import { useIntl } from 'react-intl';
 
-export const QUESTION_TYPE = 'QUESTION';
-export const ISSUE_TYPE = 'ISSUE';
-export const SUGGEST_CHANGE_TYPE = 'SUGGEST';
-export const REPLY_TYPE = 'REPLY';
-export const JUSTIFY_TYPE = 'JUSTIFY';
+
 
 const TYPES = [QUESTION_TYPE, ISSUE_TYPE, SUGGEST_CHANGE_TYPE, REPLY_TYPE];
 
@@ -19,7 +14,7 @@ function CommentBox(props) {
 
   const { comments, commentsHash, marketId, investible } = props;
   const [addOpen, setAddOpen] = useState(true);
-  const intl = useIntl();
+
   const threadRoots = comments.filter(comment => !comment.reply_id);
 
   function getCommentCards() {
@@ -48,27 +43,12 @@ function CommentBox(props) {
     };
   }
 
-  function getButtonColor(type) {
-    if (addOpen[type]) {
-      return 'secondary';
-    }
-    return 'primary';
-  }
+
 
   return (
     <Card>
       <CardActions>
-        <ButtonGroup variant="contained" size="small">
-          <Button onClick={toggleAdd(ISSUE_TYPE)} color={getButtonColor(ISSUE_TYPE)}>
-            {intl.formatMessage({ id: 'commentBoxRaiseIssueLabel' })}
-          </Button>
-          <Button onClick={toggleAdd(QUESTION_TYPE)} color={getButtonColor(QUESTION_TYPE)}>
-            {intl.formatMessage({ id: 'commentBoxAskQuestionLabel' })}
-          </Button>
-          <Button onClick={toggleAdd(SUGGEST_CHANGE_TYPE)} color={getButtonColor(SUGGEST_CHANGE_TYPE)}>
-            {intl.formatMessage({ id: 'commentBoxSuggestChangesLabel' })}
-          </Button>
-        </ButtonGroup>
+
       </CardActions>
       <CardContent>
         {addOpen[QUESTION_TYPE] &&

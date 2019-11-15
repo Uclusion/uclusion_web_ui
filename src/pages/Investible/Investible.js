@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import Screen from '../../containers/Activity/Screen';
+import Screen from '../../containers/Screen/Screen';
 import {
   makeBreadCrumbs,
   formMarketLink,

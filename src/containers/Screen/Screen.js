@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import { AppBar, Toolbar, Typography, Link, Breadcrumbs, Container } from '@material-ui/core';
+import { AppBar, Toolbar, Typography, Link, Breadcrumbs, Container, Drawer } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import Notifications from '../../components/Notifications/Notifications';
+import CommentsSidebarActions from './CommentsSidebarActions';
+
+const drawerWidth = 300;
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -19,6 +23,7 @@ const useStyles = makeStyles((theme) => {
     },
     appBar: {
       background: '#ffffff',
+      zIndex: theme.zIndex.drawer + 1
     },
     breadCrumbImage: {
       height: 40,
@@ -30,6 +35,26 @@ const useStyles = makeStyles((theme) => {
       backgroundColor: theme.palette.secondary.main,
       color: 'white',
     },
+    sideActionsOpen: {
+      width: drawerWidth,
+      transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    },
+    sideActionsClose: {
+      transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+      }),
+      overflowX: 'hidden',
+      width: theme.spacing(7) + 1,
+      [theme.breakpoints.up('sm')]: {
+        width: theme.spacing(9) + 1,
+      },
+    },
+    toolbar: theme.mixins.toolbar,
+    drawer: {},
   };
 });
 
@@ -42,8 +67,15 @@ function Screen(props) {
     title,
     children,
     toolbarButtons,
-    banner,
+
+    commentsSidebar,
+    sidebarActions,
+    sidebarOpen,
+    marketId,
+    investible,
   } = props;
+  const [sideActionsOpen, setSideActionsOpen] = useState(sidebarOpen);
+
 
   function generateTitle() {
     if (breadCrumbs) {
@@ -78,18 +110,37 @@ function Screen(props) {
           <Notifications />
         </Toolbar>
       </AppBar>
-      {banner && (
-        <Typography
-          variant="caption"
-          className={classes.warning}
-        >
-          {banner}
-        </Typography>
-      )}
-      <Toolbar />
-      <Container
-        maxWidth={false}
+      <Drawer
+        variant="permanent"
+        anchor="right"
+        className={clsx(classes.drawer, {
+          [classes.sideActionsOpen]: sideActionsOpen,
+          [classes.sideActionsClose]: !sideActionsOpen,
+        })}
+        classes={{
+          paper: clsx({
+            [classes.sideActionsOpen]: sideActionsOpen,
+            [classes.sideActionsClose]: !sideActionsOpen,
+          }),
+        }}
+        open={sideActionsOpen}
       >
+        <div className={classes.toolbar} />
+        {sidebarActions &&
+          React.cloneElement(sidebarActions, {amOpen: sideActionsOpen, setAmOpen: sideActionsOpen })
+        }
+        {commentsSidebar && (
+          <CommentsSidebarActions
+            amOpen={sideActionsOpen}
+            setAmOpen={setSideActionsOpen}
+            investible={investible}
+            marketId={marketId}
+          />
+        )}
+      </Drawer>
+      <Toolbar />
+
+      <Container>
         {children}
       </Container>
     </div>
@@ -104,7 +155,14 @@ Screen.propTypes = {
   hidden: PropTypes.bool,
   // eslint-disable-next-line react/forbid-prop-types
   title: PropTypes.any.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  children: PropTypes.any,
+  // eslint-disable-next-line react/forbid-prop-types
+  sidebarActions: PropTypes.arrayOf(PropTypes.any),
   banner: PropTypes.string,
+  commentsSidebar: PropTypes.bool,
+  sidebarOpen: PropTypes.bool,
+
 };
 
 Screen.defaultProps = {
@@ -112,6 +170,9 @@ Screen.defaultProps = {
   hidden: false,
   toolbarButtons: [],
   banner: undefined,
+  sidebarActions: undefined,
+  commentsSidebar: false,
+  sidebarOpen: false,
 };
 
 export default Screen;

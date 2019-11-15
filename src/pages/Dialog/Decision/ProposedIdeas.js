@@ -5,7 +5,7 @@ import { Grid, Paper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { Badge } from '@material-ui/core';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../containers/CommentBox/CommentBox';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import AnnouncementIcon from '@material-ui/icons/Announcement';
 import RateReviewIcon from '@material-ui/icons/RateReview';
 import LiveHelpIcon from '@material-ui/icons/LiveHelp';

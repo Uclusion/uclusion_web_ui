@@ -5,7 +5,7 @@ import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import { injectIntl } from 'react-intl';
 import { withStyles } from '@material-ui/core/styles';
-import Activity from '../../containers/Activity';
+import Screen from '../../containers/Screen/Screen';
 
 const styles = theme => ({
   icon: {
@@ -35,7 +35,7 @@ function PageNotFound(props) {
   const { intl, classes, hidden, } = props;
 
   return (
-    <Activity hidden={hidden}>
+    <Screen hidden={hidden}>
       <Paper className={classes.paper}>
         <div className={classes.container}>
           <Typography variant="h2">
@@ -49,7 +49,7 @@ function PageNotFound(props) {
           </Button>
         </div>
       </Paper>
-    </Activity>
+    </Screen>
   );
 }
 export default injectIntl(withStyles(styles)(PageNotFound));

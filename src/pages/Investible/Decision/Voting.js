@@ -30,7 +30,7 @@ function Voting(props) {
       const { name, id, investments } = presence;
       investments.forEach((investment) => {
         const { quantity, investible_id: invId } = investment;
-        console.log(investment);
+        // console.debug(investment);
         if (investibleId === invId) {
           acc.push({ name, userId: id, quantity });
         }
@@ -48,12 +48,12 @@ function Voting(props) {
 
   function renderInvestibleVoters(voters) {
     return voters.map((voter) => {
-      const { name, id, quantity } = voter;
-      console.debug(voter);
+      const { name, userId, quantity } = voter;
+      // console.debug(voter);
       return (
         <Paper
-          key={id}
-          onClick={() => displayReason(id)}
+          key={userId}
+          onClick={() => displayReason(userId)}
         >
           <Typography>
             {name}

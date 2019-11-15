@@ -82,7 +82,7 @@ function Voting(props) {
         }}
         />
         <VerticalBarSeries
-          barWidth="0.4"
+          barWidth={0.4}
           data={investments}
         />
       </XYPlot>

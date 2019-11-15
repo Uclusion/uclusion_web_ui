@@ -21,8 +21,9 @@ function DecisionDialog(props) {
     commentsHash,
     marketStages,
     marketPresences,
-    isAdmin,
+    myPresence,
   } = props;
+  const { is_admin: isAdmin } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment && !stage.appears_in_market_summary);
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);
@@ -127,7 +128,9 @@ DecisionDialog.propTypes = {
   marketStages: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
-  isAdmin: PropTypes.bool,
+  // eslint-disable-next-line react/forbid-prop-types
+  myPresence: PropTypes.object.isRequired,
+
 };
 
 DecisionDialog.defaultProps = {

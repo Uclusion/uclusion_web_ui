@@ -3,19 +3,14 @@
  * @param promises array of promises to run
  */
 export function AllSequentialMap(sources, promiseGenerator) {
-  let chain = Promise.resolve([]);
-  if (sources.length < 1) {
-    return chain;
-  }
-  const acc = [];
-  for (let i = 0; i < sources.length; i += 1) {
-    const source = sources[i];
-    chain = chain.then(() => {
-      return promiseGenerator(source).then((result) => {
-        acc.push(result);
-        return acc;
-      });
+  return sources.reduce((acc, source) => {
+    return acc.then((previous) => {
+      //console.debug(previous);
+      return promiseGenerator(source)
+        .then((result) => {
+          //console.debug(result);
+          return [...previous, result];
+        });
     });
-  }
-  return chain;
+  }, Promise.resolve([]));
 }

@@ -7,6 +7,7 @@ import reducer, {
 import { deleteMessage } from '../../api/users';
 import beginListening from './notificationsContextMessages';
 import LocalForageHelper from '../LocalForageHelper';
+import { AllSequentialMap } from '../../utils/PromiseUtils';
 
 const EMPTY_STATE = {
   messages: [],
@@ -38,22 +39,26 @@ function NotificationsProvider(props) {
     };
   }, [isInitialization]);
 
-  const { page, messages } = state;
-  if (page) {
-    messages.filter((message) => {
-      const { marketId, investibleId } = page;
-      const {
-        marketId: messageMarketId, investibleId: messageInvestibleId,
-        level, aType,
-      } = message;
-      const doRemove = marketId === messageMarketId && investibleId === messageInvestibleId
-        && (level === 'YELLOW' || aType === 'UNREAD' || aType === 'INVESTIBLE_SUBMITTED');
-      if (doRemove) {
-        dispatch(removeMessage(message));
-      }
-      return doRemove;
-    }).map((message) => deleteMessage(message));
-  }
+  useEffect(() => {
+    const { page, messages } = state;
+    if (page) {
+      const filtered = messages.filter((message) => {
+        const { marketId, investibleId } = page;
+        const {
+          marketId: messageMarketId, investibleId: messageInvestibleId,
+          level, aType,
+        } = message;
+        const doRemove = marketId === messageMarketId && investibleId === messageInvestibleId
+          && (level === 'YELLOW' || aType === 'UNREAD' || aType === 'INVESTIBLE_SUBMITTED');
+        if (doRemove) {
+          dispatch(removeMessage(message));
+        }
+        return doRemove;
+      });
+      AllSequentialMap(filtered, (message) => deleteMessage(message));
+    }
+    return () => {};
+  }, [state]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

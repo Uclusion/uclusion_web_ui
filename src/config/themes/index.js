@@ -15,13 +15,6 @@ const defaultThemeDefinition = {
       contrastText: '#ffffff',
     },
   },
-  overrides: {
-    MuiTab: {
-      selected: {
-        fontWeight: 1000,
-      },
-    }
-  }
 };
 
 

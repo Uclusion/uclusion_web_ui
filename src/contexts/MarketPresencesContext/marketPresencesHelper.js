@@ -4,7 +4,7 @@ import { updateMarketPresence } from './marketPresencesContextReducer';
 export function refreshMarketPresence(dispatch, marketId) {
   return getMarketUsers(marketId)
     .then((marketUsers) => {
-      dispatch(updateMarketPresence(marketId, marketUsers));
+      return dispatch(updateMarketPresence(marketId, marketUsers));
     });
 }
 

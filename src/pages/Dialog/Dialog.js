@@ -51,7 +51,7 @@ const styles = (theme) => ({
   },
 });
 
-function Market(props) {
+function Dialog(props) {
   const history = useHistory();
   const { location } = history;
   const { pathname } = location;
@@ -73,14 +73,15 @@ function Market(props) {
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const isAdmin = myPresence && myPresence.is_admin;
+  const loading = !myPresence;
   return (
     <Screen
       title={currentMarketName}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
+      loading={loading}
     >
-      { marketType === 'DECISION' && (
+      { marketType === 'DECISION' && !loading && (
         <DecisionDialog
           market={renderableMarket}
           investibles={investibles}
@@ -88,7 +89,7 @@ function Market(props) {
           commentsHash={commentsHash}
           marketStages={marketStages}
           marketPresences={marketPresences}
-          isAdmin={isAdmin}
+          myPresence={myPresence}
         />
       )}
       { marketType === 'PLANNING' && <PlanningDialog market={renderableMarket} investibles={investibles} />}
@@ -96,8 +97,8 @@ function Market(props) {
   );
 }
 
-Market.propTypes = {
+Dialog.propTypes = {
   hidden: PropTypes.bool.isRequired,
 };
 
-export default injectIntl(withStyles(styles)(React.memo(Market)));
+export default injectIntl(withStyles(styles)(React.memo(Dialog)));

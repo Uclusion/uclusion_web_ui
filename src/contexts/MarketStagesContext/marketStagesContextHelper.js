@@ -7,8 +7,9 @@ export function getStages(state, marketId) {
 }
 
 export function refreshMarketStages(dispatch, marketIds) {
-  return AllSequentialMap(marketIds, (marketId) => getMarketStages(marketId)
-    .then((marketStages) => {
-      dispatch(updateMarketStages(marketId, marketStages));
-    }));
+  const updater = (marketId) => {
+    return getMarketStages(marketId)
+      .then((marketStages) => dispatch(updateMarketStages(marketId, marketStages)));
+  };
+  return AllSequentialMap(marketIds, updater);
 }

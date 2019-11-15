@@ -44,31 +44,36 @@ function Investible(props) {
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
   const [investiblesState] = useContext(InvestiblesContext);
-  const inv = getInvestible(investiblesState, investibleId) || emptyInvestible; // fallback for initial render
-  const { investible } = inv;
+  const inv = getInvestible(investiblesState, investibleId);
+  const usedInv = inv || emptyInvestible;
+  const { investible } = usedInv;
   const { name, locked_by } = investible;
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const amEditing = locked_by && (locked_by === userId);
   const someoneElseEditing = locked_by && (locked_by !== userId);
   const warning = someoneElseEditing? 'Someone else is editing this idea!' : undefined;
-  console.log(warning);
   const [editMode, setEditMode] = useState(amEditing); // if we have an edit lock, just put us into edit mode
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
+  const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || _.isEmpty(user));
+  if(!loading) {
+    console.log(investible);
+    console.log(myPresence);
+    console.log(user);
+  }
   const isAdmin = myPresence && myPresence.is_admin;
 
 
 
   function toggleEdit() {
-    console.log('Firing toggle edit');
     if (!editMode) {
       // for now, just break the lock always
       const breakLock = true;
-      console.debug('Taking out lock');
+      // console.debug('Taking out lock');
       return lockInvestibleForEdit(marketId, investibleId, breakLock)
         .then(() => setEditMode(true));
     }
-    console.debug('Releasing lock');
+    // console.debug('Releasing lock');
     return realeaseInvestibleEditLock(marketId, investibleId)
       .then(() => setEditMode(false));
   }
@@ -84,8 +89,9 @@ function Investible(props) {
       breadCrumbs={breadCrumbs}
       hidden={hidden}
       warning={warning}
+      loading={loading}
     >
-      {!editMode && (
+      {!loading && !editMode && (
         <DecisionInvestible
           userId={userId}
           investibleId={investibleId}
@@ -97,7 +103,7 @@ function Investible(props) {
           toggleEdit={toggleEdit}
           isAdmin={isAdmin}
         />)}
-      {editMode && (
+      {!loading && editMode && (
         <DecisionInvestibleEdit
           fullInvestible={inv}
           marketId={marketId}

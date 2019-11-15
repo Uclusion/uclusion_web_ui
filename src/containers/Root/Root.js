@@ -4,7 +4,7 @@ import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 import { defaultTheme } from '../../config/themes';
-import Market from '../../pages/Dialog/Market';
+import Market from '../../pages/Dialog/Dialog';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import {

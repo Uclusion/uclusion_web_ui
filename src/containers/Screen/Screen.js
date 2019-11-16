@@ -113,7 +113,8 @@ function Screen(props) {
     investible,
   } = props;
   const [sideActionsOpen, setSideActionsOpen] = useState(sidebarOpen);
-
+  const drawerEmpty = !sidebarActions && !commentsSidebar
+  const drawerOpen = !drawerEmpty && sideActionsOpen;
 
   function generateTitle() {
     if (breadCrumbs) {
@@ -138,7 +139,7 @@ function Screen(props) {
     <div className={hidden ? classes.hidden : classes.root}>
       <AppBar
         className={clsx(classes.appBar, {
-          [classes.appBarShift]: sideActionsOpen,
+          [classes.appBarShift]: drawerOpen,
         })}
         position="fixed"
         hidden={hidden}
@@ -153,7 +154,8 @@ function Screen(props) {
             aria-label="open drawer"
             onClick={() => setSideActionsOpen(true)}
             edge="start"
-            className={clsx(classes.menuButton, sideActionsOpen && classes.hidden)}
+            disabled={drawerEmpty}
+            className={clsx(classes.menuButton, drawerOpen && classes.hidden)}
           >
             <MenuIcon/>
           </IconButton>
@@ -163,29 +165,29 @@ function Screen(props) {
         variant="permanent"
         anchor="right"
         className={clsx(classes.drawer, {
-          [classes.sideActionsOpen]: sideActionsOpen,
-          [classes.sideActionsClose]: !sideActionsOpen,
+          [classes.sideActionsOpen]: drawerOpen,
+          [classes.sideActionsClose]: !drawerOpen,
         })}
         classes={{
           paper: clsx({
-            [classes.sideActionsOpen]: sideActionsOpen,
-            [classes.sideActionsClose]: !sideActionsOpen,
+            [classes.sideActionsOpen]: drawerOpen,
+            [classes.sideActionsClose]: !drawerOpen,
           }),
         }}
-        open={sideActionsOpen}
+        open={drawerOpen}
       >
         <div className={classes.toolbar}>
-          {sideActionsOpen && (<IconButton onClick={() => setSideActionsOpen(false)}>
+          {drawerOpen && (<IconButton onClick={() => setSideActionsOpen(false)}>
             <ChevronRightIcon/>
           </IconButton>)}
         </div>
         <Divider/>
         {sidebarActions &&
-        React.cloneElement(sidebarActions, { amOpen: sideActionsOpen, setAmOpen: sideActionsOpen })
+        React.cloneElement(sidebarActions, { amOpen: drawerOpen, setAmOpen: sideActionsOpen })
         }
         {marketId && commentsSidebar && (
           <CommentsSidebarActions
-            amOpen={sideActionsOpen}
+            amOpen={drawerOpen}
             setAmOpen={setSideActionsOpen}
             investible={investible}
             marketId={marketId}
@@ -194,7 +196,7 @@ function Screen(props) {
       </Drawer>
       <Toolbar/>
       <div className={clsx(classes.content, {
-        [classes.contentShift]: sideActionsOpen,
+        [classes.contentShift]: drawerOpen,
       })}>
         <Container>
           {children}

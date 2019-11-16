@@ -103,14 +103,6 @@ function DecisionDialog(props) {
           <Summary market={market}/>
         </SubSection>
       </Grid>
-      <Grid
-        item
-        xs={12}
-      >
-        <SubSection>
-          <CommentBox comments={marketComments} commentsHash={commentsHash} marketId={marketId}/>
-        </SubSection>
-      </Grid>
     </Grid>
   );
 }

@@ -29,7 +29,7 @@ class WebSocketRunner {
   }
 
   registerHandler(messageType, handler) {
-    console.debug(`Registering handler for ${messageType}`);
+    // console.debug(`Registering handler for ${messageType}`);
     this.messageHandlers.push({ type: messageType, handler });
   }
 
@@ -52,7 +52,7 @@ class WebSocketRunner {
     // compact the queue to remove duplicates
     const compacted = _.uniqWith(this.subscribeQueue, _.isEqual);
     this.subscribeQueue = compacted;
-    console.debug('Subscribe queue at end of subscribe:', JSON.stringify(this.subscribeQueue));
+    // console.debug('Subscribe queue at end of subscribe:', JSON.stringify(this.subscribeQueue));
     this.storeSubscribeQueue();
   }
 
@@ -77,13 +77,13 @@ class WebSocketRunner {
     // this from being retargeted to the websocket
     this.loadSubscribeQueue();
     const queue = this.subscribeQueue;
-    console.debug('Subcribing to:', queue);
+    // console.debug('Subcribing to:', queue);
     const factory = (event) => {
-      console.debug('Here in open factory with queue:', JSON.stringify(queue));
-      console.debug('My socket is:', this.socket);
+      // console.debug('Here in open factory with queue:', JSON.stringify(queue));
+      // console.debug('My socket is:', this.socket);
       queue.forEach((action) => {
         const actionString = JSON.stringify(action);
-        console.debug('Sending to my socket:', this.socket, actionString);
+        // console.debug('Sending to my socket:', this.socket, actionString);
         this.socket.send(actionString);
       });
       // we're not emptying the queue because we might need it on reconnect
@@ -94,7 +94,7 @@ class WebSocketRunner {
   onCloseFactory() {
     const runner = this;
     const connectFunc = function (event) {
-      console.debug('Web socket closed. Reopening in:', runner.reconnectInterval);
+      // console.debug('Web socket closed. Reopening in:', runner.reconnectInterval);
       setTimeout(runner.connect.bind(runner), runner.reconnectInterval);
     };
     return connectFunc.bind(this);

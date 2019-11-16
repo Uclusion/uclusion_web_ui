@@ -1,14 +1,26 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import { AppBar, Toolbar, Typography, Link, Breadcrumbs, Container, Drawer } from '@material-ui/core';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Link,
+  Breadcrumbs,
+  Container,
+  Drawer,
+  Divider,
+  IconButton
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import Notifications from '../../components/Notifications/Notifications';
 import CommentsSidebarActions from './CommentsSidebarActions';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import MenuIcon from '@material-ui/icons/Menu';
 
-const drawerWidth = 300;
 
 const useStyles = makeStyles((theme) => {
+  let drawerWidth = 350;
   return {
     // grow is used to eat up all the space until the right
     grow: {
@@ -42,6 +54,14 @@ const useStyles = makeStyles((theme) => {
         duration: theme.transitions.duration.enteringScreen,
       }),
     },
+    appBarShift: {
+      marginRight: drawerWidth,
+      width: `calc(100% - ${drawerWidth}px)`,
+      transition: theme.transitions.create(['width', 'margin'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    },
     sideActionsClose: {
       transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
@@ -53,8 +73,26 @@ const useStyles = makeStyles((theme) => {
         width: theme.spacing(9) + 1,
       },
     },
+    contentShift: {
+      marginRight: drawerWidth,
+      width: `calc(100% - ${drawerWidth}px)`,
+      flexGrow: 1,
+      padding: theme.spacing(3),
+    },
+    content: {},
     toolbar: theme.mixins.toolbar,
-    drawer: {},
+    drawer: {
+      width: drawerWidth,
+      flexShrink: 0,
+      whiteSpace: 'nowrap',
+    },
+    drawerHeader: {
+      display: 'flex',
+      alignItems: 'center',
+      padding: theme.spacing(0, 1),
+      ...theme.mixins.toolbar,
+      justifyContent: 'flex-start',
+    },
   };
 });
 
@@ -84,7 +122,7 @@ function Screen(props) {
           {breadCrumbs.map((crumb, index) => {
             return (
               <Link key={index} color="inherit" href="#" onClick={crumb.onClick}>
-                {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage} />}
+                {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage}/>}
                 {!crumb.image && crumb.title}
               </Link>
             );
@@ -99,15 +137,26 @@ function Screen(props) {
   return (
     <div className={hidden ? classes.hidden : classes.root}>
       <AppBar
-        className={classes.appBar}
+        className={clsx(classes.appBar, {
+          [classes.appBarShift]: sideActionsOpen,
+        })}
         position="fixed"
         hidden={hidden}
       >
         <Toolbar>
+
           {generateTitle()}
-          <div className={classes.grow} />
+          <div className={classes.grow}/>
           {toolbarButtons}
-          <Notifications />
+          <Notifications/>
+          <IconButton
+            aria-label="open drawer"
+            onClick={() => setSideActionsOpen(true)}
+            edge="start"
+            className={clsx(classes.menuButton, sideActionsOpen && classes.hidden)}
+          >
+            <MenuIcon/>
+          </IconButton>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -125,11 +174,16 @@ function Screen(props) {
         }}
         open={sideActionsOpen}
       >
-        <div className={classes.toolbar} />
+        <div className={classes.toolbar}>
+          {sideActionsOpen && (<IconButton onClick={() => setSideActionsOpen(false)}>
+            <ChevronRightIcon/>
+          </IconButton>)}
+        </div>
+        <Divider/>
         {sidebarActions &&
-          React.cloneElement(sidebarActions, {amOpen: sideActionsOpen, setAmOpen: sideActionsOpen })
+        React.cloneElement(sidebarActions, { amOpen: sideActionsOpen, setAmOpen: sideActionsOpen })
         }
-        {commentsSidebar && (
+        {marketId && commentsSidebar && (
           <CommentsSidebarActions
             amOpen={sideActionsOpen}
             setAmOpen={setSideActionsOpen}
@@ -138,11 +192,14 @@ function Screen(props) {
           />
         )}
       </Drawer>
-      <Toolbar />
-
-      <Container>
-        {children}
-      </Container>
+      <Toolbar/>
+      <div className={clsx(classes.content, {
+        [classes.contentShift]: sideActionsOpen,
+      })}>
+        <Container>
+          {children}
+        </Container>
+      </div>
     </div>
   );
 }
@@ -154,11 +211,11 @@ Screen.propTypes = {
   toolbarButtons: PropTypes.arrayOf(PropTypes.any),
   hidden: PropTypes.bool,
   // eslint-disable-next-line react/forbid-prop-types
-  title: PropTypes.any.isRequired,
+  title: PropTypes.any,
   // eslint-disable-next-line react/forbid-prop-types
   children: PropTypes.any,
   // eslint-disable-next-line react/forbid-prop-types
-  sidebarActions: PropTypes.arrayOf(PropTypes.any),
+  sidebarActions: PropTypes.any,
   banner: PropTypes.string,
   commentsSidebar: PropTypes.bool,
   sidebarOpen: PropTypes.bool,
@@ -167,6 +224,7 @@ Screen.propTypes = {
 
 Screen.defaultProps = {
   breadCrumbs: [],
+  title: '',
   hidden: false,
   toolbarButtons: [],
   banner: undefined,

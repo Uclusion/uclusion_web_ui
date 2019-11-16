@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { List, ListItem, ListItemIcon, ListItemText, Tooltip, Divider } from '@material-ui/core';
+import { List, ListItem, ListItemIcon, ListItemText, Tooltip, Divider, Card } from '@material-ui/core';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import ReportProblemIcon from '@material-ui/icons/ReportProblem';
 import ContactSupportIcon from '@material-ui/icons/ContactSupport';
@@ -8,6 +8,10 @@ import ChangeHistoryIcon from '@material-ui/icons/ChangeHistory';
 import { useIntl } from 'react-intl';
 import CommentAdd from '../../components/Comments/CommentAdd';
 import _ from 'lodash';
+import Issue from '../../components/Issues/Issue';
+import Comment from '../../components/Comments/Comment';
+import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 
 // starts out amOpen, goes large, with comments contained
 function CommentsSidebarActions(props) {
@@ -21,14 +25,39 @@ function CommentsSidebarActions(props) {
     marketId,
   } = props;
 
-  const [activeType, setActiveType] = useState(ISSUE_TYPE);
-
+  const [activeType, setActiveType] = useState(null);
+  const [commentsState] = useContext(CommentsContext);
+  const comments = getMarketComments(commentsState, marketId);
+  const commentsHash = _.keyBy(comments, 'id');
+  const marketComments = comments.filter((comment) => !comment.investible_id);
+  const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketOnly = _.isEmpty(investible);
-
+  console.log(comments);
   function handleClick(type) {
     setAmOpen(true);
     setActiveType(type);
     onClick(type);
+  }
+
+  const usedComments = marketOnly ? marketComments : investibleComments;
+  // we only care about thread roots that are not resolved
+  const threadRoots = usedComments.filter((comment) => !comment.reply_id && !comment.is_resolved);
+
+  function getCommentCards() {
+    return threadRoots.map((comment) => {
+      const isIssue = comment.comment_type === ISSUE_TYPE;
+      const RenderedComment = (isIssue) ? Issue : Comment;
+      return (
+        <Card key={comment.id}>
+          <RenderedComment
+            depth={0}
+            marketId={marketId}
+            comment={comment}
+            commentsHash={commentsHash}
+          />
+        </Card>
+      );
+    });
   }
 
   // if we're not open, just return the buttons
@@ -42,7 +71,7 @@ function CommentsSidebarActions(props) {
         >
           <ListItemIcon>
             <Tooltip title={intl.formatMessage({ id: 'commentIconRaiseIssueLabel' })}>
-              <ReportProblemIcon />
+              <ReportProblemIcon/>
             </Tooltip>
           </ListItemIcon>
         </ListItem>
@@ -53,7 +82,7 @@ function CommentsSidebarActions(props) {
         >
           <ListItemIcon>
             <Tooltip title={intl.formatMessage({ id: 'commentIconAskQuestionLabel' })}>
-              <ContactSupportIcon />
+              <ContactSupportIcon/>
             </Tooltip>
           </ListItemIcon>
         </ListItem>
@@ -65,7 +94,7 @@ function CommentsSidebarActions(props) {
           >
             <ListItemIcon>
               <Tooltip title={intl.formatMessage({ id: 'commentIconSuggestChangesLabel' })}>
-                <ChangeHistoryIcon />
+                <ChangeHistoryIcon/>
               </Tooltip>
             </ListItemIcon>
           </ListItem>
@@ -83,7 +112,7 @@ function CommentsSidebarActions(props) {
           onClick={() => handleClick(ISSUE_TYPE)}
         >
           <ListItemIcon>
-            <ReportProblemIcon />
+            <ReportProblemIcon/>
           </ListItemIcon>
           <ListItemText>
             {intl.formatMessage({ id: 'commentIconRaiseIssueLabel' })}
@@ -95,7 +124,7 @@ function CommentsSidebarActions(props) {
           onClick={() => handleClick(QUESTION_TYPE)}
         >
           <ListItemIcon>
-            <ContactSupportIcon />
+            <ContactSupportIcon/>
           </ListItemIcon>
           <ListItemText>
             {intl.formatMessage({ id: 'commentIconAskQuestionLabel' })}
@@ -107,7 +136,7 @@ function CommentsSidebarActions(props) {
             onClick={() => handleClick(SUGGEST_CHANGE_TYPE)}
           >
             <ListItemIcon>
-              <ChangeHistoryIcon />
+              <ChangeHistoryIcon/>
             </ListItemIcon>
             <ListItemText>
               {intl.formatMessage({ id: 'commentIconSuggestChangesLabel' })}
@@ -115,11 +144,16 @@ function CommentsSidebarActions(props) {
           </ListItem>
         )}
       </List>
-      <Divider />
-      {activeType === ISSUE_TYPE && <CommentAdd type={ISSUE_TYPE} investible={investible} marketId={marketId} />}
-      {activeType === QUESTION_TYPE && <CommentAdd type={QUESTION_TYPE} investible={investible} marketId={marketId} />}
+      <Divider/>
+      {activeType === ISSUE_TYPE &&
+      <CommentAdd onCancel={() => setActiveType(null)} type={ISSUE_TYPE} investible={investible} marketId={marketId}/>}
+      {activeType === QUESTION_TYPE &&
+      <CommentAdd onCancel={() => setActiveType(null)} type={QUESTION_TYPE} investible={investible}
+                  marketId={marketId}/>}
       {activeType === SUGGEST_CHANGE_TYPE &&
-      <CommentAdd type={SUGGEST_CHANGE_TYPE} investible={investible} marketId={marketId} />}
+      <CommentAdd onCancel={() => setActiveType(null)} type={SUGGEST_CHANGE_TYPE} investible={investible}
+                  marketId={marketId}/>}
+      {getCommentCards()}
     </React.Fragment>
   );
 }
@@ -130,10 +164,15 @@ CommentsSidebarActions.propTypes = {
   onClick: PropTypes.func,
   marketId: PropTypes.string.isRequired,
   investible: PropTypes.object,
+  comments: PropTypes.arrayOf(PropTypes.object),
+  commentsHash: PropTypes.object,
 };
 
 CommentsSidebarActions.defaultProps = {
-  onClick: () => {},
+  onClick: () => {
+  },
   investible: {},
+  comments: [],
+  commentsHash: {},
 };
 export default CommentsSidebarActions;

@@ -76,7 +76,19 @@ function Dialog(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = !myPresence;
-  const sideBarActions = addInvestibleMode? undefined: <DecisionSidebarActions onClick={() => setAddInvestibleMode(true)}/>;
+
+  function getSidebarActions() {
+    if(addInvestibleMode){
+      return undefined;
+    }
+    return (
+      <DecisionSidebarActions
+        onClick={() => setAddInvestibleMode(true)}
+      />
+    );
+  }
+
+  const sideBarActions = getSidebarActions();
   return (
     <Screen
       title={currentMarketName}
@@ -85,6 +97,7 @@ function Dialog(props) {
       loading={loading}
       commentsSidebar={!addInvestibleMode}
       sidebarActions={sideBarActions}
+      marketId={marketId}
     >
       { marketType === 'DECISION' && !loading && (
         <DecisionDialog

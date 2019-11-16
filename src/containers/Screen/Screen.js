@@ -40,13 +40,6 @@ const useStyles = makeStyles((theme) => {
     breadCrumbImage: {
       height: 40,
     },
-    caption: {
-      textAlign: 'center',
-      height: theme.spacing(2),
-      padding: theme.spacing(0.5),
-      backgroundColor: theme.palette.secondary.main,
-      color: 'white',
-    },
     sideActionsOpen: {
       width: drawerWidth,
       transition: theme.transitions.create('width', {
@@ -76,8 +69,6 @@ const useStyles = makeStyles((theme) => {
     contentShift: {
       marginRight: drawerWidth,
       width: `calc(100% - ${drawerWidth}px)`,
-      flexGrow: 1,
-      padding: theme.spacing(3),
     },
     content: {},
     toolbar: theme.mixins.toolbar,

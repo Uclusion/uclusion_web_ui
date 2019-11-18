@@ -74,6 +74,17 @@ function getMassagedMessages(messages) {
         userId,
       };
     }
+    if (aType.startsWith('ISSUE')) {
+      // Comment thread on context
+      return {
+        ...message,
+        marketId,
+        aType,
+        level,
+        commentId: objectId,
+        userId,
+      };
+    }
     return {
       ...message, marketId, aType, level, investibleId: objectId, userId,
     };

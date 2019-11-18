@@ -124,4 +124,7 @@ export function refreshMarketVersion(state, version) {
   if (processedVersion.marketPresenceChange) {
     Hub.dispatch(PUSH_PRESENCE_CHANNEL, { event: VERSIONS_EVENT, message: marketList });
   }
+  if (processedVersion.isNew) {
+    Hub.dispatch(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, message: marketList });
+  }
 }

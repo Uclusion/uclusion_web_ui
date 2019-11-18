@@ -3,32 +3,28 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Summary from '../Summary';
 import { Grid } from '@material-ui/core';
+import Summary from '../Summary';
 import InvestibleAdd from './InvestibleAdd';
 import ProposedIdeas from './ProposedIdeas';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
 import SubSection from '../../../containers/SubSection/SubSection';
 import Voting from './Voting';
 
 function DecisionDialog(props) {
-
   const {
     market,
     investibles,
     comments,
-    commentsHash,
     marketStages,
     marketPresences,
     myPresence,
     addInvestibleMode,
-    setAddInvestibleMode
+    setAddInvestibleMode,
   } = props;
   const { is_admin: isAdmin } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment && !stage.appears_in_market_summary);
 
-  const marketComments = comments.filter((comment) => !comment.investible_id);
   const investibleComments = comments.filter((comment) => comment.investible_id);
   function getInvestiblesForStage(stage) {
     if (stage) {
@@ -92,7 +88,7 @@ function DecisionDialog(props) {
         <SubSection
           title="Proposed Options"
         >
-          <ProposedIdeas investibles={proposed} marketId={marketId} comments={investibleComments}/>
+          <ProposedIdeas investibles={proposed} marketId={marketId} comments={investibleComments} />
         </SubSection>
       </Grid>
       <Grid
@@ -100,7 +96,7 @@ function DecisionDialog(props) {
         xs={12}
       >
         <SubSection title="Background Information">
-          <Summary market={market}/>
+          <Summary market={market} />
         </SubSection>
       </Grid>
     </Grid>
@@ -115,8 +111,6 @@ DecisionDialog.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
-  commentsHash: PropTypes.object,
-  // eslint-disable-next-line react/forbid-prop-types
   marketStages: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -128,7 +122,6 @@ DecisionDialog.propTypes = {
 DecisionDialog.defaultProps = {
   investibles: [],
   comments: [],
-  commentsHash: {},
   marketStages: [],
   isAdmin: false,
 };

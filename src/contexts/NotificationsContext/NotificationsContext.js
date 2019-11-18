@@ -9,7 +9,7 @@ import beginListening from './notificationsContextMessages';
 import LocalForageHelper from '../LocalForageHelper';
 import { AllSequentialMap } from '../../utils/PromiseUtils';
 
-const EMPTY_STATE = {
+export const EMPTY_STATE = {
   messages: [],
 };
 

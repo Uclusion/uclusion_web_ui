@@ -1,4 +1,5 @@
 import LocalForageHelper from '../LocalForageHelper';
+import { EMPTY_STATE } from './NotificationsContext';
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -105,7 +106,11 @@ function doUpdatePage(state, action) {
 }
 
 function doUpdateMessages(state, action) {
-  const { messages, current } = action;
+  const { messages } = action;
+  if (!Array.isArray(messages) || !messages.length) {
+    return EMPTY_STATE;
+  }
+  const { current } = state;
   const massagedMessages = getMassagedMessages(messages);
   let newCurrent = massagedMessages.find((aMessage) => isMessageEqual(aMessage, current));
   if (!newCurrent && massagedMessages.length > 0) {

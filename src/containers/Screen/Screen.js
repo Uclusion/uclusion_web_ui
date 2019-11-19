@@ -16,7 +16,6 @@ import { makeStyles } from '@material-ui/styles';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import MenuIcon from '@material-ui/icons/Menu';
 import Notifications from '../../components/Notifications/Notifications';
-import CommentsSidebarActions from './CommentsSidebarActions';
 
 
 const useStyles = makeStyles((theme) => {

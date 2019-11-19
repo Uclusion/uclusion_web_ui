@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Grid, Paper, Typography, Card, CardContent, CardActions } from '@material-ui/core';
+import { Grid, Typography, Card, CardContent, CardActions } from '@material-ui/core';
 import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';

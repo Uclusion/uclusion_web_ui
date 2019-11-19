@@ -116,12 +116,12 @@ function Investible(props) {
           isAdmin={isAdmin}
         />
       )}
-      {!loading && !editMode && !isDecision && (
+      {!loading && !editMode && !isDecision && inv && (
         <PlanningInvestible
           userId={userId}
           investibleId={investibleId}
           marketId={marketId}
-          marketInvestible={usedInv}
+          marketInvestible={inv}
           commentsHash={commentsHash}
           marketPresences={marketPresences}
           investibleComments={investibleComments}
@@ -129,10 +129,11 @@ function Investible(props) {
           isAdmin={isAdmin}
         />
       )}
-      {!loading && editMode && !isDecision && (
+      {!loading && editMode && !isDecision && inv && marketPresences && (
         <PlanningInvestibleEdit
           fullInvestible={inv}
           marketId={marketId}
+          marketPresences={marketPresences}
           onSave={onSave}
           onCancel={toggleEdit}
           isAdmin={isAdmin}

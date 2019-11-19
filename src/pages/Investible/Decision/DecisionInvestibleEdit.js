@@ -71,6 +71,7 @@ function DecisionInvestibleEdit(props) {
     } = processTextAndFilesForSave(newUploadedFiles, description);
     const updateInfo = {
       uploadedFiles: filteredUploads,
+      name,
       description: tokensRemoved,
       marketId,
       investibleId: id,

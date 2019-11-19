@@ -7,11 +7,12 @@ export function updateInvestible(updateInfo) {
     investibleId,
     name,
     description,
-    uploadedFiles
-  } = updateInfo
+    uploadedFiles,
+    assignments,
+  } = updateInfo;
   return getMarketClient(marketId)
     .then((client) => client.investibles.update(investibleId, name,
-      description, undefined, uploadedFiles))
+      description, undefined, uploadedFiles, assignments))
     .catch((error) => {
       sendIntlMessage(ERROR, 'errorInvestibleUpdateFailed');
       throw error;

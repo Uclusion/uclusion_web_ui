@@ -4,17 +4,15 @@ import {
   Button, Card, CardActions, CardContent, TextField, withStyles,
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
 import { updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import { submitToModerator } from '../../../api/marketInvestibles';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { getFlags } from '../../../utils/userFunctions';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { updateInvestible as localUpdateInvestible } from '../../../contexts/InvestibesContext/investiblesContextReducer';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { processTextAndFilesForSave } from '../../../api/files';
+import { getMarketInfo } from '../../../utils/userFunctions';
 
 const styles = (theme) => ({
   root: {
@@ -30,16 +28,16 @@ const styles = (theme) => ({
 
 function PlanningInvestibleEdit(props) {
   const {
-    fullInvestible, intl, classes, onCancel, onSave, marketId,
-    isAdmin,
+    fullInvestible, intl, classes, onCancel, onSave, marketId, marketPresences,
   } = props;
 
   const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [marketsState] = useContext(MarketsContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
   const myInvestible = fullInvestible.investible;
+  const marketInfo = getMarketInfo(fullInvestible, marketId);
+  const { assigned } = marketInfo;
   const { id, description: initialDescription } = myInvestible;
   const [currentValues, setCurrentValues] = useState(myInvestible);
+  const [assignments, setAssignments] = useState(assigned);
   const { name } = currentValues;
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
@@ -71,9 +69,11 @@ function PlanningInvestibleEdit(props) {
     } = processTextAndFilesForSave(newUploadedFiles, description);
     const updateInfo = {
       uploadedFiles: filteredUploads,
+      name,
       description: tokensRemoved,
       marketId,
       investibleId: id,
+      assignments,
     };
     return updateInvestible(updateInfo)
       .then((data) => {
@@ -82,39 +82,40 @@ function PlanningInvestibleEdit(props) {
       });
   }
 
-  function handleSubmit() {
-    let newStage;
-    return handleSave().then(() => {
-      const currentUser = getMyUserForMarket(marketsState, marketId);
-      const stages = getStages(marketStagesState, marketId);
-      const { market_admin: isAdmin } = getFlags(currentUser);
-      if (isAdmin) {
-        newStage = stages.find((stage) => stage.appears_in_market_summary);
-      } else {
-        // Submit to moderation
-        newStage = stages.find((stage) => !stage.appears_in_market_summary
-          && stage.visible_to_roles.length === 2);
+  const handleChangeMultiple = (event) => {
+    const { options } = event.target;
+    const values = [];
+    for (let i = 0, l = options.length; i < l; i += 1) {
+      if (options[i].selected) {
+        values.push(options[i].value);
       }
-      const { market_infos: marketInfos } = fullInvestible;
-      const marketInfo = marketInfos.find((info) => info.market_id === marketId);
-      console.debug(`Submitting to stage ${newStage.name} with previous stage ${marketInfo.stage}`);
-      const stageInfo = {
-        current_stage_id: marketInfo.stage,
-        stage_id: newStage.id,
-      };
-      const submitInfo = {
-        marketId,
-        investibleId: id,
-        stageInfo,
-      };
-      return submitToModerator(submitInfo);
-    }).then(() => investiblesDispatch(localUpdateInvestible({ ...fullInvestible, stage_name: newStage.name })));
-    //TODO: what is the result of submitting to the moderator?
-  }
+    }
+    setAssignments(values);
+  };
 
   return (
     <Card>
       <CardContent>
+        <FormControl className={classes.row}>
+          <InputLabel shrink htmlFor="select-multiple-native">
+            Assignments
+          </InputLabel>
+          <Select
+            multiple
+            native
+            value={assignments}
+            onChange={handleChangeMultiple}
+            inputProps={{
+              id: 'select-multiple-assignment',
+            }}
+          >
+            {marketPresences.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
         <TextField
           className={classes.row}
           inputProps={{ maxLength: 255 }}
@@ -143,15 +144,6 @@ function PlanningInvestibleEdit(props) {
         >
           {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
         </Button>
-        {!isAdmin && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-          >
-            {intl.formatMessage({ id: 'investibleEditSubmitLabel' })}
-          </Button>
-        )}
       </CardActions>
     </Card>
 
@@ -163,6 +155,8 @@ PlanningInvestibleEdit.propTypes = {
   intl: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   fullInvestible: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,

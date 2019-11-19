@@ -1,30 +1,38 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
-import { Grid, Paper, Typography } from '@material-ui/core';
+import {
+  Grid, Paper, Typography, Badge,
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { Badge } from '@material-ui/core';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import AnnouncementIcon from '@material-ui/icons/Announcement';
 import RateReviewIcon from '@material-ui/icons/RateReview';
 import LiveHelpIcon from '@material-ui/icons/LiveHelp';
 import { FormattedDate, useIntl } from 'react-intl';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   investibleCard: {
     padding: theme.spacing(2),
     textAlign: 'left',
+  },
+  investibleCardAccepted: {
+    padding: theme.spacing(2),
+    textAlign: 'left',
+    backgroundColor: theme.palette.grey[theme.palette.type === 'dark' ? 900 : 100],
   },
   textData: {
     fontSize: 12,
   },
 }));
 
-function ProposedIdeas(props) {
+function PlanningIdeas(props) {
   const history = useHistory();
   const classes = useStyles();
-  const { investibles, marketId, comments } = props;
+  const {
+    investibles, marketId, comments, acceptedStageId,
+  } = props;
   const intl = useIntl();
   const updatedText = intl.formatMessage(({ id: 'decisionDialogInvestiblesUpdatedAt' }));
 
@@ -40,31 +48,32 @@ function ProposedIdeas(props) {
       icons.push(
         <Badge badgeContent={issues.length} color="primary" id="issues">
           <AnnouncementIcon />
-        </Badge>
+        </Badge>,
       );
     }
     if (Array.isArray(suggestions) && suggestions.length > 0) {
       icons.push(
         <Badge badgeContent={suggestions.length} color="primary" id="suggestions">
           <RateReviewIcon />
-        </Badge>
+        </Badge>,
       );
     }
     if (Array.isArray(questions) && questions.length > 0) {
       icons.push(
         <Badge badgeContent={questions.length} color="primary" id="questions">
           <LiveHelpIcon />
-        </Badge>
+        </Badge>,
       );
     }
   }
 
   function getInvestibles() {
     return investibles.map((inv) => {
-      const { investible } = inv;
+      const { investible, market_infos: marketInfos } = inv;
       const { id, name } = investible;
       const investibleComments = Array.isArray(comments)
         && comments.filter((comment) => comment.investible_id === id);
+      const marketInfo = marketInfos.find((info) => info.market_id === marketId);
       return (
         <Grid
           item
@@ -74,7 +83,8 @@ function ProposedIdeas(props) {
           md={4}
         >
           <Paper
-            className={classes.investibleCard}
+            className={marketInfo.stage === acceptedStageId
+              ? classes.investibleCardAccepted : classes.investibleCard}
             onClick={() => navigate(history, formInvestibleLink(marketId, id))}
           >
             <Typography
@@ -86,7 +96,8 @@ function ProposedIdeas(props) {
               color="textSecondary"
               className={classes.textData}
             >
-              {updatedText}<FormattedDate value={investible.updated_at} />
+              {updatedText}
+              <FormattedDate value={investible.updated_at} />
             </Typography>
             {getCommentIcons(investibleComments)}
           </Paper>
@@ -100,13 +111,13 @@ function ProposedIdeas(props) {
       {getInvestibles()}
     </Grid>
   );
-
 }
 
-ProposedIdeas.propTypes = {
+PlanningIdeas.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
   marketId: PropTypes.string.isRequired,
+  acceptedStageId: PropTypes.string.isRequired,
 };
 
-export default ProposedIdeas;
+export default PlanningIdeas;

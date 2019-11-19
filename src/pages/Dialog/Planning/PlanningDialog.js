@@ -4,15 +4,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Summary from '../Summary';
-import ProposedIdeas from '../Decision/ProposedIdeas';
+import PlanningIdeas from './PlanningIdeas';
 import { Typography } from '@material-ui/core';
 
 function PlanningDialog(props) {
-  const { market, investibles, marketPresences } = props;
+  const { market, investibles, marketPresences, marketStages } = props;
   const { id: marketId } = market;
 
   function getInvestiblesByPerson(investibles, marketPresences) {
     const followingPresences = marketPresences.filter((presence) => presence.following);
+    // eslint-disable-next-line max-len
+    const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.allows_refunds));
     return (
       <>
         {
@@ -30,7 +32,13 @@ function PlanningDialog(props) {
                 {presence.name}
               </Typography>
               <br />
-              <ProposedIdeas investibles={myInvestibles} marketId={marketId} />
+              {marketId && acceptedStage && (
+              <PlanningIdeas
+                investibles={myInvestibles}
+                marketId={marketId}
+                acceptedStageId={acceptedStage.id}
+              />
+              )}
             </>
           );
         })
@@ -54,11 +62,14 @@ PlanningDialog.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object),
+  // eslint-disable-next-line react/forbid-prop-types
+  marketStages: PropTypes.arrayOf(PropTypes.object),
 };
 
 PlanningDialog.defaultProps = {
   investibles: [],
   marketPresences: [],
+  marketStages: [],
 };
 
 export default PlanningDialog;

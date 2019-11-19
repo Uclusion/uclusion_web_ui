@@ -37,7 +37,7 @@ function DecisionDialogs(props) {
   function getParticipantInfo(presences) {
     return presences.map((presence) => {
       const { id: userId, name, following } = presence;
-      const roleNameKey = following ? 'decisionDialogsParticipantLabel' : 'decisionDialogsObserverLabel';
+      const icon = following ? <ThumbsUpDownIcon size='small' /> : <VisibilityIcon size='small' />;
       return (
         <Card
           id={userId}
@@ -60,7 +60,7 @@ function DecisionDialogs(props) {
               item
               xs={4}
             >
-              {intl.formatMessage(({ id: roleNameKey }))}
+              {icon}
             </Grid>
           </Grid>
         </Card>

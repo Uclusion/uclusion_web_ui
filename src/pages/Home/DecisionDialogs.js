@@ -71,6 +71,7 @@ function DecisionDialogs(props) {
   function getDialogActions(myPresence) {
     const { is_admin, following } = myPresence;
     const actions = [];
+    actions.push(<TooltipIconButton translationId="decisionDialogsInviteParticipant" icon={<SendIcon />} />)
     if (is_admin) {
       actions.push(
         <TooltipIconButton
@@ -84,7 +85,6 @@ function DecisionDialogs(props) {
           icon={<CancelIcon />}
         />
       );
-      actions.push(<TooltipIconButton translationId="decisionDialogsInviteParticipant" icon={<SendIcon />} />)
     } else {
       // admins can't exit a dialog or change their role
       actions.push(

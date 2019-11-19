@@ -19,6 +19,8 @@ import { getStages } from '../../contexts/MarketStagesContext/marketStagesContex
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import DecisionSidebarActions from './Decision/DecisionSidebarActions';
+import PlanningSidebarActions from './Planning/PlanningSidebarActions';
+import CommentsSidebarActions from '../../containers/Screen/CommentsSidebarActions';
 
 const styles = (theme) => ({
   root: {
@@ -77,18 +79,30 @@ function Dialog(props) {
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = !myPresence;
 
-  function getSidebarActions() {
-    if(addInvestibleMode){
+  function getSidebarActions(marketType) {
+    if (addInvestibleMode) {
       return undefined;
     }
+    if (marketType === 'DECISION') {
+      return (
+        <>
+          <DecisionSidebarActions
+            onClick={() => setAddInvestibleMode(true)}
+          />
+          <CommentsSidebarActions
+            marketId={marketId}
+          />
+        </>
+      );
+    }
     return (
-      <DecisionSidebarActions
+      <PlanningSidebarActions
         onClick={() => setAddInvestibleMode(true)}
       />
     );
   }
 
-  const sideBarActions = getSidebarActions();
+  const sideBarActions = getSidebarActions(marketType);
   return (
     <Screen
       title={currentMarketName}
@@ -112,7 +126,19 @@ function Dialog(props) {
           myPresence={myPresence}
         />
       )}
-      { marketType === 'PLANNING' && <PlanningDialog market={renderableMarket} investibles={investibles} />}
+      { marketType === 'PLANNING' && !loading && (
+        <PlanningDialog
+          addInvestibleMode={addInvestibleMode}
+          setAddInvestibleMode={setAddInvestibleMode}
+          market={renderableMarket}
+          investibles={investibles}
+          comments={comments}
+          commentsHash={commentsHash}
+          marketStages={marketStages}
+          marketPresences={marketPresences}
+          myPresence={myPresence}
+        />
+      )}
     </Screen>
   );
 }

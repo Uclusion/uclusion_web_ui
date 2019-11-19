@@ -10,17 +10,17 @@ import {
   Container,
   Drawer,
   Divider,
-  IconButton
+  IconButton,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import Notifications from '../../components/Notifications/Notifications';
-import CommentsSidebarActions from './CommentsSidebarActions';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import MenuIcon from '@material-ui/icons/Menu';
+import Notifications from '../../components/Notifications/Notifications';
+import CommentsSidebarActions from './CommentsSidebarActions';
 
 
 const useStyles = makeStyles((theme) => {
-  let drawerWidth = 350;
+  const drawerWidth = 350;
   return {
     // grow is used to eat up all the space until the right
     grow: {
@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => {
     },
     appBar: {
       background: '#ffffff',
-      zIndex: theme.zIndex.drawer + 1
+      zIndex: theme.zIndex.drawer + 1,
     },
     breadCrumbImage: {
       height: 40,
@@ -96,29 +96,23 @@ function Screen(props) {
     title,
     children,
     toolbarButtons,
-
-    commentsSidebar,
     sidebarActions,
     sidebarOpen,
-    marketId,
-    investible,
   } = props;
   const [sideActionsOpen, setSideActionsOpen] = useState(sidebarOpen);
-  const drawerEmpty = !sidebarActions && !commentsSidebar
+  const drawerEmpty = !sidebarActions;
   const drawerOpen = !drawerEmpty && sideActionsOpen;
 
   function generateTitle() {
     if (breadCrumbs) {
       return (
         <Breadcrumbs separator=">">
-          {breadCrumbs.map((crumb, index) => {
-            return (
-              <Link key={index} color="inherit" href="#" onClick={crumb.onClick}>
-                {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage}/>}
-                {!crumb.image && crumb.title}
-              </Link>
-            );
-          })}
+          {breadCrumbs.map((crumb, index) => (
+            <Link key={index} color="inherit" href="#" onClick={crumb.onClick}>
+              {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage} />}
+              {!crumb.image && crumb.title}
+            </Link>
+          ))}
           <Typography color="textPrimary">{title}</Typography>
         </Breadcrumbs>
       );
@@ -138,9 +132,9 @@ function Screen(props) {
         <Toolbar>
 
           {generateTitle()}
-          <div className={classes.grow}/>
+          <div className={classes.grow} />
           {toolbarButtons}
-          <Notifications/>
+          <Notifications />
           <IconButton
             aria-label="open drawer"
             onClick={() => setSideActionsOpen(true)}
@@ -148,7 +142,7 @@ function Screen(props) {
             disabled={drawerEmpty}
             className={clsx(classes.menuButton, drawerOpen && classes.hidden)}
           >
-            <MenuIcon/>
+            <MenuIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
@@ -168,27 +162,21 @@ function Screen(props) {
         open={drawerOpen}
       >
         <div className={classes.toolbar}>
-          {drawerOpen && (<IconButton onClick={() => setSideActionsOpen(false)}>
-            <ChevronRightIcon/>
-          </IconButton>)}
+          {drawerOpen && (
+          <IconButton onClick={() => setSideActionsOpen(false)}>
+            <ChevronRightIcon />
+          </IconButton>
+          )}
         </div>
-        <Divider/>
-        {sidebarActions &&
-        React.cloneElement(sidebarActions, { amOpen: drawerOpen, setAmOpen: sideActionsOpen })
-        }
-        {marketId && commentsSidebar && (
-          <CommentsSidebarActions
-            amOpen={drawerOpen}
-            setAmOpen={setSideActionsOpen}
-            investible={investible}
-            marketId={marketId}
-          />
-        )}
+        <Divider />
+        {sidebarActions
+        && React.cloneElement(sidebarActions, { amOpen: drawerOpen, setAmOpen: sideActionsOpen })}
       </Drawer>
-      <Toolbar/>
+      <Toolbar />
       <div className={clsx(classes.content, {
         [classes.contentShift]: drawerOpen,
-      })}>
+      })}
+      >
         <Container>
           {children}
         </Container>

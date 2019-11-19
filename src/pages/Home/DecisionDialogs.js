@@ -63,7 +63,7 @@ function DecisionDialogs(props) {
 
   function getDialogActions(myPresence) {
     const { is_admin } = myPresence;
-    
+
   }
 
   function getMarketItems() {

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Grid, Paper, Typography, Card } from '@material-ui/core';
+import { Grid, Paper, Typography, Card, CardContent, CardActions } from '@material-ui/core';
 import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
@@ -8,6 +8,8 @@ import PropTypes from 'prop-types';
 import { FormattedDate, useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
+import UpdateIcon from '@material-ui/icons/Update';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -63,7 +65,16 @@ function DecisionDialogs(props) {
 
   function getDialogActions(myPresence) {
     const { is_admin } = myPresence;
-
+    const actions = [];
+    if (is_admin) {
+      actions.push(
+        <TooltipIconButton
+          translationId="decisionDialogsExtendDeadline"
+          icon={<UpdateIcon />}
+        />
+      );
+    }
+    return actions;
   }
 
   function getMarketItems() {
@@ -82,30 +93,35 @@ function DecisionDialogs(props) {
           md={4}
           lg={3}
         >
-          <Paper
+          <Card
             className={classes.paper}
             onClick={() => navigate(history, formMarketLink(marketId))}
           >
-            <Typography>
-              {name}
-            </Typography>
-            <Typography
-              color="textSecondary"
-              className={classes.textData}
-            >
-              {intl.formatMessage({ id: 'decisionDialogsStartedBy' }, { name: admin.name })}
-            </Typography>
-            <Typography
-              color="textSecondary"
-              className={classes.textData}
-            >
-              {intl.formatMessage({ id: 'decisionDialogsExpires' })}
-              <FormattedDate
-                value={expires_at}
-              />
-            </Typography>
-            {getParticipantInfo(sortedPresences)}
-          </Paper>
+            <CardContent>
+              <Typography>
+                {name}
+              </Typography>
+              <Typography
+                color="textSecondary"
+                className={classes.textData}
+              >
+                {intl.formatMessage({ id: 'decisionDialogsStartedBy' }, { name: admin.name })}
+              </Typography>
+              <Typography
+                color="textSecondary"
+                className={classes.textData}
+              >
+                {intl.formatMessage({ id: 'decisionDialogsExpires' })}
+                <FormattedDate
+                  value={expires_at}
+                />
+              </Typography>
+              {getParticipantInfo(sortedPresences)}
+            </CardContent>
+            <CardActions>
+              {getDialogActions(myPresence)}
+            </CardActions>
+          </Card>
         </Grid>
       );
     });

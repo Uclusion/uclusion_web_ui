@@ -237,6 +237,12 @@ const messages = defineMessages({
   decisionDialogsObserverLabel: 'Observer',
   decisionDialogsParticipantLabel: 'Participant',
   decisionDialogsExtendDeadline: 'Extend Deadline',
+  decisionDialogsCancelDialog: 'Cancel Dialog',
+  decisionDialogsExitDialog: 'Exit Dialog',
+  decisionDialogsBecomeObserver: 'Become Observer',
+  decisionDialogsBecomeParticipant: 'Become Participant',
+  decisionDialogsInviteParticipant: 'Invite participant',
+
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',

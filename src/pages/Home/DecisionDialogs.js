@@ -10,6 +10,11 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import UpdateIcon from '@material-ui/icons/Update';
+import CancelIcon from '@material-ui/icons/Cancel';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import SendIcon from '@material-ui/icons/Send';
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -32,7 +37,7 @@ function DecisionDialogs(props) {
   function getParticipantInfo(presences) {
     return presences.map((presence) => {
       const { id: userId, name, following } = presence;
-      const roleNameKey = following ? 'decisionDialogsParticipantLabel' : 'decisionDialogsObserverLabel';
+      const icon = following ? <ThumbsUpDownIcon size='small' /> : <VisibilityIcon size='small' />;
       return (
         <Card
           id={userId}
@@ -55,7 +60,7 @@ function DecisionDialogs(props) {
               item
               xs={4}
             >
-              {intl.formatMessage(({ id: roleNameKey }))}
+              {icon}
             </Grid>
           </Grid>
         </Card>
@@ -64,8 +69,9 @@ function DecisionDialogs(props) {
   }
 
   function getDialogActions(myPresence) {
-    const { is_admin } = myPresence;
+    const { is_admin, following } = myPresence;
     const actions = [];
+    actions.push(<TooltipIconButton translationId="decisionDialogsInviteParticipant" icon={<SendIcon />} />)
     if (is_admin) {
       actions.push(
         <TooltipIconButton
@@ -73,6 +79,27 @@ function DecisionDialogs(props) {
           icon={<UpdateIcon />}
         />
       );
+      actions.push(
+        <TooltipIconButton
+          translationId="decisionDialogsCancelDialog"
+          icon={<CancelIcon />}
+        />
+      );
+    } else {
+      // admins can't exit a dialog or change their role
+      actions.push(
+        <TooltipIconButton translationId="decisionDialogsExitDialog" icon={<ExitToAppIcon />} />
+      );
+      // if participant you can become observer, or if observer you can become participant
+      if (following) {
+        actions.push(
+          <TooltipIconButton translationId="decisionDialogsExitDialog" icon={<VisibilityIcon />} />
+        );
+      } else {
+        actions.push(
+          <TooltipIconButton translationId="decisionDialogsBecomeParticipant" icon={<ThumbsUpDownIcon />} />
+        );
+      }
     }
     return actions;
   }
@@ -81,7 +108,7 @@ function DecisionDialogs(props) {
     return sortedMarkets.map((market) => {
       const { id: marketId, name, expires_at } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-      const myPresence = marketPresences.find((presence) => presence.current_user);
+      const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const admin = marketPresences.find((presence) => presence.is_admin) || {};
       const sortedPresences = _.sortBy(marketPresences, 'name');
       return (

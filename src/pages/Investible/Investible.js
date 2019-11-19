@@ -1,24 +1,26 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useHistory } from 'react-router';
+import _ from 'lodash';
 import Screen from '../../containers/Screen/Screen';
 import {
   makeBreadCrumbs,
   formMarketLink,
-  decomposeMarketPath
+  decomposeMarketPath,
 } from '../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import _ from 'lodash';
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import DecisionInvestible from './Decision/DecisionInvestible';
 import DecisionInvestibleEdit from './Decision/DecisionInvestibleEdit';
 import { lockInvestibleForEdit, realeaseInvestibleEditLock } from '../../api/investibles';
+import PlanningInvestible from './Planning/PlanningInvestible';
+import PlanningInvestibleEdit from './Planning/PlanningInvestibleEdit';
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -47,22 +49,23 @@ function Investible(props) {
   const inv = getInvestible(investiblesState, investibleId);
   const usedInv = inv || emptyInvestible;
   const { investible } = usedInv;
-  const { name, locked_by } = investible;
+  const { name, locked_by: lockedBy } = investible;
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-  const amEditing = locked_by && (locked_by === userId);
-  const someoneElseEditing = locked_by && (locked_by !== userId);
-  const warning = someoneElseEditing? 'Someone else is editing this idea!' : undefined;
-  const [editMode, setEditMode] = useState(amEditing); // if we have an edit lock, just put us into edit mode
+  const amEditing = lockedBy && (lockedBy === userId);
+  const someoneElseEditing = lockedBy && (lockedBy !== userId);
+  const warning = someoneElseEditing ? 'Someone else is editing this idea!' : undefined;
+  // if we have an edit lock, just put us into edit mode
+  const [editMode, setEditMode] = useState(amEditing);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || _.isEmpty(user));
-  if(!loading) {
+  const isDecision = market && market.market_type === 'DECISION';
+  if (!loading) {
     console.log(investible);
     console.log(myPresence);
     console.log(user);
   }
   const isAdmin = myPresence && myPresence.is_admin;
-
 
 
   function toggleEdit() {
@@ -91,7 +94,7 @@ function Investible(props) {
       warning={warning}
       loading={loading}
     >
-      {!loading && !editMode && (
+      {!loading && !editMode && isDecision && (
         <DecisionInvestible
           userId={userId}
           investibleId={investibleId}
@@ -102,9 +105,32 @@ function Investible(props) {
           investibleComments={investibleComments}
           toggleEdit={toggleEdit}
           isAdmin={isAdmin}
-        />)}
-      {!loading && editMode && (
+        />
+      )}
+      {!loading && editMode && isDecision && (
         <DecisionInvestibleEdit
+          fullInvestible={inv}
+          marketId={marketId}
+          onSave={onSave}
+          onCancel={toggleEdit}
+          isAdmin={isAdmin}
+        />
+      )}
+      {!loading && !editMode && !isDecision && (
+        <PlanningInvestible
+          userId={userId}
+          investibleId={investibleId}
+          marketId={marketId}
+          marketInvestible={usedInv}
+          commentsHash={commentsHash}
+          marketPresences={marketPresences}
+          investibleComments={investibleComments}
+          toggleEdit={toggleEdit}
+          isAdmin={isAdmin}
+        />
+      )}
+      {!loading && editMode && !isDecision && (
+        <PlanningInvestibleEdit
           fullInvestible={inv}
           marketId={marketId}
           onSave={onSave}

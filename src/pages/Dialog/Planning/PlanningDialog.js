@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import Summary from '../Summary';
 import PlanningIdeas from './PlanningIdeas';
 import { Typography } from '@material-ui/core';
+import { getMarketInfo } from '../../../utils/userFunctions';
 
 function PlanningDialog(props) {
   const { market, investibles, marketPresences, marketStages } = props;
@@ -20,7 +21,7 @@ function PlanningDialog(props) {
         {
         followingPresences.map((presence) => {
           const myInvestibles = investibles.filter((investible) => {
-            const marketInfo = investible.market_infos.find((info) => info.market_id === marketId);
+            const marketInfo = getMarketInfo(investible, marketId);
             return marketInfo.assigned.includes(presence.id);
           });
           return (

@@ -10,10 +10,21 @@ import Notifications from '../../components/Notifications/Notifications';
 import DecisionDialogs from './DecisionDialogs';
 import SubsectionAddButton from '../../components/Buttons/SubsectionAddButton';
 import DecisionAdd from './DecisionAdd';
+import { makeStyles } from '@material-ui/core';
+
+
+const useStyles = makeStyles(() => {
+  return {
+    breadCrumbImage: {
+      height: 40,
+    },
+  };
+});
 
 function Home(props) {
   const { hidden } = props;
   const intl = useIntl();
+  const classes = useStyles();
   const [marketsState] = useContext(MarketsContext);
   const planningDetails = getMarketDetailsForType(marketsState, 'PLANNING');
   const decisionDetails = getMarketDetailsForType(marketsState, 'DECISION');
@@ -27,7 +38,7 @@ function Home(props) {
   if (decisionAddMode) {
     return (
       <Screen
-        title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" />}
+        title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage} />}
         hidden={hidden}
         appBarContent={<Notifications />}
       >
@@ -41,7 +52,7 @@ function Home(props) {
 
   return (
     <Screen
-      title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" />}
+      title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage}/>}
       hidden={hidden}
       appBarContent={<Notifications />}
     >

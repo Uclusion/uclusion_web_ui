@@ -7,12 +7,16 @@ import PropTypes from 'prop-types';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
-import { updateInvestible } from '../../../api/investibles';
+import { acceptInvestible, updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { updateInvestible as localUpdateInvestible } from '../../../contexts/InvestibesContext/investiblesContextReducer';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { getMarketInfo } from '../../../utils/userFunctions';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 const styles = (theme) => ({
   root: {
@@ -34,7 +38,7 @@ function PlanningInvestibleEdit(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const myInvestible = fullInvestible.investible;
   const marketInfo = getMarketInfo(fullInvestible, marketId);
-  const { assigned } = marketInfo;
+  const { assigned, stage: currentStageId } = marketInfo;
   const { id, description: initialDescription } = myInvestible;
   const [currentValues, setCurrentValues] = useState(myInvestible);
   const [assignments, setAssignments] = useState(assigned);
@@ -42,6 +46,12 @@ function PlanningInvestibleEdit(props) {
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const [description, setDescription] = useState(initialDescription);
+  const [marketsState] = useContext(MarketsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const currentUser = getMyUserForMarket(marketsState, marketId);
+  const marketStages = getStages(marketStagesState, marketId);
+  // eslint-disable-next-line max-len
+  const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.allows_refunds));
 
   function handleChange(field) {
     return (event) => {
@@ -80,6 +90,19 @@ function PlanningInvestibleEdit(props) {
         investiblesDispatch(localUpdateInvestible({ ...fullInvestible, investible: data }));
         onSave();
       });
+  }
+
+  function handleAccepted() {
+    const stageInfo = {
+      current_stage_id: currentStageId,
+      stage_id: acceptedStage.id,
+    };
+    const acceptInfo = {
+      marketId,
+      investibleId: myInvestible.id,
+      stageInfo,
+    };
+    return acceptInvestible(acceptInfo).then(() => onSave());
   }
 
   const handleChangeMultiple = (event) => {
@@ -144,6 +167,18 @@ function PlanningInvestibleEdit(props) {
         >
           {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
         </Button>
+        {acceptedStage
+        && currentStageId !== acceptedStage.id
+        && currentUser
+        && assignments.includes(currentUser.id) && (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleAccepted}
+        >
+          {intl.formatMessage({ id: 'investibleEditAcceptLabel' })}
+        </Button>
+        )}
       </CardActions>
     </Card>
 
@@ -162,12 +197,10 @@ PlanningInvestibleEdit.propTypes = {
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
-  isAdmin: PropTypes.bool,
 };
 
 PlanningInvestibleEdit.defaultProps = {
   onSave: () => {},
   onCancel: () => {},
-  isAdmin: false,
 };
 export default withStyles(styles)(injectIntl(PlanningInvestibleEdit));

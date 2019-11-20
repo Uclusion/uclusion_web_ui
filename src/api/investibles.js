@@ -48,22 +48,32 @@ export function realeaseInvestibleEditLock(marketId, investibleId) {
     });
 }
 
+export function acceptInvestible(acceptInfo) {
+  const {
+    marketId,
+    investibleId,
+    stageInfo, // contains the current and next stage
+  } = acceptInfo;
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.stateChange(investibleId, stageInfo)).catch((error) => {
+      sendIntlMessage(ERROR, 'errorInvestibleAcceptFailed');
+      throw error;
+    });
+}
+
 export function addInvestibleToStage(addInfo) {
   const {
     marketId,
     name,
     description,
     uploadedFiles,
-    stageInfo // contains the current and next stage like change investible stage
+    stageInfo, // contains the current and next stage like change investible stage
   } = addInfo;
   return getMarketClient(marketId)
-    .then((client) => {
-      return client.investibles.create(name, description, uploadedFiles)
-        .then((investibleId) => {
-          return client.investibles.stateChange(investibleId, stageInfo)
-            .then(() => investibleId); // make the return value the same as the regular add
-        });
-    }).catch((error) => {
+    .then((client) => client.investibles.create(name, description, uploadedFiles)
+      .then((investibleId) => client.investibles.stateChange(investibleId, stageInfo)
+        .then(() => investibleId), // make the return value the same as the regular add
+      )).catch((error) => {
       sendIntlMessage(ERROR, 'errorInvestibleAddFailed');
       throw error;
     });

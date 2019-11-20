@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { Grid, Typography, Card, CardContent, CardActions } from '@material-ui/core';
+import React, { useContext, useState } from 'react';
+import { Grid, Typography, Card, CardContent, CardActions, Link } from '@material-ui/core';
 import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
@@ -15,8 +15,11 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import SendIcon from '@material-ui/icons/Send';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
+import ChangeToParticipantButton from './Decision/ChangeToParticipantButton';
+import ChangeToObserverButton from './Decision/ChangeToObserverButton';
+import ExpirationSelector from '../../components/DecisionDialogs/ExpirationSelector';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   paper: {
     padding: theme.spacing(2),
     textAlign: 'left',
@@ -24,6 +27,7 @@ const useStyles = makeStyles(theme => ({
   textData: {
     fontSize: 12,
   },
+
 }));
 
 function DecisionDialogs(props) {
@@ -33,6 +37,8 @@ function DecisionDialogs(props) {
   const sortedMarkets = _.sortBy(markets, 'name');
   const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);
+
+  const [showExtension, setShowExtension] = useState(false);
 
   function getParticipantInfo(presences) {
     return presences.map((presence) => {
@@ -68,10 +74,10 @@ function DecisionDialogs(props) {
     });
   }
 
-  function getDialogActions(myPresence) {
+  function getDialogActions(marketId, myPresence) {
     const { is_admin, following } = myPresence;
     const actions = [];
-    actions.push(<TooltipIconButton translationId="decisionDialogsInviteParticipant" icon={<SendIcon />} />)
+    actions.push(<TooltipIconButton translationId="decisionDialogsInviteParticipant" icon={<SendIcon />} />);
     if (is_admin) {
       actions.push(
         <TooltipIconButton
@@ -93,11 +99,11 @@ function DecisionDialogs(props) {
       // if participant you can become observer, or if observer you can become participant
       if (following) {
         actions.push(
-          <TooltipIconButton translationId="decisionDialogsExitDialog" icon={<VisibilityIcon />} />
+          <ChangeToObserverButton marketId={marketId} />
         );
       } else {
         actions.push(
-          <TooltipIconButton translationId="decisionDialogsBecomeParticipant" icon={<ThumbsUpDownIcon />} />
+          <ChangeToParticipantButton marketId={marketId} />
         );
       }
     }
@@ -122,11 +128,17 @@ function DecisionDialogs(props) {
         >
           <Card
             className={classes.paper}
-            onClick={() => navigate(history, formMarketLink(marketId))}
           >
             <CardContent>
               <Typography>
-                {name}
+                <Link
+                  variant="inherit"
+                  underline="always"
+                  color="primary"
+                  onClick={() => navigate(history, formMarketLink(marketId))}
+                >
+                  {name}
+                </Link>
               </Typography>
               <Typography
                 color="textSecondary"
@@ -134,6 +146,7 @@ function DecisionDialogs(props) {
               >
                 {intl.formatMessage({ id: 'decisionDialogsStartedBy' }, { name: admin.name })}
               </Typography>
+
               <Typography
                 color="textSecondary"
                 className={classes.textData}
@@ -143,11 +156,13 @@ function DecisionDialogs(props) {
                   value={expires_at}
                 />
               </Typography>
+
               {getParticipantInfo(sortedPresences)}
             </CardContent>
             <CardActions>
-              {getDialogActions(myPresence)}
+              {getDialogActions(marketId, myPresence)}
             </CardActions>
+
           </Card>
         </Grid>
       );

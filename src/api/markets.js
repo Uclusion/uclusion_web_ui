@@ -31,6 +31,24 @@ export function updateMarket(marketId, name, description, uploaded_files) {
     .then((client) => client.markets.updateMarket(updateOptions));
 }
 
+export function changeToObserver(marketId) {
+  return getMarketClient(marketId)
+    .then((client) => client.markets.followMarket(true))
+    .catch((error) => {
+      sendIntlMessage(ERROR, 'errorChangeToObserverFailed');
+      throw error;
+    });
+}
+
+export function changeToParticipant(marketId) {
+  return getMarketClient(marketId)
+    .then((client) => client.markets.followMarket(false))
+    .catch((error) => {
+      sendIntlMessage(ERROR, 'errorChangeToPariticpantFailed');
+      throw error;
+    });
+}
+
 export function createDecision(marketInfo) {
   return getAccountClient()
     .then((client) => client.markets.createMarket(marketInfo))

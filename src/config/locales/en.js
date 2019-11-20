@@ -275,6 +275,8 @@ const messages = defineMessages({
   errorEditLockFailed: 'There was a problem getting permission to edit',
   errorEditLockReleaseFailed: 'There was a problem releasing edit permission',
   errorSubmitToModeratorFailed: 'There was a problem submitting to the moderator',
+  errorChangeToObserverFailed: 'There was a problem becoming to an observer',
+  errorChangeToPariticpantFailed: 'There was a problem becoming a participant',
 });
 
 export default messages;

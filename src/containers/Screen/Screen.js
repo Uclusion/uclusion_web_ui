@@ -107,7 +107,7 @@ function Screen(props) {
       return (
         <Breadcrumbs separator=">">
           {breadCrumbs.map((crumb, index) => (
-            <Link key={index} color="inherit" href="#" onClick={crumb.onClick}>
+            <Link key={index} href="#" onClick={crumb.onClick} underline="always" color="primary">
               {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage} />}
               {!crumb.image && crumb.title}
             </Link>

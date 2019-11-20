@@ -17,7 +17,7 @@ import SendIcon from '@material-ui/icons/Send';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import ChangeToParticipantButton from './Decision/ChangeToParticipantButton';
 import ChangeToObserverButton from './Decision/ChangeToObserverButton';
-
+import DeadlineExtender from './Decision/DeadlineExtender';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -38,7 +38,7 @@ function DecisionDialogs(props) {
   const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);
 
-  const [showExtension, setShowExtension] = useState(false);
+  const [showExtension, setShowExtension] = useState({});
 
   function getParticipantInfo(presences) {
     return presences.map((presence) => {
@@ -46,7 +46,7 @@ function DecisionDialogs(props) {
       const icon = following ? <ThumbsUpDownIcon size='small' /> : <VisibilityIcon size='small' />;
       return (
         <Card
-          id={userId}
+          key={userId}
         >
           <Grid
             container
@@ -74,19 +74,32 @@ function DecisionDialogs(props) {
     });
   }
 
+  function setMarketExtensionVisible(value, marketId) {
+    setShowExtension({ ...showExtension, [marketId]: value });
+  }
+
+  function toggleMarketExtensionVisible(marketId) {
+    const oldValue = showExtension[marketId];
+    const newValue = !oldValue;
+    setMarketExtensionVisible(newValue, marketId);
+  }
+
   function getDialogActions(marketId, myPresence) {
     const { is_admin, following } = myPresence;
     const actions = [];
-    actions.push(<TooltipIconButton translationId="decisionDialogsInviteParticipant" icon={<SendIcon />} />);
+    actions.push(<TooltipIconButton key="invite" translationId="decisionDialogsInviteParticipant" icon={<SendIcon />} />);
     if (is_admin) {
       actions.push(
         <TooltipIconButton
+          key="deadline"
           translationId="decisionDialogsExtendDeadline"
+          onClick={() => toggleMarketExtensionVisible(marketId)}
           icon={<UpdateIcon />}
         />
       );
       actions.push(
         <TooltipIconButton
+          key="cancel"
           translationId="decisionDialogsCancelDialog"
           icon={<CancelIcon />}
         />
@@ -94,16 +107,19 @@ function DecisionDialogs(props) {
     } else {
       // admins can't exit a dialog or change their role
       actions.push(
-        <TooltipIconButton translationId="decisionDialogsExitDialog" icon={<ExitToAppIcon />} />
+        <TooltipIconButton
+          key="exit"
+          translationId="decisionDialogsExitDialog"
+          icon={<ExitToAppIcon />} />
       );
       // if participant you can become observer, or if observer you can become participant
       if (following) {
         actions.push(
-          <ChangeToObserverButton marketId={marketId} />
+          <ChangeToObserverButton key="observe" marketId={marketId} />
         );
       } else {
         actions.push(
-          <ChangeToParticipantButton marketId={marketId} />
+          <ChangeToParticipantButton key="participate" marketId={marketId} />
         );
       }
     }
@@ -162,7 +178,12 @@ function DecisionDialogs(props) {
             <CardActions>
               {getDialogActions(marketId, myPresence)}
             </CardActions>
-
+            <DeadlineExtender
+              hidden={!showExtension[marketId]}
+              market={market}
+              onCancel={() => setMarketExtensionVisible(false, marketId)}
+              onSave={() => setMarketExtensionVisible(false, marketId)}
+            />
           </Card>
         </Grid>
       );

@@ -263,6 +263,11 @@ const messages = defineMessages({
   addOptionLabel: 'Add Option',
 
 
+  // expiration extender
+  deadlineExtenderSave: 'Extend',
+  deadlineExtenderCancel: 'Cancel',
+
+
   // API errors
   errorInvestibleAddFailed: 'There was a problem adding the option.',
   errorInvestibleStageChangeFailed: 'There was a problem accepting or archiving the assignment',

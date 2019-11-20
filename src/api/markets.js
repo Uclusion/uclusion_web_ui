@@ -1,6 +1,6 @@
 import { getAccountClient, getMarketClient } from './uclusionClient';
 import { fixupItemForStorage } from '../contexts/ContextUtils';
-import { ERROR, sendIntlMessage } from '../utils/userMessage';
+import { toastErrorAndThrow } from '../utils/userMessage';
 
 function fixupMarketForStorage(market) {
   const itemFixed = fixupItemForStorage(market);
@@ -23,38 +23,38 @@ export function getMarketDetails(marketId) {
         }))));
 }
 
+export function extendMarketExpiration(marketId, expiration_minutes) {
+  const updateOptions = { expiration_minutes };
+  return getMarketClient(marketId)
+    .then((client) => client.markets.updateMarket(updateOptions))
+    .catch((error) => toastErrorAndThrow(error, 'errorMarketExpirationExtendFailed'));
+}
+
 export function updateMarket(marketId, name, description, uploaded_files) {
   const updateOptions = { name, description, uploaded_files };
-  console.debug(`Updating market ${marketId}`);
-  console.debug(updateOptions);
+  // console.debug(`Updating market ${marketId}`);
+  // console.debug(updateOptions);
   return getMarketClient(marketId)
-    .then((client) => client.markets.updateMarket(updateOptions));
+    .then((client) => client.markets.updateMarket(updateOptions))
+    .catch((error) => toastErrorAndThrow(error, 'errorMarketUpdateFailed'));
 }
 
 export function changeToObserver(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.markets.followMarket(true))
-    .catch((error) => {
-      sendIntlMessage(ERROR, 'errorChangeToObserverFailed');
-      throw error;
-    });
+    .catch((error) => toastErrorAndThrow(error, 'errorChangeToObserverFailed'));
 }
 
 export function changeToParticipant(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.markets.followMarket(false))
-    .catch((error) => {
-      sendIntlMessage(ERROR, 'errorChangeToPariticpantFailed');
-      throw error;
-    });
+    .catch((error) => toastErrorAndThrow(error, 'errorChangeToPariticpantFailed'));
 }
 
 export function createDecision(marketInfo) {
   return getAccountClient()
     .then((client) => client.markets.createMarket(marketInfo))
-    .catch((error) => {
-      sendIntlMessage(ERROR, 'errorDecisionAddFailed');
-    });
+    .catch((error) => toastErrorAndThrow(error, 'errorDecisionAddFailed'));
 }
 
 export function viewed(marketId, isPresent, investibleId) {

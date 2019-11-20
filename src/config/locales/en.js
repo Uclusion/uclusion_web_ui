@@ -277,6 +277,9 @@ const messages = defineMessages({
   errorSubmitToModeratorFailed: 'There was a problem submitting to the moderator',
   errorChangeToObserverFailed: 'There was a problem becoming to an observer',
   errorChangeToPariticpantFailed: 'There was a problem becoming a participant',
+  errorMarketUpdateFailed: 'There was a problem editing the dialog',
+  errorMarketExpirationExtendFailed: 'There was a problem extending the deadline',
+
 });
 
 export default messages;

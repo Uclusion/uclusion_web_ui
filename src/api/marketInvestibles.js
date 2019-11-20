@@ -1,5 +1,5 @@
 import { getMarketClient } from './uclusionClient';
-import { ERROR, sendIntlMessage } from '../utils/userMessage';
+import { toastErrorAndThrow } from '../utils/userMessage';
 import { JUSTIFY_TYPE } from '../constants/comments';
 
 export function fetchInvestibles(idList, marketId) {
@@ -7,10 +7,7 @@ export function fetchInvestibles(idList, marketId) {
   // console.debug(idList);
   // console.debug(`Fetching idList ${idList}`);
   return clientPromise.then((client) => client.markets.getMarketInvestibles(idList))
-    .catch((error) => {
-      console.error(error);
-      sendIntlMessage(ERROR, { id: 'investibleFetchFailed' });
-    });
+    .catch((error) => toastErrorAndThrow(error, 'investibleFetchFailed'));
 }
 
 export function fetchInvestibleList(marketId) {
@@ -20,10 +17,7 @@ export function fetchInvestibleList(marketId) {
     .then((response) => {
       const { investibles } = response;
       return investibles;
-    }).catch((error) => {
-      console.error(error);
-      sendIntlMessage(ERROR, { id: 'investibleListFetchFailed' });
-    });
+    }).catch((error) => toastErrorAndThrow(error, 'investibleListFetchFailed'));
 }
 
 export function updateInvestment(updateInfo) {
@@ -52,11 +46,7 @@ export function updateInvestment(updateInfo) {
           return updateResult;
         });
     })
-    .catch((error) => {
-      console.error('hit update error');
-      sendIntlMessage(ERROR, 'errorInvestmentUpdateFailed');
-      throw error;
-    });
+    .catch((error) => toastErrorAndThrow(error, 'errorInvestmentUpdateFailed'));
 
 }
 
@@ -68,8 +58,5 @@ export function submitToModerator(submitInfo) {
   } = submitInfo;
   return getMarketClient(marketId)
     .then((client) => client.investibles.stateChange(investibleId, stageInfo))
-    .catch((error) => {
-      sendIntlMessage(ERROR, 'errorSubmitToModeratorFailed');
-      throw error;
-    });
+    .catch((error) => toastErrorAndThrow(error, 'errorSubmitToModeratorFailed'));
 }

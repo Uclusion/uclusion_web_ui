@@ -1,5 +1,5 @@
 import { getMarketClient } from './uclusionClient';
-import { ERROR, sendIntlMessage } from '../utils/userMessage';
+import { toastErrorAndThrow } from '../utils/userMessage';
 
 export function updateInvestible(updateInfo) {
   const {
@@ -13,10 +13,7 @@ export function updateInvestible(updateInfo) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.update(investibleId, name,
       description, undefined, uploadedFiles, assignments))
-    .catch((error) => {
-      sendIntlMessage(ERROR, 'errorInvestibleUpdateFailed');
-      throw error;
-    });
+    .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
 }
 
 export function addInvestible(addInfo) {
@@ -27,25 +24,20 @@ export function addInvestible(addInfo) {
     uploadedFiles,
   } = addInfo;
   return getMarketClient(marketId)
-    .then((client) => client.investibles.create(name, description, uploadedFiles));
+    .then((client) => client.investibles.create(name, description, uploadedFiles))
+    .catch((error) => toastErrorAndThrow(error, 'errorInvestibleAddFailed'));
 }
 
 export function lockInvestibleForEdit(marketId, investibleId, breakLock) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.lock(investibleId, breakLock))
-    .catch((error) => {
-      sendIntlMessage(ERROR, 'errorEditLockFailed');
-      throw error;
-    });
+    .catch((error) => toastErrorAndThrow(error, 'errorEditLockFailed'));
 }
 
 export function realeaseInvestibleEditLock(marketId, investibleId) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.unlock(investibleId))
-    .catch((error) => {
-      sendIntlMessage(ERROR, 'errorEditLockReleaseFailed');
-      throw error;
-    });
+    .catch((error) => toastErrorAndThrow(error, 'errorEditLockReleaseFailed'));
 }
 
 export function stageChangeInvestible(acceptInfo) {
@@ -55,10 +47,8 @@ export function stageChangeInvestible(acceptInfo) {
     stageInfo, // contains the current and next stage
   } = acceptInfo;
   return getMarketClient(marketId)
-    .then((client) => client.investibles.stateChange(investibleId, stageInfo)).catch((error) => {
-      sendIntlMessage(ERROR, 'errorInvestibleStageChangeFailed');
-      throw error;
-    });
+    .then((client) => client.investibles.stateChange(investibleId, stageInfo))
+    .catch((error) => toastErrorAndThrow(error, 'errorInvestibleStageChangeFailed'));
 }
 
 export function addInvestibleToStage(addInfo) {
@@ -73,8 +63,5 @@ export function addInvestibleToStage(addInfo) {
     .then((client) => client.investibles.create(name, description, uploadedFiles)
       .then((investibleId) => client.investibles.stateChange(investibleId, stageInfo)
         .then(() => investibleId), // make the return value the same as the regular add
-      )).catch((error) => {
-      sendIntlMessage(ERROR, 'errorInvestibleAddFailed');
-      throw error;
-    });
+      )).catch((error) => toastErrorAndThrow(error, 'errorInvestibleAddFailed'));
 }

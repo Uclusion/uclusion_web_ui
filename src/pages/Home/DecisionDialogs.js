@@ -17,7 +17,7 @@ import SendIcon from '@material-ui/icons/Send';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import ChangeToParticipantButton from './Decision/ChangeToParticipantButton';
 import ChangeToObserverButton from './Decision/ChangeToObserverButton';
-import ExpirationSelector from '../../components/DecisionDialogs/ExpirationSelector';
+
 
 const useStyles = makeStyles((theme) => ({
   paper: {

@@ -13,7 +13,7 @@ export const SUCCESS = 'success';
 /**
  * Accepts a message level of type INFO, WARN, ERROR, and SUCCESS
  * @param level
- * @param i18nMessageId the id in translati bunndles to display
+ * @param i18nMessageId the id in translation bunndles to display
  * @param ii18nMessageValues any key/values the message requires
  */
 export function sendIntlMessage(level, i18nMessageId, ii18nMessageValues) {
@@ -35,6 +35,16 @@ export function sendIntlMessage(level, i18nMessageId, ii18nMessageValues) {
     default:
       toast(message);
   }
+}
+
+/**
+ * Pops an error toast and rethrows the error
+ * @param error the error we need to rethrow
+ * @param messageKey the id in the translation bundles to display
+ */
+export function toastErrorAndThrow(error, messageKey) {
+  sendIntlMessage(ERROR, messageKey);
+  throw error;
 }
 
 /**

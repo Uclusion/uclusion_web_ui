@@ -12,8 +12,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function DeadlineExtender(props) {
-  const { market, hidden } = props;
-  const { id, expires_at, expiration_minutes } = props;
+  const { market, hidden, onSave, onCancel } = props;
+  const { id, expiration_minutes } = props;
   const classes = useStyles();
 
   const [extensionPeriod, setExtensionPeriod] = useState(1440);
@@ -21,6 +21,11 @@ function DeadlineExtender(props) {
   function selectorOnChange(event) {
     const { value } = event.target;
     setExtensionPeriod(parseInt(value, 10));
+  }
+
+  function mySave(){
+    const newExpirationMinutes = expiration_minutes + extensionPeriod;
+
   }
 
   return (
@@ -32,11 +37,18 @@ function DeadlineExtender(props) {
         onChange={selectorOnChange}
       />
       <Button
-        onClick={}
+        onClick={mySave}
       >
         Extend
       </Button>
     </div>
   );
 
+}
+
+DeadlineExtender.propTypes = {
+  market: PropTypes.any.isRequired,
+  hidden: PropTypes.bool,
+  onSave: PropTypes.func,
+  onCancel: PropTypes.func
 }

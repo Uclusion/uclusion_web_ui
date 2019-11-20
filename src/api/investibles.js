@@ -48,7 +48,7 @@ export function realeaseInvestibleEditLock(marketId, investibleId) {
     });
 }
 
-export function acceptInvestible(acceptInfo) {
+export function stageChangeInvestible(acceptInfo) {
   const {
     marketId,
     investibleId,
@@ -56,7 +56,7 @@ export function acceptInvestible(acceptInfo) {
   } = acceptInfo;
   return getMarketClient(marketId)
     .then((client) => client.investibles.stateChange(investibleId, stageInfo)).catch((error) => {
-      sendIntlMessage(ERROR, 'errorInvestibleAcceptFailed');
+      sendIntlMessage(ERROR, 'errorInvestibleStageChangeFailed');
       throw error;
     });
 }

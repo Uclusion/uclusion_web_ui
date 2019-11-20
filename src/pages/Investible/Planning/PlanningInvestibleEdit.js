@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
-import { acceptInvestible, updateInvestible } from '../../../api/investibles';
+import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { updateInvestible as localUpdateInvestible } from '../../../contexts/InvestibesContext/investiblesContextReducer';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -52,6 +52,8 @@ function PlanningInvestibleEdit(props) {
   const marketStages = getStages(marketStagesState, marketId);
   // eslint-disable-next-line max-len
   const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.allows_refunds));
+  // eslint-disable-next-line max-len
+  const archivedStage = marketStages.find((stage) => (!stage.allows_investment && !stage.allows_refunds));
 
   function handleChange(field) {
     return (event) => {
@@ -92,17 +94,25 @@ function PlanningInvestibleEdit(props) {
       });
   }
 
-  function handleAccepted() {
+  function handleStageChange(stage) {
     const stageInfo = {
       current_stage_id: currentStageId,
-      stage_id: acceptedStage.id,
+      stage_id: stage.id,
     };
     const acceptInfo = {
       marketId,
       investibleId: myInvestible.id,
       stageInfo,
     };
-    return acceptInvestible(acceptInfo).then(() => onSave());
+    return stageChangeInvestible(acceptInfo).then(() => onSave());
+  }
+
+  function handleArchived() {
+    return handleStageChange(archivedStage);
+  }
+
+  function handleAccepted() {
+    return handleStageChange(acceptedStage);
   }
 
   const handleChangeMultiple = (event) => {
@@ -178,6 +188,18 @@ function PlanningInvestibleEdit(props) {
         >
           {intl.formatMessage({ id: 'investibleEditAcceptLabel' })}
         </Button>
+        )}
+        {archivedStage
+        && currentStageId !== archivedStage.id
+        && currentUser
+        && assignments.includes(currentUser.id) && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleArchived}
+          >
+            {intl.formatMessage({ id: 'investibleEditArchiveLabel' })}
+          </Button>
         )}
       </CardActions>
     </Card>

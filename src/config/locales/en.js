@@ -168,6 +168,7 @@ const messages = defineMessages({
   investibleEditCancelLabel: 'Cancel',
   investibleEditSaveLabel: 'Save',
   investibleEditAcceptLabel: 'Accept Assignment',
+  investibleEditArchiveLabel: 'Archive Assignment',
   investibleEditSubmitLabel: 'Submit',
 
   // InvestibleAddEdit
@@ -264,7 +265,7 @@ const messages = defineMessages({
 
   // API errors
   errorInvestibleAddFailed: 'There was a problem adding the option.',
-  errorInvestibleAcceptFailed: 'There was a problem accepting the assignment',
+  errorInvestibleStageChangeFailed: 'There was a problem accepting or archiving the assignment',
   errorInvestibleUpdateFailed: 'There was a problem updating the option.',
   errorCommentFetchFailed: 'There was a problem retrieving comments',
   errorCommentSaveFailed: 'There was a problem saving your comment',

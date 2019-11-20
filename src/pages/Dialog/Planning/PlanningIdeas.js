@@ -31,7 +31,7 @@ function PlanningIdeas(props) {
   const history = useHistory();
   const classes = useStyles();
   const {
-    investibles, marketId, comments, acceptedStageId,
+    investibles, marketId, comments, acceptedStageId, archivedStageId,
   } = props;
   const intl = useIntl();
   const updatedText = intl.formatMessage(({ id: 'decisionDialogInvestiblesUpdatedAt' }));
@@ -68,7 +68,12 @@ function PlanningIdeas(props) {
   }
 
   function getInvestibles() {
-    return investibles.map((inv) => {
+    const filterOutArchived = investibles.filter((investible) => {
+      const { market_infos: marketInfos } = investible;
+      const marketInfo = marketInfos.find((info) => info.market_id === marketId);
+      return marketInfo.stage !== archivedStageId;
+    });
+    return filterOutArchived.map((inv) => {
       const { investible, market_infos: marketInfos } = inv;
       const { id, name } = investible;
       const investibleComments = Array.isArray(comments)
@@ -118,6 +123,7 @@ PlanningIdeas.propTypes = {
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
   marketId: PropTypes.string.isRequired,
   acceptedStageId: PropTypes.string.isRequired,
+  archivedStageId: PropTypes.string.isRequired,
 };
 
 export default PlanningIdeas;

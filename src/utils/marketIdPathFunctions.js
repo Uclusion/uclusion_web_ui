@@ -69,6 +69,15 @@ export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
   return breadCrumbs;
 }
 
+export function formInviteLink(marketId) {
+  const current = window.location.href;
+  const url = new URL(current);
+  const invitePath = `invite/${marketId}`;
+  url.pathname = invitePath;
+  url.search = '';
+  return url.toString();
+}
+
 export function formInvestibleLink(marketId, investibleId) {
   return `/dialog/${marketId}/${investibleId}`;
 }

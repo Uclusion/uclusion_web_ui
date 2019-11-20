@@ -13,11 +13,12 @@ import UpdateIcon from '@material-ui/icons/Update';
 import CancelIcon from '@material-ui/icons/Cancel';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import SendIcon from '@material-ui/icons/Send';
+import LinkIcon from '@material-ui/icons/Link';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import ChangeToParticipantButton from './Decision/ChangeToParticipantButton';
 import ChangeToObserverButton from './Decision/ChangeToObserverButton';
 import DeadlineExtender from './Decision/DeadlineExtender';
+import InviteLinker from './Decision/InviteLinker';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -39,6 +40,7 @@ function DecisionDialogs(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
 
   const [showExtension, setShowExtension] = useState({});
+  const [showInvite, setShowInvite] = useState({});
 
   function getParticipantInfo(presences) {
     return presences.map((presence) => {
@@ -74,6 +76,16 @@ function DecisionDialogs(props) {
     });
   }
 
+  function setInviteVisible(value, marketId) {
+    setShowInvite({ ...showInvite, [marketId]: value });
+  }
+
+  function toggleInviteVisible(marketId) {
+    const oldValue = showInvite[marketId];
+    const newValue = !oldValue;
+    setInviteVisible(newValue, marketId);
+  }
+
   function setMarketExtensionVisible(value, marketId) {
     setShowExtension({ ...showExtension, [marketId]: value });
   }
@@ -87,7 +99,13 @@ function DecisionDialogs(props) {
   function getDialogActions(marketId, myPresence) {
     const { is_admin, following } = myPresence;
     const actions = [];
-    actions.push(<TooltipIconButton key="invite" translationId="decisionDialogsInviteParticipant" icon={<SendIcon />} />);
+    actions.push(
+      <TooltipIconButton
+        key="invite"
+        translationId="decisionDialogsInviteParticipant"
+        icon={<LinkIcon />}
+        onClick={() => toggleInviteVisible(marketId)}
+      />);
     if (is_admin) {
       actions.push(
         <TooltipIconButton
@@ -183,6 +201,10 @@ function DecisionDialogs(props) {
               market={market}
               onCancel={() => setMarketExtensionVisible(false, marketId)}
               onSave={() => setMarketExtensionVisible(false, marketId)}
+            />
+            <InviteLinker
+              hidden={!showInvite[marketId]}
+              marketId={marketId}
             />
           </Card>
         </Grid>

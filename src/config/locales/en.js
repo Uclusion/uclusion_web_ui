@@ -267,6 +267,9 @@ const messages = defineMessages({
   deadlineExtenderSave: 'Extend',
   deadlineExtenderCancel: 'Cancel',
 
+  //invite linker
+  inviteLinkerDirections: 'Share this link to invite others to the dialog',
+  inviteLinkerCopyToClipboard: 'Copy to clipboard',
 
   // API errors
   errorInvestibleAddFailed: 'There was a problem adding the option.',

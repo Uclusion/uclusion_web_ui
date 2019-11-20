@@ -70,6 +70,14 @@ function DecisionDialog(props) {
         item
         xs={12}
       >
+        <SubSection title="Background Information">
+          <Summary market={market} />
+        </SubSection>
+      </Grid>
+      <Grid
+        item
+        xs={12}
+      >
         <SubSection
           title="Current Voting"
         >
@@ -91,14 +99,7 @@ function DecisionDialog(props) {
           <ProposedIdeas investibles={proposed} marketId={marketId} comments={investibleComments} />
         </SubSection>
       </Grid>
-      <Grid
-        item
-        xs={12}
-      >
-        <SubSection title="Background Information">
-          <Summary market={market} />
-        </SubSection>
-      </Grid>
+
     </Grid>
   );
 }

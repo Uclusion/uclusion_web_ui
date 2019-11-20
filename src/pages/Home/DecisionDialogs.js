@@ -156,9 +156,7 @@ function DecisionDialogs(props) {
           item
           key={marketId}
           xs={12}
-          sm={6}
-          md={4}
-          lg={3}
+
         >
           <Card
             className={classes.paper}

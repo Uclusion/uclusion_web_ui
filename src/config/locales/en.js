@@ -287,6 +287,7 @@ const messages = defineMessages({
   errorChangeToPariticpantFailed: 'There was a problem becoming a participant',
   errorMarketUpdateFailed: 'There was a problem editing the dialog',
   errorMarketExpirationExtendFailed: 'There was a problem extending the deadline',
+  errorMarketLeaveFailed: 'There was a problem leaving the dialog',
 
 });
 

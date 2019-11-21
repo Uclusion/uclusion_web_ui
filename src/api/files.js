@@ -1,6 +1,6 @@
 import { getMarketClient } from './uclusionClient';
 import FileTokenRefresher from '../authorization/FileTokenRefresher';
-import TokenManager from '../authorization/TokenManager';
+import TokenFetcher from '../authorization/TokenFetcher';
 import config from '../config';
 import { TOKEN_TYPE_FILE } from '../authorization/TokenStorageManager';
 import { getStoredFileToken, updateFileToken } from '../authorization/tokenStorageUtils';
@@ -50,7 +50,7 @@ export function getS3FileUrl(metadata) {
   // in case our latest token is dead, we'll include a refresher, and ask
   // the storage sybsystem for the latest token we have
   const tokenRefresher = new FileTokenRefresher();
-  const tokenManager = new TokenManager(tokenRefresher, null, TOKEN_TYPE_FILE, path);
+  const tokenManager = new TokenFetcher(tokenRefresher, null, TOKEN_TYPE_FILE, path);
   const tokenPromise = tokenManager.getToken();
   return tokenPromise.then((token) => {
     const { baseURL } = config.file_download_configuration;

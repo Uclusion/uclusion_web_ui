@@ -5,7 +5,7 @@ ask the identity source for new identities when needed
  */
 import TokenStorageManager, { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET, TOKEN_TYPE_FILE } from './TokenStorageManager';
 
-class TokenManager {
+class TokenFetcher {
 
   constructor(tokenRefresher, ssoClient, tokenType, itemId) {
     this.ssoClient = ssoClient;
@@ -78,10 +78,6 @@ class TokenManager {
       });
   }
 
-  clearTokens() {
-    this.tokenStorageManager.clearTokenStorage();
-  }
-
 }
 
-export default TokenManager;
+export default TokenFetcher;

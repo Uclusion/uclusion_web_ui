@@ -21,12 +21,30 @@ class TokenStorageManager {
     return tokenStorage;
   }
 
+  /**
+   * Loads the provided storage into the token storage system
+   * @param newStorage
+   */
   putTokenStorage(newStorage) {
     setUclusionLocalStorageItem(TOKEN_STORAGE_KEY, newStorage);
   }
 
+  /**
+   * Clears the entirety of token storage
+   */
   clearTokenStorage() {
     setUclusionLocalStorageItem(TOKEN_STORAGE_KEY, this.getEmptyStorage());
+  }
+
+  /**
+   * Removes the given token from the token storage system
+   * @param tokenType the type of token we are removing
+   * @param itemId the id of the item we're removing
+   */
+  removeToken(tokenType, itemId) {
+    const tokenStorage = this.getTokenStorage();
+    delete tokenStorage[tokenType][itemId];
+    this.putTokenStorage(tokenStorage);
   }
 
   /**

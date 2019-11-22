@@ -63,14 +63,6 @@ export function leaveMarket(marketId) {
     .catch((error) => toastErrorAndThrow(error, 'errorMarketLeaveFailed'));
 }
 
-export function viewed(marketId, isPresent, investibleId) {
-  const viewPromise = getMarketClient(marketId);
-  if (investibleId) {
-    return viewPromise.then((client) => client.markets.viewedInvestible(investibleId, isPresent));
-  }
-  return viewPromise.then((client) => client.markets.viewed(isPresent));
-}
-
 // below called in hub messages, so difficult to decide when to toast a message
 export function getMarketStages(marketId) {
   return getMarketClient(marketId)

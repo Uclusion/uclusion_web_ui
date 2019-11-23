@@ -243,8 +243,8 @@ const messages = defineMessages({
   decisionDialogsExitDialog: 'Exit Dialog',
   decisionDialogsBecomeObserver: 'Become Observer',
   decisionDialogsBecomeParticipant: 'Become Participant',
-  decisionDialogsInviteParticipant: 'Invite participant',
-
+  decisionDialogsInviteParticipant: 'Invite Participant',
+  decisionDialogsArchiveDialog: 'Archive Dialog',
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
@@ -288,6 +288,7 @@ const messages = defineMessages({
   errorMarketUpdateFailed: 'There was a problem editing the dialog',
   errorMarketExpirationExtendFailed: 'There was a problem extending the deadline',
   errorMarketLeaveFailed: 'There was a problem leaving the dialog',
+  errorMarketArchiveFailed: 'There was a problem archiving the dialog',
 
 });
 

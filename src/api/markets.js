@@ -63,6 +63,13 @@ export function leaveMarket(marketId) {
     .catch((error) => toastErrorAndThrow(error, 'errorMarketLeaveFailed'));
 }
 
+export function archiveMarket(marketId) {
+  const updateOptions = { market_stage: 'Archived'};
+  return getMarketClient(marketId)
+    .then((client) => client.markets.updateMarket(updateOptions))
+    .catch((error) => toastErrorAndThrow(error, 'errorMarketArchiveFailed'));
+}
+
 // below called in hub messages, so difficult to decide when to toast a message
 export function getMarketStages(marketId) {
   return getMarketClient(marketId)

@@ -11,7 +11,6 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import UpdateIcon from '@material-ui/icons/Update';
 import CancelIcon from '@material-ui/icons/Cancel';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import LinkIcon from '@material-ui/icons/Link';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
@@ -19,6 +18,7 @@ import ChangeToParticipantButton from './Decision/ChangeToParticipantButton';
 import ChangeToObserverButton from './Decision/ChangeToObserverButton';
 import DeadlineExtender from './Decision/DeadlineExtender';
 import InviteLinker from './Decision/InviteLinker';
+import LeaveMarketButton from './Decision/LeaveMarketButton';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -125,10 +125,7 @@ function DecisionDialogs(props) {
     } else {
       // admins can't exit a dialog or change their role
       actions.push(
-        <TooltipIconButton
-          key="exit"
-          translationId="decisionDialogsExitDialog"
-          icon={<ExitToAppIcon />} />
+        <LeaveMarketButton marketId={marketId} />
       );
       // if participant you can become observer, or if observer you can become participant
       if (following) {

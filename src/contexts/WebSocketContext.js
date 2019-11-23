@@ -71,6 +71,20 @@ function WebSocketProvider(props) {
       );
     });
 
+    newSocket.registerHandler('USER_LEFT_MARKET', (message) => {
+      // since we left, going to fake remove event to the versions message channel
+      Hub.dispatch(
+        VERSIONS_HUB_CHANNEL,
+        {
+          event: MARKET_MESSAGE_EVENT,
+          message: {
+            version: -1, // < 0 will trigger a remove
+            object_id: message.indirect_object_id,
+          },
+        },
+      );
+    });
+
     // we need to subscribe to our identity, but that requires reworking subscribe
     // newSocket.subscribe
     return newSocket;

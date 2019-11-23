@@ -73,7 +73,7 @@ function doUpdateMarketDetails(state, action) {
 function removeStoredMarkets(state, action) {
   const { marketIds } = action;
   const { marketDetails } = state;
-  const newMarketDetails = marketDetails.filter((market) => (!(market.marketId in marketIds)));
+  const newMarketDetails = marketDetails.filter((market) => (!marketIds.includes(market.id)));
   return {
     ...state,
     marketDetails: newMarketDetails,

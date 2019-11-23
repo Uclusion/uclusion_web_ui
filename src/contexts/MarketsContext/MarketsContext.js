@@ -6,7 +6,6 @@ import LocalForageHelper from '../LocalForageHelper';
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
 const EMPTY_STATE = {
   marketDetails: [],
-  markets: [],
 };
 
 const MarketsContext = React.createContext(EMPTY_STATE);

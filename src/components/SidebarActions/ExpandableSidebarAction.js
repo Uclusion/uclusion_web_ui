@@ -12,7 +12,7 @@ function ExpandableSidebarAction(props) {
     onClick,
   } = props;
 
-  const { amOpen, setAmOpen } = useContext(SidebarContext);
+  const [ amOpen, setAmOpen ]  = useContext(SidebarContext);
 
   function myOnClick () {
     if (!amOpen) {

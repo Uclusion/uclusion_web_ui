@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import {
@@ -9,6 +9,7 @@ import {
   Breadcrumbs,
   Container,
   Drawer,
+  List,
   Divider,
   IconButton,
 } from '@material-ui/core';
@@ -16,6 +17,7 @@ import { makeStyles } from '@material-ui/styles';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import MenuIcon from '@material-ui/icons/Menu';
 import Notifications from '../../components/Notifications/Notifications';
+import { SidebarContext } from '../../contexts/SidebarContext';
 
 
 const useStyles = makeStyles((theme) => {
@@ -39,7 +41,7 @@ const useStyles = makeStyles((theme) => {
     breadCrumbImage: {
       height: 40,
     },
-    sideActionsOpen: {
+    sidebarOpen: {
       width: drawerWidth,
       transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
@@ -96,11 +98,17 @@ function Screen(props) {
     children,
     toolbarButtons,
     sidebarActions,
-    sidebarOpen,
   } = props;
-  const [sideActionsOpen, setSideActionsOpen] = useState(sidebarOpen);
-  const drawerEmpty = !sidebarActions;
-  const drawerOpen = !drawerEmpty && sideActionsOpen;
+
+  const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
+
+  function getSidebar() {
+    console.log(sidebarActions)
+    return (<List>
+      {sidebarActions}
+    </List>);
+  }
+
 
   function generateTitle() {
     if (breadCrumbs) {
@@ -108,7 +116,7 @@ function Screen(props) {
         <Breadcrumbs separator=">">
           {breadCrumbs.map((crumb, index) => (
             <Link key={index} href="#" onClick={crumb.onClick} underline="always" color="primary">
-              {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage} />}
+              {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage}/>}
               {!crumb.image && crumb.title}
             </Link>
           ))}
@@ -123,7 +131,7 @@ function Screen(props) {
     <div className={hidden ? classes.hidden : classes.root}>
       <AppBar
         className={clsx(classes.appBar, {
-          [classes.appBarShift]: drawerOpen,
+          [classes.appBarShift]: sidebarOpen,
         })}
         position="fixed"
         hidden={hidden}
@@ -131,17 +139,16 @@ function Screen(props) {
         <Toolbar>
 
           {generateTitle()}
-          <div className={classes.grow} />
+          <div className={classes.grow}/>
           {toolbarButtons}
-          <Notifications />
+          <Notifications/>
           <IconButton
             aria-label="open drawer"
-            onClick={() => setSideActionsOpen(true)}
+            onClick={() => setSidebarOpen(true)}
             edge="start"
-            disabled={drawerEmpty}
-            className={clsx(classes.menuButton, drawerOpen && classes.hidden)}
+            className={clsx(classes.menuButton, sidebarOpen && classes.hidden)}
           >
-            <MenuIcon />
+            <MenuIcon/>
           </IconButton>
         </Toolbar>
       </AppBar>
@@ -149,31 +156,30 @@ function Screen(props) {
         variant="permanent"
         anchor="right"
         className={clsx(classes.drawer, {
-          [classes.sideActionsOpen]: drawerOpen,
-          [classes.sideActionsClose]: !drawerOpen,
+          [classes.sidebarOpen]: sidebarOpen,
+          [classes.sideActionsClose]: !sidebarOpen,
         })}
         classes={{
           paper: clsx({
-            [classes.sideActionsOpen]: drawerOpen,
-            [classes.sideActionsClose]: !drawerOpen,
+            [classes.sidebarOpen]: sidebarOpen,
+            [classes.sideActionsClose]: !sidebarOpen,
           }),
         }}
-        open={drawerOpen}
+        open={sidebarOpen}
       >
         <div className={classes.toolbar}>
-          {drawerOpen && (
-          <IconButton onClick={() => setSideActionsOpen(false)}>
-            <ChevronRightIcon />
-          </IconButton>
+          {sidebarOpen && (
+            <IconButton onClick={() => setSidebarOpen(false)}>
+              <ChevronRightIcon/>
+            </IconButton>
           )}
         </div>
-        <Divider />
-        {sidebarActions
-        && React.cloneElement(sidebarActions, { amOpen: drawerOpen, setAmOpen: sideActionsOpen })}
+        <Divider/>
+        {getSidebar()}
       </Drawer>
-      <Toolbar />
+      <Toolbar/>
       <div className={clsx(classes.content, {
-        [classes.contentShift]: drawerOpen,
+        [classes.contentShift]: sidebarOpen,
       })}
       >
         <Container>
@@ -195,11 +201,8 @@ Screen.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   children: PropTypes.any,
   // eslint-disable-next-line react/forbid-prop-types
-  sidebarActions: PropTypes.any,
+  sidebarActions: PropTypes.arrayOf(PropTypes.element),
   banner: PropTypes.string,
-  commentsSidebar: PropTypes.bool,
-  sidebarOpen: PropTypes.bool,
-
 };
 
 Screen.defaultProps = {
@@ -208,9 +211,7 @@ Screen.defaultProps = {
   hidden: false,
   toolbarButtons: [],
   banner: undefined,
-  sidebarActions: undefined,
-  commentsSidebar: false,
-  sidebarOpen: false,
+  sidebarActions: [],
 };
 
 export default Screen;

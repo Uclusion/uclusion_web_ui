@@ -77,8 +77,6 @@ function DecisionInvestible(props) {
         </Paper>
       </SubSection>
 
-      <CommentBox comments={investmentReasonsRemoved} commentsHash={commentsHash} marketId={marketId} />
-
     </React.Fragment>
   );
 }

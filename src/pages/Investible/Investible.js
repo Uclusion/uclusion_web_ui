@@ -60,11 +60,7 @@ function Investible(props) {
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || _.isEmpty(user));
   const isDecision = market && market.market_type === 'DECISION';
-  if (!loading) {
-    console.log(investible);
-    console.log(myPresence);
-    console.log(user);
-  }
+
   const isAdmin = myPresence && myPresence.is_admin;
 
 

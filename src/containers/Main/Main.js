@@ -15,6 +15,7 @@ import { NotificationsProvider } from '../../contexts/NotificationsContext/Notif
 import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketStagesProvider } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { VersionsProvider } from '../../contexts/VersionsContext/VersionsContext';
+import { SidebarProvider } from '../../contexts/SidebarContext';
 
 Amplify.configure(awsconfig);
 const oauth = {
@@ -40,8 +41,10 @@ class Main extends Component {
                   <InvestiblesProvider>
                     <MarketPresencesProvider>
                       <LocaleProvider>
-                        <ToastContainer />
-                        <App appConfig={{ ...config }} />
+                        <SidebarProvider>
+                          <ToastContainer/>
+                          <App appConfig={{ ...config }}/>
+                        </SidebarProvider>
                       </LocaleProvider>
                     </MarketPresencesProvider>
                   </InvestiblesProvider>

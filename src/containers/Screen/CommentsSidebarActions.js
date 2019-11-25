@@ -32,7 +32,7 @@ function CommentsSidebarActions(props) {
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketOnly = _.isEmpty(investible);
-  console.log(comments);
+
   function handleClick(type) {
     setAmOpen(true);
     setActiveType(type);
@@ -106,18 +106,6 @@ function CommentsSidebarActions(props) {
   return (
     <React.Fragment>
       <List>
-        <ListItem
-          button
-          key="issue"
-          onClick={() => handleClick(ISSUE_TYPE)}
-        >
-          <ListItemIcon>
-            <ReportProblemIcon/>
-          </ListItemIcon>
-          <ListItemText>
-            {intl.formatMessage({ id: 'commentIconRaiseIssueLabel' })}
-          </ListItemText>
-        </ListItem>
         <ListItem
           button
           key="question"

@@ -18,9 +18,9 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import DecisionSidebarActions from './Decision/DecisionSidebarActions';
-import PlanningSidebarActions from './Planning/PlanningSidebarActions';
-import CommentsSidebarActions from '../../containers/Screen/CommentsSidebarActions';
+
+import RaiseIssue from '../../components/SidebarActions/RaiseIssue';
+import AskQuestions from '../../components/SidebarActions/AskQuestion';
 
 const styles = (theme) => ({
   root: {
@@ -79,27 +79,12 @@ function Dialog(props) {
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = !myPresence;
 
+
   function getSidebarActions(marketType) {
     if (addInvestibleMode) {
-      return undefined;
+      return [];
     }
-    if (marketType === 'DECISION') {
-      return (
-        <>
-          <DecisionSidebarActions
-            onClick={() => setAddInvestibleMode(true)}
-          />
-          <CommentsSidebarActions
-            marketId={marketId}
-          />
-        </>
-      );
-    }
-    return (
-      <PlanningSidebarActions
-        onClick={() => setAddInvestibleMode(true)}
-      />
-    );
+    return [<RaiseIssue key="issue" />, <AskQuestions key="question"/>];
   }
 
   const sideBarActions = getSidebarActions(marketType);

@@ -46,7 +46,7 @@ SubSection.propTypes = {
   hidden: PropTypes.bool,
   title: PropTypes.string,
   // eslint-disable-next-line react/forbid-prop-types
-  children: PropTypes.object,
+  children: PropTypes.element,
   // eslint-disable-next-line react/forbid-prop-types
   actionButton: PropTypes.object,
 };

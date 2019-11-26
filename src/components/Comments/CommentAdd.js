@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { injectIntl } from 'react-intl';
-import { Card, Button, ButtonGroup, CardContent, CardActions } from '@material-ui/core';
+import { Card, Button, ButtonGroup, CardContent, CardActions, makeStyles } from '@material-ui/core';
 import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
 import PropTypes from 'prop-types';
@@ -24,24 +24,28 @@ function getPlaceHolderLabelId(type) {
   }
 }
 
+const useStyles = makeStyles(() => {
+  return {
+    hidden: {
+      display: 'none',
+    },
+    add: {},
+  };
+});
+
 function CommentAdd(props) {
-  const { intl, marketId, onSave, onCancel, type, investible, parent } = props;
+  const { intl, marketId, onSave, onCancel, type, investible, parent, hidden } = props;
   const [, commentsDispatch] = useContext(CommentsContext);
   const [body, setBody] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
-
+  const classes = useStyles();
   const placeHolderLabelId = getPlaceHolderLabelId(type);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
 
   function onEditorChange(content) {
     setBody(content);
   }
-/*
-  function handleFileUpload(metadatas) {
-    setUploadedFiles(metadatas);
-    console.log(metadatas);
-  }
- */
+
 
   function handleSave() {
     const usedParent = parent || {};
@@ -70,25 +74,29 @@ function CommentAdd(props) {
   const commentCancelLabel = parent ? 'commentAddCancelLabel' : 'commentReplyCancelLabel';
 
   return (
-    <Card>
-      <CardContent>
-        <QuillEditor
-          simple
-          placeholder={placeHolder}
-          initialValue={body}
-          onChange={onEditorChange} />
-      </CardContent>
-      <CardActions>
-        <ButtonGroup variant="contained" size="small" color="primary">
-          <Button onClick={handleSave}>
-            {intl.formatMessage({ id: commentSaveLabel })}
-          </Button>
-          <Button onClick={handleCancel}>
-            {intl.formatMessage({ id: commentCancelLabel })}
-          </Button>
-        </ButtonGroup>
-      </CardActions>
-    </Card>
+    <div
+      className={(hidden) ? classes.hidden : classes.add}
+    >
+      <Card>
+        <CardContent>
+          <QuillEditor
+            simple
+            placeholder={placeHolder}
+            initialValue={body}
+            onChange={onEditorChange}/>
+        </CardContent>
+        <CardActions>
+          <ButtonGroup variant="contained" size="small" color="primary">
+            <Button onClick={handleSave}>
+              {intl.formatMessage({ id: commentSaveLabel })}
+            </Button>
+            <Button onClick={handleCancel}>
+              {intl.formatMessage({ id: commentCancelLabel })}
+            </Button>
+          </ButtonGroup>
+        </CardActions>
+      </Card>
+    </div>
   );
 }
 
@@ -103,13 +111,17 @@ CommentAdd.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   parent: PropTypes.object,
   onCancel: PropTypes.func,
+  hidden: PropTypes.bool,
 };
 
 CommentAdd.defaultProps = {
   parent: null,
   investible: null,
-  onCancel: () => {},
-  onSave: () => {},
+  hidden: false,
+  onCancel: () => {
+  },
+  onSave: () => {
+  },
 };
 
 export default injectIntl(CommentAdd);

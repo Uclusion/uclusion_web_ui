@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-
-import { Paper, Button } from '@material-ui/core';
+import {
+  Button,
+  ExpansionPanelDetails,
+  ExpansionPanelActions,
+  ExpansionPanel,
+  ExpansionPanelSummary
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import QuillEditor from '../TextEditors/QuillEditor';
 import CommentAdd from './CommentAdd';
@@ -41,33 +46,45 @@ function Comment(props) {
         );
       });
     }
-    return <div />;
+    return <div/>;
   }
 
   function toggleReply() {
     setReplyOpen(!replyOpen);
   }
 
+  const expanded = replyOpen || !comment.is_resolved;
+
   return (
-    <Paper className={classes.root}>
-      <QuillEditor marketId={marketId} readOnly value={comment.body} />
-      <Button onClick={toggleReply}>
-        {intl.formatMessage({ id: 'commentReplyLabel' })}
-      </Button>
-      {replyOpen
-      && (
-      <CommentAdd
-        marketId={marketId}
-        parent={comment}
-        onSave={toggleReply}
-        onCancel={toggleReply}
-        type={REPLY_TYPE}
-      />
-      )}
-      {getChildComments()}
-    </Paper>
+    <ExpansionPanel
+      className={classes.root}
+      expanded={expanded}
+    >
+      <ExpansionPanelSummary>
+        <QuillEditor marketId={marketId} readOnly value={comment.body}/>
+      </ExpansionPanelSummary>
+      <ExpansionPanelActions>
+        <Button onClick={toggleReply}>
+          {intl.formatMessage({ id: 'commentReplyLabel' })}
+        </Button>
+      </ExpansionPanelActions>
+      <ExpansionPanelDetails>
+        {replyOpen
+        && (
+          <CommentAdd
+            marketId={marketId}
+            parent={comment}
+            onSave={toggleReply}
+            onCancel={toggleReply}
+            type={REPLY_TYPE}
+          />
+        )}
+        {getChildComments()}
+      </ExpansionPanelDetails>
+    </ExpansionPanel>
   );
 }
+
 Comment.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   comment: PropTypes.object.isRequired,

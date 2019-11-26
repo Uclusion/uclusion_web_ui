@@ -34,7 +34,6 @@ function CommentsSidebarActions(props) {
   const marketOnly = _.isEmpty(investible);
 
   function handleClick(type) {
-    setAmOpen(true);
     setActiveType(type);
     onClick(type);
   }

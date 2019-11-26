@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -21,6 +21,8 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 
 import RaiseIssue from '../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../components/SidebarActions/AskQuestion';
+import { CommentAddContext } from '../../contexts/CommentAddContext';
+import { ISSUE_TYPE, QUESTION_TYPE } from '../../constants/comments';
 
 const styles = (theme) => ({
   root: {
@@ -78,16 +80,29 @@ function Dialog(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = !myPresence;
+  const [commentAddState, setCommentAddState] = useContext(CommentAddContext);
+  const commentAddRef = useRef(null);
+
+  useEffect(() => {
+    setCommentAddState({
+      ...commentAddState,
+      hidden: addInvestibleMode,
+      allowedTypes: [ISSUE_TYPE, QUESTION_TYPE]
+    });
+    return () => {};
+  }, [addInvestibleMode]);
 
 
-  function getSidebarActions(marketType) {
+  function getSidebarActions() {
     if (addInvestibleMode) {
       return [];
     }
-    return [<RaiseIssue key="issue" />, <AskQuestions key="question"/>];
+    return [<RaiseIssue commentAddRef={commentAddRef} key="issue"/>,
+            <AskQuestions commentAddRef={commentAddRef} key="question"/>];
   }
 
   const sideBarActions = getSidebarActions(marketType);
+
   return (
     <Screen
       title={currentMarketName}
@@ -109,6 +124,8 @@ function Dialog(props) {
           marketStages={marketStages}
           marketPresences={marketPresences}
           myPresence={myPresence}
+          commentAddRef={commentAddRef}
+
         />
       )}
       { marketType === 'PLANNING' && !loading && (

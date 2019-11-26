@@ -9,6 +9,8 @@ import InvestibleAdd from './InvestibleAdd';
 import ProposedIdeas from './ProposedIdeas';
 import SubSection from '../../../containers/SubSection/SubSection';
 import Voting from './Voting';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
+import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 
 function DecisionDialog(props) {
   const {
@@ -21,11 +23,14 @@ function DecisionDialog(props) {
     addInvestibleMode,
     setAddInvestibleMode,
   } = props;
+
   const { is_admin: isAdmin } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment && !stage.appears_in_market_summary);
 
   const investibleComments = comments.filter((comment) => comment.investible_id);
+  const marketComments = comments.filter((comment) => !comment.investible_id);
+
   function getInvestiblesForStage(stage) {
     if (stage) {
       return investibles.reduce((acc, inv) => {
@@ -45,9 +50,11 @@ function DecisionDialog(props) {
   const proposed = getInvestiblesForStage(proposedStage);
 
   const { id: marketId } = market;
+
   function toggleAddMode() {
     setAddInvestibleMode(!addInvestibleMode);
   }
+
   // if we're adding an investible, just render it
   if (addInvestibleMode) {
     return (
@@ -71,7 +78,7 @@ function DecisionDialog(props) {
         xs={12}
       >
         <SubSection title="Background Information">
-          <Summary market={market} />
+          <Summary market={market}/>
         </SubSection>
       </Grid>
       <Grid
@@ -96,9 +103,26 @@ function DecisionDialog(props) {
         <SubSection
           title="Proposed Options"
         >
-          <ProposedIdeas investibles={proposed} marketId={marketId} comments={investibleComments} />
+          <ProposedIdeas investibles={proposed} marketId={marketId} comments={investibleComments}/>
         </SubSection>
       </Grid>
+      <Grid
+        item
+        xs={12}
+      >
+        <SubSection
+          title="Discussion"
+        >
+          <div>
+            <CommentAddBox marketId={marketId}/>
+            <CommentBox
+              comments={marketComments}
+              marketId={marketId}
+            />
+          </div>
+        </SubSection>
+      </Grid>
+
 
     </Grid>
   );
@@ -117,6 +141,8 @@ DecisionDialog.propTypes = {
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   myPresence: PropTypes.object.isRequired,
+  addInvestibleMode: PropTypes.bool,
+  setAddInvestibleMode: PropTypes.func,
 
 };
 
@@ -125,6 +151,9 @@ DecisionDialog.defaultProps = {
   comments: [],
   marketStages: [],
   isAdmin: false,
+  addInvestibleMode: false,
+  setAddInvestibleMode: () => {
+  },
 };
 
 export default DecisionDialog;

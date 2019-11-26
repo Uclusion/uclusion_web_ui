@@ -12,15 +12,12 @@ function ExpandableSidebarAction(props) {
     onClick,
   } = props;
 
-  const [ amOpen, setAmOpen ]  = useContext(SidebarContext);
+  const [ amOpen ] = useContext(SidebarContext);
 
   function myOnClick () {
-    if (!amOpen) {
-      setAmOpen(true);
-    }
     onClick();
   }
-  console.log(label);
+
   return (
     <ListItem
       button

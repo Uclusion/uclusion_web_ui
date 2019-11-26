@@ -171,9 +171,9 @@ const messages = defineMessages({
   investibleEditArchiveLabel: 'Archive Assignment',
   investibleEditSubmitLabel: 'Submit',
 
-  // InvestibleAddEdit
+  // Investible
+  investibleEditLabel: 'Edit',
   investibleAddHeader: 'Add Investible',
-  investibleEditHeader: 'Edit Investible',
   investibleEditStageHelper: 'Select to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
 

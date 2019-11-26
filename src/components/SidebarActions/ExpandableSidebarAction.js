@@ -25,7 +25,7 @@ function ExpandableSidebarAction(props) {
     >
       <Tooltip title={label}>
         <ListItemIcon>
-          {React.cloneElement(icon)}
+          {icon}
         </ListItemIcon>
       </Tooltip>
       {amOpen && (

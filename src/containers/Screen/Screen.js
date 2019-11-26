@@ -19,7 +19,6 @@ import MenuIcon from '@material-ui/icons/Menu';
 import Notifications from '../../components/Notifications/Notifications';
 import { SidebarContext } from '../../contexts/SidebarContext';
 
-
 const useStyles = makeStyles((theme) => {
   const drawerWidth = 350;
   return {
@@ -103,12 +102,12 @@ function Screen(props) {
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
 
   function getSidebar() {
-    console.log(sidebarActions)
-    return (<List>
-      {sidebarActions}
-    </List>);
+    return (
+      <List>
+        {sidebarActions}
+      </List>
+    );
   }
-
 
   function generateTitle() {
     if (breadCrumbs) {
@@ -116,7 +115,7 @@ function Screen(props) {
         <Breadcrumbs separator=">">
           {breadCrumbs.map((crumb, index) => (
             <Link key={index} href="#" onClick={crumb.onClick} underline="always" color="primary">
-              {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage}/>}
+              {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage} />}
               {!crumb.image && crumb.title}
             </Link>
           ))}
@@ -139,16 +138,16 @@ function Screen(props) {
         <Toolbar>
 
           {generateTitle()}
-          <div className={classes.grow}/>
+          <div className={classes.grow} />
           {toolbarButtons}
-          <Notifications/>
+          <Notifications />
           <IconButton
             aria-label="open drawer"
             onClick={() => setSidebarOpen(true)}
             edge="start"
             className={clsx(classes.menuButton, sidebarOpen && classes.hidden)}
           >
-            <MenuIcon/>
+            <MenuIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
@@ -170,14 +169,14 @@ function Screen(props) {
         <div className={classes.toolbar}>
           {sidebarOpen && (
             <IconButton onClick={() => setSidebarOpen(false)}>
-              <ChevronRightIcon/>
+              <ChevronRightIcon />
             </IconButton>
           )}
         </div>
-        <Divider/>
+        <Divider />
         {getSidebar()}
       </Drawer>
-      <Toolbar/>
+      <Toolbar />
       <div className={clsx(classes.content, {
         [classes.contentShift]: sidebarOpen,
       })}

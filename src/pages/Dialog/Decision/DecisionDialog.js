@@ -1,7 +1,7 @@
 /**
  * A component that renders a _decision_ dialog
  */
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
 import Summary from '../Summary';
@@ -11,25 +11,37 @@ import SubSection from '../../../containers/SubSection/SubSection';
 import Voting from './Voting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
+import { makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import Screen from '../../../containers/Screen/Screen';
+import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
+import AskQuestions from '../../../components/SidebarActions/AskQuestion';
+import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 
 function DecisionDialog(props) {
   const {
     market,
+    hidden,
     investibles,
     comments,
     marketStages,
     marketPresences,
     myPresence,
-    addInvestibleMode,
-    setAddInvestibleMode,
   } = props;
+
+  const commentAddRef = useRef(null);
 
   const { is_admin: isAdmin } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment && !stage.appears_in_market_summary);
-
+  const history = useHistory();
+  const breadCrumbs = makeBreadCrumbs(history);
   const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketComments = comments.filter((comment) => !comment.investible_id);
+  const [addInvestibleMode, setAddInvestibleMode] = useState(false);
+  const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
+  const [commentAddHidden, setCommentAddHidden] = useState(true);
+  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
 
   function getInvestiblesForStage(stage) {
     if (stage) {
@@ -55,6 +67,10 @@ function DecisionDialog(props) {
     setAddInvestibleMode(!addInvestibleMode);
   }
 
+  function closeCommentAddBox() {
+    setCommentAddHidden(true);
+  }
+
   // if we're adding an investible, just render it
   if (addInvestibleMode) {
     return (
@@ -67,64 +83,97 @@ function DecisionDialog(props) {
     );
   }
 
+  function commentButtonOnClick(type) {
+    setCommentAddType(type);
+    setCommentAddHidden(false);
+    // TODO: This doens't actually scroll. Not surewhy.
+    const top = commentAddRef.current.offsetTop;
+    console.log(top);
+    window.scrollTo(0, top);
+  }
 
+  function getSidebarActions() {
+    if (addInvestibleMode) {
+      return [];
+    }
+    return [<RaiseIssue key="issue" onClick={commentButtonOnClick} />,
+      <AskQuestions key="question" onClick={commentButtonOnClick} />];
+  }
+
+  const sideBarActions = getSidebarActions();
   return (
-    <Grid
-      container
-      spacing={2}
+    <Screen
+      title={market.name}
+      hidden={hidden}
+      breadCrumbs={breadCrumbs}
+      sidebarActions={sideBarActions}
     >
       <Grid
-        item
-        xs={12}
+        container
+        spacing={2}
       >
-        <SubSection title="Background Information">
-          <Summary market={market}/>
-        </SubSection>
-      </Grid>
-      <Grid
-        item
-        xs={12}
-      >
-        <SubSection
-          title="Current Voting"
+        <Grid
+          item
+          xs={12}
         >
-          <Voting
-            marketPresences={marketPresences}
-            investibles={underConsideration}
-            marketId={marketId}
-          />
-        </SubSection>
-      </Grid>
+          <SubSection title="Background Information">
+            <Summary market={market} />
+          </SubSection>
+        </Grid>
+        <Grid
+          item
+          xs={12}
+        >
+          <SubSection
+            title="Current Voting"
+          >
+            <Voting
+              marketPresences={marketPresences}
+              investibles={underConsideration}
+              marketId={marketId}
+            />
+          </SubSection>
+        </Grid>
 
-      <Grid
-        item
-        xs={12}
-      >
-        <SubSection
-          title="Proposed Options"
+        <Grid
+          item
+          xs={12}
         >
-          <ProposedIdeas investibles={proposed} marketId={marketId} comments={investibleComments}/>
-        </SubSection>
-      </Grid>
-      <Grid
-        item
-        xs={12}
-      >
-        <SubSection
-          title="Discussion"
+          <SubSection
+            title="Proposed Options"
+          >
+            <ProposedIdeas
+              investibles={proposed}
+              marketId={marketId}
+              comments={investibleComments}
+            />
+          </SubSection>
+        </Grid>
+        <Grid
+          item
+          xs={12}
         >
-          <div>
-            <CommentAddBox marketId={marketId}/>
+          <SubSection
+            title="Discussion"
+          >
+            <div ref={commentAddRef}>
+              <CommentAddBox
+                hidden={commentAddHidden}
+                type={commentAddType}
+                allowedTypes={allowedCommentTypes}
+                marketId={marketId}
+                onSave={closeCommentAddBox}
+                onCancel={closeCommentAddBox}
+              />
+            </div>
             <CommentBox
               comments={marketComments}
               marketId={marketId}
             />
-          </div>
-        </SubSection>
+          </SubSection>
+        </Grid>
       </Grid>
-
-
-    </Grid>
+    </Screen>
   );
 }
 
@@ -143,6 +192,7 @@ DecisionDialog.propTypes = {
   myPresence: PropTypes.object.isRequired,
   addInvestibleMode: PropTypes.bool,
   setAddInvestibleMode: PropTypes.func,
+  hidden: PropTypes.bool,
 
 };
 
@@ -152,6 +202,7 @@ DecisionDialog.defaultProps = {
   marketStages: [],
   isAdmin: false,
   addInvestibleMode: false,
+  hidden: false,
   setAddInvestibleMode: () => {
   },
 };

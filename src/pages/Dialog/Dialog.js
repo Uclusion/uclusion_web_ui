@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useState } from 'react';
 import { useHistory } from 'react-router';
-import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
@@ -18,11 +17,6 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-
-import RaiseIssue from '../../components/SidebarActions/RaiseIssue';
-import AskQuestions from '../../components/SidebarActions/AskQuestion';
-import { CommentAddContext } from '../../contexts/CommentAddContext';
-import { ISSUE_TYPE, QUESTION_TYPE } from '../../constants/comments';
 
 const styles = (theme) => ({
   root: {
@@ -44,6 +38,10 @@ const styles = (theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
+  hidden: {
+    display: 'none'
+  },
+  dialog: {},
   stageSelector: {
     display: 'flex',
     alignItems: 'center',
@@ -70,9 +68,7 @@ function Dialog(props) {
   const marketDetails = getAllMarketDetails(marketsState);
   const { hidden } = props;
   const investibles = getMarketInvestibles(investiblesState, marketId);
-  const breadCrumbs = makeBreadCrumbs(history);
   const comments = getMarketComments(commentsState, marketId);
-  const commentsHash = _.keyBy(comments, 'id');
   const renderableMarket = marketDetails.find((market) => market.id === marketId) || {};
   const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
@@ -80,68 +76,50 @@ function Dialog(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = !myPresence;
-  const [commentAddState, setCommentAddState] = useContext(CommentAddContext);
-  const commentAddRef = useRef(null);
-
-  useEffect(() => {
-    setCommentAddState({
-      ...commentAddState,
-      hidden: addInvestibleMode,
-      allowedTypes: [ISSUE_TYPE, QUESTION_TYPE]
-    });
-    return () => {};
-  }, [addInvestibleMode]);
+  const breadCrumbs = makeBreadCrumbs(history);
 
 
-  function getSidebarActions() {
-    if (addInvestibleMode) {
-      return [];
-    }
-    return [<RaiseIssue commentAddRef={commentAddRef} key="issue"/>,
-            <AskQuestions commentAddRef={commentAddRef} key="question"/>];
-  }
 
-  const sideBarActions = getSidebarActions(marketType);
 
-  return (
-    <Screen
+  if (loading) {
+    return (<Screen
       title={currentMarketName}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
       loading={loading}
-      commentsSidebar={!addInvestibleMode}
-      sidebarActions={sideBarActions}
-      marketId={marketId}
-    >
-      { marketType === 'DECISION' && !loading && (
+    />);
+  }
+
+  return (
+    <>
+      {marketType === 'DECISION' && !loading && (
         <DecisionDialog
+          hidden={hidden}
           addInvestibleMode={addInvestibleMode}
           setAddInvestibleMode={setAddInvestibleMode}
           market={renderableMarket}
           investibles={investibles}
           comments={comments}
-          commentsHash={commentsHash}
           marketStages={marketStages}
           marketPresences={marketPresences}
           myPresence={myPresence}
-          commentAddRef={commentAddRef}
 
         />
       )}
-      { marketType === 'PLANNING' && !loading && (
+      {marketType === 'PLANNING' && !loading && (
         <PlanningDialog
+          hidden={hidden}
           addInvestibleMode={addInvestibleMode}
           setAddInvestibleMode={setAddInvestibleMode}
           market={renderableMarket}
           investibles={investibles}
           comments={comments}
-          commentsHash={commentsHash}
           marketStages={marketStages}
           marketPresences={marketPresences}
           myPresence={myPresence}
         />
       )}
-    </Screen>
+    </>
   );
 }
 

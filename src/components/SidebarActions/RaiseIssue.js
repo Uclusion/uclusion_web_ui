@@ -1,28 +1,18 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import ReportProblemIcon from '@material-ui/icons/ReportProblem';
 import { useIntl } from 'react-intl';
 import { ISSUE_TYPE } from '../../constants/comments';
 import ExpandableSidebarAction from './ExpandableSidebarAction';
-import { CommentAddContext } from '../../contexts/CommentAddContext';
 
 
 function RaiseIssue(props) {
 
-  const { onClick, commentAddRef } = props;
+  const { onClick } = props;
   const intl = useIntl();
-  const [addState, setAddState] = useContext(CommentAddContext);
   const label = intl.formatMessage({ id: 'commentIconRaiseIssueLabel' });
 
   function myOnClick() {
-    if (commentAddRef && commentAddRef.current) {
-      window.scrollTo(0, commentAddRef.current.offsetTop);
-    }
-    setAddState({
-      ...addState,
-      hidden: false,
-      type: ISSUE_TYPE,
-    });
     onClick(ISSUE_TYPE);
   }
 

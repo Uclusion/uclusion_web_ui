@@ -1,13 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core';
 import CommentAdd from '../../components/Comments/CommentAdd';
-import { CommentAddContext } from '../../contexts/CommentAddContext';
 
 const useStyles = makeStyles(() => {
   return {
     hidden: {
-      dispatch: 'none',
+      display: 'none',
     },
     addBox: {},
   };
@@ -18,18 +17,13 @@ function CommentAddBox(props) {
   const {
     marketId,
     investible,
+    hidden,
+    type,
+    allowedTypes,
+    onCancel,
+    onSave,
   } = props;
 
-  const [addState, setAddState] = useContext(CommentAddContext);
-  const { hidden, type, allowedTypes } = addState;
-
-
-  function closeBox() {
-    setAddState({
-      ...addState,
-      hidden: true,
-    });
-  }
 
 
   const classes = useStyles();
@@ -37,7 +31,6 @@ function CommentAddBox(props) {
   function getAddRegions(){
     return allowedTypes.map((allowedType) => {
       const hidden = allowedType !== type;
-      console.log(hidden);
       return (
         <CommentAdd
           key={allowedType}
@@ -45,11 +38,12 @@ function CommentAddBox(props) {
           type={allowedType}
           investible={investible}
           marketId={marketId}
-          onSave={closeBox}
-          onCancel={closeBox} />
+          onSave={onSave}
+          onCancel={onCancel} />
       );
-    })
+    });
   }
+
 
   return (
     <div
@@ -62,11 +56,20 @@ function CommentAddBox(props) {
 
 CommentAddBox.propTypes = {
   marketId: PropTypes.string.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   investible: PropTypes.any,
+  hidden: PropTypes.bool,
+  type: PropTypes.string.isRequired,
+  allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onCancel: PropTypes.func,
+  onSave: PropTypes.func,
 };
 
 CommentAddBox.defaultProps = {
   investible: undefined,
+  hidden: false,
+  onCancel: () => {},
+  onSave: () => {},
 };
 
 export default CommentAddBox;

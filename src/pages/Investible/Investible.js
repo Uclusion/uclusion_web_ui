@@ -60,9 +60,9 @@ function Investible(props) {
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || _.isEmpty(user));
   const isDecision = market && market.market_type === 'DECISION';
+  const isPlanning = market && market.market_type === 'PLANNING';
 
   const isAdmin = myPresence && myPresence.is_admin;
-
 
   function toggleEdit() {
     if (!editMode) {
@@ -82,28 +82,19 @@ function Investible(props) {
     setEditMode(false);
   }
 
-  return (
-    <Screen
+  if (loading) {
+    return (<Screen
       title={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
       warning={warning}
       loading={loading}
-    >
-      {!loading && !editMode && isDecision && (
-        <DecisionInvestible
-          userId={userId}
-          investibleId={investibleId}
-          marketId={marketId}
-          investible={investible}
-          commentsHash={commentsHash}
-          marketPresences={marketPresences}
-          investibleComments={investibleComments}
-          toggleEdit={toggleEdit}
-          isAdmin={isAdmin}
-        />
-      )}
-      {!loading && editMode && isDecision && (
+    />);
+  }
+
+  if (isDecision) {
+    if (editMode) {
+      return (
         <DecisionInvestibleEdit
           fullInvestible={inv}
           marketId={marketId}
@@ -111,21 +102,26 @@ function Investible(props) {
           onCancel={toggleEdit}
           isAdmin={isAdmin}
         />
-      )}
-      {!loading && !editMode && !isDecision && inv && (
-        <PlanningInvestible
-          userId={userId}
-          investibleId={investibleId}
-          marketId={marketId}
-          marketInvestible={inv}
-          commentsHash={commentsHash}
-          marketPresences={marketPresences}
-          investibleComments={investibleComments}
-          toggleEdit={toggleEdit}
-          isAdmin={isAdmin}
-        />
-      )}
-      {!loading && editMode && !isDecision && inv && marketPresences && (
+      );
+    }
+    return (
+      <DecisionInvestible
+        userId={userId}
+        investibleId={investibleId}
+        market={market}
+        investible={investible}
+        commentsHash={commentsHash}
+        marketPresences={marketPresences}
+        investibleComments={investibleComments}
+        toggleEdit={toggleEdit}
+        isAdmin={isAdmin}
+      />
+    );
+  }
+
+  if (isPlanning) {
+    if (editMode) {
+      return (
         <PlanningInvestibleEdit
           fullInvestible={inv}
           marketId={marketId}
@@ -134,9 +130,24 @@ function Investible(props) {
           onCancel={toggleEdit}
           isAdmin={isAdmin}
         />
-      )}
-    </Screen>
-  );
+      );
+    }
+    return (
+      <PlanningInvestible
+        userId={userId}
+        investibleId={investibleId}
+        marketId={marketId}
+        marketInvestible={inv}
+        commentsHash={commentsHash}
+        marketPresences={marketPresences}
+        investibleComments={investibleComments}
+        toggleEdit={toggleEdit}
+        isAdmin={isAdmin}
+      />
+    );
+  }
+  // shouldn't get here
+  return (<React.Fragment />);
 }
 
 Investible.propTypes = {

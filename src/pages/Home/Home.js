@@ -8,9 +8,9 @@ import SubSection from '../../containers/SubSection/SubSection';
 import { useIntl } from 'react-intl';
 import Notifications from '../../components/Notifications/Notifications';
 import DecisionDialogs from './DecisionDialogs';
-import SubsectionAddButton from '../../components/Buttons/SubsectionAddButton';
 import DecisionAdd from './DecisionAdd';
 import { makeStyles } from '@material-ui/core';
+import DecisionAddActionButton from './DecisionAddActionButton';
 
 
 const useStyles = makeStyles(() => {
@@ -29,11 +29,15 @@ function Home(props) {
   const planningDetails = getMarketDetailsForType(marketsState, 'PLANNING');
   const decisionDetails = getMarketDetailsForType(marketsState, 'DECISION');
 
+
   const [decisionAddMode, setDecisionAddMode] = useState(false);
 
   function toggleDecisionAddMode() {
     setDecisionAddMode(!decisionAddMode);
   }
+
+  const sidebarActions = [<DecisionAddActionButton key="decisionAdd" onClick={toggleDecisionAddMode} />];
+
 
   if (decisionAddMode) {
     return (
@@ -54,6 +58,7 @@ function Home(props) {
     <Screen
       title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage}/>}
       hidden={hidden}
+      sidebarActions={sidebarActions}
       appBarContent={<Notifications />}
     >
       <SubSection
@@ -63,7 +68,6 @@ function Home(props) {
       </SubSection>
       <SubSection
         title={intl.formatMessage({ id: 'homeSubsectionDecision' })}
-        actionButton={<SubsectionAddButton onClick={toggleDecisionAddMode} />}
       >
         <DecisionDialogs markets={decisionDetails} />
       </SubSection>

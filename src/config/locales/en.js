@@ -230,8 +230,11 @@ const messages = defineMessages({
   investibleDetailClose: 'Close',
 
   // Home
-  homeSubsectionPlanning: 'Planning Dialogs',
+  homeSubsectionPlanning: 'Epic Planning Dialogs',
   homeSubsectionDecision: 'Decision Dialogs',
+  homeAddDecision: 'Add Decision Dialog',
+  homeAddPlan: 'Add Epic Planning Dialog',
+
 
   //Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',
@@ -248,6 +251,14 @@ const messages = defineMessages({
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
+
+
+  // DecisionInvestible
+  decisionInvestibleYourVoting: 'Your Voting',
+  decisionInvestibleOthersVoting: "Other's Voting",
+  decisionInvestibleDescription: 'Description',
+  decisionInvestibleDiscussion: 'Discussion',
+
   // About
   sidebarNavAbout: 'About',
   aboutApplicationVersionLabel: 'Version',

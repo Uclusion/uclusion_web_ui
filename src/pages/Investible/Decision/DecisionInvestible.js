@@ -16,6 +16,7 @@ import { useHistory } from 'react-router';
 import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
+import { useIntl } from 'react-intl';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -35,6 +36,8 @@ function DecisionInvestible(props) {
     toggleEdit,
     isAdmin,
   } = props;
+
+  const intl = useIntl();
   const history = useHistory();
   const { name: marketName, id: marketId } = market;
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
@@ -84,7 +87,7 @@ function DecisionInvestible(props) {
     >
 
       <SubSection
-        title="Your Voting"
+        title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
       >
         <YourVoting
           investibleId={investibleId}
@@ -96,7 +99,7 @@ function DecisionInvestible(props) {
       </SubSection>
 
       <SubSection
-        title="Others Voting"
+        title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
       >
         <Voting
           investibleId={investibleId}
@@ -105,7 +108,7 @@ function DecisionInvestible(props) {
         />
       </SubSection>
       <SubSection
-        title='Description'
+        title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
         <Paper>
           <QuillEditor
@@ -116,7 +119,7 @@ function DecisionInvestible(props) {
         </Paper>
       </SubSection>
       <SubSection
-        title='Discussion'
+        title={ intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
       >
         <div ref={commentAddRef}>
           <CommentAddBox

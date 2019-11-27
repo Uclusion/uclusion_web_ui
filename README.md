@@ -1,1 +1,3 @@
-Built on top of https://github.com/TarikHuber/react-most-wanted
+For Cypress testing:  
+npm install cypress --save-dev  
+node_modules/.bin/cypress open

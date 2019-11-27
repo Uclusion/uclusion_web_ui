@@ -16,7 +16,7 @@ export function updateInvestible(updateInfo) {
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
 }
 
-export function addInvestible(addInfo) {
+export function addDecisionInvestible(addInfo) {
   const {
     marketId,
     name,
@@ -25,8 +25,22 @@ export function addInvestible(addInfo) {
   } = addInfo;
   return getMarketClient(marketId)
     .then((client) => client.investibles.create(name, description, uploadedFiles))
-    .catch((error) => toastErrorAndThrow(error, 'errorInvestibleAddFailed'));
+    .catch((error) => toastErrorAndThrow(error, 'errorDecisionInvestibleAddFailed'));
 }
+
+export function addPlanningInvestible(addInfo) {
+  const {
+    marketId,
+    name,
+    description,
+    uploadedFiles,
+    assignments
+  } = addInfo;
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.create(name, description, uploadedFiles, assignments))
+    .catch((error) => toastErrorAndThrow(error, 'errorPlanningInvestibleAddFailed'));
+}
+
 
 export function lockInvestibleForEdit(marketId, investibleId, breakLock) {
   return getMarketClient(marketId)

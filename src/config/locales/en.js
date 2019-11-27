@@ -232,11 +232,10 @@ const messages = defineMessages({
   // Home
   homeSubsectionPlanning: 'Epic Planning Dialogs',
   homeSubsectionDecision: 'Decision Dialogs',
-  homeAddDecision: 'Add Decision Dialog',
-  homeAddPlan: 'Add Epic Planning Dialog',
+  homeAddDecision: 'Create Decision',
+  homeAddPlanning: 'Creat Epic Plan',
 
-
-  //Decision Dialogs
+  // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',
   decisionDialogsExpires: 'Expires:',
   decisionDialogsObserverLabel: 'Observer',
@@ -248,6 +247,19 @@ const messages = defineMessages({
   decisionDialogsBecomeParticipant: 'Become Participant',
   decisionDialogsInviteParticipant: 'Invite Participant',
   decisionDialogsArchiveDialog: 'Archive Dialog',
+
+  // Planning Dialog
+  planningDialogSummaryLabel: 'Plan Information',
+  planningDialogPeopleLabel: 'People',
+  planningDialogDiscussionLabel: 'Discussion',
+  planningDialogAddInvestibleLabel: 'Create story',
+
+  // Decision Dialog
+  decisionDialogSummaryLabel: 'Background Information',
+  decisionDialogCurrentVotingLabel: 'Current Voting',
+  decisionDialogProposedOptionsLabel: 'Proposed Options',
+  decisionDialogDiscussionLabel: 'Discussion',
+  decisionDialogAddInvestibleLabel: 'Propose Option',
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
@@ -283,13 +295,15 @@ const messages = defineMessages({
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
 
   // API errors
-  errorInvestibleAddFailed: 'There was a problem adding the option.',
+  errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',
+  errorPlanningInvestibleAddFailed: 'There was a problem adding the story',
   errorInvestibleStageChangeFailed: 'There was a problem accepting or archiving the assignment',
   errorInvestibleUpdateFailed: 'There was a problem updating the option.',
   errorCommentFetchFailed: 'There was a problem retrieving comments',
   errorCommentSaveFailed: 'There was a problem saving your comment',
   errorInvestmentUpdateFailed: 'There was a problem updating your vote',
-  errorDecisionAddFailed: 'There was a problem creating your decision',
+  errorDecisionAddFailed: 'There was a problem creating your Decision',
+  errorPlanningAddFailed: 'There was a problem creating your Epic Plan',
   errorFileUploadFailed: 'There was a problem uploading your file',
   errorEditLockFailed: 'There was a problem getting permission to edit',
   errorEditLockReleaseFailed: 'There was a problem releasing edit permission',

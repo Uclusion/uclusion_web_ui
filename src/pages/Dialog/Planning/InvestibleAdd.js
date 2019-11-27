@@ -1,5 +1,4 @@
-
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
@@ -7,16 +6,12 @@ import {
   Card,
   CardActions,
   CardContent,
-  FormControlLabel,
-  Switch,
   TextField,
-  withStyles
+  withStyles,
 } from '@material-ui/core';
-import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles';
+import { addDecisionInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 
@@ -33,23 +28,14 @@ const styles = (theme) => ({
 });
 
 function InvestibleAdd(props) {
-  const { marketId, intl, classes, onCancel, onSave, isAdmin } = props;
+  const { marketId, intl, classes, onCancel, onSave } = props;
 
   const history = useHistory();
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const marketStages = getStages(marketStagesState, marketId) || [];
-  const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment);
-  const createdStage = marketStages.find((stage) => !stage.allows_investment);
-  const stageChangeInfo = {
-    stage_id: investmentAllowedStage.id,
-    current_stage_id: createdStage.id,
-  };
-  const emptyInvestible = { name: '', description: '' };
+  const emptyInvestible = { name: '', assignments: [] };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [addDirectToVoting, setAddDirectToVoting] = useState(true);
-  const { name } = currentValues;
+  const { name, assignments } = currentValues;
 
   function handleChange(field) {
     return (event) => {
@@ -58,11 +44,12 @@ function InvestibleAdd(props) {
       setCurrentValues(newValues);
     };
   }
-  console.log(addDirectToVoting);
 
-  function handleAddDirect(event) {
-    const { checked } = event.target;
-    setAddDirectToVoting(checked);
+  function handleAssignmentChange(assignments) {
+    setCurrentValues({
+      ...currentValues,
+      assignments,
+    });
   }
 
   function onEditorChange(description) {
@@ -74,7 +61,6 @@ function InvestibleAdd(props) {
   }
 
   function zeroCurrentValues() {
-    setAddDirectToVoting(false);
     setCurrentValues(emptyInvestible);
     setDescription('');
   }
@@ -94,10 +80,9 @@ function InvestibleAdd(props) {
       uploadedFiles: filteredUploads,
       description: tokensRemoved,
       name,
-      stageInfo: stageChangeInfo, // ignored by addDecisionInvestible
+      assignments,
     };
-    const promise = addDirectToVoting ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
-    return promise.then((investibleId) => {
+    return addDecisionInvestible(addInfo).then((investibleId) => {
       onSave();
       const link = formInvestibleLink(marketId, investibleId);
       return navigate(history, link);
@@ -107,12 +92,6 @@ function InvestibleAdd(props) {
   return (
     <Card>
       <CardContent>
-        {isAdmin && (
-          <FormControlLabel
-            control={<Switch onChange={handleAddDirect} checked={addDirectToVoting} />}
-            label={intl.formatMessage({ id: 'investibleAddDirectLabel' })}
-          />
-        )}
         <TextField
           className={classes.row}
           inputProps={{ maxLength: 255 }}
@@ -130,7 +109,7 @@ function InvestibleAdd(props) {
           onChange={onEditorChange}
           placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
           onS3Upload={onS3Upload}
-          defaultValue={description} />
+          defaultValue={description}/>
       </CardContent>
       <CardActions>
         <Button onClick={handleCancel}>
@@ -157,7 +136,6 @@ InvestibleAdd.propTypes = {
   marketId: PropTypes.string.isRequired,
   onSave: PropTypes.func,
   onCancel: PropTypes.func,
-  isAdmin: PropTypes.bool,
 };
 
 InvestibleAdd.defaultProps = {
@@ -165,7 +143,6 @@ InvestibleAdd.defaultProps = {
   },
   onCancel: () => {
   },
-  isAdmin: false,
 };
 
 export default withStyles(styles)(injectIntl(InvestibleAdd));

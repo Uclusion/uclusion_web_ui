@@ -235,12 +235,6 @@ const messages = defineMessages({
   homeAddDecision: 'Create Decision',
   homeAddPlanning: 'Creat Epic Plan',
 
-
-  // Planning Dialog
-  planningDialogSummaryLabel: 'Plan Information',
-  planningDialogPeopleLabel: 'People',
-  planningDialogDiscussionLabel: 'Discussion',
-
   // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',
   decisionDialogsExpires: 'Expires:',
@@ -254,12 +248,18 @@ const messages = defineMessages({
   decisionDialogsInviteParticipant: 'Invite Participant',
   decisionDialogsArchiveDialog: 'Archive Dialog',
 
+  // Planning Dialog
+  planningDialogSummaryLabel: 'Plan Information',
+  planningDialogPeopleLabel: 'People',
+  planningDialogDiscussionLabel: 'Discussion',
+  planningDialogAddInvestibleLabel: 'Create story',
 
-  // Decsion Dialog
+  // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
   decisionDialogCurrentVotingLabel: 'Current Voting',
   decisionDialogProposedOptionsLabel: 'Proposed Options',
   decisionDialogDiscussionLabel: 'Discussion',
+  decisionDialogAddInvestibleLabel: 'Propose Option',
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
@@ -295,7 +295,8 @@ const messages = defineMessages({
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
 
   // API errors
-  errorInvestibleAddFailed: 'There was a problem adding the option.',
+  errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',
+  errorPlanningInvestibleAddFailed: 'There was a problem adding the story',
   errorInvestibleStageChangeFailed: 'There was a problem accepting or archiving the assignment',
   errorInvestibleUpdateFailed: 'There was a problem updating the option.',
   errorCommentFetchFailed: 'There was a problem retrieving comments',

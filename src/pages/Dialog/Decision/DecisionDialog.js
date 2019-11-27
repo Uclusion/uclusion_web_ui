@@ -18,6 +18,7 @@ import Screen from '../../../containers/Screen/Screen';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
+import InvestibleAddActionButton from './InvestibleAddActionButton';
 
 function DecisionDialog(props) {
   const {
@@ -73,15 +74,21 @@ function DecisionDialog(props) {
     setCommentAddHidden(true);
   }
 
-  // if we're adding an investible, just render it
+  // if we're adding an investible, just render it with the screen
   if (addInvestibleMode) {
     return (
-      <InvestibleAdd
-        marketId={marketId}
-        onCancel={toggleAddMode}
-        onSave={toggleAddMode}
-        isAdmin={isAdmin}
-      />
+      <Screen
+        title={market.name}
+        hidden={hidden}
+        breadCrumbs={breadCrumbs}
+      >
+        <InvestibleAdd
+          marketId={marketId}
+          onCancel={toggleAddMode}
+          onSave={toggleAddMode}
+          isAdmin={isAdmin}
+        />
+      </Screen>
     );
   }
 
@@ -99,6 +106,7 @@ function DecisionDialog(props) {
       return [];
     }
     return [
+      <InvestibleAddActionButton onClick={toggleAddMode}/>,
       <RaiseIssue key="issue" onClick={commentButtonOnClick}/>,
       <AskQuestions key="question" onClick={commentButtonOnClick}/>
     ];
@@ -121,7 +129,7 @@ function DecisionDialog(props) {
           xs={12}
         >
           <SubSection
-            title={intl.formatMessage({ id: 'decisionDialogSummaryLabel'})}
+            title={intl.formatMessage({ id: 'decisionDialogSummaryLabel' })}
           >
             <Summary market={market}/>
           </SubSection>
@@ -131,7 +139,7 @@ function DecisionDialog(props) {
           xs={12}
         >
           <SubSection
-            title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel'})}
+            title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
           >
             <Voting
               marketPresences={marketPresences}

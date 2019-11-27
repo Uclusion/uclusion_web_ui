@@ -5,6 +5,7 @@ import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import Summary from '../Summary';
 import PlanningIdeas from './PlanningIdeas';
+import { useIntl } from 'react-intl';
 import { Grid, Typography } from '@material-ui/core';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import Screen from '../../../containers/Screen/Screen';
@@ -16,7 +17,8 @@ import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import SubSection from '../../../containers/SubSection/SubSection';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
-import { useIntl } from 'react-intl';
+import InvestibleAdd from './InvestibleAdd';
+import InvestibleAddActionButton from './InvestibleAddActionButton';
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -43,6 +45,23 @@ function PlanningDialog(props) {
 
   function toggleAddMode() {
     setAddInvestibleMode(!addInvestibleMode);
+  }
+
+  // if we're adding an investible, just render it with the screen
+  if (addInvestibleMode) {
+    return (
+      <Screen
+        title={market.name}
+        hidden={hidden}
+        breadCrumbs={breadCrumbs}
+      >
+        <InvestibleAdd
+          marketId={marketId}
+          onCancel={toggleAddMode}
+          onSave={toggleAddMode}
+        />
+      </Screen>
+    );
   }
 
   function commentButtonOnClick(type) {
@@ -97,9 +116,9 @@ function PlanningDialog(props) {
       return [];
     }
     return [
-
-      <RaiseIssue key="issue" onClick={commentButtonOnClick}/>,
-      <AskQuestions key="question" onClick={commentButtonOnClick}/>
+      <InvestibleAddActionButton onClick={toggleAddMode} />,
+      <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
+      <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];
   }
 

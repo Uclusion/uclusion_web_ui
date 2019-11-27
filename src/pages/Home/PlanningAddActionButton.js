@@ -15,7 +15,8 @@ function PlanningAddActionButton(props) {
     <ExpandableSidebarAction
       icon={<ListAltIcon />}
       label={label}
-      onClick={onClick}/>
+      onClick={onClick}
+    />
   );
 }
 

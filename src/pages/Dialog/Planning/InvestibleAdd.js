@@ -9,10 +9,13 @@ import {
   TextField,
   withStyles,
 } from '@material-ui/core';
-import { addDecisionInvestible } from '../../../api/investibles';
+import { useHistory } from 'react-router';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import FormControl from '@material-ui/core/FormControl';
+import { addPlanningInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 const styles = (theme) => ({
@@ -28,14 +31,17 @@ const styles = (theme) => ({
 });
 
 function InvestibleAdd(props) {
-  const { marketId, intl, classes, onCancel, onSave } = props;
+  const {
+    marketId, intl, classes, onCancel, onSave, marketPresences,
+  } = props;
 
   const history = useHistory();
   const emptyInvestible = { name: '', assignments: [] };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const { name, assignments } = currentValues;
+  const [assignments, setAssignments] = useState([]);
+  const { name } = currentValues;
 
   function handleChange(field) {
     return (event) => {
@@ -45,12 +51,16 @@ function InvestibleAdd(props) {
     };
   }
 
-  function handleAssignmentChange(assignments) {
-    setCurrentValues({
-      ...currentValues,
-      assignments,
-    });
-  }
+  const handleChangeMultiple = (event) => {
+    const { options } = event.target;
+    const values = [];
+    for (let i = 0, l = options.length; i < l; i += 1) {
+      if (options[i].selected) {
+        values.push(options[i].value);
+      }
+    }
+    setAssignments(values);
+  };
 
   function onEditorChange(description) {
     setDescription(description);
@@ -82,7 +92,7 @@ function InvestibleAdd(props) {
       name,
       assignments,
     };
-    return addDecisionInvestible(addInfo).then((investibleId) => {
+    return addPlanningInvestible(addInfo).then((investibleId) => {
       onSave();
       const link = formInvestibleLink(marketId, investibleId);
       return navigate(history, link);
@@ -92,6 +102,26 @@ function InvestibleAdd(props) {
   return (
     <Card>
       <CardContent>
+        <FormControl className={classes.row}>
+          <InputLabel shrink htmlFor="select-multiple-native">
+            Assignments
+          </InputLabel>
+          <Select
+            multiple
+            native
+            value={assignments}
+            onChange={handleChangeMultiple}
+            inputProps={{
+              id: 'select-multiple-assignment',
+            }}
+          >
+            {marketPresences.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
         <TextField
           className={classes.row}
           inputProps={{ maxLength: 255 }}
@@ -109,7 +139,8 @@ function InvestibleAdd(props) {
           onChange={onEditorChange}
           placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
           onS3Upload={onS3Upload}
-          defaultValue={description}/>
+          defaultValue={description}
+        />
       </CardContent>
       <CardActions>
         <Button onClick={handleCancel}>
@@ -136,6 +167,8 @@ InvestibleAdd.propTypes = {
   marketId: PropTypes.string.isRequired,
   onSave: PropTypes.func,
   onCancel: PropTypes.func,
+  // eslint-disable-next-line react/forbid-prop-types
+  marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 InvestibleAdd.defaultProps = {

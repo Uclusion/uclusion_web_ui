@@ -59,6 +59,7 @@ function PlanningDialog(props) {
           marketId={marketId}
           onCancel={toggleAddMode}
           onSave={toggleAddMode}
+          marketPresences={marketPresences}
         />
       </Screen>
     );

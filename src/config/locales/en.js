@@ -236,7 +236,12 @@ const messages = defineMessages({
   homeAddPlanning: 'Creat Epic Plan',
 
 
-  //Decision Dialogs
+  // Planning Dialog
+  planningDialogSummaryLabel: 'Plan Information',
+  planningDialogPeopleLabel: 'People',
+  planningDialogDiscussionLabel: 'Discussion',
+
+  // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',
   decisionDialogsExpires: 'Expires:',
   decisionDialogsObserverLabel: 'Observer',
@@ -248,6 +253,13 @@ const messages = defineMessages({
   decisionDialogsBecomeParticipant: 'Become Participant',
   decisionDialogsInviteParticipant: 'Invite Participant',
   decisionDialogsArchiveDialog: 'Archive Dialog',
+
+
+  // Decsion Dialog
+  decisionDialogSummaryLabel: 'Background Information',
+  decisionDialogCurrentVotingLabel: 'Current Voting',
+  decisionDialogProposedOptionsLabel: 'Proposed Options',
+  decisionDialogDiscussionLabel: 'Discussion',
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',

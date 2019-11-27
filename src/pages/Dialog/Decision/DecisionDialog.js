@@ -3,6 +3,9 @@
  */
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
+import { makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 import { Grid } from '@material-ui/core';
 import Summary from '../Summary';
 import InvestibleAdd from './InvestibleAdd';
@@ -11,8 +14,6 @@ import SubSection from '../../../containers/SubSection/SubSection';
 import Voting from './Voting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
-import { makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
 import Screen from '../../../containers/Screen/Screen';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
@@ -30,6 +31,7 @@ function DecisionDialog(props) {
   } = props;
 
   const commentAddRef = useRef(null);
+  const intl = useIntl();
 
   const { is_admin: isAdmin } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
@@ -86,7 +88,7 @@ function DecisionDialog(props) {
   function commentButtonOnClick(type) {
     setCommentAddType(type);
     setCommentAddHidden(false);
-    // TODO: This doens't actually scroll. Not surewhy.
+    // TODO: This doens't actually scroll. Not sure why.
     const top = commentAddRef.current.offsetTop;
     console.log(top);
     window.scrollTo(0, top);
@@ -96,17 +98,19 @@ function DecisionDialog(props) {
     if (addInvestibleMode) {
       return [];
     }
-    return [<RaiseIssue key="issue" onClick={commentButtonOnClick} />,
-      <AskQuestions key="question" onClick={commentButtonOnClick} />];
+    return [
+      <RaiseIssue key="issue" onClick={commentButtonOnClick}/>,
+      <AskQuestions key="question" onClick={commentButtonOnClick}/>
+    ];
   }
 
-  const sideBarActions = getSidebarActions();
+  const sidebarActions = getSidebarActions();
   return (
     <Screen
       title={market.name}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
-      sidebarActions={sideBarActions}
+      sidebarActions={sidebarActions}
     >
       <Grid
         container
@@ -116,8 +120,10 @@ function DecisionDialog(props) {
           item
           xs={12}
         >
-          <SubSection title="Background Information">
-            <Summary market={market} />
+          <SubSection
+            title={intl.formatMessage({ id: 'decisionDialogSummaryLabel'})}
+          >
+            <Summary market={market}/>
           </SubSection>
         </Grid>
         <Grid
@@ -125,7 +131,7 @@ function DecisionDialog(props) {
           xs={12}
         >
           <SubSection
-            title="Current Voting"
+            title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel'})}
           >
             <Voting
               marketPresences={marketPresences}
@@ -140,7 +146,7 @@ function DecisionDialog(props) {
           xs={12}
         >
           <SubSection
-            title="Proposed Options"
+            title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
           >
             <ProposedIdeas
               investibles={proposed}
@@ -154,7 +160,7 @@ function DecisionDialog(props) {
           xs={12}
         >
           <SubSection
-            title="Discussion"
+            title={intl.formatMessage({ id: 'decisionDialogDiscussionLabel' })}
           >
             <div ref={commentAddRef}>
               <CommentAddBox

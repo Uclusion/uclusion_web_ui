@@ -57,6 +57,12 @@ export function createDecision(marketInfo) {
     .catch((error) => toastErrorAndThrow(error, 'errorDecisionAddFailed'));
 }
 
+export function createPlanning(marketInfo) {
+  return getAccountClient()
+    .then((client) => client.markets.createMarket(marketInfo))
+    .catch((error) => toastErrorAndThrow(error, 'errorPlanningAddFailed'));
+}
+
 export function leaveMarket(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.users.leave())

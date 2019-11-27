@@ -20,7 +20,7 @@ import Notifications from '../../components/Notifications/Notifications';
 import { SidebarContext } from '../../contexts/SidebarContext';
 
 const useStyles = makeStyles((theme) => {
-  const drawerWidth = 350;
+  const drawerWidth = 240;
   return {
     // grow is used to eat up all the space until the right
     grow: {

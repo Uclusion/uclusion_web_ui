@@ -2,29 +2,29 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import { useIntl } from 'react-intl';
-import GavelIcon from '@material-ui/icons/Gavel';
+import ListAltIcon from '@material-ui/icons/ListAlt';
 
-function DecisionAddActionButton(props) {
+function PlanningAddActionButton(props) {
 
   const { onClick } = props;
 
   const intl = useIntl();
-  const label = intl.formatMessage({ id: 'homeAddDecision' });
+  const label = intl.formatMessage({ id: 'homeAddPlanning' });
 
   return (
     <ExpandableSidebarAction
-      icon={<GavelIcon />}
+      icon={<ListAltIcon />}
       label={label}
       onClick={onClick}/>
   );
 }
 
-DecisionAddActionButton.propTypes = {
+PlanningAddActionButton.propTypes = {
   onClick: PropTypes.func,
 };
 
-DecisionAddActionButton.defaultProps = {
+PlanningAddActionButton.defaultProps = {
   onClick: () => {},
 };
 
-export default DecisionAddActionButton;
+export default PlanningAddActionButton;

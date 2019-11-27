@@ -232,8 +232,8 @@ const messages = defineMessages({
   // Home
   homeSubsectionPlanning: 'Epic Planning Dialogs',
   homeSubsectionDecision: 'Decision Dialogs',
-  homeAddDecision: 'Add Decision Dialog',
-  homeAddPlan: 'Add Epic Planning Dialog',
+  homeAddDecision: 'Create Decision',
+  homeAddPlanning: 'Creat Epic Plan',
 
 
   //Decision Dialogs
@@ -289,7 +289,8 @@ const messages = defineMessages({
   errorCommentFetchFailed: 'There was a problem retrieving comments',
   errorCommentSaveFailed: 'There was a problem saving your comment',
   errorInvestmentUpdateFailed: 'There was a problem updating your vote',
-  errorDecisionAddFailed: 'There was a problem creating your decision',
+  errorDecisionAddFailed: 'There was a problem creating your Decision',
+  errorPlanningAddFailed: 'There was a problem creating your Epic Plan',
   errorFileUploadFailed: 'There was a problem uploading your file',
   errorEditLockFailed: 'There was a problem getting permission to edit',
   errorEditLockReleaseFailed: 'There was a problem releasing edit permission',

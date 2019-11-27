@@ -22,7 +22,7 @@ describe('Authenticator:', function() {
             return marketDetails;
           })
           .then((marketDetailsPrevious) => {
-            cy.get('.MuiListItemIcon-root > .MuiSvgIcon-root').click();
+            cy.get(':nth-child(1) > .MuiListItemIcon-root > .MuiSvgIcon-root > path').click();
             marketName = 'Cypress testing ' + Date.now();
             cy.get('#name').type(marketName);
             const description = marketName + ' description';

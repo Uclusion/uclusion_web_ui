@@ -44,7 +44,6 @@ function PlanningIdeas(props) {
     investibles, marketId, comments, acceptedStageId, inDialogStageId,
   } = props;
   const intl = useIntl();
-  const updatedText = intl.formatMessage(({ id: 'decisionDialogInvestiblesUpdatedAt' }));
 
   function getCommentIcons(comments) {
     if (!Array.isArray(comments)) {
@@ -107,8 +106,9 @@ function PlanningIdeas(props) {
       const investibleComments = Array.isArray(comments)
         && comments.filter((comment) => comment.investible_id === id);
       const marketInfo = marketInfos.find((info) => info.market_id === marketId);
-      // TODO if one of those filtered arrays is empty need to add dummy to it that doesn't link
-      // but does show red and warn
+      const updatedText = marketInfo.stage === acceptedStageId
+        ? intl.formatMessage(({ id: 'acceptedInvestiblesUpdatedAt' }))
+        : intl.formatMessage(({ id: 'inDialogInvestiblesUpdatedAt' }));
       return (
         <Paper
           className={marketInfo.stage === acceptedStageId
@@ -125,7 +125,7 @@ function PlanningIdeas(props) {
             className={classes.textData}
           >
             {updatedText}
-            <FormattedDate value={investible.updated_at} />
+            <FormattedDate value={marketInfo.updated_at} />
           </Typography>
           {getCommentIcons(investibleComments)}
         </Paper>

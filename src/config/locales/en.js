@@ -253,8 +253,10 @@ const messages = defineMessages({
   planningDialogPeopleLabel: 'People',
   planningDialogDiscussionLabel: 'Discussion',
   planningDialogAddInvestibleLabel: 'Create story',
-  planningNoneAcceptedWarning: 'No accepted assignment',
+  planningNoneAcceptedWarning: 'No in progress assignment',
   planningNoneInDialogWarning: 'No votable assignment',
+  acceptedInvestiblesUpdatedAt: 'In progress from ',
+  inDialogInvestiblesUpdatedAt: 'Assigned for voting on ',
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',

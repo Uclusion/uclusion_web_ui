@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
 import {
-  Grid, Paper, Typography, Badge,
+  Paper, Typography, Badge,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import AnnouncementIcon from '@material-ui/icons/Announcement';
@@ -22,6 +22,11 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     textAlign: 'left',
     backgroundColor: theme.palette.grey[theme.palette.type === 'dark' ? 900 : 100],
+  },
+  warningCard: {
+    padding: theme.spacing(2),
+    textAlign: 'left',
+    backgroundColor: theme.palette.primary.light,
   },
   investibleCardAccepted: {
     padding: theme.spacing(2),
@@ -72,13 +77,31 @@ function PlanningIdeas(props) {
     }
   }
 
+  function createWarningShellInvestible(stageId) {
+    const isAccepted = stageId === acceptedStageId;
+    const warningText = isAccepted ? intl.formatMessage(({ id: 'planningNoneAcceptedWarning' }))
+      : intl.formatMessage(({ id: 'planningNoneInDialogWarning' }));
+    return (
+      <Paper className={classes.warningCard}>
+        <Typography
+          noWrap
+        >
+          {warningText}
+        </Typography>
+      </Paper>
+    );
+  }
+
   function getInvestibles(stageId) {
-    const filterOutArchived = investibles.filter((investible) => {
+    const filtered = investibles.filter((investible) => {
       const { market_infos: marketInfos } = investible;
       const marketInfo = marketInfos.find((info) => info.market_id === marketId);
       return marketInfo.stage === stageId;
     });
-    return filterOutArchived.map((inv) => {
+    if (!Array.isArray(filtered) || filtered.length === 0) {
+      return createWarningShellInvestible(stageId);
+    }
+    return filtered.map((inv) => {
       const { investible, market_infos: marketInfos } = inv;
       const { id, name } = investible;
       const investibleComments = Array.isArray(comments)
@@ -87,37 +110,32 @@ function PlanningIdeas(props) {
       // TODO if one of those filtered arrays is empty need to add dummy to it that doesn't link
       // but does show red and warn
       return (
-        <Grid
-          item
-          key={id}
+        <Paper
+          className={marketInfo.stage === acceptedStageId
+            ? classes.investibleCardAccepted : classes.investibleCard}
+          onClick={() => navigate(history, formInvestibleLink(marketId, id))}
         >
-          <Paper
-            className={marketInfo.stage === acceptedStageId
-              ? classes.investibleCardAccepted : classes.investibleCard}
-            onClick={() => navigate(history, formInvestibleLink(marketId, id))}
+          <Typography
+            noWrap
           >
-            <Typography
-              noWrap
-            >
-              {name}
-            </Typography>
-            <Typography
-              color="textSecondary"
-              className={classes.textData}
-            >
-              {updatedText}
-              <FormattedDate value={investible.updated_at} />
-            </Typography>
-            {getCommentIcons(investibleComments)}
-          </Paper>
-        </Grid>
+            {name}
+          </Typography>
+          <Typography
+            color="textSecondary"
+            className={classes.textData}
+          >
+            {updatedText}
+            <FormattedDate value={investible.updated_at} />
+          </Typography>
+          {getCommentIcons(investibleComments)}
+        </Paper>
       );
     });
   }
 
   return (
-    <div className={classes.root}>
-      <GridList cols={2}>
+    <>
+      <GridList cellHeight="auto" cols={2}>
         <GridListTile>
           {getInvestibles(acceptedStageId)}
         </GridListTile>
@@ -125,7 +143,7 @@ function PlanningIdeas(props) {
           {getInvestibles(inDialogStageId)}
         </GridListTile>
       </GridList>
-    </div>
+    </>
   );
 }
 

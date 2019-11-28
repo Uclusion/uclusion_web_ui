@@ -3,10 +3,11 @@
  */
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/styles';
 import Summary from '../Summary';
 import PlanningIdeas from './PlanningIdeas';
 import { useIntl } from 'react-intl';
-import { Grid, Typography } from '@material-ui/core';
+import { Grid, Paper, Typography } from '@material-ui/core';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import Screen from '../../../containers/Screen/Screen';
 import { useHistory } from 'react-router';
@@ -20,10 +21,21 @@ import CommentBox from '../../../containers/CommentBox/CommentBox';
 import InvestibleAdd from './InvestibleAdd';
 import InvestibleAddActionButton from './InvestibleAddActionButton';
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+  },
+  presencePaper: {
+    paddingBottom: 0,
+    paddingTop: theme.spacing(3),
+    textAlign: 'left',
+  },
+}));
+
 function PlanningDialog(props) {
   const history = useHistory();
   const breadCrumbs = makeBreadCrumbs(history);
-
+  const classes = useStyles();
   const {
     market,
     investibles,
@@ -89,13 +101,13 @@ function PlanningDialog(props) {
             });
             return (
               <>
-                <br/>
-                <Typography
-                  noWrap
-                >
-                  {presence.name}
-                </Typography>
-                <br/>
+                <Paper className={classes.presencePaper}>
+                  <Typography
+                    noWrap
+                  >
+                    {presence.name}
+                  </Typography>
+                </Paper>
                 {marketId && acceptedStage && inDialogStage && (
                   <PlanningIdeas
                     investibles={myInvestibles}

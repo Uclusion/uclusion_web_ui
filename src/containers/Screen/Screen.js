@@ -33,6 +33,9 @@ const useStyles = makeStyles((theme) => {
       display: 'flex',
       flexDirection: 'column',
     },
+    container: {
+      background: '#ffffff',
+    },
     appBar: {
       background: '#ffffff',
       zIndex: theme.zIndex.drawer + 1,
@@ -181,7 +184,9 @@ function Screen(props) {
         [classes.contentShift]: sidebarOpen,
       })}
       >
-        <Container>
+        <Container
+          className={classes.container}
+        >
           {children}
         </Container>
       </div>

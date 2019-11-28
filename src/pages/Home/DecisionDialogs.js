@@ -19,10 +19,10 @@ import DeadlineExtender from './Decision/DeadlineExtender';
 import InviteLinker from './Decision/InviteLinker';
 import LeaveMarketButton from './Decision/LeaveMarketButton';
 import ArchiveMarketButton from './Decision/ArchiveMarketButton';
+import RaisedCard from '../../components/Cards/RaisedCard';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    padding: theme.spacing(2),
     textAlign: 'left',
   },
   textData: {
@@ -151,8 +151,9 @@ function DecisionDialogs(props) {
           xs={12}
 
         >
-          <Card
+          <RaisedCard
             className={classes.paper}
+            border={1}
           >
             <CardContent>
               <Typography>
@@ -197,7 +198,7 @@ function DecisionDialogs(props) {
               hidden={!showInvite[marketId]}
               marketId={marketId}
             />
-          </Card>
+          </RaisedCard>
         </Grid>
       );
     });

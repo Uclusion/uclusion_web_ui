@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Typography, Paper } from '@material-ui/core';
+import { Typography, Grid, CardContent } from '@material-ui/core';
 import {
   XYPlot,
-  VerticalBarSeries, Borders,
+  VerticalBarSeries,
 } from 'react-vis';
 import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import RaisedCard from '../../../components/Cards/RaisedCard';
 
 function Voting(props) {
   const history = useHistory();
@@ -47,6 +48,7 @@ function Voting(props) {
         if (oldValue) {
           const newValue = {
             ...oldValue,
+            numSupporters: oldValue.numSupporters + 1,
             investments: [...oldValue.investments, userInvestments[investible_id]],
           };
           tallies[investible_id] = newValue;
@@ -67,20 +69,14 @@ function Voting(props) {
     return (
       <XYPlot
         xType="ordinal"
-        width={investments.length * 60}
-        height={100}
+        width={investments.length * 12}
+        height={40}
         yDomain={[0, 100]}
         colorDomain={[0, 3]}
         colorRange={['red', 'green']}
         margin={margin}
       >
-        <Borders style={{
-          bottom: { fill: '#16191f', height: 1 },
-          left: { fill: '#16191f', width: 1 },
-          right: { fill: '#16191f', width: 1 },
-          top: { fill: '#16191f', height: 1 },
-        }}
-        />
+
         <VerticalBarSeries
           barWidth={0.4}
           data={investments}
@@ -92,32 +88,51 @@ function Voting(props) {
   function getItemVote(item) {
     const { id, investments, name } = item;
     return (
-      <Paper
+      <Grid
+        item
         key={id}
-        onClick={() => navigate(history, formInvestibleLink(marketId, id))}
+        xs={12}
+        s={6}
+        md={4}
       >
-        {getCertaintyChart(investments)}
-        <Typography
-          noWrap
+        <RaisedCard
+          onClick={() => navigate(history, formInvestibleLink(marketId, id))}
         >
-          {name}
-        </Typography>
-      </Paper>
+          <CardContent>
+            <div>
+              <div>
+                <Typography
+                  noWrap
+                >
+                  {name}
+                </Typography>
+              </div>
+
+              <div>
+                {getCertaintyChart(investments)}
+              </div>
+            </div>
+          </CardContent>
+        </RaisedCard>
+      </Grid>
     );
   }
 
 
   const tallies = getInvestibleVotes();
-  console.log(tallies);
+
   const talliesArray = Object.values(tallies);
   // descending order of support
   const sortedTalliesArray = _.sortBy(talliesArray, 'numSupporters', 'name').reverse();
-
+  console.log(sortedTalliesArray);
 
   return (
-    <>
+    <Grid
+      container
+      spacing={2}
+    >
       {sortedTalliesArray.map((item) => getItemVote(item))}
-    </>
+    </Grid>
   );
 }
 

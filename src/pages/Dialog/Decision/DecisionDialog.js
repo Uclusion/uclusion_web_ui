@@ -106,7 +106,7 @@ function DecisionDialog(props) {
       return [];
     }
     return [
-      <InvestibleAddActionButton onClick={toggleAddMode}/>,
+      <InvestibleAddActionButton key="addInvestible" onClick={toggleAddMode}/>,
       <RaiseIssue key="issue" onClick={commentButtonOnClick}/>,
       <AskQuestions key="question" onClick={commentButtonOnClick}/>
     ];

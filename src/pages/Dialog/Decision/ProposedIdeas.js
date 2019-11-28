@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
-import { Grid, Paper, Typography } from '@material-ui/core';
+import { Grid, Typography, } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { Badge } from '@material-ui/core';
@@ -10,10 +10,10 @@ import AnnouncementIcon from '@material-ui/icons/Announcement';
 import RateReviewIcon from '@material-ui/icons/RateReview';
 import LiveHelpIcon from '@material-ui/icons/LiveHelp';
 import { FormattedDate, useIntl } from 'react-intl';
+import RaisedCard from '../../../components/Cards/RaisedCard';
 
 const useStyles = makeStyles(theme => ({
   investibleCard: {
-    padding: theme.spacing(2),
     textAlign: 'left',
   },
   textData: {
@@ -73,10 +73,12 @@ function ProposedIdeas(props) {
           s={6}
           md={4}
         >
-          <Paper
+
+          <RaisedCard
             className={classes.investibleCard}
             onClick={() => navigate(history, formInvestibleLink(marketId, id))}
           >
+
             <Typography
               noWrap
             >
@@ -89,7 +91,7 @@ function ProposedIdeas(props) {
               {updatedText}<FormattedDate value={investible.updated_at} />
             </Typography>
             {getCommentIcons(investibleComments)}
-          </Paper>
+          </RaisedCard>
         </Grid>
       );
     });

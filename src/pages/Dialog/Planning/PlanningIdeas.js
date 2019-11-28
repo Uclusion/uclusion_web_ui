@@ -28,6 +28,11 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'left',
     backgroundColor: theme.palette.primary.light,
   },
+  blockedInvestible: {
+    padding: theme.spacing(2),
+    textAlign: 'left',
+    backgroundColor: theme.palette.secondary.light,
+  },
   investibleCardAccepted: {
     padding: theme.spacing(2),
     textAlign: 'left',
@@ -81,23 +86,37 @@ function PlanningIdeas(props) {
     const warningText = isAccepted ? intl.formatMessage(({ id: 'planningNoneAcceptedWarning' }))
       : intl.formatMessage(({ id: 'planningNoneInDialogWarning' }));
     return (
-      <Paper className={classes.warningCard}>
-        <Typography
-          noWrap
-        >
-          {warningText}
-        </Typography>
-      </Paper>
+      <div key={stageId}>
+        <Paper className={classes.warningCard}>
+          <Typography
+            noWrap
+          >
+            {warningText}
+          </Typography>
+        </Paper>
+      </div>
     );
   }
 
-  function getInvestibles(stageId) {
+  function getInvestibles(stageId, showBlocking) {
+    console.log(comments);
     const filtered = investibles.filter((investible) => {
-      const { market_infos: marketInfos } = investible;
+      const { market_infos: marketInfos, investible: baseInvestible } = investible;
+      const { id } = baseInvestible;
+      console.log(`Investible id is ${id}`);
+      // eslint-disable-next-line max-len
+      const blockingComments = comments.filter((comment) => comment.investible_id === id && comment.comment_type === ISSUE_TYPE);
+      console.log(blockingComments);
       const marketInfo = marketInfos.find((info) => info.market_id === marketId);
-      return marketInfo.stage === stageId;
+      if (marketInfo.stage === stageId) {
+        if (showBlocking) {
+          return (Array.isArray(blockingComments) && blockingComments.length > 0);
+        }
+        return (!Array.isArray(blockingComments) || blockingComments.length === 0);
+      }
+      return false;
     });
-    if (!Array.isArray(filtered) || filtered.length === 0) {
+    if (!showBlocking && (!Array.isArray(filtered) || filtered.length === 0)) {
       return createWarningShellInvestible(stageId);
     }
     return filtered.map((inv) => {
@@ -108,27 +127,31 @@ function PlanningIdeas(props) {
       const marketInfo = marketInfos.find((info) => info.market_id === marketId);
       const updatedText = marketInfo.stage === acceptedStageId
         ? intl.formatMessage(({ id: 'acceptedInvestiblesUpdatedAt' }))
-        : intl.formatMessage(({ id: 'inDialogInvestiblesUpdatedAt' }));
+        : showBlocking ? intl.formatMessage(({ id: 'blockedInvestiblesUpdatedAt' }))
+          : intl.formatMessage(({ id: 'inDialogInvestiblesUpdatedAt' }));
       return (
-        <Paper
-          className={marketInfo.stage === acceptedStageId
-            ? classes.investibleCardAccepted : classes.investibleCard}
-          onClick={() => navigate(history, formInvestibleLink(marketId, id))}
-        >
-          <Typography
-            noWrap
+        <div key={id}>
+          <Paper
+            className={marketInfo.stage === acceptedStageId
+              ? classes.investibleCardAccepted : showBlocking
+                ? classes.blockedInvestible : classes.investibleCard}
+            onClick={() => navigate(history, formInvestibleLink(marketId, id))}
           >
-            {name}
-          </Typography>
-          <Typography
-            color="textSecondary"
-            className={classes.textData}
-          >
-            {updatedText}
-            <FormattedDate value={marketInfo.updated_at} />
-          </Typography>
-          {getCommentIcons(investibleComments)}
-        </Paper>
+            <Typography
+              noWrap
+            >
+              {name}
+            </Typography>
+            <Typography
+              color="textSecondary"
+              className={classes.textData}
+            >
+              {updatedText}
+              <FormattedDate value={marketInfo.updated_at} />
+            </Typography>
+            {getCommentIcons(investibleComments)}
+          </Paper>
+        </div>
       );
     });
   }
@@ -136,11 +159,12 @@ function PlanningIdeas(props) {
   return (
     <>
       <GridList cellHeight="auto" cols={2}>
-        <GridListTile>
-          {getInvestibles(acceptedStageId)}
+        <GridListTile key="accepted">
+          {getInvestibles(acceptedStageId, false)}
         </GridListTile>
-        <GridListTile>
-          {getInvestibles(inDialogStageId)}
+        <GridListTile key="indialog">
+          {getInvestibles(inDialogStageId, false)}
+          {getInvestibles(inDialogStageId, true)}
         </GridListTile>
       </GridList>
     </>
@@ -149,10 +173,17 @@ function PlanningIdeas(props) {
 
 PlanningIdeas.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
+  investibles: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  comments: PropTypes.arrayOf(PropTypes.object),
   acceptedStageId: PropTypes.string.isRequired,
   inDialogStageId: PropTypes.string.isRequired,
+};
+
+PlanningIdeas.defaultProps = {
+  investibles: [],
+  comments: [],
 };
 
 export default PlanningIdeas;

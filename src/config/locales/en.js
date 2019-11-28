@@ -257,6 +257,7 @@ const messages = defineMessages({
   planningNoneInDialogWarning: 'No votable assignment',
   acceptedInvestiblesUpdatedAt: 'In progress from ',
   inDialogInvestiblesUpdatedAt: 'Assigned for voting on ',
+  blockedInvestiblesUpdatedAt: 'Blocked since ',
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',

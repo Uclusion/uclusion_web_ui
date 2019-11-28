@@ -100,7 +100,7 @@ function PlanningDialog(props) {
               return marketInfo.assigned.includes(presence.id);
             });
             return (
-              <>
+              <div key={presence.id}>
                 <Paper className={classes.presencePaper}>
                   <Typography
                     noWrap
@@ -114,9 +114,10 @@ function PlanningDialog(props) {
                     marketId={marketId}
                     acceptedStageId={acceptedStage.id}
                     inDialogStageId={inDialogStage.id}
+                    comments={comments}
                   />
                 )}
-              </>
+              </div>
             );
           })
         }
@@ -129,7 +130,7 @@ function PlanningDialog(props) {
       return [];
     }
     return [
-      <InvestibleAddActionButton onClick={toggleAddMode} />,
+      <InvestibleAddActionButton key="investibleadd" onClick={toggleAddMode} />,
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
       <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];
@@ -174,7 +175,7 @@ function PlanningDialog(props) {
           <SubSection
             title={intl.formatMessage({ id: 'planningDialogDiscussionLabel' })}
           >
-            <div ref={commentAddRef}>
+            <div ref={commentAddRef} key="commentsadd">
               <CommentAddBox
                 hidden={commentAddHidden}
                 type={commentAddType}

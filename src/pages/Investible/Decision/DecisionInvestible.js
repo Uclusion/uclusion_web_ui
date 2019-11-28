@@ -26,7 +26,6 @@ import { useIntl } from 'react-intl';
 function DecisionInvestible(props) {
 
   const {
-    hidden,
     investibleId,
     marketPresences,
     investibleComments,
@@ -82,7 +81,7 @@ function DecisionInvestible(props) {
     <Screen
       title={name}
       breadCrumbs={breadCrumbs}
-      hidden={hidden}
+      hidden={false}
       sidebarActions={sidebarActions}
     >
 
@@ -153,8 +152,6 @@ DecisionInvestible.propTypes = {
   userId: PropTypes.string.isRequired,
   toggleEdit: PropTypes.func,
   isAdmin: PropTypes.bool,
-  hidden: PropTypes.bool,
-
 };
 
 DecisionInvestible.defaultProps = {
@@ -163,6 +160,5 @@ DecisionInvestible.defaultProps = {
   commentsHash: {},
   toggleEdit: () => {},
   isAdmin: false,
-  hidden: false,
 };
 export default DecisionInvestible;

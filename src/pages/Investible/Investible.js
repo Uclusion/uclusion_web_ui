@@ -83,13 +83,17 @@ function Investible(props) {
   }
 
   if (loading) {
-    return (<Screen
-      title={name}
-      breadCrumbs={breadCrumbs}
-      hidden={hidden}
-      warning={warning}
-      loading={loading}
-    />);
+    return (
+      <Screen
+        title={name}
+        breadCrumbs={breadCrumbs}
+        hidden={hidden}
+        warning={warning}
+        loading={loading}
+      >
+        <div />
+      </Screen>
+    );
   }
 
   if (isDecision) {
@@ -136,7 +140,7 @@ function Investible(props) {
       <PlanningInvestible
         userId={userId}
         investibleId={investibleId}
-        marketId={marketId}
+        market={market}
         marketInvestible={inv}
         commentsHash={commentsHash}
         marketPresences={marketPresences}
@@ -147,7 +151,7 @@ function Investible(props) {
     );
   }
   // shouldn't get here
-  return (<React.Fragment />);
+  return (<></>);
 }
 
 Investible.propTypes = {

@@ -39,7 +39,7 @@ const styles = (theme) => ({
     flexDirection: 'column',
   },
   hidden: {
-    display: 'none'
+    display: 'none',
   },
   dialog: {},
   stageSelector: {
@@ -78,16 +78,17 @@ function Dialog(props) {
   const loading = !myPresence;
   const breadCrumbs = makeBreadCrumbs(history);
 
-
-
-
   if (loading) {
-    return (<Screen
-      title={currentMarketName}
-      hidden={hidden}
-      breadCrumbs={breadCrumbs}
-      loading={loading}
-    />);
+    return (
+      <Screen
+        title={currentMarketName}
+        hidden={hidden}
+        breadCrumbs={breadCrumbs}
+        loading={loading}
+      >
+        <div />
+      </Screen>
+    );
   }
 
   return (

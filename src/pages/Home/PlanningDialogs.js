@@ -6,8 +6,6 @@ import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
-import { FormattedDate, useIntl } from 'react-intl';
-import UpdateIcon from '@material-ui/icons/Update';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import LinkIcon from '@material-ui/icons/Link';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
@@ -37,10 +35,7 @@ function PlanningDialogs(props) {
   const classes = useStyles();
   const { markets } = props;
   const sortedMarkets = _.sortBy(markets, 'name');
-  const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);
-
-  const [showExtension, setShowExtension] = useState({});
   const [showInvite, setShowInvite] = useState({});
 
   function getParticipantInfo(presences) {
@@ -86,18 +81,8 @@ function PlanningDialogs(props) {
     setInviteVisible(newValue, marketId);
   }
 
-  function setMarketExtensionVisible(value, marketId) {
-    setShowExtension({ ...showExtension, [marketId]: value });
-  }
-
-  function toggleMarketExtensionVisible(marketId) {
-    const oldValue = showExtension[marketId];
-    const newValue = !oldValue;
-    setMarketExtensionVisible(newValue, marketId);
-  }
-
   function getDialogActions(marketId, myPresence) {
-    const { is_admin, following } = myPresence;
+    const { following } = myPresence;
     const actions = [];
     actions.push(
       <TooltipIconButton
@@ -107,43 +92,30 @@ function PlanningDialogs(props) {
         onClick={() => toggleInviteVisible(marketId)}
       />,
     );
-    if (is_admin) {
+    actions.push(
+      <ArchiveMarketButton key="archive" marketId={marketId} />
+    );
+    actions.push(
+      <LeaveMarketButton key="leave" marketId={marketId} />,
+    );
+    // if participant you can become observer, or if observer you can become participant
+    if (following) {
       actions.push(
-        <TooltipIconButton
-          key="deadline"
-          translationId="decisionDialogsExtendDeadline"
-          onClick={() => toggleMarketExtensionVisible(marketId)}
-          icon={<UpdateIcon />}
-        />,
-      );
-      actions.push(
-        <ArchiveMarketButton key="archive" marketId={marketId} />,
+        <ChangeToObserverButton key="observe" marketId={marketId} />,
       );
     } else {
-      // admins can't exit a dialog or change their role
       actions.push(
-        <LeaveMarketButton key="leave" marketId={marketId} />,
+        <ChangeToParticipantButton key="participate" marketId={marketId} />,
       );
-      // if participant you can become observer, or if observer you can become participant
-      if (following) {
-        actions.push(
-          <ChangeToObserverButton key="observe" marketId={marketId} />,
-        );
-      } else {
-        actions.push(
-          <ChangeToParticipantButton key="participate" marketId={marketId} />,
-        );
-      }
     }
     return actions;
   }
 
   function getMarketItems() {
     return sortedMarkets.map((market) => {
-      const { id: marketId, name, expires_at } = market;
+      const { id: marketId, name } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      const admin = marketPresences.find((presence) => presence.is_admin) || {};
       const sortedPresences = _.sortBy(marketPresences, 'name');
       return (
         <Grid
@@ -167,23 +139,6 @@ function PlanningDialogs(props) {
                   {name}
                 </Link>
               </Typography>
-              <Typography
-                color="textSecondary"
-                className={classes.textData}
-              >
-                {intl.formatMessage({ id: 'decisionDialogsStartedBy' }, { name: admin.name })}
-              </Typography>
-
-              <Typography
-                color="textSecondary"
-                className={classes.textData}
-              >
-                {intl.formatMessage({ id: 'decisionDialogsExpires' })}
-                <FormattedDate
-                  value={expires_at}
-                />
-              </Typography>
-
               {getParticipantInfo(sortedPresences)}
             </CardContent>
             <CardActions>

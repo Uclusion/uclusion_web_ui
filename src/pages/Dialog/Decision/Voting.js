@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Typography, Grid, CardContent } from '@material-ui/core';
+import { Typography, Grid, CardContent, Badge } from '@material-ui/core';
 import {
   XYPlot,
   VerticalBarSeries,
@@ -9,6 +9,7 @@ import {
 import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import RaisedCard from '../../../components/Cards/RaisedCard';
+import HowToVoteIcon from '@material-ui/icons/HowToVote';
 
 function Voting(props) {
   const history = useHistory();
@@ -86,7 +87,7 @@ function Voting(props) {
   }
 
   function getItemVote(item) {
-    const { id, investments, name } = item;
+    const { id, investments, name, numSupporters } = item;
     return (
       <Grid
         item
@@ -99,19 +100,49 @@ function Voting(props) {
           onClick={() => navigate(history, formInvestibleLink(marketId, id))}
         >
           <CardContent>
-            <div>
-              <div>
+            <Grid
+              direction="column"
+              container
+              spacing={1}
+            >
+              <Grid
+                item
+                xs={12}
+              >
                 <Typography
                   noWrap
                 >
                   {name}
                 </Typography>
-              </div>
-
-              <div>
-                {getCertaintyChart(investments)}
-              </div>
-            </div>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+              >
+                <Grid
+                  container
+                  spacing={1}
+                  alignItems="flex-end"
+                >
+                  <Grid
+                    item
+                  >
+                    <Badge
+                      badgeContent={numSupporters}
+                      showZero
+                      color="primary"
+                    >
+                      <HowToVoteIcon/>
+                    </Badge>
+                  </Grid>
+                  <Grid
+                    item
+                  >
+                    {getCertaintyChart(investments)}
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
           </CardContent>
         </RaisedCard>
       </Grid>

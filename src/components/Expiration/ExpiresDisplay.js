@@ -82,16 +82,10 @@ function ExpiresDisplay(props) {
   const classes = useStyles();
   const { value, createdAt } = props;
   const then = moment(createdAt);
-  console.debug('Then is');
-  console.debug(then);
   const now = moment();
   const diff = moment.duration(now - then);
-  console.debug('Diff is');
-  console.debug(diff);
   // eslint-disable-next-line new-cap
   const countdown = new moment.duration(value);
-  console.debug('countdown is');
-  console.debug(countdown);
   const days = diff.days();
   const hours = diff.hours();
   const minutes = diff.minutes();
@@ -118,7 +112,7 @@ function ExpiresDisplay(props) {
         </div>
       )}
       {daysRemaining === 0 && hours < 23 && (
-        <div className="countdown-item">
+        <div className={classes.countdownItem}>
           <svg className={classes.countdownSvg}>
             <path
               fill="none"

@@ -11,7 +11,7 @@ import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctio
 import RaisedCard from '../../../components/Cards/RaisedCard';
 import HowToVoteIcon from '@material-ui/icons/HowToVote';
 
-function Voting(props) {
+function CurrentVoting(props) {
   const history = useHistory();
 
   const { marketPresences, investibles, marketId } = props;
@@ -167,7 +167,7 @@ function Voting(props) {
   );
 }
 
-Voting.propTypes = {
+CurrentVoting.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   investibles: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
@@ -175,9 +175,9 @@ Voting.propTypes = {
   marketId: PropTypes.string.isRequired,
 };
 
-Voting.defaultProps = {
+CurrentVoting.defaultProps = {
   investibles: [],
   marketPresences: [],
 };
 
-export default Voting;
+export default CurrentVoting;

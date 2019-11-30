@@ -11,7 +11,7 @@ import Summary from '../Summary';
 import InvestibleAdd from './InvestibleAdd';
 import ProposedIdeas from './ProposedIdeas';
 import SubSection from '../../../containers/SubSection/SubSection';
-import Voting from './Voting';
+import CurrentVoting from './CurrentVoting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import Screen from '../../../containers/Screen/Screen';
@@ -141,7 +141,7 @@ function DecisionDialog(props) {
           <SubSection
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
           >
-            <Voting
+            <CurrentVoting
               marketPresences={marketPresences}
               investibles={underConsideration}
               marketId={marketId}

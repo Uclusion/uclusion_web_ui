@@ -261,7 +261,7 @@ const messages = defineMessages({
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
-  decisionDialogCurrentVotingLabel: 'Current Voting',
+  decisionDialogCurrentVotingLabel: 'Current CurrentVoting',
   decisionDialogProposedOptionsLabel: 'Proposed Options',
   decisionDialogDiscussionLabel: 'Discussion',
   decisionDialogAddInvestibleLabel: 'Propose Option',
@@ -271,8 +271,8 @@ const messages = defineMessages({
 
 
   // DecisionInvestible
-  decisionInvestibleYourVoting: 'Your Voting',
-  decisionInvestibleOthersVoting: "Other's Voting",
+  decisionInvestibleYourVoting: 'Your CurrentVoting',
+  decisionInvestibleOthersVoting: "Other's CurrentVoting",
   decisionInvestibleDescription: 'Description',
   decisionInvestibleDiscussion: 'Discussion',
 

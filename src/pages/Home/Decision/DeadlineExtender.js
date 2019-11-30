@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import ExpirationSelector from '../../../components/DecisionDialogs/ExpirationSelector';
+import ExpirationSelector from '../../../components/Expiration/ExpirationSelector';
 import { Button } from '@material-ui/core';
 import { extendMarketExpiration } from '../../../api/markets';
 import { useIntl } from 'react-intl';

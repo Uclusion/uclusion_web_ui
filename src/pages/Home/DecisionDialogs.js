@@ -6,7 +6,6 @@ import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
-import { FormattedDate, useIntl } from 'react-intl';
 import UpdateIcon from '@material-ui/icons/Update';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
@@ -23,6 +22,7 @@ import InviteLinker from './Decision/InviteLinker';
 import LeaveMarketButton from './Decision/LeaveMarketButton';
 import ArchiveMarketButton from './Decision/ArchiveMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
+import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -39,7 +39,6 @@ function DecisionDialogs(props) {
   const classes = useStyles();
   const { markets } = props;
   const sortedMarkets = _.sortBy(markets, 'name');
-  const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);
 
   const [showExtension, setShowExtension] = useState({});
@@ -146,7 +145,7 @@ function DecisionDialogs(props) {
 
   function getMarketItems() {
     return sortedMarkets.map((market) => {
-      const { id: marketId, name, expires_at } = market;
+      const { id: marketId, name, expires_at: expiresAt, created_at: createdAt } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const sortedPresences = _.sortBy(marketPresences, 'name');
@@ -173,15 +172,10 @@ function DecisionDialogs(props) {
                   {name}
                 </Link>
               </Typography>
-              <Typography
-                color="textSecondary"
-                className={classes.textData}
-              >
-                {intl.formatMessage({ id: 'decisionDialogsExpires' })}
-                <FormattedDate
-                  value={expires_at}
-                />
-              </Typography>
+              <ExpiresDisplay
+                value={expiresAt}
+                createdAt={createdAt}
+              />
 
               {getParticipantInfo(sortedPresences)}
             </CardContent>

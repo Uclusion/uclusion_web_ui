@@ -37,6 +37,7 @@
     "react-router-dom": "^5.1.2",
     "react-toastify": "^5.3.2",
     "reselect": "^4.0.0",
+    "moment": "^2.24.0",
     "uclusion_sdk": "file:../uclusion_sdk",
     "use-debounce": "^3.1.0",
     "video-react": "^0.14.1"

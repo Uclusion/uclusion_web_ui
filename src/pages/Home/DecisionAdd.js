@@ -5,7 +5,7 @@ import {
   Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
 } from '@material-ui/core';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
-import ExpirationSelector from '../../components/DecisionDialogs/ExpirationSelector';
+import ExpirationSelector from '../../components/Expiration/ExpirationSelector';
 import { createDecision } from '../../api/markets';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';

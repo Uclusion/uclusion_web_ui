@@ -1,18 +1,21 @@
 import React, { useContext, useState } from 'react';
-import { Grid, Typography, Card, CardContent, CardActions, Link } from '@material-ui/core';
+import {
+  Grid, Typography, Card, CardContent, CardActions, Link,
+} from '@material-ui/core';
 import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import { FormattedDate, useIntl } from 'react-intl';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import UpdateIcon from '@material-ui/icons/Update';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import LinkIcon from '@material-ui/icons/Link';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
+import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import ChangeToParticipantButton from './Decision/ChangeToParticipantButton';
 import ChangeToObserverButton from './Decision/ChangeToObserverButton';
 import DeadlineExtender from './Decision/DeadlineExtender';
@@ -44,8 +47,12 @@ function DecisionDialogs(props) {
 
   function getParticipantInfo(presences) {
     return presences.map((presence) => {
-      const { id: userId, name, following } = presence;
-      const icon = following ? <ThumbsUpDownIcon size='small' /> : <VisibilityIcon size='small' />;
+      const {
+        id: userId, name, following, is_admin: isAdmin,
+      } = presence;
+      // eslint-disable-next-line no-nested-ternary
+      const icon = isAdmin ? <SupervisorAccountIcon size="small" /> : following ? <ThumbsUpDownIcon size="small" />
+        : <VisibilityIcon size="small" />;
       return (
         <Card
           key={userId}
@@ -62,8 +69,7 @@ function DecisionDialogs(props) {
             <Grid
               item
               xs={4}
-            >
-            </Grid>
+            />
             <Grid
               item
               xs={4}
@@ -105,7 +111,8 @@ function DecisionDialogs(props) {
         translationId="decisionDialogsInviteParticipant"
         icon={<LinkIcon />}
         onClick={() => toggleInviteVisible(marketId)}
-      />);
+      />,
+    );
     if (is_admin) {
       actions.push(
         <TooltipIconButton
@@ -113,24 +120,24 @@ function DecisionDialogs(props) {
           translationId="decisionDialogsExtendDeadline"
           onClick={() => toggleMarketExtensionVisible(marketId)}
           icon={<UpdateIcon />}
-        />
+        />,
       );
       actions.push(
-        <ArchiveMarketButton key="archive" marketId={marketId} />
+        <ArchiveMarketButton key="archive" marketId={marketId} />,
       );
     } else {
       // admins can't exit a dialog or change their role
       actions.push(
-        <LeaveMarketButton key="leave" marketId={marketId} />
+        <LeaveMarketButton key="leave" marketId={marketId} />,
       );
       // if participant you can become observer, or if observer you can become participant
       if (following) {
         actions.push(
-          <ChangeToObserverButton key="observe" marketId={marketId} />
+          <ChangeToObserverButton key="observe" marketId={marketId} />,
         );
       } else {
         actions.push(
-          <ChangeToParticipantButton key="participate" marketId={marketId} />
+          <ChangeToParticipantButton key="participate" marketId={marketId} />,
         );
       }
     }
@@ -142,7 +149,6 @@ function DecisionDialogs(props) {
       const { id: marketId, name, expires_at } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      const admin = marketPresences.find((presence) => presence.is_admin) || {};
       const sortedPresences = _.sortBy(marketPresences, 'name');
       return (
         <Grid
@@ -167,13 +173,6 @@ function DecisionDialogs(props) {
                   {name}
                 </Link>
               </Typography>
-              <Typography
-                color="textSecondary"
-                className={classes.textData}
-              >
-                {intl.formatMessage({ id: 'decisionDialogsStartedBy' }, { name: admin.name })}
-              </Typography>
-
               <Typography
                 color="textSecondary"
                 className={classes.textData}

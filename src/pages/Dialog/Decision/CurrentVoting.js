@@ -10,11 +10,15 @@ import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import RaisedCard from '../../../components/Cards/RaisedCard';
 import HowToVoteIcon from '@material-ui/icons/HowToVote';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import ReportProblemIcon from '@material-ui/icons/ReportProblem';
+import ContactSupportIcon from '@material-ui/icons/ContactSupport';
+import ChangeHistoryIcon from '@material-ui/icons/ChangeHistory';
 
 function CurrentVoting(props) {
   const history = useHistory();
 
-  const { marketPresences, investibles, marketId } = props;
+  const { marketPresences, investibles, marketId, comments } = props;
   const strippedInvestibles = investibles.map((inv) => inv.investible);
 
   function getVoteTotalsForUser(presence) {
@@ -35,8 +39,8 @@ function CurrentVoting(props) {
       const { id } = inv;
       const augmented = {
         ...inv,
-        numSupporters: 0,
         investments: [],
+        numSupporters: 0,
       };
       acc[id] = augmented;
       return acc;
@@ -47,10 +51,11 @@ function CurrentVoting(props) {
       Object.keys(userInvestments).forEach((investible_id) => {
         const oldValue = tallies[investible_id];
         if (oldValue) {
+          const newInvestments = [...oldValue.investments, userInvestments[investible_id]];
           const newValue = {
             ...oldValue,
-            numSupporters: oldValue.numSupporters + 1,
-            investments: [...oldValue.investments, userInvestments[investible_id]],
+            investments: newInvestments,
+            numSupporters: newInvestments.length,
           };
           tallies[investible_id] = newValue;
         }
@@ -65,6 +70,39 @@ function CurrentVoting(props) {
     left: 0,
     right: 1,
   };
+
+  function getIndicatorIcon(type) {
+    switch (type) {
+      case ISSUE_TYPE:
+        return <ReportProblemIcon color="error"/>;
+      case QUESTION_TYPE:
+        return <ContactSupportIcon/>;
+      case SUGGEST_CHANGE_TYPE:
+        return <ChangeHistoryIcon/>;
+      default:
+        return null;
+    }
+  }
+
+  function getIndicator(comments, type) {
+    const typeComments = comments.filter((comment) => comment.comment_type === type);
+    if (typeComments.length > 0) {
+      return getIndicatorIcon(type);
+    }
+    return null;
+  }
+
+  function getCommentIndicators(comments) {
+    const indicators = [];
+    const commentRoots = comments.filter((comment) => !comment.parent_id);
+    [ISSUE_TYPE].forEach((type) => {
+      const indicator = getIndicator(commentRoots, type);
+      if (indicator !== null) {
+        indicators.push({ type, indicator });
+      }
+    });
+    return indicators;
+  }
 
   function getCertaintyChart(investments) {
     return (
@@ -86,8 +124,60 @@ function CurrentVoting(props) {
     );
   }
 
+  function getVoteDisplay(investments) {
+    return (
+      <Grid
+        container
+        spacing={1}
+        alignItems="flex-end"
+      >
+        <Grid
+          item
+        >
+          <Badge
+            badgeContent={investments.length}
+            showZero
+            color="primary"
+          >
+            <HowToVoteIcon/>
+          </Badge>
+        </Grid>
+        <Grid
+          item
+        >
+          {getCertaintyChart(investments)}
+        </Grid>
+      </Grid>
+    );
+  }
+
+  function getCommentsDisplay(commentIndicators) {
+    return (
+      <Grid
+        container
+        spacing={1}
+        alignItems="flex-end"
+      >
+        {commentIndicators.map((indicatorInfo) => {
+          const { type, indicator } = indicatorInfo;
+          return (
+            <Grid
+              item
+              key={type}
+            >
+              {indicator}
+            </Grid>
+          );
+        })}
+      </Grid>
+    );
+  }
+
   function getItemVote(item) {
-    const { id, investments, name, numSupporters } = item;
+    const { id, investments, name } = item;
+    const investibleComments = comments.filter((comment) => comment.investible_id === id);
+    const commentIndicators = getCommentIndicators(investibleComments);
+    const issuesExist = commentIndicators.length > 0;
     return (
       <Grid
         item
@@ -119,28 +209,8 @@ function CurrentVoting(props) {
                 item
                 xs={12}
               >
-                <Grid
-                  container
-                  spacing={1}
-                  alignItems="flex-end"
-                >
-                  <Grid
-                    item
-                  >
-                    <Badge
-                      badgeContent={numSupporters}
-                      showZero
-                      color="primary"
-                    >
-                      <HowToVoteIcon/>
-                    </Badge>
-                  </Grid>
-                  <Grid
-                    item
-                  >
-                    {getCertaintyChart(investments)}
-                  </Grid>
-                </Grid>
+                {issuesExist && getCommentsDisplay(commentIndicators)}
+                {!issuesExist && getVoteDisplay(investments)}
               </Grid>
             </Grid>
           </CardContent>
@@ -149,9 +219,7 @@ function CurrentVoting(props) {
     );
   }
 
-
   const tallies = getInvestibleVotes();
-
   const talliesArray = Object.values(tallies);
   // descending order of support
   const sortedTalliesArray = _.sortBy(talliesArray, 'numSupporters', 'name').reverse();
@@ -173,11 +241,14 @@ CurrentVoting.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  comments: PropTypes.arrayOf(PropTypes.object),
 };
 
 CurrentVoting.defaultProps = {
   investibles: [],
   marketPresences: [],
+  comments: [],
 };
 
 export default CurrentVoting;

@@ -16,7 +16,6 @@ import Screen from '../../../containers/Screen/Screen';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
-import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import { useIntl } from 'react-intl';
 

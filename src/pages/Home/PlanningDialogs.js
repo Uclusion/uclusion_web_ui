@@ -131,6 +131,7 @@ function PlanningDialogs(props) {
             <CardContent>
               <Typography>
                 <Link
+                  href="#"
                   variant="inherit"
                   underline="always"
                   color="primary"

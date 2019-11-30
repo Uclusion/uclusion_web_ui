@@ -158,6 +158,7 @@ function DecisionDialogs(props) {
             <CardContent>
               <Typography>
                 <Link
+                  href="#"
                   variant="inherit"
                   underline="always"
                   color="primary"

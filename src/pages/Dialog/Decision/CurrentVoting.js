@@ -194,6 +194,7 @@ function CurrentVoting(props) {
               direction="column"
               container
               spacing={1}
+              alignItems="center"
             >
               <Grid
                 item

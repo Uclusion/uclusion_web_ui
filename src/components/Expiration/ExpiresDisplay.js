@@ -2,6 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import * as moment from 'moment';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles((theme) => ({
   countdownWrapper: {
@@ -80,6 +81,7 @@ function mapNumber(number, inMin, inMax, outMin, outMax) {
 
 function ExpiresDisplay(props) {
   const classes = useStyles();
+  const intl = useIntl();
   const { value, createdAt } = props;
   const then = moment(createdAt);
   const now = moment();
@@ -108,7 +110,7 @@ function ExpiresDisplay(props) {
             />
           </svg>
           {daysRemaining}
-          <span className={classes.countdownItemSpan}>days</span>
+          <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'days' })}</span>
         </div>
       )}
       {daysRemaining === 0 && hours < 23 && (
@@ -122,7 +124,7 @@ function ExpiresDisplay(props) {
             />
           </svg>
           {hours}
-          <span className={classes.countdownItemSpan}>hours</span>
+          <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'hours' })}</span>
         </div>
       )}
       {daysRemaining === 0 && hours === 23 && (
@@ -136,7 +138,7 @@ function ExpiresDisplay(props) {
             />
           </svg>
           {minutes}
-          <span className={classes.countdownItemSpan}>minutes</span>
+          <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'minutes' })}</span>
         </div>
       )}
     </div>

@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { ISSUE_TYPE } from '../../constants/comments';
-import Comment from '../../components/Comments/Comment';
-import Issue from '../../components/Issues/Issue';
 import { Grid } from '@material-ui/core';
+import Comment from '../../components/Comments/Comment';
 
 
 function CommentBox(props) {
@@ -16,15 +14,13 @@ function CommentBox(props) {
 
   function getCommentCards() {
     return threadRoots.map((comment) => {
-      const isIssue = comment.comment_type === ISSUE_TYPE;
-      const RenderedComment = (isIssue) ? Issue : Comment;
       return (
         <Grid
           item
           key={comment.id}
           xs={12}
         >
-          <RenderedComment
+          <Comment
             depth={0}
             marketId={marketId}
             comment={comment}

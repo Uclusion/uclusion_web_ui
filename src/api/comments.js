@@ -28,3 +28,15 @@ export function saveComment(marketId, investibleId, replyId, body, commentType, 
     .then((client) => client.investibles.createComment(investibleId, body, replyId, commentType, uploadedFiles))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
+
+export function resolveComment(marketId, commentId) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.updateComment(commentId, undefined, true))
+    .catch((error) => toastErrorAndThrow(error, 'errorCommentResolveFailed'));
+}
+
+export function reopenComment(marketId, commentId) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.updateComment(commentId, undefined, false))
+    .catch((error) => toastErrorAndThrow(error, 'errorCommentReopenFailed'));
+}

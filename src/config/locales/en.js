@@ -203,6 +203,9 @@ const messages = defineMessages({
   commentReplyLabel: 'Reply',
   commentReplySaveLabel: 'Save',
   commentReplyCancelLabel: 'Cancel',
+  commentReopenLabel: 'Reopen',
+  commentResolveLabel: 'Resolve',
+  commentViewThread: 'View',
 
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
@@ -317,10 +320,12 @@ const messages = defineMessages({
   errorEditLockReleaseFailed: 'There was a problem releasing edit permission',
   errorSubmitToModeratorFailed: 'There was a problem submitting to the moderator',
   errorChangeToObserverFailed: 'There was a problem becoming to an observer',
-  errorChangeToPariticpantFailed: 'There was a problem becoming a participant',
+  errorChangeToParticipantFailed: 'There was a problem becoming a participant',
   errorMarketUpdateFailed: 'There was a problem editing the dialog',
   errorMarketExpirationExtendFailed: 'There was a problem extending the deadline',
   errorMarketLeaveFailed: 'There was a problem leaving the dialog',
+  errorCommentResolveFailed: 'There was a problem resolving',
+  errorCommentReopenFailed: 'There was a problem reopening',
   errorMarketArchiveFailed: 'There was a problem archiving the dialog',
 
 });

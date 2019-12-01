@@ -1,33 +1,27 @@
 import React, { useState } from 'react';
+import { useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
 import {
   Button,
-  ExpansionPanelDetails,
-  ExpansionPanelActions,
-  ExpansionPanel,
-  ExpansionPanelSummary
+  ButtonGroup,
+  Grid,
 } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 import QuillEditor from '../TextEditors/QuillEditor';
 import CommentAdd from './CommentAdd';
 import { REPLY_TYPE } from '../../constants/comments';
-import { useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    padding: theme.spacing(3, 2),
-  },
-}));
+import RaisedCard from '../Cards/RaisedCard';
+import { reopenComment, resolveComment } from '../../api/comments';
 
 function Comment(props) {
   const {
     comment, commentsHash, depth, marketId,
   } = props;
-  const classes = useStyles();
   const intl = useIntl();
-  const { children } = comment;
+  const { children, id } = comment;
 
   const [replyOpen, setReplyOpen] = useState(false);
+  const [toggledOpen, setToggledOpen] = useState(false);
 
   function getChildComments() {
     if (children) {
@@ -46,42 +40,98 @@ function Comment(props) {
         );
       });
     }
-    return <div/>;
+    return <div />;
   }
 
   function toggleReply() {
     setReplyOpen(!replyOpen);
   }
 
-  const expanded = replyOpen || !comment.is_resolved;
+  function reopen() {
+    return reopenComment(marketId, id);
+  }
+
+  function resolve() {
+    resolveComment(marketId, id);
+  }
+
+  function flipToggledOpen() {
+    setToggledOpen(!toggledOpen);
+  }
+
+  const expanded = replyOpen || toggledOpen || !comment.is_resolved;
 
   return (
-    <ExpansionPanel
-      className={classes.root}
-      expanded={expanded}
-    >
-      <ExpansionPanelSummary>
-        <QuillEditor marketId={marketId} readOnly value={comment.body}/>
-      </ExpansionPanelSummary>
-      <ExpansionPanelActions>
-        <Button onClick={toggleReply}>
-          {intl.formatMessage({ id: 'commentReplyLabel' })}
-        </Button>
-      </ExpansionPanelActions>
-      <ExpansionPanelDetails>
-        {replyOpen
-        && (
-          <CommentAdd
-            marketId={marketId}
-            parent={comment}
-            onSave={toggleReply}
-            onCancel={toggleReply}
-            type={REPLY_TYPE}
-          />
+    <RaisedCard>
+      <Grid
+        container
+        direction="column"
+      >
+        <Grid
+          item
+          xs={12}
+        >
+          <QuillEditor marketId={marketId} readOnly value={comment.body}/>
+        </Grid>
+        <Grid
+          item
+          xs={12}
+        >
+
+          {!comment.is_resolved && (
+            <ButtonGroup
+              color="primary"
+              variant="contained"
+            >
+              <Button onClick={toggleReply}>
+                {intl.formatMessage({ id: 'commentReplyLabel' })}
+              </Button>
+              {!comment.reply_id && (
+                <Button onClick={resolve}>
+                  {intl.formatMessage({ id: 'commentResolveLabel' })}
+                </Button>
+              )}
+            </ButtonGroup>
+          )}
+          {comment.is_resolved && (
+            <ButtonGroup
+              color="primary"
+              variant="contained"
+            >
+              <Button onClick={flipToggledOpen}>
+                {intl.formatMessage({ id: 'commentViewLabel' })}
+              </Button>
+              <Button onClick={reopen}>
+                {intl.formatMessage({ id: 'commentReopenLabel' })}
+              </Button>
+            </ButtonGroup>
+          )}
+        </Grid>
+        {replyOpen && (
+          <Grid
+            item
+            xs={12}
+          >
+
+            <CommentAdd
+              marketId={marketId}
+              parent={comment}
+              onSave={toggleReply}
+              onCancel={toggleReply}
+              type={REPLY_TYPE}
+            />
+          </Grid>
         )}
-        {getChildComments()}
-      </ExpansionPanelDetails>
-    </ExpansionPanel>
+        {expanded && (
+          <Grid
+            item
+            xs={12}
+          >
+            {getChildComments()}
+          </Grid>
+        )}
+      </Grid>
+    </RaisedCard>
   );
 }
 

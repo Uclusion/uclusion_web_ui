@@ -30,13 +30,17 @@ export function saveComment(marketId, investibleId, replyId, body, commentType, 
 }
 
 export function resolveComment(marketId, commentId) {
+  // comments don't have uploaded files, hence we don't need to worry about zeroing them out.
+  // otherwise we'd need the full comment to resolve whether or not we're changing them
   return getMarketClient(marketId)
-    .then((client) => client.investibles.updateComment(commentId, undefined, true))
+    .then((client) => client.investibles.updateComment(commentId, undefined, true, []))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentResolveFailed'));
 }
 
 export function reopenComment(marketId, commentId) {
+  // comments don't have uploaded files, hence we don't need to worry about zeroing them out.
+  // otherwise we'd need the full comment to resolve whether or not we're changing them
   return getMarketClient(marketId)
-    .then((client) => client.investibles.updateComment(commentId, undefined, false))
+    .then((client) => client.investibles.updateComment(commentId, undefined, false, []))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentReopenFailed'));
 }

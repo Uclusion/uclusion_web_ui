@@ -92,10 +92,12 @@ function ExpiresDisplay(props) {
   const hours = diff.hours();
   const minutes = diff.minutes();
   const daysRemaining = countdown.days() - days;
+  const hoursRemaining = countdown.hours() - hours;
+  const minutesRemaining = countdown.minutes() - minutes;
   // Mapping the date values to radius values
   const daysRadius = mapNumber(daysRemaining, countdown.days(), 0, 0, 360);
-  const hoursRadius = mapNumber(hours, 24, 0, 0, 360);
-  const minutesRadius = mapNumber(minutes, 60, 0, 0, 360);
+  const hoursRadius = mapNumber(hoursRemaining, countdown.hours(), 0, 0, 360);
+  const minutesRadius = mapNumber(minutesRemaining, countdown.minutes(), 0, 0, 360);
 
   return (
     <div className={classes.countdownWrapper}>
@@ -113,7 +115,7 @@ function ExpiresDisplay(props) {
           <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'days' })}</span>
         </div>
       )}
-      {daysRemaining === 0 && hours < 23 && (
+      {daysRemaining === 0 && hoursRemaining > 0 && (
         <div className={classes.countdownItem}>
           <svg className={classes.countdownSvg}>
             <path
@@ -123,11 +125,11 @@ function ExpiresDisplay(props) {
               d={describeArc(50, 50, 48, 0, hoursRadius)}
             />
           </svg>
-          {hours}
+          {hoursRemaining}
           <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'hours' })}</span>
         </div>
       )}
-      {daysRemaining === 0 && hours === 23 && (
+      {daysRemaining === 0 && hoursRemaining === 0 && (
         <div className={classes.countdownItem}>
           <svg className={classes.countdownSvg}>
             <path
@@ -137,7 +139,7 @@ function ExpiresDisplay(props) {
               d={describeArc(50, 50, 48, 0, minutesRadius)}
             />
           </svg>
-          {minutes}
+          {minutesRemaining}
           <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'minutes' })}</span>
         </div>
       )}

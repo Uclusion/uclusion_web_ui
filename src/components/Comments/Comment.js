@@ -71,14 +71,14 @@ function Comment(props) {
           item
           xs={12}
         >
-          <QuillEditor marketId={marketId} readOnly value={comment.body}/>
+          <QuillEditor marketId={marketId} readOnly value={comment.body} />
         </Grid>
         <Grid
           item
           xs={12}
         >
 
-          {!comment.is_resolved && (
+          {!comment.resolved && (
             <ButtonGroup
               color="primary"
               variant="contained"
@@ -93,7 +93,7 @@ function Comment(props) {
               )}
             </ButtonGroup>
           )}
-          {comment.is_resolved && (
+          {comment.resolved && (
             <ButtonGroup
               color="primary"
               variant="contained"

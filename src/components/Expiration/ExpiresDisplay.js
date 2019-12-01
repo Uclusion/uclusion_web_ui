@@ -129,7 +129,7 @@ function ExpiresDisplay(props) {
           <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'hours' })}</span>
         </div>
       )}
-      {daysRemaining <= 0 && hoursRemaining <= 0 && (
+      {daysRemaining <= 0 && hoursRemaining <= 0 && minutesRemaining >= 0 && (
         <div className={classes.countdownItem}>
           <svg className={classes.countdownSvg}>
             <path

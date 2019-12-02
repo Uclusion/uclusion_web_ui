@@ -82,22 +82,28 @@ function mapNumber(number, inMin, inMax, outMin, outMax) {
 function ExpiresDisplay(props) {
   const classes = useStyles();
   const intl = useIntl();
-  const { value, createdAt } = props;
+  const { createdAt, expirationMinutes } = props;
   const then = moment(createdAt);
   const now = moment();
-  const diff = moment.duration(now - then);
+  const diff = moment.duration(now.diff(then), 'milliseconds');
   // eslint-disable-next-line new-cap
-  const countdown = new moment.duration(value);
+  const countdown = new moment.duration(expirationMinutes, 'minutes');
   const days = diff.days();
   const hours = diff.hours();
   const minutes = diff.minutes();
-  const daysRemaining = countdown.days() - days;
-  const hoursRemaining = countdown.hours() - hours;
-  const minutesRemaining = countdown.minutes() - minutes;
+  let daysRemaining = countdown.days() - days;
+  let hoursRemaining = 24 - hours;
+  if (daysRemaining === 1) {
+    daysRemaining = 0;
+  }
+  if (hoursRemaining === 1) {
+    hoursRemaining = 0;
+  }
+  const minutesRemaining = 60 - minutes;
   // Mapping the date values to radius values
   const daysRadius = mapNumber(daysRemaining, countdown.days(), 0, 0, 360);
-  const hoursRadius = mapNumber(hoursRemaining, countdown.hours(), 0, 0, 360);
-  const minutesRadius = mapNumber(minutesRemaining, countdown.minutes(), 0, 0, 360);
+  const hoursRadius = mapNumber(hoursRemaining, 24, 0, 0, 360);
+  const minutesRadius = mapNumber(minutesRemaining, 60, 0, 0, 360);
 
   return (
     <div className={classes.countdownWrapper}>
@@ -115,12 +121,12 @@ function ExpiresDisplay(props) {
           <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'days' })}</span>
         </div>
       )}
-      {daysRemaining <= 0 && hoursRemaining > 0 && (
+      {daysRemaining === 0 && hoursRemaining > 0 && (
         <div className={classes.countdownItem}>
           <svg className={classes.countdownSvg}>
             <path
               fill="none"
-              stroke="#333"
+              stroke="#ff0000"
               strokeWidth="4"
               d={describeArc(50, 50, 48, 0, hoursRadius)}
             />
@@ -129,12 +135,12 @@ function ExpiresDisplay(props) {
           <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'hours' })}</span>
         </div>
       )}
-      {daysRemaining <= 0 && hoursRemaining <= 0 && minutesRemaining >= 0 && (
+      {daysRemaining === 0 && hoursRemaining === 0 && minutesRemaining >= 0 && (
         <div className={classes.countdownItem}>
           <svg className={classes.countdownSvg}>
             <path
               fill="none"
-              stroke="#333"
+              stroke="#ff0000"
               strokeWidth="4"
               d={describeArc(50, 50, 48, 0, minutesRadius)}
             />
@@ -148,7 +154,7 @@ function ExpiresDisplay(props) {
 }
 
 ExpiresDisplay.propTypes = {
-  value: PropTypes.number.isRequired,
+  expirationMinutes: PropTypes.number.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   createdAt: PropTypes.object.isRequired,
 };

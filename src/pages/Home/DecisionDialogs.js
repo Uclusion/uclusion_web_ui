@@ -145,7 +145,9 @@ function DecisionDialogs(props) {
 
   function getMarketItems() {
     return sortedMarkets.map((market) => {
-      const { id: marketId, name, expires_at: expiresAt, created_at: createdAt } = market;
+      const {
+        id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes,
+      } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const sortedPresences = _.sortBy(marketPresences, 'name');
@@ -173,8 +175,8 @@ function DecisionDialogs(props) {
                 </Link>
               </Typography>
               <ExpiresDisplay
-                value={expiresAt}
                 createdAt={createdAt}
+                expirationMinutes={expirationMinutes}
               />
 
               {getParticipantInfo(sortedPresences)}

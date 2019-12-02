@@ -135,7 +135,6 @@ function CurrentVoting(props) {
           item
         >
           <Typography
-            noWrap
           >
             {intl.formatMessage({ id: 'numVoting' }, { x: investments.length })}
           </Typography>
@@ -199,7 +198,6 @@ function CurrentVoting(props) {
                 xs={12}
               >
                 <Typography
-                  noWrap
                 >
                   {name}
                 </Typography>

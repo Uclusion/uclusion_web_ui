@@ -120,7 +120,7 @@ function AssignmentList(props) {
     const assignments = computeAssignments();
     // console.log(assignments);
     return sortedParticipants.map((presence) => {
-      const { id: presenceId, name } = presence;
+      const { id: presenceId } = presence;
       // console.log(presenceId);
       // console.log(name);
       const presenceAssignments = assignments[presenceId];

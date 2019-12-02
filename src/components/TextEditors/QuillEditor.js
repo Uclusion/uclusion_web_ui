@@ -136,8 +136,6 @@ class QuillEditor extends React.PureComponent {
       fontFamily: theme.typography.fontFamily,
       fontSize: theme.typography.fontSize,
       textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
     };
 
     if (readOnly) {

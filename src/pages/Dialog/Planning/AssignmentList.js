@@ -118,13 +118,13 @@ function AssignmentList(props) {
   function getSortedPresenceWithAssignable() {
     const sortedParticipants = _.sortBy(participantPresences, 'name');
     const assignments = computeAssignments();
-    console.log(assignments);
+    // console.log(assignments);
     return sortedParticipants.map((presence) => {
       const { id: presenceId, name } = presence;
-      console.log(presenceId)
-      console.log(name);
+      // console.log(presenceId);
+      // console.log(name);
       const presenceAssignments = assignments[presenceId];
-      console.log(presenceAssignments);
+      // console.log(presenceAssignments);
       const assigned = presenceAssignments && presenceAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
       return {
         ...presence,

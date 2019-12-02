@@ -1,23 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Typography, Grid, CardContent, Badge } from '@material-ui/core';
+import { Typography, Grid, CardContent } from '@material-ui/core';
 import {
   XYPlot,
   VerticalBarSeries,
 } from 'react-vis';
-import { useHistory } from 'react-router';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import RaisedCard from '../../../components/Cards/RaisedCard';
-import HowToVoteIcon from '@material-ui/icons/HowToVote';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import ReportProblemIcon from '@material-ui/icons/ReportProblem';
 import ContactSupportIcon from '@material-ui/icons/ContactSupport';
 import ChangeHistoryIcon from '@material-ui/icons/ChangeHistory';
+import { useIntl } from 'react-intl';
+import { useHistory } from 'react-router';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import RaisedCard from '../../../components/Cards/RaisedCard';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 
 function CurrentVoting(props) {
   const history = useHistory();
-
+  const intl = useIntl();
   const { marketPresences, investibles, marketId, comments } = props;
   const strippedInvestibles = investibles.map((inv) => inv.investible);
 
@@ -134,13 +134,11 @@ function CurrentVoting(props) {
         <Grid
           item
         >
-          <Badge
-            badgeContent={investments.length}
-            showZero
-            color="primary"
+          <Typography
+            noWrap
           >
-            <HowToVoteIcon/>
-          </Badge>
+            {intl.formatMessage({ id: 'numVoting' }, { x: investments.length })}
+          </Typography>
         </Grid>
         <Grid
           item

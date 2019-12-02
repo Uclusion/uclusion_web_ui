@@ -156,6 +156,8 @@ const messages = defineMessages({
   // InvestibleEditButton
   investibleEditButtonTooltip: 'Edit',
 
+  // CurrentVoting
+  numVoting: '{x} votes',
 
   // InvestibleAdd
   investibleAddTitleDefault: 'Add a name...',
@@ -267,7 +269,7 @@ const messages = defineMessages({
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
-  decisionDialogCurrentVotingLabel: 'Current CurrentVoting',
+  decisionDialogCurrentVotingLabel: 'Current Voting',
   decisionDialogProposedOptionsLabel: 'Proposed Options',
   decisionDialogDiscussionLabel: 'Discussion',
   decisionDialogAddInvestibleLabel: 'Propose Option',

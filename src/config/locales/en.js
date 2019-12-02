@@ -26,6 +26,7 @@ const messages = defineMessages({
   day_mode: 'Day Mode',
   days: 'days',
   hours: 'hours',
+  left: 'remaining',
   minutes: 'minutes',
   night_mode: 'Night Mode',
   sign_in: 'Sign in',

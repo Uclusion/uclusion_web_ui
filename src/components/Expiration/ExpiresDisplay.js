@@ -104,7 +104,7 @@ function ExpiresDisplay(props) {
   const daysRadius = mapNumber(daysRemaining, countdown.days(), 0, 0, 360);
   const hoursRadius = mapNumber(hoursRemaining, 24, 0, 0, 360);
   const minutesRadius = mapNumber(minutesRemaining, 60, 0, 0, 360);
-
+  console.debug(daysRadius);
   return (
     <div className={classes.countdownWrapper}>
       {daysRemaining > 0 && (
@@ -112,7 +112,13 @@ function ExpiresDisplay(props) {
           <svg className={classes.countdownSvg}>
             <path
               fill="none"
-              stroke="#333"
+              stroke="#9292b9"
+              strokeWidth="4"
+              d={describeArc(50, 50, 48, 0, 359.9)}
+            />
+            <path
+              fill="none"
+              stroke="#ff0000"
               strokeWidth="4"
               d={describeArc(50, 50, 48, 0, daysRadius)}
             />
@@ -124,6 +130,12 @@ function ExpiresDisplay(props) {
       {daysRemaining === 0 && hoursRemaining > 0 && (
         <div className={classes.countdownItem}>
           <svg className={classes.countdownSvg}>
+            <path
+              fill="none"
+              stroke="#9292b9"
+              strokeWidth="4"
+              d={describeArc(50, 50, 48, 0, 359.9)}
+            />
             <path
               fill="none"
               stroke="#ff0000"
@@ -140,6 +152,12 @@ function ExpiresDisplay(props) {
           <svg className={classes.countdownSvg}>
             <path
               fill="none"
+              stroke="#9292b9"
+              strokeWidth="4"
+              d={describeArc(50, 50, 48, 0, 359.9)}
+            />
+            <path
+              fill="none"
               stroke="#ff0000"
               strokeWidth="4"
               d={describeArc(50, 50, 48, 0, minutesRadius)}
@@ -149,6 +167,7 @@ function ExpiresDisplay(props) {
           <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'minutes' })}</span>
         </div>
       )}
+      <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'left' })}</span>
     </div>
   );
 }

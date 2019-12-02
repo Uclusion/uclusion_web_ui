@@ -1,22 +1,22 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { useHistory } from 'react-router';
+import { useIntl } from 'react-intl';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from './Voting/YourVoting';
 import Voting from './Voting';
-import { Paper } from '@material-ui/core';
-
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
-import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import {
+  ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
+} from '../../../constants/comments';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import Screen from '../../../containers/Screen/Screen';
-import { useHistory } from 'react-router';
 import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
-import { useIntl } from 'react-intl';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -24,7 +24,6 @@ import { useIntl } from 'react-intl';
  * @constructor
  */
 function DecisionInvestible(props) {
-
   const {
     investibleId,
     marketPresences,
@@ -74,7 +73,7 @@ function DecisionInvestible(props) {
 
   if (!investibleId) {
     // we have no usable data;
-    return <React.Fragment />;
+    return <></>;
   }
 
   return (
@@ -109,16 +108,13 @@ function DecisionInvestible(props) {
       <SubSection
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
-        <Paper>
-          <QuillEditor
-            readOnly
-            defaultValue={description}
-          />
-
-        </Paper>
+        <QuillEditor
+          readOnly
+          defaultValue={description}
+        />
       </SubSection>
       <SubSection
-        title={ intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
+        title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
       >
         <div ref={commentAddRef}>
           <CommentAddBox

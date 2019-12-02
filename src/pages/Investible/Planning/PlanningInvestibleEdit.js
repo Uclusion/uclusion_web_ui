@@ -4,9 +4,6 @@ import {
   Button, Card, CardActions, CardContent, TextField, withStyles,
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
 import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { updateInvestible as localUpdateInvestible } from '../../../contexts/InvestibesContext/investiblesContextReducer';
@@ -17,6 +14,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import AssignmentList from '../../Dialog/Planning/AssignmentList';
 
 const styles = (theme) => ({
   root: {
@@ -32,7 +30,7 @@ const styles = (theme) => ({
 
 function PlanningInvestibleEdit(props) {
   const {
-    fullInvestible, intl, classes, onCancel, onSave, marketId, marketPresences,
+    fullInvestible, intl, classes, onCancel, onSave, marketId,
   } = props;
 
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -115,40 +113,18 @@ function PlanningInvestibleEdit(props) {
     return handleStageChange(acceptedStage);
   }
 
-  const handleChangeMultiple = (event) => {
-    const { options } = event.target;
-    const values = [];
-    for (let i = 0, l = options.length; i < l; i += 1) {
-      if (options[i].selected) {
-        values.push(options[i].value);
-      }
-    }
-    setAssignments(values);
-  };
+  function handleAssignmentChange(newAssignments){
+    setAssignments(newAssignments);
+  }
 
   return (
     <Card>
       <CardContent>
-        <FormControl className={classes.row}>
-          <InputLabel shrink htmlFor="select-multiple-native">
-            Assignments
-          </InputLabel>
-          <Select
-            multiple
-            native
-            value={assignments}
-            onChange={handleChangeMultiple}
-            inputProps={{
-              id: 'select-multiple-assignment',
-            }}
-          >
-            {marketPresences.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </Select>
-        </FormControl>
+        <AssignmentList
+          marketId={marketId}
+          previouslyAssigned={assigned}
+          onChange={handleAssignmentChange}
+        />
         <TextField
           className={classes.row}
           inputProps={{ maxLength: 255 }}

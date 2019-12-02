@@ -10,13 +10,11 @@ import {
   withStyles,
 } from '@material-ui/core';
 import { useHistory } from 'react-router';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import FormControl from '@material-ui/core/FormControl';
 import { addPlanningInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import AssignmentList from './AssignmentList';
 
 const styles = (theme) => ({
   root: {
@@ -32,7 +30,7 @@ const styles = (theme) => ({
 
 function InvestibleAdd(props) {
   const {
-    marketId, intl, classes, onCancel, onSave, marketPresences,
+    marketId, intl, classes, onCancel, onSave,
   } = props;
 
   const history = useHistory();
@@ -51,16 +49,9 @@ function InvestibleAdd(props) {
     };
   }
 
-  const handleChangeMultiple = (event) => {
-    const { options } = event.target;
-    const values = [];
-    for (let i = 0, l = options.length; i < l; i += 1) {
-      if (options[i].selected) {
-        values.push(options[i].value);
-      }
-    }
-    setAssignments(values);
-  };
+  function onAssignmentsChange(newAssignments) {
+    setAssignments(newAssignments);
+  }
 
   function onEditorChange(description) {
     setDescription(description);
@@ -102,26 +93,10 @@ function InvestibleAdd(props) {
   return (
     <Card>
       <CardContent>
-        <FormControl className={classes.row}>
-          <InputLabel shrink htmlFor="select-multiple-native">
-            Assignments
-          </InputLabel>
-          <Select
-            multiple
-            native
-            value={assignments}
-            onChange={handleChangeMultiple}
-            inputProps={{
-              id: 'select-multiple-assignment',
-            }}
-          >
-            {marketPresences.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </Select>
-        </FormControl>
+        <AssignmentList
+          marketId={marketId}
+          onChange={onAssignmentsChange}
+        />
         <TextField
           className={classes.row}
           inputProps={{ maxLength: 255 }}

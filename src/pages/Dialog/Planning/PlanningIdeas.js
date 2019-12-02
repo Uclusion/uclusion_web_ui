@@ -99,14 +99,14 @@ function PlanningIdeas(props) {
   }
 
   function getInvestibles(stageId, showBlocking) {
-    console.log(comments);
+    // console.log(comments);
     const filtered = investibles.filter((investible) => {
       const { market_infos: marketInfos, investible: baseInvestible } = investible;
       const { id } = baseInvestible;
-      console.log(`Investible id is ${id}`);
+      // console.log(`Investible id is ${id}`);
       // eslint-disable-next-line max-len
       const blockingComments = comments.filter((comment) => comment.investible_id === id && comment.comment_type === ISSUE_TYPE);
-      console.log(blockingComments);
+      // console.log(blockingComments);
       const marketInfo = marketInfos.find((info) => info.market_id === marketId);
       if (marketInfo.stage === stageId) {
         if (showBlocking) {

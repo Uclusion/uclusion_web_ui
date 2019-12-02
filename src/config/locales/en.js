@@ -305,6 +305,9 @@ const messages = defineMessages({
   inviteLinkerDirections: 'Share this link to invite others to the dialog',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
 
+  // Assignment List
+  assignmentListHeader: 'Assigned to',
+
   // API errors
   errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',
   errorPlanningInvestibleAddFailed: 'There was a problem adding the story',

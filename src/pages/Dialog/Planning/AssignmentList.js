@@ -1,158 +1,195 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
-import List from '@material-ui/core/List';
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
+import React, { useContext, useState } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import {
+  Checkbox,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
+  makeStyles } from '@material-ui/core';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { ISSUE_TYPE } from '../../../constants/comments';
+import { useIntl } from 'react-intl';
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    margin: 'auto',
-  },
-  cardHeader: {
-    padding: theme.spacing(1, 2),
-  },
-  list: {
-    width: 200,
-    height: 230,
-    backgroundColor: theme.palette.background.paper,
-    overflow: 'auto',
-  },
-  button: {
-    margin: theme.spacing(0.5, 0),
-  },
-}));
+const BLOCKED_STATE = 'BLOCKED';
+const ACCEPTED_STATE = 'ACCEPTED';
+const ASSIGNED_STATE = 'ASSIGNED';
+const UNKNOWN_STATE = 'UNKNOWN';
 
-function not(a, b) {
-  return a.filter(value => b.indexOf(value) === -1);
-}
 
-function intersection(a, b) {
-  return a.filter(value => b.indexOf(value) !== -1);
-}
+const useStyles = makeStyles((theme) => {
+  return {
+    name: {},
+    disabled: {
+      color: theme.palette.text.disabled,
+    },
+  };
+});
 
-function union(a, b) {
-  return [...a, ...not(b, a)];
-}
+function AssignmentList(props) {
 
-function AssignmentList() {
+  const {
+    marketId,
+    onChange,
+    previouslyAssigned,
+  } = props;
+
   const classes = useStyles();
-  const [checked, setChecked] = React.useState([]);
-  const [left, setLeft] = React.useState([0, 1, 2, 3]);
-  const [right, setRight] = React.useState([4, 5, 6, 7]);
+  const intl = useIntl();
 
-  const leftChecked = intersection(checked, left);
-  const rightChecked = intersection(checked, right);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId);
+  const participantPresences = marketPresences.filter((presence) => presence.following);
 
-  const handleToggle = value => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
+  const [investiblesState] = useContext(InvestiblesContext);
+  const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
 
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const marketStages = getStages(marketStagesState, marketId);
+  const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.allows_refunds));
+  const inDialogStage = marketStages.find((stage) => (stage.appears_in_market_summary));
+
+  const [commentsState] = useContext(CommentsContext);
+  const marketComments = getMarketComments(commentsState, marketId);
+
+  const [checked, setChecked] = useState({});
+
+  function getInvestibleState(investibleId, stageId) {
+    const blockingComment = marketComments.find((comment) => comment.investible_id === investibleId && comment.comment_type === ISSUE_TYPE);
+    if (blockingComment) {
+      return BLOCKED_STATE;
     }
-
-    setChecked(newChecked);
-  };
-
-  const numberOfChecked = items => intersection(checked, items).length;
-
-  const handleToggleAll = items => () => {
-    if (numberOfChecked(items) === items.length) {
-      setChecked(not(checked, items));
-    } else {
-      setChecked(union(checked, items));
+    if (stageId === acceptedStage.id) {
+      return ACCEPTED_STATE;
     }
-  };
+    if (stageId === inDialogStage.id) {
+      return ASSIGNED_STATE;
+    }
+    return UNKNOWN_STATE;
+  }
 
-  const handleCheckedRight = () => {
-    setRight(right.concat(leftChecked));
-    setLeft(not(left, leftChecked));
-    setChecked(not(checked, leftChecked));
-  };
+  /**
+   * For each participant presences computes an array of assignments to the person.
+   * Assignments array will contain entries of the form { investibleId, state: [BLOCKED | ACCEPTED | ASSIGNED]}
+   * Returns an object keyed by the market presence id, containing the above computed array.
+   */
+  function computeAssignments() {
+    return participantPresences.reduce((acc, presence) => {
+      const { id: presenceId } = presence;
+      const assignments = marketInvestibles.filter((inv) => {
+        const info = inv.market_infos.find((info) => info.market_id === marketId);
+        const { assigned } = info;
+        return assigned && assigned.includes(presenceId);
+      });
+      const filledAssignments = assignments.map((inv) => {
+        const { investible, market_infos } = inv;
+        const info = market_infos.find((info) => info.market_id === marketId);
+        const { stage } = info;
+        const { id: investibleId } = investible;
+        const state = getInvestibleState(investibleId, stage);
+        return {
+          investibleId,
+          state
+        };
+      });
+      return {
+        ...acc,
+        [presenceId]: filledAssignments,
+      };
+    }, {});
+  }
 
-  const handleCheckedLeft = () => {
-    setLeft(left.concat(rightChecked));
-    setRight(not(right, rightChecked));
-    setChecked(not(checked, rightChecked));
-  };
+  function getSortedPresenceWithAssignable() {
+    const sortedParticipants = _.sortBy(participantPresences, 'name');
+    const assignments = computeAssignments();
+    console.log(assignments);
+    return sortedParticipants.map((presence) => {
+      const { id: presenceId, name } = presence;
+      console.log(presenceId)
+      console.log(name);
+      const presenceAssignments = assignments[presenceId];
+      console.log(presenceAssignments);
+      const assigned = presenceAssignments && presenceAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
+      return {
+        ...presence,
+        assignable: !assigned,
+      };
+    });
+  }
 
-  const customList = (title, items) => (
-    <Card>
-      <CardHeader
-        className={classes.cardHeader}
-        avatar={
+  function getCheckToggle(canBeAssigned, id) {
+    if (canBeAssigned) {
+      return () => {
+        const newChecked = {
+          ...checked,
+          [id]: !checked[id]
+        };
+        setChecked(newChecked);
+        const checkedIds = Object.keys(newChecked).filter((key) => newChecked[key]);
+        onChange(checkedIds);
+      };
+    }
+    return () => {};
+  }
+
+  function renderParticipantEntry(presenceEntry) {
+    const { name, assignable, id } = presenceEntry;
+    const alreadyAssigned = previouslyAssigned.includes(id);
+    const canBeAssigned = alreadyAssigned || assignable;
+    return (
+      <ListItem
+        key={id}
+        onClick={getCheckToggle(canBeAssigned, id)}
+      >
+        <ListItemIcon>
           <Checkbox
-            onClick={handleToggleAll(items)}
-            checked={numberOfChecked(items) === items.length && items.length !== 0}
-            indeterminate={numberOfChecked(items) !== items.length && numberOfChecked(items) !== 0}
-            disabled={items.length === 0}
-            inputProps={{ 'aria-label': 'all items selected' }}
+            disabled={!canBeAssigned}
+            checked={canBeAssigned && checked[id]}
           />
-        }
-        title={title}
-        subheader={`${numberOfChecked(items)}/${items.length} selected`}
-      />
-      <Divider />
-      <List className={classes.list} dense component="div" role="list">
-        {items.map(value => {
-          const labelId = `transfer-list-all-item-${value}-label`;
+        </ListItemIcon>
+        <ListItemText
+          className={canBeAssigned ? classes.name : classes.disabled}
+        >
+          {name}
+        </ListItemText>
+      </ListItem>
+    );
+  }
 
-          return (
-            <ListItem key={value} role="listitem" button onClick={handleToggle(value)}>
-              <ListItemIcon>
-                <Checkbox
-                  checked={checked.indexOf(value) !== -1}
-                  tabIndex={-1}
-                  disableRipple
-                  inputProps={{ 'aria-labelledby': labelId }}
-                />
-              </ListItemIcon>
-              <ListItemText id={labelId} primary={`List item ${value + 1}`} />
-            </ListItem>
-          );
-        })}
-        <ListItem />
-      </List>
-    </Card>
-  );
+
+  const participantEntries = getSortedPresenceWithAssignable();
 
   return (
-    <Grid container spacing={2} justify="center" alignItems="center" className={classes.root}>
-      <Grid item>{customList('Choices', left)}</Grid>
-      <Grid item>
-        <Grid container direction="column" alignItems="center">
-          <Button
-            variant="outlined"
-            size="small"
-            className={classes.button}
-            onClick={handleCheckedRight}
-            disabled={leftChecked.length === 0}
-            aria-label="move selected right"
-          >
-            &gt;
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            className={classes.button}
-            onClick={handleCheckedLeft}
-            disabled={rightChecked.length === 0}
-            aria-label="move selected left"
-          >
-            &lt;
-          </Button>
-        </Grid>
-      </Grid>
-      <Grid item>{customList('Chosen', right)}</Grid>
-    </Grid>
+    <List
+      dense
+    >
+      <ListSubheader>
+        {intl.formatMessage({ id: 'assignmentListHeader'})}
+      </ListSubheader>
+      {participantEntries.map((entry) => renderParticipantEntry(entry))}
+    </List>
   );
+
 }
+
+AssignmentList.propTypes = {
+  marketId: PropTypes.string.isRequired,
+  previouslyAssigned: PropTypes.arrayOf(PropTypes.string),
+  onChange: PropTypes.func,
+};
+
+AssignmentList.defaultProps = {
+  onChange: () => {},
+  previouslyAssigned: [],
+};
+
+export default AssignmentList;

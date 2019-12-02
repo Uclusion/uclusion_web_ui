@@ -61,7 +61,14 @@ function AssignmentList(props) {
   const [commentsState] = useContext(CommentsContext);
   const marketComments = getMarketComments(commentsState, marketId);
 
-  const [checked, setChecked] = useState({});
+  const defaultChecked = previouslyAssigned.reduce((acc, id) => {
+    return {
+      ...acc,
+      [id]: true,
+    };
+  }, {});
+
+  const [checked, setChecked] = useState(defaultChecked);
 
   function getInvestibleState(investibleId, stageId) {
     const blockingComment = marketComments.find((comment) => comment.investible_id === investibleId && comment.comment_type === ISSUE_TYPE);
@@ -145,6 +152,7 @@ function AssignmentList(props) {
     const { name, assignable, id } = presenceEntry;
     const alreadyAssigned = previouslyAssigned.includes(id);
     const canBeAssigned = alreadyAssigned || assignable;
+    const boxChecked = (canBeAssigned && checked[id])
     return (
       <ListItem
         key={id}
@@ -153,7 +161,7 @@ function AssignmentList(props) {
         <ListItemIcon>
           <Checkbox
             disabled={!canBeAssigned}
-            checked={canBeAssigned && checked[id]}
+            checked={boxChecked}
           />
         </ListItemIcon>
         <ListItemText

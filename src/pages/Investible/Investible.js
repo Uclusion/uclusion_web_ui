@@ -113,7 +113,7 @@ function Investible(props) {
         userId={userId}
         investibleId={investibleId}
         market={market}
-        investible={investible}
+        fullInvestible={usedInv}
         commentsHash={commentsHash}
         marketPresences={marketPresences}
         investibleComments={investibleComments}

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+  import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Paper } from '@material-ui/core';
 import { useHistory } from 'react-router';
@@ -18,7 +18,6 @@ import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import { useIntl } from 'react-intl';
-
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
  * @param props
@@ -49,6 +48,10 @@ function PlanningInvestible(props) {
   const commentAddRef = useRef(null);
 
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
+
+  function moveToProposed() {
+
+  }
 
   function commentButtonOnClick(type) {
     setCommentAddType(type);

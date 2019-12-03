@@ -182,6 +182,7 @@ const messages = defineMessages({
   investibleAddHeader: 'Add Investible',
   investibleEditStageHelper: 'Select to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
+  investibleRemoveFromVotingLabel: 'Move to Proposed',
 
 
   // Issues
@@ -333,6 +334,7 @@ const messages = defineMessages({
   errorCommentResolveFailed: 'There was a problem resolving',
   errorCommentReopenFailed: 'There was a problem reopening',
   errorMarketArchiveFailed: 'There was a problem archiving the dialog',
+  errorInvestibleMoveToPropsedFailed: 'There was a problem removing the option from Current Voting',
 
 });
 

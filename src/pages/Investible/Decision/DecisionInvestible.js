@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
@@ -18,6 +18,9 @@ import Screen from '../../../containers/Screen/Screen';
 import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
+import MoveToProposedActionButton from './MoveToProposedActionButton';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getInCurrentVotingStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -31,21 +34,29 @@ function DecisionInvestible(props) {
     investibleComments,
     userId,
     market,
-    investible,
+    fullInvestible,
     toggleEdit,
     isAdmin,
   } = props;
 
   const intl = useIntl();
   const history = useHistory();
+
+
   const { name: marketName, id: marketId } = market;
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
+  const { investible, market_infos } = fullInvestible;
+  const marketInfo = market_infos.find((info) => info.market_id === marketId);
+
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
+  const inCurrentVoting = marketInfo.stage === inCurrentVotingStage.id;
+
   const { description, name } = investible;
 
   const commentAddRef = useRef(null);
@@ -65,6 +76,9 @@ function DecisionInvestible(props) {
 
   if (isAdmin) {
     sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
+    if (inCurrentVoting) {
+      sidebarActions.push(<MoveToProposedActionButton investibleId={investibleId} marketId={marketId} />);
+    }
   }
 
   sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
@@ -141,7 +155,7 @@ function DecisionInvestible(props) {
 DecisionInvestible.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
-  investible: PropTypes.object.isRequired,
+  fullInvestible: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types

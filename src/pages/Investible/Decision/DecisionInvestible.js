@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import SubSection from '../../../containers/SubSection/SubSection';
@@ -70,11 +71,13 @@ function DecisionInvestible(props) {
   sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
   sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
 
-
   if (!investibleId) {
     // we have no usable data;
     return <></>;
   }
+
+  const hasDiscussion = !_.isEmpty(investmentReasonsRemoved);
+  const discussionVisible = !commentAddHidden || hasDiscussion;
 
   return (
     <Screen
@@ -113,23 +116,24 @@ function DecisionInvestible(props) {
           defaultValue={description}
         />
       </SubSection>
-      <SubSection
-        title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
-      >
-        <div ref={commentAddRef}>
-          <CommentAddBox
-            hidden={commentAddHidden}
-            allowedTypes={allowedCommentTypes}
-            investible={investible}
-            marketId={marketId}
-            type={commentAddType}
-            onSave={closeCommentAdd}
-            onCancel={closeCommentAdd}
-          />
-        </div>
-        <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
-      </SubSection>
-
+      {discussionVisible && (
+        <SubSection
+          title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
+        >
+          <div ref={commentAddRef}>
+            <CommentAddBox
+              hidden={commentAddHidden}
+              allowedTypes={allowedCommentTypes}
+              investible={investible}
+              marketId={marketId}
+              type={commentAddType}
+              onSave={closeCommentAdd}
+              onCancel={closeCommentAdd}
+            />
+          </div>
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
+        </SubSection>
+      )}
     </Screen>
   );
 }

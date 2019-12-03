@@ -208,8 +208,8 @@ const messages = defineMessages({
   commentReplyCancelLabel: 'Cancel',
   commentReopenLabel: 'Reopen',
   commentResolveLabel: 'Resolve',
-  commentViewThread: 'View',
-
+  commentViewThreadLabel: 'View Thread',
+  commentCloseThreadLabel: 'Close Thread',
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
 
@@ -280,8 +280,8 @@ const messages = defineMessages({
 
 
   // DecisionInvestible
-  decisionInvestibleYourVoting: 'Your CurrentVoting',
-  decisionInvestibleOthersVoting: "Other's CurrentVoting",
+  decisionInvestibleYourVoting: 'Your Vote',
+  decisionInvestibleOthersVoting: 'Current Votes',
   decisionInvestibleDescription: 'Description',
   decisionInvestibleDiscussion: 'Discussion',
 

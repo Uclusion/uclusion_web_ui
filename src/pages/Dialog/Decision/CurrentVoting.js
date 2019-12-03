@@ -6,14 +6,13 @@ import {
   XYPlot,
   VerticalBarSeries,
 } from 'react-vis';
-import ReportProblemIcon from '@material-ui/icons/ReportProblem';
-import ContactSupportIcon from '@material-ui/icons/ContactSupport';
-import ChangeHistoryIcon from '@material-ui/icons/ChangeHistory';
+
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import RaisedCard from '../../../components/Cards/RaisedCard';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE } from '../../../constants/comments';
+import { getCommentTypeIcon } from '../../../components/Comments/commentIconFunctions';
 
 function CurrentVoting(props) {
   const history = useHistory();
@@ -71,23 +70,12 @@ function CurrentVoting(props) {
     right: 1,
   };
 
-  function getIndicatorIcon(type) {
-    switch (type) {
-      case ISSUE_TYPE:
-        return <ReportProblemIcon color="error"/>;
-      case QUESTION_TYPE:
-        return <ContactSupportIcon/>;
-      case SUGGEST_CHANGE_TYPE:
-        return <ChangeHistoryIcon/>;
-      default:
-        return null;
-    }
-  }
+
 
   function getIndicator(comments, type) {
     const typeComments = comments.filter((comment) => comment.comment_type === type);
     if (typeComments.length > 0) {
-      return getIndicatorIcon(type);
+      return getCommentTypeIcon(type);
     }
     return null;
   }

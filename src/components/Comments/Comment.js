@@ -12,13 +12,14 @@ import { REPLY_TYPE } from '../../constants/comments';
 
 import RaisedCard from '../Cards/RaisedCard';
 import { reopenComment, resolveComment } from '../../api/comments';
+import { getCommentTypeIcon } from './commentIconFunctions';
 
 function Comment(props) {
   const {
     comment, commentsHash, depth, marketId,
   } = props;
   const intl = useIntl();
-  const { children, id } = comment;
+  const { children, id, comment_type } = comment;
 
   const [replyOpen, setReplyOpen] = useState(false);
   const [toggledOpen, setToggledOpen] = useState(false);
@@ -58,11 +59,13 @@ function Comment(props) {
   function flipToggledOpen() {
     setToggledOpen(!toggledOpen);
   }
-
-  const expanded = replyOpen || toggledOpen || !comment.is_resolved;
-
+  const isRoot = !comment.reply_id;
+  const expanded = replyOpen || toggledOpen || (isRoot && !comment.resolved);
+  const icon = getCommentTypeIcon(comment_type);
+  console.log(icon);
   return (
     <RaisedCard>
+      {icon}
       <Grid
         container
         direction="column"
@@ -98,9 +101,12 @@ function Comment(props) {
               color="primary"
               variant="contained"
             >
-              <Button onClick={flipToggledOpen}>
-                {intl.formatMessage({ id: 'commentViewLabel' })}
-              </Button>
+              {children && (
+                <Button onClick={flipToggledOpen}>
+                  {!toggledOpen && intl.formatMessage({ id: 'commentViewThreadLabel' })}
+                  {toggledOpen && intl.formatMessage( {id: 'commentCloseThreadLabel'})}
+                </Button>
+              )}
               <Button onClick={reopen}>
                 {intl.formatMessage({ id: 'commentReopenLabel' })}
               </Button>

@@ -12,11 +12,11 @@ import QuillEditor from '../../../components/TextEditors/QuillEditor';
  */
 function Voting(props) {
 
-  const { marketPresences, investibleId, comments } = props;
+  const { marketPresences, investibleId, investmentReasons } = props;
   const [reasonText, setReasonText] = useState('');
 
   function getInvestmentReason(userId) {
-    const comment = comments.find((comment) => {
+    const comment = investmentReasons.find((comment) => {
       const forUser = comment.created_by === userId;
       const isReason = comment.type === JUSTIFY_TYPE;
       return forUser && isReason;
@@ -46,9 +46,31 @@ function Voting(props) {
     }
   }
 
+  function getInvestmentConfidence(quantity) {
+    if (quantity === 100) {
+      return 'Certain';
+    }
+    if (quantity >= 75) {
+      return 'Very Certain';
+    }
+    if (quantity >= 50) {
+      return 'Somewhat Certain';
+    }
+    if (quantity >= 25) {
+      return 'Somewhat Uncertain';
+    }
+    return 'Uncertain';
+  }
+
+  function getVoterReason(userId) {
+    return investmentReasons.find((comment) => comment.created_by === userId);
+  }
+
   function renderInvestibleVoters(voters) {
     return voters.map((voter) => {
       const { name, userId, quantity } = voter;
+      const reason = getVoterReason(userId);
+
       // console.debug(voter);
       return (
         <Paper
@@ -59,15 +81,21 @@ function Voting(props) {
             {name}
           </Typography>
           <Typography>
-            {quantity}
+            {getInvestmentConfidence(quantity)}
           </Typography>
+          {reason && (
+            <QuillEditor
+              readOnly
+              defaultValue={reason.body}
+            />
+          )}
         </Paper>);
     });
   }
 
   const voters = getInvestibleVoters();
   const sortedVoters = _.sortBy(voters, 'name');
-  
+
   return (
     <Paper>
       {renderInvestibleVoters(sortedVoters)}
@@ -78,14 +106,14 @@ function Voting(props) {
 
 Voting.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  comments: PropTypes.arrayOf(PropTypes.object),
+  investmentReasons: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   investibleId: PropTypes.string.isRequired,
 };
 
 Voting.defaultProps = {
-  comments: [],
+  investmentReasons: [],
   marketPresences: [],
 };
 

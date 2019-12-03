@@ -17,7 +17,12 @@ import { getCommentTypeIcon } from '../../../components/Comments/commentIconFunc
 function CurrentVoting(props) {
   const history = useHistory();
   const intl = useIntl();
-  const { marketPresences, investibles, marketId, comments } = props;
+  const {
+    marketPresences,
+    investibles,
+    marketId,
+    comments
+  } = props;
   const strippedInvestibles = investibles.map((inv) => inv.investible);
 
   function getVoteTotalsForUser(presence) {
@@ -63,15 +68,6 @@ function CurrentVoting(props) {
     return tallies;
   }
 
-  const margin = {
-    top: 0,
-    bottom: 1,
-    left: 0,
-    right: 1,
-  };
-
-
-
   function getIndicator(comments, type) {
     const typeComments = comments.filter((comment) => comment.comment_type === type);
     if (typeComments.length > 0) {
@@ -93,6 +89,12 @@ function CurrentVoting(props) {
   }
 
   function getCertaintyChart(investments) {
+    const margin = {
+      top: 0,
+      bottom: 1,
+      left: 0,
+      right: 1,
+    };
     return (
       <XYPlot
         xType="ordinal"

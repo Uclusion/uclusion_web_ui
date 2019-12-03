@@ -96,7 +96,7 @@ function PlanningInvestible(props) {
         <Voting
           investibleId={investibleId}
           marketPresences={marketPresences}
-          comments={investmentReasons}
+          investmentReasons={investmentReasons}
         />
       </SubSection>
       <SubSection

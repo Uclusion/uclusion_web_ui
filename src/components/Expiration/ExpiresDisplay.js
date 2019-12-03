@@ -104,7 +104,6 @@ function ExpiresDisplay(props) {
   const daysRadius = mapNumber(daysRemaining, countdown.days(), 0, 0, 360);
   const hoursRadius = mapNumber(hoursRemaining, 24, 0, 0, 360);
   const minutesRadius = mapNumber(minutesRemaining, 60, 0, 0, 360);
-  console.debug(daysRadius);
   return (
     <div className={classes.countdownWrapper}>
       {daysRemaining > 0 && (

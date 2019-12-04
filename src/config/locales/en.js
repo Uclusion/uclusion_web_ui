@@ -152,7 +152,7 @@ const messages = defineMessages({
   marketEditSaveLabel: 'Save',
 
   // MarketEditButton:
-  marketEditButtonTooltip: 'Edit',
+  dialogEditButtonTooltip: 'Edit Dialog',
 
   // InvestibleEditButton
   investibleEditButtonTooltip: 'Edit',

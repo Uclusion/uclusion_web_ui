@@ -4,7 +4,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import { useIntl } from 'react-intl';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 
-function MarketEditButton(props){
+function DialogEditSidebarActionButton(props){
 
   const { onClick } = props;
   const intl = useIntl();
@@ -12,14 +12,14 @@ function MarketEditButton(props){
   return (
     <ExpandableSidebarAction
       icon={<EditIcon />}
-      label={intl.formatMessage({ id: 'marketEditButtonTooltip' })}
+      label={intl.formatMessage({ id: 'dialogEditButtonTooltip' })}
       onClick={onClick}
     />
   );
 }
 
-MarketEditButton.propTypes = {
+DialogEditSidebarActionButton.propTypes = {
   onClick: PropTypes.func.isRequired,
 };
 
-export default MarketEditButton;
+export default DialogEditSidebarActionButton;

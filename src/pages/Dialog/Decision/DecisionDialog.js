@@ -19,8 +19,8 @@ import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import InvestibleAddActionButton from './InvestibleAddActionButton';
-import MarketEdit from '../MarketEdit';
-import MarketEditButton from '../MarketEditButton';
+import DialogEdit from '../DialogEdit';
+import DialogEditSidebarActionButton from '../DialogEditSidebarActionButton';
 
 function DecisionDialog(props) {
   const {
@@ -88,7 +88,7 @@ function DecisionDialog(props) {
         hidden={hidden}
         breadCrumbs={breadCrumbs}
       >
-        <MarketEdit
+        <DialogEdit
           editToggle={toggleEditMode}
           market={market}
         />
@@ -135,7 +135,7 @@ function DecisionDialog(props) {
     ];
 
     if (isAdmin) {
-      const adminActions = [<MarketEditButton onClick={toggleEditMode} />];
+      const adminActions = [<DialogEditSidebarActionButton onClick={toggleEditMode} />];
       return adminActions.concat(userActions);
     }
     return userActions;

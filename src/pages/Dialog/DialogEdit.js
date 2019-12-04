@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
-function MarketEdit(props) {
+function DialogEdit(props) {
 
   const {
     editToggle,
@@ -103,7 +103,7 @@ function MarketEdit(props) {
   );
 }
 
-MarketEdit.propTypes = {
+DialogEdit.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
@@ -111,4 +111,4 @@ MarketEdit.propTypes = {
   editToggle: PropTypes.func.isRequired,
 };
 
-export default MarketEdit;
+export default DialogEdit;

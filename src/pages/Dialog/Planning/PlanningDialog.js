@@ -7,7 +7,7 @@ import { makeStyles } from '@material-ui/styles';
 import Summary from '../Summary';
 import PlanningIdeas from './PlanningIdeas';
 import { useIntl } from 'react-intl';
-import { Grid, Paper, Typography } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import Screen from '../../../containers/Screen/Screen';
 import { useHistory } from 'react-router';
@@ -23,6 +23,9 @@ import InvestibleAddActionButton from './InvestibleAddActionButton';
 import DialogEditSidebarActionButton from '../DialogEditSidebarActionButton';
 import DialogEdit from '../DialogEdit';
 import { unlockPlanningMarketForEdit } from '../../../api/markets';
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import ListSubheader from '@material-ui/core/ListSubheader';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -124,8 +127,19 @@ function PlanningDialog(props) {
     // eslint-disable-next-line max-len
     const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.singular_only));
     const inDialogStage = marketStages.find((stage) => (stage.allows_investment));
+    // eslint-disable-next-line max-len
+    const inReviewStage = marketStages.find((stage) => (stage.appears_in_context && !stage.singular_only));
     return (
-      <>
+      <GridList key="toppresencelist" cellHeight="auto" cols={3}>
+        <GridListTile key="Subheader1" cols={1} style={{ height: 'auto' }}>
+          <ListSubheader component="div">Voting</ListSubheader>
+        </GridListTile>
+        <GridListTile key="Subheader2" cols={1} style={{ height: 'auto' }}>
+          <ListSubheader component="div">In Progress</ListSubheader>
+        </GridListTile>
+        <GridListTile key="Subheader3" cols={1} style={{ height: 'auto' }}>
+          <ListSubheader component="div">In Review</ListSubheader>
+        </GridListTile>
         {
           followingPresences.map((presence) => {
             const myInvestibles = investibles.filter((investible) => {
@@ -133,28 +147,26 @@ function PlanningDialog(props) {
               return marketInfo.assigned.includes(presence.id);
             });
             return (
-              <div key={presence.id}>
-                <Paper className={classes.presencePaper}>
-                  <Typography
-                    noWrap
-                  >
-                    {presence.name}
-                  </Typography>
-                </Paper>
-                {marketId && acceptedStage && inDialogStage && (
+              <GridList key={`topof${presence.id}`} cellHeight="auto" cols={3}>
+                <GridListTile key={`namecolumn${presence.id}`} cols={3} style={{ height: 'auto' }}>
+                  <ListSubheader component="div">{presence.name}</ListSubheader>
+                </GridListTile>
+                {marketId && acceptedStage && inDialogStage && inReviewStage && (
                   <PlanningIdeas
                     investibles={myInvestibles}
                     marketId={marketId}
                     acceptedStageId={acceptedStage.id}
                     inDialogStageId={inDialogStage.id}
+                    inReviewStageId={inReviewStage.id}
                     comments={comments}
+                    presenceId={presence.id}
                   />
                 )}
-              </div>
+              </GridList>
             );
           })
         }
-      </>
+      </GridList>
     );
   }
 

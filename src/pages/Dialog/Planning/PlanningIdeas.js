@@ -9,10 +9,10 @@ import AnnouncementIcon from '@material-ui/icons/Announcement';
 import RateReviewIcon from '@material-ui/icons/RateReview';
 import LiveHelpIcon from '@material-ui/icons/LiveHelp';
 import { FormattedDate, useIntl } from 'react-intl';
-import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import GridList from '@material-ui/core/GridList';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,21 +21,25 @@ const useStyles = makeStyles((theme) => ({
   investibleCard: {
     padding: theme.spacing(2),
     textAlign: 'left',
+    width: '33%',
     backgroundColor: theme.palette.grey[theme.palette.type === 'dark' ? 900 : 100],
   },
   warningCard: {
     padding: theme.spacing(2),
     textAlign: 'left',
+    width: '33%',
     backgroundColor: theme.palette.primary.light,
   },
   blockedInvestible: {
     padding: theme.spacing(2),
     textAlign: 'left',
+    width: '33%',
     backgroundColor: theme.palette.secondary.light,
   },
   investibleCardAccepted: {
     padding: theme.spacing(2),
     textAlign: 'left',
+    width: '33%',
   },
   textData: {
     fontSize: 12,
@@ -46,7 +50,7 @@ function PlanningIdeas(props) {
   const history = useHistory();
   const classes = useStyles();
   const {
-    investibles, marketId, comments, acceptedStageId, inDialogStageId,
+    investibles, marketId, comments, acceptedStageId, inDialogStageId, inReviewStageId, presenceId,
   } = props;
   const intl = useIntl();
 
@@ -158,15 +162,16 @@ function PlanningIdeas(props) {
 
   return (
     <>
-      <GridList cellHeight="auto" cols={2}>
-        <GridListTile key="accepted">
-          {getInvestibles(acceptedStageId, false)}
-        </GridListTile>
-        <GridListTile key="indialog">
-          {getInvestibles(inDialogStageId, false)}
-          {getInvestibles(inDialogStageId, true)}
-        </GridListTile>
-      </GridList>
+      <GridListTile key={`indialog${presenceId}`} cols={1}>
+        {getInvestibles(inDialogStageId, false)}
+        {getInvestibles(inDialogStageId, true)}
+      </GridListTile>
+      <GridListTile key={`accepted${presenceId}`} cols={1}>
+        {getInvestibles(acceptedStageId, false)}
+      </GridListTile>
+      <GridListTile key={`inreview${presenceId}`} cols={1}>
+        {getInvestibles(inReviewStageId, true)}
+      </GridListTile>
     </>
   );
 }
@@ -179,6 +184,8 @@ PlanningIdeas.propTypes = {
   comments: PropTypes.arrayOf(PropTypes.object),
   acceptedStageId: PropTypes.string.isRequired,
   inDialogStageId: PropTypes.string.isRequired,
+  inReviewStageId: PropTypes.string.isRequired,
+  presenceId: PropTypes.string.isRequired,
 };
 
 PlanningIdeas.defaultProps = {

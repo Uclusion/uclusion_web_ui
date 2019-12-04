@@ -31,7 +31,6 @@ function DialogEdit(props) {
     market,
   } = props;
   const { id, market_type: marketType } = market;
-  console.log(marketType);
   const intl = useIntl();
   const classes = useStyles();
   const [, marketsDispatch] = useContext(MarketsContext);

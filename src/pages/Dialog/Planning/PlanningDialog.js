@@ -89,8 +89,8 @@ function PlanningDialog(props) {
   function getInvestiblesByPerson(investibles, marketPresences) {
     const followingPresences = marketPresences.filter((presence) => presence.following);
     // eslint-disable-next-line max-len
-    const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.allows_refunds));
-    const inDialogStage = marketStages.find((stage) => (stage.appears_in_market_summary));
+    const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.singular_only));
+    const inDialogStage = marketStages.find((stage) => (stage.allows_investment));
     return (
       <>
         {

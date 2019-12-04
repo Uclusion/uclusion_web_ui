@@ -36,7 +36,7 @@ function DecisionDialog(props) {
 
   const { is_admin: isAdmin } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
-  const proposedStage = marketStages.find((stage) => !stage.allows_investment && !stage.appears_in_market_summary);
+  const proposedStage = marketStages.find((stage) => !stage.allows_investment);
   const history = useHistory();
   const breadCrumbs = makeBreadCrumbs(history);
   const investibleComments = comments.filter((comment) => comment.investible_id);

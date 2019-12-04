@@ -90,11 +90,10 @@ function DecisionInvestibleEdit(props) {
       const stages = getStages(marketStagesState, marketId);
       const { market_admin: isAdmin } = getFlags(currentUser);
       if (isAdmin) {
-        newStage = stages.find((stage) => stage.appears_in_market_summary);
+        newStage = stages.find((stage) => stage.allows_investment);
       } else {
         // Submit to moderation
-        newStage = stages.find((stage) => !stage.appears_in_market_summary
-          && stage.visible_to_roles.length === 2);
+        newStage = stages.find((stage) => !stage.allows_investment);
       }
       const { market_infos: marketInfos } = fullInvestible;
       const marketInfo = marketInfos.find((info) => info.market_id === marketId);

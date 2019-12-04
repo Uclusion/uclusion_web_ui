@@ -55,8 +55,8 @@ function AssignmentList(props) {
 
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketStages = getStages(marketStagesState, marketId);
-  const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.allows_refunds));
-  const inDialogStage = marketStages.find((stage) => (stage.appears_in_market_summary));
+  const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.singular_only));
+  const inDialogStage = marketStages.find((stage) => (stage.allows_investment));
 
   const [commentsState] = useContext(CommentsContext);
   const marketComments = getMarketComments(commentsState, marketId);

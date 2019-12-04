@@ -49,9 +49,9 @@ function PlanningInvestibleEdit(props) {
   const currentUser = getMyUserForMarket(marketsState, marketId);
   const marketStages = getStages(marketStagesState, marketId);
   // eslint-disable-next-line max-len
-  const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.allows_refunds));
+  const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.singular_only));
   // eslint-disable-next-line max-len
-  const archivedStage = marketStages.find((stage) => (!stage.allows_investment && !stage.allows_refunds));
+  const archivedStage = marketStages.find((stage) => (stage.appears_in_market_summary));
 
   function handleChange(field) {
     return (event) => {

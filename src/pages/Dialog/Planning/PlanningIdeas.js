@@ -12,7 +12,6 @@ import { FormattedDate, useIntl } from 'react-intl';
 import GridListTile from '@material-ui/core/GridListTile';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
-import GridList from '@material-ui/core/GridList';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,25 +20,21 @@ const useStyles = makeStyles((theme) => ({
   investibleCard: {
     padding: theme.spacing(2),
     textAlign: 'left',
-    width: '33%',
     backgroundColor: theme.palette.grey[theme.palette.type === 'dark' ? 900 : 100],
   },
   warningCard: {
     padding: theme.spacing(2),
     textAlign: 'left',
-    width: '33%',
     backgroundColor: theme.palette.primary.light,
   },
   blockedInvestible: {
     padding: theme.spacing(2),
     textAlign: 'left',
-    width: '33%',
     backgroundColor: theme.palette.secondary.light,
   },
   investibleCardAccepted: {
     padding: theme.spacing(2),
     textAlign: 'left',
-    width: '33%',
   },
   textData: {
     fontSize: 12,
@@ -162,14 +157,14 @@ function PlanningIdeas(props) {
 
   return (
     <>
-      <GridListTile key={`indialog${presenceId}`} cols={1}>
+      <GridListTile key={`indialog${presenceId}`} cols={1} style={{ height: 'auto', width: '33%' }}>
         {getInvestibles(inDialogStageId, false)}
         {getInvestibles(inDialogStageId, true)}
       </GridListTile>
-      <GridListTile key={`accepted${presenceId}`} cols={1}>
+      <GridListTile key={`accepted${presenceId}`} cols={1} style={{ height: 'auto', width: '33%' }}>
         {getInvestibles(acceptedStageId, false)}
       </GridListTile>
-      <GridListTile key={`inreview${presenceId}`} cols={1}>
+      <GridListTile key={`inreview${presenceId}`} cols={1} style={{ height: 'auto', width: '33%' }}>
         {getInvestibles(inReviewStageId, true)}
       </GridListTile>
     </>

@@ -131,13 +131,13 @@ function PlanningDialog(props) {
     const inReviewStage = marketStages.find((stage) => (stage.appears_in_context && !stage.singular_only));
     return (
       <GridList key="toppresencelist" cellHeight="auto" cols={3}>
-        <GridListTile key="Subheader1" cols={1} style={{ height: 'auto' }}>
+        <GridListTile key="Subheader1" cols={1} style={{ height: 'auto', width: '33%' }}>
           <ListSubheader component="div">Voting</ListSubheader>
         </GridListTile>
-        <GridListTile key="Subheader2" cols={1} style={{ height: 'auto' }}>
+        <GridListTile key="Subheader2" cols={1} style={{ height: 'auto', width: '33%' }}>
           <ListSubheader component="div">In Progress</ListSubheader>
         </GridListTile>
-        <GridListTile key="Subheader3" cols={1} style={{ height: 'auto' }}>
+        <GridListTile key="Subheader3" cols={1} style={{ height: 'auto', width: '33%' }}>
           <ListSubheader component="div">In Review</ListSubheader>
         </GridListTile>
         {
@@ -148,7 +148,7 @@ function PlanningDialog(props) {
             });
             return (
               <GridList key={`topof${presence.id}`} cellHeight="auto" cols={3}>
-                <GridListTile key={`namecolumn${presence.id}`} cols={3} style={{ height: 'auto' }}>
+                <GridListTile key={`namecolumn${presence.id}`} cols={3} style={{ height: 'auto', width: '100%' }}>
                   <ListSubheader component="div">{presence.name}</ListSubheader>
                 </GridListTile>
                 {marketId && acceptedStage && inDialogStage && inReviewStage && (

@@ -70,7 +70,7 @@ export function leaveMarket(marketId) {
 }
 
 export function archiveMarket(marketId) {
-  const updateOptions = { market_stage: 'Archived'};
+  const updateOptions = { market_stage: 'Archived' };
   return getMarketClient(marketId)
     .then((client) => client.markets.updateMarket(updateOptions))
     .catch((error) => toastErrorAndThrow(error, 'errorMarketArchiveFailed'));
@@ -80,6 +80,18 @@ export function archiveMarket(marketId) {
 export function getMarketStages(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.markets.listStages());
+}
+
+export function lockPlanningMarketForEdit(marketId, breakLock) {
+  return getMarketClient(marketId)
+    .then((client) => client.markets.lock(breakLock))
+    .catch((error) => toastErrorAndThrow(error, 'errorEditLockFailed'));
+}
+
+export function unlockPlanningMarketForEdit(marketId) {
+  return getMarketClient(marketId)
+    .then((client) => client.markets.unlock())
+    .catch((error) => toastErrorAndThrow(error, 'errorEditLockReleaseFailed'));
 }
 
 export function getMarketUsers(marketId) {

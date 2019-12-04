@@ -5,7 +5,7 @@ import {
   Button, Card, CardActions, CardContent, makeStyles, TextField,
 } from '@material-ui/core';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
-import { createDecision } from '../../api/markets';
+import { createPlanning } from '../../api/markets';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';
 import { useHistory } from 'react-router';
@@ -75,7 +75,7 @@ function PlanningAdd(props) {
       market_type: PLANNING_TYPE,
       description: tokensRemoved,
     };
-    return createDecision(addInfo)
+    return createPlanning(addInfo)
       .then((result) => {
         onSave();
         const { market_id } = result;

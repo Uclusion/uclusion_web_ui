@@ -1,12 +1,13 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Card, CardActions, CardContent, makeStyles, TextField, withStyles } from '@material-ui/core';
+import { Button, Card, CardActions, CardContent, makeStyles, TextField } from '@material-ui/core';
 import { useIntl } from 'react-intl';
-import { updateMarket } from '../../api/markets';
+import { lockPlanningMarketForEdit, updateMarket } from '../../api/markets';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { updateMarket as localUpdateMarket } from '../../contexts/MarketsContext/marketsContextReducer';
 import { processTextAndFilesForSave } from '../../api/files';
+import { PLANNING_TYPE } from '../../constants/markets';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -26,15 +27,18 @@ function DialogEdit(props) {
 
   const {
     editToggle,
+    onCancel,
     market,
   } = props;
-  const { id } = market;
+  const { id, market_type: marketType } = market;
+  console.log(marketType);
   const intl = useIntl();
   const classes = useStyles();
   const [, marketsDispatch] = useContext(MarketsContext);
   const [mutableMarket, setMutableMarket] = useState(market);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const { name, description } = mutableMarket;
+  const { name } = mutableMarket;
+  const [description, setDescription] = useState(mutableMarket.description);
 
   function handleChange(name) {
     return (event) => {
@@ -51,14 +55,18 @@ function DialogEdit(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
-    return updateMarket(id, name, tokensRemoved, filteredUploads)
+    let chain = Promise.resolve(true);
+    if (marketType === PLANNING_TYPE) {
+      chain = chain.then(() => lockPlanningMarketForEdit(id, true));
+    }
+    chain = chain.then(() => updateMarket(id, name, tokensRemoved, filteredUploads))
       .then(() => marketsDispatch(localUpdateMarket(market)))
       .then(() => editToggle());
+    return chain;
   }
 
   function onEditorChange(content) {
-    const description = content;
-    setMutableMarket({ ...market, description });
+    setDescription(content);
   }
 
   function onS3Upload(metadatas) {
@@ -88,7 +96,7 @@ function DialogEdit(props) {
         />
       </CardContent>
       <CardActions>
-        <Button onClick={editToggle}>
+        <Button onClick={onCancel}>
           {intl.formatMessage({ id: 'marketEditCancelLabel' })}
         </Button>
         <Button
@@ -106,9 +114,13 @@ function DialogEdit(props) {
 DialogEdit.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object.isRequired,
-  editToggle: PropTypes.func.isRequired,
+  editToggle: PropTypes.func,
+  onCancel: PropTypes.func,
 };
+
+DialogEdit.defaultProps = {
+  onCancel: () => {},
+  editToggle: () => {},
+}
 
 export default DialogEdit;

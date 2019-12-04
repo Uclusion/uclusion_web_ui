@@ -124,7 +124,6 @@ function DecisionDialog(props) {
   }
 
   function getSidebarActions() {
-    const actions = [];
     if (addInvestibleMode) {
       return [];
     }
@@ -135,7 +134,7 @@ function DecisionDialog(props) {
     ];
 
     if (isAdmin) {
-      const adminActions = [<DialogEditSidebarActionButton onClick={toggleEditMode} />];
+      const adminActions = [<DialogEditSidebarActionButton key="edit" onClick={toggleEditMode} />];
       return adminActions.concat(userActions);
     }
     return userActions;
@@ -235,8 +234,6 @@ DecisionDialog.propTypes = {
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   myPresence: PropTypes.object.isRequired,
-  addInvestibleMode: PropTypes.bool,
-  setAddInvestibleMode: PropTypes.func,
   hidden: PropTypes.bool,
 
 };
@@ -245,11 +242,7 @@ DecisionDialog.defaultProps = {
   investibles: [],
   comments: [],
   marketStages: [],
-  isAdmin: false,
-  addInvestibleMode: false,
   hidden: false,
-  setAddInvestibleMode: () => {
-  },
 };
 
 export default DecisionDialog;

@@ -20,6 +20,9 @@ import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import InvestibleAdd from './InvestibleAdd';
 import InvestibleAddActionButton from './InvestibleAddActionButton';
+import DialogEditSidebarActionButton from '../DialogEditSidebarActionButton';
+import DialogEdit from '../DialogEdit';
+import { unlockPlanningMarketForEdit } from '../../../api/markets';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,12 +43,14 @@ function PlanningDialog(props) {
     market,
     investibles,
     marketPresences,
+    myPresence,
     marketStages,
     comments,
     hidden,
   } = props;
 
   const intl = useIntl();
+  const { is_admin: isAdmin } = myPresence;
   const commentAddRef = useRef(null);
   const { id: marketId } = market;
   const marketComments = comments.filter((comment) => !comment.investible_id);
@@ -53,10 +58,38 @@ function PlanningDialog(props) {
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);
+  const [dialogEditMode, setDialogEditMode] = useState(false);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
 
-  function toggleAddMode() {
+  function toggleAddInvestibleMode() {
     setAddInvestibleMode(!addInvestibleMode);
+  }
+
+  function toggleEditMode() {
+    setDialogEditMode(!dialogEditMode);
+  }
+
+  function onDialogEditCancel() {
+    return unlockPlanningMarketForEdit(marketId)
+      .then(() => {
+        toggleEditMode();
+      });
+  }
+
+  if (dialogEditMode) {
+    return (
+      <Screen
+        title={market.name}
+        hidden={hidden}
+        breadCrumbs={breadCrumbs}
+      >
+        <DialogEdit
+          editToggle={toggleEditMode}
+          market={market}
+          onCancel={onDialogEditCancel}
+        />
+      </Screen>
+    );
   }
 
   // if we're adding an investible, just render it with the screen
@@ -69,8 +102,8 @@ function PlanningDialog(props) {
       >
         <InvestibleAdd
           marketId={marketId}
-          onCancel={toggleAddMode}
-          onSave={toggleAddMode}
+          onCancel={toggleAddInvestibleMode}
+          onSave={toggleAddInvestibleMode}
           marketPresences={marketPresences}
         />
       </Screen>
@@ -129,11 +162,16 @@ function PlanningDialog(props) {
     if (addInvestibleMode) {
       return [];
     }
-    return [
-      <InvestibleAddActionButton key="investibleadd" onClick={toggleAddMode} />,
+    const userActions = [
+      <InvestibleAddActionButton key="investibleadd" onClick={toggleAddInvestibleMode} />,
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
       <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];
+    if (isAdmin) {
+      const adminActions = [<DialogEditSidebarActionButton key="edit" onClick={toggleEditMode} onCancel={onDialogEditCancel} />];
+      return adminActions.concat(userActions);
+    }
+    return userActions;
   }
 
   const sidebarActions = getSidebarActions();
@@ -155,7 +193,7 @@ function PlanningDialog(props) {
           <SubSection
             title={intl.formatMessage({ id: 'planningDialogSummaryLabel' })}
           >
-            <Summary market={market}/>
+            <Summary market={market} />
           </SubSection>
         </Grid>
         <Grid
@@ -205,7 +243,11 @@ PlanningDialog.propTypes = {
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   marketStages: PropTypes.arrayOf(PropTypes.object),
+  // eslint-disable-next-line react/forbid-prop-types
+  myPresence: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
+  // eslint-disable-next-line react/forbid-prop-types
+  comments: PropTypes.arrayOf(PropTypes.object),
 };
 
 PlanningDialog.defaultProps = {
@@ -213,6 +255,7 @@ PlanningDialog.defaultProps = {
   marketPresences: [],
   marketStages: [],
   hidden: false,
+  comments: [],
 };
 
 export default PlanningDialog;

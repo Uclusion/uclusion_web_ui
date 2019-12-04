@@ -86,8 +86,7 @@ function PlanningInvestibleEdit(props) {
       assignments,
     };
     return updateInvestible(updateInfo)
-      .then((data) => {
-        investiblesDispatch(localUpdateInvestible({ ...fullInvestible, investible: data }));
+      .then(() => {
         onSave();
       });
   }

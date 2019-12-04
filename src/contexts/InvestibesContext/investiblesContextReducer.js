@@ -3,8 +3,6 @@ import { INVESTIBLES_CONTEXT_NAMESPACE } from './InvestiblesContext';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
-const UPDATE_INVESTIBLE = 'UPDATE_INVESTIBLE';
-const ADD_INVESTIBLE = 'ADD_INVESTIBLE';
 
 /** Possible messages to reducer **/
 
@@ -12,20 +10,6 @@ export function initializeState(newState) {
   return {
     type: INITIALIZE_STATE,
     newState,
-  };
-}
-
-export function updateInvestible(investible) {
-  return {
-    type: UPDATE_INVESTIBLE,
-    investible,
-  };
-}
-
-export function addInvestible(investible) {
-  return {
-    type: ADD_INVESTIBLE,
-    investible,
   };
 }
 
@@ -62,9 +46,6 @@ function computeNewState(state, action) {
       return doUpdateInvestibles(state, action);
     case INITIALIZE_STATE:
       return action.newState;
-    case ADD_INVESTIBLE:
-    case UPDATE_INVESTIBLE:
-      return doStoreInvestible(state, action);
     default:
       return state;
   }

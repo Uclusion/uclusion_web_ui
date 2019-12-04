@@ -8,12 +8,10 @@ import { updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { submitToModerator } from '../../../api/marketInvestibles';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { getFlags } from '../../../utils/userFunctions';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { updateInvestible as localUpdateInvestible } from '../../../contexts/InvestibesContext/investiblesContextReducer';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import {
+  getProposedOptionsStage,
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+
 import { processTextAndFilesForSave } from '../../../api/files';
 
 const styles = (theme) => ({
@@ -34,9 +32,8 @@ function DecisionInvestibleEdit(props) {
     isAdmin,
   } = props;
 
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const myInvestible = fullInvestible.investible;
   const { id, description: initialDescription } = myInvestible;
   const [currentValues, setCurrentValues] = useState(myInvestible);
@@ -61,9 +58,9 @@ function DecisionInvestibleEdit(props) {
     setUploadedFiles(metadatas);
   }
 
-  function handleSave() {
-    // uploaded files on edit is the union of the new uploaded files and the old uploaded files
+  function saveInvestible() {
     const oldInvestibleUploadedFiles = myInvestible.uploaded_files || [];
+    // uploaded files on edit is the union of the new uploaded files and the old uploaded files
     const newUploadedFiles = [...uploadedFiles, ...oldInvestibleUploadedFiles];
     const {
       uploadedFiles: filteredUploads,
@@ -76,40 +73,30 @@ function DecisionInvestibleEdit(props) {
       marketId,
       investibleId: id,
     };
-    return updateInvestible(updateInfo)
-      .then((data) => {
-        investiblesDispatch(localUpdateInvestible({ ...fullInvestible, investible: data }));
-        onSave();
-      });
+    return updateInvestible(updateInfo);
+  }
+
+  function handleSave() {
+    saveInvestible()
+      .then(() => onSave());
   }
 
   function handleSubmit() {
-    let newStage;
-    return handleSave().then(() => {
-      const currentUser = getMyUserForMarket(marketsState, marketId);
-      const stages = getStages(marketStagesState, marketId);
-      const { market_admin: isAdmin } = getFlags(currentUser);
-      if (isAdmin) {
-        newStage = stages.find((stage) => stage.allows_investment);
-      } else {
-        // Submit to moderation
-        newStage = stages.find((stage) => !stage.allows_investment);
-      }
-      const { market_infos: marketInfos } = fullInvestible;
-      const marketInfo = marketInfos.find((info) => info.market_id === marketId);
-      console.debug(`Submitting to stage ${newStage.name} with previous stage ${marketInfo.stage}`);
-      const stageInfo = {
-        current_stage_id: marketInfo.stage,
-        stage_id: newStage.id,
-      };
-      const submitInfo = {
-        marketId,
-        investibleId: id,
-        stageInfo,
-      };
-      return submitToModerator(submitInfo);
-    }).then(() => investiblesDispatch(localUpdateInvestible({ ...fullInvestible, stage_name: newStage.name })));
-    //TODO: what is the result of submitting to the moderator?
+    return saveInvestible()
+      .then(() => {
+        const { market_infos: marketInfos } = fullInvestible;
+        const marketInfo = marketInfos.find((info) => info.market_id === marketId);
+        const stageInfo = {
+          current_stage_id: marketInfo.stage,
+          stage_id: inProposedStage.id,
+        };
+        const submitInfo = {
+          marketId,
+          investibleId: id,
+          stageInfo,
+        };
+        return submitToModerator(submitInfo);
+      });
   }
 
   return (

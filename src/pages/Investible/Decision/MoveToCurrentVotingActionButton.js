@@ -1,16 +1,16 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getInCurrentVotingStage,
-  getProposedOptionsStage
+  getProposedOptionsStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { moveInvestibleToProposed } from '../../../api/investibles';
+import { moveInvestibleToCurrentVoting } from '../../../api/investibles';
 
-function MoveToProposedActionButton(props) {
+function MoveToCurrentVotingActionButton(props) {
   const { onClick, investibleId, marketId } = props;
   const intl = useIntl();
 
@@ -23,31 +23,31 @@ function MoveToProposedActionButton(props) {
       marketId,
       investibleId,
       stageInfo: {
-        stage_id: proposedStage.id,
-        current_stage_id: inCurrentVotingStage.id,
+        current_stage_id: proposedStage.id,
+        stage_id: inCurrentVotingStage.id,
       }
     };
-    return moveInvestibleToProposed(moveInfo)
+    return moveInvestibleToCurrentVoting(moveInfo)
       .then(() => onClick());
   }
 
   return (
     <ExpandableSidebarAction
-      icon={<ArrowDownwardIcon />}
-      label={intl.formatMessage({ id: 'investibleRemoveFromVotingLabel' })}
+      icon={<ArrowUpwardIcon />}
+      label={intl.formatMessage({ id: 'investibleAddToVotingLabel' })}
       onClick={moveToProposed}
     />
   );
 }
 
-MoveToProposedActionButton.propTypes = {
+MoveToCurrentVotingActionButton.propTypes = {
   onClick: PropTypes.func,
   investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
 };
 
-MoveToProposedActionButton.defaultProps = {
+MoveToCurrentVotingActionButton.defaultProps = {
   onClick: () => {},
 };
 
-export default MoveToProposedActionButton;
+export default MoveToCurrentVotingActionButton;

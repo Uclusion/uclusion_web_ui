@@ -49,10 +49,6 @@ function PlanningInvestible(props) {
 
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
 
-  function moveToProposed() {
-
-  }
-
   function commentButtonOnClick(type) {
     setCommentAddType(type);
     setCommentAddHidden(false);

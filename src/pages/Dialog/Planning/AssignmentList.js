@@ -14,7 +14,10 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getAcceptedStage,
+  getAssignedStage,
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { ISSUE_TYPE } from '../../../constants/comments';
@@ -54,9 +57,9 @@ function AssignmentList(props) {
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
 
   const [marketStagesState] = useContext(MarketStagesContext);
-  const marketStages = getStages(marketStagesState, marketId);
-  const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.singular_only));
-  const inDialogStage = marketStages.find((stage) => (stage.allows_investment));
+
+  const acceptedStage = getAcceptedStage(marketStagesState, marketId);
+  const assignedStage = getAssignedStage(marketStagesState, marketId);
 
   const [commentsState] = useContext(CommentsContext);
   const marketComments = getMarketComments(commentsState, marketId);
@@ -78,7 +81,7 @@ function AssignmentList(props) {
     if (stageId === acceptedStage.id) {
       return ACCEPTED_STATE;
     }
-    if (stageId === inDialogStage.id) {
+    if (stageId === assignedStage.id) {
       return ASSIGNED_STATE;
     }
     return UNKNOWN_STATE;

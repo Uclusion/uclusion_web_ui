@@ -18,9 +18,11 @@ import Screen from '../../../containers/Screen/Screen';
 import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
-import MoveToProposedActionButton from './MoveToProposedActionButton';
+import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getInCurrentVotingStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getProposedOptionsStage,
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -54,8 +56,8 @@ function DecisionInvestible(props) {
   const marketInfo = market_infos.find((info) => info.market_id === marketId);
 
   const [marketStagesState] = useContext(MarketStagesContext);
-  const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
-  const inCurrentVoting = marketInfo.stage === inCurrentVotingStage.id;
+  const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
+  const inProposed = marketInfo.stage === inProposedStage.id;
 
   const { description, name } = investible;
 
@@ -76,8 +78,8 @@ function DecisionInvestible(props) {
 
   if (isAdmin) {
     sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
-    if (inCurrentVoting) {
-      sidebarActions.push(<MoveToProposedActionButton investibleId={investibleId} marketId={marketId} />);
+    if (inProposed) {
+      sidebarActions.push(<MoveToCurrentVotingActionButton investibleId={investibleId} marketId={marketId} />);
     }
   }
 

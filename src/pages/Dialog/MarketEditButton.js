@@ -1,21 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import EditIcon from '@material-ui/icons/Edit';
-import { IconButton, Tooltip } from '@material-ui/core';
-import { injectIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
+import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 
 function MarketEditButton(props){
 
-  const { onClick, intl } = props;
+  const { onClick } = props;
+  const intl = useIntl();
 
   return (
-    <Tooltip title={intl.formatMessage({ id: 'marketEditButtonTooltip' })}><IconButton onClick={onClick}><EditIcon /></IconButton></Tooltip>
+    <ExpandableSidebarAction
+      icon={<EditIcon />}
+      label={intl.formatMessage({ id: 'marketEditButtonTooltip' })}
+      onClick={onClick}
+    />
   );
 }
 
 MarketEditButton.propTypes = {
   onClick: PropTypes.func.isRequired,
-  intl: PropTypes.object.isRequired,
 };
 
-export default injectIntl(MarketEditButton);
+export default MarketEditButton;

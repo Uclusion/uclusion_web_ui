@@ -19,6 +19,8 @@ import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import InvestibleAddActionButton from './InvestibleAddActionButton';
+import MarketEdit from '../MarketEdit';
+import MarketEditButton from '../MarketEditButton';
 
 function DecisionDialog(props) {
   const {
@@ -42,6 +44,7 @@ function DecisionDialog(props) {
   const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);
+  const [dialogEditMode, setDialogEditMode] = useState(false);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
@@ -66,12 +69,31 @@ function DecisionDialog(props) {
 
   const { id: marketId } = market;
 
-  function toggleAddMode() {
+  function toggleEditMode() {
+    setDialogEditMode(!dialogEditMode);
+  }
+
+  function toggleInvestibleAddMode() {
     setAddInvestibleMode(!addInvestibleMode);
   }
 
   function closeCommentAddBox() {
     setCommentAddHidden(true);
+  }
+
+  if (dialogEditMode) {
+    return (
+      <Screen
+        title={market.name}
+        hidden={hidden}
+        breadCrumbs={breadCrumbs}
+      >
+        <MarketEdit
+          editToggle={toggleEditMode}
+          market={market}
+        />
+      </Screen>
+    );
   }
 
   // if we're adding an investible, just render it with the screen
@@ -84,8 +106,8 @@ function DecisionDialog(props) {
       >
         <InvestibleAdd
           marketId={marketId}
-          onCancel={toggleAddMode}
-          onSave={toggleAddMode}
+          onCancel={toggleInvestibleAddMode}
+          onSave={toggleInvestibleAddMode}
           isAdmin={isAdmin}
         />
       </Screen>
@@ -102,14 +124,22 @@ function DecisionDialog(props) {
   }
 
   function getSidebarActions() {
+    const actions = [];
     if (addInvestibleMode) {
       return [];
     }
-    return [
-      <InvestibleAddActionButton key="addInvestible" onClick={toggleAddMode}/>,
-      <RaiseIssue key="issue" onClick={commentButtonOnClick}/>,
-      <AskQuestions key="question" onClick={commentButtonOnClick}/>
+    const userActions = [
+      <InvestibleAddActionButton key="addInvestible" onClick={toggleInvestibleAddMode} />,
+      <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
+      <AskQuestions key="question" onClick={commentButtonOnClick} />
     ];
+
+    if (isAdmin) {
+      const adminActions = [<MarketEditButton onClick={toggleEditMode} />];
+      return adminActions.concat(userActions);
+    }
+    return userActions;
+
   }
 
   const sidebarActions = getSidebarActions();
@@ -131,7 +161,7 @@ function DecisionDialog(props) {
           <SubSection
             title={intl.formatMessage({ id: 'decisionDialogSummaryLabel' })}
           >
-            <Summary market={market}/>
+            <Summary market={market} />
           </SubSection>
         </Grid>
         <Grid

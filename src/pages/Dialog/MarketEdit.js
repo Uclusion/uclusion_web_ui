@@ -1,23 +1,25 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Card, CardActions, CardContent, TextField, withStyles } from '@material-ui/core';
-import { injectIntl } from 'react-intl';
+import { Button, Card, CardActions, CardContent, makeStyles, TextField, withStyles } from '@material-ui/core';
+import { useIntl } from 'react-intl';
 import { updateMarket } from '../../api/markets';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { updateMarket as localUpdateMarket } from '../../contexts/MarketsContext/marketsContextReducer';
 import { processTextAndFilesForSave } from '../../api/files';
 
-const styles = theme => ({
-  root: {
-    padding: theme.spacing(2),
-  },
-  row: {
-    marginBottom: theme.spacing(2),
-    '&:last-child': {
-      marginBottom: 0,
+const useStyles = makeStyles((theme) => {
+  return {
+    root: {
+      padding: theme.spacing(2),
     },
-  },
+    row: {
+      marginBottom: theme.spacing(2),
+      '&:last-child': {
+        marginBottom: 0,
+      },
+    },
+  };
 });
 
 function MarketEdit(props) {
@@ -25,11 +27,10 @@ function MarketEdit(props) {
   const {
     editToggle,
     market,
-    classes,
-    intl,
   } = props;
   const { id } = market;
-
+  const intl = useIntl();
+  const classes = useStyles();
   const [, marketsDispatch] = useContext(MarketsContext);
   const [mutableMarket, setMutableMarket] = useState(market);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -43,7 +44,6 @@ function MarketEdit(props) {
   }
 
   function handleSave() {
-    console.debug(uploadedFiles);
     // the set of files for the market is all the old files, plus our new ones
     const oldMarketUploadedFiles = market.uploaded_files || [];
     const newUploadedFiles = [...uploadedFiles, ...oldMarketUploadedFiles];
@@ -105,12 +105,10 @@ function MarketEdit(props) {
 
 MarketEdit.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  intl: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object.isRequired,
   editToggle: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(injectIntl(MarketEdit));
+export default MarketEdit;

@@ -52,7 +52,7 @@ SubSection.propTypes = {
 };
 
 SubSection.defaultProps = {
-  title: "",
+  title: '',
   hidden: false,
   children: undefined,
   fab: undefined,

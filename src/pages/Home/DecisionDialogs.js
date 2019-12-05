@@ -23,6 +23,7 @@ import LeaveMarketButton from './Decision/LeaveMarketButton';
 import ArchiveMarketButton from './Decision/ArchiveMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
+import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -147,6 +148,7 @@ function DecisionDialogs(props) {
     return sortedMarkets.map((market) => {
       const {
         id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes,
+        market_type,
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
@@ -163,6 +165,7 @@ function DecisionDialogs(props) {
             border={1}
           >
             <CardContent>
+              {getDialogTypeIcon(market_type)}
               <Typography>
                 <Link
                   href="#"

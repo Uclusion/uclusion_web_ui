@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import { useIntl } from 'react-intl';
-import ListAltIcon from '@material-ui/icons/ListAlt';
+import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
+import { PLANNING_TYPE } from '../../constants/markets';
+
 
 function PlanningAddActionButton(props) {
 
@@ -13,7 +15,7 @@ function PlanningAddActionButton(props) {
 
   return (
     <ExpandableSidebarAction
-      icon={<ListAltIcon />}
+      icon={getDialogTypeIcon(PLANNING_TYPE)}
       label={label}
       onClick={onClick}
     />

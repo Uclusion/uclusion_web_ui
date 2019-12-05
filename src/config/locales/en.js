@@ -247,6 +247,7 @@ const messages = defineMessages({
   homeSubsectionDecision: 'Decision Dialogs',
   homeAddDecision: 'Create Decision',
   homeAddPlanning: 'Creat Epic Plan',
+  homeAddInitiative: 'Create Initiative',
 
   // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',

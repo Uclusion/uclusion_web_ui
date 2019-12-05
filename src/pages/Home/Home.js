@@ -47,7 +47,7 @@ function Home(props) {
   if (!planningAddMode || decisionAddMode) {
     sidebarActions.push(<PlanningAddActionButton key="planningAdd" onClick={togglePlanningAddMode}/>);
     sidebarActions.push(<DecisionAddActionButton key="decisionAdd" onClick={toggleDecisionAddMode}/>);
-    sidebarActions.push(<InitiativeAddActionButton key="decisionAdd" onClick={() => {}}/>);
+    sidebarActions.push(<InitiativeAddActionButton key="initiativeAdd" onClick={() => {}}/>);
   }
 
   function getContents() {

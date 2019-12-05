@@ -130,7 +130,7 @@ function Screen(props) {
       setFirstRender(false);
     }
     return () => {};
-  }, [firstRender]);
+  }, [firstRender, location]);
 
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
 

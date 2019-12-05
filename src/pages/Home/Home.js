@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core';
-import { useIntl } from 'react-intl';
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarketDetailsForType } from '../../contexts/MarketsContext/marketsContextHelper';
@@ -26,7 +25,6 @@ const useStyles = makeStyles(() => {
 
 function Home(props) {
   const { hidden } = props;
-  const intl = useIntl();
   const classes = useStyles();
   const [marketsState] = useContext(MarketsContext);
   const planningDetails = getMarketDetailsForType(marketsState, 'PLANNING');

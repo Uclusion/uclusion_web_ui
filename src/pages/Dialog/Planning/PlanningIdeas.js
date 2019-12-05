@@ -102,7 +102,7 @@ function PlanningIdeas(props) {
     );
   }
 
-  function getInvestibles(stageId, showBlocking) {
+  function getInvestibles(stageId, showBlocking, doCreateWarningShells) {
     // console.log(comments);
     const filtered = investibles.filter((investible) => {
       const { market_infos: marketInfos, investible: baseInvestible } = investible;
@@ -120,7 +120,7 @@ function PlanningIdeas(props) {
       }
       return false;
     });
-    if (!showBlocking && (!Array.isArray(filtered) || filtered.length === 0)) {
+    if (doCreateWarningShells && (!Array.isArray(filtered) || filtered.length === 0)) {
       return createWarningShellInvestible(stageId);
     }
     return filtered.map((inv) => {
@@ -131,8 +131,9 @@ function PlanningIdeas(props) {
       const marketInfo = marketInfos.find((info) => info.market_id === marketId);
       const updatedText = marketInfo.stage === acceptedStageId
         ? intl.formatMessage(({ id: 'acceptedInvestiblesUpdatedAt' }))
-        : showBlocking ? intl.formatMessage(({ id: 'blockedInvestiblesUpdatedAt' }))
-          : intl.formatMessage(({ id: 'inDialogInvestiblesUpdatedAt' }));
+        : marketInfo.stage === inReviewStageId ? intl.formatMessage(({ id: 'reviewingInvestiblesUpdatedAt' }))
+          : showBlocking ? intl.formatMessage(({ id: 'blockedInvestiblesUpdatedAt' }))
+            : intl.formatMessage(({ id: 'inDialogInvestiblesUpdatedAt' }));
       return (
         <div key={id}>
           <Paper
@@ -163,14 +164,14 @@ function PlanningIdeas(props) {
   return (
     <>
       <GridListTile key={`indialog${presenceId}`} cols={1} style={{ height: 'auto', width: '33%' }}>
-        {getInvestibles(inDialogStageId, false)}
-        {getInvestibles(inDialogStageId, true)}
+        {getInvestibles(inDialogStageId, false, true)}
+        {getInvestibles(inDialogStageId, true, false)}
       </GridListTile>
       <GridListTile key={`accepted${presenceId}`} cols={1} style={{ height: 'auto', width: '33%' }}>
-        {getInvestibles(acceptedStageId, false)}
+        {getInvestibles(acceptedStageId, false, true)}
       </GridListTile>
       <GridListTile key={`inreview${presenceId}`} cols={1} style={{ height: 'auto', width: '33%' }}>
-        {getInvestibles(inReviewStageId, true)}
+        {getInvestibles(inReviewStageId, false, false)}
       </GridListTile>
     </>
   );

@@ -183,6 +183,8 @@ const messages = defineMessages({
   investibleEditStageHelper: 'Select to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
   investibleAddToVotingLabel: 'Move to Current Voting',
+  planningInvestibleNextStageAcceptedLabel: 'Move to In Progress',
+  planningInvestibleNextStageInReviewLabel: 'Move to In Review',
 
 
   // Issues
@@ -266,6 +268,7 @@ const messages = defineMessages({
   planningNoneAcceptedWarning: 'No in progress assignment',
   planningNoneInDialogWarning: 'No votable assignment',
   acceptedInvestiblesUpdatedAt: 'In progress from ',
+  reviewingInvestiblesUpdatedAt: 'In review from ',
   inDialogInvestiblesUpdatedAt: 'Assigned for voting on ',
   blockedInvestiblesUpdatedAt: 'Blocked since ',
 

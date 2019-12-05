@@ -9,12 +9,11 @@ export function getStages(state, marketId) {
 export function getInCurrentVotingStage(state, marketId) {
   const marketStages = getStages(state, marketId);
   return marketStages.find((stage) => stage.allows_investment);
-
 }
 
-export function getProposedOptionsStage(state, marketId ) {
+export function getProposedOptionsStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => !stage.allows_investment && !stage.appears_in_market_summary);
+  return marketStages.find((stage) => !stage.allows_investment);
 }
 
 export function getAcceptedStage(state, marketId) {
@@ -22,16 +21,13 @@ export function getAcceptedStage(state, marketId) {
   return marketStages.find((stage) => (!stage.allows_investment && stage.singular_only));
 }
 
-export function getAssignedStage(state, marketId) {
+export function getInReviewStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (stage.allows_investment));
+  return marketStages.find((stage) => (!stage.singular_only && stage.appears_in_context));
 }
 
 export function refreshMarketStages(dispatch, marketIds) {
-  const updater = (marketId) => {
-    return getMarketStages(marketId)
-      .then((marketStages) => dispatch(updateMarketStages(marketId, marketStages)));
-  };
+  const updater = (marketId) => getMarketStages(marketId)
+    .then((marketStages) => dispatch(updateMarketStages(marketId, marketStages)));
   return AllSequentialMap(marketIds, updater);
 }
-

@@ -1,7 +1,8 @@
-  import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Paper } from '@material-ui/core';
 import { useHistory } from 'react-router';
+import { useIntl } from 'react-intl';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Decision/Voting/YourVoting';
 import Voting from '../Decision/Voting';
@@ -17,7 +18,12 @@ import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
-import { useIntl } from 'react-intl';
+import MoveToNextVisibleStageActionButton from './MoveToNextVisibleStageActionButton';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { getInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
  * @param props
@@ -43,10 +49,13 @@ function PlanningInvestible(props) {
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
+  const marketInfo = getMarketInfo(marketInvestible, marketId);
+  const { stage, assigned } = marketInfo;
   const { investible } = marketInvestible;
   const { description, name } = investible;
   const commentAddRef = useRef(null);
-
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const inReviewStage = getInReviewStage(marketStagesState, marketId);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
 
   function commentButtonOnClick(type) {
@@ -66,7 +75,13 @@ function PlanningInvestible(props) {
   if (isAdmin) {
     sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
   }
-
+  if (assigned && assigned.includes(userId) && stage !== inReviewStage.id) {
+    sidebarActions.push(<MoveToNextVisibleStageActionButton
+      investibleId={investibleId}
+      marketId={marketId}
+      stageId={stage}
+    />);
+  }
   sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
   sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
 

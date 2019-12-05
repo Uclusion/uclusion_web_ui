@@ -16,7 +16,7 @@ import { getMarketInvestibles } from '../../../contexts/InvestibesContext/invest
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getAcceptedStage,
-  getAssignedStage,
+  getInCurrentVotingStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
@@ -59,7 +59,7 @@ function AssignmentList(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
 
   const acceptedStage = getAcceptedStage(marketStagesState, marketId);
-  const assignedStage = getAssignedStage(marketStagesState, marketId);
+  const assignedStage = getInCurrentVotingStage(marketStagesState, marketId);
 
   const [commentsState] = useContext(CommentsContext);
   const marketComments = getMarketComments(commentsState, marketId);

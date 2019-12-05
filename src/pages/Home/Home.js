@@ -13,6 +13,7 @@ import DecisionAdd from './DecisionAdd';
 import DecisionAddActionButton from './DecisionAddActionButton';
 import PlanningAdd from './PlanningAdd';
 import PlanningAddActionButton from './PlanningAddActionButton';
+import InitiativeAddActionButton from './InitiativeAddActionButton';
 
 
 const useStyles = makeStyles(() => {
@@ -46,6 +47,7 @@ function Home(props) {
   if (!planningAddMode || decisionAddMode) {
     sidebarActions.push(<PlanningAddActionButton key="planningAdd" onClick={togglePlanningAddMode}/>);
     sidebarActions.push(<DecisionAddActionButton key="decisionAdd" onClick={toggleDecisionAddMode}/>);
+    sidebarActions.push(<InitiativeAddActionButton key="initiativeAdd" onClick={() => {}}/>);
   }
 
   function getContents() {
@@ -67,14 +69,10 @@ function Home(props) {
     }
     return (
       <>
-        <SubSection
-          title={intl.formatMessage({ id: 'homeSubsectionPlanning' })}
-        >
+        <SubSection>
           <PlanningDialogs markets={planningDetails}/>
         </SubSection>
-        <SubSection
-          title={intl.formatMessage({ id: 'homeSubsectionDecision' })}
-        >
+        <SubSection>
           <DecisionDialogs markets={decisionDetails}/>
         </SubSection>
       </>

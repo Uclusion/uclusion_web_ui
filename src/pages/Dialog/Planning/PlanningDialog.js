@@ -132,23 +132,25 @@ function PlanningDialog(props) {
               const marketInfo = getMarketInfo(investible, marketId);
               return marketInfo.assigned.includes(presence.id);
             });
+            const { id, name } = presence;
             return (
-              <GridList key={`topof${presence.id}`} cellHeight="auto" cols={3}>
-                <GridListTile key={`namecolumn${presence.id}`} cols={3} style={{ height: 'auto', width: '100%' }}>
-                  <ListSubheader component="div">{presence.name}</ListSubheader>
-                </GridListTile>
-                {marketId && acceptedStage && inDialogStage && inReviewStage && (
-                  <PlanningIdeas
-                    investibles={myInvestibles}
-                    marketId={marketId}
-                    acceptedStageId={acceptedStage.id}
-                    inDialogStageId={inDialogStage.id}
-                    inReviewStageId={inReviewStage.id}
-                    comments={comments}
-                    presenceId={presence.id}
-                  />
-                )}
-              </GridList>
+
+                <GridList key={`topof${id}`} cellHeight="auto" cols={3}>
+                  <GridListTile key={`namecolumn${id}`} cols={3} style={{ height: 'auto', width: '100%' }}>
+                    <ListSubheader component="div"><div id={id}>{name}</div></ListSubheader>
+                  </GridListTile>
+                  {marketId && acceptedStage && inDialogStage && inReviewStage && (
+                    <PlanningIdeas
+                      investibles={myInvestibles}
+                      marketId={marketId}
+                      acceptedStageId={acceptedStage.id}
+                      inDialogStageId={inDialogStage.id}
+                      inReviewStageId={inReviewStage.id}
+                      comments={comments}
+                      presenceId={presence.id}
+                    />
+                  )}
+                </GridList>
             );
           })
         }
@@ -166,7 +168,8 @@ function PlanningDialog(props) {
       <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];
     if (isAdmin) {
-      const adminActions = [<DialogEditSidebarActionButton key="edit" onClick={toggleEditMode} onCancel={onDialogEditCancel} />];
+      const adminActions = [<DialogEditSidebarActionButton key="edit" onClick={toggleEditMode}
+                                                           onCancel={onDialogEditCancel} />];
       return adminActions.concat(userActions);
     }
     return userActions;

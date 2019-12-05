@@ -3,30 +3,31 @@ import PropTypes from 'prop-types';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import { useIntl } from 'react-intl';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
-import { DECISION_TYPE } from '../../constants/markets';
+import { INITIATIVE_TYPE } from '../../constants/markets';
 
 
-function DecisionAddActionButton(props) {
+function InitiativeAddActionButton(props) {
 
   const { onClick } = props;
 
   const intl = useIntl();
-  const label = intl.formatMessage({ id: 'homeAddDecision' });
+  const label = intl.formatMessage({ id: 'homeAddInitiative' });
 
   return (
     <ExpandableSidebarAction
-      icon={getDialogTypeIcon(DECISION_TYPE)}
+      icon={getDialogTypeIcon(INITIATIVE_TYPE)}
       label={label}
-      onClick={onClick}/>
+      onClick={onClick}
+    />
   );
 }
 
-DecisionAddActionButton.propTypes = {
+InitiativeAddActionButton.propTypes = {
   onClick: PropTypes.func,
 };
 
-DecisionAddActionButton.defaultProps = {
+InitiativeAddActionButton.defaultProps = {
   onClick: () => {},
 };
 
-export default DecisionAddActionButton;
+export default InitiativeAddActionButton;

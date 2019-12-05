@@ -19,6 +19,7 @@ import InviteLinker from './Decision/InviteLinker';
 import LeaveMarketButton from './Decision/LeaveMarketButton';
 import ArchiveMarketButton from './Decision/ArchiveMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
+import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -113,7 +114,7 @@ function PlanningDialogs(props) {
 
   function getMarketItems() {
     return sortedMarkets.map((market) => {
-      const { id: marketId, name } = market;
+      const { id: marketId, name, market_type } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const sortedPresences = _.sortBy(marketPresences, 'name');
@@ -129,6 +130,7 @@ function PlanningDialogs(props) {
             border={1}
           >
             <CardContent>
+              {getDialogTypeIcon(market_type)}
               <Typography>
                 <Link
                   href="#"

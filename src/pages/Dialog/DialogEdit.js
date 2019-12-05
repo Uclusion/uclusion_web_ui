@@ -65,6 +65,7 @@ function DialogEdit(props) {
   }
 
   function onEditorChange(content) {
+    // console.log(content);
     setDescription(content);
   }
 

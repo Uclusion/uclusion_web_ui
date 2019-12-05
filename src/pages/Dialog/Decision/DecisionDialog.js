@@ -91,6 +91,7 @@ function DecisionDialog(props) {
         <DialogEdit
           editToggle={toggleEditMode}
           market={market}
+          onCancel={toggleEditMode}
         />
       </Screen>
     );

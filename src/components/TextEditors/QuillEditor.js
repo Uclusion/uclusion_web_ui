@@ -95,18 +95,16 @@ class QuillEditor extends React.PureComponent {
   }
 
   componentDidMount() {
-    const { defaultValue, onChange, value, readOnly } = this.props;
+    const { defaultValue, onChange, value } = this.props;
     const usedValue = value || defaultValue;
-    if (!readOnly) {
-      this.editor = new Quill(this.editorBox.current, this.options);
-      this.editor.root.innerHTML = usedValue;
-      const debouncedOnChange = _.debounce((delta) => {
-        const contents = this.editor.root.innerHTML;
-        onChange(contents, delta);
-      }, 50);
-      this.disableToolbarTabs(this.editorContainer.current);
-      this.editor.on('text-change', debouncedOnChange);
-    }
+    this.editorBox.current.innerHTML = usedValue;
+    this.editor = new Quill(this.editorBox.current, this.options);
+    const debouncedOnChange = _.debounce((delta) => {
+      const contents = this.editor.root.innerHTML;
+      onChange(contents, delta);
+    }, 50);
+    this.disableToolbarTabs(this.editorContainer.current);
+    this.editor.on('text-change', debouncedOnChange);
   }
 
   disableToolbarTabs(editorNode) {
@@ -127,31 +125,19 @@ class QuillEditor extends React.PureComponent {
   }
 
   render() {
-    const { readOnly, value, defaultValue, theme } = this.props;
-    const usedValue = value || defaultValue;
+    const { theme, readOnly } = this.props;
     const editorStyle = {
+      fontFamily: theme.typography.fontFamily,
       fontSize: theme.typography.fontSize,
     };
     const readOnlyStyle = {
-      fontFamily: theme.typography.fontFamily,
-      fontSize: theme.typography.fontSize,
-      textOverflow: 'ellipsis',
+      ...editorStyle,
+      border: 0,
     };
 
-    if (readOnly) {
-      return (
-        <div ref={this.editorContainer}>
-          <div
-            ref={this.editorBox}
-            style={readOnlyStyle}
-            dangerouslySetInnerHTML={{ __html: usedValue }}
-          />
-        </div>
-      );
-    }
     return (
       <div ref={this.editorContainer}>
-        <div ref={this.editorBox} style={editorStyle} />
+        <div ref={this.editorBox} style={readOnly? readOnlyStyle: editorStyle} />
       </div>
     );
   }

@@ -22,7 +22,8 @@ import MoveToNextVisibleStageActionButton from './MoveToNextVisibleStageActionBu
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import MoveToVerifiedActionButton from './MoveToVerifiedActionButton';
+import MoveToNotDoingActionButton from './MoveToNotDoingActionButton';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -75,8 +76,36 @@ function PlanningInvestible(props) {
   if (isAdmin) {
     sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
   }
-  if (assigned && assigned.includes(userId) && stage !== inReviewStage.id) {
-    sidebarActions.push(<MoveToNextVisibleStageActionButton
+  if (assigned && assigned.includes(userId)) {
+    if (stage !== inReviewStage.id) {
+      const invested = marketPresences.filter((presence) => {
+        const { investments } = presence;
+        if (!Array.isArray(investments) || investments.length === 0) {
+          return false;
+        }
+        let found = false;
+        investments.forEach((investment) => {
+          const { investible_id: invId } = investment;
+          if (invId === investibleId) {
+            found = true;
+          }
+        });
+        return found;
+      });
+      if (Array.isArray(invested) && invested.length > 0) {
+        sidebarActions.push(<MoveToNextVisibleStageActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+          stageId={stage}
+        />);
+      }
+    }
+    sidebarActions.push(<MoveToVerifiedActionButton
+      investibleId={investibleId}
+      marketId={marketId}
+      stageId={stage}
+    />);
+    sidebarActions.push(<MoveToNotDoingActionButton
       investibleId={investibleId}
       marketId={marketId}
       stageId={stage}

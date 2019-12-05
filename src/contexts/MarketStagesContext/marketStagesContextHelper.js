@@ -26,6 +26,17 @@ export function getInReviewStage(state, marketId) {
   return marketStages.find((stage) => (!stage.singular_only && stage.appears_in_context));
 }
 
+export function getVerifiedStage(state, marketId) {
+  const marketStages = getStages(state, marketId);
+  return marketStages.find((stage) => (stage.appears_in_market_summary));
+}
+
+export function getNotDoingStage(state, marketId) {
+  const marketStages = getStages(state, marketId);
+  // eslint-disable-next-line max-len
+  return marketStages.find((stage) => (!stage.appears_in_context && !stage.appears_in_market_summary));
+}
+
 export function refreshMarketStages(dispatch, marketIds) {
   const updater = (marketId) => getMarketStages(marketId)
     .then((marketStages) => dispatch(updateMarketStages(marketId, marketStages)));

@@ -185,7 +185,8 @@ const messages = defineMessages({
   investibleAddToVotingLabel: 'Move to Current Voting',
   planningInvestibleNextStageAcceptedLabel: 'Move to In Progress',
   planningInvestibleNextStageInReviewLabel: 'Move to In Review',
-
+  planningInvestibleMoveToVerifiedLabel: 'Move to Verified',
+  planningInvestibleMoveToNotDoingLabel: 'Move to Not Doing',
 
   // Issues
   issueResolveLabel: 'Resolve',

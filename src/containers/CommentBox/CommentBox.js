@@ -4,7 +4,6 @@ import _ from 'lodash';
 import { Grid } from '@material-ui/core';
 import Comment from '../../components/Comments/Comment';
 
-
 function CommentBox(props) {
 
   const { comments, marketId } = props;
@@ -14,25 +13,25 @@ function CommentBox(props) {
 
   function getCommentCards() {
     return threadRoots.map((comment) => {
+      const { id } = comment;
       return (
         <Grid
           item
-          key={comment.id}
+          key={id}
           xs={12}
         >
-          <div id={comment.id}>
-          <Comment
-            depth={0}
-            marketId={marketId}
-            comment={comment}
-            commentsHash={commentsHash}
-          />
+          <div id={id}>
+            <Comment
+              depth={0}
+              marketId={marketId}
+              comment={comment}
+              commentsHash={commentsHash}
+            />
           </div>
         </Grid>
       );
     });
   }
-
 
   return (
     <Grid

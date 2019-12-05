@@ -6,6 +6,7 @@ import { useHistory } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { nextMessage } from '../../contexts/NotificationsContext/notificationsContextReducer';
+import { ISSUE_RESOLVED_TYPE, ISSUE_TYPE, NO_PIPELINE_TYPE } from '../../constants/notifications';
 
 const useStyles = makeStyles({
   red: {
@@ -40,11 +41,25 @@ function Notifications(props) {
 
   function nextOnClick() {
     if (current) {
-      const { marketId, investibleId, text } = current;
+      const { marketId, investibleId, text, userId, aType, commentId } = current;
+      console.log(current);
       const link = investibleId
         ? formInvestibleLink(marketId, investibleId)
         : formMarketLink(marketId);
-      navigate(history, link);
+      let fullLink;
+      switch (aType) {
+        case ISSUE_RESOLVED_TYPE:
+        case ISSUE_TYPE:
+          fullLink = `${link}#${commentId}`;
+          break;
+        case NO_PIPELINE_TYPE:
+          fullLink = `${link}#${userId}`;
+          break;
+        default:
+          fullLink = link;
+          break;
+      }
+      navigate(history, fullLink);
       toast.info(text);
       messagesDispatch(nextMessage());
     }

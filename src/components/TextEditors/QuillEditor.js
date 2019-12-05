@@ -98,8 +98,8 @@ class QuillEditor extends React.PureComponent {
     const { defaultValue, onChange, value, readOnly } = this.props;
     const usedValue = value || defaultValue;
     if (!readOnly) {
+      this.editorBox.current.innerHTML = usedValue;
       this.editor = new Quill(this.editorBox.current, this.options);
-      this.editor.root.innerHTML = usedValue;
       const debouncedOnChange = _.debounce((delta) => {
         const contents = this.editor.root.innerHTML;
         onChange(contents, delta);

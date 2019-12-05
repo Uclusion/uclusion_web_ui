@@ -20,12 +20,14 @@ function CommentBox(props) {
           key={comment.id}
           xs={12}
         >
+          <div id={comment.id}>
           <Comment
             depth={0}
             marketId={marketId}
             comment={comment}
             commentsHash={commentsHash}
           />
+          </div>
         </Grid>
       );
     });

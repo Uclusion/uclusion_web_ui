@@ -62,7 +62,6 @@ function Comment(props) {
   const isRoot = !comment.reply_id;
   const expanded = replyOpen || toggledOpen || (isRoot && !comment.resolved);
   const icon = getCommentTypeIcon(comment_type);
-  console.log(icon);
   return (
     <RaisedCard>
       {icon}

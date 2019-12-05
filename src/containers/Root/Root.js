@@ -31,7 +31,6 @@ const useStyles = makeStyles({
   content: {
     width: '100%',
     height: '100vh',
-    overflow: 'auto',
   },
   hide: {
     display: 'none',

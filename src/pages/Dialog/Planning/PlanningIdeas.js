@@ -12,6 +12,7 @@ import { FormattedDate, useIntl } from 'react-intl';
 import GridListTile from '@material-ui/core/GridListTile';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { pink } from '@material-ui/core/colors';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,21 +21,25 @@ const useStyles = makeStyles((theme) => ({
   investibleCard: {
     padding: theme.spacing(2),
     textAlign: 'left',
-    backgroundColor: theme.palette.grey[theme.palette.type === 'dark' ? 900 : 100],
+    marginRight: theme.spacing(1),
+    backgroundColor: theme.palette.grey[300],
   },
   warningCard: {
     padding: theme.spacing(2),
     textAlign: 'left',
-    backgroundColor: theme.palette.primary.light,
+    marginRight: theme.spacing(1),
+    backgroundColor: pink[500],
   },
   blockedInvestible: {
     padding: theme.spacing(2),
     textAlign: 'left',
-    backgroundColor: theme.palette.secondary.light,
+    marginRight: theme.spacing(1),
+    backgroundColor: theme.palette.error.main,
   },
   investibleCardAccepted: {
     padding: theme.spacing(2),
     textAlign: 'left',
+    marginRight: theme.spacing(1),
   },
   textData: {
     fontSize: 12,

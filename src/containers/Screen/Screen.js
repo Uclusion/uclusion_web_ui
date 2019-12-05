@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import {
@@ -122,12 +122,15 @@ function Screen(props) {
     sidebarActions,
   } = props;
 
+  const [firstRender, setFirstRender] = useState(true);
+
   useEffect(() => {
-    if (!location.prevPath) {
+    if (firstRender) {
       scroller(location);
+      setFirstRender(false);
     }
     return () => {};
-  }, [location]);
+  }, [firstRender]);
 
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
 

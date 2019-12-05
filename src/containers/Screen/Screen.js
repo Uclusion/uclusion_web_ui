@@ -94,10 +94,8 @@ const useStyles = makeStyles((theme) => {
 function scroller(location) {
   const { hash } = location;
   if (hash) {
-    console.log(hash);
     const target = hash.substring(1, hash.length);
     if (target) {
-      console.log(target);
       const element = document.getElementById(target);
       if(element) {
         element.scrollIntoView();

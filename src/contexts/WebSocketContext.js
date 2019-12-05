@@ -14,6 +14,7 @@ export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
 export const MARKET_MESSAGE_EVENT = 'market_web_push';
 export const NOTIFICATION_MESSAGE_EVENT = 'notification_web_push';
+export const SOCKET_OPEN_EVENT = 'web_socket_opened';
 
 const WebSocketContext = React.createContext([{}, () => {}]);
 function notifyNewApplicationVersion(currentVersion) {

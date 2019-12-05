@@ -2,7 +2,7 @@ import { Hub } from '@aws-amplify/core';
 import {
   AUTH_HUB_CHANNEL,
   MARKET_MESSAGE_EVENT,
-  NOTIFICATION_MESSAGE_EVENT,
+  NOTIFICATION_MESSAGE_EVENT, SOCKET_OPEN_EVENT,
   VERSIONS_HUB_CHANNEL,
 } from '../WebSocketContext';
 import { getVersions } from '../../api/summaries';
@@ -10,7 +10,7 @@ import {
   EMPTY_STATE,
   initializeState, initializeVersionsAction,
   refreshMarketVersionAction,
-  refreshNotificationVersionAction,
+  refreshNotificationVersionAction, refreshVersionsAction,
   removeMarketVersionAction,
 } from './versionsContextReducer';
 
@@ -54,6 +54,12 @@ function beginListening(dispatch) {
       case NOTIFICATION_MESSAGE_EVENT: {
         const { version } = message;
         dispatch(refreshNotificationVersionAction(version));
+        break;
+      }
+      case SOCKET_OPEN_EVENT: {
+        getVersions().then((versions) => {
+          dispatch(refreshVersionsAction(versions));
+        });
         break;
       }
       default:

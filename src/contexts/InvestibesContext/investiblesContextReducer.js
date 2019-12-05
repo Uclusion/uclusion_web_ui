@@ -4,7 +4,7 @@ import { INVESTIBLES_CONTEXT_NAMESPACE } from './InvestiblesContext';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
 
-/** Possible messages to reducer **/
+/** Possible messages to reducer * */
 
 export function initializeState(newState) {
   return {
@@ -21,17 +21,8 @@ export function updateStorableInvestibles(investibles) {
 }
 
 
-/** Reducer functions **/
+/** Reducer functions */
 
-function doStoreInvestible(state, action) {
-  const { investible } = action;
-  const { id } = investible;
-  const newState = {
-    ...state,
-    [id]: investible,
-  };
-  return newState;
-}
 // expects that the investibles are already in a storable state
 // since it acce
 function doUpdateInvestibles(state, action) {

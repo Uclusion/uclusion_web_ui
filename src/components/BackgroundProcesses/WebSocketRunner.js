@@ -1,8 +1,12 @@
 import _ from 'lodash';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
+import { Hub } from 'aws-amplify';
+import { SOCKET_OPEN_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 
 /**
- * Class which fires and manages a websocket connection to the server. It may need to become a service worker
+ * Class which fires and manages a websocket connection to the server.
+ * It may need to become a service worker
  */
 const localStorageKey = 'websocket_subscriptions';
 
@@ -33,13 +37,6 @@ class WebSocketRunner {
     this.messageHandlers.push({ type: messageType, handler });
   }
 
-  /**
-   * Subscribes the given user id to the subscriptions described in the subscriptions object
-   * subscriptions is an object of a form similar to
-   * {market_id: marketId, investible_id: investibleId ...}
-   * @param userId the user id to subscribe with
-   * @param subscriptions the object ids to subscribe too
-   */
   subscribe(identity) {
     const action = { action: 'subscribe', identity};
     // push the action onto the subscribe queue so if we reconnect we'll track it
@@ -53,11 +50,6 @@ class WebSocketRunner {
     const compacted = _.uniqWith(this.subscribeQueue, _.isEqual);
     this.subscribeQueue = compacted;
     // console.debug('Subscribe queue at end of subscribe:', JSON.stringify(this.subscribeQueue));
-    this.storeSubscribeQueue();
-  }
-
-  unsubscribeAll() {
-    this.subscribeQueue = [];
     this.storeSubscribeQueue();
   }
 
@@ -78,7 +70,7 @@ class WebSocketRunner {
     this.loadSubscribeQueue();
     const queue = this.subscribeQueue;
     // console.debug('Subcribing to:', queue);
-    const factory = (event) => {
+    const factory = () => {
       // console.debug('Here in open factory with queue:', JSON.stringify(queue));
       // console.debug('My socket is:', this.socket);
       queue.forEach((action) => {
@@ -86,32 +78,25 @@ class WebSocketRunner {
         // console.debug('Sending to my socket:', this.socket, actionString);
         this.socket.send(actionString);
       });
+      Hub.dispatch(
+        VERSIONS_HUB_CHANNEL,
+        {
+          event: SOCKET_OPEN_EVENT,
+        },
+      );
       // we're not emptying the queue because we might need it on reconnect
     };
     return factory.bind(this);
   }
 
-  onCloseFactory() {
-    const runner = this;
-    const connectFunc = function (event) {
-      // console.debug('Web socket closed. Reopening in:', runner.reconnectInterval);
-      setTimeout(runner.connect.bind(runner), runner.reconnectInterval);
-    };
-    return connectFunc.bind(this);
-  }
-
-  // dead stupid version without good error handling, we'll improve later,
   connect() {
-    this.socket = new WebSocket(this.wsUrl);
-    this.socket.onopen = this.onOpenFactory();
-    this.socket.onmessage = this.getMessageHandler();
-    // make us retry
-    this.socket.onclose = this.onCloseFactory();
+    this.socket = new ReconnectingWebSocket(this.wsUrl);
+    this.socket.addEventListener('open', this.onOpenFactory());
+    this.socket.addEventListener('message', this.getMessageHandler());
   }
 
   terminate(){
-    // kill the reconnect handler and close the socket
-    this.socket.onclose = (event) => {};
+    // close the socket
     this.socket.close();
   }
 }

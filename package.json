@@ -40,7 +40,8 @@
     "moment": "^2.24.0",
     "uclusion_sdk": "file:../uclusion_sdk",
     "use-debounce": "^3.1.0",
-    "video-react": "^0.14.1"
+    "video-react": "^0.14.1",
+    "reconnecting-websocket": "^4.2.0"
   },
   "scripts": {
     "check": "npm-check -s -u",

@@ -1,25 +1,27 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { ListItem, ListItemIcon, ListItemText, Tooltip } from '@material-ui/core';
+import {
+  ListItem, ListItemIcon, ListItemText, Tooltip,
+} from '@material-ui/core';
 import { SidebarContext } from '../../contexts/SidebarContext';
 
 
 function ExpandableSidebarAction(props) {
-
   const {
     icon,
     label,
     onClick,
   } = props;
 
-  const [ amOpen ] = useContext(SidebarContext);
+  const [amOpen] = useContext(SidebarContext);
 
-  function myOnClick () {
+  function myOnClick() {
     onClick();
   }
 
   return (
     <ListItem
+      key={label}
       button
       onClick={myOnClick}
     >

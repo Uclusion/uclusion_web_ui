@@ -2,15 +2,17 @@
  * A component that renders a _decision_ dialog
  */
 import React, { useState, useRef } from 'react';
+import { useHistory } from 'react-router';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/styles';
+import { Grid } from '@material-ui/core';
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import ListSubheader from '@material-ui/core/ListSubheader';
 import Summary from '../Summary';
 import PlanningIdeas from './PlanningIdeas';
-import { useIntl } from 'react-intl';
-import { Grid } from '@material-ui/core';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import Screen from '../../../containers/Screen/Screen';
-import { useHistory } from 'react-router';
 import { makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
@@ -23,25 +25,10 @@ import InvestibleAddActionButton from './InvestibleAddActionButton';
 import DialogEditSidebarActionButton from '../DialogEditSidebarActionButton';
 import DialogEdit from '../DialogEdit';
 import { unlockPlanningMarketForEdit } from '../../../api/markets';
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
-import ListSubheader from '@material-ui/core/ListSubheader';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  presencePaper: {
-    paddingBottom: 0,
-    paddingTop: theme.spacing(3),
-    textAlign: 'left',
-  },
-}));
 
 function PlanningDialog(props) {
   const history = useHistory();
   const breadCrumbs = makeBreadCrumbs(history);
-  const classes = useStyles();
   const {
     market,
     investibles,
@@ -57,7 +44,6 @@ function PlanningDialog(props) {
   const commentAddRef = useRef(null);
   const { id: marketId } = market;
   const marketComments = comments.filter((comment) => !comment.investible_id);
-
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);

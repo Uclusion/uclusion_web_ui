@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import {
@@ -18,6 +18,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import MenuIcon from '@material-ui/icons/Menu';
 import Notifications from '../../components/Notifications/Notifications';
 import { SidebarContext } from '../../contexts/SidebarContext';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles((theme) => {
   const drawerWidth = 240;
@@ -90,8 +91,29 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
+function scroller(location) {
+  const { hash } = location;
+  if (hash) {
+    console.log(hash);
+    const target = hash.substring(1, hash.length);
+    if (target) {
+      console.log(target);
+      const element = document.getElementById(target);
+      if(element) {
+        element.scrollIntoView();
+      }
+    }
+  }
+}
+
 function Screen(props) {
   const classes = useStyles();
+
+  // enable scrolling based on hash
+  const history = useHistory();
+  const { location } = history;
+  // console.log(history);
+  history.listen(scroller);
 
   const {
     breadCrumbs,
@@ -101,6 +123,13 @@ function Screen(props) {
     toolbarButtons,
     sidebarActions,
   } = props;
+
+  useEffect(() => {
+    if (!location.prevPath) {
+      scroller(location);
+    }
+    return () => {};
+  }, [location]);
 
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
 

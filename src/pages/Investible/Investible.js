@@ -21,6 +21,8 @@ import DecisionInvestibleEdit from './Decision/DecisionInvestibleEdit';
 import { lockInvestibleForEdit, realeaseInvestibleEditLock } from '../../api/investibles';
 import PlanningInvestible from './Planning/PlanningInvestible';
 import PlanningInvestibleEdit from './Planning/PlanningInvestibleEdit';
+import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import InitiativeInvestible from './Initiative/InitiativeInvestible';
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -59,8 +61,8 @@ function Investible(props) {
   const [editMode, setEditMode] = useState(amEditing);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || _.isEmpty(user));
-  const isDecision = market && market.market_type === 'DECISION';
-  const isPlanning = market && market.market_type === 'PLANNING';
+  const isDecision = market && market.market_type === DECISION_TYPE;
+  const isPlanning = market && market.market_type === PLANNING_TYPE;
 
   const isAdmin = myPresence && myPresence.is_admin;
 
@@ -150,8 +152,18 @@ function Investible(props) {
       />
     );
   }
-  // shouldn't get here
-  return (<></>);
+  return (
+    <InitiativeInvestible
+      userId={userId}
+      investibleId={investibleId}
+      market={market}
+      fullInvestible={usedInv}
+      marketPresences={marketPresences}
+      investibleComments={investibleComments}
+      toggleEdit={toggleEdit}
+      isAdmin={isAdmin}
+    />
+  );
 }
 
 Investible.propTypes = {

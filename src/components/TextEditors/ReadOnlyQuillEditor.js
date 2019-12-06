@@ -29,7 +29,7 @@ function ReadOnlyQuillEditor(props) {
     }
     return () => {
     };
-  }, [box]);
+  }, [box, value, quillOptions]);
 
   return (
     <div>

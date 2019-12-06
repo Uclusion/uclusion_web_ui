@@ -1,11 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Card, CardActions, CardContent, makeStyles, TextField } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { lockPlanningMarketForEdit, updateMarket } from '../../api/markets';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { updateMarket as localUpdateMarket } from '../../contexts/MarketsContext/marketsContextReducer';
 import { processTextAndFilesForSave } from '../../api/files';
 import { PLANNING_TYPE } from '../../constants/markets';
 
@@ -33,7 +31,6 @@ function DialogEdit(props) {
   const { id, market_type: marketType } = market;
   const intl = useIntl();
   const classes = useStyles();
-  const [, marketsDispatch] = useContext(MarketsContext);
   const [mutableMarket, setMutableMarket] = useState(market);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = mutableMarket;

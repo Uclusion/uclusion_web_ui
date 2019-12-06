@@ -142,9 +142,7 @@ function PlanningIdeas(props) {
                 ? classes.blockedInvestible : classes.investibleCard}
             onClick={() => navigate(history, formInvestibleLink(marketId, id))}
           >
-            <Typography
-              noWrap
-            >
+            <Typography>
               {name}
             </Typography>
             <Typography

@@ -79,9 +79,7 @@ function ProposedIdeas(props) {
             onClick={() => navigate(history, formInvestibleLink(marketId, id))}
           >
 
-            <Typography
-              noWrap
-            >
+            <Typography>
               {name}
             </Typography>
             <Typography

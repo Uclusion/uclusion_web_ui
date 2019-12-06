@@ -62,7 +62,7 @@ function CurrentVoting(props) {
 
   function getCommentIndicators(comments) {
     const indicators = [];
-    const commentRoots = comments.filter((comment) => !comment.parent_id);
+    const commentRoots = comments.filter((comment) => !comment.parent_id && !comment.resolved);
     [ISSUE_TYPE].forEach((type) => {
       const indicator = getIndicator(commentRoots, type);
       if (indicator !== null) {

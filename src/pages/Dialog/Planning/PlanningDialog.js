@@ -118,13 +118,13 @@ function PlanningDialog(props) {
     return (
       <GridList key="toppresencelist" cellHeight="auto" cols={3}>
         <GridListTile key="Subheader1" cols={1} style={{ height: 'auto', width: '33%' }}>
-          <ListSubheader component="div">Voting</ListSubheader>
+          <ListSubheader component="div">{intl.formatMessage({ id: 'planningVotingStageLabel' })}</ListSubheader>
         </GridListTile>
         <GridListTile key="Subheader2" cols={1} style={{ height: 'auto', width: '33%' }}>
-          <ListSubheader component="div">In Progress</ListSubheader>
+          <ListSubheader component="div">{intl.formatMessage({ id: 'planningAcceptedStageLabel' })}</ListSubheader>
         </GridListTile>
         <GridListTile key="Subheader3" cols={1} style={{ height: 'auto', width: '33%' }}>
-          <ListSubheader component="div">In Review</ListSubheader>
+          <ListSubheader component="div">{intl.formatMessage({ id: 'planningReviewStageLabel' })}</ListSubheader>
         </GridListTile>
         {
           followingPresences.map((presence) => {

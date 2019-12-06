@@ -20,6 +20,7 @@ import LeaveMarketButton from './Decision/LeaveMarketButton';
 import ArchiveMarketButton from './Decision/ArchiveMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -33,6 +34,7 @@ const useStyles = makeStyles(() => ({
 
 function PlanningDialogs(props) {
   const history = useHistory();
+  const intl = useIntl();
   const classes = useStyles();
   const { markets } = props;
   const sortedMarkets = _.sortBy(markets, 'name');
@@ -40,6 +42,7 @@ function PlanningDialogs(props) {
   const [showInvite, setShowInvite] = useState({});
 
   function getParticipantInfo(presences) {
+    // TODO fix this to be display of swimlanes with budget max sums for each participant + blockers total in another column
     return presences.map((presence) => {
       const { id: userId, name, following } = presence;
       const icon = following ? <ThumbsUpDownIcon size="small" /> : <VisibilityIcon size="small" />;
@@ -138,6 +141,32 @@ function PlanningDialogs(props) {
                   {name}
                 </Link>
               </Typography>
+              <Grid
+                container
+              >
+                <Grid
+                  item
+                  xs={3}
+                />
+                <Grid
+                  item
+                  xs={3}
+                >
+                  <Typography>{intl.formatMessage({ id: 'planningVotingStageLabel' })}</Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={3}
+                >
+                  <Typography>{intl.formatMessage({ id: 'planningAcceptedStageLabel' })}</Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={3}
+                >
+                  <Typography>{intl.formatMessage({ id: 'planningReviewStageLabel' })}</Typography>
+                </Grid>
+              </Grid>
               {getParticipantInfo(sortedPresences)}
             </CardContent>
             <CardActions>

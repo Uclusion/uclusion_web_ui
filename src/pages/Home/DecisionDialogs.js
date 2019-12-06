@@ -24,6 +24,7 @@ import ArchiveMarketButton from './Decision/ArchiveMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
+import { getCertaintyChart, getVoteTotalsForUser } from '../../utils/userFunctions';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -66,10 +67,6 @@ function DecisionDialogs(props) {
             >
               <Typography>{name}</Typography>
             </Grid>
-            <Grid
-              item
-              xs={4}
-            />
             <Grid
               item
               xs={4}
@@ -148,9 +145,23 @@ function DecisionDialogs(props) {
     return sortedMarkets.map((market) => {
       const {
         id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes,
-        market_type,
+        market_type: marketType,
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+      const userInvestments = marketPresences.map((presence) => getVoteTotalsForUser(presence));
+      const investibleCounts = userInvestments.reduce((counts, userInvested) => {
+        Object.keys(userInvested).map((id) => {
+          // eslint-disable-next-line no-param-reassign
+          counts[id] = (counts[id] || 0) + 1;
+          return counts;
+        });
+        return counts;
+      }, {});
+      const maxCount = Math.max(...Object.values(investibleCounts));
+      const maxId = Object.keys(investibleCounts).filter((id) => investibleCounts[id] === maxCount);
+      // eslint-disable-next-line max-len
+      const userInvestmentsFiltered = userInvestments.filter((userInvested) => maxId in userInvested);
+      const investments = userInvestmentsFiltered.map((userInvested) => userInvested[maxId]);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const sortedPresences = _.sortBy(marketPresences, 'name');
       return (
@@ -165,7 +176,22 @@ function DecisionDialogs(props) {
             border={1}
           >
             <CardContent>
-              {getDialogTypeIcon(market_type)}
+              <Grid
+                container
+              >
+                <Grid
+                  item
+                  xs={3}
+                >
+                  {getDialogTypeIcon(marketType)}
+                </Grid>
+                <Grid
+                  item
+                  xs={3}
+                >
+                  {getCertaintyChart(investments)}
+                </Grid>
+              </Grid>
               <Typography>
                 <Link
                   href="#"
@@ -177,12 +203,25 @@ function DecisionDialogs(props) {
                   {name}
                 </Link>
               </Typography>
-              <ExpiresDisplay
-                createdAt={createdAt}
-                expirationMinutes={expirationMinutes}
-              />
-
-              {getParticipantInfo(sortedPresences)}
+              <Grid
+                container
+              >
+                <Grid
+                  item
+                  xs={6}
+                >
+                  <ExpiresDisplay
+                    createdAt={createdAt}
+                    expirationMinutes={expirationMinutes}
+                  />
+                </Grid>
+                <Grid
+                  item
+                  xs={6}
+                >
+                  {getParticipantInfo(sortedPresences)}
+                </Grid>
+              </Grid>
             </CardContent>
             <CardActions>
               {getDialogActions(marketId, myPresence)}

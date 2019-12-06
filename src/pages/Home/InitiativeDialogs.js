@@ -26,6 +26,7 @@ import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getCertaintyChart, getVoteTotalsForUser } from '../../utils/userFunctions';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -68,10 +69,6 @@ function InitiativeDialogs(props) {
             >
               <Typography>{name}</Typography>
             </Grid>
-            <Grid
-              item
-              xs={4}
-            />
             <Grid
               item
               xs={4}
@@ -155,8 +152,11 @@ function InitiativeDialogs(props) {
       const investibles = getMarketInvestibles(investiblesState, marketId);
       const baseInvestible = investibles[0];
       const { investible } = baseInvestible;
-      const { name } = investible;
+      const { name, id } = investible;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+      const userInvestments = marketPresences.map((presence) => getVoteTotalsForUser(presence));
+      const userInvestmentsFiltered = userInvestments.filter((userInvested) => id in userInvested);
+      const investments = userInvestmentsFiltered.map((userInvested) => userInvested[id]);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const sortedPresences = _.sortBy(marketPresences, 'name');
       return (
@@ -171,7 +171,22 @@ function InitiativeDialogs(props) {
             border={1}
           >
             <CardContent>
-              {getDialogTypeIcon(marketType)}
+              <Grid
+                container
+              >
+                <Grid
+                  item
+                  xs={3}
+                >
+                  {getDialogTypeIcon(marketType)}
+                </Grid>
+                <Grid
+                  item
+                  xs={3}
+                >
+                  {getCertaintyChart(investments)}
+                </Grid>
+              </Grid>
               <Typography>
                 <Link
                   href="#"
@@ -183,12 +198,25 @@ function InitiativeDialogs(props) {
                   {name}
                 </Link>
               </Typography>
-              <ExpiresDisplay
-                createdAt={createdAt}
-                expirationMinutes={expirationMinutes}
-              />
-
-              {getParticipantInfo(sortedPresences)}
+              <Grid
+                container
+              >
+                <Grid
+                  item
+                  xs={6}
+                >
+                  <ExpiresDisplay
+                    createdAt={createdAt}
+                    expirationMinutes={expirationMinutes}
+                  />
+                </Grid>
+                <Grid
+                  item
+                  xs={6}
+                >
+                  {getParticipantInfo(sortedPresences)}
+                </Grid>
+              </Grid>
             </CardContent>
             <CardActions>
               {getDialogActions(marketId, myPresence)}

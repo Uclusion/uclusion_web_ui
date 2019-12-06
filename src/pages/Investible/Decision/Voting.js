@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { JUSTIFY_TYPE } from '../../../constants/comments';
 import { Paper, Typography } from '@material-ui/core';
-import QuillEditor from '../../../components/TextEditors/QuillEditor';
+import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 
 /**
  * The voting for an investible screen is the detail. It lists the people,
@@ -84,9 +84,8 @@ function Voting(props) {
             {getInvestmentConfidence(quantity)}
           </Typography>
           {reason && (
-            <QuillEditor
-              readOnly
-              defaultValue={reason.body}
+            <ReadOnlyQuillEditor
+              value={reason.body}
             />
           )}
         </Paper>);
@@ -99,7 +98,7 @@ function Voting(props) {
   return (
     <Paper>
       {renderInvestibleVoters(sortedVoters)}
-      {reasonText && <QuillEditor readOnly defaultValue={reasonText} />}
+      {reasonText && <ReadOnlyQuillEditor value={reasonText} />}
     </Paper>
   );
 }

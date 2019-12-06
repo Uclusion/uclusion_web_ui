@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from './Voting/YourVoting';
 import Voting from './Voting';
-import QuillEditor from '../../../components/TextEditors/QuillEditor';
+import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
   ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
@@ -77,15 +77,15 @@ function DecisionInvestible(props) {
   const sidebarActions = [];
 
   if (isAdmin) {
-    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
+    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
     if (inProposed) {
-      sidebarActions.push(<MoveToCurrentVotingActionButton investibleId={investibleId} marketId={marketId} />);
+      sidebarActions.push(<MoveToCurrentVotingActionButton investibleId={investibleId} marketId={marketId}/>);
     }
   }
 
-  sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
-  sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
-  sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
+  sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
+  sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
+  sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick}/>);
 
   if (!investibleId) {
     // we have no usable data;
@@ -127,9 +127,8 @@ function DecisionInvestible(props) {
       <SubSection
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
-        <QuillEditor
-          readOnly
-          defaultValue={description}
+        <ReadOnlyQuillEditor
+          value={description}
         />
       </SubSection>
       {discussionVisible && (
@@ -147,7 +146,7 @@ function DecisionInvestible(props) {
               onCancel={closeCommentAdd}
             />
           </div>
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
         </SubSection>
       )}
     </Screen>
@@ -174,7 +173,8 @@ DecisionInvestible.defaultProps = {
   marketPresences: [],
   investibleComments: [],
   commentsHash: {},
-  toggleEdit: () => {},
+  toggleEdit: () => {
+  },
   isAdmin: false,
 };
 export default DecisionInvestible;

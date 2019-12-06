@@ -45,7 +45,7 @@ class QuillEditor extends React.PureComponent {
     this.state = { uploads: [] };
     this.editorBox = React.createRef();
     this.editorContainer = React.createRef();
-    const { marketId, readOnly, placeholder, uploadDisabled, simple } = props;
+    const { marketId, placeholder, uploadDisabled, simple } = props;
     const defaultModules = {
       toolbar: [
         [{ font: [] }],
@@ -79,16 +79,10 @@ class QuillEditor extends React.PureComponent {
       this.modules.s3Upload = false;
       this.modules.imageResize = false;
     }
-    // wipe the toolbar if read only
-    if (readOnly) {
-      this.modules.toolbar = false;
-      this.modules.s3Upload = false;
-      this.modules.imageResize = false;
-    }
     this.options = {
       modules: this.modules,
       placeholder,
-      readOnly,
+      readOnly: false,
       theme: 'snow',
     };
 
@@ -125,19 +119,15 @@ class QuillEditor extends React.PureComponent {
   }
 
   render() {
-    const { theme, readOnly } = this.props;
+    const { theme } = this.props;
     const editorStyle = {
       fontFamily: theme.typography.fontFamily,
       fontSize: theme.typography.fontSize,
     };
-    const readOnlyStyle = {
-      ...editorStyle,
-      border: 0,
-    };
 
     return (
       <div ref={this.editorContainer}>
-        <div ref={this.editorBox} style={readOnly? readOnlyStyle: editorStyle} />
+        <div ref={this.editorBox} style={editorStyle} />
       </div>
     );
   }
@@ -145,7 +135,6 @@ class QuillEditor extends React.PureComponent {
 
 QuillEditor.propTypes = {
   marketId: PropTypes.string,
-  readOnly: PropTypes.bool,
   onS3Upload: PropTypes.func,
   defaultValue: PropTypes.string,
   onChange: PropTypes.func,
@@ -155,7 +144,6 @@ QuillEditor.propTypes = {
 };
 
 QuillEditor.defaultProps = {
-  readOnly: false,
   onS3Upload: () => {
   },
   onChange: () => {

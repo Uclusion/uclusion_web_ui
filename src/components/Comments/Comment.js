@@ -6,7 +6,7 @@ import {
   ButtonGroup,
   Grid,
 } from '@material-ui/core';
-import QuillEditor from '../TextEditors/QuillEditor';
+import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import CommentAdd from './CommentAdd';
 import { REPLY_TYPE } from '../../constants/comments';
 
@@ -73,7 +73,7 @@ function Comment(props) {
           item
           xs={12}
         >
-          <QuillEditor marketId={marketId} readOnly value={comment.body} />
+          <ReadOnlyQuillEditor value={comment.body} />
         </Grid>
         <Grid
           item

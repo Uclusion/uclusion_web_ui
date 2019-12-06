@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Decision/Voting/YourVoting';
 import Voting from '../Decision/Voting';
-import QuillEditor from '../../../components/TextEditors/QuillEditor';
+import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnly QuillEditor';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
   ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE,
@@ -157,9 +157,8 @@ function PlanningInvestible(props) {
         title="Description"
       >
         <Paper>
-          <QuillEditor
-            readOnly
-            defaultValue={description}
+          <ReadOnlyQuillEditor
+            value={description}
           />
 
         </Paper>

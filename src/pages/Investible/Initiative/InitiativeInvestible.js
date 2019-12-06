@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Decision/Voting/YourVoting';
 import Voting from '../Decision/Voting';
-import QuillEditor from '../../../components/TextEditors/QuillEditor';
+import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
   ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
@@ -109,9 +109,8 @@ function InitiativeInvestible(props) {
       <SubSection
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
-        <QuillEditor
-          readOnly
-          defaultValue={description}
+        <ReadOnlyQuillEditor
+          value={description}
         />
       </SubSection>
       {discussionVisible && (

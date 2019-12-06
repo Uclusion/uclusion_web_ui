@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Decision/Voting/YourVoting';
 import Voting from '../Decision/Voting';
-import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnly QuillEditor';
+import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
   ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE,

@@ -59,10 +59,6 @@ function PlanningDialogs(props) {
             <Grid
               item
               xs={4}
-            />
-            <Grid
-              item
-              xs={4}
             >
               {icon}
             </Grid>

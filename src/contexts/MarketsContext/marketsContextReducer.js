@@ -4,7 +4,6 @@ import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext';
 
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
-const UPDATE_MARKET = 'UPDATE_MARKET';
 const ADD_MARKET = 'ADD_MARKET';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
 const REMOVE_MARKET_DETAILS = 'REMOVE_MARKET_DETAILS';
@@ -14,13 +13,6 @@ export function initializeState(newState) {
   return {
     type: INITIALIZE_STATE,
     newState,
-  };
-}
-
-export function updateMarket(market) {
-  return {
-    type: UPDATE_MARKET,
-    market,
   };
 }
 
@@ -83,7 +75,6 @@ function removeStoredMarkets(state, action) {
 function computeNewState(state, action) {
   console.debug(`Computing state with type ${action.type}`);
   switch (action.type) {
-    case UPDATE_MARKET:
     case ADD_MARKET:
       return storeMarket(state, action);
     case UPDATE_MARKET_DETAILS:

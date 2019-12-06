@@ -59,7 +59,6 @@ function DialogEdit(props) {
       chain = chain.then(() => lockPlanningMarketForEdit(id, true));
     }
     chain = chain.then(() => updateMarket(id, name, tokensRemoved, filteredUploads))
-      .then(() => marketsDispatch(localUpdateMarket(market)))
       .then(() => editToggle());
     return chain;
   }

@@ -15,7 +15,7 @@ import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import Screen from '../../../containers/Screen/Screen';
-import { formInvestibleLink, formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import { makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 

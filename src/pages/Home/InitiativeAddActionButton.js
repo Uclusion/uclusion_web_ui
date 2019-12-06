@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import { useIntl } from 'react-intl';
+import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import { INITIATIVE_TYPE } from '../../constants/markets';
 
 
 function InitiativeAddActionButton(props) {
-
   const { onClick } = props;
 
   const intl = useIntl();

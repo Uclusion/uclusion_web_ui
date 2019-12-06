@@ -13,25 +13,31 @@ import DecisionAddActionButton from './DecisionAddActionButton';
 import PlanningAdd from './PlanningAdd';
 import PlanningAddActionButton from './PlanningAddActionButton';
 import InitiativeAddActionButton from './InitiativeAddActionButton';
+import { INITIATIVE_TYPE, DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import InitiativeAdd from './InitiativeAdd';
+import InitiativeDialogs from './InitiativeDialogs';
 
 
-const useStyles = makeStyles(() => {
-  return {
-    breadCrumbImage: {
-      height: 40,
-    },
-  };
-});
+const useStyles = makeStyles(() => ({
+  breadCrumbImage: {
+    height: 40,
+  },
+}));
 
 function Home(props) {
   const { hidden } = props;
   const classes = useStyles();
   const [marketsState] = useContext(MarketsContext);
-  const planningDetails = getMarketDetailsForType(marketsState, 'PLANNING');
-  const decisionDetails = getMarketDetailsForType(marketsState, 'DECISION');
-
+  const planningDetails = getMarketDetailsForType(marketsState, PLANNING_TYPE);
+  const decisionDetails = getMarketDetailsForType(marketsState, DECISION_TYPE);
+  const initiativeDetails = getMarketDetailsForType(marketsState, INITIATIVE_TYPE);
   const [planningAddMode, setPlanningAddMode] = useState(false);
   const [decisionAddMode, setDecisionAddMode] = useState(false);
+  const [initiativeAddMode, setInitiativeAddMode] = useState(false);
+
+  function toggleInitiativeAddMode() {
+    setInitiativeAddMode(!initiativeAddMode);
+  }
 
   function toggleDecisionAddMode() {
     setDecisionAddMode(!decisionAddMode);
@@ -42,10 +48,10 @@ function Home(props) {
   }
 
   const sidebarActions = [];
-  if (!planningAddMode || decisionAddMode) {
-    sidebarActions.push(<PlanningAddActionButton key="planningAdd" onClick={togglePlanningAddMode}/>);
-    sidebarActions.push(<DecisionAddActionButton key="decisionAdd" onClick={toggleDecisionAddMode}/>);
-    sidebarActions.push(<InitiativeAddActionButton key="initiativeAdd" onClick={() => {}}/>);
+  if (!(planningAddMode || decisionAddMode || initiativeAddMode)) {
+    sidebarActions.push(<PlanningAddActionButton key="planningAdd" onClick={togglePlanningAddMode} />);
+    sidebarActions.push(<DecisionAddActionButton key="decisionAdd" onClick={toggleDecisionAddMode} />);
+    sidebarActions.push(<InitiativeAddActionButton key="initiativeAdd" onClick={toggleInitiativeAddMode} />);
   }
 
   function getContents() {
@@ -65,13 +71,25 @@ function Home(props) {
         />
       );
     }
+
+    if (initiativeAddMode) {
+      return (
+        <InitiativeAdd
+          onCancel={toggleInitiativeAddMode}
+          onSave={toggleInitiativeAddMode}
+        />
+      );
+    }
     return (
       <>
         <SubSection>
-          <PlanningDialogs markets={planningDetails}/>
+          <PlanningDialogs markets={planningDetails} />
         </SubSection>
         <SubSection>
-          <DecisionDialogs markets={decisionDetails}/>
+          <DecisionDialogs markets={decisionDetails} />
+        </SubSection>
+        <SubSection>
+          <InitiativeDialogs markets={initiativeDetails} />
         </SubSection>
       </>
     );
@@ -79,15 +97,14 @@ function Home(props) {
 
   return (
     <Screen
-      title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage}/>}
+      title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage} />}
       hidden={hidden}
       sidebarActions={sidebarActions}
-      appBarContent={<Notifications/>}
+      appBarContent={<Notifications />}
     >
       {getContents()}
     </Screen>
   );
-
 }
 
 Home.propTypes = {

@@ -3,7 +3,9 @@ import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { injectIntl } from 'react-intl';
-import { makeBreadCrumbs, decomposeMarketPath, formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
+import {
+  makeBreadCrumbs, decomposeMarketPath, formInvestibleLink, navigate,
+} from '../../utils/marketIdPathFunctions';
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
@@ -79,20 +81,25 @@ function Dialog(props) {
   const loading = !myPresence;
   const breadCrumbs = makeBreadCrumbs(history);
 
-  function getInitiativeInvestible(baseInvestible) {
-    const { investible } = baseInvestible;
-    const { id } = investible;
-    const link = formInvestibleLink(marketId, id);
-    return navigate(history, link);
-  }
-
   useEffect(() => {
+    function getInitiativeInvestible(baseInvestible) {
+      const {
+        investibleId: onInvestibleId,
+      } = decomposeMarketPath(history.location.pathname);
+      if (onInvestibleId) {
+        return;
+      }
+      const { investible } = baseInvestible;
+      const { id } = investible;
+      const link = formInvestibleLink(marketId, id);
+      navigate(history, link);
+    }
     if (marketType === INITIATIVE_TYPE && Array.isArray(investibles) && investibles.length > 0) {
       getInitiativeInvestible(investibles[0]);
     }
     return () => {
     };
-  }, [marketType, investibles]);
+  }, [marketType, investibles, marketId, history]);
 
   if (loading) {
     return (

@@ -1,13 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
+import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
+import { formMarketArchivesLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function ViewArchiveActionButton(props) {
 
-  const { onClick } = props;
   const intl = useIntl();
+  const { marketId } = props;
+  const history = useHistory();
+
+  function onClick(){
+    navigate(history, formMarketArchivesLink(marketId));
+  }
+
 
   return (
     <ExpandableSidebarAction
@@ -18,12 +26,7 @@ function ViewArchiveActionButton(props) {
 }
 
 ViewArchiveActionButton.propTypes = {
-  onClick: PropTypes.func,
-};
-
-ViewArchiveActionButton.defaultProps = {
-  onClick: () => {
-  },
+  marketId: PropTypes.string.isRequired,
 };
 
 export default ViewArchiveActionButton;

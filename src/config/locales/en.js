@@ -324,7 +324,7 @@ const messages = defineMessages({
   // Dialog Archives
   dialogArchivesNotDoingHeader: 'Not Doing',
   dialogArchivesVerifiedHeader: 'Verified',
-
+  dialogArchivesLabel: 'Archives',
 
   // API errors
   errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',

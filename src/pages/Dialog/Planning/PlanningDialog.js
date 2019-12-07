@@ -165,7 +165,7 @@ function PlanningDialog(props) {
     }
     const userActions = [
       <InvestibleAddActionButton key="investibleadd" onClick={toggleAddInvestibleMode} />,
-      <ViewArchiveActionButton key="archives" />,
+      <ViewArchiveActionButton key="archives" marketId={marketId} />,
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
       <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];

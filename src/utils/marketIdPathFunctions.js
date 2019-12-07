@@ -91,3 +91,7 @@ export function formInvestibleLink(marketId, investibleId) {
 export function formMarketLink(marketId) {
   return `/dialog/${marketId}`;
 }
+
+export function formMarketArchivesLink(marketId) {
+  return `/dialogArchives/${marketId}`;
+}

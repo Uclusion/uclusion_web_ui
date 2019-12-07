@@ -3,7 +3,7 @@ import { updateMarketStages } from './marketStagesContextReducer';
 import { AllSequentialMap } from '../../utils/PromiseUtils';
 
 export function getStages(state, marketId) {
-  return state[marketId];
+  return state[marketId] || [];
 }
 
 export function getInCurrentVotingStage(state, marketId) {

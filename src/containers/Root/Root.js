@@ -65,7 +65,7 @@ function Root(props) {
   }
 
   function hideDialogArchives() {
-    return (action != 'dialogArchives');
+    return (action !== 'dialogArchives');
   }
 
   function isInvite() {

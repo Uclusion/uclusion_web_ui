@@ -1,5 +1,6 @@
 import { VerticalBarSeries, XYPlot } from 'react-vis';
 import React from 'react';
+import { Card, Grid, Typography } from '@material-ui/core';
 
 export function getFlags(user) {
   return (user && user.flags) || {};
@@ -79,6 +80,19 @@ export function getBudgetTotalsForUser(userId, stageId, marketId, marketPresence
   return budgets.reduce(add);
 }
 
+export function getVotedInvestible(presence, marketInvestibles) {
+  const { investments } = presence;
+  if (!Array.isArray(investments) || investments.length === 0) {
+    return { name: '' };
+  }
+  const investment = investments[0];
+  const { investible_id: investibleId } = investment;
+  // eslint-disable-next-line max-len
+  const fullInvestible = marketInvestibles.find((marketInvestible) => marketInvestible.investible.id === investibleId);
+  const { investible } = fullInvestible;
+  return investible;
+}
+
 export function getCertaintyChart(investments) {
   const margin = {
     top: 0,
@@ -103,4 +117,49 @@ export function getCertaintyChart(investments) {
       />
     </XYPlot>
   );
+}
+
+export function getParticipantInfo(presences, marketInvestibles) {
+  return presences.map((presence) => {
+    const { id: userId, name } = presence;
+    const investible = getVotedInvestible(presence, marketInvestibles);
+    const { name: investibleName, id: investibleId } = investible;
+    const voteTotal = getVoteTotalsForUser(presence);
+    const investments = investibleId in voteTotal ? [voteTotal[investibleId]] : null;
+    return (
+      <Card
+        key={userId}
+      >
+        <Grid
+          container
+          spacing={3}
+        >
+          <Grid
+            item
+          >
+            <Typography>{name}</Typography>
+          </Grid>
+          <Grid
+            item
+            xs={9}
+          >
+            <Typography
+              noWrap
+            >
+              {investibleName}
+            </Typography>
+          </Grid>
+          <Grid
+            item
+          >
+            {investments && (
+              <Typography>
+                {getCertaintyChart(investments)}
+              </Typography>
+            )}
+          </Grid>
+        </Grid>
+      </Card>
+    );
+  });
 }

@@ -7,10 +7,7 @@ import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import UpdateIcon from '@material-ui/icons/Update';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import LinkIcon from '@material-ui/icons/Link';
-import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -24,7 +21,9 @@ import ArchiveMarketButton from './Decision/ArchiveMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
-import { getCertaintyChart, getVoteTotalsForUser } from '../../utils/userFunctions';
+import { getParticipantInfo } from '../../utils/userFunctions';
+import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -42,42 +41,9 @@ function DecisionDialogs(props) {
   const { markets } = props;
   const sortedMarkets = _.sortBy(markets, 'name');
   const [marketPresencesState] = useContext(MarketPresencesContext);
-
+  const [investiblesState] = useContext(InvestiblesContext);
   const [showExtension, setShowExtension] = useState({});
   const [showInvite, setShowInvite] = useState({});
-
-  function getParticipantInfo(presences) {
-    return presences.map((presence) => {
-      const {
-        id: userId, name, following, is_admin: isAdmin,
-      } = presence;
-      // eslint-disable-next-line no-nested-ternary
-      const icon = isAdmin ? <SupervisorAccountIcon size="small" /> : following ? <ThumbsUpDownIcon size="small" />
-        : <VisibilityIcon size="small" />;
-      return (
-        <Card
-          key={userId}
-        >
-          <Grid
-            container
-          >
-            <Grid
-              item
-              xs={4}
-            >
-              <Typography>{name}</Typography>
-            </Grid>
-            <Grid
-              item
-              xs={4}
-            >
-              {icon}
-            </Grid>
-          </Grid>
-        </Card>
-      );
-    });
-  }
 
   function setInviteVisible(value, marketId) {
     setShowInvite({ ...showInvite, [marketId]: value });
@@ -148,22 +114,10 @@ function DecisionDialogs(props) {
         market_type: marketType,
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-      const userInvestments = marketPresences.map((presence) => getVoteTotalsForUser(presence));
-      const investibleCounts = userInvestments.reduce((counts, userInvested) => {
-        Object.keys(userInvested).map((id) => {
-          // eslint-disable-next-line no-param-reassign
-          counts[id] = (counts[id] || 0) + 1;
-          return counts;
-        });
-        return counts;
-      }, {});
-      const maxCount = Math.max(...Object.values(investibleCounts));
-      const maxId = Object.keys(investibleCounts).filter((id) => investibleCounts[id] === maxCount);
-      // eslint-disable-next-line max-len
-      const userInvestmentsFiltered = userInvestments.filter((userInvested) => maxId in userInvested);
-      const investments = userInvestmentsFiltered.map((userInvested) => userInvested[maxId]);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      const sortedPresences = _.sortBy(marketPresences, 'name');
+      const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
+      const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
+      const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
       return (
         <Grid
           item
@@ -185,12 +139,6 @@ function DecisionDialogs(props) {
                 >
                   {getDialogTypeIcon(marketType)}
                 </Grid>
-                <Grid
-                  item
-                  xs={3}
-                >
-                  {getCertaintyChart(investments)}
-                </Grid>
               </Grid>
               <Typography>
                 <Link
@@ -208,7 +156,7 @@ function DecisionDialogs(props) {
               >
                 <Grid
                   item
-                  xs={6}
+                  xs={3}
                 >
                   <ExpiresDisplay
                     createdAt={createdAt}
@@ -217,9 +165,9 @@ function DecisionDialogs(props) {
                 </Grid>
                 <Grid
                   item
-                  xs={6}
+                  xs={9}
                 >
-                  {getParticipantInfo(sortedPresences)}
+                  {getParticipantInfo(sortedPresences, marketInvestibles)}
                 </Grid>
               </Grid>
             </CardContent>

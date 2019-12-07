@@ -4,13 +4,10 @@ import {
 } from '@material-ui/core';
 import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
-import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/styles';
 import UpdateIcon from '@material-ui/icons/Update';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import LinkIcon from '@material-ui/icons/Link';
-import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -26,7 +23,7 @@ import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { getCertaintyChart, getVoteTotalsForUser } from '../../utils/userFunctions';
+import { getParticipantInfo } from '../../utils/userFunctions';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -47,39 +44,6 @@ function InitiativeDialogs(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [showExtension, setShowExtension] = useState({});
   const [showInvite, setShowInvite] = useState({});
-
-  function getParticipantInfo(presences) {
-    return presences.map((presence) => {
-      const {
-        id: userId, name, following, is_admin: isAdmin,
-      } = presence;
-      // eslint-disable-next-line no-nested-ternary
-      const icon = isAdmin ? <SupervisorAccountIcon size="small" /> : following ? <ThumbsUpDownIcon size="small" />
-        : <VisibilityIcon size="small" />;
-      return (
-        <Card
-          key={userId}
-        >
-          <Grid
-            container
-          >
-            <Grid
-              item
-              xs={4}
-            >
-              <Typography>{name}</Typography>
-            </Grid>
-            <Grid
-              item
-              xs={4}
-            >
-              {icon}
-            </Grid>
-          </Grid>
-        </Card>
-      );
-    });
-  }
 
   function setInviteVisible(value, marketId) {
     setShowInvite({ ...showInvite, [marketId]: value });
@@ -154,11 +118,10 @@ function InitiativeDialogs(props) {
       const { investible } = baseInvestible;
       const { name, id } = investible;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-      const userInvestments = marketPresences.map((presence) => getVoteTotalsForUser(presence));
-      const userInvestmentsFiltered = userInvestments.filter((userInvested) => id in userInvested);
-      const investments = userInvestmentsFiltered.map((userInvested) => userInvested[id]);
+      const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      const sortedPresences = _.sortBy(marketPresences, 'name');
+      const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
+      const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
       return (
         <Grid
           item
@@ -180,12 +143,6 @@ function InitiativeDialogs(props) {
                 >
                   {getDialogTypeIcon(marketType)}
                 </Grid>
-                <Grid
-                  item
-                  xs={3}
-                >
-                  {getCertaintyChart(investments)}
-                </Grid>
               </Grid>
               <Typography>
                 <Link
@@ -203,7 +160,7 @@ function InitiativeDialogs(props) {
               >
                 <Grid
                   item
-                  xs={6}
+                  xs={3}
                 >
                   <ExpiresDisplay
                     createdAt={createdAt}
@@ -212,9 +169,9 @@ function InitiativeDialogs(props) {
                 </Grid>
                 <Grid
                   item
-                  xs={6}
+                  xs={9}
                 >
-                  {getParticipantInfo(sortedPresences)}
+                  {getParticipantInfo(sortedPresences, marketInvestibles)}
                 </Grid>
               </Grid>
             </CardContent>

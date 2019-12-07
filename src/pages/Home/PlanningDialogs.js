@@ -6,9 +6,8 @@ import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import LinkIcon from '@material-ui/icons/Link';
-import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
+import { useIntl } from 'react-intl';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -20,7 +19,11 @@ import LeaveMarketButton from './Decision/LeaveMarketButton';
 import ArchiveMarketButton from './Decision/ArchiveMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
-import { useIntl } from 'react-intl';
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getBudgetTotalsForUser } from '../../utils/userFunctions';
+import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -39,13 +42,20 @@ function PlanningDialogs(props) {
   const { markets } = props;
   const sortedMarkets = _.sortBy(markets, 'name');
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const [showInvite, setShowInvite] = useState({});
 
-  function getParticipantInfo(presences) {
-    // TODO fix this to be display of swimlanes with budget max sums for each participant + blockers total in another column
+  function getParticipantInfo(presences, marketId) {
+    const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
+    const marketStages = getStages(marketStagesState, marketId);
+    const votingStage = marketStages.find((stage) => stage.allows_investment);
+    // eslint-disable-next-line max-len
+    const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.singular_only));
+    // eslint-disable-next-line max-len
+    const reviewStage = marketStages.find((stage) => (!stage.singular_only && stage.appears_in_context));
     return presences.map((presence) => {
-      const { id: userId, name, following } = presence;
-      const icon = following ? <ThumbsUpDownIcon size="small" /> : <VisibilityIcon size="small" />;
+      const { id: userId, name } = presence;
       return (
         <Card
           key={userId}
@@ -55,15 +65,36 @@ function PlanningDialogs(props) {
           >
             <Grid
               item
-              xs={4}
+              xs={3}
             >
               <Typography>{name}</Typography>
             </Grid>
             <Grid
               item
-              xs={4}
+              xs={3}
             >
-              {icon}
+              <Typography>
+                {getBudgetTotalsForUser(userId, votingStage.id, marketId, presences,
+                  marketInvestibles)}
+              </Typography>
+            </Grid>
+            <Grid
+              item
+              xs={3}
+            >
+              <Typography>
+                {getBudgetTotalsForUser(userId, acceptedStage.id, marketId, presences,
+                  marketInvestibles)}
+              </Typography>
+            </Grid>
+            <Grid
+              item
+              xs={3}
+            >
+              <Typography>
+                {getBudgetTotalsForUser(userId, reviewStage.id, marketId, presences,
+                  marketInvestibles)}
+              </Typography>
             </Grid>
           </Grid>
         </Card>
@@ -93,7 +124,7 @@ function PlanningDialogs(props) {
       />,
     );
     actions.push(
-      <ArchiveMarketButton key="archive" marketId={marketId} />
+      <ArchiveMarketButton key="archive" marketId={marketId} />,
     );
     actions.push(
       <LeaveMarketButton key="leave" marketId={marketId} />,
@@ -116,7 +147,8 @@ function PlanningDialogs(props) {
       const { id: marketId, name, market_type } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      const sortedPresences = _.sortBy(marketPresences, 'name');
+      const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
+      const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
       return (
         <Grid
           item
@@ -145,6 +177,13 @@ function PlanningDialogs(props) {
                 container
               >
                 <Grid
+                  container
+                  justify="center"
+                  xs={12}
+                >
+                  <Typography>{intl.formatMessage({ id: 'homePlanningReport' })}</Typography>
+                </Grid>
+                <Grid
                   item
                   xs={3}
                 />
@@ -167,7 +206,7 @@ function PlanningDialogs(props) {
                   <Typography>{intl.formatMessage({ id: 'planningReviewStageLabel' })}</Typography>
                 </Grid>
               </Grid>
-              {getParticipantInfo(sortedPresences)}
+              {getParticipantInfo(sortedPresences, marketId)}
             </CardContent>
             <CardActions>
               {getDialogActions(marketId, myPresence)}

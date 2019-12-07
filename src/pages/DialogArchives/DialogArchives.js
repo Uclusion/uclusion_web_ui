@@ -35,7 +35,7 @@ function DialogArchives(props) {
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
 
-  const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
+  const marketInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
 
   const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, verifiedStage.id);
   const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id);
@@ -44,6 +44,17 @@ function DialogArchives(props) {
   const { name } = renderableMarket;
   const breadCrumbTemplates = [{ name, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+
+  if (!marketId) {
+    console.log(hidden);
+    return (
+      <Screen
+        hidden={hidden}
+      >
+        Not Ready
+      </Screen>
+    );
+  }
 
   return (
     <Screen

@@ -270,6 +270,7 @@ const messages = defineMessages({
   planningDialogPeopleLabel: 'In progress and in voting assigned stories',
   planningDialogDiscussionLabel: 'Discussion',
   planningDialogAddInvestibleLabel: 'Create story',
+  planningDialogViewArchivesLabel: 'View Archives',
   planningNoneAcceptedWarning: 'No in progress assignment',
   planningNoneInDialogWarning: 'No votable assignment',
   acceptedInvestiblesUpdatedAt: 'In progress from ',
@@ -319,6 +320,11 @@ const messages = defineMessages({
 
   // Assignment List
   assignmentListHeader: 'Assigned to',
+
+  // Dialog Archives
+  dialogArchivesNotDoingHeader: 'Not Doing',
+  dialogArchivesVerifiedHeader: 'Verified',
+
 
   // API errors
   errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',

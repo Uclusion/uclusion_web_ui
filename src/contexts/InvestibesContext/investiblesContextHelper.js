@@ -20,6 +20,17 @@ export function getInvestible(state, investibleId) {
   return state[investibleId];
 }
 
+export function getInvestiblesInStage(investibles, stageId){
+  const stageInvestibles = investibles.filter((inv) => {
+    const { market_infos } = inv;
+    if (!market_infos) {
+      return false;
+    }
+    return market_infos.find((info) => info.stage === stageId);
+  });
+  return stageInvestibles;
+}
+
 export function refreshInvestibles(dispatch, marketId) {
   return fetchInvestibleList(marketId)
     .then((investibleList) => {

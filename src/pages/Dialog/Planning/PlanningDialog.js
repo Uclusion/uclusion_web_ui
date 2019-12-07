@@ -25,6 +25,7 @@ import InvestibleAddActionButton from './InvestibleAddActionButton';
 import DialogEditSidebarActionButton from '../DialogEditSidebarActionButton';
 import DialogEdit from '../DialogEdit';
 import { unlockPlanningMarketForEdit } from '../../../api/markets';
+import ViewArchiveActionButton from './ViewArchivesActionButton';
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -164,6 +165,7 @@ function PlanningDialog(props) {
     }
     const userActions = [
       <InvestibleAddActionButton key="investibleadd" onClick={toggleAddInvestibleMode} />,
+      <ViewArchiveActionButton key="archives" />,
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
       <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];

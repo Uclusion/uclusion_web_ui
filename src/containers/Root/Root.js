@@ -15,6 +15,7 @@ import { getAccountClient, getMarketClient } from '../../api/uclusionClient';
 import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import Home from '../../pages/Home/Home';
 import Investible from '../../pages/Investible/Investible';
+import DialogArchives from '../../pages/DialogArchives/DialogArchives';
 
 const useStyles = makeStyles({
   body: {
@@ -61,6 +62,10 @@ function Root(props) {
 
   function hideInvestible() {
     return (action !== 'dialog') || !investibleId;
+  }
+
+  function hideDialogArchives() {
+    return (action != 'dialogArchives');
   }
 
   function isInvite() {
@@ -118,6 +123,7 @@ function Root(props) {
   }, []);
 
   console.log(`Hide Home ${hideHome()}`);
+  const hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible() && hideDialogArchives());
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
@@ -128,8 +134,8 @@ function Root(props) {
             <Market hidden={hideMarket()} />
             <About hidden={hideAbout()} />
             <Investible hidden={hideInvestible()} />
-            <PageNotFound hidden={!(hideMarket() && hideAbout() && hideHome() && hideInvestible())}
-            />
+            <DialogArchives hidden={hideDialogArchives()} />
+            <PageNotFound hidden={hidePNF} />
           </div>
         </div>
       </div>

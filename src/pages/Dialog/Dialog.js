@@ -8,7 +8,7 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getAllMarketDetails } from '../../contexts/MarketsContext/marketsContextHelper';
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import DecisionDialog from './Decision/DecisionDialog';
@@ -68,11 +68,10 @@ function Dialog(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const marketDetails = getAllMarketDetails(marketsState);
   const { hidden } = props;
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const comments = getMarketComments(commentsState, marketId);
-  const renderableMarket = marketDetails.find((market) => market.id === marketId) || {};
+  const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketStages = getStages(marketStagesState, marketId);

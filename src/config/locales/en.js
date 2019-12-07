@@ -252,6 +252,7 @@ const messages = defineMessages({
   homeAddPlanning: 'Creat Epic Plan',
   homeAddInitiative: 'Create Initiative',
   homePlanningReport: 'Active Story Estimates (in days)',
+  homeViewArchives: 'View Archives',
 
   // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',

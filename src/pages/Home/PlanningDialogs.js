@@ -119,24 +119,24 @@ function PlanningDialogs(props) {
       <TooltipIconButton
         key="invite"
         translationId="decisionDialogsInviteParticipant"
-        icon={<LinkIcon />}
+        icon={<LinkIcon/>}
         onClick={() => toggleInviteVisible(marketId)}
       />,
     );
     actions.push(
-      <ArchiveMarketButton key="archive" marketId={marketId} />,
+      <ArchiveMarketButton key="archive" marketId={marketId}/>,
     );
     actions.push(
-      <LeaveMarketButton key="leave" marketId={marketId} />,
+      <LeaveMarketButton key="leave" marketId={marketId}/>,
     );
     // if participant you can become observer, or if observer you can become participant
     if (following) {
       actions.push(
-        <ChangeToObserverButton key="observe" marketId={marketId} />,
+        <ChangeToObserverButton key="observe" marketId={marketId}/>,
       );
     } else {
       actions.push(
-        <ChangeToParticipantButton key="participate" marketId={marketId} />,
+        <ChangeToParticipantButton key="participate" marketId={marketId}/>,
       );
     }
     return actions;
@@ -177,11 +177,19 @@ function PlanningDialogs(props) {
                 container
               >
                 <Grid
-                  container
-                  justify="center"
+                  item
                   xs={12}
                 >
-                  <Typography>{intl.formatMessage({ id: 'homePlanningReport' })}</Typography>
+                  <Grid
+                    container
+                    justify="center"
+                  >
+                    <Grid
+                      item
+                    >
+                      <Typography>{intl.formatMessage({ id: 'homePlanningReport' })}</Typography>
+                    </Grid>
+                  </Grid>
                 </Grid>
                 <Grid
                   item

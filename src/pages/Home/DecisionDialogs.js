@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import {
-  Grid, Typography, Card, CardContent, CardActions, Link,
+  Grid, Typography, CardContent, CardActions, Link,
 } from '@material-ui/core';
 import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
@@ -25,7 +25,7 @@ import { getParticipantInfo } from '../../utils/userFunctions';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   paper: {
     textAlign: 'left',
   },

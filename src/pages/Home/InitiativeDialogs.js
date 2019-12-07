@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import {
-  Grid, Typography, Card, CardContent, CardActions, Link,
+  Grid, Typography, CardContent, CardActions, Link,
 } from '@material-ui/core';
 import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
@@ -116,7 +116,7 @@ function InitiativeDialogs(props) {
       const investibles = getMarketInvestibles(investiblesState, marketId);
       const baseInvestible = investibles[0];
       const { investible } = baseInvestible;
-      const { name, id } = investible;
+      const { name } = investible;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};

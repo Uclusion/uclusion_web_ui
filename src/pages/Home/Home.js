@@ -6,7 +6,6 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getActiveMarketDetailsForType } from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningDialogs from './PlanningDialogs';
 import SubSection from '../../containers/SubSection/SubSection';
-import Notifications from '../../components/Notifications/Notifications';
 import DecisionDialogs from './DecisionDialogs';
 import DecisionAdd from './DecisionAdd';
 import DecisionAddActionButton from './DecisionAddActionButton';

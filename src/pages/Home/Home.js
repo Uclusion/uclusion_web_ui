@@ -102,7 +102,6 @@ function Home(props) {
       title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage} />}
       hidden={hidden}
       sidebarActions={sidebarActions}
-      appBarContent={<Notifications />}
     >
       {getContents()}
     </Screen>

@@ -267,6 +267,9 @@ const messages = defineMessages({
   homePlanningReport: 'Active Story Value Estimates (in days)',
   homeViewArchives: 'View Archives',
 
+  // Archives
+  archivesTitle: 'Archives',
+
   // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',
   decisionDialogsExpires: 'Expires:',

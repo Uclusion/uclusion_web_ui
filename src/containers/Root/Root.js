@@ -16,6 +16,7 @@ import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import Home from '../../pages/Home/Home';
 import Investible from '../../pages/Investible/Investible';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
+import Archives from '../../pages/Archives/Archives';
 
 const useStyles = makeStyles({
   body: {
@@ -66,6 +67,10 @@ function Root(props) {
 
   function hideDialogArchives() {
     return (action !== 'dialogArchives');
+  }
+
+  function hideArchvies() {
+    return (action !== 'archives');
   }
 
   function isInvite() {
@@ -123,7 +128,7 @@ function Root(props) {
   }, []);
 
   console.log(`Hide Home ${hideHome()}`);
-  const hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible() && hideDialogArchives());
+  const hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible() && hideDialogArchives() && hideArchvies());
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
@@ -134,6 +139,7 @@ function Root(props) {
             <Market hidden={hideMarket()} />
             <About hidden={hideAbout()} />
             <Investible hidden={hideInvestible()} />
+            <Archives hidden={hideArchvies()} />
             <DialogArchives hidden={hideDialogArchives()} />
             <PageNotFound hidden={hidePNF} />
           </div>

@@ -103,6 +103,9 @@ function PlanningDialog(props) {
   function commentButtonOnClick(type) {
     setCommentAddType(type);
     setCommentAddHidden(false);
+    if (commentAddRef.current) {
+      commentAddRef.current.scrollIntoView({ block: 'center'});
+    }
   }
 
   function closeCommentAddBox() {

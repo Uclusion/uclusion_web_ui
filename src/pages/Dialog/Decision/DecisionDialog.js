@@ -118,10 +118,9 @@ function DecisionDialog(props) {
   function commentButtonOnClick(type) {
     setCommentAddType(type);
     setCommentAddHidden(false);
-    // TODO: This doens't actually scroll. Not sure why.
-    const top = commentAddRef.current.offsetTop;
-    console.log(top);
-    window.scrollTo(0, top);
+    if (commentAddRef.current) {
+      commentAddRef.current.scrollIntoView({ block: 'center'});
+    }
   }
 
   function getSidebarActions() {

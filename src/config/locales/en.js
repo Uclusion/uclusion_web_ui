@@ -159,6 +159,12 @@ const messages = defineMessages({
 
   // CurrentVoting
   numVoting: '{x} votes',
+  certain: 'Certain',
+  veryCertain: 'Very Certain',
+  somewhatCertain: 'Somewhat Certain',
+  somewhatUncertain: 'Somewhat Uncertain',
+  uncertain: 'Uncertain',
+  maxBudget: '{x} days value',
 
   // InvestibleAdd
   investibleAddTitleDefault: 'Add a name...',

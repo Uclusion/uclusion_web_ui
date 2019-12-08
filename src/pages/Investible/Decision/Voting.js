@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { JUSTIFY_TYPE } from '../../../constants/comments';
+import { useIntl } from 'react-intl';
 import { Paper, Typography } from '@material-ui/core';
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 
@@ -11,55 +11,37 @@ import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEd
  * @constructor
  */
 function Voting(props) {
-
   const { marketPresences, investibleId, investmentReasons } = props;
-  const [reasonText, setReasonText] = useState('');
-
-  function getInvestmentReason(userId) {
-    const comment = investmentReasons.find((comment) => {
-      const forUser = comment.created_by === userId;
-      const isReason = comment.type === JUSTIFY_TYPE;
-      return forUser && isReason;
-    });
-    return comment;
-  }
-
+  const intl = useIntl();
   function getInvestibleVoters() {
     const acc = [];
     marketPresences.forEach((presence) => {
       const { name, id, investments } = presence;
       investments.forEach((investment) => {
-        const { quantity, investible_id: invId } = investment;
+        const { quantity, investible_id: invId, max_budget: maxBudget } = investment;
         // console.debug(investment);
         if (investibleId === invId) {
-          acc.push({ name, userId: id, quantity });
+          acc.push({ name, userId: id, quantity, maxBudget });
         }
       });
     });
     return acc;
   }
 
-  function displayReason(userId) {
-    const reason = getInvestmentReason(userId);
-    if (reason) {
-      setReasonText(reason.body);
-    }
-  }
-
   function getInvestmentConfidence(quantity) {
     if (quantity === 100) {
-      return 'Certain';
+      return intl.formatMessage({ id: 'certain' });
     }
     if (quantity >= 75) {
-      return 'Very Certain';
+      return intl.formatMessage({ id: 'veryCertain' });
     }
     if (quantity >= 50) {
-      return 'Somewhat Certain';
+      return intl.formatMessage({ id: 'somewhatCertain' });
     }
     if (quantity >= 25) {
-      return 'Somewhat Uncertain';
+      return intl.formatMessage({ id: 'somewhatUncertain' });
     }
-    return 'Uncertain';
+    return intl.formatMessage({ id: 'uncertain' });
   }
 
   function getVoterReason(userId) {
@@ -68,14 +50,14 @@ function Voting(props) {
 
   function renderInvestibleVoters(voters) {
     return voters.map((voter) => {
-      const { name, userId, quantity } = voter;
+      const {
+        name, userId, quantity, maxBudget,
+      } = voter;
       const reason = getVoterReason(userId);
 
-      // console.debug(voter);
       return (
         <Paper
           key={userId}
-          onClick={() => displayReason(userId)}
         >
           <Typography>
             {name}
@@ -83,12 +65,18 @@ function Voting(props) {
           <Typography>
             {getInvestmentConfidence(quantity)}
           </Typography>
+          {maxBudget && (
+            <Typography>
+              {intl.formatMessage({ id: 'maxBudget' }, { x: maxBudget })}
+            </Typography>
+          )}
           {reason && (
             <ReadOnlyQuillEditor
               value={reason.body}
             />
           )}
-        </Paper>);
+        </Paper>
+      );
     });
   }
 
@@ -98,7 +86,6 @@ function Voting(props) {
   return (
     <Paper>
       {renderInvestibleVoters(sortedVoters)}
-      {reasonText && <ReadOnlyQuillEditor value={reasonText} />}
     </Paper>
   );
 }
@@ -117,5 +104,3 @@ Voting.defaultProps = {
 };
 
 export default Voting;
-
-

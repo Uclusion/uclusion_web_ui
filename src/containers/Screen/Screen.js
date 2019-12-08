@@ -21,6 +21,7 @@ import { useHistory } from 'react-router';
 import Notifications from '../../components/Notifications/Notifications';
 import { SidebarContext } from '../../contexts/SidebarContext';
 import { createTabTitle } from '../../utils/marketIdPathFunctions';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 
 const useStyles = makeStyles((theme) => {
   const drawerWidth = 240;
@@ -99,7 +100,7 @@ function scroller(location) {
     const target = hash.substring(1, hash.length);
     if (target) {
       const element = document.getElementById(target);
-      if(element) {
+      if (element) {
         element.scrollIntoView();
       }
     }
@@ -108,9 +109,9 @@ function scroller(location) {
 
 function Screen(props) {
   const classes = useStyles();
-
   // enable scrolling based on hash
   const history = useHistory();
+  const [messagesState] = useContext(NotificationsContext);
   const { location } = history;
   // console.log(history);
   history.listen(scroller);
@@ -124,6 +125,22 @@ function Screen(props) {
     sidebarActions,
     tabTitle,
   } = props;
+  let prePendWarning = '';
+  if (messagesState) {
+    const { messages } = messagesState;
+    let hasYellow = false;
+    messages.forEach((message) => {
+      const { level } = message;
+      if (level === 'RED') {
+        prePendWarning += '*';
+      } else {
+        hasYellow = true;
+      }
+    });
+    if (prePendWarning.length === 0 && hasYellow) {
+      prePendWarning = '*';
+    }
+  }
 
   const [firstRender, setFirstRender] = useState(true);
 
@@ -166,8 +183,7 @@ function Screen(props) {
     <div className={hidden ? classes.hidden : classes.root}>
       {!hidden && (
         <Helmet>
-          <title>{`Uclusion | ${createTabTitle(tabTitle)}`}</title>
-          <meta name="description" content="Uclusion" />
+          <title>{`${prePendWarning}Uclusion | ${createTabTitle(tabTitle)}`}</title>
         </Helmet>
       )}
       <AppBar

@@ -11,6 +11,7 @@ function YourVoting(props) {
     investibleId,
     marketId,
     userId,
+    showBudget,
   } = props;
 
   const yourPresence = marketPresences.find((presence) => presence.current_user);
@@ -26,6 +27,7 @@ function YourVoting(props) {
         onCancel={() => setVoteForThis(false)}
         reason={yourReason}
         investment={yourVote}
+        showBudget={showBudget}
       />
     );
   }
@@ -50,9 +52,11 @@ YourVoting.propTypes = {
   marketId: PropTypes.string.isRequired,
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   comments: PropTypes.arrayOf(PropTypes.object),
+  showBudget: PropTypes.bool,
 };
 
 YourVoting.defaultProps = {
+  showBudget: false,
   comments: [],
   marketPresences: [],
 };

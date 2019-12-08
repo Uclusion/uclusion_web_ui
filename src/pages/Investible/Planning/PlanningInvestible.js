@@ -121,18 +121,20 @@ function PlanningInvestible(props) {
       hidden={false}
       sidebarActions={sidebarActions}
     >
-      <SubSection
-        title="Your Voting"
-      >
-        <YourVoting
-          investibleId={investibleId}
-          marketPresences={marketPresences}
-          comments={investmentReasons}
-          userId={userId}
-          marketId={marketId}
-        />
-      </SubSection>
-
+      {(!assigned || !assigned.includes(userId)) && (
+        <SubSection
+          title="Your Voting"
+        >
+          <YourVoting
+            investibleId={investibleId}
+            marketPresences={marketPresences}
+            comments={investmentReasons}
+            userId={userId}
+            marketId={marketId}
+            showBudget
+          />
+        </SubSection>
+      )}
       <SubSection
         title="Others Voting"
       >

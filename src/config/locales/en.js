@@ -165,6 +165,13 @@ const messages = defineMessages({
   somewhatUncertain: 'Somewhat Uncertain',
   uncertain: 'Uncertain',
   maxBudget: '{x} days value',
+  certaintyQuestion: 'How certain are you of your vote?',
+  reasonQuestion: 'Why did you vote for this option?',
+  saveVote: 'Save Vote',
+  updateVote: 'Update Vote',
+  yourReason: 'Your reason...',
+  cancelVote: 'Cancel Vote',
+  maxBudgetInputLabel: 'Value in days (if it takes longer it might not be worth doing)',
 
   // InvestibleAdd
   investibleAddTitleDefault: 'Add a name...',

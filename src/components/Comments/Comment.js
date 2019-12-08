@@ -12,7 +12,7 @@ import { REPLY_TYPE } from '../../constants/comments';
 
 import RaisedCard from '../Cards/RaisedCard';
 import { reopenComment, resolveComment } from '../../api/comments';
-import { getCommentTypeIcon } from './commentIconFunctions';
+import { getCommentTypeIcon } from './commentFunctions';
 
 function Comment(props) {
   const {

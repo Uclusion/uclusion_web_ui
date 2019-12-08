@@ -21,6 +21,7 @@ import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import InvestibleAddActionButton from './InvestibleAddActionButton';
 import DialogEdit from '../DialogEdit';
 import DialogEditSidebarActionButton from '../DialogEditSidebarActionButton';
+import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 
 function DecisionDialog(props) {
   const {
@@ -118,9 +119,7 @@ function DecisionDialog(props) {
   function commentButtonOnClick(type) {
     setCommentAddType(type);
     setCommentAddHidden(false);
-    if (commentAddRef.current) {
-      commentAddRef.current.scrollIntoView({ block: 'center'});
-    }
+    scrollToCommentAddBox(commentAddRef);
   }
 
   function getSidebarActions() {
@@ -197,10 +196,10 @@ function DecisionDialog(props) {
           item
           xs={12}
         >
+
           <SubSection
             title={intl.formatMessage({ id: 'decisionDialogDiscussionLabel' })}
           >
-            <div ref={commentAddRef}>
               <CommentAddBox
                 hidden={commentAddHidden}
                 type={commentAddType}
@@ -209,12 +208,14 @@ function DecisionDialog(props) {
                 onSave={closeCommentAddBox}
                 onCancel={closeCommentAddBox}
               />
-            </div>
+            <div ref={commentAddRef} />
             <CommentBox
               comments={marketComments}
               marketId={marketId}
             />
           </SubSection>
+
+
         </Grid>
       </Grid>
     </Screen>

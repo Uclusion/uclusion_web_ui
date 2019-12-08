@@ -20,7 +20,7 @@ export function decomposeMarketPath(path) {
 export function broadcastView(marketId, investibleIdOrContext, isEntry) {
   if (marketId && investibleIdOrContext && investibleIdOrContext !== 'add') {
     const message = { marketId, investibleIdOrContext, isEntry };
-    console.debug('Dispatching to notification');
+//    console.debug('Dispatching to notification');
     Hub.dispatch(
       VISIT_CHANNEL,
       {

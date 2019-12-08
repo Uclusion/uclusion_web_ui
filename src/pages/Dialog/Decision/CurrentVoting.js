@@ -7,7 +7,7 @@ import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import RaisedCard from '../../../components/Cards/RaisedCard';
 import { ISSUE_TYPE } from '../../../constants/comments';
-import { getCommentTypeIcon } from '../../../components/Comments/commentIconFunctions';
+import { getCommentTypeIcon } from '../../../components/Comments/commentFunctions';
 import { getCertaintyChart, getVoteTotalsForUser } from '../../../utils/userFunctions';
 
 function CurrentVoting(props) {

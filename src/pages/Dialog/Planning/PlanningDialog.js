@@ -26,6 +26,7 @@ import DialogEditSidebarActionButton from '../DialogEditSidebarActionButton';
 import DialogEdit from '../DialogEdit';
 import { unlockPlanningMarketForEdit } from '../../../api/markets';
 import ViewArchiveActionButton from './ViewArchivesActionButton';
+import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -103,9 +104,7 @@ function PlanningDialog(props) {
   function commentButtonOnClick(type) {
     setCommentAddType(type);
     setCommentAddHidden(false);
-    if (commentAddRef.current) {
-      commentAddRef.current.scrollIntoView({ block: 'center'});
-    }
+    scrollToCommentAddBox(commentAddRef);
   }
 
   function closeCommentAddBox() {

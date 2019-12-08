@@ -1,5 +1,6 @@
 import React, { useContext, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { Paper } from '@material-ui/core';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
@@ -24,6 +25,7 @@ import { getInReviewStage } from '../../../contexts/MarketStagesContext/marketSt
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import MoveToVerifiedActionButton from './MoveToVerifiedActionButton';
 import MoveToNotDoingActionButton from './MoveToNotDoingActionButton';
+import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -62,11 +64,13 @@ function PlanningInvestible(props) {
   function commentButtonOnClick(type) {
     setCommentAddType(type);
     setCommentAddHidden(false);
+    scrollToCommentAddBox(commentAddRef);
   }
 
   function closeCommentAdd() {
     setCommentAddHidden(true);
   }
+
   if (!investibleId) {
     // we have no usable data;
     return <></>;
@@ -74,7 +78,7 @@ function PlanningInvestible(props) {
   const sidebarActions = [];
 
   if (isAdmin) {
-    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
+    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
   }
   if (assigned && assigned.includes(userId)) {
     if (stage !== inReviewStage.id) {
@@ -111,8 +115,10 @@ function PlanningInvestible(props) {
       stageId={stage}
     />);
   }
-  sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
-  sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
+  sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
+  sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
+
+  const discussionVisible = !commentAddHidden || !_.isEmpty(investmentReasonsRemoved);
 
   return (
     <Screen
@@ -148,11 +154,11 @@ function PlanningInvestible(props) {
         title="Assignments"
       >
         {marketId && investible && (
-        <DisplayAssignments
-          marketId={marketId}
-          marketPresences={marketPresences}
-          investible={marketInvestible}
-        />
+          <DisplayAssignments
+            marketId={marketId}
+            marketPresences={marketPresences}
+            investible={marketInvestible}
+          />
         )}
       </SubSection>
       <SubSection
@@ -165,23 +171,24 @@ function PlanningInvestible(props) {
 
         </Paper>
       </SubSection>
-
-      <SubSection
-        title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
-      >
-        <div ref={commentAddRef}>
-          <CommentAddBox
-            hidden={commentAddHidden}
-            allowedTypes={allowedCommentTypes}
-            investible={investible}
-            marketId={marketId}
-            type={commentAddType}
-            onSave={closeCommentAdd}
-            onCancel={closeCommentAdd}
-          />
-        </div>
-        <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
-      </SubSection>
+      <div ref={commentAddRef}>
+      {discussionVisible && (
+        <SubSection
+          title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
+        >
+            <CommentAddBox
+              hidden={commentAddHidden}
+              allowedTypes={allowedCommentTypes}
+              investible={investible}
+              marketId={marketId}
+              type={commentAddType}
+              onSave={closeCommentAdd}
+              onCancel={closeCommentAdd}
+            />
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+        </SubSection>
+      )}
+      </div>
 
     </Screen>
   );
@@ -205,7 +212,8 @@ PlanningInvestible.propTypes = {
 PlanningInvestible.defaultProps = {
   marketPresences: [],
   investibleComments: [],
-  toggleEdit: () => {},
+  toggleEdit: () => {
+  },
   isAdmin: false,
 };
 export default PlanningInvestible;

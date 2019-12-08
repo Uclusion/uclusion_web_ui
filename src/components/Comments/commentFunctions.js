@@ -15,4 +15,10 @@ export function getCommentTypeIcon(type) {
     default:
       return null;
   }
-};
+}
+
+export function scrollToCommentAddBox(commentAddRef) {
+  if (commentAddRef.current) {
+    commentAddRef.current.scrollIntoView();
+  }
+}

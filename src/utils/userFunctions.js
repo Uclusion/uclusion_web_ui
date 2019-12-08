@@ -89,6 +89,9 @@ export function getVotedInvestible(presence, marketInvestibles) {
   const { investible_id: investibleId } = investment;
   // eslint-disable-next-line max-len
   const fullInvestible = marketInvestibles.find((marketInvestible) => marketInvestible.investible.id === investibleId);
+  if (!fullInvestible) {
+    return { name: '' };
+  }
   const { investible } = fullInvestible;
   return investible;
 }

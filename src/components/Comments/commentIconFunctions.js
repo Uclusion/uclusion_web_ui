@@ -5,7 +5,6 @@ import ChangeHistoryIcon from '@material-ui/icons/ChangeHistory';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 
 export function getCommentTypeIcon(type) {
-  console.log(type);
   switch (type) {
     case ISSUE_TYPE:
       return <ReportProblemIcon color="error" />;

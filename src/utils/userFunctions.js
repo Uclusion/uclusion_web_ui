@@ -152,11 +152,7 @@ export function getParticipantInfo(presences, marketInvestibles) {
           <Grid
             item
           >
-            {investments && (
-              <Typography>
-                {getCertaintyChart(investments)}
-              </Typography>
-            )}
+            {investments && getCertaintyChart(investments)}
           </Grid>
         </Grid>
       </Card>

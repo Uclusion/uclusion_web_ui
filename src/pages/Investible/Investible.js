@@ -88,6 +88,7 @@ function Investible(props) {
     return (
       <Screen
         title={name}
+        tabTitle={name}
         breadCrumbs={breadCrumbs}
         hidden={hidden}
         warning={warning}

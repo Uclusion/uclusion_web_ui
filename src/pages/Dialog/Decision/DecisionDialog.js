@@ -87,6 +87,7 @@ function DecisionDialog(props) {
       <Screen
         title={market.name}
         hidden={hidden}
+        tabTitle={market.name}
         breadCrumbs={breadCrumbs}
       >
         <DialogEdit
@@ -104,6 +105,7 @@ function DecisionDialog(props) {
       <Screen
         title={market.name}
         hidden={hidden}
+        tabTitle={market.name}
         breadCrumbs={breadCrumbs}
       >
         <InvestibleAdd
@@ -144,6 +146,7 @@ function DecisionDialog(props) {
   return (
     <Screen
       title={market.name}
+      tabTitle={market.name}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
       sidebarActions={sidebarActions}

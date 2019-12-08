@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import { injectIntl } from 'react-intl';
 import {
   makeBreadCrumbs, decomposeMarketPath, formInvestibleLink, navigate,
 } from '../../utils/marketIdPathFunctions';
@@ -106,6 +105,7 @@ function Dialog(props) {
         title={currentMarketName}
         hidden={hidden}
         breadCrumbs={breadCrumbs}
+        tabTitle={currentMarketName}
         loading={loading}
       >
         <div />
@@ -150,4 +150,4 @@ Dialog.propTypes = {
   hidden: PropTypes.bool.isRequired,
 };
 
-export default injectIntl(withStyles(styles)(React.memo(Dialog)));
+export default withStyles(styles)(React.memo(Dialog));

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
+import { Helmet } from 'react-helmet';
 import {
   AppBar,
   Toolbar,
@@ -16,9 +17,10 @@ import {
 import { makeStyles } from '@material-ui/styles';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import MenuIcon from '@material-ui/icons/Menu';
+import { useHistory } from 'react-router';
 import Notifications from '../../components/Notifications/Notifications';
 import { SidebarContext } from '../../contexts/SidebarContext';
-import { useHistory } from 'react-router';
+import { createTabTitle } from '../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles((theme) => {
   const drawerWidth = 240;
@@ -120,6 +122,7 @@ function Screen(props) {
     children,
     toolbarButtons,
     sidebarActions,
+    tabTitle,
   } = props;
 
   const [firstRender, setFirstRender] = useState(true);
@@ -161,6 +164,12 @@ function Screen(props) {
 
   return (
     <div className={hidden ? classes.hidden : classes.root}>
+      {!hidden && (
+        <Helmet>
+          <title>{`Uclusion | ${createTabTitle(tabTitle)}`}</title>
+          <meta name="description" content="Uclusion" />
+        </Helmet>
+      )}
       <AppBar
         className={clsx(classes.appBar, {
           [classes.appBarShift]: sidebarOpen,
@@ -237,6 +246,7 @@ Screen.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   sidebarActions: PropTypes.arrayOf(PropTypes.element),
   banner: PropTypes.string,
+  tabTitle: PropTypes.string.isRequired,
 };
 
 Screen.defaultProps = {

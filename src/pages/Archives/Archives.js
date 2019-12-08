@@ -29,6 +29,7 @@ function Archives(props) {
   return (
     <Screen
       title={intl.formatMessage({ id: 'archivesTitle' })}
+      tabTitle={intl.formatMessage({ id: 'archivesTitle' })}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
     >

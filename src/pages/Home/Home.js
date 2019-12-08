@@ -16,6 +16,7 @@ import { INITIATIVE_TYPE, DECISION_TYPE, PLANNING_TYPE } from '../../constants/m
 import InitiativeAdd from './InitiativeAdd';
 import InitiativeDialogs from './InitiativeDialogs';
 import ViewArchiveActionButton from './ViewArchivesActionButton';
+import { useIntl } from 'react-intl';
 
 
 const useStyles = makeStyles(() => ({
@@ -27,6 +28,7 @@ const useStyles = makeStyles(() => ({
 function Home(props) {
   const { hidden } = props;
   const classes = useStyles();
+  const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const planningDetails = getActiveMarketDetailsForType(marketsState, PLANNING_TYPE);
   const decisionDetails = getActiveMarketDetailsForType(marketsState, DECISION_TYPE);
@@ -99,6 +101,7 @@ function Home(props) {
   return (
     <Screen
       title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage} />}
+      tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       sidebarActions={sidebarActions}
     >

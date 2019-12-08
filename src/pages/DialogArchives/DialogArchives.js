@@ -50,6 +50,7 @@ function DialogArchives(props) {
     return (
       <Screen
         hidden={hidden}
+        tabTitle={intl.formatMessage({ id: 'dialogArchivesLabel' })}
       >
         Not Ready
       </Screen>
@@ -59,7 +60,8 @@ function DialogArchives(props) {
   return (
     <Screen
       hidden={hidden}
-      title={intl.formatMessage({ id: 'dialogArchivesLabel'})}
+      title={intl.formatMessage({ id: 'dialogArchivesLabel' })}
+      tabTitle={intl.formatMessage({ id: 'dialogArchivesLabel' })}
       breadCrumbs={breadCrumbs}
     >
       <SubSection

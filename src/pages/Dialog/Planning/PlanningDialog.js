@@ -72,6 +72,7 @@ function PlanningDialog(props) {
       <Screen
         title={market.name}
         hidden={hidden}
+        tabTitle={market.name}
         breadCrumbs={breadCrumbs}
       >
         <DialogEdit
@@ -89,6 +90,7 @@ function PlanningDialog(props) {
       <Screen
         title={market.name}
         hidden={hidden}
+        tabTitle={market.name}
         breadCrumbs={breadCrumbs}
       >
         <InvestibleAdd
@@ -184,6 +186,7 @@ function PlanningDialog(props) {
     <Screen
       title={market.name}
       hidden={hidden}
+      tabTitle={market.name}
       breadCrumbs={breadCrumbs}
       sidebarActions={sidebarActions}
     >

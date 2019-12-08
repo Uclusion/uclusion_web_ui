@@ -98,6 +98,7 @@ function DecisionInvestible(props) {
   return (
     <Screen
       title={name}
+      tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={false}
       sidebarActions={sidebarActions}

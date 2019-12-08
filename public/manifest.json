@@ -3,8 +3,8 @@
   "name": "Uclusion",
   "icons": [
     {
-      "src": "/watermark.png",
-      "sizes": "600x600",
+      "src": "/images/Uclusion_Wordmark_Color.png",
+      "sizes": "207x71",
       "type": "image/png"
     }
   ],

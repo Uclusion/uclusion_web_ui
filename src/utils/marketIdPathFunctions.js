@@ -20,7 +20,7 @@ export function decomposeMarketPath(path) {
 export function broadcastView(marketId, investibleIdOrContext, isEntry) {
   if (marketId && investibleIdOrContext && investibleIdOrContext !== 'add') {
     const message = { marketId, investibleIdOrContext, isEntry };
-//    console.debug('Dispatching to notification');
+    //    console.debug('Dispatching to notification');
     Hub.dispatch(
       VISIT_CHANNEL,
       {
@@ -34,7 +34,7 @@ export function broadcastView(marketId, investibleIdOrContext, isEntry) {
 export function navigate(history, to) {
   const {
     marketId: fromMarketId,
-    investibleId: fromInvestibleId
+    investibleId: fromInvestibleId,
   } = decomposeMarketPath(history.location.pathname);
   broadcastView(fromMarketId, fromInvestibleId, false);
   history.push(to);
@@ -67,6 +67,16 @@ export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
     };
   });
   return breadCrumbs;
+}
+
+export function createTabTitle(fullTitle) {
+  if (!fullTitle) {
+    return '';
+  }
+  if (fullTitle.length < 11) {
+    return fullTitle;
+  }
+  return `${fullTitle.substring(0, 10)}...`;
 }
 
 export function formInviteLink(marketId) {

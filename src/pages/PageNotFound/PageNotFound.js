@@ -35,7 +35,10 @@ function PageNotFound(props) {
   const { intl, classes, hidden, } = props;
 
   return (
-    <Screen hidden={hidden}>
+    <Screen
+      hidden={hidden}
+      tabTitle={intl.formatMessage({ id: 'warning_404_message' })}
+    >
       <Paper className={classes.paper}>
         <div className={classes.container}>
           <Typography variant="h2">

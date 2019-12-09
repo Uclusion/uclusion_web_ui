@@ -9,6 +9,7 @@ import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner';
 import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityTokenRefresher';
 import config from '../config';
 import { sendInfoPersistent } from '../utils/userMessage';
+import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext/NotificationsContext';
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -103,6 +104,25 @@ function WebSocketProvider(props) {
         break;
       default:
         console.debug(`Ignoring auth event ${event}`);
+    }
+  });
+
+  Hub.listen(VISIT_CHANNEL, (data) => {
+    const { payload: { event, message } } = data;
+    switch (event) {
+      case VIEW_EVENT: {
+        const { isEntry } = message;
+        console.debug(`isEntry ${isEntry} in websockets`);
+        if (isEntry && state) {
+          if (!state.checkConnection()) {
+            console.debug('Restarting websocket after entry');
+            state.connect();
+          }
+        }
+        break;
+      }
+      default:
+        console.debug(`Ignoring event ${event}`);
     }
   });
 

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
 import { Hub } from 'aws-amplify';
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../utils';
 import { SOCKET_OPEN_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 
 /**
@@ -38,7 +38,7 @@ class WebSocketRunner {
   }
 
   subscribe(identity) {
-    const action = { action: 'subscribe', identity};
+    const action = { action: 'subscribe', identity };
     // push the action onto the subscribe queue so if we reconnect we'll track it
     this.subscribeQueue.push(action);
     // if socket is open, just go ahead and send it
@@ -90,12 +90,20 @@ class WebSocketRunner {
   }
 
   connect() {
+    if (this.socket) {
+      this.socket.close();
+    }
     this.socket = new ReconnectingWebSocket(this.wsUrl);
     this.socket.addEventListener('open', this.onOpenFactory());
     this.socket.addEventListener('message', this.getMessageHandler());
   }
 
-  terminate(){
+  checkConnection() {
+    const { readyState } = this.socket;
+    return !(readyState === WebSocket.CLOSED || readyState === WebSocket.CLOSING);
+  }
+
+  terminate() {
     // close the socket
     this.socket.close();
   }

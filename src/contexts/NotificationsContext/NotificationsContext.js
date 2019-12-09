@@ -42,6 +42,7 @@ function NotificationsProvider(props) {
   useEffect(() => {
     const { page, messages } = state;
     if (page) {
+      console.debug(page);
       const filtered = messages.filter((message) => {
         const { marketId, investibleId } = page;
         const {

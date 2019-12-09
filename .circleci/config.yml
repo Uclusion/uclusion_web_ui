@@ -26,14 +26,6 @@ jobs:
             git clone git@github.com:Uclusion/uclusion_sdk.git
       
       - run:
-          name: Check out uclusion_authorizer_sdk
-          command: |
-            cd ~/
-            git clone git@github.com:Uclusion/uclusion_authorizer_sdk.git
-            cd uclusion_authorizer_sdk
-            npm install
-
-      - run:
           name: Install web ui
           command: |
             cd ~/repo

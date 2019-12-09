@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { withA2HS } from 'a2hs';
 import { ToastContainer } from 'react-toastify';
-import Amplify, { Auth } from 'aws-amplify';
+import Amplify from 'aws-amplify';
+//import Amplify, { Auth } from 'aws-amplify';
 import App from '../App/App';
 import config from '../../config';
 import 'react-toastify/dist/ReactToastify.css';

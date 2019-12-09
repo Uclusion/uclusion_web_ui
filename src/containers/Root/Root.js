@@ -114,6 +114,19 @@ function Root(props) {
     const blurListener = window.addEventListener('blur', () => {
       pegView(false);
     });
+    const onlineListener = window.addEventListener('online', () => {
+      pegView(true);
+    });
+    const offlineListener = window.addEventListener('offline', () => {
+      pegView(false);
+    });
+    const visibilityChange = document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        pegView(true);
+      } else {
+        pegView(false);
+      }
+    });
     window.onanimationiteration = console.debug;
     return () => {
       if (focusListener) {
@@ -121,6 +134,15 @@ function Root(props) {
       }
       if (blurListener) {
         blurListener.remove();
+      }
+      if (onlineListener) {
+        onlineListener.remove();
+      }
+      if (offlineListener) {
+        offlineListener.remove();
+      }
+      if (visibilityChange) {
+        visibilityChange.remove();
       }
     };
   }, []);

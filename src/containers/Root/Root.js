@@ -105,9 +105,7 @@ function Root(props) {
     function pegView(isEntry) {
       const currentPath = window.location.pathname;
       const { marketId, investibleId } = decomposeMarketPath(currentPath);
-      if (marketId && investibleId ) {
-        broadcastView(marketId, investibleId, isEntry);
-      }
+      broadcastView(marketId, investibleId, isEntry);
     }
     // Need this or won't see events where url doesn't change
     const focusListener = window.addEventListener('focus', () => {
@@ -127,7 +125,6 @@ function Root(props) {
     };
   }, []);
 
-  console.log(`Hide Home ${hideHome()}`);
   const hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible() && hideDialogArchives() && hideArchvies());
   return (
     <ThemeProvider theme={defaultTheme}>

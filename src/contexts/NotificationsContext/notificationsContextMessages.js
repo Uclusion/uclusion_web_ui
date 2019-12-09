@@ -22,16 +22,15 @@ function beginListening(dispatch) {
 
   Hub.listen(VISIT_CHANNEL, (data) => {
     const { payload: { event, message } } = data;
+    console.debug(message);
     switch (event) {
       case VIEW_EVENT: {
-        const { marketId, investibleIdOrContext, isEntry } = message;
-        console.debug('Received:');
-        console.debug(message);
+        const { marketId, investibleId, isEntry } = message;
         if (isEntry) {
-          if (investibleIdOrContext === 'context') {
+          if (!investibleId) {
             dispatch(updatePage({ marketId }));
           } else {
-            dispatch(updatePage({ marketId, investibleId: investibleIdOrContext }));
+            dispatch(updatePage({ marketId, investibleId }));
           }
         } else {
           dispatch(updatePage(undefined));

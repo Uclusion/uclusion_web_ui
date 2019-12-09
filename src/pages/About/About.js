@@ -55,6 +55,7 @@ function About(props) {
     <div>
       <Screen
         title={intl.formatMessage({ id: 'about' })}
+        tabTitle={intl.formatMessage({ id: 'about' })}
         hidden={hidden}
       >
         <div className={classes.root}>

@@ -10,7 +10,10 @@ function DisplayAssignments(props) {
     const marketInfo = getMarketInfo(investible, marketId);
     const { assigned } = marketInfo;
     return assigned.map((userId) => {
-      const user = marketPresences.find((presence) => presence.id === userId);
+      let user = marketPresences.find((presence) => presence.id === userId);
+      if (!user) {
+        user = { name: 'Removed' };
+      }
       return (
         <Paper
           key={userId}

@@ -46,10 +46,8 @@ function NotificationsProvider(props) {
         const { marketId, investibleId } = page;
         const {
           marketId: messageMarketId, investibleId: messageInvestibleId,
-          level, aType,
         } = message;
-        const doRemove = marketId === messageMarketId && investibleId === messageInvestibleId
-          && (level === 'YELLOW' || aType === 'UNREAD' || aType === 'INVESTIBLE_SUBMITTED');
+        const doRemove = marketId === messageMarketId && investibleId === messageInvestibleId;
         if (doRemove) {
           dispatch(removeMessage(message));
         }

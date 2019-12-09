@@ -17,18 +17,16 @@ export function decomposeMarketPath(path) {
   return { action, marketId, investibleId };
 }
 
-export function broadcastView(marketId, investibleIdOrContext, isEntry) {
-  if (marketId && investibleIdOrContext && investibleIdOrContext !== 'add') {
-    const message = { marketId, investibleIdOrContext, isEntry };
-    //    console.debug('Dispatching to notification');
-    Hub.dispatch(
-      VISIT_CHANNEL,
-      {
-        event: VIEW_EVENT,
-        message,
-      },
-    );
-  }
+export function broadcastView(marketId, investibleId, isEntry) {
+  const message = { marketId, investibleId, isEntry };
+  console.debug(message);
+  Hub.dispatch(
+    VISIT_CHANNEL,
+    {
+      event: VIEW_EVENT,
+      message,
+    },
+  );
 }
 
 export function navigate(history, to) {

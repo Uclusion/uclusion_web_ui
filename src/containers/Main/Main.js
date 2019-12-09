@@ -18,7 +18,7 @@ import { VersionsProvider } from '../../contexts/VersionsContext/VersionsContext
 import { SidebarProvider } from '../../contexts/SidebarContext';
 
 Amplify.configure(awsconfig);
-const oauth = {
+/*const oauth = {
   domain: 'uclusion-dev.auth.us-west-2.amazoncognito.com',
   scope: ['email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],
   redirectSignIn: 'http://localhost:3000/',
@@ -27,7 +27,7 @@ const oauth = {
 };
 
 Auth.configure({ oauth });
-
+*/
 class Main extends Component {
   render() {
     console.debug('Main being rerendered');

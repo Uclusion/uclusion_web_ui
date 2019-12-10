@@ -19,16 +19,15 @@ import { VersionsProvider } from '../../contexts/VersionsContext/VersionsContext
 import { SidebarProvider } from '../../contexts/SidebarContext';
 
 Amplify.configure(awsconfig);
-/*const oauth = {
-  domain: 'uclusion-dev.auth.us-west-2.amazoncognito.com',
+const oauth = {
+  domain: config.cognito_domain,
   scope: ['email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],
-  redirectSignIn: 'http://localhost:3000/',
-  redirectSignOut: 'http://localhost:3000/',
+  redirectSignIn: config.ui_base_url,
+  redirectSignOut: config.ui_base_url,
   responseType: 'code', // or 'token', note that REFRESH token will only be generated when the responseType is code
 };
 
 Auth.configure({ oauth });
-*/
 class Main extends Component {
   render() {
     console.debug('Main being rerendered');

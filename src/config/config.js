@@ -4,6 +4,8 @@ const config = {
   initial_state: {
     locale: 'en',
   },
+  cognito_domain: process.env.REACT_APP_COGNITO_DOMAIN,
+  ui_base_url: process.env.REACT_APP_UI_URL,
   maxRichTextEditorSize: 7340032,
   drawer_width: 256,
   locales,

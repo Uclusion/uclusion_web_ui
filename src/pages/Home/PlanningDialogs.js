@@ -20,7 +20,10 @@ import ArchiveMarketButton from './Decision/ArchiveMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
-import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getAcceptedStage, getInCurrentVotingStage,
+  getInReviewStage,
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getBudgetTotalsForUser } from '../../utils/userFunctions';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
@@ -48,12 +51,13 @@ function PlanningDialogs(props) {
 
   function getParticipantInfo(presences, marketId) {
     const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
-    const marketStages = getStages(marketStagesState, marketId);
-    const votingStage = marketStages.find((stage) => stage.allows_investment);
-    // eslint-disable-next-line max-len
-    const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.singular_only));
-    // eslint-disable-next-line max-len
-    const reviewStage = marketStages.find((stage) => (!stage.singular_only && stage.appears_in_context));
+    const votingStage = getInCurrentVotingStage(marketStagesState, marketId);
+    const acceptedStage = getAcceptedStage(marketStagesState, marketId);
+    const reviewStage = getInReviewStage(marketStagesState, marketId);
+    const loaded = votingStage && acceptedStage && reviewStage;
+    if (!loaded) {
+      return <React.Fragment />; // TODO; this should render a better stub
+    }
     return presences.map((presence) => {
       const { id: userId, name } = presence;
       return (

@@ -2,7 +2,7 @@
  * Web socket context provider must appear within the markets context, since it needs to
  * properly update it
  */
-import React, { useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import { Hub } from 'aws-amplify';
 import PropTypes from 'prop-types';
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner';
@@ -35,8 +35,22 @@ function notifyNewApplicationVersion(currentVersion) {
 function WebSocketProvider(props) {
   const { children, config } = props;
   const [state, setState] = useState();
+  const [socketListener, setSocketListener] = useState();
+  const [connectionCheckTimerState, connectionCheckTimerDispatch] = useReducer((state, action) => {
+    const { pongTimer } = action;
+    if (pongTimer) {
+      return { timer: pongTimer };
+    }
+    const { timer } = state;
+    if (timer) {
+      console.debug('Clearing socket pong timer');
+      clearTimeout(timer);
+    }
+    return {};
+  }, {});
 
   function createWebSocket() {
+    console.debug('Creating new websocket');
     const { webSockets } = config;
     const sockConfig = { wsUrl: webSockets.wsUrl, reconnectInterval: webSockets.reconnectInterval };
     const newSocket = new WebSocketRunner(sockConfig);
@@ -51,6 +65,10 @@ function WebSocketProvider(props) {
       // eslint-disable-next-line camelcase
       const { deployed_version } = payload;
       notifyNewApplicationVersion(deployed_version);
+    });
+
+    newSocket.registerHandler('pong', () => {
+      connectionCheckTimerDispatch({});
     });
 
     newSocket.registerHandler('market', (message) => {
@@ -99,6 +117,11 @@ function WebSocketProvider(props) {
       case 'signOut':
         if (state) {
           state.terminate();
+        }
+        break;
+      case 'signIn':
+        if (state) {
+          state.terminate();
           setState(undefined);
         }
         break;
@@ -107,27 +130,43 @@ function WebSocketProvider(props) {
     }
   });
 
-  Hub.listen(VISIT_CHANNEL, (data) => {
-    const { payload: { event, message } } = data;
-    switch (event) {
-      case VIEW_EVENT: {
-        const { isEntry } = message;
-        console.debug(`isEntry ${isEntry} in websockets`);
-        if (isEntry && state) {
-          if (!state.checkConnection()) {
-            console.debug('Restarting websocket after entry');
-            state.connect();
-          }
-        }
-        break;
-      }
-      default:
-        console.debug(`Ignoring event ${event}`);
-    }
-  });
-
   if (!state) {
-    setState(createWebSocket());
+    const newSocket = createWebSocket();
+    setState(newSocket);
+    if (socketListener) {
+      // Prevent zombies and no API to remove by listener name for some reason
+      Hub.remove(VISIT_CHANNEL, socketListener);
+    }
+    const myListener = (data) => {
+      if (!data) {
+        return;
+      }
+      const { payload: { event, message } } = data;
+      switch (event) {
+        case VIEW_EVENT: {
+          const { isEntry } = message;
+          if (isEntry) {
+            const { timer } = connectionCheckTimerState;
+            if (!timer && newSocket.getSocketState() === WebSocket.OPEN) {
+              console.debug('Creating pong timer');
+              const actionString = JSON.stringify({ action: 'ping' });
+              newSocket.send(actionString);
+              const pongTimer = setTimeout((socket, setSocket) => {
+                console.debug('Terminating socket connection');
+                socket.terminate();
+                setSocket(undefined);
+              }, 5000, newSocket, setState);
+              connectionCheckTimerDispatch({ pongTimer });
+            }
+          }
+          break;
+        }
+        default:
+          console.debug(`Ignoring event ${event}`);
+      }
+    };
+    Hub.listen(VISIT_CHANNEL, myListener, 'webSocketPongTimer');
+    setSocketListener(myListener);
   }
 
   return (

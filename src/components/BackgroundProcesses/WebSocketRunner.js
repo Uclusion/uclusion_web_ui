@@ -75,7 +75,6 @@ class WebSocketRunner {
       // console.debug('My socket is:', this.socket);
       queue.forEach((action) => {
         const actionString = JSON.stringify(action);
-        // console.debug('Sending to my socket:', this.socket, actionString);
         this.socket.send(actionString);
       });
       Hub.dispatch(
@@ -98,9 +97,12 @@ class WebSocketRunner {
     this.socket.addEventListener('message', this.getMessageHandler());
   }
 
-  checkConnection() {
-    const { readyState } = this.socket;
-    return !(readyState === WebSocket.CLOSED || readyState === WebSocket.CLOSING);
+  getSocketState() {
+    return this.socket.readyState;
+  }
+
+  send(message) {
+    this.socket.send(message);
   }
 
   terminate() {

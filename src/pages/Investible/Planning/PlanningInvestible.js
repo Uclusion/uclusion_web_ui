@@ -108,11 +108,13 @@ function PlanningInvestible(props) {
       investibleId={investibleId}
       marketId={marketId}
       stageId={stage}
+      key="verified"
     />);
     sidebarActions.push(<MoveToNotDoingActionButton
       investibleId={investibleId}
       marketId={marketId}
       stageId={stage}
+      keu="notdoing"
     />);
   }
   sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);

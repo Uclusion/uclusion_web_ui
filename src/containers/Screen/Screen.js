@@ -81,7 +81,6 @@ const useStyles = makeStyles((theme) => {
       width: `calc(100% - ${drawerWidth}px)`,
     },
     content: {},
-    toolbar: theme.mixins.toolbar,
     drawer: {
       width: drawerWidth,
       flexShrink: 0,

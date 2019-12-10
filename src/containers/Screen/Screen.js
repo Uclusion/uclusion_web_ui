@@ -15,7 +15,7 @@ import {
   IconButton,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import MenuIcon from '@material-ui/icons/Menu';
 import { useHistory } from 'react-router';
 import Notifications from '../../components/Notifications/Notifications';
@@ -54,8 +54,11 @@ const useStyles = makeStyles((theme) => {
         duration: theme.transitions.duration.enteringScreen,
       }),
     },
+    menuButton: {
+      marginRight: theme.spacing(2),
+    },
     appBarShift: {
-      marginRight: drawerWidth,
+      marginLeft: drawerWidth,
       width: `calc(100% - ${drawerWidth}px)`,
       transition: theme.transitions.create(['width', 'margin'], {
         easing: theme.transitions.easing.sharp,
@@ -74,7 +77,7 @@ const useStyles = makeStyles((theme) => {
       },
     },
     contentShift: {
-      marginRight: drawerWidth,
+      marginLeft: drawerWidth,
       width: `calc(100% - ${drawerWidth}px)`,
     },
     content: {},
@@ -89,7 +92,7 @@ const useStyles = makeStyles((theme) => {
       alignItems: 'center',
       padding: theme.spacing(0, 1),
       ...theme.mixins.toolbar,
-      justifyContent: 'flex-start',
+      justifyContent: 'flex-end',
     },
   };
 });
@@ -149,7 +152,8 @@ function Screen(props) {
       scroller(location);
       setFirstRender(false);
     }
-    return () => {};
+    return () => {
+    };
   }, [firstRender, location]);
 
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
@@ -168,7 +172,7 @@ function Screen(props) {
         <Breadcrumbs separator=">">
           {breadCrumbs.map((crumb, index) => (
             <Link key={index} href="#" onClick={crumb.onClick} underline="always" color="primary">
-              {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage} />}
+              {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage}/>}
               {!crumb.image && crumb.title}
             </Link>
           ))}
@@ -194,24 +198,24 @@ function Screen(props) {
         hidden={hidden}
       >
         <Toolbar>
-
-          {generateTitle()}
-          <div className={classes.grow} />
-          {toolbarButtons}
-          <Notifications />
           <IconButton
             aria-label="open drawer"
             onClick={() => setSidebarOpen(true)}
             edge="start"
             className={clsx(classes.menuButton, sidebarOpen && classes.hidden)}
           >
-            <MenuIcon />
+            <MenuIcon/>
           </IconButton>
+          {generateTitle()}
+          <div className={classes.grow}/>
+          {toolbarButtons}
+          <Notifications/>
+
         </Toolbar>
       </AppBar>
       <Drawer
         variant="permanent"
-        anchor="right"
+        anchor="left"
         className={clsx(classes.drawer, {
           [classes.sidebarOpen]: sidebarOpen,
           [classes.sideActionsClose]: !sidebarOpen,
@@ -224,17 +228,17 @@ function Screen(props) {
         }}
         open={sidebarOpen}
       >
-        <div className={classes.toolbar}>
+        <div className={classes.drawerHeader}>
           {sidebarOpen && (
             <IconButton onClick={() => setSidebarOpen(false)}>
-              <ChevronRightIcon />
+              <ChevronLeftIcon/>
             </IconButton>
           )}
         </div>
-        <Divider />
+        <Divider/>
         {getSidebar()}
       </Drawer>
-      <Toolbar />
+      <Toolbar/>
       <div className={clsx(classes.content, {
         [classes.contentShift]: sidebarOpen,
       })}

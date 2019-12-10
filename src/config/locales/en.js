@@ -203,6 +203,7 @@ const messages = defineMessages({
   planningVotingStageLabel: 'Voting',
   planningAcceptedStageLabel: 'In Progress',
   planningReviewStageLabel: 'In Review',
+  planningInvestibleAssignments: 'Assignments',
 
   // Issues
   issueResolveLabel: 'Resolve',

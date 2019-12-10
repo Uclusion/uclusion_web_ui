@@ -1,7 +1,7 @@
 import React, { useContext, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Paper } from '@material-ui/core';
+import { Paper, Typography } from '@material-ui/core';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import SubSection from '../../../containers/SubSection/SubSection';
@@ -21,7 +21,10 @@ import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import MoveToNextVisibleStageActionButton from './MoveToNextVisibleStageActionButton';
 import { getMarketInfo } from '../../../utils/userFunctions';
-import { getInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getInCurrentVotingStage,
+  getInReviewStage,
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import MoveToVerifiedActionButton from './MoveToVerifiedActionButton';
 import MoveToNotDoingActionButton from './MoveToNotDoingActionButton';
@@ -59,7 +62,14 @@ function PlanningInvestible(props) {
   const commentAddRef = useRef(null);
   const [marketStagesState] = useContext(MarketStagesContext);
   const inReviewStage = getInReviewStage(marketStagesState, marketId);
+  const isInReview = inReviewStage && stage === inReviewStage.id;
+  const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
+  const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
+  // eslint-disable-next-line no-nested-ternary
+  const stageName = isInVoting ? intl.formatMessage({ id: 'planningVotingStageLabel' })
+    : isInReview ? intl.formatMessage({ id: 'planningReviewStageLabel' })
+      : intl.formatMessage({ id: 'planningAcceptedStageLabel' });
 
   function commentButtonOnClick(type) {
     setCommentAddType(type);
@@ -78,10 +88,10 @@ function PlanningInvestible(props) {
   const sidebarActions = [];
 
   if (isAdmin) {
-    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
+    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
   }
   if (assigned && assigned.includes(userId)) {
-    if (stage !== inReviewStage.id) {
+    if (!isInReview) {
       const invested = marketPresences.filter((presence) => {
         const { investments } = presence;
         if (!Array.isArray(investments) || investments.length === 0) {
@@ -117,8 +127,8 @@ function PlanningInvestible(props) {
       keu="notdoing"
     />);
   }
-  sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
-  sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
+  sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
+  sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
 
   const discussionVisible = !commentAddHidden || !_.isEmpty(investmentReasonsRemoved);
 
@@ -130,9 +140,12 @@ function PlanningInvestible(props) {
       hidden={false}
       sidebarActions={sidebarActions}
     >
-      {(!assigned || !assigned.includes(userId)) && (
+      <Typography>
+        {stageName}
+      </Typography>
+      {(!assigned || !assigned.includes(userId)) && isInVoting && (
         <SubSection
-          title="Your Voting"
+          title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
         >
           <YourVoting
             investibleId={investibleId}
@@ -145,7 +158,7 @@ function PlanningInvestible(props) {
         </SubSection>
       )}
       <SubSection
-        title="Others Voting"
+        title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
       >
         <Voting
           investibleId={investibleId}
@@ -154,7 +167,7 @@ function PlanningInvestible(props) {
         />
       </SubSection>
       <SubSection
-        title="Assignments"
+        title={intl.formatMessage({ id: 'planningInvestibleAssignments' })}
       >
         {marketId && investible && (
           <DisplayAssignments
@@ -165,7 +178,7 @@ function PlanningInvestible(props) {
         )}
       </SubSection>
       <SubSection
-        title="Description"
+        title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
         <Paper>
           <ReadOnlyQuillEditor
@@ -175,22 +188,22 @@ function PlanningInvestible(props) {
         </Paper>
       </SubSection>
       <div ref={commentAddRef}>
-      {discussionVisible && (
+        {discussionVisible && (
         <SubSection
           title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
         >
-            <CommentAddBox
-              hidden={commentAddHidden}
-              allowedTypes={allowedCommentTypes}
-              investible={investible}
-              marketId={marketId}
-              type={commentAddType}
-              onSave={closeCommentAdd}
-              onCancel={closeCommentAdd}
-            />
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+          <CommentAddBox
+            hidden={commentAddHidden}
+            allowedTypes={allowedCommentTypes}
+            investible={investible}
+            marketId={marketId}
+            type={commentAddType}
+            onSave={closeCommentAdd}
+            onCancel={closeCommentAdd}
+          />
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
         </SubSection>
-      )}
+        )}
       </div>
 
     </Screen>

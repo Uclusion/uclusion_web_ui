@@ -103,28 +103,30 @@ function DecisionInvestible(props) {
       hidden={false}
       sidebarActions={sidebarActions}
     >
-
-      <SubSection
-        title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
-      >
-        <YourVoting
-          investibleId={investibleId}
-          marketPresences={marketPresences}
-          comments={investmentReasons}
-          userId={userId}
-          marketId={marketId}
-        />
-      </SubSection>
-
-      <SubSection
-        title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
-      >
-        <Voting
-          investibleId={investibleId}
-          marketPresences={marketPresences}
-          investmentReasons={investmentReasons}
-        />
-      </SubSection>
+      {!inProposed && (
+        <SubSection
+          title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
+        >
+          <YourVoting
+            investibleId={investibleId}
+            marketPresences={marketPresences}
+            comments={investmentReasons}
+            userId={userId}
+            marketId={marketId}
+          />
+        </SubSection>
+      )}
+      {!inProposed && (
+        <SubSection
+          title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
+        >
+          <Voting
+            investibleId={investibleId}
+            marketPresences={marketPresences}
+            investmentReasons={investmentReasons}
+          />
+        </SubSection>
+      )}
       <SubSection
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >

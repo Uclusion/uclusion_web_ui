@@ -65,7 +65,7 @@ function Voting(props) {
           <Typography>
             {getInvestmentConfidence(quantity)}
           </Typography>
-          {maxBudget && (
+          {maxBudget > 0 && (
             <Typography>
               {intl.formatMessage({ id: 'maxBudget' }, { x: maxBudget })}
             </Typography>

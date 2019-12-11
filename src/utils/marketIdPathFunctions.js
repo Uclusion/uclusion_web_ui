@@ -67,14 +67,17 @@ export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
   return breadCrumbs;
 }
 
-export function createTabTitle(fullTitle) {
+export function createTitle(fullTitle, titleSize) {
   if (!fullTitle) {
     return '';
   }
-  if (fullTitle.length < 11) {
+  if (!fullTitle.substring) {
     return fullTitle;
   }
-  return `${fullTitle.substring(0, 10)}...`;
+  if (fullTitle.length < titleSize) {
+    return fullTitle;
+  }
+  return `${fullTitle.substring(0, titleSize)}...`;
 }
 
 export function formInviteLink(marketId) {

@@ -20,8 +20,9 @@ import MenuIcon from '@material-ui/icons/Menu';
 import { useHistory } from 'react-router';
 import Notifications from '../../components/Notifications/Notifications';
 import { SidebarContext } from '../../contexts/SidebarContext';
-import { createTabTitle } from '../../utils/marketIdPathFunctions';
+import { createTitle } from '../../utils/marketIdPathFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
+import SubSection from '../SubSection/SubSection';
 
 const useStyles = makeStyles((theme) => {
   const drawerWidth = 240;
@@ -171,22 +172,22 @@ function Screen(props) {
         <Breadcrumbs separator=">">
           {breadCrumbs.map((crumb, index) => (
             <Link key={index} href="#" onClick={crumb.onClick} underline="always" color="primary">
-              {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage}/>}
+              {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage} />}
               {!crumb.image && crumb.title}
             </Link>
           ))}
-          <Typography color="textPrimary">{title}</Typography>
+          <Typography color="textPrimary">{createTitle(title, 25)}</Typography>
         </Breadcrumbs>
       );
     }
-    return (<Typography color="textPrimary">{title}</Typography>);
+    return (<Typography color="textPrimary">{createTitle(title, 30)}</Typography>);
   }
 
   return (
     <div className={hidden ? classes.hidden : classes.root}>
       {!hidden && (
         <Helmet>
-          <title>{`${prePendWarning}Uclusion | ${createTabTitle(tabTitle)}`}</title>
+          <title>{`${prePendWarning}Uclusion | ${createTitle(tabTitle, 11)}`}</title>
         </Helmet>
       )}
       <AppBar
@@ -203,12 +204,12 @@ function Screen(props) {
             edge="start"
             className={clsx(classes.menuButton, sidebarOpen && classes.hidden)}
           >
-            <MenuIcon/>
+            <MenuIcon />
           </IconButton>
           {generateTitle()}
-          <div className={classes.grow}/>
+          <div className={classes.grow} />
           {toolbarButtons}
-          <Notifications/>
+          <Notifications />
 
         </Toolbar>
       </AppBar>
@@ -230,14 +231,14 @@ function Screen(props) {
         <div className={classes.drawerHeader}>
           {sidebarOpen && (
             <IconButton onClick={() => setSidebarOpen(false)}>
-              <ChevronLeftIcon/>
+              <ChevronLeftIcon />
             </IconButton>
           )}
         </div>
-        <Divider/>
+        <Divider />
         {getSidebar()}
       </Drawer>
-      <Toolbar/>
+      <Toolbar />
       <div className={clsx(classes.content, {
         [classes.contentShift]: sidebarOpen,
       })}
@@ -245,6 +246,18 @@ function Screen(props) {
         <Container
           className={classes.container}
         >
+          {title && title.substring && (
+          <AppBar
+            className={classes.subHeader}
+            position="static"
+          >
+            <Toolbar>
+              <Typography>
+                {title}
+              </Typography>
+            </Toolbar>
+          </AppBar>
+          )}
           {children}
         </Container>
       </div>

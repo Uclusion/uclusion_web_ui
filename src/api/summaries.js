@@ -2,6 +2,7 @@ import uclusion from 'uclusion_sdk';
 import _ from 'lodash';
 import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher';
 import config from '../config';
+import { notifyNewApplicationVersion } from '../contexts/WebSocketContext';
 
 
 function getSummaryInfo() {
@@ -18,8 +19,14 @@ export function getVersions() {
       // authorization tokens contained inside, since it's free
       return summaryClient.versions(idToken)
         .then((versions) => {
-          const rawMarketVersions = _.remove(versions, (versionRow) => versionRow.type_object_id.includes('market'));
-          const notificationVersion = versions.length > 0 ? versions[0] : {};
+          const rawMarketVersions = _.remove(versions, (versionRow) => versionRow.type_object_id.includes('market_'));
+          let notificationVersion = versions.find((versionRow) => versionRow.type_object_id.includes('notification_'));
+          if (!notificationVersion) {
+            notificationVersion = {};
+          }
+          const appAuditVersion = versions.find((versionRow) => versionRow.type_object_id === 'app_version');
+          const { app_version: appVersion } = appAuditVersion;
+          notifyNewApplicationVersion(appVersion);
           const marketVersions = rawMarketVersions.map((version) => {
             const { type_object_id: typeObjectId } = version;
             const marketId = typeObjectId.split('_')[1];

@@ -18,10 +18,10 @@ export const NOTIFICATION_MESSAGE_EVENT = 'notification_web_push';
 export const SOCKET_OPEN_EVENT = 'web_socket_opened';
 
 const WebSocketContext = React.createContext([{}, () => {}]);
-function notifyNewApplicationVersion(currentVersion) {
+export function notifyNewApplicationVersion(currentVersion) {
   const { version } = config;
   // if we don't have any version stored, we're either in dev, or we've dumped our data
-  if (currentVersion !== version) {
+  if (currentVersion !== version && !currentVersion.includes('fake')) {
     console.debug(`Current version: ${version}`);
     console.debug(`Upgrading to version: ${currentVersion}`);
     // deprecated, but the simplest way to ignore cache

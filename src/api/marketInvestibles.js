@@ -20,6 +20,12 @@ export function fetchInvestibleList(marketId) {
     }).catch((error) => toastErrorAndThrow(error, 'investibleListFetchFailed'));
 }
 
+export function removeInvestment(marketId, investibleId) {
+  return getMarketClient(marketId)
+    .then((client) => client.markets.removeInvestment(investibleId))
+    .catch((error) => toastErrorAndThrow(error, 'errorInvestmentUpdateFailed'));
+}
+
 export function updateInvestment(updateInfo) {
   const {
     marketId,

@@ -171,6 +171,7 @@ const messages = defineMessages({
   updateVote: 'Update Vote',
   yourReason: 'Your reason...',
   cancelVote: 'Cancel Vote',
+  removeVote: 'Remove Vote',
   maxBudgetInputLabel: 'Value in days (if it takes longer it might not be worth doing)',
 
   // InvestibleAdd

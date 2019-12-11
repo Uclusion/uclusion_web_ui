@@ -14,7 +14,7 @@ import {
   Typography,
   Grid,
 } from '@material-ui/core';
-import { updateInvestment } from '../../../../api/marketInvestibles';
+import { removeInvestment, updateInvestment } from '../../../../api/marketInvestibles';
 import QuillEditor from '../../../../components/TextEditors/QuillEditor';
 
 function AddEditVote(props) {
@@ -51,6 +51,13 @@ function AddEditVote(props) {
       maxBudget,
     };
     return updateInvestment(updateInfo)
+      .then(() => {
+        onSave();
+      });
+  }
+
+  function onRemove() {
+    return removeInvestment(marketId, investibleId)
       .then(() => {
         onSave();
       });
@@ -168,6 +175,7 @@ function AddEditVote(props) {
         {addMode ? intl.formatMessage({ id: 'saveVote' }) : intl.formatMessage({ id: 'updateVote' })}
       </Button>
       {addMode && <Button onClick={() => onCancel()}>{intl.formatMessage({ id: 'cancelVote' })}</Button>}
+      {!addMode && <Button onClick={() => onRemove()}>{intl.formatMessage({ id: 'removeVote' })}</Button>}
     </Paper>
   );
 }

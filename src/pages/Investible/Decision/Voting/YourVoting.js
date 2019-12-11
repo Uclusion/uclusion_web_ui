@@ -35,7 +35,7 @@ function YourVoting(props) {
   return (
     <Paper>
       <Typography>
-        You are not voting for this option. (TODO: Put what you are voting for here)
+        You are not voting for this option.
       </Typography>
       <Button
         onClick={() => setVoteForThis(true)}

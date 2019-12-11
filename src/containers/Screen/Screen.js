@@ -22,7 +22,6 @@ import Notifications from '../../components/Notifications/Notifications';
 import { SidebarContext } from '../../contexts/SidebarContext';
 import { createTitle } from '../../utils/marketIdPathFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import SubSection from '../SubSection/SubSection';
 
 const useStyles = makeStyles((theme) => {
   const drawerWidth = 240;

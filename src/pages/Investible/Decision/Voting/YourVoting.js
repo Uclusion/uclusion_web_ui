@@ -17,14 +17,14 @@ function YourVoting(props) {
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const yourReason = comments.find((comment) => comment.created_by === userId);
-  const [voteForThis, setVoteForThis] = useState(false);
+  const [voteForThis, setVoteForThis] = useState(undefined);
 
-  if (yourVote || voteForThis) {
+  if (yourVote || voteForThis === investibleId) {
     return (
       <AddEditVote
         marketId={marketId}
         investibleId={investibleId}
-        onCancel={() => setVoteForThis(false)}
+        onCancel={() => setVoteForThis(undefined)}
         reason={yourReason}
         investment={yourVote}
         showBudget={showBudget}
@@ -38,7 +38,7 @@ function YourVoting(props) {
         You are not voting for this option.
       </Typography>
       <Button
-        onClick={() => setVoteForThis(true)}
+        onClick={() => setVoteForThis(investibleId)}
       >
         Vote for this option
       </Button>

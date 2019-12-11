@@ -7,7 +7,7 @@ export function fetchInvestibles(idList, marketId) {
   // console.debug(idList);
   // console.debug(`Fetching idList ${idList}`);
   return clientPromise.then((client) => client.markets.getMarketInvestibles(idList))
-    .catch((error) => toastErrorAndThrow(error, 'investibleFetchFailed'));
+    .catch((error) => toastErrorAndThrow(error, 'errorInvestibleFetchFailed'));
 }
 
 export function fetchInvestibleList(marketId) {
@@ -17,7 +17,7 @@ export function fetchInvestibleList(marketId) {
     .then((response) => {
       const { investibles } = response;
       return investibles;
-    }).catch((error) => toastErrorAndThrow(error, 'investibleListFetchFailed'));
+    }).catch((error) => toastErrorAndThrow(error, 'errorInvestibleListFetchFailed'));
 }
 
 export function removeInvestment(marketId, investibleId) {

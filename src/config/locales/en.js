@@ -369,6 +369,8 @@ const messages = defineMessages({
   errorCommentReopenFailed: 'There was a problem reopening',
   errorMarketArchiveFailed: 'There was a problem archiving the dialog',
   errorInvestibleMoveToCurrentVotingFailed: 'There was a problem moving the option to Current Voting',
+  errorInvestibleFetchFailed: 'There was a problem recieving the data',
+  errorInvestibleListFetchFailed: 'There was a problem fetchign the data list',
 
 });
 

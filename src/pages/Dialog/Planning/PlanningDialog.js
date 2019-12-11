@@ -24,7 +24,7 @@ import InvestibleAdd from './InvestibleAdd';
 import InvestibleAddActionButton from './InvestibleAddActionButton';
 import DialogEditSidebarActionButton from '../DialogEditSidebarActionButton';
 import DialogEdit from '../DialogEdit';
-import { unlockPlanningMarketForEdit } from '../../../api/markets';
+import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../../api/markets';
 import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 
@@ -57,7 +57,13 @@ function PlanningDialog(props) {
   }
 
   function toggleEditMode() {
-    setDialogEditMode(!dialogEditMode);
+    // lock us if not locked
+    if (!dialogEditMode) {
+      return lockPlanningMarketForEdit(marketId)
+        .then(() => setDialogEditMode(!dialogEditMode));
+    }
+    return unlockPlanningMarketForEdit(marketId)
+      .then(() => setDialogEditMode(!dialogEditMode));
   }
 
   function onDialogEditCancel() {

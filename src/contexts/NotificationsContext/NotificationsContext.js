@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useReducer } from 'react';
+import { toast } from 'react-toastify';
 import reducer, {
   initializeState,
   NOTIFICATIONS_CONTEXT_NAMESPACE,
@@ -22,6 +23,7 @@ function NotificationsProvider(props) {
   // eslint-disable-next-line react/prop-types
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
+  const { page, messages } = state;
   const [isInitialization, setIsInitialization] = useState(true);
   useEffect(() => {
     if (isInitialization) {
@@ -40,24 +42,25 @@ function NotificationsProvider(props) {
   }, [isInitialization]);
 
   useEffect(() => {
-    const { page, messages } = state;
+    console.debug(page);
     if (page) {
-      console.debug(page);
       const filtered = messages.filter((message) => {
         const { marketId, investibleId } = page;
         const {
-          marketId: messageMarketId, investibleId: messageInvestibleId,
+          marketId: messageMarketId, investibleId: messageInvestibleId, text,
         } = message;
         const doRemove = marketId === messageMarketId && investibleId === messageInvestibleId;
         if (doRemove) {
           dispatch(removeMessage(message));
+          console.debug('Toasting from NotificationsContext');
+          toast.info(text);
         }
         return doRemove;
       });
       AllSequentialMap(filtered, (message) => deleteMessage(message));
     }
     return () => {};
-  }, [state]);
+  }, [page, messages]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

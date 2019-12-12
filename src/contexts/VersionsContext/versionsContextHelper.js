@@ -44,9 +44,9 @@ function compareProcessSingleVersion(rawUpdatedMarket, rawOldMarket) {
 }
 
 function processNewNotification(newNotificationVersion, notificationVersion) {
-  console.debug('Refreshing notifications');
   const { version: notificationVersionNumber } = notificationVersion;
   const { version: newNotificationVersionNumber } = newNotificationVersion;
+  console.debug(`Refreshing notifications from ${notificationVersionNumber} to ${newNotificationVersionNumber}`);
   if (notificationVersionNumber !== newNotificationVersionNumber) {
     Hub.dispatch(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT });
   }

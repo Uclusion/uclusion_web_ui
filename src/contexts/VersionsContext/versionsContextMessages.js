@@ -38,7 +38,7 @@ function beginListening(dispatch) {
   Hub.listen(VERSIONS_HUB_CHANNEL, (data) => {
     const { payload: { event, message } } = data;
     console.debug(`Versions context responding to push event ${event}`);
-
+    console.debug(message);
     switch (event) {
       case MARKET_MESSAGE_EVENT: {
         const { version, object_id: marketId } = message;
@@ -52,8 +52,7 @@ function beginListening(dispatch) {
         break;
       }
       case NOTIFICATION_MESSAGE_EVENT: {
-        const { version } = message;
-        dispatch(refreshNotificationVersionAction(version));
+        dispatch(refreshNotificationVersionAction(message));
         break;
       }
       case SOCKET_OPEN_EVENT: {

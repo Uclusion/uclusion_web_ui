@@ -40,15 +40,15 @@ function WebSocketProvider(props) {
   const { children, config } = props;
   const [state, setState] = useState();
   const [socketListener, setSocketListener] = useState();
-  const [connectionCheckTimerState, connectionCheckTimerDispatch] = useReducer((state, action) => {
-    const { pongTimer } = action;
-    if (pongTimer) {
-      return { timer: pongTimer };
-    }
+  const [, connectionCheckTimerDispatch] = useReducer((state, action) => {
     const { timer } = state;
     if (timer) {
       console.debug('Clearing socket pong timer');
       clearTimeout(timer);
+    }
+    const { pongTimer } = action;
+    if (pongTimer) {
+      return { timer: pongTimer };
     }
     return {};
   }, {});
@@ -149,8 +149,7 @@ function WebSocketProvider(props) {
             case VIEW_EVENT: {
               const { isEntry } = message;
               if (isEntry) {
-                const { timer } = connectionCheckTimerState;
-                if (!timer && newSocket.getSocketState() === WebSocket.OPEN) {
+                if (newSocket.getSocketState() === WebSocket.OPEN) {
                   console.debug('Creating pong timer');
                   const actionString = JSON.stringify({ action: 'ping' });
                   newSocket.send(actionString);

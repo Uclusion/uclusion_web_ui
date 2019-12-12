@@ -65,7 +65,7 @@ export function createPlanning(marketInfo) {
 
 export function leaveMarket(marketId) {
   return getMarketClient(marketId)
-    .then((client) => client.users.leave())
+    .then((client) => client.markets.hide())
     .catch((error) => toastErrorAndThrow(error, 'errorMarketLeaveFailed'));
 }
 

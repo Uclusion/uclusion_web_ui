@@ -121,11 +121,8 @@ function Root(props) {
       pegView(false);
     });
     const visibilityChange = document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        pegView(true);
-      } else {
-        pegView(false);
-      }
+      const isEntry = document.visibilityState === 'visible';
+      pegView(isEntry);
     });
     window.onanimationiteration = console.debug;
     return () => {

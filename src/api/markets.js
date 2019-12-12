@@ -70,7 +70,7 @@ export function leaveMarket(marketId) {
 }
 
 export function archiveMarket(marketId) {
-  const updateOptions = { market_stage: 'Archived' };
+  const updateOptions = { market_stage: 'Inactive' };
   return getMarketClient(marketId)
     .then((client) => client.markets.updateMarket(updateOptions))
     .catch((error) => toastErrorAndThrow(error, 'errorMarketArchiveFailed'));

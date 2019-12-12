@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { toast } from 'react-toastify';
 import { NotificationImportant, Notifications as NotificationsIcon, ChevronRight } from '@material-ui/icons';
 import { Button, makeStyles } from '@material-ui/core';
 import { useHistory } from 'react-router';
@@ -41,7 +40,7 @@ function Notifications(props) {
 
   function nextOnClick() {
     if (current) {
-      const { marketId, investibleId, text, userId, aType, commentId } = current;
+      const { marketId, investibleId, userId, aType, commentId } = current;
       console.log(current);
       const link = investibleId
         ? formInvestibleLink(marketId, investibleId)

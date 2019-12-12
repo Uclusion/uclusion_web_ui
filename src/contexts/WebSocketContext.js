@@ -2,7 +2,7 @@
  * Web socket context provider must appear within the markets context, since it needs to
  * properly update it
  */
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import { Hub } from 'aws-amplify';
 import PropTypes from 'prop-types';
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner';

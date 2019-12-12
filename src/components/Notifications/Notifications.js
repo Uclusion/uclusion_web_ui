@@ -60,7 +60,6 @@ function Notifications(props) {
           break;
       }
       navigate(history, fullLink);
-      toast.info(text);
       messagesDispatch(nextMessage());
     }
   }

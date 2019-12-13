@@ -22,13 +22,18 @@ import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import MoveToNextVisibleStageActionButton from './MoveToNextVisibleStageActionButton';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import {
+  getAcceptedStage,
+  getBlockedStage,
   getInCurrentVotingStage,
-  getInReviewStage,
+  getInReviewStage, getVerifiedStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import MoveToVerifiedActionButton from './MoveToVerifiedActionButton';
+import MoveToVotingActionButton from './MoveToVotingActionButton';
 import MoveToNotDoingActionButton from './MoveToNotDoingActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
+import MoveToAcceptedActionButton from './MoveToAcceptedActionButton';
+import MoveToInReviewActionButton from './MoveToInReviewActionButton';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -45,6 +50,7 @@ function PlanningInvestible(props) {
     userId,
     market,
     marketInvestible,
+    investibles,
     toggleEdit,
     isAdmin,
   } = props;
@@ -63,13 +69,25 @@ function PlanningInvestible(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const inReviewStage = getInReviewStage(marketStagesState, marketId);
   const isInReview = inReviewStage && stage === inReviewStage.id;
+  const inAcceptedStage = getAcceptedStage(marketStagesState, marketId);
+  const isInAccepted = inAcceptedStage && stage === inAcceptedStage.id;
+  const inBlockedStage = getBlockedStage(marketStagesState, marketId);
+  const isInBlocked = inBlockedStage && stage === inBlockedStage.id;
+  const inVerifiedStage = getVerifiedStage(marketStagesState, marketId);
+  const isInVerified = inVerifiedStage && stage === inVerifiedStage.id;
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   // eslint-disable-next-line no-nested-ternary
   const stageName = isInVoting ? intl.formatMessage({ id: 'planningVotingStageLabel' })
+    // eslint-disable-next-line no-nested-ternary
     : isInReview ? intl.formatMessage({ id: 'planningReviewStageLabel' })
-      : intl.formatMessage({ id: 'planningAcceptedStageLabel' });
+      // eslint-disable-next-line no-nested-ternary
+      : isInAccepted ? intl.formatMessage({ id: 'planningAcceptedStageLabel' })
+        // eslint-disable-next-line no-nested-ternary
+        : isInBlocked ? intl.formatMessage({ id: 'planningBlockedStageLabel' })
+          : isInVerified ? intl.formatMessage({ id: 'planningVerifiedStageLabel' })
+            : intl.formatMessage({ id: 'planningNotDoingStageLabel' });
 
   function commentButtonOnClick(type) {
     setCommentAddType(type);
@@ -90,23 +108,35 @@ function PlanningInvestible(props) {
   if (isAdmin) {
     sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
   }
+  const invested = marketPresences.filter((presence) => {
+    const { investments } = presence;
+    if (!Array.isArray(investments) || investments.length === 0) {
+      return false;
+    }
+    let found = false;
+    investments.forEach((investment) => {
+      const { investible_id: invId } = investment;
+      if (invId === investibleId) {
+        found = true;
+      }
+    });
+    return found;
+  });
+  function assignedInStage(investibles, userId, stageId) {
+    return investibles.filter((investible) => {
+      const { market_infos: marketInfos } = investible;
+      // console.log(`Investible id is ${id}`);
+      const marketInfo = marketInfos.find((info) => info.market_id === marketId);
+      // eslint-disable-next-line max-len
+      return marketInfo.stage === stageId && marketInfo.assigned && marketInfo.assigned.includes(userId);
+    });
+  }
   if (assigned && assigned.includes(userId)) {
-    if (!isInReview) {
-      const invested = marketPresences.filter((presence) => {
-        const { investments } = presence;
-        if (!Array.isArray(investments) || investments.length === 0) {
-          return false;
-        }
-        let found = false;
-        investments.forEach((investment) => {
-          const { investible_id: invId } = investment;
-          if (invId === investibleId) {
-            found = true;
-          }
-        });
-        return found;
-      });
-      if (Array.isArray(invested) && invested.length > 0) {
+    if (isInVoting || isInAccepted) {
+      const nextStageId = isInVoting ? inAcceptedStage.id : inReviewStage.id;
+      const assignedInNextStage = assignedInStage(investibles, userId, nextStageId);
+      if (Array.isArray(invested) && invested.length > 0
+        && (!Array.isArray(assignedInNextStage) || assignedInNextStage.length === 0)) {
         sidebarActions.push(<MoveToNextVisibleStageActionButton
           investibleId={investibleId}
           marketId={marketId}
@@ -114,19 +144,53 @@ function PlanningInvestible(props) {
         />);
       }
     }
-    sidebarActions.push(<MoveToVerifiedActionButton
-      investibleId={investibleId}
-      marketId={marketId}
-      stageId={stage}
-      key="verified"
-    />);
-    sidebarActions.push(<MoveToNotDoingActionButton
-      investibleId={investibleId}
-      marketId={marketId}
-      stageId={stage}
-      keu="notdoing"
-    />);
+    if (isInBlocked) {
+      // eslint-disable-next-line max-len
+      const blockingComments = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
+      if (!Array.isArray(blockingComments) || blockingComments.length === 0) {
+        if (Array.isArray(invested) && invested.length > 0) {
+          // eslint-disable-next-line max-len
+          const assignedInVotingStage = assignedInStage(investibles, userId, inCurrentVotingStage.id);
+          if (!Array.isArray(assignedInVotingStage) || assignedInVotingStage.length === 0) {
+            sidebarActions.push(<MoveToVotingActionButton
+              investibleId={investibleId}
+              marketId={marketId}
+              stageId={stage}
+              key="voting"
+            />);
+          }
+          // eslint-disable-next-line max-len
+          const assignedInAcceptedStage = assignedInStage(investibles, userId, inAcceptedStage.id);
+          if (!Array.isArray(assignedInAcceptedStage) || assignedInAcceptedStage.length === 0) {
+            sidebarActions.push(<MoveToAcceptedActionButton
+              investibleId={investibleId}
+              marketId={marketId}
+              stageId={stage}
+              key="accepted"
+            />);
+          }
+          sidebarActions.push(<MoveToInReviewActionButton
+            investibleId={investibleId}
+            marketId={marketId}
+            stageId={stage}
+            key="inreview"
+          />);
+        }
+      }
+    }
   }
+  sidebarActions.push(<MoveToVerifiedActionButton
+    investibleId={investibleId}
+    marketId={marketId}
+    stageId={stage}
+    key="verified"
+  />);
+  sidebarActions.push(<MoveToNotDoingActionButton
+    investibleId={investibleId}
+    marketId={marketId}
+    stageId={stage}
+    keu="notdoing"
+  />);
   sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
   sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
 
@@ -219,6 +283,8 @@ PlanningInvestible.propTypes = {
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   investibleComments: PropTypes.arrayOf(PropTypes.object),
+  // eslint-disable-next-line react/forbid-prop-types
+  investibles: PropTypes.arrayOf(PropTypes.object),
   investibleId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
   toggleEdit: PropTypes.func,
@@ -228,6 +294,7 @@ PlanningInvestible.propTypes = {
 PlanningInvestible.defaultProps = {
   marketPresences: [],
   investibleComments: [],
+  investibles: [],
   toggleEdit: () => {
   },
   isAdmin: false,

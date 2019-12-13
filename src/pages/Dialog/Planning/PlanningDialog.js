@@ -125,17 +125,21 @@ function PlanningDialog(props) {
     const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.singular_only));
     const inDialogStage = marketStages.find((stage) => (stage.allows_investment));
     // eslint-disable-next-line max-len
-    const inReviewStage = marketStages.find((stage) => (stage.appears_in_context && !stage.singular_only));
+    const inReviewStage = marketStages.find((stage) => (stage.appears_in_context && !stage.has_expiration));
+    const inBlockingStage = marketStages.find((stage) => (stage.appears_in_context && stage.allows_issues));
     return (
       <GridList key="toppresencelist" cellHeight="auto" cols={3}>
-        <GridListTile key="Subheader1" cols={1} style={{ height: 'auto', width: '33%' }}>
+        <GridListTile key="Subheader1" cols={1} style={{ height: 'auto', width: '25%' }}>
           <ListSubheader component="div">{intl.formatMessage({ id: 'planningVotingStageLabel' })}</ListSubheader>
         </GridListTile>
-        <GridListTile key="Subheader2" cols={1} style={{ height: 'auto', width: '33%' }}>
+        <GridListTile key="Subheader2" cols={1} style={{ height: 'auto', width: '25%' }}>
           <ListSubheader component="div">{intl.formatMessage({ id: 'planningAcceptedStageLabel' })}</ListSubheader>
         </GridListTile>
-        <GridListTile key="Subheader3" cols={1} style={{ height: 'auto', width: '33%' }}>
+        <GridListTile key="Subheader3" cols={1} style={{ height: 'auto', width: '25%' }}>
           <ListSubheader component="div">{intl.formatMessage({ id: 'planningReviewStageLabel' })}</ListSubheader>
+        </GridListTile>
+        <GridListTile key="Subheader3" cols={1} style={{ height: 'auto', width: '25%' }}>
+          <ListSubheader component="div">{intl.formatMessage({ id: 'planningBlockedStageLabel' })}</ListSubheader>
         </GridListTile>
         {
           followingPresences.map((presence) => {
@@ -146,22 +150,24 @@ function PlanningDialog(props) {
             const { id, name } = presence;
             return (
 
-                <GridList key={`topof${id}`} cellHeight="auto" cols={3}>
-                  <GridListTile key={`namecolumn${id}`} cols={3} style={{ height: 'auto', width: '100%' }}>
-                    <ListSubheader component="div"><div id={id}>{name}</div></ListSubheader>
-                  </GridListTile>
-                  {marketId && acceptedStage && inDialogStage && inReviewStage && (
+              <GridList key={`topof${id}`} cellHeight="auto" cols={3}>
+                <GridListTile key={`namecolumn${id}`} cols={3} style={{ height: 'auto', width: '100%' }}>
+                  <ListSubheader component="div"><div id={id}>{name}</div></ListSubheader>
+                </GridListTile>
+                {marketId && acceptedStage && inDialogStage && inReviewStage
+                  && inBlockingStage && (
                     <PlanningIdeas
                       investibles={myInvestibles}
                       marketId={marketId}
                       acceptedStageId={acceptedStage.id}
                       inDialogStageId={inDialogStage.id}
                       inReviewStageId={inReviewStage.id}
+                      inBlockingStageId={inBlockingStage.id}
                       comments={comments}
                       presenceId={presence.id}
                     />
-                  )}
-                </GridList>
+                )}
+              </GridList>
             );
           })
         }
@@ -180,8 +186,11 @@ function PlanningDialog(props) {
       <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];
     if (isAdmin) {
-      const adminActions = [<DialogEditSidebarActionButton key="edit" onClick={toggleEditMode}
-                                                           onCancel={onDialogEditCancel} />];
+      const adminActions = [<DialogEditSidebarActionButton
+        key="edit"
+        onClick={toggleEditMode}
+        onCancel={onDialogEditCancel}
+      />];
       return adminActions.concat(userActions);
     }
     return userActions;

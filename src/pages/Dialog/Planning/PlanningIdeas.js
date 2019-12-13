@@ -50,7 +50,7 @@ function PlanningIdeas(props) {
   const history = useHistory();
   const classes = useStyles();
   const {
-    investibles, marketId, comments, acceptedStageId, inDialogStageId, inReviewStageId, presenceId,
+    investibles, marketId, comments, acceptedStageId, inDialogStageId, inReviewStageId, inBlockingStageId, presenceId,
   } = props;
   const intl = useIntl();
 
@@ -102,23 +102,13 @@ function PlanningIdeas(props) {
     );
   }
 
-  function getInvestibles(stageId, showBlocking, doCreateWarningShells) {
+  function getInvestibles(stageId, doCreateWarningShells) {
     // console.log(comments);
     const filtered = investibles.filter((investible) => {
-      const { market_infos: marketInfos, investible: baseInvestible } = investible;
-      const { id } = baseInvestible;
+      const { market_infos: marketInfos } = investible;
       // console.log(`Investible id is ${id}`);
-      // eslint-disable-next-line max-len
-      const blockingComments = comments.filter((comment) => comment.investible_id === id && comment.comment_type === ISSUE_TYPE);
-      // console.log(blockingComments);
       const marketInfo = marketInfos.find((info) => info.market_id === marketId);
-      if (marketInfo.stage === stageId) {
-        if (showBlocking) {
-          return (Array.isArray(blockingComments) && blockingComments.length > 0);
-        }
-        return (!Array.isArray(blockingComments) || blockingComments.length === 0);
-      }
-      return false;
+      return marketInfo.stage === stageId;
     });
     if (doCreateWarningShells && (!Array.isArray(filtered) || filtered.length === 0)) {
       return createWarningShellInvestible(stageId);
@@ -132,13 +122,13 @@ function PlanningIdeas(props) {
       const updatedText = marketInfo.stage === acceptedStageId
         ? intl.formatMessage(({ id: 'acceptedInvestiblesUpdatedAt' }))
         : marketInfo.stage === inReviewStageId ? intl.formatMessage(({ id: 'reviewingInvestiblesUpdatedAt' }))
-          : showBlocking ? intl.formatMessage(({ id: 'blockedInvestiblesUpdatedAt' }))
+          : marketInfo.stage === inBlockingStageId ? intl.formatMessage(({ id: 'blockedInvestiblesUpdatedAt' }))
             : intl.formatMessage(({ id: 'inDialogInvestiblesUpdatedAt' }));
       return (
         <div key={id}>
           <Paper
             className={marketInfo.stage === acceptedStageId
-              ? classes.investibleCardAccepted : showBlocking
+              ? classes.investibleCardAccepted : marketInfo.stage === inBlockingStageId
                 ? classes.blockedInvestible : classes.investibleCard}
             onClick={() => navigate(history, formInvestibleLink(marketId, id))}
           >
@@ -161,15 +151,17 @@ function PlanningIdeas(props) {
 
   return (
     <>
-      <GridListTile key={`indialog${presenceId}`} cols={1} style={{ height: 'auto', width: '33%' }}>
-        {getInvestibles(inDialogStageId, false, true)}
-        {getInvestibles(inDialogStageId, true, false)}
+      <GridListTile key={`indialog${presenceId}`} cols={1} style={{ height: 'auto', width: '25%' }}>
+        {getInvestibles(inDialogStageId, true)}
       </GridListTile>
-      <GridListTile key={`accepted${presenceId}`} cols={1} style={{ height: 'auto', width: '33%' }}>
-        {getInvestibles(acceptedStageId, false, true)}
+      <GridListTile key={`accepted${presenceId}`} cols={1} style={{ height: 'auto', width: '25%' }}>
+        {getInvestibles(acceptedStageId, true)}
       </GridListTile>
-      <GridListTile key={`inreview${presenceId}`} cols={1} style={{ height: 'auto', width: '33%' }}>
-        {getInvestibles(inReviewStageId, false, false)}
+      <GridListTile key={`inreview${presenceId}`} cols={1} style={{ height: 'auto', width: '25%' }}>
+        {getInvestibles(inReviewStageId, false)}
+      </GridListTile>
+      <GridListTile key={`inreview${presenceId}`} cols={1} style={{ height: 'auto', width: '25%' }}>
+        {getInvestibles(inBlockingStageId, false)}
       </GridListTile>
     </>
   );
@@ -184,6 +176,7 @@ PlanningIdeas.propTypes = {
   acceptedStageId: PropTypes.string.isRequired,
   inDialogStageId: PropTypes.string.isRequired,
   inReviewStageId: PropTypes.string.isRequired,
+  inBlockingStageId: PropTypes.string.isRequired,
   presenceId: PropTypes.string.isRequired,
 };
 

@@ -9,7 +9,7 @@ import {
   decomposeMarketPath,
 } from '../../utils/marketIdPathFunctions';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
@@ -48,6 +48,7 @@ function Investible(props) {
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
   const [investiblesState] = useContext(InvestiblesContext);
+  const investibles = getMarketInvestibles(investiblesState, marketId);
   const inv = getInvestible(investiblesState, investibleId);
   const usedInv = inv || emptyInvestible;
   const { investible } = usedInv;
@@ -145,6 +146,7 @@ function Investible(props) {
         investibleId={investibleId}
         market={market}
         marketInvestible={inv}
+        investibles={investibles}
         commentsHash={commentsHash}
         marketPresences={marketPresences}
         investibleComments={investibleComments}

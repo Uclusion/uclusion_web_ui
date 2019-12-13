@@ -203,7 +203,10 @@ const messages = defineMessages({
   planningInvestibleMoveToNotDoingLabel: 'Move to Not Doing',
   planningVotingStageLabel: 'Voting',
   planningAcceptedStageLabel: 'In Progress',
+  planningBlockedStageLabel: 'Blocked',
   planningReviewStageLabel: 'In Review',
+  planningVerifiedStageLabel: 'Verified',
+  planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'Assignments',
 
   // Issues
@@ -261,10 +264,10 @@ const messages = defineMessages({
   investibleDetailClose: 'Close',
 
   // Home
-  homeSubsectionPlanning: 'Epic Planning Dialogs',
-  homeSubsectionDecision: 'Decision Dialogs',
-  homeAddDecision: 'Create Decision',
-  homeAddPlanning: 'Creat Epic Plan',
+  homeSubsectionPlanning: 'Agile Plans',
+  homeSubsectionDecision: 'Dialogs',
+  homeAddDecision: 'Create Dialog',
+  homeAddPlanning: 'Creat Agile Plan',
   homeAddInitiative: 'Create Initiative',
   homePlanningReport: 'Active Story Value Estimates (in days)',
   homeViewArchives: 'View Archives',

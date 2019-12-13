@@ -21,7 +21,7 @@ import RaisedCard from '../../components/Cards/RaisedCard';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
-  getAcceptedStage, getInCurrentVotingStage,
+  getAcceptedStage, getBlockedStage, getInCurrentVotingStage,
   getInReviewStage,
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getBudgetTotalsForUser } from '../../utils/userFunctions';
@@ -54,6 +54,7 @@ function PlanningDialogs(props) {
     const votingStage = getInCurrentVotingStage(marketStagesState, marketId);
     const acceptedStage = getAcceptedStage(marketStagesState, marketId);
     const reviewStage = getInReviewStage(marketStagesState, marketId);
+    const blockedStage = getBlockedStage(marketStagesState, marketId);
     const loaded = votingStage && acceptedStage && reviewStage;
     if (!loaded) {
       return <React.Fragment />; // TODO; this should render a better stub
@@ -69,13 +70,13 @@ function PlanningDialogs(props) {
           >
             <Grid
               item
-              xs={3}
+              xs={2}
             >
               <Typography>{name}</Typography>
             </Grid>
             <Grid
               item
-              xs={3}
+              xs={2}
             >
               <Typography>
                 {getBudgetTotalsForUser(userId, votingStage.id, marketId, presences,
@@ -84,7 +85,7 @@ function PlanningDialogs(props) {
             </Grid>
             <Grid
               item
-              xs={3}
+              xs={2}
             >
               <Typography>
                 {getBudgetTotalsForUser(userId, acceptedStage.id, marketId, presences,
@@ -93,10 +94,19 @@ function PlanningDialogs(props) {
             </Grid>
             <Grid
               item
-              xs={3}
+              xs={2}
             >
               <Typography>
                 {getBudgetTotalsForUser(userId, reviewStage.id, marketId, presences,
+                  marketInvestibles)}
+              </Typography>
+            </Grid>
+            <Grid
+              item
+              xs={2}
+            >
+              <Typography>
+                {getBudgetTotalsForUser(userId, blockedStage.id, marketId, presences,
                   marketInvestibles)}
               </Typography>
             </Grid>
@@ -197,25 +207,31 @@ function PlanningDialogs(props) {
                 </Grid>
                 <Grid
                   item
-                  xs={3}
+                  xs={2}
                 />
                 <Grid
                   item
-                  xs={3}
+                  xs={2}
                 >
                   <Typography>{intl.formatMessage({ id: 'planningVotingStageLabel' })}</Typography>
                 </Grid>
                 <Grid
                   item
-                  xs={3}
+                  xs={2}
                 >
                   <Typography>{intl.formatMessage({ id: 'planningAcceptedStageLabel' })}</Typography>
                 </Grid>
                 <Grid
                   item
-                  xs={3}
+                  xs={2}
                 >
                   <Typography>{intl.formatMessage({ id: 'planningReviewStageLabel' })}</Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={2}
+                >
+                  <Typography>{intl.formatMessage({ id: 'planningBlockedStageLabel' })}</Typography>
                 </Grid>
               </Grid>
               {getParticipantInfo(sortedPresences, marketId)}

@@ -8,20 +8,18 @@ import {
   ListItemIcon,
   ListItemText,
   ListSubheader,
-  makeStyles } from '@material-ui/core';
+  makeStyles,
+} from '@material-ui/core';
+import { useIntl } from 'react-intl';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
-  getAcceptedStage,
+  getAcceptedStage, getBlockedStage,
   getInCurrentVotingStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { ISSUE_TYPE } from '../../../constants/comments';
-import { useIntl } from 'react-intl';
 
 const BLOCKED_STATE = 'BLOCKED';
 const ACCEPTED_STATE = 'ACCEPTED';
@@ -29,17 +27,14 @@ const ASSIGNED_STATE = 'ASSIGNED';
 const UNKNOWN_STATE = 'UNKNOWN';
 
 
-const useStyles = makeStyles((theme) => {
-  return {
-    name: {},
-    disabled: {
-      color: theme.palette.text.disabled,
-    },
-  };
-});
+const useStyles = makeStyles((theme) => ({
+  name: {},
+  disabled: {
+    color: theme.palette.text.disabled,
+  },
+}));
 
 function AssignmentList(props) {
-
   const {
     marketId,
     onChange,
@@ -60,22 +55,17 @@ function AssignmentList(props) {
 
   const acceptedStage = getAcceptedStage(marketStagesState, marketId);
   const assignedStage = getInCurrentVotingStage(marketStagesState, marketId);
+  const blockedStage = getBlockedStage(marketStagesState, marketId);
 
-  const [commentsState] = useContext(CommentsContext);
-  const marketComments = getMarketComments(commentsState, marketId);
-
-  const defaultChecked = previouslyAssigned.reduce((acc, id) => {
-    return {
-      ...acc,
-      [id]: true,
-    };
-  }, {});
+  const defaultChecked = previouslyAssigned.reduce((acc, id) => ({
+    ...acc,
+    [id]: true,
+  }), {});
 
   const [checked, setChecked] = useState(defaultChecked);
 
   function getInvestibleState(investibleId, stageId) {
-    const blockingComment = marketComments.find((comment) => comment.investible_id === investibleId && comment.comment_type === ISSUE_TYPE);
-    if (blockingComment) {
+    if (stageId === blockedStage.id) {
       return BLOCKED_STATE;
     }
     if (stageId === acceptedStage.id) {
@@ -101,14 +91,14 @@ function AssignmentList(props) {
         return assigned && assigned.includes(presenceId);
       });
       const filledAssignments = assignments.map((inv) => {
-        const { investible, market_infos } = inv;
-        const info = market_infos.find((info) => info.market_id === marketId);
+        const { investible, market_infos: marketInfos } = inv;
+        const info = marketInfos.find((info) => info.market_id === marketId);
         const { stage } = info;
         const { id: investibleId } = investible;
         const state = getInvestibleState(investibleId, stage);
         return {
           investibleId,
-          state
+          state,
         };
       });
       return {
@@ -141,7 +131,7 @@ function AssignmentList(props) {
       return () => {
         const newChecked = {
           ...checked,
-          [id]: !checked[id]
+          [id]: !checked[id],
         };
         setChecked(newChecked);
         const checkedIds = Object.keys(newChecked).filter((key) => newChecked[key]);
@@ -155,7 +145,7 @@ function AssignmentList(props) {
     const { name, assignable, id } = presenceEntry;
     const alreadyAssigned = previouslyAssigned.includes(id);
     const canBeAssigned = alreadyAssigned || assignable;
-    const boxChecked = (canBeAssigned && checked[id])
+    const boxChecked = (canBeAssigned && checked[id]);
     return (
       <ListItem
         key={id}
@@ -176,7 +166,6 @@ function AssignmentList(props) {
     );
   }
 
-
   const participantEntries = getSortedPresenceWithAssignable();
 
   return (
@@ -184,12 +173,11 @@ function AssignmentList(props) {
       dense
     >
       <ListSubheader>
-        {intl.formatMessage({ id: 'assignmentListHeader'})}
+        {intl.formatMessage({ id: 'assignmentListHeader' })}
       </ListSubheader>
       {participantEntries.map((entry) => renderParticipantEntry(entry))}
     </List>
   );
-
 }
 
 AssignmentList.propTypes = {

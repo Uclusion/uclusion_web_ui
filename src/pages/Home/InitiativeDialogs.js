@@ -114,7 +114,7 @@ function InitiativeDialogs(props) {
         market_type: marketType,
       } = market;
       const investibles = getMarketInvestibles(investiblesState, marketId);
-      if (!investibles) {
+      if (!investibles || _.isEmpty(investibles)) {
         return <React.Fragment />;
       }
       const baseInvestible = investibles[0];

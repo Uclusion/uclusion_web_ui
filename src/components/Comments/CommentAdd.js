@@ -8,7 +8,7 @@ import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPLY_TYPE } from '../.
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { addComment } from '../../contexts/CommentsContext/commentsContextHelper';
 import { processTextAndFilesForSave } from '../../api/files';
-import SpinBlockingButton from '../SpinLocking/SpinBlockingButton';
+import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 
 function getPlaceHolderLabelId(type) {
   switch (type) {

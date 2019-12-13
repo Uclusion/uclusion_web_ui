@@ -8,6 +8,7 @@ import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPLY_TYPE } from '../.
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { addComment } from '../../contexts/CommentsContext/commentsContextHelper';
 import { processTextAndFilesForSave } from '../../api/files';
+import SpinBlockingButton from '../Buttons/SpinBlockingButton';
 
 function getPlaceHolderLabelId(type) {
   switch (type) {
@@ -41,6 +42,7 @@ function CommentAdd(props) {
   const classes = useStyles();
   const placeHolderLabelId = getPlaceHolderLabelId(type);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
+  const [buttonsEnabled, setButtonsEnabled] = useState(true);
 
   function onEditorChange(content) {
     setBody(content);
@@ -60,7 +62,6 @@ function CommentAdd(props) {
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((result) => {
         addComment(commentsDispatch, marketId, result);
-        onSave();
       });
   }
 
@@ -83,13 +84,26 @@ function CommentAdd(props) {
             simple
             placeholder={placeHolder}
             initialValue={body}
-            onChange={onEditorChange}/>
+            onChange={onEditorChange} />
         </CardContent>
         <CardActions>
-          <ButtonGroup variant="contained" size="small" color="primary">
-            <Button onClick={handleSave}>
+          <ButtonGroup
+            disabled={!buttonsEnabled}
+            variant="contained"
+            size="small"
+            color="primary"
+          >
+            <SpinBlockingButton
+              marketId={marketId}
+              onClick={handleSave}
+              onSpinStart={() => setButtonsEnabled(false)}
+              onSpinStop={() => {
+                setButtonsEnabled(true);
+                onSave();
+              }}
+            >
               {intl.formatMessage({ id: commentSaveLabel })}
-            </Button>
+            </SpinBlockingButton>
             <Button onClick={handleCancel}>
               {intl.formatMessage({ id: commentCancelLabel })}
             </Button>

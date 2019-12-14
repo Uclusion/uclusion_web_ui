@@ -1,5 +1,4 @@
-
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useReducer } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
@@ -10,14 +9,14 @@ import {
   FormControlLabel,
   Switch,
   TextField,
-  withStyles
+  withStyles,
 } from '@material-ui/core';
+import { useHistory } from 'react-router';
 import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
@@ -35,7 +34,9 @@ const styles = (theme) => ({
 });
 
 function InvestibleAdd(props) {
-  const { marketId, intl, classes, onCancel, isAdmin } = props;
+  const {
+    marketId, intl, classes, onCancel, isAdmin, onSave,
+  } = props;
 
   const history = useHistory();
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -52,6 +53,16 @@ function InvestibleAdd(props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [addDirectToVoting, setAddDirectToVoting] = useState(true);
   const [operationRunning] = useContext(OperationInProgressContext);
+  const [, addInvestibleDispatch] = useReducer((state, action) => {
+    const { link } = action;
+    if (link) {
+      return { navigationLink: link };
+    }
+    const { navigationLink } = state;
+    onSave();
+    navigate(history, navigationLink);
+    return {};
+  }, {});
   const { name } = currentValues;
 
   function handleChange(field) {
@@ -61,7 +72,6 @@ function InvestibleAdd(props) {
       setCurrentValues(newValues);
     };
   }
-  console.log(addDirectToVoting);
 
   function handleAddDirect(event) {
     const { checked } = event.target;
@@ -99,10 +109,12 @@ function InvestibleAdd(props) {
       name,
       stageInfo: stageChangeInfo, // ignored by addDecisionInvestible
     };
-    const promise = addDirectToVoting ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
+    const promise = addDirectToVoting ? addInvestibleToStage(addInfo)
+      : addDecisionInvestible(addInfo);
     return promise.then((investibleId) => {
       const link = formInvestibleLink(marketId, investibleId);
-      return navigate(history, link);
+      addInvestibleDispatch({ link });
+      return link;
     });
   }
 
@@ -133,7 +145,8 @@ function InvestibleAdd(props) {
           onChange={onEditorChange}
           placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
           onS3Upload={onS3Upload}
-          defaultValue={description} />
+          defaultValue={description}
+        />
       </CardContent>
       <CardActions>
         <Button
@@ -147,6 +160,7 @@ function InvestibleAdd(props) {
           color="primary"
           onClick={handleSave}
           marketId={marketId}
+          onSpinStop={() => addInvestibleDispatch({})}
         >
           {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
         </SpinBlockingButton>
@@ -163,10 +177,13 @@ InvestibleAdd.propTypes = {
   classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
+  onSave: PropTypes.func,
   isAdmin: PropTypes.bool,
 };
 
 InvestibleAdd.defaultProps = {
+  onSave: () => {
+  },
   onCancel: () => {
   },
   isAdmin: false,

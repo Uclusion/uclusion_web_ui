@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import {
@@ -12,6 +12,8 @@ import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';
 import { INITIATIVE_TYPE } from '../../constants/markets';
 import { addDecisionInvestible } from '../../api/investibles';
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,6 +39,17 @@ function InitiativeAdd(props) {
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [operationRunning] = useContext(OperationInProgressContext);
+  const [, addDialogDispatch] = useReducer((state, action) => {
+    const { link } = action;
+    if (link) {
+      return { navigationLink: link };
+    }
+    const { navigationLink } = state;
+    onSave();
+    navigate(history, navigationLink);
+    return {};
+  }, {});
   const { name, expiration_minutes: expirationMinutes } = currentValues;
 
   function zeroCurrentValues() {
@@ -81,14 +94,15 @@ function InitiativeAdd(props) {
       .then((result) => {
         onSave();
         const { market_id: marketId } = result;
-        const marketLink = formMarketLink(marketId);
+        const link = formMarketLink(marketId);
+        addDialogDispatch({ link });
         const addInfo = {
           marketId,
           uploadedFiles: filteredUploads,
           description: tokensRemoved,
           name,
         };
-        return addDecisionInvestible(addInfo).then(() => navigate(history, marketLink));
+        return addDecisionInvestible(addInfo);
       });
   }
 
@@ -126,16 +140,18 @@ function InitiativeAdd(props) {
         />
       </CardContent>
       <CardActions>
-        <Button onClick={handleCancel}>
+        <Button onClick={handleCancel} disabled={operationRunning}>
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </Button>
-        <Button
+        <SpinBlockingButton
+          marketId={-1}
           variant="contained"
           color="primary"
           onClick={handleSave}
+          onSpinStop={() => addDialogDispatch({})}
         >
           {intl.formatMessage({ id: 'marketAddSaveLabel' })}
-        </Button>
+        </SpinBlockingButton>
       </CardActions>
     </Card>
   );

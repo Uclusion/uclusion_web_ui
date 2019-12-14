@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react';
-import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import { Hub } from '@aws-amplify/core';
 import { CircularProgress, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
+import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 const FETCH_DELAY = 40; // give us 40 ms pull data from the hub event;
@@ -28,8 +28,8 @@ export function withSpinLock(Component) {
       const { payload: { event, message } } = data;
       switch (event) {
         case MARKET_MESSAGE_EVENT:
-          const { object_id: messageMarketId } = message;
-          if (messageMarketId === marketId) {
+          const { object_id: messageMarketId, version } = message;
+          if ((messageMarketId === marketId) || (marketId === -1 && version === 1)) {
             myOnSpinStop();
           }
           break;
@@ -54,7 +54,6 @@ export function withSpinLock(Component) {
         setOperationRunning(false);
         onSpinStop();
       }, FETCH_DELAY);
-
     }
 
     function myOnClick() {

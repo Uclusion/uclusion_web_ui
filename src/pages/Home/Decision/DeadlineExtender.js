@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { Button } from '@material-ui/core';
@@ -6,6 +6,7 @@ import { useIntl } from 'react-intl';
 import ExpirationSelector from '../../../components/Expiration/ExpirationSelector';
 import { extendMarketExpiration } from '../../../api/markets';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -21,9 +22,9 @@ function DeadlineExtender(props) {
   const { id: marketId, expiration_minutes: expirationMinutes } = market;
   const classes = useStyles();
   const intl = useIntl();
-  const [buttonsDisabled, setButtonsDisabled] = useState(false);
   const defaultExtension = 1440;
   const [extensionPeriod, setExtensionPeriod] = useState(defaultExtension);
+  const [operationRunning] = useContext(OperationInProgressContext);
 
   function selectorOnChange(event) {
     const { value } = event.target;
@@ -31,7 +32,6 @@ function DeadlineExtender(props) {
   }
 
   function mySave() {
-    setButtonsDisabled(true);
     const newExpirationMinutes = expirationMinutes + extensionPeriod;
     return extendMarketExpiration(marketId, newExpirationMinutes);
   }
@@ -51,7 +51,7 @@ function DeadlineExtender(props) {
       />
       <Button
         onClick={myCancel}
-        disabled={buttonsDisabled}
+        disabled={operationRunning}
       >
         {intl.formatMessage({ id: 'deadlineExtenderCancel' })}
       </Button>

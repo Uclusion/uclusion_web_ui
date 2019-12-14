@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import {
@@ -10,6 +10,8 @@ import { createDecision } from '../../api/markets';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';
 import { useHistory } from 'react-router';
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,6 +37,17 @@ function DecisionAdd(props) {
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [operationRunning] = useContext(OperationInProgressContext);
+  const [, addDialogDispatch] = useReducer((state, action) => {
+    const { link } = action;
+    if (link) {
+      return { navigationLink: link };
+    }
+    const { navigationLink } = state;
+    onSave();
+    navigate(history, navigationLink);
+    return {};
+  }, {});
   const { name, expiration_minutes } = currentValues;
 
   function zeroCurrentValues() {
@@ -78,10 +91,10 @@ function DecisionAdd(props) {
     };
     return createDecision(addInfo)
       .then((result) => {
-        onSave();
         const { market_id } = result;
-        const marketLink = formMarketLink(market_id);
-        navigate(history, marketLink);
+        const link = formMarketLink(market_id);
+        addDialogDispatch({ link });
+        return link;
       });
   }
 
@@ -118,16 +131,18 @@ function DecisionAdd(props) {
         />
       </CardContent>
       <CardActions>
-        <Button onClick={handleCancel}>
+        <Button onClick={handleCancel} disabled={operationRunning}>
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </Button>
-        <Button
+        <SpinBlockingButton
+          marketId={-1}
           variant="contained"
           color="primary"
           onClick={handleSave}
+          onSpinStop={() => addDialogDispatch({})}
         >
           {intl.formatMessage({ id: 'marketAddSaveLabel' })}
-        </Button>
+        </SpinBlockingButton>
       </CardActions>
     </Card>
   );

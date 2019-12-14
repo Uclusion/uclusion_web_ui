@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
@@ -17,6 +17,7 @@ import {
 import { removeInvestment, updateInvestment } from '../../../../api/marketInvestibles';
 import QuillEditor from '../../../../components/TextEditors/QuillEditor';
 import SpinBlockingButton from '../../../../components/SpinBlocking/SpinBlockingButton';
+import { OperationInProgressContext } from '../../../../contexts/OperationInProgressContext';
 
 function AddEditVote(props) {
   const {
@@ -36,10 +37,9 @@ function AddEditVote(props) {
   const [maxBudget, setMaxBudget] = useState(undefined);
   const { body, id: reasonId } = reason;
   const [reasonText, setReasonText] = useState(body);
-  const [buttonsDisabled, setButtonsDisabled] = useState(false);
+  const [operationRunning] = useContext(OperationInProgressContext);
 
   function mySave() {
-    setButtonsDisabled(true);
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body;
@@ -57,7 +57,6 @@ function AddEditVote(props) {
   }
 
   function onRemove() {
-    setButtonsDisabled(true);
     return removeInvestment(marketId, investibleId);
   }
 
@@ -177,7 +176,7 @@ function AddEditVote(props) {
         {addMode ? intl.formatMessage({ id: 'saveVote' }) : intl.formatMessage({ id: 'updateVote' })}
       </SpinBlockingButton>
       {addMode && (
-        <Button disabled={buttonsDisabled} onClick={() => onCancel()}>
+        <Button disabled={operationRunning} onClick={() => onCancel()}>
           {intl.formatMessage({ id: 'cancelVote' })}
         </Button>
       )}

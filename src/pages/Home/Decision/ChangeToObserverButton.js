@@ -1,24 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { changeToObserver } from '../../../api/markets';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import { changeToObserver } from '../../../api/markets';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 
 
 function ChangeToObserverButton(props) {
   const { marketId, onClick } = props;
 
-  function myOnclick() {
-    return changeToObserver(marketId)
-      .then(() => onClick());
+  function myOnClick() {
+    return changeToObserver(marketId);
   }
 
   return (
-    <TooltipIconButton
-      translationId="decisionDialogsBecomeObserver"
-      icon={<VisibilityIcon />}
-      onClick={myOnclick}
-    />
+    <SpinBlockingButton
+      marketId={marketId}
+      onClick={myOnClick}
+      onSpinStop={onClick}
+    >
+      <TooltipIconButton
+        translationId="decisionDialogsBecomeObserver"
+        icon={<VisibilityIcon />}
+      />
+    </SpinBlockingButton>
   );
 }
 

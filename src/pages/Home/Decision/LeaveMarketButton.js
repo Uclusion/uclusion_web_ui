@@ -1,30 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { leaveMarket } from '../../../api/markets';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 
 function LeaveMarketButton(props) {
-
   const {
     onClick,
     marketId,
   } = props;
 
   function myOnClick() {
-    return leaveMarket(marketId)
-      .then(() => {
-        return onClick();
-      });
+    return leaveMarket(marketId);
   }
 
   return (
-    <TooltipIconButton
-      key="exit"
-      translationId="decisionDialogsExitDialog"
-      icon={<ExitToAppIcon />}
+    <SpinBlockingButton
+      marketId={marketId}
       onClick={myOnClick}
-    />
+      onSpinStop={onClick}
+    >
+      <TooltipIconButton
+        key="exit"
+        translationId="decisionDialogsExitDialog"
+        icon={<ExitToAppIcon />}
+      />
+    </SpinBlockingButton>
   );
 }
 

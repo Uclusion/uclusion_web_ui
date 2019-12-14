@@ -16,6 +16,7 @@ import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/M
 import { MarketStagesProvider } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { VersionsProvider } from '../../contexts/VersionsContext/VersionsContext';
 import { SidebarProvider } from '../../contexts/SidebarContext';
+import { OperationInProgressProvider } from '../../contexts/OperationInProgressContext';
 
 Amplify.configure(awsconfig);
 const oauth = {
@@ -27,31 +28,34 @@ const oauth = {
 };
 
 Auth.configure({ oauth });
+
 class Main extends Component {
   render() {
     console.debug('Main being rerendered');
     return (
       <div>
-        <NotificationsProvider>
-          <VersionsProvider>
-            <MarketsProvider>
-              <MarketStagesProvider>
-                <CommentsProvider>
-                  <InvestiblesProvider>
-                    <MarketPresencesProvider>
-                      <LocaleProvider>
-                        <SidebarProvider>
-                          <ToastContainer />
-                          <App appConfig={{ ...config }} />
-                        </SidebarProvider>
-                      </LocaleProvider>
-                    </MarketPresencesProvider>
-                  </InvestiblesProvider>
-                </CommentsProvider>
-              </MarketStagesProvider>
-            </MarketsProvider>
-          </VersionsProvider>
-        </NotificationsProvider>
+        <OperationInProgressProvider>
+          <NotificationsProvider>
+            <VersionsProvider>
+              <MarketsProvider>
+                <MarketStagesProvider>
+                  <CommentsProvider>
+                    <InvestiblesProvider>
+                      <MarketPresencesProvider>
+                        <LocaleProvider>
+                          <SidebarProvider>
+                            <ToastContainer/>
+                            <App appConfig={{ ...config }}/>
+                          </SidebarProvider>
+                        </LocaleProvider>
+                      </MarketPresencesProvider>
+                    </InvestiblesProvider>
+                  </CommentsProvider>
+                </MarketStagesProvider>
+              </MarketsProvider>
+            </VersionsProvider>
+          </NotificationsProvider>
+        </OperationInProgressProvider>
       </div>
     );
   }

@@ -11,8 +11,9 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import {
   getProposedOptionsStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { processTextAndFilesForSave } from '../../../api/files';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 
 const styles = (theme) => ({
   root: {
@@ -41,6 +42,7 @@ function DecisionInvestibleEdit(props) {
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const [description, setDescription] = useState(initialDescription);
+  const [operationRunning] = useContext(OperationInProgressContext);
 
   function handleChange(field) {
     return (event) => {
@@ -77,8 +79,7 @@ function DecisionInvestibleEdit(props) {
   }
 
   function handleSave() {
-    saveInvestible()
-      .then(() => onSave());
+    saveInvestible();
   }
 
   function handleSubmit() {
@@ -120,24 +121,30 @@ function DecisionInvestibleEdit(props) {
         />
       </CardContent>
       <CardActions>
-        <Button onClick={onCancel}>
+        <Button
+          disabled={operationRunning}
+          onClick={onCancel}>
           {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
         </Button>
-        <Button
+        <SpinBlockingButton
+          marketId={marketId}
           variant="contained"
           color="primary"
           onClick={handleSave}
+          onSpinStop={onSave}
         >
           {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
-        </Button>
+        </SpinBlockingButton>
         {!isAdmin && (
-          <Button
+          <SpinBlockingButton
+            marketId={marketId}
             variant="contained"
             color="primary"
             onClick={handleSubmit}
+            onSpinStop={onSave}
           >
             {intl.formatMessage({ id: 'investibleEditSubmitLabel' })}
-          </Button>
+          </SpinBlockingButton>
         )}
       </CardActions>
     </Card>

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
+import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getNotDoingStage,
@@ -29,7 +29,8 @@ function MoveToNotDoingActionButton(props) {
   }
 
   return (
-    <ExpandableSidebarAction
+    <SpinBlockingSidebarAction
+      marketId={marketId}
       icon={<NotInterestedIcon />}
       label={intl.formatMessage({ id: 'planningInvestibleMoveToNotDoingLabel' })}
       onClick={moveToVerified}

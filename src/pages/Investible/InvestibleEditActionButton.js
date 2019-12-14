@@ -21,10 +21,12 @@ function InvestbileEditActionButton(props) {
 
 InvestbileEditActionButton.propTypes = {
   onClick: PropTypes.func,
+  disabled: PropTypes.bool,
 };
 
 InvestbileEditActionButton.defaultProps = {
   onClick: () => {},
+  disabled: false,
 };
 
 export default InvestbileEditActionButton;

@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import EditIcon from '@material-ui/icons/Edit';
 import { useIntl } from 'react-intl';
-import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 
-function DialogEditSidebarActionButton(props){
+function DialogEditActionButton(props){
 
   const { onClick } = props;
   const intl = useIntl();
@@ -18,8 +18,8 @@ function DialogEditSidebarActionButton(props){
   );
 }
 
-DialogEditSidebarActionButton.propTypes = {
+DialogEditActionButton.propTypes = {
   onClick: PropTypes.func.isRequired,
 };
 
-export default DialogEditSidebarActionButton;
+export default DialogEditActionButton;

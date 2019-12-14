@@ -1,31 +1,35 @@
+import { withSpinLock } from './SpinBlockingHOC';
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   ListItem, ListItemIcon, ListItemText, Tooltip,
 } from '@material-ui/core';
 import { SidebarContext } from '../../contexts/SidebarContext';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 
-function ExpandableSidebarAction(props) {
+function SpinBlockingSidebarAction(props) {
   const {
+    marketId,
     icon,
     label,
     onClick,
+    onSpinStart,
+    onSpinStop,
   } = props;
 
   const [amOpen] = useContext(SidebarContext);
-  const [operationRunning] = useContext(OperationInProgressContext);
-  function myOnClick() {
-    onClick();
-  }
+
+
+  const SpinningListItem = withSpinLock(ListItem);
 
   return (
-    <ListItem
+    <SpinningListItem
       key={label}
       button
-      disabled={operationRunning}
-      onClick={myOnClick}
+      marketId={marketId}
+      onClick={onClick}
+      onSpinStart={onSpinStart}
+      onSpinStop={onSpinStop}
     >
       <Tooltip title={label}>
         <ListItemIcon>
@@ -37,14 +41,22 @@ function ExpandableSidebarAction(props) {
           {label}
         </ListItemText>
       )}
-    </ListItem>
+    </SpinningListItem>
   );
 }
 
-ExpandableSidebarAction.propTypes = {
+SpinBlockingSidebarAction.propTypes = {
+  marketId: PropTypes.string.isRequired,
   icon: PropTypes.element.isRequired,
   label: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
+  onSpinStart: PropTypes.func,
+  onSpinStop: PropTypes.func,
 };
 
-export default ExpandableSidebarAction;
+SpinBlockingSidebarAction.defaultProps = {
+  onSpinStart: () => {},
+  onSpinStop: () => {},
+};
+
+export default SpinBlockingSidebarAction;

@@ -19,6 +19,8 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 
 const styles = (theme) => ({
   root: {
@@ -33,7 +35,7 @@ const styles = (theme) => ({
 });
 
 function InvestibleAdd(props) {
-  const { marketId, intl, classes, onCancel, onSave, isAdmin } = props;
+  const { marketId, intl, classes, onCancel, isAdmin } = props;
 
   const history = useHistory();
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -49,6 +51,7 @@ function InvestibleAdd(props) {
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [addDirectToVoting, setAddDirectToVoting] = useState(true);
+  const [operationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
 
   function handleChange(field) {
@@ -98,11 +101,11 @@ function InvestibleAdd(props) {
     };
     const promise = addDirectToVoting ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
     return promise.then((investibleId) => {
-      onSave();
       const link = formInvestibleLink(marketId, investibleId);
       return navigate(history, link);
     });
   }
+
 
   return (
     <Card>
@@ -133,16 +136,20 @@ function InvestibleAdd(props) {
           defaultValue={description} />
       </CardContent>
       <CardActions>
-        <Button onClick={handleCancel}>
+        <Button
+          disabled={operationRunning}
+          onClick={handleCancel}
+        >
           {intl.formatMessage({ id: 'investibleAddCancelLabel' })}
         </Button>
-        <Button
+        <SpinBlockingButton
           variant="contained"
           color="primary"
           onClick={handleSave}
+          marketId={marketId}
         >
           {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
-        </Button>
+        </SpinBlockingButton>
       </CardActions>
     </Card>
 
@@ -155,14 +162,11 @@ InvestibleAdd.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
-  onSave: PropTypes.func,
   onCancel: PropTypes.func,
   isAdmin: PropTypes.bool,
 };
 
 InvestibleAdd.defaultProps = {
-  onSave: () => {
-  },
   onCancel: () => {
   },
   isAdmin: false,

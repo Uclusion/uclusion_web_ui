@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import { Hub } from '@aws-amplify/core';
 import { CircularProgress, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 const FETCH_DELAY = 40; // give us 40 ms pull data from the hub event;
 
@@ -14,15 +15,16 @@ export function withSpinLock(Component) {
       onSpinStop,
       onClick,
       children,
+      disabled,
       ...rest
     } = props;
 
     const theme = useTheme();
 
+    const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
     const [spinning, setSpinning] = useState(false);
 
     const hubListener = (data) => {
-      console.log(data);
       const { payload: { event, message } } = data;
       switch (event) {
         case MARKET_MESSAGE_EVENT:
@@ -32,12 +34,14 @@ export function withSpinLock(Component) {
           }
           break;
         default:
-          //ignore
+          // ignore
+          console.debug(`Spin blocker ignoring ${event}`);
           break;
       }
     };
 
     function myOnSpinStart() {
+      setOperationRunning(true);
       setSpinning(true);
       Hub.listen(VERSIONS_HUB_CHANNEL, hubListener);
       onSpinStart();
@@ -47,6 +51,7 @@ export function withSpinLock(Component) {
       Hub.remove(VERSIONS_HUB_CHANNEL, hubListener);
       setTimeout(() => {
         setSpinning(false);
+        setOperationRunning(false);
         onSpinStop();
       }, FETCH_DELAY);
 
@@ -59,7 +64,7 @@ export function withSpinLock(Component) {
 
     return (
       <Component
-        disabled={spinning}
+        disabled={disabled || operationRunning || spinning}
         onClick={myOnClick}
         {...rest}
       >
@@ -79,6 +84,7 @@ export function withSpinLock(Component) {
     onClick: PropTypes.func,
     marketId: PropTypes.string.isRequired,
     children: PropTypes.node.isRequired,
+    disabled: PropTypes.bool,
   };
   Spinning.defaultProps = {
     onSpinStart: () => {
@@ -87,6 +93,7 @@ export function withSpinLock(Component) {
     },
     onClick: () => {
     },
+    disabled: false,
   };
   return Spinning;
 }

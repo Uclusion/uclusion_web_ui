@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import {
-  Button, Card, CardActions, CardContent, TextField, withStyles,
+  Card, CardActions, CardContent, TextField, withStyles,
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { updateInvestible } from '../../../api/investibles';
@@ -13,7 +13,6 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 
 const styles = (theme) => ({
   root: {
@@ -42,7 +41,6 @@ function DecisionInvestibleEdit(props) {
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const [description, setDescription] = useState(initialDescription);
-  const [operationRunning] = useContext(OperationInProgressContext);
 
   function handleChange(field) {
     return (event) => {
@@ -121,11 +119,12 @@ function DecisionInvestibleEdit(props) {
         />
       </CardContent>
       <CardActions>
-        <Button
-          disabled={operationRunning}
-          onClick={onCancel}>
+        <SpinBlockingButton
+          marketId={marketId}
+          onClick={onCancel}
+        >
           {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
-        </Button>
+        </SpinBlockingButton>
         <SpinBlockingButton
           marketId={marketId}
           variant="contained"

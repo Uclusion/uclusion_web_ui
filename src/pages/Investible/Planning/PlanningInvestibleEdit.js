@@ -74,7 +74,7 @@ function PlanningInvestibleEdit(props) {
     return updateInvestible(updateInfo);
   }
 
-  function handleAssignmentChange(newAssignments){
+  function handleAssignmentChange(newAssignments) {
     setAssignments(newAssignments);
   }
 
@@ -106,20 +106,16 @@ function PlanningInvestibleEdit(props) {
       <CardActions>
         <SpinBlockingButton
           marketId={marketId}
-          disabled={buttonsDisabled}
           onClick={onCancel}
-          onSpinStart={() => setButtonsDisabled(true)}
         >
           {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
         </SpinBlockingButton>
         <SpinBlockingButton
           marketId={marketId}
-          disabled={buttonsDisabled}
           variant="contained"
           color="primary"
           onClick={handleSave}
           onSpinStop={onSave}
-          onSpinStart={() => setButtonsDisabled(true)}
         >
           {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
         </SpinBlockingButton>

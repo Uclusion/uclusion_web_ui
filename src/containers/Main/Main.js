@@ -18,26 +18,28 @@ class Main extends Component {
     console.debug('Main being rerendered');
     return (
       <div>
-        <NotificationsProvider>
-          <VersionsProvider>
-            <MarketsProvider>
-              <MarketStagesProvider>
-                <CommentsProvider>
-                  <InvestiblesProvider>
-                    <MarketPresencesProvider>
-                      <LocaleProvider>
-                        <SidebarProvider>
-                          <ToastContainer />
-                          <AppWithAuth />
-                        </SidebarProvider>
-                      </LocaleProvider>
-                    </MarketPresencesProvider>
-                  </InvestiblesProvider>
-                </CommentsProvider>
-              </MarketStagesProvider>
-            </MarketsProvider>
-          </VersionsProvider>
-        </NotificationsProvider>
+        <OperationInProgressProvider>
+          <NotificationsProvider>
+            <VersionsProvider>
+              <MarketsProvider>
+                <MarketStagesProvider>
+                  <CommentsProvider>
+                    <InvestiblesProvider>
+                      <MarketPresencesProvider>
+                        <LocaleProvider>
+                          <SidebarProvider>
+                            <ToastContainer />
+                            <AppWithAuth />
+                          </SidebarProvider>
+                        </LocaleProvider>
+                      </MarketPresencesProvider>
+                    </InvestiblesProvider>
+                  </CommentsProvider>
+                </MarketStagesProvider>
+              </MarketsProvider>
+            </VersionsProvider>
+          </NotificationsProvider>
+        </OperationInProgressProvider>
       </div>
     );
   }

@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Card, CardActions, CardContent, makeStyles, TextField } from '@material-ui/core';
 import { useIntl } from 'react-intl';
-import { lockPlanningMarketForEdit, updateMarket } from '../../api/markets';
-import QuillEditor from '../../components/TextEditors/QuillEditor';
-import { processTextAndFilesForSave } from '../../api/files';
-import { PLANNING_TYPE } from '../../constants/markets';
+import { lockPlanningMarketForEdit, updateMarket } from '../../../api/markets';
+import QuillEditor from '../../../components/TextEditors/QuillEditor';
+import { processTextAndFilesForSave } from '../../../api/files';
+import { PLANNING_TYPE } from '../../../constants/markets';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -35,6 +37,7 @@ function DialogEdit(props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = mutableMarket;
   const [description, setDescription] = useState(mutableMarket.description);
+  const [operationRunning] = useContext(OperationInProgressContext);
 
   function handleChange(name) {
     return (event) => {
@@ -92,16 +95,19 @@ function DialogEdit(props) {
         />
       </CardContent>
       <CardActions>
-        <Button onClick={onCancel}>
+        <Button
+          disabled={operationRunning}
+          onClick={onCancel}>
           {intl.formatMessage({ id: 'marketEditCancelLabel' })}
         </Button>
-        <Button
+        <SpinBlockingButton
           variant="contained"
           color="primary"
+          marketId={id}
           onClick={handleSave}
         >
           {intl.formatMessage({ id: 'marketEditSaveLabel' })}
-        </Button>
+        </SpinBlockingButton>
       </CardActions>
     </Card>
   );

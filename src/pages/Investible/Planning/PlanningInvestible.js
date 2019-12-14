@@ -15,7 +15,6 @@ import {
 import DisplayAssignments from './Assignments/DisplayAssignments';
 import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import Screen from '../../../containers/Screen/Screen';
-import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
@@ -34,6 +33,7 @@ import MoveToNotDoingActionButton from './MoveToNotDoingActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import MoveToAcceptedActionButton from './MoveToAcceptedActionButton';
 import MoveToInReviewActionButton from './MoveToInReviewActionButton';
+import PlanningInvestibleEditActionButton from './PlanningInvestibleEditActionButton';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -106,7 +106,11 @@ function PlanningInvestible(props) {
   const sidebarActions = [];
 
   if (isAdmin) {
-    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
+    sidebarActions.push(<PlanningInvestibleEditActionButton
+      marketId={marketId}
+      key="edit"
+      onClick={toggleEdit}
+    />);
   }
   const invested = marketPresences.filter((presence) => {
     const { investments } = presence;
@@ -122,6 +126,7 @@ function PlanningInvestible(props) {
     });
     return found;
   });
+
   function assignedInStage(investibles, userId, stageId) {
     return investibles.filter((investible) => {
       const { market_infos: marketInfos } = investible;
@@ -131,6 +136,7 @@ function PlanningInvestible(props) {
       return marketInfo.stage === stageId && marketInfo.assigned && marketInfo.assigned.includes(userId);
     });
   }
+
   if (assigned && assigned.includes(userId)) {
     if (isInVoting || isInAccepted) {
       const nextStageId = isInVoting ? inAcceptedStage.id : inReviewStage.id;
@@ -138,6 +144,7 @@ function PlanningInvestible(props) {
       if (Array.isArray(invested) && invested.length > 0
         && (!Array.isArray(assignedInNextStage) || assignedInNextStage.length === 0)) {
         sidebarActions.push(<MoveToNextVisibleStageActionButton
+          key="visible"
           investibleId={investibleId}
           marketId={marketId}
           stageId={stage}
@@ -193,6 +200,7 @@ function PlanningInvestible(props) {
   />);
   sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
   sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
+
 
   const discussionVisible = !commentAddHidden || !_.isEmpty(investmentReasonsRemoved);
 
@@ -253,20 +261,20 @@ function PlanningInvestible(props) {
       </SubSection>
       <div ref={commentAddRef}>
         {discussionVisible && (
-        <SubSection
-          title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
-        >
-          <CommentAddBox
-            hidden={commentAddHidden}
-            allowedTypes={allowedCommentTypes}
-            investible={investible}
-            marketId={marketId}
-            type={commentAddType}
-            onSave={closeCommentAdd}
-            onCancel={closeCommentAdd}
-          />
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
-        </SubSection>
+          <SubSection
+            title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
+          >
+            <CommentAddBox
+              hidden={commentAddHidden}
+              allowedTypes={allowedCommentTypes}
+              investible={investible}
+              marketId={marketId}
+              type={commentAddType}
+              onSave={closeCommentAdd}
+              onCancel={closeCommentAdd}
+            />
+            <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+          </SubSection>
         )}
       </div>
 

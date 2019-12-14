@@ -8,7 +8,8 @@ import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPLY_TYPE } from '../.
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { addComment } from '../../contexts/CommentsContext/commentsContextHelper';
 import { processTextAndFilesForSave } from '../../api/files';
-import SpinBlockingButton from '../Buttons/SpinBlockingButton';
+import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 function getPlaceHolderLabelId(type) {
   switch (type) {
@@ -42,7 +43,7 @@ function CommentAdd(props) {
   const classes = useStyles();
   const placeHolderLabelId = getPlaceHolderLabelId(type);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
-  const [buttonsEnabled, setButtonsEnabled] = useState(true);
+  const [operationRunning] = useContext(OperationInProgressContext);
 
   function onEditorChange(content) {
     setBody(content);
@@ -88,7 +89,7 @@ function CommentAdd(props) {
         </CardContent>
         <CardActions>
           <ButtonGroup
-            disabled={!buttonsEnabled}
+            disabled={operationRunning}
             variant="contained"
             size="small"
             color="primary"
@@ -96,15 +97,14 @@ function CommentAdd(props) {
             <SpinBlockingButton
               marketId={marketId}
               onClick={handleSave}
-              onSpinStart={() => setButtonsEnabled(false)}
               onSpinStop={() => {
-                setButtonsEnabled(true);
                 onSave();
               }}
             >
               {intl.formatMessage({ id: commentSaveLabel })}
             </SpinBlockingButton>
-            <Button onClick={handleCancel}>
+            <Button
+              onClick={handleCancel}>
               {intl.formatMessage({ id: commentCancelLabel })}
             </Button>
           </ButtonGroup>

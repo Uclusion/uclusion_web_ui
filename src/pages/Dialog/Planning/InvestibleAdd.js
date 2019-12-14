@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
@@ -15,6 +15,8 @@ import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import AssignmentList from './AssignmentList';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 
 const styles = (theme) => ({
   root: {
@@ -30,7 +32,7 @@ const styles = (theme) => ({
 
 function InvestibleAdd(props) {
   const {
-    marketId, intl, classes, onCancel, onSave,
+    marketId, intl, classes, onCancel,
   } = props;
 
   const history = useHistory();
@@ -39,6 +41,7 @@ function InvestibleAdd(props) {
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [operationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
 
   function handleChange(field) {
@@ -84,7 +87,6 @@ function InvestibleAdd(props) {
       assignments,
     };
     return addPlanningInvestible(addInfo).then((investibleId) => {
-      onSave();
       const link = formInvestibleLink(marketId, investibleId);
       return navigate(history, link);
     });
@@ -118,16 +120,19 @@ function InvestibleAdd(props) {
         />
       </CardContent>
       <CardActions>
-        <Button onClick={handleCancel}>
+        <Button
+          disabled={operationRunning}
+          onClick={handleCancel}>
           {intl.formatMessage({ id: 'investibleAddCancelLabel' })}
         </Button>
-        <Button
+        <SpinBlockingButton
+          marketId={marketId}
           variant="contained"
           color="primary"
           onClick={handleSave}
         >
           {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
-        </Button>
+        </SpinBlockingButton>
       </CardActions>
     </Card>
 
@@ -140,15 +145,13 @@ InvestibleAdd.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
-  onSave: PropTypes.func,
   onCancel: PropTypes.func,
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 InvestibleAdd.defaultProps = {
-  onSave: () => {
-  },
+
   onCancel: () => {
   },
 };

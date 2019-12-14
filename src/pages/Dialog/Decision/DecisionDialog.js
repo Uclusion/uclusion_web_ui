@@ -19,8 +19,8 @@ import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import InvestibleAddActionButton from './InvestibleAddActionButton';
-import DialogEdit from '../DialogEdit';
-import DialogEditSidebarActionButton from '../DialogEditSidebarActionButton';
+import DialogEdit from './DialogEdit';
+import DialogEditActionButton from './DialogEditActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 
 function DecisionDialog(props) {
@@ -135,7 +135,7 @@ function DecisionDialog(props) {
     ];
 
     if (isAdmin) {
-      const adminActions = [<DialogEditSidebarActionButton key="edit" onClick={toggleEditMode} />];
+      const adminActions = [<DialogEditActionButton key="edit" onClick={toggleEditMode} />];
       return adminActions.concat(userActions);
     }
     return userActions;

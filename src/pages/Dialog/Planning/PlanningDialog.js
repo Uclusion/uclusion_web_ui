@@ -22,11 +22,12 @@ import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import InvestibleAdd from './InvestibleAdd';
 import InvestibleAddActionButton from './InvestibleAddActionButton';
-import DialogEditSidebarActionButton from '../DialogEditSidebarActionButton';
-import DialogEdit from '../DialogEdit';
+import DialogEditActionButton from './DialogEditActionButton';
+import DialogEdit from './DialogEdit';
 import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../../api/markets';
 import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
+
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -186,11 +187,11 @@ function PlanningDialog(props) {
       <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];
     if (isAdmin) {
-      const adminActions = [<DialogEditSidebarActionButton
-        key="edit"
-        onClick={toggleEditMode}
-        onCancel={onDialogEditCancel}
-      />];
+      const adminActions = [<DialogEditActionButton
+                              key="edit"
+                              onClick={toggleEditMode}
+                              marketId={marketId}
+                              onCancel={onDialogEditCancel} />];
       return adminActions.concat(userActions);
     }
     return userActions;

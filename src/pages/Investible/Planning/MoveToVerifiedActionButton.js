@@ -2,12 +2,12 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getVerifiedStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { stageChangeInvestible } from '../../../api/investibles';
+import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 
 function MoveToVerfiedActionButton(props) {
   const { investibleId, marketId, stageId } = props;
@@ -29,7 +29,8 @@ function MoveToVerfiedActionButton(props) {
   }
 
   return (
-    <ExpandableSidebarAction
+    <SpinBlockingSidebarAction
+      marketId={marketId}
       icon={<VerifiedUserIcon />}
       label={intl.formatMessage({ id: 'planningInvestibleMoveToVerifiedLabel' })}
       onClick={moveToVerified}

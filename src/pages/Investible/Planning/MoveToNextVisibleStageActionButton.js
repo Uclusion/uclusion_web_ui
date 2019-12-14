@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
+import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getAcceptedStage, getInReviewStage,
@@ -35,7 +35,8 @@ function MoveToNextVisibleStageActionButton(props) {
   }
 
   return (
-    <ExpandableSidebarAction
+    <SpinBlockingSidebarAction
+      marketId={marketId}
       icon={<ArrowUpwardIcon />}
       label={intl.formatMessage({ id: destinationLabel })}
       onClick={moveToNext}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
@@ -13,6 +13,8 @@ import { REPLY_TYPE } from '../../constants/comments';
 import RaisedCard from '../Cards/RaisedCard';
 import { reopenComment, resolveComment } from '../../api/comments';
 import { getCommentTypeIcon } from './commentFunctions';
+import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 function Comment(props) {
   const {
@@ -23,6 +25,8 @@ function Comment(props) {
 
   const [replyOpen, setReplyOpen] = useState(false);
   const [toggledOpen, setToggledOpen] = useState(false);
+  const [operationRunning] = useContext(OperationInProgressContext);
+
 
   function getChildComments() {
     if (children) {
@@ -53,7 +57,7 @@ function Comment(props) {
   }
 
   function resolve() {
-    resolveComment(marketId, id);
+    return resolveComment(marketId, id);
   }
 
   function flipToggledOpen() {
@@ -82,6 +86,7 @@ function Comment(props) {
 
           {!comment.resolved && (
             <ButtonGroup
+              disabled={operationRunning}
               color="primary"
               variant="contained"
             >
@@ -89,14 +94,17 @@ function Comment(props) {
                 {intl.formatMessage({ id: 'commentReplyLabel' })}
               </Button>
               {!comment.reply_id && (
-                <Button onClick={resolve}>
+                <SpinBlockingButton
+                  marketId={marketId}
+                  onClick={resolve}>
                   {intl.formatMessage({ id: 'commentResolveLabel' })}
-                </Button>
+                </SpinBlockingButton>
               )}
             </ButtonGroup>
           )}
           {comment.resolved && (
             <ButtonGroup
+              disabled={operationRunning}
               color="primary"
               variant="contained"
             >
@@ -106,9 +114,12 @@ function Comment(props) {
                   {toggledOpen && intl.formatMessage( {id: 'commentCloseThreadLabel'})}
                 </Button>
               )}
-              <Button onClick={reopen}>
+              <SpinBlockingButton
+                marketId={marketId}
+                onClick={reopen}
+              >
                 {intl.formatMessage({ id: 'commentReopenLabel' })}
-              </Button>
+              </SpinBlockingButton>
             </ButtonGroup>
           )}
         </Grid>

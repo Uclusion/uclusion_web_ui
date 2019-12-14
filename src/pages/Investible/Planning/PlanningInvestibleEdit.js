@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
 import {
-  Button, Card, CardActions, CardContent, TextField, withStyles,
+  Card, CardActions, CardContent, TextField, withStyles,
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { updateInvestible } from '../../../api/investibles';
@@ -9,6 +9,7 @@ import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import AssignmentList from '../../Dialog/Planning/AssignmentList';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 
 const styles = (theme) => ({
   root: {
@@ -36,6 +37,7 @@ function PlanningInvestibleEdit(props) {
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const [description, setDescription] = useState(initialDescription);
+  const [buttonsDisabled, setButtonsDisabled] = useState(false);
 
   function handleChange(field) {
     return (event) => {
@@ -69,10 +71,7 @@ function PlanningInvestibleEdit(props) {
       investibleId: id,
       assignments,
     };
-    return updateInvestible(updateInfo)
-      .then(() => {
-        onSave();
-      });
+    return updateInvestible(updateInfo);
   }
 
   function handleAssignmentChange(newAssignments){
@@ -105,16 +104,25 @@ function PlanningInvestibleEdit(props) {
         />
       </CardContent>
       <CardActions>
-        <Button onClick={onCancel}>
+        <SpinBlockingButton
+          marketId={marketId}
+          disabled={buttonsDisabled}
+          onClick={onCancel}
+          onSpinStart={() => setButtonsDisabled(true)}
+        >
           {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
-        </Button>
-        <Button
+        </SpinBlockingButton>
+        <SpinBlockingButton
+          marketId={marketId}
+          disabled={buttonsDisabled}
           variant="contained"
           color="primary"
           onClick={handleSave}
+          onSpinStop={onSave}
+          onSpinStart={() => setButtonsDisabled(true)}
         >
           {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
-        </Button>
+        </SpinBlockingButton>
       </CardActions>
     </Card>
 

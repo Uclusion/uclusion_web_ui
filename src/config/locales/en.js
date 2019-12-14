@@ -349,6 +349,12 @@ const messages = defineMessages({
   dialogArchivesVerifiedHeader: 'Verified',
   dialogArchivesLabel: 'Archives',
 
+  // Signup
+  signupNameLabel: 'Name',
+  signupEmailLabel: 'Email',
+  signupPasswordLabel: 'Password',
+  signupSignupLabel: 'Create Account',
+
   // API errors
   errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',
   errorPlanningInvestibleAddFailed: 'There was a problem adding the story',

@@ -1,5 +1,6 @@
 import { withSpinLock } from './SpinBlockingHOC';
 import { Button } from '@material-ui/core';
 
-export default withSpinLock(Button);
+const SpinBlockingButton = withSpinLock(Button);
+export default SpinBlockingButton;
 

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import RateReviewIcon from '@material-ui/icons/RateReview';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
+import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getInReviewStage,
@@ -29,7 +29,8 @@ function MoveToInReviewActionButton(props) {
   }
 
   return (
-    <ExpandableSidebarAction
+    <SpinBlockingSidebarAction
+      marketId={marketId}
       icon={<RateReviewIcon />}
       label={intl.formatMessage({ id: 'planningInvestibleNextStageInReviewLabel' })}
       onClick={moveToInReview}

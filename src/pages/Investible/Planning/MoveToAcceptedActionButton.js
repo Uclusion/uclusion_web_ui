@@ -2,12 +2,13 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import PlayForWorkIcon from '@material-ui/icons/PlayForWork';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
+import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getAcceptedStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { stageChangeInvestible } from '../../../api/investibles';
+
 
 function MoveToAcceptedActionButton(props) {
   const { investibleId, marketId, stageId } = props;
@@ -29,7 +30,8 @@ function MoveToAcceptedActionButton(props) {
   }
 
   return (
-    <ExpandableSidebarAction
+    <SpinBlockingSidebarAction
+      marketId={marketId}
       icon={<PlayForWorkIcon />}
       label={intl.formatMessage({ id: 'planningInvestibleNextStageAcceptedLabel' })}
       onClick={moveToAccepted}

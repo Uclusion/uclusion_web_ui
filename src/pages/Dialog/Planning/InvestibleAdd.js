@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useReducer, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
@@ -32,7 +32,7 @@ const styles = (theme) => ({
 
 function InvestibleAdd(props) {
   const {
-    marketId, intl, classes, onCancel,
+    marketId, intl, classes, onCancel, onSave,
   } = props;
 
   const history = useHistory();
@@ -43,6 +43,16 @@ function InvestibleAdd(props) {
   const [assignments, setAssignments] = useState([]);
   const [operationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
+  const [, addInvestibleDispatch] = useReducer((state, action) => {
+    const { link } = action;
+    if (link) {
+      return { navigationLink: link };
+    }
+    const { navigationLink } = state;
+    onSave();
+    navigate(history, navigationLink);
+    return {};
+  }, {});
 
   function handleChange(field) {
     return (event) => {
@@ -88,7 +98,8 @@ function InvestibleAdd(props) {
     };
     return addPlanningInvestible(addInfo).then((investibleId) => {
       const link = formInvestibleLink(marketId, investibleId);
-      return navigate(history, link);
+      addInvestibleDispatch({ link });
+      return link;
     });
   }
 
@@ -122,7 +133,8 @@ function InvestibleAdd(props) {
       <CardActions>
         <Button
           disabled={operationRunning}
-          onClick={handleCancel}>
+          onClick={handleCancel}
+        >
           {intl.formatMessage({ id: 'investibleAddCancelLabel' })}
         </Button>
         <SpinBlockingButton
@@ -130,6 +142,7 @@ function InvestibleAdd(props) {
           variant="contained"
           color="primary"
           onClick={handleSave}
+          onSpinStop={() => addInvestibleDispatch({})}
         >
           {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
         </SpinBlockingButton>
@@ -146,12 +159,14 @@ InvestibleAdd.propTypes = {
   classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
+  onSave: PropTypes.func,
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 InvestibleAdd.defaultProps = {
-
+  onSave: () => {
+  },
   onCancel: () => {
   },
 };

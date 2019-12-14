@@ -23,6 +23,7 @@ import PlanningInvestible from './Planning/PlanningInvestible';
 import PlanningInvestibleEdit from './Planning/PlanningInvestibleEdit';
 import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import InitiativeInvestible from './Initiative/InitiativeInvestible';
+import InitiativeInvestibleEdit from './Initiative/InitiativeInvestibleEdit';
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -152,6 +153,17 @@ function Investible(props) {
         investibleComments={investibleComments}
         toggleEdit={toggleEdit}
         isAdmin={isAdmin}
+      />
+    );
+  }
+  if (editMode) {
+    return (
+      <InitiativeInvestibleEdit
+        fullInvestible={inv}
+        marketId={marketId}
+        marketPresences={marketPresences}
+        onSave={onSave}
+        onCancel={toggleEdit}
       />
     );
   }

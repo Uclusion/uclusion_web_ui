@@ -16,6 +16,7 @@ import {
 } from '@material-ui/core';
 import { removeInvestment, updateInvestment } from '../../../../api/marketInvestibles';
 import QuillEditor from '../../../../components/TextEditors/QuillEditor';
+import SpinBlockingButton from '../../../../components/SpinBlocking/SpinBlockingButton';
 
 function AddEditVote(props) {
   const {
@@ -35,8 +36,10 @@ function AddEditVote(props) {
   const [maxBudget, setMaxBudget] = useState(undefined);
   const { body, id: reasonId } = reason;
   const [reasonText, setReasonText] = useState(body);
+  const [buttonsDisabled, setButtonsDisabled] = useState(false);
 
   function mySave() {
+    setButtonsDisabled(true);
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body;
@@ -50,17 +53,12 @@ function AddEditVote(props) {
       reasonNeedsUpdate,
       maxBudget,
     };
-    return updateInvestment(updateInfo)
-      .then(() => {
-        onSave();
-      });
+    return updateInvestment(updateInfo);
   }
 
   function onRemove() {
-    return removeInvestment(marketId, investibleId)
-      .then(() => {
-        onSave();
-      });
+    setButtonsDisabled(true);
+    return removeInvestment(marketId, investibleId);
   }
 
   function onChange(event) {
@@ -169,13 +167,31 @@ function AddEditVote(props) {
         onChange={onEditorChange}
         uploadDisabled
       />
-      <Button
+      <SpinBlockingButton
+        marketId={marketId}
+        variant="contained"
+        color="primary"
         onClick={() => mySave()}
+        onSpinStop={onSave}
       >
         {addMode ? intl.formatMessage({ id: 'saveVote' }) : intl.formatMessage({ id: 'updateVote' })}
-      </Button>
-      {addMode && <Button onClick={() => onCancel()}>{intl.formatMessage({ id: 'cancelVote' })}</Button>}
-      {!addMode && <Button onClick={() => onRemove()}>{intl.formatMessage({ id: 'removeVote' })}</Button>}
+      </SpinBlockingButton>
+      {addMode && (
+        <Button disabled={buttonsDisabled} onClick={() => onCancel()}>
+          {intl.formatMessage({ id: 'cancelVote' })}
+        </Button>
+      )}
+      {!addMode && (
+        <SpinBlockingButton
+          marketId={marketId}
+          variant="contained"
+          color="primary"
+          onClick={() => onRemove()}
+          onSpinStop={onSave}
+        >
+          {intl.formatMessage({ id: 'removeVote' })}
+        </SpinBlockingButton>
+      )}
     </Paper>
   );
 }

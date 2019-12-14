@@ -43,10 +43,12 @@ class CustomSignIn extends SignIn {
             <p className="text-grey-dark text-xs">
               Forgot your password?
               {' '}
-              <a onClick={() => super.changeState('forgotPassword')}
+              <button
+                type="button"
+                onClick={() => super.changeState('forgotPassword')}
               >
                 Reset Password
-              </a>
+              </button>
             </p>
           </div>
           <div>
@@ -59,10 +61,12 @@ class CustomSignIn extends SignIn {
             <p className="text-grey-dark text-xs">
               No Account?
               {' '}
-              <a onClick={() => super.changeState('signUp')}
+              <button
+                type="button"
+                onClick={() => super.changeState('signUp')}
               >
                 Create account
-              </a>
+              </button>
             </p>
           </div>
         </form>

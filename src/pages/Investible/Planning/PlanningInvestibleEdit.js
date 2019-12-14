@@ -37,7 +37,6 @@ function PlanningInvestibleEdit(props) {
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const [description, setDescription] = useState(initialDescription);
-  const [buttonsDisabled, setButtonsDisabled] = useState(false);
 
   function handleChange(field) {
     return (event) => {

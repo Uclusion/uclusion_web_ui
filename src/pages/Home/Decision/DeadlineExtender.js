@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import ExpirationSelector from '../../../components/Expiration/ExpirationSelector';
 import { Button } from '@material-ui/core';
-import { extendMarketExpiration } from '../../../api/markets';
 import { useIntl } from 'react-intl';
+import ExpirationSelector from '../../../components/Expiration/ExpirationSelector';
+import { extendMarketExpiration } from '../../../api/markets';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   hidden: {
     display: 'none',
   },
@@ -14,11 +15,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function DeadlineExtender(props) {
-  const { market, hidden, onSave, onCancel } = props;
-  const { id: marketId, expiration_minutes } = market;
+  const {
+    market, hidden, onSave, onCancel,
+  } = props;
+  const { id: marketId, expiration_minutes: expirationMinutes } = market;
   const classes = useStyles();
   const intl = useIntl();
-
+  const [buttonsDisabled, setButtonsDisabled] = useState(false);
   const defaultExtension = 1440;
   const [extensionPeriod, setExtensionPeriod] = useState(defaultExtension);
 
@@ -28,11 +31,9 @@ function DeadlineExtender(props) {
   }
 
   function mySave() {
-    const newExpirationMinutes = expiration_minutes + extensionPeriod;
-    return extendMarketExpiration(marketId, newExpirationMinutes)
-      .then(() => {
-        onSave();
-      });
+    setButtonsDisabled(true);
+    const newExpirationMinutes = expirationMinutes + extensionPeriod;
+    return extendMarketExpiration(marketId, newExpirationMinutes);
   }
 
   function myCancel() {
@@ -50,17 +51,21 @@ function DeadlineExtender(props) {
       />
       <Button
         onClick={myCancel}
+        disabled={buttonsDisabled}
       >
-        {intl.formatMessage({ id: 'deadlineExtenderCancel'})}
+        {intl.formatMessage({ id: 'deadlineExtenderCancel' })}
       </Button>
-      <Button
+      <SpinBlockingButton
+        marketId={marketId}
+        variant="contained"
+        color="primary"
         onClick={mySave}
+        onSpinStop={onSave}
       >
         {intl.formatMessage({ id: 'deadlineExtenderSave' })}
-      </Button>
+      </SpinBlockingButton>
     </div>
   );
-
 }
 
 DeadlineExtender.propTypes = {
@@ -76,4 +81,4 @@ DeadlineExtender.defaultProps = {
   onCancel: () => {},
 };
 
-export default DeadlineExtender
+export default DeadlineExtender;

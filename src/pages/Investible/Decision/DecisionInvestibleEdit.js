@@ -29,13 +29,15 @@ const styles = (theme) => ({
 function DecisionInvestibleEdit(props) {
   const {
     fullInvestible, intl, classes, onCancel, onSave, marketId,
-    isAdmin,
+    isAdmin, userId,
   } = props;
 
   const [marketStagesState] = useContext(MarketStagesContext);
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
-  const myInvestible = fullInvestible.investible;
-  const { id, description: initialDescription } = myInvestible;
+  const { market_infos: marketInfos, investible: myInvestible } = fullInvestible;
+  const marketInfo = marketInfos.find((info) => info.market_id === marketId);
+  const inProposed = marketInfo.stage === inProposedStage.id;
+  const { id, description: initialDescription, created_by: createdBy } = myInvestible;
   const [currentValues, setCurrentValues] = useState(myInvestible);
   const { name } = currentValues;
   const initialUploadedFiles = myInvestible.uploaded_files || [];
@@ -80,24 +82,6 @@ function DecisionInvestibleEdit(props) {
     saveInvestible();
   }
 
-  function handleSubmit() {
-    return saveInvestible()
-      .then(() => {
-        const { market_infos: marketInfos } = fullInvestible;
-        const marketInfo = marketInfos.find((info) => info.market_id === marketId);
-        const stageInfo = {
-          current_stage_id: marketInfo.stage,
-          stage_id: inProposedStage.id,
-        };
-        const submitInfo = {
-          marketId,
-          investibleId: id,
-          stageInfo,
-        };
-        return submitToModerator(submitInfo);
-      });
-  }
-
   return (
     <Card>
       <CardContent>
@@ -125,24 +109,15 @@ function DecisionInvestibleEdit(props) {
         >
           {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
         </SpinBlockingButton>
-        <SpinBlockingButton
-          marketId={marketId}
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          onSpinStop={onSave}
-        >
-          {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
-        </SpinBlockingButton>
-        {!isAdmin && (
+        {(isAdmin || (inProposed && createdBy === userId)) && (
           <SpinBlockingButton
             marketId={marketId}
             variant="contained"
             color="primary"
-            onClick={handleSubmit}
+            onClick={handleSave}
             onSpinStop={onSave}
           >
-            {intl.formatMessage({ id: 'investibleEditSubmitLabel' })}
+            {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
           </SpinBlockingButton>
         )}
       </CardActions>
@@ -159,6 +134,7 @@ DecisionInvestibleEdit.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
+  userId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
   isAdmin: PropTypes.bool,

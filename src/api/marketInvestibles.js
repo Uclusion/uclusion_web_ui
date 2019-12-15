@@ -55,14 +55,3 @@ export function updateInvestment(updateInfo) {
       }))
     .catch((error) => toastErrorAndThrow(error, 'errorInvestmentUpdateFailed'));
 }
-
-export function submitToModerator(submitInfo) {
-  const {
-    marketId,
-    investibleId,
-    stageInfo,
-  } = submitInfo;
-  return getMarketClient(marketId)
-    .then((client) => client.investibles.stateChange(investibleId, stageInfo))
-    .catch((error) => toastErrorAndThrow(error, 'errorSubmitToModeratorFailed'));
-}

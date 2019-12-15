@@ -59,7 +59,7 @@ function DecisionInvestible(props) {
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const inProposed = marketInfo.stage === inProposedStage.id;
 
-  const { description, name } = investible;
+  const { description, name, created_by: createdBy } = investible;
 
   const commentAddRef = useRef(null);
 
@@ -77,15 +77,22 @@ function DecisionInvestible(props) {
   const sidebarActions = [];
 
   if (isAdmin) {
-    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
+    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
     if (inProposed) {
-      sidebarActions.push(<MoveToCurrentVotingActionButton investibleId={investibleId} marketId={marketId}/>);
+      sidebarActions.push(<MoveToCurrentVotingActionButton
+        investibleId={investibleId}
+        marketId={marketId}
+      />);
     }
   }
 
-  sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
-  sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
-  sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick}/>);
+  if (inProposed && createdBy === userId) {
+    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
+  }
+
+  sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
+  sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
+  sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
 
   if (!investibleId) {
     // we have no usable data;
@@ -149,7 +156,7 @@ function DecisionInvestible(props) {
               onCancel={closeCommentAdd}
             />
           </div>
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
         </SubSection>
       )}
     </Screen>

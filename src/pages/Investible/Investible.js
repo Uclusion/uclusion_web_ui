@@ -107,6 +107,7 @@ function Investible(props) {
         <DecisionInvestibleEdit
           fullInvestible={inv}
           marketId={marketId}
+          userId={userId}
           onSave={onSave}
           onCancel={toggleEdit}
           isAdmin={isAdmin}

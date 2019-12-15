@@ -2,13 +2,13 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getInCurrentVotingStage,
   getProposedOptionsStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { moveInvestibleToCurrentVoting } from '../../../api/investibles';
+import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 
 function MoveToCurrentVotingActionButton(props) {
   const { onClick, investibleId, marketId } = props;
@@ -25,14 +25,15 @@ function MoveToCurrentVotingActionButton(props) {
       stageInfo: {
         current_stage_id: proposedStage.id,
         stage_id: inCurrentVotingStage.id,
-      }
+      },
     };
     return moveInvestibleToCurrentVoting(moveInfo)
       .then(() => onClick());
   }
 
   return (
-    <ExpandableSidebarAction
+    <SpinBlockingSidebarAction
+      marketId={marketId}
       icon={<ArrowUpwardIcon />}
       label={intl.formatMessage({ id: 'investibleAddToVotingLabel' })}
       onClick={moveToProposed}

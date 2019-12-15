@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { leaveMarket } from '../../../api/markets';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 
 function LeaveMarketButton(props) {
+  const [operationRunning] = useContext(OperationInProgressContext);
   const {
     onClick,
     marketId,
@@ -22,6 +24,7 @@ function LeaveMarketButton(props) {
       onSpinStop={onClick}
     >
       <TooltipIconButton
+        disabled={operationRunning}
         key="exit"
         translationId="decisionDialogsExitDialog"
         icon={<ExitToAppIcon />}

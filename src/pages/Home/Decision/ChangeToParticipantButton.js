@@ -1,24 +1,32 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { changeToParticipant } from '../../../api/markets';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
+import { changeToParticipant } from '../../../api/markets';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 
 
 function ChangeToParticipantButton(props) {
+  const [operationRunning] = useContext(OperationInProgressContext);
   const { marketId, onClick } = props;
 
   function myOnClick() {
-    return changeToParticipant(marketId)
-      .then(() => onClick());
+    return changeToParticipant(marketId);
   }
 
   return (
-    <TooltipIconButton
-      translationId="decisionDialogsBecomeParticipant"
-      icon={<ThumbsUpDownIcon />}
+    <SpinBlockingButton
+      marketId={marketId}
       onClick={myOnClick}
-    />
+      onSpinStop={onClick}
+    >
+      <TooltipIconButton
+        disabled={operationRunning}
+        translationId="decisionDialogsBecomeParticipant"
+        icon={<ThumbsUpDownIcon />}
+      />
+    </SpinBlockingButton>
   );
 }
 

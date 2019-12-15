@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import { changeToObserver } from '../../../api/markets';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import { withSpinLock } from '../../../components/SpinBlocking/SpinBlockingHOC';
 
 
 function ChangeToObserverButton(props) {
@@ -15,18 +15,16 @@ function ChangeToObserverButton(props) {
     return changeToObserver(marketId);
   }
 
+  const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
   return (
-    <SpinBlockingButton
+    <SpinningTooltipIconButton
       marketId={marketId}
       onClick={myOnClick}
       onSpinStop={onClick}
-    >
-      <TooltipIconButton
-        disabled={operationRunning}
-        translationId="decisionDialogsBecomeObserver"
-        icon={<VisibilityIcon />}
-      />
-    </SpinBlockingButton>
+      disabled={operationRunning}
+      translationId="decisionDialogsBecomeObserver"
+      icon={<VisibilityIcon />}
+    />
   );
 }
 

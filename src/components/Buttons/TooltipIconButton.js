@@ -5,21 +5,33 @@ import { IconButton, Tooltip } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 
 function TooltipIconButton(props) {
-  const { onClick, size, icon, translationId, disabled } = props;
+  const {
+    onClick, size, icon, translationId, disabled,
+  } = props;
   const intl = useIntl();
   return (
-    <Tooltip
-      title={intl.formatMessage({ id: translationId })}
-    >
+    <>
+      {!disabled && (
+      <Tooltip
+        title={intl.formatMessage({ id: translationId })}
+      >
+        <IconButton
+          onClick={onClick}
+        >
+          {React.cloneElement(icon, { size })}
+        </IconButton>
+      </Tooltip>
+      )}
+      {disabled && (
       <IconButton
         disabled={disabled}
         onClick={onClick}
       >
         {React.cloneElement(icon, { size })}
       </IconButton>
-    </Tooltip>
+      )}
+    </>
   );
-
 }
 
 TooltipIconButton.propTypes = {

@@ -4,7 +4,7 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import { changeToParticipant } from '../../../api/markets';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import { withSpinLock } from '../../../components/SpinBlocking/SpinBlockingHOC';
 
 
 function ChangeToParticipantButton(props) {
@@ -14,19 +14,16 @@ function ChangeToParticipantButton(props) {
   function myOnClick() {
     return changeToParticipant(marketId);
   }
-
+  const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
   return (
-    <SpinBlockingButton
+    <SpinningTooltipIconButton
       marketId={marketId}
       onClick={myOnClick}
       onSpinStop={onClick}
-    >
-      <TooltipIconButton
-        disabled={operationRunning}
-        translationId="decisionDialogsBecomeParticipant"
-        icon={<ThumbsUpDownIcon />}
-      />
-    </SpinBlockingButton>
+      disabled={operationRunning}
+      translationId="decisionDialogsBecomeParticipant"
+      icon={<ThumbsUpDownIcon />}
+    />
   );
 }
 

@@ -109,7 +109,7 @@ function InvestibleAdd(props) {
       name,
       stageInfo: stageChangeInfo, // ignored by addDecisionInvestible
     };
-    const promise = addDirectToVoting ? addInvestibleToStage(addInfo)
+    const promise = isAdmin && addDirectToVoting ? addInvestibleToStage(addInfo)
       : addDecisionInvestible(addInfo);
     return promise.then((investibleId) => {
       const link = formInvestibleLink(marketId, investibleId);

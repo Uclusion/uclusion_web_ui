@@ -65,7 +65,7 @@ function InitiativeDialogs(props) {
     setMarketExtensionVisible(newValue, marketId);
   }
 
-  function getDialogActions(marketId, myPresence) {
+  function getDialogActions(marketId, myPresence, marketStage) {
     const { is_admin, following } = myPresence;
     const actions = [];
     actions.push(
@@ -77,31 +77,37 @@ function InitiativeDialogs(props) {
       />,
     );
     if (is_admin) {
-      actions.push(
-        <TooltipIconButton
-          key="deadline"
-          translationId="decisionDialogsExtendDeadline"
-          onClick={() => toggleMarketExtensionVisible(marketId)}
-          icon={<UpdateIcon />}
-        />,
-      );
-      actions.push(
-        <ArchiveMarketButton key="archive" marketId={marketId} />,
-      );
+      if (marketStage === 'Active') {
+        actions.push(
+          <TooltipIconButton
+            key="deadline"
+            translationId="decisionDialogsExtendDeadline"
+            onClick={() => toggleMarketExtensionVisible(marketId)}
+            icon={<UpdateIcon/>}
+          />,
+        );
+      }
+      else {
+        actions.push(
+          <ArchiveMarketButton key="archive" marketId={marketId}/>,
+        );
+      }
     } else {
       // admins can't exit a dialog or change their role
       actions.push(
         <LeaveMarketButton key="leave" marketId={marketId} />,
       );
-      // if participant you can become observer, or if observer you can become participant
-      if (following) {
-        actions.push(
-          <ChangeToObserverButton key="observe" marketId={marketId} />,
-        );
-      } else {
-        actions.push(
-          <ChangeToParticipantButton key="participate" marketId={marketId} />,
-        );
+      if (marketStage === 'Active') {
+        // if participant you can become observer, or if observer you can become participant
+        if (following) {
+          actions.push(
+            <ChangeToObserverButton key="observe" marketId={marketId}/>,
+          );
+        } else {
+          actions.push(
+            <ChangeToParticipantButton key="participate" marketId={marketId}/>,
+          );
+        }
       }
     }
     return actions;
@@ -111,7 +117,7 @@ function InitiativeDialogs(props) {
     return sortedMarkets.map((market) => {
       const {
         id: marketId, created_at: createdAt, expiration_minutes: expirationMinutes,
-        market_type: marketType,
+        market_type: marketType, market_stage: marketStage,
       } = market;
       const investibles = getMarketInvestibles(investiblesState, marketId);
       if (!investibles || _.isEmpty(investibles)) {
@@ -179,7 +185,7 @@ function InitiativeDialogs(props) {
               </Grid>
             </CardContent>
             <CardActions>
-              {getDialogActions(marketId, myPresence)}
+              {getDialogActions(marketId, myPresence, marketStage)}
             </CardActions>
             <DeadlineExtender
               hidden={!showExtension[marketId]}

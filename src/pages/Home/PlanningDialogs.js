@@ -57,7 +57,7 @@ function PlanningDialogs(props) {
     const blockedStage = getBlockedStage(marketStagesState, marketId);
     const loaded = votingStage && acceptedStage && reviewStage;
     if (!loaded) {
-      return <React.Fragment />; // TODO; this should render a better stub
+      return <></>; // TODO; this should render a better stub
     }
     return presences.map((presence) => {
       const { id: userId, name } = presence;
@@ -126,8 +126,8 @@ function PlanningDialogs(props) {
     setInviteVisible(newValue, marketId);
   }
 
-  function getDialogActions(marketId, myPresence) {
-    const { following } = myPresence;
+  function getDialogActions(marketId, myPresence, marketStage) {
+    const { following, is_admin: isAdmin } = myPresence;
     const actions = [];
     actions.push(
       <TooltipIconButton
@@ -137,28 +137,34 @@ function PlanningDialogs(props) {
         onClick={() => toggleInviteVisible(marketId)}
       />,
     );
-    actions.push(
-      <ArchiveMarketButton key="archive" marketId={marketId} />,
-    );
+    if (marketStage === 'Active') {
+      if (isAdmin) {
+        actions.push(
+          <ArchiveMarketButton key="archive" marketId={marketId}/>,
+        );
+      }
+      // if participant you can become observer, or if observer you can become participant
+      if (following) {
+        actions.push(
+          <ChangeToObserverButton key="observe" marketId={marketId} />,
+        );
+      } else {
+        actions.push(
+          <ChangeToParticipantButton key="participate" marketId={marketId} />,
+        );
+      }
+    }
     actions.push(
       <LeaveMarketButton key="leave" marketId={marketId} />,
     );
-    // if participant you can become observer, or if observer you can become participant
-    if (following) {
-      actions.push(
-        <ChangeToObserverButton key="observe" marketId={marketId} />,
-      );
-    } else {
-      actions.push(
-        <ChangeToParticipantButton key="participate" marketId={marketId} />,
-      );
-    }
     return actions;
   }
 
   function getMarketItems() {
     return sortedMarkets.map((market) => {
-      const { id: marketId, name, market_type } = market;
+      const {
+        id: marketId, name, market_type: marketType, market_stage: marketStage,
+      } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
@@ -175,7 +181,7 @@ function PlanningDialogs(props) {
             border={1}
           >
             <CardContent>
-              {getDialogTypeIcon(market_type)}
+              {getDialogTypeIcon(marketType)}
               <Typography>
                 <Link
                   href="#"
@@ -237,7 +243,7 @@ function PlanningDialogs(props) {
               {getParticipantInfo(sortedPresences, marketId)}
             </CardContent>
             <CardActions>
-              {getDialogActions(marketId, myPresence)}
+              {getDialogActions(marketId, myPresence, marketStage)}
             </CardActions>
             <InviteLinker
               hidden={!showInvite[marketId]}

@@ -6,7 +6,6 @@ import {
 import PropTypes from 'prop-types';
 import { updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import { submitToModerator } from '../../../api/marketInvestibles';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getProposedOptionsStage,

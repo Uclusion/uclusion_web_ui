@@ -81,7 +81,11 @@ export function withSpinLock(Component) {
     onSpinStart: PropTypes.func,
     onSpinStop: PropTypes.func,
     onClick: PropTypes.func,
-    marketId: PropTypes.string.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    marketId: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]).isRequired,
     children: PropTypes.node.isRequired,
     disabled: PropTypes.bool,
   };

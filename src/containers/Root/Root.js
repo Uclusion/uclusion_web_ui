@@ -39,7 +39,7 @@ const useStyles = makeStyles({
   },
 });
 
-function Root(props) {
+function Root() {
   console.debug('Root being rerendered');
   const history = useHistory();
   const classes = useStyles();
@@ -87,13 +87,16 @@ function Root(props) {
         sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
       });
   }
+  let hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible()
+    && hideDialogArchives() && hideArchvies());
   if (hash) {
     const values = queryString.parse(hash);
     const { nonce } = values;
     if (nonce) {
+      hidePNF = true;
       getAccountClient()
         .then((client) => client.users.register(nonce))
-        .then(() => navigate(history, '/dialogs'))
+        .then(() => navigate(history, '/'))
         .catch((error) => {
           console.error(error);
           sendIntlMessage(ERROR, { id: 'slack_register_failed' });
@@ -144,7 +147,6 @@ function Root(props) {
     };
   }, []);
 
-  const hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible() && hideDialogArchives() && hideArchvies());
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />

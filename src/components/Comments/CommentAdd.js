@@ -5,8 +5,6 @@ import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
 import PropTypes from 'prop-types';
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPLY_TYPE } from '../../constants/comments';
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { addComment } from '../../contexts/CommentsContext/commentsContextHelper';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
@@ -37,7 +35,6 @@ const useStyles = makeStyles(() => {
 
 function CommentAdd(props) {
   const { intl, marketId, onSave, onCancel, type, investible, parent, hidden } = props;
-  const [, commentsDispatch] = useContext(CommentsContext);
   const [body, setBody] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const classes = useStyles();
@@ -60,10 +57,7 @@ function CommentAdd(props) {
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     const apiType = (type === REPLY_TYPE) ? undefined : type;
     const investibleId = (investible) ? investible.id : parentInvestible;
-    return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
-      .then((result) => {
-        addComment(commentsDispatch, marketId, result);
-      });
+    return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads);
   }
 
   function handleCancel() {

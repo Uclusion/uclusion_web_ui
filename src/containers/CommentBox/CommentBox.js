@@ -7,7 +7,6 @@ import Comment from '../../components/Comments/Comment';
 function CommentBox(props) {
 
   const { comments, marketId } = props;
-  const commentsHash = _.keyBy(comments, 'id');
 
   const threadRoots = comments.filter((comment) => !comment.reply_id);
   console.log(threadRoots);
@@ -27,7 +26,7 @@ function CommentBox(props) {
               depth={0}
               marketId={marketId}
               comment={comment}
-              commentsHash={commentsHash}
+              comments={comments}
             />
           </div>
         </Grid>

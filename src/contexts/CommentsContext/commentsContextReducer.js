@@ -4,7 +4,6 @@ import { COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_COMMENTS = 'UPDATE_MARKET_COMMENTS';
-const UPDATE_MARKET_COMMENT = 'UPDATE_MARKET_COMMENT';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
 
 /** Messages we can send to the reducer */
@@ -23,14 +22,6 @@ export function updateMarketComments(marketId, comments) {
   };
 }
 
-export function updateMarketComment(marketId, comment) {
-  return {
-    type: UPDATE_MARKET_COMMENT,
-    marketId,
-    comment,
-  };
-}
-
 export function removeMarketsComments(marketIds) {
   return {
     type: REMOVE_MARKETS_COMMENT,
@@ -40,37 +31,6 @@ export function removeMarketsComments(marketIds) {
 
 
 /** Functions that update the reducer state */
-
-function doUpdateComment(state, action) {
-  const { marketId, comment: commentUpdate } = action;
-  const { id } = commentUpdate;
-  const newUpdated = commentUpdate.updated_at || Date(0);
-  const oldMarketComments = state[marketId] || [];
-  // first we update the comments themselves
-  const oldComment = oldMarketComments.find((comment) => comment.id === id);
-  let newComment = {
-    ...commentUpdate,
-    updated_at: newUpdated,
-  };
-  if (oldComment) {
-    console.debug('Updating old comment');
-    newComment = { ...oldComment, ...commentUpdate };
-  }
-  const parent = oldMarketComments.find((comment) => comment.id === commentUpdate.reply_id);
-  const updateList = [newComment];
-  if (parent && !oldComment) {
-    const oldChildren = parent.children || [];
-    const newChildren = [...oldChildren, id];
-    const newParent = { ...parent, children: newChildren };
-    updateList.push(newParent);
-  }
-  const newMarketComments = _.unionBy(updateList, oldMarketComments, 'id');
-  console.log(newMarketComments);
-  return {
-    ...state,
-    [marketId]: newMarketComments,
-  };
-}
 
 function doUpdateMarketComments(state, action) {
   const { marketId, comments } = action;
@@ -89,8 +49,6 @@ function computeNewState(state, action) {
   switch (action.type) {
     case UPDATE_MARKET_COMMENTS:
       return doUpdateMarketComments(state, action);
-    case UPDATE_MARKET_COMMENT:
-      return doUpdateComment(state, action);
     case REMOVE_MARKETS_COMMENT:
       return doRemoveMarketsComments(state, action);
     case INITIALIZE_STATE:

@@ -8,8 +8,8 @@ import {
 } from '@material-ui/core';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import CommentAdd from './CommentAdd';
+import _ from 'lodash';
 import { REPLY_TYPE } from '../../constants/comments';
-
 import RaisedCard from '../Cards/RaisedCard';
 import { reopenComment, resolveComment } from '../../api/comments';
 import { getCommentTypeIcon } from './commentFunctions';
@@ -18,34 +18,38 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 
 function Comment(props) {
   const {
-    comment, commentsHash, depth, marketId,
+    comment,
+    depth,
+    marketId,
+    comments,
   } = props;
   const intl = useIntl();
-  const { children, id, comment_type } = comment;
-
+  const { id, comment_type } = comment;
+  const children = comments.filter((comment) => comment.reply_id === id);
+  const sortedChildren = _.sortBy(children, 'created_at');
   const [replyOpen, setReplyOpen] = useState(false);
   const [toggledOpen, setToggledOpen] = useState(false);
-  const [operationRunning] = useContext(OperationInProgressContext);
+    const [operationRunning] = useContext(OperationInProgressContext);
 
 
   function getChildComments() {
-    if (children) {
-      return children.map((childId) => {
-        const child = commentsHash[childId];
-        const childDepth = depth + 1;
-        // we are rendering ourselves, so we don't get the injection automagically
-        return (
-          <Comment
-            key={childId}
-            comment={child}
-            depth={childDepth}
-            marketId={marketId}
-            commentsHash={commentsHash}
-          />
-        );
-      });
+    if (_.isEmpty(sortedChildren)) {
+      return <React.Fragment />;
     }
-    return <div />;
+    return sortedChildren.map((child) => {
+      const { id: childId } = child;
+      const childDepth = depth + 1;
+      // we are rendering ourselves, so we don't get the injection automagically
+      return (
+        <Comment
+          key={childId}
+          comment={child}
+          depth={childDepth}
+          marketId={marketId}
+          comments={comments}
+        />
+      );
+    });
   }
 
   function toggleReply() {
@@ -63,8 +67,9 @@ function Comment(props) {
   function flipToggledOpen() {
     setToggledOpen(!toggledOpen);
   }
+
   const isRoot = !comment.reply_id;
-  const expanded = replyOpen || toggledOpen || (isRoot && !comment.resolved);
+  const expanded = replyOpen || toggledOpen || (isRoot && !comment.resolved) || comment.reply_id;
   const icon = getCommentTypeIcon(comment_type);
   return (
     <RaisedCard>
@@ -77,7 +82,7 @@ function Comment(props) {
           item
           xs={12}
         >
-          <ReadOnlyQuillEditor value={comment.body} />
+          <ReadOnlyQuillEditor value={comment.body}/>
         </Grid>
         <Grid
           item
@@ -111,7 +116,7 @@ function Comment(props) {
               {children && (
                 <Button onClick={flipToggledOpen}>
                   {!toggledOpen && intl.formatMessage({ id: 'commentViewThreadLabel' })}
-                  {toggledOpen && intl.formatMessage( {id: 'commentCloseThreadLabel'})}
+                  {toggledOpen && intl.formatMessage({ id: 'commentCloseThreadLabel' })}
                 </Button>
               )}
               <SpinBlockingButton
@@ -155,7 +160,7 @@ Comment.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   comment: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
-  commentsHash: PropTypes.object.isRequired,
+  comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   depth: PropTypes.number.isRequired,
   marketId: PropTypes.string.isRequired,
 };

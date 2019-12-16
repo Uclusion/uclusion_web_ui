@@ -29,6 +29,9 @@ export function getHiddenMarketDetailsForUser(state, marketPresenceState) {
     return marketDetails.filter((market) => {
       const { id } = market;
       const marketPresences = getMarketPresences(marketPresenceState, id);
+      if (!marketPresences) {
+        return [];
+      }
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       return myPresence.market_hidden;
     });

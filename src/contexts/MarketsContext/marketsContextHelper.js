@@ -15,10 +15,10 @@ export function getMyUserForMarket(state, marketId) {
   return undefined;
 }
 
-export function getActiveMarketDetailsForType(state, marketType = 'DECISION') {
+export function getMarketDetailsForType(state, marketType = 'DECISION') {
   if (state.marketDetails) {
     // eslint-disable-next-line max-len
-    return state.marketDetails.filter((market) => market.market_type === marketType && market.market_stage === ACTIVE_STAGE);
+    return state.marketDetails.filter((market) => market.market_type === marketType);
   }
   return null;
 }

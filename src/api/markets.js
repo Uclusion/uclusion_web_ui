@@ -70,8 +70,9 @@ export function leaveMarket(marketId) {
 }
 
 export function archiveMarket(marketId) {
+  const updateOptions = { market_stage: 'Inactive' };
   return getMarketClient(marketId)
-    .then((client) => client.markets.hide())
+    .then((client) => client.markets.updateMarket(updateOptions))
     .catch((error) => toastErrorAndThrow(error, 'errorMarketArchiveFailed'));
 }
 
@@ -94,24 +95,17 @@ export function unlockPlanningMarketForEdit(marketId) {
 }
 
 export function getMarketUsers(marketId) {
-  if(!marketId) {
+  if (!marketId) {
     console.error('No marketId');
-    throw new Error("NO MARKET ID");
+    throw new Error('NO MARKET ID');
   }
   return getMarketClient(marketId)
-    .then((client) => {
-      return client.users.get() // this is me
-        .then((user) => {
-          return client.markets.listUsers()
-            .then((presences) => {
-              return presences.map((presence) => {
-                if (presence.id === user.id) {
-                  return { ...presence, current_user: true };
-                }
-                return presence;
-              });
-            });
-        });
-    });
+    .then((client) => client.users.get() // this is me
+      .then((user) => client.markets.listUsers()
+        .then((presences) => presences.map((presence) => {
+          if (presence.id === user.id) {
+            return { ...presence, current_user: true };
+          }
+          return presence;
+        }))));
 }
-

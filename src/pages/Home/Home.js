@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core';
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import {
-  getActiveMarketDetailsForType,
+  getMarketDetailsForType,
   getNotHiddenMarketDetailsForUser,
 } from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningDialogs from './PlanningDialogs';
@@ -37,9 +37,9 @@ function Home(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState,
     marketPresencesState);
-  const planningDetails = getActiveMarketDetailsForType(myNotHiddenMarketsState, PLANNING_TYPE);
-  const decisionDetails = getActiveMarketDetailsForType(myNotHiddenMarketsState, DECISION_TYPE);
-  const initiativeDetails = getActiveMarketDetailsForType(myNotHiddenMarketsState, INITIATIVE_TYPE);
+  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, PLANNING_TYPE);
+  const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, DECISION_TYPE);
+  const initiativeDetails = getMarketDetailsForType(myNotHiddenMarketsState, INITIATIVE_TYPE);
   const [planningAddMode, setPlanningAddMode] = useState(false);
   const [decisionAddMode, setDecisionAddMode] = useState(false);
   const [initiativeAddMode, setInitiativeAddMode] = useState(false);

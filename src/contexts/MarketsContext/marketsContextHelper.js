@@ -1,4 +1,3 @@
-import { ACTIVE_STAGE } from '../../constants/markets';
 import { getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper';
 
 export function getMarket(state, marketId) {

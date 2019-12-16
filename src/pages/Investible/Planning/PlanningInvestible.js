@@ -34,6 +34,8 @@ import { scrollToCommentAddBox } from '../../../components/Comments/commentFunct
 import MoveToAcceptedActionButton from './MoveToAcceptedActionButton';
 import MoveToInReviewActionButton from './MoveToInReviewActionButton';
 import PlanningInvestibleEditActionButton from './PlanningInvestibleEditActionButton';
+import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
+import { convertDates } from '../../../contexts/ContextUtils';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -54,7 +56,7 @@ function PlanningInvestible(props) {
     toggleEdit,
     isAdmin,
   } = props;
-  const { name: marketName, id: marketId } = market;
+  const { name: marketName, id: marketId, investment_expiration: expirationDays } = market;
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
@@ -96,6 +98,20 @@ function PlanningInvestible(props) {
         : isInBlocked ? intl.formatMessage({ id: 'planningBlockedStageLabel' })
           : isInVerified ? intl.formatMessage({ id: 'planningVerifiedStageLabel' })
             : intl.formatMessage({ id: 'planningNotDoingStageLabel' });
+
+  function getNewestVote() {
+    let latest;
+    marketPresences.forEach((presence) => {
+      const { investments } = presence;
+      investments.forEach((investment) => {
+        const { updated_at: updatedAt } = convertDates(investment);
+        if (!latest || updatedAt > latest) {
+          latest = updatedAt;
+        }
+      });
+    });
+    return latest;
+  }
 
   function commentButtonOnClick(type) {
     setCommentAddType(type);
@@ -209,8 +225,8 @@ function PlanningInvestible(props) {
   sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
   sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
 
-
   const discussionVisible = !commentAddHidden || !_.isEmpty(investmentReasonsRemoved);
+  const newestVote = getNewestVote();
 
   return (
     <Screen
@@ -223,6 +239,12 @@ function PlanningInvestible(props) {
       <Typography>
         {stageName}
       </Typography>
+      {newestVote && (
+        <ExpiresDisplay
+          createdAt={newestVote}
+          expirationMinutes={expirationDays * 1440}
+        />
+      )}
       {lockedBy && (
         <Typography>
           {intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName })}
@@ -286,7 +308,7 @@ function PlanningInvestible(props) {
               onSave={closeCommentAdd}
               onCancel={closeCommentAdd}
             />
-            <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+            <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
           </SubSection>
         )}
       </div>

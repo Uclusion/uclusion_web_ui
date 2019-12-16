@@ -86,5 +86,5 @@ function fixupItemsForStorage(items) {
 }
 
 export {
-  getOutdatedObjectIds, removeDeletedObjects, fixupItemsForStorage, fixupItemForStorage,
+  getOutdatedObjectIds, removeDeletedObjects, fixupItemsForStorage, fixupItemForStorage, convertDates,
 };

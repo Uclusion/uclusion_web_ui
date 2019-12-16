@@ -166,8 +166,7 @@ function CurrentVoting(props) {
   const talliesArray = Object.values(tallies);
   // descending order of support
   const sortedTalliesArray = _.sortBy(talliesArray, 'numSupporters', 'name').reverse();
-  console.log(sortedTalliesArray);
-
+  
   return (
     <Grid
       container

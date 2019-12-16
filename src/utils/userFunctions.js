@@ -16,7 +16,7 @@ export function getVoteTotalsForUser(presence) {
     const { investible_id, quantity } = investment;
     return {
       ...uInv,
-      [investible_id]: { x: name, y: quantity, color: quantity / 30 },
+      [investible_id]: { x: name, y: quantity, color: quantity / 30},
     };
   }, {});
 }
@@ -96,6 +96,40 @@ export function getVotedInvestible(presence, marketInvestibles) {
   return investible;
 }
 
+function mapCertaintyToBin(certainty) {
+  if (certainty === 100) {
+    return 100;
+  }
+  if (certainty >= 75) {
+    return 75;
+  }
+  if (certainty >= 50) {
+    return 50;
+  }
+  if (certainty >= 25) {
+    return 25;
+  }
+  if (certainty >= 0) {
+    return 0;
+  }
+}
+
+function getInvestmentBins(investments) {
+  const values = {100:0, 75:0, 50:0, 25:0, 0:0 };
+  const colors = {100: 3.333, 75:3, 50:2, 25:1, 0:0}
+  investments.forEach((investment) => {
+    const { y: certainty } = investment;
+    const bin = mapCertaintyToBin(certainty);
+    values[bin] += 1;
+  });
+  return [100, 75, 50, 25, 0].map((bin) => {
+    return {
+      x: bin,
+      y: values[bin],
+      color: colors[bin],
+    }});
+}
+
 export function getCertaintyChart(investments) {
   const margin = {
     top: 0,
@@ -103,12 +137,14 @@ export function getCertaintyChart(investments) {
     left: 0,
     right: 1,
   };
+  const bins = getInvestmentBins(investments);
+  console.log(bins);
   return (
     <XYPlot
       xType="ordinal"
       width={investments.length * 12}
       height={40}
-      yDomain={[0, 100]}
+      yDomain={[0, investments.length]}
       colorDomain={[0, 3]}
       colorRange={['red', 'green']}
       margin={margin}
@@ -116,7 +152,7 @@ export function getCertaintyChart(investments) {
 
       <VerticalBarSeries
         barWidth={0.4}
-        data={investments}
+        data={bins}
       />
     </XYPlot>
   );

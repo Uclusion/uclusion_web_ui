@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
@@ -17,6 +17,7 @@ import Home from '../../pages/Home/Home';
 import Investible from '../../pages/Investible/Investible';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
 import Archives from '../../pages/Archives/Archives';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 const useStyles = makeStyles({
   body: {
@@ -47,6 +48,7 @@ function Root() {
   const { pathname, hash } = location;
   console.debug(`pathname is ${pathname}`);
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
+  const [,setOperationsLocked] = useContext(OperationInProgressContext);
   function hideHome() {
     return !pathname || pathname !== '/';
   }
@@ -118,9 +120,13 @@ function Root() {
       pegView(false);
     });
     const onlineListener = window.addEventListener('online', () => {
+      console.debug('Back Online');
+      setOperationsLocked(false);
       pegView(true);
     });
     const offlineListener = window.addEventListener('offline', () => {
+      console.debug('Offline');
+      setOperationsLocked(true);
       pegView(false);
     });
     const visibilityChange = document.addEventListener('visibilitychange', () => {
@@ -145,7 +151,7 @@ function Root() {
         visibilityChange.remove();
       }
     };
-  }, []);
+  });
 
   return (
     <ThemeProvider theme={defaultTheme}>

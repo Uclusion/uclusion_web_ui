@@ -138,7 +138,6 @@ export function getCertaintyChart(investments) {
     right: 1,
   };
   const bins = getInvestmentBins(investments);
-  console.log(bins);
   return (
     <XYPlot
       xType="ordinal"

@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core';
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getActiveMarketDetailsForType } from '../../contexts/MarketsContext/marketsContextHelper';
+import {
+  getActiveMarketDetailsForType,
+  getNotHiddenMarketDetailsForUser,
+} from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningDialogs from './PlanningDialogs';
 import SubSection from '../../containers/SubSection/SubSection';
 import DecisionDialogs from './DecisionDialogs';
@@ -17,6 +20,7 @@ import InitiativeAdd from './InitiativeAdd';
 import InitiativeDialogs from './InitiativeDialogs';
 import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { useIntl } from 'react-intl';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 
 const useStyles = makeStyles(() => ({
@@ -30,9 +34,12 @@ function Home(props) {
   const classes = useStyles();
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
-  const planningDetails = getActiveMarketDetailsForType(marketsState, PLANNING_TYPE);
-  const decisionDetails = getActiveMarketDetailsForType(marketsState, DECISION_TYPE);
-  const initiativeDetails = getActiveMarketDetailsForType(marketsState, INITIATIVE_TYPE);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState,
+    marketPresencesState);
+  const planningDetails = getActiveMarketDetailsForType(myNotHiddenMarketsState, PLANNING_TYPE);
+  const decisionDetails = getActiveMarketDetailsForType(myNotHiddenMarketsState, DECISION_TYPE);
+  const initiativeDetails = getActiveMarketDetailsForType(myNotHiddenMarketsState, INITIATIVE_TYPE);
   const [planningAddMode, setPlanningAddMode] = useState(false);
   const [decisionAddMode, setDecisionAddMode] = useState(false);
   const [initiativeAddMode, setInitiativeAddMode] = useState(false);

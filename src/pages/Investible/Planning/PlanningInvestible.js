@@ -64,7 +64,15 @@ function PlanningInvestible(props) {
   const marketInfo = getMarketInfo(marketInvestible, marketId);
   const { stage, assigned } = marketInfo;
   const { investible } = marketInvestible;
-  const { description, name } = investible;
+  const { description, name, locked_by: lockedBy } = investible;
+  let lockedByName;
+  if (lockedBy) {
+    const lockedByPresence = marketPresences.find((presence) => presence.id === lockedBy);
+    if (lockedByPresence) {
+      const { name } = lockedByPresence;
+      lockedByName = name;
+    }
+  }
   const commentAddRef = useRef(null);
   const [marketStagesState] = useContext(MarketStagesContext);
   const inReviewStage = getInReviewStage(marketStagesState, marketId);
@@ -215,6 +223,11 @@ function PlanningInvestible(props) {
       <Typography>
         {stageName}
       </Typography>
+      {lockedBy && (
+        <Typography>
+          {intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName })}
+        </Typography>
+      )}
       {(!assigned || !assigned.includes(userId)) && isInVoting && (
         <SubSection
           title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}

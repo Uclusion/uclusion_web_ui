@@ -5,7 +5,7 @@ import React, { useState, useRef } from 'react';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { Grid } from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import ListSubheader from '@material-ui/core/ListSubheader';
@@ -52,6 +52,15 @@ function PlanningDialog(props) {
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);
   const [dialogEditMode, setDialogEditMode] = useState(false);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
+  const { name: marketName, locked_by: lockedBy } = market;
+  let lockedByName;
+  if (lockedBy) {
+    const lockedByPresence = marketPresences.find((presence) => presence.id === lockedBy);
+    if (lockedByPresence) {
+      const { name } = lockedByPresence;
+      lockedByName = name;
+    }
+  }
 
   function toggleAddInvestibleMode() {
     setAddInvestibleMode(!addInvestibleMode);
@@ -77,9 +86,9 @@ function PlanningDialog(props) {
   if (dialogEditMode) {
     return (
       <Screen
-        title={market.name}
+        title={marketName}
         hidden={hidden}
-        tabTitle={market.name}
+        tabTitle={marketName}
         breadCrumbs={breadCrumbs}
       >
         <DialogEdit
@@ -95,9 +104,9 @@ function PlanningDialog(props) {
   if (addInvestibleMode) {
     return (
       <Screen
-        title={market.name}
+        title={marketName}
         hidden={hidden}
-        tabTitle={market.name}
+        tabTitle={marketName}
         breadCrumbs={breadCrumbs}
       >
         <InvestibleAdd
@@ -200,9 +209,9 @@ function PlanningDialog(props) {
   const sidebarActions = getSidebarActions();
   return (
     <Screen
-      title={market.name}
+      title={marketName}
       hidden={hidden}
-      tabTitle={market.name}
+      tabTitle={marketName}
       breadCrumbs={breadCrumbs}
       sidebarActions={sidebarActions}
     >
@@ -218,6 +227,11 @@ function PlanningDialog(props) {
             title={intl.formatMessage({ id: 'planningDialogSummaryLabel' })}
           >
             <Summary market={market} />
+            {lockedBy && (
+              <Typography>
+                {intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName })}
+              </Typography>
+            )}
           </SubSection>
         </Grid>
         <Grid

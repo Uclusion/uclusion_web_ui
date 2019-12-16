@@ -208,6 +208,7 @@ const messages = defineMessages({
   planningVerifiedStageLabel: 'Verified',
   planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'Assignments',
+  lockedBy: 'Locked by {x}',
 
   // Issues
   issueResolveLabel: 'Resolve',

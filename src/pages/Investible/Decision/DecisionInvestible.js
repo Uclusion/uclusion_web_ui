@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
+import { Typography } from '@material-ui/core';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from './Voting/YourVoting';
 import Voting from './Voting';
@@ -59,7 +60,17 @@ function DecisionInvestible(props) {
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const inProposed = marketInfo.stage === inProposedStage.id;
 
-  const { description, name, created_by: createdBy } = investible;
+  const {
+    description, name, created_by: createdBy, locked_by: lockedBy,
+  } = investible;
+  let lockedByName;
+  if (lockedBy) {
+    const lockedByPresence = marketPresences.find((presence) => presence.id === lockedBy);
+    if (lockedByPresence) {
+      const { name } = lockedByPresence;
+      lockedByName = name;
+    }
+  }
 
   const commentAddRef = useRef(null);
 
@@ -110,6 +121,11 @@ function DecisionInvestible(props) {
       hidden={false}
       sidebarActions={sidebarActions}
     >
+      {inProposed && lockedBy && (
+        <Typography>
+          {intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName })}
+        </Typography>
+      )}
       {!inProposed && (
         <SubSection
           title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}

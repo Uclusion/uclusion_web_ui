@@ -209,6 +209,7 @@ const messages = defineMessages({
   planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'Assignments',
   lockedBy: 'Locked by {x}',
+  newStory: 'New Story',
 
   // Issues
   issueResolveLabel: 'Resolve',

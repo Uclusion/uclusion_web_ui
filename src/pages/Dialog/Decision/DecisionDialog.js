@@ -4,7 +4,7 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { Grid } from '@material-ui/core';
 import Summary from '../Summary';
@@ -36,7 +36,7 @@ function DecisionDialog(props) {
 
   const commentAddRef = useRef(null);
   const intl = useIntl();
-
+  const { name: marketName } = market;
   const { is_admin: isAdmin } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
@@ -85,9 +85,9 @@ function DecisionDialog(props) {
   if (dialogEditMode) {
     return (
       <Screen
-        title={market.name}
+        title={marketName}
         hidden={hidden}
-        tabTitle={market.name}
+        tabTitle={marketName}
         breadCrumbs={breadCrumbs}
       >
         <DialogEdit
@@ -101,12 +101,15 @@ function DecisionDialog(props) {
 
   // if we're adding an investible, just render it with the screen
   if (addInvestibleMode) {
+    const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
+    const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+    const newStory = intl.formatMessage({ id: 'newStory' });
     return (
       <Screen
-        title={market.name}
+        title={newStory}
         hidden={hidden}
-        tabTitle={market.name}
-        breadCrumbs={breadCrumbs}
+        tabTitle={newStory}
+        breadCrumbs={myBreadCrumbs}
       >
         <InvestibleAdd
           marketId={marketId}
@@ -145,8 +148,8 @@ function DecisionDialog(props) {
   const sidebarActions = getSidebarActions();
   return (
     <Screen
-      title={market.name}
-      tabTitle={market.name}
+      title={marketName}
+      tabTitle={marketName}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
       sidebarActions={sidebarActions}

@@ -172,7 +172,7 @@ function Screen(props) {
           {breadCrumbs.map((crumb, index) => (
             <Link key={index} href="#" onClick={crumb.onClick} underline="always" color="primary">
               {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage} />}
-              {!crumb.image && crumb.title}
+              {!crumb.image && createTitle(crumb.title, 25)}
             </Link>
           ))}
           <Typography color="textPrimary">{createTitle(title, 25)}</Typography>

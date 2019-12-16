@@ -13,7 +13,7 @@ import Summary from '../Summary';
 import PlanningIdeas from './PlanningIdeas';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import Screen from '../../../containers/Screen/Screen';
-import { makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
@@ -102,12 +102,15 @@ function PlanningDialog(props) {
 
   // if we're adding an investible, just render it with the screen
   if (addInvestibleMode) {
+    const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
+    const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+    const newStory = intl.formatMessage({ id: 'newStory' });
     return (
       <Screen
-        title={marketName}
+        title={newStory}
         hidden={hidden}
-        tabTitle={marketName}
-        breadCrumbs={breadCrumbs}
+        tabTitle={newStory}
+        breadCrumbs={myBreadCrumbs}
       >
         <InvestibleAdd
           marketId={marketId}

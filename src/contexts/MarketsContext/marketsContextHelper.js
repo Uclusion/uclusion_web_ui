@@ -1,4 +1,4 @@
-import { ACTIVE_STAGE, ARCHIVED_STAGE } from '../../constants/markets';
+import { ACTIVE_STAGE } from '../../constants/markets';
 import { getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper';
 
 export function getMarket(state, marketId) {
@@ -23,6 +23,19 @@ export function getActiveMarketDetailsForType(state, marketType = 'DECISION') {
   return null;
 }
 
+export function getHiddenMarketDetailsForUser(state, marketPresenceState) {
+  const { marketDetails } = state;
+  if (marketDetails) {
+    return marketDetails.filter((market) => {
+      const { id } = market;
+      const marketPresences = getMarketPresences(marketPresenceState, id);
+      const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+      return myPresence.market_hidden;
+    });
+  }
+  return [];
+}
+
 export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {
   if (state.marketDetails) {
     const newMarketDetails = state.marketDetails.filter((market) => {
@@ -34,14 +47,6 @@ export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {
     return { marketDetails: newMarketDetails };
   }
   return state;
-}
-
-export function getArchivedMarketDetailsForType(state, marketType = 'DECISION') {
-  if (state.marketDetails) {
-    // eslint-disable-next-line max-len
-    return state.marketDetails.filter((market) => market.market_type === marketType && market.market_stage === ARCHIVED_STAGE);
-  }
-  return null;
 }
 
 

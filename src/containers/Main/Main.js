@@ -13,6 +13,7 @@ import { VersionsProvider } from '../../contexts/VersionsContext/VersionsContext
 import { SidebarProvider } from '../../contexts/SidebarContext';
 import AppWithAuth from '../App/AppWithAuth';
 import { OperationInProgressProvider } from '../../contexts/OperationInProgressContext';
+import OperationInProgressGlobalProvider from '../../components/ContextHacks/OperationInProgressGlobalProvider';
 
 class Main extends Component {
   render() {
@@ -20,26 +21,28 @@ class Main extends Component {
     return (
       <div>
         <OperationInProgressProvider>
-          <NotificationsProvider>
-            <VersionsProvider>
-              <MarketsProvider>
-                <MarketStagesProvider>
-                  <CommentsProvider>
-                    <InvestiblesProvider>
-                      <MarketPresencesProvider>
-                        <LocaleProvider>
-                          <SidebarProvider>
-                            <ToastContainer />
-                            <AppWithAuth />
-                          </SidebarProvider>
-                        </LocaleProvider>
-                      </MarketPresencesProvider>
-                    </InvestiblesProvider>
-                  </CommentsProvider>
-                </MarketStagesProvider>
-              </MarketsProvider>
-            </VersionsProvider>
-          </NotificationsProvider>
+          <OperationInProgressGlobalProvider>
+            <NotificationsProvider>
+              <VersionsProvider>
+                <MarketsProvider>
+                  <MarketStagesProvider>
+                    <CommentsProvider>
+                      <InvestiblesProvider>
+                        <MarketPresencesProvider>
+                          <LocaleProvider>
+                            <SidebarProvider>
+                              <ToastContainer/>
+                              <AppWithAuth/>
+                            </SidebarProvider>
+                          </LocaleProvider>
+                        </MarketPresencesProvider>
+                      </InvestiblesProvider>
+                    </CommentsProvider>
+                  </MarketStagesProvider>
+                </MarketsProvider>
+              </VersionsProvider>
+            </NotificationsProvider>
+          </OperationInProgressGlobalProvider>
         </OperationInProgressProvider>
       </div>
     );

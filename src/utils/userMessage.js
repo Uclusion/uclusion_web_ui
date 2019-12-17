@@ -2,7 +2,8 @@
  Helper class for notifying the user that takes care of all the i18n and message formatting for us
  * */
 import { toast } from 'react-toastify';
-import { intl } from '../components/IntlComponents/IntlGlobalProvider';
+import { intl } from '../components/ContextHacks/IntlGlobalProvider';
+import { setOperationInProgress } from '../components/ContextHacks/OperationInProgressGlobalProvider';
 
 export const INFO = 'info';
 export const WARN = 'warn';
@@ -44,6 +45,9 @@ export function sendIntlMessage(level, i18nMessageId, ii18nMessageValues) {
  */
 export function toastErrorAndThrow(error, messageKey) {
   sendIntlMessage(ERROR, messageKey);
+  if (setOperationInProgress) {
+    setOperationInProgress(false);
+  }
   throw error;
 }
 

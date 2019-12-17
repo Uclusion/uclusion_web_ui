@@ -1,6 +1,6 @@
 import { Hub } from '@aws-amplify/core';
 import { VIEW_EVENT, VISIT_CHANNEL } from '../contexts/NotificationsContext/NotificationsContext';
-import { intl } from '../components/IntlComponents/IntlGlobalProvider';
+import { intl } from '../components/ContextHacks/IntlGlobalProvider';
 
 
 /** Given the pathpart _without the hash or query params

@@ -129,7 +129,7 @@ function Root() {
     });
     const offlineListener = window.addEventListener('offline', () => {
       console.debug('Offline');
-      setOperationsLocked(true);
+      //setOperationsLocked(true);
       setOnline(false);
       pegView(false);
     });

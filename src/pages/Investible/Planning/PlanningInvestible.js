@@ -239,7 +239,7 @@ function PlanningInvestible(props) {
       <Typography>
         {stageName}
       </Typography>
-      {newestVote && (
+      {newestVote && isInVoting && (
         <ExpiresDisplay
           createdAt={newestVote}
           expirationMinutes={expirationDays * 1440}

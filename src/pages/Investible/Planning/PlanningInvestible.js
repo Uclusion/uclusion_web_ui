@@ -5,7 +5,7 @@ import { Paper, Typography } from '@material-ui/core';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import SubSection from '../../../containers/SubSection/SubSection';
-import YourVoting from '../Decision/Voting/YourVoting';
+import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
@@ -259,7 +259,7 @@ function PlanningInvestible(props) {
             marketPresences={marketPresences}
             comments={investmentReasons}
             userId={userId}
-            marketId={marketId}
+            market={market}
             showBudget
           />
         </SubSection>

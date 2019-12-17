@@ -5,7 +5,7 @@ import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import { Typography } from '@material-ui/core';
 import SubSection from '../../../containers/SubSection/SubSection';
-import YourVoting from './Voting/YourVoting';
+import YourVoting from '../Voting/YourVoting';
 import Voting from './Voting';
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
@@ -135,7 +135,7 @@ function DecisionInvestible(props) {
             marketPresences={marketPresences}
             comments={investmentReasons}
             userId={userId}
-            marketId={marketId}
+            market={market}
           />
         </SubSection>
       )}

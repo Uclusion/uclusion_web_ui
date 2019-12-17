@@ -356,6 +356,13 @@ const messages = defineMessages({
   signupPasswordLabel: 'Password',
   signupSignupLabel: 'Create Account',
 
+
+  // your voting
+  yourVotingVoteForThisPlanning: 'Vote for this story',
+  yourVotingVoteForThisDecision: 'Vote for this option',
+  yourVotingVoteForThisInitiative: 'Vote for this',
+
+
   // API errors
   errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',
   errorPlanningInvestibleAddFailed: 'There was a problem adding the story',

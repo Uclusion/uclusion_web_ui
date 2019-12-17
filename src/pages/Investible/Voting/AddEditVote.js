@@ -14,10 +14,10 @@ import {
   Typography,
   Grid,
 } from '@material-ui/core';
-import { removeInvestment, updateInvestment } from '../../../../api/marketInvestibles';
-import QuillEditor from '../../../../components/TextEditors/QuillEditor';
-import SpinBlockingButton from '../../../../components/SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../../../contexts/OperationInProgressContext';
+import { removeInvestment, updateInvestment } from '../../../api/marketInvestibles';
+import QuillEditor from '../../../components/TextEditors/QuillEditor';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 
 function AddEditVote(props) {
   const {

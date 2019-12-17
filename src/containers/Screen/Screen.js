@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
@@ -13,6 +13,8 @@ import {
   List,
   Divider,
   IconButton,
+  Paper,
+  Popper,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -22,6 +24,8 @@ import Notifications from '../../components/Notifications/Notifications';
 import { SidebarContext } from '../../contexts/SidebarContext';
 import { createTitle } from '../../utils/marketIdPathFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
+import { OnlineStateContext } from '../../contexts/OnlineStateContext';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles((theme) => {
   const drawerWidth = 240;
@@ -93,6 +97,9 @@ const useStyles = makeStyles((theme) => {
       ...theme.mixins.toolbar,
       justifyContent: 'flex-end',
     },
+    elevated: {
+      zIndex: 99,
+    }
   };
 });
 
@@ -117,6 +124,9 @@ function Screen(props) {
   const { location } = history;
   // console.log(history);
   history.listen(scroller);
+  const screenRef = useRef(null);
+
+  const intl = useIntl();
 
   const {
     breadCrumbs,
@@ -156,6 +166,7 @@ function Screen(props) {
   }, [firstRender, location]);
 
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
+  const [online] = useContext(OnlineStateContext);
 
   function getSidebar() {
     return (
@@ -171,7 +182,7 @@ function Screen(props) {
         <Breadcrumbs separator=">">
           {breadCrumbs.map((crumb, index) => (
             <Link key={index} href="#" onClick={crumb.onClick} underline="always" color="primary">
-              {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage} />}
+              {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage}/>}
               {!crumb.image && createTitle(crumb.title, 25)}
             </Link>
           ))}
@@ -183,13 +194,40 @@ function Screen(props) {
   }
 
   return (
-    <div className={hidden ? classes.hidden : classes.root}>
+    <div
+         className={hidden ? classes.hidden : classes.root}
+    >
       {!hidden && (
         <Helmet>
           <title>{`${prePendWarning}Uclusion | ${createTitle(tabTitle, 11)}`}</title>
         </Helmet>
       )}
+      {!hidden && (
+        <Popper
+          className={classes.elevated}
+          open={!online}
+          anchorEl={screenRef.current}
+          placement="top"
+          modifiers={{
+            flip: {
+              enabled: true,
+            },
+            preventOverflow: {
+              enabled: true,
+              boundariesElement: 'window',
+            },
+          }}
+        >
+          <Paper>
+            <Typography>
+              {intl.formatMessage({ id: 'warningOffline' })}
+            </Typography>
+          </Paper>
+        </Popper>
+      )}
+
       <AppBar
+        ref={screenRef}
         className={clsx(classes.appBar, {
           [classes.appBarShift]: sidebarOpen,
         })}
@@ -203,12 +241,12 @@ function Screen(props) {
             edge="start"
             className={clsx(classes.menuButton, sidebarOpen && classes.hidden)}
           >
-            <MenuIcon />
+            <MenuIcon/>
           </IconButton>
           {generateTitle()}
-          <div className={classes.grow} />
+          <div className={classes.grow}/>
           {toolbarButtons}
-          <Notifications />
+          <Notifications/>
 
         </Toolbar>
       </AppBar>
@@ -230,14 +268,14 @@ function Screen(props) {
         <div className={classes.drawerHeader}>
           {sidebarOpen && (
             <IconButton onClick={() => setSidebarOpen(false)}>
-              <ChevronLeftIcon />
+              <ChevronLeftIcon/>
             </IconButton>
           )}
         </div>
-        <Divider />
+        <Divider/>
         {getSidebar()}
       </Drawer>
-      <Toolbar />
+      <Toolbar/>
       <div className={clsx(classes.content, {
         [classes.contentShift]: sidebarOpen,
       })}
@@ -246,16 +284,16 @@ function Screen(props) {
           className={classes.container}
         >
           {title && title.substring && (
-          <AppBar
-            className={classes.subHeader}
-            position="static"
-          >
-            <Toolbar>
-              <Typography>
-                {title}
-              </Typography>
-            </Toolbar>
-          </AppBar>
+            <AppBar
+              className={classes.subHeader}
+              position="static"
+            >
+              <Toolbar>
+                <Typography>
+                  {title}
+                </Typography>
+              </Toolbar>
+            </AppBar>
           )}
           {children}
         </Container>

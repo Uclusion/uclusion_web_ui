@@ -18,6 +18,7 @@ import Investible from '../../pages/Investible/Investible';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
 import Archives from '../../pages/Archives/Archives';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 
 const useStyles = makeStyles({
   body: {
@@ -48,7 +49,8 @@ function Root() {
   const { pathname, hash } = location;
   console.debug(`pathname is ${pathname}`);
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
-  const [,setOperationsLocked] = useContext(OperationInProgressContext);
+  const [, setOperationsLocked] = useContext(OperationInProgressContext);
+  const [, setOnline] = useContext(OnlineStateContext);
   function hideHome() {
     return !pathname || pathname !== '/';
   }
@@ -121,12 +123,14 @@ function Root() {
     });
     const onlineListener = window.addEventListener('online', () => {
       console.debug('Back Online');
+      setOnline(true);
       setOperationsLocked(false);
       pegView(true);
     });
     const offlineListener = window.addEventListener('offline', () => {
       console.debug('Offline');
       setOperationsLocked(true);
+      setOnline(false);
       pegView(false);
     });
     const visibilityChange = document.addEventListener('visibilitychange', () => {

@@ -382,6 +382,9 @@ const messages = defineMessages({
   errorInvestibleFetchFailed: 'There was a problem recieving the data',
   errorInvestibleListFetchFailed: 'There was a problem fetchign the data list',
 
+  // warnings
+  warningOffline: "You are offline",
+
 });
 
 export default messages;

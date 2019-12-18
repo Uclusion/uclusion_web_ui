@@ -6,8 +6,6 @@ import {
   Card,
   CardActions,
   CardContent,
-  FormControlLabel,
-  Switch,
   TextField,
   withStyles,
 } from '@material-ui/core';
@@ -51,7 +49,6 @@ function InvestibleAdd(props) {
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [addDirectToVoting, setAddDirectToVoting] = useState(true);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [, addInvestibleDispatch] = useReducer((state, action) => {
     const { link } = action;
@@ -73,10 +70,6 @@ function InvestibleAdd(props) {
     };
   }
 
-  function handleAddDirect(event) {
-    const { checked } = event.target;
-    setAddDirectToVoting(checked);
-  }
 
   function onEditorChange(description) {
     setDescription(description);
@@ -87,7 +80,6 @@ function InvestibleAdd(props) {
   }
 
   function zeroCurrentValues() {
-    setAddDirectToVoting(false);
     setCurrentValues(emptyInvestible);
     setDescription('');
   }
@@ -109,8 +101,7 @@ function InvestibleAdd(props) {
       name,
       stageInfo: stageChangeInfo, // ignored by addDecisionInvestible
     };
-    const promise = isAdmin && addDirectToVoting ? addInvestibleToStage(addInfo)
-      : addDecisionInvestible(addInfo);
+    const promise = isAdmin ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
     return promise.then((investibleId) => {
       const link = formInvestibleLink(marketId, investibleId);
       addInvestibleDispatch({ link });
@@ -122,12 +113,6 @@ function InvestibleAdd(props) {
   return (
     <Card>
       <CardContent>
-        {isAdmin && (
-          <FormControlLabel
-            control={<Switch onChange={handleAddDirect} checked={addDirectToVoting} />}
-            label={intl.formatMessage({ id: 'investibleAddDirectLabel' })}
-          />
-        )}
         <TextField
           className={classes.row}
           inputProps={{ maxLength: 255 }}

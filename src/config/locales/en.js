@@ -180,7 +180,6 @@ const messages = defineMessages({
   investibleAddDescriptionDefault: 'Add a description...',
   investibleAddCancelLabel: 'Cancel',
   investibleAddSaveLabel: 'Save',
-  investibleAddDirectLabel: 'Add directly to current voting',
 
 
   // InvestibleEdit

@@ -63,13 +63,15 @@ function InitiativeDialogs(props) {
             key="deadline"
             translationId="decisionDialogsExtendDeadline"
             onClick={() => toggleMarketExtensionVisible(marketId)}
-            icon={<UpdateIcon/>}
+            icon={<UpdateIcon />}
           />,
         );
-      }
-      else {
         actions.push(
-          <ArchiveMarketButton key="archive" marketId={marketId}/>,
+          <ArchiveMarketButton key="archive" marketId={marketId} />,
+        );
+      } else {
+        actions.push(
+          <LeaveMarketButton key="leave" marketId={marketId} />,
         );
       }
     } else {
@@ -81,11 +83,11 @@ function InitiativeDialogs(props) {
         // if participant you can become observer, or if observer you can become participant
         if (following) {
           actions.push(
-            <ChangeToObserverButton key="observe" marketId={marketId}/>,
+            <ChangeToObserverButton key="observe" marketId={marketId} />,
           );
         } else {
           actions.push(
-            <ChangeToParticipantButton key="participate" marketId={marketId}/>,
+            <ChangeToParticipantButton key="participate" marketId={marketId} />,
           );
         }
       }
@@ -101,7 +103,7 @@ function InitiativeDialogs(props) {
       } = market;
       const investibles = getMarketInvestibles(investiblesState, marketId);
       if (!investibles || _.isEmpty(investibles)) {
-        return <React.Fragment />;
+        return <></>;
       }
       const baseInvestible = investibles[0];
       const { investible } = baseInvestible;

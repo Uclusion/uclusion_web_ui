@@ -160,7 +160,7 @@ function PlanningIdeas(props) {
       <GridListTile key={`inreview${presenceId}`} cols={1} style={{ height: 'auto', width: '25%' }}>
         {getInvestibles(inReviewStageId, false)}
       </GridListTile>
-      <GridListTile key={`inreview${presenceId}`} cols={1} style={{ height: 'auto', width: '25%' }}>
+      <GridListTile key={`blocked${presenceId}`} cols={1} style={{ height: 'auto', width: '25%' }}>
         {getInvestibles(inBlockingStageId, false)}
       </GridListTile>
     </>

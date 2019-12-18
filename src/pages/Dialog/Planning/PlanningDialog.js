@@ -142,7 +142,7 @@ function PlanningDialog(props) {
     const inBlockingStage = marketStages.find((stage) => (stage.appears_in_context && stage.allows_issues));
     return (
       <GridList key="toppresencelist" cellHeight="auto" cols={3}>
-        <GridListTile key="Subheader1" cols={1} style={{ height: 'auto', width: '25%' }}>
+          <GridListTile key="Subheader1" cols={1} style={{ height: 'auto', width: '25%' }}>
           <ListSubheader component="div">{intl.formatMessage({ id: 'planningVotingStageLabel' })}</ListSubheader>
         </GridListTile>
         <GridListTile key="Subheader2" cols={1} style={{ height: 'auto', width: '25%' }}>
@@ -151,7 +151,7 @@ function PlanningDialog(props) {
         <GridListTile key="Subheader3" cols={1} style={{ height: 'auto', width: '25%' }}>
           <ListSubheader component="div">{intl.formatMessage({ id: 'planningReviewStageLabel' })}</ListSubheader>
         </GridListTile>
-        <GridListTile key="Subheader3" cols={1} style={{ height: 'auto', width: '25%' }}>
+        <GridListTile key="Subheader4" cols={1} style={{ height: 'auto', width: '25%' }}>
           <ListSubheader component="div">{intl.formatMessage({ id: 'planningBlockedStageLabel' })}</ListSubheader>
         </GridListTile>
         {

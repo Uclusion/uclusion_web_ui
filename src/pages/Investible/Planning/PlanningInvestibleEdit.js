@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import {
   Card, CardActions, CardContent, TextField, withStyles,
@@ -10,6 +10,9 @@ import { processTextAndFilesForSave } from '../../../api/files';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import AssignmentList from '../../Dialog/Planning/AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
+import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 const styles = (theme) => ({
   root: {
@@ -28,8 +31,8 @@ function PlanningInvestibleEdit(props) {
     fullInvestible, intl, classes, onCancel, onSave, marketId,
   } = props;
   const myInvestible = fullInvestible.investible;
-  const marketInfo = getMarketInfo(fullInvestible, marketId);
-  const { assigned } = marketInfo;
+  const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
+  const { assigned } = marketInfo || [];
   const { id, description: initialDescription } = myInvestible;
   const [currentValues, setCurrentValues] = useState(myInvestible);
   const [assignments, setAssignments] = useState(assigned);
@@ -37,6 +40,11 @@ function PlanningInvestibleEdit(props) {
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const [description, setDescription] = useState(initialDescription);
+  const [marketsState] = useContext(MarketsContext);
+  const me = getMyUserForMarket(marketsState, marketId) || {};
+  console.log(me);
+  const { id: myId } = me;
+  const assignee = assigned.includes(myId);
 
   function handleChange(field) {
     return (event) => {
@@ -94,13 +102,21 @@ function PlanningInvestibleEdit(props) {
           fullWidth
           variant="outlined"
           value={name}
+          disabled={!assignee}
           onChange={handleChange('name')}
         />
+        {assignee && (
         <QuillEditor
           handleFileUpload={handleFileUpload}
           onChange={onEditorChange}
           defaultValue={description}
         />
+        )}
+        {!assignee && (
+          <ReadOnlyQuillEditor
+            value={description}
+          />
+        )}
       </CardContent>
       <CardActions>
         <SpinBlockingButton

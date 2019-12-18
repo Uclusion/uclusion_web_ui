@@ -2,7 +2,8 @@ import { getMarketPresences } from '../MarketPresencesContext/marketPresencesHel
 
 export function getMarket(state, marketId) {
   const { marketDetails } = state;
-  return marketDetails.find((market) => market.id === marketId);
+  const usedDetails = marketDetails || [];
+  return usedDetails.find((market) => market.id === marketId);
 }
 
 export function getMyUserForMarket(state, marketId) {

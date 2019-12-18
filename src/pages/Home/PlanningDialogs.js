@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import {
   Grid, Typography, Card, CardContent, CardActions, Link,
 } from '@material-ui/core';
@@ -6,9 +6,7 @@ import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
-import LinkIcon from '@material-ui/icons/Link';
 import { useIntl } from 'react-intl';
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
@@ -47,7 +45,6 @@ function PlanningDialogs(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [showInvite, setShowInvite] = useState({});
 
   function getParticipantInfo(presences, marketId) {
     const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
@@ -116,27 +113,9 @@ function PlanningDialogs(props) {
     });
   }
 
-  function setInviteVisible(value, marketId) {
-    setShowInvite({ ...showInvite, [marketId]: value });
-  }
-
-  function toggleInviteVisible(marketId) {
-    const oldValue = showInvite[marketId];
-    const newValue = !oldValue;
-    setInviteVisible(newValue, marketId);
-  }
-
   function getDialogActions(marketId, myPresence, marketStage) {
     const { following, is_admin: isAdmin } = myPresence;
     const actions = [];
-    actions.push(
-      <TooltipIconButton
-        key="invite"
-        translationId="decisionDialogsInviteParticipant"
-        icon={<LinkIcon />}
-        onClick={() => toggleInviteVisible(marketId)}
-      />,
-    );
     if (marketStage === 'Active') {
       if (isAdmin) {
         actions.push(
@@ -246,7 +225,6 @@ function PlanningDialogs(props) {
               {getDialogActions(marketId, myPresence, marketStage)}
             </CardActions>
             <InviteLinker
-              hidden={!showInvite[marketId]}
               marketId={marketId}
             />
           </RaisedCard>

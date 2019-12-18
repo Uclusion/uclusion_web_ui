@@ -7,7 +7,6 @@ import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import UpdateIcon from '@material-ui/icons/Update';
-import LinkIcon from '@material-ui/icons/Link';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -43,17 +42,6 @@ function InitiativeDialogs(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [showExtension, setShowExtension] = useState({});
-  const [showInvite, setShowInvite] = useState({});
-
-  function setInviteVisible(value, marketId) {
-    setShowInvite({ ...showInvite, [marketId]: value });
-  }
-
-  function toggleInviteVisible(marketId) {
-    const oldValue = showInvite[marketId];
-    const newValue = !oldValue;
-    setInviteVisible(newValue, marketId);
-  }
 
   function setMarketExtensionVisible(value, marketId) {
     setShowExtension({ ...showExtension, [marketId]: value });
@@ -68,14 +56,6 @@ function InitiativeDialogs(props) {
   function getDialogActions(marketId, myPresence, marketStage) {
     const { is_admin, following } = myPresence;
     const actions = [];
-    actions.push(
-      <TooltipIconButton
-        key="invite"
-        translationId="decisionDialogsInviteParticipant"
-        icon={<LinkIcon />}
-        onClick={() => toggleInviteVisible(marketId)}
-      />,
-    );
     if (is_admin) {
       if (marketStage === 'Active') {
         actions.push(
@@ -194,7 +174,6 @@ function InitiativeDialogs(props) {
               onSave={() => setMarketExtensionVisible(false, marketId)}
             />
             <InviteLinker
-              hidden={!showInvite[marketId]}
               marketId={marketId}
             />
           </RaisedCard>

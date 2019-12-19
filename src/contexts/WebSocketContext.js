@@ -63,10 +63,8 @@ function WebSocketProvider(props) {
       newSocket.connect(identity);
       // we also want to always be subscribed to new app versions
       newSocket.registerHandler('UI_UPDATE_REQUIRED', (message) => {
-        const { payload } = message;
-        // eslint-disable-next-line camelcase
-        const { deployed_version } = payload;
-        notifyNewApplicationVersion(deployed_version);
+        const { app_version: appVersion } = message;
+        notifyNewApplicationVersion(appVersion);
       });
 
       newSocket.registerHandler('pong', () => {

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import {
@@ -117,13 +117,17 @@ function AssignmentList(props) {
     const assigned = presenceAssignments
       && presenceAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
     if (!assigned) {
-      onChange([user.id]);
       return { [user.id]: true };
     }
     return {};
   }
 
   const [checked, setChecked] = useState(getDefaultChecked());
+
+  useEffect(() => {
+    const checkedIds = Object.keys(checked).filter((key) => checked[key]);
+    onChange(checkedIds);
+  }, [checked]);
 
   function getSortedPresenceWithAssignable() {
     const sortedParticipants = _.sortBy(participantPresences, 'name');
@@ -152,8 +156,6 @@ function AssignmentList(props) {
           [id]: !checked[id],
         };
         setChecked(newChecked);
-        const checkedIds = Object.keys(newChecked).filter((key) => newChecked[key]);
-        onChange(checkedIds);
       };
     }
     return () => {};

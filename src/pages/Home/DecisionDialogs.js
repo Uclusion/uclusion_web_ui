@@ -23,6 +23,7 @@ import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import { getParticipantInfo } from '../../utils/userFunctions';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { ACTIVE_STAGE } from '../../constants/markets';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -64,31 +65,31 @@ function DecisionDialogs(props) {
             key="deadline"
             translationId="decisionDialogsExtendDeadline"
             onClick={() => toggleMarketExtensionVisible(marketId)}
-            icon={<UpdateIcon />}
+            icon={<UpdateIcon/>}
           />,
         );
         actions.push(
-          <ArchiveMarketButton key="archive" marketId={marketId} />,
+          <ArchiveMarketButton key="archive" marketId={marketId}/>,
         );
       } else {
         // admins can't exit a dialog or change their role on an active market
         actions.push(
-          <LeaveMarketButton key="leave" marketId={marketId} />,
+          <LeaveMarketButton key="leave" marketId={marketId}/>,
         );
       }
     } else {
       actions.push(
-        <LeaveMarketButton key="leave" marketId={marketId} />,
+        <LeaveMarketButton key="leave" marketId={marketId}/>,
       );
       if (marketStage === 'Active') {
         // if participant you can become observer, or if observer you can become participant
         if (following) {
           actions.push(
-            <ChangeToObserverButton key="observe" marketId={marketId} />,
+            <ChangeToObserverButton key="observe" marketId={marketId}/>,
           );
         } else {
           actions.push(
-            <ChangeToParticipantButton key="participate" marketId={marketId} />,
+            <ChangeToParticipantButton key="participate" marketId={marketId}/>,
           );
         }
       }
@@ -107,6 +108,7 @@ function DecisionDialogs(props) {
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
       const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
+      const active = marketStage === ACTIVE_STAGE;
       return (
         <Grid
           item
@@ -147,10 +149,11 @@ function DecisionDialogs(props) {
                   item
                   xs={3}
                 >
-                  <ExpiresDisplay
-                    createdAt={createdAt}
-                    expirationMinutes={expirationMinutes}
-                  />
+                  {active && (
+                    <ExpiresDisplay
+                      createdAt={createdAt}
+                      expirationMinutes={expirationMinutes}
+                    />)}
                 </Grid>
                 <Grid
                   item

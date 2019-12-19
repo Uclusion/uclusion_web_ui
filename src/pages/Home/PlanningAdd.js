@@ -36,6 +36,7 @@ function PlanningAdd(props) {
   const emptyPlan = { name: '' };
   const [currentValues, setCurrentValues] = useState(emptyPlan);
   const [description, setDescription] = useState('');
+  const [investmentExpiration, setInvestmentExpiration] = useState(undefined);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [, addDialogDispatch] = useReducer((state, action) => {
@@ -77,6 +78,11 @@ function PlanningAdd(props) {
     setDescription(description);
   }
 
+  function onInvestmentExpirationChange(event) {
+    const { value } = event.target;
+    setInvestmentExpiration(parseInt(value, 10));
+  }
+
   function handleSave() {
     const {
       uploadedFiles: filteredUploads,
@@ -87,6 +93,7 @@ function PlanningAdd(props) {
       uploaded_files: filteredUploads,
       market_type: PLANNING_TYPE,
       description: tokensRemoved,
+      investment_expiration: investmentExpiration,
     };
     return createPlanning(addInfo)
       .then((result) => {
@@ -112,6 +119,16 @@ function PlanningAdd(props) {
           variant="outlined"
           value={name}
           onChange={handleChange('name')}
+        />
+        <TextField
+          id="standard-number"
+          label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
+          type="number"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          variant="outlined"
+          onChange={onInvestmentExpirationChange}
         />
         <QuillEditor
           onS3Upload={onS3Upload}

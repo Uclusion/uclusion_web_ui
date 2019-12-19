@@ -143,6 +143,7 @@ const messages = defineMessages({
   marketAddCancelLabel: 'Cancel',
   marketAddSaveLabel: 'Save',
   marketAddExpirationLabel: 'Dialog ends after {x} day(s)',
+  investmentExpirationInputLabel: 'Number of days before a vote expires',
 
   // Market Nav
   marketNavTabContextLabel: 'Context',

@@ -23,7 +23,7 @@ export function getAcceptedStage(state, marketId) {
 
 export function getInReviewStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (!stage.has_expiration && stage.appears_in_context));
+  return marketStages.find((stage) => (stage.appears_in_context && !stage.singular_only && !stage.allows_issues));
 }
 
 export function getBlockedStage(state, marketId) {

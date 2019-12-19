@@ -138,7 +138,7 @@ function PlanningDialog(props) {
     const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.singular_only));
     const inDialogStage = marketStages.find((stage) => (stage.allows_investment));
     // eslint-disable-next-line max-len
-    const inReviewStage = marketStages.find((stage) => (stage.appears_in_context && !stage.has_expiration));
+    const inReviewStage = marketStages.find((stage) => (stage.appears_in_context && !stage.singular_only && !stage.allows_issues));
     const inBlockingStage = marketStages.find((stage) => (stage.appears_in_context && stage.allows_issues));
     return (
       <GridList key="toppresencelist" cellHeight="auto" cols={3}>

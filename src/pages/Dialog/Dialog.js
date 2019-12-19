@@ -57,6 +57,7 @@ const styles = (theme) => ({
 });
 
 function Dialog(props) {
+  const { hidden } = props;
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);
   const history = useHistory();
   const { location } = history;
@@ -67,7 +68,6 @@ function Dialog(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const { hidden } = props;
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const comments = getMarketComments(commentsState, marketId);
   const renderableMarket = getMarket(marketsState, marketId) || {};

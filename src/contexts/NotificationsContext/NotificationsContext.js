@@ -47,19 +47,33 @@ function NotificationsProvider(props) {
       const filtered = messages.filter((message) => {
         const { marketId, investibleId } = page;
         const {
-          marketId: messageMarketId, investibleId: messageInvestibleId, text,
+          marketId: messageMarketId,
+          investibleId: messageInvestibleId,
+          text,
+          level,
         } = message;
         const doRemove = marketId === messageMarketId && investibleId === messageInvestibleId;
         if (doRemove) {
           dispatch(removeMessage(message));
           console.debug('Toasting from NotificationsContext');
-          toast.info(text);
+          switch (level) {
+            case 'RED':
+              toast.error(text);
+              break;
+            case 'YELLOW':
+              toast.warn(text);
+              break;
+            default:
+              toast.info(text);
+              break;
+          }
         }
         return doRemove;
       });
       AllSequentialMap(filtered, (message) => deleteMessage(message));
     }
-    return () => {};
+    return () => {
+    };
   }, [page, messages]);
 
   return (

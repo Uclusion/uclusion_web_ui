@@ -18,6 +18,7 @@ import Screen from '../../../containers/Screen/Screen';
 import { makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
+import Summary from '../../Dialog/Summary';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -110,6 +111,7 @@ function InitiativeInvestible(props) {
       <SubSection
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
+        <Summary market={market} />
         <ReadOnlyQuillEditor
           value={description}
         />

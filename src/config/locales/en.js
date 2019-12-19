@@ -116,6 +116,8 @@ const messages = defineMessages({
   grants: 'Grants',
   private: 'Private',
   public: 'Public',
+  created_by: 'Created by',
+  observers: 'Observers',
 
   // Loadable Image
   loadableImageAlt: 'User provided image',

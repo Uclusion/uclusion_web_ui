@@ -1,13 +1,79 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
+import { Grid, Typography } from '@material-ui/core';
 import ReadOnlyQuillEditor from '../../components/TextEditors/ReadOnlyQuillEditor';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
 
 function Summary(props) {
   const { market } = props;
-  const { id, description } = market;
+  const intl = useIntl();
+  const { id, description, market_type: marketType } = market;
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const marketPresences = getMarketPresences(marketPresencesState, id) || [];
+  const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
+  const marketPresencesModerating = marketPresences.filter((presence) => presence.is_admin);
 
+  function displayUserList(presencesList) {
+    return presencesList.map((presence) => {
+      const { name } = presence;
+      return (
+        <Grid
+          item
+        >
+          <Typography>{name}</Typography>
+        </Grid>
+      )
+    });
+  }
   return (
-    <ReadOnlyQuillEditor marketId={id} value={description}/>
+    <>
+      {marketType !== PLANNING_TYPE && Array.isArray(marketPresencesModerating) && (
+        <Grid
+          container
+        >
+          <Grid
+            item
+            xs={2}
+          >
+            <Typography>
+              {intl.formatMessage({ id: 'created_by' })}
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            xs={10}
+          >
+            {displayUserList(marketPresencesModerating)}
+          </Grid>
+        </Grid>
+      )}
+      {Array.isArray(marketPresencesObserving) && (
+        <Grid
+          container
+        >
+          <Grid
+            item
+            xs={2}
+          >
+            <Typography>
+              {intl.formatMessage({ id: 'observers' })}
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            xs={10}
+          >
+            {displayUserList(marketPresencesObserving)}
+          </Grid>
+        </Grid>
+      )}
+      {marketType !== INITIATIVE_TYPE && (
+        <ReadOnlyQuillEditor marketId={id} value={description} />
+      )}
+    </>
   );
 }
 

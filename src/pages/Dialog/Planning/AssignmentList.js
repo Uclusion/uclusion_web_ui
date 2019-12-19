@@ -131,7 +131,7 @@ function AssignmentList(props) {
       const checkedIds = Object.keys(checked).filter((key) => checked[key]);
       onChange(checkedIds);
     }
-  }, [checked, onChange]);
+  }, [checked, onChange, submitted]);
 
   function getSortedPresenceWithAssignable() {
     const sortedParticipants = _.sortBy(participantPresences, 'name');

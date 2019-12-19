@@ -35,6 +35,7 @@ function DecisionInvestible(props) {
     investibleId,
     marketPresences,
     investibleComments,
+    comments,
     userId,
     market,
     fullInvestible,
@@ -49,8 +50,16 @@ function DecisionInvestible(props) {
   const { name: marketName, id: marketId } = market;
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+  // eslint-disable-next-line max-len
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
+  // eslint-disable-next-line max-len
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
+  // eslint-disable-next-line max-len
+  const myIssues = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
+  // eslint-disable-next-line max-len
+  const marketIssues = comments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved && !comment.investible_id);
+  // eslint-disable-next-line max-len
+  const hasIssueOrMarketIssue = (Array.isArray(myIssues) && myIssues.length > 0) || (Array.isArray(marketIssues) && marketIssues.length > 0);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const { investible, market_infos } = fullInvestible;
@@ -126,7 +135,7 @@ function DecisionInvestible(props) {
           {intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName })}
         </Typography>
       )}
-      {!inProposed && (
+      {!inProposed && !hasIssueOrMarketIssue && (
         <SubSection
           title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
         >
@@ -188,7 +197,7 @@ DecisionInvestible.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   investibleComments: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
-  commentsHash: PropTypes.object,
+  comments: PropTypes.object,
   investibleId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
   toggleEdit: PropTypes.func,
@@ -198,7 +207,7 @@ DecisionInvestible.propTypes = {
 DecisionInvestible.defaultProps = {
   marketPresences: [],
   investibleComments: [],
-  commentsHash: {},
+  comments: [],
   toggleEdit: () => {
   },
   isAdmin: false,

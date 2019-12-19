@@ -92,7 +92,6 @@ export function withSpinLock(Component) {
       PropTypes.string,
       PropTypes.number,
     ]).isRequired,
-    children: PropTypes.node.isRequired,
     disabled: PropTypes.bool,
   };
   Spinning.defaultProps = {

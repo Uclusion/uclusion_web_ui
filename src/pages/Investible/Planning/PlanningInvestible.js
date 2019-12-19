@@ -210,18 +210,20 @@ function PlanningInvestible(props) {
       }
     }
   }
-  sidebarActions.push(<MoveToVerifiedActionButton
-    investibleId={investibleId}
-    marketId={marketId}
-    stageId={stage}
-    key="verified"
-  />);
-  sidebarActions.push(<MoveToNotDoingActionButton
-    investibleId={investibleId}
-    marketId={marketId}
-    stageId={stage}
-    keu="notdoing"
-  />);
+  if (!isInVerified) {
+    sidebarActions.push(<MoveToVerifiedActionButton
+      investibleId={investibleId}
+      marketId={marketId}
+      stageId={stage}
+      key="verified"
+    />);
+    sidebarActions.push(<MoveToNotDoingActionButton
+      investibleId={investibleId}
+      marketId={marketId}
+      stageId={stage}
+      keu="notdoing"
+    />);
+  }
   sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
   sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
 

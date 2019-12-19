@@ -127,7 +127,7 @@ function AssignmentList(props) {
   useEffect(() => {
     const checkedIds = Object.keys(checked).filter((key) => checked[key]);
     onChange(checkedIds);
-  }, [checked]);
+  }, [checked, onChange]);
 
   function getSortedPresenceWithAssignable() {
     const sortedParticipants = _.sortBy(participantPresences, 'name');

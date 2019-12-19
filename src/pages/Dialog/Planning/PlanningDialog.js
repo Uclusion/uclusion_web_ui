@@ -158,7 +158,9 @@ function PlanningDialog(props) {
           followingPresences.map((presence) => {
             const myInvestibles = investibles.filter((investible) => {
               const marketInfo = getMarketInfo(investible, marketId);
-              return marketInfo.assigned.includes(presence.id);
+              const { assigned } = marketInfo;
+              const assignedFull = Array.isArray(assigned) ? assigned : [];
+              return assignedFull.includes(presence.id);
             });
             const { id, name } = presence;
             return (

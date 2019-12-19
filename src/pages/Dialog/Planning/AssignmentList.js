@@ -123,10 +123,14 @@ function AssignmentList(props) {
   }
 
   const [checked, setChecked] = useState(getDefaultChecked());
+  const [submitted, setSubmitted] = useState(getDefaultChecked());
 
   useEffect(() => {
-    const checkedIds = Object.keys(checked).filter((key) => checked[key]);
-    onChange(checkedIds);
+    if (submitted !== checked) {
+      setSubmitted(checked);
+      const checkedIds = Object.keys(checked).filter((key) => checked[key]);
+      onChange(checkedIds);
+    }
   }, [checked, onChange]);
 
   function getSortedPresenceWithAssignable() {

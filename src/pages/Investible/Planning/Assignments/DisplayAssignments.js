@@ -9,6 +9,9 @@ function DisplayAssignments(props) {
   function renderAssignments() {
     const marketInfo = getMarketInfo(investible, marketId);
     const { assigned } = marketInfo;
+    if (!Array.isArray(assigned)) {
+      return (<></>);
+    }
     return assigned.map((userId) => {
       let user = marketPresences.find((presence) => presence.id === userId);
       if (!user) {

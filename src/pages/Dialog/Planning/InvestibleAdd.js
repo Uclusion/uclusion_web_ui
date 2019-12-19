@@ -49,8 +49,10 @@ function InvestibleAdd(props) {
       return { navigationLink: link };
     }
     const { navigationLink } = state;
-    onSave();
-    navigate(history, navigationLink);
+    if (navigationLink) {
+      onSave();
+      navigate(history, navigationLink);
+    }
     return {};
   }, {});
 

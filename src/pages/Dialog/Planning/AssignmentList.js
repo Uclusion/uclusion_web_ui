@@ -20,6 +20,8 @@ import {
   getAcceptedStage, getBlockedStage,
   getInCurrentVotingStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 const BLOCKED_STATE = 'BLOCKED';
 const ACCEPTED_STATE = 'ACCEPTED';
@@ -56,14 +58,8 @@ function AssignmentList(props) {
   const acceptedStage = getAcceptedStage(marketStagesState, marketId);
   const assignedStage = getInCurrentVotingStage(marketStagesState, marketId);
   const blockedStage = getBlockedStage(marketStagesState, marketId);
-
-  const defaultChecked = previouslyAssigned.reduce((acc, id) => ({
-    ...acc,
-    [id]: true,
-  }), {});
-
-  const [checked, setChecked] = useState(defaultChecked);
-
+  const [marketsState] = useContext(MarketsContext);
+  const user = getMyUserForMarket(marketsState, marketId) || {};
   function getInvestibleState(investibleId, stageId) {
     if (stageId === blockedStage.id) {
       return BLOCKED_STATE;
@@ -79,7 +75,8 @@ function AssignmentList(props) {
 
   /**
    * For each participant presences computes an array of assignments to the person.
-   * Assignments array will contain entries of the form { investibleId, state: [BLOCKED | ACCEPTED | ASSIGNED]}
+   * Assignments array will contain entries of the form
+   * { investibleId, state: [BLOCKED | ACCEPTED | ASSIGNED]}
    * Returns an object keyed by the market presence id, containing the above computed array.
    */
   function computeAssignments() {
@@ -108,6 +105,25 @@ function AssignmentList(props) {
     }, {});
   }
 
+  function getDefaultChecked() {
+    if (previouslyAssigned.length > 0) {
+      return previouslyAssigned.reduce((acc, id) => ({
+        ...acc,
+        [id]: true,
+      }), {});
+    }
+    const assignments = computeAssignments();
+    const presenceAssignments = assignments[user.id];
+    const assigned = presenceAssignments
+      && presenceAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
+    if (!assigned) {
+      return { [user.id]: true };
+    }
+    return {};
+  }
+
+  const [checked, setChecked] = useState(getDefaultChecked());
+
   function getSortedPresenceWithAssignable() {
     const sortedParticipants = _.sortBy(participantPresences, 'name');
     const assignments = computeAssignments();
@@ -118,7 +134,8 @@ function AssignmentList(props) {
       // console.log(name);
       const presenceAssignments = assignments[presenceId];
       // console.log(presenceAssignments);
-      const assigned = presenceAssignments && presenceAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
+      const assigned = presenceAssignments
+        && presenceAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
       return {
         ...presence,
         assignable: !assigned,

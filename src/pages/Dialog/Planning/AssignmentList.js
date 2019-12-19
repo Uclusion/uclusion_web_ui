@@ -117,7 +117,7 @@ function AssignmentList(props) {
     const assigned = presenceAssignments
       && presenceAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
     if (!assigned) {
-      onChange(user.id);
+      onChange([user.id]);
       return { [user.id]: true };
     }
     return {};

@@ -104,8 +104,8 @@ function PlanningInvestible(props) {
     marketPresences.forEach((presence) => {
       const { investments } = presence;
       investments.forEach((investment) => {
-        const { updated_at: updatedAt } = convertDates(investment);
-        if (!latest || updatedAt > latest) {
+        const { updated_at: updatedAt, investible_id: invId } = convertDates(investment);
+        if (investibleId === invId && (!latest || updatedAt > latest)) {
           latest = updatedAt;
         }
       });

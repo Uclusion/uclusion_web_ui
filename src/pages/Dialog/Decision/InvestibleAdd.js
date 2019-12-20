@@ -1,4 +1,4 @@
-import React, { useState, useContext, useReducer } from 'react';
+import React, { useState, useContext, useReducer, useEffect } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
@@ -15,7 +15,7 @@ import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 
@@ -49,6 +49,7 @@ function InvestibleAdd(props) {
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [validForm, setValidForm] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [, addInvestibleDispatch] = useReducer((state, action) => {
     const { link } = action;
@@ -63,6 +64,17 @@ function InvestibleAdd(props) {
     return {};
   }, {});
   const { name } = currentValues;
+
+  useEffect(() => {
+    // Long form to prevent flicker
+    if (name && description && description.length > 0) {
+      if (!validForm) {
+        setValidForm(true);
+      }
+    } else if (validForm) {
+      setValidForm(false);
+    }
+  }, [name, description, validForm]);
 
   function handleChange(field) {
     return (event) => {
@@ -105,12 +117,11 @@ function InvestibleAdd(props) {
     };
     const promise = isAdmin ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
     return promise.then((investibleId) => {
-      const link = formInvestibleLink(marketId, investibleId);
+      const link = isAdmin ? formInvestibleLink(marketId, investibleId) : formMarketLink(marketId);
       addInvestibleDispatch({ link });
       return link;
     });
   }
-
 
   return (
     <Card>
@@ -146,6 +157,7 @@ function InvestibleAdd(props) {
           variant="contained"
           color="primary"
           onClick={handleSave}
+          disabled={!validForm}
           marketId={marketId}
           onSpinStop={() => addInvestibleDispatch({})}
         >

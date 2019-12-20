@@ -1,15 +1,17 @@
-import React, { useContext, useReducer, useState } from 'react';
+import React, {
+  useContext, useEffect, useReducer, useState,
+} from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import {
   Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
 } from '@material-ui/core';
+import { useHistory } from 'react-router';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 import ExpirationSelector from '../../components/Expiration/ExpirationSelector';
 import { createDecision } from '../../api/markets';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';
-import { useHistory } from 'react-router';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
@@ -34,6 +36,7 @@ function DecisionAdd(props) {
   const history = useHistory();
   const classes = useStyles();
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
+  const [validForm, setValidForm] = useState(false);
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -51,6 +54,17 @@ function DecisionAdd(props) {
     return {};
   }, {});
   const { name, expiration_minutes } = currentValues;
+
+  useEffect(() => {
+    // Long form to prevent flicker
+    if (name && expiration_minutes > 0 && description && description.length > 0) {
+      if (!validForm) {
+        setValidForm(true);
+      }
+    } else if (validForm) {
+      setValidForm(false);
+    }
+  }, [name, description, expiration_minutes, validForm]);
 
   function zeroCurrentValues() {
     setCurrentValues(emptyMarket);
@@ -116,7 +130,8 @@ function DecisionAdd(props) {
           onChange={handleChange('name')}
         />
         <Typography
-          className={classes.row}>
+          className={classes.row}
+        >
           {intl.formatMessage({ id: 'marketAddExpirationLabel' }, { x: expiration_minutes / 1440 })}
         </Typography>
 
@@ -141,6 +156,7 @@ function DecisionAdd(props) {
           variant="contained"
           color="primary"
           onClick={handleSave}
+          disabled={!validForm}
           onSpinStop={() => addDialogDispatch({})}
         >
           {intl.formatMessage({ id: 'marketAddSaveLabel' })}

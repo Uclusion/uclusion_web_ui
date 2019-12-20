@@ -367,6 +367,7 @@ const messages = defineMessages({
 
   // API errors
   errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',
+  errorInvestibleAddFailed: 'There was a problem adding.',
   errorPlanningInvestibleAddFailed: 'There was a problem adding the story',
   errorInvestibleStageChangeFailed: 'There was a problem accepting or archiving the assignment',
   errorInvestibleUpdateFailed: 'There was a problem updating the option.',

@@ -1,4 +1,4 @@
-import React, { useContext, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
@@ -41,6 +41,7 @@ function InvestibleAdd(props) {
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [validForm, setValidForm] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
   const [, addInvestibleDispatch] = useReducer((state, action) => {
@@ -55,6 +56,18 @@ function InvestibleAdd(props) {
     }
     return {};
   }, {});
+
+  useEffect(() => {
+    // Long form to prevent flicker
+    if (name && description && description.length > 0
+      && Array.isArray(assignments) && assignments.length > 0) {
+      if (!validForm) {
+        setValidForm(true);
+      }
+    } else if (validForm) {
+      setValidForm(false);
+    }
+  }, [name, description, assignments, validForm]);
 
   function handleChange(field) {
     return (event) => {
@@ -144,6 +157,7 @@ function InvestibleAdd(props) {
           variant="contained"
           color="primary"
           onClick={handleSave}
+          disabled={!validForm}
           onSpinStop={() => addInvestibleDispatch({})}
         >
           {intl.formatMessage({ id: 'investibleAddSaveLabel' })}

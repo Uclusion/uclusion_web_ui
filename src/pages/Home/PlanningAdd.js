@@ -1,4 +1,4 @@
-import React, { useContext, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import {
@@ -35,6 +35,7 @@ function PlanningAdd(props) {
   const classes = useStyles();
   const emptyPlan = { name: '' };
   const [currentValues, setCurrentValues] = useState(emptyPlan);
+  const [validForm, setValidForm] = useState(false);
   const [description, setDescription] = useState('');
   const [investmentExpiration, setInvestmentExpiration] = useState(undefined);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -52,6 +53,17 @@ function PlanningAdd(props) {
     return {};
   }, {});
   const { name } = currentValues;
+
+  useEffect(() => {
+    // Long form to prevent flicker
+    if (name && description && description.length > 0) {
+      if (!validForm) {
+        setValidForm(true);
+      }
+    } else if (validForm) {
+      setValidForm(false);
+    }
+  }, [name, description, validForm]);
 
   function zeroCurrentValues() {
     setCurrentValues(emptyPlan);
@@ -95,8 +107,10 @@ function PlanningAdd(props) {
       uploaded_files: filteredUploads,
       market_type: PLANNING_TYPE,
       description: tokensRemoved,
-      investment_expiration: investmentExpiration,
     };
+    if (investmentExpiration) {
+      addInfo.investment_expiration = investmentExpiration;
+    }
     return createPlanning(addInfo)
       .then((result) => {
         onSave();
@@ -148,6 +162,7 @@ function PlanningAdd(props) {
           variant="contained"
           color="primary"
           onClick={handleSave}
+          disabled={!validForm}
           onSpinStop={() => addDialogDispatch({})}
         >
           {intl.formatMessage({ id: 'marketAddSaveLabel' })}

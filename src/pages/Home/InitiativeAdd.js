@@ -1,4 +1,4 @@
-import React, { useContext, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import {
@@ -36,6 +36,7 @@ function InitiativeAdd(props) {
   const history = useHistory();
   const classes = useStyles();
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
+  const [validForm, setValidForm] = useState(false);
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -53,6 +54,17 @@ function InitiativeAdd(props) {
     return {};
   }, {});
   const { name, expiration_minutes: expirationMinutes } = currentValues;
+
+  useEffect(() => {
+    // Long form to prevent flicker
+    if (name && expirationMinutes > 0 && description && description.length > 0) {
+      if (!validForm) {
+        setValidForm(true);
+      }
+    } else if (validForm) {
+      setValidForm(false);
+    }
+  }, [name, description, expirationMinutes, validForm]);
 
   function zeroCurrentValues() {
     setCurrentValues(emptyMarket);
@@ -150,6 +162,7 @@ function InitiativeAdd(props) {
           variant="contained"
           color="primary"
           onClick={handleSave}
+          disabled={!validForm}
           onSpinStop={() => addDialogDispatch({})}
         >
           {intl.formatMessage({ id: 'marketAddSaveLabel' })}

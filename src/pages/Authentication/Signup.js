@@ -57,7 +57,7 @@ function Signup(props) {
     return Auth.signUp(userState)
       .then((result) => {
         console.log(result);
-        alert("Signup sent");
+        alert('Signup sent');
       });
   }
 

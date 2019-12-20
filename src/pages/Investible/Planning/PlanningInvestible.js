@@ -37,6 +37,7 @@ import MoveToInReviewActionButton from './MoveToInReviewActionButton';
 import PlanningInvestibleEditActionButton from './PlanningInvestibleEditActionButton';
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
 import { convertDates } from '../../../contexts/ContextUtils';
+import { ACTIVE_STAGE } from '../../../constants/markets';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -57,7 +58,13 @@ function PlanningInvestible(props) {
     toggleEdit,
     isAdmin,
   } = props;
-  const { name: marketName, id: marketId, investment_expiration: expirationDays } = market;
+  const {
+    name: marketName,
+    id: marketId,
+    investment_expiration: expirationDays,
+    market_stage: marketStage,
+  } = market;
+  const activeMarket = marketStage === ACTIVE_STAGE;
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
@@ -128,15 +135,6 @@ function PlanningInvestible(props) {
     // we have no usable data;
     return <></>;
   }
-  const sidebarActions = [];
-
-  if (isAdmin) {
-    sidebarActions.push(<PlanningInvestibleEditActionButton
-      marketId={marketId}
-      key="edit"
-      onClick={toggleEdit}
-    />);
-  }
   const invested = marketPresences.filter((presence) => {
     const { investments } = presence;
     if (!Array.isArray(investments) || investments.length === 0) {
@@ -162,6 +160,87 @@ function PlanningInvestible(props) {
     });
   }
 
+  function getSidebarActions() {
+    if (!activeMarket) {
+      return [];
+    }
+    const sidebarActions = [];
+
+    if (isAdmin) {
+      sidebarActions.push(<PlanningInvestibleEditActionButton
+        marketId={marketId}
+        key="edit"
+        onClick={toggleEdit}
+      />);
+    }
+
+    if (assigned && assigned.includes(userId)) {
+      if (isInVoting || isInAccepted) {
+        const nextStageId = isInVoting ? inAcceptedStage.id : inReviewStage.id;
+        const assignedInNextStage = assignedInStage(investibles, userId, nextStageId);
+        if (Array.isArray(invested) && invested.length > 0
+          && (!Array.isArray(assignedInNextStage) || assignedInNextStage.length === 0)) {
+          sidebarActions.push(<MoveToNextVisibleStageActionButton
+            key="visible"
+            investibleId={investibleId}
+            marketId={marketId}
+            stageId={stage}
+          />);
+        }
+      }
+      if (isInBlocked) {
+        // eslint-disable-next-line max-len
+        const blockingComments = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
+        if (!Array.isArray(blockingComments) || blockingComments.length === 0) {
+          if (Array.isArray(invested) && invested.length > 0) {
+            // eslint-disable-next-line max-len
+            const assignedInVotingStage = assignedInStage(investibles, userId, inCurrentVotingStage.id);
+            if (!Array.isArray(assignedInVotingStage) || assignedInVotingStage.length === 0) {
+              sidebarActions.push(<MoveToVotingActionButton
+                investibleId={investibleId}
+                marketId={marketId}
+                stageId={stage}
+                key="voting"
+              />);
+            }
+            // eslint-disable-next-line max-len
+            const assignedInAcceptedStage = assignedInStage(investibles, userId, inAcceptedStage.id);
+            if (!Array.isArray(assignedInAcceptedStage) || assignedInAcceptedStage.length === 0) {
+              sidebarActions.push(<MoveToAcceptedActionButton
+                investibleId={investibleId}
+                marketId={marketId}
+                stageId={stage}
+                key="accepted"
+              />);
+            }
+            sidebarActions.push(<MoveToInReviewActionButton
+              investibleId={investibleId}
+              marketId={marketId}
+              stageId={stage}
+              key="inreview"
+            />);
+          }
+        }
+      }
+    }
+    if (!isInVerified) {
+      sidebarActions.push(<MoveToVerifiedActionButton
+        investibleId={investibleId}
+        marketId={marketId}
+        stageId={stage}
+        key="verified"
+      />);
+      sidebarActions.push(<MoveToNotDoingActionButton
+        investibleId={investibleId}
+        marketId={marketId}
+        stageId={stage}
+        keu="notdoing"
+      />);
+    }
+    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
+    return sidebarActions;
+  }
   if (assigned && assigned.includes(userId)) {
     if (isInVoting || isInAccepted) {
       const nextStageId = isInVoting ? inAcceptedStage.id : inReviewStage.id;
@@ -238,7 +317,7 @@ function PlanningInvestible(props) {
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={false}
-      sidebarActions={sidebarActions}
+      sidebarActions={getSidebarActions()}
     >
       <Typography>
         {stageName}
@@ -312,7 +391,7 @@ function PlanningInvestible(props) {
               onSave={closeCommentAdd}
               onCancel={closeCommentAdd}
             />
-            <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
+            <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
           </SubSection>
         )}
       </div>

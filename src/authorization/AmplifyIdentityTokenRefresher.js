@@ -22,8 +22,8 @@ class AmplifyIdentityTokenRefresher {
       console.log(expDate.toISOString());
       return jwtToken;
     }).catch((error) => {
-      alert(error);
-    })
+      console.log(error);
+    });
   }
 }
 

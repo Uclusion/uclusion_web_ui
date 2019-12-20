@@ -27,6 +27,7 @@ import DialogEdit from './DialogEdit';
 import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../../api/markets';
 import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
+import { ACTIVE_STAGE } from '../../../constants/markets';
 
 
 function PlanningDialog(props) {
@@ -45,7 +46,11 @@ function PlanningDialog(props) {
   const intl = useIntl();
   const { is_admin: isAdmin } = myPresence;
   const commentAddRef = useRef(null);
-  const { id: marketId } = market;
+  const {
+    id: marketId,
+    market_stage: marketStage,
+  } = market;
+  const activeMarket = marketStage === ACTIVE_STAGE;
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
@@ -191,6 +196,9 @@ function PlanningDialog(props) {
   }
 
   function getSidebarActions() {
+    if (!activeMarket) {
+      return [];
+    }
     if (addInvestibleMode) {
       return [];
     }

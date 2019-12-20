@@ -107,7 +107,7 @@ function Home(props) {
 
   return (
     <Screen
-      title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage} />}
+      title={<img src="/images/logo.svg" alt="Uclusion" className={classes.breadCrumbImage} />}
       tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       sidebarActions={sidebarActions}

@@ -77,7 +77,8 @@ const useStyles = makeStyles((theme) => {
       overflowX: 'hidden',
       width: theme.spacing(7) + 1,
       [theme.breakpoints.up('sm')]: {
-        width: theme.spacing(9) + 1,
+        width: theme.spacing(12) + 1,
+        backgroundColor: '#3F6B72'
       },
     },
     contentShift: {
@@ -197,7 +198,7 @@ function Screen(props) {
     <div
          className={hidden ? classes.hidden : classes.root}
     >
-      {!hidden && (
+      {/* {!hidden && (
         <Helmet>
           <title>{`${prePendWarning}Uclusion | ${createTitle(tabTitle, 11)}`}</title>
         </Helmet>
@@ -224,9 +225,9 @@ function Screen(props) {
             </Typography>
           </Paper>
         </Popper>
-      )}
+      )} */}
 
-      <AppBar
+      {/* <AppBar
         ref={screenRef}
         className={clsx(classes.appBar, {
           [classes.appBarShift]: sidebarOpen,
@@ -249,7 +250,7 @@ function Screen(props) {
           <Notifications/>
 
         </Toolbar>
-      </AppBar>
+      </AppBar> */}
       <Drawer
         variant="permanent"
         anchor="left"
@@ -271,6 +272,7 @@ function Screen(props) {
               <ChevronLeftIcon/>
             </IconButton>
           )}
+          {generateTitle()}
         </div>
         <Divider/>
         {getSidebar()}

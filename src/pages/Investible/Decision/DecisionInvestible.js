@@ -24,6 +24,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import {
   getProposedOptionsStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { ACTIVE_STAGE } from '../../../constants/markets';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -47,7 +48,7 @@ function DecisionInvestible(props) {
   const history = useHistory();
 
 
-  const { name: marketName, id: marketId } = market;
+  const { name: marketName, id: marketId, marketStage } = market;
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   // eslint-disable-next-line max-len
@@ -68,6 +69,7 @@ function DecisionInvestible(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const inProposed = marketInfo.stage === inProposedStage.id;
+  const activeMarket = marketStage === ACTIVE_STAGE;
 
   const {
     description, name, created_by: createdBy, locked_by: lockedBy,
@@ -94,25 +96,31 @@ function DecisionInvestible(props) {
     setCommentAddHidden(true);
   }
 
-  const sidebarActions = [];
 
-  if (isAdmin) {
-    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
-    if (inProposed) {
-      sidebarActions.push(<MoveToCurrentVotingActionButton
-        investibleId={investibleId}
-        marketId={marketId}
-      />);
+  function getSidebarActions() {
+    if (!activeMarket) {
+      return [];
     }
-  }
+    const sidebarActions = [];
+    if (isAdmin) {
+      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
+      if (inProposed) {
+        sidebarActions.push(<MoveToCurrentVotingActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+        />);
+      }
+    }
 
-  if (inProposed && createdBy === userId) {
-    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
-  }
+    if (inProposed && createdBy === userId) {
+      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
+    }
 
-  sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
-  sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
-  sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick}/>);
+    return sidebarActions;
+  }
 
   if (!investibleId) {
     // we have no usable data;
@@ -128,7 +136,7 @@ function DecisionInvestible(props) {
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={false}
-      sidebarActions={sidebarActions}
+      sidebarActions={getSidebarActions()}
     >
       {inProposed && lockedBy && (
         <Typography>
@@ -181,7 +189,7 @@ function DecisionInvestible(props) {
               onCancel={closeCommentAdd}
             />
           </div>
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
         </SubSection>
       )}
     </Screen>

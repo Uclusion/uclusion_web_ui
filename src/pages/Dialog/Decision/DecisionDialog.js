@@ -22,6 +22,7 @@ import InvestibleAddActionButton from './InvestibleAddActionButton';
 import DialogEdit from './DialogEdit';
 import DialogEditActionButton from './DialogEditActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
+import { ACTIVE_STAGE } from '../../../constants/markets';
 
 function DecisionDialog(props) {
   const {
@@ -36,7 +37,7 @@ function DecisionDialog(props) {
 
   const commentAddRef = useRef(null);
   const intl = useIntl();
-  const { name: marketName } = market;
+  const { name: marketName, market_stage: marketStage } = market;
   const { is_admin: isAdmin } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
@@ -49,6 +50,7 @@ function DecisionDialog(props) {
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
+  const active = marketStage === ACTIVE_STAGE;
 
   function getInvestiblesForStage(stage) {
     if (stage) {
@@ -129,6 +131,11 @@ function DecisionDialog(props) {
 
   function getSidebarActions() {
     if (addInvestibleMode) {
+      return [];
+    }
+
+    if (!active) {
+      //eventually we'll have inactive actions here
       return [];
     }
     const userActions = [

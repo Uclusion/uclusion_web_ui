@@ -19,6 +19,7 @@ import { makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import Summary from '../../Dialog/Summary';
+import { ACTIVE_STAGE } from '../../../constants/markets';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -45,10 +46,13 @@ function InitiativeInvestible(props) {
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const { investible } = fullInvestible;
   const { description, name } = investible;
-  const { id: marketId } = market;
+  const {
+    id: marketId,
+    market_stage: marketStage,
+  } = market;
   const breadCrumbs = makeBreadCrumbs(history);
   const commentAddRef = useRef(null);
-
+  const activeMarket = marketStage === ACTIVE_STAGE;
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
 
   function commentButtonOnClick(type) {
@@ -60,15 +64,21 @@ function InitiativeInvestible(props) {
     setCommentAddHidden(true);
   }
 
-  const sidebarActions = [];
+  function getSidebarActions() {
+    if (!activeMarket) {
+      return [];
+    }
+    const sidebarActions = [];
 
-  if (isAdmin) {
-    sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
+    if (isAdmin) {
+      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
+    }
+
+    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick}/>);
+
   }
-
-  sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
-  sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
-  sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
 
   if (!investibleId) {
     // we have no usable data;
@@ -84,20 +94,20 @@ function InitiativeInvestible(props) {
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={false}
-      sidebarActions={sidebarActions}
+      sidebarActions={getSidebarActions()}
     >
       {!isAdmin && (
-      <SubSection
-        title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
-      >
-        <YourVoting
-          investibleId={investibleId}
-          marketPresences={marketPresences}
-          comments={investmentReasons}
-          userId={userId}
-          market={market}
-        />
-      </SubSection>
+        <SubSection
+          title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
+        >
+          <YourVoting
+            investibleId={investibleId}
+            marketPresences={marketPresences}
+            comments={investmentReasons}
+            userId={userId}
+            market={market}
+          />
+        </SubSection>
       )}
       <SubSection
         title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
@@ -111,7 +121,7 @@ function InitiativeInvestible(props) {
       <SubSection
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
-        <Summary market={market} />
+        <Summary market={market}/>
         <ReadOnlyQuillEditor
           value={description}
         />
@@ -131,7 +141,7 @@ function InitiativeInvestible(props) {
               onCancel={closeCommentAdd}
             />
           </div>
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
         </SubSection>
       )}
     </Screen>
@@ -156,7 +166,8 @@ InitiativeInvestible.propTypes = {
 InitiativeInvestible.defaultProps = {
   marketPresences: [],
   investibleComments: [],
-  toggleEdit: () => {},
+  toggleEdit: () => {
+  },
   isAdmin: false,
 };
 export default InitiativeInvestible;

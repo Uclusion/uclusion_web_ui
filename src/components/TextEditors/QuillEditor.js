@@ -17,6 +17,20 @@ Quill.register('modules/tableUI', QuillTableUI);
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
 
+function editorEmpty(contents) {
+  if (contents.length === 0) {
+    return true;
+  }
+  if (contents === '<p></p>') {
+    return true;
+  }
+  if (contents === '<p><br></p>'){
+    return true;
+  }
+  return false;
+}
+
+
 // code derived from https://github.com/quilljs/quill/issues/1447
 class QuillEditor extends React.PureComponent {
 
@@ -88,6 +102,7 @@ class QuillEditor extends React.PureComponent {
 
   }
 
+
   componentDidMount() {
     const { defaultValue, onChange, value } = this.props;
     const usedValue = value || defaultValue;
@@ -95,7 +110,11 @@ class QuillEditor extends React.PureComponent {
     this.editor = new Quill(this.editorBox.current, this.options);
     const debouncedOnChange = _.debounce((delta) => {
       const contents = this.editor.root.innerHTML;
-      onChange(contents, delta);
+      if (editorEmpty(contents)) {
+        onChange('', delta);
+      }else {
+        onChange(contents, delta);
+      }
     }, 50);
     this.disableToolbarTabs(this.editorContainer.current);
     this.editor.on('text-change', debouncedOnChange);

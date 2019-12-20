@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
@@ -32,12 +32,24 @@ function AddEditVote(props) {
   const intl = useIntl();
   const addMode = _.isEmpty(investment);
   const { quantity } = investment;
+  const [validForm, setValidForm] = useState(false);
   const initialInvestment = (addMode) ? 50 : quantity;
   const [newQuantity, setNewQuantity] = useState(initialInvestment);
   const [maxBudget, setMaxBudget] = useState(undefined);
   const { body, id: reasonId } = reason;
   const [reasonText, setReasonText] = useState(body);
   const [operationRunning] = useContext(OperationInProgressContext);
+
+  useEffect(() => {
+    // Long form to prevent flicker
+    if ((showBudget && maxBudget > 0) || (!showBudget)) {
+      if (!validForm) {
+        setValidForm(true);
+      }
+    } else if (validForm) {
+      setValidForm(false);
+    }
+  }, [showBudget, maxBudget, validForm]);
 
   function mySave() {
     const oldQuantity = addMode ? 0 : quantity;
@@ -171,6 +183,7 @@ function AddEditVote(props) {
         variant="contained"
         color="primary"
         onClick={() => mySave()}
+        disabled={!validForm}
         onSpinStop={onSave}
       >
         {addMode ? intl.formatMessage({ id: 'saveVote' }) : intl.formatMessage({ id: 'updateVote' })}

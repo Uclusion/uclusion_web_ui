@@ -31,11 +31,11 @@ function AddEditVote(props) {
   } = props;
   const intl = useIntl();
   const addMode = _.isEmpty(investment);
-  const { quantity } = investment;
+  const { quantity, max_budget: initialMaxBudget } = investment;
   const [validForm, setValidForm] = useState(false);
   const initialInvestment = (addMode) ? 50 : quantity;
   const [newQuantity, setNewQuantity] = useState(initialInvestment);
-  const [maxBudget, setMaxBudget] = useState(undefined);
+  const [maxBudget, setMaxBudget] = useState(initialMaxBudget);
   const { body, id: reasonId } = reason;
   const [reasonText, setReasonText] = useState(body);
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -169,6 +169,7 @@ function AddEditVote(props) {
           }}
           variant="outlined"
           onChange={onBudgetChange}
+          value={maxBudget}
         />
       )}
       <Typography>{intl.formatMessage({ id: 'reasonQuestion' })}</Typography>

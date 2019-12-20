@@ -10,13 +10,14 @@ import Voting from '../Decision/Voting';
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
-  ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE,
+  ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
 } from '../../../constants/comments';
 import DisplayAssignments from './Assignments/DisplayAssignments';
 import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import Screen from '../../../containers/Screen/Screen';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
+import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import MoveToNextVisibleStageActionButton from './MoveToNextVisibleStageActionButton';
 import { getMarketInfo } from '../../../utils/userFunctions';
@@ -87,7 +88,7 @@ function PlanningInvestible(props) {
   const isInVerified = inVerifiedStage && stage === inVerifiedStage.id;
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
-  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
+  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   // eslint-disable-next-line no-nested-ternary
   const stageName = isInVoting ? intl.formatMessage({ id: 'planningVotingStageLabel' })
     // eslint-disable-next-line no-nested-ternary
@@ -179,17 +180,17 @@ function PlanningInvestible(props) {
       // eslint-disable-next-line max-len
       const blockingComments = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
       if (!Array.isArray(blockingComments) || blockingComments.length === 0) {
+        // eslint-disable-next-line max-len
+        const assignedInVotingStage = assignedInStage(investibles, userId, inCurrentVotingStage.id);
+        if (!Array.isArray(assignedInVotingStage) || assignedInVotingStage.length === 0) {
+          sidebarActions.push(<MoveToVotingActionButton
+            investibleId={investibleId}
+            marketId={marketId}
+            stageId={stage}
+            key="voting"
+          />);
+        }
         if (Array.isArray(invested) && invested.length > 0) {
-          // eslint-disable-next-line max-len
-          const assignedInVotingStage = assignedInStage(investibles, userId, inCurrentVotingStage.id);
-          if (!Array.isArray(assignedInVotingStage) || assignedInVotingStage.length === 0) {
-            sidebarActions.push(<MoveToVotingActionButton
-              investibleId={investibleId}
-              marketId={marketId}
-              stageId={stage}
-              key="voting"
-            />);
-          }
           // eslint-disable-next-line max-len
           const assignedInAcceptedStage = assignedInStage(investibles, userId, inAcceptedStage.id);
           if (!Array.isArray(assignedInAcceptedStage) || assignedInAcceptedStage.length === 0) {
@@ -226,6 +227,7 @@ function PlanningInvestible(props) {
   }
   sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
   sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
+  sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
 
   const discussionVisible = !commentAddHidden || !_.isEmpty(investmentReasonsRemoved);
   const newestVote = getNewestVote();

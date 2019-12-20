@@ -24,7 +24,7 @@ function editorEmpty(contents) {
   if (contents === '<p></p>') {
     return true;
   }
-  if (contents === '<p><br></p>'){
+  if (contents === '<p><br></p>') {
     return true;
   }
   return false;

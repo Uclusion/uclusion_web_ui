@@ -192,17 +192,17 @@ function PlanningInvestible(props) {
         // eslint-disable-next-line max-len
         const blockingComments = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
         if (!Array.isArray(blockingComments) || blockingComments.length === 0) {
+          // eslint-disable-next-line max-len
+          const assignedInVotingStage = assignedInStage(investibles, userId, inCurrentVotingStage.id);
+          if (!Array.isArray(assignedInVotingStage) || assignedInVotingStage.length === 0) {
+            sidebarActions.push(<MoveToVotingActionButton
+              investibleId={investibleId}
+              marketId={marketId}
+              stageId={stage}
+              key="voting"
+            />);
+          }
           if (Array.isArray(invested) && invested.length > 0) {
-            // eslint-disable-next-line max-len
-            const assignedInVotingStage = assignedInStage(investibles, userId, inCurrentVotingStage.id);
-            if (!Array.isArray(assignedInVotingStage) || assignedInVotingStage.length === 0) {
-              sidebarActions.push(<MoveToVotingActionButton
-                investibleId={investibleId}
-                marketId={marketId}
-                stageId={stage}
-                key="voting"
-              />);
-            }
             // eslint-disable-next-line max-len
             const assignedInAcceptedStage = assignedInStage(investibles, userId, inAcceptedStage.id);
             if (!Array.isArray(assignedInAcceptedStage) || assignedInAcceptedStage.length === 0) {
@@ -237,76 +237,11 @@ function PlanningInvestible(props) {
         keu="notdoing"
       />);
     }
-    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
-    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
     return sidebarActions;
   }
-  if (assigned && assigned.includes(userId)) {
-    if (isInVoting || isInAccepted) {
-      const nextStageId = isInVoting ? inAcceptedStage.id : inReviewStage.id;
-      const assignedInNextStage = assignedInStage(investibles, userId, nextStageId);
-      if (Array.isArray(invested) && invested.length > 0
-        && (!Array.isArray(assignedInNextStage) || assignedInNextStage.length === 0)) {
-        sidebarActions.push(<MoveToNextVisibleStageActionButton
-          key="visible"
-          investibleId={investibleId}
-          marketId={marketId}
-          stageId={stage}
-        />);
-      }
-    }
-    if (isInBlocked) {
-      // eslint-disable-next-line max-len
-      const blockingComments = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
-      if (!Array.isArray(blockingComments) || blockingComments.length === 0) {
-        // eslint-disable-next-line max-len
-        const assignedInVotingStage = assignedInStage(investibles, userId, inCurrentVotingStage.id);
-        if (!Array.isArray(assignedInVotingStage) || assignedInVotingStage.length === 0) {
-          sidebarActions.push(<MoveToVotingActionButton
-            investibleId={investibleId}
-            marketId={marketId}
-            stageId={stage}
-            key="voting"
-          />);
-        }
-        if (Array.isArray(invested) && invested.length > 0) {
-          // eslint-disable-next-line max-len
-          const assignedInAcceptedStage = assignedInStage(investibles, userId, inAcceptedStage.id);
-          if (!Array.isArray(assignedInAcceptedStage) || assignedInAcceptedStage.length === 0) {
-            sidebarActions.push(<MoveToAcceptedActionButton
-              investibleId={investibleId}
-              marketId={marketId}
-              stageId={stage}
-              key="accepted"
-            />);
-          }
-          sidebarActions.push(<MoveToInReviewActionButton
-            investibleId={investibleId}
-            marketId={marketId}
-            stageId={stage}
-            key="inreview"
-          />);
-        }
-      }
-    }
-  }
-  if (!isInVerified) {
-    sidebarActions.push(<MoveToVerifiedActionButton
-      investibleId={investibleId}
-      marketId={marketId}
-      stageId={stage}
-      key="verified"
-    />);
-    sidebarActions.push(<MoveToNotDoingActionButton
-      investibleId={investibleId}
-      marketId={marketId}
-      stageId={stage}
-      keu="notdoing"
-    />);
-  }
-  sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
-  sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
-  sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
 
   const discussionVisible = !commentAddHidden || !_.isEmpty(investmentReasonsRemoved);
   const newestVote = getNewestVote();
@@ -391,7 +326,7 @@ function PlanningInvestible(props) {
               onSave={closeCommentAdd}
               onCancel={closeCommentAdd}
             />
-            <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+            <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
           </SubSection>
         )}
       </div>

@@ -21,13 +21,22 @@ import InitiativeDialogs from './InitiativeDialogs';
 import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-
+import SidebarMenuButton from '../../components/Buttons/SidebarMenuButton';
 
 const useStyles = makeStyles(() => ({
   breadCrumbImage: {
     height: 40,
   },
 }));
+
+const breadCrumbs = [
+  {
+    title: 'Breadcrumb'
+  },
+  {
+    title: 'Longer Breadcrumb'
+  },
+];
 
 function Home(props) {
   const { hidden } = props;
@@ -44,6 +53,29 @@ function Home(props) {
   const [decisionAddMode, setDecisionAddMode] = useState(false);
   const [initiativeAddMode, setInitiativeAddMode] = useState(false);
 
+  const SIDEBAR_ACTIONS = [
+    {
+      label: 'Edit',
+      icon: 'images/Uclusion_Sidebar_Edit.svg',
+      onClick: () => {},
+    },
+    {
+      label: 'New',
+      icon: 'images/Uclusion_Sidebar_New.svg',
+      onClick: () => {},
+    },
+    {
+      label: 'Information',
+      icon: 'images/Uclusion_Sidebar_Info.svg',
+      onClick: () => {},
+    },
+    {
+      label: 'Message',
+      icon: 'images/Uclusion_Sidebar_Message.svg',
+      onClick: () => {},
+    },
+  ];
+
   function toggleInitiativeAddMode() {
     setInitiativeAddMode(!initiativeAddMode);
   }
@@ -57,12 +89,9 @@ function Home(props) {
   }
 
   const sidebarActions = [];
-  if (!(planningAddMode || decisionAddMode || initiativeAddMode)) {
-    sidebarActions.push(<PlanningAddActionButton key="planningAdd" onClick={togglePlanningAddMode} />);
-    sidebarActions.push(<DecisionAddActionButton key="decisionAdd" onClick={toggleDecisionAddMode} />);
-    sidebarActions.push(<InitiativeAddActionButton key="initiativeAdd" onClick={toggleInitiativeAddMode} />);
-    sidebarActions.push(<ViewArchiveActionButton key="archives" />)
-  }
+    SIDEBAR_ACTIONS.forEach(action => {
+      sidebarActions.push(<SidebarMenuButton icon={action.icon} label={action.label} onClick={action.onClick} />);
+    });
 
   function getContents() {
     if (planningAddMode) {
@@ -107,10 +136,11 @@ function Home(props) {
 
   return (
     <Screen
-      title={<img src="/images/logo.svg" alt="Uclusion" className={classes.breadCrumbImage} />}
+      title="Shockingly long breadcrumb to show information"
       tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       sidebarActions={sidebarActions}
+      breadCrumbs={breadCrumbs}
     >
       {getContents()}
     </Screen>

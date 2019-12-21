@@ -19,6 +19,7 @@ import {
 import { makeStyles } from '@material-ui/styles';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import MenuIcon from '@material-ui/icons/Menu';
+import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
 import { useHistory } from 'react-router';
 import Notifications from '../../components/Notifications/Notifications';
 import { SidebarContext } from '../../contexts/SidebarContext';
@@ -28,7 +29,7 @@ import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles((theme) => {
-  const drawerWidth = 240;
+  const drawerWidth = 97;
   return {
     // grow is used to eat up all the space until the right
     grow: {
@@ -42,10 +43,10 @@ const useStyles = makeStyles((theme) => {
       flexDirection: 'column',
     },
     container: {
-      background: '#ffffff',
+      background: '#efefef',
     },
     appBar: {
-      background: '#ffffff',
+      background: '#efefef',
       zIndex: theme.zIndex.drawer + 1,
     },
     breadCrumbImage: {
@@ -53,12 +54,14 @@ const useStyles = makeStyles((theme) => {
     },
     sidebarOpen: {
       width: drawerWidth,
+      backgroundColor: '#3F6B72',
       transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
       }),
     },
     menuButton: {
+      marginLeft: '-3px',
       marginRight: theme.spacing(2),
     },
     appBarShift: {
@@ -75,11 +78,7 @@ const useStyles = makeStyles((theme) => {
         duration: theme.transitions.duration.leavingScreen,
       }),
       overflowX: 'hidden',
-      width: theme.spacing(7) + 1,
-      [theme.breakpoints.up('sm')]: {
-        width: theme.spacing(12) + 1,
-        backgroundColor: '#3F6B72'
-      },
+      width: 0,
     },
     contentShift: {
       marginLeft: drawerWidth,
@@ -100,7 +99,47 @@ const useStyles = makeStyles((theme) => {
     },
     elevated: {
       zIndex: 99,
-    }
+    },
+    sidebarContainer: {
+      display: 'grid',
+      gridTemplateRows: '135px 1fr 98px',
+      height: '100vh',
+    },
+    sidebarLogo: {
+      marginTop: '53px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'flex-start'
+    },
+    sidebarContent: {
+      display: 'flex',
+      justifyContent: 'center',
+      flexDirection: 'column',
+      paddingTop: "21px",
+      paddingBottom: "33px",
+      backgroundColor: 'rgba(0,0,0,0.19)',
+    },
+    sidebarNotification: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+      height: '100%',
+    },
+    notification: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '54px',
+      height: '54px',
+      borderRadius: '50%',
+      background: '#fff',
+      boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+    },
+    notificationIcon: {
+      color: '#F29100',
+      fontSize: '36px',
+    },
   };
 });
 
@@ -171,18 +210,30 @@ function Screen(props) {
 
   function getSidebar() {
     return (
-      <List>
-        {sidebarActions}
-      </List>
+      <div className={classes.sidebarContainer}>
+        <div className={classes.sidebarLogo}>
+          <img src="images/logo.svg" alt="Uclusion" />
+        </div>
+        <div>
+          <List className={classes.sidebarContent} >
+            {sidebarActions}
+          </List>
+        </div>
+        <div className={classes.sidebarNotification}>
+          <div className={classes.notification}>
+            <NotificationImportantIcon className={classes.notificationIcon} />
+          </div>
+        </div>
+      </div>
     );
   }
 
   function generateTitle() {
     if (breadCrumbs) {
       return (
-        <Breadcrumbs separator=">">
+        <Breadcrumbs separator="/">
           {breadCrumbs.map((crumb, index) => (
-            <Link key={index} href="#" onClick={crumb.onClick} underline="always" color="primary">
+            <Link key={index} href="#" onClick={crumb.onClick} color="inherit">
               {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage}/>}
               {!crumb.image && createTitle(crumb.title, 25)}
             </Link>
@@ -251,6 +302,24 @@ function Screen(props) {
 
         </Toolbar>
       </AppBar> */}
+      <AppBar
+        position="fixed"
+        className={clsx(classes.appBar, {
+          [classes.appBarShift]: sidebarOpen,
+        })}
+        >
+          <Toolbar>
+            <IconButton
+              aria-label="open drawer"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              edge="start"
+              className={classes.menuButton}
+            >
+              <img src="images/Uclusion_bar.svg" alt='' />
+            </IconButton>
+          {generateTitle()}
+          </Toolbar>
+      </AppBar>
       <Drawer
         variant="permanent"
         anchor="left"
@@ -266,18 +335,8 @@ function Screen(props) {
         }}
         open={sidebarOpen}
       >
-        <div className={classes.drawerHeader}>
-          {sidebarOpen && (
-            <IconButton onClick={() => setSidebarOpen(false)}>
-              <ChevronLeftIcon/>
-            </IconButton>
-          )}
-          {generateTitle()}
-        </div>
-        <Divider/>
         {getSidebar()}
       </Drawer>
-      <Toolbar/>
       <div className={clsx(classes.content, {
         [classes.contentShift]: sidebarOpen,
       })}

@@ -1,4 +1,5 @@
 import { defineMessages } from 'react-intl';
+
 const messages = defineMessages({
   app_name: 'Uclusion',
   about: 'About',
@@ -313,7 +314,7 @@ const messages = defineMessages({
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
-
+  dialogAddParticipantsLabel: 'Add Participants',
 
   // DecisionInvestible
   decisionInvestibleYourVoting: 'Your Vote',
@@ -340,12 +341,14 @@ const messages = defineMessages({
   deadlineExtenderSave: 'Extend',
   deadlineExtenderCancel: 'Cancel',
 
-  //invite linker
+  // invite linker
   inviteLinkerDirections: 'Share this link to invite others to the dialog',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
 
   // Assignment List
   assignmentListHeader: 'Assigned to',
+  // Address List
+  addressListHeader: 'Addressed to',
 
   // Dialog Archives
   dialogArchivesNotDoingHeader: 'Not Doing',
@@ -393,7 +396,7 @@ const messages = defineMessages({
   errorInvestibleListFetchFailed: 'There was a problem fetchign the data list',
 
   // warnings
-  warningOffline: "You are offline",
+  warningOffline: 'You are offline',
 
 });
 

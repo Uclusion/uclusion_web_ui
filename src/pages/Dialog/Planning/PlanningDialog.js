@@ -28,6 +28,8 @@ import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../..
 import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import { ACTIVE_STAGE } from '../../../constants/markets';
+import AddressList from '../AddressList';
+import AddParticipantsActionButton from '../AddParticipantsActionButton';
 
 
 function PlanningDialog(props) {
@@ -56,6 +58,7 @@ function PlanningDialog(props) {
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);
   const [dialogEditMode, setDialogEditMode] = useState(false);
+  const [addParticipantsMode, setAddParticipantsMode] = useState(false);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   let lockedByName;
@@ -69,6 +72,10 @@ function PlanningDialog(props) {
 
   function toggleAddInvestibleMode() {
     setAddInvestibleMode(!addInvestibleMode);
+  }
+
+  function toggleAddParticipantsMode() {
+    setAddParticipantsMode(!addParticipantsMode);
   }
 
   function toggleEditMode() {
@@ -122,6 +129,27 @@ function PlanningDialog(props) {
           onCancel={toggleAddInvestibleMode}
           onSave={toggleAddInvestibleMode}
           marketPresences={marketPresences}
+        />
+      </Screen>
+    );
+  }
+
+  if (addParticipantsMode) {
+    const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
+    const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+    const participantsTitle = intl.formatMessage({ id: 'addressListHeader' });
+    return (
+      <Screen
+        tabTitle={participantsTitle}
+        title={participantsTitle}
+        hidden={hidden}
+        breadCrumbs={myBreadCrumbs}
+      >
+        <AddressList
+          addToMarketId={marketId}
+          onCancel={toggleAddParticipantsMode}
+          onSave={toggleAddParticipantsMode}
+          intl={intl}
         />
       </Screen>
     );
@@ -204,6 +232,7 @@ function PlanningDialog(props) {
     }
     const userActions = [
       <InvestibleAddActionButton key="investibleadd" onClick={toggleAddInvestibleMode} />,
+      <AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />,
       <ViewArchiveActionButton key="archives" marketId={marketId} />,
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
       <AskQuestions key="question" onClick={commentButtonOnClick} />,

@@ -6,7 +6,6 @@ import ReadOnlyQuillEditor from '../../components/TextEditors/ReadOnlyQuillEdito
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
-import AddressList from './AddressList';
 
 function Summary(props) {
   const { market, showObservers } = props;

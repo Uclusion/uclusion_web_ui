@@ -205,7 +205,7 @@ DecisionInvestible.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   investibleComments: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
-  comments: PropTypes.object,
+  comments: PropTypes.arrayOf(PropTypes.object),
   investibleId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
   toggleEdit: PropTypes.func,

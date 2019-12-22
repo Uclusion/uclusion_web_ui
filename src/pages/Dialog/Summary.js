@@ -18,10 +18,11 @@ function Summary(props) {
 
   function displayUserList(presencesList) {
     return presencesList.map((presence) => {
-      const { name } = presence;
+      const { id: presenceId, name } = presence;
       return (
         <Grid
           item
+          key={presenceId}
         >
           <Typography>{name}</Typography>
         </Grid>
@@ -37,6 +38,7 @@ function Summary(props) {
           <Grid
             item
             xs={2}
+            key="createdBy"
           >
             <Typography>
               {intl.formatMessage({ id: 'created_by' })}
@@ -57,6 +59,7 @@ function Summary(props) {
           <Grid
             item
             xs={2}
+            key="observers"
           >
             <Typography>
               {intl.formatMessage({ id: 'observers' })}
@@ -65,6 +68,7 @@ function Summary(props) {
           <Grid
             item
             xs={10}
+            key="userList"
           >
             {displayUserList(marketPresencesObserving)}
           </Grid>

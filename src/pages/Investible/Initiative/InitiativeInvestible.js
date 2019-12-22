@@ -15,11 +15,13 @@ import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import Screen from '../../../containers/Screen/Screen';
-import { makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import Summary from '../../Dialog/Summary';
 import { ACTIVE_STAGE } from '../../../constants/markets';
+import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
+import AddressList from '../../Dialog/AddressList';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -40,6 +42,7 @@ function InitiativeInvestible(props) {
 
   const intl = useIntl();
   const history = useHistory();
+  const [addParticipantsMode, setAddParticipantsMode] = useState(false);
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
@@ -64,6 +67,10 @@ function InitiativeInvestible(props) {
     setCommentAddHidden(true);
   }
 
+  function toggleAddParticipantsMode() {
+    setAddParticipantsMode(!addParticipantsMode);
+  }
+
   function getSidebarActions() {
     if (!activeMarket) {
       return [];
@@ -71,18 +78,40 @@ function InitiativeInvestible(props) {
     const sidebarActions = [];
 
     if (isAdmin) {
-      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
+      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
     }
-
-    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
-    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
-    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick}/>);
-
+    sidebarActions.push(<AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />);
+    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
+    return sidebarActions;
   }
 
   if (!investibleId) {
     // we have no usable data;
     return <></>;
+  }
+
+  if (addParticipantsMode) {
+    const breadCrumbTemplates = [{ name, link: formInvestibleLink(marketId, investibleId) }];
+    const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+    const participantsTitle = intl.formatMessage({ id: 'addressListHeader' });
+    return (
+      <Screen
+        tabTitle={participantsTitle}
+        title={participantsTitle}
+        hidden={false}
+        breadCrumbs={myBreadCrumbs}
+      >
+        <AddressList
+          addToMarketId={marketId}
+          showObservers={false}
+          onCancel={toggleAddParticipantsMode}
+          onSave={toggleAddParticipantsMode}
+          intl={intl}
+        />
+      </Screen>
+    );
   }
 
   const hasDiscussion = !_.isEmpty(investmentReasonsRemoved);
@@ -121,7 +150,7 @@ function InitiativeInvestible(props) {
       <SubSection
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
-        <Summary market={market}/>
+        <Summary market={market} showObservers={false} />
         <ReadOnlyQuillEditor
           value={description}
         />
@@ -141,7 +170,7 @@ function InitiativeInvestible(props) {
               onCancel={closeCommentAdd}
             />
           </div>
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
         </SubSection>
       )}
     </Screen>

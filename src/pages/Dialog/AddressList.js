@@ -28,6 +28,7 @@ function AddressList(props) {
     intl,
     onSave,
     onCancel,
+    showObservers,
   } = props;
   const [operationRunning] = useContext(OperationInProgressContext);
   const classes = useStyles();
@@ -100,12 +101,14 @@ function AddressList(props) {
         >
           {name}
         </ListItemText>
-        <ListItemIcon>
-          <Checkbox
-            onClick={getObserverToggle(id)}
-            checked={isObserver}
-          />
-        </ListItemIcon>
+        {showObservers && (
+          <ListItemIcon>
+            <Checkbox
+              onClick={getObserverToggle(id)}
+              checked={isObserver}
+            />
+          </ListItemIcon>
+        )}
       </ListItem>
     );
   }
@@ -152,11 +155,13 @@ AddressList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   intl: PropTypes.object.isRequired,
   addToMarketId: PropTypes.string.isRequired,
+  showObservers: PropTypes.bool,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
 };
 
 AddressList.defaultProps = {
+  showObservers: true,
   onSave: () => {
   },
   onCancel: () => {

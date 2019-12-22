@@ -6,9 +6,10 @@ import ReadOnlyQuillEditor from '../../components/TextEditors/ReadOnlyQuillEdito
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import AddressList from './AddressList';
 
 function Summary(props) {
-  const { market } = props;
+  const { market, showObservers } = props;
   const intl = useIntl();
   const { id, description, market_type: marketType } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -50,7 +51,7 @@ function Summary(props) {
           </Grid>
         </Grid>
       )}
-      {Array.isArray(marketPresencesObserving) && (
+      {showObservers && Array.isArray(marketPresencesObserving) && (
         <Grid
           container
         >
@@ -80,6 +81,11 @@ function Summary(props) {
 Summary.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
+  showObservers: PropTypes.bool,
+};
+
+Summary.defaultProps = {
+  showObservers: true,
 };
 
 export default Summary;

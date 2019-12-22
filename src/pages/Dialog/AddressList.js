@@ -47,7 +47,7 @@ function AddressList(props) {
         } = presence;
         if (!addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
           macc[user_id] = {
-            user_id, name, account_id, isChecked: false,
+            user_id, name, account_id, isChecked: false, isObserver: false,
           };
         }
       });
@@ -69,15 +69,29 @@ function AddressList(props) {
     };
   }
 
+  function getObserverToggle(id) {
+    return () => {
+      const userDetail = checked[id];
+      const { isObserver } = userDetail;
+      const newChecked = {
+        ...checked,
+        [id]: { ...userDetail, isObserver: !isObserver },
+      };
+      setChecked(newChecked);
+    };
+  }
+
   function renderParticipantEntry(presenceEntry) {
-    const { user_id: id, name, isChecked } = presenceEntry[1];
+    const {
+      user_id: id, name, isChecked, isObserver,
+    } = presenceEntry[1];
     return (
       <ListItem
         key={id}
-        onClick={getCheckToggle(id)}
       >
         <ListItemIcon>
           <Checkbox
+            onClick={getCheckToggle(id)}
             checked={isChecked}
           />
         </ListItemIcon>
@@ -86,6 +100,12 @@ function AddressList(props) {
         >
           {name}
         </ListItemText>
+        <ListItemIcon>
+          <Checkbox
+            onClick={getObserverToggle(id)}
+            checked={isObserver}
+          />
+        </ListItemIcon>
       </ListItem>
     );
   }
@@ -94,10 +114,10 @@ function AddressList(props) {
     const participants = Object.keys(checked).map((key) => checked[key]);
     const toAdd = participants.filter((participant) => participant.isChecked);
     const toAddClean = toAdd.map((participant) => {
-      const { user_id, account_id} = participant;
-      return { user_id, account_id };
+      const { user_id, account_id, isObserver } = participant;
+      return { user_id, account_id, is_observer: isObserver };
     });
-    return addParticipants(addToMarketId, toAddClean).then(() => console.log('Need to clean up here'));
+    return addParticipants(addToMarketId, toAddClean).then(() => console.log('Add successful'));
   }
 
   return (

@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
-import { Hub } from '@aws-amplify/core';
 import { CircularProgress, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { registerListener, removeListener } from '../../utils/MessageBusUtils';
 
 const FETCH_DELAY = 40; // give us 40 ms pull data from the hub event;
 
@@ -23,6 +23,7 @@ export function withSpinLock(Component) {
 
     const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
     const [spinning, setSpinning] = useState(false);
+    const listenerName = 'SPINNER';
 
     const hubListener = (data) => {
       const { payload: { event, message } } = data;
@@ -43,12 +44,12 @@ export function withSpinLock(Component) {
     function myOnSpinStart() {
       setOperationRunning(true);
       setSpinning(true);
-      Hub.listen(VERSIONS_HUB_CHANNEL, hubListener);
+      registerListener(VERSIONS_HUB_CHANNEL, listenerName, hubListener);
       onSpinStart();
     }
 
     function myOnSpinStop() {
-      Hub.remove(VERSIONS_HUB_CHANNEL, hubListener);
+      removeListener(VERSIONS_HUB_CHANNEL, listenerName);
       setTimeout(() => {
         setSpinning(false);
         setOperationRunning(false);

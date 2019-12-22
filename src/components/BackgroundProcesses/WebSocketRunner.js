@@ -1,6 +1,6 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { Hub } from 'aws-amplify';
 import { SOCKET_OPEN_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
+import { pushMessage } from '../../utils/MessageBusUtils';
 
 /**
  * Class which fires and manages a websocket connection to the server.
@@ -45,7 +45,7 @@ class WebSocketRunner {
   onOpenFactory(identity) {
     const factory = () => {
       this.subscribe(identity);
-      Hub.dispatch(
+      pushMessage(
         VERSIONS_HUB_CHANNEL,
         {
           event: SOCKET_OPEN_EVENT,

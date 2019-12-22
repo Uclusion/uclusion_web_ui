@@ -1,11 +1,11 @@
-import { Hub } from '@aws-amplify/core';
 import { getMessages } from '../../api/sso';
 import { updateMessages, updatePage } from './notificationsContextReducer';
 import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext';
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper';
+import { registerListener } from '../../utils/MessageBusUtils';
 
 function beginListening(dispatch) {
-  Hub.listen(NOTIFICATIONS_HUB_CHANNEL, (data) => {
+  registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
     const { payload: { event } } = data;
     console.debug(`Notifications context responding to push event ${event}`);
 
@@ -20,7 +20,7 @@ function beginListening(dispatch) {
     }
   });
 
-  Hub.listen(VISIT_CHANNEL, (data) => {
+  registerListener(VISIT_CHANNEL, 'notificationsVisitStart', (data) => {
     const { payload: { event, message } } = data;
     console.debug(message);
     switch (event) {

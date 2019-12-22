@@ -1,4 +1,3 @@
-import { Hub } from '@aws-amplify/core';
 import { refreshMarketComments } from './commentsContextHelper';
 import {
   PUSH_COMMENTS_CHANNEL,
@@ -7,9 +6,10 @@ import {
 } from '../VersionsContext/versionsContextHelper';
 import { removeMarketsComments } from './commentsContextReducer';
 import { AllSequentialMap } from '../../utils/PromiseUtils';
+import{ registerListener } from '../../utils/MessageBusUtils';
 
 function beginListening(dispatch) {
-  Hub.listen(REMOVED_MARKETS_CHANNEL, (data) => {
+  registerListener(REMOVED_MARKETS_CHANNEL, 'commentsRemovedMarketStart', (data) => {
     const { payload: { event, message } } = data;
     switch (event) {
       case VERSIONS_EVENT:
@@ -19,7 +19,7 @@ function beginListening(dispatch) {
         console.debug(`Ignoring identity event ${event}`);
     }
   });
-  Hub.listen(PUSH_COMMENTS_CHANNEL, (data) => {
+  registerListener(PUSH_COMMENTS_CHANNEL, 'commentsPushStart', (data) => {
     const { payload: { event, message } } = data;
 
     switch (event) {

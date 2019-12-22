@@ -1,4 +1,3 @@
-import { Hub } from '@aws-amplify/core';
 import {
   PUSH_STAGE_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
@@ -6,9 +5,10 @@ import {
 } from '../VersionsContext/versionsContextHelper';
 import { refreshMarketStages } from './marketStagesContextHelper';
 import { removeMarketsStageDetails } from './marketStagesContextReducer';
+import { registerListener } from '../../utils/MessageBusUtils';
 
 function beginListening(dispatch) {
-  Hub.listen(REMOVED_MARKETS_CHANNEL, (data) => {
+  registerListener(REMOVED_MARKETS_CHANNEL, 'marketStagesRemovedMarketStart', (data) => {
     const { payload: { event, message } } = data;
     switch (event) {
       case VERSIONS_EVENT:
@@ -19,7 +19,7 @@ function beginListening(dispatch) {
         console.debug(`Ignoring identity event ${event}`);
     }
   });
-  Hub.listen(PUSH_STAGE_CHANNEL, (data) => {
+  registerListener(PUSH_STAGE_CHANNEL, 'marketStagesPushStart',  (data) => {
     const { payload: { event, message } } = data;
     switch (event) {
       case VERSIONS_EVENT: {

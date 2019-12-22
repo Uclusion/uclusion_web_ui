@@ -1,6 +1,6 @@
-import { Hub } from '@aws-amplify/core';
 import { VIEW_EVENT, VISIT_CHANNEL } from '../contexts/NotificationsContext/NotificationsContext';
 import { intl } from '../components/ContextHacks/IntlGlobalProvider';
+import { pushMessage } from './MessageBusUtils';
 
 
 /** Given the pathpart _without the hash or query params
@@ -20,7 +20,7 @@ export function decomposeMarketPath(path) {
 export function broadcastView(marketId, investibleId, isEntry) {
   const message = { marketId, investibleId, isEntry };
   console.debug(message);
-  Hub.dispatch(
+  pushMessage(
     VISIT_CHANNEL,
     {
       event: VIEW_EVENT,

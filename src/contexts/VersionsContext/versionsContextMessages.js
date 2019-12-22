@@ -1,4 +1,3 @@
-import { Hub } from '@aws-amplify/core';
 import {
   AUTH_HUB_CHANNEL,
   MARKET_MESSAGE_EVENT,
@@ -13,9 +12,10 @@ import {
   refreshNotificationVersionAction, refreshVersionsAction,
   removeMarketVersionAction,
 } from './versionsContextReducer';
+import { registerListener } from '../../utils/MessageBusUtils';
 
 function beginListening(dispatch) {
-  Hub.listen(AUTH_HUB_CHANNEL, (data) => {
+  registerListener(AUTH_HUB_CHANNEL, 'versionAuthStart', (data) => {
     const { payload: { event } } = data;
     console.debug(`Versions context responding to auth event ${event}`);
 
@@ -35,7 +35,7 @@ function beginListening(dispatch) {
     }
   });
 
-  Hub.listen(VERSIONS_HUB_CHANNEL, (data) => {
+  registerListener(VERSIONS_HUB_CHANNEL, 'versionVersionStart', (data) => {
     const { payload: { event, message } } = data;
     console.debug(`Versions context responding to push event ${event}`);
     console.debug(message);

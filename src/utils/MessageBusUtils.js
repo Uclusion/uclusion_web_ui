@@ -24,8 +24,8 @@ export function registerListener(channel, name, callback) {
  */
 export function removeListener(channel, name) {
   const listener = busListeners[name];
-  if (listener) {
-    Hub.remove(channel, name);
+  if (!!listener) {
+    Hub.remove(channel, listener);
   }
 }
 

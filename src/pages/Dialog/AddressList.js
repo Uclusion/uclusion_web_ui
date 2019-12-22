@@ -12,6 +12,7 @@ import {
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { addParticipants } from '../../api/users';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -30,7 +31,6 @@ function AddressList(props) {
   } = props;
   const [operationRunning] = useContext(OperationInProgressContext);
   const classes = useStyles();
-  const processed = {};
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const addToMarketPresences = marketPresencesState[addToMarketId];
   const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
@@ -59,7 +59,7 @@ function AddressList(props) {
 
   function getCheckToggle(id) {
     return () => {
-      const userDetail = processed[id];
+      const userDetail = checked[id];
       const { isChecked } = userDetail;
       const newChecked = {
         ...checked,
@@ -91,7 +91,13 @@ function AddressList(props) {
   }
 
   function handleSave() {
-    // TODO
+    const participants = Object.keys(checked).map((key) => checked[key]);
+    const toAdd = participants.filter((participant) => participant.isChecked);
+    const toAddClean = toAdd.map((participant) => {
+      const { user_id, account_id} = participant;
+      return { user_id, account_id };
+    });
+    return addParticipants(addToMarketId, toAddClean).then(() => console.log('Need to clean up here'));
   }
 
   return (
@@ -106,16 +112,16 @@ function AddressList(props) {
           disabled={operationRunning}
           onClick={onCancel}
         >
-          {intl.formatMessage({ id: 'investibleAddCancelLabel' })}
+          {intl.formatMessage({ id: 'addressAddCancelLabel' })}
         </Button>
         <SpinBlockingButton
           variant="contained"
           color="primary"
           onClick={handleSave}
           marketId={addToMarketId}
-          onSpinStop={() => onSave()}
+          onSpinStop={onSave}
         >
-          {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
+          {intl.formatMessage({ id: 'addressAddSaveLabel' })}
         </SpinBlockingButton>
       </ListItem>
     </List>

@@ -178,6 +178,10 @@ const messages = defineMessages({
   removeVote: 'Remove Vote',
   maxBudgetInputLabel: 'Value in days (if it takes longer it might not be worth doing)',
 
+  // Address list
+  addressAddCancelLabel: 'Cancel',
+  addressAddSaveLabel: 'Add Participants',
+
   // InvestibleAdd
   investibleAddTitleDefault: 'Add a name...',
   investibleAddTitleLabel: 'Name',
@@ -377,6 +381,7 @@ const messages = defineMessages({
   errorCommentFetchFailed: 'There was a problem retrieving comments',
   errorCommentSaveFailed: 'There was a problem saving your comment',
   errorInvestmentUpdateFailed: 'There was a problem updating your vote',
+  errorAddParticipantsFailed: 'There was a problem adding participants',
   errorDecisionAddFailed: 'There was a problem creating your Decision',
   errorPlanningAddFailed: 'There was a problem creating your Epic Plan',
   errorFileUploadFailed: 'There was a problem uploading your file',

@@ -5,7 +5,7 @@ import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSo
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { registerListener, removeListener } from '../../utils/MessageBusUtils';
 
-const FETCH_DELAY = 40; // give us 40 ms pull data from the hub event;
+const FETCH_DELAY = 200; // give us 200 ms pull data from the hub event;
 
 export function withSpinLock(Component) {
   const Spinning = function (props) {

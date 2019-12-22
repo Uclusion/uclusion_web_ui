@@ -1,5 +1,6 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import {
   Button,
   Checkbox,
@@ -9,11 +10,14 @@ import {
   ListItemText,
   makeStyles,
 } from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
+import SearchIcon from '@material-ui/icons/Search';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { addParticipants } from '../../api/users';
-
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -57,6 +61,30 @@ function AddressList(props) {
   }
 
   const [checked, setChecked] = useState(extractUsersList());
+  const [searchValue, setSearchValue] = useState(undefined);
+  const [filteredNames, setFilteredNames] = useState(undefined);
+
+  useEffect(() => {
+    if (!searchValue) {
+      setFilteredNames(undefined);
+    }
+    else if (checked) {
+      const filteredEntries = Object.entries(checked).filter((entry) => {
+        const { name } = entry[1];
+        let index = 0;
+        // eslint-disable-next-line no-restricted-syntax
+        for (const c of searchValue) {
+          const foundIndex = _.indexOf(name, c, index);
+          if (foundIndex < 0) {
+            return false;
+          }
+          index = foundIndex;
+        }
+        return true;
+      });
+      setFilteredNames(filteredEntries);
+    }
+  }, [searchValue, checked]);
 
   function getCheckToggle(id) {
     return () => {
@@ -123,11 +151,32 @@ function AddressList(props) {
     return addParticipants(addToMarketId, toAddClean).then(() => console.log('Add successful'));
   }
 
+  function onSearchChange(event) {
+    const { value } = event.target;
+    setSearchValue(value);
+  }
+
+  const displayNames = filteredNames || Object.entries(checked) || [];
+
   return (
     <List
       dense
     >
-      {Object.entries(checked).map((entry) => renderParticipantEntry(entry))}
+      <ListItem key="search">
+        <TextField
+          onChange={onSearchChange}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment>
+                <IconButton>
+                  <SearchIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+      </ListItem>
+      {displayNames.map((entry) => renderParticipantEntry(entry))}
       <ListItem
         key="buttons"
       >

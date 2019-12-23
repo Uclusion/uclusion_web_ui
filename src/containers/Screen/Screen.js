@@ -1,17 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Link,
-  Breadcrumbs,
-  Container,
-  IconButton,
-} from '@material-ui/core';
+import { Container } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { useHistory } from 'react-router';
+import Header from '../../containers/Header';
 import Sidebar from '../../containers/Sidebar'
 import { SidebarContext } from '../../contexts/SidebarContext';
 import { createTitle } from '../../utils/marketIdPathFunctions';
@@ -32,27 +25,6 @@ const useStyles = makeStyles((theme) => {
       background: '#efefef',
       maxWidth: '751px',
       padding: '41px 20px 156px',
-    },
-    appBar: {
-      background: '#efefef',
-      zIndex: theme.zIndex.drawer + 1,
-      boxShadow: 'none',
-      height: '67px',
-    },
-    breadCrumbImage: {
-      height: 40,
-    },
-    menuButton: {
-      marginLeft: '-3px',
-      marginRight: theme.spacing(2),
-    },
-    appBarShift: {
-      marginLeft: DRAWER_WIDTH,
-      width: `calc(100% - ${DRAWER_WIDTH}px)`,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
     },
     contentShift: {
       marginLeft: DRAWER_WIDTH,
@@ -130,45 +102,11 @@ function Screen(props) {
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
   const [online] = useContext(OnlineStateContext);
 
-  function generateTitle() {
-    if (breadCrumbs) {
-      return (
-        <Breadcrumbs separator="/">
-          {breadCrumbs.map((crumb, index) => (
-            <Link key={index} href="#" onClick={crumb.onClick} color="inherit">
-              {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage}/>}
-              {!crumb.image && createTitle(crumb.title, 25)}
-            </Link>
-          ))}
-          <Typography color="textPrimary">{createTitle(title, 25)}</Typography>
-        </Breadcrumbs>
-      );
-    }
-    return (<Typography color="textPrimary">{createTitle(title, 30)}</Typography>);
-  }
-
   return (
     <div
          className={hidden ? classes.hidden : classes.root}
     >
-      <AppBar
-        position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: sidebarOpen,
-        })}
-        >
-          <Toolbar>
-            <IconButton
-              aria-label="open drawer"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              edge="start"
-              className={classes.menuButton}
-            >
-              <img src="images/Uclusion_bar.svg" alt='' />
-            </IconButton>
-          {generateTitle()}
-          </Toolbar>
-      </AppBar>
+      <Header title={title} breadCrumbs={breadCrumbs} />
       <Sidebar sidebarActions={sidebarActions}/>
       <div className={clsx(classes.content, {
         [classes.contentShift]: sidebarOpen,

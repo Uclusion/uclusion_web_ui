@@ -13,10 +13,6 @@ const useStyles = makeStyles({
         background: '#ca2828',
         color: '#fff',
     },
-    avatar: {
-        width: '13px',
-        height: '11px',
-    }
 });
 
 function CustomChip(props) {
@@ -27,7 +23,7 @@ function CustomChip(props) {
             {title && <Chip
                 className={(active) ? classes.chipItemActive : classes.chipItemDisable}
                 classes={{avatar: (active) ? classes.chipItemActive : classes.chipItemDisable}}
-                avatar={<WarningIcon />}
+                avatar={<WarningIcon style={{width: '13px', height: '11px'}}/>}
                 label={title}
                 size="small"
             />}

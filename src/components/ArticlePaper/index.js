@@ -3,23 +3,32 @@ import PropTypes from 'prop-types';
 import {Paper, Typography} from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
         container: {
-            padding: '3px 89px 23px 21px',
+            padding: '3px 89px 42px 21px',
             boxShadow: 'none',
+            [theme.breakpoints.down('sm')]: {
+                padding: '3px 21px 42px 21px',
+            }
         },
         title: {
             fontSize: '32px',
             fontWeight: 'bold',
             lineHeight: '42px',
             paddingBottom: '9px',
+            [theme.breakpoints.down('xs')]: {
+                fontSize: '25px',
+            },
         },
         content: {
             fontSize: '15px',
             lineHeight: '175%',
             color: '#414141',
+            [theme.breakpoints.down('xs')]: {
+                fontSize: '13px',
+            },
         }
-});
+}));
 
 function ArticlePaper(props) {
     const { title, content } = props;

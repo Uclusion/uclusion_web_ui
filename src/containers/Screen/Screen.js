@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => {
     container: {
       background: '#efefef',
       maxWidth: '751px',
-      padding: '41px 0 156px',
+      padding: '41px 20px 156px',
     },
     appBar: {
       background: '#efefef',
@@ -64,6 +64,14 @@ const useStyles = makeStyles((theme) => {
         duration: theme.transitions.duration.enteringScreen,
       }),
     },
+    sideActionsClose: {
+      transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+      }),
+      overflowX: 'hidden',
+      width: 0,
+    },
     menuButton: {
       marginLeft: '-3px',
       marginRight: theme.spacing(2),
@@ -76,17 +84,13 @@ const useStyles = makeStyles((theme) => {
         duration: theme.transitions.duration.enteringScreen,
       }),
     },
-    sideActionsClose: {
-      transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-      overflowX: 'hidden',
-      width: 0,
-    },
     contentShift: {
       marginLeft: drawerWidth,
       width: `calc(100% - ${drawerWidth}px)`,
+      [theme.breakpoints.down('xs')]: {
+        marginLeft: '0px',
+        width: '100%',
+      },
     },
     content: {
       background: '#efefef',

@@ -3,15 +3,13 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import CustomChip from '../CustomChip';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
     container: {
         display: 'grid',
         gridTemplateColumns: '1fr 96px',
         width: '100%',
         padding: '10px 0 10px 20px',
         background: 'white',
-        height: '97px',
-
     },
     content: {
         display: 'flex',
@@ -21,10 +19,14 @@ const useStyles = makeStyles({
         borderRight: '1px solid #eaeaea',
     },
     title: {
-        fontSize: '10px',
+        fontSize: '18px',
         fontWeight: 'bold',
         lineHeight: '23px',
         color: '#3e3e3e',
+        paddingRight: '20px',
+        [theme.breakpoints.down('xs')]: {
+            fontSize: '15px',
+        },
     },
     chartContent: {
         display: 'flex',
@@ -38,7 +40,7 @@ const useStyles = makeStyles({
         lineHeight: '16px',
         color: '#3e3e3e',
     },
-});
+}));
 
 function VoteCard(props) {
     const { title, warning, isWarningActive, voteNum, chart } = props;

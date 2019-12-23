@@ -29,7 +29,7 @@ import OptionCard from '../../components/Cards/OptionCard';
 import VoteCard from '../../components/Cards/VoteCard';
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   breadCrumbImage: {
     height: 40,
   },
@@ -50,6 +50,9 @@ const useStyles = makeStyles(() => ({
     gridTemplateColumns: '1fr 1fr',
     gridGap: '6px',
     marginTop: '6px',
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns: '1fr',
+    },
   },
   cardGridLayout_one: {
     display: 'grid',

@@ -39,11 +39,11 @@ function OptionsContainer(props) {
 
 OptionsContainer.propTypes = {
     header: PropTypes.string,
-    data: PropTypes.array,
+    data: PropTypes.arrayOf(PropTypes.object),
 };
 
 OptionsContainer.defaultProps = {
-    header: 'Proposed Options',
+    header: '',
     data: [],
 };
 

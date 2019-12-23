@@ -71,7 +71,6 @@ function VoteCard(props) {
     const { title, warning, isWarningActive, voteNum, chart } = props;
     const classes = useStyles();
     
-    console.log('#### length: ', title.length);
     return (
        <div className={classes.container}>
            <div className={classes.content}>

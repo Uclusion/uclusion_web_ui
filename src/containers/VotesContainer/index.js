@@ -42,11 +42,11 @@ function VotesContainer(props) {
 
 VotesContainer.propTypes = {
     header: PropTypes.string,
-    data: PropTypes.array,
+    data: PropTypes.arrayOf(PropTypes.object),
 };
 
 VotesContainer.defaultProps = {
-    header: 'Currently Voting',
+    header: '',
     data: [],
 };
 

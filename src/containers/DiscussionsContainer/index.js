@@ -37,11 +37,11 @@ function DiscussionContainer(props) {
 
 DiscussionContainer.propTypes = {
     header: PropTypes.string,
-    data: PropTypes.array,
+    data: PropTypes.arrayOf(PropTypes.object),
 };
 
 DiscussionContainer.defaultProps = {
-    header: 'Discussion',
+    header: '',
     data: [],
 };
 

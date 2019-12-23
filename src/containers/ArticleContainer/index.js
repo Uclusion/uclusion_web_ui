@@ -21,9 +21,9 @@ ArticleContainer.propTypes = {
 };
 
 ArticleContainer.defaultProps = {
-    header: 'Background Information',
-    title: 'Test Decision for UI',
-    content: 'Sit do excepteur consectetur commodo. Exercitation commodo quis officia sit amet cupidatat aliqua exercitation labore duis. Elit velit dolore aliquip commodo labore dolore laborum laboris. Sit do excepteur consectetur commodo. Exercitation commodo quis officia sit amet cupidatat aliqua exercitation labore duis. Elit velit dolore aliquip commodo labore dolore laborum laboris.',
+    header: '',
+    title: '',
+    content: '',
 }
 
 export default ArticleContainer;

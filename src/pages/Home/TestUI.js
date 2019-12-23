@@ -1,10 +1,11 @@
 import React from 'react';
+import { useIntl } from 'react-intl';
 import { makeStyles } from '@material-ui/core';
 import ArticleContainer from '../../containers/ArticleContainer';
 import VotesContainer from '../../containers/VotesContainer';
 import OptionsContainer from '../../containers/OptionsContainer';
 import DiscussionsContainer from '../../containers/DiscussionsContainer';
-import { VOTES, OPTIONS, DISCUSSIONS } from '../../constants/TestData';
+import { BACKGROUND, VOTES, OPTIONS, DISCUSSIONS } from '../../constants/TestData';
 
 const useStyles = makeStyles({
     offset_6: {
@@ -23,20 +24,30 @@ const useStyles = makeStyles({
 
 function TestUI() {
     const classes = useStyles();
+    const intl = useIntl();
 
     return (
         <>
             <div className={classes.offset_30}>
-                <ArticleContainer />
+                <ArticleContainer 
+                    header={intl.formatMessage({id: 'decisionDialogSummaryLabel'})} 
+                    title={BACKGROUND.title} 
+                    content={BACKGROUND.content} />
             </div>
             <div className={classes.offset_30}>
-                <VotesContainer data={VOTES}/>
+                <VotesContainer 
+                    header={intl.formatMessage({id: 'decisionDialogCurrentVotingLabel'})}
+                    data={VOTES}/>
             </div>
             <div className={classes.offset_56}>
-                <OptionsContainer data={OPTIONS} />
+                <OptionsContainer 
+                    header={intl.formatMessage({id: 'decisionDialogProposedOptionsLabel'})}
+                    data={OPTIONS} />
             </div>
             <div className={classes.offset_71}>
-                <DiscussionsContainer data={DISCUSSIONS} />
+                <DiscussionsContainer 
+                    header={intl.formatMessage({id: 'decisionDialogDiscussionLabel'})}
+                    data={DISCUSSIONS} />
             </div>
         </>
     );

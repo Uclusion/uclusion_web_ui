@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
         }
 }));
 
-function ArticlePaper(props) {
+function ArticleCard(props) {
     const { title, content } = props;
 
     const classes = useStyles();
@@ -47,14 +47,14 @@ function ArticlePaper(props) {
     );
 }
 
-ArticlePaper.propTypes = {
+ArticleCard.propTypes = {
     title: PropTypes.string,
     content: PropTypes.string,
 };
 
-ArticlePaper.defaultProps = {
-    title: 'Test Decision for UI',
-    content: 'Sit do excepteur consectetur commodo. Exercitation commodo quis officia sit amet cupidatat aliqua exercitation labore duis. Elit velit dolore aliquip commodo labore dolore laborum laboris. Sit do excepteur consectetur commodo. Exercitation commodo quis officia sit amet cupidatat aliqua exercitation labore duis. Elit velit dolore aliquip commodo labore dolore laborum laboris.',
+ArticleCard.defaultProps = {
+    title: '',
+    content: '',
 }
 
-export default ArticlePaper;
+export default ArticleCard;

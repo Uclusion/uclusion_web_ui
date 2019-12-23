@@ -23,11 +23,11 @@ import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SidebarMenuButton from '../../components/Buttons/SidebarMenuButton';
-import ArticlePaper from '../../components/ArticlePaper';
+import ArticleCard from '../../components/Cards/ArticleCard';
 import DiscussionCard from '../../components/Cards/DiscussionCard';
 import OptionCard from '../../components/Cards/OptionCard';
 import VoteCard from '../../components/Cards/VoteCard';
-
+import TestUI from './TestUI';
 
 const useStyles = makeStyles((theme) => ({
   breadCrumbImage: {
@@ -202,59 +202,7 @@ function Home(props) {
       );
     }
     return (
-      <>
-        <div className={classes.offset_30}>
-          <SubSection type={SECTION_TYPE_PRIMARY} title='Background Information'>
-            <ArticlePaper />
-          </SubSection>
-        </div>
-        <div className={classes.offset_30}>
-          <SubSection type={SECTION_TYPE_SECONDARY} title='Currently Voting'>
-            <div className={classes.cardGridLayout}>
-              {VOTE_INFO.map((item, index) => {
-                return (
-                  <VoteCard 
-                    key={index}
-                    title={item.title} 
-                    warning={item.warning} i
-                    isWarningActive={item.isWarningActive} 
-                    voteNum={item.voteNum} c
-                    chart={item.chart} />
-                  );
-              })}
-            </div>
-          </SubSection>
-        </div>
-        <div className={classes.offset_56}>
-          <SubSection type={SECTION_TYPE_SECONDARY} title='Proposed Options'>
-              <div className={classes.cardGridLayout}>
-                {OPTIONS_INFO.map((item, index) => {
-                  return (
-                    <OptionCard 
-                      key={index}
-                      title={item.title} 
-                      latestDate={item.latestDate} />
-                    );
-                })}
-              </div>
-            </SubSection>
-        </div>
-        <div className={classes.offset_71}>
-          <SubSection type={SECTION_TYPE_SECONDARY} title='Discussion'>
-            <div className={classes.cardGridLayout_one}>
-              {DISCUSSIONS.map((item, index) => {
-                return (
-                  <DiscussionCard 
-                    key={index}
-                    status={item.status} 
-                    warning={item.warning} 
-                    content={item.content}/>
-                  );
-              })}
-            </div>
-          </SubSection>
-        </div>
-      </>
+      <TestUI />
     );
   }
 

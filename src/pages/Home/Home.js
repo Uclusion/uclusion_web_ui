@@ -48,22 +48,22 @@ function Home(props) {
 
   const SIDEBAR_ACTIONS = [
     {
-      label: intl.formatMessage({id: 'edit'}),
+      label: `${intl.formatMessage({id: 'edit'})}`,
       icon: 'images/Uclusion_Sidebar_Edit.svg',
       onClick: () => {},
     },
     {
-      label: intl.formatMessage({id: 'new'}),
+      label: `${intl.formatMessage({id: 'new'})}`,
       icon: 'images/Uclusion_Sidebar_New.svg',
       onClick: () => {},
     },
     {
-      label: intl.formatMessage({id: 'information'}),
+      label: `${intl.formatMessage({id: 'information'})}`,
       icon: 'images/Uclusion_Sidebar_Info.svg',
       onClick: () => {},
     },
     {
-      label: intl.formatMessage({id: 'message'}),
+      label: `${intl.formatMessage({id: 'message'})}`,
       icon: 'images/Uclusion_Sidebar_Message.svg',
       onClick: () => {},
     },

@@ -62,7 +62,7 @@ function DiscussionCard(props) {
 }
 
 DiscussionCard.propTypes = {
-    status: PropTypes.string,
+    status: PropTypes.bool,
     warning: PropTypes.string,
     content: PropTypes.string,
     onReply: PropTypes.func,
@@ -70,7 +70,7 @@ DiscussionCard.propTypes = {
 }
 
 DiscussionCard.defaultProps = {
-    status: '',
+    status: false,
     warning: '',
     content: '',
     onReplay: () => {},

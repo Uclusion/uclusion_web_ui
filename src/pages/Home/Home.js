@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core';
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import {
@@ -8,7 +7,6 @@ import {
   getNotHiddenMarketDetailsForUser,
 } from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningDialogs from './PlanningDialogs';
-import SubSection from '../../containers/SubSection/SubSection';
 import DecisionDialogs from './DecisionDialogs';
 import DecisionAdd from './DecisionAdd';
 import DecisionAddActionButton from './DecisionAddActionButton';
@@ -23,44 +21,7 @@ import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SidebarMenuButton from '../../components/Buttons/SidebarMenuButton';
-import ArticleCard from '../../components/Cards/ArticleCard';
-import DiscussionCard from '../../components/Cards/DiscussionCard';
-import OptionCard from '../../components/Cards/OptionCard';
-import VoteCard from '../../components/Cards/VoteCard';
 import TestUI from './TestUI';
-
-const useStyles = makeStyles((theme) => ({
-  breadCrumbImage: {
-    height: 40,
-  },
-  offset_6: {
-    marginTop: '30px',
-  },
-  offset_30: {
-    marginTop: '30px',
-  },
-  offset_56: {
-    marginTop: '56px',
-  },
-  offset_71: {
-    marginTop: '71px',
-  },
-  cardGridLayout: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gridGap: '6px',
-    marginTop: '6px',
-    [theme.breakpoints.down('sm')]: {
-      gridTemplateColumns: '1fr',
-    },
-  },
-  cardGridLayout_one: {
-    display: 'grid',
-    gridTemplateColumns: '1fr',
-    gridGap: '6px',
-    marginTop: '6px',
-  },
-}));
 
 const breadCrumbs = [
   {
@@ -73,7 +34,6 @@ const breadCrumbs = [
 
 function Home(props) {
   const { hidden } = props;
-  const classes = useStyles();
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -108,55 +68,6 @@ function Home(props) {
       onClick: () => {},
     },
   ];
-
-  const VOTE_INFO = [
-    {
-      title: 'Big Bird is Awesome',
-      voteNum: 16,
-      chart: 'images/Uclusion_Vote_Chart1.svg',
-    },
-    {
-      title: 'Potentially needing some flexible font sizes? Align-center in the component works too!',
-      voteNum: 2,
-      chart: 'images/Uclusion_Vote_Chart2.svg',
-    },
-    {
-      title: 'Three Voting Options Shown?',
-      voteNum: 16,
-      chart: 'images/Uclusion_Vote_Chart1.svg',
-      warning: 'Option Warning',
-      isWarningActive: false,
-    },
-    {
-      title: 'Four Things to vote on this is incredible. Can’t Believe it',
-      voteNum: 2,
-      chart: 'images/Uclusion_Vote_Chart2.svg',
-    },
-  ];
-
-  const OPTIONS_INFO = [
-    {
-      title: 'Proposed option by Ernie',
-      latestDate: '12/9/2019',
-    },
-    {
-      title: 'Something someone once told me, well here it is',
-      latestDate: '12/9/2019',
-    },
-  ];
-
-  const DISCUSSIONS = [
-    {
-      status: true,
-      warning: 'Bad Idea',
-      content: 'Sit do excepteur consectetur commodo. Exercitation commodo quis officia sit amet cupidatat aliqua exercitation labore duis. Elit velit dolore aliquip commodo labore dolore laborum laboris. Sit do excepteur consectetur commodo. Exercitation commodo quis officia sit amet cupidatat aliqua exercitation labore duis. Elit velit dolore aliquip commodo labore dolore laborum laboris.',
-    },
-    {
-      status: true,
-      warning: 'Bad Idea',
-      content: 'Sit do excepteur consectetur commodo. Exercitation commodo quis officia sit amet cupidatat aliqua exercitation labore duis. Elit velit dolore aliquip commodo labore dolore laborum laboris. Sit do excepteur consectetur commodo. Exercitation commodo quis officia sit amet cupidatat aliqua exercitation labore duis. Elit velit dolore aliquip commodo labore dolore laborum laboris.',
-    },
-  ]
 
   function toggleInitiativeAddMode() {
     setInitiativeAddMode(!initiativeAddMode);

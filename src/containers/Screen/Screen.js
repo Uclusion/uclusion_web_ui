@@ -7,7 +7,6 @@ import { useHistory } from 'react-router';
 import Header from '../../containers/Header';
 import Sidebar from '../../containers/Sidebar'
 import { SidebarContext } from '../../contexts/SidebarContext';
-import { createTitle } from '../../utils/marketIdPathFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import { DRAWER_WIDTH } from '../../constants/global';

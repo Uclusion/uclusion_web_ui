@@ -123,7 +123,7 @@ function Screen(props) {
   const [messagesState] = useContext(NotificationsContext);
   const { location } = history;
   // console.log(history);
-  history.listen(scroller);
+  // history.listen(scroller); TODO: This was leaking memory so turning off for now
   const screenRef = useRef(null);
 
   const intl = useIntl();

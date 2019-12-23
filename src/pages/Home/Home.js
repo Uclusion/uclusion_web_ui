@@ -24,6 +24,7 @@ import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SidebarMenuButton from '../../components/Buttons/SidebarMenuButton';
 import ArticlePaper from '../../components/ArticlePaper';
+import DiscussionCard from '../../components/Cards/DiscussionCard';
 import OptionCard from '../../components/Cards/OptionCard';
 import VoteCard from '../../components/Cards/VoteCard';
 
@@ -31,6 +32,9 @@ import VoteCard from '../../components/Cards/VoteCard';
 const useStyles = makeStyles(() => ({
   breadCrumbImage: {
     height: 40,
+  },
+  offset_6: {
+    marginTop: '30px',
   },
   offset_30: {
     marginTop: '30px',
@@ -45,7 +49,13 @@ const useStyles = makeStyles(() => ({
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gridGap: '6px',
-    marginTop: '10px',
+    marginTop: '6px',
+  },
+  cardGridLayout_one: {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gridGap: '6px',
+    marginTop: '6px',
   },
 }));
 
@@ -132,6 +142,19 @@ function Home(props) {
     },
   ];
 
+  const DISCUSSIONS = [
+    {
+      status: true,
+      warning: 'Bad Idea',
+      content: 'Sit do excepteur consectetur commodo. Exercitation commodo quis officia sit amet cupidatat aliqua exercitation labore duis. Elit velit dolore aliquip commodo labore dolore laborum laboris. Sit do excepteur consectetur commodo. Exercitation commodo quis officia sit amet cupidatat aliqua exercitation labore duis. Elit velit dolore aliquip commodo labore dolore laborum laboris.',
+    },
+    {
+      status: true,
+      warning: 'Bad Idea',
+      content: 'Sit do excepteur consectetur commodo. Exercitation commodo quis officia sit amet cupidatat aliqua exercitation labore duis. Elit velit dolore aliquip commodo labore dolore laborum laboris. Sit do excepteur consectetur commodo. Exercitation commodo quis officia sit amet cupidatat aliqua exercitation labore duis. Elit velit dolore aliquip commodo labore dolore laborum laboris.',
+    },
+  ]
+
   function toggleInitiativeAddMode() {
     setInitiativeAddMode(!initiativeAddMode);
   }
@@ -215,7 +238,17 @@ function Home(props) {
         </div>
         <div className={classes.offset_71}>
           <SubSection type={SECTION_TYPE_SECONDARY} title='Discussion'>
-
+            <div className={classes.cardGridLayout_one}>
+              {DISCUSSIONS.map((item, index) => {
+                return (
+                  <DiscussionCard 
+                    key={index}
+                    status={item.status} 
+                    warning={item.warning} 
+                    content={item.content}/>
+                  );
+              })}
+            </div>
           </SubSection>
         </div>
       </>

@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import { Chip } from '@material-ui/core';
-import WarningIcon from '@material-ui/icons/Warning';
 import { makeStyles } from '@material-ui/styles';
+import CustomChip from '../CustomChip';
 
 const useStyles = makeStyles({
     container: {
@@ -40,15 +38,6 @@ const useStyles = makeStyles({
         lineHeight: '16px',
         color: '#3e3e3e',
     },
-    chipItemDisable: {
-        background: '#dfdfdf',
-        color: '#fff',
-        opacity: '1',
-    },
-    chipItemActive: {
-        background: '#ca2828',
-        color: '#fff',
-    },
 });
 
 function VoteCard(props) {
@@ -58,13 +47,7 @@ function VoteCard(props) {
     return (
        <div className={classes.container}>
            <div className={classes.content}>
-                {warning && <Chip
-                    className={(isWarningActive) ? classes.chipItemActive : classes.chipItemDisable}
-                    classes={{avatar: (isWarningActive) ? classes.chipItemActive : classes.chipItemDisable}}
-                    avatar={<WarningIcon />}
-                    label={warning}
-                    size="small"
-                />}
+                <CustomChip active={isWarningActive} title={warning} />
                 <p className={classes.title}>{title}</p>
            </div>
            <div className={classes.chartContent}>

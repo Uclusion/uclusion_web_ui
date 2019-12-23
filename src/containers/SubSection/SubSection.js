@@ -21,6 +21,11 @@ const useStyles = makeStyles(theme => {
       minHeight: 32,
       borderRadius: '2px',
     },
+    headerTitle: {
+      fontSize: '14px',
+      lineHeight: '18px',
+      cursor: 'default',
+    },
     toolbar: theme.mixins.toolbar,
   };
 });
@@ -38,7 +43,7 @@ function SubSection(props) {
         hidden={hidden}
       >
         <Toolbar>
-          <Typography>
+          <Typography className={classes.headerTitle}>
             {title}
           </Typography>
           {actionButton}

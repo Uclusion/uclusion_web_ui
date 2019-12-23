@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import clsx from 'clsx';
 import { Card, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 
@@ -9,6 +8,7 @@ const useStyles = makeStyles({
         padding: '20px',
         display: 'grid',
         gridTemplateRows: 'auto 1fr',
+        boxShadow: 'none',
     },
     latestDate: {
         fontSize: '14px',
@@ -24,6 +24,7 @@ const useStyles = makeStyles({
         fontWeight: 'bold',
         display: 'flex',
         alignItems: 'center',
+        cursor: 'pointer',
     },
 });
 

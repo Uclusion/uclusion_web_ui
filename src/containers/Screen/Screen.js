@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import clsx from 'clsx';
 import PropTypes from 'prop-types';
+import clsx from 'clsx';
 import { Helmet } from 'react-helmet';
 import {
   AppBar,
@@ -44,10 +44,14 @@ const useStyles = makeStyles((theme) => {
     },
     container: {
       background: '#efefef',
+      maxWidth: '751px',
+      padding: '41px 0 156px',
     },
     appBar: {
       background: '#efefef',
       zIndex: theme.zIndex.drawer + 1,
+      boxShadow: 'none',
+      height: '67px',
     },
     breadCrumbImage: {
       height: 40,
@@ -84,7 +88,9 @@ const useStyles = makeStyles((theme) => {
       marginLeft: drawerWidth,
       width: `calc(100% - ${drawerWidth}px)`,
     },
-    content: {},
+    content: {
+      background: '#efefef',
+    },
     drawer: {
       width: drawerWidth,
       flexShrink: 0,
@@ -344,18 +350,6 @@ function Screen(props) {
         <Container
           className={classes.container}
         >
-          {title && title.substring && (
-            <AppBar
-              className={classes.subHeader}
-              position="static"
-            >
-              <Toolbar>
-                <Typography>
-                  {title}
-                </Typography>
-              </Toolbar>
-            </AppBar>
-          )}
           {children}
         </Container>
       </div>

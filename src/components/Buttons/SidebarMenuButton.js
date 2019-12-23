@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => {
             display: 'flex',
             justifyContent: 'center',
             paddingTop: '11px',
-            paddingBottom: '11px'
+            paddingBottom: '11px',
         }
     }
 });

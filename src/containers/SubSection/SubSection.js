@@ -3,13 +3,23 @@ import {
   AppBar, makeStyles, Toolbar, Typography,
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
+import { SECTION_TYPE_PRIMARY } from '../../constants/global';
 
-const useStyles = makeStyles((theme) => {
+const useStyles = makeStyles(theme => {
   return {
-    subHeader: {
+    primarySubHeader: {
       boxShadow: 'none',
-      background: '#ffffff',
+      background: '#fff',
+      color: '#323232',
       minHeight: 32,
+      borderRadius: '2px',
+    },
+    secondarySubHeader: {
+      boxShadow: 'none',
+      background: '#3F6B72',
+      color: '#fff',
+      minHeight: 32,
+      borderRadius: '2px',
     },
     toolbar: theme.mixins.toolbar,
   };
@@ -23,12 +33,12 @@ function SubSection(props) {
   return (
     <React.Fragment>
       <AppBar
-        className={classes.subHeader}
+        className={props.type === SECTION_TYPE_PRIMARY ? classes.primarySubHeader : classes.secondarySubHeader}
         position="static"
         hidden={hidden}
       >
         <Toolbar>
-          <Typography color="textSecondary">
+          <Typography>
             {title}
           </Typography>
           {actionButton}
@@ -49,13 +59,14 @@ SubSection.propTypes = {
   children: PropTypes.any,
   // eslint-disable-next-line react/forbid-prop-types
   actionButton: PropTypes.object,
+  type: PropTypes.string,
 };
 
 SubSection.defaultProps = {
   title: '',
   hidden: false,
   children: undefined,
-  fab: undefined,
+  type: SECTION_TYPE_PRIMARY,
 };
 
 export default SubSection;

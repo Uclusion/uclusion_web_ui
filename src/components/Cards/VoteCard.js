@@ -8,7 +8,7 @@ const useStyles = makeStyles(theme => ({
         display: 'grid',
         gridTemplateColumns: '1fr 96px',
         width: '100%',
-        padding: '10px 0 10px 20px',
+        padding: '10px 0',
         background: 'white',
     },
     content: {
@@ -17,13 +17,15 @@ const useStyles = makeStyles(theme => ({
         alignItems: 'flex-start',
         justifyContent: 'center',
         borderRight: '1px solid #eaeaea',
+        padding: '0 20px',
     },
     title: {
         fontSize: '18px',
+        display: 'flex',
+        alignItems: 'center',
         fontWeight: 'bold',
         lineHeight: '23px',
         color: '#3e3e3e',
-        paddingRight: '20px',
         [theme.breakpoints.down('xs')]: {
             fontSize: '15px',
         },

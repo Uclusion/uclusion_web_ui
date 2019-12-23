@@ -13,6 +13,10 @@ const useStyles = makeStyles({
         background: '#ca2828',
         color: '#fff',
     },
+    avatar: {
+        width: '13px',
+        height: '11px',
+    }
 });
 
 function CustomChip(props) {

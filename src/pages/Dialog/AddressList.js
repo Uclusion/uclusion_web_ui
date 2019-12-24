@@ -48,12 +48,13 @@ function AddressList(props) {
       const macc = {};
       marketPresences.forEach((presence) => {
         const {
-          id: user_id, name, account_id, external_id,
+          id: user_id, name, account_id, external_id, email,
         } = presence;
         if (!addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
+          const emailSplit = email ? email.split('@') : ['', ''];
           addToMarketPresencesHash[external_id] = true;
           macc[user_id] = {
-            user_id, name, account_id, isChecked: false, isObserver: false,
+            user_id, name, account_id, domain: emailSplit[1], isChecked: false, isObserver: false,
           };
         }
       });
@@ -113,7 +114,7 @@ function AddressList(props) {
 
   function renderParticipantEntry(presenceEntry) {
     const {
-      user_id: id, name, isChecked, isObserver,
+      user_id: id, name, isChecked, isObserver, domain,
     } = presenceEntry[1];
     return (
       <ListItem
@@ -129,6 +130,11 @@ function AddressList(props) {
           className={classes.name}
         >
           {name}
+        </ListItemText>
+        <ListItemText
+          className={classes.name}
+        >
+          {domain}
         </ListItemText>
         {showObservers && (
           <ListItemIcon>

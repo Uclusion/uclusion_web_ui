@@ -24,12 +24,9 @@ import DialogEdit from './DialogEdit';
 import DialogEditActionButton from './DialogEditActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import { ACTIVE_STAGE } from '../../../constants/markets';
-<<<<<<< HEAD
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-=======
 import AddressList from '../AddressList';
 import AddParticipantsActionButton from '../AddParticipantsActionButton';
->>>>>>> d90d09d1d2c48914ef4aac76c1f5d77be453d055
 
 function DecisionDialog(props) {
   const {

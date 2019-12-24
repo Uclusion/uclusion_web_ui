@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
+import { useIntl } from 'react-intl';
+
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { Container } from '@material-ui/core';

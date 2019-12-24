@@ -1,4 +1,5 @@
 import { defineMessages } from 'react-intl';
+
 const messages = defineMessages({
   app_name: 'Uclusion',
   about: 'About',
@@ -177,6 +178,10 @@ const messages = defineMessages({
   removeVote: 'Remove Vote',
   maxBudgetInputLabel: 'Value in days (if it takes longer it might not be worth doing)',
 
+  // Address list
+  addressAddCancelLabel: 'Cancel',
+  addressAddSaveLabel: 'Add Participants',
+
   // InvestibleAdd
   investibleAddTitleDefault: 'Add a name...',
   investibleAddTitleLabel: 'Name',
@@ -315,7 +320,7 @@ const messages = defineMessages({
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
-
+  dialogAddParticipantsLabel: 'Add Participants',
 
   // DecisionInvestible
   decisionInvestibleYourVoting: 'Your Vote',
@@ -342,12 +347,14 @@ const messages = defineMessages({
   deadlineExtenderSave: 'Extend',
   deadlineExtenderCancel: 'Cancel',
 
-  //invite linker
+  // invite linker
   inviteLinkerDirections: 'Share this link to invite others to the dialog',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
 
   // Assignment List
   assignmentListHeader: 'Assigned to',
+  // Address List
+  addressListHeader: 'Addressed to',
 
   // Dialog Archives
   dialogArchivesNotDoingHeader: 'Not Doing',
@@ -376,6 +383,7 @@ const messages = defineMessages({
   errorCommentFetchFailed: 'There was a problem retrieving comments',
   errorCommentSaveFailed: 'There was a problem saving your comment',
   errorInvestmentUpdateFailed: 'There was a problem updating your vote',
+  errorAddParticipantsFailed: 'There was a problem adding participants',
   errorDecisionAddFailed: 'There was a problem creating your Decision',
   errorPlanningAddFailed: 'There was a problem creating your Epic Plan',
   errorFileUploadFailed: 'There was a problem uploading your file',
@@ -395,7 +403,7 @@ const messages = defineMessages({
   errorInvestibleListFetchFailed: 'There was a problem fetchign the data list',
 
   // warnings
-  warningOffline: "You are offline",
+  warningOffline: 'You are offline',
 
 });
 

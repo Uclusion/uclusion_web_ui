@@ -3,13 +3,13 @@
  * properly update it
  */
 import React, { useReducer, useState } from 'react';
-import { Hub } from 'aws-amplify';
 import PropTypes from 'prop-types';
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner';
 import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityTokenRefresher';
 import config from '../config';
 import { sendInfoPersistent } from '../utils/userMessage';
 import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext/NotificationsContext';
+import { registerListener, pushMessage, removeListener } from '../utils/MessageBusUtils';
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -72,7 +72,7 @@ function WebSocketProvider(props) {
       });
 
       newSocket.registerHandler('market', (message) => {
-        Hub.dispatch(
+        pushMessage(
           VERSIONS_HUB_CHANNEL,
           {
             event: MARKET_MESSAGE_EVENT,
@@ -82,7 +82,7 @@ function WebSocketProvider(props) {
       });
 
       newSocket.registerHandler('notification', (message) => {
-        Hub.dispatch(
+        pushMessage(
           VERSIONS_HUB_CHANNEL,
           {
             event: NOTIFICATION_MESSAGE_EVENT,
@@ -93,7 +93,7 @@ function WebSocketProvider(props) {
 
       newSocket.registerHandler('USER_LEFT_MARKET', (message) => {
         // since we left, going to fake remove event to the versions message channel
-        Hub.dispatch(
+        pushMessage(
           VERSIONS_HUB_CHANNEL,
           {
             event: MARKET_MESSAGE_EVENT,
@@ -111,7 +111,7 @@ function WebSocketProvider(props) {
     });
   }
 
-  Hub.listen(AUTH_HUB_CHANNEL, (data) => {
+  registerListener(AUTH_HUB_CHANNEL, 'webSocketsAuth', (data) => {
     const { payload: { event } } = data;
     console.debug(`Web Sockets context responding to auth event ${event}`);
     switch (event) {
@@ -136,7 +136,7 @@ function WebSocketProvider(props) {
         setState(newSocket);
         if (socketListener) {
           // Prevent zombies and no API to remove by listener name for some reason
-          Hub.remove(VISIT_CHANNEL, socketListener);
+          removeListener(VISIT_CHANNEL, 'webSocketPongTimer');
         }
         const myListener = (data) => {
           if (!data) {
@@ -165,7 +165,7 @@ function WebSocketProvider(props) {
               console.debug(`Ignoring event ${event}`);
           }
         };
-        Hub.listen(VISIT_CHANNEL, myListener, 'webSocketPongTimer');
+        registerListener(VISIT_CHANNEL, 'webSocketPongTimer', myListener);
         setSocketListener(myListener);
       });
   }

@@ -4,9 +4,9 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { Grid } from '@material-ui/core';
+import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import Summary from '../Summary';
 import InvestibleAdd from './InvestibleAdd';
 import ProposedIdeas from './ProposedIdeas';
@@ -24,7 +24,12 @@ import DialogEdit from './DialogEdit';
 import DialogEditActionButton from './DialogEditActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import { ACTIVE_STAGE } from '../../../constants/markets';
+<<<<<<< HEAD
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
+=======
+import AddressList from '../AddressList';
+import AddParticipantsActionButton from '../AddParticipantsActionButton';
+>>>>>>> d90d09d1d2c48914ef4aac76c1f5d77be453d055
 
 function DecisionDialog(props) {
   const {
@@ -48,6 +53,7 @@ function DecisionDialog(props) {
   const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);
+  const [addParticipantsMode, setAddParticipantsMode] = useState(false);
   const [dialogEditMode, setDialogEditMode] = useState(false);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
@@ -82,6 +88,10 @@ function DecisionDialog(props) {
     setAddInvestibleMode(!addInvestibleMode);
   }
 
+  function toggleAddParticipantsMode() {
+    setAddParticipantsMode(!addParticipantsMode);
+  }
+
   function closeCommentAddBox() {
     setCommentAddHidden(true);
   }
@@ -98,6 +108,27 @@ function DecisionDialog(props) {
           editToggle={toggleEditMode}
           market={market}
           onCancel={toggleEditMode}
+        />
+      </Screen>
+    );
+  }
+
+  if (addParticipantsMode) {
+    const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
+    const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+    const participantsTitle = intl.formatMessage({ id: 'addressListHeader' });
+    return (
+      <Screen
+        tabTitle={participantsTitle}
+        title={participantsTitle}
+        hidden={hidden}
+        breadCrumbs={myBreadCrumbs}
+      >
+        <AddressList
+          addToMarketId={marketId}
+          onCancel={toggleAddParticipantsMode}
+          onSave={toggleAddParticipantsMode}
+          intl={intl}
         />
       </Screen>
     );
@@ -132,18 +163,19 @@ function DecisionDialog(props) {
   }
 
   function getSidebarActions() {
-    if (addInvestibleMode) {
+    if (addInvestibleMode || addParticipantsMode) {
       return [];
     }
 
     if (!active) {
-      //eventually we'll have inactive actions here
+      // eventually we'll have inactive actions here
       return [];
     }
     const userActions = [
       <InvestibleAddActionButton key="addInvestible" onClick={toggleInvestibleAddMode} />,
+      <AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />,
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
-      <AskQuestions key="question" onClick={commentButtonOnClick} />
+      <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];
 
     if (isAdmin) {
@@ -151,7 +183,6 @@ function DecisionDialog(props) {
       return adminActions.concat(userActions);
     }
     return userActions;
-
   }
 
   const sidebarActions = getSidebarActions();
@@ -207,14 +238,14 @@ function DecisionDialog(props) {
           <SubSection
             title={intl.formatMessage({ id: 'decisionDialogDiscussionLabel' })}
           >
-              <CommentAddBox
-                hidden={commentAddHidden}
-                type={commentAddType}
-                allowedTypes={allowedCommentTypes}
-                marketId={marketId}
-                onSave={closeCommentAddBox}
-                onCancel={closeCommentAddBox}
-              />
+            <CommentAddBox
+              hidden={commentAddHidden}
+              type={commentAddType}
+              allowedTypes={allowedCommentTypes}
+              marketId={marketId}
+              onSave={closeCommentAddBox}
+              onCancel={closeCommentAddBox}
+            />
             <div ref={commentAddRef} />
             <CommentBox
               comments={marketComments}

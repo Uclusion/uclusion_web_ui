@@ -48,7 +48,7 @@ function DecisionInvestible(props) {
   const history = useHistory();
 
 
-  const { name: marketName, id: marketId, marketStage } = market;
+  const { name: marketName, id: marketId, market_stage: marketStage } = market;
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   // eslint-disable-next-line max-len
@@ -63,8 +63,8 @@ function DecisionInvestible(props) {
   const hasIssueOrMarketIssue = (Array.isArray(myIssues) && myIssues.length > 0) || (Array.isArray(marketIssues) && marketIssues.length > 0);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
-  const { investible, market_infos } = fullInvestible;
-  const marketInfo = market_infos.find((info) => info.market_id === marketId);
+  const { investible, market_infos: marketInfos } = fullInvestible;
+  const marketInfo = marketInfos.find((info) => info.market_id === marketId);
 
   const [marketStagesState] = useContext(MarketStagesContext);
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
@@ -103,7 +103,7 @@ function DecisionInvestible(props) {
     }
     const sidebarActions = [];
     if (isAdmin) {
-      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
+      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
       if (inProposed) {
         sidebarActions.push(<MoveToCurrentVotingActionButton
           investibleId={investibleId}
@@ -113,12 +113,12 @@ function DecisionInvestible(props) {
     }
 
     if (inProposed && createdBy === userId) {
-      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
+      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
     }
 
-    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
-    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
-    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
     return sidebarActions;
   }
 
@@ -189,7 +189,7 @@ function DecisionInvestible(props) {
               onCancel={closeCommentAdd}
             />
           </div>
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
         </SubSection>
       )}
     </Screen>
@@ -205,7 +205,7 @@ DecisionInvestible.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   investibleComments: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
-  comments: PropTypes.object,
+  comments: PropTypes.arrayOf(PropTypes.object),
   investibleId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
   toggleEdit: PropTypes.func,

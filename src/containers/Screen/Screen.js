@@ -63,6 +63,10 @@ function Screen(props) {
   const { location } = history;
   history.listen(scroller);
   
+  const screenRef = useRef(null);
+
+  const intl = useIntl();
+
   const {
     breadCrumbs,
     hidden,

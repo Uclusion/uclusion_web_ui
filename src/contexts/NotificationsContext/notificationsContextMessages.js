@@ -1,13 +1,13 @@
-import { Hub } from '@aws-amplify/core';
 import { getMessages } from '../../api/sso';
 import { updateMessages, updatePage } from './notificationsContextReducer';
 import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext';
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper';
+import { registerListener } from '../../utils/MessageBusUtils';
 
 function beginListening(dispatch) {
-  Hub.listen(NOTIFICATIONS_HUB_CHANNEL, (data) => {
+  registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
     const { payload: { event } } = data;
-    console.debug(`Notifications context responding to push event ${event}`);
+    // console.debug(`Notifications context responding to push event ${event}`);
 
     switch (event) {
       case VERSIONS_EVENT:
@@ -20,9 +20,9 @@ function beginListening(dispatch) {
     }
   });
 
-  Hub.listen(VISIT_CHANNEL, (data) => {
+  registerListener(VISIT_CHANNEL, 'notificationsVisitStart', (data) => {
     const { payload: { event, message } } = data;
-    console.debug(message);
+    // console.debug(message);
     switch (event) {
       case VIEW_EVENT: {
         const { marketId, investibleId, isEntry } = message;

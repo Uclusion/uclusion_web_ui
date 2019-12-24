@@ -15,6 +15,8 @@ import { reopenComment, resolveComment } from '../../api/comments';
 import { getCommentTypeIcon } from './commentFunctions';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function Comment(props) {
   const {
@@ -25,16 +27,18 @@ function Comment(props) {
   } = props;
   const intl = useIntl();
   const { id, comment_type } = comment;
+  const [presencesState] = useContext(MarketPresencesContext);
+  const presences = getMarketPresences(presencesState, marketId) || [];
+  const commenter = presences.find((presence) => presence.id === comment.created_by);
   const children = comments.filter((comment) => comment.reply_id === id);
   const sortedChildren = _.sortBy(children, 'created_at');
   const [replyOpen, setReplyOpen] = useState(false);
   const [toggledOpen, setToggledOpen] = useState(false);
-    const [operationRunning] = useContext(OperationInProgressContext);
-
+  const [operationRunning] = useContext(OperationInProgressContext);
 
   function getChildComments() {
     if (_.isEmpty(sortedChildren)) {
-      return <React.Fragment />;
+      return <React.Fragment/>;
     }
     return sortedChildren.map((child) => {
       const { id: childId } = child;
@@ -78,6 +82,14 @@ function Comment(props) {
         container
         direction="column"
       >
+        {commenter && (
+          <Grid
+            item
+            xs={12}
+          >
+            {commenter.name}
+          </Grid>
+        )}
         <Grid
           item
           xs={12}

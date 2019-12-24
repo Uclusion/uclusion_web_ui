@@ -1,4 +1,3 @@
-import { Hub } from '@aws-amplify/core';
 import { refreshMarketPresence } from './marketPresencesHelper';
 import {
   PUSH_PRESENCE_CHANNEL, REMOVED_MARKETS_CHANNEL,
@@ -6,9 +5,10 @@ import {
 } from '../VersionsContext/versionsContextHelper';
 import { removeMarketsPresence } from './marketPresencesContextReducer';
 import { AllSequentialMap } from '../../utils/PromiseUtils';
+import { registerListener } from '../../utils/MessageBusUtils';
 
 function beginListening(dispatch) {
-  Hub.listen(REMOVED_MARKETS_CHANNEL, (data) => {
+  registerListener(REMOVED_MARKETS_CHANNEL, 'marketPresenceRemovedMarketStart', (data) => {
     const { payload: { event, message } } = data;
     switch (event) {
       case VERSIONS_EVENT:
@@ -18,7 +18,7 @@ function beginListening(dispatch) {
         console.debug(`Ignoring identity event ${event}`);
     }
   });
-  Hub.listen(PUSH_PRESENCE_CHANNEL, (data) => {
+  registerListener(PUSH_PRESENCE_CHANNEL, 'marketPresencePushStart', (data) => {
     const { payload: { event, message } } = data;
 
     switch (event) {

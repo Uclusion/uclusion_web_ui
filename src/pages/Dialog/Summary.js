@@ -8,7 +8,7 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
 
 function Summary(props) {
-  const { market } = props;
+  const { market, showObservers } = props;
   const intl = useIntl();
   const { id, description, market_type: marketType } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -18,10 +18,11 @@ function Summary(props) {
 
   function displayUserList(presencesList) {
     return presencesList.map((presence) => {
-      const { name } = presence;
+      const { id: presenceId, name } = presence;
       return (
         <Grid
           item
+          key={presenceId}
         >
           <Typography>{name}</Typography>
         </Grid>
@@ -37,6 +38,7 @@ function Summary(props) {
           <Grid
             item
             xs={2}
+            key="createdBy"
           >
             <Typography>
               {intl.formatMessage({ id: 'created_by' })}
@@ -50,13 +52,14 @@ function Summary(props) {
           </Grid>
         </Grid>
       )}
-      {Array.isArray(marketPresencesObserving) && (
+      {showObservers && Array.isArray(marketPresencesObserving) && (
         <Grid
           container
         >
           <Grid
             item
             xs={2}
+            key="observers"
           >
             <Typography>
               {intl.formatMessage({ id: 'observers' })}
@@ -65,6 +68,7 @@ function Summary(props) {
           <Grid
             item
             xs={10}
+            key="userList"
           >
             {displayUserList(marketPresencesObserving)}
           </Grid>
@@ -80,6 +84,11 @@ function Summary(props) {
 Summary.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
+  showObservers: PropTypes.bool,
+};
+
+Summary.defaultProps = {
+  showObservers: true,
 };
 
 export default Summary;

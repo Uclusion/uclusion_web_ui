@@ -76,7 +76,6 @@ function CommentAdd(props) {
       <Card>
         <CardContent>
           <QuillEditor
-            simple
             placeholder={placeHolder}
             initialValue={body}
             onChange={onEditorChange} />

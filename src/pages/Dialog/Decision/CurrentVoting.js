@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Typography, Grid, CardContent } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -9,9 +10,19 @@ import RaisedCard from '../../../components/Cards/RaisedCard';
 import { ISSUE_TYPE } from '../../../constants/comments';
 import { getCommentTypeIcon } from '../../../components/Comments/commentFunctions';
 import { getCertaintyChart, getVoteTotalsForUser } from '../../../utils/userFunctions';
+import VoteCard from '../../../components/Cards/VoteCard';
 
+const useStyles = makeStyles(theme => ({
+  noPadding: {
+    padding: theme.spacing(0),
+    '&:last-child': {
+      padding: 0,
+    },
+  },
+}));
 function CurrentVoting(props) {
   const history = useHistory();
+  const classes = useStyles();
   const intl = useIntl();
   const {
     marketPresences,
@@ -72,29 +83,6 @@ function CurrentVoting(props) {
     return indicators;
   }
 
-  function getVoteDisplay(investments) {
-    return (
-      <Grid
-        container
-        spacing={1}
-        alignItems="flex-end"
-      >
-        <Grid
-          item
-        >
-          <Typography>
-            {intl.formatMessage({ id: 'numVoting' }, { x: investments.length })}
-          </Typography>
-        </Grid>
-        <Grid
-          item
-        >
-          {getCertaintyChart(investments)}
-        </Grid>
-      </Grid>
-    );
-  }
-
   function getCommentsDisplay(commentIndicators) {
     return (
       <Grid
@@ -127,14 +115,19 @@ function CurrentVoting(props) {
         item
         key={id}
         xs={12}
-        s={6}
-        md={4}
+        sm={6}
       >
         <RaisedCard
+          className="raisedcard"
           onClick={() => navigate(history, formInvestibleLink(marketId, id))}
         >
-          <CardContent>
-            <Grid
+          <CardContent className={ classes.noPadding }>
+            <VoteCard
+              title={name}
+              comments={commentIndicators}
+              voteNum={intl.formatMessage({ id: 'numVoting' }, { x: investments.length })}
+              chart={getCertaintyChart(investments)} />
+            {/* <Grid
               direction="column"
               container
               spacing={1}
@@ -155,7 +148,7 @@ function CurrentVoting(props) {
                 {issuesExist && getCommentsDisplay(commentIndicators)}
                 {!issuesExist && getVoteDisplay(investments)}
               </Grid>
-            </Grid>
+            </Grid> */}
           </CardContent>
         </RaisedCard>
       </Grid>
@@ -168,10 +161,7 @@ function CurrentVoting(props) {
   const sortedTalliesArray = _.sortBy(talliesArray, 'numSupporters', 'name').reverse();
   
   return (
-    <Grid
-      container
-      spacing={2}
-    >
+    <Grid container spacing={1} >
       {sortedTalliesArray.map((item) => getItemVote(item))}
     </Grid>
   );

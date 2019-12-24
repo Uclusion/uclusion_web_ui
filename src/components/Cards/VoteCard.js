@@ -4,6 +4,7 @@ import { Textfit } from 'react-textfit';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import CustomChip from '../CustomChip';
+import { MAX_FONTSIZE } from '../../constants/global';
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -31,6 +32,8 @@ const useStyles = makeStyles(theme => ({
         maxHeight: '50px',
         minHeight: '50px',
         justifySelf: 'stretch',
+        display: 'flex',
+        alignItems: 'center',
     },
     largeTitle: {
         gridRowStart: '1',
@@ -51,20 +54,20 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function VoteCard(props) {
-    const { title, warning, isWarningActive, voteNum, chart } = props;
+    const { title, comments, voteNum, chart } = props;
     const classes = useStyles();
     
     return (
        <div className={classes.container}>
            <div className={classes.content}>
-                <CustomChip active={isWarningActive} title={warning} />
-                <Textfit className={clsx(classes.title, {[classes.largeTitle]:!warning})} >{title}</Textfit>
+                { comments.map(item => item) }
+                <Textfit className={clsx(classes.title, {[classes.largeTitle]:!comments.length})} max={MAX_FONTSIZE} >{title}</Textfit>
            </div>
            <div className={classes.chartContent}>
                 <div className={classes.chart}>
-                    <img alt='chart' src={chart} />
+                    {chart}
                 </div>
-                <span className={classes.chartValue}>{`${voteNum} Votes`}</span>
+                <span className={classes.chartValue}>{voteNum}</span>
            </div>
        </div> 
     );
@@ -72,18 +75,16 @@ function VoteCard(props) {
 
 VoteCard.propTypes = {
     title: PropTypes.string, 
-    warning: PropTypes.string,
-    isWarningActive: PropTypes.bool,
+    comments: PropTypes.arrayOf(PropTypes.object),
     voteNum: PropTypes.number,
-    chart: PropTypes.string,
+    chart: PropTypes.object,
 }
 
 VoteCard.defaultProps = {
     title: '',
-    warning: '',
-    isWarningActive: true,
+    comments: [],
     voteNum: 0,
-    chart: 'images/Uclusion_Vote_Chart1.svg',
+    chart: null,
 }
 
 export default VoteCard;

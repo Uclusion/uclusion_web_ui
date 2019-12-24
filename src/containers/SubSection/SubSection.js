@@ -13,6 +13,7 @@ const useStyles = makeStyles(theme => {
       color: '#323232',
       minHeight: 32,
       borderRadius: '2px',
+      marginBottom: '6px',
     },
     secondarySubHeader: {
       boxShadow: 'none',
@@ -20,6 +21,7 @@ const useStyles = makeStyles(theme => {
       color: '#fff',
       minHeight: 32,
       borderRadius: '2px',
+      marginBottom: '6px',
     },
     headerTitle: {
       fontSize: '14px',

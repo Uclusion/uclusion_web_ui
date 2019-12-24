@@ -11,6 +11,7 @@ import Summary from '../Summary';
 import InvestibleAdd from './InvestibleAdd';
 import ProposedIdeas from './ProposedIdeas';
 import SubSection from '../../../containers/SubSection/SubSection';
+import VotesContainer from '../../../containers/VotesContainer';
 import CurrentVoting from './CurrentVoting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
@@ -23,6 +24,7 @@ import DialogEdit from './DialogEdit';
 import DialogEditActionButton from './DialogEditActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import { ACTIVE_STAGE } from '../../../constants/markets';
+import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 
 function DecisionDialog(props) {
   const {
@@ -161,25 +163,17 @@ function DecisionDialog(props) {
       breadCrumbs={breadCrumbs}
       sidebarActions={sidebarActions}
     >
-      <Grid
-        container
-        spacing={2}
-      >
-        <Grid
-          item
-          xs={12}
-        >
+      <Grid container spacing={2} >
+        <Grid item xs={12} >
           <SubSection
             title={intl.formatMessage({ id: 'decisionDialogSummaryLabel' })}
           >
             <Summary market={market} />
           </SubSection>
         </Grid>
-        <Grid
-          item
-          xs={12}
-        >
+        <Grid item xs={12} >
           <SubSection
+            type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
           >
             <CurrentVoting

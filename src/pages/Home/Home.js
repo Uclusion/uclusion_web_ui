@@ -22,7 +22,7 @@ import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SidebarMenuButton from '../../components/Buttons/SidebarMenuButton';
 import TestUI from './TestUI';
-
+import SubSection from '../../containers/SubSection/SubSection';
 const breadCrumbs = [
   {
     title: 'Breadcrumb'
@@ -113,7 +113,17 @@ function Home(props) {
       );
     }
     return (
-      <TestUI />
+      <>
+        <SubSection>
+          <PlanningDialogs markets={planningDetails} />
+        </SubSection>
+        <SubSection>
+          <DecisionDialogs markets={decisionDetails} />
+        </SubSection>
+        <SubSection>
+          <InitiativeDialogs markets={initiativeDetails} />
+        </SubSection>
+      </>
     );
   }
 

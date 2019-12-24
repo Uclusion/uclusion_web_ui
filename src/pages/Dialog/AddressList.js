@@ -38,7 +38,11 @@ function AddressList(props) {
   const classes = useStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   function extractUsersList() {
-    const addToMarketPresencesHash = {};
+    const addToMarketPresences = marketPresencesState[addToMarketId];
+    const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
+      const { external_id } = presence;
+      return { ...acc, [external_id]: true };
+    }, {});
     return Object.keys(marketPresencesState).reduce((acc, marketId) => {
       const marketPresences = marketPresencesState[marketId];
       const macc = {};

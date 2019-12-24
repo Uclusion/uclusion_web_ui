@@ -37,12 +37,8 @@ function AddressList(props) {
   const [operationRunning] = useContext(OperationInProgressContext);
   const classes = useStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const addToMarketPresences = marketPresencesState[addToMarketId];
-  const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
-    const { external_id } = presence;
-    return { ...acc, [external_id]: true };
-  }, {});
   function extractUsersList() {
+    const addToMarketPresencesHash = {};
     return Object.keys(marketPresencesState).reduce((acc, marketId) => {
       const marketPresences = marketPresencesState[marketId];
       const macc = {};
@@ -51,6 +47,7 @@ function AddressList(props) {
           id: user_id, name, account_id, external_id,
         } = presence;
         if (!addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
+          addToMarketPresencesHash[external_id] = true;
           macc[user_id] = {
             user_id, name, account_id, isChecked: false, isObserver: false,
           };

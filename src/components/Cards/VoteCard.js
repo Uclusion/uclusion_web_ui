@@ -2,6 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { Textfit } from 'react-textfit';
 import PropTypes from 'prop-types';
+import { Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import CustomChip from '../CustomChip';
 import { MAX_FONTSIZE } from '../../constants/global';
@@ -9,7 +10,7 @@ import { MAX_FONTSIZE } from '../../constants/global';
 const useStyles = makeStyles(theme => ({
     container: {
         display: 'grid',
-        gridTemplateColumns: '1fr 96px',
+        gridTemplateColumns: 'calc(100% - 96px) 96px',
         width: '100%',
         height: '97px',
         padding: '10px 0',
@@ -24,6 +25,7 @@ const useStyles = makeStyles(theme => ({
         minHeight: '100%',
         alignItems: 'center',
         justifyItems: 'start',
+        overflow: 'hidden',
     },
     title: {
         fontWeight: 'bold',
@@ -51,17 +53,27 @@ const useStyles = makeStyles(theme => ({
         lineHeight: '16px',
         color: '#3e3e3e',
     },
+    iconGrid: {
+        flexWrap: 'nowrap',
+        overflow: 'hidden',
+    },
 }));
 
 function VoteCard(props) {
-    const { title, comments, voteNum, chart } = props;
+    const { title, comments, issuesExist, voteNum, chart } = props;
     const classes = useStyles();
     
     return (
        <div className={classes.container}>
            <div className={classes.content}>
-                { comments.map(item => item) }
-                <Textfit className={clsx(classes.title, {[classes.largeTitle]:!comments.length})} max={MAX_FONTSIZE} >{title}</Textfit>
+                <Grid className={classes.iconGrid} container spacing={1}>
+                    {comments.map((item, index) => (
+                        <Grid item key={index} >
+                            <CustomChip title={item.comment_type} />
+                        </Grid>
+                    ))}
+                </Grid>
+                <Textfit className={clsx(classes.title, {[classes.largeTitle]:!issuesExist})} max={MAX_FONTSIZE} >{title}</Textfit>
            </div>
            <div className={classes.chartContent}>
                 <div className={classes.chart}>
@@ -76,6 +88,7 @@ function VoteCard(props) {
 VoteCard.propTypes = {
     title: PropTypes.string, 
     comments: PropTypes.arrayOf(PropTypes.object),
+    issuesExist: PropTypes.bool,
     voteNum: PropTypes.number,
     chart: PropTypes.object,
 }
@@ -83,6 +96,7 @@ VoteCard.propTypes = {
 VoteCard.defaultProps = {
     title: '',
     comments: [],
+    issuesExist: false,
     voteNum: 0,
     chart: null,
 }

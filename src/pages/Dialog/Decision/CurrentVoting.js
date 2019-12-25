@@ -1,14 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Typography, Grid, CardContent } from '@material-ui/core';
+import { Grid, CardContent } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import RaisedCard from '../../../components/Cards/RaisedCard';
-import { ISSUE_TYPE } from '../../../constants/comments';
-import { getCommentTypeIcon } from '../../../components/Comments/commentFunctions';
 import { getCertaintyChart, getVoteTotalsForUser } from '../../../utils/userFunctions';
 import VoteCard from '../../../components/Cards/VoteCard';
 
@@ -63,53 +61,11 @@ function CurrentVoting(props) {
     return tallies;
   }
 
-  function getIndicator(comments, type) {
-    const typeComments = comments.filter((comment) => comment.comment_type === type);
-    if (typeComments.length > 0) {
-      return getCommentTypeIcon(type);
-    }
-    return null;
-  }
-
-  function getCommentIndicators(comments) {
-    const indicators = [];
-    const commentRoots = comments.filter((comment) => !comment.parent_id && !comment.resolved);
-    [ISSUE_TYPE].forEach((type) => {
-      const indicator = getIndicator(commentRoots, type);
-      if (indicator !== null) {
-        indicators.push({ type, indicator });
-      }
-    });
-    return indicators;
-  }
-
-  function getCommentsDisplay(commentIndicators) {
-    return (
-      <Grid
-        container
-        spacing={1}
-        alignItems="flex-end"
-      >
-        {commentIndicators.map((indicatorInfo) => {
-          const { type, indicator } = indicatorInfo;
-          return (
-            <Grid
-              item
-              key={type}
-            >
-              {indicator}
-            </Grid>
-          );
-        })}
-      </Grid>
-    );
-  }
-
   function getItemVote(item) {
     const { id, investments, name } = item;
-    const investibleComments = comments.filter((comment) => comment.investible_id === id);
-    const commentIndicators = getCommentIndicators(investibleComments);
-    const issuesExist = commentIndicators.length > 0;
+    const investibleComments = comments.filter((comment) => comment.investible_id === id && !comment.parent_id && !comment.resolved);
+    const issuesExist = investibleComments.length > 0;
+    
     return (
       <Grid
         item
@@ -124,31 +80,10 @@ function CurrentVoting(props) {
           <CardContent className={ classes.noPadding }>
             <VoteCard
               title={name}
-              comments={commentIndicators}
+              comments={investibleComments}
+              issuesExist={issuesExist}
               voteNum={intl.formatMessage({ id: 'numVoting' }, { x: investments.length })}
               chart={getCertaintyChart(investments)} />
-            {/* <Grid
-              direction="column"
-              container
-              spacing={1}
-              alignItems="center"
-            >
-              <Grid
-                item
-                xs={12}
-              >
-                <Typography>
-                  {name}
-                </Typography>
-              </Grid>
-              <Grid
-                item
-                xs={12}
-              >
-                {issuesExist && getCommentsDisplay(commentIndicators)}
-                {!issuesExist && getVoteDisplay(investments)}
-              </Grid>
-            </Grid> */}
           </CardContent>
         </RaisedCard>
       </Grid>

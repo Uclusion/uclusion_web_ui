@@ -1,17 +1,16 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
-import { useIntl } from 'react-intl';
-
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { Helmet } from 'react-helmet';
 import clsx from 'clsx';
-import { Container } from '@material-ui/core';
+import { Container, } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { useHistory } from 'react-router';
 import Header from '../../containers/Header';
 import Sidebar from '../../containers/Sidebar'
 import { SidebarContext } from '../../contexts/SidebarContext';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import { DRAWER_WIDTH } from '../../constants/global';
+import { createTitle } from '../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -65,16 +64,13 @@ function Screen(props) {
   const { location } = history;
   history.listen(scroller);
   
-  const screenRef = useRef(null);
-
-  const intl = useIntl();
-
   const {
     breadCrumbs,
     hidden,
     title,
     children,
     sidebarActions,
+    tabTitle,
   } = props;
   let prePendWarning = '';
   if (messagesState) {
@@ -105,13 +101,17 @@ function Screen(props) {
   }, [firstRender, location]);
 
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
-  const [online] = useContext(OnlineStateContext);
 
   return (
     <div
          className={hidden ? classes.hidden : classes.root}
     >
-      <Header title={title} breadCrumbs={breadCrumbs} />
+      {!hidden && (
+        <Helmet>
+          <title>{`${prePendWarning}Uclusion | ${createTitle(tabTitle, 11)}`}</title>
+        </Helmet>
+      )}
+      <Header title={title} breadCrumbs={breadCrumbs} hidden={hidden} />
       <Sidebar sidebarActions={sidebarActions}/>
       <div className={clsx(classes.content, {
         [classes.contentShift]: sidebarOpen,

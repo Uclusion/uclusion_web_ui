@@ -213,11 +213,9 @@ function DecisionDialog(props) {
           </SubSection>
         </Grid>
 
-        <Grid
-          item
-          xs={12}
-        >
+        <Grid item xs={12} >
           <SubSection
+          type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
           >
             <ProposedIdeas

@@ -43,7 +43,7 @@ CustomChip.propTypes = {
 }
 
 CustomChip.defaultProps = {
-    active: true,
+    active: false,
     title: '',
 }
 

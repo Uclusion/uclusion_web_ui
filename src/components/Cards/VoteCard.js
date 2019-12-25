@@ -89,7 +89,7 @@ VoteCard.propTypes = {
     title: PropTypes.string, 
     comments: PropTypes.arrayOf(PropTypes.object),
     issuesExist: PropTypes.bool,
-    voteNum: PropTypes.number,
+    voteNum: PropTypes.string,
     chart: PropTypes.object,
 }
 
@@ -97,7 +97,7 @@ VoteCard.defaultProps = {
     title: '',
     comments: [],
     issuesExist: false,
-    voteNum: 0,
+    voteNum: '',
     chart: null,
 }
 

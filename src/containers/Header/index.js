@@ -1,4 +1,5 @@
-import React, { useContext } from 'react';
+import React, { useContext, useRef } from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import {
@@ -8,11 +9,14 @@ import {
   Link,
   Breadcrumbs,
   IconButton,
+  Popper,
+  Paper,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { SidebarContext } from '../../contexts/SidebarContext';
 import { createTitle } from '../../utils/marketIdPathFunctions';
 import { DRAWER_WIDTH } from '../../constants/global';
+import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -42,8 +46,11 @@ const useStyles = makeStyles((theme) => {
 
 function Header(props) {
   const classes = useStyles();
-  
-  const { breadCrumbs, title } = props;
+  const screenRef = useRef(null);
+  const intl = useIntl();
+  const [online] = useContext(OnlineStateContext);
+
+  const { breadCrumbs, title, hidden } = props;
 
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
   
@@ -65,24 +72,49 @@ function Header(props) {
   }
 
   return (
-    <AppBar
-    position="fixed"
-    className={clsx(classes.appBar, {
-        [classes.appBarShift]: sidebarOpen,
-    })}
-    >
-        <Toolbar>
-            <IconButton
-                aria-label="open drawer"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                edge="start"
-                className={classes.menuButton}
-            >
-                <img src="images/Uclusion_bar.svg" alt='' />
-            </IconButton>
-            {generateTitle()}
-        </Toolbar>
-    </AppBar>
+    <React.Fragment>
+      {!hidden && (
+        <Popper
+          className={classes.elevated}
+          open={!online}
+          anchorEl={screenRef.current}
+          placement="top"
+          modifiers={{
+            flip: {
+              enabled: true,
+            },
+            preventOverflow: {
+              enabled: true,
+              boundariesElement: 'window',
+            },
+          }}
+        >
+          <Paper>
+            <Typography>
+              {intl.formatMessage({ id: 'warningOffline' })}
+            </Typography>
+          </Paper>
+        </Popper>
+      )}
+      <AppBar
+      position="fixed"
+      className={clsx(classes.appBar, {
+          [classes.appBarShift]: sidebarOpen,
+      })}
+      >
+          <Toolbar>
+              <IconButton
+                  aria-label="open drawer"
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  edge="start"
+                  className={classes.menuButton}
+              >
+                  <img src="images/Uclusion_bar.svg" alt='' />
+              </IconButton>
+              {generateTitle()}
+          </Toolbar>
+      </AppBar>
+    </React.Fragment>
   );
 }
 
@@ -90,11 +122,13 @@ Header.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   breadCrumbs: PropTypes.arrayOf(PropTypes.object),
   title: PropTypes.any,
+  hidden: PropTypes.bool,
 };
 
 Header.defaultProps = {
   breadCrumbs: [],
   title: '',
+  hidden: false,
 };
 
 export default Header;

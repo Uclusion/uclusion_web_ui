@@ -8,11 +8,16 @@ import { makeStyles } from '@material-ui/styles';
 
 const useStyles = makeStyles((theme) => {
     return {
-        horizontalCenter: {
+        menuIcon: {
             display: 'flex',
             justifyContent: 'center',
             paddingTop: '11px',
             paddingBottom: '11px',
+            color: 'white',
+            '& > .MuiSvgIcon-root': {
+              width: '30px',
+              height: '30px',
+            },
         }
     }
 });
@@ -32,8 +37,8 @@ function SidebarMenuButton(props) {
       onClick={onClick}
     >
       <Tooltip title={label}>
-        <ListItemIcon className={classes.horizontalCenter}>
-          <img src={icon} alt="" />
+        <ListItemIcon className={classes.menuIcon}>
+          {icon}
         </ListItemIcon>
       </Tooltip>
     </ListItem>
@@ -41,13 +46,13 @@ function SidebarMenuButton(props) {
 }
 
 SidebarMenuButton.propTypes = {
-  icon: PropTypes.string,
+  icon: PropTypes.object,
   label: PropTypes.string,
   onClick: PropTypes.func,
 };
 
 SidebarMenuButton.defaultProps = {
-  icon: '',
+  icon: null,
   label: '',
   onClick: () => {},
 };

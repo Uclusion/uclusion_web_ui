@@ -109,7 +109,7 @@ function Header(props) {
                   edge="start"
                   className={classes.menuButton}
               >
-                  <img src="images/Uclusion_bar.svg" alt='' />
+                  <img src="/images/Uclusion_bar.svg" alt='' />
               </IconButton>
               {generateTitle()}
           </Toolbar>

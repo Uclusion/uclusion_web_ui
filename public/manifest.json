@@ -6,6 +6,16 @@
       "src": "/images/Uclusion_Wordmark_Color.png",
       "sizes": "207x71",
       "type": "image/png"
+    },
+    {
+      "src": "/images/logo.svg",
+      "sizes": "40x52",
+      "type": "image/svg"
+    },
+    {
+      "src": "/images/Uclusion_bar.svg",
+      "sizes": "18x12",
+      "type": "image/svg"
     }
   ],
   "start_url": "./",

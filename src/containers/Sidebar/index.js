@@ -82,7 +82,7 @@ function Sidebar(props) {
         return (
             <div className={classes.sidebarContainer}>
                 <div className={classes.sidebarLogo}>
-                <img src="images/logo.svg" alt="Uclusion" />
+                <img src="/images/logo.svg" alt="Uclusion" />
                 </div>
                 <div>
                 <List className={classes.sidebarContent} >

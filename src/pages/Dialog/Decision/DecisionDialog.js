@@ -5,27 +5,36 @@ import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
+
 import { Grid } from '@material-ui/core';
-import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
-import Summary from '../Summary';
-import InvestibleAdd from './InvestibleAdd';
-import ProposedIdeas from './ProposedIdeas';
-import SubSection from '../../../containers/SubSection/SubSection';
-import CurrentVoting from './CurrentVoting';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
-import Screen from '../../../containers/Screen/Screen';
-import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
+import AddIcon from '@material-ui/icons/Add';
+import ContactSupportIcon from '@material-ui/icons/ContactSupport';
+import EditIcon from '@material-ui/icons/Edit';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
+import ReportProblemIcon from '@material-ui/icons/ReportProblem';
+
+import SidebarMenuButton from '../../../components/Buttons/SidebarMenuButton';
+import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
+import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
-import InvestibleAddActionButton from './InvestibleAddActionButton';
+import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
+import { ACTIVE_STAGE } from '../../../constants/markets';
+import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
+import Screen from '../../../containers/Screen/Screen';
+import SubSection from '../../../containers/SubSection/SubSection';
+import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+
+import AddParticipantsActionButton from '../AddParticipantsActionButton';
+import AddressList from '../AddressList';
+import CurrentVoting from './CurrentVoting';
 import DialogEdit from './DialogEdit';
 import DialogEditActionButton from './DialogEditActionButton';
-import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
-import { ACTIVE_STAGE } from '../../../constants/markets';
-import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import AddressList from '../AddressList';
-import AddParticipantsActionButton from '../AddParticipantsActionButton';
+import InvestibleAdd from './InvestibleAdd';
+import InvestibleAddActionButton from './InvestibleAddActionButton';
+import ProposedIdeas from './ProposedIdeas';
+import Summary from '../Summary';
 
 function DecisionDialog(props) {
   const {
@@ -55,6 +64,37 @@ function DecisionDialog(props) {
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const active = marketStage === ACTIVE_STAGE;
+
+  let sidebarMenuList = [
+    {
+      label: intl.formatMessage({ id: 'decisionDialogAddInvestibleLabel' }),
+      icon: <AddIcon />,
+      onClick: () => toggleInvestibleAddMode(),
+    },
+    {
+      label: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
+      icon: <GroupAddIcon />,
+      onClick: () => toggleAddParticipantsMode(),
+    },
+    {
+      label: intl.formatMessage({ id: 'commentIconRaiseIssueLabel' }),
+      icon: <ReportProblemIcon />,
+      onClick: () => commentButtonOnClick(ISSUE_TYPE),
+    },
+    {
+      label: intl.formatMessage({ id: 'commentIconAskQuestionLabel' }),
+      icon: <ContactSupportIcon />,
+      onClick: () => commentButtonOnClick(QUESTION_TYPE),
+    },
+  ];
+
+  const adminMenuList = [
+    {
+      label: intl.formatMessage({ id: 'dialogEditButtonTooltip' }),
+      icon: <EditIcon />,
+      onClick: () => toggleEditMode(),
+    },
+  ];  
 
   function getInvestiblesForStage(stage) {
     if (stage) {
@@ -167,17 +207,15 @@ function DecisionDialog(props) {
       // eventually we'll have inactive actions here
       return [];
     }
-    const userActions = [
-      <InvestibleAddActionButton key="addInvestible" onClick={toggleInvestibleAddMode} />,
-      <AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />,
-      <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
-      <AskQuestions key="question" onClick={commentButtonOnClick} />,
-    ];
 
     if (isAdmin) {
-      const adminActions = [<DialogEditActionButton key="edit" onClick={toggleEditMode} />];
-      return adminActions.concat(userActions);
+      sidebarMenuList.unshift(...adminMenuList);
     }
+    
+    const userActions = sidebarMenuList.map(item => (
+      <SidebarMenuButton label={item.label} icon={item.icon} onClick={item.onClick} />
+    ));
+    
     return userActions;
   }
 

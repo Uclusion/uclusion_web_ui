@@ -28,6 +28,7 @@ function AddEditVote(props) {
     onSave,
     onCancel,
     showBudget,
+    storyMaxBudget,
   } = props;
   const intl = useIntl();
   const addMode = _.isEmpty(investment);
@@ -42,7 +43,7 @@ function AddEditVote(props) {
 
   useEffect(() => {
     // Long form to prevent flicker
-    if ((showBudget && maxBudget > 0) || (!showBudget)) {
+    if ((showBudget && maxBudget > 0 && maxBudget <= storyMaxBudget) || (!showBudget)) {
       if (!validForm) {
         setValidForm(true);
       }
@@ -162,7 +163,7 @@ function AddEditVote(props) {
       {showBudget && (
         <TextField
           id="standard-number"
-          label={intl.formatMessage({ id: 'maxBudgetInputLabel' })}
+          label={intl.formatMessage({ id: 'maxBudgetInputLabel' }, { x: storyMaxBudget + 1 })}
           type="number"
           InputLabelProps={{
             shrink: true,
@@ -170,6 +171,7 @@ function AddEditVote(props) {
           variant="outlined"
           onChange={onBudgetChange}
           value={maxBudget}
+          error={maxBudget > storyMaxBudget}
         />
       )}
       <Typography>{intl.formatMessage({ id: 'reasonQuestion' })}</Typography>
@@ -213,6 +215,7 @@ AddEditVote.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   reason: PropTypes.object,
   showBudget: PropTypes.bool,
+  storyMaxBudget: PropTypes.number.isRequired,
   marketId: PropTypes.string.isRequired,
   investibleId: PropTypes.string.isRequired,
   // eslint-disable-next-line react/forbid-prop-types

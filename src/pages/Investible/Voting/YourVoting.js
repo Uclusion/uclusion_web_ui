@@ -17,7 +17,7 @@ function YourVoting(props) {
   } = props;
   const intl = useIntl();
 
-  const { market_type, id: marketId } = market;
+  const { market_type, id: marketId, max_budget: storyMaxBudget } = market;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const yourReason = comments.find((comment) => comment.created_by === userId);
@@ -43,6 +43,7 @@ function YourVoting(props) {
         reason={yourReason}
         investment={yourVote}
         showBudget={showBudget}
+        storyMaxBudget={storyMaxBudget}
       />
     );
   }

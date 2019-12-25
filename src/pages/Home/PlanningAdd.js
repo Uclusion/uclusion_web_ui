@@ -38,6 +38,7 @@ function PlanningAdd(props) {
   const [validForm, setValidForm] = useState(false);
   const [description, setDescription] = useState('');
   const [investmentExpiration, setInvestmentExpiration] = useState(undefined);
+  const [maxBudget, setMaxBudget] = useState(undefined);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [, addDialogDispatch] = useReducer((state, action) => {
@@ -97,6 +98,11 @@ function PlanningAdd(props) {
     setInvestmentExpiration(parseInt(value, 10));
   }
 
+  function onMaxBudgetChange(event) {
+    const { value } = event.target;
+    setMaxBudget(parseInt(value, 10));
+  }
+
   function handleSave() {
     const {
       uploadedFiles: filteredUploads,
@@ -110,6 +116,9 @@ function PlanningAdd(props) {
     };
     if (investmentExpiration) {
       addInfo.investment_expiration = investmentExpiration;
+    }
+    if (maxBudget) {
+      addInfo.max_budget = maxBudget;
     }
     return createPlanning(addInfo)
       .then((result) => {
@@ -145,6 +154,16 @@ function PlanningAdd(props) {
           }}
           variant="outlined"
           onChange={onInvestmentExpirationChange}
+        />
+        <TextField
+          id="standard-number"
+          label={intl.formatMessage({ id: 'maxBudgetInputLabel' })}
+          type="number"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          variant="outlined"
+          onChange={onMaxBudgetChange}
         />
         <QuillEditor
           onS3Upload={onS3Upload}

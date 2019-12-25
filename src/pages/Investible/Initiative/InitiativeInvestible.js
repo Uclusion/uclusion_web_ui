@@ -22,7 +22,7 @@ import Summary from '../../Dialog/Summary';
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
 import AddressList from '../../Dialog/AddressList';
-
+import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
  * @param props
@@ -127,6 +127,7 @@ function InitiativeInvestible(props) {
     >
       {!isAdmin && (
         <SubSection
+        type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
         >
           <YourVoting
@@ -139,6 +140,7 @@ function InitiativeInvestible(props) {
         </SubSection>
       )}
       <SubSection
+        type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
       >
         <Voting
@@ -148,6 +150,7 @@ function InitiativeInvestible(props) {
         />
       </SubSection>
       <SubSection
+        type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
         <Summary market={market} showObservers={false} />
@@ -157,6 +160,7 @@ function InitiativeInvestible(props) {
       </SubSection>
       {discussionVisible && (
         <SubSection
+          type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
         >
           <div ref={commentAddRef}>

@@ -128,7 +128,7 @@ function Comment(props) {
   return (
     <Card className={classes.container}>
             <CardContent>
-                <CustomChip className={classes.chip} active={true} title={comment_type} />
+                <CustomChip className={classes.chip} active={true} title={commentType} />
                 <Box marginTop={1}>
                   {commenter && (
                     <Typography>{commenter.name}</Typography>

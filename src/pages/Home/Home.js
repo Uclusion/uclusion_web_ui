@@ -1,5 +1,9 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import ListAltIcon from '@material-ui/icons/ListAlt';
+import PlaylistAddOutlinedIcon from '@material-ui/icons/PlaylistAddOutlined';
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
+import SmsOutlinedIcon from '@material-ui/icons/SmsOutlined';
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import {
@@ -9,19 +13,13 @@ import {
 import PlanningDialogs from './PlanningDialogs';
 import DecisionDialogs from './DecisionDialogs';
 import DecisionAdd from './DecisionAdd';
-import DecisionAddActionButton from './DecisionAddActionButton';
 import PlanningAdd from './PlanningAdd';
-import PlanningAddActionButton from './PlanningAddActionButton';
-import InitiativeAddActionButton from './InitiativeAddActionButton';
 import { INITIATIVE_TYPE, DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
-import { SECTION_TYPE_PRIMARY, SECTION_TYPE_SECONDARY } from '../../constants/global';
 import InitiativeAdd from './InitiativeAdd';
 import InitiativeDialogs from './InitiativeDialogs';
-import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SidebarMenuButton from '../../components/Buttons/SidebarMenuButton';
-import TestUI from './TestUI';
 import SubSection from '../../containers/SubSection/SubSection';
 const breadCrumbs = [
   {
@@ -48,23 +46,23 @@ function Home(props) {
 
   const SIDEBAR_ACTIONS = [
     {
-      label: `${intl.formatMessage({id: 'edit'})}`,
-      icon: 'images/Uclusion_Sidebar_Edit.svg',
-      onClick: () => {},
+      label: intl.formatMessage({id: 'homeAddPlanning'}),
+      icon: <ListAltIcon />,
+      onClick: () => togglePlanningAddMode(),
     },
     {
-      label: `${intl.formatMessage({id: 'new'})}`,
-      icon: 'images/Uclusion_Sidebar_New.svg',
-      onClick: () => {},
+      label: intl.formatMessage({id: 'homeAddDecision'}),
+      icon: <PlaylistAddOutlinedIcon />,
+      onClick: () => toggleDecisionAddMode(),
     },
     {
-      label: `${intl.formatMessage({id: 'information'})}`,
-      icon: 'images/Uclusion_Sidebar_Info.svg',
-      onClick: () => {},
+      label: intl.formatMessage({id: 'homeAddInitiative'}),
+      icon: <ErrorOutlineIcon />,
+      onClick: () => toggleInitiativeAddMode(),
     },
     {
-      label: `${intl.formatMessage({id: 'message'})}`,
-      icon: 'images/Uclusion_Sidebar_Message.svg',
+      label: intl.formatMessage({id: 'homeViewArchives'}),
+      icon: <SmsOutlinedIcon />,
       onClick: () => {},
     },
   ];

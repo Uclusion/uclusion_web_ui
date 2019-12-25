@@ -8,15 +8,13 @@ import { useHistory } from 'react-router';
 
 import { Grid } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
-import ContactSupportIcon from '@material-ui/icons/ContactSupport';
 import EditIcon from '@material-ui/icons/Edit';
-import GroupAddIcon from '@material-ui/icons/GroupAdd';
-import ReportProblemIcon from '@material-ui/icons/ReportProblem';
+import PlaylistAddOutlinedIcon from '@material-ui/icons/PlaylistAddOutlined';
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
+import SmsOutlinedIcon from '@material-ui/icons/SmsOutlined';
 
 import SidebarMenuButton from '../../../components/Buttons/SidebarMenuButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
-import AskQuestions from '../../../components/SidebarActions/AskQuestion';
-import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import { ACTIVE_STAGE } from '../../../constants/markets';
@@ -26,13 +24,10 @@ import Screen from '../../../containers/Screen/Screen';
 import SubSection from '../../../containers/SubSection/SubSection';
 import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 
-import AddParticipantsActionButton from '../AddParticipantsActionButton';
 import AddressList from '../AddressList';
 import CurrentVoting from './CurrentVoting';
 import DialogEdit from './DialogEdit';
-import DialogEditActionButton from './DialogEditActionButton';
 import InvestibleAdd from './InvestibleAdd';
-import InvestibleAddActionButton from './InvestibleAddActionButton';
 import ProposedIdeas from './ProposedIdeas';
 import Summary from '../Summary';
 
@@ -73,17 +68,17 @@ function DecisionDialog(props) {
     },
     {
       label: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
-      icon: <GroupAddIcon />,
+      icon: <PlaylistAddOutlinedIcon />,
       onClick: () => toggleAddParticipantsMode(),
     },
     {
       label: intl.formatMessage({ id: 'commentIconRaiseIssueLabel' }),
-      icon: <ReportProblemIcon />,
+      icon: <ErrorOutlineIcon />,
       onClick: () => commentButtonOnClick(ISSUE_TYPE),
     },
     {
       label: intl.formatMessage({ id: 'commentIconAskQuestionLabel' }),
-      icon: <ContactSupportIcon />,
+      icon: <SmsOutlinedIcon />,
       onClick: () => commentButtonOnClick(QUESTION_TYPE),
     },
   ];

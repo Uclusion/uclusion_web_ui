@@ -5,7 +5,6 @@ import {
   Button,
   Box,
   ButtonGroup,
-  Grid,
   Card,
   CardContent,
   CardActions,
@@ -16,9 +15,7 @@ import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import CommentAdd from './CommentAdd';
 import _ from 'lodash';
 import { REPLY_TYPE } from '../../constants/comments';
-import RaisedCard from '../Cards/RaisedCard';
 import { reopenComment, resolveComment } from '../../api/comments';
-import { getCommentTypeIcon } from './commentFunctions';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -122,7 +119,7 @@ function Comment(props) {
 
   const isRoot = !comment.reply_id;
   const expanded = replyOpen || toggledOpen || (isRoot && !comment.resolved) || comment.reply_id;
-  // const icon = getCommentTypeIcon(comment_type);
+  
   return (
     <Card className={classes.container}>
             <CardContent>

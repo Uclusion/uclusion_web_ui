@@ -231,7 +231,7 @@ function DecisionDialog(props) {
             <Summary market={market} />
           </SubSection>
         </Grid>
-        <Grid item xs={12} >
+        <Grid item xs={12} style={{marginTop: '30px'}} >
           <SubSection
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
@@ -245,7 +245,7 @@ function DecisionDialog(props) {
           </SubSection>
         </Grid>
 
-        <Grid item xs={12} >
+        <Grid item xs={12} style={{marginTop: '56px'}} >
           <SubSection
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
@@ -257,10 +257,7 @@ function DecisionDialog(props) {
             />
           </SubSection>
         </Grid>
-        <Grid
-          item
-          xs={12}
-        >
+        <Grid item xs={12} style={{marginTop: '71px'}} >
           <SubSection
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogDiscussionLabel' })}

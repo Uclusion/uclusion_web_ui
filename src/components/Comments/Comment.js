@@ -6,9 +6,9 @@ import {
   ButtonGroup,
   Grid,
 } from '@material-ui/core';
+import _ from 'lodash';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import CommentAdd from './CommentAdd';
-import _ from 'lodash';
 import { REPLY_TYPE } from '../../constants/comments';
 import RaisedCard from '../Cards/RaisedCard';
 import { reopenComment, resolveComment } from '../../api/comments';
@@ -17,6 +17,7 @@ import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import CommentEdit from './CommentEdit';
 
 function Comment(props) {
   const {
@@ -26,19 +27,20 @@ function Comment(props) {
     comments,
   } = props;
   const intl = useIntl();
-  const { id, comment_type } = comment;
+  const { id, comment_type: commentType } = comment;
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId) || [];
   const commenter = presences.find((presence) => presence.id === comment.created_by);
   const children = comments.filter((comment) => comment.reply_id === id);
   const sortedChildren = _.sortBy(children, 'created_at');
   const [replyOpen, setReplyOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [toggledOpen, setToggledOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
 
   function getChildComments() {
     if (_.isEmpty(sortedChildren)) {
-      return <React.Fragment/>;
+      return <></>;
     }
     return sortedChildren.map((child) => {
       const { id: childId } = child;
@@ -60,6 +62,10 @@ function Comment(props) {
     setReplyOpen(!replyOpen);
   }
 
+  function toggleEdit() {
+    setEditOpen(!editOpen);
+  }
+
   function reopen() {
     return reopenComment(marketId, id);
   }
@@ -74,7 +80,7 @@ function Comment(props) {
 
   const isRoot = !comment.reply_id;
   const expanded = replyOpen || toggledOpen || (isRoot && !comment.resolved) || comment.reply_id;
-  const icon = getCommentTypeIcon(comment_type);
+  const icon = getCommentTypeIcon(commentType);
   return (
     <RaisedCard>
       {icon}
@@ -94,7 +100,15 @@ function Comment(props) {
           item
           xs={12}
         >
-          <ReadOnlyQuillEditor value={comment.body}/>
+          <ReadOnlyQuillEditor value={comment.body} />
+          {editOpen && (
+            <CommentEdit
+              marketId={marketId}
+              comment={comment}
+              onSave={toggleEdit}
+              onCancel={toggleEdit}
+            />
+          )}
         </Grid>
         <Grid
           item
@@ -110,10 +124,14 @@ function Comment(props) {
               <Button onClick={toggleReply}>
                 {intl.formatMessage({ id: 'commentReplyLabel' })}
               </Button>
+              <Button onClick={toggleEdit}>
+                {intl.formatMessage({ id: 'commentEditLabel' })}
+              </Button>
               {!comment.reply_id && (
                 <SpinBlockingButton
                   marketId={marketId}
-                  onClick={resolve}>
+                  onClick={resolve}
+                >
                   {intl.formatMessage({ id: 'commentResolveLabel' })}
                 </SpinBlockingButton>
               )}

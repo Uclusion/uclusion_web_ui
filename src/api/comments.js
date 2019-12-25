@@ -25,7 +25,14 @@ export function fetchCommentList(marketId) {
 
 export function saveComment(marketId, investibleId, replyId, body, commentType, uploadedFiles) {
   return getMarketClient(marketId)
-    .then((client) => client.investibles.createComment(investibleId, body, replyId, commentType, uploadedFiles))
+    .then((client) => client.investibles.createComment(investibleId, body,
+      replyId, commentType, uploadedFiles))
+    .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
+}
+
+export function updateComment(marketId, commentId, body, uploadedFiles) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.updateComment(commentId, body, undefined, uploadedFiles))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 

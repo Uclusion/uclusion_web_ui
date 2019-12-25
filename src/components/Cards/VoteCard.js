@@ -1,11 +1,13 @@
 import React from 'react';
 import clsx from 'clsx';
+import { useIntl } from 'react-intl';
 import { Textfit } from 'react-textfit';
 import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import CustomChip from '../CustomChip';
 import { MAX_FONTSIZE } from '../../constants/global';
+import { getCertaintyChart } from '../../utils/userFunctions';
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -60,9 +62,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function VoteCard(props) {
-    const { title, comments, issuesExist, voteNum, chart } = props;
+    const { title, comments, votes } = props;
     const classes = useStyles();
-    
+    const intl = useIntl();
+
     return (
        <div className={classes.container}>
            <div className={classes.content}>
@@ -73,13 +76,13 @@ function VoteCard(props) {
                         </Grid>
                     ))}
                 </Grid>
-                <Textfit className={clsx(classes.title, {[classes.largeTitle]:!issuesExist})} max={MAX_FONTSIZE} >{title}</Textfit>
+                <Textfit className={clsx(classes.title, {[classes.largeTitle]:comments.length === 0})} max={MAX_FONTSIZE} >{title}</Textfit>
            </div>
            <div className={classes.chartContent}>
                 <div className={classes.chart}>
-                    {chart}
+                    {getCertaintyChart(votes)}
                 </div>
-                <span className={classes.chartValue}>{voteNum}</span>
+                <span className={classes.chartValue}>{intl.formatMessage({ id: 'numVoting' }, { x: votes.length})}</span>
            </div>
        </div> 
     );
@@ -88,17 +91,13 @@ function VoteCard(props) {
 VoteCard.propTypes = {
     title: PropTypes.string, 
     comments: PropTypes.arrayOf(PropTypes.object),
-    issuesExist: PropTypes.bool,
-    voteNum: PropTypes.string,
-    chart: PropTypes.object,
+    votes: PropTypes.arrayOf(PropTypes.object),
 }
 
 VoteCard.defaultProps = {
     title: '',
     comments: [],
-    issuesExist: false,
-    voteNum: '',
-    chart: null,
+    votes: null,
 }
 
 export default VoteCard;

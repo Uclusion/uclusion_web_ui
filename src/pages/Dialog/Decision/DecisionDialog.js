@@ -215,7 +215,7 @@ function DecisionDialog(props) {
 
         <Grid item xs={12} >
           <SubSection
-          type={SECTION_TYPE_SECONDARY}
+            type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
           >
             <ProposedIdeas
@@ -229,8 +229,8 @@ function DecisionDialog(props) {
           item
           xs={12}
         >
-
           <SubSection
+            type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogDiscussionLabel' })}
           >
             <CommentAddBox

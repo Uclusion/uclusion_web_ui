@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Grid, CardContent } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import RaisedCard from '../../../components/Cards/RaisedCard';
-import { getCertaintyChart, getVoteTotalsForUser } from '../../../utils/userFunctions';
+import { getVoteTotalsForUser } from '../../../utils/userFunctions';
 import VoteCard from '../../../components/Cards/VoteCard';
 
 const useStyles = makeStyles(theme => ({
@@ -21,7 +20,6 @@ const useStyles = makeStyles(theme => ({
 function CurrentVoting(props) {
   const history = useHistory();
   const classes = useStyles();
-  const intl = useIntl();
   const {
     marketPresences,
     investibles,
@@ -64,7 +62,6 @@ function CurrentVoting(props) {
   function getItemVote(item) {
     const { id, investments, name } = item;
     const investibleComments = comments.filter((comment) => comment.investible_id === id && !comment.parent_id && !comment.resolved);
-    const issuesExist = investibleComments.length > 0;
     
     return (
       <Grid
@@ -81,9 +78,7 @@ function CurrentVoting(props) {
             <VoteCard
               title={name}
               comments={investibleComments}
-              issuesExist={issuesExist}
-              voteNum={intl.formatMessage({ id: 'numVoting' }, { x: investments.length })}
-              chart={getCertaintyChart(investments)} />
+              votes={investments} />
           </CardContent>
         </RaisedCard>
       </Grid>

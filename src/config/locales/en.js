@@ -238,6 +238,7 @@ const messages = defineMessages({
   // Comments
   commentReplyDefault: 'Your reply...',
   commentReplyLabel: 'Reply',
+  commentEditLabel: 'Edit',
   commentReplySaveLabel: 'Save',
   commentReplyCancelLabel: 'Cancel',
   commentReopenLabel: 'Reopen',

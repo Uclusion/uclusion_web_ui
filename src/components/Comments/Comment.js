@@ -11,9 +11,9 @@ import {
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
+import _ from 'lodash';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import CommentAdd from './CommentAdd';
-import _ from 'lodash';
 import { REPLY_TYPE } from '../../constants/comments';
 import { reopenComment, resolveComment } from '../../api/comments';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
@@ -21,6 +21,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CustomChip from '../CustomChip';
+import CommentEdit from './CommentEdit';
 
 const useStyles = makeStyles({
   container: {
@@ -61,7 +62,6 @@ const useStyles = makeStyles({
       },
   },
 });
-
 function Comment(props) {
   const {
     comment,
@@ -71,19 +71,20 @@ function Comment(props) {
   } = props;
   const intl = useIntl();
   const classes = useStyles();
-  const { id, comment_type } = comment;
+  const { id, comment_type: commentType } = comment;
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId) || [];
   const commenter = presences.find((presence) => presence.id === comment.created_by);
   const children = comments.filter((comment) => comment.reply_id === id);
   const sortedChildren = _.sortBy(children, 'created_at');
   const [replyOpen, setReplyOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [toggledOpen, setToggledOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
 
   function getChildComments() {
     if (_.isEmpty(sortedChildren)) {
-      return <React.Fragment/>;
+      return <></>;
     }
     return sortedChildren.map((child) => {
       const { id: childId } = child;
@@ -103,6 +104,10 @@ function Comment(props) {
 
   function toggleReply() {
     setReplyOpen(!replyOpen);
+  }
+
+  function toggleEdit() {
+    setEditOpen(!editOpen);
   }
 
   function reopen() {
@@ -129,6 +134,14 @@ function Comment(props) {
                     <Typography>{commenter.name}</Typography>
                   )}
                   <ReadOnlyQuillEditor value={comment.body} paddingLeft={0} />
+                  {editOpen && (
+                    <CommentEdit
+                      marketId={marketId}
+                      comment={comment}
+                      onSave={toggleEdit}
+                      onCancel={toggleEdit}
+                    />
+                  )}
                 </Box>
             </CardContent>
             <CardActions>

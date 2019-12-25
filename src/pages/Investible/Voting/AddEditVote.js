@@ -50,7 +50,7 @@ function AddEditVote(props) {
     } else if (validForm) {
       setValidForm(false);
     }
-  }, [showBudget, maxBudget, validForm]);
+  }, [showBudget, maxBudget, validForm, storyMaxBudget]);
 
   function mySave() {
     const oldQuantity = addMode ? 0 : quantity;

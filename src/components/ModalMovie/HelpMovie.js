@@ -122,4 +122,4 @@ function mapDispatchToProps(dispatch) {
   return { dispatch };
 }
 
-export default withAppConfigs(React.memo(HelpMovie));
+export default withAppConfigs(HelpMovie);

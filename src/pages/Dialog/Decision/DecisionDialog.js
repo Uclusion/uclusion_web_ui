@@ -11,7 +11,6 @@ import Summary from '../Summary';
 import InvestibleAdd from './InvestibleAdd';
 import ProposedIdeas from './ProposedIdeas';
 import SubSection from '../../../containers/SubSection/SubSection';
-import VotesContainer from '../../../containers/VotesContainer';
 import CurrentVoting from './CurrentVoting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
@@ -247,8 +246,6 @@ function DecisionDialog(props) {
               marketId={marketId}
             />
           </SubSection>
-
-
         </Grid>
       </Grid>
     </Screen>

@@ -3,6 +3,7 @@ import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
 const defaultThemeDefinition = {
   typography: {
     fontFamily: 'DM sans',
+    fontSize: '15px',
   },
   palette: {
     primary: {

@@ -176,7 +176,7 @@ const messages = defineMessages({
   yourReason: 'Your reason...',
   cancelVote: 'Cancel Vote',
   removeVote: 'Remove Vote',
-  maxBudgetInputLabel: 'Value in days (if it takes longer it might not be worth doing)',
+  maxBudgetInputLabel: 'Number of days before might not be worth doing - value must be less than {x}',
 
   // Address list
   addressAddCancelLabel: 'Cancel',

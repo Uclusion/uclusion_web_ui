@@ -7,7 +7,7 @@ import { Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import CustomChip from "../CustomChip";
 import { MAX_FONTSIZE, MIN_FONTSIZE } from "../../constants/global";
-import { getCertaintyChart } from "../../utils/userFunctions";
+import Chart from "./Chart";
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -47,8 +47,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "flex-end",
-    marginBottom: '5px',
+    justifyContent: "flex-end"
   },
   chartValue: {
     fontSize: 14,
@@ -88,7 +87,7 @@ function VoteCard(props) {
         </Textfit>
       </div>
       <div className={classes.chartContent}>
-        <div className={classes.chart}>{getCertaintyChart(votes)}</div>
+        <Chart data={votes} />
         <span className={classes.chartValue}>
           {intl.formatMessage({ id: "numVoting" }, { x: votes.length })}
         </span>

@@ -1,13 +1,13 @@
-import { VerticalBarSeries, XYPlot } from 'react-vis';
-import React from 'react';
-import { Card, Grid, Typography } from '@material-ui/core';
+import { VerticalBarSeries, XYPlot } from "react-vis";
+import React from "react";
+import { Card, Grid, Typography } from "@material-ui/core";
 
 export function getFlags(user) {
   return (user && user.flags) || {};
 }
 
 export function getMarketInfo(investible, marketId) {
-  return investible.market_infos.find((info) => info.market_id === marketId);
+  return investible.market_infos.find(info => info.market_id === marketId);
 }
 
 export function getVoteTotalsForUser(presence) {
@@ -16,20 +16,20 @@ export function getVoteTotalsForUser(presence) {
     const { investible_id, quantity } = investment;
     return {
       ...uInv,
-      [investible_id]: { x: name, y: quantity, color: quantity / 30},
+      [investible_id]: { x: name, y: quantity, color: quantity / 30 }
     };
   }, {});
 }
 
 function getMinBudget(investibleId, marketPresences) {
   const budgets = [];
-  marketPresences.forEach((presence) => {
+  marketPresences.forEach(presence => {
     const { investments } = presence;
-    const filteredInvestments = investments.filter((investment) => {
+    const filteredInvestments = investments.filter(investment => {
       const { investible_id: id } = investment;
       return id === investibleId;
     });
-    filteredInvestments.forEach((investment) => {
+    filteredInvestments.forEach(investment => {
       const { max_budget: budget } = investment;
       if (budget) {
         budgets.push(budget);
@@ -44,34 +44,61 @@ function getMinBudget(investibleId, marketPresences) {
 
 function getMinBudgetsForIds(investibleIds, marketPresences) {
   const budgets = [];
-  investibleIds.forEach((investibleId) => {
+  investibleIds.forEach(investibleId => {
     budgets.push(getMinBudget(investibleId, marketPresences));
   });
   return budgets;
 }
 
-function getAssignedInvestibleIdsForStage(userId, stageId, marketId, marketInvestibles) {
+function getAssignedInvestibleIdsForStage(
+  userId,
+  stageId,
+  marketId,
+  marketInvestibles
+) {
   // eslint-disable-next-line max-len
-  const marketInfos = marketInvestibles.map((marketInvestible) => ({ investible_id: marketInvestible.investible.id, ...getMarketInfo(marketInvestible, marketId) }));
+  const marketInfos = marketInvestibles.map(marketInvestible => ({
+    investible_id: marketInvestible.investible.id,
+    ...getMarketInfo(marketInvestible, marketId)
+  }));
   if (!Array.isArray(marketInfos) || marketInfos.length === 0) {
     return [];
   }
-  const marketInfosForStage = marketInfos.filter((marketInfo) => marketInfo.stage === stageId);
+  const marketInfosForStage = marketInfos.filter(
+    marketInfo => marketInfo.stage === stageId
+  );
   if (!Array.isArray(marketInfosForStage) || marketInfosForStage.length === 0) {
     return [];
   }
   // eslint-disable-next-line max-len
-  const assignedMarketInfosForStage = marketInfosForStage.filter((marketInfo) => marketInfo.assigned.includes(userId));
-  if (!Array.isArray(assignedMarketInfosForStage) || assignedMarketInfosForStage.length === 0) {
+  const assignedMarketInfosForStage = marketInfosForStage.filter(marketInfo =>
+    marketInfo.assigned.includes(userId)
+  );
+  if (
+    !Array.isArray(assignedMarketInfosForStage) ||
+    assignedMarketInfosForStage.length === 0
+  ) {
     return [];
   }
-  return assignedMarketInfosForStage.map((marketInfo) => marketInfo.investible_id);
+  return assignedMarketInfosForStage.map(
+    marketInfo => marketInfo.investible_id
+  );
 }
 
-export function getBudgetTotalsForUser(userId, stageId, marketId, marketPresences,
-  marketInvestibles) {
+export function getBudgetTotalsForUser(
+  userId,
+  stageId,
+  marketId,
+  marketPresences,
+  marketInvestibles
+) {
   // eslint-disable-next-line max-len
-  const investibleIds = getAssignedInvestibleIdsForStage(userId, stageId, marketId, marketInvestibles);
+  const investibleIds = getAssignedInvestibleIdsForStage(
+    userId,
+    stageId,
+    marketId,
+    marketInvestibles
+  );
   if (!Array.isArray(investibleIds) || investibleIds.length === 0) {
     return 0;
   }
@@ -83,14 +110,16 @@ export function getBudgetTotalsForUser(userId, stageId, marketId, marketPresence
 export function getVotedInvestible(presence, marketInvestibles) {
   const { investments } = presence;
   if (!Array.isArray(investments) || investments.length === 0) {
-    return { name: '' };
+    return { name: "" };
   }
   const investment = investments[0];
   const { investible_id: investibleId } = investment;
   // eslint-disable-next-line max-len
-  const fullInvestible = marketInvestibles.find((marketInvestible) => marketInvestible.investible.id === investibleId);
+  const fullInvestible = marketInvestibles.find(
+    marketInvestible => marketInvestible.investible.id === investibleId
+  );
   if (!fullInvestible) {
-    return { name: '' };
+    return { name: "" };
   }
   const { investible } = fullInvestible;
   return investible;
@@ -114,20 +143,21 @@ function mapCertaintyToBin(certainty) {
   }
 }
 
-function getInvestmentBins(investments) {
-  const values = {100:0, 75:0, 50:0, 25:0, 0:0 };
-  const colors = {100: 3.333, 75:3, 50:2, 25:1, 0:0}
-  investments.forEach((investment) => {
+export function getInvestmentBins(investments) {
+  const values = { 100: 0, 75: 0, 50: 0, 25: 0, 0: 0 };
+  const colors = { 100: 3.333, 75: 3, 50: 2, 25: 1, 0: 0 };
+  investments.forEach(investment => {
     const { y: certainty } = investment;
     const bin = mapCertaintyToBin(certainty);
     values[bin] += 1;
   });
-  return [100, 75, 50, 25, 0].map((bin) => {
+  return [100, 75, 50, 25, 0].map(bin => {
     return {
       x: bin,
       y: values[bin],
-      color: colors[bin],
-    }});
+      color: colors[bin]
+    };
+  });
 }
 
 export function getCertaintyChart(investments) {
@@ -135,63 +165,46 @@ export function getCertaintyChart(investments) {
     top: 0,
     bottom: 1,
     left: 0,
-    right: 1,
+    right: 1
   };
   const bins = getInvestmentBins(investments);
   return (
     <XYPlot
       xType="ordinal"
-      height={investments.length*12}
+      height={investments.length * 12}
       width={70}
       yDomain={[0, investments.length]}
       colorDomain={[0, 3]}
-      colorRange={['#F5270F', '#5ED635']}
+      colorRange={["#F5270F", "#5ED635"]}
       margin={margin}
     >
       <VerticalBarSeries
         barWidth={0.6}
         data={bins}
-        style={{borderRadius: '3px'}}
+        style={{ borderRadius: "3px" }}
       />
     </XYPlot>
   );
 }
 
 export function getParticipantInfo(presences, marketInvestibles) {
-  return presences.map((presence) => {
+  return presences.map(presence => {
     const { id: userId, name } = presence;
     const investible = getVotedInvestible(presence, marketInvestibles);
     const { name: investibleName, id: investibleId } = investible;
     const voteTotal = getVoteTotalsForUser(presence);
-    const investments = investibleId in voteTotal ? [voteTotal[investibleId]] : null;
+    const investments =
+      investibleId in voteTotal ? [voteTotal[investibleId]] : null;
     return (
-      <Card
-        key={userId}
-      >
-        <Grid
-          container
-          spacing={3}
-        >
-          <Grid
-            item
-          >
+      <Card key={userId}>
+        <Grid container spacing={3}>
+          <Grid item>
             <Typography>{name}</Typography>
           </Grid>
-          <Grid
-            item
-            xs={9}
-          >
-            <Typography
-              noWrap
-            >
-              {investibleName}
-            </Typography>
+          <Grid item xs={9}>
+            <Typography noWrap>{investibleName}</Typography>
           </Grid>
-          <Grid
-            item
-          >
-            {investments && getCertaintyChart(investments)}
-          </Grid>
+          <Grid item>{investments && getCertaintyChart(investments)}</Grid>
         </Grid>
       </Card>
     );

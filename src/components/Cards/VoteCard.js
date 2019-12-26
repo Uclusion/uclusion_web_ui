@@ -18,26 +18,16 @@ const useStyles = makeStyles(theme => ({
     padding: "10px 0",
     background: "white"
   },
-  content: {
-    display: "grid",
-    gridTemplateRows: "max-content 1fr",
-    borderRight: "1px solid #eaeaea",
-    padding: "0 20px",
-    maxHeight: "100%",
-    minHeight: "100%",
-    alignItems: "center",
-    justifyItems: "start",
-    overflow: "hidden"
-  },
   title: {
+    display: "flex",
+    alignItems: "center",
+    width: "100%",
+    height: "100%",
+    margin: "3px",
+    padding: "0 20px",
     fontWeight: "bold",
     color: "#3e3e3e",
-    margin: "3px",
-    maxHeight: "50px",
-    minHeight: "50px",
-    justifySelf: "stretch",
-    display: "flex",
-    alignItems: "center"
+    borderRight: "1px solid #eaeaea"
   },
   largeTitle: {
     gridRowStart: "1",
@@ -57,7 +47,10 @@ const useStyles = makeStyles(theme => ({
   },
   iconGrid: {
     flexWrap: "nowrap",
-    overflow: "hidden"
+		overflow: "hidden",
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
   }
 }));
 
@@ -65,10 +58,20 @@ function VoteCard(props) {
   const { title, comments, votes } = props;
   const classes = useStyles();
   const intl = useIntl();
+  const issuesExist = comments.length > 0;
 
   return (
     <div className={classes.container}>
-      <div className={classes.content}>
+      <Textfit
+        className={clsx(classes.title, {
+          [classes.largeTitle]: comments.length === 0
+        })}
+        max={MAX_FONTSIZE}
+        min={MIN_FONTSIZE}
+      >
+        {title}
+      </Textfit>
+      {issuesExist && (
         <Grid className={classes.iconGrid} container spacing={1}>
           {comments.map((item, index) => (
             <Grid item key={index}>
@@ -76,22 +79,15 @@ function VoteCard(props) {
             </Grid>
           ))}
         </Grid>
-        <Textfit
-          className={clsx(classes.title, {
-            [classes.largeTitle]: comments.length === 0
-          })}
-          max={MAX_FONTSIZE}
-          min={MIN_FONTSIZE}
-        >
-          {title}
-        </Textfit>
-      </div>
-      <div className={classes.chartContent}>
-        <Chart data={votes} />
-        <span className={classes.chartValue}>
-          {intl.formatMessage({ id: "numVoting" }, { x: votes.length })}
-        </span>
-      </div>
+      )}
+      {!issuesExist && (
+        <div className={classes.chartContent}>
+          <Chart data={votes} />
+          <span className={classes.chartValue}>
+            {intl.formatMessage({ id: "numVoting" }, { x: votes.length })}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

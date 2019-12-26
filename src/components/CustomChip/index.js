@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Chip } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { getCommentTypeIcon } from "../../components/Comments/commentFunctions";
+import { createTitle } from '../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles({
   chipItem: {
@@ -28,6 +29,13 @@ const useStyles = makeStyles({
 function CustomChip(props) {
   const { active, type, content } = props;
   const classes = useStyles();
+  const label = isHTML(content)
+    ? content.slice(content.indexOf(">") + 1, content.lastIndexOf("<"))
+    : content;
+
+  function isHTML(str) {
+    return /<\/?[a-z][\s\S]*>/i.test(str);
+  }
 
   return (
     <React.Fragment>
@@ -44,10 +52,7 @@ function CustomChip(props) {
               : `${classes.chipItemDisable} ${classes.avatar}`
           }}
           avatar={getCommentTypeIcon(type)}
-          label={content.slice(
-            content.indexOf(">") + 1,
-            content.lastIndexOf("<")
-          )}
+          label={createTitle(label, 5)}
         />
       )}
     </React.Fragment>
@@ -61,7 +66,7 @@ CustomChip.propTypes = {
 };
 
 CustomChip.defaultProps = {
-  active: false,
+  active: true,
   type: "",
   content: ""
 };

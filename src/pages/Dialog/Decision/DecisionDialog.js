@@ -13,8 +13,8 @@ import PlaylistAddOutlinedIcon from '@material-ui/icons/PlaylistAddOutlined';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import SmsOutlinedIcon from '@material-ui/icons/SmsOutlined';
 
-import SidebarMenuButton from '../../../components/Buttons/SidebarMenuButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import { ACTIVE_STAGE } from '../../../constants/markets';
@@ -208,7 +208,7 @@ function DecisionDialog(props) {
     }
     
     const userActions = sidebarMenuList.map((item, index) => (
-      <SidebarMenuButton key={index} label={item.label} icon={item.icon} onClick={item.onClick} />
+      <ExpandableSidebarAction key={index} label={item.label} icon={item.icon} onClick={item.onClick} />
     ));
     
     return userActions;

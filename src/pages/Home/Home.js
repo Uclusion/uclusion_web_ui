@@ -4,6 +4,7 @@ import ListAltIcon from "@material-ui/icons/ListAlt";
 import PlaylistAddOutlinedIcon from "@material-ui/icons/PlaylistAddOutlined";
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 import SmsOutlinedIcon from "@material-ui/icons/SmsOutlined";
+import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import Screen from "../../containers/Screen/Screen";
 import { MarketsContext } from "../../contexts/MarketsContext/MarketsContext";
 import {
@@ -23,7 +24,6 @@ import InitiativeAdd from "./InitiativeAdd";
 import InitiativeDialogs from "./InitiativeDialogs";
 import { useIntl } from "react-intl";
 import { MarketPresencesContext } from "../../contexts/MarketPresencesContext/MarketPresencesContext";
-import SidebarMenuButton from "../../components/Buttons/SidebarMenuButton";
 import SubSection from "../../containers/SubSection/SubSection";
 const breadCrumbs = [
   {
@@ -97,7 +97,7 @@ function Home(props) {
   const sidebarActions = [];
   SIDEBAR_ACTIONS.forEach((action, index) => {
     sidebarActions.push(
-      <SidebarMenuButton
+      <ExpandableSidebarAction
         key={index}
         icon={action.icon}
         label={action.label}

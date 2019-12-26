@@ -5,30 +5,29 @@ import { Drawer, List } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
 import { SidebarContext } from '../../contexts/SidebarContext';
-import { DRAWER_WIDTH } from '../../constants/global';
+import { DRAWER_WIDTH_CLOSED, DRAWER_WIDTH_OPENED } from '../../constants/global';
 
 const useStyles = makeStyles((theme) => {
   return {
     sidebarOpen: {
-      width: DRAWER_WIDTH,
-      backgroundColor: '#3F6B72',
+      width: DRAWER_WIDTH_OPENED,
       transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
       }),
     },
-    sideActionsClose: {
+    sidebarClose: {
+      width: DRAWER_WIDTH_CLOSED,
       transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
-      overflowX: 'hidden',
-      width: 0,
     },
     drawer: {
-      width: DRAWER_WIDTH,
       flexShrink: 0,
       whiteSpace: 'nowrap',
+      backgroundColor: '#3F6B72',
+      overflowX: 'hidden',
     },
     sidebarContainer: {
       display: 'grid',
@@ -45,8 +44,8 @@ const useStyles = makeStyles((theme) => {
       display: 'flex',
       justifyContent: 'center',
       flexDirection: 'column',
-      paddingTop: "21px",
-      paddingBottom: "33px",
+      paddingTop: "0",
+      paddingBottom: "0",
       backgroundColor: 'rgba(0,0,0,0.19)',
     },
     sidebarNotification: {
@@ -104,12 +103,12 @@ function Sidebar(props) {
             anchor="left"
             className={clsx(classes.drawer, {
                 [classes.sidebarOpen]: sidebarOpen,
-                [classes.sideActionsClose]: !sidebarOpen,
+                [classes.sidebarClose]: !sidebarOpen,
             })}
             classes={{
-                paper: clsx({
+                paper: clsx(classes.drawer, {
                 [classes.sidebarOpen]: sidebarOpen,
-                [classes.sideActionsClose]: !sidebarOpen,
+                [classes.sidebarClose]: !sidebarOpen,
                 }),
             }}
             open={sidebarOpen}

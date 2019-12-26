@@ -16,7 +16,7 @@ import MenuOpenIcon from '@material-ui/icons/MenuOpen';
 import { makeStyles } from '@material-ui/styles';
 import { SidebarContext } from '../../contexts/SidebarContext';
 import { createTitle } from '../../utils/marketIdPathFunctions';
-import { DRAWER_WIDTH } from '../../constants/global';
+import { DRAWER_WIDTH_CLOSED, DRAWER_WIDTH_OPENED } from '../../constants/global';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 
 const useStyles = makeStyles((theme) => {
@@ -26,6 +26,22 @@ const useStyles = makeStyles((theme) => {
       zIndex: theme.zIndex.drawer + 1,
       boxShadow: 'none',
       height: '67px',
+    },
+    appBarShift: {
+      marginLeft: DRAWER_WIDTH_OPENED,
+      width: `calc(100% - ${DRAWER_WIDTH_OPENED}px)`,
+      transition: theme.transitions.create(['width', 'margin'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    },
+    appBarUnShift: {
+      marginLeft: DRAWER_WIDTH_CLOSED,
+      width: `calc(100% - ${DRAWER_WIDTH_CLOSED}px)`,
+      transition: theme.transitions.create(['width', 'margin'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
     },
     breadCrumbImage: {
       height: 40,
@@ -37,14 +53,6 @@ const useStyles = makeStyles((theme) => {
     menuIcon: {
       width: '30px',
       height: '25px',
-    },
-    appBarShift: {
-      marginLeft: DRAWER_WIDTH,
-      width: `calc(100% - ${DRAWER_WIDTH}px)`,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
     },
   };
 });
@@ -104,7 +112,8 @@ function Header(props) {
       <AppBar
       position="fixed"
       className={clsx(classes.appBar, {
-          [classes.appBarShift]: sidebarOpen,
+        [classes.appBarShift]: sidebarOpen,
+        [classes.appBarUnShift]: !sidebarOpen,
       })}
       >
           <Toolbar>

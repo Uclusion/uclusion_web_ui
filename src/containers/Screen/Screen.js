@@ -1,45 +1,56 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
-import clsx from 'clsx';
-import { Container, } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles';
-import { useHistory } from 'react-router';
-import Header from '../../containers/Header';
-import Sidebar from '../../containers/Sidebar'
-import { SidebarContext } from '../../contexts/SidebarContext';
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import { DRAWER_WIDTH } from '../../constants/global';
-import { createTitle } from '../../utils/marketIdPathFunctions';
+import React, { useContext, useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { Helmet } from "react-helmet";
+import clsx from "clsx";
+import { Container } from "@material-ui/core";
+import { makeStyles } from "@material-ui/styles";
+import { useHistory } from "react-router";
+import Header from "../../containers/Header";
+import Sidebar from "../../containers/Sidebar";
+import { SidebarContext } from "../../contexts/SidebarContext";
+import { NotificationsContext } from "../../contexts/NotificationsContext/NotificationsContext";
+import {
+  DRAWER_WIDTH_CLOSED,
+  DRAWER_WIDTH_OPENED
+} from "../../constants/global";
+import { createTitle } from "../../utils/marketIdPathFunctions";
 
-const useStyles = makeStyles((theme) => {
+const useStyles = makeStyles(theme => {
   return {
     hidden: {
-      display: 'none',
+      display: "none"
     },
     root: {
-      display: 'flex',
-      flexDirection: 'column',
+      display: "flex",
+      flexDirection: "column"
     },
     container: {
-      background: '#efefef',
-      maxWidth: '751px',
-      padding: '41px 20px 156px',
+      background: "#efefef",
+      maxWidth: "751px",
+      padding: "41px 20px 156px"
     },
     contentShift: {
-      marginLeft: DRAWER_WIDTH,
-      width: `calc(100% - ${DRAWER_WIDTH}px)`,
-      [theme.breakpoints.down('xs')]: {
-        marginLeft: '0px',
-        width: '100%',
-      },
+      marginLeft: DRAWER_WIDTH_OPENED,
+      width: `calc(100% - ${DRAWER_WIDTH_OPENED}px)`,
+      [theme.breakpoints.down("xs")]: {
+        marginLeft: "0px",
+        width: "100%"
+      }
+    },
+    contentUnShift: {
+      marginLeft: DRAWER_WIDTH_CLOSED,
+      width: `calc(100% - ${DRAWER_WIDTH_CLOSED}px)`,
+      [theme.breakpoints.down("xs")]: {
+        marginLeft: "0px",
+        width: "100%"
+      }
     },
     content: {
-      background: '#efefef',
+      background: "#efefef"
     },
     elevated: {
-      zIndex: 99,
-    },
+      zIndex: 99
+    }
   };
 });
 
@@ -63,7 +74,7 @@ function Screen(props) {
   const [messagesState] = useContext(NotificationsContext);
   const { location } = history;
   history.listen(scroller);
-  
+
   const {
     breadCrumbs,
     hidden,
@@ -71,22 +82,22 @@ function Screen(props) {
     children,
     sidebarActions,
     tabTitle,
-    toolbarButtons,
+    toolbarButtons
   } = props;
-  let prePendWarning = '';
+  let prePendWarning = "";
   if (messagesState) {
     const { messages } = messagesState;
     let hasYellow = false;
-    messages.forEach((message) => {
+    messages.forEach(message => {
       const { level } = message;
-      if (level === 'RED') {
-        prePendWarning += '*';
+      if (level === "RED") {
+        prePendWarning += "*";
       } else {
         hasYellow = true;
       }
     });
     if (prePendWarning.length === 0 && hasYellow) {
-      prePendWarning = '*';
+      prePendWarning = "*";
     }
   }
 
@@ -97,30 +108,35 @@ function Screen(props) {
       scroller(location);
       setFirstRender(false);
     }
-    return () => {
-    };
+    return () => {};
   }, [firstRender, location]);
 
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
 
   return (
-    <div
-         className={hidden ? classes.hidden : classes.root}
-    >
+    <div className={hidden ? classes.hidden : classes.root}>
       {!hidden && (
         <Helmet>
-          <title>{`${prePendWarning}Uclusion | ${createTitle(tabTitle, 11)}`}</title>
+          <title>{`${prePendWarning}Uclusion | ${createTitle(
+            tabTitle,
+            11
+          )}`}</title>
         </Helmet>
       )}
-      <Header title={title} breadCrumbs={breadCrumbs} toolbarButtons={toolbarButtons} hidden={hidden} />
-      <Sidebar sidebarActions={sidebarActions}/>
-      <div className={clsx(classes.content, {
-        [classes.contentShift]: sidebarOpen,
-      })}
+      <Header
+        title={title}
+        breadCrumbs={breadCrumbs}
+        toolbarButtons={toolbarButtons}
+        hidden={hidden}
+      />
+      <Sidebar sidebarActions={sidebarActions} />
+      <div
+        className={clsx(classes.content, {
+          [classes.contentShift]: sidebarOpen,
+          [classes.contentUnShift]: !sidebarOpen,
+        })}
       >
-        <Container className={classes.container}>
-          {children}
-        </Container>
+        <Container className={classes.container}>{children}</Container>
       </div>
     </div>
   );
@@ -139,16 +155,16 @@ Screen.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   sidebarActions: PropTypes.arrayOf(PropTypes.element),
   banner: PropTypes.string,
-  tabTitle: PropTypes.string.isRequired,
+  tabTitle: PropTypes.string.isRequired
 };
 
 Screen.defaultProps = {
   breadCrumbs: [],
-  title: '',
+  title: "",
   hidden: false,
   toolbarButtons: [],
   banner: undefined,
-  sidebarActions: [],
+  sidebarActions: []
 };
 
 export default Screen;

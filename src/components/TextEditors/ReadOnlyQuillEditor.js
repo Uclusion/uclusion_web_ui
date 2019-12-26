@@ -12,7 +12,7 @@ function ReadOnlyQuillEditor(props) {
     fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSize,
     border: 0,
-
+    marginLeft: -15,
   };
   const quillOptions = {
     modules: {

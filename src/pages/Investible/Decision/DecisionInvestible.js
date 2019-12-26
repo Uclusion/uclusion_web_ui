@@ -25,7 +25,7 @@ import {
   getProposedOptionsStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { ACTIVE_STAGE } from '../../../constants/markets';
-
+import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
  * @param props
@@ -145,6 +145,7 @@ function DecisionInvestible(props) {
       )}
       {!inProposed && !hasIssueOrMarketIssue && (
         <SubSection
+          type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
         >
           <YourVoting
@@ -158,6 +159,7 @@ function DecisionInvestible(props) {
       )}
       {!inProposed && (
         <SubSection
+        type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
         >
           <Voting
@@ -168,6 +170,7 @@ function DecisionInvestible(props) {
         </SubSection>
       )}
       <SubSection
+        type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
         <ReadOnlyQuillEditor
@@ -176,6 +179,7 @@ function DecisionInvestible(props) {
       </SubSection>
       {discussionVisible && (
         <SubSection
+        type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
         >
           <div ref={commentAddRef}>

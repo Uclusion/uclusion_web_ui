@@ -150,4 +150,4 @@ Dialog.propTypes = {
   hidden: PropTypes.bool.isRequired,
 };
 
-export default withStyles(styles)(React.memo(Dialog));
+export default withStyles(styles)(Dialog);

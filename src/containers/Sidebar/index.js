@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { Drawer, List } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
+import Notifications from '../../components/Notifications/Notifications';
 import { SidebarContext } from '../../contexts/SidebarContext';
 import { DRAWER_WIDTH_CLOSED, DRAWER_WIDTH_OPENED } from '../../constants/global';
 
@@ -65,10 +65,6 @@ const useStyles = makeStyles((theme) => {
       background: '#fff',
       boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
     },
-    notificationIcon: {
-      color: '#F29100',
-      fontSize: 36,
-    },
   };
 });
 
@@ -90,7 +86,7 @@ function Sidebar(props) {
                 </div>
                 <div className={classes.sidebarNotification}>
                 <div className={classes.notification}>
-                    <NotificationImportantIcon className={classes.notificationIcon} />
+                    <Notifications />
                 </div>
                 </div>
             </div>

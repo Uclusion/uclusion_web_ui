@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import {
   Grid, Typography, CardContent, CardActions, Link,
 } from '@material-ui/core';
@@ -6,14 +6,9 @@ import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
-import UpdateIcon from '@material-ui/icons/Update';
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import ChangeToParticipantButton from './Decision/ChangeToParticipantButton';
-import ChangeToObserverButton from './Decision/ChangeToObserverButton';
-import DeadlineExtender from './Decision/DeadlineExtender';
 import InviteLinker from './Decision/InviteLinker';
 import LeaveMarketButton from './Decision/LeaveMarketButton';
 import ArchiveMarketButton from './Decision/ArchiveMarketButton';
@@ -42,31 +37,15 @@ function DecisionDialogs(props) {
   const sortedMarkets = _.sortBy(markets, 'name');
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
-  const [showExtension, setShowExtension] = useState({});
-
-  function setMarketExtensionVisible(value, marketId) {
-    setShowExtension({ ...showExtension, [marketId]: value });
-  }
-
-  function toggleMarketExtensionVisible(marketId) {
-    const oldValue = showExtension[marketId];
-    const newValue = !oldValue;
-    setMarketExtensionVisible(newValue, marketId);
-  }
 
   function getDialogActions(marketId, myPresence, marketStage) {
-    const { is_admin, following } = myPresence;
+    const { is_admin } = myPresence;
     const actions = [];
 
     if (is_admin) {
       if (marketStage === 'Active') {
         actions.push(
-          <TooltipIconButton
-            key="deadline"
-            translationId="decisionDialogsExtendDeadline"
-            onClick={() => toggleMarketExtensionVisible(marketId)}
-            icon={<UpdateIcon/>}
-          />,
+
         );
         actions.push(
           <ArchiveMarketButton key="archive" marketId={marketId}/>,
@@ -81,18 +60,6 @@ function DecisionDialogs(props) {
       actions.push(
         <LeaveMarketButton key="leave" marketId={marketId}/>,
       );
-      if (marketStage === 'Active') {
-        // if participant you can become observer, or if observer you can become participant
-        if (following) {
-          actions.push(
-            <ChangeToObserverButton key="observe" marketId={marketId}/>,
-          );
-        } else {
-          actions.push(
-            <ChangeToParticipantButton key="participate" marketId={marketId}/>,
-          );
-        }
-      }
     }
     return actions;
   }
@@ -166,12 +133,6 @@ function DecisionDialogs(props) {
             <CardActions>
               {getDialogActions(marketId, myPresence, marketStage)}
             </CardActions>
-            <DeadlineExtender
-              hidden={!showExtension[marketId]}
-              market={market}
-              onCancel={() => setMarketExtensionVisible(false, marketId)}
-              onSave={() => setMarketExtensionVisible(false, marketId)}
-            />
             <InviteLinker
               marketId={marketId}
             />

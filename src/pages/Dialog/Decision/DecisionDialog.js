@@ -2,34 +2,44 @@
  * A component that renders a _decision_ dialog
  */
 import React, { useRef, useState } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
 
-import { Grid } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import PlaylistAddOutlinedIcon from '@material-ui/icons/PlaylistAddOutlined';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import SmsOutlinedIcon from '@material-ui/icons/SmsOutlined';
-
+import UpdateIcon from '@material-ui/icons/Update';
+import { Grid, Typography } from '@material-ui/core';
+import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import Summary from '../Summary';
+import InvestibleAdd from './InvestibleAdd';
+import ProposedIdeas from './ProposedIdeas';
+import SubSection from '../../../containers/SubSection/SubSection';
+import CurrentVoting from './CurrentVoting';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
+import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
+import Screen from '../../../containers/Screen/Screen';
+import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
+import AskQuestions from '../../../components/SidebarActions/AskQuestion';
+import InvestibleAddActionButton from './InvestibleAddActionButton';
+import DialogEdit from './DialogEdit';
+import DialogEditActionButton from './DialogEditActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import { ACTIVE_STAGE } from '../../../constants/markets';
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
-import Screen from '../../../containers/Screen/Screen';
-import SubSection from '../../../containers/SubSection/SubSection';
-import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 
 import AddressList from '../AddressList';
-import CurrentVoting from './CurrentVoting';
-import DialogEdit from './DialogEdit';
-import InvestibleAdd from './InvestibleAdd';
-import ProposedIdeas from './ProposedIdeas';
-import Summary from '../Summary';
+import AddParticipantsActionButton from '../AddParticipantsActionButton';
+import ChangeToObserverActionButton from '../ChangeToObserverActionButton';
+import ChangeToParticipantActionButton from '../ChangeToParticipantActionButton';
+import DeadlineExtender from '../../Home/Decision/DeadlineExtender';
+import ExtendDeadlineActionButton from './ExtendDeadlineActionButton';
 
 function DecisionDialog(props) {
   const {
@@ -45,7 +55,11 @@ function DecisionDialog(props) {
   const commentAddRef = useRef(null);
   const intl = useIntl();
   const { name: marketName, market_stage: marketStage } = market;
-  const { is_admin: isAdmin } = myPresence;
+  const {
+    is_admin: isAdmin,
+    following,
+    investments,
+  } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
   const history = useHistory();
@@ -57,6 +71,7 @@ function DecisionDialog(props) {
   const [dialogEditMode, setDialogEditMode] = useState(false);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
+  const [deadlineExtendMode, setDeadlineExtendMode] = useState(false);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const active = marketStage === ACTIVE_STAGE;
 
@@ -88,6 +103,11 @@ function DecisionDialog(props) {
       label: intl.formatMessage({ id: 'dialogEditButtonTooltip' }),
       icon: <EditIcon />,
       onClick: () => toggleEditMode(),
+    },
+    {
+      label: intl.formatMessage({ id: 'decisionDialogsExtendDeadline' }),
+      icon: <UpdateIcon />,
+      onClick: () => setDeadlineExtendMode(true),
     },
   ];  
 
@@ -123,8 +143,31 @@ function DecisionDialog(props) {
     setAddParticipantsMode(!addParticipantsMode);
   }
 
+
   function closeCommentAddBox() {
     setCommentAddHidden(true);
+  }
+
+  if (deadlineExtendMode) {
+    return (
+      <Screen
+        title={marketName}
+        hidden={hidden}
+        tabTitle={marketName}
+        breadCrumbs={breadCrumbs}
+      >
+        <div>
+         <Typography>
+           {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel'})}
+         </Typography>
+         <DeadlineExtender
+           market={market}
+           onCancel={() => setDeadlineExtendMode(false)}
+           onSave={() => setDeadlineExtendMode(false)}
+         />
+        </div>
+      </Screen>
+    );
   }
 
   if (dialogEditMode) {
@@ -159,7 +202,6 @@ function DecisionDialog(props) {
           addToMarketId={marketId}
           onCancel={toggleAddParticipantsMode}
           onSave={toggleAddParticipantsMode}
-          intl={intl}
         />
       </Screen>
     );
@@ -206,11 +248,24 @@ function DecisionDialog(props) {
     if (isAdmin) {
       sidebarMenuList.unshift(...adminMenuList);
     }
-    
+      
     const userActions = sidebarMenuList.map((item, index) => (
       <ExpandableSidebarAction key={index} label={item.label} icon={item.icon} onClick={item.onClick} />
     ));
-    
+
+    const notVoted = _.isEmpty(investments);
+    if (notVoted) {
+      if (following) {
+        userActions.push(
+          <ChangeToObserverActionButton key="observe" marketId={marketId}/>,
+        );
+      } else {
+        userActions.push(
+          <ChangeToParticipantActionButton key="participate" marketId={marketId}/>,
+        );
+      }
+    }
+  
     return userActions;
   }
 
@@ -228,7 +283,7 @@ function DecisionDialog(props) {
           <SubSection
             title={intl.formatMessage({ id: 'decisionDialogSummaryLabel' })}
           >
-            <Summary market={market} />
+            <Summary market={market}/>
           </SubSection>
         </Grid>
         <Grid item xs={12} style={{marginTop: '30px'}} >
@@ -270,7 +325,7 @@ function DecisionDialog(props) {
               onSave={closeCommentAddBox}
               onCancel={closeCommentAddBox}
             />
-            <div ref={commentAddRef} />
+            <div ref={commentAddRef}/>
             <CommentBox
               comments={marketComments}
               marketId={marketId}

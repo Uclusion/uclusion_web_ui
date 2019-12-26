@@ -8,7 +8,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  makeStyles,
+  makeStyles, Typography,
 } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -18,6 +18,8 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { addParticipants } from '../../api/users';
+import { useIntl } from 'react-intl';
+import InviteLinker from '../Home/Decision/InviteLinker';
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -29,14 +31,15 @@ const useStyles = makeStyles((theme) => ({
 function AddressList(props) {
   const {
     addToMarketId,
-    intl,
     onSave,
     onCancel,
     showObservers,
   } = props;
   const [operationRunning] = useContext(OperationInProgressContext);
   const classes = useStyles();
+  const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);
+
   function extractUsersList() {
     const addToMarketPresences = marketPresencesState[addToMarketId];
     const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
@@ -69,8 +72,7 @@ function AddressList(props) {
   useEffect(() => {
     if (!searchValue) {
       setFilteredNames(undefined);
-    }
-    else if (checked) {
+    } else if (checked) {
       const filteredEntries = Object.entries(checked).filter((entry) => {
         const { name } = entry[1];
         let index = 0;
@@ -166,50 +168,56 @@ function AddressList(props) {
   const displayNames = filteredNames || Object.entries(checked) || [];
 
   return (
-    <List
-      dense
-    >
-      <ListItem key="search">
-        <TextField
-          onChange={onSearchChange}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment>
-                <IconButton>
-                  <SearchIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </ListItem>
-      {displayNames.map((entry) => renderParticipantEntry(entry))}
-      <ListItem
-        key="buttons"
+    <div>
+      <Typography>
+        {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
+      </Typography>
+      <InviteLinker
+        marketId={addToMarketId}
+      />
+      <List
+        dense
       >
-        <Button
-          disabled={operationRunning}
-          onClick={onCancel}
+        <ListItem key="search">
+          <TextField
+            onChange={onSearchChange}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment>
+                  <IconButton>
+                    <SearchIcon/>
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </ListItem>
+        {displayNames.map((entry) => renderParticipantEntry(entry))}
+        <ListItem
+          key="buttons"
         >
-          {intl.formatMessage({ id: 'addressAddCancelLabel' })}
-        </Button>
-        <SpinBlockingButton
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          marketId={addToMarketId}
-          onSpinStop={onSave}
-        >
-          {intl.formatMessage({ id: 'addressAddSaveLabel' })}
-        </SpinBlockingButton>
-      </ListItem>
-    </List>
+          <Button
+            disabled={operationRunning}
+            onClick={onCancel}
+          >
+            {intl.formatMessage({ id: 'addressAddCancelLabel' })}
+          </Button>
+          <SpinBlockingButton
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            marketId={addToMarketId}
+            onSpinStop={onSave}
+          >
+            {intl.formatMessage({ id: 'addressAddSaveLabel' })}
+          </SpinBlockingButton>
+        </ListItem>
+      </List>
+    </div>
   );
 }
 
 AddressList.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  intl: PropTypes.object.isRequired,
   addToMarketId: PropTypes.string.isRequired,
   showObservers: PropTypes.bool,
   onCancel: PropTypes.func,

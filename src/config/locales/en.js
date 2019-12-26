@@ -318,6 +318,7 @@ const messages = defineMessages({
   decisionDialogProposedOptionsLabel: 'Proposed Options',
   decisionDialogDiscussionLabel: 'Discussion',
   decisionDialogAddInvestibleLabel: 'Propose Option',
+  decisionDialogExtendDaysLabel: 'Number of days to extend deadline?',
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
@@ -373,6 +374,10 @@ const messages = defineMessages({
   yourVotingVoteForThisPlanning: 'Vote for this story',
   yourVotingVoteForThisDecision: 'Vote for this option',
   yourVotingVoteForThisInitiative: 'Vote for this',
+
+  // add participants
+  addParticipantsNewPerson: 'Need to add someone not on this list?',
+
 
 
   // API errors

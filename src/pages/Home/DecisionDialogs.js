@@ -11,8 +11,6 @@ import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import ChangeToParticipantButton from './Decision/ChangeToParticipantButton';
-import ChangeToObserverButton from './Decision/ChangeToObserverButton';
 import DeadlineExtender from './Decision/DeadlineExtender';
 import InviteLinker from './Decision/InviteLinker';
 import LeaveMarketButton from './Decision/LeaveMarketButton';
@@ -55,7 +53,7 @@ function DecisionDialogs(props) {
   }
 
   function getDialogActions(marketId, myPresence, marketStage) {
-    const { is_admin, following } = myPresence;
+    const { is_admin } = myPresence;
     const actions = [];
 
     if (is_admin) {
@@ -81,18 +79,6 @@ function DecisionDialogs(props) {
       actions.push(
         <LeaveMarketButton key="leave" marketId={marketId}/>,
       );
-      if (marketStage === 'Active') {
-        // if participant you can become observer, or if observer you can become participant
-        if (following) {
-          actions.push(
-            <ChangeToObserverButton key="observe" marketId={marketId}/>,
-          );
-        } else {
-          actions.push(
-            <ChangeToParticipantButton key="participate" marketId={marketId}/>,
-          );
-        }
-      }
     }
     return actions;
   }

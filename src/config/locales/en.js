@@ -372,6 +372,10 @@ const messages = defineMessages({
   yourVotingVoteForThisDecision: 'Vote for this option',
   yourVotingVoteForThisInitiative: 'Vote for this',
 
+  // add participants
+  addParticipantsNewPerson: 'Need to add someone not on this list?',
+
+
 
   // API errors
   errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',

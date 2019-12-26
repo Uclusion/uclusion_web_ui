@@ -2,6 +2,7 @@
  * A component that renders a _decision_ dialog
  */
 import React, { useState, useRef } from 'react';
+import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -30,6 +31,8 @@ import { scrollToCommentAddBox } from '../../../components/Comments/commentFunct
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import AddressList from '../AddressList';
 import AddParticipantsActionButton from '../AddParticipantsActionButton';
+import ChangeToObserverActionButton from '../ChangeToObserverActionButton';
+import ChangeToParticipantActionButton from '../ChangeToParticipantActionButton';
 
 
 function PlanningDialog(props) {
@@ -46,7 +49,10 @@ function PlanningDialog(props) {
   } = props;
 
   const intl = useIntl();
-  const { is_admin: isAdmin } = myPresence;
+  const {
+    following,
+    id: userId,
+  } = myPresence;
   const commentAddRef = useRef(null);
   const {
     id: marketId,
@@ -61,6 +67,18 @@ function PlanningDialog(props) {
   const [addParticipantsMode, setAddParticipantsMode] = useState(false);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
+
+
+  function getUserInvestibles(userId) {
+    const myInvestibles = investibles.filter((investible) => {
+      const marketInfo = getMarketInfo(investible, marketId);
+      const { assigned } = marketInfo;
+      const assignedFull = Array.isArray(assigned) ? assigned : [];
+      return assignedFull.includes(userId);
+    });
+    return myInvestibles;
+  }
+
   let lockedByName;
   if (lockedBy) {
     const lockedByPresence = marketPresences.find((presence) => presence.id === lockedBy);
@@ -189,12 +207,7 @@ function PlanningDialog(props) {
         </GridListTile>
         {
           followingPresences.map((presence) => {
-            const myInvestibles = investibles.filter((investible) => {
-              const marketInfo = getMarketInfo(investible, marketId);
-              const { assigned } = marketInfo;
-              const assignedFull = Array.isArray(assigned) ? assigned : [];
-              return assignedFull.includes(presence.id);
-            });
+            const myInvestibles = getUserInvestibles(presence.id);
             const { id, name } = presence;
             return (
 
@@ -231,19 +244,30 @@ function PlanningDialog(props) {
       return [];
     }
     const userActions = [
+      (<DialogEditActionButton
+        key="edit"
+        onClick={toggleEditMode}
+        marketId={marketId}
+        onCancel={onDialogEditCancel} />),
       <InvestibleAddActionButton key="investibleadd" onClick={toggleAddInvestibleMode} />,
       <AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />,
       <ViewArchiveActionButton key="archives" marketId={marketId} />,
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
       <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];
-    if (isAdmin) {
-      const adminActions = [<DialogEditActionButton
-                              key="edit"
-                              onClick={toggleEditMode}
-                              marketId={marketId}
-                              onCancel={onDialogEditCancel} />];
-      return adminActions.concat(userActions);
+
+    const myInvestibles = getUserInvestibles(userId);
+    const noAssignments = _.isEmpty(myInvestibles);
+    if (noAssignments) {
+      if (following) {
+        userActions.push(
+          <ChangeToObserverActionButton key="observe" marketId={marketId}/>,
+        );
+      } else {
+        userActions.push(
+          <ChangeToParticipantActionButton key="participate" marketId={marketId}/>,
+        );
+      }
     }
     return userActions;
   }

@@ -2,6 +2,7 @@
  * A component that renders a _decision_ dialog
  */
 import React, { useRef, useState } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
@@ -25,7 +26,8 @@ import { scrollToCommentAddBox } from '../../../components/Comments/commentFunct
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import AddressList from '../AddressList';
 import AddParticipantsActionButton from '../AddParticipantsActionButton';
-
+import ChangeToObserverActionButton from '../ChangeToObserverActionButton';
+import ChangeToParticipantActionButton from '../ChangeToParticipantActionButton';
 function DecisionDialog(props) {
   const {
     market,
@@ -40,7 +42,11 @@ function DecisionDialog(props) {
   const commentAddRef = useRef(null);
   const intl = useIntl();
   const { name: marketName, market_stage: marketStage } = market;
-  const { is_admin: isAdmin } = myPresence;
+  const {
+    is_admin: isAdmin,
+    following,
+    investments,
+  } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
   const history = useHistory();
@@ -123,7 +129,6 @@ function DecisionDialog(props) {
           addToMarketId={marketId}
           onCancel={toggleAddParticipantsMode}
           onSave={toggleAddParticipantsMode}
-          intl={intl}
         />
       </Screen>
     );
@@ -167,14 +172,26 @@ function DecisionDialog(props) {
       return [];
     }
     const userActions = [
-      <InvestibleAddActionButton key="addInvestible" onClick={toggleInvestibleAddMode} />,
-      <AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />,
-      <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
-      <AskQuestions key="question" onClick={commentButtonOnClick} />,
+      <InvestibleAddActionButton key="addInvestible" onClick={toggleInvestibleAddMode}/>,
+      <AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode}/>,
+      <RaiseIssue key="issue" onClick={commentButtonOnClick}/>,
+      <AskQuestions key="question" onClick={commentButtonOnClick}/>,
     ];
+    const notVoted = _.isEmpty(investments);
+    if (notVoted) {
+      if (following) {
+        userActions.push(
+          <ChangeToObserverActionButton key="observe" marketId={marketId}/>,
+        );
+      } else {
+        userActions.push(
+          <ChangeToParticipantActionButton key="participate" marketId={marketId}/>,
+        );
+      }
+    }
 
     if (isAdmin) {
-      const adminActions = [<DialogEditActionButton key="edit" onClick={toggleEditMode} />];
+      const adminActions = [<DialogEditActionButton key="edit" onClick={toggleEditMode}/>];
       return adminActions.concat(userActions);
     }
     return userActions;
@@ -200,7 +217,7 @@ function DecisionDialog(props) {
           <SubSection
             title={intl.formatMessage({ id: 'decisionDialogSummaryLabel' })}
           >
-            <Summary market={market} />
+            <Summary market={market}/>
           </SubSection>
         </Grid>
         <Grid
@@ -249,7 +266,7 @@ function DecisionDialog(props) {
               onSave={closeCommentAddBox}
               onCancel={closeCommentAddBox}
             />
-            <div ref={commentAddRef} />
+            <div ref={commentAddRef}/>
             <CommentBox
               comments={marketComments}
               marketId={marketId}

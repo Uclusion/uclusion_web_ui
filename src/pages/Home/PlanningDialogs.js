@@ -10,8 +10,6 @@ import { useIntl } from 'react-intl';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import ChangeToParticipantButton from './Decision/ChangeToParticipantButton';
-import ChangeToObserverButton from './Decision/ChangeToObserverButton';
 import InviteLinker from './Decision/InviteLinker';
 import LeaveMarketButton from './Decision/LeaveMarketButton';
 import ArchiveMarketButton from './Decision/ArchiveMarketButton';
@@ -114,22 +112,12 @@ function PlanningDialogs(props) {
   }
 
   function getDialogActions(marketId, myPresence, marketStage) {
-    const { following, is_admin: isAdmin } = myPresence;
+    const { is_admin: isAdmin } = myPresence;
     const actions = [];
     if (marketStage === 'Active') {
       if (isAdmin) {
         actions.push(
           <ArchiveMarketButton key="archive" marketId={marketId}/>,
-        );
-      }
-      // if participant you can become observer, or if observer you can become participant
-      if (following) {
-        actions.push(
-          <ChangeToObserverButton key="observe" marketId={marketId} />,
-        );
-      } else {
-        actions.push(
-          <ChangeToParticipantButton key="participate" marketId={marketId} />,
         );
       }
     }

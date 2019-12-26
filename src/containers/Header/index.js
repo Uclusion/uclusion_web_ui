@@ -43,6 +43,14 @@ const useStyles = makeStyles((theme) => {
         duration: theme.transitions.duration.enteringScreen,
       }),
     },
+    breadcrumbs: {
+      '& > .MuiBreadcrumbs-ol': {
+        flexWrap: 'nowrap',
+      },
+      '& .MuiBreadcrumbs-li': {
+        whiteSpace: 'nowrap',
+      },
+    },
     breadCrumbImage: {
       height: 40,
     },
@@ -70,7 +78,7 @@ function Header(props) {
   function generateTitle() {
     if (breadCrumbs) {
       return (
-        <Breadcrumbs separator="/">
+        <Breadcrumbs className={classes.breadcrumbs} separator="/">
           {breadCrumbs.map((crumb, index) => (
             <Link key={index} href="#" onClick={crumb.onClick} color="inherit">
               {crumb.image && <img src={crumb.image} alt={crumb.title} className={classes.breadCrumbImage}/>}

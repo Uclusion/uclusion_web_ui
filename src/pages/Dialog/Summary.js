@@ -76,7 +76,8 @@ function Summary(props) {
         >
           <Grid
             item
-            xs={2}
+            xs={12}
+            sm={2}
             key="createdBy"
           >
             <Typography>
@@ -85,7 +86,8 @@ function Summary(props) {
           </Grid>
           <Grid
             item
-            xs={10}
+            xs={12}
+            sm={10}
           >
             {displayUserList(marketPresencesModerating)}
           </Grid>
@@ -97,7 +99,8 @@ function Summary(props) {
         >
           <Grid
             item
-            xs={2}
+            xs={12}
+            sm={2}
             key="observers"
           >
             <Typography>
@@ -106,7 +109,8 @@ function Summary(props) {
           </Grid>
           <Grid
             item
-            xs={10}
+            xs={12}
+            sm={10}
             key="userList"
           >
             {displayUserList(marketPresencesObserving)}

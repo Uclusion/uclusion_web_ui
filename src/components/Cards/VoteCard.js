@@ -22,16 +22,13 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     alignItems: "center",
     width: "100%",
-    height: "100%",
+    height: "77px",
     margin: "3px",
     padding: "0 20px",
     fontWeight: "bold",
     color: "#3e3e3e",
-    borderRight: "1px solid #eaeaea"
-  },
-  largeTitle: {
-    gridRowStart: "1",
-    gridRowEnd: "3"
+		borderRight: "1px solid #eaeaea",
+		overflow: 'hidden',
   },
   chartContent: {
     display: "flex",
@@ -47,10 +44,10 @@ const useStyles = makeStyles(theme => ({
   },
   iconGrid: {
     flexWrap: "nowrap",
-		overflow: "hidden",
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'center',
+    overflow: "hidden",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
   }
 }));
 
@@ -62,13 +59,7 @@ function VoteCard(props) {
 
   return (
     <div className={classes.container}>
-      <Textfit
-        className={clsx(classes.title, {
-          [classes.largeTitle]: comments.length === 0
-        })}
-        max={MAX_FONTSIZE}
-        min={MIN_FONTSIZE}
-      >
+      <Textfit className={classes.title} max={MAX_FONTSIZE} min={MIN_FONTSIZE}>
         {title}
       </Textfit>
       {issuesExist && (

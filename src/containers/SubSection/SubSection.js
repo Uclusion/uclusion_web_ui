@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => {
       marginBottom: '6px',
     },
     headerTitle: {
-      fontSize: '14px',
+      fontSize: 14,
       lineHeight: '18px',
       cursor: 'default',
     },

@@ -9,7 +9,7 @@ const useStyles = makeStyles({
         color: '#fff',
         height: '22px',
         '& .MuiChip-label': {
-            fontSize: '12px',
+            fontSize: 12,
         },
     },
     chipItemDisable: {

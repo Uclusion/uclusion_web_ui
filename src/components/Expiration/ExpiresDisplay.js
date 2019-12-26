@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
 
   countdownItem: {
     color: theme.palette.dark,
-    fontSize: '40px',
+    fontSize: 40,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   },
 
   countdownItemSpan: {
-    fontSize: '12px',
+    fontSize: 12,
     fontWeight: '600',
   },
 

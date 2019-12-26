@@ -34,7 +34,7 @@ const useStyles = makeStyles({
   },
   content: {
       marginTop: '12px',
-      fontSize: '15px',
+      fontSize: 15,
       lineHeight: '175%',
   },
   actions: {
@@ -49,7 +49,7 @@ const useStyles = makeStyles({
       height: '36px',
       color: 'rgba(0,0,0,0.38)',
       fontWeight: '700',
-      fontSize: '14px',
+      fontSize: 14,
       lineHeight: '18px',
       letterSpacing: '0.02em',
       textTransform: 'uppercase',

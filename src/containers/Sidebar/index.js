@@ -68,7 +68,7 @@ const useStyles = makeStyles((theme) => {
     },
     notificationIcon: {
       color: '#F29100',
-      fontSize: '36px',
+      fontSize: 36,
     },
   };
 });

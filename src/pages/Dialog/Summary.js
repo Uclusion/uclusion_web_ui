@@ -18,23 +18,23 @@ const useStyles = makeStyles(theme => ({
       }
   },
   title: {
-      fontSize: '32px',
+      fontSize: 32,
       fontWeight: 'bold',
       lineHeight: '42px',
       paddingBottom: '9px',
       [theme.breakpoints.down('xs')]: {
-          fontSize: '25px',
+          fontSize: 25,
       },
   },
   content: {
-      fontSize: '15px !important',
+      fontSize: '15 !important',
       lineHeight: '175%',
       color: '#414141',
       [theme.breakpoints.down('xs')]: {
-          fontSize: '13px',
+          fontSize: 13,
       },
       '& > .ql-container': {
-        fontSize: '15px !important',
+        fontSize: '15 !important',
       }
   }
 }));

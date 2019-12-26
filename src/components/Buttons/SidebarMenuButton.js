@@ -24,10 +24,9 @@ const useStyles = makeStyles((theme) => {
 
 function SidebarMenuButton(props) {
 
-  const { label:labelID, icon, onClick } = props;
+  const { label, icon, onClick } = props;
 
   const intl = useIntl();
-  const label = intl.formatMessage({ id: labelID });
   const classes = useStyles();
 
   return (

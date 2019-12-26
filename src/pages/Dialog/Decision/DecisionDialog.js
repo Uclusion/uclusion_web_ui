@@ -208,7 +208,7 @@ function DecisionDialog(props) {
     }
     
     const userActions = sidebarMenuList.map((item, index) => (
-      <SidebarMenuButton keu={index} label={item.label} icon={item.icon} onClick={item.onClick} />
+      <SidebarMenuButton key={index} label={item.label} icon={item.icon} onClick={item.onClick} />
     ));
     
     return userActions;

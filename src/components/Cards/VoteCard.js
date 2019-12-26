@@ -51,7 +51,7 @@ const useStyles = makeStyles(theme => ({
         
     },
     chartValue: {
-        fontSize: '14px',
+        fontSize: 14,
         lineHeight: '16px',
         color: '#3e3e3e',
         marginTop: '17px',

@@ -22,14 +22,14 @@ const useStyles = makeStyles({
         boxShadow: 'none',
     },
     latestDate: {
-        fontSize: '14px',
+        fontSize: 14,
         lineHeight: '18px',
         color: '#3e3e3e',
         marginTop: '2px',
         marginBottom: '10px',
     },
     title: {
-        fontSize: '20px',
+        fontSize: 20,
         lineHeight: '26px',
         color: '#3e3e3e',
         fontWeight: 'bold',

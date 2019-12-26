@@ -4,6 +4,7 @@ import ListAltIcon from "@material-ui/icons/ListAlt";
 import PlaylistAddOutlinedIcon from "@material-ui/icons/PlaylistAddOutlined";
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 import SmsOutlinedIcon from "@material-ui/icons/SmsOutlined";
+import { makeStyles } from '@material-ui/core';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import Screen from "../../containers/Screen/Screen";
 import { MarketsContext } from "../../contexts/MarketsContext/MarketsContext";
@@ -25,18 +26,17 @@ import InitiativeDialogs from "./InitiativeDialogs";
 import { useIntl } from "react-intl";
 import { MarketPresencesContext } from "../../contexts/MarketPresencesContext/MarketPresencesContext";
 import SubSection from "../../containers/SubSection/SubSection";
-const breadCrumbs = [
-  {
-    title: "Breadcrumb"
+
+const useStyles = makeStyles(() => ({
+  breadCrumbImage: {
+    height: 40,
   },
-  {
-    title: "Longer Breadcrumb"
-  }
-];
+}));
 
 function Home(props) {
   const { hidden } = props;
   const intl = useIntl();
+  const classes = useStyles();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
@@ -149,11 +149,10 @@ function Home(props) {
 
   return (
     <Screen
-      title="Shockingly long breadcrumb to show information"
+      title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage} />}
       tabTitle={intl.formatMessage({ id: "homeBreadCrumb" })}
       hidden={hidden}
       sidebarActions={sidebarActions}
-      breadCrumbs={breadCrumbs}
     >
       {getContents()}
     </Screen>

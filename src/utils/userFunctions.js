@@ -141,17 +141,17 @@ export function getCertaintyChart(investments) {
   return (
     <XYPlot
       xType="ordinal"
-      width={investments.length * 12}
-      height={40}
+      height={investments.length*12}
+      width={70}
       yDomain={[0, investments.length]}
       colorDomain={[0, 3]}
-      colorRange={['red', 'green']}
+      colorRange={['#F5270F', '#5ED635']}
       margin={margin}
     >
-
       <VerticalBarSeries
-        barWidth={0.4}
+        barWidth={0.6}
         data={bins}
+        style={{borderRadius: '3px'}}
       />
     </XYPlot>
   );

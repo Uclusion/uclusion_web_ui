@@ -1,32 +1,32 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import { Grid, CardContent } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles';
-import { useHistory } from 'react-router';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import RaisedCard from '../../../components/Cards/RaisedCard';
-import { getVoteTotalsForUser } from '../../../utils/userFunctions';
-import VoteCard from '../../../components/Cards/VoteCard';
+import React from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import { Grid, CardContent } from "@material-ui/core";
+import { makeStyles } from "@material-ui/styles";
+import { useHistory } from "react-router";
+import {
+  formInvestibleLink,
+  navigate
+} from "../../../utils/marketIdPathFunctions";
+import RaisedCard from "../../../components/Cards/RaisedCard";
+import { getVoteTotalsForUser } from "../../../utils/userFunctions";
+import VoteCard from "../../../components/Cards/VoteCard";
+import { ISSUE_TYPE } from "../../../constants/comments";
+import { getCommentTypeIcon } from "../../../components/Comments/commentFunctions";
 
 const useStyles = makeStyles(theme => ({
   noPadding: {
     padding: theme.spacing(0),
-    '&:last-child': {
-      padding: 0,
-    },
-  },
+    "&:last-child": {
+      padding: 0
+    }
+  }
 }));
 function CurrentVoting(props) {
   const history = useHistory();
   const classes = useStyles();
-  const {
-    marketPresences,
-    investibles,
-    marketId,
-    comments,
-  } = props;
-  const strippedInvestibles = investibles.map((inv) => inv.investible);
+  const { marketPresences, investibles, marketId, comments } = props;
+  const strippedInvestibles = investibles.map(inv => inv.investible);
 
   function getInvestibleVotes() {
     // first set every investibles support and investments to 0
@@ -35,22 +35,25 @@ function CurrentVoting(props) {
       const augmented = {
         ...inv,
         investments: [],
-        numSupporters: 0,
+        numSupporters: 0
       };
       acc[id] = augmented;
       return acc;
     }, {});
     // now we fill in votes from market presences
-    marketPresences.forEach((presence) => {
+    marketPresences.forEach(presence => {
       const userInvestments = getVoteTotalsForUser(presence);
-      Object.keys(userInvestments).forEach((investible_id) => {
+      Object.keys(userInvestments).forEach(investible_id => {
         const oldValue = tallies[investible_id];
         if (oldValue) {
-          const newInvestments = [...oldValue.investments, userInvestments[investible_id]];
+          const newInvestments = [
+            ...oldValue.investments,
+            userInvestments[investible_id]
+          ];
           const newValue = {
             ...oldValue,
             investments: newInvestments,
-            numSupporters: newInvestments.length,
+            numSupporters: newInvestments.length
           };
           tallies[investible_id] = newValue;
         }
@@ -61,24 +64,27 @@ function CurrentVoting(props) {
 
   function getItemVote(item) {
     const { id, investments, name } = item;
-    const investibleComments = comments.filter((comment) => comment.investible_id === id && !comment.parent_id && !comment.resolved);
-    
+    const investibleComments = comments.filter(
+      comment =>
+        comment.investible_id === id &&
+        !comment.parent_id &&
+        !comment.resolved &&
+        getCommentTypeIcon(comment.comment_type) &&
+        comment.comment_type === ISSUE_TYPE
+    );
+
     return (
-      <Grid
-        item
-        key={id}
-        xs={12}
-        sm={6}
-      >
+      <Grid item key={id} xs={12} sm={6}>
         <RaisedCard
           className="raisedcard"
           onClick={() => navigate(history, formInvestibleLink(marketId, id))}
         >
-          <CardContent className={ classes.noPadding }>
+          <CardContent className={classes.noPadding}>
             <VoteCard
               title={name}
               comments={investibleComments}
-              votes={investments} />
+              votes={investments}
+            />
           </CardContent>
         </RaisedCard>
       </Grid>
@@ -88,11 +94,15 @@ function CurrentVoting(props) {
   const tallies = getInvestibleVotes();
   const talliesArray = Object.values(tallies);
   // descending order of support
-  const sortedTalliesArray = _.sortBy(talliesArray, 'numSupporters', 'name').reverse();
-  
+  const sortedTalliesArray = _.sortBy(
+    talliesArray,
+    "numSupporters",
+    "name"
+  ).reverse();
+
   return (
-    <Grid container spacing={1} >
-      {sortedTalliesArray.map((item) => getItemVote(item))}
+    <Grid container spacing={1}>
+      {sortedTalliesArray.map(item => getItemVote(item))}
     </Grid>
   );
 }
@@ -104,13 +114,13 @@ CurrentVoting.propTypes = {
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
-  comments: PropTypes.arrayOf(PropTypes.object),
+  comments: PropTypes.arrayOf(PropTypes.object)
 };
 
 CurrentVoting.defaultProps = {
   investibles: [],
   marketPresences: [],
-  comments: [],
+  comments: []
 };
 
 export default CurrentVoting;

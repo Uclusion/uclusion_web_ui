@@ -12,6 +12,7 @@ import {
   Popper,
   Paper,
 } from '@material-ui/core';
+import MenuOpenIcon from '@material-ui/icons/MenuOpen';
 import { makeStyles } from '@material-ui/styles';
 import { SidebarContext } from '../../contexts/SidebarContext';
 import { createTitle } from '../../utils/marketIdPathFunctions';
@@ -33,6 +34,10 @@ const useStyles = makeStyles((theme) => {
       marginLeft: '-3px',
       marginRight: theme.spacing(2),
     },
+    menuIcon: {
+      width: '30px',
+      height: '25px',
+    },
     appBarShift: {
       marginLeft: DRAWER_WIDTH,
       width: `calc(100% - ${DRAWER_WIDTH}px)`,
@@ -50,7 +55,7 @@ function Header(props) {
   const intl = useIntl();
   const [online] = useContext(OnlineStateContext);
 
-  const { breadCrumbs, title, hidden } = props;
+  const { breadCrumbs, title, hidden, toolbarButtons } = props;
 
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
   
@@ -109,9 +114,10 @@ function Header(props) {
                   edge="start"
                   className={classes.menuButton}
               >
-                  <img src="/images/Uclusion_bar.svg" alt='' />
+                  <MenuOpenIcon className={classes.menuIcon}/>
               </IconButton>
               {generateTitle()}
+              {toolbarButtons}
           </Toolbar>
       </AppBar>
     </React.Fragment>
@@ -121,12 +127,14 @@ function Header(props) {
 Header.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   breadCrumbs: PropTypes.arrayOf(PropTypes.object),
+  toolbarButtons: PropTypes.arrayOf(PropTypes.any),
   title: PropTypes.any,
   hidden: PropTypes.bool,
 };
 
 Header.defaultProps = {
   breadCrumbs: [],
+  toolbarButtons: [],
   title: '',
   hidden: false,
 };

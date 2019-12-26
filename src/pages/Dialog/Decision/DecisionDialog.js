@@ -207,8 +207,8 @@ function DecisionDialog(props) {
       sidebarMenuList.unshift(...adminMenuList);
     }
     
-    const userActions = sidebarMenuList.map(item => (
-      <SidebarMenuButton label={item.label} icon={item.icon} onClick={item.onClick} />
+    const userActions = sidebarMenuList.map((item, index) => (
+      <SidebarMenuButton keu={index} label={item.label} icon={item.icon} onClick={item.onClick} />
     ));
     
     return userActions;

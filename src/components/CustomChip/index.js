@@ -5,33 +5,37 @@ import { makeStyles } from '@material-ui/styles';
 import { getCommentTypeIcon } from '../../components/Comments/commentFunctions';
 
 const useStyles = makeStyles({
+    chipItem: {
+        color: '#fff',
+        height: '22px',
+        '& .MuiChip-label': {
+            fontSize: '12px',
+        },
+    },
     chipItemDisable: {
         background: '#dfdfdf',
-        color: '#fff',
-        height: '24px',
     },
     chipItemActive: {
         background: '#ca2828',
-        color: '#fff',
-        height: '24px',
     },
     avatar: {
-        width: '13px',
-        height: '11px',
+        width: '16px',
+        height: '14px',
+        color: '#fff',
     }
 });
 
 function CustomChip(props) {
-    const { active, title } = props;
+    const { active, type, content } = props;
     const classes = useStyles();
-
+    
     return (
         <React.Fragment>
-            {title && <Chip
-                className={(active) ? classes.chipItemActive : classes.chipItemDisable}
+            {content && <Chip
+                className={(active) ? `${classes.chipItem} ${classes.chipItemActive}` : `${classes.chipItem} ${classes.chipItemDisable}`}
                 classes={{avatar: (active) ? `${classes.chipItemActive} ${classes.avatar}` : `${classes.chipItemDisable} ${classes.avatar}`}}
-                avatar={getCommentTypeIcon(title)}
-                label={title}
+                avatar={getCommentTypeIcon(type)}
+                label={content.slice(content.indexOf('>')+1, content.lastIndexOf('<'))}
             />}
         </React.Fragment>
     );
@@ -39,12 +43,14 @@ function CustomChip(props) {
 
 CustomChip.propTypes = {
     active: PropTypes.bool, 
-    title: PropTypes.string,
+    type: PropTypes.string,
+    content: PropTypes.object,
 }
 
 CustomChip.defaultProps = {
     active: false,
-    title: '',
+    type: '',
+    content: null,
 }
 
 export default CustomChip;

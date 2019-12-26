@@ -54,6 +54,7 @@ const useStyles = makeStyles(theme => ({
         fontSize: '14px',
         lineHeight: '16px',
         color: '#3e3e3e',
+        marginTop: '17px',
     },
     iconGrid: {
         flexWrap: 'nowrap',
@@ -72,7 +73,7 @@ function VoteCard(props) {
                 <Grid className={classes.iconGrid} container spacing={1}>
                     {comments.map((item, index) => (
                         <Grid item key={index} >
-                            <CustomChip title={item.comment_type} />
+                            <CustomChip type={item.comment_type} content={item.body}/>
                         </Grid>
                     ))}
                 </Grid>

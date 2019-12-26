@@ -71,6 +71,7 @@ function Screen(props) {
     children,
     sidebarActions,
     tabTitle,
+    toolbarButtons,
   } = props;
   let prePendWarning = '';
   if (messagesState) {
@@ -111,7 +112,7 @@ function Screen(props) {
           <title>{`${prePendWarning}Uclusion | ${createTitle(tabTitle, 11)}`}</title>
         </Helmet>
       )}
-      <Header title={title} breadCrumbs={breadCrumbs} hidden={hidden} />
+      <Header title={title} breadCrumbs={breadCrumbs} toolbarButtons={toolbarButtons} hidden={hidden} />
       <Sidebar sidebarActions={sidebarActions}/>
       <div className={clsx(classes.content, {
         [classes.contentShift]: sidebarOpen,

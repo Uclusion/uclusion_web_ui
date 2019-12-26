@@ -8,16 +8,12 @@ import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, JUSTIFY_TYPE, REPLY_TYP
 
 export function getCommentTypeIcon(type) {
   switch (type) {
-    case JUSTIFY_TYPE:
-      return <FormatAlignJustifyIcon />;
     case ISSUE_TYPE:
       return <ReportProblemIcon color="error" />;
     case QUESTION_TYPE:
       return <ContactSupportIcon />;
     case SUGGEST_CHANGE_TYPE:
       return <ChangeHistoryIcon />;
-    case REPLY_TYPE:
-      return <ReplyIcon />
     default:
       return null;
   }

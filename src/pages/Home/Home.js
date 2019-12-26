@@ -1,33 +1,37 @@
-import React, { useContext, useState } from 'react';
-import PropTypes from 'prop-types';
-import ListAltIcon from '@material-ui/icons/ListAlt';
-import PlaylistAddOutlinedIcon from '@material-ui/icons/PlaylistAddOutlined';
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
-import SmsOutlinedIcon from '@material-ui/icons/SmsOutlined';
-import Screen from '../../containers/Screen/Screen';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import React, { useContext, useState } from "react";
+import PropTypes from "prop-types";
+import ListAltIcon from "@material-ui/icons/ListAlt";
+import PlaylistAddOutlinedIcon from "@material-ui/icons/PlaylistAddOutlined";
+import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
+import SmsOutlinedIcon from "@material-ui/icons/SmsOutlined";
+import Screen from "../../containers/Screen/Screen";
+import { MarketsContext } from "../../contexts/MarketsContext/MarketsContext";
 import {
   getMarketDetailsForType,
-  getNotHiddenMarketDetailsForUser,
-} from '../../contexts/MarketsContext/marketsContextHelper';
-import PlanningDialogs from './PlanningDialogs';
-import DecisionDialogs from './DecisionDialogs';
-import DecisionAdd from './DecisionAdd';
-import PlanningAdd from './PlanningAdd';
-import { INITIATIVE_TYPE, DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
-import InitiativeAdd from './InitiativeAdd';
-import InitiativeDialogs from './InitiativeDialogs';
-import { useIntl } from 'react-intl';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import SidebarMenuButton from '../../components/Buttons/SidebarMenuButton';
-import SubSection from '../../containers/SubSection/SubSection';
+  getNotHiddenMarketDetailsForUser
+} from "../../contexts/MarketsContext/marketsContextHelper";
+import PlanningDialogs from "./PlanningDialogs";
+import DecisionDialogs from "./DecisionDialogs";
+import DecisionAdd from "./DecisionAdd";
+import PlanningAdd from "./PlanningAdd";
+import {
+  INITIATIVE_TYPE,
+  DECISION_TYPE,
+  PLANNING_TYPE
+} from "../../constants/markets";
+import InitiativeAdd from "./InitiativeAdd";
+import InitiativeDialogs from "./InitiativeDialogs";
+import { useIntl } from "react-intl";
+import { MarketPresencesContext } from "../../contexts/MarketPresencesContext/MarketPresencesContext";
+import SidebarMenuButton from "../../components/Buttons/SidebarMenuButton";
+import SubSection from "../../containers/SubSection/SubSection";
 const breadCrumbs = [
   {
-    title: 'Breadcrumb'
+    title: "Breadcrumb"
   },
   {
-    title: 'Longer Breadcrumb'
-  },
+    title: "Longer Breadcrumb"
+  }
 ];
 
 function Home(props) {
@@ -35,36 +39,47 @@ function Home(props) {
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState,
-    marketPresencesState);
-  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, PLANNING_TYPE);
-  const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, DECISION_TYPE);
-  const initiativeDetails = getMarketDetailsForType(myNotHiddenMarketsState, INITIATIVE_TYPE);
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
+    marketsState,
+    marketPresencesState
+  );
+  const planningDetails = getMarketDetailsForType(
+    myNotHiddenMarketsState,
+    PLANNING_TYPE
+  );
+  const decisionDetails = getMarketDetailsForType(
+    myNotHiddenMarketsState,
+    DECISION_TYPE
+  );
+  const initiativeDetails = getMarketDetailsForType(
+    myNotHiddenMarketsState,
+    INITIATIVE_TYPE
+  );
   const [planningAddMode, setPlanningAddMode] = useState(false);
   const [decisionAddMode, setDecisionAddMode] = useState(false);
   const [initiativeAddMode, setInitiativeAddMode] = useState(false);
 
   const SIDEBAR_ACTIONS = [
     {
-      label: intl.formatMessage({id: 'homeAddPlanning'}),
+      label: intl.formatMessage({ id: "homeAddPlanning" }),
       icon: <ListAltIcon />,
-      onClick: () => togglePlanningAddMode(),
+      onClick: () => togglePlanningAddMode()
     },
     {
-      label: intl.formatMessage({id: 'homeAddDecision'}),
+      label: intl.formatMessage({ id: "homeAddDecision" }),
       icon: <PlaylistAddOutlinedIcon />,
-      onClick: () => toggleDecisionAddMode(),
+      onClick: () => toggleDecisionAddMode()
     },
     {
-      label: intl.formatMessage({id: 'homeAddInitiative'}),
+      label: intl.formatMessage({ id: "homeAddInitiative" }),
       icon: <ErrorOutlineIcon />,
-      onClick: () => toggleInitiativeAddMode(),
+      onClick: () => toggleInitiativeAddMode()
     },
     {
-      label: intl.formatMessage({id: 'homeViewArchives'}),
+      label: intl.formatMessage({ id: "homeViewArchives" }),
       icon: <SmsOutlinedIcon />,
-      onClick: () => {},
-    },
+      onClick: () => {}
+    }
   ];
 
   function toggleInitiativeAddMode() {
@@ -80,9 +95,16 @@ function Home(props) {
   }
 
   const sidebarActions = [];
-    SIDEBAR_ACTIONS.forEach((action, index) => {
-      sidebarActions.push(<SidebarMenuButton key={index} icon={action.icon} label={action.label} onClick={action.onClick} />);
-    });
+  SIDEBAR_ACTIONS.forEach((action, index) => {
+    sidebarActions.push(
+      <SidebarMenuButton
+        key={index}
+        icon={action.icon}
+        label={action.label}
+        onClick={action.onClick}
+      />
+    );
+  });
 
   function getContents() {
     if (planningAddMode) {
@@ -128,7 +150,7 @@ function Home(props) {
   return (
     <Screen
       title="Shockingly long breadcrumb to show information"
-      tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
+      tabTitle={intl.formatMessage({ id: "homeBreadCrumb" })}
       hidden={hidden}
       sidebarActions={sidebarActions}
       breadCrumbs={breadCrumbs}
@@ -139,7 +161,7 @@ function Home(props) {
 }
 
 Home.propTypes = {
-  hidden: PropTypes.bool.isRequired,
+  hidden: PropTypes.bool.isRequired
 };
 
 export default Home;

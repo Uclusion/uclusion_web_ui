@@ -6,7 +6,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
-import { Grid } from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
 import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import Summary from '../Summary';
 import InvestibleAdd from './InvestibleAdd';
@@ -28,6 +28,9 @@ import AddressList from '../AddressList';
 import AddParticipantsActionButton from '../AddParticipantsActionButton';
 import ChangeToObserverActionButton from '../ChangeToObserverActionButton';
 import ChangeToParticipantActionButton from '../ChangeToParticipantActionButton';
+import DeadlineExtender from '../../Home/Decision/DeadlineExtender';
+import ExtendDeadlineActionButton from './ExtendDeadlineActionButton';
+
 function DecisionDialog(props) {
   const {
     market,
@@ -58,6 +61,7 @@ function DecisionDialog(props) {
   const [dialogEditMode, setDialogEditMode] = useState(false);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
+  const [deadlineExtendMode, setDeadlineExtendMode] = useState(false);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const active = marketStage === ACTIVE_STAGE;
 
@@ -93,8 +97,31 @@ function DecisionDialog(props) {
     setAddParticipantsMode(!addParticipantsMode);
   }
 
+
   function closeCommentAddBox() {
     setCommentAddHidden(true);
+  }
+
+  if (deadlineExtendMode) {
+    return (
+      <Screen
+        title={marketName}
+        hidden={hidden}
+        tabTitle={marketName}
+        breadCrumbs={breadCrumbs}
+      >
+        <div>
+         <Typography>
+           {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel'})}
+         </Typography>
+         <DeadlineExtender
+           market={market}
+           onCancel={() => setDeadlineExtendMode(false)}
+           onSave={() => setDeadlineExtendMode(false)}
+         />
+        </div>
+      </Screen>
+    );
   }
 
   if (dialogEditMode) {
@@ -191,7 +218,10 @@ function DecisionDialog(props) {
     }
 
     if (isAdmin) {
-      const adminActions = [<DialogEditActionButton key="edit" onClick={toggleEditMode}/>];
+      const adminActions = [
+        <DialogEditActionButton key="edit" onClick={toggleEditMode}/>,
+        <ExtendDeadlineActionButton key="extend" onClick={() => setDeadlineExtendMode(true)}/>
+      ];
       return adminActions.concat(userActions);
     }
     return userActions;

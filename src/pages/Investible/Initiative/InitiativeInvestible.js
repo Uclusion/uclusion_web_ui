@@ -22,6 +22,9 @@ import Summary from '../../Dialog/Summary';
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
 import AddressList from '../../Dialog/AddressList';
+import DeadlineExtender from '../../Home/Decision/DeadlineExtender';
+import ExtendDeadlineActionButton from '../../Dialog/Decision/ExtendDeadlineActionButton';
+import { Typography } from '@material-ui/core';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -47,6 +50,7 @@ function InitiativeInvestible(props) {
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
+  const [extendDeadlineMode, setExtendDeadlineMode] = useState(false);
   const { investible } = fullInvestible;
   const { description, name } = investible;
   const {
@@ -78,12 +82,13 @@ function InitiativeInvestible(props) {
     const sidebarActions = [];
 
     if (isAdmin) {
-      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
+      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
+      sidebarActions.push(<ExtendDeadlineActionButton key="extend" onClick={() => setExtendDeadlineMode(true)}/>)
     }
-    sidebarActions.push(<AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />);
-    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
-    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
-    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode}/>);
+    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick}/>);
     return sidebarActions;
   }
 
@@ -92,15 +97,37 @@ function InitiativeInvestible(props) {
     return <></>;
   }
 
+  if (extendDeadlineMode) {
+    return (
+      <Screen
+        title={name}
+        tabTitle={name}
+        breadCrumbs={breadCrumbs}
+      >
+        <div>
+          <Typography>
+            {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel'})}
+          </Typography>
+
+          <DeadlineExtender
+          market={market}
+          onCancel={() => setExtendDeadlineMode(false)}
+          onSave={() => setExtendDeadlineMode(false)}
+        />
+        </div>
+      </Screen>
+    );
+  }
+
+
   if (addParticipantsMode) {
+    const participantsTitle = intl.formatMessage({ id: 'addressListHeader' });
     const breadCrumbTemplates = [{ name, link: formInvestibleLink(marketId, investibleId) }];
     const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-    const participantsTitle = intl.formatMessage({ id: 'addressListHeader' });
     return (
       <Screen
         tabTitle={participantsTitle}
         title={participantsTitle}
-        hidden={false}
         breadCrumbs={myBreadCrumbs}
       >
         <AddressList
@@ -122,7 +149,6 @@ function InitiativeInvestible(props) {
       title={name}
       tabTitle={name}
       breadCrumbs={breadCrumbs}
-      hidden={false}
       sidebarActions={getSidebarActions()}
     >
       {!isAdmin && (
@@ -150,7 +176,7 @@ function InitiativeInvestible(props) {
       <SubSection
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
-        <Summary market={market} showObservers={false} />
+        <Summary market={market} showObservers={false}/>
         <ReadOnlyQuillEditor
           value={description}
         />
@@ -170,7 +196,7 @@ function InitiativeInvestible(props) {
               onCancel={closeCommentAdd}
             />
           </div>
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
         </SubSection>
       )}
     </Screen>

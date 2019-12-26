@@ -26,24 +26,19 @@ const useStyles = makeStyles(theme => {
     },
     container: {
       background: "#efefef",
-      maxWidth: "751px",
       padding: "41px 20px 156px"
     },
     contentShift: {
       marginLeft: DRAWER_WIDTH_OPENED,
       width: `calc(100% - ${DRAWER_WIDTH_OPENED}px)`,
       [theme.breakpoints.down("xs")]: {
-        marginLeft: "0px",
-        width: "100%"
+        marginLeft: DRAWER_WIDTH_CLOSED,
+        width: `calc(100% - ${DRAWER_WIDTH_CLOSED}px)`,
       }
     },
     contentUnShift: {
       marginLeft: DRAWER_WIDTH_CLOSED,
       width: `calc(100% - ${DRAWER_WIDTH_CLOSED}px)`,
-      [theme.breakpoints.down("xs")]: {
-        marginLeft: "0px",
-        width: "100%"
-      }
     },
     content: {
       background: "#efefef"

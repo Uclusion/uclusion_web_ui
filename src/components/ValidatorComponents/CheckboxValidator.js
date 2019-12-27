@@ -9,7 +9,7 @@ const red300 = red['500'];
 
 const style = {
   right: 0,
-  fontSize: '12px',
+  fontSize: 12,
   color: red300,
   position: 'absolute',
   marginTop: '-15px',

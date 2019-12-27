@@ -31,6 +31,7 @@ import { scrollToCommentAddBox } from '../../../components/Comments/commentFunct
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import AddressList from '../AddressList';
 import AddParticipantsActionButton from '../AddParticipantsActionButton';
+import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import ChangeToObserverActionButton from '../ChangeToObserverActionButton';
 import ChangeToParticipantActionButton from '../ChangeToParticipantActionButton';
 
@@ -305,6 +306,7 @@ function PlanningDialog(props) {
           xs={12}
         >
           <SubSection
+            type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'planningDialogPeopleLabel' })}
           >
             {getInvestiblesByPerson(investibles, marketPresences)}
@@ -315,6 +317,7 @@ function PlanningDialog(props) {
           xs={12}
         >
           <SubSection
+            type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'planningDialogDiscussionLabel' })}
           >
             <div ref={commentAddRef} key="commentsadd">

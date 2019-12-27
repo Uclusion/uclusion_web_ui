@@ -38,6 +38,7 @@ import PlanningInvestibleEditActionButton from './PlanningInvestibleEditActionBu
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
 import { convertDates } from '../../../contexts/ContextUtils';
 import { ACTIVE_STAGE } from '../../../constants/markets';
+import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -270,6 +271,7 @@ function PlanningInvestible(props) {
       )}
       {(!assigned || !assigned.includes(userId)) && isInVoting && (
         <SubSection
+        type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
         >
           <YourVoting
@@ -283,6 +285,7 @@ function PlanningInvestible(props) {
         </SubSection>
       )}
       <SubSection
+        type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
       >
         <Voting
@@ -292,6 +295,7 @@ function PlanningInvestible(props) {
         />
       </SubSection>
       <SubSection
+        type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'planningInvestibleAssignments' })}
       >
         {marketId && investible && (
@@ -303,6 +307,7 @@ function PlanningInvestible(props) {
         )}
       </SubSection>
       <SubSection
+        type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
         <Paper>
@@ -315,6 +320,7 @@ function PlanningInvestible(props) {
       <div ref={commentAddRef}>
         {discussionVisible && (
           <SubSection
+          type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
           >
             <CommentAddBox

@@ -282,7 +282,9 @@ const messages = defineMessages({
   homeAddInitiative: 'Create Initiative',
   homePlanningReport: 'Active Story Value Estimates (in days)',
   homeViewArchives: 'View Archives',
-
+  new: 'New',
+  information: 'Information',
+  message: 'Message',
   // Archives
   archivesTitle: 'Archives',
 

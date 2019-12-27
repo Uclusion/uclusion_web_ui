@@ -10,11 +10,15 @@ import { ISSUE_RESOLVED_TYPE, ISSUE_TYPE, NO_PIPELINE_TYPE } from '../../constan
 const useStyles = makeStyles({
   red: {
     color: 'red',
+    fontSize: 36,
   },
   yellow: {
-    color: 'orange', // to do change this to yellow if possible
+    color: '#F29100',
+    fontSize: 36,
   },
-  uncolored: {},
+  uncolored: {
+    fontSize: 36,
+  },
 });
 
 function Notifications(props) {
@@ -69,7 +73,7 @@ function Notifications(props) {
       onClick={nextOnClick}
     >
       {current && <NotificationImportant className={getIconClass()} />}
-      {!current && <NotificationsIcon />}
+      {!current && <NotificationsIcon className={getIconClass()} />}
       {current && <ChevronRight className={getIconClass()} />}
     </Button>
   );

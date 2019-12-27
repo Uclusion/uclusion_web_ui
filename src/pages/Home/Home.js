@@ -1,27 +1,31 @@
-import React, { useContext, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext, useState } from "react";
+import PropTypes from "prop-types";
+import ListAltIcon from "@material-ui/icons/ListAlt";
+import PlaylistAddOutlinedIcon from "@material-ui/icons/PlaylistAddOutlined";
+import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
+import SmsOutlinedIcon from "@material-ui/icons/SmsOutlined";
 import { makeStyles } from '@material-ui/core';
-import Screen from '../../containers/Screen/Screen';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
+import Screen from "../../containers/Screen/Screen";
+import { MarketsContext } from "../../contexts/MarketsContext/MarketsContext";
 import {
   getMarketDetailsForType,
-  getNotHiddenMarketDetailsForUser,
-} from '../../contexts/MarketsContext/marketsContextHelper';
-import PlanningDialogs from './PlanningDialogs';
-import SubSection from '../../containers/SubSection/SubSection';
-import DecisionDialogs from './DecisionDialogs';
-import DecisionAdd from './DecisionAdd';
-import DecisionAddActionButton from './DecisionAddActionButton';
-import PlanningAdd from './PlanningAdd';
-import PlanningAddActionButton from './PlanningAddActionButton';
-import InitiativeAddActionButton from './InitiativeAddActionButton';
-import { INITIATIVE_TYPE, DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
-import InitiativeAdd from './InitiativeAdd';
-import InitiativeDialogs from './InitiativeDialogs';
-import ViewArchiveActionButton from './ViewArchivesActionButton';
-import { useIntl } from 'react-intl';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-
+  getNotHiddenMarketDetailsForUser
+} from "../../contexts/MarketsContext/marketsContextHelper";
+import PlanningDialogs from "./PlanningDialogs";
+import DecisionDialogs from "./DecisionDialogs";
+import DecisionAdd from "./DecisionAdd";
+import PlanningAdd from "./PlanningAdd";
+import {
+  INITIATIVE_TYPE,
+  DECISION_TYPE,
+  PLANNING_TYPE
+} from "../../constants/markets";
+import InitiativeAdd from "./InitiativeAdd";
+import InitiativeDialogs from "./InitiativeDialogs";
+import { useIntl } from "react-intl";
+import { MarketPresencesContext } from "../../contexts/MarketPresencesContext/MarketPresencesContext";
+import SubSection from "../../containers/SubSection/SubSection";
 
 const useStyles = makeStyles(() => ({
   breadCrumbImage: {
@@ -31,18 +35,52 @@ const useStyles = makeStyles(() => ({
 
 function Home(props) {
   const { hidden } = props;
-  const classes = useStyles();
   const intl = useIntl();
+  const classes = useStyles();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState,
-    marketPresencesState);
-  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, PLANNING_TYPE);
-  const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, DECISION_TYPE);
-  const initiativeDetails = getMarketDetailsForType(myNotHiddenMarketsState, INITIATIVE_TYPE);
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
+    marketsState,
+    marketPresencesState
+  );
+  const planningDetails = getMarketDetailsForType(
+    myNotHiddenMarketsState,
+    PLANNING_TYPE
+  );
+  const decisionDetails = getMarketDetailsForType(
+    myNotHiddenMarketsState,
+    DECISION_TYPE
+  );
+  const initiativeDetails = getMarketDetailsForType(
+    myNotHiddenMarketsState,
+    INITIATIVE_TYPE
+  );
   const [planningAddMode, setPlanningAddMode] = useState(false);
   const [decisionAddMode, setDecisionAddMode] = useState(false);
   const [initiativeAddMode, setInitiativeAddMode] = useState(false);
+
+  const SIDEBAR_ACTIONS = [
+    {
+      label: intl.formatMessage({ id: "homeAddPlanning" }),
+      icon: <ListAltIcon />,
+      onClick: () => togglePlanningAddMode()
+    },
+    {
+      label: intl.formatMessage({ id: "homeAddDecision" }),
+      icon: <PlaylistAddOutlinedIcon />,
+      onClick: () => toggleDecisionAddMode()
+    },
+    {
+      label: intl.formatMessage({ id: "homeAddInitiative" }),
+      icon: <ErrorOutlineIcon />,
+      onClick: () => toggleInitiativeAddMode()
+    },
+    {
+      label: intl.formatMessage({ id: "homeViewArchives" }),
+      icon: <SmsOutlinedIcon />,
+      onClick: () => {}
+    }
+  ];
 
   function toggleInitiativeAddMode() {
     setInitiativeAddMode(!initiativeAddMode);
@@ -57,12 +95,16 @@ function Home(props) {
   }
 
   const sidebarActions = [];
-  if (!(planningAddMode || decisionAddMode || initiativeAddMode)) {
-    sidebarActions.push(<PlanningAddActionButton key="planningAdd" onClick={togglePlanningAddMode} />);
-    sidebarActions.push(<DecisionAddActionButton key="decisionAdd" onClick={toggleDecisionAddMode} />);
-    sidebarActions.push(<InitiativeAddActionButton key="initiativeAdd" onClick={toggleInitiativeAddMode} />);
-    sidebarActions.push(<ViewArchiveActionButton key="archives" />)
-  }
+  SIDEBAR_ACTIONS.forEach((action, index) => {
+    sidebarActions.push(
+      <ExpandableSidebarAction
+        key={index}
+        icon={action.icon}
+        label={action.label}
+        onClick={action.onClick}
+      />
+    );
+  });
 
   function getContents() {
     if (planningAddMode) {
@@ -108,7 +150,7 @@ function Home(props) {
   return (
     <Screen
       title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage} />}
-      tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
+      tabTitle={intl.formatMessage({ id: "homeBreadCrumb" })}
       hidden={hidden}
       sidebarActions={sidebarActions}
     >
@@ -118,7 +160,7 @@ function Home(props) {
 }
 
 Home.propTypes = {
-  hidden: PropTypes.bool.isRequired,
+  hidden: PropTypes.bool.isRequired
 };
 
 export default Home;

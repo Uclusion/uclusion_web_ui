@@ -33,7 +33,7 @@ function DialogEdit(props) {
   const classes = useStyles();
   const [mutableMarket, setMutableMarket] = useState(market);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const { name, maxBudget, investmentExpiration } = mutableMarket;
+  const { name, max_budget, investment_expiration } = mutableMarket;
   const [description, setDescription] = useState(mutableMarket.description);
   function handleChange(name) {
     return (event) => {
@@ -55,7 +55,7 @@ function DialogEdit(props) {
       chain = chain.then(() => lockPlanningMarketForEdit(id, true));
     }
     chain = chain.then(() => updateMarket(id, name, tokensRemoved, filteredUploads,
-      maxBudget, investmentExpiration))
+      parseInt(max_budget, 10), parseInt(investment_expiration, 10)))
       .then(() => editToggle());
     return chain;
   }
@@ -85,28 +85,28 @@ function DialogEdit(props) {
         />
         {marketType === PLANNING_TYPE && (
           <TextField
-            id="standard-number"
+            id="maxBudget"
             label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
             type="number"
             InputLabelProps={{
               shrink: true,
             }}
             variant="outlined"
-            onChange={handleChange('maxBudget')}
-            value={maxBudget}
+            onChange={handleChange('max_budget')}
+            value={max_budget}
           />
         )}
         {marketType === PLANNING_TYPE && (
           <TextField
-            id="standard-number"
+            id="investmentExpiration"
             label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
             type="number"
             InputLabelProps={{
               shrink: true,
             }}
             variant="outlined"
-            onChange={handleChange('investmentExpiration')}
-            value={investmentExpiration}
+            onChange={handleChange('investment_expiration')}
+            value={investment_expiration}
           />
         )}
         <QuillEditor

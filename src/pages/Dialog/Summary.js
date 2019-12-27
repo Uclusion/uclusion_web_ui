@@ -1,49 +1,52 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { Grid, Typography, Paper } from '@material-ui/core';
+import { Grid, Typography, Paper, TextField, CardContent } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import ReadOnlyQuillEditor from '../../components/TextEditors/ReadOnlyQuillEditor';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   container: {
-      padding: '3px 89px 21px 21px',
-      marginTop: '-6px',
-      boxShadow: 'none',
-      [theme.breakpoints.down('sm')]: {
-          padding: '3px 21px 42px 21px',
-      }
+    padding: '3px 89px 21px 21px',
+    marginTop: '-6px',
+    boxShadow: 'none',
+    [theme.breakpoints.down('sm')]: {
+      padding: '3px 21px 42px 21px',
+    },
   },
   title: {
-      fontSize: 32,
-      fontWeight: 'bold',
-      lineHeight: '42px',
-      paddingBottom: '9px',
-      [theme.breakpoints.down('xs')]: {
-          fontSize: 25,
-      },
+    fontSize: 32,
+    fontWeight: 'bold',
+    lineHeight: '42px',
+    paddingBottom: '9px',
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 25,
+    },
   },
   content: {
+    fontSize: '15 !important',
+    lineHeight: '175%',
+    color: '#414141',
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 13,
+    },
+    '& > .ql-container': {
       fontSize: '15 !important',
-      lineHeight: '175%',
-      color: '#414141',
-      [theme.breakpoints.down('xs')]: {
-          fontSize: 13,
-      },
-      '& > .ql-container': {
-        fontSize: '15 !important',
-      }
-  }
+    },
+  },
 }));
 
 function Summary(props) {
   const { market, showObservers } = props;
   const intl = useIntl();
   const classes = useStyles();
-  const { id, name, description, market_type: marketType } = market;
+  const {
+    id, name, description, market_type: marketType, max_budget: maxBudget,
+    investment_expiration: investmentExpiration,
+  } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
@@ -59,16 +62,36 @@ function Summary(props) {
         >
           <Typography>{name}</Typography>
         </Grid>
-      )
+      );
     });
   }
   return (
     <Paper className={classes.container}>
-      <Typography className={classes.title} variant='h3' component='h1'>
+      <Typography className={classes.title} variant="h3" component="h1">
         {name}
       </Typography>
       {marketType !== INITIATIVE_TYPE && (
         <ReadOnlyQuillEditor className={classes.content} marketId={id} value={description} />
+      )}
+      {maxBudget && (
+        <TextField
+          className={classes.row}
+          id="maxBudget"
+          label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
+          margin="normal"
+          variant="outlined"
+          value={maxBudget}
+        />
+      )}
+      {investmentExpiration && (
+        <TextField
+          className={classes.row}
+          id="investmentExpiration"
+          label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
+          margin="normal"
+          variant="outlined"
+          value={investmentExpiration}
+        />
       )}
       {marketType !== PLANNING_TYPE && Array.isArray(marketPresencesModerating) && (
         <Grid

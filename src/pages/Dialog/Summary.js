@@ -1,7 +1,9 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { Grid, Typography, Paper, TextField, CardContent } from '@material-ui/core';
+import {
+  Grid, Typography, Paper, TextField,
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import ReadOnlyQuillEditor from '../../components/TextEditors/ReadOnlyQuillEditor';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';

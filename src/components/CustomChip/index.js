@@ -52,7 +52,7 @@ function CustomChip(props) {
               : `${classes.chipItemDisable} ${classes.avatar}`
           }}
           avatar={getCommentTypeIcon(type)}
-          label={createTitle(label, 5)}
+          label={createTitle(label, 8)}
         />
       )}
     </React.Fragment>

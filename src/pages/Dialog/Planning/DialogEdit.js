@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Card, CardActions, CardContent, makeStyles, TextField } from '@material-ui/core';
+import {
+  Card, CardActions, CardContent, makeStyles, TextField,
+} from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { lockPlanningMarketForEdit, updateMarket } from '../../../api/markets';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
@@ -8,22 +10,19 @@ import { processTextAndFilesForSave } from '../../../api/files';
 import { PLANNING_TYPE } from '../../../constants/markets';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 
-const useStyles = makeStyles((theme) => {
-  return {
-    root: {
-      padding: theme.spacing(2),
+const useStyles = makeStyles((theme) => ({
+  root: {
+    padding: theme.spacing(2),
+  },
+  row: {
+    marginBottom: theme.spacing(2),
+    '&:last-child': {
+      marginBottom: 0,
     },
-    row: {
-      marginBottom: theme.spacing(2),
-      '&:last-child': {
-        marginBottom: 0,
-      },
-    },
-  };
-});
+  },
+}));
 
 function DialogEdit(props) {
-
   const {
     editToggle,
     onCancel,
@@ -34,7 +33,7 @@ function DialogEdit(props) {
   const classes = useStyles();
   const [mutableMarket, setMutableMarket] = useState(market);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const { name } = mutableMarket;
+  const { name, maxBudget, investmentExpiration } = mutableMarket;
   const [description, setDescription] = useState(mutableMarket.description);
   function handleChange(name) {
     return (event) => {
@@ -55,7 +54,8 @@ function DialogEdit(props) {
     if (marketType === PLANNING_TYPE) {
       chain = chain.then(() => lockPlanningMarketForEdit(id, true));
     }
-    chain = chain.then(() => updateMarket(id, name, tokensRemoved, filteredUploads))
+    chain = chain.then(() => updateMarket(id, name, tokensRemoved, filteredUploads,
+      maxBudget, investmentExpiration))
       .then(() => editToggle());
     return chain;
   }
@@ -83,6 +83,32 @@ function DialogEdit(props) {
           value={name}
           onChange={handleChange('name')}
         />
+        {marketType === PLANNING_TYPE && (
+          <TextField
+            id="standard-number"
+            label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
+            type="number"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            variant="outlined"
+            onChange={handleChange('maxBudget')}
+            value={maxBudget}
+          />
+        )}
+        {marketType === PLANNING_TYPE && (
+          <TextField
+            id="standard-number"
+            label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
+            type="number"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            variant="outlined"
+            onChange={handleChange('investmentExpiration')}
+            value={investmentExpiration}
+          />
+        )}
         <QuillEditor
           onChange={onEditorChange}
           defaultValue={description}
@@ -94,7 +120,8 @@ function DialogEdit(props) {
       <CardActions>
         <SpinBlockingButton
           marketId={id}
-          onClick={onCancel}>
+          onClick={onCancel}
+        >
           {intl.formatMessage({ id: 'marketEditCancelLabel' })}
         </SpinBlockingButton>
         <SpinBlockingButton
@@ -120,6 +147,6 @@ DialogEdit.propTypes = {
 DialogEdit.defaultProps = {
   onCancel: () => {},
   editToggle: () => {},
-}
+};
 
 export default DialogEdit;

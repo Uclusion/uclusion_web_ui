@@ -5,7 +5,7 @@ import {
 import PropTypes from 'prop-types';
 import { SECTION_TYPE_PRIMARY } from '../../constants/global';
 
-const useStyles = makeStyles(theme => {
+const useStyles = makeStyles((theme) => {
   return {
     primarySubHeader: {
       boxShadow: 'none',

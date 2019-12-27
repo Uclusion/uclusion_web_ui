@@ -8,6 +8,7 @@ import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPLY_TYPE } from '../.
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { checkIfCommentInStorage } from '../../contexts/CommentsContext/commentsContextHelper';
 
 function getPlaceHolderLabelId(type) {
   switch (type) {
@@ -57,7 +58,13 @@ function CommentAdd(props) {
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     const apiType = (type === REPLY_TYPE) ? undefined : type;
     const investibleId = (investible) ? investible.id : parentInvestible;
-    return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads);
+    return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
+      .then((comment) => {
+        const { id } = comment;
+        return {
+          spinChecker: () => checkIfCommentInStorage(marketId, id),
+        };
+      });
   }
 
   function handleCancel() {
@@ -78,7 +85,7 @@ function CommentAdd(props) {
           <QuillEditor
             placeholder={placeHolder}
             initialValue={body}
-            onChange={onEditorChange} />
+            onChange={onEditorChange}/>
         </CardContent>
         <CardActions>
           <ButtonGroup

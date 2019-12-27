@@ -6,6 +6,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { registerListener, removeListener } from '../../utils/MessageBusUtils';
 
 const FETCH_DELAY = 200; // give us 200 ms pull data from the hub event;
+const SPIN_CHECKER_POLL_DELAY = 10; // how often to run the spin checker
 
 export function withSpinLock(Component) {
   const Spinning = function (props) {
@@ -20,10 +21,23 @@ export function withSpinLock(Component) {
     } = props;
 
     const theme = useTheme();
-
     const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
     const [spinning, setSpinning] = useState(false);
     const listenerName = 'SPINNER';
+    let spinTimer = null;
+
+    function endSpinning() {
+      setSpinning(false);
+      setOperationRunning(false);
+      onSpinStop();
+    }
+
+    function myOnSpinStop() {
+      removeListener(VERSIONS_HUB_CHANNEL, listenerName);
+      spinTimer = setTimeout(() => {
+        endSpinning();
+      }, FETCH_DELAY);
+    }
 
     const hubListener = (data) => {
       const { payload: { event, message } } = data;
@@ -48,20 +62,31 @@ export function withSpinLock(Component) {
       onSpinStart();
     }
 
-    function myOnSpinStop() {
-      removeListener(VERSIONS_HUB_CHANNEL, listenerName);
-      setTimeout(() => {
-        setSpinning(false);
-        setOperationRunning(false);
-        onSpinStop();
-      }, FETCH_DELAY);
-    }
-
     function myOnClick() {
       myOnSpinStart();
       // the promise.resolve will nicely wrap non promises into a promise so we can use catch
       // to stop spinning on error
       Promise.resolve(onClick())
+        .then((result) => {
+          if (result !== undefined) {
+            const { spinChecker } = result;
+            if (spinChecker) {
+              // if we have a spin checker we'll use it instead of our listener and timer
+              removeListener(VERSIONS_HUB_CHANNEL, listenerName);
+              clearTimeout(spinTimer);
+              const spinCheckerInterval = setInterval(() => {
+                spinChecker()
+                  .then((checkResult) => {
+                    if (checkResult) {
+                      clearInterval(spinCheckerInterval);
+                      console.log('Ending Spinning By Checker');
+                      endSpinning();
+                    }
+                  });
+              }, SPIN_CHECKER_POLL_DELAY);
+            }
+          }
+        })
         .catch((error) => {
           myOnSpinStop();
           throw error;

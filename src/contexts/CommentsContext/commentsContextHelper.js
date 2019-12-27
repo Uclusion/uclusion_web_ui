@@ -41,3 +41,13 @@ export function refreshMarketComments(dispatch, marketId) {
         });
     });
 }
+
+export function checkIfCommentInStorage(marketId, commentId) {
+  const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
+  return lfh.getState()
+    .then((state) => {
+      const usedState = state || EMPTY_STATE;
+      const marketComments = usedState[marketId] || [];
+      return !!marketComments.find((comment) => comment.id === commentId);
+    });
+}

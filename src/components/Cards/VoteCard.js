@@ -1,53 +1,52 @@
-import React from "react";
-import clsx from "clsx";
-import { useIntl } from "react-intl";
-import { Textfit } from "react-textfit";
-import PropTypes from "prop-types";
-import { Grid } from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
-import CustomChip from "../CustomChip";
-import { MAX_FONTSIZE, MIN_FONTSIZE } from "../../constants/global";
-import Chart from "./Chart";
+import React from 'react';
+import { useIntl } from 'react-intl';
+import { Textfit } from 'react-textfit';
+import PropTypes from 'prop-types';
+import { Grid } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
+import CustomChip from '../CustomChip';
+import { MAX_FONTSIZE, MIN_FONTSIZE } from '../../constants/global';
+import Chart from './Chart';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   container: {
-    display: "grid",
-    gridTemplateColumns: "calc(100% - 96px) 96px",
-    width: "100%",
-    height: "97px",
-    padding: "10px 0",
-    background: "white"
+    display: 'grid',
+    gridTemplateColumns: 'calc(100% - 96px) 96px',
+    width: '100%',
+    height: '97px',
+    padding: '10px 0',
+    background: 'white',
   },
   title: {
-    display: "flex",
-    alignItems: "center",
-    width: "100%",
-    height: "77px",
-    margin: "3px",
-    padding: "0 20px",
-    fontWeight: "bold",
-    color: "#3e3e3e",
-		borderRight: "1px solid #eaeaea",
-		overflow: 'hidden',
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    height: '77px',
+    margin: '3px',
+    padding: '0 20px',
+    fontWeight: 'bold',
+    color: '#3e3e3e',
+    borderRight: '1px solid #eaeaea',
+    overflow: 'hidden',
   },
   chartContent: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "flex-end"
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   chartValue: {
     fontSize: 14,
-    lineHeight: "16px",
-    color: "#3e3e3e",
-    marginTop: "17px"
+    lineHeight: '16px',
+    color: '#3e3e3e',
+    marginTop: '17px',
   },
   iconGrid: {
-    flexWrap: "nowrap",
-    overflow: "hidden",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
+    flexWrap: 'nowrap',
+    overflow: 'hidden',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   }
 }));
 
@@ -66,16 +65,16 @@ function VoteCard(props) {
         <Grid className={classes.iconGrid} container spacing={1}>
           {comments.map((item, index) => (
             <Grid item key={index}>
-              <CustomChip type={item.comment_type} content={item.body} />
+              <CustomChip type={item.comment_type} content={item.body}/>
             </Grid>
           ))}
         </Grid>
       )}
       {!issuesExist && (
         <div className={classes.chartContent}>
-          <Chart data={votes} />
+          <Chart data={votes}/>
           <span className={classes.chartValue}>
-            {intl.formatMessage({ id: "numVoting" }, { x: votes.length })}
+            {intl.formatMessage({ id: 'numVoting' }, { x: votes.length })}
           </span>
         </div>
       )}
@@ -90,7 +89,7 @@ VoteCard.propTypes = {
 };
 
 VoteCard.defaultProps = {
-  title: "",
+  title: '',
   comments: [],
   votes: null
 };

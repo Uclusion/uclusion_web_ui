@@ -10038,7 +10038,6 @@ react-side-effect@^1.1.0:
   dependencies:
     shallowequal "^1.0.1"
 
-<<<<<<< HEAD
 react-textfit@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/react-textfit/-/react-textfit-1.1.0.tgz#088855580f2e7aad269efc81b734bf636877d0e1"
@@ -10047,16 +10046,10 @@ react-textfit@^1.1.0:
     process "^0.11.9"
     prop-types "^15.5.10"
 
-react-toastify@^5.3.2:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/react-toastify/-/react-toastify-5.4.0.tgz#29501618d02cc25329c32bfd7cfeed19b532b2ef"
-  integrity sha512-0cdPq1gyxAcYu0KiDPOYp9nNiqIFDWoi7nyoaSw496DElUnNlcjhc7Aduz8CXrGTRugvjuXd3eplUvFaCeQMNA==
-=======
 react-toastify@^5.4.1:
   version "5.4.1"
   resolved "https://registry.yarnpkg.com/react-toastify/-/react-toastify-5.4.1.tgz#27533ca33753631016c44122934c7b6548352fcb"
   integrity sha512-24EwkWrj47Id/HGjYfdcntaZpAQ3J5NX31SnGRD66hM/KvPKVJzPiDBPZ+/RZ3SvNkbNWfHpPKFWzenJjC26hg==
->>>>>>> d90d09d1d2c48914ef4aac76c1f5d77be453d055
   dependencies:
     "@babel/runtime" "^7.4.2"
     classnames "^2.2.6"

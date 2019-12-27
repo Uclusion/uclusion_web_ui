@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => {
       marginTop: '53px',
       display: 'flex',
       justifyContent: 'center',
-      alignItems: 'flex-start'
+      alignItems: 'flex-start',
     },
     sidebarContent: {
       display: 'flex',
@@ -69,49 +69,49 @@ const useStyles = makeStyles((theme) => {
 });
 
 function Sidebar(props) {
-    const classes = useStyles();
-    const { sidebarActions } = props;
-    const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
+  const classes = useStyles();
+  const { sidebarActions } = props;
+  const [sidebarOpen] = useContext(SidebarContext);
 
-    function getSidebar() {
-        return (
-            <div className={classes.sidebarContainer}>
-                <div className={classes.sidebarLogo}>
-                <img src="/images/logo.svg" alt="Uclusion" />
-                </div>
-                <div>
-                <List className={classes.sidebarContent} >
-                    {sidebarActions}
-                </List>
-                </div>
-                <div className={classes.sidebarNotification}>
-                <div className={classes.notification}>
-                    <Notifications />
-                </div>
-                </div>
-            </div>
-        );
-    }
-
+  function getSidebar() {
     return (
-        <Drawer
-            variant="permanent"
-            anchor="left"
-            className={clsx(classes.drawer, {
-                [classes.sidebarOpen]: sidebarOpen,
-                [classes.sidebarClose]: !sidebarOpen,
-            })}
-            classes={{
-                paper: clsx(classes.drawer, {
-                [classes.sidebarOpen]: sidebarOpen,
-                [classes.sidebarClose]: !sidebarOpen,
-                }),
-            }}
-            open={sidebarOpen}
-        >
-        {getSidebar()}
-        </Drawer>
-      );
+      <div className={classes.sidebarContainer}>
+        <div className={classes.sidebarLogo}>
+          <img src="/images/logo.svg" alt="Uclusion"/>
+        </div>
+        <div>
+          <List className={classes.sidebarContent}>
+            {sidebarActions}
+          </List>
+        </div>
+        <div className={classes.sidebarNotification}>
+          <div className={classes.notification}>
+            <Notifications/>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Drawer
+      variant="permanent"
+      anchor="left"
+      className={clsx(classes.drawer, {
+        [classes.sidebarOpen]: sidebarOpen,
+        [classes.sidebarClose]: !sidebarOpen,
+      })}
+      classes={{
+        paper: clsx(classes.drawer, {
+          [classes.sidebarOpen]: sidebarOpen,
+          [classes.sidebarClose]: !sidebarOpen,
+        }),
+      }}
+      open={sidebarOpen}
+    >
+      {getSidebar()}
+    </Drawer>
+  );
 }
 
 Sidebar.propTypes = {

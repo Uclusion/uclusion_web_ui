@@ -7,31 +7,31 @@ import { makeStyles } from '@material-ui/styles';
 import { SidebarContext } from '../../contexts/SidebarContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
-const useStyles = makeStyles((theme) => {
+export const useStyles = makeStyles((theme) => {
   return {
-      menuItem: {
-        paddingTop: '19px',
-        paddingBottom: '19px',
-        '&:first-child': {
-          paddingTop: '40px',
-        },
-        '&:last-child': {
-          paddingBottom: '52px',
-        },
+    menuItem: {
+      paddingTop: '19px',
+      paddingBottom: '19px',
+      '&:first-child': {
+        paddingTop: '40px',
       },
-      menuIcon: {
-          display: 'flex',
-          justifyContent: 'center',
-          color: 'white',
-          '& > .MuiSvgIcon-root': {
-            width: '30px',
-            height: '30px',
-          },
+      '&:last-child': {
+        paddingBottom: '52px',
       },
-      menuTitle: {
-        color: 'white',
+    },
+    menuIcon: {
+      display: 'flex',
+      justifyContent: 'center',
+      color: 'white',
+      '& > .MuiSvgIcon-root': {
+        width: '30px',
+        height: '30px',
       },
-  }
+    },
+    menuTitle: {
+      color: 'white',
+    },
+  };
 });
 
 function ExpandableSidebarAction(props) {
@@ -44,6 +44,7 @@ function ExpandableSidebarAction(props) {
   const classes = useStyles();
   const [amOpen] = useContext(SidebarContext);
   const [operationRunning] = useContext(OperationInProgressContext);
+
   function myOnClick() {
     onClick();
   }
@@ -57,7 +58,7 @@ function ExpandableSidebarAction(props) {
       onClick={myOnClick}
     >
       <Tooltip title={label}>
-        <ListItemIcon  className={classes.menuIcon}>
+        <ListItemIcon className={classes.menuIcon}>
           {icon}
         </ListItemIcon>
       </Tooltip>

@@ -5,7 +5,7 @@ import {
   ListItem, ListItemIcon, ListItemText, Tooltip,
 } from '@material-ui/core';
 import { SidebarContext } from '../../contexts/SidebarContext';
-
+import { useStyles } from '../SidebarActions/ExpandableSidebarAction';
 
 function SpinBlockingSidebarAction(props) {
   const {
@@ -16,7 +16,7 @@ function SpinBlockingSidebarAction(props) {
     onSpinStart,
     onSpinStop,
   } = props;
-
+  const classes = useStyles();
   const [amOpen] = useContext(SidebarContext);
 
 
@@ -30,14 +30,15 @@ function SpinBlockingSidebarAction(props) {
       onClick={onClick}
       onSpinStart={onSpinStart}
       onSpinStop={onSpinStop}
+      className={classes.menuItem}
     >
       <Tooltip title={label}>
-        <ListItemIcon>
+        <ListItemIcon className={classes.menuIcon}>
           {icon}
         </ListItemIcon>
       </Tooltip>
       {amOpen && (
-        <ListItemText>
+        <ListItemText className={classes.menuTitle}>
           {label}
         </ListItemText>
       )}

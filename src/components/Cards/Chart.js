@@ -57,16 +57,16 @@ function Chart(props) {
           y: CHART_HEIGHT - item.y * yOffset,
           width: 8,
           height: item.y * yOffset,
-          index
-        })
-    );
+          index,
+        }),
+    )
   }
 
   useEffect(() => {
     if (canvas) {
       drawChart();
     }
-  }, [canvas]);
+  });
 
   return (
     <React.Fragment>

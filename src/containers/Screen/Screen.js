@@ -106,7 +106,7 @@ function Screen(props) {
     return () => {};
   }, [firstRender, location]);
 
-  const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
+  const [sidebarOpen] = useContext(SidebarContext);
 
   return (
     <div className={hidden ? classes.hidden : classes.root}>

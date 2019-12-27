@@ -23,23 +23,18 @@ import CurrentVoting from './CurrentVoting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import Screen from '../../../containers/Screen/Screen';
-import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
-import AskQuestions from '../../../components/SidebarActions/AskQuestion';
-import InvestibleAddActionButton from './InvestibleAddActionButton';
 import DialogEdit from './DialogEdit';
-import DialogEditActionButton from './DialogEditActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import { ACTIVE_STAGE } from '../../../constants/markets';
-
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import AddressList from '../AddressList';
-import AddParticipantsActionButton from '../AddParticipantsActionButton';
-import ChangeToObserverActionButton from '../ChangeToObserverActionButton';
-import ChangeToParticipantActionButton from '../ChangeToParticipantActionButton';
 import DeadlineExtender from '../../Home/Decision/DeadlineExtender';
-import ExtendDeadlineActionButton from './ExtendDeadlineActionButton';
+import { changeToObserver, changeToParticipant } from '../../../api/markets';
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
+import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 
 function DecisionDialog(props) {
   const {
@@ -78,38 +73,56 @@ function DecisionDialog(props) {
   let sidebarMenuList = [
     {
       label: intl.formatMessage({ id: 'decisionDialogAddInvestibleLabel' }),
-      icon: <AddIcon />,
+      icon: <AddIcon/>,
       onClick: () => toggleInvestibleAddMode(),
     },
     {
       label: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
-      icon: <PlaylistAddOutlinedIcon />,
+      icon: <PlaylistAddOutlinedIcon/>,
       onClick: () => toggleAddParticipantsMode(),
     },
     {
       label: intl.formatMessage({ id: 'commentIconRaiseIssueLabel' }),
-      icon: <ErrorOutlineIcon />,
+      icon: <ErrorOutlineIcon/>,
       onClick: () => commentButtonOnClick(ISSUE_TYPE),
     },
     {
       label: intl.formatMessage({ id: 'commentIconAskQuestionLabel' }),
-      icon: <SmsOutlinedIcon />,
+      icon: <SmsOutlinedIcon/>,
       onClick: () => commentButtonOnClick(QUESTION_TYPE),
     },
   ];
+  const notVoted = _.isEmpty(investments);
+  if (notVoted) {
+    if (following) {
+      sidebarMenuList.push({
+        label: intl.formatMessage({ id: 'decisionDialogsBecomeObserver' }),
+        icon: <VisibilityIcon/>,
+        spinBlocking: true,
+        onClick: () => changeToObserver(marketId),
+      });
+    } else {
+      sidebarMenuList.push({
+        label: intl.formatMessage({ id: 'decisionDialogsBecomeParticipant' }),
+        icon: <ThumbsUpDownIcon/>,
+        spinBlocking: true,
+        onClick: () => changeToParticipant(marketId),
+      });
+    }
+  }
 
   const adminMenuList = [
     {
       label: intl.formatMessage({ id: 'dialogEditButtonTooltip' }),
-      icon: <EditIcon />,
+      icon: <EditIcon/>,
       onClick: () => toggleEditMode(),
     },
     {
       label: intl.formatMessage({ id: 'decisionDialogsExtendDeadline' }),
-      icon: <UpdateIcon />,
+      icon: <UpdateIcon/>,
       onClick: () => setDeadlineExtendMode(true),
     },
-  ];  
+  ];
 
   function getInvestiblesForStage(stage) {
     if (stage) {
@@ -157,14 +170,14 @@ function DecisionDialog(props) {
         breadCrumbs={breadCrumbs}
       >
         <div>
-         <Typography>
-           {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel'})}
-         </Typography>
-         <DeadlineExtender
-           market={market}
-           onCancel={() => setDeadlineExtendMode(false)}
-           onSave={() => setDeadlineExtendMode(false)}
-         />
+          <Typography>
+            {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
+          </Typography>
+          <DeadlineExtender
+            market={market}
+            onCancel={() => setDeadlineExtendMode(false)}
+            onSave={() => setDeadlineExtendMode(false)}
+          />
         </div>
       </Screen>
     );
@@ -248,24 +261,23 @@ function DecisionDialog(props) {
     if (isAdmin) {
       sidebarMenuList.unshift(...adminMenuList);
     }
-      
-    const userActions = sidebarMenuList.map((item, index) => (
-      <ExpandableSidebarAction key={index} label={item.label} icon={item.icon} onClick={item.onClick} />
-    ));
 
-    const notVoted = _.isEmpty(investments);
-    if (notVoted) {
-      if (following) {
-        userActions.push(
-          <ChangeToObserverActionButton key="observe" marketId={marketId}/>,
-        );
-      } else {
-        userActions.push(
-          <ChangeToParticipantActionButton key="participate" marketId={marketId}/>,
+    const userActions = sidebarMenuList.map((item, index) => {
+      const { onClick, label, icon } = item;
+      if (item.spinBlocking) {
+        return (
+          <SpinBlockingSidebarAction
+            key={index}
+            label={label}
+            onClick={onClick}
+            icon={icon}
+            marketId={marketId}
+          />
         );
       }
-    }
-  
+      return <ExpandableSidebarAction key={index} label={label} icon={icon} onClick={onClick }/>;
+    });
+
     return userActions;
   }
 
@@ -278,15 +290,15 @@ function DecisionDialog(props) {
       breadCrumbs={breadCrumbs}
       sidebarActions={sidebarActions}
     >
-      <Grid container spacing={2} >
-        <Grid item xs={12} >
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
           <SubSection
             title={intl.formatMessage({ id: 'decisionDialogSummaryLabel' })}
           >
             <Summary market={market}/>
           </SubSection>
         </Grid>
-        <Grid item xs={12} style={{marginTop: '30px'}} >
+        <Grid item xs={12} style={{ marginTop: '30px' }}>
           <SubSection
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
@@ -300,7 +312,7 @@ function DecisionDialog(props) {
           </SubSection>
         </Grid>
 
-        <Grid item xs={12} style={{marginTop: '56px'}} >
+        <Grid item xs={12} style={{ marginTop: '56px' }}>
           <SubSection
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
@@ -312,7 +324,7 @@ function DecisionDialog(props) {
             />
           </SubSection>
         </Grid>
-        <Grid item xs={12} style={{marginTop: '71px'}} >
+        <Grid item xs={12} style={{ marginTop: '71px' }}>
           <SubSection
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogDiscussionLabel' })}

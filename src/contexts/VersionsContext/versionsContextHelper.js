@@ -103,6 +103,11 @@ export function refreshNotificationVersion(state, version) {
   processNewNotification(version, notificationVersion);
 }
 
+export function getMarketVersion(state, marketId) {
+  const { marketVersions } = state;
+  return marketVersions.find((version) => version.marketId === marketId);
+}
+
 export function removeMarketVersion(marketId) {
   pushMessage(REMOVED_MARKETS_CHANNEL, { event: VERSIONS_EVENT, message: [marketId] });
 }

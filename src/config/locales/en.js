@@ -380,6 +380,8 @@ const messages = defineMessages({
   addParticipantsNewPerson: 'Need to add someone not on this list?',
 
 
+  // Spinning
+  spinVersionCheckError: 'There was an error checking if the operation was successful. Please reload the page',
 
   // API errors
   errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',

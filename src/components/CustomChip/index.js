@@ -11,7 +11,12 @@ const useStyles = makeStyles({
     height: "22px",
     "& .MuiChip-label": {
       fontSize: 12
-    }
+    },
+    "& .MuiChip-avatar": {
+        width: "16px",
+        height: "14px",
+        color: "#fff"
+    },
   },
   chipItemDisable: {
     background: "#dfdfdf"
@@ -19,11 +24,6 @@ const useStyles = makeStyles({
   chipItemActive: {
     background: "#ca2828"
   },
-  avatar: {
-    width: "16px",
-    height: "14px",
-    color: "#fff"
-  }
 });
 
 function CustomChip(props) {
@@ -46,13 +46,8 @@ function CustomChip(props) {
               ? `${classes.chipItem} ${classes.chipItemActive}`
               : `${classes.chipItem} ${classes.chipItemDisable}`
           }
-          classes={{
-            avatar: active
-              ? `${classes.chipItemActive} ${classes.avatar}`
-              : `${classes.chipItemDisable} ${classes.avatar}`
-          }}
           avatar={getCommentTypeIcon(type)}
-          label={createTitle(label, 8)}
+          label={createTitle(label, 10)}
         />
       )}
     </React.Fragment>

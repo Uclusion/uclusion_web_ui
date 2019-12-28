@@ -9,7 +9,6 @@ function CommentBox(props) {
   const { comments, marketId } = props;
 
   const threadRoots = comments.filter((comment) => !comment.reply_id);
-  console.log(threadRoots);
   const sortedRoots = _.sortBy(threadRoots, 'resolved', 'created_at');
 
   function getCommentCards() {

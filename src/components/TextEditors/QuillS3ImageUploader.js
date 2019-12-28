@@ -92,7 +92,6 @@ class QuillS3ImageUploader {
           // otherwise we wait until after the paste when this.quill.getSelection()
           // will return a valid index
           setTimeout(() => {
-            console.log('No selection');
             return this.doUpload(files);
           }, 0);
         }

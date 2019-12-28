@@ -44,8 +44,9 @@ function Notifications(props) {
 
   function nextOnClick() {
     if (current) {
-      const { marketId, investibleId, userId, aType, commentId } = current;
-      console.log(current);
+      const {
+        marketId, investibleId, userId, aType, commentId,
+      } = current;
       const link = investibleId
         ? formInvestibleLink(marketId, investibleId)
         : formMarketLink(marketId);

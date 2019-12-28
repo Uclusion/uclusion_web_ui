@@ -42,7 +42,6 @@ function PlanningInvestibleEdit(props) {
   const [description, setDescription] = useState(initialDescription);
   const [marketsState] = useContext(MarketsContext);
   const me = getMyUserForMarket(marketsState, marketId) || {};
-  console.log(me);
   const { id: myId } = me;
   const assignee = assigned.includes(myId);
 

@@ -12,14 +12,10 @@ import { Auth } from 'aws-amplify';
 class AmplifyIdentityTokenRefresher {
   getIdentity() {
     return Auth.currentSession().then((sessionData) => {
-      console.log(sessionData);
       const { idToken } = sessionData;
       const { jwtToken } = idToken;
       const decoded = jwt_decode(jwtToken);
       console.debug(decoded);
-      const expDate = new Date(decoded.exp * 1000);
-      console.log(new Date().toISOString());
-      console.log(expDate.toISOString());
       return jwtToken;
     }).catch((error) => {
       console.log(error);

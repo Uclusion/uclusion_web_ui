@@ -14,7 +14,6 @@ function MarketPresencesProvider(props) {
 
   useEffect(() => {
     if (isInitialization) {
-      console.log('Rerendered market presences state cache');
       const lfh = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
       lfh.getState()
         .then((diskState) => {

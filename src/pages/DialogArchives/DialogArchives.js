@@ -46,7 +46,6 @@ function DialogArchives(props) {
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
 
   if (!marketId) {
-    console.log(hidden);
     return (
       <Screen
         hidden={hidden}

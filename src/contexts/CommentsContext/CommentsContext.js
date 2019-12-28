@@ -15,7 +15,6 @@ function CommentsProvider(props) {
     if (isInitialization) {
       // set the new state cache to something we control, so that our
       // provider descendants will pick up changes to it
-      console.log('Loading Comments from disk');
       // load state from storage
       const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
       lfg.getState()

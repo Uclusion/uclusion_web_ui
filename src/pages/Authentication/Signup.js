@@ -25,13 +25,12 @@ function reducer(state, action) {
         password: value,
       };
     default:
-      //do nothing
+      // do nothing
       break;
   }
 }
 
 function Signup(props) {
-
   const { authState } = props;
   const empty = {
     attributes: {
@@ -53,38 +52,37 @@ function Signup(props) {
   }
 
   function onSignup() {
-    console.log(userState);
     return Auth.signUp(userState)
       .then((result) => {
-        console.log(result);
         alert('Signup sent');
       });
   }
 
 
   if (authState !== 'signUp') {
-    return <React.Fragment/>;
+    return <></>;
   }
 
 
   return (
     <form
       noValidate
-      autoComplete="off">
+      autoComplete="off"
+    >
       <TextField
         id="name"
         label={intl.formatMessage({ id: 'signupNameLabel' })}
         onChange={handleChange('name')}
         margin="normal"
       />
-      <br/>
+      <br />
       <TextField
         id="email"
         label={intl.formatMessage({ id: 'signupEmailLabel' })}
         onChange={handleChange('username')}
         margin="normal"
       />
-      <br/>
+      <br />
       <TextField
         id="password"
         type="password"

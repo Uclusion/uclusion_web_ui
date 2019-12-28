@@ -27,7 +27,6 @@ export function updateStorableInvestibles(investibles) {
 // since it acce
 function doUpdateInvestibles(state, action) {
   const { investibles: updateHash } = action;
-  console.log(updateHash);
   return { ...state, ...updateHash };
 }
 

@@ -13,7 +13,6 @@ function MarketStagesProvider(props) {
   if (isInitialization) {
     // set the new state cache to something we control, so that our
     // provider descendants will pick up changes to it
-    console.log('Replacing comments state cache');
     // load state from storage
     const lfg = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
     lfg.getState()
@@ -25,7 +24,6 @@ function MarketStagesProvider(props) {
     beginListening(dispatch);
     setIsInitialization(false);
   }
-  console.log('Replacing market stages state cache');
   return (
     <MarketStagesContext.Provider value={[state, dispatch]}>
       {props.children}

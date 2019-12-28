@@ -26,6 +26,7 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
+import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
  * @param props
@@ -65,7 +66,7 @@ function DecisionInvestible(props) {
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const { investible, market_infos: marketInfos } = fullInvestible;
   const marketInfo = marketInfos.find((info) => info.market_id === marketId);
-
+  const allowDelete = marketPresences && marketPresences.length < 2;
   const [marketStagesState] = useContext(MarketStagesContext);
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const inProposed = marketInfo.stage === inProposedStage.id;
@@ -106,6 +107,12 @@ function DecisionInvestible(props) {
       sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
       if (inProposed) {
         sidebarActions.push(<MoveToCurrentVotingActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+        />);
+      }
+      if (allowDelete) {
+        sidebarActions.push(<DeleteInvestibleActionButton
           investibleId={investibleId}
           marketId={marketId}
         />);

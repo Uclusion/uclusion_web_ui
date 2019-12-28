@@ -52,6 +52,6 @@ export function refreshInvestibles(dispatch, marketId) {
       });
       const investibleHash = _.keyBy(fixed, (item) => item.investible.id);
       // console.debug(investibleHash);
-      dispatch(updateStorableInvestibles(investibleHash));
+      dispatch(updateStorableInvestibles(marketId, investibleHash));
     });
 }

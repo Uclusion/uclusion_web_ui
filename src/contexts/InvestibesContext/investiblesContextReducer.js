@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import LocalForageHelper from '../LocalForageHelper';
 import { INVESTIBLES_CONTEXT_NAMESPACE } from './InvestiblesContext';
 
@@ -13,9 +14,10 @@ export function initializeState(newState) {
   };
 }
 
-export function updateStorableInvestibles(investibles) {
+export function updateStorableInvestibles(marketId, investibles) {
   return {
     type: UPDATE_INVESTIBLES,
+    marketId,
     investibles,
   };
 }
@@ -24,10 +26,15 @@ export function updateStorableInvestibles(investibles) {
 /** Reducer functions */
 
 // expects that the investibles are already in a storable state
-// since it acce
 function doUpdateInvestibles(state, action) {
-  const { investibles: updateHash } = action;
-  return { ...state, ...updateHash };
+  const { investibles: updateHash, marketId } = action;
+  // Remove any investibles not included in the update
+  const newState = _.pickBy(state, (value) => {
+    const { market_infos: marketInfos } = value;
+    const { market_id: myMarketId } = marketInfos[0]; // TODO fix if need real sharing
+    return myMarketId !== marketId;
+  });
+  return { ...newState, ...updateHash };
 }
 
 function computeNewState(state, action) {

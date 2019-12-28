@@ -9,6 +9,7 @@ import UclusionSignup from '../../pages/Authentication/Signup';
 import { LocaleContext } from '../../contexts/LocaleContext';
 import { IntlProvider } from 'react-intl';
 import { getLocaleMessages } from '../../config/locales';
+import { makeStyles } from '@material-ui/styles';
 
 Amplify.configure(awsconfig);
 const oauth = {
@@ -22,15 +23,39 @@ const oauth = {
 
 Auth.configure({ oauth });
 
+const useStyles = makeStyles({
+  root: {
+    '& .Nav__navBar___xtCFA': {
+      position: 'absolute',
+      top: '-42px',
+      left: 0,
+      right: 0,
+      zIndex: '100',
+      opacity: '0',
+      transition: '0.3s ease-in-out',
+      '&:hover': {
+        transform: 'translate(0, 42px)',
+        webkitTransform: 'translate(0, 42px)',
+        mozTransform: 'translate(0, 42px)',
+        oTransform: 'translate(0, 42px)',
+        msTransform: 'translate(0, 42px)',
+        opacity: '1',
+      }
+    },
+  }
+})
+
 function AppWithAuth(props) {
   const [localeState] = useContext(LocaleContext);
   const { locale } = localeState;
+  const classes = useStyles();
+
   const messages = {
     ...getLocaleMessages(locale),
   };
 
   return (
-    <div>
+    <div className={classes.root} >
       <IntlProvider locale={locale} key={locale} messages={messages}>
         <Authenticator hide={[SignIn, SignUp]}>
           <UclusionSignup/>

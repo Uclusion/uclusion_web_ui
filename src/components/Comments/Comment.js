@@ -25,41 +25,41 @@ import CommentEdit from './CommentEdit';
 
 const useStyles = makeStyles({
   container: {
-      padding: '21px 21px 8px',
-      background: 'white',
-      boxShadow: 'none',
+    padding: '21px 21px 8px',
+    background: 'white',
+    boxShadow: 'none',
   },
   chip: {
-      marginTop: '12px',
+    marginTop: '12px',
   },
   content: {
-      marginTop: '12px',
-      fontSize: 15,
-      lineHeight: '175%',
+    marginTop: '12px',
+    fontSize: 15,
+    lineHeight: '175%',
   },
   actions: {
-      marginTop: '25px',
-      display: 'flex',
-      justifyContent: 'flex-end',
-      boxShadow: 'none',
-      width: '100%',
+    marginTop: '25px',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    boxShadow: 'none',
+    width: '100%',
   },
   action: {
-      minWidth: '89px',
-      height: '36px',
-      color: 'rgba(0,0,0,0.38)',
-      fontWeight: '700',
-      fontSize: 14,
-      lineHeight: '18px',
-      letterSpacing: '0.02em',
-      textTransform: 'uppercase',
-      background: 'transparent',
-      borderRight: 'none !important',
-      '&:hover': {
-          color: '#ca2828',
-          background: 'white',
-          boxShadow: 'none',
-      },
+    minWidth: '89px',
+    height: '36px',
+    color: 'rgba(0,0,0,0.38)',
+    fontWeight: '700',
+    fontSize: 14,
+    lineHeight: '18px',
+    letterSpacing: '0.02em',
+    textTransform: 'uppercase',
+    background: 'transparent',
+    borderRight: 'none !important',
+    '&:hover': {
+      color: '#ca2828',
+      background: 'white',
+      boxShadow: 'none',
+    },
   },
 });
 function Comment(props) {
@@ -124,81 +124,85 @@ function Comment(props) {
 
   const isRoot = !comment.reply_id;
   const expanded = replyOpen || toggledOpen || (isRoot && !comment.resolved) || comment.reply_id;
-  
+
   return (
     <Card className={classes.container}>
-            <CardContent>
-                <CustomChip className={classes.chip} active={true} title={commentType} />
-                <Box marginTop={1}>
-                  {commenter && (
-                    <Typography>{commenter.name}</Typography>
-                  )}
-                  <ReadOnlyQuillEditor value={comment.body} paddingLeft={0} />
-                  {editOpen && (
-                    <CommentEdit
-                      marketId={marketId}
-                      comment={comment}
-                      onSave={toggleEdit}
-                      onCancel={toggleEdit}
-                    />
-                  )}
-                </Box>
-            </CardContent>
-            <CardActions>
-              {!comment.resolved && (
-                <ButtonGroup
-                  className={classes.actions}
-                  disabled={operationRunning}
-                  color="primary"
-                  variant="contained"
-                >
-                  <Button className={classes.action} onClick={toggleReply}>
-                    {intl.formatMessage({ id: 'commentReplyLabel' })}
-                  </Button>
-                  {!comment.reply_id && (
-                    <SpinBlockingButton
-                      className={classes.action}
-                      marketId={marketId}
-                      onClick={resolve}>
-                      {intl.formatMessage({ id: 'commentResolveLabel' })}
-                    </SpinBlockingButton>
-                  )}
-                </ButtonGroup>
-              )}
-              {comment.resolved && (
-                <ButtonGroup
-                  className={classes.actions}
-                  disabled={operationRunning}
-                  color="primary"
-                  variant="contained"
-                >
-                  {children && (
-                    <Button className={classes.action} onClick={flipToggledOpen}>
-                      {!toggledOpen && intl.formatMessage({ id: 'commentViewThreadLabel' })}
-                      {toggledOpen && intl.formatMessage({ id: 'commentCloseThreadLabel' })}
-                    </Button>
-                  )}
-                  <SpinBlockingButton
-                    className={classes.action}
-                    marketId={marketId}
-                    onClick={reopen}
-                  >
-                    {intl.formatMessage({ id: 'commentReopenLabel' })}
-                  </SpinBlockingButton>
-                </ButtonGroup>
-              )}
-              {replyOpen && (
-                <CommentAdd
-                  marketId={marketId}
-                  parent={comment}
-                  onSave={toggleReply}
-                  onCancel={toggleReply}
-                  type={REPLY_TYPE}
-                />
-              )}
-              {expanded && getChildComments()}
-            </CardActions>
-        </Card>
+      <CardContent>
+        <CustomChip className={classes.chip} active title={commentType} />
+        <Box marginTop={1}>
+          {commenter && (
+          <Typography>{commenter.name}</Typography>
+          )}
+          <ReadOnlyQuillEditor value={comment.body} paddingLeft={0} />
+          {editOpen && (
+          <CommentEdit
+            marketId={marketId}
+            comment={comment}
+            onSave={toggleEdit}
+            onCancel={toggleEdit}
+          />
+          )}
+        </Box>
+      </CardContent>
+      <CardActions>
+        {!comment.resolved && (
+        <ButtonGroup
+          className={classes.actions}
+          disabled={operationRunning}
+          color="primary"
+          variant="contained"
+        >
+          <Button className={classes.action} onClick={toggleReply}>
+            {intl.formatMessage({ id: 'commentReplyLabel' })}
+          </Button>
+          <Button className={classes.action} onClick={toggleEdit}>
+            {intl.formatMessage({ id: 'commentEditLabel' })}
+          </Button>
+          {!comment.reply_id && (
+          <SpinBlockingButton
+            className={classes.action}
+            marketId={marketId}
+            onClick={resolve}
+          >
+            {intl.formatMessage({ id: 'commentResolveLabel' })}
+          </SpinBlockingButton>
+          )}
+        </ButtonGroup>
+        )}
+        {comment.resolved && (
+        <ButtonGroup
+          className={classes.actions}
+          disabled={operationRunning}
+          color="primary"
+          variant="contained"
+        >
+          {children && (
+          <Button className={classes.action} onClick={flipToggledOpen}>
+            {!toggledOpen && intl.formatMessage({ id: 'commentViewThreadLabel' })}
+            {toggledOpen && intl.formatMessage({ id: 'commentCloseThreadLabel' })}
+          </Button>
+          )}
+          <SpinBlockingButton
+            className={classes.action}
+            marketId={marketId}
+            onClick={reopen}
+          >
+            {intl.formatMessage({ id: 'commentReopenLabel' })}
+          </SpinBlockingButton>
+        </ButtonGroup>
+        )}
+        {replyOpen && (
+        <CommentAdd
+          marketId={marketId}
+          parent={comment}
+          onSave={toggleReply}
+          onCancel={toggleReply}
+          type={REPLY_TYPE}
+        />
+        )}
+        {expanded && getChildComments()}
+      </CardActions>
+    </Card>
   );
 }
 

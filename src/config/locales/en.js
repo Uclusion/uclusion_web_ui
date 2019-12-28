@@ -416,6 +416,9 @@ const messages = defineMessages({
   // warnings
   warningOffline: 'You are offline',
 
+  // Issue Present
+  issuePresent: 'Issue Present',
+
 });
 
 export default messages;

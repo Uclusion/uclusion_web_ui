@@ -1,29 +1,19 @@
-import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import {
-  CHART_WIDTH,
-  CHART_HEIGHT,
-  CHART_BAR_COLOR_TOP,
-  CHART_BAR_COLOR_BOTTOM
-} from "../../constants/global";
-import { getInvestmentBins } from "../../utils/userFunctions";
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import { CHART_WIDTH, CHART_HEIGHT } from '../../constants/global';
+import { getInvestmentBins } from '../../utils/userFunctions';
 
 function Chart(props) {
   const [canvas, setCanvas] = useState(null);
   const { data } = props;
 
   function drawBar(props) {
-    const { ctx, x, y, width, height, index } = props;
+    const { ctx, x, y, width, height, color } = props;
     const radius = 3;
-    const color = Math.floor(
-      ((CHART_BAR_COLOR_TOP - CHART_BAR_COLOR_BOTTOM) / 4) * index +
-        CHART_BAR_COLOR_BOTTOM
-    );
     var r = x + width;
     var b = y + height;
     ctx.beginPath();
-    ctx.fillStyle = `#${color.toString(16)}`;
-    ctx.lineWidth = "1";
+    ctx.fillStyle = color;
     ctx.moveTo(x + radius, y);
     ctx.lineTo(r - radius, y);
     ctx.quadraticCurveTo(r, y, r, y + radius);
@@ -39,7 +29,7 @@ function Chart(props) {
 
   function drawChart() {
     const parsedData = getInvestmentBins(data);
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, CHART_WIDTH, CHART_HEIGHT);
     const minX = 0;
     const maxX = parsedData.length;
@@ -47,6 +37,13 @@ function Chart(props) {
     const minY = 0;
     const maxY = data.length;
     const yOffset = CHART_HEIGHT / (maxY - minY);
+    const colors = {
+      100: '#5ed635',
+      75: '#90ee90 ',
+      50: '#E3C941',
+      25: '#F3771D',
+      0: '#F5270F'
+    };
 
     parsedData.forEach(
       (item, index) =>
@@ -57,9 +54,9 @@ function Chart(props) {
           y: CHART_HEIGHT - item.y * yOffset,
           width: 8,
           height: item.y * yOffset,
-          index,
-        }),
-    )
+          color: colors[item.x]
+        })
+    );
   }
 
   useEffect(() => {

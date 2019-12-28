@@ -11,7 +11,7 @@ import Chart from './Chart';
 const useStyles = makeStyles(() => ({
   container: {
     display: 'grid',
-    gridTemplateColumns: 'calc(100% - 96px) 96px',
+    gridTemplateColumns: 'calc(100% - 130px) 130px',
     width: '100%',
     height: '97px',
     padding: '10px 0',

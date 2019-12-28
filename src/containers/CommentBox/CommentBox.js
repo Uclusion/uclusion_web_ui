@@ -5,11 +5,10 @@ import { Grid } from '@material-ui/core';
 import Comment from '../../components/Comments/Comment';
 
 function CommentBox(props) {
-
   const { comments, marketId } = props;
 
   const threadRoots = comments.filter((comment) => !comment.reply_id);
-  const sortedRoots = _.sortBy(threadRoots, 'resolved', 'created_at');
+  const sortedRoots = _.sortBy(threadRoots, 'resolved', 'updated_at');
 
   function getCommentCards() {
     return sortedRoots.map((comment) => {

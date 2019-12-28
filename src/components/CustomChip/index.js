@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useIntl } from 'react-intl';
 import { Chip } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { getCommentTypeIcon } from "../../components/Comments/commentFunctions";
@@ -32,6 +33,7 @@ function CustomChip(props) {
   const label = isHTML(content)
     ? content.slice(content.indexOf(">") + 1, content.lastIndexOf("<"))
     : content;
+  const intl = useIntl();
 
   function isHTML(str) {
     return /<\/?[a-z][\s\S]*>/i.test(str);
@@ -47,7 +49,7 @@ function CustomChip(props) {
               : `${classes.chipItem} ${classes.chipItemDisable}`
           }
           avatar={getCommentTypeIcon(type)}
-          label={createTitle(label, 10)}
+          label={intl.formatMessage({id: 'issuePresent'})}
         />
       )}
     </React.Fragment>

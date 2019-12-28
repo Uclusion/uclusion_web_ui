@@ -205,6 +205,7 @@ const messages = defineMessages({
   investibleEditStageHelper: 'Select to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
   investibleAddToVotingLabel: 'Move to Current Voting',
+  investibleDeleteLabel: 'Permanently Delete',
   planningInvestibleNextStageAcceptedLabel: 'Move to In Progress',
   planningInvestibleNextStageInReviewLabel: 'Move to In Review',
   planningInvestibleMoveToVerifiedLabel: 'Move to Verified',
@@ -386,6 +387,7 @@ const messages = defineMessages({
   // API errors
   errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',
   errorInvestibleAddFailed: 'There was a problem adding.',
+  errorInvestibleDeleteFailed: 'There was a problem deleting.',
   errorPlanningInvestibleAddFailed: 'There was a problem adding the story',
   errorInvestibleStageChangeFailed: 'There was a problem accepting or archiving the assignment',
   errorInvestibleUpdateFailed: 'There was a problem updating the option.',

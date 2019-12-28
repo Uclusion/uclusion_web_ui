@@ -69,6 +69,11 @@ export function moveInvestibleToCurrentVoting(moveInfo) {
   return stageChangeInvestible(moveInfo, 'errorInvestibleMoveToCurrentVotingFailed');
 }
 
+export function deleteInvestible(marketId, investibleId) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.delete(investibleId))
+    .catch((error) => toastErrorAndThrow(error, 'errorInvestibleDeleteFailed'));
+}
 
 export function addInvestibleToStage(addInfo) {
   const {
@@ -81,6 +86,5 @@ export function addInvestibleToStage(addInfo) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.create(name, description, uploadedFiles)
       .then((investibleId) => client.investibles.stateChange(investibleId, stageInfo)
-        .then(() => investibleId), // make the return value the same as the regular add
-      )).catch((error) => toastErrorAndThrow(error, 'errorInvestibleAddFailed'));
+        .then(() => investibleId))).catch((error) => toastErrorAndThrow(error, 'errorInvestibleAddFailed'));
 }

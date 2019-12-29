@@ -3,21 +3,18 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core';
 import CommentAdd from '../../components/Comments/CommentAdd';
 
-const useStyles = makeStyles(() => {
-  return {
-    hidden: {
-      display: 'none',
-    },
-    addBox: {},
-  };
-});
+const useStyles = makeStyles(() => ({
+  hidden: {
+    display: 'none',
+  },
+  addBox: {},
+}));
 
 
 function CommentAddBox(props) {
   const {
     marketId,
     investible,
-    hidden,
     type,
     allowedTypes,
     onCancel,
@@ -25,10 +22,9 @@ function CommentAddBox(props) {
   } = props;
 
 
-
   const classes = useStyles();
 
-  function getAddRegions(){
+  function getAddRegions() {
     return allowedTypes.map((allowedType) => {
       const hidden = allowedType !== type;
       return (
@@ -39,7 +35,8 @@ function CommentAddBox(props) {
           investible={investible}
           marketId={marketId}
           onSave={onSave}
-          onCancel={onCancel} />
+          onCancel={onCancel}
+        />
       );
     });
   }
@@ -47,7 +44,7 @@ function CommentAddBox(props) {
 
   return (
     <div
-      className={(hidden) ? classes.hidden : classes.addBox}
+      className={classes.addBox}
     >
       {getAddRegions()}
     </div>
@@ -58,7 +55,6 @@ CommentAddBox.propTypes = {
   marketId: PropTypes.string.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   investible: PropTypes.any,
-  hidden: PropTypes.bool,
   type: PropTypes.string.isRequired,
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   onCancel: PropTypes.func,
@@ -67,7 +63,6 @@ CommentAddBox.propTypes = {
 
 CommentAddBox.defaultProps = {
   investible: undefined,
-  hidden: false,
   onCancel: () => {},
   onSave: () => {},
 };

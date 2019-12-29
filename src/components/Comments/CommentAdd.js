@@ -1,10 +1,14 @@
 import React, { useContext, useState } from 'react';
 import { injectIntl } from 'react-intl';
-import { Card, Button, ButtonGroup, CardContent, CardActions, makeStyles } from '@material-ui/core';
+import {
+  Card, Button, ButtonGroup, CardContent, CardActions, makeStyles,
+} from '@material-ui/core';
+import PropTypes from 'prop-types';
 import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
-import PropTypes from 'prop-types';
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPLY_TYPE } from '../../constants/comments';
+import {
+  QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPLY_TYPE,
+} from '../../constants/comments';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
@@ -25,17 +29,17 @@ function getPlaceHolderLabelId(type) {
   }
 }
 
-const useStyles = makeStyles(() => {
-  return {
-    hidden: {
-      display: 'none',
-    },
-    add: {},
-  };
-});
+const useStyles = makeStyles(() => ({
+  hidden: {
+    display: 'none',
+  },
+  add: {},
+}));
 
 function CommentAdd(props) {
-  const { intl, marketId, onSave, onCancel, type, investible, parent, hidden } = props;
+  const {
+    intl, marketId, onSave, onCancel, type, investible, parent, hidden,
+  } = props;
   const [body, setBody] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const classes = useStyles();
@@ -73,6 +77,12 @@ function CommentAdd(props) {
     onCancel();
   }
 
+  function handleSpinStop() {
+    setBody('');
+    setUploadedFiles([]);
+    onSave();
+  }
+
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentAddCancelLabel' : 'commentReplyCancelLabel';
 
@@ -85,7 +95,8 @@ function CommentAdd(props) {
           <QuillEditor
             placeholder={placeHolder}
             initialValue={body}
-            onChange={onEditorChange}/>
+            onChange={onEditorChange}
+          />
         </CardContent>
         <CardActions>
           <ButtonGroup
@@ -97,14 +108,13 @@ function CommentAdd(props) {
             <SpinBlockingButton
               marketId={marketId}
               onClick={handleSave}
-              onSpinStop={() => {
-                onSave();
-              }}
+              onSpinStop={handleSpinStop}
             >
               {intl.formatMessage({ id: commentSaveLabel })}
             </SpinBlockingButton>
             <Button
-              onClick={handleCancel}>
+              onClick={handleCancel}
+            >
               {intl.formatMessage({ id: commentCancelLabel })}
             </Button>
           </ButtonGroup>
@@ -117,14 +127,14 @@ function CommentAdd(props) {
 CommentAdd.propTypes = {
   type: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
-  onSave: PropTypes.func,
+  onSave: PropTypes.func.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   intl: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   investible: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
   parent: PropTypes.object,
-  onCancel: PropTypes.func,
+  onCancel: PropTypes.func.isRequired,
   hidden: PropTypes.bool,
 };
 
@@ -132,10 +142,6 @@ CommentAdd.defaultProps = {
   parent: null,
   investible: null,
   hidden: false,
-  onCancel: () => {
-  },
-  onSave: () => {
-  },
 };
 
 export default injectIntl(CommentAdd);

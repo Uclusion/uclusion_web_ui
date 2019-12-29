@@ -320,7 +320,7 @@ function PlanningDialog(props) {
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'planningDialogDiscussionLabel' })}
           >
-            <div ref={commentAddRef} key="commentsadd">
+            {!commentAddHidden && (
               <CommentAddBox
                 hidden={commentAddHidden}
                 type={commentAddType}
@@ -329,7 +329,7 @@ function PlanningDialog(props) {
                 onSave={closeCommentAddBox}
                 onCancel={closeCommentAddBox}
               />
-            </div>
+            )}
             <CommentBox
               comments={marketComments}
               marketId={marketId}

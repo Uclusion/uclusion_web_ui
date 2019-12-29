@@ -14,6 +14,8 @@ import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import SmsOutlinedIcon from '@material-ui/icons/SmsOutlined';
 import UpdateIcon from '@material-ui/icons/Update';
 import { Grid, Typography } from '@material-ui/core';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import Summary from '../Summary';
 import InvestibleAdd from './InvestibleAdd';
@@ -29,11 +31,9 @@ import ExpandableSidebarAction from '../../../components/SidebarActions/Expandab
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import { ACTIVE_STAGE } from '../../../constants/markets';
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import AddressList from '../AddressList';
 import DeadlineExtender from '../../Home/Decision/DeadlineExtender';
 import { changeToObserver, changeToParticipant } from '../../../api/markets';
-import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 
 function DecisionDialog(props) {
@@ -70,25 +70,25 @@ function DecisionDialog(props) {
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const active = marketStage === ACTIVE_STAGE;
 
-  let sidebarMenuList = [
+  const sidebarMenuList = [
     {
       label: intl.formatMessage({ id: 'decisionDialogAddInvestibleLabel' }),
-      icon: <AddIcon/>,
+      icon: <AddIcon />,
       onClick: () => toggleInvestibleAddMode(),
     },
     {
       label: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
-      icon: <PlaylistAddOutlinedIcon/>,
+      icon: <PlaylistAddOutlinedIcon />,
       onClick: () => toggleAddParticipantsMode(),
     },
     {
       label: intl.formatMessage({ id: 'commentIconRaiseIssueLabel' }),
-      icon: <ErrorOutlineIcon/>,
+      icon: <ErrorOutlineIcon />,
       onClick: () => commentButtonOnClick(ISSUE_TYPE),
     },
     {
       label: intl.formatMessage({ id: 'commentIconAskQuestionLabel' }),
-      icon: <SmsOutlinedIcon/>,
+      icon: <SmsOutlinedIcon />,
       onClick: () => commentButtonOnClick(QUESTION_TYPE),
     },
   ];
@@ -97,14 +97,14 @@ function DecisionDialog(props) {
     if (following) {
       sidebarMenuList.push({
         label: intl.formatMessage({ id: 'decisionDialogsBecomeObserver' }),
-        icon: <VisibilityIcon/>,
+        icon: <VisibilityIcon />,
         spinBlocking: true,
         onClick: () => changeToObserver(marketId),
       });
     } else {
       sidebarMenuList.push({
         label: intl.formatMessage({ id: 'decisionDialogsBecomeParticipant' }),
-        icon: <ThumbsUpDownIcon/>,
+        icon: <ThumbsUpDownIcon />,
         spinBlocking: true,
         onClick: () => changeToParticipant(marketId),
       });
@@ -114,12 +114,12 @@ function DecisionDialog(props) {
   const adminMenuList = [
     {
       label: intl.formatMessage({ id: 'dialogEditButtonTooltip' }),
-      icon: <EditIcon/>,
+      icon: <EditIcon />,
       onClick: () => toggleEditMode(),
     },
     {
       label: intl.formatMessage({ id: 'decisionDialogsExtendDeadline' }),
-      icon: <UpdateIcon/>,
+      icon: <UpdateIcon />,
       onClick: () => setDeadlineExtendMode(true),
     },
   ];
@@ -275,7 +275,7 @@ function DecisionDialog(props) {
           />
         );
       }
-      return <ExpandableSidebarAction key={index} label={label} icon={icon} onClick={onClick }/>;
+      return <ExpandableSidebarAction key={index} label={label} icon={icon} onClick={onClick} />;
     });
 
     return userActions;
@@ -295,7 +295,7 @@ function DecisionDialog(props) {
           <SubSection
             title={intl.formatMessage({ id: 'decisionDialogSummaryLabel' })}
           >
-            <Summary market={market}/>
+            <Summary market={market} />
           </SubSection>
         </Grid>
         <Grid item xs={12} style={{ marginTop: '30px' }}>
@@ -329,15 +329,16 @@ function DecisionDialog(props) {
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogDiscussionLabel' })}
           >
-            <CommentAddBox
-              hidden={commentAddHidden}
-              type={commentAddType}
-              allowedTypes={allowedCommentTypes}
-              marketId={marketId}
-              onSave={closeCommentAddBox}
-              onCancel={closeCommentAddBox}
-            />
-            <div ref={commentAddRef}/>
+            {!commentAddHidden && (
+              <CommentAddBox
+                type={commentAddType}
+                allowedTypes={allowedCommentTypes}
+                marketId={marketId}
+                onSave={closeCommentAddBox}
+                onCancel={closeCommentAddBox}
+              />
+            )}
+            <div ref={commentAddRef} />
             <CommentBox
               comments={marketComments}
               marketId={marketId}

@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react';
+import React, {
+  useContext, useEffect, useReducer, useState,
+} from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import {
@@ -104,7 +106,7 @@ function InitiativeAdd(props) {
       description: 'NA',
       expiration_minutes: expirationMinutes,
     };
-    return createDecision(addInfo)
+    return createDecision(addInfo, 'errorInitiativeAddFailed')
       .then((result) => {
         onSave();
         const { market_id: marketId } = result;

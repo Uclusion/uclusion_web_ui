@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
+import { Typography } from '@material-ui/core';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
@@ -25,7 +26,6 @@ import AddressList from '../../Dialog/AddressList';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import DeadlineExtender from '../../Home/Decision/DeadlineExtender';
 import ExtendDeadlineActionButton from '../../Dialog/Decision/ExtendDeadlineActionButton';
-import { Typography } from '@material-ui/core';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -47,7 +47,9 @@ function InitiativeInvestible(props) {
   const intl = useIntl();
   const history = useHistory();
   const [addParticipantsMode, setAddParticipantsMode] = useState(false);
+  // eslint-disable-next-line max-len
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
+  // eslint-disable-next-line max-len
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
@@ -83,13 +85,13 @@ function InitiativeInvestible(props) {
     const sidebarActions = [];
 
     if (isAdmin) {
-      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
-      sidebarActions.push(<ExtendDeadlineActionButton key="extend" onClick={() => setExtendDeadlineMode(true)}/>)
+      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
+      sidebarActions.push(<ExtendDeadlineActionButton key="extend" onClick={() => setExtendDeadlineMode(true)} />);
     }
-    sidebarActions.push(<AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode}/>);
-    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
-    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
-    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />);
+    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
     return sidebarActions;
   }
 
@@ -107,14 +109,14 @@ function InitiativeInvestible(props) {
       >
         <div>
           <Typography>
-            {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel'})}
+            {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
           </Typography>
 
           <DeadlineExtender
-          market={market}
-          onCancel={() => setExtendDeadlineMode(false)}
-          onSave={() => setExtendDeadlineMode(false)}
-        />
+            market={market}
+            onCancel={() => setExtendDeadlineMode(false)}
+            onSave={() => setExtendDeadlineMode(false)}
+          />
         </div>
       </Screen>
     );
@@ -154,7 +156,7 @@ function InitiativeInvestible(props) {
     >
       {!isAdmin && (
         <SubSection
-        type={SECTION_TYPE_SECONDARY}
+          type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
         >
           <YourVoting
@@ -180,7 +182,7 @@ function InitiativeInvestible(props) {
         type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
-        <Summary market={market} showObservers={false}/>
+        <Summary market={market} showObservers={false} />
         <ReadOnlyQuillEditor
           value={description}
         />
@@ -201,7 +203,7 @@ function InitiativeInvestible(props) {
               onCancel={closeCommentAdd}
             />
           </div>
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
         </SubSection>
       )}
     </Screen>

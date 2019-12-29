@@ -57,10 +57,10 @@ export function changeToParticipant(marketId) {
     .catch((error) => toastErrorAndThrow(error, 'errorChangeToParticipantFailed'));
 }
 
-export function createDecision(marketInfo) {
+export function createDecision(marketInfo, messageKey = 'errorDecisionAddFailed') {
   return getAccountClient()
     .then((client) => client.markets.createMarket(marketInfo))
-    .catch((error) => toastErrorAndThrow(error, 'errorDecisionAddFailed'));
+    .catch((error) => toastErrorAndThrow(error, messageKey));
 }
 
 export function createPlanning(marketInfo) {

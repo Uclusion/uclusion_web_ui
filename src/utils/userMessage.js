@@ -57,7 +57,9 @@ export function toastErrorAndThrow(error, messageKey) {
  * @param i18nMessageValues the i18n values for any variable in the message
  * @param onClose a handler that can be called when the message closes
  */
-export function sendInfoPersistent(i18nMessageDescription, i18nMessageValues, onClose){
+export function sendInfoPersistent(i18nMessageDescription, i18nMessageValues, onClose) {
   const message = intl.formatMessage(i18nMessageDescription, i18nMessageValues);
-  toast.info(message, { autoClose: false, onClose });
+  if (!toast.isActive(message)) {
+    toast.info(message, { autoClose: false, onClose, toastId: message });
+  }
 }

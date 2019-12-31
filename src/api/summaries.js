@@ -25,8 +25,8 @@ export function getVersions() {
             notificationVersion = {};
           }
           const appAuditVersion = versions.find((versionRow) => versionRow.type_object_id === 'app_version');
-          const { app_version: appVersion } = appAuditVersion;
-          notifyNewApplicationVersion(appVersion);
+          const { app_version: appVersion, requires_cache_clear: cacheClear } = appAuditVersion;
+          notifyNewApplicationVersion(appVersion, cacheClear);
           const marketVersions = rawMarketVersions.map((version) => {
             const { type_object_id: typeObjectId } = version;
             const marketId = typeObjectId.split('_')[1];

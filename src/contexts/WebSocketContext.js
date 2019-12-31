@@ -3,11 +3,12 @@
  * properly update it
  */
 import React, { useReducer, useState } from 'react';
+import localforage from 'localforage';
 import PropTypes from 'prop-types';
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner';
 import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityTokenRefresher';
 import config from '../config';
-import { sendInfoPersistent } from '../utils/userMessage';
+import { sendInfoPersistent, toastErrorAndThrow } from '../utils/userMessage';
 import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext/NotificationsContext';
 import { registerListener, pushMessage, removeListener } from '../utils/MessageBusUtils';
 
@@ -19,20 +20,29 @@ export const SOCKET_OPEN_EVENT = 'web_socket_opened';
 
 const WebSocketContext = React.createContext([
   {}, () => {
-  }
+  },
 ]);
 
-export function notifyNewApplicationVersion(currentVersion) {
+export function notifyNewApplicationVersion(currentVersion, cacheClear) {
   const { version } = config;
   // if we don't have any version stored, we're either in dev, or we've dumped our data
   if (currentVersion !== version && !currentVersion.includes('fake')) {
-    console.debug(`Current version: ${version}`);
-    console.debug(`Upgrading to version: ${currentVersion}`);
-    // deprecated, but the simplest way to ignore cache
-    const reloader = () => {
-      window.location.reload(true);
-    };
-    sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
+    console.debug(`Current version: ${version}. Upgrading to version: ${currentVersion}`);
+    if (cacheClear) {
+      localforage.clear().then(() => {
+        console.info('Clearing cache');
+        const reloader = () => {
+          window.location.reload(true);
+        };
+        sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
+      }).catch((error) => toastErrorAndThrow(error, 'noticeNewApplicationVersion'));
+    } else {
+      // deprecated, but the simplest way to ignore cache
+      const reloader = () => {
+        window.location.reload(true);
+      };
+      sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
+    }
   }
 }
 
@@ -63,8 +73,8 @@ function WebSocketProvider(props) {
       newSocket.connect(identity);
       // we also want to always be subscribed to new app versions
       newSocket.registerHandler('UI_UPDATE_REQUIRED', (message) => {
-        const { app_version: appVersion } = message;
-        notifyNewApplicationVersion(appVersion);
+        const { app_version: appVersion, requires_cache_clear: cacheClear } = message;
+        notifyNewApplicationVersion(appVersion, cacheClear);
       });
 
       newSocket.registerHandler('pong', () => {

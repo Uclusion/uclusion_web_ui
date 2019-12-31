@@ -10,6 +10,8 @@ import { LocaleContext } from '../../contexts/LocaleContext';
 import { IntlProvider } from 'react-intl';
 import { getLocaleMessages } from '../../config/locales';
 import { makeStyles } from '@material-ui/styles';
+import { useHistory } from 'react-router';
+import VerifyEmail from '../../pages/Authentication/VerifyEmail';
 
 Amplify.configure(awsconfig);
 const oauth = {
@@ -49,13 +51,26 @@ function AppWithAuth(props) {
   const [localeState] = useContext(LocaleContext);
   const { locale } = localeState;
   const classes = useStyles();
-
+  const history = useHistory();
+  const { location } = history;
+  const { pathname } = location;
+  console.log(location);
   const messages = {
     ...getLocaleMessages(locale),
   };
+  // we have to bypass auth for the verifyEmailPage
+  if (pathname === 'verifyEmail') {
+    return (
+      <div className={classes.root}>
+        <IntlProvider locale={locale} key={locale} messages={messages}>
+        <VerifyEmail />
+        </IntlProvider>
+      </div>
+      );
+  }
 
   return (
-    <div className={classes.root} >
+    <div className={classes.root}>
       <IntlProvider locale={locale} key={locale} messages={messages}>
         <Authenticator hide={[SignIn, SignUp]}>
           <UclusionSignup/>

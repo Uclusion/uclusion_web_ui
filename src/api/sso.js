@@ -1,7 +1,7 @@
 import uclusion from 'uclusion_sdk';
 import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher';
 import config from '../config';
-import { toastErrorAndThrow } from '../utils/userMessage';
+
 
 function getSSOInfo() {
   return new AmpifyIdentitySource().getIdentity()
@@ -25,5 +25,4 @@ export function getMessages() {
 export function signUp(name, email, password, redirect) {
   return uclusion.constructSSOClient(config.api_configuration)
     .then((ssoClient) => ssoClient.userSignup(name, email, password, redirect))
-    .catch((error) => toastErrorAndThrow(error, 'errorSignupFailed'));
 }

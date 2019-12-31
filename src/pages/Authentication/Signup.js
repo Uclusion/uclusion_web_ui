@@ -2,6 +2,7 @@ import React, { useReducer, useState } from 'react';
 import { TextField, Button } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { signUp } from '../../api/sso';
+import { sendIntlMessage, ERROR } from '../../utils/userMessage';
 
 
 function reducer(state, action) {
@@ -43,6 +44,13 @@ function Signup(props) {
       .then((result) => {
         const { response } = result;
         setPostSignUp(response);
+      }).catch((error) => {
+        const { error_message } = error;
+        if (error_message === 'Account exists') {
+          setPostSignUp('ALREADY_EXISTS');
+        } else {
+          sendIntlMessage(ERROR, 'errorSignupFailed');
+        }
       });
   }
 
@@ -66,6 +74,14 @@ function Signup(props) {
         We have resent a verification email to you. Please click the link inside to continue.
       </div>
     );
+  }
+
+  if (postSignUp === 'ALREADY_EXISTS') {
+    return (
+      <div>
+        An account with that email already exists, please log in.
+      </div>
+    )
   }
 
 

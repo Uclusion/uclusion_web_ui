@@ -1,6 +1,8 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Card, CardActions, CardContent, makeStyles, TextField } from '@material-ui/core';
+import {
+  Button, Card, CardActions, CardContent, makeStyles, TextField,
+} from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { lockPlanningMarketForEdit, updateMarket } from '../../../api/markets';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
@@ -9,22 +11,19 @@ import { PLANNING_TYPE } from '../../../constants/markets';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 
-const useStyles = makeStyles((theme) => {
-  return {
-    root: {
-      padding: theme.spacing(2),
+const useStyles = makeStyles((theme) => ({
+  root: {
+    padding: theme.spacing(2),
+  },
+  row: {
+    marginBottom: theme.spacing(2),
+    '&:last-child': {
+      marginBottom: 0,
     },
-    row: {
-      marginBottom: theme.spacing(2),
-      '&:last-child': {
-        marginBottom: 0,
-      },
-    },
-  };
-});
+  },
+}));
 
 function DialogEdit(props) {
-
   const {
     editToggle,
     onCancel,
@@ -37,7 +36,19 @@ function DialogEdit(props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = mutableMarket;
   const [description, setDescription] = useState(mutableMarket.description);
+  const [validForm, setValidForm] = useState(true);
   const [operationRunning] = useContext(OperationInProgressContext);
+
+  useEffect(() => {
+    // Long form to prevent flicker
+    if (name && description && description.length > 0) {
+      if (!validForm) {
+        setValidForm(true);
+      }
+    } else if (validForm) {
+      setValidForm(false);
+    }
+  }, [name, description, validForm]);
 
   function handleChange(name) {
     return (event) => {
@@ -97,13 +108,15 @@ function DialogEdit(props) {
       <CardActions>
         <Button
           disabled={operationRunning}
-          onClick={onCancel}>
+          onClick={onCancel}
+        >
           {intl.formatMessage({ id: 'marketEditCancelLabel' })}
         </Button>
         <SpinBlockingButton
           variant="contained"
           color="primary"
           marketId={id}
+          disabled={!validForm}
           onClick={handleSave}
         >
           {intl.formatMessage({ id: 'marketEditSaveLabel' })}
@@ -123,6 +136,6 @@ DialogEdit.propTypes = {
 DialogEdit.defaultProps = {
   onCancel: () => {},
   editToggle: () => {},
-}
+};
 
 export default DialogEdit;

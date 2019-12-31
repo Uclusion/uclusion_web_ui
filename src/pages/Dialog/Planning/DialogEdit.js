@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Card, CardActions, CardContent, makeStyles, TextField,
@@ -35,6 +35,20 @@ function DialogEdit(props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, max_budget, investment_expiration } = mutableMarket;
   const [description, setDescription] = useState(mutableMarket.description);
+  const [validForm, setValidForm] = useState(true);
+
+  useEffect(() => {
+    // Long form to prevent flicker
+    if (name && parseInt(investment_expiration, 10) > 0 && parseInt(max_budget, 10) > 0
+      && description && description.length > 0) {
+      if (!validForm) {
+        setValidForm(true);
+      }
+    } else if (validForm) {
+      setValidForm(false);
+    }
+  }, [name, description, investment_expiration, max_budget, validForm]);
+
   function handleChange(name) {
     return (event) => {
       const { value } = event.target;
@@ -128,6 +142,7 @@ function DialogEdit(props) {
           marketId={id}
           variant="contained"
           color="primary"
+          disabled={!validForm}
           onClick={handleSave}
         >
           {intl.formatMessage({ id: 'marketEditSaveLabel' })}

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import {
   Card, CardActions, CardContent, TextField, withStyles,
@@ -36,6 +36,7 @@ function PlanningInvestibleEdit(props) {
   const { id, description: initialDescription } = myInvestible;
   const [currentValues, setCurrentValues] = useState(myInvestible);
   const [assignments, setAssignments] = useState(assigned);
+  const [validForm, setValidForm] = useState(true);
   const { name } = currentValues;
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
@@ -44,6 +45,18 @@ function PlanningInvestibleEdit(props) {
   const me = getMyUserForMarket(marketsState, marketId) || {};
   const { id: myId } = me;
   const assignee = assigned.includes(myId);
+
+  useEffect(() => {
+    // Long form to prevent flicker
+    if (name && description && description.length > 0
+      && Array.isArray(assignments) && assignments.length > 0) {
+      if (!validForm) {
+        setValidForm(true);
+      }
+    } else if (validForm) {
+      setValidForm(false);
+    }
+  }, [name, description, assignments, validForm]);
 
   function handleChange(field) {
     return (event) => {
@@ -129,6 +142,7 @@ function PlanningInvestibleEdit(props) {
           variant="contained"
           color="primary"
           onClick={handleSave}
+          disabled={!validForm}
           onSpinStop={onSave}
         >
           {intl.formatMessage({ id: 'investibleEditSaveLabel' })}

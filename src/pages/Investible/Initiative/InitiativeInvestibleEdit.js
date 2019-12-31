@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import {
   Card, CardActions, CardContent, TextField, withStyles,
@@ -29,10 +29,22 @@ function InitiativeInvestibleEdit(props) {
   const myInvestible = fullInvestible.investible;
   const { id, description: initialDescription } = myInvestible;
   const [currentValues, setCurrentValues] = useState(myInvestible);
+  const [validForm, setValidForm] = useState(true);
   const { name } = currentValues;
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const [description, setDescription] = useState(initialDescription);
+
+  useEffect(() => {
+    // Long form to prevent flicker
+    if (name && description && description.length > 0) {
+      if (!validForm) {
+        setValidForm(true);
+      }
+    } else if (validForm) {
+      setValidForm(false);
+    }
+  }, [name, description, validForm]);
 
   function handleChange(field) {
     return (event) => {
@@ -104,6 +116,7 @@ function InitiativeInvestibleEdit(props) {
           variant="contained"
           color="primary"
           onClick={handleSave}
+          disabled={!validForm}
           onSpinStop={onSave}
         >
           {intl.formatMessage({ id: 'investibleEditSaveLabel' })}

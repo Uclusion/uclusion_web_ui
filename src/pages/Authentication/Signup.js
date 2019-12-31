@@ -4,6 +4,7 @@ import { useIntl } from 'react-intl';
 import { signUp } from '../../api/sso';
 import { sendIntlMessage, ERROR } from '../../utils/userMessage';
 import { extractErrorJSON } from '../../api/errorUtils';
+import { useHistory } from 'react-router';
 
 
 function reducer(state, action) {
@@ -26,7 +27,9 @@ function Signup(props) {
   const [userState, dispatch] = useReducer(reducer, empty);
   const [postSignUp, setPostSignUp] = useState(undefined);
   const intl = useIntl();
-
+  const history = useHistory();
+  const { location } = history;
+  const { pathname, hash } = location;
 
   function handleChange(name) {
     return (event) => {
@@ -41,7 +44,15 @@ function Signup(props) {
       email,
       password,
     } = userState;
-    return signUp(name, email, password)
+    let redirect;
+    if (pathname !== '/') {
+      // we came here by some other link and need to log in
+      redirect = pathname;
+      if (hash) {
+        redirect += `#${hash}`;
+      }
+    }
+    return signUp(name, email, password, redirect)
       .then((result) => {
         const { response } = result;
         setPostSignUp(response);

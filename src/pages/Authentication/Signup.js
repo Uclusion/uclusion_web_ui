@@ -1,46 +1,28 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useState } from 'react';
 import { TextField, Button } from '@material-ui/core';
 import { useIntl } from 'react-intl';
-import { Auth } from 'aws-amplify';
+import { signUp } from '../../api/sso';
 
 
 function reducer(state, action) {
   const { name, value } = action;
-  switch (name) {
-    case 'name':
-      return {
-        ...state,
-        attributes: {
-          name: value,
-        },
-      };
-    case 'username':
-      return {
-        ...state,
-        username: value,
-      };
-    case 'password':
-      return {
-        ...state,
-        password: value,
-      };
-    default:
-      // do nothing
-      break;
-  }
+  const newState = {
+    ...state,
+    [name]: value,
+  };
+  return newState;
 }
 
 function Signup(props) {
   const { authState } = props;
   const empty = {
-    attributes: {
-      name: '',
-    },
-    username: '',
+    name: '',
+    email: '',
     password: '',
   };
 
   const [userState, dispatch] = useReducer(reducer, empty);
+  const [postSignUp, setPostSignUp] = useState(undefined);
   const intl = useIntl();
 
 
@@ -51,16 +33,39 @@ function Signup(props) {
     };
   }
 
-  function onSignup() {
-    return Auth.signUp(userState)
+  function onSignUp() {
+    const {
+      name,
+      email,
+      password,
+    } = userState;
+    return signUp(name, email, password)
       .then((result) => {
-        alert('Signup sent');
+        const { response } = result;
+        setPostSignUp(response);
       });
   }
 
 
   if (authState !== 'signUp') {
     return <></>;
+  }
+
+  if (postSignUp === 'USER_CREATED') {
+    return (
+      <div>
+        Your user is created, and a verification link has been sent to your email.
+        Please click the link inside to continue.
+      </div>
+    );
+  }
+
+  if (postSignUp === 'VERIFICATION_RESENT') {
+    return (
+      <div>
+        We have resent a verification email to you. Please click the link inside to continue.
+      </div>
+    );
   }
 
 
@@ -75,14 +80,14 @@ function Signup(props) {
         onChange={handleChange('name')}
         margin="normal"
       />
-      <br />
+      <br/>
       <TextField
         id="email"
         label={intl.formatMessage({ id: 'signupEmailLabel' })}
-        onChange={handleChange('username')}
+        onChange={handleChange('email')}
         margin="normal"
       />
-      <br />
+      <br/>
       <TextField
         id="password"
         type="password"
@@ -91,7 +96,7 @@ function Signup(props) {
         margn="normal"
       />
       <Button
-        onClick={onSignup}
+        onClick={onSignUp}
       >
         {intl.formatMessage({ id: 'signupSignupLabel' })}
       </Button>

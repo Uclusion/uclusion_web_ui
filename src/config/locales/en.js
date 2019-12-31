@@ -411,8 +411,9 @@ const messages = defineMessages({
   errorCommentReopenFailed: 'There was a problem reopening',
   errorMarketArchiveFailed: 'There was a problem deactivating the dialog',
   errorInvestibleMoveToCurrentVotingFailed: 'There was a problem moving the option to Current Voting',
-  errorInvestibleFetchFailed: 'There was a problem recieving the data',
-  errorInvestibleListFetchFailed: 'There was a problem fetchign the data list',
+  errorInvestibleFetchFailed: 'There was a problem receiving the data',
+  errorInvestibleListFetchFailed: 'There was a problem fetching the data list',
+  errorSignupFailed: 'There was a problem signing up. Please try again',
 
   // warnings
   warningOffline: 'You are offline',

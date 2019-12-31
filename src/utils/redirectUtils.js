@@ -19,7 +19,7 @@ export function getAndClearRedirect() {
 export function redirectToPath(subPath) {
   const url = new URL(window.location.href);
   url.pathname = subPath;
-  url.search='';
-  console.log(url.toString());
+  url.search = '';
+  console.debug(`redirecting you to ${url.toString()}`);
   window.location.href = url.toString();
 }

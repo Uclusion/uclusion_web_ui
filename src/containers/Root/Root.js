@@ -19,6 +19,7 @@ import DialogArchives from '../../pages/DialogArchives/DialogArchives';
 import Archives from '../../pages/Archives/Archives';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
+import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils';
 
 const useStyles = makeStyles({
   body: {
@@ -53,6 +54,11 @@ function Root() {
   const [, setOnline] = useContext(OnlineStateContext);
   function hideHome() {
     return !pathname || pathname !== '/';
+  }
+
+  const redirect = getAndClearRedirect();
+  if (redirect) {
+    redirectToPath(redirect);
   }
 
   function hideAbout() {

@@ -45,7 +45,7 @@ const useStyles = makeStyles({
       }
     },
   }
-})
+});
 
 function AppWithAuth(props) {
   const [localeState] = useContext(LocaleContext);
@@ -54,19 +54,19 @@ function AppWithAuth(props) {
   const history = useHistory();
   const { location } = history;
   const { pathname } = location;
-  console.log(location);
+  console.debug(location);
   const messages = {
     ...getLocaleMessages(locale),
   };
   // we have to bypass auth for the verifyEmailPage
-  if (pathname === 'verifyEmail') {
+  if (pathname === '/verifyEmail') {
     return (
       <div className={classes.root}>
         <IntlProvider locale={locale} key={locale} messages={messages}>
-        <VerifyEmail />
+          <VerifyEmail/>
         </IntlProvider>
       </div>
-      );
+    );
   }
 
   return (

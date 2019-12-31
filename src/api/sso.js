@@ -24,5 +24,10 @@ export function getMessages() {
 
 export function signUp(name, email, password, redirect) {
   return uclusion.constructSSOClient(config.api_configuration)
-    .then((ssoClient) => ssoClient.userSignup(name, email, password, redirect))
+    .then((ssoClient) => ssoClient.userSignup(name, email, password, redirect));
+}
+
+export function verifyEmail(code) {
+  return uclusion.constructSSOClient(config.api_configuration)
+    .then((ssoClient) => ssoClient.verifyEmail(code));
 }

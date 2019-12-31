@@ -414,6 +414,7 @@ const messages = defineMessages({
   errorInvestibleFetchFailed: 'There was a problem receiving the data',
   errorInvestibleListFetchFailed: 'There was a problem fetching the data list',
   errorSignupFailed: 'There was a problem signing up. Please try again',
+  errorVerifyFailed: 'There was a problem verifying your email. Please try again',
 
   // warnings
   warningOffline: 'You are offline',

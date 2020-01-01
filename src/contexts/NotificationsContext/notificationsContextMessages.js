@@ -1,8 +1,9 @@
 import { getMessages } from '../../api/sso';
-import { updateMessages, updatePage } from './notificationsContextReducer';
-import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext';
+import { updateMessages, updatePage, initializeState } from './notificationsContextReducer';
+import { VIEW_EVENT, VISIT_CHANNEL, EMPTY_STATE } from './NotificationsContext';
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper';
 import { registerListener } from '../../utils/MessageBusUtils';
+import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 
 function beginListening(dispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
@@ -37,6 +38,17 @@ function beginListening(dispatch) {
         }
         break;
       }
+      default:
+        console.debug(`Ignoring event ${event}`);
+    }
+  });
+  registerListener(AUTH_HUB_CHANNEL, 'notificationsHubStart', (data) => {
+    const { payload: { event } } = data;
+    switch (event) {
+      case 'signIn':
+      case 'signOut':
+        dispatch(initializeState(EMPTY_STATE));
+        break;
       default:
         console.debug(`Ignoring event ${event}`);
     }

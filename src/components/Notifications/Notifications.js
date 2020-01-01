@@ -5,7 +5,7 @@ import { useHistory } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { nextMessage } from '../../contexts/NotificationsContext/notificationsContextReducer';
-import { ISSUE_RESOLVED_TYPE, ISSUE_TYPE, NO_PIPELINE_TYPE } from '../../constants/notifications';
+import { ISSUE_RESOLVED_TYPE, ISSUE_TYPE, NEW_VOTES_TYPE, NO_PIPELINE_TYPE } from '../../constants/notifications';
 
 const useStyles = makeStyles({
   red: {
@@ -45,7 +45,12 @@ function Notifications(props) {
   function nextOnClick() {
     if (current) {
       const {
-        marketId, investibleId, userId, aType, commentId,
+        marketId,
+        investibleId,
+        userId,
+        aType,
+        commentId,
+        associated_object_id,
       } = current;
       const link = investibleId
         ? formInvestibleLink(marketId, investibleId)
@@ -58,6 +63,9 @@ function Notifications(props) {
           break;
         case NO_PIPELINE_TYPE:
           fullLink = `${link}#${userId}`;
+          break;
+        case NEW_VOTES_TYPE:
+          fullLink = `${link}#cv${associated_object_id}`
           break;
         default:
           fullLink = link;

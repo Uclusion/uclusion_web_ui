@@ -1,4 +1,5 @@
 export const NOT_FULLY_VOTED_TYPE = 'NOT_FULLY_VOTED';
+export const NEW_VOTES_TYPE = 'NEW_VOTES';
 export const NO_PIPELINE_TYPE = 'NO_PIPELINE';
 export const UNREAD_TYPE = 'UNREAD';
 export const ISSUE_TYPE = 'ISSUE';

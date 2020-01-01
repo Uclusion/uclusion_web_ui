@@ -54,10 +54,11 @@ function Voting(props) {
         name, userId, quantity, maxBudget,
       } = voter;
       const reason = getVoterReason(userId);
-
+      const voteId = `cv${userId}`;
       return (
         <Paper
           key={userId}
+          id={voteId}
         >
           <Typography>
             {name}

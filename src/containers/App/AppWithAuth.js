@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import Amplify, { Auth } from 'aws-amplify';
-import { Authenticator, SignIn, SignUp } from 'aws-amplify-react';
+import { Authenticator, SignIn, SignUp, ForgotPassword } from 'aws-amplify-react';
 import config from '../../config';
 import App from './App';
 import awsconfig from '../../config/amplify';
@@ -12,7 +12,8 @@ import { getLocaleMessages } from '../../config/locales';
 import { makeStyles } from '@material-ui/styles';
 import { useHistory } from 'react-router';
 import VerifyEmail from '../../pages/Authentication/VerifyEmail';
-
+import IntlGlobalProvider from '../../components/ContextHacks/IntlGlobalProvider';
+import UclusionForgotPassword from '../../pages/Authentication/ForgotPassword';
 Amplify.configure(awsconfig);
 const oauth = {
   domain: config.cognito_domain,
@@ -72,11 +73,14 @@ function AppWithAuth(props) {
   return (
     <div className={classes.root}>
       <IntlProvider locale={locale} key={locale} messages={messages}>
-        <Authenticator hide={[SignIn, SignUp]}>
-          <UclusionSignup/>
-          <CustomSignIn/>
-          <App/>
-        </Authenticator>
+        <IntlGlobalProvider>
+          <Authenticator hide={[SignIn, SignUp, ForgotPassword]}>
+            <UclusionSignup />
+            <CustomSignIn />
+            <UclusionForgotPassword />
+            <App />
+          </Authenticator>
+        </IntlGlobalProvider>
       </IntlProvider>
     </div>
   );

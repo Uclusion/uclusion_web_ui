@@ -39,7 +39,7 @@ export function sendIntlMessage(level, i18nMessageId, ii18nMessageValues) {
 }
 
 /**
- * Pops an error toast and rethrows the error
+ * Pops an error toast and rethrows the error, halting any operation in progress
  * @param error the error we need to rethrow
  * @param messageKey the id in the translation bundles to display
  */
@@ -49,6 +49,17 @@ export function toastErrorAndThrow(error, messageKey) {
     setOperationInProgress(false);
   }
   throw error;
+}
+
+/**
+ * Pops a toast and halts any operation in progress. Does not retjrow the error
+ * @param messageKey
+ */
+export function toastError(messageKey) {
+  sendIntlMessage(ERROR, messageKey);
+  if (setOperationInProgress) {
+    setOperationInProgress(false);
+  }
 }
 
 /**

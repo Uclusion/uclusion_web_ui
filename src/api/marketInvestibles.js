@@ -1,6 +1,7 @@
 import { getMarketClient } from './uclusionClient';
 import { toastErrorAndThrow } from '../utils/userMessage';
 import { JUSTIFY_TYPE } from '../constants/comments';
+import _ from 'lodash';
 
 export function fetchInvestibles(idList, marketId) {
   const clientPromise = getMarketClient(marketId);
@@ -44,6 +45,10 @@ export function updateInvestment(updateInfo) {
       .then((updateResult) => {
         if (reasonNeedsUpdate) {
           if (currentReasonId) {
+            if (_.isEmpty(newReasonText)) {
+              return client.investibles.deleteComment(currentReasonId)
+                .then(() => updateResult);
+            }
             return client.investibles.updateComment(currentReasonId, newReasonText, false, [])
               .then(() => updateResult);
           }

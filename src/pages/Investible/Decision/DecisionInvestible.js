@@ -69,7 +69,7 @@ function DecisionInvestible(props) {
   const allowDelete = marketPresences && marketPresences.length < 2;
   const [marketStagesState] = useContext(MarketStagesContext);
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
-  const inProposed = marketInfo.stage === inProposedStage.id;
+  const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id;
   const activeMarket = marketStage === ACTIVE_STAGE;
 
   const {

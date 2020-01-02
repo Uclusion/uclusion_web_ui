@@ -49,7 +49,7 @@ function ProposedIdeas(props) {
   }
 
   return (
-    <Grid container spacing={4}>
+    <Grid container spacing={1}>
       {getInvestibles()}
     </Grid>
   );

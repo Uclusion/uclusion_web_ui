@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import PlaylistAddOutlinedIcon from '@material-ui/icons/PlaylistAddOutlined';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
-import SmsOutlinedIcon from '@material-ui/icons/SmsOutlined';
+import MenuBookIcon from '@material-ui/icons/MenuBook';
 import { makeStyles } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
@@ -92,7 +92,7 @@ function Home(props) {
     },
     {
       label: intl.formatMessage({ id: 'homeViewArchives' }),
-      icon: <SmsOutlinedIcon />,
+      icon: <MenuBookIcon />,
       onClick: () => navigate(history, '/archives'),
     },
   ];

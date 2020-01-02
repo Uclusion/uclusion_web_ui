@@ -45,9 +45,6 @@ function DecisionDialogs(props) {
     if (is_admin) {
       if (marketStage === 'Active') {
         actions.push(
-
-        );
-        actions.push(
           <ArchiveMarketButton key="archive" marketId={marketId}/>,
         );
       } else {

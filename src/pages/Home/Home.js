@@ -5,7 +5,6 @@ import ListAltIcon from '@material-ui/icons/ListAlt';
 import PlaylistAddOutlinedIcon from '@material-ui/icons/PlaylistAddOutlined';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import SmsOutlinedIcon from '@material-ui/icons/SmsOutlined';
-import InfoIcon from '@material-ui/icons/Info';
 import { makeStyles } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
@@ -94,12 +93,7 @@ function Home(props) {
     {
       label: intl.formatMessage({ id: 'homeViewArchives' }),
       icon: <SmsOutlinedIcon />,
-      onClick: () => {},
-    },
-    {
-      label: intl.formatMessage({ id: 'homeViewAbout' }),
-      icon: <InfoIcon />,
-      onClick: () => navigate(history, '/about'),
+      onClick: () => navigate(history, '/archives'),
     },
   ];
 

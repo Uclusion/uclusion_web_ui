@@ -109,7 +109,7 @@ function ExpiresDisplay(props) {
           <svg className={classes.countdownSvg}>
             <path
               fill="none"
-              stroke="#9292b9"
+              stroke="#3F6B72"
               strokeWidth="4"
               d={describeArc(50, 50, 48, 0, 359.9)}
             />
@@ -129,7 +129,7 @@ function ExpiresDisplay(props) {
           <svg className={classes.countdownSvg}>
             <path
               fill="none"
-              stroke="#9292b9"
+              stroke="#3F6B72"
               strokeWidth="4"
               d={describeArc(50, 50, 48, 0, 359.9)}
             />
@@ -149,7 +149,7 @@ function ExpiresDisplay(props) {
           <svg className={classes.countdownSvg}>
             <path
               fill="none"
-              stroke="#9292b9"
+              stroke="#3F6B72"
               strokeWidth="4"
               d={describeArc(50, 50, 48, 0, 359.9)}
             />

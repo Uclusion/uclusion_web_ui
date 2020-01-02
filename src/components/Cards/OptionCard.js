@@ -40,6 +40,7 @@ const useStyles = makeStyles({
     color: '#3e3e3e',
     fontWeight: 'bold',
     display: 'flex',
+    maxHeight: '54px',
     alignItems: 'center',
     cursor: 'pointer'
   }

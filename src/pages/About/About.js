@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router'
 import localforage from 'localforage';
 import PropTypes from 'prop-types';
 import {
@@ -9,6 +10,7 @@ import Screen from '../../containers/Screen/Screen';
 import config from '../../config';
 import { toastErrorAndThrow } from '../../utils/userMessage';
 import { getSSOInfo } from '../../api/sso';
+import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,9 +45,10 @@ function About(props) {
     hidden,
   } = props;
   const intl = useIntl();
+  const history = useHistory();
   const classes = useStyles();
   const { version } = config;
-  const [idToken, setIdToken] = useState(undefined);
+  const [externalId, setExternalId] = useState(undefined);
   function handleClear() {
     localforage.clear().then(() => {
       console.info('Reloading after clearing cache');
@@ -54,14 +57,18 @@ function About(props) {
   }
 
   useEffect(() => {
-    if (!idToken) {
+    if (!externalId) {
       getSSOInfo().then((ssoInfo) => {
-        const { idToken: myIdToken } = ssoInfo;
-        setIdToken(myIdToken);
+        const { idToken, ssoClient } = ssoInfo;
+        return ssoClient.accountCognitoLogin(idToken).then((loginInfo) => {
+          const { user } = loginInfo;
+          const { external_id: myExternalId } = user;
+          setExternalId(myExternalId);
+        })
       }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
     }
-  }, [idToken]);
-
+  }, [externalId]);
+  const breadCrumbs = makeBreadCrumbs(history, [], true);
   // Each one of the paper blocks here represent a logical section of the page. We'll probably
   // want to skin it with pretty headers etc.
   return (
@@ -70,6 +77,7 @@ function About(props) {
         title={intl.formatMessage({ id: 'about' })}
         tabTitle={intl.formatMessage({ id: 'about' })}
         hidden={hidden}
+        breadCrumbs={breadCrumbs}
       >
         <div className={classes.root}>
           <Paper className={classes.section}>
@@ -81,7 +89,7 @@ function About(props) {
           <Paper className={classes.section}>
             <Typography className={classes.row}>
               <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserIdLabel' })}</span>
-              <span className={classes.value}>{idToken}</span>
+              <span className={classes.value}>{externalId}</span>
             </Typography>
           </Paper>
 

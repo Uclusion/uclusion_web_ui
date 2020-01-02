@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import { NotificationImportant, Notifications as NotificationsIcon, ChevronRight } from '@material-ui/icons';
-import { Button, makeStyles } from '@material-ui/core';
+import { NotificationImportant, Notifications as NotificationsIcon } from '@material-ui/icons';
+import { Fab, makeStyles } from '@material-ui/core';
 import { useHistory } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
@@ -19,6 +19,9 @@ const useStyles = makeStyles({
   uncolored: {
     fontSize: 36,
   },
+  fab: {
+    backgroundColor: '#ffffff',
+  }
 });
 
 function Notifications(props) {
@@ -77,14 +80,14 @@ function Notifications(props) {
   }
 
   return (
-    <Button
+    <Fab
       disabled={!current}
       onClick={nextOnClick}
+      className={classes.fab}
     >
       {current && <NotificationImportant className={getIconClass()} />}
       {!current && <NotificationsIcon className={getIconClass()} />}
-      {current && <ChevronRight className={getIconClass()} />}
-    </Button>
+    </Fab>
   );
 }
 

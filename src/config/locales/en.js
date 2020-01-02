@@ -283,6 +283,7 @@ const messages = defineMessages({
   homeAddInitiative: 'Create Initiative',
   homePlanningReport: 'Active Story Value Estimates (in days)',
   homeViewArchives: 'View Archives',
+  homeViewAbout: 'About',
   new: 'New',
   information: 'Information',
   message: 'Message',
@@ -415,6 +416,8 @@ const messages = defineMessages({
   errorInvestibleListFetchFailed: 'There was a problem fetching the data list',
   errorSignupFailed: 'There was a problem signing up. Please try again',
   errorVerifyFailed: 'There was a problem verifying your email. Please try again',
+  errorClearFailed: 'There was a problem clearing your data. Please try again',
+  errorGetIdFailed: 'There was a problem displaying your identification.',
 
   // warnings
   warningOffline: 'You are offline',

@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import localforage from 'localforage';
 import PropTypes from 'prop-types';
-import { Paper, Typography, Button } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
-import { injectIntl } from 'react-intl';
+import {
+  Paper, Typography, Button, makeStyles,
+} from '@material-ui/core';
+import { useIntl } from 'react-intl';
 import Screen from '../../containers/Screen/Screen';
-import withAppConfigs from '../../utils/withAppConfigs';
+import config from '../../config';
+import { toastErrorAndThrow } from '../../utils/userMessage';
+import { getSSOInfo } from '../../api/sso';
 
-const styles = (theme) => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     padding: theme.spacing(2),
   },
@@ -32,22 +36,31 @@ const styles = (theme) => ({
   value: {
     //
   },
-});
+}));
 
 function About(props) {
   const {
-    appConfig,
-    classes,
-    intl,
     hidden,
   } = props;
-
-  const { version } = appConfig;
-  // TODO: make this identity
-  const user = undefined;
+  const intl = useIntl();
+  const classes = useStyles();
+  const { version } = config;
+  const [idToken, setIdToken] = useState(undefined);
   function handleClear() {
-    // TODO need to clear storage here
+    localforage.clear().then(() => {
+      console.info('Reloading after clearing cache');
+      window.location.reload(true);
+    }).catch((error) => toastErrorAndThrow(error, 'errorClearFailed'));
   }
+
+  useEffect(() => {
+    if (!idToken) {
+      getSSOInfo().then((ssoInfo) => {
+        const { idToken: myIdToken } = ssoInfo;
+        setIdToken(myIdToken);
+      }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
+    }
+  }, [idToken]);
 
   // Each one of the paper blocks here represent a logical section of the page. We'll probably
   // want to skin it with pretty headers etc.
@@ -68,11 +81,7 @@ function About(props) {
           <Paper className={classes.section}>
             <Typography className={classes.row}>
               <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserIdLabel' })}</span>
-              <span className={classes.value}>{!!user && user.id}</span>
-            </Typography>
-            <Typography className={classes.row}>
-              <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserNameLabel' })}</span>
-              <span className={classes.value}>{!!user && user.name}</span>
+              <span className={classes.value}>{idToken}</span>
             </Typography>
           </Paper>
 
@@ -85,9 +94,7 @@ function About(props) {
 }
 
 About.propTypes = {
-  appConfig: PropTypes.object.isRequired,
-  intl: PropTypes.object.isRequired,
   hidden: PropTypes.bool.isRequired,
 };
 
-export default injectIntl(withAppConfigs(withStyles(styles)(About)));
+export default About;

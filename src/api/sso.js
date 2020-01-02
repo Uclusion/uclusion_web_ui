@@ -3,7 +3,7 @@ import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher
 import config from '../config';
 
 
-function getSSOInfo() {
+export function getSSOInfo() {
   return new AmpifyIdentitySource().getIdentity()
     .then((idToken) => uclusion.constructSSOClient(config.api_configuration)
       .then((ssoClient) => ({ ssoClient, idToken })));

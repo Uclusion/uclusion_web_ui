@@ -74,9 +74,10 @@ function DecisionDialog(props) {
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const active = marketStage === ACTIVE_STAGE;
 
+  const addLabel = isAdmin? 'decisionDialogAddInvestibleLabel' : 'decisionDialogProposeInvestibleLabel';
   const sidebarMenuList = [
     {
-      label: intl.formatMessage({ id: 'decisionDialogAddInvestibleLabel' }),
+      label: intl.formatMessage({ id: addLabel }),
       icon: <AddIcon />,
       onClick: () => toggleInvestibleAddMode(),
     },
@@ -97,7 +98,7 @@ function DecisionDialog(props) {
     },
   ];
   const notVoted = _.isEmpty(investments);
-  if (notVoted) {
+  if (notVoted && !isAdmin) {
     if (following) {
       sidebarMenuList.push({
         label: intl.formatMessage({ id: 'decisionDialogsBecomeObserver' }),

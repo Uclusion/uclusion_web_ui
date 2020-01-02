@@ -322,7 +322,8 @@ const messages = defineMessages({
   decisionDialogCurrentVotingLabel: 'Current Voting',
   decisionDialogProposedOptionsLabel: 'Proposed Options',
   decisionDialogDiscussionLabel: 'Discussion',
-  decisionDialogAddInvestibleLabel: 'Propose Option',
+  decisionDialogAddInvestibleLabel: 'Add Option',
+  decisionDialogProposeInvestibleLabel: 'Propose Option',
   decisionDialogExtendDaysLabel: 'Number of days to extend deadline?',
 
   // Investibles in decision dialog display

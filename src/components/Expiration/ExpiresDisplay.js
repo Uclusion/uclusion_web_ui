@@ -7,8 +7,6 @@ import { useIntl } from 'react-intl';
 const useStyles = makeStyles((theme) => ({
   countdownWrapper: {
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     flexWrap: 'wrap',
   },
 
@@ -117,13 +115,13 @@ function ExpiresDisplay(props) {
             />
             <path
               fill="none"
-              stroke="#ff0000"
+              stroke="#ca2828"
               strokeWidth="4"
               d={describeArc(50, 50, 48, 0, daysRadius)}
             />
           </svg>
           {daysRemaining}
-          <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'days' })}</span>
+          <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'daysLeft' })}</span>
         </div>
       )}
       {daysRemaining === 0 && hoursRemaining > 0 && (
@@ -137,13 +135,13 @@ function ExpiresDisplay(props) {
             />
             <path
               fill="none"
-              stroke="#ff0000"
+              stroke="#ca2828"
               strokeWidth="4"
               d={describeArc(50, 50, 48, 0, hoursRadius)}
             />
           </svg>
           {hoursRemaining}
-          <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'hours' })}</span>
+          <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'hoursLeft' })}</span>
         </div>
       )}
       {daysRemaining === 0 && hoursRemaining === 0 && minutesRemaining >= 0 && (
@@ -157,16 +155,16 @@ function ExpiresDisplay(props) {
             />
             <path
               fill="none"
-              stroke="#ff0000"
+              stroke="#ca2828"
               strokeWidth="4"
               d={describeArc(50, 50, 48, 0, minutesRadius)}
             />
           </svg>
           {minutesRemaining}
-          <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'minutes' })}</span>
+          <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'minutesLeft' })}</span>
         </div>
       )}
-      <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'left' })}</span>
+
     </div>
   );
 }

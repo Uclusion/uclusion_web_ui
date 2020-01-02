@@ -49,7 +49,11 @@ function DecisionDialog(props) {
 
   const commentAddRef = useRef(null);
   const intl = useIntl();
-  const { name: marketName, market_stage: marketStage } = market;
+  const {
+    name: marketName,
+    market_stage: marketStage,
+  } = market;
+
   const {
     is_admin: isAdmin,
     following,

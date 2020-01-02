@@ -8,7 +8,8 @@ import { makeStyles } from '@material-ui/styles';
 import ReadOnlyQuillEditor from '../../components/TextEditors/ReadOnlyQuillEditor';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -46,9 +47,17 @@ function Summary(props) {
   const intl = useIntl();
   const classes = useStyles();
   const {
-    id, name, description, market_type: marketType, max_budget: maxBudget,
+    id,
+    name,
+    description,
+    market_stage: marketStage,
+    market_type: marketType,
+    max_budget: maxBudget,
     investment_expiration: investmentExpiration,
+    created_at: createdAt,
+    expiration_minutes: expirationMinutes,
   } = market;
+  const active = marketStage === ACTIVE_STAGE;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
@@ -72,6 +81,11 @@ function Summary(props) {
       <Typography className={classes.title} variant="h3" component="h1">
         {name}
       </Typography>
+      {marketType !== PLANNING_TYPE && active && (
+        <ExpiresDisplay
+          createdAt={createdAt}
+          expirationMinutes={expirationMinutes}
+        />)}
       {marketType !== INITIATIVE_TYPE && (
         <ReadOnlyQuillEditor className={classes.content} marketId={id} value={description} />
       )}

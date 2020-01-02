@@ -4,9 +4,11 @@ import {
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
-import { removeMarketDetails, updateMarketDetails } from './marketsContextReducer';
+import { removeMarketDetails, updateMarketDetails, initializeState } from './marketsContextReducer';
 import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { registerListener } from '../../utils/MessageBusUtils';
+import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
+import { EMPTY_STATE } from './MarketsContext';
 
 function beginListening(dispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketsRemovedMarketStart', (data) => {
@@ -30,6 +32,17 @@ function beginListening(dispatch) {
       }
       default:
         console.debug(`Ignoring identity event ${event}`);
+    }
+  });
+  registerListener(AUTH_HUB_CHANNEL, 'marketsHubStart', (data) => {
+    const { payload: { event } } = data;
+    switch (event) {
+      case 'signIn':
+      case 'signOut':
+        dispatch(initializeState(EMPTY_STATE));
+        break;
+      default:
+        console.debug(`Ignoring event ${event}`);
     }
   });
 }

@@ -166,7 +166,7 @@ function DecisionInvestible(props) {
       )}
       {!inProposed && (
         <SubSection
-        type={SECTION_TYPE_SECONDARY}
+          type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
         >
           <Voting

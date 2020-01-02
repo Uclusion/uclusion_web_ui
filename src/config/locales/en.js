@@ -372,6 +372,17 @@ const messages = defineMessages({
   signupPasswordLabel: 'Password',
   signupSignupLabel: 'Create Account',
 
+  // Forgot Password
+  forgotPasswordHeader: 'Reset your password',
+  forgotPasswordEmailLabel: 'Enter your email address',
+  forgotPasswordCodeLabel: 'Reset Code',
+  forgotPasswordNewPasswordLabel: 'New Password',
+  forgotPasswordSendCodeButton: 'Send Reset Code',
+  forgotPasswordResetPasswordButton: 'Submit',
+  forgotPasswordResendCode: 'Resend Reset Code',
+  forgotPasswordEmailNotFound: 'That email address was not found',
+  forgotPasswordInvalidCode: 'An invalid code was entered',
+
 
   // your voting
   yourVotingVoteForThisPlanning: 'Vote for this story',
@@ -416,6 +427,8 @@ const messages = defineMessages({
   errorInvestibleListFetchFailed: 'There was a problem fetching the data list',
   errorSignupFailed: 'There was a problem signing up. Please try again',
   errorVerifyFailed: 'There was a problem verifying your email. Please try again',
+  errorForgotPasswordCodeFailed: 'There was a problem sending your reset code. Please try again',
+  errorForgotPasswordSetFailed: 'There was an error changing your password. Please try again',
   errorClearFailed: 'There was a problem clearing your data. Please try again',
   errorGetIdFailed: 'There was a problem displaying your identification.',
 

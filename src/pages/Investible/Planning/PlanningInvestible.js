@@ -180,7 +180,7 @@ function PlanningInvestible(props) {
         const nextStageId = isInVoting ? inAcceptedStage.id : inReviewStage.id;
         const assignedInNextStage = assignedInStage(investibles, userId, nextStageId);
         if (Array.isArray(invested) && invested.length > 0
-          && (!Array.isArray(assignedInNextStage) || assignedInNextStage.length === 0)) {
+          && (!Array.isArray(assignedInNextStage) || assignedInNextStage.length === 0 || isInAccepted)) {
           sidebarActions.push(<MoveToNextVisibleStageActionButton
             key="visible"
             investibleId={investibleId}
@@ -235,7 +235,7 @@ function PlanningInvestible(props) {
         investibleId={investibleId}
         marketId={marketId}
         stageId={stage}
-        keu="notdoing"
+        key="notdoing"
       />);
     }
     sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);

@@ -22,6 +22,7 @@ const useStyles = makeStyles(theme => ({
     }
   }
 }));
+
 function CurrentVoting(props) {
   const history = useHistory();
   const classes = useStyles();
@@ -43,17 +44,17 @@ function CurrentVoting(props) {
     // now we fill in votes from market presences
     marketPresences.forEach(presence => {
       const userInvestments = getVoteTotalsForUser(presence);
-      Object.keys(userInvestments).forEach(investible_id => {
+      Object.keys(userInvestments).forEach((investible_id) => {
         const oldValue = tallies[investible_id];
         if (oldValue) {
           const newInvestments = [
             ...oldValue.investments,
-            userInvestments[investible_id]
+            userInvestments[investible_id],
           ];
           const newValue = {
             ...oldValue,
             investments: newInvestments,
-            numSupporters: newInvestments.length
+            numSupporters: newInvestments.length,
           };
           tallies[investible_id] = newValue;
         }
@@ -96,13 +97,13 @@ function CurrentVoting(props) {
   // descending order of support
   const sortedTalliesArray = _.sortBy(
     talliesArray,
-    "numSupporters",
-    "name"
+    'numSupporters',
+    'name'
   ).reverse();
 
   return (
     <Grid container spacing={1}>
-      {sortedTalliesArray.map(item => getItemVote(item))}
+      {sortedTalliesArray.map((item) => getItemVote(item))}
     </Grid>
   );
 }

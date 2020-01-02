@@ -4,8 +4,10 @@ import {
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
 import { refreshMarketStages } from './marketStagesContextHelper';
-import { removeMarketsStageDetails } from './marketStagesContextReducer';
+import { removeMarketsStageDetails, initializeState } from './marketStagesContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
+import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
+import { EMPTY_STATE } from './MarketStagesContext';
 
 function beginListening(dispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketStagesRemovedMarketStart', (data) => {
@@ -29,6 +31,17 @@ function beginListening(dispatch) {
       }
       default:
         console.debug(`Ignoring identity event ${event}`);
+    }
+  });
+  registerListener(AUTH_HUB_CHANNEL, 'marketStagesHubStart', (data) => {
+    const { payload: { event } } = data;
+    switch (event) {
+      case 'signIn':
+      case 'signOut':
+        dispatch(initializeState(EMPTY_STATE));
+        break;
+      default:
+        console.debug(`Ignoring event ${event}`);
     }
   });
 }

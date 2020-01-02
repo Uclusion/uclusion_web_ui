@@ -2,8 +2,6 @@ import React, { useReducer, useState } from 'react';
 import { TextField, Button } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { signUp } from '../../api/sso';
-import { sendIntlMessage, ERROR } from '../../utils/userMessage';
-import { extractErrorJSON } from '../../api/errorUtils';
 import { useHistory } from 'react-router';
 
 
@@ -56,19 +54,6 @@ function Signup(props) {
       .then((result) => {
         const { response } = result;
         setPostSignUp(response);
-      }).catch((error) => {
-        return extractErrorJSON(error)
-          .then((errorData) => {
-            const { error_message } = errorData;
-            if (error_message === 'Account exists') {
-              setPostSignUp('ALREADY_EXISTS');
-            } else {
-              sendIntlMessage(ERROR, 'errorSignupFailed');
-            }
-          })
-          .catch(() => {
-            sendIntlMessage(ERROR, 'errorSignupFailed');
-          });
       });
   }
 
@@ -105,7 +90,7 @@ function Signup(props) {
     );
   }
 
-  if (postSignUp === 'ALREADY_EXISTS') {
+  if (postSignUp === 'ACCOUNT_EXISTS') {
     return (
       <div>
         An account with that email already exists, please log in.

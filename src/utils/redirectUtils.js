@@ -16,10 +16,6 @@ export function getAndClearRedirect() {
   return redirect;
 }
 
-export function redirectToPath(subPath) {
-  const url = new URL(window.location.href);
-  url.pathname = subPath;
-  url.search = '';
-  console.debug(`redirecting you to ${url.toString()}`);
-  window.location.href = url.toString();
+export function redirectToPath(history, subPath) {
+  history.push(subPath);
 }

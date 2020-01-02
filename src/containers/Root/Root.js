@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router';
 import queryString from 'query-string';
 import { defaultTheme } from '../../config/themes';
 import Market from '../../pages/Dialog/Dialog';
@@ -58,7 +58,7 @@ function Root() {
 
   const redirect = getAndClearRedirect();
   if (redirect) {
-    redirectToPath(redirect);
+    redirectToPath(history, redirect);
   }
 
   function hideAbout() {
@@ -89,14 +89,19 @@ function Root() {
     }
     return action === 'invite' || action === 'slack';
   }
+
   if (action === 'invite' && marketId) {
     console.debug(`Logging into market ${marketId}`);
-    getMarketClient(marketId).then(() => navigate(history, formMarketLink(marketId)))
+    getMarketClient(marketId).then(() => {
+      console.log(`Redirecting us to market ${marketId}`);
+      return navigate(history, formMarketLink(marketId));
+    })
       .catch((error) => {
         console.error(error);
         sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
       });
   }
+
   let hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible()
     && hideDialogArchives() && hideArchvies());
   if (hash) {
@@ -135,7 +140,7 @@ function Root() {
     });
     const offlineListener = window.addEventListener('offline', () => {
       console.debug('Offline');
-      //setOperationsLocked(true);
+      // setOperationsLocked(true);
       setOnline(false);
       pegView(false);
     });

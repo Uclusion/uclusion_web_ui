@@ -60,6 +60,7 @@ class TokenFetcher {
   }
 
   getMarketToken(identity, marketId){
+    console.debug(`logging into market ${marketId} with cognito identity ${identity}`);
     return this.ssoClient.marketCognitoLogin(identity, marketId)
       .then((loginData) => {
         const { uclusion_token } = loginData;

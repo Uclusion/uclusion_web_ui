@@ -235,7 +235,7 @@ function PlanningInvestible(props) {
         investibleId={investibleId}
         marketId={marketId}
         stageId={stage}
-        keu="notdoing"
+        key="notdoing"
       />);
     }
     sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);

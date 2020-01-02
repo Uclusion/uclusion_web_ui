@@ -4,23 +4,26 @@ import { verifyEmail } from '../../api/sso';
 import { redirectToPath, setRedirect } from '../../utils/redirectUtils';
 import { extractErrorJSON } from '../../api/errorUtils';
 import { sendIntlMessage, ERROR } from '../../utils/userMessage';
+import { useHistory } from 'react-router';
 
 
 function VerifyEmail(props) {
   const LOGIN = '/';
+  const history = useHistory();
 
-  function initiateRedirect() {
-    setTimeout(() => {
-      console.debug('redirecting you to login');
-      redirectToPath(LOGIN);
-    }, 5000);
-  }
+
 
   const params = (new URL(document.location)).searchParams;
   const [verificationState, setVerificationState] = useState(undefined);
   const code = params.get('code');
 
   useEffect(() => {
+    function initiateRedirect() {
+      setTimeout(() => {
+        console.debug('redirecting you to login');
+        redirectToPath(history, LOGIN);
+      }, 5000);
+    }
     if (code && !verificationState) {
       verifyEmail(code)
         .then((result) => {
@@ -47,7 +50,7 @@ function VerifyEmail(props) {
             });
         });
     }
-  }, [code, verificationState]);
+  }, [code, verificationState, history]);
 
   if (!code) {
     return (

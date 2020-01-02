@@ -3,7 +3,7 @@ import {
   Grid, Typography, CardContent, CardActions, Link,
 } from '@material-ui/core';
 import _ from 'lodash';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';

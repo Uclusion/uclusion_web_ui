@@ -14,6 +14,9 @@ import { useHistory } from 'react-router';
 import VerifyEmail from '../../pages/Authentication/VerifyEmail';
 import IntlGlobalProvider from '../../components/ContextHacks/IntlGlobalProvider';
 import UclusionForgotPassword from '../../pages/Authentication/ForgotPassword';
+import { registerListener } from '../../utils/MessageBusUtils';
+import { AUTH_HUB_CHANNEL } from '../../contexts/WebSocketContext';
+import TokenStorageManager from '../../authorization/TokenStorageManager';
 Amplify.configure(awsconfig);
 const oauth = {
   domain: config.cognito_domain,
@@ -59,6 +62,19 @@ function AppWithAuth(props) {
   const messages = {
     ...getLocaleMessages(locale),
   };
+
+  registerListener(AUTH_HUB_CHANNEL, 'signinSignoutLocalClearingHandler', (data) => {
+    const { payload: { event } } = data;
+    switch (event) {
+      case 'signIn':
+      case 'signOut':
+        new TokenStorageManager().clearTokenStorage();
+        break;
+      default:
+        // ignore
+    }
+  });
+
   // we have to bypass auth for the verifyEmailPage
   if (pathname === '/verifyEmail') {
     return (

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import { deleteInvestible } from '../../../api/investibles';
 import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';

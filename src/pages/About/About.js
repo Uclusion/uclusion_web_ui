@@ -92,8 +92,11 @@ function About (props) {
               <span className={classes.value}>{externalId}</span>
             </Typography>
           </Paper>
-
-          <br />
+          <Paper className={classes.section}>
+            <Typography className={classes.row}>
+              {intl.formatMessage({ id: 'supportInfoText' })}
+            </Typography>
+          </Paper>
           <Button color='primary' onClick={handleClear}>{intl.formatMessage({ id: 'aboutClearStorageButton' })}</Button>
         </div>
       </Screen>

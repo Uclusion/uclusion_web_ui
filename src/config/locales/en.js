@@ -120,6 +120,9 @@ const messages = defineMessages({
   created_by: 'Created by',
   observers: 'Observers',
 
+  // Support
+  supportInfoText: 'To report a bug send an email to support@uclusion.com. To request a feature open a Dialog or Initiative explaining your use case or solution respectively and send the invite link to support@uclusion.com.',
+
   // Loadable Image
   loadableImageAlt: 'User provided image',
 

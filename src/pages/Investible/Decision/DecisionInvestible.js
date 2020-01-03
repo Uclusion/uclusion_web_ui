@@ -62,8 +62,8 @@ function DecisionInvestible(props) {
   // eslint-disable-next-line max-len
   const marketIssues = comments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved && !comment.investible_id);
   // eslint-disable-next-line max-len
-  const hasMarketIssue = Array.isArray(marketIssues) && marketIssues.length > 0;
-  const hasIssue = Array.isArray(myIssues) && myIssues.length > 0;
+  const hasMarketIssue = !_.isEmpty(marketIssues);
+  const hasIssue = !_.isEmpty(myIssues);
   const hasIssueOrMarketIssue = hasMarketIssue || hasIssue;
   const votingBlockedMessage = hasMarketIssue
     ? 'decisionInvestibleVotingBlockedMarket'
@@ -202,7 +202,6 @@ function DecisionInvestible(props) {
           type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
         >
-          <div ref={commentAddRef}>
             <CommentAddBox
               hidden={commentAddHidden}
               allowedTypes={allowedCommentTypes}
@@ -212,7 +211,7 @@ function DecisionInvestible(props) {
               onSave={closeCommentAdd}
               onCancel={closeCommentAdd}
             />
-          </div>
+          <div ref={commentAddRef} />
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
         </SubSection>
       )}

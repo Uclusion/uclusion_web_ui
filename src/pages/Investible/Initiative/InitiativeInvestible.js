@@ -49,6 +49,7 @@ function InitiativeInvestible(props) {
   const [addParticipantsMode, setAddParticipantsMode] = useState(false);
   // eslint-disable-next-line max-len
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
+  const myIssues = investmentReasonsRemoved.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
   // eslint-disable-next-line max-len
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
@@ -64,6 +65,7 @@ function InitiativeInvestible(props) {
   const commentAddRef = useRef(null);
   const activeMarket = marketStage === ACTIVE_STAGE;
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
+  const hasIssue = !_.isEmpty(myIssues);
 
   function commentButtonOnClick(type) {
     setCommentAddType(type);
@@ -159,13 +161,20 @@ function InitiativeInvestible(props) {
           type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
         >
-          <YourVoting
-            investibleId={investibleId}
-            marketPresences={marketPresences}
-            comments={investmentReasons}
-            userId={userId}
-            market={market}
-          />
+          {hasIssue && (
+            <Typography>
+              {intl.formatMessage({ id: 'initiativeInvestibleVotingBlocked' })}
+            </Typography>
+          )}
+          {!hasIssue && (
+            <YourVoting
+              investibleId={investibleId}
+              marketPresences={marketPresences}
+              comments={investmentReasons}
+              userId={userId}
+              market={market}
+            />
+          )}
         </SubSection>
       )}
       <SubSection
@@ -192,17 +201,15 @@ function InitiativeInvestible(props) {
           type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
         >
-          {!commentAddHidden && (
-            <CommentAddBox
-              hidden={commentAddHidden}
-              allowedTypes={allowedCommentTypes}
-              investible={investible}
-              marketId={marketId}
-              type={commentAddType}
-              onSave={closeCommentAdd}
-              onCancel={closeCommentAdd}
-            />
-          )}
+          <CommentAddBox
+            hidden={commentAddHidden}
+            allowedTypes={allowedCommentTypes}
+            investible={investible}
+            marketId={marketId}
+            type={commentAddType}
+            onSave={closeCommentAdd}
+            onCancel={closeCommentAdd}
+          />
           <div ref={commentAddRef} />
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
         </SubSection>

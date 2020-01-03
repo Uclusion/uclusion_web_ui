@@ -317,10 +317,9 @@ function PlanningInvestible(props) {
 
         </Paper>
       </SubSection>
-      <div ref={commentAddRef}>
         {discussionVisible && (
           <SubSection
-          type={SECTION_TYPE_SECONDARY}
+            type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
           >
             <CommentAddBox
@@ -332,10 +331,10 @@ function PlanningInvestible(props) {
               onSave={closeCommentAdd}
               onCancel={closeCommentAdd}
             />
+            <div ref={commentAddRef} />
             <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
           </SubSection>
         )}
-      </div>
 
     </Screen>
   );

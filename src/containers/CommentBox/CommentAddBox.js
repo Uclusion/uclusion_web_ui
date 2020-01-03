@@ -19,6 +19,7 @@ function CommentAddBox(props) {
     allowedTypes,
     onCancel,
     onSave,
+    hidden,
   } = props;
 
 
@@ -26,11 +27,11 @@ function CommentAddBox(props) {
 
   function getAddRegions() {
     return allowedTypes.map((allowedType) => {
-      const hidden = allowedType !== type;
+      const typeHidden = hidden || allowedType !== type;
       return (
         <CommentAdd
           key={allowedType}
-          hidden={hidden}
+          hidden={typeHidden}
           type={allowedType}
           investible={investible}
           marketId={marketId}
@@ -59,12 +60,14 @@ CommentAddBox.propTypes = {
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
+  hidden: PropTypes.bool,
 };
 
 CommentAddBox.defaultProps = {
   investible: undefined,
   onCancel: () => {},
   onSave: () => {},
+  hidden: false,
 };
 
 export default CommentAddBox;

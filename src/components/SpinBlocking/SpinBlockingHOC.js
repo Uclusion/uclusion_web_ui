@@ -63,8 +63,9 @@ export function withSpinLock(Component) {
           .then((versions) => {
             const { marketVersions } = versions;
             const newMarket = _.isEmpty(marketId);
-            const newVersion = marketVersions.find((version) => version.marketId === marketId);
-            if (newMarket || !_.isEqual(newVersion, currentVersion)) {
+            // eslint-disable-next-line max-len
+            const newVersion = marketVersions.find((version) => version.marketId === marketId || (newMarket && version.version === 1));
+            if (newVersion && (newMarket || !_.isEqual(newVersion, currentVersion))) {
               clearInterval(operationCheckInterval);
               removeListener(VERSIONS_HUB_CHANNEL, listenerName);
               endSpinning();
@@ -81,12 +82,13 @@ export function withSpinLock(Component) {
     const hubListener = (data) => {
       const { payload: { event, message } } = data;
       switch (event) {
-        case MARKET_MESSAGE_EVENT:
+        case MARKET_MESSAGE_EVENT: {
           const { object_id: messageMarketId, version } = message;
-          if ((messageMarketId === marketId) || (marketId === -1 && version === 1)) {
+          if ((messageMarketId === marketId) || (_.isEmpty(marketId) && version === 1)) {
             myOnSpinStop();
           }
           break;
+        }
         default:
           // ignore
           console.debug(`Spin blocker ignoring ${event}`);

@@ -16,10 +16,10 @@ import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { addParticipants } from '../../api/users';
 import { useIntl } from 'react-intl';
 import InviteLinker from '../Home/Decision/InviteLinker';
+import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -35,7 +35,6 @@ function AddressList(props) {
     onCancel,
     showObservers,
   } = props;
-  const [operationRunning] = useContext(OperationInProgressContext);
   const classes = useStyles();
   const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -68,6 +67,8 @@ function AddressList(props) {
   const [checked, setChecked] = useState(extractUsersList());
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);
+  const participants = Object.keys(checked).map((key) => checked[key]);
+  const anySelected = participants.find((participant) => participant.isChecked);
 
   useEffect(() => {
     if (!searchValue) {
@@ -151,7 +152,6 @@ function AddressList(props) {
   }
 
   function handleSave() {
-    const participants = Object.keys(checked).map((key) => checked[key]);
     const toAdd = participants.filter((participant) => participant.isChecked);
     const toAddClean = toAdd.map((participant) => {
       const { user_id, account_id, isObserver } = participant;
@@ -196,21 +196,23 @@ function AddressList(props) {
         <ListItem
           key="buttons"
         >
-          <Button
-            disabled={operationRunning}
-            onClick={onCancel}
-          >
-            {intl.formatMessage({ id: 'addressAddCancelLabel' })}
-          </Button>
-          <SpinBlockingButton
-            variant="contained"
-            color="primary"
-            onClick={handleSave}
-            marketId={addToMarketId}
-            onSpinStop={onSave}
-          >
-            {intl.formatMessage({ id: 'addressAddSaveLabel' })}
-          </SpinBlockingButton>
+          <SpinBlockingButtonGroup>
+            <Button
+              onClick={onCancel}
+            >
+              {intl.formatMessage({ id: 'addressAddCancelLabel' })}
+            </Button>
+            <SpinBlockingButton
+              variant="contained"
+              color="primary"
+              onClick={handleSave}
+              marketId={addToMarketId}
+              onSpinStop={onSave}
+              disabled={_.isEmpty(anySelected)}
+            >
+              {intl.formatMessage({ id: 'addressAddSaveLabel' })}
+            </SpinBlockingButton>
+          </SpinBlockingButtonGroup>
         </ListItem>
       </List>
     </div>

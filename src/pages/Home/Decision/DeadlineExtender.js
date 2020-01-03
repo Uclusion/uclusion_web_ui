@@ -1,12 +1,13 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import { Button } from '@material-ui/core';
+import { Button, ButtonGroup } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import ExpirationSelector from '../../../components/Expiration/ExpirationSelector';
 import { extendMarketExpiration } from '../../../api/markets';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -49,21 +50,23 @@ function DeadlineExtender(props) {
         value={extensionPeriod}
         onChange={selectorOnChange}
       />
-      <Button
-        onClick={myCancel}
-        disabled={operationRunning}
-      >
-        {intl.formatMessage({ id: 'deadlineExtenderCancel' })}
-      </Button>
-      <SpinBlockingButton
-        marketId={marketId}
-        variant="contained"
-        color="primary"
-        onClick={mySave}
-        onSpinStop={onSave}
-      >
-        {intl.formatMessage({ id: 'deadlineExtenderSave' })}
-      </SpinBlockingButton>
+      <SpinBlockingButtonGroup>
+        <Button
+          onClick={myCancel}
+          disabled={operationRunning}
+        >
+          {intl.formatMessage({ id: 'deadlineExtenderCancel' })}
+        </Button>
+        <SpinBlockingButton
+          marketId={marketId}
+          variant="contained"
+          color="primary"
+          onClick={mySave}
+          onSpinStop={onSave}
+        >
+          {intl.formatMessage({ id: 'deadlineExtenderSave' })}
+        </SpinBlockingButton>
+      </SpinBlockingButtonGroup>
     </div>
   );
 }
@@ -77,8 +80,10 @@ DeadlineExtender.propTypes = {
 
 DeadlineExtender.defaultProps = {
   hidden: false,
-  onSave: () => {},
-  onCancel: () => {},
+  onSave: () => {
+  },
+  onCancel: () => {
+  },
 };
 
 export default DeadlineExtender;

@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { injectIntl } from 'react-intl';
+import _ from 'lodash';
 import {
   Card, Button, ButtonGroup, CardContent, CardActions, makeStyles,
 } from '@material-ui/core';
@@ -105,18 +106,19 @@ function CommentAdd(props) {
             size="small"
             color="primary"
           >
-            <SpinBlockingButton
-              marketId={marketId}
-              onClick={handleSave}
-              onSpinStop={handleSpinStop}
-            >
-              {intl.formatMessage({ id: commentSaveLabel })}
-            </SpinBlockingButton>
             <Button
               onClick={handleCancel}
             >
               {intl.formatMessage({ id: commentCancelLabel })}
             </Button>
+            <SpinBlockingButton
+              marketId={marketId}
+              onClick={handleSave}
+              onSpinStop={handleSpinStop}
+              disabled={_.isEmpty(body)}
+            >
+              {intl.formatMessage({ id: commentSaveLabel })}
+            </SpinBlockingButton>
           </ButtonGroup>
         </CardActions>
       </Card>

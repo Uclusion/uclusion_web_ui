@@ -2,7 +2,7 @@ import React, { useState, useContext, useReducer, useEffect } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
-  Button,
+  Button, ButtonGroup,
   Card,
   CardActions,
   CardContent,
@@ -147,22 +147,29 @@ function InvestibleAdd(props) {
         />
       </CardContent>
       <CardActions>
-        <Button
+        <ButtonGroup
           disabled={operationRunning}
-          onClick={handleCancel}
-        >
-          {intl.formatMessage({ id: 'investibleAddCancelLabel' })}
-        </Button>
-        <SpinBlockingButton
           variant="contained"
+          size="small"
           color="primary"
-          onClick={handleSave}
-          disabled={!validForm}
-          marketId={marketId}
-          onSpinStop={() => addInvestibleDispatch({})}
         >
-          {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
-        </SpinBlockingButton>
+          <Button
+
+            onClick={handleCancel}
+          >
+            {intl.formatMessage({ id: 'investibleAddCancelLabel' })}
+          </Button>
+          <SpinBlockingButton
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={!validForm}
+            marketId={marketId}
+            onSpinStop={() => addInvestibleDispatch({})}
+          >
+            {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
+          </SpinBlockingButton>
+        </ButtonGroup>
       </CardActions>
     </Card>
 

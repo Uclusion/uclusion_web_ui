@@ -11,7 +11,7 @@ import { processTextAndFilesForSave } from '../../api/files';
 import { useHistory } from 'react-router';
 import { PLANNING_TYPE } from '../../constants/markets';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,7 +40,6 @@ function PlanningAdd(props) {
   const [investmentExpiration, setInvestmentExpiration] = useState(undefined);
   const [maxBudget, setMaxBudget] = useState(undefined);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [operationRunning] = useContext(OperationInProgressContext);
   const [, addDialogDispatch] = useReducer((state, action) => {
     const { link } = action;
     if (link) {
@@ -173,19 +172,23 @@ function PlanningAdd(props) {
         />
       </CardContent>
       <CardActions>
-        <Button onClick={handleCancel} disabled={operationRunning}>
-          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
-        </Button>
-        <SpinBlockingButton
-          marketId={-1}
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          disabled={!validForm}
-          onSpinStop={() => addDialogDispatch({})}
-        >
-          {intl.formatMessage({ id: 'marketAddSaveLabel' })}
-        </SpinBlockingButton>
+        <SpinBlockingButtonGroup>
+          <Button
+            onClick={handleCancel}
+          >
+            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+          </Button>
+          <SpinBlockingButton
+            marketId=""
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={!validForm}
+            onSpinStop={() => addDialogDispatch({})}
+          >
+            {intl.formatMessage({ id: 'marketAddSaveLabel' })}
+          </SpinBlockingButton>
+        </SpinBlockingButtonGroup>
       </CardActions>
     </Card>
   );
@@ -196,7 +199,8 @@ PlanningAdd.propTypes = {
 };
 
 PlanningAdd.defaultProps = {
-  onCancel: () => {},
+  onCancel: () => {
+  },
 };
 
 export default PlanningAdd;

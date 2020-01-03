@@ -9,6 +9,7 @@ import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { PLANNING_TYPE } from '../../../constants/markets';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -132,21 +133,23 @@ function DialogEdit(props) {
         />
       </CardContent>
       <CardActions>
-        <SpinBlockingButton
-          marketId={id}
-          onClick={onCancel}
-        >
-          {intl.formatMessage({ id: 'marketEditCancelLabel' })}
-        </SpinBlockingButton>
-        <SpinBlockingButton
-          marketId={id}
-          variant="contained"
-          color="primary"
-          disabled={!validForm}
-          onClick={handleSave}
-        >
-          {intl.formatMessage({ id: 'marketEditSaveLabel' })}
-        </SpinBlockingButton>
+        <SpinBlockingButtonGroup>
+          <SpinBlockingButton
+            marketId={id}
+            onClick={onCancel}
+          >
+            {intl.formatMessage({ id: 'marketEditCancelLabel' })}
+          </SpinBlockingButton>
+          <SpinBlockingButton
+            marketId={id}
+            variant="contained"
+            color="primary"
+            disabled={!validForm}
+            onClick={handleSave}
+          >
+            {intl.formatMessage({ id: 'marketEditSaveLabel' })}
+          </SpinBlockingButton>
+        </SpinBlockingButtonGroup>
       </CardActions>
     </Card>
   );
@@ -160,8 +163,10 @@ DialogEdit.propTypes = {
 };
 
 DialogEdit.defaultProps = {
-  onCancel: () => {},
-  editToggle: () => {},
+  onCancel: () => {
+  },
+  editToggle: () => {
+  },
 };
 
 export default DialogEdit;

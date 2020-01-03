@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, Card, CardActions, CardContent, makeStyles, TextField,
+  Button, ButtonGroup, Card, CardActions, CardContent, makeStyles, TextField,
 } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { lockPlanningMarketForEdit, updateMarket } from '../../../api/markets';
@@ -106,21 +106,28 @@ function DialogEdit(props) {
         />
       </CardContent>
       <CardActions>
-        <Button
+        <ButtonGroup
           disabled={operationRunning}
-          onClick={onCancel}
-        >
-          {intl.formatMessage({ id: 'marketEditCancelLabel' })}
-        </Button>
-        <SpinBlockingButton
           variant="contained"
+          size="small"
           color="primary"
-          marketId={id}
-          disabled={!validForm}
-          onClick={handleSave}
         >
-          {intl.formatMessage({ id: 'marketEditSaveLabel' })}
-        </SpinBlockingButton>
+          <Button
+            disabled={operationRunning}
+            onClick={onCancel}
+          >
+            {intl.formatMessage({ id: 'marketEditCancelLabel' })}
+          </Button>
+          <SpinBlockingButton
+            variant="contained"
+            color="primary"
+            marketId={id}
+            disabled={!validForm}
+            onClick={handleSave}
+          >
+            {intl.formatMessage({ id: 'marketEditSaveLabel' })}
+          </SpinBlockingButton>
+        </ButtonGroup>
       </CardActions>
     </Card>
   );
@@ -134,8 +141,10 @@ DialogEdit.propTypes = {
 };
 
 DialogEdit.defaultProps = {
-  onCancel: () => {},
-  editToggle: () => {},
+  onCancel: () => {
+  },
+  editToggle: () => {
+  },
 };
 
 export default DialogEdit;

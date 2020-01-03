@@ -40,23 +40,22 @@ export function updateInvestment(updateInfo) {
   } = updateInfo;
 
   return getMarketClient(marketId)
-    .then((client) => client.markets.updateInvestment(investibleId, newQuantity, currentQuantity,
-      null, maxBudget)
-      .then((updateResult) => {
+    .then((client) => {
+      const investmentSame = newQuantity === currentQuantity;
+      const updatePromise = investmentSame ? Promise.resolve(true)
+        : client.markets.updateInvestment(investibleId, newQuantity, currentQuantity, null, maxBudget);
+      return updatePromise.then((updateResult) => {
         if (reasonNeedsUpdate) {
           if (currentReasonId) {
             if (_.isEmpty(newReasonText)) {
-              return client.investibles.deleteComment(currentReasonId)
-                .then(() => updateResult);
+              return client.investibles.deleteComment(currentReasonId);
             }
-            return client.investibles.updateComment(currentReasonId, newReasonText, false, [])
-              .then(() => updateResult);
+            return client.investibles.updateComment(currentReasonId, newReasonText, false, []);
           }
-          return client.investibles.createComment(investibleId, newReasonText, undefined,
-            JUSTIFY_TYPE, [])
-            .then(() => updateResult);
+          return client.investibles.createComment(investibleId, newReasonText, undefined, JUSTIFY_TYPE, []);
         }
         return updateResult;
-      }))
+      });
+    })
     .catch((error) => toastErrorAndThrow(error, 'errorInvestmentUpdateFailed'));
 }

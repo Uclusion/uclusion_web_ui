@@ -14,6 +14,7 @@ import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -148,19 +149,21 @@ function DecisionAdd(props) {
         />
       </CardContent>
       <CardActions>
-        <Button onClick={handleCancel} disabled={operationRunning}>
-          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
-        </Button>
-        <SpinBlockingButton
-          marketId={-1}
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          disabled={!validForm}
-          onSpinStop={() => addDialogDispatch({})}
-        >
-          {intl.formatMessage({ id: 'marketAddSaveLabel' })}
-        </SpinBlockingButton>
+        <SpinBlockingButtonGroup>
+          <Button onClick={handleCancel} disabled={operationRunning}>
+            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+          </Button>
+          <SpinBlockingButton
+            marketId=""
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={!validForm}
+            onSpinStop={() => addDialogDispatch({})}
+          >
+            {intl.formatMessage({ id: 'marketAddSaveLabel' })}
+          </SpinBlockingButton>
+        </SpinBlockingButtonGroup>
       </CardActions>
     </Card>
   );
@@ -171,7 +174,8 @@ DecisionAdd.propTypes = {
 };
 
 DecisionAdd.defaultProps = {
-  onCancel: () => {},
+  onCancel: () => {
+  },
 };
 
 export default DecisionAdd;

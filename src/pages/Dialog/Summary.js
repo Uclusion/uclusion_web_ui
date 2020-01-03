@@ -92,6 +92,7 @@ function Summary(props) {
       {maxBudget && (
         <TextField
           className={classes.row}
+          disabled
           id="maxBudget"
           label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
           margin="normal"
@@ -102,6 +103,7 @@ function Summary(props) {
       {investmentExpiration && (
         <TextField
           className={classes.row}
+          disabled
           id="investmentExpiration"
           label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
           margin="normal"

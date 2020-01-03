@@ -6,16 +6,15 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
-
+import { Grid, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
-import PlaylistAddOutlinedIcon from '@material-ui/icons/PlaylistAddOutlined';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import SmsOutlinedIcon from '@material-ui/icons/SmsOutlined';
 import UpdateIcon from '@material-ui/icons/Update';
-import { Grid, Typography } from '@material-ui/core';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import Summary from '../Summary';
 import InvestibleAdd from './InvestibleAdd';
@@ -83,7 +82,7 @@ function DecisionDialog(props) {
     },
     {
       label: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
-      icon: <PlaylistAddOutlinedIcon />,
+      icon: <GroupAddIcon />,
       onClick: () => toggleAddParticipantsMode(),
     },
     {

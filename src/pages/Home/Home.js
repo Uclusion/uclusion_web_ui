@@ -1,9 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
-import ListAltIcon from '@material-ui/icons/ListAlt';
-import PlaylistAddOutlinedIcon from '@material-ui/icons/PlaylistAddOutlined';
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import { makeStyles } from '@material-ui/core';
 import { useIntl } from 'react-intl';
@@ -28,6 +25,7 @@ import InitiativeDialogs from './InitiativeDialogs';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SubSection from '../../containers/SubSection/SubSection';
 import { navigate } from '../../utils/marketIdPathFunctions';
+import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 
 const useStyles = makeStyles(() => ({
   breadCrumbImage: {
@@ -77,17 +75,17 @@ function Home(props) {
   const SIDEBAR_ACTIONS = [
     {
       label: intl.formatMessage({ id: 'homeAddPlanning' }),
-      icon: <ListAltIcon />,
+      icon: getDialogTypeIcon(PLANNING_TYPE),
       onClick: () => togglePlanningAddMode(),
     },
     {
       label: intl.formatMessage({ id: 'homeAddDecision' }),
-      icon: <PlaylistAddOutlinedIcon />,
+      icon: getDialogTypeIcon(DECISION_TYPE),
       onClick: () => toggleDecisionAddMode(),
     },
     {
       label: intl.formatMessage({ id: 'homeAddInitiative' }),
-      icon: <ErrorOutlineIcon />,
+      icon: getDialogTypeIcon(INITIATIVE_TYPE),
       onClick: () => toggleInitiativeAddMode(),
     },
     {

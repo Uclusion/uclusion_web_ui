@@ -13,6 +13,7 @@ import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingBut
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const styles = (theme) => ({
   root: {
@@ -118,11 +119,11 @@ function PlanningInvestibleEdit(props) {
           onChange={handleChange('name')}
         />
         {assignee && (
-        <QuillEditor
-          handleFileUpload={handleFileUpload}
-          onChange={onEditorChange}
-          defaultValue={description}
-        />
+          <QuillEditor
+            handleFileUpload={handleFileUpload}
+            onChange={onEditorChange}
+            defaultValue={description}
+          />
         )}
         {!assignee && (
           <ReadOnlyQuillEditor
@@ -131,22 +132,24 @@ function PlanningInvestibleEdit(props) {
         )}
       </CardContent>
       <CardActions>
-        <SpinBlockingButton
-          marketId={marketId}
-          onClick={onCancel}
-        >
-          {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
-        </SpinBlockingButton>
-        <SpinBlockingButton
-          marketId={marketId}
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          disabled={!validForm}
-          onSpinStop={onSave}
-        >
-          {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
-        </SpinBlockingButton>
+        <SpinBlockingButtonGroup>
+          <SpinBlockingButton
+            marketId={marketId}
+            onClick={onCancel}
+          >
+            {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
+          </SpinBlockingButton>
+          <SpinBlockingButton
+            marketId={marketId}
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={!validForm}
+            onSpinStop={onSave}
+          >
+            {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
+          </SpinBlockingButton>
+        </SpinBlockingButtonGroup>
       </CardActions>
     </Card>
 
@@ -166,7 +169,9 @@ PlanningInvestibleEdit.propTypes = {
 };
 
 PlanningInvestibleEdit.defaultProps = {
-  onSave: () => {},
-  onCancel: () => {},
+  onSave: () => {
+  },
+  onCancel: () => {
+  },
 };
 export default withStyles(styles)(injectIntl(PlanningInvestibleEdit));

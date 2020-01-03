@@ -62,8 +62,9 @@ export function withSpinLock(Component) {
         return getVersions()
           .then((versions) => {
             const { marketVersions } = versions;
+            const newMarket = _.isEmpty(marketId);
             const newVersion = marketVersions.find((version) => version.marketId === marketId);
-            if (!_.isEqual(newVersion, currentVersion)) {
+            if (newMarket || !_.isEqual(newVersion, currentVersion)) {
               clearInterval(operationCheckInterval);
               removeListener(VERSIONS_HUB_CHANNEL, listenerName);
               endSpinning();
@@ -156,10 +157,7 @@ export function withSpinLock(Component) {
     onSpinStop: PropTypes.func,
     onClick: PropTypes.func,
     // eslint-disable-next-line react/forbid-prop-types
-    marketId: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-    ]).isRequired,
+    marketId: PropTypes.string.isRequired,
     disabled: PropTypes.bool,
   };
   Spinning.defaultProps = {

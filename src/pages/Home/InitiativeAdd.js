@@ -15,7 +15,7 @@ import { processTextAndFilesForSave } from '../../api/files';
 import { INITIATIVE_TYPE } from '../../constants/markets';
 import { addDecisionInvestible } from '../../api/investibles';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,7 +42,6 @@ function InitiativeAdd(props) {
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [operationRunning] = useContext(OperationInProgressContext);
   const [, addDialogDispatch] = useReducer((state, action) => {
     const { link } = action;
     if (link) {
@@ -156,19 +155,23 @@ function InitiativeAdd(props) {
         />
       </CardContent>
       <CardActions>
-        <Button onClick={handleCancel} disabled={operationRunning}>
-          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
-        </Button>
-        <SpinBlockingButton
-          marketId={-1}
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          disabled={!validForm}
-          onSpinStop={() => addDialogDispatch({})}
-        >
-          {intl.formatMessage({ id: 'marketAddSaveLabel' })}
-        </SpinBlockingButton>
+        <SpinBlockingButtonGroup>
+          <Button
+            onClick={handleCancel}
+          >
+            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+          </Button>
+          <SpinBlockingButton
+            marketId=""
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={!validForm}
+            onSpinStop={() => addDialogDispatch({})}
+          >
+            {intl.formatMessage({ id: 'marketAddSaveLabel' })}
+          </SpinBlockingButton>
+        </SpinBlockingButtonGroup>
       </CardActions>
     </Card>
   );
@@ -180,8 +183,10 @@ InitiativeAdd.propTypes = {
 };
 
 InitiativeAdd.defaultProps = {
-  onCancel: () => {},
-  onSave: () => {},
+  onCancel: () => {
+  },
+  onSave: () => {
+  },
 };
 
 export default InitiativeAdd;

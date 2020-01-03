@@ -104,9 +104,8 @@ class QuillEditor extends React.PureComponent {
 
 
   componentDidMount() {
-    const { defaultValue, onChange, value } = this.props;
-    const usedValue = value || defaultValue;
-    this.editorBox.current.innerHTML = usedValue;
+    const { defaultValue, onChange } = this.props;
+    this.editorBox.current.innerHTML = defaultValue;
     this.editor = new Quill(this.editorBox.current, this.options);
     const debouncedOnChange = _.debounce((delta) => {
       const contents = this.editor.root.innerHTML;
@@ -170,7 +169,6 @@ QuillEditor.defaultProps = {
   defaultValue: '',
   placeholder: '',
   marketId: undefined,
-  value: '',
   uploadDisabled: false,
 };
 

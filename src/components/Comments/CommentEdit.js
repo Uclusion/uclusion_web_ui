@@ -50,7 +50,7 @@ function CommentEdit(props) {
       <Card>
         <CardContent>
           <QuillEditor
-            initialValue={body}
+            defaultValue={initialBody}
             onChange={onEditorChange}
           />
         </CardContent>

@@ -51,6 +51,12 @@ export function changeToObserver(marketId) {
     .catch((error) => toastErrorAndThrow(error, 'errorChangeToObserverFailed'));
 }
 
+export function changeUserToParticipant(userId, marketId){
+  return getMarketClient(marketId)
+    .then((client) => client.markets.followMarket(true))
+    .catch((error) => toastErrorAndThrow(error, 'errorChangeToObserverFailed'));
+}
+
 export function changeToParticipant(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.markets.followMarket(false))

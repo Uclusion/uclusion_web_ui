@@ -183,6 +183,7 @@ const messages = defineMessages({
 
   // Address list
   addressAddCancelLabel: 'Cancel',
+  addressAddClearLabel: 'Clear',
   addressAddSaveLabel: 'Add Participants',
 
   // InvestibleAdd
@@ -305,6 +306,7 @@ const messages = defineMessages({
   decisionDialogsArchiveDialog: 'Deactivate',
 
   // Planning Dialog
+  planningDialogManageParticipantsLabel: 'Manage Participants',
   planningDialogSummaryLabel: 'Plan Information',
   planningDialogPeopleLabel: 'In progress and in voting assigned stories',
   planningDialogDiscussionLabel: 'Discussion',
@@ -351,6 +353,14 @@ const messages = defineMessages({
   aboutUserNameLabel: 'User Name',
   aboutUclusionEmailLabel: 'Support',
   aboutClearStorageButton: 'Clear Storage',
+
+  //Planning Manage Users
+  manageParticipantsCurrentTitle: 'Current Participants',
+  manageParticipantsAddTitle: 'New Participants',
+  manageParticipantsMakeObserver: 'Make Observer',
+  manageParticipantsMakeParticipant: 'Make Participant',
+  manageParticipantsObserver: 'Observer',
+  manageParticipantsParticipant: 'Participant',
 
   // decision sidebar
   addOptionLabel: 'Add Option',

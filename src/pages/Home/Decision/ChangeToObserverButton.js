@@ -1,40 +1,43 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import VisibilityIcon from '@material-ui/icons/Visibility';
+import { useIntl } from 'react-intl';
+
 import { changeToObserver } from '../../../api/markets';
-import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
-import { withSpinLock } from '../../../components/SpinBlocking/SpinBlockingHOC';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 
 
 function ChangeToObserverButton(props) {
-  const [operationRunning] = useContext(OperationInProgressContext);
-  const { marketId, onClick } = props;
+  const { marketId, onClick, translationId } = props;
+  const intl = useIntl();
 
   function myOnClick() {
     return changeToObserver(marketId);
   }
 
-  const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
   return (
-    <SpinningTooltipIconButton
+    <SpinBlockingButton
       marketId={marketId}
       onClick={myOnClick}
       onSpinStop={onClick}
-      disabled={operationRunning}
-      translationId="decisionDialogsBecomeObserver"
-      icon={<VisibilityIcon />}
-    />
+      size="small"
+      variant="contained"
+      color="primary"
+    >
+      {intl.formatMessage({ id: translationId })}
+    </SpinBlockingButton>
   );
 }
 
 ChangeToObserverButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   onClick: PropTypes.func,
+  translationId: PropTypes.string,
 };
 
 ChangeToObserverButton.defaultProps = {
-  onClick: () => {},
+  onClick: () => {
+  },
+  translationId: 'decisionDialogsBecomeObserver',
 };
 
 export default ChangeToObserverButton;

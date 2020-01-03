@@ -34,6 +34,7 @@ function AddressList(props) {
     onSave,
     onCancel,
     showObservers,
+    isOwnScreen,
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -63,12 +64,17 @@ function AddressList(props) {
       return { ...acc, ...macc };
     }, {});
   }
-
-  const [checked, setChecked] = useState(extractUsersList());
+  const defaultChecked = extractUsersList();
+  const [checked, setChecked] = useState(defaultChecked);
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);
   const participants = Object.keys(checked).map((key) => checked[key]);
   const anySelected = participants.find((participant) => participant.isChecked);
+
+  function myOnCancel() {
+    setChecked(defaultChecked);
+    onCancel();
+  }
 
   useEffect(() => {
     if (!searchValue) {
@@ -198,9 +204,10 @@ function AddressList(props) {
         >
           <SpinBlockingButtonGroup>
             <Button
-              onClick={onCancel}
+              onClick={myOnCancel}
             >
-              {intl.formatMessage({ id: 'addressAddCancelLabel' })}
+              {!isOwnScreen && intl.formatMessage({ id: 'addressAddClearLabel' })}
+              {isOwnScreen && intl.formatMessage({ id: 'addressAddCancelLabel' })}
             </Button>
             <SpinBlockingButton
               variant="contained"
@@ -224,6 +231,7 @@ AddressList.propTypes = {
   showObservers: PropTypes.bool,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
+  isOwnScreen: PropTypes.bool,
 };
 
 AddressList.defaultProps = {
@@ -232,6 +240,7 @@ AddressList.defaultProps = {
   },
   onCancel: () => {
   },
+  isOwnScreen: true,
 };
 
 export default AddressList;

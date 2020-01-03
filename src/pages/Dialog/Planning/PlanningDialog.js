@@ -2,7 +2,6 @@
  * A component that renders a _decision_ dialog
  */
 import React, { useState, useRef } from 'react';
-import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -12,7 +11,6 @@ import GridListTile from '@material-ui/core/GridListTile';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Summary from '../Summary';
 import PlanningIdeas from './PlanningIdeas';
-import { getMarketInfo } from '../../../utils/userFunctions';
 import Screen from '../../../containers/Screen/Screen';
 import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
@@ -29,12 +27,12 @@ import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../..
 import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import { ACTIVE_STAGE } from '../../../constants/markets';
-import AddressList from '../AddressList';
-import AddParticipantsActionButton from '../AddParticipantsActionButton';
+import ManageParticipantsActionButton from './ManageParticipantsActionButton';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import ChangeToObserverActionButton from '../ChangeToObserverActionButton';
 import ChangeToParticipantActionButton from '../ChangeToParticipantActionButton';
-
+import { getUserEligibleForObserver, getUserInvestibles } from './userUtils';
+import ManageParticipants from './ManageParticipants';
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -65,20 +63,10 @@ function PlanningDialog(props) {
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);
   const [dialogEditMode, setDialogEditMode] = useState(false);
-  const [addParticipantsMode, setAddParticipantsMode] = useState(false);
+  const [manageUsersMode, setManageUsersMode] = useState(false);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
-  const { name: marketName, locked_by: lockedBy } = market;
+  const { name: marketName, locked_by: lockedBy } = market
 
-
-  function getUserInvestibles(userId) {
-    const myInvestibles = investibles.filter((investible) => {
-      const marketInfo = getMarketInfo(investible, marketId);
-      const { assigned } = marketInfo;
-      const assignedFull = Array.isArray(assigned) ? assigned : [];
-      return assignedFull.includes(userId);
-    });
-    return myInvestibles;
-  }
 
   let lockedByName;
   if (lockedBy) {
@@ -93,8 +81,8 @@ function PlanningDialog(props) {
     setAddInvestibleMode(!addInvestibleMode);
   }
 
-  function toggleAddParticipantsMode() {
-    setAddParticipantsMode(!addParticipantsMode);
+  function toggleManageUsersMode() {
+    setManageUsersMode(!manageUsersMode);
   }
 
   function toggleEditMode() {
@@ -153,8 +141,8 @@ function PlanningDialog(props) {
     );
   }
 
-  if (addParticipantsMode) {
-    const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
+  if (manageUsersMode) {
+    const breadCrumbTemplates = [{ name: marketName, onClick: () => toggleManageUsersMode() }];
     const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
     const participantsTitle = intl.formatMessage({ id: 'addressListHeader' });
     return (
@@ -164,11 +152,12 @@ function PlanningDialog(props) {
         hidden={hidden}
         breadCrumbs={myBreadCrumbs}
       >
-        <AddressList
-          addToMarketId={marketId}
-          onCancel={toggleAddParticipantsMode}
-          onSave={toggleAddParticipantsMode}
-          intl={intl}
+        <ManageParticipants
+          marketId={marketId}
+          investibles={investibles}
+          marketPresences={marketPresences}
+          onCancel={toggleManageUsersMode}
+          onSave={toggleManageUsersMode}
         />
       </Screen>
     );
@@ -208,7 +197,7 @@ function PlanningDialog(props) {
         </GridListTile>
         {
           followingPresences.map((presence) => {
-            const myInvestibles = getUserInvestibles(presence.id);
+            const myInvestibles = getUserInvestibles(presence.id, marketId, investibles);
             const { id, name } = presence;
             return (
 
@@ -251,15 +240,14 @@ function PlanningDialog(props) {
         marketId={marketId}
         onCancel={onDialogEditCancel} />),
       <InvestibleAddActionButton key="investibleadd" onClick={toggleAddInvestibleMode} />,
-      <AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />,
+      <ManageParticipantsActionButton key="addParticipants" onClick={toggleManageUsersMode} />,
       <ViewArchiveActionButton key="archives" marketId={marketId} />,
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
       <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];
 
-    const myInvestibles = getUserInvestibles(userId);
-    const noAssignments = _.isEmpty(myInvestibles);
-    if (noAssignments) {
+    const eligibleForObserver = getUserEligibleForObserver(userId, marketId, investibles);
+    if (eligibleForObserver) {
       if (following) {
         userActions.push(
           <ChangeToObserverActionButton key="observe" marketId={marketId}/>,

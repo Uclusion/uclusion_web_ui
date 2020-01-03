@@ -1,39 +1,42 @@
-import React, { useContext } from 'react';
+import React from 'react';
+import { useIntl } from 'react-intl';
+
 import PropTypes from 'prop-types';
-import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import { changeToParticipant } from '../../../api/markets';
-import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
-import { withSpinLock } from '../../../components/SpinBlocking/SpinBlockingHOC';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 
 
 function ChangeToParticipantButton(props) {
-  const [operationRunning] = useContext(OperationInProgressContext);
-  const { marketId, onClick } = props;
+  const { marketId, onClick, translationId } = props;
+  const intl = useIntl();
 
   function myOnClick() {
     return changeToParticipant(marketId);
   }
-  const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
+
   return (
-    <SpinningTooltipIconButton
+    <SpinBlockingButton
       marketId={marketId}
       onClick={myOnClick}
       onSpinStop={onClick}
-      disabled={operationRunning}
-      translationId="decisionDialogsBecomeParticipant"
-      icon={<ThumbsUpDownIcon />}
-    />
+      variant="contained"
+      color="primary"
+      size="small"
+    >
+      {intl.formatMessage({ id: translationId })}
+    </SpinBlockingButton>
   );
 }
 
 ChangeToParticipantButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   onClick: PropTypes.func,
+  translationId: PropTypes.string,
 };
 
 ChangeToParticipantButton.defaultProps = {
   onClick: () => {},
+  translationId: 'decisionDialogsBecomeParticipant',
 };
 
 export default ChangeToParticipantButton;

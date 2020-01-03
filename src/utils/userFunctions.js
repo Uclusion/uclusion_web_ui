@@ -7,7 +7,7 @@ export function getFlags(user) {
 }
 
 export function getMarketInfo(investible, marketId) {
-  return investible.market_infos.find(info => info.market_id === marketId);
+  return investible.market_infos.find((info) => info.market_id === marketId);
 }
 
 export function getVoteTotalsForUser(presence) {

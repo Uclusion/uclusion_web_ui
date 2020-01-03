@@ -41,7 +41,6 @@ function DecisionAdd(props) {
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const [description, setDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [operationRunning] = useContext(OperationInProgressContext);
   const [, addDialogDispatch] = useReducer((state, action) => {
     const { link } = action;
     if (link) {

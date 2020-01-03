@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import { Button, ButtonGroup } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import ExpirationSelector from '../../../components/Expiration/ExpirationSelector';
 import { extendMarketExpiration } from '../../../api/markets';

@@ -1,6 +1,4 @@
-import React, {
-  useContext, useEffect, useReducer, useState,
-} from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import {

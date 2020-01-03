@@ -85,13 +85,13 @@ function InitiativeInvestible(props) {
     const sidebarActions = [];
 
     if (isAdmin) {
-      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
-      sidebarActions.push(<ExtendDeadlineActionButton key="extend" onClick={() => setExtendDeadlineMode(true)} />);
+      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
+      sidebarActions.push(<ExtendDeadlineActionButton key="extend" onClick={() => setExtendDeadlineMode(true)}/>);
     }
-    sidebarActions.push(<AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />);
-    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
-    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
-    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode}/>);
+    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick}/>);
     return sidebarActions;
   }
 
@@ -182,7 +182,7 @@ function InitiativeInvestible(props) {
         type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
-        <Summary market={market} showObservers={false} />
+        <Summary market={market} showObservers={false}/>
         <ReadOnlyQuillEditor
           value={description}
         />
@@ -192,7 +192,7 @@ function InitiativeInvestible(props) {
           type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
         >
-          <div ref={commentAddRef}>
+          {!commentAddHidden && (
             <CommentAddBox
               hidden={commentAddHidden}
               allowedTypes={allowedCommentTypes}
@@ -202,8 +202,9 @@ function InitiativeInvestible(props) {
               onSave={closeCommentAdd}
               onCancel={closeCommentAdd}
             />
-          </div>
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
+          )}
+          <div ref={commentAddRef} />
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
         </SubSection>
       )}
     </Screen>

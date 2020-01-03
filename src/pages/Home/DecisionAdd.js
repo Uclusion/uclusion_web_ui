@@ -150,7 +150,7 @@ function DecisionAdd(props) {
       </CardContent>
       <CardActions>
         <SpinBlockingButtonGroup>
-          <Button onClick={handleCancel} disabled={operationRunning}>
+          <Button onClick={handleCancel}>
             {intl.formatMessage({ id: 'marketAddCancelLabel' })}
           </Button>
           <SpinBlockingButton

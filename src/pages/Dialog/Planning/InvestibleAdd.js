@@ -16,7 +16,7 @@ import { processTextAndFilesForSave } from '../../../api/files';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import AssignmentList from './AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const styles = (theme) => ({
   root: {
@@ -42,7 +42,6 @@ function InvestibleAdd(props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [validForm, setValidForm] = useState(false);
-  const [operationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
   const [, addInvestibleDispatch] = useReducer((state, action) => {
     const { link } = action;
@@ -146,22 +145,23 @@ function InvestibleAdd(props) {
         />
       </CardContent>
       <CardActions>
-        <Button
-          disabled={operationRunning}
-          onClick={handleCancel}
-        >
-          {intl.formatMessage({ id: 'investibleAddCancelLabel' })}
-        </Button>
-        <SpinBlockingButton
-          marketId={marketId}
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          disabled={!validForm}
-          onSpinStop={() => addInvestibleDispatch({})}
-        >
-          {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
-        </SpinBlockingButton>
+        <SpinBlockingButtonGroup>
+          <Button
+            onClick={handleCancel}
+          >
+            {intl.formatMessage({ id: 'investibleAddCancelLabel' })}
+          </Button>
+          <SpinBlockingButton
+            marketId={marketId}
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={!validForm}
+            onSpinStop={() => addInvestibleDispatch({})}
+          >
+            {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
+          </SpinBlockingButton>
+        </SpinBlockingButtonGroup>
       </CardActions>
     </Card>
 

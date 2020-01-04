@@ -34,7 +34,7 @@ export function addPlanningInvestible(addInfo) {
     name,
     description,
     uploadedFiles,
-    assignments
+    assignments,
   } = addInfo;
   return getMarketClient(marketId)
     .then((client) => client.investibles.create(name, description, uploadedFiles, assignments))

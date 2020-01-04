@@ -281,7 +281,10 @@ function PlanningDialog(props) {
           <SubSection
             title={intl.formatMessage({ id: 'planningDialogSummaryLabel' })}
           >
-            <Summary market={market} />
+            <Summary
+              market={market}
+              showObservers={false}
+            />
             {lockedBy && (
               <Typography>
                 {intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName })}

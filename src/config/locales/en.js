@@ -308,7 +308,7 @@ const messages = defineMessages({
   // Planning Dialog
   planningDialogManageParticipantsLabel: 'Manage Participants',
   planningDialogSummaryLabel: 'Plan Information',
-  planningDialogPeopleLabel: 'In progress and in voting assigned stories',
+  planningDialogPeopleLabel: 'Assignable users stories',
   planningDialogDiscussionLabel: 'Discussion',
   planningDialogAddInvestibleLabel: 'Create story',
   planningDialogViewArchivesLabel: 'View Archives',

@@ -1,4 +1,6 @@
 import { getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper';
+import LocalForageHelper from '../LocalForageHelper';
+import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext';
 
 export function getMarket(state, marketId) {
   const { marketDetails } = state;
@@ -55,4 +57,10 @@ export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {
 
 export function getAllMarketDetails(state) {
   return state.marketDetails;
+}
+
+export function checkMarketInStorage(marketId) {
+  const lfh = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
+  return lfh.getState()
+    .then((state) => !!getMarket(state, marketId));
 }

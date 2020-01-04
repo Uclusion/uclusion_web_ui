@@ -14,6 +14,7 @@ import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
+import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -106,10 +107,12 @@ function DecisionAdd(props) {
     };
     return createDecision(addInfo)
       .then((result) => {
-        const { market_id } = result;
-        const link = formMarketLink(market_id);
+        const { market_id: marketId } = result;
+        const link = formMarketLink(marketId);
         addDialogDispatch({ link });
-        return link;
+        return {
+          spinChecker: () => checkMarketInStorage(marketId),
+        };
       });
   }
 

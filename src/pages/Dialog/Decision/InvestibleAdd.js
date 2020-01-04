@@ -1,4 +1,6 @@
-import React, { useState, useContext, useReducer, useEffect } from 'react';
+import React, {
+  useState, useContext, useReducer, useEffect,
+} from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
@@ -18,6 +20,7 @@ import { getStages } from '../../../contexts/MarketStagesContext/marketStagesCon
 import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import { checkInvestibleInStorage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 
 const styles = (theme) => ({
   root: {
@@ -119,7 +122,9 @@ function InvestibleAdd(props) {
     return promise.then((investibleId) => {
       const link = isAdmin ? formInvestibleLink(marketId, investibleId) : formMarketLink(marketId);
       addInvestibleDispatch({ link });
-      return link;
+      return {
+        spinChecker: () => checkInvestibleInStorage(investibleId),
+      };
     });
   }
 

@@ -12,6 +12,7 @@ import { useHistory } from 'react-router';
 import { PLANNING_TYPE } from '../../constants/markets';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
+import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -122,10 +123,12 @@ function PlanningAdd(props) {
     return createPlanning(addInfo)
       .then((result) => {
         onSave();
-        const { market_id } = result;
-        const link = formMarketLink(market_id);
+        const { market_id: marketId } = result;
+        const link = formMarketLink(marketId);
         addDialogDispatch({ link });
-        return link;
+        return {
+          spinChecker: () => checkMarketInStorage(marketId),
+        };
       });
   }
 

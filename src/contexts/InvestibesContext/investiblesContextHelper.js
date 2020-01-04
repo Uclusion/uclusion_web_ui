@@ -2,6 +2,8 @@ import _ from 'lodash';
 import { fetchInvestibleList, fetchInvestibles } from '../../api/marketInvestibles';
 import { updateStorableInvestibles } from './investiblesContextReducer';
 import { fixupItemForStorage } from '../ContextUtils';
+import LocalForageHelper from '../LocalForageHelper';
+import { INVESTIBLES_CONTEXT_NAMESPACE } from './InvestiblesContext';
 
 export function getMarketInvestibles(state, marketId) {
   const values = Object.values(state);
@@ -53,5 +55,14 @@ export function refreshInvestibles(dispatch, marketId) {
       const investibleHash = _.keyBy(fixed, (item) => item.investible.id);
       // console.debug(investibleHash);
       dispatch(updateStorableInvestibles(marketId, investibleHash));
+    });
+}
+
+export function checkInvestibleInStorage(investibleId) {
+  const lfh = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
+  return lfh.getState()
+    .then((state) => {
+      const usedState = Object.keys(state) || [];
+      return !!usedState.find((key) => key === investibleId);
     });
 }

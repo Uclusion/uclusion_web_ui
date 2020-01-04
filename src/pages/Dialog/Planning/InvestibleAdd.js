@@ -18,6 +18,7 @@ import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctio
 import AssignmentList from './AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
+import { checkInvestibleInStorage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 
 const styles = (theme) => ({
   root: {
@@ -115,7 +116,9 @@ function InvestibleAdd(props) {
     return addPlanningInvestible(addInfo).then((investibleId) => {
       const link = formInvestibleLink(marketId, investibleId);
       addInvestibleDispatch({ link });
-      return link;
+      return {
+        spinChecker: () => checkInvestibleInStorage(investibleId),
+      };
     });
   }
 

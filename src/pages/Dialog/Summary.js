@@ -78,9 +78,11 @@ function Summary(props) {
   }
   return (
     <Paper className={classes.container}>
-      <Typography className={classes.title} variant="h3" component="h1">
-        {name}
-      </Typography>
+      {marketType !== INITIATIVE_TYPE && (
+        <Typography className={classes.title} variant="h3" component="h1">
+          {name}
+        </Typography>
+      )}
       {marketType !== PLANNING_TYPE && active && (
         <ExpiresDisplay
           createdAt={createdAt}

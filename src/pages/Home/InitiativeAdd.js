@@ -14,6 +14,7 @@ import { INITIATIVE_TYPE } from '../../constants/markets';
 import { addDecisionInvestible } from '../../api/investibles';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
+import { checkInvestibleInStorage } from '../../contexts/InvestibesContext/investiblesContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -115,7 +116,9 @@ function InitiativeAdd(props) {
           description: tokensRemoved,
           name,
         };
-        return addDecisionInvestible(addInfo);
+        return addDecisionInvestible(addInfo).then((investibleId) => ({
+          spinChecker: () => checkInvestibleInStorage(investibleId),
+        }));
       });
   }
 

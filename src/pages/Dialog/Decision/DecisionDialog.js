@@ -73,7 +73,48 @@ function DecisionDialog(props) {
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const active = marketStage === ACTIVE_STAGE;
 
-  const addLabel = isAdmin? 'decisionDialogAddInvestibleLabel' : 'decisionDialogProposeInvestibleLabel';
+  const addLabel = isAdmin ? 'decisionDialogAddInvestibleLabel' : 'decisionDialogProposeInvestibleLabel';
+  function getInvestiblesForStage(stage) {
+    if (stage) {
+      return investibles.reduce((acc, inv) => {
+        const { market_infos: marketInfos } = inv;
+        for (let x = 0; x < marketInfos.length; x += 1) {
+          if (marketInfos[x].stage === stage.id) {
+            return [...acc, inv];
+          }
+        }
+        return acc;
+      }, []);
+    }
+    return [];
+  }
+  const underConsideration = getInvestiblesForStage(underConsiderationStage);
+  const proposed = getInvestiblesForStage(proposedStage);
+
+  const { id: marketId } = market;
+
+  function closeCommentAddBox() {
+    setCommentAddHidden(true);
+  }
+
+  function toggleEditMode() {
+    setDialogEditMode(!dialogEditMode);
+  }
+
+  function toggleInvestibleAddMode() {
+    setAddInvestibleMode(!addInvestibleMode);
+  }
+
+  function toggleAddParticipantsMode() {
+    setAddParticipantsMode(!addParticipantsMode);
+  }
+
+  function commentButtonOnClick(type) {
+    setCommentAddType(type);
+    setCommentAddHidden(false);
+    scrollToCommentAddBox(commentAddRef);
+  }
+
   const sidebarMenuList = [
     {
       label: intl.formatMessage({ id: addLabel }),
@@ -121,48 +162,14 @@ function DecisionDialog(props) {
       icon: <EditIcon />,
       onClick: () => toggleEditMode(),
     },
-    {
+  ];
+
+  if (active) {
+    adminMenuList.push({
       label: intl.formatMessage({ id: 'decisionDialogsExtendDeadline' }),
       icon: <UpdateIcon />,
       onClick: () => setDeadlineExtendMode(true),
-    },
-  ];
-
-  function getInvestiblesForStage(stage) {
-    if (stage) {
-      return investibles.reduce((acc, inv) => {
-        const { market_infos } = inv;
-        for (let x = 0; x < market_infos.length; x += 1) {
-          if (market_infos[x].stage === stage.id) {
-            return [...acc, inv];
-          }
-        }
-        return acc;
-      }, []);
-    }
-    return [];
-  }
-
-  const underConsideration = getInvestiblesForStage(underConsiderationStage);
-  const proposed = getInvestiblesForStage(proposedStage);
-
-  const { id: marketId } = market;
-
-  function toggleEditMode() {
-    setDialogEditMode(!dialogEditMode);
-  }
-
-  function toggleInvestibleAddMode() {
-    setAddInvestibleMode(!addInvestibleMode);
-  }
-
-  function toggleAddParticipantsMode() {
-    setAddParticipantsMode(!addParticipantsMode);
-  }
-
-
-  function closeCommentAddBox() {
-    setCommentAddHidden(true);
+    });
   }
 
   if (deadlineExtendMode) {
@@ -246,12 +253,6 @@ function DecisionDialog(props) {
     );
   }
 
-  function commentButtonOnClick(type) {
-    setCommentAddType(type);
-    setCommentAddHidden(false);
-    scrollToCommentAddBox(commentAddRef);
-  }
-
   function getSidebarActions() {
     if (addInvestibleMode || addParticipantsMode) {
       return [];
@@ -266,7 +267,7 @@ function DecisionDialog(props) {
       sidebarMenuList.unshift(...adminMenuList);
     }
 
-    const userActions = sidebarMenuList.map((item, index) => {
+    return sidebarMenuList.map((item, index) => {
       const { onClick, label, icon } = item;
       if (item.spinBlocking) {
         return (
@@ -281,8 +282,6 @@ function DecisionDialog(props) {
       }
       return <ExpandableSidebarAction key={index} label={label} icon={icon} onClick={onClick} />;
     });
-
-    return userActions;
   }
 
   const sidebarActions = getSidebarActions();

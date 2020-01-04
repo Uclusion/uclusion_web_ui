@@ -111,7 +111,7 @@ class QuillEditor extends React.PureComponent {
       const contents = this.editor.root.innerHTML;
       if (editorEmpty(contents)) {
         onChange('', delta);
-      }else {
+      } else {
         onChange(contents, delta);
       }
     }, 50);

@@ -1,4 +1,5 @@
 import React, { useEffect, useReducer, useState } from 'react';
+import _ from 'lodash';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
@@ -58,8 +59,8 @@ function InvestibleAdd(props) {
 
   useEffect(() => {
     // Long form to prevent flicker
-    if (name && description && description.length > 0
-      && Array.isArray(assignments) && assignments.length > 0) {
+    if (name && !_.isEmpty(description)
+      && !_.isEmpty(assignments)) {
       if (!validForm) {
         setValidForm(true);
       }
@@ -77,6 +78,7 @@ function InvestibleAdd(props) {
   }
 
   function onAssignmentsChange(newAssignments) {
+    console.log(newAssignments)
     setAssignments(newAssignments);
   }
 

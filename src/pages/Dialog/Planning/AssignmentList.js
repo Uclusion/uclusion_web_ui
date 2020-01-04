@@ -49,7 +49,6 @@ function AssignmentList(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const participantPresences = marketPresences.filter((presence) => presence.following);
-
   const [investiblesState] = useContext(InvestiblesContext);
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
 
@@ -60,6 +59,8 @@ function AssignmentList(props) {
   const blockedStage = getBlockedStage(marketStagesState, marketId);
   const [marketsState] = useContext(MarketsContext);
   const user = getMyUserForMarket(marketsState, marketId) || {};
+  const userPresence = marketPresences.filter((presence) => presence.id === user.id);
+
   function getInvestibleState(investibleId, stageId) {
     if (stageId === blockedStage.id) {
       return BLOCKED_STATE;
@@ -106,18 +107,21 @@ function AssignmentList(props) {
   }
 
   function getDefaultChecked() {
-    if (previouslyAssigned.length > 0) {
+    if (!_.isEmpty(previouslyAssigned)) {
       return previouslyAssigned.reduce((acc, id) => ({
         ...acc,
         [id]: true,
       }), {});
     }
     const assignments = computeAssignments();
-    const presenceAssignments = assignments[user.id];
-    const assigned = presenceAssignments
-      && presenceAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
-    if (!assigned) {
-      return { [user.id]: true };
+    const following = userPresence && userPresence.following;
+    if (following) {
+      const presenceAssignments = assignments[user.id];
+      const assigned = presenceAssignments
+        && presenceAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
+      if (!assigned) {
+        return { [user.id]: true };
+      }
     }
     return {};
   }
@@ -162,7 +166,8 @@ function AssignmentList(props) {
         setChecked(newChecked);
       };
     }
-    return () => {};
+    return () => {
+    };
   }
 
   function renderParticipantEntry(presenceEntry) {
@@ -211,7 +216,8 @@ AssignmentList.propTypes = {
 };
 
 AssignmentList.defaultProps = {
-  onChange: () => {},
+  onChange: () => {
+  },
   previouslyAssigned: [],
 };
 

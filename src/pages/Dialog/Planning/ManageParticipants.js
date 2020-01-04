@@ -48,12 +48,14 @@ function ManageParticipants(props) {
           {(observerEligible && following) && (
             <ChangeToObserverButton
               marketId={marketId}
+              userId={userId}
               translationId="manageParticipantsMakeObserver"
             />
           )}
           {(observerEligible && !following) && (
             <ChangeToParticipantButton
               marketId={marketId}
+              userId={userId}
               translationId="manageParticipantsMakeParticipant"
             />
           )}

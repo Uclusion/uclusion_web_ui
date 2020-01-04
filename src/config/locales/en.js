@@ -117,7 +117,7 @@ const messages = defineMessages({
   private: 'Private',
   public: 'Public',
   created_by: 'Created by',
-  observers: 'Observers',
+  observers: 'Not Assignable:',
 
   // Support
   supportInfoText: 'To report a bug send an email to support@uclusion.com which includes steps to reproduce and the version and user ID above. To request a feature open a Dialog or Initiative explaining your use case or solution respectively and send the invite link to support@uclusion.com.',
@@ -357,10 +357,10 @@ const messages = defineMessages({
   //Planning Manage Users
   manageParticipantsCurrentTitle: 'Current Participants',
   manageParticipantsAddTitle: 'New Participants',
-  manageParticipantsMakeObserver: 'Make Observer',
-  manageParticipantsMakeParticipant: 'Make Participant',
-  manageParticipantsObserver: 'Observer',
-  manageParticipantsParticipant: 'Participant',
+  manageParticipantsMakeObserver: 'Make Not Assignable',
+  manageParticipantsMakeParticipant: 'Make Assignable',
+  manageParticipantsObserver: 'Not Assignable',
+  manageParticipantsParticipant: 'Assignable',
 
   // decision sidebar
   addOptionLabel: 'Add Option',
@@ -432,8 +432,8 @@ const messages = defineMessages({
   errorEditLockFailed: 'There was a problem getting permission to edit',
   errorEditLockReleaseFailed: 'There was a problem releasing edit permission',
   errorSubmitToModeratorFailed: 'There was a problem submitting to the moderator',
-  errorChangeToObserverFailed: 'There was a problem becoming to an observer',
-  errorChangeToParticipantFailed: 'There was a problem becoming a participant',
+  errorChangeToObserverFailed: 'There was a problem changing to not assignable',
+  errorChangeToParticipantFailed: 'There was a problem changing to assignable',
   errorMarketUpdateFailed: 'There was a problem editing the dialog',
   errorMarketExpirationExtendFailed: 'There was a problem extending the deadline',
   errorMarketLeaveFailed: 'There was a problem dismissing the dialog',

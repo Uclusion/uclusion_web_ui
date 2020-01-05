@@ -96,7 +96,8 @@ function ExpiresDisplay(props) {
   const daysRemaining = diff.days();
   const hoursRemaining = diff.hours();
   const minutesRemaining = diff.minutes();
-  const updateInterval = (daysRemaining > 0) ? ONE_HOUR : (hoursRemaining > 1)? THIRTY_MINUTES : ONE_MINUTE;
+  // eslint-disable-next-line max-len,no-nested-ternary
+  const updateInterval = (daysRemaining > 0) ? ONE_HOUR : (hoursRemaining > 1) ? THIRTY_MINUTES : ONE_MINUTE;
 
 
   // Mapping the date values to radius values
@@ -109,7 +110,7 @@ function ExpiresDisplay(props) {
       setNow(new Date());
     }, updateInterval);
     return () => clearTimeout(timeOut);
-  }, [now]);
+  }, [now, updateInterval]);
 
   return (
     <div className={classes.countdownWrapper}>

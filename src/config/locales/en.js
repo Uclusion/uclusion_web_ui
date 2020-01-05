@@ -359,6 +359,7 @@ const messages = defineMessages({
   manageParticipantsAddTitle: 'New Participants',
   manageParticipantsMakeObserver: 'Make Not Assignable',
   manageParticipantsMakeParticipant: 'Make Assignable',
+  manageParticipantsHasAsignments: 'Has Assignments',
   manageParticipantsObserver: 'Not Assignable',
   manageParticipantsParticipant: 'Assignable',
 

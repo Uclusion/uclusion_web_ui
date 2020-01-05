@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { List, ListItem, ListItemText, ListItemIcon, ListItemSecondaryAction } from '@material-ui/core';
+import { List, ListItem, ListItemText, ListItemIcon, ListItemSecondaryAction, Button } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
 import SubSection from '../../../containers/SubSection/SubSection';
@@ -24,9 +24,9 @@ function ManageParticipants(props) {
 
   function getIcon(following) {
     if (following) {
-      return <ThumbsUpDownIcon />;
+      return <ThumbsUpDownIcon/>;
     }
-    return <VisibilityIcon />;
+    return <VisibilityIcon/>;
   }
 
   function getUserItem(presence) {
@@ -58,6 +58,15 @@ function ManageParticipants(props) {
               userId={userId}
               translationId="manageParticipantsMakeParticipant"
             />
+          )}
+          {!observerEligible && (
+            <Button
+              size="small"
+              variant="contained"
+              disabled
+            >
+              {intl.formatMessage({ id: 'manageParticipantsHasAsignments' })}
+            </Button>
           )}
         </ListItemSecondaryAction>
       </ListItem>

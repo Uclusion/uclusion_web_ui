@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import * as moment from 'moment';
 import { useIntl } from 'react-intl';
+
+const ONE_MINUTE = 60000;
+const THIRTY_MINUTES = 1800000;
+const ONE_HOUR = 36000000;
+
 
 const useStyles = makeStyles((theme) => ({
   countdownWrapper: {
@@ -81,6 +86,7 @@ function ExpiresDisplay(props) {
   const classes = useStyles();
   const intl = useIntl();
   const { createdAt, expirationMinutes } = props;
+  const [timer, setTimer] = useState(null);
   const then = moment(createdAt);
   const now = moment();
   const diff = moment.duration(now.diff(then), 'milliseconds');
@@ -97,11 +103,27 @@ function ExpiresDisplay(props) {
   if (hoursRemaining === 1) {
     hoursRemaining = 0;
   }
+  const updateInterval = (daysRemaining > 0) ? ONE_HOUR : (hoursRemaining > 1)? THIRTY_MINUTES : ONE_MINUTE;
   const minutesRemaining = 60 - minutes;
+
   // Mapping the date values to radius values
   const daysRadius = mapNumber(daysRemaining, countdown.days(), 0, 0, 360);
   const hoursRadius = mapNumber(hoursRemaining, 24, 0, 0, 360);
   const minutesRadius = mapNumber(minutesRemaining, 60, 0, 0, 360);
+
+
+  useEffect(() => {
+    function timerFunc() {
+      setTimer(setTimeout(this, updateInterval));
+    }
+    if (!timer) {
+      setTimer(setTimeout(timerFunc, updateInterval));
+    }
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [timer, updateInterval]);
+
   return (
     <div className={classes.countdownWrapper}>
       {daysRemaining > 0 && (

@@ -178,12 +178,14 @@ function AssignmentList(props) {
     return (
       <ListItem
         key={id}
+        button
         onClick={getCheckToggle(canBeAssigned, id)}
       >
         <ListItemIcon>
           <Checkbox
+            value={!!boxChecked}
             disabled={!canBeAssigned}
-            checked={boxChecked}
+            checked={!!boxChecked}
           />
         </ListItemIcon>
         <ListItemText

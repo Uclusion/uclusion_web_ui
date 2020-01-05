@@ -118,7 +118,7 @@ const messages = defineMessages({
   public: 'Public',
   created_by: 'Created by',
   observers: 'Not Assignable:',
-
+  dialogObservers: 'Observers',
   // Support
   supportInfoText: 'To report a bug send an email to support@uclusion.com which includes steps to reproduce and the version and user ID above. To request a feature open a Dialog or Initiative explaining your use case or solution respectively and send the invite link to support@uclusion.com.',
 

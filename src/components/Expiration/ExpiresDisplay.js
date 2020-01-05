@@ -86,43 +86,30 @@ function ExpiresDisplay(props) {
   const classes = useStyles();
   const intl = useIntl();
   const { createdAt, expirationMinutes } = props;
-  const [timer, setTimer] = useState(null);
-  const then = moment(createdAt);
-  const now = moment();
-  const diff = moment.duration(now.diff(then), 'milliseconds');
-  // eslint-disable-next-line new-cap
-  const countdown = new moment.duration(expirationMinutes, 'minutes');
-  const days = diff.days();
-  const hours = diff.hours();
-  const minutes = diff.minutes();
-  let daysRemaining = countdown.days() - days;
-  let hoursRemaining = 24 - hours;
-  if (daysRemaining === 1) {
-    daysRemaining = 0;
-  }
-  if (hoursRemaining === 1) {
-    hoursRemaining = 0;
-  }
+  const [now, setNow] = useState(new Date());
+  const expiresDurationMillis = expirationMinutes * 60000;
+  const expiresDuration = moment.duration(expiresDurationMillis);
+  const expiresMillis = createdAt.getTime() + expiresDurationMillis;
+  const diffMillis = expiresMillis - now.getTime();
+  const diff = moment.duration(diffMillis);
+
+  const daysRemaining = diff.days();
+  const hoursRemaining = diff.hours();
+  const minutesRemaining = diff.minutes();
   const updateInterval = (daysRemaining > 0) ? ONE_HOUR : (hoursRemaining > 1)? THIRTY_MINUTES : ONE_MINUTE;
-  const minutesRemaining = 60 - minutes;
+
 
   // Mapping the date values to radius values
-  const daysRadius = mapNumber(daysRemaining, countdown.days(), 0, 0, 360);
+  const daysRadius = mapNumber(daysRemaining, expiresDuration.days(), 0, 0, 360);
   const hoursRadius = mapNumber(hoursRemaining, 24, 0, 0, 360);
   const minutesRadius = mapNumber(minutesRemaining, 60, 0, 0, 360);
 
-
   useEffect(() => {
-    function timerFunc() {
-      setTimer(setTimeout(this, updateInterval));
-    }
-    if (!timer) {
-      setTimer(setTimeout(timerFunc, updateInterval));
-    }
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [timer, updateInterval]);
+    const timeOut = setTimeout(() => {
+      setNow(new Date());
+    }, updateInterval);
+    return () => clearTimeout(timeOut);
+  }, [now]);
 
   return (
     <div className={classes.countdownWrapper}>

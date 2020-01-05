@@ -147,7 +147,7 @@ function Summary(props) {
             key="observers"
           >
             <Typography>
-              {intl.formatMessage({ id: 'observers' })}
+              {intl.formatMessage({ id: 'dialogObservers' })}
             </Typography>
           </Grid>
           <Grid

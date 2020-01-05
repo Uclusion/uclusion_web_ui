@@ -22,6 +22,8 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CustomChip from '../CustomChip';
 import CommentEdit from './CommentEdit';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 
 const useStyles = makeStyles({
   container: {
@@ -71,10 +73,12 @@ function Comment(props) {
   } = props;
   const intl = useIntl();
   const classes = useStyles();
-  const { id, comment_type: commentType } = comment;
+  const { id, comment_type: commentType, created_by: createdBy } = comment;
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId) || [];
-  const commenter = presences.find((presence) => presence.id === comment.created_by);
+  const commenter = presences.find((presence) => presence.id === createdBy);
+  const [marketsState] = useContext(MarketsContext);
+  const user = getMyUserForMarket(marketsState, marketId) || {};
   const children = comments.filter((comment) => comment.reply_id === id);
   const sortedChildren = _.sortBy(children, 'created_at');
   const [replyOpen, setReplyOpen] = useState(false);
@@ -155,9 +159,11 @@ function Comment(props) {
           <Button className={classes.action} onClick={toggleReply}>
             {intl.formatMessage({ id: 'commentReplyLabel' })}
           </Button>
+          {createdBy === user.id && (
           <Button className={classes.action} onClick={toggleEdit}>
             {intl.formatMessage({ id: 'commentEditLabel' })}
           </Button>
+          )}
           {!comment.reply_id && (
           <SpinBlockingButton
             className={classes.action}

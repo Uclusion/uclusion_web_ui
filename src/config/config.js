@@ -20,6 +20,7 @@ const config = {
   file_download_configuration: {
     baseURL: process.env.REACT_APP_FILE_URL,
   },
+  add_to_slack_url: process.env.REACT_APP_ADD_TO_SLACK_URL,
   version: process.env.REACT_APP_VERSION,
   uclusionSupportInfo: {
     email: process.env.REACT_APP_UCLUSION_SUPPORT_EMAIL

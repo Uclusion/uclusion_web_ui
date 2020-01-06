@@ -34,7 +34,6 @@ export function withSpinLock(Component) {
     const [versionsState, versionsDispatch] = useContext(VersionsContext);
     const [spinning, setSpinning] = useState(false);
     const listenerName = 'SPINNER';
-    let spinTimer = null;
     let operationCheckInterval = null;
     let spinCheckerInterval = null;
 
@@ -47,7 +46,7 @@ export function withSpinLock(Component) {
     function myOnSpinStop() {
       removeListener(VERSIONS_HUB_CHANNEL, listenerName);
       clearInterval(operationCheckInterval);
-      spinTimer = setTimeout(() => {
+      setTimeout(() => {
         endSpinning();
       }, FETCH_DELAY);
     }

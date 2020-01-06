@@ -47,15 +47,16 @@ function Home(props) {
   const planningDetails = _.sortBy(getMarketDetailsForType(
     myNotHiddenMarketsState,
     PLANNING_TYPE,
-  ), 'created_at');
+  ), 'created_at').reverse();
+  console.log(planningDetails);
   const decisionDetails = _.sortBy(getMarketDetailsForType(
     myNotHiddenMarketsState,
     DECISION_TYPE,
-  ), 'created_at');
+  ), 'created_at').reverse();
   const initiativeDetails = _.sortBy(getMarketDetailsForType(
     myNotHiddenMarketsState,
     INITIATIVE_TYPE,
-  ), 'created_at');
+  ), 'created_at').reverse();
   const [planningAddMode, setPlanningAddMode] = useState(false);
   const [decisionAddMode, setDecisionAddMode] = useState(false);
   const [initiativeAddMode, setInitiativeAddMode] = useState(false);

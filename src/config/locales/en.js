@@ -287,6 +287,7 @@ const messages = defineMessages({
   homePlanningReport: 'Active Story Value Estimates (in days)',
   homeViewArchives: 'View Archives',
   homeViewAbout: 'About',
+  homeCreatedAt: 'Created on {dateString}',
   new: 'New',
   information: 'Information',
   message: 'Message',

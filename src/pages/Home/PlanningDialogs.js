@@ -38,7 +38,6 @@ function PlanningDialogs(props) {
   const intl = useIntl();
   const classes = useStyles();
   const { markets } = props;
-  const sortedMarkets = _.sortBy(markets, 'name');
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -127,9 +126,10 @@ function PlanningDialogs(props) {
   }
 
   function getMarketItems() {
-    return sortedMarkets.map((market) => {
+    return markets.map((market) => {
       const {
         id: marketId, name, market_type: marketType, market_stage: marketStage,
+        created_at: createdAt,
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
@@ -158,6 +158,9 @@ function PlanningDialogs(props) {
                 >
                   {name}
                 </Link>
+              </Typography>
+              <Typography>
+                {intl.formatMessage({ id: 'homeCreatedAt'}, {dateString: intl.formatDate(createdAt)})}
               </Typography>
               <Grid
                 container

@@ -18,6 +18,7 @@ import { getParticipantInfo } from '../../utils/userFunctions';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { ACTIVE_STAGE } from '../../constants/markets';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -32,8 +33,8 @@ const useStyles = makeStyles(() => ({
 function DecisionDialogs(props) {
   const history = useHistory();
   const classes = useStyles();
+  const intl = useIntl();
   const { markets } = props;
-  const sortedMarkets = _.sortBy(markets, 'name');
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
 
@@ -61,7 +62,7 @@ function DecisionDialogs(props) {
   }
 
   function getMarketItems() {
-    return sortedMarkets.map((market) => {
+    return markets.map((market) => {
       const {
         id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes,
         market_type: marketType, market_stage: marketStage,
@@ -104,6 +105,9 @@ function DecisionDialogs(props) {
                 >
                   {name}
                 </Link>
+              </Typography>
+              <Typography>
+                {intl.formatMessage({ id: 'homeCreatedAt'}, {dateString: intl.formatDate(createdAt)})}
               </Typography>
               <Grid
                 container

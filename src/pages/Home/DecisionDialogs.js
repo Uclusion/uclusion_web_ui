@@ -9,7 +9,6 @@ import PropTypes from 'prop-types';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import InviteLinker from './Decision/InviteLinker';
 import LeaveMarketButton from './Decision/LeaveMarketButton';
 import ArchiveMarketButton from './Decision/ArchiveMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
@@ -130,9 +129,6 @@ function DecisionDialogs(props) {
             <CardActions>
               {getDialogActions(marketId, myPresence, marketStage)}
             </CardActions>
-            <InviteLinker
-              marketId={marketId}
-            />
           </RaisedCard>
         </Grid>
       );

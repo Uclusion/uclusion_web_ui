@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import { makeStyles } from '@material-ui/core';
 import { useIntl } from 'react-intl';
@@ -23,7 +24,6 @@ import {
 import InitiativeAdd from './InitiativeAdd';
 import InitiativeDialogs from './InitiativeDialogs';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import SubSection from '../../containers/SubSection/SubSection';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 
@@ -44,18 +44,18 @@ function Home(props) {
     marketsState,
     marketPresencesState,
   );
-  const planningDetails = getMarketDetailsForType(
+  const planningDetails = _.sortBy(getMarketDetailsForType(
     myNotHiddenMarketsState,
     PLANNING_TYPE,
-  );
-  const decisionDetails = getMarketDetailsForType(
+  ), 'created_at');
+  const decisionDetails = _.sortBy(getMarketDetailsForType(
     myNotHiddenMarketsState,
     DECISION_TYPE,
-  );
-  const initiativeDetails = getMarketDetailsForType(
+  ), 'created_at');
+  const initiativeDetails = _.sortBy(getMarketDetailsForType(
     myNotHiddenMarketsState,
     INITIATIVE_TYPE,
-  );
+  ), 'created_at');
   const [planningAddMode, setPlanningAddMode] = useState(false);
   const [decisionAddMode, setDecisionAddMode] = useState(false);
   const [initiativeAddMode, setInitiativeAddMode] = useState(false);
@@ -136,15 +136,9 @@ function Home(props) {
 
     return (
       <>
-        <SubSection>
           <PlanningDialogs markets={planningDetails} />
-        </SubSection>
-        <SubSection>
           <DecisionDialogs markets={decisionDetails} />
-        </SubSection>
-        <SubSection>
           <InitiativeDialogs markets={initiativeDetails} />
-        </SubSection>
       </>
     );
   }

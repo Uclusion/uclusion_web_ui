@@ -403,6 +403,13 @@ const messages = defineMessages({
   forgotPasswordEmailNotFound: 'That email address was not found',
   forgotPasswordInvalidCode: 'An invalid code was entered',
 
+  // Change Password
+  errorChangePasswordFailed: 'Change password failed. Please try again.',
+  changePasswordHeader: 'Change your password',
+  changePasswordNewLabel: 'New password',
+  changePasswordRepeatLabel: 'Repeat new password',
+  changePasswordOldLabel: 'Old password',
+  changePasswordButton: 'Change Password',
 
   // your voting
   yourVotingVoteForThisPlanning: 'Vote for this story',

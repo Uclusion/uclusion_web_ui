@@ -11,6 +11,7 @@ import config from '../../config';
 import { toastErrorAndThrow } from '../../utils/userMessage';
 import { getSSOInfo } from '../../api/sso';
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
+import ChangePassword from '../Authentication/ChangePassword';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -110,7 +111,10 @@ function About(props) {
               srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
             />
           </a>
+          <br />
           <Button onClick={handleClear}>{intl.formatMessage({ id: 'aboutClearStorageButton' })}</Button>
+          <br />
+          <ChangePassword />
         </div>
       </Screen>
     </div>

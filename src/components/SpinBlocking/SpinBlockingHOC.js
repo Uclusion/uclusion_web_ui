@@ -9,6 +9,7 @@ import { getMarketVersion } from '../../contexts/VersionsContext/versionsContext
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
 import { getVersions } from '../../api/summaries';
 import { toastErrorAndThrow } from '../../utils/userMessage';
+import { refreshVersionsAction } from '../../contexts/VersionsContext/versionsContextReducer';
 
 const FETCH_DELAY = 200; // give us 200 ms pull data from the hub event;
 const SPIN_CHECKER_POLL_DELAY = 10; // how often to run the spin checker
@@ -30,7 +31,7 @@ export function withSpinLock(Component) {
 
     const theme = useTheme();
     const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-    const [versionsState] = useContext(VersionsContext);
+    const [versionsState, versionsDispatch] = useContext(VersionsContext);
     const [spinning, setSpinning] = useState(false);
     const listenerName = 'SPINNER';
     let spinTimer = null;
@@ -61,18 +62,21 @@ export function withSpinLock(Component) {
         console.debug('Operation check interval firing');
         return getVersions()
           .then((versions) => {
+            versionsDispatch(refreshVersionsAction(versions));
             const { marketVersions } = versions;
             const newMarket = _.isEmpty(marketId);
             // eslint-disable-next-line max-len
             const newVersion = marketVersions.find((version) => version.marketId === marketId || (newMarket && version.version === 1));
             if (newVersion && (newMarket || !_.isEqual(newVersion, currentVersion))) {
               clearInterval(operationCheckInterval);
+              clearInterval(spinCheckerInterval);
               removeListener(VERSIONS_HUB_CHANNEL, listenerName);
               endSpinning();
             }
           })
           .catch((error) => {
             clearInterval(operationCheckInterval);
+            clearInterval(spinCheckerInterval);
             endSpinning();
             toastErrorAndThrow(error, 'spinVersionCheckError');
           });
@@ -113,14 +117,13 @@ export function withSpinLock(Component) {
           if (result !== undefined) {
             const { spinChecker } = result;
             if (spinChecker) {
-              // if we have a spin checker we'll use it instead of our listener and timer
-              clearInterval(operationCheckInterval);
+              // if we have a spin checker we'll use it instead of our listener
               removeListener(VERSIONS_HUB_CHANNEL, listenerName);
-              clearTimeout(spinTimer);
               spinCheckerInterval = setInterval(() => {
                 spinChecker()
                   .then((checkResult) => {
                     if (checkResult) {
+                      clearInterval(operationCheckInterval);
                       clearInterval(spinCheckerInterval);
                       console.debug('Ending Spinning By Checker');
                       endSpinning();

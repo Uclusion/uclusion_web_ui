@@ -33,14 +33,20 @@ const useStyles = makeStyles((theme) => {
 });
 
 function SubSection(props) {
-  const { children, hidden, title, actionButton } = props;
+  const {
+    children,
+    hidden,
+    title,
+    actionButton,
+    type,
+  } = props;
 
   const classes = useStyles();
 
   return (
     <React.Fragment>
       <AppBar
-        className={props.type === SECTION_TYPE_PRIMARY ? classes.primarySubHeader : classes.secondarySubHeader}
+        className={type === SECTION_TYPE_PRIMARY ? classes.primarySubHeader : classes.secondarySubHeader}
         position="static"
         hidden={hidden}
       >

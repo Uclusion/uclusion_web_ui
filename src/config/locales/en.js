@@ -367,6 +367,9 @@ const messages = defineMessages({
   // decision sidebar
   addOptionLabel: 'Add Option',
 
+  // diff display
+  diffDisplayDismissLabel: 'Dismiss Difference Display',
+
 
   // expiration extender
   deadlineExtenderSave: 'Extend',

@@ -9,8 +9,9 @@ import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { EMPTY_STATE } from './MarketsContext';
+import { updateDiff } from '../DiffContext/diffContextReducer';
 
-function beginListening(dispatch) {
+function beginListening(dispatch, diffDispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketsRemovedMarketStart', (data) => {
     const { payload: { event, message } } = data;
     switch (event) {
@@ -28,7 +29,12 @@ function beginListening(dispatch) {
       case VERSIONS_EVENT: {
         console.debug(`Markets context responding to updated market event ${event}`);
         return AllSequentialMap(message, (marketId) => getMarketDetails(marketId))
-          .then((marketDetails) => dispatch(updateMarketDetails(marketDetails)));
+          .then((marketDetails) => {
+            marketDetails.forEach((detail) => {
+              diffDispatch(updateDiff(detail));
+            });
+            dispatch(updateMarketDetails(marketDetails));
+          });
       }
       default:
         console.debug(`Ignoring identity event ${event}`);

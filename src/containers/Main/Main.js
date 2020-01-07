@@ -15,38 +15,41 @@ import AppWithAuth from '../App/AppWithAuth';
 import { OperationInProgressProvider } from '../../contexts/OperationInProgressContext';
 import OperationInProgressGlobalProvider from '../../components/ContextHacks/OperationInProgressGlobalProvider';
 import { PageLoadingProvider } from '../../contexts/PageLoadingContext';
+import { DiffProvider } from '../../contexts/DiffContext/DiffContext';
 
 class Main extends Component {
   render() {
     console.debug('Main being rerendered');
     return (
       <div>
-        <PageLoadingProvider>
-          <OperationInProgressProvider>
-            <OperationInProgressGlobalProvider>
-              <NotificationsProvider>
-                <VersionsProvider>
-                  <MarketsProvider>
-                    <MarketStagesProvider>
-                      <CommentsProvider>
-                        <InvestiblesProvider>
-                          <MarketPresencesProvider>
-                            <LocaleProvider>
-                              <SidebarProvider>
-                                <ToastContainer/>
-                                <AppWithAuth/>
-                              </SidebarProvider>
-                            </LocaleProvider>
-                          </MarketPresencesProvider>
-                        </InvestiblesProvider>
-                      </CommentsProvider>
-                    </MarketStagesProvider>
-                  </MarketsProvider>
-                </VersionsProvider>
-              </NotificationsProvider>
-            </OperationInProgressGlobalProvider>
-          </OperationInProgressProvider>
-        </PageLoadingProvider>
+        <DiffProvider>
+          <PageLoadingProvider>
+            <OperationInProgressProvider>
+              <OperationInProgressGlobalProvider>
+                <NotificationsProvider>
+                  <VersionsProvider>
+                    <MarketsProvider>
+                      <MarketStagesProvider>
+                        <CommentsProvider>
+                          <InvestiblesProvider>
+                            <MarketPresencesProvider>
+                              <LocaleProvider>
+                                <SidebarProvider>
+                                  <ToastContainer/>
+                                  <AppWithAuth/>
+                                </SidebarProvider>
+                              </LocaleProvider>
+                            </MarketPresencesProvider>
+                          </InvestiblesProvider>
+                        </CommentsProvider>
+                      </MarketStagesProvider>
+                    </MarketsProvider>
+                  </VersionsProvider>
+                </NotificationsProvider>
+              </OperationInProgressGlobalProvider>
+            </OperationInProgressProvider>
+          </PageLoadingProvider>
+        </DiffProvider>
       </div>
     );
   }

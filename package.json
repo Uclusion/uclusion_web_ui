@@ -12,6 +12,7 @@
     "aws-amplify": "^2.2.1",
     "aws-amplify-react": "^2.5.4",
     "clsx": "^1.0.4",
+    "htmldiff-js": "https://github.com/dfoverdx/htmldiff-js.git",
     "image-extensions": "^1.1.0",
     "immutable": "^4.0.0-rc.12",
     "intl": "^1.2.5",
@@ -36,13 +37,13 @@
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-textfit": "^1.1.0",
-    "react-vis": "^1.11.7",
     "react-toastify": "^5.4.1",
+    "react-vis": "^1.11.7",
+    "reconnecting-websocket": "^4.2.0",
     "reselect": "^4.0.0",
     "uclusion_sdk": "file:../uclusion_sdk",
     "use-debounce": "^3.3.0",
-    "video-react": "^0.14.1",
-    "reconnecting-websocket": "^4.2.0"
+    "video-react": "^0.14.1"
   },
   "scripts": {
     "check": "npm-check -s -u",

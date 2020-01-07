@@ -1,7 +1,8 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import beginListening from './marketsContextMessages';
 import reducer, { initializeState } from './marketsContextReducer';
 import LocalForageHelper from '../LocalForageHelper';
+import { DiffContext } from '../DiffContext/DiffContext';
 
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
 const EMPTY_STATE = {
@@ -12,6 +13,7 @@ const MarketsContext = React.createContext(EMPTY_STATE);
 
 function MarketsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
+  const [, diffDispatch] = useContext(DiffContext);
   const [isInitialization, setIsInitialization] = useState(true);
   useEffect(() => {
     if (isInitialization) {
@@ -23,12 +25,12 @@ function MarketsProvider(props) {
             dispatch(initializeState(diskState));
           }
         });
-      beginListening(dispatch);
+      beginListening(dispatch, diffDispatch);
       setIsInitialization(false);
     }
     return () => {
     };
-  }, [isInitialization, state]);
+  }, [isInitialization, state, diffDispatch]);
 
 
   console.debug('Market context being rerendered');

@@ -10,6 +10,9 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
+import DiffDisplay from '../../components/TextEditors/DiffDisplay';
+import { DiffContext } from '../../contexts/DiffContext/DiffContext';
+import { getDiff } from '../../contexts/DiffContext/diffContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -59,6 +62,9 @@ function Summary(props) {
   } = market;
   const active = marketStage === ACTIVE_STAGE;
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [diffState] = useContext(DiffContext);
+  const diffItem = getDiff(diffState, id) || {};
+  const { diff } = diffItem;
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
   const marketPresencesModerating = marketPresences.filter((presence) => presence.is_admin);
@@ -76,6 +82,7 @@ function Summary(props) {
       );
     });
   }
+
   return (
     <Paper className={classes.container}>
       {marketType !== INITIATIVE_TYPE && (
@@ -89,7 +96,10 @@ function Summary(props) {
           expirationMinutes={expirationMinutes}
         />)}
       {marketType !== INITIATIVE_TYPE && (
-        <ReadOnlyQuillEditor className={classes.content} marketId={id} value={description} />
+        <div>
+          { diff && <DiffDisplay id={id}/>}
+          { !diff && <ReadOnlyQuillEditor className={classes.content} marketId={id} value={description}/>}
+        </div>
       )}
       {maxBudget && (
         <TextField

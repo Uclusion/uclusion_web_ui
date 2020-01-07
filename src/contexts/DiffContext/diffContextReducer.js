@@ -54,7 +54,10 @@ function doUpdate(state, action) {
   };
   if (state[id]) {
     const { contents } = state[id];
-    itemVersion.diff = HtmlDiff.execute(contents, description);
+    const diff = HtmlDiff.execute(contents, description);
+    if (diff !== contents) {
+      itemVersion.diff = contents;
+    }
   }
   return {
     ...state,

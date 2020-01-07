@@ -4,7 +4,9 @@ import HtmlDiff from 'htmldiff-js';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_DIFF = 'UPDATE_DIFF';
+const UPDATE_DIFFS = 'UPDATE_DIFFS';
 const DELETE_DIFF = 'DELETE_DIFF';
+
 
 export function initializeState(newState) {
   return {
@@ -17,6 +19,13 @@ export function updateDiff(newItem) {
   return {
     type: UPDATE_DIFF,
     newItem,
+  };
+}
+
+export function updateDiffs(newItems) {
+  return {
+    type: UPDATE_DIFFS,
+    newItems,
   };
 }
 
@@ -43,26 +52,51 @@ function doDelete(state, id) {
   return state;
 }
 
-function doUpdate(state, action) {
-  const { newItem } = action;
+function getUpdatedItemState(state, newItem) {
   const { id, description } = newItem;
   if (!id && description) {
     return state;
   }
-  const itemVersion = {
-    contents: description,
-  };
   if (state[id]) {
-    const { contents } = state[id];
-    const diff = HtmlDiff.execute(contents, description);
-    if (diff !== contents) {
-      itemVersion.diff = diff;
+    const { contents, diff: oldDiff } = state[id];
+    // some updates do not change the contents
+    let diff = oldDiff;
+    if (description !== contents) {
+      const newDiff = HtmlDiff.execute(contents, description);
+      diff = newDiff;
     }
+    // if we have an old diff, it means the user hasn't dismissed it yet.
+    // Hence we need to keep around the old contents as that's the baseline
+    // the have seen and want to compare against
+    // if we don't have a diff, then we are free to set the contents to the
+    // new value
+    const newContents = (oldDiff) ? contents : description;
+    return {
+      ...state,
+      [id]: {
+        contents: newContents,
+        diff,
+      },
+    };
   }
+  // no existing version, so nothing to diff against yet
+  // just store the contents for the future
   return {
     ...state,
-    [id]: itemVersion,
+    [id]: {
+      contents: description,
+    },
   };
+}
+
+function doUpdates(state, action) {
+  const { newItems } = action;
+  return newItems.reduce((accState, item) => getUpdatedItemState(accState, item), state);
+}
+
+function doUpdate(state, action) {
+  const { newItem } = action;
+  return getUpdatedItemState(state, newItem);
 }
 
 function computeNewState(state, action) {
@@ -72,6 +106,8 @@ function computeNewState(state, action) {
       return action.newState;
     case UPDATE_DIFF:
       return doUpdate(state, action);
+    case UPDATE_DIFFS:
+      return doUpdates(state, action);
     case DELETE_DIFF:
       return doDelete(state, action.id);
     default:

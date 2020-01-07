@@ -4,6 +4,7 @@ import { updateStorableInvestibles } from './investiblesContextReducer';
 import { fixupItemForStorage } from '../ContextUtils';
 import LocalForageHelper from '../LocalForageHelper';
 import { INVESTIBLES_CONTEXT_NAMESPACE } from './InvestiblesContext';
+import { updateDiffs } from '../DiffContext/diffContextReducer';
 
 export function getMarketInvestibles(state, marketId) {
   const values = Object.values(state);
@@ -33,7 +34,7 @@ export function getInvestiblesInStage(investibles, stageId){
   return stageInvestibles;
 }
 
-export function refreshInvestibles(dispatch, marketId) {
+export function refreshInvestibles(dispatch, diffDispatch, marketId) {
   return fetchInvestibleList(marketId)
     .then((investibleList) => {
       console.debug(investibleList);
@@ -52,6 +53,8 @@ export function refreshInvestibles(dispatch, marketId) {
         const fixedInvestible = fixupItemForStorage(investible);
         return { investible: fixedInvestible, market_infos };
       });
+      const diffInvestibles = fixed.map((inv) => inv.investible);
+      diffDispatch(updateDiffs(diffInvestibles));
       const investibleHash = _.keyBy(fixed, (item) => item.investible.id);
       // console.debug(investibleHash);
       dispatch(updateStorableInvestibles(marketId, investibleHash));

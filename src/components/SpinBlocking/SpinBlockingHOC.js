@@ -15,7 +15,7 @@ const FETCH_DELAY = 200; // give us 200 ms pull data from the hub event;
 const SPIN_CHECKER_POLL_DELAY = 10; // how often to run the spin checker
 // if an operation isn't cancelled within the operation timeout period, we're going to force
 // a versions check and see if one has happenedourselves.
-const OPERATION_TIMEOUT = 3000;
+const OPERATION_TIMEOUT = 4000;
 
 export function withSpinLock(Component) {
   const Spinning = function (props) {

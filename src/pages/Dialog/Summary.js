@@ -63,8 +63,7 @@ function Summary(props) {
   const active = marketStage === ACTIVE_STAGE;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [diffState] = useContext(DiffContext);
-  const diffItem = getDiff(diffState, id) || {};
-  const { diff } = diffItem;
+  const diff = getDiff(diffState, id);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
   const marketPresencesModerating = marketPresences.filter((presence) => presence.is_admin);

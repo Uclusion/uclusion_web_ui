@@ -39,6 +39,9 @@ import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
 import { convertDates } from '../../../contexts/ContextUtils';
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
+import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -132,6 +135,9 @@ function PlanningInvestible(props) {
   function closeCommentAdd() {
     setCommentAddHidden(true);
   }
+
+  const [diffState] = useContext(DiffContext);
+  const diff = getDiff(diffState, investibleId);
 
   if (!investibleId) {
     // we have no usable data;
@@ -239,9 +245,9 @@ function PlanningInvestible(props) {
         key="notdoing"
       />);
     }
-    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
-    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
-    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick}/>);
     return sidebarActions;
   }
 
@@ -272,7 +278,7 @@ function PlanningInvestible(props) {
       )}
       {(!assigned || !assigned.includes(userId)) && isInVoting && (
         <SubSection
-        type={SECTION_TYPE_SECONDARY}
+          type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
         >
           <YourVoting
@@ -312,30 +318,35 @@ function PlanningInvestible(props) {
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
         <Paper>
-          <ReadOnlyQuillEditor
-            value={description}
-          />
+          {diff && (
+            <DiffDisplay id={investibleId}/>
+          )}
+          {!diff && (
+            <ReadOnlyQuillEditor
+              value={description}
+            />
+          )}
 
         </Paper>
       </SubSection>
-        {discussionVisible && (
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
-          >
-            <CommentAddBox
-              hidden={commentAddHidden}
-              allowedTypes={allowedCommentTypes}
-              investible={investible}
-              marketId={marketId}
-              type={commentAddType}
-              onSave={closeCommentAdd}
-              onCancel={closeCommentAdd}
-            />
-            <div ref={commentAddRef} />
-            <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
-          </SubSection>
-        )}
+      {discussionVisible && (
+        <SubSection
+          type={SECTION_TYPE_SECONDARY}
+          title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
+        >
+          <CommentAddBox
+            hidden={commentAddHidden}
+            allowedTypes={allowedCommentTypes}
+            investible={investible}
+            marketId={marketId}
+            type={commentAddType}
+            onSave={closeCommentAdd}
+            onCancel={closeCommentAdd}
+          />
+          <div ref={commentAddRef}/>
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+        </SubSection>
+      )}
 
     </Screen>
   );

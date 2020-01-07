@@ -14,6 +14,7 @@ import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEd
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
+import _ from 'lodash';
 
 const styles = (theme) => ({
   root: {
@@ -89,8 +90,12 @@ function PlanningInvestibleEdit(props) {
       description: tokensRemoved,
       marketId,
       investibleId: id,
-      assignments,
     };
+    // changes to assignments should only be sent if they actually changed
+    // otherwise we'll generate a spurious version bump due to market info changes
+    if (!_.isEqual(assignments, assigned)) {
+      updateInfo.assignments = assignments;
+    }
     return updateInvestible(updateInfo);
   }
 

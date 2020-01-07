@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useReducer } from 'react';
+import React, { useEffect, useState, useReducer, useContext } from 'react';
 import reducer, { initializeState } from './investiblesContextReducer';
 import LocalForageHelper from '../LocalForageHelper';
 import beginListening from './investiblesContextMessages';
+import { DiffContext } from '../DiffContext/DiffContext';
 
 const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
 const EMPTY_STATE = {};
@@ -10,6 +11,7 @@ const InvestiblesContext = React.createContext(EMPTY_STATE);
 
 function InvestiblesProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
+  const [, diffDispatch] = useContext(DiffContext);
   const [isInitialization, setIsInitialization] = useState(true);
 
   useEffect(() => {
@@ -22,12 +24,12 @@ function InvestiblesProvider(props) {
             dispatch(initializeState(state));
           }
         });
-      beginListening(dispatch);
+      beginListening(dispatch, diffDispatch);
       setIsInitialization(false);
     }
     return () => {
     };
-  }, [isInitialization]);
+  }, [isInitialization, diffDispatch]);
 
   console.debug('Investibles context being rerendered');
 

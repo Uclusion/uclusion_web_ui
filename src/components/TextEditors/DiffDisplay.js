@@ -14,8 +14,7 @@ function DiffDisplay(props) {
   const intl = useIntl();
   const { id } = props;
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const item = getDiff(diffState, id) || {};
-  const { diff } = item;
+  const diff = getDiff(diffState, id);
 
   function onDismiss() {
     diffDispatch(deleteDiff(id));
@@ -33,7 +32,7 @@ function DiffDisplay(props) {
 
   return (
     <div>
-      <div ref={ref}/>
+      <div ref={ref} />
       <Button
         variant="contained"
         size="small"

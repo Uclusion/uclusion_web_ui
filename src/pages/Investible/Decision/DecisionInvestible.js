@@ -27,6 +27,9 @@ import {
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
+import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -136,6 +139,9 @@ function DecisionInvestible(props) {
     return sidebarActions;
   }
 
+  const [diffState] = useContext(DiffContext);
+  const diff = getDiff(diffState, investibleId);
+
   if (!investibleId) {
     // we have no usable data;
     return <></>;
@@ -194,9 +200,14 @@ function DecisionInvestible(props) {
         type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
+        {diff && (
+          <DiffDisplay id={investibleId}/>
+        )}
+        {!diff && (
         <ReadOnlyQuillEditor
           value={description}
-        />
+        />)}
+        
       </SubSection>
       {discussionVisible && (
         <SubSection

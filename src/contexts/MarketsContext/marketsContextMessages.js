@@ -9,7 +9,7 @@ import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { EMPTY_STATE } from './MarketsContext';
-import { updateDiff } from '../DiffContext/diffContextReducer';
+import { updateDiffs } from '../DiffContext/diffContextReducer';
 
 function beginListening(dispatch, diffDispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketsRemovedMarketStart', (data) => {
@@ -30,9 +30,7 @@ function beginListening(dispatch, diffDispatch) {
         console.debug(`Markets context responding to updated market event ${event}`);
         return AllSequentialMap(message, (marketId) => getMarketDetails(marketId))
           .then((marketDetails) => {
-            marketDetails.forEach((detail) => {
-              diffDispatch(updateDiff(detail));
-            });
+            diffDispatch(updateDiffs(marketDetails));
             dispatch(updateMarketDetails(marketDetails));
           });
       }

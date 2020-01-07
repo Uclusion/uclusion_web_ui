@@ -9,13 +9,13 @@ import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { initializeState } from './investiblesContextReducer';
 import { EMPTY_STATE } from './InvestiblesContext';
 
-function beginListening(dispatch) {
+function beginListening(dispatch, diffDispatch) {
   registerListener(PUSH_INVESTIBLES_CHANNEL, 'pushInvestibleStart', (data) => {
     const { payload: { event, message } } = data;
 
     switch (event) {
       case VERSIONS_EVENT: {
-        return AllSequentialMap(message, (marketId) => refreshInvestibles(dispatch, marketId));
+        return AllSequentialMap(message, (marketId) => refreshInvestibles(dispatch, diffDispatch, marketId));
       }
       default:
         console.debug(`Ignoring push event ${event}`);

@@ -35,7 +35,7 @@ const useStyles = makeStyles({
   },
   content: {
     width: '100%',
-    height: 'calc(100vh - 67px)',
+    height: '100%',
   },
   hide: {
     display: 'none',

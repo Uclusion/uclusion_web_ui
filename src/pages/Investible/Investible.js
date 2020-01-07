@@ -121,6 +121,7 @@ function Investible(props) {
       investibleComments={investibleComments}
       toggleEdit={toggleEdit}
       isAdmin={isAdmin}
+      hidden={hidden}
     />
   );
 }

@@ -44,6 +44,7 @@ function InitiativeInvestible(props) {
     fullInvestible,
     toggleEdit,
     isAdmin,
+    hidden,
   } = props;
 
   const [diffState] = useContext(DiffContext);
@@ -118,6 +119,7 @@ function InitiativeInvestible(props) {
         title={name}
         tabTitle={name}
         breadCrumbs={breadCrumbs}
+        hidden={hidden}
       >
         <div>
           <Typography>
@@ -144,6 +146,7 @@ function InitiativeInvestible(props) {
         tabTitle={participantsTitle}
         title={participantsTitle}
         breadCrumbs={myBreadCrumbs}
+        hidden={hidden}
       >
         <AddressList
           addToMarketId={marketId}
@@ -165,6 +168,7 @@ function InitiativeInvestible(props) {
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       sidebarActions={getSidebarActions()}
+      hidden={hidden}
     >
       {!isAdmin && (
         <SubSection
@@ -248,6 +252,7 @@ InitiativeInvestible.propTypes = {
   userId: PropTypes.string.isRequired,
   toggleEdit: PropTypes.func,
   isAdmin: PropTypes.bool,
+  hidden: PropTypes.bool,
 };
 
 InitiativeInvestible.defaultProps = {
@@ -256,5 +261,6 @@ InitiativeInvestible.defaultProps = {
   toggleEdit: () => {
   },
   isAdmin: false,
+  hidden: false,
 };
 export default InitiativeInvestible;

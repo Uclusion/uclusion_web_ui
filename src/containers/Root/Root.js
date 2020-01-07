@@ -20,6 +20,7 @@ import Archives from '../../pages/Archives/Archives';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils';
+import InvestibleEdit from '../../pages/Investible/InvestibleEdit';
 
 const useStyles = makeStyles({
   body: {
@@ -75,6 +76,10 @@ function Root() {
     return (action !== 'dialog') || !investibleId;
   }
 
+  function hideInvestibleEdit() {
+    return (action !== 'investibleEdit') || !investibleId;
+  }
+
   function hideDialogArchives() {
     return (action !== 'dialogArchives');
   }
@@ -103,7 +108,7 @@ function Root() {
   }
 
   let hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible()
-    && hideDialogArchives() && hideArchvies());
+    && hideDialogArchives() && hideArchvies() && hideInvestibleEdit());
   if (hash) {
     const values = queryString.parse(hash);
     const { nonce } = values;
@@ -178,6 +183,7 @@ function Root() {
             <Market hidden={hideMarket()} />
             <About hidden={hideAbout()} />
             <Investible hidden={hideInvestible()} />
+            <InvestibleEdit hidden={hideInvestibleEdit()} />
             <Archives hidden={hideArchvies()} />
             <DialogArchives hidden={hideDialogArchives()} />
             <PageNotFound hidden={hidePNF} />

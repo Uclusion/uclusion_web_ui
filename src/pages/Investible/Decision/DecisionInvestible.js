@@ -44,6 +44,7 @@ function DecisionInvestible(props) {
     fullInvestible,
     toggleEdit,
     isAdmin,
+    hidden,
   } = props;
 
   const intl = useIntl();
@@ -110,7 +111,7 @@ function DecisionInvestible(props) {
     }
     const sidebarActions = [];
     if (isAdmin) {
-      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
+      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
       if (inProposed) {
         sidebarActions.push(<MoveToCurrentVotingActionButton
           investibleId={investibleId}
@@ -126,12 +127,12 @@ function DecisionInvestible(props) {
     }
 
     if (inProposed && createdBy === userId) {
-      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
+      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
     }
 
-    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
-    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
-    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
     return sidebarActions;
   }
 
@@ -148,7 +149,7 @@ function DecisionInvestible(props) {
       title={name}
       tabTitle={name}
       breadCrumbs={breadCrumbs}
-      hidden={false}
+      hidden={hidden}
       sidebarActions={getSidebarActions()}
     >
       {inProposed && lockedBy && (
@@ -202,17 +203,17 @@ function DecisionInvestible(props) {
           type={SECTION_TYPE_SECONDARY}
           title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
         >
-            <CommentAddBox
-              hidden={commentAddHidden}
-              allowedTypes={allowedCommentTypes}
-              investible={investible}
-              marketId={marketId}
-              type={commentAddType}
-              onSave={closeCommentAdd}
-              onCancel={closeCommentAdd}
-            />
+          <CommentAddBox
+            hidden={commentAddHidden}
+            allowedTypes={allowedCommentTypes}
+            investible={investible}
+            marketId={marketId}
+            type={commentAddType}
+            onSave={closeCommentAdd}
+            onCancel={closeCommentAdd}
+          />
           <div ref={commentAddRef} />
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
         </SubSection>
       )}
     </Screen>
@@ -222,6 +223,7 @@ function DecisionInvestible(props) {
 DecisionInvestible.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   fullInvestible: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object),
@@ -233,6 +235,7 @@ DecisionInvestible.propTypes = {
   userId: PropTypes.string.isRequired,
   toggleEdit: PropTypes.func,
   isAdmin: PropTypes.bool,
+  hidden: PropTypes.bool,
 };
 
 DecisionInvestible.defaultProps = {
@@ -242,5 +245,7 @@ DecisionInvestible.defaultProps = {
   toggleEdit: () => {
   },
   isAdmin: false,
+  hidden: false,
 };
+
 export default DecisionInvestible;

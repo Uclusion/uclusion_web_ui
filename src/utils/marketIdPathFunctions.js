@@ -90,8 +90,12 @@ export function formInviteLink(marketId) {
   return url.toString();
 }
 
+export function formInvestibleLinkWithPrefix(preFix, marketId, investibleId) {
+  return `/${preFix}/${marketId}/${investibleId}`;
+}
+
 export function formInvestibleLink(marketId, investibleId) {
-  return `/dialog/${marketId}/${investibleId}`;
+  return formInvestibleLinkWithPrefix('dialog', marketId, investibleId);
 }
 
 /**

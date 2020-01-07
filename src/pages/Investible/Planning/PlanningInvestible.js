@@ -58,6 +58,7 @@ function PlanningInvestible(props) {
     investibles,
     toggleEdit,
     isAdmin,
+    hidden,
   } = props;
   const {
     name: marketName,
@@ -252,7 +253,7 @@ function PlanningInvestible(props) {
       title={name}
       tabTitle={name}
       breadCrumbs={breadCrumbs}
-      hidden={false}
+      hidden={hidden}
       sidebarActions={getSidebarActions()}
     >
       <Typography>
@@ -355,6 +356,7 @@ PlanningInvestible.propTypes = {
   userId: PropTypes.string.isRequired,
   toggleEdit: PropTypes.func,
   isAdmin: PropTypes.bool,
+  hidden: PropTypes.bool,
 };
 
 PlanningInvestible.defaultProps = {
@@ -364,5 +366,6 @@ PlanningInvestible.defaultProps = {
   toggleEdit: () => {
   },
   isAdmin: false,
+  hidden: false,
 };
 export default PlanningInvestible;

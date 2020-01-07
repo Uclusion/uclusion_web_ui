@@ -6,7 +6,7 @@ import Screen from '../../containers/Screen/Screen';
 import {
   makeBreadCrumbs,
   formMarketLink,
-  decomposeMarketPath,
+  decomposeMarketPath, navigate, formInvestibleLinkWithPrefix,
 } from '../../utils/marketIdPathFunctions';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
@@ -17,13 +17,9 @@ import { getMarketComments } from '../../contexts/CommentsContext/commentsContex
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import DecisionInvestible from './Decision/DecisionInvestible';
-import DecisionInvestibleEdit from './Decision/DecisionInvestibleEdit';
-import { lockInvestibleForEdit, realeaseInvestibleEditLock } from '../../api/investibles';
 import PlanningInvestible from './Planning/PlanningInvestible';
-import PlanningInvestibleEdit from './Planning/PlanningInvestibleEdit';
 import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import InitiativeInvestible from './Initiative/InitiativeInvestible';
-import InitiativeInvestibleEdit from './Initiative/InitiativeInvestibleEdit';
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -56,11 +52,8 @@ function Investible(props) {
   const { name, locked_by: lockedBy } = investible;
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-  const amEditing = lockedBy && (lockedBy === userId);
   const someoneElseEditing = lockedBy && (lockedBy !== userId);
   const warning = someoneElseEditing ? 'Someone else is editing this idea!' : undefined;
-  // if we have an edit lock, just put us into edit mode
-  const [editMode, setEditMode] = useState(amEditing);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || _.isEmpty(user));
   const isDecision = market && market.market_type === DECISION_TYPE;
@@ -69,21 +62,7 @@ function Investible(props) {
   const isAdmin = myPresence && myPresence.is_admin;
 
   function toggleEdit() {
-    if (!editMode) {
-      // for now, just break the lock always
-      const breakLock = true;
-      // console.debug('Taking out lock');
-      return lockInvestibleForEdit(marketId, investibleId, breakLock)
-        .then(() => setEditMode(true));
-    }
-    // console.debug('Releasing lock');
-    return realeaseInvestibleEditLock(marketId, investibleId)
-      .then(() => setEditMode(false));
-  }
-
-  function onSave() {
-    // save automagically releases the lock, so we just toggle edit
-    setEditMode(false);
+    navigate(history, formInvestibleLinkWithPrefix('investibleEdit', marketId, investibleId));
   }
 
   if (loading) {
@@ -102,18 +81,6 @@ function Investible(props) {
   }
 
   if (isDecision) {
-    if (editMode) {
-      return (
-        <DecisionInvestibleEdit
-          fullInvestible={inv}
-          marketId={marketId}
-          userId={userId}
-          onSave={onSave}
-          onCancel={toggleEdit}
-          isAdmin={isAdmin}
-        />
-      );
-    }
     return (
       <DecisionInvestible
         userId={userId}
@@ -125,23 +92,12 @@ function Investible(props) {
         investibleComments={investibleComments}
         toggleEdit={toggleEdit}
         isAdmin={isAdmin}
+        hidden={hidden}
       />
     );
   }
 
   if (isPlanning) {
-    if (editMode) {
-      return (
-        <PlanningInvestibleEdit
-          fullInvestible={inv}
-          marketId={marketId}
-          marketPresences={marketPresences}
-          onSave={onSave}
-          onCancel={toggleEdit}
-          isAdmin={isAdmin}
-        />
-      );
-    }
     return (
       <PlanningInvestible
         userId={userId}
@@ -154,17 +110,7 @@ function Investible(props) {
         investibleComments={investibleComments}
         toggleEdit={toggleEdit}
         isAdmin={isAdmin}
-      />
-    );
-  }
-  if (editMode) {
-    return (
-      <InitiativeInvestibleEdit
-        fullInvestible={inv}
-        marketId={marketId}
-        marketPresences={marketPresences}
-        onSave={onSave}
-        onCancel={toggleEdit}
+        hidden={hidden}
       />
     );
   }

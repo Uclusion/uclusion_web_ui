@@ -12,6 +12,7 @@ import { toastErrorAndThrow } from '../../utils/userMessage';
 import { getSSOInfo } from '../../api/sso';
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
 import ChangePassword from '../Authentication/ChangePassword';
+import ChangeNotificationPreferences from './ChangeNotificationPreferences';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,6 +51,7 @@ function About(props) {
   const classes = useStyles();
   const { version } = config;
   const [externalId, setExternalId] = useState(undefined);
+  const [user, setUser] = useState(undefined);
   function handleClear() {
     localforage.clear().then(() => {
       console.info('Reloading after clearing cache');
@@ -62,16 +64,15 @@ function About(props) {
       getSSOInfo().then((ssoInfo) => {
         const { idToken, ssoClient } = ssoInfo;
         return ssoClient.accountCognitoLogin(idToken).then((loginInfo) => {
-          const { user } = loginInfo;
-          const { external_id: myExternalId } = user;
+          const { user: myUser } = loginInfo;
+          setUser(myUser);
+          const { external_id: myExternalId } = myUser;
           setExternalId(myExternalId);
         });
       }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
     }
   }, [externalId]);
   const breadCrumbs = makeBreadCrumbs(history, [], true);
-  // Each one of the paper blocks here represent a logical section of the page. We'll probably
-  // want to skin it with pretty headers etc.
   return (
     <div>
       <Screen
@@ -115,6 +116,10 @@ function About(props) {
           <Button onClick={handleClear}>{intl.formatMessage({ id: 'aboutClearStorageButton' })}</Button>
           <br />
           <ChangePassword />
+          <br />
+          {user && (
+            <ChangeNotificationPreferences user={user} />
+          )}
         </div>
       </Screen>
     </div>

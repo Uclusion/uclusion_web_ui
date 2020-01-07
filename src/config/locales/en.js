@@ -411,6 +411,12 @@ const messages = defineMessages({
   changePasswordOldLabel: 'Old password',
   changePasswordButton: 'Change Password',
 
+  // Change Preferences
+  changePreferencesHeader: 'Change your notification preferences',
+  emailEnabledLabel: 'Send daily digest of notifications via email',
+  slackEnabledLabel: 'Send notifications via Slack',
+  changePreferencesButton: 'Update Preferences',
+
   // your voting
   yourVotingVoteForThisPlanning: 'Vote for this story',
   yourVotingVoteForThisDecision: 'Vote for this option',
@@ -458,6 +464,7 @@ const messages = defineMessages({
   errorForgotPasswordSetFailed: 'There was an error changing your password. Please try again',
   errorClearFailed: 'There was a problem clearing your data. Please try again',
   errorGetIdFailed: 'There was a problem displaying your identification.',
+  errorUpdateUserFailed: 'There was a problem updating your profile. Please try again.',
 
   // warnings
   warningOffline: 'You are offline',

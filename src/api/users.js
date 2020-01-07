@@ -1,4 +1,4 @@
-import { getMarketClient } from './uclusionClient';
+import { getAccountClient, getMarketClient } from './uclusionClient';
 import { toastErrorAndThrow } from '../utils/userMessage';
 
 export function deleteMessage(message) {
@@ -12,4 +12,9 @@ export function addParticipants(marketId, participants) {
   return getMarketClient(marketId)
     .then((client) => client.users.addUsers(participants))
     .catch((error) => toastErrorAndThrow(error, 'errorAddParticipantsFailed'));
+}
+
+export function updateUser(userOptions) {
+  return getAccountClient().then((client) => client.users.update(userOptions))
+    .catch((error) => toastErrorAndThrow(error, 'errorUpdateUserFailed'));
 }

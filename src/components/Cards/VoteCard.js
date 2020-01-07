@@ -1,11 +1,10 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
-import { Textfit } from 'react-textfit';
 import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
+import useFitText from 'use-fit-text';
 import CustomChip from '../CustomChip';
-import { MAX_FONTSIZE, MIN_FONTSIZE } from '../../constants/global';
 import Chart from './Chart';
 
 const useStyles = makeStyles(() => ({
@@ -47,7 +46,7 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
 }));
 
 function VoteCard(props) {
@@ -55,24 +54,31 @@ function VoteCard(props) {
   const classes = useStyles();
   const intl = useIntl();
   const issuesExist = comments.length > 0;
+  const { fontSize, ref } = useFitText({ maxFontSize: 200 });
 
   return (
     <div className={classes.container}>
-      <Textfit className={classes.title} max={MAX_FONTSIZE} min={MIN_FONTSIZE}>
+      <div
+        ref={ref}
+        style={{
+          fontSize,
+        }}
+        className={classes.title}
+      >
         {title}
-      </Textfit>
+      </div>
       {issuesExist && (
         <Grid className={classes.iconGrid} container spacing={1}>
           {comments.map((item, index) => (
             <Grid item key={index}>
-              <CustomChip type={item.comment_type} content={item.body}/>
+              <CustomChip type={item.comment_type} content={item.body} />
             </Grid>
           ))}
         </Grid>
       )}
       {!issuesExist && (
         <div className={classes.chartContent}>
-          <Chart data={votes}/>
+          <Chart data={votes} />
           <span className={classes.chartValue}>
             {intl.formatMessage({ id: 'numVoting' }, { x: votes.length })}
           </span>
@@ -85,13 +91,13 @@ function VoteCard(props) {
 VoteCard.propTypes = {
   title: PropTypes.string,
   comments: PropTypes.arrayOf(PropTypes.object),
-  votes: PropTypes.arrayOf(PropTypes.object)
+  votes: PropTypes.arrayOf(PropTypes.object),
 };
 
 VoteCard.defaultProps = {
   title: '',
   comments: [],
-  votes: null
+  votes: null,
 };
 
 export default VoteCard;

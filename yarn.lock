@@ -11362,6 +11362,11 @@ reselect@^4.0.0:
   resolved "https://registry.yarnpkg.com/reselect/-/reselect-4.0.0.tgz#f2529830e5d3d0e021408b246a206ef4ea4437f7"
   integrity sha512-qUgANli03jjAyGlnbYVAV5vvnOmJnODyABz51RdBN7M4WaVu8mecZWgyQNkG8Yqe3KRGRt0l4K4B3XVEULC4CA==
 
+resize-observer-polyfill@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/resize-observer-polyfill/-/resize-observer-polyfill-1.5.1.tgz#0e9020dd3d21024458d4ebd27e23e40269810464"
+  integrity sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==
+
 resolve-cwd@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/resolve-cwd/-/resolve-cwd-2.0.0.tgz#00a9f7387556e27038eae232caa372a6a59b665a"
@@ -13006,6 +13011,13 @@ use-debounce@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/use-debounce/-/use-debounce-3.3.0.tgz#f9c1f09d40ddbdf4306b80066b04bb5d46b6a904"
   integrity sha512-p6b0ZxTTpFDtds138PvfrWB98pCMOfA8/c0yHLm9CudJ5l1lqcA0Zg/3Y8KCF/ghMKzOcE1/IknnW7H3wF8RhQ==
+
+use-fit-text@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/use-fit-text/-/use-fit-text-2.1.0.tgz#132d2373e262dcb0209fd91ce1a81f0254b907be"
+  integrity sha512-InsRwEFd0vcgNePeboz/d5+wgsp6GdJHYbrzpD+d1UW49SQYocQ2mxYq5UkWI+I5KQZ6f+t7jubzV4rH7Iberg==
+  dependencies:
+    resize-observer-polyfill "^1.5.1"
 
 use@^3.1.0:
   version "3.1.1"

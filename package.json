@@ -36,7 +36,7 @@
     "react-material-ui-form-validator": "^2.0.9",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
-    "react-textfit": "^1.1.0",
+    "use-fit-text": "^2.1.0",
     "react-toastify": "^5.4.1",
     "react-vis": "^1.11.7",
     "reconnecting-websocket": "^4.2.0",

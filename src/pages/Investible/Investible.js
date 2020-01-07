@@ -49,11 +49,9 @@ function Investible(props) {
   const inv = getInvestible(investiblesState, investibleId);
   const usedInv = inv || emptyInvestible;
   const { investible } = usedInv;
-  const { name, locked_by: lockedBy } = investible;
+  const { name } = investible;
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-  const someoneElseEditing = lockedBy && (lockedBy !== userId);
-  const warning = someoneElseEditing ? 'Someone else is editing this idea!' : undefined;
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || _.isEmpty(user));
   const isDecision = market && market.market_type === DECISION_TYPE;
@@ -72,7 +70,6 @@ function Investible(props) {
         tabTitle={name}
         breadCrumbs={breadCrumbs}
         hidden={hidden}
-        warning={warning}
         loading={loading}
       >
         <div />

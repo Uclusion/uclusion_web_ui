@@ -46,7 +46,7 @@ function InvestibleEdit(props) {
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const isAdmin = myPresence && myPresence.is_admin;
   const { investible: myInvestible } = fullInvestible;
-  const { name } = myInvestible;
+  const { name, locked_by: lockedBy } = myInvestible;
   const [lockedInvestibleId, setLockedInvestibleId] = useState(undefined);
   const [lockedInvestibleIdMarketId, setLockedInvestibleIdMarketId] = useState(undefined);
   const emptyMarket = { name: '' };
@@ -85,6 +85,22 @@ function InvestibleEdit(props) {
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) },
     { name, link: formInvestibleLink(marketId, investibleId) }];
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+  const someoneElseEditing = lockedBy && (lockedBy !== userId);
+  const warning = someoneElseEditing ? intl.formatMessage({ id: 'edit_lock' }) : undefined;
+  if (!market || !inv) {
+    return (
+      <Screen
+        title={name}
+        tabTitle={name}
+        breadCrumbs={breadCrumbs}
+        hidden={hidden}
+        warning={warning}
+        loading
+      >
+        <div />
+      </Screen>
+    );
+  }
 
   return (
     <Screen
@@ -92,6 +108,7 @@ function InvestibleEdit(props) {
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
+      warning={warning}
     >
       {isDecision && inv && (
         <DecisionInvestibleEdit

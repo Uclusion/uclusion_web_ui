@@ -69,6 +69,7 @@ const messages = defineMessages({
   investibles: 'Investibles',
   users: 'Users',
   edit: 'Edit',
+  edit_lock: 'Someone else is editing!',
   online: 'Online',
   offline: 'Offline',
   no_connection_warning: 'No connection!',

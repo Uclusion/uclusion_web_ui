@@ -368,7 +368,7 @@ const messages = defineMessages({
   addOptionLabel: 'Add Option',
 
   // diff display
-  diffDisplayDismissLabel: 'Dismiss Difference Display',
+  diffDisplayDismissLabel: 'Hide Changes',
 
 
   // expiration extender

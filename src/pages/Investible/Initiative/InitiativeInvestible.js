@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
-import { Typography } from '@material-ui/core';
+import { Typography, Paper } from '@material-ui/core';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
@@ -19,13 +19,15 @@ import Screen from '../../../containers/Screen/Screen';
 import { formInvestibleLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
-import Summary from '../../Dialog/Summary';
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
 import AddressList from '../../Dialog/AddressList';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import DeadlineExtender from '../../Home/Decision/DeadlineExtender';
 import ExtendDeadlineActionButton from '../../Dialog/Decision/ExtendDeadlineActionButton';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
+import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -43,6 +45,9 @@ function InitiativeInvestible(props) {
     toggleEdit,
     isAdmin,
   } = props;
+
+  const [diffState] = useContext(DiffContext);
+  const diff = getDiff(diffState, investibleId);
 
   const intl = useIntl();
   const history = useHistory();
@@ -87,7 +92,7 @@ function InitiativeInvestible(props) {
     const sidebarActions = [];
 
     if (isAdmin) {
-      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
+      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit}/>);
       if (activeMarket) {
         sidebarActions.push(<ExtendDeadlineActionButton
           key="extend"
@@ -95,10 +100,10 @@ function InitiativeInvestible(props) {
         />);
       }
     }
-    sidebarActions.push(<AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />);
-    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
-    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
-    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode}/>);
+    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
+    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick}/>);
     return sidebarActions;
   }
 
@@ -196,10 +201,17 @@ function InitiativeInvestible(props) {
         type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
       >
-        <Summary market={market} showObservers={false} />
-        <ReadOnlyQuillEditor
-          value={description}
-        />
+        <Paper>
+          {diff && (
+            <DiffDisplay id={investibleId}/>
+          )}
+          {!diff && (
+            <ReadOnlyQuillEditor
+              value={description}
+            />
+          )}
+        </Paper>
+
       </SubSection>
       {discussionVisible && (
         <SubSection
@@ -215,8 +227,8 @@ function InitiativeInvestible(props) {
             onSave={closeCommentAdd}
             onCancel={closeCommentAdd}
           />
-          <div ref={commentAddRef} />
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
+          <div ref={commentAddRef}/>
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
         </SubSection>
       )}
     </Screen>

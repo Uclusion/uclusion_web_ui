@@ -15,9 +15,10 @@ import UpdateIcon from '@material-ui/icons/Update';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
-import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import {
+  formMarketLink, formMarketAddInvestibleLink, makeBreadCrumbs, navigate,
+} from '../../../utils/marketIdPathFunctions';
 import Summary from '../Summary';
-import InvestibleAdd from './InvestibleAdd';
 import ProposedIdeas from './ProposedIdeas';
 import SubSection from '../../../containers/SubSection/SubSection';
 import CurrentVoting from './CurrentVoting';
@@ -64,7 +65,6 @@ function DecisionDialog(props) {
   const breadCrumbs = makeBreadCrumbs(history);
   const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketComments = comments.filter((comment) => !comment.investible_id);
-  const [addInvestibleMode, setAddInvestibleMode] = useState(false);
   const [addParticipantsMode, setAddParticipantsMode] = useState(false);
   const [dialogEditMode, setDialogEditMode] = useState(false);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
@@ -101,10 +101,6 @@ function DecisionDialog(props) {
     setDialogEditMode(!dialogEditMode);
   }
 
-  function toggleInvestibleAddMode() {
-    setAddInvestibleMode(!addInvestibleMode);
-  }
-
   function toggleAddParticipantsMode() {
     setAddParticipantsMode(!addParticipantsMode);
   }
@@ -119,7 +115,7 @@ function DecisionDialog(props) {
     {
       label: intl.formatMessage({ id: addLabel }),
       icon: <AddIcon />,
-      onClick: () => toggleInvestibleAddMode(),
+      onClick: () => navigate(history, formMarketAddInvestibleLink(marketId)),
     },
     {
       label: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
@@ -231,30 +227,8 @@ function DecisionDialog(props) {
     );
   }
 
-  // if we're adding an investible, just render it with the screen
-  if (addInvestibleMode) {
-    const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
-    const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-    const newStory = intl.formatMessage({ id: 'newStory' });
-    return (
-      <Screen
-        title={newStory}
-        hidden={hidden}
-        tabTitle={newStory}
-        breadCrumbs={myBreadCrumbs}
-      >
-        <InvestibleAdd
-          marketId={marketId}
-          onCancel={toggleInvestibleAddMode}
-          onSave={toggleInvestibleAddMode}
-          isAdmin={isAdmin}
-        />
-      </Screen>
-    );
-  }
-
   function getSidebarActions() {
-    if (addInvestibleMode || addParticipantsMode) {
+    if (addParticipantsMode) {
       return [];
     }
 

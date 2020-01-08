@@ -32,7 +32,7 @@ const styles = (theme) => ({
   },
 });
 
-function InvestibleAdd(props) {
+function PlanningInvestibleAdd(props) {
   const {
     marketId, intl, classes, onCancel, onSave,
   } = props;
@@ -173,7 +173,7 @@ function InvestibleAdd(props) {
   );
 }
 
-InvestibleAdd.propTypes = {
+PlanningInvestibleAdd.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   intl: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
@@ -185,11 +185,11 @@ InvestibleAdd.propTypes = {
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
-InvestibleAdd.defaultProps = {
+PlanningInvestibleAdd.defaultProps = {
   onSave: () => {
   },
   onCancel: () => {
   },
 };
 
-export default withStyles(styles)(injectIntl(InvestibleAdd));
+export default withStyles(styles)(injectIntl(PlanningInvestibleAdd));

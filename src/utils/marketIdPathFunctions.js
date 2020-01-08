@@ -98,6 +98,10 @@ export function formInvestibleLink(marketId, investibleId) {
   return formInvestibleLinkWithPrefix('dialog', marketId, investibleId);
 }
 
+export function formatMarketLinkWithPrefix(prefix, marketId) {
+  return `/${prefix}/${marketId}`;
+}
+
 /**
  * Forms a link to a given market id with the given subpath. Usually used when switching
  * to a different market
@@ -105,9 +109,13 @@ export function formInvestibleLink(marketId, investibleId) {
  * @returns {string}
  */
 export function formMarketLink(marketId) {
-  return `/dialog/${marketId}`;
+  return formatMarketLinkWithPrefix('dialog', marketId);
 }
 
 export function formMarketArchivesLink(marketId) {
-  return `/dialogArchives/${marketId}`;
+  return formatMarketLinkWithPrefix('dialogArchives', marketId);
+}
+
+export function formMarketAddInvestibleLink(marketId) {
+  return formatMarketLinkWithPrefix('investibleAdd', marketId);
 }

@@ -12,14 +12,17 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import Summary from '../Summary';
 import PlanningIdeas from './PlanningIdeas';
 import Screen from '../../../containers/Screen/Screen';
-import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import {
+  formMarketAddInvestibleLink,
+  makeBreadCrumbs,
+  navigate,
+} from '../../../utils/marketIdPathFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import SubSection from '../../../containers/SubSection/SubSection';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
-import InvestibleAdd from './InvestibleAdd';
 import InvestibleAddActionButton from './InvestibleAddActionButton';
 import DialogEditActionButton from './DialogEditActionButton';
 import DialogEdit from './DialogEdit';
@@ -61,11 +64,10 @@ function PlanningDialog(props) {
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
-  const [addInvestibleMode, setAddInvestibleMode] = useState(false);
   const [dialogEditMode, setDialogEditMode] = useState(false);
   const [manageUsersMode, setManageUsersMode] = useState(false);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
-  const { name: marketName, locked_by: lockedBy } = market
+  const { name: marketName, locked_by: lockedBy } = market;
 
 
   let lockedByName;
@@ -78,7 +80,7 @@ function PlanningDialog(props) {
   }
 
   function toggleAddInvestibleMode() {
-    setAddInvestibleMode(!addInvestibleMode);
+    navigate(history, formMarketAddInvestibleLink(marketId));
   }
 
   function toggleManageUsersMode() {
@@ -114,28 +116,6 @@ function PlanningDialog(props) {
           editToggle={toggleEditMode}
           market={market}
           onCancel={onDialogEditCancel}
-        />
-      </Screen>
-    );
-  }
-
-  // if we're adding an investible, just render it with the screen
-  if (addInvestibleMode) {
-    const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
-    const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-    const newStory = intl.formatMessage({ id: 'newStory' });
-    return (
-      <Screen
-        title={newStory}
-        hidden={hidden}
-        tabTitle={newStory}
-        breadCrumbs={myBreadCrumbs}
-      >
-        <InvestibleAdd
-          marketId={marketId}
-          onCancel={toggleAddInvestibleMode}
-          onSave={toggleAddInvestibleMode}
-          marketPresences={marketPresences}
         />
       </Screen>
     );
@@ -180,10 +160,11 @@ function PlanningDialog(props) {
     const inDialogStage = marketStages.find((stage) => (stage.allows_investment));
     // eslint-disable-next-line max-len
     const inReviewStage = marketStages.find((stage) => (stage.appears_in_context && !stage.singular_only && !stage.allows_issues));
+    // eslint-disable-next-line max-len
     const inBlockingStage = marketStages.find((stage) => (stage.appears_in_context && stage.allows_issues));
     return (
       <GridList key="toppresencelist" cellHeight="auto" cols={3}>
-          <GridListTile key="Subheader1" cols={1} style={{ height: 'auto', width: '25%' }}>
+        <GridListTile key="Subheader1" cols={1} style={{ height: 'auto', width: '25%' }}>
           <ListSubheader component="div">{intl.formatMessage({ id: 'planningVotingStageLabel' })}</ListSubheader>
         </GridListTile>
         <GridListTile key="Subheader2" cols={1} style={{ height: 'auto', width: '25%' }}>
@@ -230,15 +211,13 @@ function PlanningDialog(props) {
     if (!activeMarket) {
       return [];
     }
-    if (addInvestibleMode) {
-      return [];
-    }
     const userActions = [
       (<DialogEditActionButton
         key="edit"
         onClick={toggleEditMode}
         marketId={marketId}
-        onCancel={onDialogEditCancel} />),
+        onCancel={onDialogEditCancel}
+      />),
       <InvestibleAddActionButton key="investibleadd" onClick={toggleAddInvestibleMode} />,
       <ManageParticipantsActionButton key="addParticipants" onClick={toggleManageUsersMode} />,
       <ViewArchiveActionButton key="archives" marketId={marketId} />,
@@ -250,11 +229,11 @@ function PlanningDialog(props) {
     if (eligibleForObserver) {
       if (following) {
         userActions.push(
-          <ChangeToObserverActionButton key="observe" marketId={marketId}/>,
+          <ChangeToObserverActionButton key="observe" marketId={marketId} />,
         );
       } else {
         userActions.push(
-          <ChangeToParticipantActionButton key="participate" marketId={marketId}/>,
+          <ChangeToParticipantActionButton key="participate" marketId={marketId} />,
         );
       }
     }

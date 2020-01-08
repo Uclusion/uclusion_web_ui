@@ -34,7 +34,7 @@ const styles = (theme) => ({
   },
 });
 
-function InvestibleAdd(props) {
+function DecisionInvestibleAdd(props) {
   const {
     marketId, intl, classes, onCancel, isAdmin, onSave,
   } = props;
@@ -181,7 +181,7 @@ function InvestibleAdd(props) {
   );
 }
 
-InvestibleAdd.propTypes = {
+DecisionInvestibleAdd.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   intl: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
@@ -192,7 +192,7 @@ InvestibleAdd.propTypes = {
   isAdmin: PropTypes.bool,
 };
 
-InvestibleAdd.defaultProps = {
+DecisionInvestibleAdd.defaultProps = {
   onSave: () => {
   },
   onCancel: () => {
@@ -200,4 +200,4 @@ InvestibleAdd.defaultProps = {
   isAdmin: false,
 };
 
-export default withStyles(styles)(injectIntl(InvestibleAdd));
+export default withStyles(styles)(injectIntl(DecisionInvestibleAdd));

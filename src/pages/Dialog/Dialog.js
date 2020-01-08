@@ -3,7 +3,7 @@ import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import {
-  makeBreadCrumbs, decomposeMarketPath, formInvestibleLink, navigate,
+  decomposeMarketPath, formInvestibleLink, navigate,
 } from '../../utils/marketIdPathFunctions';
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
@@ -71,13 +71,11 @@ function Dialog(props) {
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const comments = getMarketComments(commentsState, marketId);
   const renderableMarket = getMarket(marketsState, marketId) || {};
-  const { market_type: marketType } = renderableMarket;
-  const currentMarketName = (renderableMarket && renderableMarket.name) || '';
+  const { market_type: marketType } = renderableMarket || '';
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = !myPresence || !marketType || marketType === INITIATIVE_TYPE;
-  const breadCrumbs = makeBreadCrumbs(history);
 
   useEffect(() => {
     function getInitiativeInvestible(baseInvestible) {

@@ -33,11 +33,12 @@ import { scrollToCommentAddBox } from '../../../components/Comments/commentFunct
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import { ACTIVE_STAGE } from '../../../constants/markets';
+import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets';
 import AddressList from '../AddressList';
 import DeadlineExtender from '../../Home/Decision/DeadlineExtender';
 import { changeToObserver, changeToParticipant } from '../../../api/markets';
 import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
+import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 
 function DecisionDialog(props) {
   const {
@@ -252,6 +253,7 @@ function DecisionDialog(props) {
         <Grid item xs={12}>
           <SubSection
             title={intl.formatMessage({ id: 'decisionDialogSummaryLabel' })}
+            titleIcon={getDialogTypeIcon(DECISION_TYPE)}
           >
             <Summary market={market} />
           </SubSection>

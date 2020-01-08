@@ -39,6 +39,7 @@ function SubSection(props) {
     title,
     actionButton,
     type,
+    titleIcon,
   } = props;
 
   const classes = useStyles();
@@ -51,6 +52,7 @@ function SubSection(props) {
         hidden={hidden}
       >
         <Toolbar>
+          {titleIcon}
           <Typography className={classes.headerTitle}>
             {title}
           </Typography>
@@ -73,6 +75,7 @@ SubSection.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   actionButton: PropTypes.object,
   type: PropTypes.string,
+  titleIcon: PropTypes.element,
 };
 
 SubSection.defaultProps = {
@@ -80,6 +83,7 @@ SubSection.defaultProps = {
   hidden: false,
   children: undefined,
   type: SECTION_TYPE_PRIMARY,
+  titleIcon: undefined,
 };
 
 export default SubSection;

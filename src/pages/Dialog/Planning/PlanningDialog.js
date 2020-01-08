@@ -27,13 +27,14 @@ import InvestibleAddActionButton from './InvestibleAddActionButton';
 import DialogEditActionButton from './DialogEditActionButton';
 import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
-import { ACTIVE_STAGE } from '../../../constants/markets';
+import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets';
 import ManageParticipantsActionButton from './ManageParticipantsActionButton';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import ChangeToObserverActionButton from '../ChangeToObserverActionButton';
 import ChangeToParticipantActionButton from '../ChangeToParticipantActionButton';
 import { getUserEligibleForObserver, getUserInvestibles } from './userUtils';
 import ManageParticipants from './ManageParticipants';
+import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -221,6 +222,7 @@ function PlanningDialog(props) {
         >
           <SubSection
             title={intl.formatMessage({ id: 'planningDialogSummaryLabel' })}
+            titleIcon={getDialogTypeIcon(PLANNING_TYPE)}
           >
             <Summary
               market={market}

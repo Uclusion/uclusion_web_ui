@@ -35,6 +35,7 @@ import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import AddressList from '../AddressList';
 import { changeToObserver, changeToParticipant } from '../../../api/markets';
 import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
+import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 
 function DecisionDialog(props) {
   const {
@@ -212,6 +213,7 @@ function DecisionDialog(props) {
         <Grid item xs={12}>
           <SubSection
             title={intl.formatMessage({ id: 'decisionDialogSummaryLabel' })}
+            titleIcon={getDialogTypeIcon(DECISION_TYPE)}
           >
             <Summary market={market} />
           </SubSection>

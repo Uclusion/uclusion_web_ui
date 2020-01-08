@@ -350,6 +350,10 @@ const messages = defineMessages({
 
   // InitiativeInvestible
   initiativeInvestibleVotingBlocked: 'Voting is blocked because there is an open issue',
+  initiativeInvestibleYourVoting: 'Your Vote',
+  initiativeInvestibleOthersVoting: 'Current Voting',
+  initiativeInvestibleDescription: 'Contents',
+  initiativeInvestibleDiscussion: 'Discussion',
 
   // About
   sidebarNavAbout: 'About',

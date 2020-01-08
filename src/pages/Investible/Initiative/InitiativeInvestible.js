@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
-import { Typography, Paper } from '@material-ui/core';
+import { Typography, Paper, Grid } from '@material-ui/core';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
@@ -19,13 +19,46 @@ import Screen from '../../../containers/Screen/Screen';
 import { formInvestibleLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
-import { ACTIVE_STAGE } from '../../../constants/markets';
+import { ACTIVE_STAGE, INITIATIVE_TYPE } from '../../../constants/markets';
 import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
 import AddressList from '../../Dialog/AddressList';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
+import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
+import { makeStyles } from '@material-ui/styles';
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    padding: '3px 89px 21px 21px',
+    marginTop: '-6px',
+    boxShadow: 'none',
+    [theme.breakpoints.down('sm')]: {
+      padding: '3px 21px 42px 21px',
+    },
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    lineHeight: '42px',
+    paddingBottom: '9px',
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 25,
+    },
+  },
+  content: {
+    fontSize: '15 !important',
+    lineHeight: '175%',
+    color: '#414141',
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 13,
+    },
+    '& > .ql-container': {
+      fontSize: '15 !important',
+    },
+  },
+}));
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -47,7 +80,7 @@ function InitiativeInvestible(props) {
 
   const [diffState] = useContext(DiffContext);
   const diff = getDiff(diffState, investibleId);
-
+  const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
   const [addParticipantsMode, setAddParticipantsMode] = useState(false);
@@ -138,71 +171,86 @@ function InitiativeInvestible(props) {
       sidebarActions={getSidebarActions()}
       hidden={hidden}
     >
-      {!isAdmin && (
-        <SubSection
-          type={SECTION_TYPE_SECONDARY}
-          title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
-        >
-          {hasIssue && (
-            <Typography>
-              {intl.formatMessage({ id: 'initiativeInvestibleVotingBlocked' })}
-            </Typography>
-          )}
-          {!hasIssue && (
-            <YourVoting
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <SubSection
+            title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
+            titleIcon={getDialogTypeIcon(INITIATIVE_TYPE)}
+          >
+            <Paper className={classes.container}>
+              <Typography className={classes.title} variant="h3" component="h1">
+                {name}
+              </Typography>
+              {diff && (
+                <DiffDisplay id={investibleId}/>
+              )}
+              {!diff && (
+                <ReadOnlyQuillEditor
+                  value={description}
+                />
+              )}
+            </Paper>
+          </SubSection>
+        </Grid>
+        {!isAdmin && (
+          <Grid item xs={12}>
+
+            <SubSection
+              type={SECTION_TYPE_SECONDARY}
+              title={intl.formatMessage({ id: 'initiativeInvestibleYourVoting' })}
+            >
+              {hasIssue && (
+                <Typography>
+                  {intl.formatMessage({ id: 'initiativeInvestibleVotingBlocked' })}
+                </Typography>
+              )}
+              {!hasIssue && (
+                <YourVoting
+                  investibleId={investibleId}
+                  marketPresences={marketPresences}
+                  comments={investmentReasons}
+                  userId={userId}
+                  market={market}
+                />
+              )}
+            </SubSection>
+          </Grid>
+        )}
+        <Grid item xs={12}>
+
+          <SubSection
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: 'initiativeInvestibleOthersVoting' })}
+          >
+            <Voting
               investibleId={investibleId}
               marketPresences={marketPresences}
-              comments={investmentReasons}
-              userId={userId}
-              market={market}
+              investmentReasons={investmentReasons}
             />
-          )}
-        </SubSection>
-      )}
-      <SubSection
-        type={SECTION_TYPE_SECONDARY}
-        title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
-      >
-        <Voting
-          investibleId={investibleId}
-          marketPresences={marketPresences}
-          investmentReasons={investmentReasons}
-        />
-      </SubSection>
-      <SubSection
-        type={SECTION_TYPE_SECONDARY}
-        title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
-      >
-        <Paper>
-          {diff && (
-            <DiffDisplay id={investibleId} />
-          )}
-          {!diff && (
-            <ReadOnlyQuillEditor
-              value={description}
-            />
-          )}
-        </Paper>
+          </SubSection>
+        </Grid>
+        {discussionVisible && (
+          <Grid item xs={12}>
 
-      </SubSection>
-      {discussionVisible && (
-        <SubSection
-          type={SECTION_TYPE_SECONDARY}
-          title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
-        >
-          <CommentAddBox
-            hidden={commentAddHidden}
-            allowedTypes={allowedCommentTypes}
-            investible={investible}
-            marketId={marketId}
-            type={commentAddType}
-            onSave={closeCommentAdd}
-            onCancel={closeCommentAdd}
-          />
-          <div ref={commentAddRef} />
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
-        </SubSection>
-      )}
+            <SubSection
+              type={SECTION_TYPE_SECONDARY}
+              title={intl.formatMessage({ id: 'initiativeInvestibleDiscussion' })}
+            >
+              <CommentAddBox
+                hidden={commentAddHidden}
+                allowedTypes={allowedCommentTypes}
+                investible={investible}
+                marketId={marketId}
+                type={commentAddType}
+                onSave={closeCommentAdd}
+                onCancel={closeCommentAdd}
+              />
+              <div ref={commentAddRef}/>
+              <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+            </SubSection>
+          </Grid>
+        )}
+      </Grid>
     </Screen>
   );
 }

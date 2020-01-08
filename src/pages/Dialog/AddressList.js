@@ -18,9 +18,9 @@ import SearchIcon from '@material-ui/icons/Search';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import { addParticipants } from '../../api/users';
-import InviteLinker from '../Home/Decision/InviteLinker';
+import InviteLinker from './InviteLinker';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import DeadlineExtender from '../Home/Decision/DeadlineExtender';
+import DeadlineExtender from './Decision/DeadlineExtender';
 import { ACTIVE_STAGE } from '../../constants/markets';
 
 const useStyles = makeStyles((theme) => ({

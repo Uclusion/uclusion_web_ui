@@ -22,7 +22,7 @@ import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils';
 import InvestibleEdit from '../../pages/Investible/InvestibleEdit';
 import InvestibleAdd from '../../pages/Dialog/InvestibleAdd';
-import MarketAdd from '../../pages/Home/MarketAdd';
+import DialogAdd from '../../pages/DialogAdd/DialogAdd';
 import DialogEdit from '../../pages/Dialog/DialogEdit';
 import DialogManage from '../../pages/Dialog/DialogManage';
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
@@ -76,7 +76,7 @@ function Root() {
   }
 
   function hideAddMarket() {
-    return action !== 'marketAdd';
+    return action !== 'dialogAdd';
   }
 
   function hideMarket() {
@@ -226,7 +226,7 @@ function Root() {
             <Archives hidden={hideArchvies()} />
             <DialogArchives hidden={hideDialogArchives()} />
             <InvestibleAdd hidden={hideInvestibleAdd()} />
-            <MarketAdd hidden={hideAddMarket()} />
+            <DialogAdd hidden={hideAddMarket()} />
             <DialogEdit hidden={hideDialogEdit()} />
             <DialogManage hidden={hideDialogManage()} />
             <PageNotFound hidden={hidePNF} />

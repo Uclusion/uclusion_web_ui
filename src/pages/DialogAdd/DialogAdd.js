@@ -14,7 +14,7 @@ import {
 import InitiativeAdd from './InitiativeAdd';
 import { makeBreadCrumbs, navigate } from '../../utils/marketIdPathFunctions';
 
-function MarketAdd(props) {
+function DialogAdd(props) {
   const { hidden } = props;
   const history = useHistory();
   const { location } = history;
@@ -67,8 +67,8 @@ function MarketAdd(props) {
   );
 }
 
-MarketAdd.propTypes = {
+DialogAdd.propTypes = {
   hidden: PropTypes.bool.isRequired,
 };
 
-export default MarketAdd;
+export default DialogAdd;

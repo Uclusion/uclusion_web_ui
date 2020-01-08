@@ -23,9 +23,9 @@ function HomeCheatSheat() {
               </li>
             </ul>
           </li>
-          <li>Decisions
+          <li>Dialogs
             <ul>
-              <li>Decisions let you reach a decision with involved stakeholders, and facilitate structured
+              <li>Dialogs let you reach a decision with involved stakeholders, and facilitate structured
                 conversation around the decision.
                 They can be started by clicking the {getDialogTypeIcon(DECISION_TYPE)} icon in the sidebar.
               </li>
@@ -36,7 +36,7 @@ function HomeCheatSheat() {
               <li>
                 If you have an idea and want to guage support across your organization, initiatives are the ideal
                 choice.
-                They make sure everyone weighs in, and gives you an idea of support at a glance.
+                They make sure everyone weighs in, and display support at a glance.
                 Initiatives can be sent by clicking the {getDialogTypeIcon(INITIATIVE_TYPE)} icon in the sidebar.
               </li>
             </ul>

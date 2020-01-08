@@ -27,8 +27,6 @@ function DialogManage(props) {
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
-  const breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
-  const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const manageVerbiage = intl.formatMessage({ id: 'manage' });
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
@@ -41,7 +39,15 @@ function DialogManage(props) {
   function onDone() {
     navigate(history, formMarketLink(marketId));
   }
-
+  function getInitiativeLinkName(baseInvestible) {
+    const { investible } = baseInvestible;
+    const { name } = investible;
+    return name;
+  }
+  const linkName = marketType === INITIATIVE_TYPE ? getInitiativeLinkName(investibles[0])
+    : currentMarketName;
+  const breadCrumbTemplates = [{ name: linkName, link: formMarketLink(marketId) }];
+  const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   return (
     <Screen
       title={manageVerbiage}

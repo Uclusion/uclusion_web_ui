@@ -82,8 +82,10 @@ function InvestibleEdit(props) {
   }
 
   const { name: marketName } = market;
-  const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) },
-    { name, link: formInvestibleLink(marketId, investibleId) }];
+  const breadCrumbTemplates = [{ name, link: formInvestibleLink(marketId, investibleId) }];
+  if (!isInitiative) {
+    breadCrumbTemplates.unshift({ name: marketName, link: formMarketLink(marketId) });
+  }
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const someoneElseEditing = lockedBy && (lockedBy !== userId);
   const warning = someoneElseEditing ? intl.formatMessage({ id: 'edit_lock' }) : undefined;

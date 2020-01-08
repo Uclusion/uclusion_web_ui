@@ -482,6 +482,10 @@ const messages = defineMessages({
   errorGetIdFailed: 'There was a problem displaying your identification.',
   errorUpdateUserFailed: 'There was a problem updating your profile. Please try again.',
 
+  // home cheat sheet
+  homeCheatWelcome: 'Welcome to Uclusion!',
+
+
   // warnings
   warningOffline: 'You are offline',
 

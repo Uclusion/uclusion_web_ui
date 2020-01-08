@@ -23,6 +23,7 @@ import InitiativeDialogs from './InitiativeDialogs';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
+import HomeCheatSheet from './HomeCheatSheet';
 
 const useStyles = makeStyles(() => ({
   breadCrumbImage: {
@@ -84,7 +85,7 @@ function Home(props) {
     },
     {
       label: intl.formatMessage({ id: 'homeViewArchives' }),
-      icon: <MenuBookIcon />,
+      icon: <MenuBookIcon/>,
       onClick: () => navigate(history, '/archives'),
     },
   ];
@@ -100,17 +101,25 @@ function Home(props) {
       />,
     );
   });
+  const noMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
 
   return (
     <Screen
-      title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage} />}
+      title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage}/>}
       tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       sidebarActions={sidebarActions}
     >
-      <PlanningDialogs markets={planningDetails} />
-      <DecisionDialogs markets={decisionDetails} />
-      <InitiativeDialogs markets={initiativeDetails} />
+      {noMarkets && (
+        <HomeCheatSheet/>
+      )}
+      {!noMarkets && (
+        <React.Fragment>
+          <PlanningDialogs markets={planningDetails}/>
+          <DecisionDialogs markets={decisionDetails}/>
+          <InitiativeDialogs markets={initiativeDetails}/>
+        </React.Fragment>
+      )}
     </Screen>
   );
 }

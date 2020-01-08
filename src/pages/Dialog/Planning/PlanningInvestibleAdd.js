@@ -7,9 +7,10 @@ import {
   Card,
   CardActions,
   CardContent,
-  TextField,
+  TextField, Typography,
   withStyles,
 } from '@material-ui/core';
+import localforage from 'localforage';
 import { useHistory } from 'react-router';
 import { addPlanningInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
@@ -34,13 +35,13 @@ const styles = (theme) => ({
 
 function PlanningInvestibleAdd(props) {
   const {
-    marketId, intl, classes, onCancel, onSave,
+    marketId, intl, classes, onCancel, onSave, storedDescription,
   } = props;
 
   const history = useHistory();
   const emptyInvestible = { name: '', assignments: [] };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [validForm, setValidForm] = useState(false);
@@ -79,12 +80,15 @@ function PlanningInvestibleAdd(props) {
   }
 
   function onAssignmentsChange(newAssignments) {
-    console.log(newAssignments)
     setAssignments(newAssignments);
   }
 
   function onEditorChange(description) {
     setDescription(description);
+  }
+
+  function onStorageChange(description) {
+    localforage.setItem(`add_investible_${marketId}`, description);
   }
 
   function onS3Upload(metadatas) {
@@ -141,9 +145,13 @@ function PlanningInvestibleAdd(props) {
           value={name}
           onChange={handleChange('name')}
         />
+        <Typography>
+          {intl.formatMessage({ id: 'descriptionEdit' })}
+        </Typography>
         <QuillEditor
           marketId={marketId}
           onChange={onEditorChange}
+          onStoreChange={onStorageChange}
           placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
           onS3Upload={onS3Upload}
           defaultValue={description}
@@ -183,6 +191,7 @@ PlanningInvestibleAdd.propTypes = {
   onSave: PropTypes.func,
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
+  storedDescription: PropTypes.string.isRequired,
 };
 
 PlanningInvestibleAdd.defaultProps = {

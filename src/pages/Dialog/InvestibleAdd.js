@@ -1,7 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
+import localforage from 'localforage';
 import {
   makeBreadCrumbs, decomposeMarketPath, formMarketLink, navigate,
 } from '../../utils/marketIdPathFunctions';
@@ -33,10 +34,24 @@ function InvestibleAdd(props) {
   const breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const newStory = intl.formatMessage({ id: 'newStory' });
+  const [storedDescription, setStoredDescription] = useState(undefined);
+  const [idLoaded, setIdLoaded] = useState(undefined);
 
   function toggleInvestibleAddMode() {
-    navigate(history, formMarketLink(marketId));
+    setIdLoaded(undefined);
+    localforage.removeItem(`add_investible_${marketId}`)
+      .then(() => navigate(history, formMarketLink(marketId)));
   }
+
+  useEffect(() => {
+    if (!hidden) {
+      localforage.getItem(`add_investible_${marketId}`).then((description) => {
+        setStoredDescription(description || '');
+        setIdLoaded(marketId);
+      });
+    }
+  }, [hidden, marketId]);
+
 
   return (
     <Screen
@@ -45,20 +60,22 @@ function InvestibleAdd(props) {
       tabTitle={newStory}
       breadCrumbs={myBreadCrumbs}
     >
-      {marketType === DECISION_TYPE && myPresence && (
+      {marketType === DECISION_TYPE && myPresence && idLoaded === marketId && (
         <DecisionInvestibleAdd
           marketId={marketId}
           onCancel={toggleInvestibleAddMode}
           onSave={toggleInvestibleAddMode}
           isAdmin={isAdmin}
+          storedDescription={storedDescription}
         />
       )}
-      {marketType === PLANNING_TYPE && (
+      {marketType === PLANNING_TYPE && idLoaded === marketId && (
         <PlanningInvestibleAdd
           marketId={marketId}
           onCancel={toggleInvestibleAddMode}
           onSave={toggleInvestibleAddMode}
           marketPresences={marketPresences}
+          storedDescription={storedDescription}
         />
       )}
     </Screen>

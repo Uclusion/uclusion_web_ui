@@ -104,7 +104,7 @@ class QuillEditor extends React.PureComponent {
 
 
   componentDidMount() {
-    const { defaultValue, onChange } = this.props;
+    const { defaultValue, onChange, onStoreChange } = this.props;
     this.editorBox.current.innerHTML = defaultValue;
     this.editor = new Quill(this.editorBox.current, this.options);
     const debouncedOnChange = _.debounce((delta) => {
@@ -115,8 +115,20 @@ class QuillEditor extends React.PureComponent {
         onChange(contents, delta);
       }
     }, 50);
+    const debouncedOnStoreChange = _.debounce((delta) => {
+      const contents = this.editor.root.innerHTML;
+      if (editorEmpty(contents)) {
+        onStoreChange('', delta);
+      } else {
+        onStoreChange(contents, delta);
+      }
+    }, 500);
+    const both = (delta) => {
+      debouncedOnChange(delta);
+      debouncedOnStoreChange(delta);
+    };
     this.disableToolbarTabs(this.editorContainer.current);
-    this.editor.on('text-change', debouncedOnChange);
+    this.editor.on('text-change', both);
   }
 
   disableToolbarTabs(editorNode) {
@@ -156,6 +168,7 @@ QuillEditor.propTypes = {
   onS3Upload: PropTypes.func,
   defaultValue: PropTypes.string,
   onChange: PropTypes.func,
+  onStoreChange: PropTypes.func,
   placeholder: PropTypes.string,
   value: PropTypes.string,
   uploadDisabled: PropTypes.bool,
@@ -165,6 +178,8 @@ QuillEditor.defaultProps = {
   onS3Upload: () => {
   },
   onChange: () => {
+  },
+  onStoreChange: () => {
   },
   defaultValue: '',
   placeholder: '',

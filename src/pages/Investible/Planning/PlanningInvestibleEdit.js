@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import {
-  Card, CardActions, CardContent, TextField, withStyles,
+  Card, CardActions, CardContent, TextField, Typography, withStyles,
 } from '@material-ui/core';
+import _ from 'lodash';
+import localforage from 'localforage';
 import PropTypes from 'prop-types';
 import { updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
@@ -14,7 +16,6 @@ import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEd
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
-import _ from 'lodash';
 
 const styles = (theme) => ({
   root: {
@@ -30,7 +31,7 @@ const styles = (theme) => ({
 
 function PlanningInvestibleEdit(props) {
   const {
-    fullInvestible, intl, classes, onCancel, onSave, marketId,
+    fullInvestible, intl, classes, onCancel, onSave, marketId, storedDescription,
   } = props;
   const myInvestible = fullInvestible.investible;
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
@@ -43,7 +44,7 @@ function PlanningInvestibleEdit(props) {
   const { name } = currentValues;
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
-  const [description, setDescription] = useState(initialDescription);
+  const [description, setDescription] = useState(storedDescription || initialDescription);
   const [marketsState] = useContext(MarketsContext);
   const me = getMyUserForMarket(marketsState, marketId) || {};
   const { id: myId } = me;
@@ -71,6 +72,10 @@ function PlanningInvestibleEdit(props) {
 
   function onEditorChange(description) {
     setDescription(description);
+  }
+
+  function onStorageChange(description) {
+    localforage.setItem(id, description);
   }
 
   function handleFileUpload(metadatas) {
@@ -125,11 +130,17 @@ function PlanningInvestibleEdit(props) {
           onChange={handleChange('name')}
         />
         {assignee && (
-          <QuillEditor
-            handleFileUpload={handleFileUpload}
-            onChange={onEditorChange}
-            defaultValue={description}
-          />
+          <>
+            <Typography>
+              {intl.formatMessage({ id: 'descriptionEdit' })}
+            </Typography>
+            <QuillEditor
+              handleFileUpload={handleFileUpload}
+              onChange={onEditorChange}
+              onStoreChange={onStorageChange}
+              defaultValue={description}
+            />
+          </>
         )}
         {!assignee && (
           <ReadOnlyQuillEditor
@@ -172,6 +183,7 @@ PlanningInvestibleEdit.propTypes = {
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
+  storedDescription: PropTypes.string.isRequired,
 };
 
 PlanningInvestibleEdit.defaultProps = {

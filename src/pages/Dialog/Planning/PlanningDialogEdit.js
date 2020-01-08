@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Card, CardActions, CardContent, makeStyles, TextField,
+  Card, CardActions, CardContent, makeStyles, TextField, Typography,
 } from '@material-ui/core';
 import { useIntl } from 'react-intl';
+import localforage from 'localforage';
 import { lockPlanningMarketForEdit, updateMarket } from '../../../api/markets';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
@@ -28,6 +29,7 @@ function PlanningDialogEdit(props) {
     editToggle,
     onCancel,
     market,
+    storedDescription,
   } = props;
   const { id, market_type: marketType } = market;
   const intl = useIntl();
@@ -35,7 +37,7 @@ function PlanningDialogEdit(props) {
   const [mutableMarket, setMutableMarket] = useState(market);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, max_budget, investment_expiration } = mutableMarket;
-  const [description, setDescription] = useState(mutableMarket.description);
+  const [description, setDescription] = useState(storedDescription || mutableMarket.description);
   const [validForm, setValidForm] = useState(true);
 
   useEffect(() => {
@@ -78,6 +80,10 @@ function PlanningDialogEdit(props) {
   function onEditorChange(content) {
     // console.log(content);
     setDescription(content);
+  }
+
+  function onStorageChange(description) {
+    localforage.setItem(id, description);
   }
 
   function onS3Upload(metadatas) {
@@ -124,8 +130,12 @@ function PlanningDialogEdit(props) {
             value={investment_expiration}
           />
         )}
+        <Typography>
+          {intl.formatMessage({ id: 'descriptionEdit' })}
+        </Typography>
         <QuillEditor
           onChange={onEditorChange}
+          onStoreChange={onStorageChange}
           defaultValue={description}
           readOnly={false}
           marketId={id}
@@ -160,6 +170,7 @@ PlanningDialogEdit.propTypes = {
   market: PropTypes.object.isRequired,
   editToggle: PropTypes.func,
   onCancel: PropTypes.func,
+  storedDescription: PropTypes.string.isRequired,
 };
 
 PlanningDialogEdit.defaultProps = {

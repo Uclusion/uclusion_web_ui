@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, ButtonGroup, Card, CardActions, CardContent, makeStyles, TextField,
+  Button, ButtonGroup, Card, CardActions, CardContent, makeStyles, TextField, Typography,
 } from '@material-ui/core';
+import localforage from 'localforage';
 import { useIntl } from 'react-intl';
 import { lockPlanningMarketForEdit, updateMarket } from '../../../api/markets';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
@@ -28,6 +29,7 @@ function DecisionDialogEdit(props) {
     editToggle,
     onCancel,
     market,
+    storedDescription,
   } = props;
   const { id, market_type: marketType } = market;
   const intl = useIntl();
@@ -35,7 +37,7 @@ function DecisionDialogEdit(props) {
   const [mutableMarket, setMutableMarket] = useState(market);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = mutableMarket;
-  const [description, setDescription] = useState(mutableMarket.description);
+  const [description, setDescription] = useState(storedDescription || mutableMarket.description);
   const [validForm, setValidForm] = useState(true);
   const [operationRunning] = useContext(OperationInProgressContext);
 
@@ -79,6 +81,10 @@ function DecisionDialogEdit(props) {
     setDescription(content);
   }
 
+  function onStorageChange(description) {
+    localforage.setItem(id, description);
+  }
+
   function onS3Upload(metadatas) {
     setUploadedFiles(metadatas);
   }
@@ -97,8 +103,12 @@ function DecisionDialogEdit(props) {
           value={name}
           onChange={handleChange('name')}
         />
+        <Typography>
+          {intl.formatMessage({ id: 'descriptionEdit' })}
+        </Typography>
         <QuillEditor
           onChange={onEditorChange}
+          onStoreChange={onStorageChange}
           defaultValue={description}
           readOnly={false}
           marketId={id}
@@ -138,6 +148,7 @@ DecisionDialogEdit.propTypes = {
   market: PropTypes.object.isRequired,
   editToggle: PropTypes.func,
   onCancel: PropTypes.func,
+  storedDescription: PropTypes.string.isRequired,
 };
 
 DecisionDialogEdit.defaultProps = {

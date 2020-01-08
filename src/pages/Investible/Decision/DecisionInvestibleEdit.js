@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import {
-  Card, CardActions, CardContent, TextField, withStyles,
+  Card, CardActions, CardContent, TextField, Typography, withStyles,
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
+import localforage from 'localforage';
 import { updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -28,7 +29,7 @@ const styles = (theme) => ({
 function DecisionInvestibleEdit(props) {
   const {
     fullInvestible, intl, classes, onCancel, onSave, marketId,
-    isAdmin, userId,
+    isAdmin, userId, storedDescription,
   } = props;
 
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -42,7 +43,7 @@ function DecisionInvestibleEdit(props) {
   const { name } = currentValues;
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
-  const [description, setDescription] = useState(initialDescription);
+  const [description, setDescription] = useState(storedDescription || initialDescription);
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -65,6 +66,10 @@ function DecisionInvestibleEdit(props) {
 
   function onEditorChange(description) {
     setDescription(description);
+  }
+
+  function onStorageChange(description) {
+    localforage.setItem(id, description);
   }
 
   function handleFileUpload(metadatas) {
@@ -107,10 +112,14 @@ function DecisionInvestibleEdit(props) {
           value={name}
           onChange={handleChange('name')}
         />
+        <Typography>
+          {intl.formatMessage({ id: 'descriptionEdit' })}
+        </Typography>
         <QuillEditor
           handleFileUpload={handleFileUpload}
           onChange={onEditorChange}
           defaultValue={description}
+          onStoreChange={onStorageChange}
         />
       </CardContent>
       <CardActions>
@@ -150,6 +159,7 @@ DecisionInvestibleEdit.propTypes = {
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
   isAdmin: PropTypes.bool,
+  storedDescription: PropTypes.string.isRequired,
 };
 
 DecisionInvestibleEdit.defaultProps = {

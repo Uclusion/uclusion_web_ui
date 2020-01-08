@@ -12,6 +12,7 @@ import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import PlanningDialogEdit from './Planning/PlanningDialogEdit';
 import DecisionDialogEdit from './Decision/DecisionDialogEdit';
 import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../api/markets';
+import localforage from "localforage";
 
 function DialogEdit(props) {
   const { hidden } = props;
@@ -27,22 +28,36 @@ function DialogEdit(props) {
   const breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const editVerbiage = intl.formatMessage({ id: 'edit' });
+  const [idLoaded, setIdLoaded] = useState(undefined);
+  const [storedDescription, setStoredDescription] = useState(undefined);
   const [lockedMarketId, setLockedMarketId] = useState(undefined);
   const user = getMyUserForMarket(marketsState, marketId) || {};
   const userId = user.id;
 
   useEffect(() => {
     if (marketType === PLANNING_TYPE) {
-      if (!hidden && marketId !== lockedMarketId) {
-        // for now, just break the lock always
-        const breakLock = true;
-        lockPlanningMarketForEdit(marketId, breakLock)
-          .then(() => setLockedMarketId(marketId));
+      if (!hidden) {
+        if (marketId !== lockedMarketId) {
+          // Immediately set to avoid multiple calls
+          setLockedMarketId(marketId);
+          // for now, just break the lock always
+          const breakLock = true;
+          lockPlanningMarketForEdit(marketId, breakLock)
+            .catch(() => setLockedMarketId(undefined));
+        }
+        localforage.getItem(marketId).then((description) => {
+          setStoredDescription(description || '');
+          setIdLoaded(marketId);
+        });
       }
       // We need this way otherwise if they navigate out by back button we don't release the lock
       if (hidden && lockedMarketId) {
+        const originalLockedId = lockedMarketId;
+        // Set right away to avoid multiple calls
+        setLockedMarketId(undefined);
         unlockPlanningMarketForEdit(lockedMarketId)
-          .then(() => setLockedMarketId(undefined));
+          .then(() => localforage.removeItem(originalLockedId))
+          .catch(() => setLockedMarketId(originalLockedId));
       }
     }
   }, [hidden, marketId, lockedMarketId, marketType]);
@@ -66,18 +81,20 @@ function DialogEdit(props) {
       breadCrumbs={myBreadCrumbs}
       warning={warning}
     >
-      {marketType === DECISION_TYPE && (
+      {!hidden && marketType === DECISION_TYPE && idLoaded === marketId && (
         <DecisionDialogEdit
           editToggle={onSave}
           market={renderableMarket}
           onCancel={onDone}
+          storedDescription={storedDescription}
         />
       )}
-      {marketType === PLANNING_TYPE && (
+      {!hidden && marketType === PLANNING_TYPE && idLoaded === marketId && (
         <PlanningDialogEdit
           editToggle={onSave}
           market={renderableMarket}
           onCancel={onDone}
+          storedDescription={storedDescription}
         />
       )}
     </Screen>

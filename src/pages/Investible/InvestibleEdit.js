@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
+import localforage from 'localforage';
 import {
   lockInvestibleForEdit,
   realeaseInvestibleEditLock,
@@ -48,6 +49,8 @@ function InvestibleEdit(props) {
   const { investible: myInvestible } = fullInvestible;
   const { name, locked_by: lockedBy } = myInvestible;
   const [lockedInvestibleId, setLockedInvestibleId] = useState(undefined);
+  const [idLoaded, setIdLoaded] = useState(undefined);
+  const [storedDescription, setStoredDescription] = useState(undefined);
   const [lockedInvestibleIdMarketId, setLockedInvestibleIdMarketId] = useState(undefined);
   const emptyMarket = { name: '' };
   const market = getMarket(marketsState, marketId) || emptyMarket;
@@ -56,18 +59,30 @@ function InvestibleEdit(props) {
   const isInitiative = market && market.market_type === INITIATIVE_TYPE;
 
   useEffect(() => {
-    if (!hidden && investibleId !== lockedInvestibleId) {
-      setLockedInvestibleIdMarketId(marketId);
-      // for now, just break the lock always
-      const breakLock = true;
-      // console.debug('Taking out lock');
-      lockInvestibleForEdit(marketId, investibleId, breakLock)
-        .then(() => setLockedInvestibleId(investibleId));
+    if (!hidden) {
+      if (investibleId !== lockedInvestibleId) {
+        // Immediately set locked investible id to avoid multiple calls
+        setLockedInvestibleId(investibleId);
+        setLockedInvestibleIdMarketId(marketId);
+        // for now, just break the lock always
+        const breakLock = true;
+        // console.debug('Taking out lock');
+        lockInvestibleForEdit(marketId, investibleId, breakLock)
+          .catch(() => setLockedInvestibleId(undefined));
+      }
+      localforage.getItem(investibleId).then((description) => {
+        setStoredDescription(description || '');
+        setIdLoaded(investibleId);
+      });
     }
     // We need this way otherwise if they navigate out by back button we don't release the lock
     if (hidden && lockedInvestibleId) {
+      const originalLockedId = lockedInvestibleId;
+      // Set right away to avoid multiple calls
+      setLockedInvestibleId(undefined);
       realeaseInvestibleEditLock(lockedInvestibleIdMarketId, lockedInvestibleId)
-        .then(() => setLockedInvestibleId(undefined));
+        .then(() => localforage.removeItem(originalLockedId))
+        .catch(() => setLockedInvestibleId(originalLockedId));
     }
   }, [hidden, lockedInvestibleId, investibleId, marketId, lockedInvestibleIdMarketId]);
 
@@ -112,7 +127,7 @@ function InvestibleEdit(props) {
       hidden={hidden}
       warning={warning}
     >
-      {isDecision && inv && (
+      {!hidden && isDecision && inv && idLoaded === investibleId && (
         <DecisionInvestibleEdit
           fullInvestible={inv}
           marketId={marketId}
@@ -120,9 +135,10 @@ function InvestibleEdit(props) {
           onSave={onSave}
           onCancel={onDone}
           isAdmin={isAdmin}
+          storedDescription={storedDescription}
         />
       )}
-      {isPlanning && inv && (
+      {!hidden && isPlanning && inv && idLoaded === investibleId && (
         <PlanningInvestibleEdit
           fullInvestible={inv}
           marketId={marketId}
@@ -130,15 +146,17 @@ function InvestibleEdit(props) {
           onSave={onSave}
           onCancel={onDone}
           isAdmin={isAdmin}
+          storedDescription={storedDescription}
         />
       )}
-      {isInitiative && inv && (
+      {!hidden && isInitiative && inv && idLoaded === investibleId && (
         <InitiativeInvestibleEdit
           fullInvestible={inv}
           marketId={marketId}
           marketPresences={marketPresences}
           onSave={onSave}
           onCancel={onDone}
+          storedDescription={storedDescription}
         />
       )}
     </Screen>

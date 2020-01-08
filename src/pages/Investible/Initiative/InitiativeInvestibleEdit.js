@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import {
-  Card, CardActions, CardContent, TextField, withStyles,
+  Card, CardActions, CardContent, TextField, Typography, withStyles,
 } from '@material-ui/core';
+import localforage from 'localforage';
 import PropTypes from 'prop-types';
 import { updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
@@ -23,7 +24,7 @@ const styles = (theme) => ({
 
 function InitiativeInvestibleEdit(props) {
   const {
-    fullInvestible, intl, classes, onCancel, onSave, marketId,
+    fullInvestible, intl, classes, onCancel, onSave, marketId, storedDescription,
   } = props;
 
   const myInvestible = fullInvestible.investible;
@@ -33,7 +34,7 @@ function InitiativeInvestibleEdit(props) {
   const { name } = currentValues;
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
-  const [description, setDescription] = useState(initialDescription);
+  const [description, setDescription] = useState(storedDescription || initialDescription);
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -56,6 +57,11 @@ function InitiativeInvestibleEdit(props) {
 
   function onEditorChange(description) {
     setDescription(description);
+    localforage.setItem(id, description);
+  }
+
+  function onStorageChange(description) {
+    localforage.setItem(id, description);
   }
 
   function handleFileUpload(metadatas) {
@@ -98,9 +104,13 @@ function InitiativeInvestibleEdit(props) {
           value={name}
           onChange={handleChange('name')}
         />
+        <Typography>
+          {intl.formatMessage({ id: 'descriptionEdit' })}
+        </Typography>
         <QuillEditor
           handleFileUpload={handleFileUpload}
           onChange={onEditorChange}
+          onStoreChange={onStorageChange}
           defaultValue={description}
         />
       </CardContent>
@@ -137,6 +147,7 @@ InitiativeInvestibleEdit.propTypes = {
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
+  storedDescription: PropTypes.string.isRequired,
 };
 
 InitiativeInvestibleEdit.defaultProps = {

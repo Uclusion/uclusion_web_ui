@@ -208,6 +208,7 @@ const messages = defineMessages({
   investibleEditAcceptLabel: 'Accept Assignment',
   investibleEditArchiveLabel: 'Archive Assignment',
   investibleEditSubmitLabel: 'Submit',
+  descriptionEdit: 'Description. Changes will be stored locally until save.',
 
   // Investible
   investibleEditLabel: 'Edit',

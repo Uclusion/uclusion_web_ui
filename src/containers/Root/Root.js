@@ -117,8 +117,8 @@ function Root() {
     }
     return action === 'invite' || action === 'slack';
   }
-
-  if (action === 'invite' && marketId) {
+  const isMarketInvite = action === 'invite' && marketId;
+  if (isMarketInvite) {
     const hubListener = (data) => {
       const { payload: { event, message } } = data;
       switch (event) {
@@ -147,7 +147,7 @@ function Root() {
 
   let hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible()
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
-    && hideAddMarket() && hideDialogEdit() && hideDialogManage());
+    && hideAddMarket() && hideDialogEdit() && hideDialogManage() && !isMarketInvite);
   if (hash) {
     const values = queryString.parse(hash);
     const { nonce } = values;

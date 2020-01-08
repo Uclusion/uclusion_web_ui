@@ -13,7 +13,7 @@ import Summary from '../Summary';
 import PlanningIdeas from './PlanningIdeas';
 import Screen from '../../../containers/Screen/Screen';
 import {
-  formMarketAddInvestibleLink,
+  formMarketAddInvestibleLink, formMarketEditLink,
   makeBreadCrumbs,
   navigate,
 } from '../../../utils/marketIdPathFunctions';
@@ -25,8 +25,6 @@ import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import InvestibleAddActionButton from './InvestibleAddActionButton';
 import DialogEditActionButton from './DialogEditActionButton';
-import DialogEdit from './DialogEdit';
-import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../../api/markets';
 import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import { ACTIVE_STAGE } from '../../../constants/markets';
@@ -64,7 +62,6 @@ function PlanningDialog(props) {
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
-  const [dialogEditMode, setDialogEditMode] = useState(false);
   const [manageUsersMode, setManageUsersMode] = useState(false);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
@@ -85,40 +82,6 @@ function PlanningDialog(props) {
 
   function toggleManageUsersMode() {
     setManageUsersMode(!manageUsersMode);
-  }
-
-  function toggleEditMode() {
-    // lock us if not locked
-    if (!dialogEditMode) {
-      return lockPlanningMarketForEdit(marketId)
-        .then(() => setDialogEditMode(!dialogEditMode));
-    }
-    return unlockPlanningMarketForEdit(marketId)
-      .then(() => setDialogEditMode(!dialogEditMode));
-  }
-
-  function onDialogEditCancel() {
-    return unlockPlanningMarketForEdit(marketId)
-      .then(() => {
-        toggleEditMode();
-      });
-  }
-
-  if (dialogEditMode) {
-    return (
-      <Screen
-        title={marketName}
-        hidden={hidden}
-        tabTitle={marketName}
-        breadCrumbs={breadCrumbs}
-      >
-        <DialogEdit
-          editToggle={toggleEditMode}
-          market={market}
-          onCancel={onDialogEditCancel}
-        />
-      </Screen>
-    );
   }
 
   if (manageUsersMode) {
@@ -214,9 +177,8 @@ function PlanningDialog(props) {
     const userActions = [
       (<DialogEditActionButton
         key="edit"
-        onClick={toggleEditMode}
+        onClick={() => navigate(history, formMarketEditLink(marketId))}
         marketId={marketId}
-        onCancel={onDialogEditCancel}
       />),
       <InvestibleAddActionButton key="investibleadd" onClick={toggleAddInvestibleMode} />,
       <ManageParticipantsActionButton key="addParticipants" onClick={toggleManageUsersMode} />,

@@ -116,6 +116,10 @@ export function formMarketArchivesLink(marketId) {
   return formatMarketLinkWithPrefix('dialogArchives', marketId);
 }
 
+export function formMarketEditLink(marketId) {
+  return formatMarketLinkWithPrefix('marketEdit', marketId);
+}
+
 export function formMarketAddInvestibleLink(marketId) {
   return formatMarketLinkWithPrefix('investibleAdd', marketId);
 }

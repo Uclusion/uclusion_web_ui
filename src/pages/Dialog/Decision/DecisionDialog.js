@@ -16,7 +16,11 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import {
-  formMarketLink, formMarketAddInvestibleLink, makeBreadCrumbs, navigate,
+  formMarketLink,
+  formMarketAddInvestibleLink,
+  makeBreadCrumbs,
+  navigate,
+  formMarketEditLink,
 } from '../../../utils/marketIdPathFunctions';
 import Summary from '../Summary';
 import ProposedIdeas from './ProposedIdeas';
@@ -25,7 +29,6 @@ import CurrentVoting from './CurrentVoting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import Screen from '../../../containers/Screen/Screen';
-import DialogEdit from './DialogEdit';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
@@ -66,7 +69,6 @@ function DecisionDialog(props) {
   const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const [addParticipantsMode, setAddParticipantsMode] = useState(false);
-  const [dialogEditMode, setDialogEditMode] = useState(false);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const [deadlineExtendMode, setDeadlineExtendMode] = useState(false);
@@ -95,10 +97,6 @@ function DecisionDialog(props) {
 
   function closeCommentAddBox() {
     setCommentAddHidden(true);
-  }
-
-  function toggleEditMode() {
-    setDialogEditMode(!dialogEditMode);
   }
 
   function toggleAddParticipantsMode() {
@@ -156,7 +154,7 @@ function DecisionDialog(props) {
     {
       label: intl.formatMessage({ id: 'dialogEditButtonTooltip' }),
       icon: <EditIcon />,
-      onClick: () => toggleEditMode(),
+      onClick: () => navigate(history, formMarketEditLink(marketId)),
     },
   ];
 
@@ -186,23 +184,6 @@ function DecisionDialog(props) {
             onSave={() => setDeadlineExtendMode(false)}
           />
         </div>
-      </Screen>
-    );
-  }
-
-  if (dialogEditMode) {
-    return (
-      <Screen
-        title={marketName}
-        hidden={hidden}
-        tabTitle={marketName}
-        breadCrumbs={breadCrumbs}
-      >
-        <DialogEdit
-          editToggle={toggleEditMode}
-          market={market}
-          onCancel={toggleEditMode}
-        />
       </Screen>
     );
   }

@@ -23,6 +23,7 @@ import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils';
 import InvestibleEdit from '../../pages/Investible/InvestibleEdit';
 import InvestibleAdd from '../../pages/Dialog/InvestibleAdd';
 import MarketAdd from '../../pages/Home/MarketAdd';
+import DialogEdit from '../../pages/Dialog/DialogEdit';
 
 const useStyles = makeStyles({
   body: {
@@ -91,6 +92,10 @@ function Root() {
     return (action !== 'investibleAdd') || !marketId;
   }
 
+  function hideDialogEdit() {
+    return (action !== 'marketEdit') || !marketId;
+  }
+
   function hideDialogArchives() {
     return (action !== 'dialogArchives');
   }
@@ -120,7 +125,7 @@ function Root() {
 
   let hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible()
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
-    && hideAddMarket());
+    && hideAddMarket() && hideDialogEdit());
   if (hash) {
     const values = queryString.parse(hash);
     const { nonce } = values;
@@ -200,6 +205,7 @@ function Root() {
             <DialogArchives hidden={hideDialogArchives()} />
             <InvestibleAdd hidden={hideInvestibleAdd()} />
             <MarketAdd hidden={hideAddMarket()} />
+            <DialogEdit hidden={hideDialogEdit()} />
             <PageNotFound hidden={hidePNF} />
           </div>
         </div>

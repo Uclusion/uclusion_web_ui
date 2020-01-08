@@ -1,15 +1,15 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, ButtonGroup, Card, CardActions, CardContent, makeStyles, TextField,
+  Card, CardActions, CardContent, makeStyles, TextField,
 } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { lockPlanningMarketForEdit, updateMarket } from '../../../api/markets';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { PLANNING_TYPE } from '../../../constants/markets';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function DialogEdit(props) {
+function PlanningDialogEdit(props) {
   const {
     editToggle,
     onCancel,
@@ -34,21 +34,21 @@ function DialogEdit(props) {
   const classes = useStyles();
   const [mutableMarket, setMutableMarket] = useState(market);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const { name } = mutableMarket;
+  const { name, max_budget, investment_expiration } = mutableMarket;
   const [description, setDescription] = useState(mutableMarket.description);
   const [validForm, setValidForm] = useState(true);
-  const [operationRunning] = useContext(OperationInProgressContext);
 
   useEffect(() => {
     // Long form to prevent flicker
-    if (name && description && description.length > 0) {
+    if (name && parseInt(investment_expiration, 10) > 0 && parseInt(max_budget, 10) > 0
+      && description && description.length > 0) {
       if (!validForm) {
         setValidForm(true);
       }
     } else if (validForm) {
       setValidForm(false);
     }
-  }, [name, description, validForm]);
+  }, [name, description, investment_expiration, max_budget, validForm]);
 
   function handleChange(name) {
     return (event) => {
@@ -69,7 +69,8 @@ function DialogEdit(props) {
     if (marketType === PLANNING_TYPE) {
       chain = chain.then(() => lockPlanningMarketForEdit(id, true));
     }
-    chain = chain.then(() => updateMarket(id, name, tokensRemoved, filteredUploads))
+    chain = chain.then(() => updateMarket(id, name, tokensRemoved, filteredUploads,
+      parseInt(max_budget, 10), parseInt(investment_expiration, 10)))
       .then(() => editToggle());
     return chain;
   }
@@ -97,6 +98,32 @@ function DialogEdit(props) {
           value={name}
           onChange={handleChange('name')}
         />
+        {marketType === PLANNING_TYPE && (
+          <TextField
+            id="maxBudget"
+            label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
+            type="number"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            variant="outlined"
+            onChange={handleChange('max_budget')}
+            value={max_budget}
+          />
+        )}
+        {marketType === PLANNING_TYPE && (
+          <TextField
+            id="investmentExpiration"
+            label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
+            type="number"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            variant="outlined"
+            onChange={handleChange('investment_expiration')}
+            value={investment_expiration}
+          />
+        )}
         <QuillEditor
           onChange={onEditorChange}
           defaultValue={description}
@@ -106,45 +133,40 @@ function DialogEdit(props) {
         />
       </CardContent>
       <CardActions>
-        <ButtonGroup
-          disabled={operationRunning}
-          variant="contained"
-          size="small"
-          color="primary"
-        >
-          <Button
-            disabled={operationRunning}
+        <SpinBlockingButtonGroup>
+          <SpinBlockingButton
+            marketId={id}
             onClick={onCancel}
           >
             {intl.formatMessage({ id: 'marketEditCancelLabel' })}
-          </Button>
+          </SpinBlockingButton>
           <SpinBlockingButton
+            marketId={id}
             variant="contained"
             color="primary"
-            marketId={id}
             disabled={!validForm}
             onClick={handleSave}
           >
             {intl.formatMessage({ id: 'marketEditSaveLabel' })}
           </SpinBlockingButton>
-        </ButtonGroup>
+        </SpinBlockingButtonGroup>
       </CardActions>
     </Card>
   );
 }
 
-DialogEdit.propTypes = {
+PlanningDialogEdit.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
   editToggle: PropTypes.func,
   onCancel: PropTypes.func,
 };
 
-DialogEdit.defaultProps = {
+PlanningDialogEdit.defaultProps = {
   onCancel: () => {
   },
   editToggle: () => {
   },
 };
 
-export default DialogEdit;
+export default PlanningDialogEdit;

@@ -181,13 +181,12 @@ function PlanningInvestible(props) {
         onClick={toggleEdit}
       />);
     }
-
+    // you can only move stages besides not doing or verfied if you're assigned to it
     if (assigned && assigned.includes(userId)) {
       if (isInVoting || isInAccepted) {
         const nextStageId = isInVoting ? inAcceptedStage.id : inReviewStage.id;
         const assignedInNextStage = assignedInStage(investibles, userId, nextStageId);
-        if (Array.isArray(invested) && invested.length > 0
-          && (!Array.isArray(assignedInNextStage) || assignedInNextStage.length === 0 || isInAccepted)) {
+        if (!_.isEmpty(invested) && (_.isEmpty(assignedInNextStage) || isInAccepted)) {
           sidebarActions.push(<MoveToNextVisibleStageActionButton
             key="visible"
             investibleId={investibleId}
@@ -199,10 +198,10 @@ function PlanningInvestible(props) {
       if (isInBlocked) {
         // eslint-disable-next-line max-len
         const blockingComments = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
-        if (!Array.isArray(blockingComments) || blockingComments.length === 0) {
+        if (_.isEmpty(blockingComments)) {
           // eslint-disable-next-line max-len
           const assignedInVotingStage = assignedInStage(investibles, userId, inCurrentVotingStage.id);
-          if (!Array.isArray(assignedInVotingStage) || assignedInVotingStage.length === 0) {
+          if (_.isEmpty(assignedInVotingStage)) {
             sidebarActions.push(<MoveToVotingActionButton
               investibleId={investibleId}
               marketId={marketId}
@@ -210,10 +209,10 @@ function PlanningInvestible(props) {
               key="voting"
             />);
           }
-          if (Array.isArray(invested) && invested.length > 0) {
+          if (!_.isEmpty(invested)) {
             // eslint-disable-next-line max-len
             const assignedInAcceptedStage = assignedInStage(investibles, userId, inAcceptedStage.id);
-            if (!Array.isArray(assignedInAcceptedStage) || assignedInAcceptedStage.length === 0) {
+            if (_.isEmpty(assignedInAcceptedStage)) {
               sidebarActions.push(<MoveToAcceptedActionButton
                 investibleId={investibleId}
                 marketId={marketId}

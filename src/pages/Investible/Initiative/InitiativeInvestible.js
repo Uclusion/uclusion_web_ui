@@ -23,8 +23,6 @@ import { ACTIVE_STAGE } from '../../../constants/markets';
 import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
 import AddressList from '../../Dialog/AddressList';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import DeadlineExtender from '../../Home/Decision/DeadlineExtender';
-import ExtendDeadlineActionButton from '../../Dialog/Decision/ExtendDeadlineActionButton';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
@@ -60,7 +58,6 @@ function InitiativeInvestible(props) {
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
-  const [extendDeadlineMode, setExtendDeadlineMode] = useState(false);
   const { investible } = fullInvestible;
   const { description, name } = investible;
   const {
@@ -94,12 +91,6 @@ function InitiativeInvestible(props) {
 
     if (isAdmin) {
       sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
-      if (activeMarket) {
-        sidebarActions.push(<ExtendDeadlineActionButton
-          key="extend"
-          onClick={() => setExtendDeadlineMode(true)}
-        />);
-      }
     }
     sidebarActions.push(<AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />);
     sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
@@ -113,30 +104,6 @@ function InitiativeInvestible(props) {
     return <></>;
   }
 
-  if (extendDeadlineMode) {
-    return (
-      <Screen
-        title={name}
-        tabTitle={name}
-        breadCrumbs={breadCrumbs}
-        hidden={hidden}
-      >
-        <div>
-          <Typography>
-            {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
-          </Typography>
-
-          <DeadlineExtender
-            market={market}
-            onCancel={() => setExtendDeadlineMode(false)}
-            onSave={() => setExtendDeadlineMode(false)}
-          />
-        </div>
-      </Screen>
-    );
-  }
-
-
   if (addParticipantsMode) {
     const participantsTitle = intl.formatMessage({ id: 'addressListHeader' });
     const breadCrumbTemplates = [{ name, link: formInvestibleLink(marketId, investibleId) }];
@@ -149,7 +116,8 @@ function InitiativeInvestible(props) {
         hidden={hidden}
       >
         <AddressList
-          addToMarketId={marketId}
+          market={market}
+          isAdmin={isAdmin}
           showObservers={false}
           onCancel={toggleAddParticipantsMode}
           onSave={toggleAddParticipantsMode}

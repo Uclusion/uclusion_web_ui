@@ -6,15 +6,14 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
-import { Grid, Typography } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import SmsOutlinedIcon from '@material-ui/icons/SmsOutlined';
-import UpdateIcon from '@material-ui/icons/Update';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
-import GroupAddIcon from '@material-ui/icons/GroupAdd';
+import EditAttributesIcon from '@material-ui/icons/EditAttributes';
 import {
   formMarketLink,
   formMarketAddInvestibleLink,
@@ -33,9 +32,7 @@ import { scrollToCommentAddBox } from '../../../components/Comments/commentFunct
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import { ACTIVE_STAGE } from '../../../constants/markets';
 import AddressList from '../AddressList';
-import DeadlineExtender from '../../Home/Decision/DeadlineExtender';
 import { changeToObserver, changeToParticipant } from '../../../api/markets';
 import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 
@@ -54,7 +51,6 @@ function DecisionDialog(props) {
   const intl = useIntl();
   const {
     name: marketName,
-    market_stage: marketStage,
   } = market;
 
   const {
@@ -71,9 +67,7 @@ function DecisionDialog(props) {
   const [addParticipantsMode, setAddParticipantsMode] = useState(false);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
-  const [deadlineExtendMode, setDeadlineExtendMode] = useState(false);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
-  const active = marketStage === ACTIVE_STAGE;
 
   const addLabel = isAdmin ? 'decisionDialogAddInvestibleLabel' : 'decisionDialogProposeInvestibleLabel';
   function getInvestiblesForStage(stage) {
@@ -116,8 +110,8 @@ function DecisionDialog(props) {
       onClick: () => navigate(history, formMarketAddInvestibleLink(marketId)),
     },
     {
-      label: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
-      icon: <GroupAddIcon />,
+      label: intl.formatMessage({ id: 'dialogManageLabel' }),
+      icon: <EditAttributesIcon />,
       onClick: () => toggleAddParticipantsMode(),
     },
     {
@@ -158,36 +152,6 @@ function DecisionDialog(props) {
     },
   ];
 
-  if (active) {
-    adminMenuList.push({
-      label: intl.formatMessage({ id: 'decisionDialogsExtendDeadline' }),
-      icon: <UpdateIcon />,
-      onClick: () => setDeadlineExtendMode(true),
-    });
-  }
-
-  if (deadlineExtendMode) {
-    return (
-      <Screen
-        title={marketName}
-        hidden={hidden}
-        tabTitle={marketName}
-        breadCrumbs={breadCrumbs}
-      >
-        <div>
-          <Typography>
-            {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
-          </Typography>
-          <DeadlineExtender
-            market={market}
-            onCancel={() => setDeadlineExtendMode(false)}
-            onSave={() => setDeadlineExtendMode(false)}
-          />
-        </div>
-      </Screen>
-    );
-  }
-
   if (addParticipantsMode) {
     const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
     const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
@@ -200,7 +164,8 @@ function DecisionDialog(props) {
         breadCrumbs={myBreadCrumbs}
       >
         <AddressList
-          addToMarketId={marketId}
+          market={market}
+          isAdmin={isAdmin}
           onCancel={toggleAddParticipantsMode}
           onSave={toggleAddParticipantsMode}
         />
@@ -210,11 +175,6 @@ function DecisionDialog(props) {
 
   function getSidebarActions() {
     if (addParticipantsMode) {
-      return [];
-    }
-
-    if (!active) {
-      // eventually we'll have inactive actions here
       return [];
     }
 

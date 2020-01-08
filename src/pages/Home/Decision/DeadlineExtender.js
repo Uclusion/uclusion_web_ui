@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { Button } from '@material-ui/core';
@@ -6,7 +6,6 @@ import { useIntl } from 'react-intl';
 import ExpirationSelector from '../../../components/Expiration/ExpirationSelector';
 import { extendMarketExpiration } from '../../../api/markets';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const useStyles = makeStyles(() => ({
@@ -18,14 +17,13 @@ const useStyles = makeStyles(() => ({
 
 function DeadlineExtender(props) {
   const {
-    market, hidden, onSave, onCancel,
+    market, hidden,
   } = props;
   const { id: marketId, expiration_minutes: expirationMinutes } = market;
   const classes = useStyles();
   const intl = useIntl();
   const defaultExtension = 1440;
   const [extensionPeriod, setExtensionPeriod] = useState(defaultExtension);
-  const [operationRunning] = useContext(OperationInProgressContext);
 
   function selectorOnChange(event) {
     const { value } = event.target;
@@ -39,7 +37,6 @@ function DeadlineExtender(props) {
 
   function myCancel() {
     setExtensionPeriod(defaultExtension);
-    onCancel();
   }
 
   return (
@@ -53,7 +50,6 @@ function DeadlineExtender(props) {
       <SpinBlockingButtonGroup>
         <Button
           onClick={myCancel}
-          disabled={operationRunning}
         >
           {intl.formatMessage({ id: 'deadlineExtenderCancel' })}
         </Button>
@@ -62,7 +58,6 @@ function DeadlineExtender(props) {
           variant="contained"
           color="primary"
           onClick={mySave}
-          onSpinStop={onSave}
         >
           {intl.formatMessage({ id: 'deadlineExtenderSave' })}
         </SpinBlockingButton>
@@ -72,18 +67,13 @@ function DeadlineExtender(props) {
 }
 
 DeadlineExtender.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.any.isRequired,
   hidden: PropTypes.bool,
-  onSave: PropTypes.func,
-  onCancel: PropTypes.func,
 };
 
 DeadlineExtender.defaultProps = {
   hidden: false,
-  onSave: () => {
-  },
-  onCancel: () => {
-  },
 };
 
 export default DeadlineExtender;

@@ -337,7 +337,8 @@ const messages = defineMessages({
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
-  dialogAddParticipantsLabel: 'Add Participants',
+  dialogManageLabel: 'Manage Dialog',
+  initiativeManageLabel: 'Manage Initiative',
 
   // DecisionInvestible
   decisionInvestibleYourVoting: 'Your Vote',

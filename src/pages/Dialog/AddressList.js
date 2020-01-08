@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import { useIntl } from 'react-intl';
 import {
   Button,
   Checkbox,
@@ -17,9 +18,10 @@ import SearchIcon from '@material-ui/icons/Search';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import { addParticipants } from '../../api/users';
-import { useIntl } from 'react-intl';
 import InviteLinker from '../Home/Decision/InviteLinker';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
+import DeadlineExtender from '../Home/Decision/DeadlineExtender';
+import { ACTIVE_STAGE } from '../../constants/markets';
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -30,12 +32,14 @@ const useStyles = makeStyles((theme) => ({
 
 function AddressList(props) {
   const {
-    addToMarketId,
+    market,
     onSave,
     onCancel,
     showObservers,
     isOwnScreen,
+    isAdmin,
   } = props;
+  const { id: addToMarketId, market_stage: marketStage } = market;
   const classes = useStyles();
   const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -70,6 +74,7 @@ function AddressList(props) {
   const [filteredNames, setFilteredNames] = useState(undefined);
   const participants = Object.keys(checked).map((key) => checked[key]);
   const anySelected = participants.find((participant) => participant.isChecked);
+  const active = marketStage === ACTIVE_STAGE;
 
   function myOnCancel() {
     setChecked(defaultChecked);
@@ -175,6 +180,16 @@ function AddressList(props) {
 
   return (
     <div>
+      {isAdmin && active && (
+        <>
+          <Typography>
+            {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
+          </Typography>
+          <DeadlineExtender
+            market={market}
+          />
+        </>
+      )}
       <Typography>
         {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
       </Typography>
@@ -191,7 +206,7 @@ function AddressList(props) {
               endAdornment: (
                 <InputAdornment>
                   <IconButton>
-                    <SearchIcon/>
+                    <SearchIcon />
                   </IconButton>
                 </InputAdornment>
               ),
@@ -227,11 +242,13 @@ function AddressList(props) {
 }
 
 AddressList.propTypes = {
-  addToMarketId: PropTypes.string.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  market: PropTypes.object.isRequired,
   showObservers: PropTypes.bool,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
   isOwnScreen: PropTypes.bool,
+  isAdmin: PropTypes.bool,
 };
 
 AddressList.defaultProps = {
@@ -241,6 +258,7 @@ AddressList.defaultProps = {
   onCancel: () => {
   },
   isOwnScreen: true,
+  isAdmin: false,
 };
 
 export default AddressList;

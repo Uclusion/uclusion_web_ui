@@ -1,18 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import GroupAddIcon from '@material-ui/icons/GroupAdd';
+import EditAttributesIcon from '@material-ui/icons/EditAttributes';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 
 function AddParticipantsActionButton(props) {
   const { onClick } = props;
 
   const intl = useIntl();
-  const label = intl.formatMessage({ id: 'dialogAddParticipantsLabel' });
+  const label = intl.formatMessage({ id: 'initiativeManageLabel' });
 
   return (
     <ExpandableSidebarAction
-      icon={<GroupAddIcon />}
+      icon={<EditAttributesIcon />}
       label={label}
       onClick={onClick}
     />

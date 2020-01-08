@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import { leaveMarket } from '../../../api/markets';
-import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
-import { withSpinLock } from '../../../components/SpinBlocking/SpinBlockingHOC';
+import { leaveMarket } from '../../api/markets';
+import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
 
 function LeaveMarketButton(props) {
   const [operationRunning] = useContext(OperationInProgressContext);

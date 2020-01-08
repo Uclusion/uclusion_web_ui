@@ -9,8 +9,8 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import SubSection from '../../../containers/SubSection/SubSection';
 import { getUserEligibleForObserver } from './userUtils';
-import ChangeToObserverButton from '../../Home/Decision/ChangeToObserverButton';
-import ChangeToParticipantButton from '../../Home/Decision/ChangeToParticipantButton';
+import ChangeToObserverButton from '../ChangeToObserverButton';
+import ChangeToParticipantButton from '../ChangeToParticipantButton';
 import AddressList from '../AddressList';
 
 

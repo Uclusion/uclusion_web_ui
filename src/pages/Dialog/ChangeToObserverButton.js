@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { changeUserToObserver } from '../../../api/markets';
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import { changeUserToObserver } from '../../api/markets';
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 
 
 function ChangeToObserverButton(props) {

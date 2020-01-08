@@ -2,8 +2,8 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 
 import PropTypes from 'prop-types';
-import { changeUserToParticipant } from '../../../api/markets';
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import { changeUserToParticipant } from '../../api/markets';
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 
 
 function ChangeToParticipantButton(props) {

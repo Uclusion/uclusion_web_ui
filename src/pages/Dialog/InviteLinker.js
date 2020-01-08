@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import { useIntl } from 'react-intl';
-import { formInviteLink } from '../../../utils/marketIdPathFunctions';
+import { formInviteLink } from '../../utils/marketIdPathFunctions';
 import { Typography } from '@material-ui/core';
-import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
+import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {

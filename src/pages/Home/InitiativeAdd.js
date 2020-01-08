@@ -5,6 +5,7 @@ import {
   Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
 } from '@material-ui/core';
 import { useHistory } from 'react-router';
+import localforage from 'localforage';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 import ExpirationSelector from '../../components/Expiration/ExpirationSelector';
 import { createDecision } from '../../api/markets';
@@ -31,14 +32,14 @@ const useStyles = makeStyles((theme) => ({
 function InitiativeAdd(props) {
   const intl = useIntl();
   const {
-    onCancel,
+    onCancel, storedDescription,
   } = props;
   const history = useHistory();
   const classes = useStyles();
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
   const [validForm, setValidForm] = useState(false);
   const [currentValues, setCurrentValues] = useState(emptyMarket);
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, addDialogDispatch] = useReducer((state, action) => {
     const { link } = action;
@@ -89,6 +90,10 @@ function InitiativeAdd(props) {
 
   function onEditorChange(description) {
     setDescription(description);
+  }
+
+  function onStorageChange(description) {
+    localforage.setItem(`add_market_${INITIATIVE_TYPE}`, description);
   }
 
   function handleSave() {
@@ -145,9 +150,13 @@ function InitiativeAdd(props) {
           className={classes.row}
           onChange={handleChange('expiration_minutes')}
         />
+        <Typography>
+          {intl.formatMessage({ id: 'descriptionEdit' })}
+        </Typography>
         <QuillEditor
           onS3Upload={onS3Upload}
           onChange={onEditorChange}
+          onStoreChange={onStorageChange}
           placeHolder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
           defaultValue={description}
         />
@@ -177,6 +186,7 @@ function InitiativeAdd(props) {
 
 InitiativeAdd.propTypes = {
   onCancel: PropTypes.func,
+  storedDescription: PropTypes.string.isRequired,
 };
 
 InitiativeAdd.defaultProps = {

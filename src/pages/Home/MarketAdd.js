@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
+import localforage from 'localforage';
 import queryString from 'query-string';
 import Screen from '../../containers/Screen/Screen';
 import DecisionAdd from './DecisionAdd';
 import PlanningAdd from './PlanningAdd';
 import {
-  DECISION_TYPE,
+  DECISION_TYPE, INITIATIVE_TYPE,
   PLANNING_TYPE,
 } from '../../constants/markets';
 import InitiativeAdd from './InitiativeAdd';
@@ -23,25 +24,27 @@ function MarketAdd(props) {
   const intl = useIntl();
   // eslint-disable-next-line no-nested-ternary
   const addTitleName = type === DECISION_TYPE ? 'addDecision' : type === PLANNING_TYPE ? 'addPlanning' : 'addInitiative';
-  function onDone() {
-    navigate(history, '/');
-  }
-  function getContents() {
-    if (type === PLANNING_TYPE) {
-      return (
-        <PlanningAdd onCancel={onDone} />
-      );
-    }
-    if (type === DECISION_TYPE) {
-      return (
-        <DecisionAdd onCancel={onDone} />
-      );
-    }
+  const [storedDescription, setStoredDescription] = useState(undefined);
+  const [idLoaded, setIdLoaded] = useState(undefined);
 
-    return (
-      <InitiativeAdd onCancel={onDone} />
-    );
+  useEffect(() => {
+    if (!hidden) {
+      localforage.getItem(`add_market_${type}`).then((description) => {
+        setStoredDescription(description || '');
+        setIdLoaded(type);
+      });
+    }
+    if (hidden) {
+      setIdLoaded(undefined);
+    }
+  }, [hidden, type]);
+
+  function onDone() {
+    setIdLoaded(undefined);
+    localforage.removeItem(`add_market_${type}`)
+      .then(() => navigate(history, '/'));
   }
+
   const breadCrumbs = makeBreadCrumbs(history, [], true);
   return (
     <Screen
@@ -50,7 +53,16 @@ function MarketAdd(props) {
       hidden={hidden}
       breadCrumbs={breadCrumbs}
     >
-      {getContents()}
+      {type === PLANNING_TYPE && idLoaded === type && (
+        <PlanningAdd onCancel={onDone} storedDescription={storedDescription} />
+      )}
+      {type === DECISION_TYPE && idLoaded === type && (
+        <DecisionAdd onCancel={onDone} storedDescription={storedDescription} />
+      )}
+
+      {type === INITIATIVE_TYPE && idLoaded === type && (
+        <InitiativeAdd onCancel={onDone} storedDescription={storedDescription} />
+      )}
     </Screen>
   );
 }

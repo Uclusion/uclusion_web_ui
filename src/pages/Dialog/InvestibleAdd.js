@@ -50,6 +50,9 @@ function InvestibleAdd(props) {
         setIdLoaded(marketId);
       });
     }
+    if (hidden) {
+      setIdLoaded(undefined);
+    }
   }, [hidden, marketId]);
 
 

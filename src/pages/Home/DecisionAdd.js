@@ -7,6 +7,7 @@ import {
   Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
 } from '@material-ui/core';
 import { useHistory } from 'react-router';
+import localforage from 'localforage';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 import ExpirationSelector from '../../components/Expiration/ExpirationSelector';
 import { createDecision } from '../../api/markets';
@@ -15,6 +16,7 @@ import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper';
+import { DECISION_TYPE } from '../../constants/markets';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,14 +33,14 @@ const useStyles = makeStyles((theme) => ({
 function DecisionAdd(props) {
   const intl = useIntl();
   const {
-    onCancel,
+    onCancel, storedDescription,
   } = props;
   const history = useHistory();
   const classes = useStyles();
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
   const [validForm, setValidForm] = useState(false);
   const [currentValues, setCurrentValues] = useState(emptyMarket);
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, addDialogDispatch] = useReducer((state, action) => {
     const { link } = action;
@@ -91,6 +93,10 @@ function DecisionAdd(props) {
     setDescription(description);
   }
 
+  function onStorageChange(description) {
+    localforage.setItem(`add_market_${DECISION_TYPE}`, description);
+  }
+
   function handleSave() {
     const {
       uploadedFiles: filteredUploads,
@@ -140,9 +146,13 @@ function DecisionAdd(props) {
           className={classes.row}
           onChange={handleChange('expiration_minutes')}
         />
+        <Typography>
+          {intl.formatMessage({ id: 'descriptionEdit' })}
+        </Typography>
         <QuillEditor
           onS3Upload={onS3Upload}
           onChange={onEditorChange}
+          onStoreChange={onStorageChange}
           placeHolder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
           defaultValue={description}
         />
@@ -170,6 +180,7 @@ function DecisionAdd(props) {
 
 DecisionAdd.propTypes = {
   onCancel: PropTypes.func,
+  storedDescription: PropTypes.string.isRequired,
 };
 
 DecisionAdd.defaultProps = {

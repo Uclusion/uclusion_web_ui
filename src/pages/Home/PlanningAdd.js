@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
 import {
-  Button, Card, CardActions, CardContent, makeStyles, TextField,
+  Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
 } from '@material-ui/core';
+import localforage from 'localforage';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 import { createPlanning } from '../../api/markets';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
@@ -29,14 +30,14 @@ const useStyles = makeStyles((theme) => ({
 function PlanningAdd(props) {
   const intl = useIntl();
   const {
-    onCancel,
+    onCancel, storedDescription,
   } = props;
   const history = useHistory();
   const classes = useStyles();
   const emptyPlan = { name: '' };
   const [currentValues, setCurrentValues] = useState(emptyPlan);
   const [validForm, setValidForm] = useState(false);
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState(storedDescription);
   const [investmentExpiration, setInvestmentExpiration] = useState(undefined);
   const [maxBudget, setMaxBudget] = useState(undefined);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -89,6 +90,10 @@ function PlanningAdd(props) {
 
   function onEditorChange(description) {
     setDescription(description);
+  }
+
+  function onStorageChange(description) {
+    localforage.setItem(`add_market_${PLANNING_TYPE}`, description);
   }
 
   function onInvestmentExpirationChange(event) {
@@ -164,9 +169,13 @@ function PlanningAdd(props) {
           variant="outlined"
           onChange={onMaxBudgetChange}
         />
+        <Typography>
+          {intl.formatMessage({ id: 'descriptionEdit' })}
+        </Typography>
         <QuillEditor
           onS3Upload={onS3Upload}
           onChange={onEditorChange}
+          onStoreChange={onStorageChange}
           placeHolder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
           defaultValue={description}
         />
@@ -196,6 +205,7 @@ function PlanningAdd(props) {
 
 PlanningAdd.propTypes = {
   onCancel: PropTypes.func,
+  storedDescription: PropTypes.string.isRequired,
 };
 
 PlanningAdd.defaultProps = {

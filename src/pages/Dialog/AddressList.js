@@ -85,12 +85,14 @@ function AddressList(props) {
     if (!searchValue) {
       setFilteredNames(undefined);
     } else if (checked) {
+      const searchValueLower = searchValue.toLowerCase();
       const filteredEntries = Object.entries(checked).filter((entry) => {
         const { name } = entry[1];
+        const nameLower = name.toLowerCase();
         let index = 0;
         // eslint-disable-next-line no-restricted-syntax
-        for (const c of searchValue) {
-          const foundIndex = _.indexOf(name, c, index);
+        for (const c of searchValueLower) {
+          const foundIndex = _.indexOf(nameLower, c, index);
           if (foundIndex < 0) {
             return false;
           }

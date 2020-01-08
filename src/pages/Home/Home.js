@@ -54,33 +54,33 @@ function Home(props) {
     INITIATIVE_TYPE,
   ), 'created_at').reverse();
 
-  function toggleInitiativeAddMode() {
-    navigate(history, '/marketAdd#type=INITIATIVE');
+  function addInitiative() {
+    navigate(history, '/dialogAdd#type=INITIATIVE');
   }
 
-  function toggleDecisionAddMode() {
-    navigate(history, '/marketAdd#type=DECISION');
+  function addDecision() {
+    navigate(history, '/dialogAdd#type=DECISION');
   }
 
-  function togglePlanningAddMode() {
-    navigate(history, '/marketAdd#type=PLANNING');
+  function addPlanning() {
+    navigate(history, '/dialogAdd#type=PLANNING');
   }
 
   const SIDEBAR_ACTIONS = [
     {
       label: intl.formatMessage({ id: 'homeAddPlanning' }),
       icon: getDialogTypeIcon(PLANNING_TYPE),
-      onClick: () => togglePlanningAddMode(),
+      onClick: () => addPlanning(),
     },
     {
       label: intl.formatMessage({ id: 'homeAddDecision' }),
       icon: getDialogTypeIcon(DECISION_TYPE),
-      onClick: () => toggleDecisionAddMode(),
+      onClick: () => addDecision(),
     },
     {
       label: intl.formatMessage({ id: 'homeAddInitiative' }),
       icon: getDialogTypeIcon(INITIATIVE_TYPE),
-      onClick: () => toggleInitiativeAddMode(),
+      onClick: () => addInitiative(),
     },
     {
       label: intl.formatMessage({ id: 'homeViewArchives' }),

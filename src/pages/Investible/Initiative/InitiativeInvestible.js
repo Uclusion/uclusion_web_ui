@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import { Typography, Paper, Grid } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
@@ -16,18 +17,20 @@ import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import Screen from '../../../containers/Screen/Screen';
-import { formInvestibleLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import {
+  formMarketManageLink,
+  makeBreadCrumbs,
+  navigate,
+} from '../../../utils/marketIdPathFunctions';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import { ACTIVE_STAGE, INITIATIVE_TYPE } from '../../../constants/markets';
 import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
-import AddressList from '../../Dialog/AddressList';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
-import { makeStyles } from '@material-ui/styles';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -83,9 +86,9 @@ function InitiativeInvestible(props) {
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
-  const [addParticipantsMode, setAddParticipantsMode] = useState(false);
   // eslint-disable-next-line max-len
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
+  // eslint-disable-next-line max-len
   const myIssues = investmentReasonsRemoved.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
   // eslint-disable-next-line max-len
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
@@ -113,7 +116,7 @@ function InitiativeInvestible(props) {
   }
 
   function toggleAddParticipantsMode() {
-    setAddParticipantsMode(!addParticipantsMode);
+    navigate(history, formMarketManageLink(marketId));
   }
 
   function getSidebarActions() {
@@ -135,29 +138,6 @@ function InitiativeInvestible(props) {
   if (!investibleId) {
     // we have no usable data;
     return <></>;
-  }
-
-  if (addParticipantsMode) {
-    const participantsTitle = intl.formatMessage({ id: 'addressListHeader' });
-    const breadCrumbTemplates = [{ name, link: formInvestibleLink(marketId, investibleId) }];
-    const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-    return (
-      <Screen
-        tabTitle={participantsTitle}
-        title={participantsTitle}
-        breadCrumbs={myBreadCrumbs}
-        hidden={hidden}
-      >
-        <AddressList
-          market={market}
-          isAdmin={isAdmin}
-          showObservers={false}
-          onCancel={toggleAddParticipantsMode}
-          onSave={toggleAddParticipantsMode}
-          intl={intl}
-        />
-      </Screen>
-    );
   }
 
   const hasDiscussion = !_.isEmpty(investmentReasonsRemoved);
@@ -182,7 +162,7 @@ function InitiativeInvestible(props) {
                 {name}
               </Typography>
               {diff && (
-                <DiffDisplay id={investibleId}/>
+                <DiffDisplay id={investibleId} />
               )}
               {!diff && (
                 <ReadOnlyQuillEditor
@@ -245,8 +225,8 @@ function InitiativeInvestible(props) {
                 onSave={closeCommentAdd}
                 onCancel={closeCommentAdd}
               />
-              <div ref={commentAddRef}/>
-              <CommentBox comments={investmentReasonsRemoved} marketId={marketId}/>
+              <div ref={commentAddRef} />
+              <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
             </SubSection>
           </Grid>
         )}

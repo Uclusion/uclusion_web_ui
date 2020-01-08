@@ -120,6 +120,10 @@ export function formMarketEditLink(marketId) {
   return formatMarketLinkWithPrefix('marketEdit', marketId);
 }
 
+export function formMarketManageLink(marketId) {
+  return formatMarketLinkWithPrefix('marketManage', marketId);
+}
+
 export function formMarketAddInvestibleLink(marketId) {
   return formatMarketLinkWithPrefix('investibleAdd', marketId);
 }

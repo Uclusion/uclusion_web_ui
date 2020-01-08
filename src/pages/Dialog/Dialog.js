@@ -90,7 +90,8 @@ function Dialog(props) {
       const link = formInvestibleLink(marketId, id);
       navigate(history, link);
     }
-    if (marketType === INITIATIVE_TYPE && Array.isArray(investibles) && investibles.length > 0) {
+    if (!hidden && marketType === INITIATIVE_TYPE && Array.isArray(investibles)
+      && investibles.length > 0) {
       getInitiativeInvestible(investibles[0]);
     }
     return () => {
@@ -110,7 +111,7 @@ function Dialog(props) {
 
   return (
     <>
-      {marketType === DECISION_TYPE && (
+      {marketType === DECISION_TYPE && myPresence && (
         <DecisionDialog
           hidden={hidden}
           addInvestibleMode={addInvestibleMode}
@@ -124,7 +125,7 @@ function Dialog(props) {
 
         />
       )}
-      {marketType === PLANNING_TYPE && (
+      {marketType === PLANNING_TYPE && myPresence && (
         <PlanningDialog
           hidden={hidden}
           addInvestibleMode={addInvestibleMode}

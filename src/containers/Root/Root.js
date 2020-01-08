@@ -24,6 +24,7 @@ import InvestibleEdit from '../../pages/Investible/InvestibleEdit';
 import InvestibleAdd from '../../pages/Dialog/InvestibleAdd';
 import MarketAdd from '../../pages/Home/MarketAdd';
 import DialogEdit from '../../pages/Dialog/DialogEdit';
+import DialogManage from '../../pages/Dialog/DialogManage';
 
 const useStyles = makeStyles({
   body: {
@@ -96,6 +97,10 @@ function Root() {
     return (action !== 'marketEdit') || !marketId;
   }
 
+  function hideDialogManage() {
+    return (action !== 'marketManage') || !marketId;
+  }
+
   function hideDialogArchives() {
     return (action !== 'dialogArchives');
   }
@@ -125,7 +130,7 @@ function Root() {
 
   let hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible()
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
-    && hideAddMarket() && hideDialogEdit());
+    && hideAddMarket() && hideDialogEdit() && hideDialogManage());
   if (hash) {
     const values = queryString.parse(hash);
     const { nonce } = values;
@@ -206,6 +211,7 @@ function Root() {
             <InvestibleAdd hidden={hideInvestibleAdd()} />
             <MarketAdd hidden={hideAddMarket()} />
             <DialogEdit hidden={hideDialogEdit()} />
+            <DialogManage hidden={hideDialogManage()} />
             <PageNotFound hidden={hidePNF} />
           </div>
         </div>

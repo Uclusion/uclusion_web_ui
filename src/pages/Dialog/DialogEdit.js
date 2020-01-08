@@ -13,7 +13,7 @@ import PlanningDialogEdit from './Planning/PlanningDialogEdit';
 import DecisionDialogEdit from './Decision/DecisionDialogEdit';
 import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../api/markets';
 
-function InvestibleAdd(props) {
+function DialogEdit(props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -84,8 +84,8 @@ function InvestibleAdd(props) {
   );
 }
 
-InvestibleAdd.propTypes = {
+DialogEdit.propTypes = {
   hidden: PropTypes.bool.isRequired,
 };
 
-export default InvestibleAdd;
+export default DialogEdit;

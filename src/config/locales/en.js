@@ -68,6 +68,7 @@ const messages = defineMessages({
   check_email_code: 'Please check your email for a verification code',
   investibles: 'Investibles',
   users: 'Users',
+  manage: 'Manage',
   edit: 'Edit',
   edit_lock: 'Someone else is editing!',
   online: 'Online',

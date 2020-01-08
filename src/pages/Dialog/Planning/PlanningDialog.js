@@ -1,5 +1,5 @@
 /**
- * A component that renders a _decision_ dialog
+ * A component that renders a _planning_ dialog
  */
 import React, { useState, useRef } from 'react';
 import { useHistory } from 'react-router';
@@ -13,7 +13,7 @@ import Summary from '../Summary';
 import PlanningIdeas from './PlanningIdeas';
 import Screen from '../../../containers/Screen/Screen';
 import {
-  formMarketAddInvestibleLink, formMarketEditLink,
+  formMarketAddInvestibleLink, formMarketEditLink, formMarketManageLink,
   makeBreadCrumbs,
   navigate,
 } from '../../../utils/marketIdPathFunctions';
@@ -33,7 +33,6 @@ import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import ChangeToObserverActionButton from '../ChangeToObserverActionButton';
 import ChangeToParticipantActionButton from '../ChangeToParticipantActionButton';
 import { getUserEligibleForObserver, getUserInvestibles } from './userUtils';
-import ManageParticipants from './ManageParticipants';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 
 function PlanningDialog(props) {
@@ -63,7 +62,6 @@ function PlanningDialog(props) {
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
-  const [manageUsersMode, setManageUsersMode] = useState(false);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
 
@@ -82,29 +80,7 @@ function PlanningDialog(props) {
   }
 
   function toggleManageUsersMode() {
-    setManageUsersMode(!manageUsersMode);
-  }
-
-  if (manageUsersMode) {
-    const breadCrumbTemplates = [{ name: marketName, onClick: () => toggleManageUsersMode() }];
-    const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-    const participantsTitle = intl.formatMessage({ id: 'addressListHeader' });
-    return (
-      <Screen
-        tabTitle={participantsTitle}
-        title={participantsTitle}
-        hidden={hidden}
-        breadCrumbs={myBreadCrumbs}
-      >
-        <ManageParticipants
-          marketId={marketId}
-          investibles={investibles}
-          marketPresences={marketPresences}
-          onCancel={toggleManageUsersMode}
-          onSave={toggleManageUsersMode}
-        />
-      </Screen>
-    );
+    navigate(history, formMarketManageLink(marketId));
   }
 
   function commentButtonOnClick(type) {

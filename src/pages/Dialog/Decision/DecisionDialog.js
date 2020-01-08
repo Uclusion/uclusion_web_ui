@@ -15,11 +15,10 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import EditAttributesIcon from '@material-ui/icons/EditAttributes';
 import {
-  formMarketLink,
   formMarketAddInvestibleLink,
   makeBreadCrumbs,
   navigate,
-  formMarketEditLink,
+  formMarketEditLink, formMarketManageLink,
 } from '../../../utils/marketIdPathFunctions';
 import Summary from '../Summary';
 import ProposedIdeas from './ProposedIdeas';
@@ -32,7 +31,6 @@ import { scrollToCommentAddBox } from '../../../components/Comments/commentFunct
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import AddressList from '../AddressList';
 import { changeToObserver, changeToParticipant } from '../../../api/markets';
 import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
@@ -66,7 +64,6 @@ function DecisionDialog(props) {
   const breadCrumbs = makeBreadCrumbs(history);
   const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketComments = comments.filter((comment) => !comment.investible_id);
-  const [addParticipantsMode, setAddParticipantsMode] = useState(false);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
@@ -96,7 +93,7 @@ function DecisionDialog(props) {
   }
 
   function toggleAddParticipantsMode() {
-    setAddParticipantsMode(!addParticipantsMode);
+    navigate(history, formMarketManageLink(marketId));
   }
 
   function commentButtonOnClick(type) {
@@ -154,32 +151,7 @@ function DecisionDialog(props) {
     },
   ];
 
-  if (addParticipantsMode) {
-    const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
-    const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-    const participantsTitle = intl.formatMessage({ id: 'addressListHeader' });
-    return (
-      <Screen
-        tabTitle={participantsTitle}
-        title={participantsTitle}
-        hidden={hidden}
-        breadCrumbs={myBreadCrumbs}
-      >
-        <AddressList
-          market={market}
-          isAdmin={isAdmin}
-          onCancel={toggleAddParticipantsMode}
-          onSave={toggleAddParticipantsMode}
-        />
-      </Screen>
-    );
-  }
-
   function getSidebarActions() {
-    if (addParticipantsMode) {
-      return [];
-    }
-
     if (isAdmin) {
       sidebarMenuList.unshift(...adminMenuList);
     }

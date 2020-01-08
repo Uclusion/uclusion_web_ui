@@ -1,32 +1,35 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { List, ListItem, ListItemText, ListItemIcon, ListItemSecondaryAction, Button } from '@material-ui/core';
+import {
+  List, ListItem, ListItemText, ListItemIcon, ListItemSecondaryAction, Button,
+} from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import SubSection from '../../../containers/SubSection/SubSection';
 import { getUserEligibleForObserver } from './userUtils';
 import ChangeToObserverButton from '../../Home/Decision/ChangeToObserverButton';
 import ChangeToParticipantButton from '../../Home/Decision/ChangeToParticipantButton';
 import AddressList from '../AddressList';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 
 
 function ManageParticipants(props) {
-
   const {
-    marketId,
+    market,
     investibles,
     marketPresences,
+    onCancel,
+    onSave,
   } = props;
-
+  const { id: marketId } = market;
   const intl = useIntl();
 
   function getIcon(following) {
     if (following) {
-      return <ThumbsUpDownIcon/>;
+      return <ThumbsUpDownIcon />;
     }
-    return <VisibilityIcon/>;
+    return <VisibilityIcon />;
   }
 
   function getUserItem(presence) {
@@ -91,8 +94,10 @@ function ManageParticipants(props) {
         title={intl.formatMessage({ id: 'manageParticipantsAddTitle' })}
       >
         <AddressList
-          addToMarketId={marketId}
+          market={market}
           isOwnScreen={false}
+          onCancel={onCancel}
+          onSave={onSave}
         />
       </SubSection>
     </div>
@@ -100,19 +105,21 @@ function ManageParticipants(props) {
 }
 
 ManageParticipants.propTypes = {
-  marketId: PropTypes.string.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  market: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   investibles: PropTypes.arrayOf(PropTypes.object).isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
   onCancel: PropTypes.func,
+  onSave: PropTypes.func,
 };
 
 ManageParticipants.defaultProps = {
   onCancel: () => {
   },
+  onSave: () => {
+  },
 };
 
 export default ManageParticipants;
-
-

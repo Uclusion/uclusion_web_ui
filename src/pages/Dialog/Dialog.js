@@ -76,7 +76,7 @@ function Dialog(props) {
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const loading = !myPresence;
+  const loading = !myPresence || !marketType || marketType === INITIATIVE_TYPE;
   const breadCrumbs = makeBreadCrumbs(history);
 
   useEffect(() => {
@@ -102,11 +102,8 @@ function Dialog(props) {
   if (loading) {
     return (
       <Screen
-        title={currentMarketName}
         hidden={hidden}
-        breadCrumbs={breadCrumbs}
-        tabTitle={currentMarketName}
-        loading={loading}
+        tabTitle="Loading"
       >
         <div />
       </Screen>

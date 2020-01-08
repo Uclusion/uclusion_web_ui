@@ -47,7 +47,7 @@ function AssignmentList(props) {
   const intl = useIntl();
 
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || {};
   const participantPresences = marketPresences.filter((presence) => presence.following);
   const [investiblesState] = useContext(InvestiblesContext);
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId);

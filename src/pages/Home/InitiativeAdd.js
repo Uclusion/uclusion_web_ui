@@ -32,7 +32,6 @@ function InitiativeAdd(props) {
   const intl = useIntl();
   const {
     onCancel,
-    onSave,
   } = props;
   const history = useHistory();
   const classes = useStyles();
@@ -48,7 +47,6 @@ function InitiativeAdd(props) {
     }
     const { navigationLink } = state;
     if (navigationLink) {
-      onSave();
       navigate(history, navigationLink);
     }
     return {};
@@ -106,7 +104,6 @@ function InitiativeAdd(props) {
     };
     return createDecision(addInfo, 'errorInitiativeAddFailed')
       .then((result) => {
-        onSave();
         const { market_id: marketId } = result;
         const link = formMarketLink(marketId);
         addDialogDispatch({ link });
@@ -180,13 +177,10 @@ function InitiativeAdd(props) {
 
 InitiativeAdd.propTypes = {
   onCancel: PropTypes.func,
-  onSave: PropTypes.func,
 };
 
 InitiativeAdd.defaultProps = {
   onCancel: () => {
-  },
-  onSave: () => {
   },
 };
 

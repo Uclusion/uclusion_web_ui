@@ -1,6 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
+import { useHistory } from 'react-router';
 import {
   Button, Card, CardActions, CardContent, makeStyles, TextField,
 } from '@material-ui/core';
@@ -8,7 +9,6 @@ import QuillEditor from '../../components/TextEditors/QuillEditor';
 import { createPlanning } from '../../api/markets';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';
-import { useHistory } from 'react-router';
 import { PLANNING_TYPE } from '../../constants/markets';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
@@ -30,7 +30,6 @@ function PlanningAdd(props) {
   const intl = useIntl();
   const {
     onCancel,
-    onSave,
   } = props;
   const history = useHistory();
   const classes = useStyles();
@@ -48,7 +47,6 @@ function PlanningAdd(props) {
     }
     const { navigationLink } = state;
     if (navigationLink) {
-      onSave();
       navigate(history, navigationLink);
     }
     return {};
@@ -122,7 +120,6 @@ function PlanningAdd(props) {
     }
     return createPlanning(addInfo)
       .then((result) => {
-        onSave();
         const { market_id: marketId } = result;
         const link = formMarketLink(marketId);
         addDialogDispatch({ link });
@@ -159,7 +156,7 @@ function PlanningAdd(props) {
         />
         <TextField
           id="standard-number"
-          label={intl.formatMessage({ id: 'maxBudgetInputLabel' })}
+          label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
           type="number"
           InputLabelProps={{
             shrink: true,

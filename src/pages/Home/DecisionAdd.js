@@ -32,7 +32,6 @@ function DecisionAdd(props) {
   const intl = useIntl();
   const {
     onCancel,
-    onSave,
   } = props;
   const history = useHistory();
   const classes = useStyles();
@@ -48,7 +47,6 @@ function DecisionAdd(props) {
     }
     const { navigationLink } = state;
     if (navigationLink) {
-      onSave();
       navigate(history, navigationLink);
     }
     return {};

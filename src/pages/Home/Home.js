@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
@@ -14,14 +14,11 @@ import {
 } from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningDialogs from './PlanningDialogs';
 import DecisionDialogs from './DecisionDialogs';
-import DecisionAdd from './DecisionAdd';
-import PlanningAdd from './PlanningAdd';
 import {
   INITIATIVE_TYPE,
   DECISION_TYPE,
   PLANNING_TYPE,
 } from '../../constants/markets';
-import InitiativeAdd from './InitiativeAdd';
 import InitiativeDialogs from './InitiativeDialogs';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { navigate } from '../../utils/marketIdPathFunctions';
@@ -56,20 +53,17 @@ function Home(props) {
     myNotHiddenMarketsState,
     INITIATIVE_TYPE,
   ), 'created_at').reverse();
-  const [planningAddMode, setPlanningAddMode] = useState(false);
-  const [decisionAddMode, setDecisionAddMode] = useState(false);
-  const [initiativeAddMode, setInitiativeAddMode] = useState(false);
 
   function toggleInitiativeAddMode() {
-    setInitiativeAddMode(!initiativeAddMode);
+    navigate(history, '/marketAdd#type=INITIATIVE');
   }
 
   function toggleDecisionAddMode() {
-    setDecisionAddMode(!decisionAddMode);
+    navigate(history, '/marketAdd#type=DECISION');
   }
 
   function togglePlanningAddMode() {
-    setPlanningAddMode(!planningAddMode);
+    navigate(history, '/marketAdd#type=PLANNING');
   }
 
   const SIDEBAR_ACTIONS = [
@@ -107,42 +101,6 @@ function Home(props) {
     );
   });
 
-  function getContents() {
-    if (planningAddMode) {
-      return (
-        <PlanningAdd
-          onCancel={togglePlanningAddMode}
-          onSave={togglePlanningAddMode}
-        />
-      );
-    }
-    if (decisionAddMode) {
-      return (
-        <DecisionAdd
-          onCancel={toggleDecisionAddMode}
-          onSave={toggleDecisionAddMode}
-        />
-      );
-    }
-
-    if (initiativeAddMode) {
-      return (
-        <InitiativeAdd
-          onCancel={toggleInitiativeAddMode}
-          onSave={toggleInitiativeAddMode}
-        />
-      );
-    }
-
-    return (
-      <>
-          <PlanningDialogs markets={planningDetails} />
-          <DecisionDialogs markets={decisionDetails} />
-          <InitiativeDialogs markets={initiativeDetails} />
-      </>
-    );
-  }
-
   return (
     <Screen
       title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage} />}
@@ -150,7 +108,9 @@ function Home(props) {
       hidden={hidden}
       sidebarActions={sidebarActions}
     >
-      {getContents()}
+      <PlanningDialogs markets={planningDetails} />
+      <DecisionDialogs markets={decisionDetails} />
+      <InitiativeDialogs markets={initiativeDetails} />
     </Screen>
   );
 }

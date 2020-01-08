@@ -22,6 +22,7 @@ import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils';
 import InvestibleEdit from '../../pages/Investible/InvestibleEdit';
 import InvestibleAdd from '../../pages/Dialog/InvestibleAdd';
+import MarketAdd from '../../pages/Home/MarketAdd';
 
 const useStyles = makeStyles({
   body: {
@@ -69,6 +70,11 @@ function Root() {
     }
     return action !== 'about';
   }
+
+  function hideAddMarket() {
+    return action !== 'marketAdd';
+  }
+
   function hideMarket() {
     return action !== 'dialog' || (!marketId) || (!!marketId && !!investibleId);
   }
@@ -113,7 +119,8 @@ function Root() {
   }
 
   let hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible()
-    && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd());
+    && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
+    && hideAddMarket());
   if (hash) {
     const values = queryString.parse(hash);
     const { nonce } = values;
@@ -192,6 +199,7 @@ function Root() {
             <Archives hidden={hideArchvies()} />
             <DialogArchives hidden={hideDialogArchives()} />
             <InvestibleAdd hidden={hideInvestibleAdd()} />
+            <MarketAdd hidden={hideAddMarket()} />
             <PageNotFound hidden={hidePNF} />
           </div>
         </div>

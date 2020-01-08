@@ -25,6 +25,8 @@ import InvestibleAdd from '../../pages/Dialog/InvestibleAdd';
 import MarketAdd from '../../pages/Home/MarketAdd';
 import DialogEdit from '../../pages/Dialog/DialogEdit';
 import DialogManage from '../../pages/Dialog/DialogManage';
+import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
+import { registerListener } from '../../utils/MessageBusUtils';
 
 const useStyles = makeStyles({
   body: {
@@ -117,11 +119,26 @@ function Root() {
   }
 
   if (action === 'invite' && marketId) {
+    const hubListener = (data) => {
+      const { payload: { event, message } } = data;
+      switch (event) {
+        case MARKET_MESSAGE_EVENT: {
+          const { object_id: messageMarketId } = message;
+          if (messageMarketId === marketId) {
+            console.log(`Redirecting us to market ${marketId}`);
+            setTimeout(() => {
+              navigate(history, formMarketLink(marketId));
+            }, 500);
+          }
+          break;
+        }
+        default:
+          // ignore
+          break;
+      }
+    };
     console.debug(`Logging into market ${marketId}`);
-    getMarketClient(marketId).then(() => {
-      console.log(`Redirecting us to market ${marketId}`);
-      return navigate(history, formMarketLink(marketId));
-    })
+    getMarketClient(marketId).then(() => registerListener(VERSIONS_HUB_CHANNEL, 'inviteListener', hubListener))
       .catch((error) => {
         console.error(error);
         sendIntlMessage(ERROR, { id: 'marketFetchFailed' });

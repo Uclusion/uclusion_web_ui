@@ -34,7 +34,8 @@ function PlanningInvestibleEdit(props) {
   } = props;
   const myInvestible = fullInvestible.investible;
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
-  const { assigned } = marketInfo || [];
+  const { assigned: marketAssigned } = marketInfo;
+  const assigned = marketAssigned || [];
   const { id, description: initialDescription } = myInvestible;
   const [currentValues, setCurrentValues] = useState(myInvestible);
   const [assignments, setAssignments] = useState(assigned);

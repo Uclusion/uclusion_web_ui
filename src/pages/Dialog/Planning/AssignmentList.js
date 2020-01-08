@@ -59,7 +59,7 @@ function AssignmentList(props) {
   const blockedStage = getBlockedStage(marketStagesState, marketId);
   const [marketsState] = useContext(MarketsContext);
   const user = getMyUserForMarket(marketsState, marketId) || {};
-  const userPresence = marketPresences.filter((presence) => presence.id === user.id);
+  const userPresence = marketPresences.find((presence) => presence.id === user.id);
 
   function getInvestibleState(investibleId, stageId) {
     if (stageId === blockedStage.id) {
@@ -114,11 +114,10 @@ function AssignmentList(props) {
       }), {});
     }
     const assignments = computeAssignments();
-    const following = userPresence && userPresence.following;
-    if (following) {
-      const presenceAssignments = assignments[user.id];
-      const assigned = presenceAssignments
-        && presenceAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
+    const canBeAssigned = userPresence && userPresence.following;
+    if (canBeAssigned) {
+      const userAssignments = assignments[user.id] || [];
+      const assigned = userAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
       if (!assigned) {
         return { [user.id]: true };
       }

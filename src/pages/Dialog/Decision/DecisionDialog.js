@@ -36,6 +36,7 @@ import AddressList from '../AddressList';
 import { changeToObserver, changeToParticipant } from '../../../api/markets';
 import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
+import { DECISION_TYPE } from '../../../constants/markets';
 
 function DecisionDialog(props) {
   const {

@@ -35,41 +35,43 @@ function DialogEdit(props) {
   const userId = user.id;
 
   useEffect(() => {
-    if (marketType === PLANNING_TYPE) {
-      if (!hidden) {
-        if (marketId !== lockedMarketId) {
-          // Immediately set to avoid multiple calls
-          setLockedMarketId(marketId);
-          // for now, just break the lock always
-          const breakLock = true;
-          lockPlanningMarketForEdit(marketId, breakLock)
-            .catch(() => setLockedMarketId(undefined));
-        }
-        localforage.getItem(marketId).then((description) => {
-          setStoredDescription(description || '');
-          setIdLoaded(marketId);
-        });
+    if (!hidden) {
+      if (marketId !== lockedMarketId && marketType === PLANNING_TYPE) {
+        // Immediately set to avoid multiple calls
+        setLockedMarketId(marketId);
+        // for now, just break the lock always
+        const breakLock = true;
+        lockPlanningMarketForEdit(marketId, breakLock)
+          .catch(() => setLockedMarketId(undefined));
       }
-      // We need this way otherwise if they navigate out by back button we don't release the lock
-      if (hidden && lockedMarketId) {
-        const originalLockedId = lockedMarketId;
-        // Set right away to avoid multiple calls
-        setLockedMarketId(undefined);
-        unlockPlanningMarketForEdit(lockedMarketId)
-          .then(() => localforage.removeItem(originalLockedId))
-          .catch(() => setLockedMarketId(originalLockedId));
-      }
+      localforage.getItem(marketId).then((description) => {
+        setStoredDescription(description || '');
+        setIdLoaded(marketId);
+      });
+    }
+    // We need this way otherwise if they navigate out by back button we don't release the lock
+    if (hidden && lockedMarketId && marketType === PLANNING_TYPE) {
+      const originalLockedId = lockedMarketId;
+      // Set right away to avoid multiple calls
+      setLockedMarketId(undefined);
+      unlockPlanningMarketForEdit(lockedMarketId)
+        .then(() => localforage.removeItem(originalLockedId))
+        .catch(() => setLockedMarketId(originalLockedId));
     }
   }, [hidden, marketId, lockedMarketId, marketType]);
 
   function onDone() {
-    navigate(history, formMarketLink(marketId));
+    if (marketType !== PLANNING_TYPE) {
+      localforage.removeItem(marketId).then(() => navigate(history, formMarketLink(marketId)));
+    } else {
+      navigate(history, formMarketLink(marketId));
+    }
   }
 
   function onSave() {
     // Save removes the lock so no need to release
     setLockedMarketId(undefined);
-    onDone();
+    localforage.removeItem(marketId).then(() => navigate(history, formMarketLink(marketId)));
   }
   const someoneElseEditing = lockedBy && (lockedBy !== userId);
   const warning = someoneElseEditing ? intl.formatMessage({ id: 'edit_lock' }) : undefined;

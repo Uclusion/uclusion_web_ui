@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
@@ -14,6 +15,7 @@ import DecisionDialogs from '../Home/DecisionDialogs';
 import InitiativeDialogs from '../Home/InitiativeDialogs';
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import ArchivesCheatSheet from './ArchivesCheatSheet';
 
 function Archives(props) {
   const { hidden } = props;
@@ -26,6 +28,8 @@ function Archives(props) {
   const planningDetails = hiddenMarkets.filter((market) => market.market_type === PLANNING_TYPE);
   const decisionDetails = hiddenMarkets.filter((market) => market.market_type === DECISION_TYPE);
   const initiativeDetails = hiddenMarkets.filter((market) => market.market_type === INITIATIVE_TYPE);
+  const emptyArchives = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
+
   const breadCrumbs = makeBreadCrumbs(history, [], true);
   return (
     <Screen
@@ -34,15 +38,22 @@ function Archives(props) {
       hidden={hidden}
       breadCrumbs={breadCrumbs}
     >
-      <SubSection>
-        <PlanningDialogs markets={planningDetails} />
-      </SubSection>
-      <SubSection>
-        <DecisionDialogs markets={decisionDetails} />
-      </SubSection>
-      <SubSection>
-        <InitiativeDialogs markets={initiativeDetails} />
-      </SubSection>
+      { emptyArchives && (
+        <ArchivesCheatSheet />
+      )}
+      {!emptyArchives && (
+        <>
+          <SubSection>
+            <PlanningDialogs markets={planningDetails}/>
+          </SubSection>
+          <SubSection>
+            <DecisionDialogs markets={decisionDetails}/>
+          </SubSection>
+          <SubSection>
+            <InitiativeDialogs markets={initiativeDetails}/>
+          </SubSection>
+        </>
+      )}
     </Screen>
   );
 }

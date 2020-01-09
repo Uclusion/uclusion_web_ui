@@ -84,3 +84,12 @@ workflows:
             branches:
               ignore: /.*/
           context: stage
+  deploy-production:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^production_only.*/
+            branches:
+              ignore: /.*/
+          context: production

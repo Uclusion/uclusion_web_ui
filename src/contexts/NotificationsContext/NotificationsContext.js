@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer } from 'react';
+import React, { useEffect, useState, useReducer, useContext } from 'react';
 import { toast } from 'react-toastify';
 import reducer, {
   initializeState,
@@ -9,6 +9,7 @@ import { deleteMessage } from '../../api/users';
 import beginListening from './notificationsContextMessages';
 import LocalForageHelper from '../LocalForageHelper';
 import { AllSequentialMap } from '../../utils/PromiseUtils';
+import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext';
 
 export const EMPTY_STATE = {
   messages: [],
@@ -25,6 +26,7 @@ function NotificationsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const { page, messages } = state;
   const [isInitialization, setIsInitialization] = useState(true);
+  const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   useEffect(() => {
     if (isInitialization) {
       const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
@@ -51,21 +53,31 @@ function NotificationsProvider(props) {
           investibleId: messageInvestibleId,
           text,
           level,
+          aType,
+          commentId,
         } = message;
         const doRemove = marketId === messageMarketId && investibleId === messageInvestibleId;
         if (doRemove) {
           dispatch(removeMessage(message));
-          console.debug('Toasting from NotificationsContext');
-          switch (level) {
-            case 'RED':
-              toast.error(text);
-              break;
-            case 'YELLOW':
-              toast.warn(text);
-              break;
-            default:
-              toast.info(text);
-              break;
+          // Do not toast unread as already have diff and dismiss
+          if (aType !== 'UNREAD') {
+            if (commentId) {
+              highlightedCommentDispatch({ type: HIGHTLIGHT_ADD, commentId, level });
+            }
+            console.debug('Toasting from NotificationsContext');
+            switch (level) {
+              case 'RED':
+                toast.error(text);
+                break;
+              case 'YELLOW':
+                if (!commentId) {
+                  toast.warn(text);
+                }
+                break;
+              default:
+                toast.info(text);
+                break;
+            }
           }
         }
         return doRemove;
@@ -74,7 +86,7 @@ function NotificationsProvider(props) {
     }
     return () => {
     };
-  }, [page, messages]);
+  }, [page, messages, highlightedCommentDispatch]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

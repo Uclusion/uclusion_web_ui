@@ -24,12 +24,23 @@ import CustomChip from '../CustomChip';
 import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
+import { HighlightedCommentContext } from '../../contexts/HighlightedCommentContext';
 
 const useStyles = makeStyles({
   container: {
     padding: '21px 21px 8px',
     background: 'white',
     boxShadow: 'none',
+  },
+  containerRed: {
+    padding: '21px 21px 8px',
+    background: 'white',
+    boxShadow: '10px 5px 5px red',
+  },
+  containerYellow: {
+    padding: '21px 21px 8px',
+    background: 'white',
+    boxShadow: '10px 5px 5px yellow',
   },
   chip: {
     marginTop: '12px',
@@ -85,6 +96,7 @@ function Comment(props) {
   const [editOpen, setEditOpen] = useState(false);
   const [toggledOpen, setToggledOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
+  const [highlightedCommentState] = useContext(HighlightedCommentContext);
 
   function getChildComments() {
     if (_.isEmpty(sortedChildren)) {
@@ -104,6 +116,17 @@ function Comment(props) {
         />
       );
     });
+  }
+
+  function getCommentHighlightStyle() {
+    if (id in highlightedCommentState) {
+      const level = highlightedCommentState[id];
+      if (level === 'YELLOW') {
+        return classes.containerYellow;
+      }
+      return classes.containerRed;
+    }
+    return classes.container;
   }
 
   function toggleReply() {
@@ -130,7 +153,7 @@ function Comment(props) {
   const expanded = replyOpen || toggledOpen || (isRoot && !comment.resolved) || comment.reply_id;
 
   return (
-    <Card className={classes.container}>
+    <Card className={getCommentHighlightStyle()}>
       <CardContent>
         <CustomChip className={classes.chip} active title={commentType} />
         <Box marginTop={1}>

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
@@ -8,6 +8,7 @@ import Notifications from '../../components/Notifications/Notifications';
 import { SidebarContext } from '../../contexts/SidebarContext';
 import { DRAWER_WIDTH_CLOSED, DRAWER_WIDTH_OPENED } from '../../constants/global';
 import { navigate } from '../../utils/marketIdPathFunctions';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 const useStyles = makeStyles((theme) => ({
   sidebarOpen: {
@@ -68,18 +69,54 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const DEFAULT_SIDEBAR_LOGO = 'logo.svg';
+const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
+
 function Sidebar(props) {
   const classes = useStyles();
   const { sidebarActions } = props;
   const history = useHistory();
   const [sidebarOpen] = useContext(SidebarContext);
+  const [operationRunning] = useContext(OperationInProgressContext);
+  const [logoTimer, setLogoTimer] = useState(undefined);
+  const [logoImage, setLogoImage] = useState(DEFAULT_SIDEBAR_LOGO);
+  const [pegLogo, setPegLogo] = useState(false);
+
+  useEffect(() => {
+    if (operationRunning && !logoTimer) {
+      setLogoTimer(setInterval(() => {
+        setPegLogo(true);
+      }, 250));
+    }
+    if (!operationRunning && logoTimer) {
+      setLogoTimer(undefined);
+      setPegLogo(false);
+      clearInterval(logoTimer);
+      setLogoImage(DEFAULT_SIDEBAR_LOGO);
+    }
+    if (pegLogo) {
+      setPegLogo(false);
+      if (logoImage === DEFAULT_SIDEBAR_LOGO) {
+        setLogoImage(ALTERNATE_SIDEBAR_LOGO);
+      } else {
+        setLogoImage(DEFAULT_SIDEBAR_LOGO);
+      }
+    }
+    return () => {
+      if (logoTimer) {
+        setLogoTimer(undefined);
+        clearInterval(logoTimer);
+        setPegLogo(false);
+      }
+    };
+  }, [operationRunning, logoTimer, pegLogo, logoImage]);
 
   function getSidebar() {
     return (
       <div className={classes.sidebarContainer}>
         <div className={classes.sidebarLogo}>
           <Link href="#" onClick={() => navigate(history, '/about')} color="inherit">
-            <img src="/images/logo.svg" alt="Uclusion" />
+            <img width="40" height="52" src={`/images/${logoImage}`} alt="Uclusion" />
           </Link>
         </div>
         <div>

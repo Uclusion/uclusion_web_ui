@@ -1,22 +1,25 @@
 import React, { useContext } from 'react';
 import Amplify, { Auth } from 'aws-amplify';
-import { Authenticator, SignIn, SignUp, ForgotPassword } from 'aws-amplify-react';
+import {
+  Authenticator, SignIn, SignUp, ForgotPassword, SignOut,
+} from 'aws-amplify-react';
+import { IntlProvider } from 'react-intl';
+import { makeStyles } from '@material-ui/styles';
+import { useHistory } from 'react-router';
 import config from '../../config';
 import App from './App';
 import awsconfig from '../../config/amplify';
 import CustomSignIn from '../../authorization/CustomSignIn';
 import UclusionSignup from '../../pages/Authentication/Signup';
 import { LocaleContext } from '../../contexts/LocaleContext';
-import { IntlProvider } from 'react-intl';
 import { getLocaleMessages } from '../../config/locales';
-import { makeStyles } from '@material-ui/styles';
-import { useHistory } from 'react-router';
 import VerifyEmail from '../../pages/Authentication/VerifyEmail';
 import IntlGlobalProvider from '../../components/ContextHacks/IntlGlobalProvider';
 import UclusionForgotPassword from '../../pages/Authentication/ForgotPassword';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import TokenStorageManager from '../../authorization/TokenStorageManager';
+
 Amplify.configure(awsconfig);
 const oauth = {
   domain: config.cognito_domain,
@@ -46,9 +49,9 @@ const useStyles = makeStyles({
         oTransform: 'translate(0, 42px)',
         msTransform: 'translate(0, 42px)',
         opacity: '1',
-      }
+      },
     },
-  }
+  },
 });
 
 function AppWithAuth(props) {
@@ -80,7 +83,7 @@ function AppWithAuth(props) {
     return (
       <div className={classes.root}>
         <IntlProvider locale={locale} key={locale} messages={messages}>
-          <VerifyEmail/>
+          <VerifyEmail />
         </IntlProvider>
       </div>
     );
@@ -90,7 +93,7 @@ function AppWithAuth(props) {
     <div className={classes.root}>
       <IntlProvider locale={locale} key={locale} messages={messages}>
         <IntlGlobalProvider>
-          <Authenticator hide={[SignIn, SignUp, ForgotPassword]}>
+          <Authenticator hide={[SignIn, SignUp, SignOut, ForgotPassword]}>
             <UclusionSignup />
             <CustomSignIn />
             <UclusionForgotPassword />

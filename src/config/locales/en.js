@@ -427,6 +427,10 @@ const messages = defineMessages({
   changePasswordOldLabel: 'Old password',
   changePasswordButton: 'Change Password',
 
+  // Sign out
+  signOutButton: 'Sign Out',
+  errorSignOutFailed: 'Sign out failed. Please try again.',
+
   // Change Preferences
   changePreferencesHeader: 'Change your notification preferences',
   emailEnabledLabel: 'Send daily digest of notifications via email',

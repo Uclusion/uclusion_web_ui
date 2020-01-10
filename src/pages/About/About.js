@@ -13,6 +13,7 @@ import { getSSOInfo } from '../../api/sso';
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
 import ChangePassword from '../Authentication/ChangePassword';
 import ChangeNotificationPreferences from './ChangeNotificationPreferences';
+import SignOut from '../Authentication/SignOut';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -120,6 +121,8 @@ function About(props) {
           {user && (
             <ChangeNotificationPreferences user={user} />
           )}
+          <br />
+          <SignOut />
         </div>
       </Screen>
     </div>

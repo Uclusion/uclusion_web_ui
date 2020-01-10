@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import Amplify, { Auth } from 'aws-amplify';
 import {
-  Authenticator, SignIn, SignUp, ForgotPassword, SignOut,
+  Authenticator, SignIn, SignUp, ForgotPassword, SignOut, Greetings,
 } from 'aws-amplify-react';
 import { IntlProvider } from 'react-intl';
 import { makeStyles } from '@material-ui/styles';
@@ -93,7 +93,7 @@ function AppWithAuth(props) {
     <div className={classes.root}>
       <IntlProvider locale={locale} key={locale} messages={messages}>
         <IntlGlobalProvider>
-          <Authenticator hide={[SignIn, SignUp, SignOut, ForgotPassword]}>
+          <Authenticator hide={[Greetings, SignIn, SignUp, SignOut, ForgotPassword]}>
             <UclusionSignup />
             <CustomSignIn />
             <UclusionForgotPassword />

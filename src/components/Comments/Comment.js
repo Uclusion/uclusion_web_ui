@@ -28,17 +28,17 @@ import { HighlightedCommentContext } from '../../contexts/HighlightedCommentCont
 
 const useStyles = makeStyles({
   container: {
-    padding: '21px 21px 8px',
+    padding: '30px 20px 16px',
     background: 'white',
     boxShadow: 'none',
   },
   containerRed: {
-    padding: '21px 21px 8px',
+    padding: '30px 20px 16px',
     background: 'white',
     boxShadow: '10px 5px 5px red',
   },
   containerYellow: {
-    padding: '21px 21px 8px',
+    padding: '30px 20px 16px',
     background: 'white',
     boxShadow: '10px 5px 5px yellow',
   },
@@ -51,7 +51,6 @@ const useStyles = makeStyles({
     lineHeight: '175%',
   },
   actions: {
-    marginTop: '25px',
     display: 'flex',
     justifyContent: 'flex-end',
     boxShadow: 'none',

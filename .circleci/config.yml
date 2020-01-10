@@ -35,7 +35,7 @@ jobs:
           name: Copy env file
           command: |
             cd ~/repo
-            cp stage.env .env
+            cp ${env_name}.env .env
       - run:
           name: Build web ui
           command: |

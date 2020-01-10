@@ -184,7 +184,7 @@ const messages = defineMessages({
   saveVote: 'Save Vote',
   updateVote: 'Update Vote',
   yourReason: 'Your reason...',
-  cancelVote: 'Cancel Vote',
+  cancelVote: 'Clear Vote',
   removeVote: 'Remove Vote',
   maxBudgetInputLabel: 'Number of days before might not be worth doing - value must be less than {x}',
 
@@ -386,7 +386,7 @@ const messages = defineMessages({
 
   // expiration extender
   deadlineExtenderSave: 'Extend',
-  deadlineExtenderCancel: 'Cancel',
+  deadlineExtenderCancel: 'Clear',
 
   // invite linker
   inviteLinkerDirections: 'Share this link to invite others to the dialog',

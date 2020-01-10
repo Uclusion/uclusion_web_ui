@@ -184,8 +184,11 @@ function Comment(props) {
             />
           )}
         </Box>
-        {expanded && getChildComments()}
+        <Box marginTop={1}>
+          {expanded && getChildComments()}
+        </Box>
       </CardContent>
+      {!toggledOpen && (
       <CardActions>
         {!comment.resolved && (
           <ButtonGroup
@@ -247,6 +250,7 @@ function Comment(props) {
           />
         )}
       </CardActions>
+      )}
     </Card>
   );
 }

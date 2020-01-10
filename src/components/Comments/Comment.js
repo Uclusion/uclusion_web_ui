@@ -8,7 +8,6 @@ import {
   Card,
   CardContent,
   CardActions,
-  Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import _ from 'lodash';
@@ -18,8 +17,8 @@ import { REPLY_TYPE } from '../../constants/comments';
 import { reopenComment, resolveComment } from '../../api/comments';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+// import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+// import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CustomChip from '../CustomChip';
 import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
@@ -139,9 +138,9 @@ function Comment(props) {
   const intl = useIntl();
   const classes = useStyles();
   const { id, comment_type: commentType, created_by: createdBy } = comment;
-  const [presencesState] = useContext(MarketPresencesContext);
-  const presences = getMarketPresences(presencesState, marketId) || [];
-  const commenter = presences.find(presence => presence.id === createdBy);
+  // const [presencesState] = useContext(MarketPresencesContext);
+  // const presences = getMarketPresences(presencesState, marketId) || [];
+  // const commenter = presences.find(presence => presence.id === createdBy);
   const [marketsState] = useContext(MarketsContext);
   const user = getMyUserForMarket(marketsState, marketId) || {};
   const children = comments.filter(comment => comment.reply_id === id);
@@ -204,11 +203,11 @@ function Comment(props) {
   }
 
   const isRoot = !comment.reply_id;
-  const expanded =
-    replyOpen ||
-    toggledOpen ||
-    (isRoot && !comment.resolved) ||
-    comment.reply_id;
+  // const expanded =
+  //   replyOpen ||
+  //   toggledOpen ||
+  //   (isRoot && !comment.resolved) ||
+  //   comment.reply_id;
 
   return (
     <Card className={!isRoot ? classes.childContainer : getCommentHighlightStyle()}>

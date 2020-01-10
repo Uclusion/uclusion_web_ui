@@ -1,8 +1,8 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { injectIntl } from 'react-intl';
 import _ from 'lodash';
 import {
-  Card, Button, ButtonGroup, CardContent, CardActions, makeStyles,
+  Button, makeStyles,
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import QuillEditor from '../TextEditors/QuillEditor';
@@ -12,7 +12,7 @@ import {
 } from '../../constants/comments';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+// import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { checkIfCommentInStorage } from '../../contexts/CommentsContext/commentsContextHelper';
 
 function getPlaceHolderLabelId(type) {
@@ -62,7 +62,7 @@ function CommentAdd(props) {
   const classes = useStyles();
   const placeHolderLabelId = getPlaceHolderLabelId(type);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
-  const [operationRunning] = useContext(OperationInProgressContext);
+  // const [operationRunning] = useContext(OperationInProgressContext);
 
   function onEditorChange(content) {
     setBody(content);

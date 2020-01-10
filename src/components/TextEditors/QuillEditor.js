@@ -59,7 +59,7 @@ class QuillEditor extends React.PureComponent {
     this.state = { uploads: [] };
     this.editorBox = React.createRef();
     this.editorContainer = React.createRef();
-    const { marketId, placeholder, uploadDisabled, simple } = props;
+    const { marketId, placeholder, uploadDisabled, noToolbar, simple } = props;
     const defaultModules = {
       toolbar: [
         [{ font: [] }],
@@ -92,6 +92,9 @@ class QuillEditor extends React.PureComponent {
       this.modules.toolbar = this.uploadLessToolbar;
       this.modules.s3Upload = false;
       this.modules.imageResize = false;
+    }
+    if (noToolbar) {
+      this.modules.toolbar = null;
     }
     this.options = {
       modules: this.modules,
@@ -172,6 +175,7 @@ QuillEditor.propTypes = {
   placeholder: PropTypes.string,
   value: PropTypes.string,
   uploadDisabled: PropTypes.bool,
+  noToolbar: PropTypes.bool,
 };
 
 QuillEditor.defaultProps = {
@@ -185,6 +189,7 @@ QuillEditor.defaultProps = {
   placeholder: '',
   marketId: undefined,
   uploadDisabled: false,
+  noToolbar: false,
 };
 
 export default withTheme(QuillEditor);

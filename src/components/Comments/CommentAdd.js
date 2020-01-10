@@ -34,7 +34,27 @@ const useStyles = makeStyles(() => ({
   hidden: {
     display: 'none',
   },
-  add: {},
+  add: {
+    display: 'flex',
+  },
+  editor: {
+    flex: 1,
+  },
+  primaryButton: {
+    width: '57px',
+    marginLeft: '4px',
+    backgroundColor: '#2d9cdb',
+    height: '41px',
+    color: '#fff',
+    borderRadius: '4px',
+    fontSize: '10px',
+    fontWeight: 'bold',
+    textTransform: 'capitalize',
+  },
+  '.ql-editor': {
+    fontSize: '11px',
+    padding: '8px 11px',
+  }
 }));
 
 function CommentAdd(props) {
@@ -91,37 +111,23 @@ function CommentAdd(props) {
     <div
       className={(hidden) ? classes.hidden : classes.add}
     >
-      <Card>
-        <CardContent>
-          <QuillEditor
-            placeholder={placeHolder}
-            defaultValue={body}
-            onChange={onEditorChange}
-          />
-        </CardContent>
-        <CardActions>
-          <ButtonGroup
-            disabled={operationRunning}
-            variant="contained"
-            size="small"
-            color="primary"
-          >
-            <Button
-              onClick={handleCancel}
-            >
-              {intl.formatMessage({ id: commentCancelLabel })}
-            </Button>
-            <SpinBlockingButton
-              marketId={marketId}
-              onClick={handleSave}
-              onSpinStop={handleSpinStop}
-              disabled={_.isEmpty(body)}
-            >
-              {intl.formatMessage({ id: commentSaveLabel })}
-            </SpinBlockingButton>
-          </ButtonGroup>
-        </CardActions>
-      </Card>
+      <div className={classes.editor}>
+        <QuillEditor
+          placeholder={placeHolder}
+          defaultValue={body}
+          onChange={onEditorChange}
+          noToolbar={true}
+        />
+      </div>
+      <SpinBlockingButton
+        className={classes.primaryButton}
+        marketId={marketId}
+        onClick={handleSave}
+        onSpinStop={handleSpinStop}
+        disabled={_.isEmpty(body)}
+      >
+        {intl.formatMessage({ id: commentSaveLabel })}
+      </SpinBlockingButton>
     </div>
   );
 }

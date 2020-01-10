@@ -243,7 +243,7 @@ function Comment(props) {
           />
         )}
       </CardContent>
-      {!toggledOpen && (
+      {!toggledOpen && !replyOpen && (
       <CardActions className={!isRoot ? classes.childCardActions : classes.cardActions}>
         {!comment.resolved && (
           <ButtonGroup

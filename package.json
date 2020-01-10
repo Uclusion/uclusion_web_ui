@@ -51,7 +51,8 @@
     "start": "REACT_APP_VERSION=`git rev-parse HEAD | head -c 16` react-scripts start",
     "standard": "standard src/**/*.js",
     "build": "REACT_APP_VERSION=`git rev-parse HEAD | head -c 16` react-scripts build",
-    "deploy": "aws s3 sync --delete build/ s3://uclusion-web-ui",
+    "deploy-stage": "aws s3 sync --delete build/ s3://uclusion-web-ui",
+    "deploy-production": "aws s3 sync --delete build/ s3://uclusion-web-ui-production",
     "test": "react-scripts test --env=jsdom",
     "lint": "eslint src",
     "eject": "react-scripts eject"

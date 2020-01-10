@@ -32,6 +32,11 @@ const useStyles = makeStyles({
     background: 'white',
     boxShadow: 'none',
   },
+  childContainer: {
+    padding: '8px 20px',
+    background: 'white',
+    boxShadow: 'none',
+  },
   containerRed: {
     padding: '30px 20px 16px',
     background: 'white',
@@ -50,9 +55,26 @@ const useStyles = makeStyles({
     fontSize: 15,
     lineHeight: '175%',
   },
+  cardContent : {
+    padding: '0 20px',
+  },
+  childCardContent : {
+    padding: 0,
+  },
+  cardActions : {
+    padding: '8px',
+  },
+  childCardActions : {
+    padding: 0,
+  },
   actions: {
     display: 'flex',
     justifyContent: 'flex-end',
+    boxShadow: 'none',
+    width: '100%',
+  },
+  childActions: {
+    display: 'flex',
     boxShadow: 'none',
     width: '100%',
   },
@@ -65,6 +87,23 @@ const useStyles = makeStyles({
     lineHeight: '18px',
     letterSpacing: '0.02em',
     textTransform: 'uppercase',
+    background: 'transparent',
+    borderRight: 'none !important',
+    '&:hover': {
+      color: '#ca2828',
+      background: 'white',
+      boxShadow: 'none',
+    },
+  },
+  childAction: {
+    padding: '0 4px',
+    minWidth: '20px',
+    height: '20px',
+    color: '#A7A7A7',
+    fontWeight: '500',
+    fontSize: 10,
+    lineHeight: '18px',
+    textTransform: 'capitalize',
     background: 'transparent',
     borderRight: 'none !important',
     '&:hover': {
@@ -172,8 +211,8 @@ function Comment(props) {
     comment.reply_id;
 
   return (
-    <Card className={getCommentHighlightStyle()}>
-      <CardContent>
+    <Card className={!isRoot ? classes.childContainer : getCommentHighlightStyle()}>
+      <CardContent className={!isRoot ? classes.childCardContent : classes.cardContent }>
         <CustomChip className={classes.chip} active title={commentType} />
         <Box marginTop={1}>
           <ReadOnlyQuillEditor value={comment.body} heading={toggledOpen ? true : false} paddingLeft={0} />
@@ -193,21 +232,31 @@ function Comment(props) {
           </Box>
           )
         }
+
+        {replyOpen && (
+          <CommentAdd
+            marketId={marketId}
+            parent={comment}
+            onSave={toggleReply}
+            onCancel={toggleReply}
+            type={REPLY_TYPE}
+          />
+        )}
       </CardContent>
       {!toggledOpen && (
-      <CardActions>
+      <CardActions className={!isRoot ? classes.childCardActions : classes.cardActions}>
         {!comment.resolved && (
           <ButtonGroup
-            className={classes.actions}
+            className={!isRoot ? classes.childActions : classes.actions}
             disabled={operationRunning}
             color="primary"
             variant="contained"
           >
-            <Button className={classes.action} onClick={toggleReply}>
+            <Button className={!isRoot ? classes.childAction : classes.action} onClick={toggleReply}>
               {intl.formatMessage({ id: 'commentReplyLabel' })}
             </Button>
             {createdBy === user.id && (
-              <Button className={classes.action} onClick={toggleEdit}>
+              <Button className={!isRoot ? classes.childAction : classes.action} onClick={toggleEdit}>
                 {intl.formatMessage({ id: 'commentEditLabel' })}
               </Button>
             )}
@@ -245,15 +294,6 @@ function Comment(props) {
               {intl.formatMessage({ id: 'commentReopenLabel' })}
             </SpinBlockingButton>
           </ButtonGroup>
-        )}
-        {replyOpen && (
-          <CommentAdd
-            marketId={marketId}
-            parent={comment}
-            onSave={toggleReply}
-            onCancel={toggleReply}
-            type={REPLY_TYPE}
-          />
         )}
       </CardActions>
       )}

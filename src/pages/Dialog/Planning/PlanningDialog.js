@@ -13,9 +13,11 @@ import Summary from '../Summary';
 import PlanningIdeas from './PlanningIdeas';
 import Screen from '../../../containers/Screen/Screen';
 import {
-  formMarketAddInvestibleLink, formMarketEditLink, formMarketManageLink,
+  formMarketAddInvestibleLink,
+  formMarketEditLink,
+  formMarketManageLink,
   makeBreadCrumbs,
-  navigate,
+  navigate
 } from '../../../utils/marketIdPathFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
@@ -45,30 +47,25 @@ function PlanningDialog(props) {
     myPresence,
     marketStages,
     comments,
-    hidden,
+    hidden
   } = props;
 
   const intl = useIntl();
-  const {
-    following,
-    id: userId,
-  } = myPresence;
+  const { following, id: userId } = myPresence;
   const commentAddRef = useRef(null);
-  const {
-    id: marketId,
-    market_stage: marketStage,
-  } = market;
+  const { id: marketId, market_stage: marketStage } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const marketComments = comments.filter((comment) => !comment.investible_id);
+  const marketComments = comments.filter(comment => !comment.investible_id);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
 
-
   let lockedByName;
   if (lockedBy) {
-    const lockedByPresence = marketPresences.find((presence) => presence.id === lockedBy);
+    const lockedByPresence = marketPresences.find(
+      presence => presence.id === lockedBy
+    );
     if (lockedByPresence) {
       const { name } = lockedByPresence;
       lockedByName = name;
@@ -94,55 +91,95 @@ function PlanningDialog(props) {
   }
 
   function getInvestiblesByPerson(investibles, marketPresences) {
-    const followingPresences = marketPresences.filter((presence) => presence.following);
-    // eslint-disable-next-line max-len
-    const acceptedStage = marketStages.find((stage) => (!stage.allows_investment && stage.singular_only));
-    const inDialogStage = marketStages.find((stage) => (stage.allows_investment));
-    // eslint-disable-next-line max-len
-    const inReviewStage = marketStages.find((stage) => (stage.appears_in_context && !stage.singular_only && !stage.allows_issues));
-    // eslint-disable-next-line max-len
-    const inBlockingStage = marketStages.find((stage) => (stage.appears_in_context && stage.allows_issues));
+    const followingPresences = marketPresences.filter(
+      presence => presence.following
+    );
+    const acceptedStage = marketStages.find(
+      stage => !stage.allows_investment && stage.singular_only
+    );
+    const inDialogStage = marketStages.find(stage => stage.allows_investment);
+    const inReviewStage = marketStages.find(
+      stage =>
+        stage.appears_in_context && !stage.singular_only && !stage.allows_issues
+    );
+    const inBlockingStage = marketStages.find(
+      stage => stage.appears_in_context && stage.allows_issues
+    );
     return (
       <GridList key="toppresencelist" cellHeight="auto" cols={3}>
-        <GridListTile key="Subheader1" cols={1} style={{ height: 'auto', width: '25%' }}>
-          <ListSubheader component="div">{intl.formatMessage({ id: 'planningVotingStageLabel' })}</ListSubheader>
+        <GridListTile
+          key="Subheader1"
+          cols={1}
+          style={{ height: 'auto', width: '25%' }}
+        >
+          <ListSubheader component="div">
+            {intl.formatMessage({ id: 'planningVotingStageLabel' })}
+          </ListSubheader>
         </GridListTile>
-        <GridListTile key="Subheader2" cols={1} style={{ height: 'auto', width: '25%' }}>
-          <ListSubheader component="div">{intl.formatMessage({ id: 'planningAcceptedStageLabel' })}</ListSubheader>
+        <GridListTile
+          key="Subheader2"
+          cols={1}
+          style={{ height: 'auto', width: '25%' }}
+        >
+          <ListSubheader component="div">
+            {intl.formatMessage({ id: 'planningAcceptedStageLabel' })}
+          </ListSubheader>
         </GridListTile>
-        <GridListTile key="Subheader3" cols={1} style={{ height: 'auto', width: '25%' }}>
-          <ListSubheader component="div">{intl.formatMessage({ id: 'planningReviewStageLabel' })}</ListSubheader>
+        <GridListTile
+          key="Subheader3"
+          cols={1}
+          style={{ height: 'auto', width: '25%' }}
+        >
+          <ListSubheader component="div">
+            {intl.formatMessage({ id: 'planningReviewStageLabel' })}
+          </ListSubheader>
         </GridListTile>
-        <GridListTile key="Subheader4" cols={1} style={{ height: 'auto', width: '25%' }}>
-          <ListSubheader component="div">{intl.formatMessage({ id: 'planningBlockedStageLabel' })}</ListSubheader>
+        <GridListTile
+          key="Subheader4"
+          cols={1}
+          style={{ height: 'auto', width: '25%' }}
+        >
+          <ListSubheader component="div">
+            {intl.formatMessage({ id: 'planningBlockedStageLabel' })}
+          </ListSubheader>
         </GridListTile>
-        {
-          followingPresences.map((presence) => {
-            const myInvestibles = getUserInvestibles(presence.id, marketId, investibles);
-            const { id, name } = presence;
-            return (
-
-              <GridList key={`topof${id}`} cellHeight="auto" cols={3}>
-                <GridListTile key={`namecolumn${id}`} cols={3} style={{ height: 'auto', width: '100%' }}>
-                  <ListSubheader component="div"><div id={id}>{name}</div></ListSubheader>
-                </GridListTile>
-                {marketId && acceptedStage && inDialogStage && inReviewStage
-                  && inBlockingStage && (
-                    <PlanningIdeas
-                      investibles={myInvestibles}
-                      marketId={marketId}
-                      acceptedStageId={acceptedStage.id}
-                      inDialogStageId={inDialogStage.id}
-                      inReviewStageId={inReviewStage.id}
-                      inBlockingStageId={inBlockingStage.id}
-                      comments={comments}
-                      presenceId={presence.id}
-                    />
+        {followingPresences.map(presence => {
+          const myInvestibles = getUserInvestibles(
+            presence.id,
+            marketId,
+            investibles
+          );
+          const { id, name } = presence;
+          return (
+            <GridList key={`topof${id}`} cellHeight="auto" cols={3}>
+              <GridListTile
+                key={`namecolumn${id}`}
+                cols={3}
+                style={{ height: 'auto', width: '100%' }}
+              >
+                <ListSubheader component="div">
+                  <div id={id}>{name}</div>
+                </ListSubheader>
+              </GridListTile>
+              {marketId &&
+                acceptedStage &&
+                inDialogStage &&
+                inReviewStage &&
+                inBlockingStage && (
+                  <PlanningIdeas
+                    investibles={myInvestibles}
+                    marketId={marketId}
+                    acceptedStageId={acceptedStage.id}
+                    inDialogStageId={inDialogStage.id}
+                    inReviewStageId={inReviewStage.id}
+                    inBlockingStageId={inBlockingStage.id}
+                    comments={comments}
+                    presenceId={presence.id}
+                  />
                 )}
-              </GridList>
-            );
-          })
-        }
+            </GridList>
+          );
+        })}
       </GridList>
     );
   }
@@ -152,27 +189,40 @@ function PlanningDialog(props) {
       return [];
     }
     const userActions = [
-      (<DialogEditActionButton
+      <DialogEditActionButton
         key="edit"
         onClick={() => navigate(history, formMarketEditLink(marketId))}
         marketId={marketId}
-      />),
-      <InvestibleAddActionButton key="investibleadd" onClick={toggleAddInvestibleMode} />,
-      <ManageParticipantsActionButton key="addParticipants" onClick={toggleManageUsersMode} />,
+      />,
+      <InvestibleAddActionButton
+        key="investibleadd"
+        onClick={toggleAddInvestibleMode}
+      />,
+      <ManageParticipantsActionButton
+        key="addParticipants"
+        onClick={toggleManageUsersMode}
+      />,
       <ViewArchiveActionButton key="archives" marketId={marketId} />,
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
-      <AskQuestions key="question" onClick={commentButtonOnClick} />,
+      <AskQuestions key="question" onClick={commentButtonOnClick} />
     ];
 
-    const eligibleForObserver = getUserEligibleForObserver(userId, marketId, investibles);
+    const eligibleForObserver = getUserEligibleForObserver(
+      userId,
+      marketId,
+      investibles
+    );
     if (eligibleForObserver) {
       if (following) {
         userActions.push(
-          <ChangeToObserverActionButton key="observe" marketId={marketId} />,
+          <ChangeToObserverActionButton key="observe" marketId={marketId} />
         );
       } else {
         userActions.push(
-          <ChangeToParticipantActionButton key="participate" marketId={marketId} />,
+          <ChangeToParticipantActionButton
+            key="participate"
+            marketId={marketId}
+          />
         );
       }
     }
@@ -188,22 +238,13 @@ function PlanningDialog(props) {
       breadCrumbs={breadCrumbs}
       sidebarActions={sidebarActions}
     >
-      <Grid
-        container
-        spacing={2}
-      >
-        <Grid
-          item
-          xs={12}
-        >
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
           <SubSection
             title={intl.formatMessage({ id: 'planningDialogSummaryLabel' })}
             titleIcon={getDialogTypeIcon(PLANNING_TYPE)}
           >
-            <Summary
-              market={market}
-              showObservers={false}
-            />
+            <Summary market={market} showObservers={false} />
             {lockedBy && (
               <Typography>
                 {intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName })}
@@ -211,10 +252,7 @@ function PlanningDialog(props) {
             )}
           </SubSection>
         </Grid>
-        <Grid
-          item
-          xs={12}
-        >
+        <Grid item xs={12}>
           <SubSection
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'planningDialogPeopleLabel' })}
@@ -222,10 +260,7 @@ function PlanningDialog(props) {
             {getInvestiblesByPerson(investibles, marketPresences)}
           </SubSection>
         </Grid>
-        <Grid
-          item
-          xs={12}
-        >
+        <Grid item xs={12}>
           <SubSection
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'planningDialogDiscussionLabel' })}
@@ -240,10 +275,7 @@ function PlanningDialog(props) {
                 onCancel={closeCommentAddBox}
               />
             )}
-            <CommentBox
-              comments={marketComments}
-              marketId={marketId}
-            />
+            <CommentBox comments={marketComments} marketId={marketId} />
           </SubSection>
         </Grid>
       </Grid>
@@ -264,7 +296,7 @@ PlanningDialog.propTypes = {
   myPresence: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
   // eslint-disable-next-line react/forbid-prop-types
-  comments: PropTypes.arrayOf(PropTypes.object),
+  comments: PropTypes.arrayOf(PropTypes.object)
 };
 
 PlanningDialog.defaultProps = {
@@ -272,7 +304,7 @@ PlanningDialog.defaultProps = {
   marketPresences: [],
   marketStages: [],
   hidden: false,
-  comments: [],
+  comments: []
 };
 
 export default PlanningDialog;

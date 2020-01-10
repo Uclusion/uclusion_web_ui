@@ -51,10 +51,6 @@ const useStyles = makeStyles(() => ({
     fontWeight: 'bold',
     textTransform: 'capitalize',
   },
-  '.ql-editor': {
-    fontSize: '11px',
-    padding: '8px 11px',
-  }
 }));
 
 function CommentAdd(props) {
@@ -128,6 +124,12 @@ function CommentAdd(props) {
       >
         {intl.formatMessage({ id: commentSaveLabel })}
       </SpinBlockingButton>
+      <Button
+        onClick={handleCancel}
+        className={classes.primaryButton}
+      >
+        {intl.formatMessage({ id: commentCancelLabel })}
+      </Button>
     </div>
   );
 }

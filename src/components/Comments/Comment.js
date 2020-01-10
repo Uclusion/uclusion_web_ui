@@ -118,13 +118,15 @@ function Comment(props) {
       const childDepth = depth + 1;
       // we are rendering ourselves, so we don't get the injection automagically
       return (
-        <Comment
-          key={childId}
-          comment={child}
-          depth={childDepth}
-          marketId={marketId}
-          comments={comments}
-        />
+        <div>
+          <Comment
+            key={childId}
+            comment={child}
+            depth={childDepth}
+            marketId={marketId}
+            comments={comments}
+          />
+        </div>
       );
     });
   }
@@ -182,6 +184,7 @@ function Comment(props) {
             />
           )}
         </Box>
+        {expanded && getChildComments()}
       </CardContent>
       <CardActions>
         {!comment.resolved && (
@@ -243,7 +246,6 @@ function Comment(props) {
             type={REPLY_TYPE}
           />
         )}
-        {expanded && getChildComments()}
       </CardActions>
     </Card>
   );

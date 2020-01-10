@@ -90,8 +90,8 @@ function Sidebar(props) {
     }
     if (!operationRunning && logoTimer) {
       setLogoTimer(undefined);
-      setPegLogo(false);
       clearInterval(logoTimer);
+      setPegLogo(false);
       setLogoImage(DEFAULT_SIDEBAR_LOGO);
     }
     if (pegLogo) {

@@ -10,7 +10,7 @@ function ReadOnlyQuillEditor(props) {
 
   const style = {
     fontFamily: theme.typography.fontFamily,
-    fontSize: theme.typography.fontSize,
+    fontSize: props.fontSize,
     border: 0,
     marginLeft: -15,
   };
@@ -40,6 +40,7 @@ function ReadOnlyQuillEditor(props) {
 
 ReadOnlyQuillEditor.propTypes = {
   value: PropTypes.string.isRequired,
+  fontSize: PropTypes.number.isRequired,
 };
 
 export default ReadOnlyQuillEditor;

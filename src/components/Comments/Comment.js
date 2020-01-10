@@ -90,6 +90,9 @@ const useStyles = makeStyles({
       boxShadow: 'none',
     },
   },
+  titleBig: {
+    fontSize: '20px',
+  }
 });
 function Comment(props) {
   const { comment, depth, marketId, comments } = props;
@@ -174,7 +177,7 @@ function Comment(props) {
       <CardContent>
         <CustomChip className={classes.chip} active title={commentType} />
         <Box marginTop={1}>
-          <ReadOnlyQuillEditor value={comment.body} paddingLeft={0} />
+          <ReadOnlyQuillEditor value={comment.body} fontSize={toggledOpen ? 20 : 15} paddingLeft={0} />
           {editOpen && (
             <CommentEdit
               marketId={marketId}

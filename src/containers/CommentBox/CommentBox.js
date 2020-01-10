@@ -7,18 +7,14 @@ import Comment from '../../components/Comments/Comment';
 function CommentBox(props) {
   const { comments, marketId } = props;
 
-  const threadRoots = comments.filter((comment) => !comment.reply_id);
+  const threadRoots = comments.filter(comment => !comment.reply_id);
   const sortedRoots = _.reverse(_.sortBy(threadRoots, 'updated_at'));
 
   function getCommentCards() {
-    return sortedRoots.map((comment) => {
+    return sortedRoots.map(comment => {
       const { id } = comment;
       return (
-        <Grid
-          item
-          key={id}
-          xs={12}
-        >
+        <Grid item key={id} xs={12}>
           <div id={id}>
             <Comment
               depth={0}

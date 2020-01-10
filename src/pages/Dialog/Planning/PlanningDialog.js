@@ -17,7 +17,7 @@ import {
   formMarketEditLink,
   formMarketManageLink,
   makeBreadCrumbs,
-  navigate
+  navigate,
 } from '../../../utils/marketIdPathFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
@@ -47,7 +47,7 @@ function PlanningDialog(props) {
     myPresence,
     marketStages,
     comments,
-    hidden
+    hidden,
   } = props;
 
   const intl = useIntl();
@@ -64,7 +64,7 @@ function PlanningDialog(props) {
   let lockedByName;
   if (lockedBy) {
     const lockedByPresence = marketPresences.find(
-      presence => presence.id === lockedBy
+      presence => presence.id === lockedBy,
     );
     if (lockedByPresence) {
       const { name } = lockedByPresence;
@@ -92,18 +92,20 @@ function PlanningDialog(props) {
 
   function getInvestiblesByPerson(investibles, marketPresences) {
     const followingPresences = marketPresences.filter(
-      presence => presence.following
+      presence => presence.following,
     );
     const acceptedStage = marketStages.find(
-      stage => !stage.allows_investment && stage.singular_only
+      stage => !stage.allows_investment && stage.singular_only,
     );
     const inDialogStage = marketStages.find(stage => stage.allows_investment);
     const inReviewStage = marketStages.find(
       stage =>
-        stage.appears_in_context && !stage.singular_only && !stage.allows_issues
+        stage.appears_in_context &&
+        !stage.singular_only &&
+        !stage.allows_issues,
     );
     const inBlockingStage = marketStages.find(
-      stage => stage.appears_in_context && stage.allows_issues
+      stage => stage.appears_in_context && stage.allows_issues,
     );
     return (
       <GridList key="toppresencelist" cellHeight="auto" cols={3}>
@@ -147,7 +149,7 @@ function PlanningDialog(props) {
           const myInvestibles = getUserInvestibles(
             presence.id,
             marketId,
-            investibles
+            investibles,
           );
           const { id, name } = presence;
           return (
@@ -204,25 +206,25 @@ function PlanningDialog(props) {
       />,
       <ViewArchiveActionButton key="archives" marketId={marketId} />,
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
-      <AskQuestions key="question" onClick={commentButtonOnClick} />
+      <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];
 
     const eligibleForObserver = getUserEligibleForObserver(
       userId,
       marketId,
-      investibles
+      investibles,
     );
     if (eligibleForObserver) {
       if (following) {
         userActions.push(
-          <ChangeToObserverActionButton key="observe" marketId={marketId} />
+          <ChangeToObserverActionButton key="observe" marketId={marketId} />,
         );
       } else {
         userActions.push(
           <ChangeToParticipantActionButton
             key="participate"
             marketId={marketId}
-          />
+          />,
         );
       }
     }
@@ -296,7 +298,7 @@ PlanningDialog.propTypes = {
   myPresence: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
   // eslint-disable-next-line react/forbid-prop-types
-  comments: PropTypes.arrayOf(PropTypes.object)
+  comments: PropTypes.arrayOf(PropTypes.object),
 };
 
 PlanningDialog.defaultProps = {
@@ -304,7 +306,7 @@ PlanningDialog.defaultProps = {
   marketPresences: [],
   marketStages: [],
   hidden: false,
-  comments: []
+  comments: [],
 };
 
 export default PlanningDialog;

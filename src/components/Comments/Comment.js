@@ -74,6 +74,23 @@ const useStyles = makeStyles({
       boxShadow: 'none',
     },
   },
+  actionResolve: {
+    minWidth: '89px',
+    height: '36px',
+    color: '#D40000',
+    fontWeight: '700',
+    fontSize: 14,
+    lineHeight: '18px',
+    letterSpacing: '0.02em',
+    textTransform: 'uppercase',
+    background: 'transparent',
+    borderRight: 'none !important',
+    '&:hover': {
+      color: '#ca2828',
+      background: 'white',
+      boxShadow: 'none',
+    },
+  },
 });
 function Comment(props) {
   const { comment, depth, marketId, comments } = props;
@@ -156,7 +173,6 @@ function Comment(props) {
       <CardContent>
         <CustomChip className={classes.chip} active title={commentType} />
         <Box marginTop={1}>
-          {commenter && <Typography>{commenter.name}</Typography>}
           <ReadOnlyQuillEditor value={comment.body} paddingLeft={0} />
           {editOpen && (
             <CommentEdit
@@ -186,7 +202,7 @@ function Comment(props) {
             )}
             {!comment.reply_id && (
               <SpinBlockingButton
-                className={classes.action}
+                className={classes.actionResolve}
                 marketId={marketId}
                 onClick={resolve}
               >

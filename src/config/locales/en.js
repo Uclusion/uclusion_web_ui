@@ -190,7 +190,7 @@ const messages = defineMessages({
 
   // Address list
   addressAddCancelLabel: 'Cancel',
-  addressAddClearLabel: 'Clear',
+  addressAddClearLabel: 'Close',
   addressAddSaveLabel: 'Add Participants',
 
   // InvestibleAdd

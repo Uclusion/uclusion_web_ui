@@ -150,7 +150,7 @@ const messages = defineMessages({
   marketAddTitleDefault: 'Add a name...',
   marketAddTitleLabel: 'Name',
   marketAddDescriptionDefault: 'Add a description...',
-  marketAddCancelLabel: 'Cancel',
+  marketAddCancelLabel: 'Close',
   marketAddSaveLabel: 'Save',
   marketAddExpirationLabel: 'Dialog ends after {x} day(s)',
   investmentExpirationInputLabel: 'Number of days before a vote expires',
@@ -162,7 +162,7 @@ const messages = defineMessages({
 
   // Market Edit
   marketEditTitleLabel: 'Name',
-  marketEditCancelLabel: 'Cancel',
+  marketEditCancelLabel: 'Close',
   marketEditSaveLabel: 'Save',
 
   // MarketEditButton:
@@ -189,7 +189,7 @@ const messages = defineMessages({
   maxBudgetInputLabel: 'Number of days before might not be worth doing - value must be less than {x}',
 
   // Address list
-  addressAddCancelLabel: 'Cancel',
+  addressAddCancelLabel: 'Close',
   addressAddClearLabel: 'Close',
   addressAddSaveLabel: 'Add Participants',
 
@@ -197,13 +197,13 @@ const messages = defineMessages({
   investibleAddTitleDefault: 'Add a name...',
   investibleAddTitleLabel: 'Name',
   investibleAddDescriptionDefault: 'Add a description...',
-  investibleAddCancelLabel: 'Cancel',
+  investibleAddCancelLabel: 'Close',
   investibleAddSaveLabel: 'Save',
 
 
   // InvestibleEdit
   investibleEditTitleLabel: 'Title',
-  investibleEditCancelLabel: 'Cancel',
+  investibleEditCancelLabel: 'Close',
   investibleEditSaveLabel: 'Save',
   investibleEditAcceptLabel: 'Accept Assignment',
   investibleEditArchiveLabel: 'Archive Assignment',

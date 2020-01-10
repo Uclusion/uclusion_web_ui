@@ -90,10 +90,11 @@ const useStyles = makeStyles({
       boxShadow: 'none',
     },
   },
-  titleBig: {
-    fontSize: '20px',
-  }
+  childWrapper: {
+    borderTop: '1px solid #DCDCDC',
+  },
 });
+
 function Comment(props) {
   const { comment, depth, marketId, comments } = props;
   const intl = useIntl();
@@ -121,15 +122,13 @@ function Comment(props) {
       const childDepth = depth + 1;
       // we are rendering ourselves, so we don't get the injection automagically
       return (
-        <div>
-          <Comment
-            key={childId}
-            comment={child}
-            depth={childDepth}
-            marketId={marketId}
-            comments={comments}
-          />
-        </div>
+        <Comment
+          key={childId}
+          comment={child}
+          depth={childDepth}
+          marketId={marketId}
+          comments={comments}
+        />
       );
     });
   }
@@ -177,7 +176,7 @@ function Comment(props) {
       <CardContent>
         <CustomChip className={classes.chip} active title={commentType} />
         <Box marginTop={1}>
-          <ReadOnlyQuillEditor value={comment.body} fontSize={toggledOpen ? 20 : 15} paddingLeft={0} />
+          <ReadOnlyQuillEditor value={comment.body} heading={toggledOpen ? true : false} paddingLeft={0} />
           {editOpen && (
             <CommentEdit
               marketId={marketId}
@@ -187,9 +186,13 @@ function Comment(props) {
             />
           )}
         </Box>
-        <Box marginTop={1}>
-          {expanded && getChildComments()}
-        </Box>
+        
+        {toggledOpen && (
+          <Box marginTop={1} className={classes.childWrapper}>
+            {getChildComments()}
+          </Box>
+          )
+        }
       </CardContent>
       {!toggledOpen && (
       <CardActions>

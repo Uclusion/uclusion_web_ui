@@ -7,7 +7,7 @@ import {
 import { getVersions } from '../../api/summaries';
 import {
   EMPTY_STATE,
-  initializeState, initializeVersionsAction,
+  initializeState, initializeVersionsAction, loadingState,
   refreshMarketVersionAction,
   refreshNotificationVersionAction, refreshVersionsAction,
   removeMarketVersionAction,
@@ -21,6 +21,7 @@ function beginListening(dispatch) {
 
     switch (event) {
       case 'signIn': {
+        dispatch(loadingState());
         // An optimization would be to check if newly signed is same person
         getVersions().then((versions) => {
           dispatch(initializeVersionsAction(EMPTY_STATE, versions));

@@ -55,13 +55,15 @@ function InvestibleAdd(props) {
     }
   }, [hidden, marketId]);
 
-
+  const loading = idLoaded !== marketId || !marketType
+    || (marketType === DECISION_TYPE && !myPresence);
   return (
     <Screen
       title={newStory}
       hidden={hidden}
       tabTitle={newStory}
       breadCrumbs={myBreadCrumbs}
+      loading={loading}
     >
       {marketType === DECISION_TYPE && myPresence && idLoaded === marketId && (
         <DecisionInvestibleAdd

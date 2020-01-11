@@ -14,7 +14,6 @@ import { SidebarProvider } from '../../contexts/SidebarContext';
 import AppWithAuth from '../App/AppWithAuth';
 import { OperationInProgressProvider } from '../../contexts/OperationInProgressContext';
 import OperationInProgressGlobalProvider from '../../components/ContextHacks/OperationInProgressGlobalProvider';
-import { PageLoadingProvider } from '../../contexts/PageLoadingContext';
 import { DiffProvider } from '../../contexts/DiffContext/DiffContext';
 import { HighlightedCommentProvider } from '../../contexts/HighlightedCommentContext';
 
@@ -25,32 +24,30 @@ class Main extends Component {
       <div>
         <HighlightedCommentProvider>
           <DiffProvider>
-            <PageLoadingProvider>
-              <OperationInProgressProvider>
-                <OperationInProgressGlobalProvider>
-                  <NotificationsProvider>
-                    <VersionsProvider>
-                      <MarketsProvider>
-                        <MarketStagesProvider>
-                          <CommentsProvider>
-                            <InvestiblesProvider>
-                              <MarketPresencesProvider>
-                                <LocaleProvider>
-                                  <SidebarProvider>
-                                    <ToastContainer />
-                                    <AppWithAuth />
-                                  </SidebarProvider>
-                                </LocaleProvider>
-                              </MarketPresencesProvider>
-                            </InvestiblesProvider>
-                          </CommentsProvider>
-                        </MarketStagesProvider>
-                      </MarketsProvider>
-                    </VersionsProvider>
-                  </NotificationsProvider>
-                </OperationInProgressGlobalProvider>
-              </OperationInProgressProvider>
-            </PageLoadingProvider>
+            <OperationInProgressProvider>
+              <OperationInProgressGlobalProvider>
+                <NotificationsProvider>
+                  <VersionsProvider>
+                    <MarketsProvider>
+                      <MarketStagesProvider>
+                        <CommentsProvider>
+                          <InvestiblesProvider>
+                            <MarketPresencesProvider>
+                              <LocaleProvider>
+                                <SidebarProvider>
+                                  <ToastContainer />
+                                  <AppWithAuth />
+                                </SidebarProvider>
+                              </LocaleProvider>
+                            </MarketPresencesProvider>
+                          </InvestiblesProvider>
+                        </CommentsProvider>
+                      </MarketStagesProvider>
+                    </MarketsProvider>
+                  </VersionsProvider>
+                </NotificationsProvider>
+              </OperationInProgressGlobalProvider>
+            </OperationInProgressProvider>
           </DiffProvider>
         </HighlightedCommentProvider>
       </div>

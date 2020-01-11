@@ -33,7 +33,7 @@ function DialogEdit(props) {
   const [lockedMarketId, setLockedMarketId] = useState(undefined);
   const user = getMyUserForMarket(marketsState, marketId) || {};
   const userId = user.id;
-
+  const loading = !user.id || !marketType || idLoaded !== marketId;
   useEffect(() => {
     if (!hidden) {
       if (marketId !== lockedMarketId && marketType === PLANNING_TYPE) {
@@ -82,6 +82,7 @@ function DialogEdit(props) {
       tabTitle={editVerbiage}
       breadCrumbs={myBreadCrumbs}
       warning={warning}
+      loading={loading}
     >
       {!hidden && marketType === DECISION_TYPE && idLoaded === marketId && (
         <DecisionDialogEdit

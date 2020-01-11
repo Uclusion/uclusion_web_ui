@@ -10,7 +10,7 @@ import {
   Breadcrumbs,
   IconButton,
   Popper,
-  Paper
+  Paper,
 } from '@material-ui/core';
 import MenuOpenIcon from '@material-ui/icons/MenuOpen';
 import { makeStyles } from '@material-ui/styles';
@@ -18,11 +18,11 @@ import { SidebarContext } from '../../contexts/SidebarContext';
 import { createTitle } from '../../utils/marketIdPathFunctions';
 import {
   DRAWER_WIDTH_CLOSED,
-  DRAWER_WIDTH_OPENED
+  DRAWER_WIDTH_OPENED,
 } from '../../constants/global';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 
-const useStyles = makeStyles(theme => {
+const useStyles = makeStyles((theme) => {
   const BREADCRUMBS_HEIGHT = 67;
   const TOPBAR_HEIGHT = 25;
   return {
@@ -38,40 +38,40 @@ const useStyles = makeStyles(theme => {
       transition: theme.transitions.create(['width', 'margin'], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
-      })
+      }),
     },
     appBarUnShift: {
       marginLeft: DRAWER_WIDTH_CLOSED,
       width: `calc(100% - ${DRAWER_WIDTH_CLOSED}px)`,
       transition: theme.transitions.create(['width', 'margin'], {
         easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen
-      })
+        duration: theme.transitions.duration.enteringScreen,
+      }),
     },
     breadcrumbs: {
       '& > .MuiBreadcrumbs-ol': {
-        flexWrap: 'nowrap'
+        flexWrap: 'nowrap',
       },
       '& .MuiBreadcrumbs-li': {
-        whiteSpace: 'nowrap'
-      }
+        whiteSpace: 'nowrap',
+      },
     },
     breadCrumbImage: {
-      height: 40
+      height: 40,
     },
     menuButton: {
       marginLeft: '-3px',
-      marginRight: theme.spacing(2)
+      marginRight: theme.spacing(2),
     },
     menuIcon: {
       width: '30px',
-      height: '25px'
+      height: '25px',
     },
     topBar: {
       width: '100%',
       paddingBottom: '25px',
-      background: '#DFE5E7'
-    }
+      background: '#DFE5E7',
+    },
   };
 });
 
@@ -81,14 +81,16 @@ function Header(props) {
   const intl = useIntl();
   const [online] = useContext(OnlineStateContext);
 
-  const { breadCrumbs, title, hidden, toolbarButtons } = props;
+  const {
+    breadCrumbs, title, hidden, toolbarButtons,
+  } = props;
 
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
 
   function generateTitle() {
-    if (breadCrumbs) {
+    if (breadCrumbs && !hidden) {
       return (
-        <Breadcrumbs className={classes.breadcrumbs} separator='/'>
+        <Breadcrumbs className={classes.breadcrumbs} separator="/">
           {breadCrumbs.map((crumb, index) => (
             <Link key={index} href="#" onClick={crumb.onClick} color="inherit">
               {crumb.image && (
@@ -111,7 +113,7 @@ function Header(props) {
   }
 
   return (
-    <React.Fragment>
+    <>
       {!hidden && (
         <Popper
           className={classes.elevated}
@@ -120,12 +122,12 @@ function Header(props) {
           placement="top"
           modifiers={{
             flip: {
-              enabled: true
+              enabled: true,
             },
             preventOverflow: {
               enabled: true,
               boundariesElement: 'window',
-            }
+            },
           }}
         >
           <Paper>
@@ -139,7 +141,7 @@ function Header(props) {
         position="relative"
         className={clsx(classes.appBar, {
           [classes.appBarShift]: sidebarOpen,
-          [classes.appBarUnShift]: !sidebarOpen
+          [classes.appBarUnShift]: !sidebarOpen,
         })}
       >
         <div className={classes.topBar} />
@@ -147,7 +149,7 @@ function Header(props) {
           <IconButton
             aria-label="open drawer"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            edge='start'
+            edge="start"
             className={classes.menuButton}
           >
             <MenuOpenIcon className={classes.menuIcon} />
@@ -156,7 +158,7 @@ function Header(props) {
           {toolbarButtons}
         </Toolbar>
       </AppBar>
-    </React.Fragment>
+    </>
   );
 }
 
@@ -165,14 +167,14 @@ Header.propTypes = {
   breadCrumbs: PropTypes.arrayOf(PropTypes.object),
   toolbarButtons: PropTypes.arrayOf(PropTypes.any),
   title: PropTypes.any,
-  hidden: PropTypes.bool
+  hidden: PropTypes.bool,
 };
 
 Header.defaultProps = {
   breadCrumbs: [],
   toolbarButtons: [],
   title: '',
-  hidden: false
+  hidden: false,
 };
 
 export default Header;

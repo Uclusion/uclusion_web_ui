@@ -71,7 +71,7 @@ function Dialog(props) {
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const comments = getMarketComments(commentsState, marketId);
   const renderableMarket = getMarket(marketsState, marketId) || {};
-  const { market_type: marketType } = renderableMarket || '';
+  const { market_type: marketType, name: marketName } = renderableMarket || '';
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
@@ -102,7 +102,8 @@ function Dialog(props) {
     return (
       <Screen
         hidden={hidden}
-        tabTitle="Loading"
+        loading={loading}
+        tabTitle={marketName || ''}
       >
         <div />
       </Screen>

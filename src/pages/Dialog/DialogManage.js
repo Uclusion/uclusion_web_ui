@@ -35,7 +35,7 @@ function DialogManage(props) {
   const { is_admin: isAdmin } = myRealPresence;
   const [investiblesState] = useContext(InvestiblesContext);
   const investibles = getMarketInvestibles(investiblesState, marketId);
-
+  const loading = !marketType || (marketType !== PLANNING_TYPE && myPresence);
   function onDone() {
     navigate(history, formMarketLink(marketId));
   }
@@ -54,6 +54,7 @@ function DialogManage(props) {
       hidden={hidden}
       tabTitle={manageVerbiage}
       breadCrumbs={myBreadCrumbs}
+      loading={loading}
     >
       {marketType === DECISION_TYPE && myPresence && (
         <AddressList

@@ -70,7 +70,7 @@ function Investible(props) {
         tabTitle={name}
         breadCrumbs={breadCrumbs}
         hidden={hidden}
-        loading={loading}
+        loading
       >
         <div />
       </Screen>

@@ -81,6 +81,7 @@ function About(props) {
         tabTitle={intl.formatMessage({ id: 'about' })}
         hidden={hidden}
         breadCrumbs={breadCrumbs}
+        loading={!externalId}
       >
         <div className={classes.root}>
           <Paper className={classes.section}>

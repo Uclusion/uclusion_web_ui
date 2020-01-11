@@ -104,7 +104,7 @@ function InvestibleEdit(props) {
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const someoneElseEditing = lockedBy && (lockedBy !== userId);
   const warning = someoneElseEditing ? intl.formatMessage({ id: 'edit_lock' }) : undefined;
-  if (!market || !inv) {
+  if (idLoaded !== investibleId || !market || !inv) {
     return (
       <Screen
         title={name}

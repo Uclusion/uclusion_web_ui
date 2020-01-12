@@ -13,7 +13,7 @@ import {
   ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
 } from '../../../constants/comments';
 import DisplayAssignments from './Assignments/DisplayAssignments';
-import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import { formMarketArchivesLink, formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import Screen from '../../../containers/Screen/Screen';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
@@ -25,7 +25,7 @@ import {
   getAcceptedStage,
   getBlockedStage,
   getInCurrentVotingStage,
-  getInReviewStage, getVerifiedStage,
+  getInReviewStage, getNotDoingStage, getVerifiedStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import MoveToVerifiedActionButton from './MoveToVerifiedActionButton';
@@ -70,8 +70,6 @@ function PlanningInvestible(props) {
     market_stage: marketStage,
   } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
-  const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
@@ -100,6 +98,19 @@ function PlanningInvestible(props) {
   const isInVerified = inVerifiedStage && stage === inVerifiedStage.id;
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
+  const notDoingStage = getNotDoingStage(marketStagesState, marketId);
+  const isInNotDoing = notDoingStage && stage === notDoingStage.id;
+  const inArchives = isInNotDoing || isInVerified;
+
+  const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
+  if (inArchives) {
+    breadCrumbTemplates.push({
+      name: intl.formatMessage({ id: 'archivesTitle' }),
+      link: formMarketArchivesLink(marketId),
+    });
+  }
+  const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   // eslint-disable-next-line no-nested-ternary
   const stageName = isInVoting ? intl.formatMessage({ id: 'planningVotingStageLabel' })

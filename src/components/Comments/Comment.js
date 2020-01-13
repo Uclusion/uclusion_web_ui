@@ -129,7 +129,10 @@ const useStyles = makeStyles({
     },
   },
   childWrapper: {
-    borderTop: '1px solid #DCDCDC',
+    // borderTop: '1px solid #DCDCDC',
+  },
+  topicWrapper: {
+    borderBottom: '1px solid #DCDCDC',
   },
 });
 
@@ -203,17 +206,17 @@ function Comment(props) {
   }
 
   const isRoot = !comment.reply_id;
-  // const expanded =
-  //   replyOpen ||
-  //   toggledOpen ||
-  //   (isRoot && !comment.resolved) ||
-  //   comment.reply_id;
+  const expanded =
+    replyOpen ||
+    toggledOpen ||
+    (isRoot && !comment.resolved) ||
+    comment.reply_id;
 
   return (
     <Card className={!isRoot ? classes.childContainer : getCommentHighlightStyle()}>
       <CardContent className={!isRoot ? classes.childCardContent : classes.cardContent }>
         <CustomChip className={classes.chip} active title={commentType} />
-        <Box marginTop={1}>
+        <Box marginTop={1} className={isRoot && toggledOpen ? classes.topicWrapper : ''}>
           <ReadOnlyQuillEditor value={comment.body} heading={toggledOpen ? true : false} paddingLeft={0} />
           {editOpen && (
             <CommentEdit
@@ -224,23 +227,6 @@ function Comment(props) {
             />
           )}
         </Box>
-        
-        {toggledOpen && (
-          <Box marginTop={1} className={classes.childWrapper}>
-            {getChildComments()}
-          </Box>
-          )
-        }
-
-        {replyOpen && (
-          <CommentAdd
-            marketId={marketId}
-            parent={comment}
-            onSave={toggleReply}
-            onCancel={toggleReply}
-            type={REPLY_TYPE}
-          />
-        )}
       </CardContent>
       {!toggledOpen && !replyOpen && (
       <CardActions className={!isRoot ? classes.childCardActions : classes.cardActions}>
@@ -295,6 +281,19 @@ function Comment(props) {
           </ButtonGroup>
         )}
       </CardActions>
+      )}
+      <Box marginTop={1} className={classes.childWrapper}>
+        {expanded && getChildComments()}
+      </Box>
+
+      {replyOpen && (
+        <CommentAdd
+          marketId={marketId}
+          parent={comment}
+          onSave={toggleReply}
+          onCancel={toggleReply}
+          type={REPLY_TYPE}
+        />
       )}
     </Card>
   );

@@ -54,16 +54,16 @@ const useStyles = makeStyles({
     fontSize: 15,
     lineHeight: '175%',
   },
-  cardContent : {
+  cardContent: {
     padding: '0 20px',
   },
-  childCardContent : {
+  childCardContent: {
     padding: 0,
   },
-  cardActions : {
+  cardActions: {
     padding: '8px',
   },
-  childCardActions : {
+  childCardActions: {
     padding: 0,
   },
   actions: {
@@ -225,11 +225,29 @@ function Comment(props) {
     comment.reply_id;
 
   return (
-    <Card className={!isRoot ? classes.childContainer : getCommentHighlightStyle()}>
-      <CardContent className={!isRoot ? classes.childCardContent : classes.cardContent }>
-        {isRoot && <CustomChip className={classes.chip} active type={commentType} content={comment.body} />}
-        <Box marginTop={1} className={isRoot && toggledOpen ? classes.topicWrapper : ''}>
-          <ReadOnlyQuillEditor value={comment.body} heading={toggledOpen ? true : false} paddingLeft={0} />
+    <Card
+      className={!isRoot ? classes.childContainer : getCommentHighlightStyle()}
+    >
+      <CardContent
+        className={!isRoot ? classes.childCardContent : classes.cardContent}
+      >
+        {isRoot && (
+          <CustomChip
+            className={classes.chip}
+            active
+            type={commentType}
+            content={comment.body}
+          />
+        )}
+        <Box
+          marginTop={1}
+          className={isRoot && toggledOpen ? classes.topicWrapper : ''}
+        >
+          <ReadOnlyQuillEditor
+            value={comment.body}
+            heading={toggledOpen ? true : false}
+            paddingLeft={0}
+          />
           {editOpen && (
             <CommentEdit
               marketId={marketId}
@@ -242,58 +260,66 @@ function Comment(props) {
         </Box>
       </CardContent>
       {!toggledOpen && !replyOpen && (
-      <CardActions className={!isRoot ? classes.childCardActions : classes.cardActions}>
-        {!comment.resolved && (
-          <ButtonGroup
-            className={!isRoot ? classes.childActions : classes.actions}
-            disabled={operationRunning}
-            color="primary"
-            variant="contained"
-          >
-            <Button className={!isRoot ? classes.childAction : classes.action} onClick={toggleReply}>
-              {intl.formatMessage({ id: 'commentReplyLabel' })}
-            </Button>
-            {createdBy === user.id && (
-              <Button className={!isRoot ? classes.childAction : classes.action} onClick={toggleEdit}>
-                {intl.formatMessage({ id: 'commentEditLabel' })}
-              </Button>
-            )}
-            {!comment.reply_id && (
-              <SpinBlockingButton
-                className={classes.actionResolve}
-                marketId={marketId}
-                onClick={resolve}
-              >
-                {intl.formatMessage({ id: 'commentResolveLabel' })}
-              </SpinBlockingButton>
-            )}
-          </ButtonGroup>
-        )}
-        {comment.resolved && (
-          <ButtonGroup
-            className={classes.actions}
-            disabled={operationRunning}
-            color="primary"
-            variant="contained"
-          >
-            {children && (
-              <Button className={classes.action} onClick={flipToggledOpen}>
-                {!toggledOpen &&
-                  intl.formatMessage({ id: 'commentViewThreadLabel' })}
-                {toggledOpen &&
-                  intl.formatMessage({ id: 'commentCloseThreadLabel' })}
-              </Button>
-            )}
-            <SpinBlockingButton
-              className={classes.action}
-              marketId={marketId}
-              onClick={reopen}
+        <CardActions
+          className={!isRoot ? classes.childCardActions : classes.cardActions}
+        >
+          {!comment.resolved && (
+            <ButtonGroup
+              className={!isRoot ? classes.childActions : classes.actions}
+              disabled={operationRunning}
+              color="primary"
+              variant="contained"
             >
-              {intl.formatMessage({ id: 'commentReopenLabel' })}
-            </SpinBlockingButton>
-          </ButtonGroup>
-        )}
-      </CardActions>
+              <Button
+                className={!isRoot ? classes.childAction : classes.action}
+                onClick={toggleReply}
+              >
+                {intl.formatMessage({ id: 'commentReplyLabel' })}
+              </Button>
+              {createdBy === user.id && (
+                <Button
+                  className={!isRoot ? classes.childAction : classes.action}
+                  onClick={toggleEdit}
+                >
+                  {intl.formatMessage({ id: 'commentEditLabel' })}
+                </Button>
+              )}
+              {!comment.reply_id && (
+                <SpinBlockingButton
+                  className={classes.actionResolve}
+                  marketId={marketId}
+                  onClick={resolve}
+                >
+                  {intl.formatMessage({ id: 'commentResolveLabel' })}
+                </SpinBlockingButton>
+              )}
+            </ButtonGroup>
+          )}
+          {comment.resolved && (
+            <ButtonGroup
+              className={classes.actions}
+              disabled={operationRunning}
+              color="primary"
+              variant="contained"
+            >
+              {children && (
+                <Button className={classes.action} onClick={flipToggledOpen}>
+                  {!toggledOpen &&
+                    intl.formatMessage({ id: 'commentViewThreadLabel' })}
+                  {toggledOpen &&
+                    intl.formatMessage({ id: 'commentCloseThreadLabel' })}
+                </Button>
+              )}
+              <SpinBlockingButton
+                className={classes.action}
+                marketId={marketId}
+                onClick={reopen}
+              >
+                {intl.formatMessage({ id: 'commentReopenLabel' })}
+              </SpinBlockingButton>
+            </ButtonGroup>
+          )}
+        </CardActions>
       )}
       <Box marginTop={1} className={classes.childWrapper}>
         {expanded && getChildComments()}

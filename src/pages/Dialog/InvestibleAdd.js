@@ -38,7 +38,6 @@ function InvestibleAdd(props) {
   const [idLoaded, setIdLoaded] = useState(undefined);
 
   function toggleInvestibleAddMode() {
-    setIdLoaded(undefined);
     localforage.removeItem(`add_investible_${marketId}`)
       .then(() => navigate(history, formMarketLink(marketId)));
   }

@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
+  Avatar,
   Button,
   Box,
   ButtonGroup,
@@ -135,6 +136,16 @@ const useStyles = makeStyles({
   topicWrapper: {
     borderBottom: '1px solid #DCDCDC',
   },
+  initialComment: {
+    display: 'flex',
+  },
+  avatarWrapper: {
+    marginRight: '20px',
+  },
+  commenter: {
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
 });
 
 function Comment(props) {
@@ -188,9 +199,14 @@ function Comment(props) {
     }
     const initialComment = sortedChildren[0];
     return (
-      <Box marginTop={4}>
-        {commenter && <Typography>{commenter.name}</Typography>}
-        <ReadOnlyQuillEditor value={initialComment.body} paddingLeft={0} />
+      <Box marginTop={4} marginBottom={4} className={classes.initialComment}>
+        <div className={classes.avatarWrapper}>
+          <Avatar>H</Avatar>
+        </div>
+        <div>
+          {commenter && <Typography className={classes.commenter}>{commenter.name}</Typography>}
+          <ReadOnlyQuillEditor value={initialComment.body} paddingLeft={0} />
+        </div>
       </Box>
     );
   }

@@ -174,6 +174,18 @@ function Comment(props) {
     });
   }
 
+  function getInitialChildComments() {
+    if (_.isEmpty(sortedChildren)) {
+      return <></>;
+    }
+    const initialComment = sortedChildren[0];
+    return (
+      <Box marginTop={4}>
+        <ReadOnlyQuillEditor value={initialComment.body} paddingLeft={0} />
+      </Box>
+    );
+  }
+
   function getCommentHighlightStyle() {
     if (id in highlightedCommentState) {
       const level = highlightedCommentState[id];
@@ -215,7 +227,7 @@ function Comment(props) {
   return (
     <Card className={!isRoot ? classes.childContainer : getCommentHighlightStyle()}>
       <CardContent className={!isRoot ? classes.childCardContent : classes.cardContent }>
-        <CustomChip className={classes.chip} active title={commentType} />
+        {isRoot && <CustomChip className={classes.chip} active type={commentType} content={comment.body} />}
         <Box marginTop={1} className={isRoot && toggledOpen ? classes.topicWrapper : ''}>
           <ReadOnlyQuillEditor value={comment.body} heading={toggledOpen ? true : false} paddingLeft={0} />
           {editOpen && (
@@ -226,6 +238,7 @@ function Comment(props) {
               onCancel={toggleEdit}
             />
           )}
+          {expanded && getInitialChildComments()}
         </Box>
       </CardContent>
       {!toggledOpen && !replyOpen && (

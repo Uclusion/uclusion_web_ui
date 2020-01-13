@@ -89,7 +89,7 @@ function ExpiresDisplay(props) {
   const [now, setNow] = useState(new Date());
   const expiresDurationMillis = expirationMinutes * 60000;
   const expiresDuration = moment.duration(expiresDurationMillis);
-  const expiresMillis = createdAt.getTime() + expiresDurationMillis;
+  const expiresMillis = createdAt && createdAt.getTime ? createdAt.getTime() + expiresDurationMillis : 0;
   const diffMillis = expiresMillis - now.getTime();
   const diff = moment.duration(diffMillis);
 

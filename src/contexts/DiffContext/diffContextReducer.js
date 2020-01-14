@@ -64,21 +64,22 @@ function getUpdatedItemState(state, newItem) {
     if (description !== contents) {
       const newDiff = HtmlDiff.execute(contents, description);
       diff = newDiff;
+      // if we have an old diff, it means the user hasn't dismissed it yet.
+      // Hence we need to keep around the old contents as that's the baseline
+      // the have seen and want to compare against
+      // if we don't have a diff, then we are free to set the contents to the
+      // new value
+      const newContents = (oldDiff) ? contents : description;
+      return {
+        ...state,
+        [id]: {
+          contents: newContents,
+          diff,
+          isNew: false,
+        },
+      };
     }
-    // if we have an old diff, it means the user hasn't dismissed it yet.
-    // Hence we need to keep around the old contents as that's the baseline
-    // the have seen and want to compare against
-    // if we don't have a diff, then we are free to set the contents to the
-    // new value
-    const newContents = (oldDiff) ? contents : description;
-    return {
-      ...state,
-      [id]: {
-        contents: newContents,
-        diff,
-        isNew: false,
-      },
-    };
+    return state;
   }
   // no existing version, so nothing to diff against yet
   // just store the contents for the future

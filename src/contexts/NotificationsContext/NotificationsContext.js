@@ -10,6 +10,8 @@ import beginListening from './notificationsContextMessages';
 import LocalForageHelper from '../LocalForageHelper';
 import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext';
+import { DiffContext } from '../DiffContext/DiffContext';
+import { getIsNew } from '../DiffContext/diffContextHelper';
 
 export const EMPTY_STATE = {
   messages: [],
@@ -25,6 +27,7 @@ function NotificationsProvider(props) {
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const { page, messages } = state;
+  const [diffState] = useContext(DiffContext);
   const [isInitialization, setIsInitialization] = useState(true);
   const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   useEffect(() => {
@@ -59,8 +62,9 @@ function NotificationsProvider(props) {
         const doRemove = marketId === messageMarketId && investibleId === messageInvestibleId;
         if (doRemove) {
           dispatch(removeMessage(message));
-          // Do not toast unread as already have diff and dismiss
-          if (aType !== 'UNREAD') {
+          const diffId = commentId || messageInvestibleId || marketId;
+          // Do not toast unread as already have diff and dismiss - unless is new
+          if (aType !== 'UNREAD' || getIsNew(diffState, diffId)) {
             if (commentId) {
               highlightedCommentDispatch({ type: HIGHTLIGHT_ADD, commentId, level });
             }
@@ -86,7 +90,7 @@ function NotificationsProvider(props) {
     }
     return () => {
     };
-  }, [page, messages, highlightedCommentDispatch]);
+  }, [page, messages, highlightedCommentDispatch, diffState]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

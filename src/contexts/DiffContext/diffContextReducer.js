@@ -76,6 +76,7 @@ function getUpdatedItemState(state, newItem) {
       [id]: {
         contents: newContents,
         diff,
+        isNew: false,
       },
     };
   }
@@ -85,6 +86,7 @@ function getUpdatedItemState(state, newItem) {
     ...state,
     [id]: {
       contents: description,
+      isNew: true,
     },
   };
 }

@@ -2,7 +2,6 @@
  * A component that renders a _decision_ dialog
  */
 import React, { useRef, useState } from 'react';
-import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
@@ -11,8 +10,6 @@ import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import SmsOutlinedIcon from '@material-ui/icons/SmsOutlined';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import EditAttributesIcon from '@material-ui/icons/EditAttributes';
 import {
   formMarketAddInvestibleLink,
@@ -31,7 +28,6 @@ import { scrollToCommentAddBox } from '../../../components/Comments/commentFunct
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import { changeToObserver, changeToParticipant } from '../../../api/markets';
 import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 import { DECISION_TYPE } from '../../../constants/markets';
@@ -55,8 +51,6 @@ function DecisionDialog(props) {
 
   const {
     is_admin: isAdmin,
-    following,
-    investments,
   } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
@@ -124,24 +118,6 @@ function DecisionDialog(props) {
       onClick: () => commentButtonOnClick(QUESTION_TYPE),
     },
   ];
-  const notVoted = _.isEmpty(investments);
-  if (notVoted && !isAdmin) {
-    if (following) {
-      sidebarMenuList.push({
-        label: intl.formatMessage({ id: 'decisionDialogsBecomeObserver' }),
-        icon: <VisibilityIcon />,
-        spinBlocking: true,
-        onClick: () => changeToObserver(marketId),
-      });
-    } else {
-      sidebarMenuList.push({
-        label: intl.formatMessage({ id: 'decisionDialogsBecomeParticipant' }),
-        icon: <ThumbsUpDownIcon />,
-        spinBlocking: true,
-        onClick: () => changeToParticipant(marketId),
-      });
-    }
-  }
 
   const adminMenuList = [
     {

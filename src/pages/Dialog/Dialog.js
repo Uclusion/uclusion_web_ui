@@ -126,7 +126,7 @@ function Dialog(props) {
 
         />
       )}
-      {marketType === PLANNING_TYPE && myPresence && (
+      {marketType === PLANNING_TYPE && (
         <PlanningDialog
           hidden={hidden}
           addInvestibleMode={addInvestibleMode}
@@ -136,7 +136,6 @@ function Dialog(props) {
           comments={comments}
           marketStages={marketStages}
           marketPresences={marketPresences}
-          myPresence={myPresence}
         />
       )}
     </>

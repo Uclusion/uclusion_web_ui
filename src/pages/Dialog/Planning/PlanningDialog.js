@@ -32,9 +32,7 @@ import { scrollToCommentAddBox } from '../../../components/Comments/commentFunct
 import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets';
 import ManageParticipantsActionButton from './ManageParticipantsActionButton';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import ChangeToObserverActionButton from '../ChangeToObserverActionButton';
-import ChangeToParticipantActionButton from '../ChangeToParticipantActionButton';
-import { getUserEligibleForObserver, getUserInvestibles } from './userUtils';
+import { getUserInvestibles } from './userUtils';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 
 function PlanningDialog(props) {
@@ -44,14 +42,12 @@ function PlanningDialog(props) {
     market,
     investibles,
     marketPresences,
-    myPresence,
     marketStages,
     comments,
     hidden,
   } = props;
 
   const intl = useIntl();
-  const { following, id: userId } = myPresence;
   const commentAddRef = useRef(null);
   const { id: marketId, market_stage: marketStage } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
@@ -208,26 +204,6 @@ function PlanningDialog(props) {
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
       <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];
-
-    const eligibleForObserver = getUserEligibleForObserver(
-      userId,
-      marketId,
-      investibles,
-    );
-    if (eligibleForObserver) {
-      if (following) {
-        userActions.push(
-          <ChangeToObserverActionButton key="observe" marketId={marketId} />,
-        );
-      } else {
-        userActions.push(
-          <ChangeToParticipantActionButton
-            key="participate"
-            marketId={marketId}
-          />,
-        );
-      }
-    }
     return userActions;
   }
 
@@ -294,8 +270,6 @@ PlanningDialog.propTypes = {
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   marketStages: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
-  myPresence: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
   // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object),

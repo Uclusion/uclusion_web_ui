@@ -21,7 +21,9 @@ import { addParticipants } from '../../api/users';
 import InviteLinker from './InviteLinker';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 import DeadlineExtender from './Decision/DeadlineExtender';
-import { ACTIVE_STAGE } from '../../constants/markets';
+import { ACTIVE_STAGE, DECISION_TYPE } from '../../constants/markets';
+import ChangeToObserverButton from './ChangeToObserverButton';
+import ChangeToParticipantButton from './ChangeToParticipantButton';
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -38,8 +40,10 @@ function AddressList(props) {
     showObservers,
     isOwnScreen,
     isAdmin,
+    following,
+    myUserId,
   } = props;
-  const { id: addToMarketId, market_stage: marketStage } = market;
+  const { id: addToMarketId, market_stage: marketStage, market_type: marketType } = market;
   const classes = useStyles();
   const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -192,6 +196,20 @@ function AddressList(props) {
           />
         </>
       )}
+      {!isAdmin && active && marketType === DECISION_TYPE && following && (
+        <ChangeToObserverButton
+          marketId={addToMarketId}
+          userId={myUserId}
+          translationId="addressListMakeObserver"
+        />
+      )}
+      {active && marketType === DECISION_TYPE && !following && (
+        <ChangeToParticipantButton
+          marketId={addToMarketId}
+          userId={myUserId}
+          translationId="manageParticipantsMakeParticipant"
+        />
+      )}
       <Typography>
         {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
       </Typography>
@@ -251,16 +269,20 @@ AddressList.propTypes = {
   onSave: PropTypes.func,
   isOwnScreen: PropTypes.bool,
   isAdmin: PropTypes.bool,
+  following: PropTypes.bool,
+  myUserId: PropTypes.string,
 };
 
 AddressList.defaultProps = {
   showObservers: true,
+  myUserId: '',
   onSave: () => {
   },
   onCancel: () => {
   },
   isOwnScreen: true,
   isAdmin: false,
+  following: false,
 };
 
 export default AddressList;

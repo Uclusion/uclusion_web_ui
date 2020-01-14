@@ -18,6 +18,7 @@ import { removeInvestment, updateInvestment } from '../../../api/marketInvestibl
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 function AddEditVote(props) {
   const {
@@ -107,7 +108,7 @@ function AddEditVote(props) {
             >
               <FormControlLabel
                 labelPlacement="bottom"
-                control={<Radio />}
+                control={<Radio/>}
                 label={intl.formatMessage({ id: 'uncertain' })}
                 value={0}
               />
@@ -118,7 +119,7 @@ function AddEditVote(props) {
             >
               <FormControlLabel
                 labelPlacement="bottom"
-                control={<Radio />}
+                control={<Radio/>}
                 label={intl.formatMessage({ id: 'somewhatUncertain' })}
                 value={25}
               />
@@ -129,7 +130,7 @@ function AddEditVote(props) {
             >
               <FormControlLabel
                 labelPlacement="bottom"
-                control={<Radio />}
+                control={<Radio/>}
                 label={intl.formatMessage({ id: 'somewhatCertain' })}
                 value={50}
               />
@@ -140,7 +141,7 @@ function AddEditVote(props) {
             >
               <FormControlLabel
                 labelPlacement="bottom"
-                control={<Radio />}
+                control={<Radio/>}
                 label={intl.formatMessage({ id: 'certain' })}
                 value={75}
               />
@@ -151,7 +152,7 @@ function AddEditVote(props) {
             >
               <FormControlLabel
                 labelPlacement="bottom"
-                control={<Radio />}
+                control={<Radio/>}
                 label={intl.formatMessage({ id: 'veryCertain' })}
                 value={100}
               />
@@ -159,7 +160,7 @@ function AddEditVote(props) {
           </Grid>
         </RadioGroup>
       </FormControl>
-      <br />
+      <br/>
       {showBudget && (
         <TextField
           id="standard-number"
@@ -181,32 +182,31 @@ function AddEditVote(props) {
         onChange={onEditorChange}
         uploadDisabled
       />
-      <SpinBlockingButton
-        marketId={marketId}
-        variant="contained"
-        color="primary"
-        onClick={() => mySave()}
-        disabled={!validForm}
-        onSpinStop={onSave}
-      >
-        {addMode ? intl.formatMessage({ id: 'saveVote' }) : intl.formatMessage({ id: 'updateVote' })}
-      </SpinBlockingButton>
-      {addMode && (
-        <Button disabled={operationRunning} onClick={() => onCancel()}>
-          {intl.formatMessage({ id: 'cancelVote' })}
-        </Button>
-      )}
-      {!addMode && (
+      <SpinBlockingButtonGroup>
+        {addMode && (
+          <Button disabled={operationRunning} onClick={() => onCancel()}>
+            {intl.formatMessage({ id: 'cancelVote' })}
+          </Button>
+        )}
+        {!addMode && (
+          <SpinBlockingButton
+            marketId={marketId}
+            onClick={() => onRemove()}
+            onSpinStop={onSave}
+          >
+            {intl.formatMessage({ id: 'removeVote' })}
+          </SpinBlockingButton>
+        )}
         <SpinBlockingButton
           marketId={marketId}
-          variant="contained"
-          color="primary"
-          onClick={() => onRemove()}
+          onClick={() => mySave()}
+          disabled={!validForm}
           onSpinStop={onSave}
         >
-          {intl.formatMessage({ id: 'removeVote' })}
+          {addMode ? intl.formatMessage({ id: 'saveVote' }) : intl.formatMessage({ id: 'updateVote' })}
         </SpinBlockingButton>
-      )}
+
+      </SpinBlockingButtonGroup>
     </Paper>
   );
 }
@@ -227,8 +227,10 @@ AddEditVote.propTypes = {
 AddEditVote.defaultProps = {
   showBudget: false,
   investment: {},
-  onSave: () => {},
-  onCancel: () => {},
+  onSave: () => {
+  },
+  onCancel: () => {
+  },
   reason: {},
 };
 

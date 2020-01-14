@@ -182,10 +182,10 @@ const messages = defineMessages({
   maxBudget: '{x} days value',
   certaintyQuestion: 'How certain are you of your vote?',
   reasonQuestion: 'Why did you vote for this option?',
-  saveVote: 'Save Vote',
+  saveVote: 'Save',
   updateVote: 'Update Vote',
   yourReason: 'Your reason...',
-  cancelVote: 'Clear Vote',
+  cancelVote: 'Cancel',
   removeVote: 'Remove Vote',
   maxBudgetInputLabel: 'Number of days before might not be worth doing - value must be less than {x}',
 

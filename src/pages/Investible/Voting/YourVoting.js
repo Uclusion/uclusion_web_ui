@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Paper, Button } from '@material-ui/core';
+import { Paper, Button, ButtonGroup } from '@material-ui/core';
 import AddEditVote from './AddEditVote';
 import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { useIntl } from 'react-intl';
@@ -23,8 +23,8 @@ function YourVoting(props) {
   const yourReason = comments.find((comment) => comment.created_by === userId);
   const [voteForThis, setVoteForThis] = useState(undefined);
 
-  function getVotingActionId(){
-    switch(market_type) {
+  function getVotingActionId() {
+    switch (market_type) {
       case PLANNING_TYPE:
         return 'yourVotingVoteForThisPlanning';
       case DECISION_TYPE:
@@ -50,11 +50,17 @@ function YourVoting(props) {
 
   return (
     <Paper>
-      <Button
-        onClick={() => setVoteForThis(investibleId)}
+      <ButtonGroup
+        variant="contained"
+        size="small"
+        color="primary"
       >
-        {intl.formatMessage( { id: getVotingActionId()})}
-      </Button>
+        <Button
+          onClick={() => setVoteForThis(investibleId)}
+        >
+          {intl.formatMessage({ id: getVotingActionId() })}
+        </Button>
+      </ButtonGroup>
     </Paper>
   );
 }

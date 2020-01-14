@@ -57,6 +57,7 @@ function Summary(props) {
     market_type: marketType,
     max_budget: maxBudget,
     investment_expiration: investmentExpiration,
+    days_estimate: daysEstimate,
     created_at: createdAt,
     expiration_minutes: expirationMinutes,
   } = market;
@@ -120,6 +121,17 @@ function Summary(props) {
           margin="normal"
           variant="outlined"
           value={investmentExpiration}
+        />
+      )}
+      {daysEstimate && (
+        <TextField
+          className={classes.row}
+          disabled
+          id="daysEstimate"
+          label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
+          margin="normal"
+          variant="outlined"
+          value={daysEstimate}
         />
       )}
       {marketType !== PLANNING_TYPE && Array.isArray(marketPresencesModerating) && (

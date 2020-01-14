@@ -36,7 +36,7 @@ function PlanningDialogEdit(props) {
   const classes = useStyles();
   const [mutableMarket, setMutableMarket] = useState(market);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const { name, max_budget, investment_expiration } = mutableMarket;
+  const { name, max_budget, investment_expiration, days_estimate } = mutableMarket;
   const [description, setDescription] = useState(storedDescription || mutableMarket.description);
   const [validForm, setValidForm] = useState(true);
 
@@ -71,8 +71,9 @@ function PlanningDialogEdit(props) {
     if (marketType === PLANNING_TYPE) {
       chain = chain.then(() => lockPlanningMarketForEdit(id, true));
     }
+    const daysEstimateInt = days_estimate ? parseInt(days_estimate, 10) : null;
     chain = chain.then(() => updateMarket(id, name, tokensRemoved, filteredUploads,
-      parseInt(max_budget, 10), parseInt(investment_expiration, 10)))
+      parseInt(max_budget, 10), parseInt(investment_expiration, 10), daysEstimateInt))
       .then(() => editToggle());
     return chain;
   }
@@ -115,6 +116,19 @@ function PlanningDialogEdit(props) {
             variant="outlined"
             onChange={handleChange('max_budget')}
             value={max_budget}
+          />
+        )}
+        {marketType === PLANNING_TYPE && (
+          <TextField
+            id="daysEstimate"
+            label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
+            type="number"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            variant="outlined"
+            onChange={handleChange('days_estimate')}
+            value={days_estimate}
           />
         )}
         {marketType === PLANNING_TYPE && (

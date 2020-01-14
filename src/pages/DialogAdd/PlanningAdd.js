@@ -40,6 +40,7 @@ function PlanningAdd(props) {
   const [description, setDescription] = useState(storedDescription);
   const [investmentExpiration, setInvestmentExpiration] = useState(undefined);
   const [maxBudget, setMaxBudget] = useState(undefined);
+  const [daysEstimate, setDaysEstimate] = useState(undefined);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, addDialogDispatch] = useReducer((state, action) => {
     const { link } = action;
@@ -106,6 +107,11 @@ function PlanningAdd(props) {
     setMaxBudget(parseInt(value, 10));
   }
 
+  function onDaysEstimateChange(event) {
+    const { value } = event.target;
+    setDaysEstimate(parseInt(value, 10));
+  }
+
   function handleSave() {
     const {
       uploadedFiles: filteredUploads,
@@ -122,6 +128,9 @@ function PlanningAdd(props) {
     }
     if (maxBudget) {
       addInfo.max_budget = maxBudget;
+    }
+    if (daysEstimate) {
+      addInfo.days_estimate = daysEstimate;
     }
     return createPlanning(addInfo)
       .then((result) => {
@@ -168,6 +177,16 @@ function PlanningAdd(props) {
           }}
           variant="outlined"
           onChange={onMaxBudgetChange}
+        />
+        <TextField
+          id="standard-number"
+          label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
+          type="number"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          variant="outlined"
+          onChange={onDaysEstimateChange}
         />
         <Typography>
           {intl.formatMessage({ id: 'descriptionEdit' })}

@@ -30,13 +30,17 @@ export function extendMarketExpiration(marketId, expiration_minutes) {
     .catch((error) => toastErrorAndThrow(error, 'errorMarketExpirationExtendFailed'));
 }
 
-export function updateMarket(marketId, name, description, uploaded_files, maxBudget, investmentExpiration) {
+export function updateMarket(marketId, name, description, uploaded_files, maxBudget,
+  investmentExpiration, daysEstimate) {
   const updateOptions = { name, description, uploaded_files };
   if (maxBudget) {
     updateOptions.max_budget = maxBudget;
   }
   if (investmentExpiration) {
     updateOptions.investment_expiration = investmentExpiration;
+  }
+  if (daysEstimate) {
+    updateOptions.days_estimate = daysEstimate;
   }
   // console.debug(`Updating market ${marketId}`);
   // console.debug(updateOptions);

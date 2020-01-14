@@ -155,6 +155,7 @@ const messages = defineMessages({
   marketAddExpirationLabel: 'Dialog ends after {x} day(s)',
   investmentExpirationInputLabel: 'Number of days before a vote expires',
   maxMaxBudgetInputLabel: 'Maximum number of days for story budget',
+  daysEstimateInputLabel: 'Very rough number of days to complete these requirements',
 
   // Market Nav
   marketNavTabContextLabel: 'Context',

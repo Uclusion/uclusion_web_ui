@@ -110,7 +110,7 @@ function PlanningDialogs(props) {
   }
 
   function getDialogActions(marketId, myPresence, marketStage) {
-    const { is_admin: isAdmin } = myPresence;
+    const { is_admin: isAdmin, market_hidden: inArchives } = myPresence;
     const actions = [];
     if (marketStage === 'Active') {
       if (isAdmin) {
@@ -119,9 +119,11 @@ function PlanningDialogs(props) {
         );
       }
     }
-    actions.push(
-      <LeaveMarketButton key="leave" marketId={marketId} />,
-    );
+    if (!inArchives) {
+      actions.push(
+        <LeaveMarketButton key="leave" marketId={marketId}/>,
+      );
+    }
     return actions;
   }
 
@@ -160,7 +162,7 @@ function PlanningDialogs(props) {
                 </Link>
               </Typography>
               <Typography>
-                {intl.formatMessage({ id: 'homeCreatedAt'}, {dateString: intl.formatDate(createdAt)})}
+                {intl.formatMessage({ id: 'homeCreatedAt' }, { dateString: intl.formatDate(createdAt) })}
               </Typography>
               <Grid
                 container

@@ -9,7 +9,6 @@ import {
 } from '../../contexts/MarketsContext/marketsContextHelper';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import Screen from '../../containers/Screen/Screen';
-import SubSection from '../../containers/SubSection/SubSection';
 import PlanningDialogs from '../Home/PlanningDialogs';
 import DecisionDialogs from '../Home/DecisionDialogs';
 import InitiativeDialogs from '../Home/InitiativeDialogs';
@@ -43,15 +42,9 @@ function Archives(props) {
       )}
       {!emptyArchives && (
         <>
-          <SubSection>
             <PlanningDialogs markets={planningDetails}/>
-          </SubSection>
-          <SubSection>
             <DecisionDialogs markets={decisionDetails}/>
-          </SubSection>
-          <SubSection>
             <InitiativeDialogs markets={initiativeDetails}/>
-          </SubSection>
         </>
       )}
     </Screen>

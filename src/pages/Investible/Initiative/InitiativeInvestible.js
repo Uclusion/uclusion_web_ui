@@ -18,7 +18,7 @@ import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import Screen from '../../../containers/Screen/Screen';
 import {
-  formMarketManageLink,
+  formMarketManageLink, makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate,
 } from '../../../utils/marketIdPathFunctions';
@@ -78,6 +78,7 @@ function InitiativeInvestible(props) {
     fullInvestible,
     toggleEdit,
     isAdmin,
+    inArchives,
     hidden,
   } = props;
 
@@ -100,7 +101,7 @@ function InitiativeInvestible(props) {
     id: marketId,
     market_stage: marketStage,
   } = market;
-  const breadCrumbs = makeBreadCrumbs(history);
+  const breadCrumbs = inArchives ? makeArchiveBreadCrumbs(history) : makeBreadCrumbs(history);
   const commentAddRef = useRef(null);
   const activeMarket = marketStage === ACTIVE_STAGE;
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
@@ -248,6 +249,7 @@ InitiativeInvestible.propTypes = {
   userId: PropTypes.string.isRequired,
   toggleEdit: PropTypes.func,
   isAdmin: PropTypes.bool,
+  inArchives: PropTypes.bool,
   hidden: PropTypes.bool,
 };
 
@@ -257,6 +259,7 @@ InitiativeInvestible.defaultProps = {
   toggleEdit: () => {
   },
   isAdmin: false,
+  inArchives: false,
   hidden: false,
 };
 export default InitiativeInvestible;

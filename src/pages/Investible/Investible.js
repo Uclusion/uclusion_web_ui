@@ -6,7 +6,7 @@ import Screen from '../../containers/Screen/Screen';
 import {
   makeBreadCrumbs,
   formMarketLink,
-  decomposeMarketPath, navigate, formInvestibleLinkWithPrefix,
+  decomposeMarketPath, navigate, formInvestibleLinkWithPrefix, makeArchiveBreadCrumbs,
 } from '../../utils/marketIdPathFunctions';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
@@ -51,13 +51,16 @@ function Investible(props) {
   const { investible } = usedInv;
   const { name } = investible;
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId) }];
-  const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || _.isEmpty(user));
   const isDecision = market && market.market_type === DECISION_TYPE;
   const isPlanning = market && market.market_type === PLANNING_TYPE;
 
   const isAdmin = myPresence && myPresence.is_admin;
+  const inArchives = myPresence && myPresence.market_hidden;
+  const breadCrumbs = inArchives ?
+    makeArchiveBreadCrumbs(history, breadCrumbTemplates) :
+    makeBreadCrumbs(history, breadCrumbTemplates);
 
   function toggleEdit() {
     navigate(history, formInvestibleLinkWithPrefix('investibleEdit', marketId, investibleId));
@@ -89,6 +92,7 @@ function Investible(props) {
         investibleComments={investibleComments}
         toggleEdit={toggleEdit}
         isAdmin={isAdmin}
+        inArchives={inArchives}
         hidden={hidden}
       />
     );
@@ -106,6 +110,7 @@ function Investible(props) {
         marketPresences={marketPresences}
         investibleComments={investibleComments}
         toggleEdit={toggleEdit}
+        inArchives={inArchives}
         isAdmin={isAdmin}
         hidden={hidden}
       />
@@ -121,6 +126,7 @@ function Investible(props) {
       investibleComments={investibleComments}
       toggleEdit={toggleEdit}
       isAdmin={isAdmin}
+      inArchives={inArchives}
       hidden={hidden}
     />
   );

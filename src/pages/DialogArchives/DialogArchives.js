@@ -2,7 +2,11 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import Screen from '../../containers/Screen/Screen';
 import { useHistory } from 'react-router';
-import { decomposeMarketPath, formMarketLink, makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
+import {
+  decomposeMarketPath,
+  formMarketLink,
+  makeArchiveBreadCrumbs,
+} from '../../utils/marketIdPathFunctions';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
@@ -43,7 +47,7 @@ function DialogArchives(props) {
 
   const { name } = renderableMarket;
   const breadCrumbTemplates = [{ name, link: formMarketLink(marketId) }];
-  const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+  const breadCrumbs = makeArchiveBreadCrumbs(history, breadCrumbTemplates);
 
   if (!marketId) {
     return (

@@ -21,11 +21,15 @@ import {
   DRAWER_WIDTH_OPENED,
 } from '../../constants/global';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
+import Identity from '../Screen/Identity';
 
 const useStyles = makeStyles((theme) => {
   const BREADCRUMBS_HEIGHT = 67;
   const TOPBAR_HEIGHT = 25;
   return {
+    grow: {
+      flexGrow: 1,
+    },
     appBar: {
       background: '#efefef',
       zIndex: theme.zIndex.drawer + 1,
@@ -156,6 +160,8 @@ function Header(props) {
           </IconButton>
           {generateTitle()}
           {toolbarButtons}
+          <div className={classes.grow} />
+          <Identity/>
         </Toolbar>
       </AppBar>
     </>

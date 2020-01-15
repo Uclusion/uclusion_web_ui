@@ -3,7 +3,6 @@ import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
-import { makeStyles } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import Screen from '../../containers/Screen/Screen';
@@ -25,17 +24,10 @@ import { navigate } from '../../utils/marketIdPathFunctions';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import HomeCheatSheet from './HomeCheatSheet';
 
-const useStyles = makeStyles(() => ({
-  breadCrumbImage: {
-    height: 40,
-  },
-}));
-
 function Home(props) {
   const { hidden } = props;
   const history = useHistory();
   const intl = useIntl();
-  const classes = useStyles();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
@@ -105,7 +97,7 @@ function Home(props) {
 
   return (
     <Screen
-      title={<img src="/images/Uclusion_Wordmark_Color.png" alt="Uclusion" className={classes.breadCrumbImage}/>}
+      title={intl.formatMessage({ 'id': 'homeBreadCrumb' })}
       tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       sidebarActions={sidebarActions}

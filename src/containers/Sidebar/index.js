@@ -115,7 +115,7 @@ function Sidebar(props) {
     return (
       <div className={classes.sidebarContainer}>
         <div className={classes.sidebarLogo}>
-          <Link href="#" onClick={() => navigate(history, '/about')} color="inherit">
+          <Link href="#" onClick={() => navigate(history, '/')} color="inherit">
             <img width="40" height="52" src={`/images/${logoImage}`} alt="Uclusion" />
           </Link>
         </div>

@@ -43,6 +43,7 @@ export function navigate(history, to) {
   broadcastView(toMarketId, toInvestibleId, true);
 }
 
+
 /**
  *
  * @param history
@@ -53,7 +54,7 @@ export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
   const homeName = intl.formatMessage({ id: 'homeBreadCrumb' });
   const homeCrumb = [];
   if (includeHome) {
-    homeCrumb.push({ name: homeName, link: '/', image: '/images/Uclusion_Wordmark_Color.png' });
+    homeCrumb.push({ name: homeName, link: '/'});
   }
   const myCrumbs = homeCrumb.concat(crumbs);
   const breadCrumbs = myCrumbs.map((crumb) => {
@@ -66,6 +67,20 @@ export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
     };
   });
   return breadCrumbs;
+}
+
+/**
+ * Makes a breadcrumb chain that includes /home/archives
+ * @param history
+ * @param crumbs
+ */
+export function makeArchiveBreadCrumbs(history, crumbs = []) {
+  const archiveCrumb = {
+    name: intl.formatMessage({ id: 'archivesTitle'}),
+    link: '/archives',
+  };
+  const myCrumbs = [archiveCrumb, ...crumbs];
+  return makeBreadCrumbs(history, myCrumbs);
 }
 
 export function createTitle(fullTitle, titleSize) {

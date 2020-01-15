@@ -39,23 +39,24 @@ function InitiativeDialogs(props) {
   const [investiblesState] = useContext(InvestiblesContext);
 
   function getDialogActions(marketId, myPresence, marketStage) {
-    const { is_admin } = myPresence;
+    const { is_admin, market_hidden: inArchives } = myPresence;
     const actions = [];
     if (is_admin) {
       if (marketStage === 'Active') {
         actions.push(
           <ArchiveMarketButton key="archive" marketId={marketId}/>,
         );
-      } else {
+      } else if (!inArchives) {
         actions.push(
           <LeaveMarketButton key="leave" marketId={marketId}/>,
         );
       }
-    } else {
       // admins can't exit a dialog or change their role
+    } else if (!inArchives) {
       actions.push(
         <LeaveMarketButton key="leave" marketId={marketId}/>,
       );
+
     }
     return actions;
   }

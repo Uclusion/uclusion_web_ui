@@ -15,7 +15,7 @@ import {
   formMarketAddInvestibleLink,
   makeBreadCrumbs,
   navigate,
-  formMarketEditLink, formMarketManageLink,
+  formMarketEditLink, formMarketManageLink, makeArchiveBreadCrumbs,
 } from '../../../utils/marketIdPathFunctions';
 import Summary from '../Summary';
 import ProposedIdeas from './ProposedIdeas';
@@ -55,7 +55,9 @@ function DecisionDialog(props) {
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
   const history = useHistory();
-  const breadCrumbs = makeBreadCrumbs(history);
+  const breadCrumbs = (myPresence && myPresence.market_hidden)?
+    makeArchiveBreadCrumbs(history) :
+    makeBreadCrumbs(history);
   const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);

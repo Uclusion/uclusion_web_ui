@@ -15,7 +15,7 @@ import Screen from '../../../containers/Screen/Screen';
 import {
   formMarketAddInvestibleLink,
   formMarketEditLink,
-  formMarketManageLink,
+  formMarketManageLink, makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate,
 } from '../../../utils/marketIdPathFunctions';
@@ -37,7 +37,6 @@ import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctio
 
 function PlanningDialog(props) {
   const history = useHistory();
-  const breadCrumbs = makeBreadCrumbs(history);
   const {
     market,
     investibles,
@@ -45,7 +44,11 @@ function PlanningDialog(props) {
     marketStages,
     comments,
     hidden,
+    myPresence,
   } = props;
+  const breadCrumbs = myPresence && myPresence.market_hidden?
+    makeArchiveBreadCrumbs(history) :
+    makeBreadCrumbs(history);
 
   const intl = useIntl();
   const commentAddRef = useRef(null);
@@ -184,7 +187,7 @@ function PlanningDialog(props) {
 
   function getSidebarActions() {
     if (!activeMarket) {
-      return [];
+      return [<ViewArchiveActionButton key="archives" marketId={marketId} />];
     }
     const userActions = [
       <DialogEditActionButton
@@ -273,6 +276,8 @@ PlanningDialog.propTypes = {
   hidden: PropTypes.bool,
   // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object),
+  // eslint-disable-next-line react/forbid-prop-types
+  myPresence: PropTypes.object.isRequired,
 };
 
 PlanningDialog.defaultProps = {

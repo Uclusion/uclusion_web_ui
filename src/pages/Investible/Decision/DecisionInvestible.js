@@ -16,7 +16,7 @@ import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import Screen from '../../../containers/Screen/Screen';
-import { formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import { formMarketLink, makeArchiveBreadCrumbs, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
 import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton';
@@ -47,6 +47,7 @@ function DecisionInvestible(props) {
     fullInvestible,
     toggleEdit,
     isAdmin,
+    inArchives,
     hidden,
   } = props;
 
@@ -56,7 +57,9 @@ function DecisionInvestible(props) {
 
   const { name: marketName, id: marketId, market_stage: marketStage } = market;
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
-  const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+  const breadCrumbs = inArchives?
+    makeArchiveBreadCrumbs(history, breadCrumbTemplates) :
+    makeBreadCrumbs(history, breadCrumbTemplates);
   // eslint-disable-next-line max-len
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
   // eslint-disable-next-line max-len
@@ -246,6 +249,7 @@ DecisionInvestible.propTypes = {
   userId: PropTypes.string.isRequired,
   toggleEdit: PropTypes.func,
   isAdmin: PropTypes.bool,
+  inArchives: PropTypes.bool,
   hidden: PropTypes.bool,
 };
 
@@ -256,6 +260,7 @@ DecisionInvestible.defaultProps = {
   toggleEdit: () => {
   },
   isAdmin: false,
+  inArchives: false,
   hidden: false,
 };
 

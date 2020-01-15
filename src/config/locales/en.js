@@ -303,6 +303,7 @@ const messages = defineMessages({
   // Archives
   archivesTitle: 'Archives',
 
+
   // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',
   decisionDialogsExpires: 'Expires:',
@@ -403,7 +404,7 @@ const messages = defineMessages({
   // Dialog Archives
   dialogArchivesNotDoingHeader: 'Not Doing',
   dialogArchivesVerifiedHeader: 'Verified',
-  dialogArchivesLabel: 'Archives',
+  dialogArchivesLabel: 'Plan Archives',
 
   // Signup
   signupNameLabel: 'Name',

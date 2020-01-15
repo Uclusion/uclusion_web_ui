@@ -13,7 +13,12 @@ import {
   ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
 } from '../../../constants/comments';
 import DisplayAssignments from './Assignments/DisplayAssignments';
-import { formMarketArchivesLink, formMarketLink, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import {
+  formMarketArchivesLink,
+  formMarketLink,
+  makeArchiveBreadCrumbs,
+  makeBreadCrumbs
+} from '../../../utils/marketIdPathFunctions';
 import Screen from '../../../containers/Screen/Screen';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
@@ -61,6 +66,7 @@ function PlanningInvestible(props) {
     investibles,
     toggleEdit,
     isAdmin,
+    inArchives,
     hidden,
   } = props;
   const {
@@ -100,16 +106,18 @@ function PlanningInvestible(props) {
   const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
   const isInNotDoing = notDoingStage && stage === notDoingStage.id;
-  const inArchives = isInNotDoing || isInVerified;
+  const inMarketArchives = isInNotDoing || isInVerified;
 
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
-  if (inArchives) {
+  if (inMarketArchives) {
     breadCrumbTemplates.push({
-      name: intl.formatMessage({ id: 'archivesTitle' }),
+      name: intl.formatMessage({ id: 'dialogArchivesLabel' }),
       link: formMarketArchivesLink(marketId),
     });
   }
-  const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+  const breadCrumbs = inArchives ?
+    makeArchiveBreadCrumbs(history, breadCrumbTemplates) :
+    makeBreadCrumbs(history, breadCrumbTemplates);
 
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   // eslint-disable-next-line no-nested-ternary
@@ -377,6 +385,7 @@ PlanningInvestible.propTypes = {
   userId: PropTypes.string.isRequired,
   toggleEdit: PropTypes.func,
   isAdmin: PropTypes.bool,
+  inArchives: PropTypes.bool,
   hidden: PropTypes.bool,
 };
 
@@ -387,6 +396,7 @@ PlanningInvestible.defaultProps = {
   toggleEdit: () => {
   },
   isAdmin: false,
+  inArchives: false,
   hidden: false,
 };
 export default PlanningInvestible;

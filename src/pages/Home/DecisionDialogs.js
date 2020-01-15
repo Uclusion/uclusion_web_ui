@@ -39,7 +39,8 @@ function DecisionDialogs(props) {
   const [investiblesState] = useContext(InvestiblesContext);
 
   function getDialogActions(marketId, myPresence, marketStage) {
-    const { is_admin } = myPresence;
+    const { is_admin, market_hidden: inArchives } = myPresence;
+
     const actions = [];
 
     if (is_admin) {
@@ -47,17 +48,19 @@ function DecisionDialogs(props) {
         actions.push(
           <ArchiveMarketButton key="archive" marketId={marketId}/>,
         );
-      } else {
         // admins can't exit a dialog or change their role on an active market
+      } else if (!inArchives) {
         actions.push(
           <LeaveMarketButton key="leave" marketId={marketId}/>,
         );
       }
-    } else {
+
+    } else if (!inArchives) {
       actions.push(
         <LeaveMarketButton key="leave" marketId={marketId}/>,
       );
     }
+
     return actions;
   }
 
@@ -107,7 +110,7 @@ function DecisionDialogs(props) {
                 </Link>
               </Typography>
               <Typography>
-                {intl.formatMessage({ id: 'homeCreatedAt'}, {dateString: intl.formatDate(createdAt)})}
+                {intl.formatMessage({ id: 'homeCreatedAt' }, { dateString: intl.formatDate(createdAt) })}
               </Typography>
               <Grid
                 container

@@ -61,7 +61,7 @@ function About(props) {
   }
 
   useEffect(() => {
-    if (!externalId) {
+    if (!externalId && !hidden) {
       getSSOInfo().then((ssoInfo) => {
         const { idToken, ssoClient } = ssoInfo;
         return ssoClient.accountCognitoLogin(idToken).then((loginInfo) => {
@@ -72,7 +72,7 @@ function About(props) {
         });
       }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
     }
-  }, [externalId]);
+  }, [externalId, hidden]);
   const breadCrumbs = makeBreadCrumbs(history, [], true);
   return (
     <div>

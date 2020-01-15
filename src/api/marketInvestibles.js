@@ -1,7 +1,7 @@
+import _ from 'lodash';
 import { getMarketClient } from './uclusionClient';
 import { toastErrorAndThrow } from '../utils/userMessage';
 import { JUSTIFY_TYPE } from '../constants/comments';
-import _ from 'lodash';
 
 export function fetchInvestibles(idList, marketId) {
   const clientPromise = getMarketClient(marketId);
@@ -38,24 +38,24 @@ export function updateInvestment(updateInfo) {
     reasonNeedsUpdate,
     maxBudget,
   } = updateInfo;
-
+  let globalClient;
   return getMarketClient(marketId)
     .then((client) => {
-      const investmentSame = newQuantity === currentQuantity;
-      const updatePromise = investmentSame ? Promise.resolve(true)
-        : client.markets.updateInvestment(investibleId, newQuantity, currentQuantity, null, maxBudget);
-      return updatePromise.then((updateResult) => {
-        if (reasonNeedsUpdate) {
-          if (currentReasonId) {
-            if (_.isEmpty(newReasonText)) {
-              return client.investibles.deleteComment(currentReasonId);
-            }
-            return client.investibles.updateComment(currentReasonId, newReasonText, false, []);
+      globalClient = client;
+      if (reasonNeedsUpdate) {
+        if (currentReasonId) {
+          if (_.isEmpty(newReasonText)) {
+            return client.investibles.deleteComment(currentReasonId);
           }
-          return client.investibles.createComment(investibleId, newReasonText, undefined, JUSTIFY_TYPE, []);
+          return client.investibles.updateComment(currentReasonId, newReasonText, false, []);
         }
-        return updateResult;
-      });
-    })
-    .catch((error) => toastErrorAndThrow(error, 'errorInvestmentUpdateFailed'));
+        return client.investibles.createComment(investibleId, newReasonText,
+          undefined, JUSTIFY_TYPE, []);
+      }
+      return { id: currentReasonId };
+    }).then((comment) => {
+      const { id } = comment;
+      return globalClient.markets.updateInvestment(investibleId, newQuantity,
+        currentQuantity, id, maxBudget);
+    }).catch((error) => toastErrorAndThrow(error, 'errorInvestmentUpdateFailed'));
 }

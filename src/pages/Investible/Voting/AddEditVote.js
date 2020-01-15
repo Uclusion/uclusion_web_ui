@@ -54,6 +54,7 @@ function AddEditVote(props) {
   }, [showBudget, maxBudget, validForm, storyMaxBudget]);
 
   function mySave() {
+    console.debug('saving now');
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body;
@@ -67,6 +68,7 @@ function AddEditVote(props) {
       reasonNeedsUpdate,
       maxBudget,
     };
+    console.debug(updateInfo);
     return updateInvestment(updateInfo);
   }
 

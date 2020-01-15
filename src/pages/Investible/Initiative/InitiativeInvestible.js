@@ -83,7 +83,8 @@ function InitiativeInvestible(props) {
   } = props;
 
   const [diffState] = useContext(DiffContext);
-  const diff = getDiff(diffState, investibleId);
+  const diff = getDiff(diffState, investibleId, userId);
+
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();

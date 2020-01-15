@@ -53,7 +53,7 @@ function doDelete(state, id) {
 }
 
 function getUpdatedItemState(state, newItem) {
-  const { id, description } = newItem;
+  const { id, description, updated_by: updatedBy } = newItem;
   if (!id && description) {
     return state;
   }
@@ -74,6 +74,7 @@ function getUpdatedItemState(state, newItem) {
         ...state,
         [id]: {
           contents: newContents,
+          updatedBy,
           diff,
           isNew: false,
         },
@@ -87,6 +88,7 @@ function getUpdatedItemState(state, newItem) {
     ...state,
     [id]: {
       contents: description,
+      updatedBy,
       isNew: true,
     },
   };

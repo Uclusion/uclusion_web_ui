@@ -14,7 +14,7 @@ function DiffDisplay(props) {
   const intl = useIntl();
   const { id } = props;
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const diff = getDiff(diffState, id);
+  const diff = getDiff(diffState, id, null);
 
   function onDismiss() {
     diffDispatch(deleteDiff(id));

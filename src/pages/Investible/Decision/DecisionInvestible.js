@@ -143,8 +143,7 @@ function DecisionInvestible(props) {
   }
 
   const [diffState] = useContext(DiffContext);
-  const diff = getDiff(diffState, investibleId);
-
+  const diff = getDiff(diffState, investibleId, userId);
   if (!investibleId) {
     // we have no usable data;
     return <></>;

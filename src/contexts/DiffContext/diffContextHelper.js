@@ -1,6 +1,9 @@
-export function getDiff(state, id) {
+export function getDiff(state, id, userId) {
   const item = (state && state[id]) || {};
-  const { diff } = item;
+  const { diff, updatedBy } = item;
+  if (updatedBy === userId) {
+    return undefined;
+  }
   return diff;
 }
 

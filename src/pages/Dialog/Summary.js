@@ -64,10 +64,12 @@ function Summary(props) {
   const active = marketStage === ACTIVE_STAGE;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [diffState] = useContext(DiffContext);
-  const diff = getDiff(diffState, id);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
   const marketPresencesModerating = marketPresences.filter((presence) => presence.is_admin);
+
+  const diff = getDiff(diffState, id, myPresence.id);
 
   function displayUserList(presencesList) {
     return presencesList.map((presence) => {

@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
-import { Typography } from '@material-ui/core';
+import { Grid, Paper, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from './Voting';
@@ -25,11 +26,42 @@ import {
   getProposedOptionsStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { ACTIVE_STAGE } from '../../../constants/markets';
-import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
+import { SECTION_TYPE_PRIMARY, SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
 import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    padding: '3px 89px 21px 21px',
+    marginTop: '-6px',
+    boxShadow: 'none',
+    [theme.breakpoints.down('sm')]: {
+      padding: '3px 21px 42px 21px',
+    },
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    lineHeight: '42px',
+    paddingBottom: '9px',
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 25,
+    },
+  },
+  content: {
+    fontSize: '15 !important',
+    lineHeight: '175%',
+    color: '#414141',
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 13,
+    },
+    '& > .ql-container': {
+      fontSize: '15 !important',
+    },
+  },
+}));
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -53,13 +85,13 @@ function DecisionInvestible(props) {
 
   const intl = useIntl();
   const history = useHistory();
-
+  const classes = useStyles();
 
   const { name: marketName, id: marketId, market_stage: marketStage } = market;
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
-  const breadCrumbs = inArchives?
-    makeArchiveBreadCrumbs(history, breadCrumbTemplates) :
-    makeBreadCrumbs(history, breadCrumbTemplates);
+  const breadCrumbs = inArchives
+    ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
+    : makeBreadCrumbs(history, breadCrumbTemplates);
   // eslint-disable-next-line max-len
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
   // eslint-disable-next-line max-len
@@ -160,75 +192,90 @@ function DecisionInvestible(props) {
       hidden={hidden}
       sidebarActions={getSidebarActions()}
     >
-      {inProposed && lockedBy && (
-        <Typography>
-          {intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName })}
-        </Typography>
-      )}
-      {!inProposed && (
-        <SubSection
-          type={SECTION_TYPE_SECONDARY}
-          title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
-        >
-          {hasIssueOrMarketIssue && (
-            <Typography>
-              {intl.formatMessage({ id: votingBlockedMessage })}
-            </Typography>
-          )}
-          {!hasIssueOrMarketIssue && (
-            <YourVoting
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <SubSection
+            type={SECTION_TYPE_PRIMARY}
+            title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
+          >
+            <Paper className={classes.container}>
+              <Typography className={classes.title} variant="h3" component="h1">
+                {name}
+              </Typography>
+              {diff && (
+                <DiffDisplay id={investibleId} />
+              )}
+              {!diff && (
+                <ReadOnlyQuillEditor
+                  value={description}
+                />
+              )}
+            </Paper>
+            {inProposed && lockedBy && (
+              <Typography>
+                {intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName })}
+              </Typography>
+            )}
+          </SubSection>
+        </Grid>
+        {!inProposed && (
+        <Grid item xs={12}>
+          <SubSection
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
+          >
+            {hasIssueOrMarketIssue && (
+              <Typography>
+                {intl.formatMessage({ id: votingBlockedMessage })}
+              </Typography>
+            )}
+            {!hasIssueOrMarketIssue && (
+              <YourVoting
+                investibleId={investibleId}
+                marketPresences={marketPresences}
+                comments={investmentReasons}
+                userId={userId}
+                market={market}
+              />
+            )}
+          </SubSection>
+        </Grid>
+        )}
+        {!inProposed && (
+        <Grid item xs={12}>
+          <SubSection
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
+          >
+            <Voting
               investibleId={investibleId}
               marketPresences={marketPresences}
-              comments={investmentReasons}
-              userId={userId}
-              market={market}
+              investmentReasons={investmentReasons}
             />
-          )}
-        </SubSection>
-      )}
-      {!inProposed && (
-        <SubSection
-          type={SECTION_TYPE_SECONDARY}
-          title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
-        >
-          <Voting
-            investibleId={investibleId}
-            marketPresences={marketPresences}
-            investmentReasons={investmentReasons}
-          />
-        </SubSection>
-      )}
-      <SubSection
-        type={SECTION_TYPE_SECONDARY}
-        title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
-      >
-        {diff && (
-          <DiffDisplay id={investibleId}/>
+          </SubSection>
+        </Grid>
         )}
-        {!diff && (
-        <ReadOnlyQuillEditor
-          value={description}
-        />)}
-        
-      </SubSection>
-      {discussionVisible && (
-        <SubSection
-          type={SECTION_TYPE_SECONDARY}
-          title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
-        >
-          <CommentAddBox
-            hidden={commentAddHidden}
-            allowedTypes={allowedCommentTypes}
-            investible={investible}
-            marketId={marketId}
-            type={commentAddType}
-            onSave={closeCommentAdd}
-            onCancel={closeCommentAdd}
-          />
-          <div ref={commentAddRef} />
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
-        </SubSection>
-      )}
+        {discussionVisible && (
+        <Grid item xs={12}>
+          <SubSection
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
+          >
+            <CommentAddBox
+              hidden={commentAddHidden}
+              allowedTypes={allowedCommentTypes}
+              investible={investible}
+              marketId={marketId}
+              type={commentAddType}
+              onSave={closeCommentAdd}
+              onCancel={closeCommentAdd}
+            />
+            <div ref={commentAddRef} />
+            <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
+          </SubSection>
+        </Grid>
+        )}
+      </Grid>
     </Screen>
   );
 }

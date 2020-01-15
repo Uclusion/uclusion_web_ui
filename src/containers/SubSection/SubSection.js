@@ -28,6 +28,11 @@ const useStyles = makeStyles((theme) => {
       lineHeight: '18px',
       cursor: 'default',
     },
+    headerPrimaryTitle: {
+      fontSize: 18,
+      lineHeight: '18px',
+      cursor: 'default',
+    },
     toolbar: theme.mixins.toolbar,
   };
 });
@@ -53,7 +58,7 @@ function SubSection(props) {
       >
         <Toolbar>
           {titleIcon}
-          <Typography className={classes.headerTitle}>
+          <Typography className={type === SECTION_TYPE_PRIMARY ? classes.headerPrimaryTitle : classes.headerTitle}>
             {title}
           </Typography>
           {actionButton}

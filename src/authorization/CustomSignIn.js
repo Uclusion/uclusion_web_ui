@@ -16,18 +16,20 @@ const useStyles = theme => ({
     marginTop: theme.spacing(8),
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main
+    backgroundColor: '#3f6b72',
   },
   form: {
     width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(1)
+    marginTop: theme.spacing(1),
   },
   submit: {
-    margin: theme.spacing(3, 0, 2)
+    margin: theme.spacing(3, 0, 2),
+    backgroundColor: '#3f6b72',
+    color: '#fff',
   }
 });
 
@@ -81,7 +83,6 @@ class CustomSignIn extends SignIn {
             type="button"
             fullWidth
             variant="contained"
-            color="primary"
             className={classes.submit}
             onClick={() => super.signIn()}
           >

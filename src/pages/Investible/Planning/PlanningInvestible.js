@@ -17,7 +17,7 @@ import {
   formMarketArchivesLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
-  makeBreadCrumbs
+  makeBreadCrumbs,
 } from '../../../utils/marketIdPathFunctions';
 import Screen from '../../../containers/Screen/Screen';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
@@ -213,6 +213,15 @@ function PlanningInvestible(props) {
             stageId={stage}
           />);
         }
+      }
+      if (isInAccepted && _.isEmpty(assignedInStage(investibles,
+        userId, inCurrentVotingStage.id))) {
+        sidebarActions.push(<MoveToVotingActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+          stageId={stage}
+          key="voting"
+        />);
       }
       if (isInBlocked) {
         // eslint-disable-next-line max-len

@@ -30,10 +30,10 @@ function Voting(props) {
 
   function getInvestmentConfidence(quantity) {
     if (quantity === 100) {
-      return intl.formatMessage({ id: 'certain' });
+      return intl.formatMessage({ id: 'veryCertain' });
     }
     if (quantity >= 75) {
-      return intl.formatMessage({ id: 'veryCertain' });
+      return intl.formatMessage({ id: 'certain' });
     }
     if (quantity >= 50) {
       return intl.formatMessage({ id: 'somewhatCertain' });

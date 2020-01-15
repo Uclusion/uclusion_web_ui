@@ -51,13 +51,25 @@ export function withSpinLock(Component) {
       }, FETCH_DELAY);
     }
 
+    function setIntervalX(callback, delay, repetitions) {
+      let x = 0;
+      const intervalID = window.setInterval(() => {
+        callback();
+        x += 1;
+        if (x === repetitions) {
+          clearInterval(intervalID);
+        }
+      }, delay);
+      return intervalID;
+    }
+
     /**
      * Starts a timer for the overall operation. If it goes
      * off then we force version check.
      */
     function startOperationCheckInterval() {
       const currentVersion = getMarketVersion(versionsState, marketId);
-      operationCheckInterval = setInterval(() => {
+      operationCheckInterval = setIntervalX(() => {
         console.debug('Operation check interval firing');
         return getVersions()
           .then((versions) => {
@@ -79,7 +91,7 @@ export function withSpinLock(Component) {
             endSpinning();
             toastErrorAndThrow(error, 'spinVersionCheckError');
           });
-      }, OPERATION_TIMEOUT);
+      }, OPERATION_TIMEOUT, 20);
     }
 
     const hubListener = (data) => {

@@ -121,6 +121,7 @@ const messages = defineMessages({
   created_by: 'Created by',
   observers: 'Not Assignable:',
   dialogObservers: 'Observers',
+  isObserver: 'Is Observer',
 
   addDecision: 'Add Dialog',
   addPlanning: 'Add Agile Plan',

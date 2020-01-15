@@ -219,19 +219,28 @@ function AddressList(props) {
       <List
         dense
       >
-        <ListItem key="search">
-          <TextField
-            onChange={onSearchChange}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment>
-                  <IconButton>
-                    <SearchIcon />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+        <ListItem key="search" divider>
+          <ListItemText className={classes.name}>
+            <TextField
+              onChange={onSearchChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment>
+                    <IconButton>
+                      <SearchIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </ListItemText>
+          {showObservers && (
+            <ListItemIcon>
+              <ListItemText>
+                {intl.formatMessage({ id: 'isObserver' })}
+              </ListItemText>
+            </ListItemIcon>
+          )}
         </ListItem>
         {displayNames.map((entry) => renderParticipantEntry(entry))}
         <ListItem

@@ -8,8 +8,6 @@ import { useHistory } from 'react-router';
 import { Grid } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
-import SmsOutlinedIcon from '@material-ui/icons/SmsOutlined';
 import EditAttributesIcon from '@material-ui/icons/EditAttributes';
 import {
   formMarketAddInvestibleLink,
@@ -24,12 +22,13 @@ import CurrentVoting from './CurrentVoting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import Screen from '../../../containers/Screen/Screen';
-import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
+import { getCommentTypeIcon, scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import { DECISION_TYPE } from '../../../constants/markets';
 
 function DecisionDialog(props) {
@@ -98,25 +97,34 @@ function DecisionDialog(props) {
     scrollToCommentAddBox(commentAddRef);
   }
 
+  const manageDialog = {
+    label: intl.formatMessage({ id: 'dialogManageLabel' }),
+    icon: <EditAttributesIcon />,
+    onClick: () => toggleAddParticipantsMode(),
+  };
+
+  const addParticipants = {
+    label: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
+    icon: <GroupAddIcon />,
+    onClick: () => toggleAddParticipantsMode(),
+  };
+  const manageAction = isAdmin ? manageDialog : addParticipants;
+
   const sidebarMenuList = [
     {
       label: intl.formatMessage({ id: addLabel }),
       icon: <AddIcon />,
       onClick: () => navigate(history, formMarketAddInvestibleLink(marketId)),
     },
-    {
-      label: intl.formatMessage({ id: 'dialogManageLabel' }),
-      icon: <EditAttributesIcon />,
-      onClick: () => toggleAddParticipantsMode(),
-    },
+    manageAction,
     {
       label: intl.formatMessage({ id: 'commentIconRaiseIssueLabel' }),
-      icon: <ErrorOutlineIcon />,
+      icon: getCommentTypeIcon(ISSUE_TYPE),
       onClick: () => commentButtonOnClick(ISSUE_TYPE),
     },
     {
       label: intl.formatMessage({ id: 'commentIconAskQuestionLabel' }),
-      icon: <SmsOutlinedIcon />,
+      icon: getCommentTypeIcon(QUESTION_TYPE),
       onClick: () => commentButtonOnClick(QUESTION_TYPE),
     },
   ];

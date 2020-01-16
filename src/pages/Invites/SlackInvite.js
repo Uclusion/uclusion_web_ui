@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
@@ -8,7 +8,7 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import Screen from '../../containers/Screen/Screen';
 import { getAccountClient } from '../../api/uclusionClient';
-import { ERROR, sendIntlMessage } from '../../utils/userMessage';
+import { toastError } from '../../utils/userMessage';
 
 function SlackInvite(props) {
   const { hidden } = props;
@@ -16,6 +16,7 @@ function SlackInvite(props) {
   const history = useHistory();
   const { location } = history;
   const { hash } = location;
+  const [myLoading, setMyLoading] = useState(true);
 
   useEffect(() => {
     if (!hidden) {
@@ -26,8 +27,9 @@ function SlackInvite(props) {
           .then((client) => client.users.register(nonce))
           .then(() => navigate(history, '/'))
           .catch((error) => {
+            setMyLoading(false);
             console.error(error);
-            sendIntlMessage(ERROR, { id: 'slack_register_failed' });
+            toastError('slack_register_failed');
           });
       }
     }
@@ -38,7 +40,7 @@ function SlackInvite(props) {
       title={intl.formatMessage({ id: 'loadingSlack' })}
       tabTitle={intl.formatMessage({ id: 'loadingSlack' })}
       hidden={hidden}
-      loading
+      loading={myLoading}
     >
       <div />
     </Screen>

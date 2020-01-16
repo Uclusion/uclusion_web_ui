@@ -4,6 +4,7 @@
 import { toast } from 'react-toastify';
 import { intl } from '../components/ContextHacks/IntlGlobalProvider';
 import { setOperationInProgress } from '../components/ContextHacks/OperationInProgressGlobalProvider';
+import { Auth } from 'aws-amplify'
 
 export const INFO = 'info';
 export const WARN = 'warn';
@@ -18,24 +19,27 @@ export const SUCCESS = 'success';
  * @param ii18nMessageValues any key/values the message requires
  */
 export function sendIntlMessage(level, i18nMessageId, ii18nMessageValues) {
-  const message = intl.formatMessage({ id: i18nMessageId }, ii18nMessageValues);
-  // it's expected this function will bet more complex as we customize toasts
-  switch (level) {
-    case INFO:
-      toast.info(message);
-      break;
-    case WARN:
-      toast.warn(message);
-      break;
-    case ERROR:
-      toast.error(message);
-      break;
-    case SUCCESS:
-      toast.success(message);
-      break;
-    default:
-      toast(message);
-  }
+  Auth.currentAuthenticatedUser()
+    .then(() => {
+      const message = intl.formatMessage({ id: i18nMessageId }, ii18nMessageValues);
+      // it's expected this function will bet more complex as we customize toasts
+      switch (level) {
+        case INFO:
+          toast.info(message);
+          break;
+        case WARN:
+          toast.warn(message);
+          break;
+        case ERROR:
+          toast.error(message);
+          break;
+        case SUCCESS:
+          toast.success(message);
+          break;
+        default:
+          toast(message);
+      }
+    }).catch(() => console.debug('Suppressed toast after user logged out'));
 }
 
 /**

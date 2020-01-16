@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react'
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
@@ -8,10 +8,10 @@ import {
   navigate,
 } from '../../utils/marketIdPathFunctions';
 import Screen from '../../containers/Screen/Screen';
-import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext'
-import { getMarketClient } from '../../api/uclusionClient'
-import { registerListener } from '../../utils/MessageBusUtils'
-import { ERROR, sendIntlMessage } from '../../utils/userMessage'
+import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
+import { getMarketClient } from '../../api/uclusionClient';
+import { registerListener } from '../../utils/MessageBusUtils';
+import { toastError } from '../../utils/userMessage';
 
 function MarketInvite(props) {
   const { hidden } = props;
@@ -20,6 +20,7 @@ function MarketInvite(props) {
   const { location } = history;
   const { pathname } = location;
   const { marketId } = decomposeMarketPath(pathname);
+  const [myLoading, setMyLoading] = useState(true);
 
   useEffect(() => {
     if (!hidden) {
@@ -44,8 +45,9 @@ function MarketInvite(props) {
       console.debug(`Logging into market ${marketId}`);
       getMarketClient(marketId)
         .catch((error) => {
+          setMyLoading(false);
           console.error(error);
-          sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
+          toastError('errorMarketFetchFailed');
         });
     }
   }, [hidden, marketId, history]);
@@ -55,7 +57,7 @@ function MarketInvite(props) {
       title={intl.formatMessage({ id: 'loadingMarket' })}
       tabTitle={intl.formatMessage({ id: 'loadingMarket' })}
       hidden={hidden}
-      loading
+      loading={myLoading}
     >
       <div />
     </Screen>

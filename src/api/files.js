@@ -4,7 +4,7 @@ import TokenFetcher from '../authorization/TokenFetcher';
 import config from '../config';
 import { TOKEN_TYPE_FILE } from '../authorization/TokenStorageManager';
 import { getStoredFileToken, updateFileToken } from '../authorization/tokenStorageUtils';
-import { ERROR, sendIntlMessage } from '../utils/userMessage';
+import { toastErrorAndThrow } from '../utils/userMessage';
 
 /**
  *
@@ -29,9 +29,8 @@ export function uploadFileToS3(marketId, file) {
       return fetch(url, fetchParams)
         .then(() => metadata); // just want to give back the successful metadat
     })
-    .catch((error) => {
-      sendIntlMessage(ERROR, 'errorFileUploadFailed');
-      throw error;
+    .catch(() => {
+      toastErrorAndThrow('errorFileUploadFailed');
     });
 }
 

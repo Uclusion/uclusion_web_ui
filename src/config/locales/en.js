@@ -496,6 +496,7 @@ const messages = defineMessages({
   errorClearFailed: 'There was a problem clearing your data. Please try again',
   errorGetIdFailed: 'There was a problem displaying your identification.',
   errorUpdateUserFailed: 'There was a problem updating your profile. Please try again.',
+  errorMarketFetchFailed: 'There was an error processing your invite. Please try again.',
 
   // home cheat sheet
   homeCheatWelcome: 'Welcome to Uclusion!',

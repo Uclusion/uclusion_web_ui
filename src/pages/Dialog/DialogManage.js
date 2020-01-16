@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
+import _ from 'lodash';
 import {
   makeBreadCrumbs, decomposeMarketPath, formMarketLink, navigate,
 } from '../../utils/marketIdPathFunctions';
@@ -44,7 +45,8 @@ function DialogManage(props) {
     const { name } = investible;
     return name;
   }
-  const linkName = marketType === INITIATIVE_TYPE ? getInitiativeLinkName(investibles[0])
+  const linkName = marketType === INITIATIVE_TYPE && !_.isEmpty(investibles)
+    ? getInitiativeLinkName(investibles[0])
     : currentMarketName;
   const breadCrumbTemplates = [{ name: linkName, link: formMarketLink(marketId) }];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);

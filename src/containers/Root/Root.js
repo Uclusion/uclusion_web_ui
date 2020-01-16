@@ -3,16 +3,13 @@ import PropTypes from 'prop-types';
 import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
 import { useHistory } from 'react-router';
-import queryString from 'query-string';
 import { defaultTheme } from '../../config/themes';
 import Market from '../../pages/Dialog/Dialog';
 import About from '../../pages/About/About';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import {
-  broadcastView, decomposeMarketPath, formMarketLink, navigate,
+  broadcastView, decomposeMarketPath,
 } from '../../utils/marketIdPathFunctions';
-import { getAccountClient, getMarketClient } from '../../api/uclusionClient';
-import { ERROR, sendIntlMessage } from '../../utils/userMessage';
 import Home from '../../pages/Home/Home';
 import Investible from '../../pages/Investible/Investible';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
@@ -25,8 +22,8 @@ import InvestibleAdd from '../../pages/Dialog/InvestibleAdd';
 import DialogAdd from '../../pages/DialogAdd/DialogAdd';
 import DialogEdit from '../../pages/Dialog/DialogEdit';
 import DialogManage from '../../pages/Dialog/DialogManage';
-import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
-import { registerListener } from '../../utils/MessageBusUtils';
+import MarketInvite from '../../pages/Invites/MarketInvite';
+import SlackInvite from '../../pages/Invites/SlackInvite';
 
 const useStyles = makeStyles({
   body: {
@@ -111,57 +108,18 @@ function Root() {
     return (action !== 'archives');
   }
 
-  function isInvite() {
-    if (!pathname) {
-      return false;
-    }
-    return action === 'invite' || action === 'slack';
-  }
-  const isMarketInvite = action === 'invite' && marketId;
-  if (isMarketInvite) {
-    const hubListener = (data) => {
-      const { payload: { event, message } } = data;
-      switch (event) {
-        case MARKET_MESSAGE_EVENT: {
-          const { object_id: messageMarketId } = message;
-          if (messageMarketId === marketId) {
-            console.log(`Redirecting us to market ${marketId}`);
-            setTimeout(() => {
-              navigate(history, formMarketLink(marketId));
-            }, 500);
-          }
-          break;
-        }
-        default:
-          // ignore
-          break;
-      }
-    };
-    console.debug(`Logging into market ${marketId}`);
-    getMarketClient(marketId).then(() => registerListener(VERSIONS_HUB_CHANNEL, 'inviteListener', hubListener))
-      .catch((error) => {
-        console.error(error);
-        sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
-      });
+  function hideSlackInvite() {
+    return action !== 'slack' || !hash;
   }
 
-  let hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible()
-    && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
-    && hideAddMarket() && hideDialogEdit() && hideDialogManage() && !isMarketInvite);
-  if (hash) {
-    const values = queryString.parse(hash);
-    const { nonce } = values;
-    if (nonce) {
-      hidePNF = true;
-      getAccountClient()
-        .then((client) => client.users.register(nonce))
-        .then(() => navigate(history, '/'))
-        .catch((error) => {
-          console.error(error);
-          sendIntlMessage(ERROR, { id: 'slack_register_failed' });
-        });
-    }
+  function hideMarketInvite() {
+    return action !== 'invite' || !marketId;
   }
+
+  const hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible()
+    && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
+    && hideAddMarket() && hideDialogEdit() && hideDialogManage() && hideMarketInvite()
+    && hideSlackInvite());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -217,7 +175,7 @@ function Root() {
       <CssBaseline />
       <div className={classes.body}>
         <div className={classes.root}>
-          <div className={isInvite() ? classes.hide : classes.content}>
+          <div className={classes.content}>
             <Home hidden={hideHome()} />
             <Market hidden={hideMarket()} />
             <About hidden={hideAbout()} />
@@ -229,6 +187,8 @@ function Root() {
             <DialogAdd hidden={hideAddMarket()} />
             <DialogEdit hidden={hideDialogEdit()} />
             <DialogManage hidden={hideDialogManage()} />
+            <MarketInvite hidden={hideMarketInvite()} />
+            <SlackInvite hidden={hideSlackInvite()} />
             <PageNotFound hidden={hidePNF} />
           </div>
         </div>

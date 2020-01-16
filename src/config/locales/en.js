@@ -142,6 +142,8 @@ const messages = defineMessages({
   sidebarNewPlanning: 'Create New Plan',
 
   loadingMessage: 'Loading',
+  loadingMarket: 'Processing Invite',
+  loadingSlack: 'Processing Slack Integration',
 
   // ExpirationSelector
   expirationSelectorOneDay: '1 day',

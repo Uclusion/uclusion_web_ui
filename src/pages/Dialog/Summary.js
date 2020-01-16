@@ -67,6 +67,8 @@ function Summary(props) {
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
+  // eslint-disable-next-line max-len
+  const marketPresencesParticipating = marketPresences.filter((presence) => presence.following && !presence.is_admin);
   const marketPresencesModerating = marketPresences.filter((presence) => presence.is_admin);
 
   const diff = getDiff(diffState, id, myPresence.id);
@@ -163,6 +165,24 @@ function Summary(props) {
         <Grid
           container
         >
+          <Grid
+            item
+            xs={12}
+            sm={2}
+            key="observers"
+          >
+            <Typography>
+              {intl.formatMessage({ id: 'dialogParticipants' })}
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            sm={10}
+            key="userList"
+          >
+            {displayUserList(marketPresencesParticipating)}
+          </Grid>
           <Grid
             item
             xs={12}

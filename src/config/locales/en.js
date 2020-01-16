@@ -120,6 +120,7 @@ const messages = defineMessages({
   public: 'Public',
   created_by: 'Created by',
   observers: 'Not Assignable:',
+  dialogParticipants: 'Participants',
   dialogObservers: 'Observers',
   isObserver: 'Is Observer',
 

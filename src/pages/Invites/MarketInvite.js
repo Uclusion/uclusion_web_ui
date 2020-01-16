@@ -48,7 +48,7 @@ function MarketInvite(props) {
           sendIntlMessage(ERROR, { id: 'marketFetchFailed' });
         });
     }
-  }, [hidden, marketId]);
+  }, [hidden, marketId, history]);
 
   return (
     <Screen

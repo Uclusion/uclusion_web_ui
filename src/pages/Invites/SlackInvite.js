@@ -31,7 +31,7 @@ function SlackInvite(props) {
           });
       }
     }
-  }, [hidden, hash]);
+  }, [hidden, hash, history]);
 
   return (
     <Screen

@@ -13,6 +13,7 @@ class WebSocketRunner {
     this.reconnectInterval = config.reconnectInterval;
     this.messageHandlers = [];
     this.registerHandler = this.registerHandler.bind(this);
+    this.lastSentTime = Date.now(); // Otherwise we might never be given a chance to get going
   }
 
   getMessageHandler() {
@@ -68,7 +69,12 @@ class WebSocketRunner {
     return this.socket.readyState;
   }
 
+  getSocketLastSentTime() {
+    return this.lastSentTime;
+  }
+
   send(message) {
+    this.lastSentTime = Date.now();
     this.socket.send(message);
   }
 

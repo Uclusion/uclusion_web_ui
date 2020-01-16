@@ -157,8 +157,9 @@ function WebSocketProvider(props) {
             case VIEW_EVENT: {
               const { isEntry } = message;
               if (isEntry) {
-                if (newSocket.getSocketState() === WebSocket.OPEN) {
-                  console.debug('Creating pong timer');
+                if (newSocket.getSocketState() === WebSocket.OPEN
+                  && (Date.now() - newSocket.getSocketLastSentTime()) > 5000) {
+                  console.debug('Pong');
                   const actionString = JSON.stringify({ action: 'ping' });
                   newSocket.send(actionString);
                   const pongTimer = setTimeout((socket, setSocket) => {

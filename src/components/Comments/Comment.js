@@ -149,16 +149,19 @@ const useStyles = makeStyles({
 });
 
 function Comment(props) {
-  const { comment, depth, marketId, comments } = props;
+  const {
+    comment, depth, marketId, comments,
+  } = props;
   const intl = useIntl();
   const classes = useStyles();
   const { id, comment_type: commentType, created_by: createdBy } = comment;
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId) || [];
-  const commenter = presences.find(presence => presence.id === createdBy);
+  const commenter = presences.find((presence) => presence.id === createdBy);
+  const updatedBy = presences.find((presence) => presence.id === comment.updated_by);
   const [marketsState] = useContext(MarketsContext);
   const user = getMyUserForMarket(marketsState, marketId) || {};
-  const children = comments.filter(comment => comment.reply_id === id);
+  const children = comments.filter((comment) => comment.reply_id === id);
   const sortedChildren = _.sortBy(children, 'created_at');
   const [replyOpen, setReplyOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -167,17 +170,16 @@ function Comment(props) {
   const [highlightedCommentState] = useContext(HighlightedCommentContext);
 
   const isRoot = !comment.reply_id;
-  const expanded =
-    replyOpen ||
-    toggledOpen ||
-    (isRoot && !comment.resolved) ||
-    comment.reply_id;
+  const expanded = replyOpen
+    || toggledOpen
+    || (isRoot && !comment.resolved)
+    || comment.reply_id;
 
   function getChildComments() {
     if (_.isEmpty(sortedChildren)) {
       return <></>;
     }
-    return sortedChildren.map(child => {
+    return sortedChildren.map((child) => {
       const { id: childId } = child;
       const childDepth = depth + 1;
       // we are rendering ourselves, so we don't get the injection automagically
@@ -257,13 +259,18 @@ function Comment(props) {
             content={comment.body}
           />
         )}
+        {updatedBy && comment.updated_by !== createdBy && (
+          <Typography className={classes.commenter}>
+            {`${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}`}
+          </Typography>
+        )}
         <Box
           marginTop={1}
           className={isRoot && toggledOpen ? classes.topicWrapper : ''}
         >
           <ReadOnlyQuillEditor
             value={comment.body}
-            heading={toggledOpen ? true : false}
+            heading={toggledOpen}
             paddingLeft={0}
           />
           {editOpen && (
@@ -322,10 +329,10 @@ function Comment(props) {
             >
               {children && (
                 <Button className={classes.action} onClick={flipToggledOpen}>
-                  {!toggledOpen &&
-                    intl.formatMessage({ id: 'commentViewThreadLabel' })}
-                  {toggledOpen &&
-                    intl.formatMessage({ id: 'commentCloseThreadLabel' })}
+                  {!toggledOpen
+                    && intl.formatMessage({ id: 'commentViewThreadLabel' })}
+                  {toggledOpen
+                    && intl.formatMessage({ id: 'commentCloseThreadLabel' })}
                 </Button>
               )}
               <SpinBlockingButton

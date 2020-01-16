@@ -262,6 +262,8 @@ const messages = defineMessages({
   commentResolveLabel: 'Resolve',
   commentViewThreadLabel: 'View Thread',
   commentCloseThreadLabel: 'Close Thread',
+  lastUpdatedBy: 'Last Updated By',
+
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
 

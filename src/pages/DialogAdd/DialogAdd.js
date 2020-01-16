@@ -54,14 +54,14 @@ function DialogAdd(props) {
       breadCrumbs={breadCrumbs}
     >
       {type === PLANNING_TYPE && idLoaded === type && (
-        <PlanningAdd onCancel={onDone} storedDescription={storedDescription} />
+        <PlanningAdd onDone={onDone} storedDescription={storedDescription} />
       )}
       {type === DECISION_TYPE && idLoaded === type && (
-        <DecisionAdd onCancel={onDone} storedDescription={storedDescription} />
+        <DecisionAdd onDone={onDone} storedDescription={storedDescription} />
       )}
 
       {type === INITIATIVE_TYPE && idLoaded === type && (
-        <InitiativeAdd onCancel={onDone} storedDescription={storedDescription} />
+        <InitiativeAdd onDone={onDone} storedDescription={storedDescription} />
       )}
     </Screen>
   );

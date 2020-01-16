@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
 function InitiativeAdd(props) {
   const intl = useIntl();
   const {
-    onCancel, storedDescription,
+    onDone, storedDescription,
   } = props;
   const history = useHistory();
   const classes = useStyles();
@@ -72,7 +72,7 @@ function InitiativeAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onCancel();
+    onDone();
   }
 
   function handleChange(field) {
@@ -109,6 +109,7 @@ function InitiativeAdd(props) {
     };
     return createDecision(addInfo, 'errorInitiativeAddFailed')
       .then((result) => {
+        onDone();
         const { market_id: marketId } = result;
         const link = formMarketLink(marketId);
         addDialogDispatch({ link });
@@ -185,12 +186,12 @@ function InitiativeAdd(props) {
 }
 
 InitiativeAdd.propTypes = {
-  onCancel: PropTypes.func,
+  onDone: PropTypes.func,
   storedDescription: PropTypes.string.isRequired,
 };
 
 InitiativeAdd.defaultProps = {
-  onCancel: () => {
+  onDone: () => {
   },
 };
 

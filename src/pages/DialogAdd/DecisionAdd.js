@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
 function DecisionAdd(props) {
   const intl = useIntl();
   const {
-    onCancel, storedDescription,
+    onDone, storedDescription,
   } = props;
   const history = useHistory();
   const classes = useStyles();
@@ -73,7 +73,7 @@ function DecisionAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onCancel();
+    onDone();
   }
 
   function handleChange(field) {
@@ -111,6 +111,7 @@ function DecisionAdd(props) {
     };
     return createDecision(addInfo)
       .then((result) => {
+        onDone();
         const { market_id: marketId } = result;
         const link = formMarketLink(marketId);
         addDialogDispatch({ link });
@@ -179,12 +180,12 @@ function DecisionAdd(props) {
 }
 
 DecisionAdd.propTypes = {
-  onCancel: PropTypes.func,
+  onDone: PropTypes.func,
   storedDescription: PropTypes.string.isRequired,
 };
 
 DecisionAdd.defaultProps = {
-  onCancel: () => {
+  onDone: () => {
   },
 };
 

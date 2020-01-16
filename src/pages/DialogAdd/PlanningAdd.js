@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
 function PlanningAdd(props) {
   const intl = useIntl();
   const {
-    onCancel, storedDescription,
+    onDone, storedDescription,
   } = props;
   const history = useHistory();
   const classes = useStyles();
@@ -73,7 +73,7 @@ function PlanningAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onCancel();
+    onDone();
   }
 
   function handleChange(field) {
@@ -134,6 +134,7 @@ function PlanningAdd(props) {
     }
     return createPlanning(addInfo)
       .then((result) => {
+        onDone();
         const { market_id: marketId } = result;
         const link = formMarketLink(marketId);
         addDialogDispatch({ link });
@@ -223,12 +224,12 @@ function PlanningAdd(props) {
 }
 
 PlanningAdd.propTypes = {
-  onCancel: PropTypes.func,
+  onDone: PropTypes.func,
   storedDescription: PropTypes.string.isRequired,
 };
 
 PlanningAdd.defaultProps = {
-  onCancel: () => {
+  onDone: () => {
   },
 };
 

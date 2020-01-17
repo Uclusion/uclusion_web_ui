@@ -303,6 +303,7 @@ const messages = defineMessages({
   homeViewArchives: 'View Archives',
   homeViewAbout: 'About',
   homeCreatedAt: 'Created on {dateString}',
+  archiveWarning: 'Archive will make inactive and cannot be undone.',
   new: 'New',
   information: 'Information',
   message: 'Message',

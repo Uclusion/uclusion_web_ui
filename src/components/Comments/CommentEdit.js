@@ -23,9 +23,9 @@ function CommentEdit(props) {
   } = props;
   const { id, body: initialBody, uploaded_files: initialUploadedFiles } = comment;
   const [body, setBody] = useState(initialBody);
-  const [uploadedFiles] = useState(initialUploadedFiles);
+  const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const classes = useStyles();
-  const [operationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
 
   function onEditorChange(content) {
     setBody(content);
@@ -37,6 +37,10 @@ function CommentEdit(props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(uploadedFiles, body);
     return updateComment(marketId, id, tokensRemoved, filteredUploads);
+  }
+
+  function onS3Upload(metadatas) {
+    setUploadedFiles(metadatas);
   }
 
   function handleCancel() {
@@ -52,6 +56,8 @@ function CommentEdit(props) {
           <QuillEditor
             defaultValue={initialBody}
             onChange={onEditorChange}
+            onS3Upload={onS3Upload}
+            setOperationInProgress={setOperationRunning}
           />
         </CardContent>
         <CardActions>

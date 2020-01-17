@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import {
   Card, CardActions, CardContent, TextField, Typography, withStyles,
@@ -9,6 +9,8 @@ import { updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { processTextAndFilesForSave } from '../../../api/files';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const styles = (theme) => ({
   root: {
@@ -26,7 +28,7 @@ function InitiativeInvestibleEdit(props) {
   const {
     fullInvestible, intl, classes, onCancel, onSave, marketId, storedDescription,
   } = props;
-
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const myInvestible = fullInvestible.investible;
   const { id, description: initialDescription } = myInvestible;
   const [currentValues, setCurrentValues] = useState(myInvestible);
@@ -108,29 +110,32 @@ function InitiativeInvestibleEdit(props) {
           {intl.formatMessage({ id: 'descriptionEdit' })}
         </Typography>
         <QuillEditor
-          handleFileUpload={handleFileUpload}
+          onS3Upload={handleFileUpload}
           onChange={onEditorChange}
           onStoreChange={onStorageChange}
           defaultValue={description}
+          setOperationInProgress={setOperationRunning}
         />
       </CardContent>
       <CardActions>
-        <SpinBlockingButton
-          marketId={marketId}
-          onClick={onCancel}
-        >
-          {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
-        </SpinBlockingButton>
-        <SpinBlockingButton
-          marketId={marketId}
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          disabled={!validForm}
-          onSpinStop={onSave}
-        >
-          {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
-        </SpinBlockingButton>
+        <SpinBlockingButtonGroup>
+          <SpinBlockingButton
+            marketId={marketId}
+            onClick={onCancel}
+          >
+            {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
+          </SpinBlockingButton>
+          <SpinBlockingButton
+            marketId={marketId}
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={!validForm}
+            onSpinStop={onSave}
+          >
+            {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
+          </SpinBlockingButton>
+        </SpinBlockingButtonGroup>
       </CardActions>
     </Card>
 
@@ -151,7 +156,9 @@ InitiativeInvestibleEdit.propTypes = {
 };
 
 InitiativeInvestibleEdit.defaultProps = {
-  onSave: () => {},
-  onCancel: () => {},
+  onSave: () => {
+  },
+  onCancel: () => {
+  },
 };
 export default withStyles(styles)(injectIntl(InitiativeInvestibleEdit));

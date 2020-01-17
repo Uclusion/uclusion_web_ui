@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Card, CardActions, CardContent, makeStyles, TextField, Typography,
@@ -11,6 +11,7 @@ import { processTextAndFilesForSave } from '../../../api/files';
 import { PLANNING_TYPE } from '../../../constants/markets';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,6 +37,7 @@ function PlanningDialogEdit(props) {
   const classes = useStyles();
   const [mutableMarket, setMutableMarket] = useState(market);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { name, max_budget, investment_expiration, days_estimate } = mutableMarket;
   const [description, setDescription] = useState(storedDescription || mutableMarket.description);
   const [validForm, setValidForm] = useState(true);
@@ -151,9 +153,9 @@ function PlanningDialogEdit(props) {
           onChange={onEditorChange}
           onStoreChange={onStorageChange}
           defaultValue={description}
-          readOnly={false}
           marketId={id}
           onS3Upload={onS3Upload}
+          setOperationInProgress={setOperationRunning}
         />
       </CardContent>
       <CardActions>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { injectIntl } from 'react-intl';
 import _ from 'lodash';
 import {
@@ -13,7 +13,7 @@ import {
 } from '../../constants/comments';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
-// import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { checkIfCommentInStorage } from '../../contexts/CommentsContext/commentsContextHelper';
 
 function getPlaceHolderLabelId(type) {
@@ -77,7 +77,7 @@ function CommentAdd(props) {
   const classes = useStyles();
   const placeHolderLabelId = getPlaceHolderLabelId(type);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
-  // const [operationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   function onEditorChange(content) {
     setBody(content);
@@ -85,6 +85,10 @@ function CommentAdd(props) {
 
   function toggleIssue() {
     setOpenIssue(!openIssue);
+  }
+
+  function onS3Upload(metadatas) {
+    setUploadedFiles(metadatas);
   }
 
   function handleSave() {
@@ -133,7 +137,9 @@ function CommentAdd(props) {
           placeholder={placeHolder}
           defaultValue={body}
           onChange={onEditorChange}
-          noToolbar={true}
+          noToolbar
+          onS3Upload={onS3Upload}
+          setOperationInProgress={setOperationRunning}
         />
       </div>
       {!showIssueWarning && (

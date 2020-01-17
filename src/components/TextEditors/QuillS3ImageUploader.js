@@ -21,6 +21,8 @@ class QuillS3ImageUploader {
   constructor(quill, options) {
     this.quill = quill;
     this.marketId = options.marketId;
+    this.onUploadStart = options.onUploadStart;
+    this.onUploadStop = options.onUploadStop;
     this.onS3Upload = options.onS3Upload;
     this.s3Uploader = this.s3Uploader.bind(this);
     this.doUpload = this.doUpload.bind(this);
@@ -111,7 +113,10 @@ class QuillS3ImageUploader {
 
   doUpload(uploads) {
     const range = this.quill.getSelection();
-    console.debug(uploads);
+    if (this.onUploadStart) {
+      this.onUploadStart();
+    }
+    //console.debug(uploads);
     return this.s3Uploader(range, uploads)
       .then((metadatas) => {
         if (this.uploader) {
@@ -120,6 +125,15 @@ class QuillS3ImageUploader {
         if (this.onS3Upload) {
           this.onS3Upload(metadatas);
         }
+        if (this.onUploadStop) {
+          this.onUploadStop();
+        }
+      })
+      .catch((error) => {
+        if (this.onUploadStop) {
+          this.onUploadStop();
+        }
+        throw error;
       });
   }
 

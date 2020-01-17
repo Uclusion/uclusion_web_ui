@@ -1,4 +1,5 @@
 import React, {
+  useContext,
   useEffect, useReducer, useState,
 } from 'react';
 import PropTypes from 'prop-types';
@@ -17,6 +18,7 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper';
 import { DECISION_TYPE } from '../../constants/markets';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,6 +37,7 @@ function DecisionAdd(props) {
   const {
     onDone, storedDescription,
   } = props;
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
   const classes = useStyles();
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
@@ -156,6 +159,7 @@ function DecisionAdd(props) {
           onStoreChange={onStorageChange}
           placeHolder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
           defaultValue={description}
+          setOperationInProgress={setOperationRunning}
         />
       </CardContent>
       <CardActions>

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import _ from 'lodash';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -20,6 +20,7 @@ import AssignmentList from './AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { checkInvestibleInStorage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 
 const styles = (theme) => ({
   root: {
@@ -38,6 +39,7 @@ function PlanningInvestibleAdd(props) {
     marketId, intl, classes, onCancel, onSave, storedDescription,
   } = props;
 
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
   const emptyInvestible = { name: '', assignments: [] };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
@@ -155,6 +157,7 @@ function PlanningInvestibleAdd(props) {
           placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
           onS3Upload={onS3Upload}
           defaultValue={description}
+          setOperationInProgress={setOperationRunning}
         />
       </CardContent>
       <CardActions>

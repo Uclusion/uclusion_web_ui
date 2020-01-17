@@ -59,7 +59,14 @@ class QuillEditor extends React.PureComponent {
     this.state = { uploads: [] };
     this.editorBox = React.createRef();
     this.editorContainer = React.createRef();
-    const { marketId, placeholder, uploadDisabled, noToolbar, simple } = props;
+    const {
+      marketId,
+      placeholder,
+      uploadDisabled,
+      noToolbar,
+      simple,
+      setOperationInProgress,
+    } = props;
     const defaultModules = {
       toolbar: [
         [{ font: [] }],
@@ -78,6 +85,8 @@ class QuillEditor extends React.PureComponent {
       s3Upload: {
         marketId,
         onS3Upload: this.statefulUpload.bind(this),
+        onUploadStart: () => setOperationInProgress(true),
+        onUploadStop: () => setOperationInProgress(false),
       },
       table: true,
       tableUI: true,
@@ -176,6 +185,7 @@ QuillEditor.propTypes = {
   value: PropTypes.string,
   uploadDisabled: PropTypes.bool,
   noToolbar: PropTypes.bool,
+  setOperationInProgress: PropTypes.func,
 };
 
 QuillEditor.defaultProps = {
@@ -185,11 +195,14 @@ QuillEditor.defaultProps = {
   },
   onStoreChange: () => {
   },
+  setOperationInProgress: () => {},
   defaultValue: '',
   placeholder: '',
   marketId: undefined,
   uploadDisabled: false,
   noToolbar: false,
 };
+
+
 
 export default withTheme(QuillEditor);

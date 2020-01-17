@@ -4,7 +4,7 @@ import React, {
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
-  Button, ButtonGroup,
+  Button,
   Card,
   CardActions,
   CardContent,
@@ -22,6 +22,7 @@ import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/mar
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 import { checkInvestibleInStorage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const styles = (theme) => ({
   root: {
@@ -54,7 +55,7 @@ function DecisionInvestibleAdd(props) {
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [validForm, setValidForm] = useState(false);
-  const [operationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, addInvestibleDispatch] = useReducer((state, action) => {
     const { link } = action;
     if (link) {
@@ -158,15 +159,11 @@ function DecisionInvestibleAdd(props) {
           placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
           onS3Upload={onS3Upload}
           defaultValue={description}
+          setOperationInProgress={setOperationRunning}
         />
       </CardContent>
       <CardActions>
-        <ButtonGroup
-          disabled={operationRunning}
-          variant="contained"
-          size="small"
-          color="primary"
-        >
+        <SpinBlockingButtonGroup>
           <Button
 
             onClick={handleCancel}
@@ -183,7 +180,7 @@ function DecisionInvestibleAdd(props) {
           >
             {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
           </SpinBlockingButton>
-        </ButtonGroup>
+        </SpinBlockingButtonGroup>
       </CardActions>
     </Card>
 

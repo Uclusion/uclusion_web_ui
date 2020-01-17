@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
@@ -14,6 +14,7 @@ import { PLANNING_TYPE } from '../../constants/markets';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,6 +36,7 @@ function PlanningAdd(props) {
   const history = useHistory();
   const classes = useStyles();
   const emptyPlan = { name: '' };
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [currentValues, setCurrentValues] = useState(emptyPlan);
   const [validForm, setValidForm] = useState(false);
   const [description, setDescription] = useState(storedDescription);
@@ -198,6 +200,7 @@ function PlanningAdd(props) {
           onStoreChange={onStorageChange}
           placeHolder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
           defaultValue={description}
+          setOperationInProgress={setOperationRunning}
         />
       </CardContent>
       <CardActions>

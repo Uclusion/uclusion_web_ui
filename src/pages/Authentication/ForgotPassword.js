@@ -2,6 +2,7 @@ import React, { useState, useReducer } from 'react';
 import _ from 'lodash';
 import { Auth } from 'aws-amplify';
 import { Button, TextField, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import { useIntl } from 'react-intl';
 import { toastError } from '../../utils/userMessage';
 
@@ -141,6 +142,17 @@ function ForgotPassword(props) {
 
   if (codeSent) {
     return (
+      <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <div className={classes.paper}>
+        <Avatar className={classes.avatar}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Sign up
+        </Typography>
+      </div>
+      ></Container>
       <div>
         <Typography>
           {intl.formatMessage({ id: 'forgotPasswordHeader' })}

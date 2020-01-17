@@ -113,7 +113,22 @@ function Signup(props) {
   }
 
   if (postSignUp === 'ACCOUNT_EXISTS') {
-    return <div>An account with that email already exists, please log in.</div>;
+    return (
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Your password is reset!
+          </Typography>
+          <Typography component="h1" variant="h5">
+            An account with that email already exists, please log in.
+          </Typography>
+        </div>
+      </Container>
+    );
   }
 
   return (

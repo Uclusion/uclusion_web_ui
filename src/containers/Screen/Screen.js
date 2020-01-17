@@ -107,9 +107,9 @@ function Screen(props) {
   const [versionsState] = useContext(VersionsContext);
   const { notificationVersion } = versionsState;
   const { version } = notificationVersion;
-  const myLoading = loading || version < 0;
+  const myLoading = !hidden && (loading || version < 0);
   useEffect(() => {
-    if (!hidden && !operationRunning && myLoading) {
+    if (!operationRunning && myLoading) {
       setOperationRunning(true);
       setOperationRunningWasSet(true);
     } else if (operationRunningWasSet && !myLoading) {
@@ -121,8 +121,8 @@ function Screen(props) {
       setFirstRender(false);
     }
     return () => {};
-  }, [firstRender, location, hidden, operationRunning,
-    operationRunningWasSet, versionsState, myLoading, setOperationRunning]);
+  }, [firstRender, location, operationRunning, operationRunningWasSet,
+    versionsState, myLoading, setOperationRunning]);
 
   const [sidebarOpen] = useContext(SidebarContext);
 

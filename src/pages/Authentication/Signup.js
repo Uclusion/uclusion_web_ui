@@ -104,11 +104,21 @@ function Signup(props) {
 
   if (postSignUp === 'VERIFICATION_RESENT') {
     return (
-      <div>
-        We have resent a verification email to you. Please click the link inside
-        to continue.
-        {getResendButton()}
-      </div>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Your password is reset!
+          </Typography>
+          <Typography component="h1" variant="h5">
+            We have resent a verification email to you. Please click the link inside to continue.
+          </Typography>
+          {getResendButton()}
+        </div>
+      </Container>
     );
   }
 

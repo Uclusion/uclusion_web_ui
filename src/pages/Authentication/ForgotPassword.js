@@ -7,7 +7,6 @@ import { useIntl } from "react-intl";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Avatar from "@material-ui/core/Avatar";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { toastError } from "../../utils/userMessage";
 
 const useStyles = makeStyles(theme => ({
@@ -22,7 +21,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: "#3f6b72",
   },
   form: {
-    width: "100%", // Fix IE 11 issue.
+    width: "100%",
     marginTop: theme.spacing(3),
   },
   submit: {
@@ -55,6 +54,7 @@ function ForgotPassword(props) {
   const intl = useIntl();
   const classes = useStyles();
 
+  const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
   const { email, code, password } = userState;
 
   function handleChange(name) {
@@ -117,7 +117,7 @@ function ForgotPassword(props) {
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
+            <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
           <Typography component="h1" variant="h5">
             {intl.formatMessage({ id: "forgotPasswordHeader" })}
@@ -154,7 +154,7 @@ function ForgotPassword(props) {
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
+            <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
           <Typography component="h1" variant="h5">
             {intl.formatMessage({ id: "forgotPasswordHeader" })}
@@ -207,7 +207,7 @@ function ForgotPassword(props) {
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
+            <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
           <Typography component="h1" variant="h5">
             Your password is reset!

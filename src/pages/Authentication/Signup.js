@@ -3,7 +3,6 @@ import { TextField, Button } from "@material-ui/core";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Avatar from "@material-ui/core/Avatar";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import Link from "@material-ui/core/Link";
@@ -24,7 +23,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: "#3f6b72",
   },
   form: {
-    width: "100%", // Fix IE 11 issue.
+    width: "100%",
     marginTop: theme.spacing(3),
   },
   submit: {
@@ -58,6 +57,7 @@ function Signup(props) {
   const history = useHistory();
   const { location } = history;
   const { pathname, hash } = location;
+  const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
 
   function handleChange(name) {
     return event => {
@@ -107,7 +107,7 @@ function Signup(props) {
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
+            <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
           <Typography component="h1" variant="h5">
             Your password is reset!
@@ -128,7 +128,7 @@ function Signup(props) {
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
+            <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
           <Typography component="h1" variant="h5">
             Your password is reset!
@@ -149,7 +149,7 @@ function Signup(props) {
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
+            <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
           <Typography component="h1" variant="h5">
             Your password is reset!
@@ -167,7 +167,7 @@ function Signup(props) {
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
+          <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
         </Avatar>
         <Typography component="h1" variant="h5">
           Sign up

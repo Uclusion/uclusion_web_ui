@@ -201,9 +201,20 @@ function ForgotPassword(props) {
 
   if (passwordReset) {
     return (
-      <div>
-        Your password is reset. Click <a href="/">here</a> to log in.
-      </div>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Your password is reset!
+          </Typography>
+          <Typography component="h1" variant="h5">
+            Click <a href="/">here</a> to log in.
+          </Typography>
+        </div>
+      </Container>
     );
   }
 

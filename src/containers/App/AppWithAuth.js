@@ -1,12 +1,11 @@
 import React, { useContext } from 'react';
-import Amplify, { Auth } from 'aws-amplify';
+import Amplify from 'aws-amplify';
 import {
   Authenticator, SignIn, SignUp, ForgotPassword, SignOut, Greetings,
 } from 'aws-amplify-react';
 import { IntlProvider } from 'react-intl';
 import { makeStyles } from '@material-ui/styles';
 import { useHistory } from 'react-router';
-import config from '../../config';
 import App from './App';
 import awsconfig from '../../config/amplify';
 import CustomSignIn from '../../authorization/CustomSignIn';
@@ -21,6 +20,7 @@ import { AUTH_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import TokenStorageManager from '../../authorization/TokenStorageManager';
 
 Amplify.configure(awsconfig);
+/*
 const oauth = {
   domain: config.cognito_domain,
   scope: ['email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],
@@ -31,7 +31,7 @@ const oauth = {
 
 
 Auth.configure({ oauth });
-
+*/
 const useStyles = makeStyles({
   root: {
     '& .Nav__navBar___xtCFA': {

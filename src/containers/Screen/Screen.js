@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
 
 function scroller(location) {
   const { hash } = location;
-  if (hash) {
+  if (hash && hash.length > 1) {
     const target = hash.substring(1, hash.length);
     if (target) {
       const element = document.getElementById(target);
@@ -63,6 +63,8 @@ function scroller(location) {
         element.scrollIntoView();
       }
     }
+  } else {
+    window.scrollTo(0, 0);
   }
 }
 

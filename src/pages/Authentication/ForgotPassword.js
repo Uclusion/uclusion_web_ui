@@ -107,36 +107,38 @@ function ForgotPassword(props) {
 
   if (!codeSent && !passwordReset) {
     return (
-      <div>
-        <Typography>
-          {intl.formatMessage({ id: 'forgotPasswordHeader' })}
-        </Typography>
-        {!_.isEmpty(errorMessage) && (
-          <Typography
-            color="error"
-          >
-            {errorMessage}
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            {intl.formatMessage({ id: "forgotPasswordHeader" })}
           </Typography>
-        )
-        }
-        <form
-          noValidate
-          autoComplete="off"
-        >
-          <TextField
-            id="email"
-            label={intl.formatMessage({ id: 'forgotPasswordEmailLabel' })}
-            onChange={handleChange('email')}
-            margin="normal"
-          />
-        </form>
-        <Button
-          onClick={onSendCode}
-          disabled={_.isEmpty(email)}
-        >
-          {intl.formatMessage({ id: 'forgotPasswordSendCodeButton' })}
-        </Button>
-      </div>
+          {!_.isEmpty(errorMessage) && (
+            <Typography color="error">{errorMessage}</Typography>
+          )}
+          <form noValidate className={classes.form} autoComplete="off">
+            <TextField
+              id="email"
+              fullWidth
+              label={intl.formatMessage({ id: "forgotPasswordEmailLabel" })}
+              onChange={handleChange("email")}
+              margin="normal"
+            />
+          </form>
+          <Button
+            fullWidth
+            variant="contained"
+            className={classes.submit}
+            onClick={onSendCode}
+            disabled={_.isEmpty(email)}
+          >
+            {intl.formatMessage({ id: "forgotPasswordSendCodeButton" })}
+          </Button>
+        </div>
+      </Container>
     );
   }
 

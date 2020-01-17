@@ -13,22 +13,22 @@ import { toastError } from "../../utils/userMessage";
 const useStyles = makeStyles(theme => ({
   paper: {
     marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: '#3f6b72',
+    backgroundColor: "#3f6b72",
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
+    width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(3),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
-    backgroundColor: '#3f6b72',
-    color: '#fff',
+    backgroundColor: "#3f6b72",
+    color: "#fff",
   },
 }));
 
@@ -42,28 +42,26 @@ function reducer(state, action) {
 }
 
 function ForgotPassword(props) {
-
   const empty = {
-    email: '',
-    code: '',
-    password: '',
+    email: "",
+    code: "",
+    password: "",
   };
   const { authState } = props;
   const [userState, dispatch] = useReducer(reducer, empty);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [passwordReset, setPasswordReset] = useState(false);
   const intl = useIntl();
+  const classes = useStyles();
 
-  const {
-    email,
-    code,
-    password,
-  } = userState;
+  const { email, code, password } = userState;
 
   function handleChange(name) {
-    return (event) => {
-      const { target: { value } } = event;
+    return event => {
+      const {
+        target: { value },
+      } = event;
       dispatch({ name, value });
     };
   }
@@ -71,18 +69,20 @@ function ForgotPassword(props) {
   function onSendCode() {
     Auth.forgotPassword(email)
       .then(() => {
-        setErrorMessage('');
+        setErrorMessage("");
         setCodeSent(true);
         setPasswordReset(false);
       })
-      .catch((error) => {
+      .catch(error => {
         const { code } = error;
-        if (code === 'UserNotFoundException') {
-          const message = intl.formatMessage({ id: 'forgotPasswordEmailNotFound' });
+        if (code === "UserNotFoundException") {
+          const message = intl.formatMessage({
+            id: "forgotPasswordEmailNotFound",
+          });
           console.log(message);
           setErrorMessage(message);
         } else {
-          toastError('errorForgotPasswordCodeFailed');
+          toastError("errorForgotPasswordCodeFailed");
         }
       });
   }
@@ -90,23 +90,25 @@ function ForgotPassword(props) {
   function onSetNewPassword() {
     Auth.forgotPasswordSubmit(email, code, password)
       .then(() => {
-        setErrorMessage('');
+        setErrorMessage("");
         setCodeSent(false);
         setPasswordReset(true);
       })
-      .catch((error) => {
+      .catch(error => {
         const { code } = error;
-        if (code === 'CodeMismatchException') {
-          const message = intl.formatMessage( { id: 'forgotPasswordInvalidCode' });
+        if (code === "CodeMismatchException") {
+          const message = intl.formatMessage({
+            id: "forgotPasswordInvalidCode",
+          });
           setErrorMessage(message);
         } else {
-          toastError('errorForgotPasswordSetFailed');
+          toastError("errorForgotPasswordSetFailed");
         }
       });
   }
 
-  if (authState !== 'forgotPassword') {
-    return <React.Fragment/>;
+  if (authState !== "forgotPassword") {
+    return <React.Fragment />;
   }
 
   if (!codeSent && !passwordReset) {
@@ -218,9 +220,7 @@ function ForgotPassword(props) {
     );
   }
 
-  return (
-    <React.Fragment/>
-  );
+  return <React.Fragment />;
 }
 
 export default ForgotPassword;

@@ -31,8 +31,8 @@ function VerifyEmail(props) {
           if (!_.isEmpty(redirect)) {
             setRedirect(redirect);
           }
-          initiateRedirect();
           setVerificationState('VERIFIED');
+          initiateRedirect();
         })
         .catch((error) => {
           return extractErrorJSON(error)

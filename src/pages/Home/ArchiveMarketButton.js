@@ -61,7 +61,7 @@ function ArchiveMarketButton(props) {
         onClose={handleClose}
       >
         <div className={classes.paper}>
-          <h2 id="simple-modal-title">Warning</h2>
+          <h2 id="simple-modal-title">{intl.formatMessage({ id: 'warning' })}</h2>
           <p id="simple-modal-description">
             {intl.formatMessage({ id: 'archiveWarning' })}
           </p>

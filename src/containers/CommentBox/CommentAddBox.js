@@ -20,6 +20,7 @@ function CommentAddBox(props) {
     onCancel,
     onSave,
     hidden,
+    issueWarningId,
   } = props;
 
 
@@ -35,6 +36,7 @@ function CommentAddBox(props) {
           type={allowedType}
           investible={investible}
           marketId={marketId}
+          issueWarningId={issueWarningId}
           onSave={onSave}
           onCancel={onCancel}
         />
@@ -54,6 +56,7 @@ function CommentAddBox(props) {
 
 CommentAddBox.propTypes = {
   marketId: PropTypes.string.isRequired,
+  issueWarningId: PropTypes.string,
   // eslint-disable-next-line react/forbid-prop-types
   investible: PropTypes.any,
   type: PropTypes.string.isRequired,
@@ -68,6 +71,7 @@ CommentAddBox.defaultProps = {
   onCancel: () => {},
   onSave: () => {},
   hidden: false,
+  issueWarningId: null,
 };
 
 export default CommentAddBox;

@@ -213,6 +213,7 @@ function DecisionDialog(props) {
                 type={commentAddType}
                 allowedTypes={allowedCommentTypes}
                 marketId={marketId}
+                issueWarningId="issueWarning"
                 onSave={closeCommentAddBox}
                 onCancel={closeCommentAddBox}
               />

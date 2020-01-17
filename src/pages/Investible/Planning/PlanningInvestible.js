@@ -408,6 +408,7 @@ function PlanningInvestible(props) {
               allowedTypes={allowedCommentTypes}
               investible={investible}
               marketId={marketId}
+              issueWarningId="issueWarningPlanning"
               type={commentAddType}
               onSave={closeCommentAdd}
               onCancel={closeCommentAdd}

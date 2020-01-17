@@ -8,6 +8,7 @@ const messages = defineMessages({
   warning_404_message: '404 Page not found',
   warning_404_description: 'We are sorry but the page you are looking for does not exist.',
   warning_404_categories: 'No categories configured for this market.',
+  warning: 'Warning',
   slack_register_failed: 'Slack registration failure.',
   settings: 'Settings',
   language: 'Language',
@@ -247,6 +248,9 @@ const messages = defineMessages({
   commentAddReplyDefault: 'Your reply...',
   commentAddSaveLabel: 'Save',
   commentAddCancelLabel: 'Cancel',
+  issueWarning: 'Opening an issue with stop voting on this dialog.',
+  issueWarningInvestible: 'Opening an issue with stop voting on this option.',
+  issueWarningPlanning: 'Opening an issue will move this story to blocked and stop execution or voting.',
 
   // CommentBox
   commentIconRaiseIssueLabel: 'Raise Issue',

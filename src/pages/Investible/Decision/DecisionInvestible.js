@@ -266,6 +266,7 @@ function DecisionInvestible(props) {
               allowedTypes={allowedCommentTypes}
               investible={investible}
               marketId={marketId}
+              issueWarningId="issueWarningInvestible"
               type={commentAddType}
               onSave={closeCommentAdd}
               onCancel={closeCommentAdd}

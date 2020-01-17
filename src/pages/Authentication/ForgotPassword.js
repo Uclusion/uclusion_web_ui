@@ -1,10 +1,14 @@
-import React, { useState, useReducer } from 'react';
-import _ from 'lodash';
-import { Auth } from 'aws-amplify';
-import { Button, TextField, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import { useIntl } from 'react-intl';
-import { toastError } from '../../utils/userMessage';
+import React, { useState, useReducer } from "react";
+import _ from "lodash";
+import { Auth } from "aws-amplify";
+import { Button, TextField, Typography } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import { useIntl } from "react-intl";
+import Container from "@material-ui/core/Container";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Avatar from "@material-ui/core/Avatar";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import { toastError } from "../../utils/userMessage";
 
 const useStyles = makeStyles(theme => ({
   paper: {

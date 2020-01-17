@@ -7,6 +7,8 @@ import { useIntl } from "react-intl";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Avatar from "@material-ui/core/Avatar";
+import Grid from "@material-ui/core/Grid";
+import Link from "@material-ui/core/Link";
 import { toastError } from "../../utils/userMessage";
 
 const useStyles = makeStyles(theme => ({
@@ -143,6 +145,18 @@ function ForgotPassword(props) {
           >
             {intl.formatMessage({ id: "forgotPasswordSendCodeButton" })}
           </Button>
+          <Grid container>
+            <Grid item xs>
+            </Grid>
+            <Grid item>
+              <Link
+                href="/"
+                variant="body2"
+              >
+                Back to login
+              </Link>
+            </Grid>
+          </Grid>
         </div>
       </Container>
     );

@@ -382,6 +382,9 @@ const messages = defineMessages({
   aboutUclusionEmailLabel: 'Support',
   aboutClearStorageButton: 'Clear Storage',
 
+  // Quill Editor
+  quillEditorUploadInProgress: 'Uploading image(s)',
+
   //Planning Manage Users
   manageParticipantsCurrentTitle: 'Current Participants',
   manageParticipantsAddTitle: 'New Participants',

@@ -149,59 +149,53 @@ function ForgotPassword(props) {
   if (codeSent) {
     return (
       <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign up
-        </Typography>
-      </div>
-      ></Container>
-      <div>
-        <Typography>
-          {intl.formatMessage({ id: 'forgotPasswordHeader' })}
-        </Typography>
-        {!_.isEmpty(errorMessage) && (
-          <Typography
-            color="error"
-          >
-            {errorMessage}
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            {intl.formatMessage({ id: "forgotPasswordHeader" })}
           </Typography>
-        )
-        }
-        <form
-          noValidate
-          autoComplete="off"
-        >
-          <TextField
-            id="code"
-            label={intl.formatMessage({ id: 'forgotPasswordCodeLabel' })}
-            onChange={handleChange('code')}
-            margin="normal"
-          />
-          <TextField
-            id="password"
-            label={intl.formatMessage({ id: 'forgotPasswordNewPasswordLabel' })}
-            onChange={handleChange('password')}
-            type="password"
-            margin="normal"
-          />
-        </form>
+          {!_.isEmpty(errorMessage) && (
+            <Typography color="error">{errorMessage}</Typography>
+          )}
+          <form noValidate className={classes.form} autoComplete="off">
+            <TextField
+              id="code"
+              required
+              fullWidth
+              label={intl.formatMessage({ id: "forgotPasswordCodeLabel" })}
+              onChange={handleChange("code")}
+              margin="normal"
+            />
+            <TextField
+              id="password"
+              required
+              fullWidth
+              label={intl.formatMessage({
+                id: "forgotPasswordNewPasswordLabel",
+              })}
+              onChange={handleChange("password")}
+              type="password"
+              margin="normal"
+            />
+          </form>
 
-        <Button
-          onClick={onSendCode}
-        >
-          {intl.formatMessage({ id: 'forgotPasswordResendCode' })}
-        </Button>
-        <Button
-          onClick={onSetNewPassword}
-          disabled={_.isEmpty(code) || _.isEmpty(password)}
-        >
-          {intl.formatMessage({ id: 'forgotPasswordResetPasswordButton' })}
-        </Button>
-      </div>
+          <Button fullWidth variant="contained" onClick={onSendCode}>
+            {intl.formatMessage({ id: "forgotPasswordResendCode" })}
+          </Button>
+          <Button
+            fullWidth
+            variant="contained"
+            className={classes.submit}
+            onClick={onSetNewPassword}
+            disabled={_.isEmpty(code) || _.isEmpty(password)}
+          >
+            {intl.formatMessage({ id: "forgotPasswordResetPasswordButton" })}
+          </Button>
+        </div>
+      </Container>
     );
   }
 

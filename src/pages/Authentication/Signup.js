@@ -103,7 +103,7 @@ function Signup(props) {
 
   if (postSignUp === "USER_CREATED") {
     return (
-      <Container component="main" maxWidth="md">
+      <Container component="main" maxWidth="xs">
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
@@ -121,14 +121,14 @@ function Signup(props) {
 
   if (postSignUp === "VERIFICATION_RESENT") {
     return (
-      <Container component="main" maxWidth="md">
+      <Container component="main" maxWidth="xs">
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
           <Typography component="h1" variant="h5">
-            We have resent a verification email to you. Please click the link
+            We have sent a verification email to you. Please click the link
             inside to continue.
           </Typography>
           {getResendButton()}
@@ -139,7 +139,7 @@ function Signup(props) {
 
   if (postSignUp === "ACCOUNT_EXISTS") {
     return (
-      <Container component="main" maxWidth="md">
+      <Container component="main" maxWidth="xs">
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>

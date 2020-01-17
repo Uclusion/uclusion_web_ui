@@ -85,7 +85,9 @@ function Signup(props) {
   }
 
   function getResendButton() {
-    return <Button onClick={onSignUp}>Resend Code</Button>;
+    return <Button fullWidth
+    variant="contained"
+    className={classes.submit} onClick={onSignUp}>Resend Code</Button>;
   }
 
   if (authState !== 'signUp') {

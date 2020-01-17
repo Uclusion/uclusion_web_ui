@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import {
@@ -16,6 +16,7 @@ import { addDecisionInvestible } from '../../api/investibles';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { checkInvestibleInStorage } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,6 +37,7 @@ function InitiativeAdd(props) {
   } = props;
   const history = useHistory();
   const classes = useStyles();
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
   const [validForm, setValidForm] = useState(false);
   const [currentValues, setCurrentValues] = useState(emptyMarket);
@@ -160,6 +162,7 @@ function InitiativeAdd(props) {
           onStoreChange={onStorageChange}
           placeHolder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
           defaultValue={description}
+          setOperationInProgress={setOperationRunning}
         />
       </CardContent>
       <CardActions>

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, ButtonGroup, Card, CardActions, CardContent, makeStyles, TextField, Typography,
+  Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
 } from '@material-ui/core';
 import localforage from 'localforage';
 import { useIntl } from 'react-intl';
@@ -11,6 +11,7 @@ import { processTextAndFilesForSave } from '../../../api/files';
 import { PLANNING_TYPE } from '../../../constants/markets';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,7 +40,7 @@ function DecisionDialogEdit(props) {
   const { name } = mutableMarket;
   const [description, setDescription] = useState(storedDescription || mutableMarket.description);
   const [validForm, setValidForm] = useState(true);
-  const [operationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -110,20 +111,14 @@ function DecisionDialogEdit(props) {
           onChange={onEditorChange}
           onStoreChange={onStorageChange}
           defaultValue={description}
-          readOnly={false}
           marketId={id}
           onS3Upload={onS3Upload}
+          setOperationInProgress={setOperationRunning}
         />
       </CardContent>
       <CardActions>
-        <ButtonGroup
-          disabled={operationRunning}
-          variant="contained"
-          size="small"
-          color="primary"
-        >
+        <SpinBlockingButtonGroup>
           <Button
-            disabled={operationRunning}
             onClick={onCancel}
           >
             {intl.formatMessage({ id: 'marketEditCancelLabel' })}
@@ -137,7 +132,7 @@ function DecisionDialogEdit(props) {
           >
             {intl.formatMessage({ id: 'marketEditSaveLabel' })}
           </SpinBlockingButton>
-        </ButtonGroup>
+        </SpinBlockingButtonGroup>
       </CardActions>
     </Card>
   );

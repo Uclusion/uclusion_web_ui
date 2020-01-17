@@ -40,7 +40,7 @@ function AddEditVote(props) {
   const [maxBudget, setMaxBudget] = useState(initialMaxBudget);
   const { body, id: reasonId } = reason;
   const [reasonText, setReasonText] = useState(body);
-  const [operationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -162,7 +162,7 @@ function AddEditVote(props) {
           </Grid>
         </RadioGroup>
       </FormControl>
-      <br/>
+      <br />
       {showBudget && (
         <TextField
           id="standard-number"
@@ -183,10 +183,13 @@ function AddEditVote(props) {
         defaultValue={body}
         onChange={onEditorChange}
         uploadDisabled
+        setOperationInProgress={setOperationRunning}
       />
       <SpinBlockingButtonGroup>
         {addMode && (
-          <Button disabled={operationRunning} onClick={() => onCancel()}>
+          <Button
+            onClick={() => onCancel()}
+          >
             {intl.formatMessage({ id: 'cancelVote' })}
           </Button>
         )}

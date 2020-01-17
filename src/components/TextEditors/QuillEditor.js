@@ -4,12 +4,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Quill from 'quill';
+import LoadingOverlay from 'react-loading-overlay';
 import ImageResize from 'quill-image-resize-module-withfix';
 import QuillS3ImageUploader from './QuillS3ImageUploader';
 import QuillTableUI from 'quill-table-ui';
 import 'quill/dist/quill.snow.css';
 import 'quill-table-ui/dist/index.css';
 
+import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core';
 import _ from 'lodash';
 
@@ -56,10 +58,17 @@ class QuillEditor extends React.PureComponent {
 
   constructor(props) {
     super(props);
-    this.state = { uploads: [] };
+    this.state = { uploads: [], uploadInProgress: false };
     this.editorBox = React.createRef();
     this.editorContainer = React.createRef();
-    const { marketId, placeholder, uploadDisabled, noToolbar, simple } = props;
+    const {
+      marketId,
+      placeholder,
+      uploadDisabled,
+      noToolbar,
+      simple,
+      setOperationInProgress,
+    } = props;
     const defaultModules = {
       toolbar: [
         [{ font: [] }],
@@ -78,6 +87,14 @@ class QuillEditor extends React.PureComponent {
       s3Upload: {
         marketId,
         onS3Upload: this.statefulUpload.bind(this),
+        onUploadStart: () => {
+          this.setUploadInProgress(true);
+          setOperationInProgress(true);
+        },
+        onUploadStop: () => {
+          this.setUploadInProgress(false);
+          setOperationInProgress(false);
+        },
       },
       table: true,
       tableUI: true,
@@ -104,7 +121,6 @@ class QuillEditor extends React.PureComponent {
     };
 
   }
-
 
   componentDidMount() {
     const { defaultValue, onChange, onStoreChange } = this.props;
@@ -134,6 +150,12 @@ class QuillEditor extends React.PureComponent {
     this.editor.on('text-change', both);
   }
 
+  setUploadInProgress(value) {
+    this.setState({
+      uploadInProgress: value,
+    });
+  }
+
   disableToolbarTabs(editorNode) {
     const toolbarButtons = editorNode.querySelectorAll('.ql-toolbar *');
     toolbarButtons.forEach((button) => {
@@ -152,7 +174,8 @@ class QuillEditor extends React.PureComponent {
   }
 
   render() {
-    const { theme } = this.props;
+    const { theme, intl } = this.props;
+    const { uploadInProgress } = this.state;
     const editorStyle = {
       fontFamily: theme.typography.fontFamily,
       fontSize: theme.typography.fontSize,
@@ -160,7 +183,13 @@ class QuillEditor extends React.PureComponent {
 
     return (
       <div ref={this.editorContainer}>
-        <div ref={this.editorBox} style={editorStyle} />
+        <LoadingOverlay
+          active={uploadInProgress}
+          spinner
+          text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
+        >
+          <div ref={this.editorBox} style={editorStyle} />
+        </LoadingOverlay>
       </div>
     );
   }
@@ -176,6 +205,8 @@ QuillEditor.propTypes = {
   value: PropTypes.string,
   uploadDisabled: PropTypes.bool,
   noToolbar: PropTypes.bool,
+  setOperationInProgress: PropTypes.func,
+  intl: PropTypes.object.isRequired,
 };
 
 QuillEditor.defaultProps = {
@@ -185,6 +216,8 @@ QuillEditor.defaultProps = {
   },
   onStoreChange: () => {
   },
+  setOperationInProgress: () => {
+  },
   defaultValue: '',
   placeholder: '',
   marketId: undefined,
@@ -192,4 +225,5 @@ QuillEditor.defaultProps = {
   noToolbar: false,
 };
 
-export default withTheme(QuillEditor);
+
+export default withTheme(injectIntl(QuillEditor));

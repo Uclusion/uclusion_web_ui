@@ -13,6 +13,7 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { processTextAndFilesForSave } from '../../../api/files';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 
 const styles = (theme) => ({
   root: {
@@ -32,6 +33,7 @@ function DecisionInvestibleEdit(props) {
     isAdmin, userId, storedDescription,
   } = props;
 
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const { market_infos: marketInfos, investible: myInvestible } = fullInvestible;
@@ -116,10 +118,11 @@ function DecisionInvestibleEdit(props) {
           {intl.formatMessage({ id: 'descriptionEdit' })}
         </Typography>
         <QuillEditor
-          handleFileUpload={handleFileUpload}
+          onS3Upload={handleFileUpload}
           onChange={onEditorChange}
           defaultValue={description}
           onStoreChange={onStorageChange}
+          setOperationInProgress={setOperationRunning}
         />
       </CardContent>
       <CardActions>

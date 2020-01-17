@@ -16,6 +16,7 @@ import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEd
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 
 const styles = (theme) => ({
   root: {
@@ -46,6 +47,7 @@ function PlanningInvestibleEdit(props) {
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const [description, setDescription] = useState(storedDescription || initialDescription);
   const [marketsState] = useContext(MarketsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const me = getMyUserForMarket(marketsState, marketId) || {};
   const { id: myId } = me;
   const assignee = assigned.includes(myId);
@@ -135,10 +137,11 @@ function PlanningInvestibleEdit(props) {
               {intl.formatMessage({ id: 'descriptionEdit' })}
             </Typography>
             <QuillEditor
-              handleFileUpload={handleFileUpload}
+              onS3Upload={handleFileUpload}
               onChange={onEditorChange}
               onStoreChange={onStorageChange}
               defaultValue={description}
+              setOperationInProgress={setOperationRunning}
             />
           </>
         )}

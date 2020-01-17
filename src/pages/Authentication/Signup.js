@@ -1,36 +1,36 @@
-import React, { useReducer, useState } from 'react';
-import { TextField, Button } from '@material-ui/core';
-import Container from '@material-ui/core/Container';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Avatar from '@material-ui/core/Avatar';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
-import Link from '@material-ui/core/Link';
-import { useIntl } from 'react-intl';
-import { signUp } from '../../api/sso';
-import { useHistory } from 'react-router';
-import { makeStyles } from '@material-ui/core/styles';
+import React, { useReducer, useState } from "react";
+import { TextField, Button } from "@material-ui/core";
+import Container from "@material-ui/core/Container";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Avatar from "@material-ui/core/Avatar";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import Typography from "@material-ui/core/Typography";
+import Grid from "@material-ui/core/Grid";
+import Link from "@material-ui/core/Link";
+import { useIntl } from "react-intl";
+import { signUp } from "../../api/sso";
+import { useHistory } from "react-router";
+import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(theme => ({
   paper: {
     marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: '#3f6b72',
+    backgroundColor: "#3f6b72",
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
+    width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(3),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
-    backgroundColor: '#3f6b72',
-    color: '#fff',
+    backgroundColor: "#3f6b72",
+    color: "#fff",
   },
 }));
 
@@ -47,9 +47,9 @@ function Signup(props) {
   const classes = useStyles();
   const { authState } = props;
   const empty = {
-    name: '',
-    email: '',
-    password: '',
+    name: "",
+    email: "",
+    password: "",
   };
 
   const [userState, dispatch] = useReducer(reducer, empty);
@@ -71,7 +71,7 @@ function Signup(props) {
   function onSignUp() {
     const { name, email, password } = userState;
     let redirect;
-    if (pathname !== '/') {
+    if (pathname !== "/") {
       // we came here by some other link and need to log in
       redirect = pathname;
       if (hash) {
@@ -85,36 +85,23 @@ function Signup(props) {
   }
 
   function getResendButton() {
-    return <Button fullWidth
-    variant="contained"
-    className={classes.submit} onClick={onSignUp}>Resend Code</Button>;
-  }
-
-  if (authState !== 'signUp') {
-    return <></>;
-  }
-
-  if (postSignUp === 'USER_CREATED') {
     return (
-      <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Your password is reset!
-        </Typography>
-        <Typography component="h1" variant="h5">
-          Your user is created, and a verification link has been sent to your email. Please click the link inside to continue.
-        </Typography>
-        {getResendButton()}
-      </div>
-    </Container>
+      <Button
+        fullWidth
+        variant="contained"
+        className={classes.submit}
+        onClick={onSignUp}
+      >
+        Resend Code
+      </Button>
     );
   }
 
-  if (postSignUp === 'VERIFICATION_RESENT') {
+  if (authState !== "signUp") {
+    return <></>;
+  }
+
+  if (postSignUp === "USER_CREATED") {
     return (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -126,7 +113,8 @@ function Signup(props) {
             Your password is reset!
           </Typography>
           <Typography component="h1" variant="h5">
-            We have resent a verification email to you. Please click the link inside to continue.
+            Your user is created, and a verification link has been sent to your
+            email. Please click the link inside to continue.
           </Typography>
           {getResendButton()}
         </div>
@@ -134,7 +122,28 @@ function Signup(props) {
     );
   }
 
-  if (postSignUp === 'ACCOUNT_EXISTS') {
+  if (postSignUp === "VERIFICATION_RESENT") {
+    return (
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Your password is reset!
+          </Typography>
+          <Typography component="h1" variant="h5">
+            We have resent a verification email to you. Please click the link
+            inside to continue.
+          </Typography>
+          {getResendButton()}
+        </div>
+      </Container>
+    );
+  }
+
+  if (postSignUp === "ACCOUNT_EXISTS") {
     return (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -174,8 +183,8 @@ function Signup(props) {
                 fullWidth
                 id="name"
                 autoFocus
-                label={intl.formatMessage({ id: 'signupNameLabel' })}
-                onChange={handleChange('name')}
+                label={intl.formatMessage({ id: "signupNameLabel" })}
+                onChange={handleChange("name")}
               />
             </Grid>
             <Grid item xs={12}>
@@ -186,8 +195,8 @@ function Signup(props) {
                 id="email"
                 name="email"
                 autoComplete="email"
-                label={intl.formatMessage({ id: 'signupEmailLabel' })}
-                onChange={handleChange('email')}
+                label={intl.formatMessage({ id: "signupEmailLabel" })}
+                onChange={handleChange("email")}
               />
             </Grid>
             <Grid item xs={12}>
@@ -199,8 +208,8 @@ function Signup(props) {
                 type="password"
                 id="password"
                 autoComplete="current-password"
-                label={intl.formatMessage({ id: 'signupPasswordLabel' })}
-                onChange={handleChange('password')}
+                label={intl.formatMessage({ id: "signupPasswordLabel" })}
+                onChange={handleChange("password")}
               />
             </Grid>
           </Grid>
@@ -210,7 +219,7 @@ function Signup(props) {
             className={classes.submit}
             onClick={onSignUp}
           >
-            {intl.formatMessage({ id: 'signupSignupLabel' })}
+            {intl.formatMessage({ id: "signupSignupLabel" })}
           </Button>
           <Grid container justify="flex-end">
             <Grid item>

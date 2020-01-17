@@ -94,11 +94,21 @@ function Signup(props) {
 
   if (postSignUp === 'USER_CREATED') {
     return (
-      <div>
-        Your user is created, and a verification link has been sent to your
-        email. Please click the link inside to continue.
+      <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <div className={classes.paper}>
+        <Avatar className={classes.avatar}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Your password is reset!
+        </Typography>
+        <Typography component="h1" variant="h5">
+          Your user is created, and a verification link has been sent to your email. Please click the link inside to continue.
+        </Typography>
         {getResendButton()}
       </div>
+    </Container>
     );
   }
 

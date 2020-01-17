@@ -49,7 +49,7 @@ class CustomSignIn extends SignIn {
             <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            Sign In
           </Typography>
         </div>
         <form className={classes.form}>

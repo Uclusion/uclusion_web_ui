@@ -170,7 +170,7 @@ function Signup(props) {
           <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign up
+          Sign Up
         </Typography>
         <form className={classes.form} noValidate autoComplete="off">
           <Grid container spacing={2}>

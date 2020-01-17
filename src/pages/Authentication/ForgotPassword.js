@@ -153,7 +153,7 @@ function ForgotPassword(props) {
                 href="/"
                 variant="body2"
               >
-                Back to login
+                Back to Sign In
               </Link>
             </Grid>
           </Grid>
@@ -227,7 +227,7 @@ function ForgotPassword(props) {
             Your password is reset!
           </Typography>
           <Typography component="h1" variant="h5">
-            Click <a href="/">here</a> to log in.
+            Click <a href="/">here</a> to Sign In.
           </Typography>
         </div>
       </Container>

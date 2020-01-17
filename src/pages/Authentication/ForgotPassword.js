@@ -5,6 +5,27 @@ import { Button, TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { toastError } from '../../utils/userMessage';
 
+const useStyles = makeStyles(theme => ({
+  paper: {
+    marginTop: theme.spacing(8),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  avatar: {
+    margin: theme.spacing(1),
+    backgroundColor: '#3f6b72',
+  },
+  form: {
+    width: '100%', // Fix IE 11 issue.
+    marginTop: theme.spacing(3),
+  },
+  submit: {
+    margin: theme.spacing(3, 0, 2),
+    backgroundColor: '#3f6b72',
+    color: '#fff',
+  },
+}));
 
 function reducer(state, action) {
   const { name, value } = action;

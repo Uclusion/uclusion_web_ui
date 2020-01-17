@@ -103,15 +103,12 @@ function Signup(props) {
 
   if (postSignUp === "USER_CREATED") {
     return (
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="md">
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
-          <Typography component="h1" variant="h5">
-            Your password is reset!
-          </Typography>
           <Typography component="h1" variant="h5">
             Your user is created, and a verification link has been sent to your
             email. Please click the link inside to continue.
@@ -124,15 +121,12 @@ function Signup(props) {
 
   if (postSignUp === "VERIFICATION_RESENT") {
     return (
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="md">
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
-          <Typography component="h1" variant="h5">
-            Your password is reset!
-          </Typography>
           <Typography component="h1" variant="h5">
             We have resent a verification email to you. Please click the link
             inside to continue.
@@ -145,18 +139,22 @@ function Signup(props) {
 
   if (postSignUp === "ACCOUNT_EXISTS") {
     return (
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="md">
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Your password is reset!
-          </Typography>
-          <Typography component="h1" variant="h5">
             An account with that email already exists, please log in.
           </Typography>
+          <Grid container justify="center">
+            <Grid item>
+              <Link href="/" variant="body2">
+                Log In
+              </Link>
+            </Grid>
+          </Grid>
         </div>
       </Container>
     );

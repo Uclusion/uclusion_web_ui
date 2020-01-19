@@ -6,6 +6,8 @@ import {
 import { IntlProvider } from 'react-intl';
 import { makeStyles } from '@material-ui/styles';
 import { useHistory } from 'react-router';
+import config from '../../config/config';
+import LogRocket from 'logrocket';
 import App from './App';
 import awsconfig from '../../config/amplify';
 import CustomSignIn from '../../authorization/CustomSignIn';
@@ -18,6 +20,9 @@ import UclusionForgotPassword from '../../pages/Authentication/ForgotPassword';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import TokenStorageManager from '../../authorization/TokenStorageManager';
+
+
+LogRocket.init(config.logRocketInstance)
 
 Amplify.configure(awsconfig);
 /*

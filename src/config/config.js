@@ -25,6 +25,7 @@ const config = {
   uclusionSupportInfo: {
     email: process.env.REACT_APP_UCLUSION_SUPPORT_EMAIL
   },
+  logRocketInstance: process.env.REACT_APP_LOGROCKET_INSTANCE,
   helpMovies: {
     accountSignupHelp: 'https://www.uclusion.com/help_videos/admins/UclusionAccountSetup.mp4',
     usersInvestiblesIntro: 'https://www.uclusion.com/help_videos/users/UclusionIntroUserInvestibles.mp4',

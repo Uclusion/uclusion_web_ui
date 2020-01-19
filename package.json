@@ -21,6 +21,7 @@
     "jwt-decode": "^2.2.0",
     "localforage": "^1.7.3",
     "lodash": "^4.17.15",
+    "logrocket": "^1.0.6",
     "moment": "^2.24.0",
     "prop-types": "^15.7.2",
     "quill": "^2.0.0-dev.3",

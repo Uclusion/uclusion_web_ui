@@ -9,8 +9,8 @@ import { makeStyles } from '@material-ui/styles';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import LeaveMarketButton from './LeaveMarketButton';
-import ArchiveMarketButton from './ArchiveMarketButton';
+import HideMarketButton from './HideMarketButton';
+import DismissMarketButton from './DismissMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
@@ -44,17 +44,17 @@ function InitiativeDialogs(props) {
     if (is_admin) {
       if (marketStage === 'Active') {
         actions.push(
-          <ArchiveMarketButton key="archive" marketId={marketId}/>,
+          <DismissMarketButton key="archive" marketId={marketId}/>,
         );
       } else if (!inArchives) {
         actions.push(
-          <LeaveMarketButton key="leave" marketId={marketId}/>,
+          <HideMarketButton key="leave" marketId={marketId}/>,
         );
       }
       // admins can't exit a dialog or change their role
     } else if (!inArchives) {
       actions.push(
-        <LeaveMarketButton key="leave" marketId={marketId}/>,
+        <HideMarketButton key="leave" marketId={marketId}/>,
       );
 
     }

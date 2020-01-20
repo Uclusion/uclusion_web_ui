@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ArchiveMarketButton(props) {
+function DismissMarketButton(props) {
   const intl = useIntl();
   const [operationRunning] = useContext(OperationInProgressContext);
   const {
@@ -79,14 +79,14 @@ function ArchiveMarketButton(props) {
   );
 }
 
-ArchiveMarketButton.propTypes = {
+DismissMarketButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   onClick: PropTypes.func,
 };
 
-ArchiveMarketButton.defaultProps = {
+DismissMarketButton.defaultProps = {
   onClick: () => {
   },
 };
 
-export default ArchiveMarketButton;
+export default DismissMarketButton;

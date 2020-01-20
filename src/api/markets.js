@@ -85,10 +85,15 @@ export function createPlanning(marketInfo) {
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningAddFailed'));
 }
 
-export function leaveMarket(marketId) {
+export function showMarket(marketId) {
+  return getMarketClient(marketId)
+    .then((client) => client.markets.unhide())
+    .catch((error) => toastErrorAndThrow(error, 'errorMarketShowFailed'))
+}
+export function hideMarket(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.markets.hide())
-    .catch((error) => toastErrorAndThrow(error, 'errorMarketLeaveFailed'));
+    .catch((error) => toastErrorAndThrow(error, 'errorMarketHideFailed'));
 }
 
 export function archiveMarket(marketId) {

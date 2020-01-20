@@ -10,8 +10,8 @@ import { useIntl } from 'react-intl';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import LeaveMarketButton from './LeaveMarketButton';
-import ArchiveMarketButton from './ArchiveMarketButton';
+import HideMarketButton from './HideMarketButton';
+import DismissMarketButton from './DismissMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
@@ -115,13 +115,13 @@ function PlanningDialogs(props) {
     if (marketStage === 'Active') {
       if (isAdmin) {
         actions.push(
-          <ArchiveMarketButton key="archive" marketId={marketId}/>,
+          <DismissMarketButton key="archive" marketId={marketId}/>,
         );
       }
     }
     if (!inArchives) {
       actions.push(
-        <LeaveMarketButton key="leave" marketId={marketId}/>,
+        <HideMarketButton key="leave" marketId={marketId}/>,
       );
     }
     return actions;

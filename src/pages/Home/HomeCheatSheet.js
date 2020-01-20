@@ -12,7 +12,7 @@ function HomeCheatSheat() {
       <Typography variant="h3">
         {intl.formatMessage({ id: 'homeCheatWelcome' })}
       </Typography>
-      <Typography>
+      <Typography component="div">
         Uclusion offers several ways to collaborate with your team.
         <ul>
           <li>Agile Plans

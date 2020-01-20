@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import { leaveMarket } from '../../api/markets';
+import { showMarket } from '../../api/markets';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
+import LaunchIcon from '@material-ui/icons/Launch';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
 
-function LeaveMarketButton(props) {
+function ShowMarketButton(props) {
   const [operationRunning] = useContext(OperationInProgressContext);
   const {
     onClick,
@@ -14,7 +14,7 @@ function LeaveMarketButton(props) {
   } = props;
 
   function myOnClick() {
-    return leaveMarket(marketId);
+    return showMarket(marketId);
   }
 
   const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
@@ -26,20 +26,20 @@ function LeaveMarketButton(props) {
       onSpinStop={onClick}
       disabled={operationRunning}
       key="exit"
-      translationId="decisionDialogsExitDialog"
-      icon={<ExitToAppIcon />}
+      translationId="decisionDialogsRestoreDialog"
+      icon={<LaunchIcon />}
     />
   );
 }
 
-LeaveMarketButton.propTypes = {
+ShowMarketButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   onClick: PropTypes.func,
 };
 
-LeaveMarketButton.defaultProps = {
+ShowMarketButton.defaultProps = {
   onClick: () => {
   },
 };
 
-export default LeaveMarketButton;
+export default ShowMarketButton;

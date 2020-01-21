@@ -18,6 +18,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { ACTIVE_STAGE } from '../../constants/markets';
 import { useIntl } from 'react-intl';
 import DialogActions from './DialogActions';
+import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -42,8 +43,11 @@ function DecisionDialogs(props) {
     return markets.map((market) => {
       const {
         id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes,
-        market_type: marketType, market_stage: marketStage,
+        market_type: marketType, market_stage: marketStage, expires_at: expiresAt,
       } = market;
+      const expiresDate = new Date(expiresAt);
+      const now = new Date();
+      const expired = expiresDate <= now;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
@@ -93,6 +97,9 @@ function DecisionDialogs(props) {
                   item
                   xs={3}
                 >
+                  {expired && (
+                    <ExpiredDisplay expiresDate={expiresDate} />
+                  )}
                   {active && (
                     <ExpiresDisplay
                       createdAt={createdAt}

@@ -13,6 +13,7 @@ import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import DiffDisplay from '../../components/TextEditors/DiffDisplay';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import { getDiff } from '../../contexts/DiffContext/diffContextHelper';
+import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -59,6 +60,7 @@ function Summary(props) {
     investment_expiration: investmentExpiration,
     days_estimate: daysEstimate,
     created_at: createdAt,
+    expires_at: expiresAt,
     expiration_minutes: expirationMinutes,
   } = market;
   const active = marketStage === ACTIVE_STAGE;
@@ -86,6 +88,9 @@ function Summary(props) {
       );
     });
   }
+  const expiresDate = new Date(expiresAt);
+  const now = new Date();
+  const expired = expiresDate <= now;
 
   return (
     <Paper className={classes.container}>
@@ -93,6 +98,9 @@ function Summary(props) {
         <Typography className={classes.title} variant="h3" component="h1">
           {name}
         </Typography>
+      )}
+      {marketType !== PLANNING_TYPE && expired && (
+        <ExpiredDisplay expiresDate={expiresDate}/>
       )}
       {marketType !== PLANNING_TYPE && active && (
         <ExpiresDisplay

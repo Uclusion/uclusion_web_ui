@@ -511,6 +511,9 @@ const messages = defineMessages({
   // home cheat sheet
   homeCheatWelcome: 'Welcome to Uclusion!',
 
+  //summary
+  summaryExpiredAt: 'Expired on {expireDate}',
+
 
   // warnings
   warningOffline: 'You are offline',

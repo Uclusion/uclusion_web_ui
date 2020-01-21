@@ -52,7 +52,7 @@ function DismissMarketButton(props) {
 
   return (
     <div>
-      <TooltipIconButton icon={<ArchiveIcon />} onClick={handleOpen} translationId="decisionDialogsArchiveDialog" />
+      <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon />} onClick={handleOpen} translationId="decisionDialogsArchiveDialog" />
       <Modal
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description"

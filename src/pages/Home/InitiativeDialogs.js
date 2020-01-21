@@ -9,8 +9,6 @@ import { makeStyles } from '@material-ui/styles';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import HideMarketButton from './HideMarketButton';
-import DismissMarketButton from './DismissMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
@@ -19,6 +17,7 @@ import { getMarketInvestibles } from '../../contexts/InvestibesContext/investibl
 import { getParticipantInfo } from '../../utils/userFunctions';
 import { ACTIVE_STAGE } from '../../constants/markets';
 import { useIntl } from 'react-intl';
+import DialogActions from './DialogActions';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -37,30 +36,7 @@ function InitiativeDialogs(props) {
   const { markets } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
-
-  function getDialogActions(marketId, myPresence, marketStage) {
-    const { is_admin, market_hidden: inArchives } = myPresence;
-    const actions = [];
-    if (is_admin) {
-      if (marketStage === 'Active') {
-        actions.push(
-          <DismissMarketButton key="archive" marketId={marketId}/>,
-        );
-      } else if (!inArchives) {
-        actions.push(
-          <HideMarketButton key="leave" marketId={marketId}/>,
-        );
-      }
-      // admins can't exit a dialog or change their role
-    } else if (!inArchives) {
-      actions.push(
-        <HideMarketButton key="leave" marketId={marketId}/>,
-      );
-
-    }
-    return actions;
-  }
-
+  
   function getMarketItems() {
     return markets.map((market) => {
       const {
@@ -139,7 +115,13 @@ function InitiativeDialogs(props) {
               </Grid>
             </CardContent>
             <CardActions>
-              {getDialogActions(marketId, myPresence, marketStage)}
+              <DialogActions
+                marketStage={marketStage}
+                marketId={marketId}
+                marketType={marketType}
+                isAdmin={true}
+                inArchives={myPresence.market_hidden}
+              />
             </CardActions>
           </RaisedCard>
         </Grid>

@@ -9,8 +9,6 @@ import PropTypes from 'prop-types';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import HideMarketButton from './HideMarketButton';
-import DismissMarketButton from './DismissMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
@@ -19,7 +17,7 @@ import { getMarketInvestibles } from '../../contexts/InvestibesContext/investibl
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { ACTIVE_STAGE } from '../../constants/markets';
 import { useIntl } from 'react-intl';
-import ShowMarketButton from './ShowMarketButton';
+import DialogActions from './DialogActions';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -39,36 +37,6 @@ function DecisionDialogs(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
 
-  function getDialogActions(marketId, myPresence, marketStage) {
-    const { is_admin, market_hidden: inArchives } = myPresence;
-
-    const actions = [];
-
-    if (is_admin) {
-      if (marketStage === 'Active') {
-        actions.push(
-          <DismissMarketButton key="archive" marketId={marketId}/>,
-        );
-      } else if (!inArchives) {
-        actions.push(
-          <HideMarketButton key="leave" marketId={marketId}/>,
-        );
-      } else {
-        actions.push(
-          <ShowMarketButton key="leave" marketId={marketId}/>,
-        );
-      }
-    } else {
-      if (!inArchives) {
-        actions.push(
-          <HideMarketButton key="leave" marketId={marketId}/>,
-        );
-      } else {
-        actions.push()
-      }
-    }
-    return actions;
-  }
 
   function getMarketItems() {
     return markets.map((market) => {
@@ -140,7 +108,12 @@ function DecisionDialogs(props) {
               </Grid>
             </CardContent>
             <CardActions>
-              {getDialogActions(marketId, myPresence, marketStage)}
+              <DialogActions
+                isAdmin={myPresence.is_admin}
+                marketStage={marketStage}
+                marketType={marketType}
+                inArchives={myPresence.market_hidden}
+                marketId={marketId} />
             </CardActions>
           </RaisedCard>
         </Grid>

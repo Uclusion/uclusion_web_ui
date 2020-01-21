@@ -26,7 +26,7 @@ function HideMarketButton(props) {
       onSpinStop={onClick}
       disabled={operationRunning}
       key="exit"
-      translationId="decisionDialogsExitDialog"
+      translationId="decisionDialogsDismissDialog"
       icon={<ExitToAppIcon />}
     />
   );

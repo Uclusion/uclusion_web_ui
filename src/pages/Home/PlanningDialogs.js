@@ -10,8 +10,6 @@ import { useIntl } from 'react-intl';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import HideMarketButton from './HideMarketButton';
-import DismissMarketButton from './DismissMarketButton';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
@@ -22,6 +20,7 @@ import {
 import { getBudgetTotalsForUser } from '../../utils/userFunctions';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import DialogActions from './DialogActions';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -107,24 +106,6 @@ function PlanningDialogs(props) {
         </Card>
       );
     });
-  }
-
-  function getDialogActions(marketId, myPresence, marketStage) {
-    const { is_admin: isAdmin, market_hidden: inArchives } = myPresence;
-    const actions = [];
-    if (marketStage === 'Active') {
-      if (isAdmin) {
-        actions.push(
-          <DismissMarketButton key="archive" marketId={marketId}/>,
-        );
-      }
-    }
-    if (!inArchives) {
-      actions.push(
-        <HideMarketButton key="leave" marketId={marketId}/>,
-      );
-    }
-    return actions;
   }
 
   function getMarketItems() {
@@ -214,7 +195,13 @@ function PlanningDialogs(props) {
               {getParticipantInfo(sortedPresences, marketId)}
             </CardContent>
             <CardActions>
-              {getDialogActions(marketId, myPresence, marketStage)}
+              <DialogActions
+                marketStage={marketStage}
+                marketId={marketId}
+                marketType={marketType}
+                isAdmin={true}
+                inArchives={myPresence.market_hidden}
+              />
             </CardActions>
           </RaisedCard>
         </Grid>

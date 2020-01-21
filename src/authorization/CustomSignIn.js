@@ -93,7 +93,7 @@ class CustomSignIn extends SignIn {
               <Link
                 href="#"
                 variant="body2"
-                onClick={() => super.changeState("forgotPassword")}
+                onClick={() => super.changeState("forgotPassword", { email: super.getUsernameFromInput() })}
               >
                 Forgot password?
               </Link>

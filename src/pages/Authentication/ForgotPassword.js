@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import _ from "lodash";
 import { Auth } from "aws-amplify";
 import { Button, TextField, Typography } from "@material-ui/core";
@@ -48,13 +48,20 @@ function ForgotPassword(props) {
     code: "",
     password: "",
   };
-  const { authState } = props;
+
+  const { authState, authData } = props;
   const [userState, dispatch] = useReducer(reducer, empty);
   const [errorMessage, setErrorMessage] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [passwordReset, setPasswordReset] = useState(false);
   const intl = useIntl();
   const classes = useStyles();
+
+  useEffect(() => {
+    if (authData && authData.email) {
+      dispatch({ name: "email", value: authData.email })
+    }
+  }, [authData]);
 
   const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
   const { email, code, password } = userState;
@@ -131,6 +138,7 @@ function ForgotPassword(props) {
             <TextField
               id="email"
               fullWidth
+              value={email}
               label={intl.formatMessage({ id: "forgotPasswordEmailLabel" })}
               onChange={handleChange("email")}
               margin="normal"

@@ -37,9 +37,14 @@ function InvestibleAdd(props) {
   const [storedDescription, setStoredDescription] = useState(undefined);
   const [idLoaded, setIdLoaded] = useState(undefined);
 
-  function toggleInvestibleAddMode() {
+
+  function onDone(investibleLink) {
     localforage.removeItem(`add_investible_${marketId}`)
-      .then(() => navigate(history, formMarketLink(marketId)));
+      .then(() => {
+        if (investibleLink) {
+          navigate(history, investibleLink);
+        }
+      });
   }
 
   useEffect(() => {
@@ -67,8 +72,8 @@ function InvestibleAdd(props) {
       {marketType === DECISION_TYPE && myPresence && idLoaded === marketId && (
         <DecisionInvestibleAdd
           marketId={marketId}
-          onCancel={toggleInvestibleAddMode}
-          onSave={toggleInvestibleAddMode}
+          onCancel={onDone}
+          onSave={onDone}
           isAdmin={isAdmin}
           storedDescription={storedDescription}
         />
@@ -76,8 +81,8 @@ function InvestibleAdd(props) {
       {marketType === PLANNING_TYPE && idLoaded === marketId && (
         <PlanningInvestibleAdd
           marketId={marketId}
-          onCancel={toggleInvestibleAddMode}
-          onSave={toggleInvestibleAddMode}
+          onCancel={onDone}
+          onSave={onDone}
           marketPresences={marketPresences}
           storedDescription={storedDescription}
         />

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import _ from 'lodash';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -11,11 +11,10 @@ import {
   withStyles,
 } from '@material-ui/core';
 import localforage from 'localforage';
-import { useHistory } from 'react-router';
 import { addPlanningInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import AssignmentList from './AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
@@ -40,7 +39,6 @@ function PlanningInvestibleAdd(props) {
   } = props;
 
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const history = useHistory();
   const emptyInvestible = { name: '', assignments: [] };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const [description, setDescription] = useState(storedDescription);
@@ -48,18 +46,6 @@ function PlanningInvestibleAdd(props) {
   const [assignments, setAssignments] = useState([]);
   const [validForm, setValidForm] = useState(false);
   const { name } = currentValues;
-  const [, addInvestibleDispatch] = useReducer((state, action) => {
-    const { link } = action;
-    if (link) {
-      return { navigationLink: link };
-    }
-    const { navigationLink } = state;
-    if (navigationLink) {
-      onSave();
-      navigate(history, navigationLink);
-    }
-    return {};
-  }, {});
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -121,8 +107,8 @@ function PlanningInvestibleAdd(props) {
     };
     return addPlanningInvestible(addInfo).then((investibleId) => {
       const link = formInvestibleLink(marketId, investibleId);
-      addInvestibleDispatch({ link });
       return {
+        result: link,
         spinChecker: () => checkInvestibleInStorage(investibleId),
       };
     });
@@ -173,7 +159,7 @@ function PlanningInvestibleAdd(props) {
             color="primary"
             onClick={handleSave}
             disabled={!validForm}
-            onSpinStop={() => addInvestibleDispatch({})}
+            onSpinStop={onSave}
           >
             {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
           </SpinBlockingButton>

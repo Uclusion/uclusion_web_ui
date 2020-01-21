@@ -1,5 +1,5 @@
 import React, {
-  useState, useContext, useReducer, useEffect,
+  useState, useContext, useEffect,
 } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -12,13 +12,12 @@ import {
   withStyles,
 } from '@material-ui/core';
 import localforage from 'localforage';
-import { useHistory } from 'react-router';
 import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 import { checkInvestibleInStorage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -41,7 +40,6 @@ function DecisionInvestibleAdd(props) {
     marketId, intl, classes, onCancel, isAdmin, onSave, storedDescription,
   } = props;
 
-  const history = useHistory();
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketStages = getStages(marketStagesState, marketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment);
@@ -56,18 +54,6 @@ function DecisionInvestibleAdd(props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [validForm, setValidForm] = useState(false);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [, addInvestibleDispatch] = useReducer((state, action) => {
-    const { link } = action;
-    if (link) {
-      return { navigationLink: link };
-    }
-    const { navigationLink } = state;
-    if (navigationLink) {
-      onSave();
-      navigate(history, navigationLink);
-    }
-    return {};
-  }, {});
   const { name } = currentValues;
 
   useEffect(() => {
@@ -127,8 +113,8 @@ function DecisionInvestibleAdd(props) {
     const promise = isAdmin ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
     return promise.then((investibleId) => {
       const link = isAdmin ? formInvestibleLink(marketId, investibleId) : formMarketLink(marketId);
-      addInvestibleDispatch({ link });
       return {
+        result: link,
         spinChecker: () => checkInvestibleInStorage(investibleId),
       };
     });
@@ -165,7 +151,6 @@ function DecisionInvestibleAdd(props) {
       <CardActions>
         <SpinBlockingButtonGroup>
           <Button
-
             onClick={handleCancel}
           >
             {intl.formatMessage({ id: 'investibleAddCancelLabel' })}
@@ -176,7 +161,7 @@ function DecisionInvestibleAdd(props) {
             onClick={handleSave}
             disabled={!validForm}
             marketId={marketId}
-            onSpinStop={() => addInvestibleDispatch({})}
+            onSpinStop={onSave}
           >
             {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
           </SpinBlockingButton>

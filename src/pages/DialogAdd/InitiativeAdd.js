@@ -1,15 +1,14 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import {
   Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
 } from '@material-ui/core';
-import { useHistory } from 'react-router';
 import localforage from 'localforage';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 import ExpirationSelector from '../../components/Expiration/ExpirationSelector';
 import { createDecision } from '../../api/markets';
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formMarketLink } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';
 import { INITIATIVE_TYPE } from '../../constants/markets';
 import { addDecisionInvestible } from '../../api/investibles';
@@ -35,7 +34,6 @@ function InitiativeAdd(props) {
   const {
     onDone, storedDescription,
   } = props;
-  const history = useHistory();
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
@@ -43,17 +41,6 @@ function InitiativeAdd(props) {
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [, addDialogDispatch] = useReducer((state, action) => {
-    const { link } = action;
-    if (link) {
-      return { navigationLink: link };
-    }
-    const { navigationLink } = state;
-    if (navigationLink) {
-      navigate(history, navigationLink);
-    }
-    return {};
-  }, {});
   const { name, expiration_minutes: expirationMinutes } = currentValues;
 
   useEffect(() => {
@@ -114,7 +101,6 @@ function InitiativeAdd(props) {
         onDone();
         const { market_id: marketId } = result;
         const link = formMarketLink(marketId);
-        addDialogDispatch({ link });
         const addInfo = {
           marketId,
           uploadedFiles: filteredUploads,
@@ -122,6 +108,7 @@ function InitiativeAdd(props) {
           name,
         };
         return addDecisionInvestible(addInfo).then((investibleId) => ({
+          result: link,
           spinChecker: () => checkInvestibleInStorage(investibleId),
         }));
       });
@@ -178,7 +165,7 @@ function InitiativeAdd(props) {
             color="primary"
             onClick={handleSave}
             disabled={!validForm}
-            onSpinStop={() => addDialogDispatch({})}
+            onSpinStop={onDone}
           >
             {intl.formatMessage({ id: 'marketAddSaveLabel' })}
           </SpinBlockingButton>

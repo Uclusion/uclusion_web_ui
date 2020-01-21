@@ -37,10 +37,10 @@ export function withSpinLock(Component) {
     let operationCheckInterval = null;
     let spinCheckerInterval = null;
 
-    function endSpinning() {
+    function endSpinning(result) {
       setSpinning(false);
       setOperationRunning(false);
-      onSpinStop();
+      onSpinStop(result);
     }
 
     function myOnSpinStop() {
@@ -126,7 +126,7 @@ export function withSpinLock(Component) {
       Promise.resolve(onClick())
         .then((result) => {
           if (result !== undefined) {
-            const { spinChecker } = result;
+            const { spinChecker, result: operationResult } = result;
             if (spinChecker) {
               // if we have a spin checker we'll use it instead of our listener
               removeListener(VERSIONS_HUB_CHANNEL, listenerName);
@@ -137,7 +137,7 @@ export function withSpinLock(Component) {
                       clearInterval(operationCheckInterval);
                       clearInterval(spinCheckerInterval);
                       console.debug('Ending Spinning By Checker');
-                      endSpinning();
+                      endSpinning(operationResult);
                     }
                   });
               }, SPIN_CHECKER_POLL_DELAY);

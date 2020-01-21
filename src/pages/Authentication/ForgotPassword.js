@@ -47,6 +47,7 @@ function ForgotPassword(props) {
     email: "",
     code: "",
     password: "",
+    repeat: "",
   };
 
   const { authState, authData } = props;
@@ -64,7 +65,7 @@ function ForgotPassword(props) {
   }, [authData]);
 
   const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
-  const { email, code, password } = userState;
+  const { email, code, password, repeat } = userState;
 
   function handleChange(name) {
     return event => {
@@ -187,12 +188,16 @@ function ForgotPassword(props) {
           <form noValidate className={classes.form} autoComplete="off">
             <TextField
               id="code"
+              autoComplete="code"
+              key="code"
+              type="number"
               required
               fullWidth
               label={intl.formatMessage({ id: "forgotPasswordCodeLabel" })}
               onChange={handleChange("code")}
               margin="normal"
             />
+            
             <TextField
               id="password"
               required
@@ -204,19 +209,31 @@ function ForgotPassword(props) {
               type="password"
               margin="normal"
             />
+            
+            <TextField
+              id="repeat"
+              required
+              fullWidth
+              label={intl.formatMessage({
+                id: "changePasswordRepeatLabel",
+              })}
+              onChange={handleChange("repeat")}
+              type="password"
+              margin="normal"
+            />
           </form>
 
-          <Button fullWidth variant="contained" onClick={onSendCode}>
-            {intl.formatMessage({ id: "forgotPasswordResendCode" })}
-          </Button>
           <Button
             fullWidth
             variant="contained"
             className={classes.submit}
             onClick={onSetNewPassword}
-            disabled={_.isEmpty(code) || _.isEmpty(password)}
+            disabled={_.isEmpty(code) || _.isEmpty(password) || _.isEmpty(repeat)}
           >
             {intl.formatMessage({ id: "forgotPasswordResetPasswordButton" })}
+          </Button>
+          <Button fullWidth variant="contained" onClick={onSendCode}>
+            {intl.formatMessage({ id: "forgotPasswordResendCode" })}
           </Button>
         </div>
       </Container>

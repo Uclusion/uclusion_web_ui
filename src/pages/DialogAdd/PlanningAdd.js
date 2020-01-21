@@ -1,14 +1,13 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { useHistory } from 'react-router';
 import {
   Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
 } from '@material-ui/core';
 import localforage from 'localforage';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 import { createPlanning } from '../../api/markets';
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formMarketLink } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';
 import { PLANNING_TYPE } from '../../constants/markets';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
@@ -33,7 +32,6 @@ function PlanningAdd(props) {
   const {
     onDone, storedDescription,
   } = props;
-  const history = useHistory();
   const classes = useStyles();
   const emptyPlan = { name: '' };
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -44,17 +42,6 @@ function PlanningAdd(props) {
   const [maxBudget, setMaxBudget] = useState(undefined);
   const [daysEstimate, setDaysEstimate] = useState(undefined);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [, addDialogDispatch] = useReducer((state, action) => {
-    const { link } = action;
-    if (link) {
-      return { navigationLink: link };
-    }
-    const { navigationLink } = state;
-    if (navigationLink) {
-      navigate(history, navigationLink);
-    }
-    return {};
-  }, {});
   const { name } = currentValues;
 
   useEffect(() => {
@@ -139,8 +126,8 @@ function PlanningAdd(props) {
         onDone();
         const { market_id: marketId } = result;
         const link = formMarketLink(marketId);
-        addDialogDispatch({ link });
         return {
+          result: link,
           spinChecker: () => checkMarketInStorage(marketId),
         };
       });
@@ -216,7 +203,7 @@ function PlanningAdd(props) {
             color="primary"
             onClick={handleSave}
             disabled={!validForm}
-            onSpinStop={() => addDialogDispatch({})}
+            onSpinStop={onDone}
           >
             {intl.formatMessage({ id: 'marketAddSaveLabel' })}
           </SpinBlockingButton>

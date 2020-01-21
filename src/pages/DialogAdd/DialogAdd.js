@@ -39,10 +39,10 @@ function DialogAdd(props) {
     }
   }, [hidden, type]);
 
-  function onDone() {
+  function onDone(marketLink) {
     setIdLoaded(undefined);
     localforage.removeItem(`add_market_${type}`)
-      .then(() => navigate(history, '/'));
+      .then(() => navigate(history, marketLink));
   }
 
   const breadCrumbs = makeBreadCrumbs(history, [], true);

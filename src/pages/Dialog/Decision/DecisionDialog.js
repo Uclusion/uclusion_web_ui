@@ -46,7 +46,7 @@ function DecisionDialog(props) {
   const intl = useIntl();
   const {
     name: marketName,
-    expires_at: expiresAt
+    // expires_at: expiresAt
   } = market;
   const {
     is_admin: isAdmin,

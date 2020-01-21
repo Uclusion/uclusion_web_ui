@@ -69,8 +69,13 @@ DialogActions.propTypes = {
   marketStage: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
   marketType: PropTypes.string.isRequired,
-  isAdmin: PropTypes.bool.isRequired,
-  inArchives: PropTypes.bool.isRequired,
+  isAdmin: PropTypes.bool,
+  inArchives: PropTypes.bool,
+};
+
+DialogActions.defaultProps = {
+  isAdmin: false,
+  inArchives: false,
 };
 
 export default DialogActions;

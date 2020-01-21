@@ -49,6 +49,7 @@ function Signup(props) {
     name: "",
     email: "",
     password: "",
+    repeat: "",
   };
 
   const [userState, dispatch] = useReducer(reducer, empty);
@@ -208,6 +209,20 @@ function Signup(props) {
                 autoComplete="current-password"
                 label={intl.formatMessage({ id: "signupPasswordLabel" })}
                 onChange={handleChange("password")}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                id="repeat"
+                name="repeat"
+                type="password"
+                variant="outlined"
+                label={intl.formatMessage({
+                  id: "signupPasswordRepeatLabel",
+                })}
+                onChange={handleChange("repeat")}
+                fullWidth
+                required
               />
             </Grid>
           </Grid>

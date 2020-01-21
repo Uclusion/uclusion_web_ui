@@ -215,7 +215,7 @@ function ForgotPassword(props) {
               required
               fullWidth
               label={intl.formatMessage({
-                id: "changePasswordRepeatLabel",
+                id: "forgotPasswordRepeatLabel",
               })}
               onChange={handleChange("repeat")}
               type="password"

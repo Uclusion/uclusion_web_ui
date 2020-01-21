@@ -426,6 +426,7 @@ const messages = defineMessages({
   signupNameLabel: 'Name',
   signupEmailLabel: 'Email',
   signupPasswordLabel: 'Password',
+  signupPasswordRepeatLabel: 'Repeat Password',
   signupSignupLabel: 'Create Account',
 
   // Forgot Password
@@ -433,6 +434,7 @@ const messages = defineMessages({
   forgotPasswordEmailLabel: 'Enter your email address',
   forgotPasswordCodeLabel: 'Reset Code',
   forgotPasswordNewPasswordLabel: 'New Password',
+  forgotPasswordRepeatLabel: 'Repeat New Password',
   forgotPasswordSendCodeButton: 'Send Reset Code',
   forgotPasswordResetPasswordButton: 'Submit',
   forgotPasswordResendCode: 'Resend Reset Code',

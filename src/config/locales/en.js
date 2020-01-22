@@ -519,6 +519,7 @@ const messages = defineMessages({
 
   //assigneeFilterDropdown
   assigneeFilterDropdownAll: 'Everyone',
+  assigneeFilterLabel: 'Show stories for:',
 
   // warnings
   warningOffline: 'You are offline',

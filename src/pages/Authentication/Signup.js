@@ -1,9 +1,10 @@
 import React, { useReducer, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import { makeStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
-import { TextField, Button } from '@material-ui/core';
+import { TextField } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Avatar from '@material-ui/core/Avatar';
@@ -11,6 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
 import { signUp } from '../../api/sso';
+import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -59,7 +61,7 @@ function Signup(props) {
   const history = useHistory();
   const { location } = history;
   const { pathname, hash } = location;
-  const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
+  const SIGNUP_LOGO = 'Uclusion_Logo_White_Micro.png';
 
   function handleChange(name) {
     return (event) => {
@@ -70,7 +72,8 @@ function Signup(props) {
     };
   }
 
-  function onSignUp() {
+  function onSignUp(form) {
+    form.preventDefault();
     const { name, email, password } = userState;
     let redirect;
     if (pathname !== '/') {
@@ -80,7 +83,7 @@ function Signup(props) {
         redirect += `#${hash}`;
       }
     }
-    return signUp(name, email, password, redirect).then(result => {
+    return signUp(name, email, password, redirect).then((result) => {
       const { response } = result;
       setPostSignUp(response);
     });
@@ -88,14 +91,14 @@ function Signup(props) {
 
   function getResendButton() {
     return (
-      <Button
+      <ApiBlockingButton
         fullWidth
         variant="contained"
         className={classes.submit}
         onClick={onSignUp}
       >
-        Resend Code
-      </Button>
+        {intl.formatMessage({ id: 'signupResendCodeButton' })}
+      </ApiBlockingButton>
     );
   }
 
@@ -109,11 +112,10 @@ function Signup(props) {
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
+            <img width="35" height="35" src={`/images/${SIGNUP_LOGO}`} alt="Uclusion"/>
           </Avatar>
           <Typography component="h1" variant="h5" align="center">
-            Your user is created, and a verification link has been sent to your
-            email. Please click the link inside to continue.
+            {intl.formatMessage({ id: 'signupCreatedUser' })}
           </Typography>
           {getResendButton()}
         </div>
@@ -121,17 +123,16 @@ function Signup(props) {
     );
   }
 
-  if (postSignUp === "VERIFICATION_RESENT") {
+  if (postSignUp === 'VERIFICATION_RESENT') {
     return (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
+            <img width="35" height="35" src={`/images/${SIGNUP_LOGO}`} alt="Uclusion"/>
           </Avatar>
           <Typography component="h1" variant="h5" align="center">
-            We have sent a verification email to you. Please click the link
-            inside to continue.
+            {intl.formatMessage({ id: 'signupSentEmail' })}
           </Typography>
           {getResendButton()}
         </div>
@@ -145,15 +146,15 @@ function Signup(props) {
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
+            <img width="35" height="35" src={`/images/${SIGNUP_LOGO}`} alt="Uclusion"/>
           </Avatar>
           <Typography component="h1" variant="h5" align="center">
-            An account with that email already exists, please log in.
+            {intl.formatMessage({ id: 'signupAccountExists' })}
           </Typography>
           <Grid container justify="center">
             <Grid item>
               <Link href="/" variant="body2">
-                Log In
+                {intl.formatMessage({ id: 'signupAccountExistsLoginLink' })}
               </Link>
             </Grid>
           </Grid>
@@ -163,18 +164,22 @@ function Signup(props) {
   }
 
   const { name, email, password, repeat } = userState;
-
+  const formInvalid = _.isEmpty(name) || _.isEmpty(email) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
-          <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
+          <img width="35" height="35" src={`/images/${SIGNUP_LOGO}`} alt="Uclusion"/>
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign Up
+          {intl.formatMessage({ id: 'signupTitle' })}
         </Typography>
-        <form className={classes.form} autoComplete="off">
+        <form
+          className={classes.form}
+          autoComplete="off"
+          onSubmit={onSignUp}
+        >
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -185,8 +190,8 @@ function Signup(props) {
                 fullWidth
                 id="name"
                 autoFocus
-                label={intl.formatMessage({ id: "signupNameLabel" })}
-                onChange={handleChange("name")}
+                label={intl.formatMessage({ id: 'signupNameLabel' })}
+                onChange={handleChange('name')}
               />
             </Grid>
             <Grid item xs={12}>
@@ -198,8 +203,8 @@ function Signup(props) {
                 name="email"
                 type="email"
                 autoComplete="email"
-                label={intl.formatMessage({ id: "signupEmailLabel" })}
-                onChange={handleChange("email")}
+                label={intl.formatMessage({ id: 'signupEmailLabel' })}
+                onChange={handleChange('email')}
               />
             </Grid>
             <Grid item xs={12}>
@@ -210,9 +215,13 @@ function Signup(props) {
                 name="password"
                 type="password"
                 id="password"
-                autoComplete="current-password"
-                label={intl.formatMessage({ id: "signupPasswordLabel" })}
-                onChange={handleChange("password")}
+                helperText={password.length < 6 ? intl.formatMessage({ id: 'signupPasswordHelper' }): ''}
+                InputProps={{
+                  minLength: 6,
+                }}
+                autoComplete="new-password"
+                label={intl.formatMessage({ id: 'signupPasswordLabel' })}
+                onChange={handleChange('password')}
               />
             </Grid>
             <Grid item xs={12}>
@@ -221,35 +230,33 @@ function Signup(props) {
                 name="repeat"
                 type="password"
                 variant="outlined"
+                autoComplete="new-password"
+                helperText={repeat !== password? intl.formatMessage({ id: 'signupPasswordRepeatHelper' }): ''}
+                InputProps={{
+                  minLength: 6,
+                }}
                 label={intl.formatMessage({
-                  id: "signupPasswordRepeatLabel",
+                  id: 'signupPasswordRepeatLabel',
                 })}
-                onChange={handleChange("repeat")}
+                onChange={handleChange('repeat')}
                 fullWidth
                 required
               />
             </Grid>
           </Grid>
-          <Button
+          <ApiBlockingButton
             fullWidth
             variant="contained"
             className={classes.submit}
-            onClick={onSignUp}
-            disabled={
-              _.isEmpty(name) ||
-              _.isEmpty(email) ||
-              _.isEmpty(password) ||
-              _.isEmpty(repeat) ||
-              password !== repeat ||
-              password.length < 6
-            }
+            type="submit"
+            disabled={formInvalid}
           >
             {intl.formatMessage({ id: 'signupSignupLabel' })}
-          </Button>
+          </ApiBlockingButton>
           <Grid container justify="flex-end">
             <Grid item>
               <Link href="/" variant="body2">
-                Already have an account? Sign in
+                {intl.formatMessage({ id: 'signupHaveAccount' })}
               </Link>
             </Grid>
           </Grid>
@@ -259,4 +266,11 @@ function Signup(props) {
   );
 }
 
+Signup.propTypes = {
+  authState: PropTypes.string,
+};
+
+Signup.defaultProps = {
+  authState: '',
+};
 export default Signup;

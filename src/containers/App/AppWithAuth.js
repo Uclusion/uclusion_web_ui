@@ -94,11 +94,26 @@ function AppWithAuth(props) {
     );
   }
 
+  const authenticatorTheme = {
+    toast: {
+      position: 'static',
+      backgroundColor: '#3f6b72',
+    },
+  };
+  const authenticatorErrorMap = (message) => {
+    if (/incorrect.*username.*password/i.test(message)) {
+      return 'Incorrect Email or Password';
+    }
+    return message;
+  };
   return (
     <div className={classes.root}>
       <IntlProvider locale={locale} key={locale} messages={messages}>
         <IntlGlobalProvider>
-          <Authenticator hide={[Greetings, SignIn, SignUp, SignOut, ForgotPassword]}>
+          <Authenticator
+            errorMessage={authenticatorErrorMap}
+            theme={authenticatorTheme}
+            hide={[Greetings, SignIn, SignUp, SignOut, ForgotPassword]}>
             <UclusionSignup />
             <CustomSignIn />
             <UclusionForgotPassword />

@@ -423,12 +423,29 @@ const messages = defineMessages({
   dialogArchivesVerifiedHeader: 'Verified',
   dialogArchivesLabel: 'Plan Archives',
 
+  // SignIn
+  signInEmailLabel: 'Email',
+  signInPasswordLabel: 'Password',
+  signInNoAccount: 'Don\'t have an account? Sign up',
+  signInForgotPassword: 'Forgot Password?',
+  signInSignIn: 'Sign In',
+
+
   // Signup
   signupNameLabel: 'Name',
   signupEmailLabel: 'Email',
   signupPasswordLabel: 'Password',
+  signupPasswordHelper: '6 Characters Minimum',
   signupPasswordRepeatLabel: 'Repeat Password',
+  signupPasswordRepeatHelper: 'Must match Password',
   signupSignupLabel: 'Create Account',
+  signupTitle: 'Sign Up',
+  signupHaveAccount: 'Already have an account? Sign in',
+  signupAccountExists: 'An account with that email already exists, please log in.',
+  signupAccountExistsLoginLink: 'Log In',
+  signupSentEmail: 'We have sent a verification email to you. Please click the link inside to continue.',
+  signupCreatedUser: 'Your user is created, and a verification link has been sent to your email. Please click the link inside to continue.',
+  signupResendCodeButton: 'Resend Code',
 
   // Forgot Password
   forgotPasswordHeader: 'Reset your password',

@@ -9,3 +9,14 @@ export function refreshMarketPresence(dispatch, marketId) {
 export function getMarketPresences(state, marketId) {
   return state[marketId];
 }
+
+export function getPresenceMap(state, marketId) {
+  const presences = getMarketPresences(state, marketId) || [];
+  return presences.reduce((acc, element) => {
+    const { name, id } = element;
+    return {
+      ...acc,
+      [id]: element,
+    }
+  }, {});
+}

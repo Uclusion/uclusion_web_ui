@@ -24,6 +24,7 @@ import DeadlineExtender from './Decision/DeadlineExtender';
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../constants/markets';
 import ChangeToObserverButton from './ChangeToObserverButton';
 import ChangeToParticipantButton from './ChangeToParticipantButton';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -49,7 +50,7 @@ function AddressList(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
 
   function extractUsersList() {
-    const addToMarketPresences = marketPresencesState[addToMarketId];
+    const addToMarketPresences = getMarketPresences(marketPresencesState, addToMarketId) || [];
     const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
       const { external_id } = presence;
       return { ...acc, [external_id]: true };

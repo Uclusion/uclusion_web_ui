@@ -41,7 +41,11 @@ function ReadOnlyQuillEditor(props) {
 
 ReadOnlyQuillEditor.propTypes = {
   value: PropTypes.string.isRequired,
-  heading: PropTypes.bool.isRequired,
+  heading: PropTypes.bool,
+};
+
+ReadOnlyQuillEditor.defaultProps = {
+  heading: false,
 };
 
 export default ReadOnlyQuillEditor;

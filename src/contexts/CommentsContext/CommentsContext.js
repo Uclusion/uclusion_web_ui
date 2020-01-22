@@ -19,8 +19,8 @@ function CommentsProvider(props) {
       const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
       lfg.getState()
         .then((state) => {
-          console.debug(`Found comments ${state}`);
-          console.debug(state);
+          // console.debug(`Found comments ${state}`);
+          // console.debug(state);
           if (state) {
             dispatch(initializeState(state));
           }

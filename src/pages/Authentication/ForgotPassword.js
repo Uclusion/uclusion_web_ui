@@ -60,11 +60,11 @@ function ForgotPassword(props) {
 
   useEffect(() => {
     if (authData && authData.email) {
-      dispatch({ name: "email", value: authData.email })
+      dispatch({ name: "email", value: authData.email });
     }
   }, [authData]);
 
-  const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
+  const ALTERNATE_SIDEBAR_LOGO = "Uclusion_Logo_White_Micro.png";
   const { email, code, password, repeat } = userState;
 
   function handleChange(name) {
@@ -127,7 +127,12 @@ function ForgotPassword(props) {
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
+            <img
+              width="35"
+              height="35"
+              src={`/images/${ALTERNATE_SIDEBAR_LOGO}`}
+              alt="Uclusion"
+            />
           </Avatar>
           <Typography component="h1" variant="h5">
             {intl.formatMessage({ id: "forgotPasswordHeader" })}
@@ -155,13 +160,9 @@ function ForgotPassword(props) {
             {intl.formatMessage({ id: "forgotPasswordSendCodeButton" })}
           </Button>
           <Grid container>
-            <Grid item xs>
-            </Grid>
+            <Grid item xs></Grid>
             <Grid item>
-              <Link
-                href="/"
-                variant="body2"
-              >
+              <Link href="/" variant="body2">
                 Back to Sign In
               </Link>
             </Grid>
@@ -177,7 +178,12 @@ function ForgotPassword(props) {
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
+            <img
+              width="35"
+              height="35"
+              src={`/images/${ALTERNATE_SIDEBAR_LOGO}`}
+              alt="Uclusion"
+            />
           </Avatar>
           <Typography component="h1" variant="h5">
             {intl.formatMessage({ id: "forgotPasswordHeader" })}
@@ -197,7 +203,7 @@ function ForgotPassword(props) {
               onChange={handleChange("code")}
               margin="normal"
             />
-            
+
             <TextField
               id="password"
               required
@@ -209,7 +215,7 @@ function ForgotPassword(props) {
               type="password"
               margin="normal"
             />
-            
+
             <TextField
               id="repeat"
               required
@@ -228,7 +234,13 @@ function ForgotPassword(props) {
             variant="contained"
             className={classes.submit}
             onClick={onSetNewPassword}
-            disabled={_.isEmpty(code) || _.isEmpty(password) || _.isEmpty(repeat)}
+            disabled={
+              _.isEmpty(code) ||
+              _.isEmpty(password) ||
+              _.isEmpty(repeat) ||
+              password !== repeat ||
+              password.length < 6
+            }
           >
             {intl.formatMessage({ id: "forgotPasswordResetPasswordButton" })}
           </Button>
@@ -246,7 +258,12 @@ function ForgotPassword(props) {
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
-            <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
+            <img
+              width="35"
+              height="35"
+              src={`/images/${ALTERNATE_SIDEBAR_LOGO}`}
+              alt="Uclusion"
+            />
           </Avatar>
           <Typography component="h1" variant="h5">
             Your password is reset!

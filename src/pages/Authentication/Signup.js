@@ -1,4 +1,8 @@
 import React, { useReducer, useState } from "react";
+import { useHistory } from "react-router";
+import { useIntl } from "react-intl";
+import { makeStyles } from "@material-ui/core/styles";
+import _ from "lodash";
 import { TextField, Button } from "@material-ui/core";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -6,10 +10,7 @@ import Avatar from "@material-ui/core/Avatar";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import Link from "@material-ui/core/Link";
-import { useIntl } from "react-intl";
 import { signUp } from "../../api/sso";
-import { useHistory } from "react-router";
-import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -161,6 +162,8 @@ function Signup(props) {
     );
   }
 
+  const { name, email, password, repeat } = userState;
+
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -171,7 +174,7 @@ function Signup(props) {
         <Typography component="h1" variant="h5">
           Sign Up
         </Typography>
-        <form className={classes.form} noValidate autoComplete="off">
+        <form className={classes.form} autoComplete="off">
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -193,6 +196,7 @@ function Signup(props) {
                 fullWidth
                 id="email"
                 name="email"
+                type="email"
                 autoComplete="email"
                 label={intl.formatMessage({ id: "signupEmailLabel" })}
                 onChange={handleChange("email")}
@@ -231,6 +235,14 @@ function Signup(props) {
             variant="contained"
             className={classes.submit}
             onClick={onSignUp}
+            disabled={
+              _.isEmpty(name) ||
+              _.isEmpty(email) ||
+              _.isEmpty(password) ||
+              _.isEmpty(repeat) ||
+              password !== repeat ||
+              password.length < 6
+            }
           >
             {intl.formatMessage({ id: "signupSignupLabel" })}
           </Button>

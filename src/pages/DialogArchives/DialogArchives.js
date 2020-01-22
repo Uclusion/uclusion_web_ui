@@ -1,5 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import Screen from '../../containers/Screen/Screen';
 import { useHistory } from 'react-router';
 import {
@@ -22,6 +23,10 @@ import {
 import SubSection from '../../containers/SubSection/SubSection';
 import { useIntl } from 'react-intl';
 import ArchiveInvestbiles from './ArchiveInvestibles';
+import { SECTION_TYPE_SECONDARY } from '../../constants/global';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketPresences, getPresenceMap } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import AssigneeFilterDropdown from './AssigneeFilterDropdown';
 
 function DialogArchives(props) {
   const { hidden } = props;
@@ -30,11 +35,13 @@ function DialogArchives(props) {
   const history = useHistory();
   const { location: { pathname } } = history;
   const { marketId } = decomposeMarketPath(pathname);
-
+  const [assigneeFilter, setAssigneeFilter] = useState('');
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId);
+  const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
@@ -44,10 +51,23 @@ function DialogArchives(props) {
   const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, verifiedStage.id);
   const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id);
 
+  const filteredVerifiedInvestibles = verifiedInvestibles.filter((inv) => {
+    if (_.isEmpty(assigneeFilter)) {
+      return true;
+    }
+    const { market_infos } = inv;
+    const myInfo = market_infos.find((element) => element.market_id === marketId);
+    return myInfo && myInfo.assigned.includes(assigneeFilter);
+  });
 
   const { name } = renderableMarket;
   const breadCrumbTemplates = [{ name, link: formMarketLink(marketId) }];
   const breadCrumbs = makeArchiveBreadCrumbs(history, breadCrumbTemplates);
+
+  function onFilterChange(event) {
+    const { value } = event.target;
+    setAssigneeFilter(value);
+  }
 
   if (!marketId) {
     return (
@@ -68,18 +88,28 @@ function DialogArchives(props) {
       breadCrumbs={breadCrumbs}
     >
       <SubSection
+        type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'dialogArchivesVerifiedHeader' })}
+        actionButton={
+          (<AssigneeFilterDropdown
+            onChange={onFilterChange}
+            presences={marketPresences}
+            value={assigneeFilter}
+          />)}
       >
         <ArchiveInvestbiles
           marketId={marketId}
-          investibles={verifiedInvestibles}
+          investibles={filteredVerifiedInvestibles}
+          presenceMap={presenceMap}
         />
       </SubSection>
       <SubSection
+        type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'dialogArchivesNotDoingHeader' })}
       >
         <ArchiveInvestbiles
           marketId={marketId}
+          presenceMap={presenceMap}
           investibles={notDoingInvestibles}
         />
       </SubSection>

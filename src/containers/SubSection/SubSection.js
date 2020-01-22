@@ -23,6 +23,9 @@ const useStyles = makeStyles((theme) => {
       borderRadius: '2px',
       marginBottom: '6px',
     },
+    grow: {
+      flexGrow: 1,
+    },
     headerTitle: {
       fontSize: 14,
       lineHeight: '18px',
@@ -61,6 +64,7 @@ function SubSection(props) {
           <Typography className={type === SECTION_TYPE_PRIMARY ? classes.headerPrimaryTitle : classes.headerTitle}>
             {title}
           </Typography>
+          <div className={classes.grow}/>
           {actionButton}
         </Toolbar>
       </AppBar>

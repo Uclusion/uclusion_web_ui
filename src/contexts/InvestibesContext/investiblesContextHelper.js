@@ -37,7 +37,7 @@ export function getInvestiblesInStage(investibles, stageId){
 export function refreshInvestibles(dispatch, diffDispatch, marketId) {
   return fetchInvestibleList(marketId)
     .then((investibleList) => {
-      console.debug(investibleList);
+      // console.debug(investibleList);
       if (_.isEmpty(investibleList)) {
         return Promise.resolve([]);
       }

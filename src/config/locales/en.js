@@ -517,6 +517,8 @@ const messages = defineMessages({
   //summary
   summaryExpiredAt: 'Expired on {expireDate}',
 
+  //assigneeFilterDropdown
+  assigneeFilterDropdownAll: 'Everyone',
 
   // warnings
   warningOffline: 'You are offline',

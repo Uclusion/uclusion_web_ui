@@ -1,36 +1,36 @@
-import React, { useReducer, useState } from "react";
-import { useHistory } from "react-router";
-import { useIntl } from "react-intl";
-import { makeStyles } from "@material-ui/core/styles";
-import _ from "lodash";
-import { TextField, Button } from "@material-ui/core";
-import Container from "@material-ui/core/Container";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Avatar from "@material-ui/core/Avatar";
-import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
-import Link from "@material-ui/core/Link";
-import { signUp } from "../../api/sso";
+import React, { useReducer, useState } from 'react';
+import { useHistory } from 'react-router';
+import { useIntl } from 'react-intl';
+import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash';
+import { TextField, Button } from '@material-ui/core';
+import Container from '@material-ui/core/Container';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Avatar from '@material-ui/core/Avatar';
+import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
+import Link from '@material-ui/core/Link';
+import { signUp } from '../../api/sso';
 
 const useStyles = makeStyles(theme => ({
   paper: {
     marginTop: theme.spacing(8),
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: "#3f6b72",
+    backgroundColor: '#3f6b72',
   },
   form: {
-    width: "100%",
+    width: '100%',
     marginTop: theme.spacing(3),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
-    backgroundColor: "#3f6b72",
-    color: "#fff",
+    backgroundColor: '#3f6b72',
+    color: '#fff',
   },
 }));
 
@@ -47,10 +47,10 @@ function Signup(props) {
   const classes = useStyles();
   const { authState } = props;
   const empty = {
-    name: "",
-    email: "",
-    password: "",
-    repeat: "",
+    name: '',
+    email: '',
+    password: '',
+    repeat: '',
   };
 
   const [userState, dispatch] = useReducer(reducer, empty);
@@ -62,7 +62,7 @@ function Signup(props) {
   const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
 
   function handleChange(name) {
-    return event => {
+    return (event) => {
       const {
         target: { value },
       } = event;
@@ -73,7 +73,7 @@ function Signup(props) {
   function onSignUp() {
     const { name, email, password } = userState;
     let redirect;
-    if (pathname !== "/") {
+    if (pathname !== '/') {
       // we came here by some other link and need to log in
       redirect = pathname;
       if (hash) {
@@ -99,11 +99,11 @@ function Signup(props) {
     );
   }
 
-  if (authState !== "signUp") {
+  if (authState !== 'signUp') {
     return <></>;
   }
 
-  if (postSignUp === "USER_CREATED") {
+  if (postSignUp === 'USER_CREATED') {
     return (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -139,7 +139,7 @@ function Signup(props) {
     );
   }
 
-  if (postSignUp === "ACCOUNT_EXISTS") {
+  if (postSignUp === 'ACCOUNT_EXISTS') {
     return (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -244,7 +244,7 @@ function Signup(props) {
               password.length < 6
             }
           >
-            {intl.formatMessage({ id: "signupSignupLabel" })}
+            {intl.formatMessage({ id: 'signupSignupLabel' })}
           </Button>
           <Grid container justify="flex-end">
             <Grid item>

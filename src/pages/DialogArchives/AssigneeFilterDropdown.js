@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Select, MenuItem, FormControl, makeStyles } from '@material-ui/core';
+import {
+  Select, MenuItem, FormControl, makeStyles,
+} from '@material-ui/core';
 import { useIntl } from 'react-intl';
 
-const useStyles = makeStyles(() => {
-  return {
-    white: {
-      backgroundColor: '#ffffff',
-    },
-  };
-});
+const useStyles = makeStyles(() => ({
+  white: {
+    backgroundColor: '#ffffff',
+  },
+}));
 
 function AssigneeFilterDropdown(props) {
   const {
@@ -26,7 +26,7 @@ function AssigneeFilterDropdown(props) {
   function getItems() {
     return sortedPresences.map((presence) => {
       const {
-        id, name
+        id, name,
       } = presence;
       return (
         <MenuItem

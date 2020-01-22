@@ -13,10 +13,10 @@ export function getMarketPresences(state, marketId) {
 export function getPresenceMap(state, marketId) {
   const presences = getMarketPresences(state, marketId) || [];
   return presences.reduce((acc, element) => {
-    const { name, id } = element;
+    const { id } = element;
     return {
       ...acc,
       [id]: element,
-    }
+    };
   }, {});
 }

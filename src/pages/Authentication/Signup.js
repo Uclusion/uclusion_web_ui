@@ -110,7 +110,7 @@ function Signup(props) {
           <Avatar className={classes.avatar}>
             <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
-          <Typography component="h1" variant="h5">
+          <Typography component="h1" variant="h5" align="center">
             Your user is created, and a verification link has been sent to your
             email. Please click the link inside to continue.
           </Typography>
@@ -128,7 +128,7 @@ function Signup(props) {
           <Avatar className={classes.avatar}>
             <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
-          <Typography component="h1" variant="h5">
+          <Typography component="h1" variant="h5" align="center">
             We have sent a verification email to you. Please click the link
             inside to continue.
           </Typography>
@@ -146,7 +146,7 @@ function Signup(props) {
           <Avatar className={classes.avatar}>
             <img width="35" height="35" src={`/images/${ALTERNATE_SIDEBAR_LOGO}`} alt="Uclusion" />
           </Avatar>
-          <Typography component="h1" variant="h5">
+          <Typography component="h1" variant="h5" align="center">
             An account with that email already exists, please log in.
           </Typography>
           <Grid container justify="center">

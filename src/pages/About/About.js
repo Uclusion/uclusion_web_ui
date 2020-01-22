@@ -14,6 +14,7 @@ import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
 import ChangePassword from '../Authentication/ChangePassword';
 import ChangeNotificationPreferences from './ChangeNotificationPreferences';
 import SignOut from '../Authentication/SignOut';
+import FeatureRequest from './FeatureRequest';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -101,6 +102,7 @@ function About(props) {
               {intl.formatMessage({ id: 'supportInfoText' })}
             </Typography>
           </Paper>
+          <FeatureRequest />
           <a
             href={config.add_to_slack_url}
             target="_blank"

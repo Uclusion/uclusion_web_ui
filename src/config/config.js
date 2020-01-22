@@ -21,6 +21,8 @@ const config = {
     baseURL: process.env.REACT_APP_FILE_URL,
   },
   add_to_slack_url: process.env.REACT_APP_ADD_TO_SLACK_URL,
+  support_user_id: process.env.REACT_APP_SUPPORT_USER_ID,
+  support_account_id: process.env.REACT_APP_SUPPORT_ACCOUNT_ID,
   version: process.env.REACT_APP_VERSION,
   uclusionSupportInfo: {
     email: process.env.REACT_APP_UCLUSION_SUPPORT_EMAIL

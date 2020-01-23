@@ -41,7 +41,7 @@ function DialogAdd(props) {
 
   function onDone(marketLink) {
     setIdLoaded(undefined);
-    localforage.removeItem(`add_market_${type}`)
+    return localforage.removeItem(`add_market_${type}`)
       .finally(() => {
         if (marketLink) {
           navigate(history, marketLink);
@@ -58,7 +58,7 @@ function DialogAdd(props) {
       breadCrumbs={breadCrumbs}
     >
       {type === PLANNING_TYPE && idLoaded === type && (
-        <PlanningAdd onSave={onDone} storedDescription={storedDescription}/>
+        <PlanningAdd onDone={onDone} storedDescription={storedDescription}/>
       )}
       {type === DECISION_TYPE && idLoaded === type && (
         <DecisionAdd onDone={onDone} storedDescription={storedDescription}/>

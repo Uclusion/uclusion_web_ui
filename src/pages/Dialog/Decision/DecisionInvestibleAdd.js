@@ -95,7 +95,7 @@ function DecisionInvestibleAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onCancel();
+    onCancel(formMarketLink(marketId));
   }
 
   function handleSave() {

@@ -458,6 +458,8 @@ const messages = defineMessages({
   forgotPasswordResendCode: 'Resend Reset Code',
   forgotPasswordEmailNotFound: 'That email address was not found',
   forgotPasswordInvalidCode: 'An invalid code was entered',
+  forgotPasswordHelper: '6 Characters Minimum',
+  forgotPasswordRepeatHelper: 'Must match Password',
 
   // Change Password
   errorChangePasswordFailed: 'Change password failed. Please try again.',

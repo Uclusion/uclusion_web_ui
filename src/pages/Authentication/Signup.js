@@ -215,7 +215,7 @@ function Signup(props) {
                 name="password"
                 type="password"
                 id="password"
-                helperText={password.length < 6 ? intl.formatMessage({ id: 'signupPasswordHelper' }): ''}
+                helperText={password.length < 6 ? intl.formatMessage({ id: 'signupPasswordHelper' }) : ''}
                 InputProps={{
                   minLength: 6,
                 }}

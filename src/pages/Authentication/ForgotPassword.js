@@ -1,35 +1,35 @@
 import React, { useState, useEffect, useReducer } from "react";
-import _ from "lodash";
-import { Auth } from "aws-amplify";
-import { Button, TextField, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { useIntl } from "react-intl";
-import Container from "@material-ui/core/Container";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Avatar from "@material-ui/core/Avatar";
-import Grid from "@material-ui/core/Grid";
-import Link from "@material-ui/core/Link";
-import { toastError } from "../../utils/userMessage";
+import _ from 'lodash';
+import { Auth } from 'aws-amplify';
+import { Button, TextField, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { useIntl } from 'react-intl';
+import Container from '@material-ui/core/Container';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Avatar from '@material-ui/core/Avatar';
+import Grid from '@material-ui/core/Grid';
+import Link from '@material-ui/core/Link';
+import { toastError } from '../../utils/userMessage';
 
 const useStyles = makeStyles(theme => ({
   paper: {
     marginTop: theme.spacing(8),
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: "#3f6b72",
+    backgroundColor: '#3f6b72',
   },
   form: {
-    width: "100%",
+    width: '100%',
     marginTop: theme.spacing(3),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
-    backgroundColor: "#3f6b72",
-    color: "#fff",
+    backgroundColor: '#3f6b72',
+    color: '#fff',
   },
 }));
 
@@ -44,15 +44,15 @@ function reducer(state, action) {
 
 function ForgotPassword(props) {
   const empty = {
-    email: "",
-    code: "",
-    password: "",
-    repeat: "",
+    email: '',
+    code: '',
+    password: '',
+    repeat: '',
   };
 
   const { authState, authData } = props;
   const [userState, dispatch] = useReducer(reducer, empty);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [codeSent, setCodeSent] = useState(false);
   const [passwordReset, setPasswordReset] = useState(false);
   const intl = useIntl();
@@ -60,15 +60,15 @@ function ForgotPassword(props) {
 
   useEffect(() => {
     if (authData && authData.email) {
-      dispatch({ name: "email", value: authData.email });
+      dispatch({ name: 'email', value: authData.email });
     }
   }, [authData]);
 
-  const ALTERNATE_SIDEBAR_LOGO = "Uclusion_Logo_White_Micro.png";
+  const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
   const { email, code, password, repeat } = userState;
 
   function handleChange(name) {
-    return event => {
+    return (event) => {
       const {
         target: { value },
       } = event;
@@ -76,55 +76,58 @@ function ForgotPassword(props) {
     };
   }
 
-  function onSendCode() {
+  function onSendCode(form) {
+    if (form) {
+      form.preventDefault();
+    }
     Auth.forgotPassword(email)
       .then(() => {
-        setErrorMessage("");
+        setErrorMessage('');
         setCodeSent(true);
         setPasswordReset(false);
       })
       .catch(error => {
         const { code } = error;
-        if (code === "UserNotFoundException") {
+        if (code === 'UserNotFoundException') {
           const message = intl.formatMessage({
-            id: "forgotPasswordEmailNotFound",
+            id: 'forgotPasswordEmailNotFound',
           });
-          console.log(message);
           setErrorMessage(message);
         } else {
-          toastError("errorForgotPasswordCodeFailed");
+          toastError('errorForgotPasswordCodeFailed');
         }
       });
   }
 
-  function onSetNewPassword() {
-    Auth.forgotPasswordSubmit(email, code, password)
+  function onSetNewPassword(form) {
+    form.preventDefault();
+    return Auth.forgotPasswordSubmit(email, code, password)
       .then(() => {
-        setErrorMessage("");
+        setErrorMessage('');
         setCodeSent(false);
         setPasswordReset(true);
       })
       .catch(error => {
         const { code } = error;
-        if (code === "CodeMismatchException") {
+        if (code === 'CodeMismatchException') {
           const message = intl.formatMessage({
-            id: "forgotPasswordInvalidCode",
+            id: 'forgotPasswordInvalidCode',
           });
           setErrorMessage(message);
         } else {
-          toastError("errorForgotPasswordSetFailed");
+          toastError('errorForgotPasswordSetFailed');
         }
       });
   }
 
-  if (authState !== "forgotPassword") {
-    return <React.Fragment />;
+  if (authState !== 'forgotPassword') {
+    return <React.Fragment/>;
   }
 
   if (!codeSent && !passwordReset) {
     return (
       <Container component="main" maxWidth="xs">
-        <CssBaseline />
+        <CssBaseline/>
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <img
@@ -135,30 +138,37 @@ function ForgotPassword(props) {
             />
           </Avatar>
           <Typography component="h1" variant="h5">
-            {intl.formatMessage({ id: "forgotPasswordHeader" })}
+            {intl.formatMessage({ id: 'forgotPasswordHeader' })}
           </Typography>
           {!_.isEmpty(errorMessage) && (
             <Typography color="error">{errorMessage}</Typography>
           )}
-          <form noValidate className={classes.form} autoComplete="off">
+          <form
+            onSubmit={onSendCode}
+            className={classes.form}
+            autoComplete="off"
+          >
             <TextField
               id="email"
               fullWidth
+              autoComplete="email"
+              required
               value={email}
-              label={intl.formatMessage({ id: "forgotPasswordEmailLabel" })}
+              label={intl.formatMessage({ id: 'forgotPasswordEmailLabel' })}
               onChange={handleChange("email")}
               margin="normal"
             />
+            <Button
+              fullWidth
+              variant="contained"
+              className={classes.submit}
+              type="submit"
+              disabled={_.isEmpty(email)}
+            >
+              {intl.formatMessage({ id: 'forgotPasswordSendCodeButton' })}
+            </Button>
           </form>
-          <Button
-            fullWidth
-            variant="contained"
-            className={classes.submit}
-            onClick={onSendCode}
-            disabled={_.isEmpty(email)}
-          >
-            {intl.formatMessage({ id: "forgotPasswordSendCodeButton" })}
-          </Button>
+
           <Grid container>
             <Grid item xs></Grid>
             <Grid item>
@@ -173,9 +183,15 @@ function ForgotPassword(props) {
   }
 
   if (codeSent) {
+    const formInvalid = _.isEmpty(code) ||
+      _.isEmpty(password) ||
+      _.isEmpty(repeat) ||
+      password !== repeat ||
+      password.length < 6;
+
     return (
       <Container component="main" maxWidth="xs">
-        <CssBaseline />
+        <CssBaseline/>
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <img
@@ -186,12 +202,16 @@ function ForgotPassword(props) {
             />
           </Avatar>
           <Typography component="h1" variant="h5">
-            {intl.formatMessage({ id: "forgotPasswordHeader" })}
+            {intl.formatMessage({ id: 'forgotPasswordHeader' })}
           </Typography>
           {!_.isEmpty(errorMessage) && (
             <Typography color="error">{errorMessage}</Typography>
           )}
-          <form noValidate className={classes.form} autoComplete="off">
+          <form
+            onSubmit={onSetNewPassword}
+            className={classes.form}
+            autoComplete="off"
+          >
             <TextField
               id="code"
               autoComplete="code"
@@ -199,8 +219,8 @@ function ForgotPassword(props) {
               type="number"
               required
               fullWidth
-              label={intl.formatMessage({ id: "forgotPasswordCodeLabel" })}
-              onChange={handleChange("code")}
+              label={intl.formatMessage({ id: 'forgotPasswordCodeLabel' })}
+              onChange={handleChange('code')}
               margin="normal"
             />
 
@@ -209,10 +229,15 @@ function ForgotPassword(props) {
               required
               fullWidth
               label={intl.formatMessage({
-                id: "forgotPasswordNewPasswordLabel",
+                id: 'forgotPasswordNewPasswordLabel',
               })}
-              onChange={handleChange("password")}
+              InputProps={{
+                minLength: 6,
+              }}
+              onChange={handleChange('password')}
               type="password"
+              autoComplete="new-password"
+              helperText={password.length < 6 ? intl.formatMessage({ id: 'forgotPasswordHelper' }) : ''}
               margin="normal"
             />
 
@@ -220,32 +245,29 @@ function ForgotPassword(props) {
               id="repeat"
               required
               fullWidth
+              autoComplete="new_password"
               label={intl.formatMessage({
-                id: "forgotPasswordRepeatLabel",
+                id: 'forgotPasswordRepeatLabel',
               })}
-              onChange={handleChange("repeat")}
+              helperText={password !== repeat ? intl.formatMessage({ id: 'forgotPasswordRepeatHelper' }) : ''}
+              onChange={handleChange('repeat')}
               type="password"
               margin="normal"
             />
+
+            <Button
+              fullWidth
+              variant="contained"
+              className={classes.submit}
+              type="submit"
+              disabled={formInvalid}
+            >
+              {intl.formatMessage({ id: 'forgotPasswordResetPasswordButton' })}
+            </Button>
           </form>
 
-          <Button
-            fullWidth
-            variant="contained"
-            className={classes.submit}
-            onClick={onSetNewPassword}
-            disabled={
-              _.isEmpty(code) ||
-              _.isEmpty(password) ||
-              _.isEmpty(repeat) ||
-              password !== repeat ||
-              password.length < 6
-            }
-          >
-            {intl.formatMessage({ id: "forgotPasswordResetPasswordButton" })}
-          </Button>
           <Button fullWidth variant="contained" onClick={onSendCode}>
-            {intl.formatMessage({ id: "forgotPasswordResendCode" })}
+            {intl.formatMessage({ id: 'forgotPasswordResendCode' })}
           </Button>
         </div>
       </Container>
@@ -255,7 +277,7 @@ function ForgotPassword(props) {
   if (passwordReset) {
     return (
       <Container component="main" maxWidth="xs">
-        <CssBaseline />
+        <CssBaseline/>
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <img
@@ -276,7 +298,7 @@ function ForgotPassword(props) {
     );
   }
 
-  return <React.Fragment />;
+  return <React.Fragment/>;
 }
 
 export default ForgotPassword;

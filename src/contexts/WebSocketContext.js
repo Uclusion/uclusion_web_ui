@@ -6,7 +6,6 @@ import React, { useReducer, useState } from 'react';
 import localforage from 'localforage';
 import PropTypes from 'prop-types';
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner';
-import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityTokenRefresher';
 import config from '../config';
 import { sendInfoPersistent, toastErrorAndThrow } from '../utils/userMessage';
 import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext/NotificationsContext';
@@ -68,57 +67,55 @@ function WebSocketProvider(props) {
     const { webSockets } = config;
     const sockConfig = { wsUrl: webSockets.wsUrl, reconnectInterval: webSockets.reconnectInterval };
     const newSocket = new WebSocketRunner(sockConfig);
-    // subscribing to identity is done on connect
-    return new AmplifyIdentityTokenRefresher().getIdentity().then((identity) => {
-      newSocket.connect(identity);
-      // we also want to always be subscribed to new app versions
-      newSocket.registerHandler('UI_UPDATE_REQUIRED', (message) => {
-        const { app_version: appVersion, requires_cache_clear: cacheClear } = message;
-        notifyNewApplicationVersion(appVersion, cacheClear);
-      });
-
-      newSocket.registerHandler('pong', () => {
-        connectionCheckTimerDispatch({});
-      });
-
-      newSocket.registerHandler('market', (message) => {
-        pushMessage(
-          VERSIONS_HUB_CHANNEL,
-          {
-            event: MARKET_MESSAGE_EVENT,
-            message,
-          },
-        );
-      });
-
-      newSocket.registerHandler('notification', (message) => {
-        pushMessage(
-          VERSIONS_HUB_CHANNEL,
-          {
-            event: NOTIFICATION_MESSAGE_EVENT,
-            message,
-          },
-        );
-      });
-
-      newSocket.registerHandler('USER_LEFT_MARKET', (message) => {
-        // since we left, going to fake remove event to the versions message channel
-        pushMessage(
-          VERSIONS_HUB_CHANNEL,
-          {
-            event: MARKET_MESSAGE_EVENT,
-            message: {
-              version: -1, // < 0 will trigger a remove
-              object_id: message.indirect_object_id,
-            },
-          },
-        );
-      });
-
-      // we need to subscribe to our identity, but that requires reworking subscribe
-      // newSocket.subscribe
-      return newSocket;
+    // this will incidentally subscribe to the identity
+    newSocket.connect();
+    // we also want to always be subscribed to new app versions
+    newSocket.registerHandler('UI_UPDATE_REQUIRED', (message) => {
+      const { app_version: appVersion, requires_cache_clear: cacheClear } = message;
+      notifyNewApplicationVersion(appVersion, cacheClear);
     });
+
+    newSocket.registerHandler('pong', () => {
+      connectionCheckTimerDispatch({});
+    });
+
+    newSocket.registerHandler('market', (message) => {
+      pushMessage(
+        VERSIONS_HUB_CHANNEL,
+        {
+          event: MARKET_MESSAGE_EVENT,
+          message,
+        },
+      );
+    });
+
+    newSocket.registerHandler('notification', (message) => {
+      pushMessage(
+        VERSIONS_HUB_CHANNEL,
+        {
+          event: NOTIFICATION_MESSAGE_EVENT,
+          message,
+        },
+      );
+    });
+
+    newSocket.registerHandler('USER_LEFT_MARKET', (message) => {
+      // since we left, going to fake remove event to the versions message channel
+      pushMessage(
+        VERSIONS_HUB_CHANNEL,
+        {
+          event: MARKET_MESSAGE_EVENT,
+          message: {
+            version: -1, // < 0 will trigger a remove
+            object_id: message.indirect_object_id,
+          },
+        },
+      );
+    });
+
+    // we need to subnscribe to our identity, but that requires reworking subscribe
+    // newSocket.subscribe
+    return newSocket;
   }
 
   registerListener(AUTH_HUB_CHANNEL, 'webSocketsAuth', (data) => {
@@ -141,7 +138,7 @@ function WebSocketProvider(props) {
     }
   });
   if (!state) {
-    createWebSocket()
+    Promise.resolve(createWebSocket())
       .then((newSocket) => {
         setState(newSocket);
         if (socketListener) {

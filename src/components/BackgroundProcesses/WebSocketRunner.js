@@ -1,6 +1,7 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { SOCKET_OPEN_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import { pushMessage } from '../../utils/MessageBusUtils';
+import AmplifyIdentityTokenRefresher from '../../authorization/AmplifyIdentityTokenRefresher';
 
 /**
  * Class which fires and manages a websocket connection to the server.
@@ -34,18 +35,20 @@ class WebSocketRunner {
     this.messageHandlers.push({ type: messageType, handler });
   }
 
-  subscribe(identity) {
-    const action = { action: 'subscribe', identity };
-    if (this.socket.readyState === WebSocket.OPEN) {
-      const actionString = JSON.stringify(action);
-      this.socket.send(actionString);
-    }
+  subscribe() {
+    return new AmplifyIdentityTokenRefresher().getIdentity().then((identity) => {
+      const action = { action: 'subscribe', identity };
+      if (this.socket.readyState === WebSocket.OPEN) {
+        const actionString = JSON.stringify(action);
+        this.socket.send(actionString);
+      }
+    });
   }
 
 
-  onOpenFactory(identity) {
+  onOpenFactory() {
     const factory = () => {
-      this.subscribe(identity);
+      this.subscribe();
       pushMessage(
         VERSIONS_HUB_CHANNEL,
         {
@@ -56,12 +59,12 @@ class WebSocketRunner {
     return factory.bind(this);
   }
 
-  connect(identity) {
+  connect() {
     if (this.socket) {
       this.socket.close();
     }
     this.socket = new ReconnectingWebSocket(this.wsUrl);
-    this.socket.addEventListener('open', this.onOpenFactory(identity));
+    this.socket.addEventListener('open', this.onOpenFactory());
     this.socket.addEventListener('message', this.getMessageHandler());
   }
 

@@ -62,7 +62,7 @@ function DialogEdit(props) {
 
   function onDone() {
     if (marketType !== PLANNING_TYPE) {
-      localforage.removeItem(marketId).then(() => navigate(history, formMarketLink(marketId)));
+      localforage.removeItem(marketId).finally(() => navigate(history, formMarketLink(marketId)));
     } else {
       navigate(history, formMarketLink(marketId));
     }
@@ -71,7 +71,7 @@ function DialogEdit(props) {
   function onSave() {
     // Save removes the lock so no need to release
     setLockedMarketId(undefined);
-    localforage.removeItem(marketId).then(() => navigate(history, formMarketLink(marketId)));
+    localforage.removeItem(marketId).finally(() => navigate(history, formMarketLink(marketId)));
   }
   const someoneElseEditing = lockedBy && (lockedBy !== userId);
   const warning = someoneElseEditing ? intl.formatMessage({ id: 'edit_lock' }) : undefined;

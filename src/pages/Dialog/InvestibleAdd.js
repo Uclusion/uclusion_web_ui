@@ -40,7 +40,7 @@ function InvestibleAdd(props) {
 
   function onDone(investibleLink) {
     localforage.removeItem(`add_investible_${marketId}`)
-      .then(() => {
+      .finally(() => {
         if (investibleLink) {
           navigate(history, investibleLink);
         }

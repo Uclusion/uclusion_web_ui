@@ -42,7 +42,7 @@ function DialogAdd(props) {
   function onDone(marketLink) {
     setIdLoaded(undefined);
     localforage.removeItem(`add_market_${type}`)
-      .then(() => {
+      .finally(() => {
         if (marketLink) {
           navigate(history, marketLink);
         }

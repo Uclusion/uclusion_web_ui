@@ -4,11 +4,8 @@ import { toastErrorAndThrow } from '../utils/userMessage';
 
 function fixupMarketForStorage(market) {
   const itemFixed = fixupItemForStorage(market);
-  const { created_at: createdAt, expiration_minutes: expirationMinutes } = itemFixed;
-  const expirationMillis = createdAt.getTime() + (60000 * expirationMinutes);
   return {
     ...itemFixed,
-    expiresAt: new Date(expirationMillis),
   };
 }
 

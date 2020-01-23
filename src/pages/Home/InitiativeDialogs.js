@@ -42,7 +42,7 @@ function InitiativeDialogs(props) {
     return markets.map((market) => {
       const {
         id: marketId, created_at: createdAt, expiration_minutes: expirationMinutes,
-        market_type: marketType, market_stage: marketStage, expiresAt,
+        market_type: marketType, market_stage: marketStage, updated_at: updatedAt,
       } = market;
       const investibles = getMarketInvestibles(investiblesState, marketId);
       if (!investibles || _.isEmpty(investibles)) {
@@ -101,7 +101,7 @@ function InitiativeDialogs(props) {
                   xs={3}
                 >
                   {!active && (
-                    <ExpiredDisplay expiresDate={expiresAt} />
+                    <ExpiredDisplay expiresDate={updatedAt} />
                   )}
                   {active && (
                     <ExpiresDisplay

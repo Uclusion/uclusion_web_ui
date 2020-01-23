@@ -60,7 +60,7 @@ function Summary(props) {
     investment_expiration: investmentExpiration,
     days_estimate: daysEstimate,
     created_at: createdAt,
-    expiresAt,
+    updated_at: updatedAt,
     expiration_minutes: expirationMinutes,
   } = market;
   const active = marketStage === ACTIVE_STAGE;
@@ -97,7 +97,7 @@ function Summary(props) {
         </Typography>
       )}
       {marketType !== PLANNING_TYPE && !active && (
-        <ExpiredDisplay expiresDate={expiresAt} />
+        <ExpiredDisplay expiresDate={updatedAt} />
       )}
       {marketType !== PLANNING_TYPE && active && (
         <ExpiresDisplay

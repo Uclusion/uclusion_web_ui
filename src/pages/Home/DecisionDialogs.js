@@ -43,7 +43,7 @@ function DecisionDialogs(props) {
     return markets.map((market) => {
       const {
         id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes,
-        market_type: marketType, market_stage: marketStage, expiresAt,
+        market_type: marketType, market_stage: marketStage, updated_at: updatedAt,
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
@@ -95,7 +95,7 @@ function DecisionDialogs(props) {
                   xs={3}
                 >
                   {!active && (
-                    <ExpiredDisplay expiresDate={expiresAt} />
+                    <ExpiredDisplay expiresDate={updatedAt} />
                   )}
                   {active && (
                     <ExpiresDisplay

@@ -24,7 +24,6 @@ const useStyles = makeStyles((theme) => ({
 function Identity() {
   const classes = useStyles();
   const [user, setUser] = useState(null);
-  const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(false);
   const history = useHistory();
   const intl = useIntl();
@@ -42,12 +41,11 @@ function Identity() {
 
   const recordPositionToggle = (event) => {
     setAnchorEl(event.currentTarget);
-    setOpen(!open);
   };
 
   function goTo(to) {
     return () => {
-      setOpen(false);
+      setAnchorEl(null);
       navigate(history, to);
     };
   }
@@ -61,12 +59,14 @@ function Identity() {
       />
       <Popover
         id="profile-menu"
-        open={open}
+        open={!!anchorEl}
+        onClose={() => setAnchorEl(null)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
         }}
         anchorEl={anchorEl}
+        disableRestoreFocus
       >
         <MenuItem
           onClick={goTo('/support')}

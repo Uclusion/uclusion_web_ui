@@ -6,7 +6,7 @@ import { useHistory } from 'react-router';
 import {
   decomposeMarketPath,
   formMarketLink,
-  makeArchiveBreadCrumbs,
+  makeArchiveBreadCrumbs, makeBreadCrumbs,
 } from '../../utils/marketIdPathFunctions';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
@@ -40,7 +40,9 @@ function DialogArchives(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || []
+  const myPresence = marketPresences.find((presence) => presence.current_user);
+  const inArchives = myPresence && myPresence.market_hidden;
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
@@ -62,7 +64,8 @@ function DialogArchives(props) {
 
   const { name } = renderableMarket;
   const breadCrumbTemplates = [{ name, link: formMarketLink(marketId) }];
-  const breadCrumbs = makeArchiveBreadCrumbs(history, breadCrumbTemplates);
+  const breadCrumbs = inArchives? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
+    : makeBreadCrumbs(history, breadCrumbTemplates);
 
   function onFilterChange(event) {
     const { value } = event.target;

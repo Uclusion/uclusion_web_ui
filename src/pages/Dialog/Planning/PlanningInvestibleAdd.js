@@ -14,7 +14,7 @@ import localforage from 'localforage';
 import { addPlanningInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions';
 import AssignmentList from './AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
@@ -90,7 +90,7 @@ function PlanningInvestibleAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onCancel();
+    onCancel(formMarketLink(marketId));
   }
 
   function handleSave() {

@@ -62,6 +62,10 @@ function Identity() {
       <Popover
         id="profile-menu"
         open={open}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
         anchorEl={anchorEl}
       >
         <MenuItem

@@ -66,19 +66,21 @@ function ChangeNotificationPreferences(props) {
       breadCrumbs={breadCrumbs}
       loading={!user}
     >
-      <a
-        href={config.add_to_slack_url}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <img
-          alt="Add to Slack"
-          height="40"
-          width="139"
-          src="https://platform.slack-edge.com/img/add_to_slack.png"
-          srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
-        />
-      </a>
+      {user && !user.is_slack_addressable && (
+        <a
+          href={config.add_to_slack_url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img
+            alt="Add to Slack"
+            height="40"
+            width="139"
+            src="https://platform.slack-edge.com/img/add_to_slack.png"
+            srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
+          />
+        </a>
+      )}
       <Typography>
         {intl.formatMessage({ id: 'changePreferencesHeader' })}
       </Typography>

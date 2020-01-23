@@ -63,7 +63,7 @@ function DecisionAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onDone();
+    onDone('/');
   }
 
   function handleChange(field) {

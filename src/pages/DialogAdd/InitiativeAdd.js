@@ -61,7 +61,7 @@ function InitiativeAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onDone();
+    onDone('/');
   }
 
   function handleChange(field) {

@@ -8,7 +8,7 @@ function fixupMarketForStorage(market) {
   const expirationMillis = createdAt.getTime() + (60000 * expirationMinutes);
   return {
     ...itemFixed,
-    expires_at: expirationMillis,
+    expiresAt: new Date(expirationMillis),
   };
 }
 

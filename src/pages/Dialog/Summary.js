@@ -60,7 +60,7 @@ function Summary(props) {
     investment_expiration: investmentExpiration,
     days_estimate: daysEstimate,
     created_at: createdAt,
-    expires_at: expiresAt,
+    expiresAt,
     expiration_minutes: expirationMinutes,
   } = market;
   const active = marketStage === ACTIVE_STAGE;
@@ -88,9 +88,6 @@ function Summary(props) {
       );
     });
   }
-  const expiresDate = new Date(expiresAt);
-  const now = new Date();
-  const expired = expiresDate <= now;
 
   return (
     <Paper className={classes.container}>
@@ -99,18 +96,25 @@ function Summary(props) {
           {name}
         </Typography>
       )}
-      {marketType !== PLANNING_TYPE && expired && (
-        <ExpiredDisplay expiresDate={expiresDate}/>
+      {marketType !== PLANNING_TYPE && !active && (
+        <ExpiredDisplay expiresDate={expiresAt} />
       )}
       {marketType !== PLANNING_TYPE && active && (
         <ExpiresDisplay
           createdAt={createdAt}
           expirationMinutes={expirationMinutes}
-        />)}
+        />
+      )}
       {marketType !== INITIATIVE_TYPE && (
         <div>
-          { diff && <DiffDisplay id={id}/>}
-          { !diff && <ReadOnlyQuillEditor className={classes.content} marketId={id} value={description}/>}
+          { diff && <DiffDisplay id={id} />}
+          { !diff && (
+          <ReadOnlyQuillEditor
+            className={classes.content}
+            marketId={id}
+            value={description}
+          />
+          )}
         </div>
       )}
       {maxBudget && (

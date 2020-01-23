@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
+import { useIntl } from 'react-intl';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
@@ -16,7 +17,6 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getParticipantInfo } from '../../utils/userFunctions';
 import { ACTIVE_STAGE } from '../../constants/markets';
-import { useIntl } from 'react-intl';
 import DialogActions from './DialogActions';
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
 
@@ -42,16 +42,12 @@ function InitiativeDialogs(props) {
     return markets.map((market) => {
       const {
         id: marketId, created_at: createdAt, expiration_minutes: expirationMinutes,
-        market_type: marketType, market_stage: marketStage, expires_at: expiresAt,
+        market_type: marketType, market_stage: marketStage, expiresAt,
       } = market;
       const investibles = getMarketInvestibles(investiblesState, marketId);
       if (!investibles || _.isEmpty(investibles)) {
         return <></>;
       }
-      const expiresDate = new Date(expiresAt);
-      const now = new Date();
-      const expired = expiresDate <= now;
-
       const baseInvestible = investibles[0];
       const { investible } = baseInvestible;
       const { name } = investible;
@@ -95,7 +91,7 @@ function InitiativeDialogs(props) {
                 </Link>
               </Typography>
               <Typography>
-                {intl.formatMessage({ id: 'homeCreatedAt'}, {dateString: intl.formatDate(createdAt)})}
+                {intl.formatMessage({ id: 'homeCreatedAt' }, { dateString: intl.formatDate(createdAt) })}
               </Typography>
               <Grid
                 container
@@ -104,8 +100,8 @@ function InitiativeDialogs(props) {
                   item
                   xs={3}
                 >
-                  {expired && (
-                    <ExpiredDisplay expiresDate={expiresDate} />
+                  {!active && (
+                    <ExpiredDisplay expiresDate={expiresAt} />
                   )}
                   {active && (
                     <ExpiresDisplay
@@ -127,7 +123,7 @@ function InitiativeDialogs(props) {
                 marketStage={marketStage}
                 marketId={marketId}
                 marketType={marketType}
-                isAdmin={true}
+                isAdmin
                 inArchives={myPresence.market_hidden}
               />
             </CardActions>

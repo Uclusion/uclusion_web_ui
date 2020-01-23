@@ -37,9 +37,9 @@ function ChangeNotificationPreferences(props) {
         const { idToken, ssoClient } = ssoInfo;
         return ssoClient.accountCognitoLogin(idToken).then((loginInfo) => {
           const { user: myUser } = loginInfo;
-          setUser(myUser);
           setEmailEnabled(myUser.email_enabled);
           setSlackEnabled(myUser.slack_enabled);
+          setUser(myUser);
         });
       }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
     }
@@ -84,46 +84,48 @@ function ChangeNotificationPreferences(props) {
       <Typography>
         {intl.formatMessage({ id: 'changePreferencesHeader' })}
       </Typography>
-      <form
-        noValidate
-        autoComplete="off"
-      >
-        <ListItem
-          key="email"
-          button
-          onClick={handleToggleEmail}
+      {user && (
+        <form
+          noValidate
+          autoComplete="off"
         >
-          <ListItemIcon>
-            <Checkbox
-              value={emailEnabled}
-              checked={emailEnabled}
-            />
-          </ListItemIcon>
-          <ListItemText
-            className={classes.name}
+          <ListItem
+            key="email"
+            button
+            onClick={handleToggleEmail}
           >
-            {intl.formatMessage({ id: 'emailEnabledLabel' })}
-          </ListItemText>
-        </ListItem>
-        <ListItem
-          key="slack"
-          button
-          onClick={handleToggleSlack}
-        >
-          <ListItemIcon>
-            <Checkbox
-              value={slackEnabled}
-              checked={slackEnabled}
-              disabled={!user || !user.is_slack_addressable}
-            />
-          </ListItemIcon>
-          <ListItemText
-            className={user && user.is_slack_addressable ? classes.name : classes.disabled}
+            <ListItemIcon>
+              <Checkbox
+                value={emailEnabled}
+                checked={emailEnabled}
+              />
+            </ListItemIcon>
+            <ListItemText
+              className={classes.name}
+            >
+              {intl.formatMessage({ id: 'emailEnabledLabel' })}
+            </ListItemText>
+          </ListItem>
+          <ListItem
+            key="slack"
+            button
+            onClick={handleToggleSlack}
           >
-            {intl.formatMessage({ id: 'slackEnabledLabel' })}
-          </ListItemText>
-        </ListItem>
-      </form>
+            <ListItemIcon>
+              <Checkbox
+                value={slackEnabled}
+                checked={slackEnabled}
+                disabled={!user || !user.is_slack_addressable}
+              />
+            </ListItemIcon>
+            <ListItemText
+              className={user && user.is_slack_addressable ? classes.name : classes.disabled}
+            >
+              {intl.formatMessage({ id: 'slackEnabledLabel' })}
+            </ListItemText>
+          </ListItem>
+        </form>
+      )}
       <Button
         onClick={onSetPreferences}
       >

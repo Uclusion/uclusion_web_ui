@@ -17,6 +17,8 @@ import {
 import { createTitle } from '../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
+import { getVersions } from '../../api/summaries';
+import { refreshVersionsAction } from '../../contexts/VersionsContext/versionsContextReducer';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -106,7 +108,9 @@ function Screen(props) {
   const [firstRender, setFirstRender] = useState(true);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [operationRunningWasSet, setOperationRunningWasSet] = useState(true);
-  const [versionsState] = useContext(VersionsContext);
+  const [loadingExpired, setLoadingExpired] = useState(false);
+  const [loadingExpiredTimer, setLoadingExpiredTimer] = useState(false);
+  const [versionsState, versionsDispatch] = useContext(VersionsContext);
   const { notificationVersion } = versionsState;
   const { version } = notificationVersion;
   const myLoading = !hidden && (loading || version < 0);
@@ -114,9 +118,25 @@ function Screen(props) {
     if (!operationRunning && myLoading) {
       setOperationRunning(true);
       setOperationRunningWasSet(true);
+      if (loadingExpiredTimer) {
+        clearTimeout(loadingExpiredTimer);
+      }
+      setLoadingExpired(false);
+      setLoadingExpiredTimer(setTimeout(() => {
+        setLoadingExpired(true);
+      }, 5000));
     } else if (operationRunningWasSet && !myLoading) {
       setOperationRunningWasSet(false);
       setOperationRunning(false);
+      setLoadingExpired(false);
+      if (loadingExpiredTimer) {
+        clearTimeout(loadingExpiredTimer);
+      }
+    } else if (loadingExpired && operationRunning && operationRunningWasSet) {
+      setLoadingExpired(false);
+      // In case you missed a push
+      console.warn('Attempting to fix corrupted data');
+      getVersions().then((versions) => versionsDispatch(refreshVersionsAction(versions)));
     }
     if (firstRender) {
       scroller(location);
@@ -124,7 +144,8 @@ function Screen(props) {
     }
     return () => {};
   }, [firstRender, location, operationRunning, operationRunningWasSet,
-    versionsState, myLoading, setOperationRunning]);
+    versionsState, myLoading, setOperationRunning, loadingExpired,
+    loadingExpiredTimer, versionsDispatch]);
 
   const [sidebarOpen] = useContext(SidebarContext);
 
@@ -178,10 +199,9 @@ Screen.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   title: PropTypes.any,
   // eslint-disable-next-line react/forbid-prop-types
-  children: PropTypes.any,
+  children: PropTypes.any.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   sidebarActions: PropTypes.arrayOf(PropTypes.element),
-  banner: PropTypes.string,
   tabTitle: PropTypes.string.isRequired,
 };
 
@@ -191,7 +211,6 @@ Screen.defaultProps = {
   hidden: false,
   loading: false,
   toolbarButtons: [],
-  banner: undefined,
   sidebarActions: [],
 };
 

@@ -156,7 +156,7 @@ const messages = defineMessages({
   marketAddTitleDefault: 'Add a name...',
   marketAddTitleLabel: 'Name',
   marketAddDescriptionDefault: 'Add a description...',
-  marketAddCancelLabel: 'Close',
+  marketAddCancelLabel: 'Cancel',
   marketAddSaveLabel: 'Save',
   marketAddExpirationLabel: 'Dialog ends after {x} day(s)',
   investmentExpirationInputLabel: 'Number of days before a vote expires',
@@ -204,18 +204,18 @@ const messages = defineMessages({
   investibleAddTitleDefault: 'Add a name...',
   investibleAddTitleLabel: 'Name',
   investibleAddDescriptionDefault: 'Add a description...',
-  investibleAddCancelLabel: 'Close',
+  investibleAddCancelLabel: 'Cancel',
   investibleAddSaveLabel: 'Save',
 
 
   // InvestibleEdit
   investibleEditTitleLabel: 'Title',
-  investibleEditCancelLabel: 'Close',
+  investibleEditCancelLabel: 'Cancel',
   investibleEditSaveLabel: 'Save',
   investibleEditAcceptLabel: 'Accept Assignment',
   investibleEditArchiveLabel: 'Archive Assignment',
   investibleEditSubmitLabel: 'Submit',
-  descriptionEdit: 'Description. Changes will be stored locally until save.',
+  descriptionEdit: 'Description. Changes will be stored locally until you save or cancel.',
 
   // Investible
   investibleEditLabel: 'Edit',

@@ -5,7 +5,7 @@ import { CssBaseline } from '@material-ui/core';
 import { useHistory } from 'react-router';
 import { defaultTheme } from '../../config/themes';
 import Market from '../../pages/Dialog/Dialog';
-import About from '../../pages/About/About';
+import Support from '../../pages/About/Support';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import {
   broadcastView, decomposeMarketPath,
@@ -24,6 +24,8 @@ import DialogEdit from '../../pages/Dialog/DialogEdit';
 import DialogManage from '../../pages/Dialog/DialogManage';
 import MarketInvite from '../../pages/Invites/MarketInvite';
 import SlackInvite from '../../pages/Invites/SlackInvite';
+import ChangePassword from '../../pages/Authentication/ChangePassword';
+import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences';
 
 const useStyles = makeStyles({
   body: {
@@ -65,11 +67,16 @@ function Root() {
     redirectToPath(history, redirect);
   }
 
-  function hideAbout() {
-    if (!pathname) {
-      return true;
-    }
-    return action !== 'about';
+  function hideSupport() {
+    return action !== 'support';
+  }
+
+  function hideChangePassword() {
+    return action !== 'changePassword';
+  }
+
+  function hideChangeNotification() {
+    return action !== 'notificationPreferences';
   }
 
   function hideAddMarket() {
@@ -116,10 +123,10 @@ function Root() {
     return action !== 'invite' || !marketId;
   }
 
-  const hidePNF = !(hideMarket() && hideAbout() && hideHome() && hideInvestible()
+  const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible()
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
     && hideAddMarket() && hideDialogEdit() && hideDialogManage() && hideMarketInvite()
-    && hideSlackInvite());
+    && hideSlackInvite() && hideChangePassword() && hideChangeNotification());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -178,7 +185,7 @@ function Root() {
           <div className={classes.content}>
             <Home hidden={hideHome()} />
             <Market hidden={hideMarket()} />
-            <About hidden={hideAbout()} />
+            <Support hidden={hideSupport()} />
             <Investible hidden={hideInvestible()} />
             <InvestibleEdit hidden={hideInvestibleEdit()} />
             <Archives hidden={hideArchvies()} />
@@ -189,6 +196,8 @@ function Root() {
             <DialogManage hidden={hideDialogManage()} />
             <MarketInvite hidden={hideMarketInvite()} />
             <SlackInvite hidden={hideSlackInvite()} />
+            <ChangePassword hidden={hideChangePassword()} />
+            <ChangeNotificationPreferences hidden={hideChangeNotification()} />
             <PageNotFound hidden={hidePNF} />
           </div>
         </div>

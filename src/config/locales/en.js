@@ -2,7 +2,7 @@ import { defineMessages } from 'react-intl';
 
 const messages = defineMessages({
   app_name: 'Uclusion',
-  about: 'About',
+  support: 'Support',
   page_not_found_demo: 'Page not found demo',
   404: '404',
   warning_404_message: '404 Page not found',

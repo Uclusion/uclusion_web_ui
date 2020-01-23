@@ -17,13 +17,11 @@ function SignOut() {
   }
 
   return (
-    <div>
-      <Button
-        onClick={onSignOut}
-      >
-        {intl.formatMessage({ id: 'signOutButton' })}
-      </Button>
-    </div>
+    <Button
+      onClick={onSignOut}
+    >
+      {intl.formatMessage({ id: 'signOutButton' })}
+    </Button>
   );
 }
 

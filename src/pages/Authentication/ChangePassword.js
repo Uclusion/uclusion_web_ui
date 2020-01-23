@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
 import { Auth } from 'aws-amplify';
+import PropTypes from 'prop-types';
+import { useHistory } from 'react-router';
 import { Button, TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { toastError } from '../../utils/userMessage';
+import Screen from '../../containers/Screen/Screen';
+import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
 
-function ChangePassword() {
+function ChangePassword(props) {
+  const { hidden } = props;
   const [oldPassword, setOldPassword] = useState(undefined);
   const [newPassword, setNewPassword] = useState(undefined);
   const [repeatPassword, setRepeatPassword] = useState(undefined);
@@ -37,9 +42,16 @@ function ChangePassword() {
   function handleChangeRepeat(password) {
     setRepeatPassword(password);
   }
-
+  const history = useHistory();
+  const breadCrumbs = makeBreadCrumbs(history, [], true);
   return (
-    <div>
+    <Screen
+      title={intl.formatMessage({ id: 'changePasswordHeader' })}
+      tabTitle={intl.formatMessage({ id: 'changePasswordHeader' })}
+      hidden={hidden}
+      breadCrumbs={breadCrumbs}
+      loading={!breadCrumbs}
+    >
       <Typography>
         {intl.formatMessage({ id: 'changePasswordHeader' })}
       </Typography>
@@ -78,8 +90,12 @@ function ChangePassword() {
       >
         {intl.formatMessage({ id: 'changePasswordButton' })}
       </Button>
-    </div>
+    </Screen>
   );
 }
+
+ChangePassword.propTypes = {
+  hidden: PropTypes.bool.isRequired,
+};
 
 export default ChangePassword;

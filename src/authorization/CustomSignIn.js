@@ -30,13 +30,27 @@ const useStyles = (theme) => ({
     margin: theme.spacing(3, 0, 2),
     backgroundColor: '#3f6b72',
     color: '#fff',
-  }
+  },
+  hiddenSubmit: {
+    border: '0 none',
+    height: 0,
+    width: 0,
+    padding: 0,
+    margin: 0,
+    overflow: 'hidden',
+  },
 });
 
 class CustomSignIn extends SignIn {
   constructor(props) {
     super(props);
     this._validAuthStates = ['signIn', 'signedOut', 'signedUp'];
+    this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  onSubmit(form) {
+    form.preventDefault();
+    super.signIn();
   }
 
   showComponent() {
@@ -53,7 +67,8 @@ class CustomSignIn extends SignIn {
             {intl.formatMessage({ id: 'signInSignIn' })}
           </Typography>
         </div>
-        <form className={classes.form}>
+        <form className={classes.form} onSubmit={this.onSubmit}>
+          <div className={classes.hiddenSubmit}><input type="submit" tabIndex="-1"/></div>
           <TextField
             variant="outlined"
             margin="normal"
@@ -82,11 +97,10 @@ class CustomSignIn extends SignIn {
             autoComplete="current-password"
           />
           <ApiBlockingButton
-            type="button"
+            type="submit"
             fullWidth
             variant="contained"
             className={classes.submit}
-            onClick={() => super.signIn()}
           >
             {intl.formatMessage({ id: 'signInSignIn'})}
           </ApiBlockingButton>

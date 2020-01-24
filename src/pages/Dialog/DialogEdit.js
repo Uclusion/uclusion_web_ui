@@ -32,6 +32,7 @@ function DialogEdit(props) {
   const [storedDescription, setStoredDescription] = useState(undefined);
   const [lockedMarketId, setLockedMarketId] = useState(undefined);
   const user = getMyUserForMarket(marketsState, marketId) || {};
+  const locked = renderableMarket && renderableMarket.locked_by;
   const userId = user.id;
   const loading = !user.id || !marketType || idLoaded !== marketId;
   useEffect(() => {
@@ -49,16 +50,20 @@ function DialogEdit(props) {
         setIdLoaded(marketId);
       });
     }
+    const originalLockedId = lockedMarketId;
     // We need this way otherwise if they navigate out by back button we don't release the lock
-    if (hidden && lockedMarketId && marketType === PLANNING_TYPE) {
-      const originalLockedId = lockedMarketId;
+    if (hidden && lockedMarketId && locked && marketType === PLANNING_TYPE) {
       // Set right away to avoid multiple calls
       setLockedMarketId(undefined);
-      unlockPlanningMarketForEdit(lockedMarketId)
+      unlockPlanningMarketForEdit(originalLockedId)
         .then(() => localforage.removeItem(originalLockedId))
-        .catch(() => setLockedMarketId(originalLockedId));
+        .catch(() => console.error('Error unlocking market'));
     }
-  }, [hidden, marketId, lockedMarketId, marketType]);
+    if (hidden && !locked && lockedMarketId) {
+      setLockedMarketId(undefined);
+      localforage.removeItem(originalLockedId);
+    }
+  }, [hidden, marketId, lockedMarketId, marketType, locked]);
 
   function onDone() {
     if (marketType !== PLANNING_TYPE) {

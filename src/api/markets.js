@@ -115,7 +115,6 @@ export function lockPlanningMarketForEdit(marketId, breakLock) {
 export function unlockPlanningMarketForEdit(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.markets.unlock())
-    .catch((error) => toastErrorAndThrow(error, 'errorEditLockReleaseFailed'));
 }
 
 export function getMarketUsers(marketId) {

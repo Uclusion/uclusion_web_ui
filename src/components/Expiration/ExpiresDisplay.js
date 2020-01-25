@@ -88,7 +88,7 @@ function ExpiresDisplay(props) {
   const { createdAt, expirationMinutes } = props;
   const [now, setNow] = useState(new Date());
   const expiresDurationMillis = expirationMinutes * 60000;
-  const expiresDuration = moment.duration(expiresDurationMillis);
+  //const expiresDuration = moment.duration(expiresDurationMillis);
   const expiresMillis = createdAt.getTime() + expiresDurationMillis;
   const diffMillis = expiresMillis - now.getTime();
   const diff = moment.duration(diffMillis);
@@ -99,11 +99,12 @@ function ExpiresDisplay(props) {
   // eslint-disable-next-line max-len,no-nested-ternary
   const updateInterval = (daysRemaining > 0) ? ONE_HOUR : (hoursRemaining > 1) ? THIRTY_MINUTES : ONE_MINUTE;
 
-
+  const fractionalDays = daysRemaining + (hoursRemaining / 24.0) + (minutesRemaining / 60.0)
+  //console.log(` fractional days ${fractionalDays} days remaining ${daysRemaining}`);
   // Mapping the date values to radius values
-  const daysRadius = mapNumber(daysRemaining, expiresDuration.days(), 0, 0, 360);
-  const hoursRadius = mapNumber(hoursRemaining, 24, 0, 0, 360);
-  const minutesRadius = mapNumber(minutesRemaining, 60, 0, 0, 360);
+  const daysRadius = mapNumber(daysRemaining, fractionalDays, 0, 0, 360);
+//  const hoursRadius = mapNumber(hoursRemaining, 24, 0, 0, 360);
+//  const minutesRadius = mapNumber(minutesRemaining, 60, 0, 0, 360);
 
   useEffect(() => {
     const timeOut = setTimeout(() => {
@@ -130,7 +131,7 @@ function ExpiresDisplay(props) {
               d={describeArc(50, 50, 48, 0, daysRadius)}
             />
           </svg>
-          {daysRemaining}{hoursRemaining > 0 && '+'}
+          {daysRemaining}{((hoursRemaining > 0) || (minutesRemaining > 0) ) && '+'}
           <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'daysLeft' })}</span>
         </div>
       )}
@@ -147,7 +148,7 @@ function ExpiresDisplay(props) {
               fill="none"
               stroke="#ca2828"
               strokeWidth="4"
-              d={describeArc(50, 50, 48, 0, hoursRadius)}
+              d={describeArc(50, 50, 48, 0, daysRadius)}
             />
           </svg>
           {hoursRemaining}{minutesRemaining > 0 && '+'}
@@ -167,7 +168,7 @@ function ExpiresDisplay(props) {
               fill="none"
               stroke="#ca2828"
               strokeWidth="4"
-              d={describeArc(50, 50, 48, 0, minutesRadius)}
+              d={describeArc(50, 50, 48, 0, daysRadius)}
             />
           </svg>
           {minutesRemaining}

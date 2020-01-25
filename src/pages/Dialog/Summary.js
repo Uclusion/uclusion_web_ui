@@ -181,7 +181,7 @@ function Summary(props) {
             item
             xs={12}
             sm={2}
-            key="observers"
+            key="ob1"
           >
             <Typography>
               {intl.formatMessage({ id: 'dialogParticipants' })}
@@ -191,7 +191,7 @@ function Summary(props) {
             item
             xs={12}
             sm={10}
-            key="userList"
+            key="ul"
           >
             {displayUserList(marketPresencesParticipating)}
           </Grid>
@@ -199,7 +199,7 @@ function Summary(props) {
             item
             xs={12}
             sm={2}
-            key="observers"
+            key="ob2"
           >
             <Typography>
               {intl.formatMessage({ id: 'dialogObservers' })}
@@ -209,7 +209,7 @@ function Summary(props) {
             item
             xs={12}
             sm={10}
-            key="userList"
+            key="ol"
           >
             {displayUserList(marketPresencesObserving)}
           </Grid>

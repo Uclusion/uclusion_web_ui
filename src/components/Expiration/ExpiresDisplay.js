@@ -130,7 +130,7 @@ function ExpiresDisplay(props) {
               d={describeArc(50, 50, 48, 0, daysRadius)}
             />
           </svg>
-          {daysRemaining}
+          {daysRemaining}{hoursRemaining > 0 && '+'}
           <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'daysLeft' })}</span>
         </div>
       )}
@@ -150,7 +150,7 @@ function ExpiresDisplay(props) {
               d={describeArc(50, 50, 48, 0, hoursRadius)}
             />
           </svg>
-          {hoursRemaining}
+          {hoursRemaining}{minutesRemaining > 0 && '+'}
           <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'hoursLeft' })}</span>
         </div>
       )}

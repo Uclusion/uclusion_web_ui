@@ -1,14 +1,12 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
-import { Typography, Paper, Grid } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles';
+import { Typography, Grid } from '@material-ui/core';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
-import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
   ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
@@ -27,42 +25,8 @@ import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import { ACTIVE_STAGE, INITIATIVE_TYPE } from '../../../constants/markets';
 import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
-import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
-import Summary from '../../Dialog/Summary'
-
-const useStyles = makeStyles((theme) => ({
-  container: {
-    padding: '3px 89px 21px 21px',
-    marginTop: '-6px',
-    boxShadow: 'none',
-    [theme.breakpoints.down('sm')]: {
-      padding: '3px 21px 42px 21px',
-    },
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: '42px',
-    paddingBottom: '9px',
-    [theme.breakpoints.down('xs')]: {
-      fontSize: 25,
-    },
-  },
-  content: {
-    fontSize: '15 !important',
-    lineHeight: '175%',
-    color: '#414141',
-    [theme.breakpoints.down('xs')]: {
-      fontSize: 13,
-    },
-    '& > .ql-container': {
-      fontSize: '15 !important',
-    },
-  },
-}));
+import Summary from '../../Dialog/Summary';
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -83,10 +47,6 @@ function InitiativeInvestible(props) {
     hidden,
   } = props;
 
-  const [diffState] = useContext(DiffContext);
-  const diff = getDiff(diffState, investibleId, userId);
-
-  const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
   // eslint-disable-next-line max-len
@@ -160,10 +120,11 @@ function InitiativeInvestible(props) {
             title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
             titleIcon={getDialogTypeIcon(INITIATIVE_TYPE)}
           >
-            <Summary market={market}
-                     investibleId={investibleId}
-                     investibleName={name}
-                     investibleDescription={description}
+            <Summary
+              market={market}
+              investibleId={investibleId}
+              investibleName={name}
+              investibleDescription={description}
             />
           </SubSection>
         </Grid>

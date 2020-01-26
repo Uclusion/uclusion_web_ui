@@ -47,7 +47,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Summary(props) {
-  const { market, showObservers } = props;
+  const {
+    market, showObservers, investibleId, investibleDescription, investibleName,
+  } = props;
   const intl = useIntl();
   const classes = useStyles();
   const {
@@ -91,11 +93,9 @@ function Summary(props) {
 
   return (
     <Paper className={classes.container}>
-      {marketType !== INITIATIVE_TYPE && (
-        <Typography className={classes.title} variant="h3" component="h1">
-          {name}
-        </Typography>
-      )}
+      <Typography className={classes.title} variant="h3" component="h1">
+        {marketType !== INITIATIVE_TYPE ? name : investibleName}
+      </Typography>
       {marketType !== PLANNING_TYPE && !active && (
         <ExpiredDisplay expiresDate={updatedAt} />
       )}
@@ -105,18 +105,16 @@ function Summary(props) {
           expirationMinutes={expirationMinutes}
         />
       )}
-      {marketType !== INITIATIVE_TYPE && (
-        <div>
-          { diff && <DiffDisplay id={id} />}
-          { !diff && (
-          <ReadOnlyQuillEditor
-            className={classes.content}
-            marketId={id}
-            value={description}
-          />
-          )}
-        </div>
-      )}
+      <div>
+        { diff && <DiffDisplay id={marketType !== INITIATIVE_TYPE ? id : investibleId} />}
+        { !diff && (
+        <ReadOnlyQuillEditor
+          className={classes.content}
+          marketId={id}
+          value={marketType !== INITIATIVE_TYPE ? description : investibleDescription}
+        />
+        )}
+      </div>
       {maxBudget && (
         <TextField
           className={classes.row}
@@ -223,10 +221,16 @@ Summary.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
   showObservers: PropTypes.bool,
+  investibleName: PropTypes.string,
+  investibleDescription: PropTypes.string,
+  investibleId: PropTypes.string,
 };
 
 Summary.defaultProps = {
   showObservers: true,
+  investibleName: undefined,
+  investibleDescription: undefined,
+  investibleId: undefined,
 };
 
 export default Summary;

@@ -31,6 +31,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
+import Summary from '../../Dialog/Summary'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -159,19 +160,11 @@ function InitiativeInvestible(props) {
             title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
             titleIcon={getDialogTypeIcon(INITIATIVE_TYPE)}
           >
-            <Paper className={classes.container}>
-              <Typography className={classes.title} variant="h3" component="h1">
-                {name}
-              </Typography>
-              {diff && (
-                <DiffDisplay id={investibleId} />
-              )}
-              {!diff && (
-                <ReadOnlyQuillEditor
-                  value={description}
-                />
-              )}
-            </Paper>
+            <Summary market={market}
+                     investibleId={investibleId}
+                     investibleName={name}
+                     investibleDescription={description}
+            />
           </SubSection>
         </Grid>
         {!isAdmin && (

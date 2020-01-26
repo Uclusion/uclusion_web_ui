@@ -193,6 +193,12 @@ function Summary(props) {
           >
             {displayUserList(marketPresencesParticipating)}
           </Grid>
+        </Grid>
+      )}
+      {marketType !== INITIATIVE_TYPE && showObservers && (
+        <Grid
+          container
+        >
           <Grid
             item
             xs={12}

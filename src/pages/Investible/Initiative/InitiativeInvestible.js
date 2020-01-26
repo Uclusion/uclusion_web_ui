@@ -122,7 +122,6 @@ function InitiativeInvestible(props) {
           >
             <Summary
               market={market}
-              showObservers={false}
               investibleId={investibleId}
               investibleName={name}
               investibleDescription={description}

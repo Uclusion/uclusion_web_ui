@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import {
-  Grid, Typography, Paper, TextField,
+  Grid, Typography, Paper, TextField, CardActions,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import ReadOnlyQuillEditor from '../../components/TextEditors/ReadOnlyQuillEditor';
@@ -14,6 +14,7 @@ import DiffDisplay from '../../components/TextEditors/DiffDisplay';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import { getDiff } from '../../contexts/DiffContext/diffContextHelper';
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
+import DialogActions from '../Home/DialogActions';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -105,6 +106,15 @@ function Summary(props) {
           expirationMinutes={expirationMinutes}
         />
       )}
+      <CardActions>
+        <DialogActions
+          isAdmin={myPresence.is_admin}
+          marketStage={marketStage}
+          marketType={marketType}
+          inArchives={myPresence.market_hidden}
+          marketId={id}
+        />
+      </CardActions>
       <div>
         { diff && <DiffDisplay id={marketType !== INITIATIVE_TYPE ? id : investibleId} />}
         { !diff && (

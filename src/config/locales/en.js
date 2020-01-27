@@ -411,6 +411,8 @@ const messages = defineMessages({
   inviteLinkerDirections: 'Share this link to invite others to the dialog',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
 
+  slackIntegrationSuccessful: 'Slack was successfully integrated.',
+
   // Assignment List
   assignmentListHeader: 'Assigned to',
   // Address List

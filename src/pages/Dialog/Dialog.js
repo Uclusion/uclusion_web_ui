@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+import { useIntl } from 'react-intl';
 import {
   decomposeMarketPath, formInvestibleLink, navigate,
 } from '../../utils/marketIdPathFunctions';
@@ -60,6 +61,7 @@ function Dialog(props) {
   const { hidden } = props;
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);
   const history = useHistory();
+  const intl = useIntl();
   const { location } = history;
   const { pathname } = location;
   const { marketId } = decomposeMarketPath(pathname);
@@ -71,7 +73,7 @@ function Dialog(props) {
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const comments = getMarketComments(commentsState, marketId);
   const renderableMarket = getMarket(marketsState, marketId) || {};
-  const { market_type: marketType, name: marketName } = renderableMarket || '';
+  const { market_type: marketType } = renderableMarket || '';
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
@@ -103,7 +105,7 @@ function Dialog(props) {
       <Screen
         hidden={hidden}
         loading={loading}
-        tabTitle={marketName || ''}
+        tabTitle={intl.formatMessage({ id: 'loadingMessage' })}
       >
         <div />
       </Screen>

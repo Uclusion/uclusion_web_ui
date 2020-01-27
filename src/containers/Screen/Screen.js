@@ -14,7 +14,7 @@ import {
   DRAWER_WIDTH_CLOSED,
   DRAWER_WIDTH_OPENED,
 } from '../../constants/global';
-import { createTitle } from '../../utils/marketIdPathFunctions';
+import { createTitle, navigate } from '../../utils/marketIdPathFunctions'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
 import { getVersions } from '../../api/summaries';
@@ -109,7 +109,9 @@ function Screen(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [operationRunningWasSet, setOperationRunningWasSet] = useState(true);
   const [loadingExpired, setLoadingExpired] = useState(false);
-  const [loadingExpiredTimer, setLoadingExpiredTimer] = useState(false);
+  const [loadingFailed, setLoadingFailed] = useState(false);
+  const [loadingExpiredTimer, setLoadingExpiredTimer] = useState(undefined);
+  const [loadingFailedTimer, setLoadingFailedTimer] = useState(undefined);
   const [versionsState, versionsDispatch] = useContext(VersionsContext);
   const { notificationVersion } = versionsState;
   const { version } = notificationVersion;
@@ -121,7 +123,11 @@ function Screen(props) {
       if (loadingExpiredTimer) {
         clearTimeout(loadingExpiredTimer);
       }
+      if (loadingFailedTimer) {
+        clearTimeout(loadingFailedTimer);
+      }
       setLoadingExpired(false);
+      setLoadingFailed(false);
       setLoadingExpiredTimer(setTimeout(() => {
         setLoadingExpired(true);
       }, 5000));
@@ -129,23 +135,42 @@ function Screen(props) {
       setOperationRunningWasSet(false);
       setOperationRunning(false);
       setLoadingExpired(false);
+      setLoadingFailed(false);
       if (loadingExpiredTimer) {
         clearTimeout(loadingExpiredTimer);
+      }
+      if (loadingFailedTimer) {
+        clearTimeout(loadingFailedTimer);
       }
     } else if (loadingExpired && operationRunning && operationRunningWasSet) {
       setLoadingExpired(false);
       // In case you missed a push
-      console.warn('Attempting to fix corrupted data');
+      console.warn('Loading attempting to fix corrupted data');
       getVersions().then((versions) => versionsDispatch(refreshVersionsAction(versions)));
+      setLoadingFailedTimer(setTimeout(() => {
+        setLoadingFailed(true);
+      }, 5000));
+    } else if (loadingFailed && operationRunning && operationRunningWasSet) {
+      setLoadingFailed(false);
+      navigate(history, '/404');
     }
     if (firstRender) {
       scroller(location);
       setFirstRender(false);
     }
-    return () => {};
+    return () => {
+      if (hidden) {
+        if (loadingExpiredTimer) {
+          clearTimeout(loadingExpiredTimer);
+        }
+        if (loadingFailedTimer) {
+          clearTimeout(loadingFailedTimer);
+        }
+      }
+    };
   }, [firstRender, location, operationRunning, operationRunningWasSet,
-    versionsState, myLoading, setOperationRunning, loadingExpired,
-    loadingExpiredTimer, versionsDispatch]);
+    versionsState, myLoading, setOperationRunning, loadingExpired, history,
+    loadingExpiredTimer, versionsDispatch, loadingFailedTimer, loadingFailed]);
 
   const [sidebarOpen] = useContext(SidebarContext);
 

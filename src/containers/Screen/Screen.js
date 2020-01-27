@@ -170,7 +170,7 @@ function Screen(props) {
     };
   }, [firstRender, location, operationRunning, operationRunningWasSet,
     versionsState, myLoading, setOperationRunning, loadingExpired, history,
-    loadingExpiredTimer, versionsDispatch, loadingFailedTimer, loadingFailed]);
+    loadingExpiredTimer, versionsDispatch, loadingFailedTimer, loadingFailed, hidden]);
 
   const [sidebarOpen] = useContext(SidebarContext);
 

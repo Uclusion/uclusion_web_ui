@@ -236,6 +236,8 @@ const messages = defineMessages({
   planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'Assignments',
   lockedBy: 'Locked by {x}',
+  lockFailedWarning: 'Failed to acquire lock. Retry?',
+  breakLock: 'Break Lock',
   newStory: 'New Story',
 
   // Issues

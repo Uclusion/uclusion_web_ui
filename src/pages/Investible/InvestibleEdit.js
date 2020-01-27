@@ -3,6 +3,9 @@ import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
 import localforage from 'localforage';
+import LockOpenIcon from '@material-ui/icons/LockOpen';
+import Modal from '@material-ui/core/Modal';
+import { makeStyles } from '@material-ui/core/styles';
 import {
   lockInvestibleForEdit,
   realeaseInvestibleEditLock,
@@ -28,10 +31,30 @@ import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/m
 import DecisionInvestibleEdit from './Decision/DecisionInvestibleEdit';
 import PlanningInvestibleEdit from './Planning/PlanningInvestibleEdit';
 import InitiativeInvestibleEdit from './Initiative/InitiativeInvestibleEdit';
+import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
+import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+
+const useStyles = makeStyles((theme) => ({
+  modal: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  paper: {
+    position: 'absolute',
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: '2px solid #000',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
+}));
 
 function InvestibleEdit(props) {
   const { hidden } = props;
   const intl = useIntl();
+  const classes = useStyles();
   const history = useHistory();
   const { location } = history;
   const { pathname } = location;
@@ -57,18 +80,22 @@ function InvestibleEdit(props) {
   const isDecision = market && market.market_type === DECISION_TYPE;
   const isPlanning = market && market.market_type === PLANNING_TYPE;
   const isInitiative = market && market.market_type === INITIATIVE_TYPE;
-
+  const [lockFailed, setLockFailed] = useState(false);
+  const loading = idLoaded !== investibleId || !market || !inv;
+  const someoneElseEditing = lockedBy && (lockedBy !== userId);
+  const [operationRunning] = useContext(OperationInProgressContext);
+  function onLock() {
+    setLockedInvestibleId(investibleId);
+    setLockedInvestibleIdMarketId(marketId);
+  }
   useEffect(() => {
     if (!hidden) {
-      if (investibleId !== lockedInvestibleId) {
+      if (investibleId !== lockedInvestibleId && !loading && !someoneElseEditing && !lockFailed) {
         // Immediately set locked investible id to avoid multiple calls
         setLockedInvestibleId(investibleId);
         setLockedInvestibleIdMarketId(marketId);
-        // for now, just break the lock always
-        const breakLock = true;
-        // console.debug('Taking out lock');
-        lockInvestibleForEdit(marketId, investibleId, breakLock)
-          .catch(() => setLockedInvestibleId(undefined));
+        lockInvestibleForEdit(marketId, investibleId)
+          .catch(() => setLockFailed(true));
       }
       localforage.getItem(investibleId).then((description) => {
         setStoredDescription(description || '');
@@ -84,7 +111,8 @@ function InvestibleEdit(props) {
         .then(() => localforage.removeItem(originalLockedId))
         .catch(() => setLockedInvestibleId(originalLockedId));
     }
-  }, [hidden, lockedInvestibleId, investibleId, marketId, lockedInvestibleIdMarketId, lockedBy]);
+  }, [hidden, lockedInvestibleId, investibleId, marketId, lockedInvestibleIdMarketId,
+    lockedBy, someoneElseEditing, loading, lockFailed]);
 
   function onDone() {
     navigate(history, formInvestibleLink(marketId, investibleId));
@@ -96,31 +124,66 @@ function InvestibleEdit(props) {
     breadCrumbTemplates.unshift({ name: marketName, link: formMarketLink(marketId) });
   }
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-  const someoneElseEditing = lockedBy && (lockedBy !== userId);
-  const warning = someoneElseEditing ? intl.formatMessage({ id: 'edit_lock' }) : undefined;
-  if (idLoaded !== investibleId || !market || !inv) {
+  if (loading) {
     return (
       <Screen
         title={name}
         tabTitle={name}
         breadCrumbs={breadCrumbs}
         hidden={hidden}
-        warning={warning}
         loading
       >
         <div />
       </Screen>
     );
   }
-
+  let lockedByName;
+  if (lockedBy) {
+    const lockedByPresence = marketPresences.find(
+      (presence) => presence.id === lockedBy,
+    );
+    if (lockedByPresence) {
+      const { name } = lockedByPresence;
+      lockedByName = name;
+    }
+  }
+  const lockWarning = lockFailed ? intl.formatMessage({ id: 'lockFailedWarning' })
+    : intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName });
+  const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
+  function myOnClick() {
+    const breakLock = true;
+    return lockInvestibleForEdit(marketId, investibleId, breakLock)
+      .catch(() => setLockFailed(true));
+  }
   return (
     <Screen
       title={intl.formatMessage({ id: 'edit' })}
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
-      warning={warning}
     >
+      <Modal
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description"
+        open={!hidden && (someoneElseEditing || lockFailed)}
+        className={classes.modal}
+        onClose={onDone}
+      >
+        <div className={classes.paper}>
+          <h2 id="simple-modal-title">{intl.formatMessage({ id: 'warning' })}</h2>
+          <p id="simple-modal-description">
+            {lockWarning}
+          </p>
+          <SpinningTooltipIconButton
+            marketId={marketId}
+            onClick={myOnClick}
+            onSpinStop={onLock}
+            disabled={operationRunning}
+            translationId="breakLock"
+            icon={<LockOpenIcon />}
+          />
+        </div>
+      </Modal>
       {!hidden && isDecision && inv && idLoaded === investibleId && (
         <DecisionInvestibleEdit
           fullInvestible={inv}

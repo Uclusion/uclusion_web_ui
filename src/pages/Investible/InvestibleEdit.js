@@ -87,6 +87,7 @@ function InvestibleEdit(props) {
   function onLock() {
     setLockedInvestibleId(investibleId);
     setLockedInvestibleIdMarketId(marketId);
+    setLockFailed(false);
   }
   useEffect(() => {
     if (!hidden) {
@@ -111,6 +112,11 @@ function InvestibleEdit(props) {
         .then(() => localforage.removeItem(originalLockedId))
         .catch(() => setLockedInvestibleId(originalLockedId));
     }
+    return () => {
+      if (hidden) {
+        setLockFailed(false);
+      }
+    };
   }, [hidden, lockedInvestibleId, investibleId, marketId, lockedInvestibleIdMarketId,
     lockedBy, someoneElseEditing, loading, lockFailed]);
 

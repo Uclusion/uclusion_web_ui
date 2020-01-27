@@ -76,7 +76,7 @@ function InvestibleEdit(props) {
       });
     }
     // We need this way otherwise if they navigate out by back button we don't release the lock
-    if (hidden && lockedInvestibleId) {
+    if (hidden && lockedBy && lockedInvestibleId) {
       const originalLockedId = lockedInvestibleId;
       // Set right away to avoid multiple calls
       setLockedInvestibleId(undefined);
@@ -84,16 +84,10 @@ function InvestibleEdit(props) {
         .then(() => localforage.removeItem(originalLockedId))
         .catch(() => setLockedInvestibleId(originalLockedId));
     }
-  }, [hidden, lockedInvestibleId, investibleId, marketId, lockedInvestibleIdMarketId]);
+  }, [hidden, lockedInvestibleId, investibleId, marketId, lockedInvestibleIdMarketId, lockedBy]);
 
   function onDone() {
     navigate(history, formInvestibleLink(marketId, investibleId));
-  }
-
-  function onSave() {
-    // Save removes the lock so no need to release
-    setLockedInvestibleId(undefined);
-    onDone();
   }
 
   const { name: marketName } = market;
@@ -132,7 +126,7 @@ function InvestibleEdit(props) {
           fullInvestible={inv}
           marketId={marketId}
           userId={userId}
-          onSave={onSave}
+          onSave={onDone}
           onCancel={onDone}
           isAdmin={isAdmin}
           storedDescription={storedDescription}
@@ -143,7 +137,7 @@ function InvestibleEdit(props) {
           fullInvestible={inv}
           marketId={marketId}
           marketPresences={marketPresences}
-          onSave={onSave}
+          onSave={onDone}
           onCancel={onDone}
           isAdmin={isAdmin}
           storedDescription={storedDescription}
@@ -154,7 +148,7 @@ function InvestibleEdit(props) {
           fullInvestible={inv}
           marketId={marketId}
           marketPresences={marketPresences}
-          onSave={onSave}
+          onSave={onDone}
           onCancel={onDone}
           storedDescription={storedDescription}
         />

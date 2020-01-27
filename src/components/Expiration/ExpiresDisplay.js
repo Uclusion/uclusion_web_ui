@@ -74,37 +74,27 @@ function describeArc(x, y, radius, startAngle, endAngle) {
   ].join(' ');
 }
 
-// From StackOverflow: https://stackoverflow.com/questions/10756313/javascript-jquery-map-a-range-of-numbers-to-another-range-of-numbers
-
-function mapNumber(number, inMin, inMax, outMin, outMax) {
-  return (
-    ((number - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
-  );
-}
-
 function ExpiresDisplay(props) {
   const classes = useStyles();
   const intl = useIntl();
   const { createdAt, expirationMinutes } = props;
   const [now, setNow] = useState(new Date());
   const expiresDurationMillis = expirationMinutes * 60000;
-  //const expiresDuration = moment.duration(expiresDurationMillis);
-  const expiresMillis = createdAt.getTime() + expiresDurationMillis;
-  const diffMillis = expiresMillis - now.getTime();
-  const diff = moment.duration(diffMillis);
+  const createdAtMillis = createdAt.getTime();
+  const expiresMillis = createdAtMillis + expiresDurationMillis;
+  const nowMillis = now.getTime();
+  const remainingMillis = expiresMillis - nowMillis;
+  const consumedMillis = nowMillis - createdAtMillis;
+  const remaining = moment.duration(remainingMillis);
 
-  const daysRemaining = diff.days();
-  const hoursRemaining = diff.hours();
-  const minutesRemaining = diff.minutes();
-  // eslint-disable-next-line max-len,no-nested-ternary
+  const daysRemaining = remaining.days();
+  const hoursRemaining = remaining.hours();
+  const minutesRemaining = remaining.minutes();
+
   const updateInterval = (daysRemaining > 0) ? ONE_HOUR : (hoursRemaining > 1) ? THIRTY_MINUTES : ONE_MINUTE;
 
-  const fractionalDays = daysRemaining + (hoursRemaining / 24.0) + (minutesRemaining / 60.0)
-  //console.log(` fractional days ${fractionalDays} days remaining ${daysRemaining}`);
-  // Mapping the date values to radius values
-  const daysRadius = mapNumber(daysRemaining, fractionalDays, 0, 0, 360);
-//  const hoursRadius = mapNumber(hoursRemaining, 24, 0, 0, 360);
-//  const minutesRadius = mapNumber(minutesRemaining, 60, 0, 0, 360);
+  const consumedRatio = (consumedMillis / expiresDurationMillis);
+  const consumedDegrees = (consumedRatio >= 1) ? 359.9 : (consumedRatio * 359.9);
 
   useEffect(() => {
     const timeOut = setTimeout(() => {
@@ -113,69 +103,57 @@ function ExpiresDisplay(props) {
     return () => clearTimeout(timeOut);
   }, [now, updateInterval]);
 
-  return (
-    <div className={classes.countdownWrapper}>
-      {daysRemaining > 0 && (
-        <div className={classes.countdownItem}>
-          <svg className={classes.countdownSvg}>
-            <path
-              fill="none"
-              stroke="#3F6B72"
-              strokeWidth="4"
-              d={describeArc(50, 50, 48, 0, 359.9)}
-            />
-            <path
-              fill="none"
-              stroke="#ca2828"
-              strokeWidth="4"
-              d={describeArc(50, 50, 48, 0, daysRadius)}
-            />
-          </svg>
+
+  function getDisplayText() {
+    if (daysRemaining > 0) {
+      return (
+        <React.Fragment>
           {daysRemaining}{((hoursRemaining > 0) || (minutesRemaining > 0) ) && '+'}
           <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'daysLeft' })}</span>
-        </div>
-      )}
-      {daysRemaining === 0 && hoursRemaining > 0 && (
-        <div className={classes.countdownItem}>
-          <svg className={classes.countdownSvg}>
-            <path
-              fill="none"
-              stroke="#3F6B72"
-              strokeWidth="4"
-              d={describeArc(50, 50, 48, 0, 359.9)}
-            />
-            <path
-              fill="none"
-              stroke="#ca2828"
-              strokeWidth="4"
-              d={describeArc(50, 50, 48, 0, daysRadius)}
-            />
-          </svg>
-          {hoursRemaining}{minutesRemaining > 0 && '+'}
-          <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'hoursLeft' })}</span>
-        </div>
-      )}
-      {daysRemaining === 0 && hoursRemaining === 0 && minutesRemaining >= 0 && (
-        <div className={classes.countdownItem}>
-          <svg className={classes.countdownSvg}>
-            <path
-              fill="none"
-              stroke="#3F6B72"
-              strokeWidth="4"
-              d={describeArc(50, 50, 48, 0, 359.9)}
-            />
-            <path
-              fill="none"
-              stroke="#ca2828"
-              strokeWidth="4"
-              d={describeArc(50, 50, 48, 0, daysRadius)}
-            />
-          </svg>
+        </React.Fragment>
+      );
+    }
+    if (hoursRemaining > 0) {
+      return (
+      <React.Fragment>
+        {hoursRemaining}{minutesRemaining > 0 && '+'}
+        <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'hoursLeft' })}</span>
+      </React.Fragment>
+      );
+    }
+    if (minutesRemaining > 0) {
+      return (
+        <React.Fragment>
           {minutesRemaining}
           <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'minutesLeft' })}</span>
+        </React.Fragment>
+      );
+    }
+
+  }
+  const shouldDisplay = daysRemaining > 0 || hoursRemaining > 0 || minutesRemaining > 0;
+
+  return (
+    <div className={classes.countdownWrapper}>
+      {shouldDisplay && (
+        <div className={classes.countdownItem}>
+          <svg className={classes.countdownSvg}>
+            <path
+              fill="none"
+              stroke="#3F6B72"
+              strokeWidth="4"
+              d={describeArc(50, 50, 48, 0, 359.9)}
+            />
+            <path
+              fill="none"
+              stroke="#ca2828"
+              strokeWidth="4"
+              d={describeArc(50, 50, 48, 0, consumedDegrees)}
+            />
+          </svg>
+            {getDisplayText()}
         </div>
       )}
-
     </div>
   );
 }

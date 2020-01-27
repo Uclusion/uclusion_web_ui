@@ -18,7 +18,7 @@ function HomeCheatSheat() {
           <li>Agile Plans
             <ul>
               <li>
-                These implement Unproject Management and let you control your daily work.
+                These implement Uproject Management&trade; and let you control your daily work.
                 To create one go to your sidebar and click the {getDialogTypeIcon(PLANNING_TYPE)} icon.
               </li>
             </ul>

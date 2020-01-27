@@ -302,7 +302,7 @@ const messages = defineMessages({
   homeSubsectionPlanning: 'Agile Plans',
   homeSubsectionDecision: 'Dialogs',
   homeAddDecision: 'Create Dialog',
-  homeAddPlanning: 'Creat Agile Plan',
+  homeAddPlanning: 'Create Agile Plan',
   homeAddInitiative: 'Create Initiative',
   homePlanningReport: 'Active Story Value Estimates (in days)',
   homeViewArchives: 'View Archives',

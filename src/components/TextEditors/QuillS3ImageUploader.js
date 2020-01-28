@@ -72,7 +72,6 @@ class QuillS3ImageUploader {
    * @param {Event} evt
    */
   handlePaste(evt) {
-    evt.preventDefault();
     if (evt.clipboardData && evt.clipboardData.items && evt.clipboardData.items.length) {
       const items = evt.clipboardData.items;
       const files = [];

@@ -134,47 +134,35 @@ function Root() {
       const { marketId, investibleId } = decomposeMarketPath(currentPath);
       broadcastView(marketId, investibleId, isEntry);
     }
-    // Need this or won't see events where url doesn't change
-    const focusListener = window.addEventListener('focus', () => {
-      pegView(true);
-    });
-    const blurListener = window.addEventListener('blur', () => {
-      pegView(false);
-    });
-    const onlineListener = window.addEventListener('online', () => {
-      console.debug('Back Online');
-      setOnline(true);
-      setOperationsLocked(false);
-      pegView(true);
-    });
-    const offlineListener = window.addEventListener('offline', () => {
-      console.debug('Offline');
-      // setOperationsLocked(true);
-      setOnline(false);
-      pegView(false);
-    });
-    const visibilityChange = document.addEventListener('visibilitychange', () => {
-      const isEntry = document.visibilityState === 'visible';
-      pegView(isEntry);
-    });
-    window.onanimationiteration = console.debug;
-    return () => {
-      if (focusListener) {
-        focusListener.remove();
-      }
-      if (blurListener) {
-        blurListener.remove();
-      }
-      if (onlineListener) {
-        onlineListener.remove();
-      }
-      if (offlineListener) {
-        offlineListener.remove();
-      }
-      if (visibilityChange) {
-        visibilityChange.remove();
-      }
-    };
+    if (!window.myListenerMarker) {
+      window.myListenerMarker = true;
+      console.debug('Adding listeners');
+      // Need this or won't see events where url doesn't change
+      window.addEventListener('focus', () => {
+        console.debug('Focus listener');
+        pegView(true);
+      });
+      window.addEventListener('blur', () => {
+        console.debug('Blur listener');
+        pegView(false);
+      });
+      window.addEventListener('online', () => {
+        console.debug('Back Online listener');
+        setOnline(true);
+        setOperationsLocked(false);
+        pegView(true);
+      });
+      window.addEventListener('offline', () => {
+        console.debug('Offline listener');
+        setOnline(false);
+        pegView(false);
+      });
+      document.addEventListener('visibilitychange', () => {
+        const isEntry = document.visibilityState === 'visible';
+        pegView(isEntry);
+      });
+      window.onanimationiteration = console.debug;
+    }
   });
 
   return (

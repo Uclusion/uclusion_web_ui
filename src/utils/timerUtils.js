@@ -5,7 +5,7 @@
  * the timer won't start until the cbeckFunction finishes
  * @param maxIterations, the maximum number of times to call the check function
  * @param execFunction a function that is executed every waitTime milliseconds unless the timer is cleared
- * @returns pid timer that can be cancelled if needed
+ * @returns a function that if called stops the timer
  */
 export function startTimerChain(waitTime, maxIterations, execFunction) {
   let iterCount = 0;
@@ -21,5 +21,7 @@ export function startTimerChain(waitTime, maxIterations, execFunction) {
   }
 
   timeout = setTimeout(callFunc, waitTime);
-  return timeout;
+  return () => {
+    clearTimeout(timeout);
+  };
 }

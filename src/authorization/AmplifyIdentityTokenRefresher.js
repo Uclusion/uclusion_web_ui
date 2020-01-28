@@ -14,8 +14,6 @@ class AmplifyIdentityTokenRefresher {
     return Auth.currentSession().then((sessionData) => {
       const { idToken } = sessionData;
       const { jwtToken } = idToken;
-      const decoded = jwt_decode(jwtToken);
-      console.debug(decoded);
       return jwtToken;
     });
   }

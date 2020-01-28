@@ -7,7 +7,8 @@ import Quill from 'quill';
 import LoadingOverlay from 'react-loading-overlay';
 import ImageResize from 'quill-image-resize-module-withfix';
 import QuillS3ImageUploader from './QuillS3ImageUploader';
-// import QuillTableUI from 'quill-table-ui';
+import CustomQuillClipboard from './CustomQuillClipboard';
+import QuillTableUI from 'quill-table-ui';
 import 'quill/dist/quill.snow.css';
 import 'quill-table-ui/dist/index.css';
 
@@ -15,7 +16,8 @@ import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core';
 import _ from 'lodash';
 
-// Quill.register('modules/tableUI', QuillTableUI);
+Quill.register('modules/clipboard', CustomQuillClipboard, true);
+Quill.register('modules/tableUI', QuillTableUI);
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
 
@@ -46,6 +48,7 @@ class QuillEditor extends React.PureComponent {
     [{ align: [] }],
     [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
     ['link', 'code-block'],
+    ['table'],
     ['clean'],
   ];
 
@@ -77,6 +80,7 @@ class QuillEditor extends React.PureComponent {
         [{ align: [] }],
         [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
         ['link', 'code-block', 'image', 'video'],
+        ['table'],
         ['clean'],
       ],
       imageResize: {
@@ -94,6 +98,8 @@ class QuillEditor extends React.PureComponent {
           setOperationInProgress(false);
         },
       },
+      table: true,
+      tableUI: true,
     };
     this.modules = { ...defaultModules };
     if (simple) {

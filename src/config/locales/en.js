@@ -449,7 +449,7 @@ const messages = defineMessages({
   signupAccountExistsLoginLink: 'Log In',
   signupSentEmail: 'We have sent a verification email to you. Please click the link inside to continue.',
   signupCreatedUser: 'Your user is created, and a verification link has been sent to your email. Please click the link inside to continue.',
-  signupResendCodeButton: 'Resend Code',
+  signupResendCodeButton: 'Resend Link',
   signupAgreeTermsOfUse: 'I agree to the Uclusion ',
   signupTermsOfUse: 'Terms of Use',
 

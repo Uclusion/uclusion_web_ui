@@ -17,8 +17,6 @@ class AmplifyIdentityTokenRefresher {
       const decoded = jwt_decode(jwtToken);
       console.debug(decoded);
       return jwtToken;
-    }).catch((error) => {
-      console.log(error);
     });
   }
 }

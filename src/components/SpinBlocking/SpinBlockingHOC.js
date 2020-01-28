@@ -35,7 +35,7 @@ export function withSpinLock(Component) {
     const [versionsState, versionsDispatch] = useContext(VersionsContext);
     const [spinning, setSpinning] = useState(false);
     const listenerName = 'SPINNER';
-    let operationCheckInterval = null;
+    let operationCheckTimer = null;
 
     function endSpinning(result) {
       setSpinning(false);
@@ -45,7 +45,7 @@ export function withSpinLock(Component) {
 
     function myOnSpinStop() {
       removeListener(VERSIONS_HUB_CHANNEL, listenerName);
-      clearInterval(operationCheckInterval);
+      clearTimeout(operationCheckTimer);
       setTimeout(() => {
         endSpinning();
       }, FETCH_DELAY);
@@ -58,7 +58,7 @@ export function withSpinLock(Component) {
      */
     function startOperationCheckInterval() {
       const currentVersion = getMarketVersion(versionsState, marketId);
-      operationCheckInterval = startTimerChain(OPERATION_TIMEOUT, 20, () => {
+      operationCheckTimer = startTimerChain(OPERATION_TIMEOUT, 20, () => {
         console.debug('Operation check interval firing');
         return getVersions()
           .then((versions) => {
@@ -68,13 +68,13 @@ export function withSpinLock(Component) {
             // eslint-disable-next-line max-len
             const newVersion = marketVersions.find((version) => version.marketId === marketId || (newMarket && version.version === 1));
             if (newVersion && (newMarket || !_.isEqual(newVersion, currentVersion))) {
-              clearInterval(operationCheckInterval);
+              clearTimeout(operationCheckTimer);
               removeListener(VERSIONS_HUB_CHANNEL, listenerName);
               endSpinning();
             }
           })
           .catch((error) => {
-            clearInterval(operationCheckInterval);
+            clearTimeout(operationCheckTimer);
             endSpinning();
             toastErrorAndThrow(error, 'spinVersionCheckError');
           });
@@ -121,15 +121,15 @@ export function withSpinLock(Component) {
                 spinChecker()
                   .then((checkResult) => {
                     if (checkResult) {
-                      clearInterval(operationCheckInterval);
                       console.debug('Ending Spinning By Checker');
+                      clearTimeout(operationCheckTimer);
                       endSpinning(operationResult);
                     } else {
                       setTimeout(spinCheck, SPIN_CHECKER_POLL_DELAY);
                     }
                   })
                   .catch(() => {
-                    clearInterval(operationCheckInterval);
+                    clearTimeout(operationCheckTimer);
                   });
               }
               setTimeout(spinCheck, SPIN_CHECKER_POLL_DELAY);
@@ -137,7 +137,7 @@ export function withSpinLock(Component) {
           }
         })
         .catch((error) => {
-          clearInterval(operationCheckInterval);
+          clearTimeout(operationCheckTimer);
           myOnSpinStop();
           throw error;
         });

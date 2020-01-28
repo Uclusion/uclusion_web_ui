@@ -68,7 +68,7 @@ function Signup(props) {
   function handleChange(name) {
     return (event) => {
       const {
-        target: { value, checked },
+        target: { value },
       } = event;
       dispatch({ name, value });
     };

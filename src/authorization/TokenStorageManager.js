@@ -1,6 +1,6 @@
 import jwt_decode from 'jwt-decode';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
-
+import _ from 'lodash';
 const TOKEN_STORAGE_KEY = 'TOKEN_STORAGE_MANAGER';
 export const TOKEN_TYPE_MARKET = 'MARKET';
 export const TOKEN_TYPE_ACCOUNT = 'ACCOUNT';
@@ -88,7 +88,7 @@ class TokenStorageManager {
     // console.debug(existingToken);
     // console.debug(token);
     // bail out if our existing token is newer
-    if (existingToken) {
+    if (!_.isEmpty(existingToken)) {
       const longestLife = this.getLongestLivingToken(token, existingToken);
       if (longestLife === existingToken) {
         return;
@@ -105,11 +105,15 @@ class TokenStorageManager {
    * @returns the token with the most life remaining on it
    */
   getLongestLivingToken(token1, token2) {
+    if (_.isEmpty(token1) || _.isEmpty(token2)) {
+      console.error('Token is empty');
+      return undefined;
+    }
     const t1decode = jwt_decode(token1);
     const { exp: t1exp } = t1decode; // exp is seconds since the epoch (1/1/1970 00:00:00)
     const t2decode = jwt_decode(token2);
     const { exp: t2exp } = t2decode; // exp is seconds since the epoch (1/1/1970 00:00:00)
-    if ( t1exp > t2exp ) {
+    if (t1exp > t2exp) {
       return token1;
     }
     return token2;
@@ -122,6 +126,9 @@ class TokenStorageManager {
    * @returns if the token is valid and not expiring in the next minute
    */
   isTokenValid(tokenString) {
+    if (_.isEmpty(tokenString)) {
+      return false;
+    }
     const decoded = jwt_decode(tokenString);
     const { exp } = decoded; // exp is seconds since the epoch (1/1/1970 00:00:00)
     const currentTimeMillis = new Date().getTime();

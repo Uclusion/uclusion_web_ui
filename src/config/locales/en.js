@@ -251,8 +251,8 @@ const messages = defineMessages({
   commentAddReplyDefault: 'Your reply...',
   commentAddSaveLabel: 'Save',
   commentAddCancelLabel: 'Cancel',
-  issueWarning: 'Opening an issue with stop voting on this dialog.',
-  issueWarningInvestible: 'Opening an issue with stop voting on this option.',
+  issueWarning: 'Opening an issue will halt voting on this dialog.',
+  issueWarningInvestible: 'Opening an issue will halt voting on this option.',
   issueWarningPlanning: 'Opening an issue will move this story to blocked and stop execution or voting.',
 
   // CommentBox

@@ -15,9 +15,10 @@ import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
+import Grid from '@material-ui/core/Grid';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import { addParticipants } from '../../api/users';
+import { addParticipants, inviteParticipants } from '../../api/users';
 import InviteLinker from './InviteLinker';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 import DeadlineExtender from './Decision/DeadlineExtender';
@@ -25,11 +26,16 @@ import { ACTIVE_STAGE, DECISION_TYPE } from '../../constants/markets';
 import ChangeToObserverButton from './ChangeToObserverButton';
 import ChangeToParticipantButton from './ChangeToParticipantButton';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
 
 const useStyles = makeStyles((theme) => ({
   name: {},
   disabled: {
     color: theme.palette.text.disabled,
+  },
+  form: {
+    width: '100%',
+    marginTop: theme.spacing(3),
   },
 }));
 
@@ -48,6 +54,45 @@ function AddressList(props) {
   const classes = useStyles();
   const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [email1, setEmail1] = useState(undefined);
+  const [email2, setEmail2] = useState(undefined);
+  const [email3, setEmail3] = useState(undefined);
+  const [email4, setEmail4] = useState(undefined);
+  function handleEmail1(event) {
+    const { value } = event.target;
+    setEmail1(value);
+  }
+  function handleEmail2(event) {
+    const { value } = event.target;
+    setEmail2(value);
+  }
+  function handleEmail3(event) {
+    const { value } = event.target;
+    setEmail3(value);
+  }
+  function handleEmail4(event) {
+    const { value } = event.target;
+    setEmail4(value);
+  }
+  const inviteFormInvalid = _.isEmpty(email1) && _.isEmpty(email2)
+    && _.isEmpty(email3) && _.isEmpty(email4);
+  function onInvite(form) {
+    form.preventDefault();
+    const emailList = [];
+    if (email1) {
+      emailList.push(email1);
+    }
+    if (email2) {
+      emailList.push(email2);
+    }
+    if (email3) {
+      emailList.push(email3);
+    }
+    if (email4) {
+      emailList.push(email4);
+    }
+    return inviteParticipants(addToMarketId, emailList).then(() => console.debug('Invite successful'));
+  }
 
   function extractUsersList() {
     const addToMarketPresences = getMarketPresences(marketPresencesState, addToMarketId) || [];
@@ -217,6 +262,67 @@ function AddressList(props) {
       <InviteLinker
         marketId={addToMarketId}
       />
+      <form
+        className={classes.form}
+        autoComplete="off"
+        onSubmit={onInvite}
+      >
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <TextField
+              variant="outlined"
+              fullWidth
+              id="email1"
+              name="email1"
+              type="email"
+              label={intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+              onChange={handleEmail1}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              variant="outlined"
+              fullWidth
+              id="email2"
+              name="email2"
+              type="email"
+              label={intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+              onChange={handleEmail2}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              variant="outlined"
+              fullWidth
+              id="email3"
+              name="email3"
+              type="email"
+              label={intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+              onChange={handleEmail3}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              variant="outlined"
+              fullWidth
+              id="email4"
+              name="email4"
+              type="email"
+              label={intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+              onChange={handleEmail4}
+            />
+          </Grid>
+        </Grid>
+        <ApiBlockingButton
+          fullWidth
+          variant="contained"
+          className={classes.submit}
+          type="submit"
+          disabled={inviteFormInvalid}
+        >
+          {intl.formatMessage({ id: 'inviteParticipantsLabel' })}
+        </ApiBlockingButton>
+      </form>
       <List
         dense
       >

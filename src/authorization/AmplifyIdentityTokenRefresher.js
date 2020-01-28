@@ -5,7 +5,6 @@
  exists before we get here. Therefore we can just fetch the current id token
  out of the current auth session.
 */
-import jwt_decode from 'jwt-decode';
 import { Auth } from 'aws-amplify';
 
 // import jwt_decode from 'jwt-decode';

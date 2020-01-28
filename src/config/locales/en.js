@@ -199,6 +199,7 @@ const messages = defineMessages({
   addressAddCancelLabel: 'Close',
   addressAddClearLabel: 'Close',
   addressAddSaveLabel: 'Add Participants',
+  inviteParticipantsLabel: 'Invite Participants',
 
   // InvestibleAdd
   investibleAddTitleDefault: 'Add a name...',
@@ -358,6 +359,7 @@ const messages = defineMessages({
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
   dialogManageLabel: 'Manage Dialog',
   dialogAddParticipantsLabel: 'Add Participants',
+  inviteParticipantsEmailLabel: 'Email address for Uclusion to send to',
   initiativeManageLabel: 'Manage Initiative',
 
   // DecisionInvestible
@@ -493,7 +495,6 @@ const messages = defineMessages({
   // add participants
   addParticipantsNewPerson: 'Need to add someone not on this list?',
 
-
   // Spinning
   spinVersionCheckError: 'There was an error checking if the operation was successful. Please reload the page',
 
@@ -508,6 +509,7 @@ const messages = defineMessages({
   errorCommentSaveFailed: 'There was a problem saving your comment',
   errorInvestmentUpdateFailed: 'There was a problem updating your vote',
   errorAddParticipantsFailed: 'There was a problem adding participants',
+  errorInviteParticipantsFailed: 'There was a problem inviting participants',
   errorDecisionAddFailed: 'There was a problem creating your Dialog',
   errorInitiativeAddFailed: 'There was a problem creating your Initiative',
   errorPlanningAddFailed: 'There was a problem creating your Agile Plan',

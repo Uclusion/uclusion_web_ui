@@ -4,7 +4,7 @@ import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import { makeStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
-import { TextField } from '@material-ui/core';
+import { Checkbox, TextField } from '@material-ui/core';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Avatar from '@material-ui/core/Avatar';
@@ -13,6 +13,7 @@ import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
 import { signUp } from '../../api/sso';
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
+import config from '../../config';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -53,6 +54,7 @@ function Signup(props) {
     email: '',
     password: '',
     repeat: '',
+    terms: false,
   };
 
   const [userState, dispatch] = useReducer(reducer, empty);
@@ -66,9 +68,18 @@ function Signup(props) {
   function handleChange(name) {
     return (event) => {
       const {
-        target: { value },
+        target: { value, checked },
       } = event;
       dispatch({ name, value });
+    };
+  }
+
+  function handleCheckedChange(name) {
+    return (event) => {
+      const {
+        target: { checked },
+      } = event;
+      dispatch({ name, value: checked })
     };
   }
 
@@ -109,7 +120,7 @@ function Signup(props) {
   if (postSignUp === 'USER_CREATED') {
     return (
       <Container component="main" maxWidth="xs">
-        <CssBaseline />
+        <CssBaseline/>
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <img width="35" height="35" src={`/images/${SIGNUP_LOGO}`} alt="Uclusion"/>
@@ -126,7 +137,7 @@ function Signup(props) {
   if (postSignUp === 'VERIFICATION_RESENT') {
     return (
       <Container component="main" maxWidth="xs">
-        <CssBaseline />
+        <CssBaseline/>
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <img width="35" height="35" src={`/images/${SIGNUP_LOGO}`} alt="Uclusion"/>
@@ -143,7 +154,7 @@ function Signup(props) {
   if (postSignUp === 'ACCOUNT_EXISTS') {
     return (
       <Container component="main" maxWidth="xs">
-        <CssBaseline />
+        <CssBaseline/>
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <img width="35" height="35" src={`/images/${SIGNUP_LOGO}`} alt="Uclusion"/>
@@ -163,11 +174,11 @@ function Signup(props) {
     );
   }
 
-  const { name, email, password, repeat } = userState;
-  const formInvalid = _.isEmpty(name) || _.isEmpty(email) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
+  const { name, email, password, repeat, terms } = userState;
+  const formInvalid = !terms || _.isEmpty(name) || _.isEmpty(email) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
     <Container component="main" maxWidth="xs">
-      <CssBaseline />
+      <CssBaseline/>
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
           <img width="35" height="35" src={`/images/${SIGNUP_LOGO}`} alt="Uclusion"/>
@@ -231,7 +242,7 @@ function Signup(props) {
                 type="password"
                 variant="outlined"
                 autoComplete="new-password"
-                helperText={repeat !== password? intl.formatMessage({ id: 'signupPasswordRepeatHelper' }): ''}
+                helperText={repeat !== password ? intl.formatMessage({ id: 'signupPasswordRepeatHelper' }) : ''}
                 InputProps={{
                   minLength: 6,
                 }}
@@ -242,6 +253,25 @@ function Signup(props) {
                 fullWidth
                 required
               />
+            </Grid>
+            <Grid item xs={12}>
+              <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+                <Checkbox
+                  id="terms"
+                  name="terms"
+                  required
+                  checked={terms}
+                  onChange={handleCheckedChange('terms')}
+                />
+                <Typography>
+                  {intl.formatMessage({ id: 'signupAgreeTermsOfUse' })}
+                  <Link
+                    href={config.termsOfUseLink}
+                    target="_blank"
+                  >
+                    {intl.formatMessage({ id: 'signupTermsOfUse' })}</Link>
+                </Typography>
+              </div>
             </Grid>
           </Grid>
           <ApiBlockingButton

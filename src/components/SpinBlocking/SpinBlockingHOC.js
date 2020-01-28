@@ -10,6 +10,7 @@ import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { getVersions } from '../../api/summaries';
 import { toastErrorAndThrow } from '../../utils/userMessage';
 import { refreshVersionsAction } from '../../contexts/VersionsContext/versionsContextReducer';
+import { startTimerChain } from '../../utils/timerUtils';
 
 const FETCH_DELAY = 200; // give us 200 ms pull data from the hub event;
 const SPIN_CHECKER_POLL_DELAY = 10; // how often to run the spin checker
@@ -50,17 +51,6 @@ export function withSpinLock(Component) {
       }, FETCH_DELAY);
     }
 
-    function setIntervalX(callback, delay, repetitions) {
-      let x = 0;
-      const intervalID = window.setInterval(() => {
-        callback();
-        x += 1;
-        if (x === repetitions) {
-          clearInterval(intervalID);
-        }
-      }, delay);
-      return intervalID;
-    }
 
     /**
      * Starts a timer for the overall operation. If it goes
@@ -68,7 +58,7 @@ export function withSpinLock(Component) {
      */
     function startOperationCheckInterval() {
       const currentVersion = getMarketVersion(versionsState, marketId);
-      operationCheckInterval = setIntervalX(() => {
+      operationCheckInterval = startTimerChain(OPERATION_TIMEOUT, 20, () => {
         console.debug('Operation check interval firing');
         return getVersions()
           .then((versions) => {
@@ -88,7 +78,7 @@ export function withSpinLock(Component) {
             endSpinning();
             toastErrorAndThrow(error, 'spinVersionCheckError');
           });
-      }, OPERATION_TIMEOUT, 20);
+      });
     }
 
     const hubListener = (data) => {

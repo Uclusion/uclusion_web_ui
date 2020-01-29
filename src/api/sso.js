@@ -23,6 +23,12 @@ export function getMessages() {
     });
 }
 
+export function resendVerification(email, redirect) {
+  return uclusion.constructSSOClient(config.api_configuration)
+    .then((ssoClient) => ssoClient.resendVerification(email, redirect))
+    .catch((error) => toastErrorAndThrow(error, 'errorResendFailed'));
+}
+
 export function signUp(name, email, password, redirect) {
   return uclusion.constructSSOClient(config.api_configuration)
     .then((ssoClient) => ssoClient.userSignup(name, email, password, redirect))

@@ -11,7 +11,7 @@ import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
-import { signUp } from '../../api/sso';
+import { resendVerification, signUp } from '../../api/sso';
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
 import config from '../../config';
 
@@ -79,13 +79,11 @@ function Signup(props) {
       const {
         target: { checked },
       } = event;
-      dispatch({ name, value: checked })
+      dispatch({ name, value: checked });
     };
   }
 
-  function onSignUp(form) {
-    form.preventDefault();
-    const { name, email, password } = userState;
+  function getRedirect(){
     let redirect;
     if (pathname !== '/') {
       // we came here by some other link and need to log in
@@ -94,6 +92,23 @@ function Signup(props) {
         redirect += `#${hash}`;
       }
     }
+    return redirect;
+  }
+
+  function onResend() {
+    const { email } = userState;
+    const redirect = getRedirect();
+    return resendVerification(email, redirect).then((result) => {
+      const { response } = result;
+      setPostSignUp(response);
+    });
+  }
+
+  function onSignUp(form) {
+    form.preventDefault();
+    const { name, email, password } = userState;
+    const redirect = getRedirect();
+
     return signUp(name, email, password, redirect).then((result) => {
       const { response } = result;
       setPostSignUp(response);
@@ -106,7 +121,7 @@ function Signup(props) {
         fullWidth
         variant="contained"
         className={classes.submit}
-        onClick={onSignUp}
+        onClick={onResend}
       >
         {intl.formatMessage({ id: 'signupResendCodeButton' })}
       </ApiBlockingButton>

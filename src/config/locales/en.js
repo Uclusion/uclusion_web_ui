@@ -530,6 +530,7 @@ const messages = defineMessages({
   errorInvestibleFetchFailed: 'There was a problem receiving the data',
   errorInvestibleListFetchFailed: 'There was a problem fetching the data list',
   errorSignupFailed: 'There was a problem signing up. Please try again',
+  errorResendFailed: 'There was a problem resending the link. Please try again',
   errorVerifyFailed: 'There was a problem verifying your email. Please try again',
   errorForgotPasswordCodeFailed: 'There was a problem sending your reset code. Please try again',
   errorForgotPasswordSetFailed: 'There was an error changing your password. Please try again',

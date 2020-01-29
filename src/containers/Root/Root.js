@@ -1,9 +1,8 @@
 import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
 import { useHistory } from 'react-router';
-import { defaultTheme } from '../../config/themes';
 import Market from '../../pages/Dialog/Dialog';
 import Support from '../../pages/About/Support';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
@@ -58,6 +57,7 @@ function Root() {
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
+
   function hideHome() {
     return !pathname || pathname !== '/';
   }
@@ -134,6 +134,7 @@ function Root() {
       const { marketId, investibleId } = decomposeMarketPath(currentPath);
       broadcastView(marketId, investibleId, isEntry);
     }
+
     if (!window.myListenerMarker) {
       window.myListenerMarker = true;
       console.debug('Adding listeners');
@@ -166,31 +167,31 @@ function Root() {
   });
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <CssBaseline />
+    <div>
+      <CssBaseline/>
       <div className={classes.body}>
         <div className={classes.root}>
           <div className={classes.content}>
-            <Home hidden={hideHome()} />
-            <Market hidden={hideMarket()} />
-            <Support hidden={hideSupport()} />
-            <Investible hidden={hideInvestible()} />
-            <InvestibleEdit hidden={hideInvestibleEdit()} />
-            <Archives hidden={hideArchvies()} />
-            <DialogArchives hidden={hideDialogArchives()} />
-            <InvestibleAdd hidden={hideInvestibleAdd()} />
-            <DialogAdd hidden={hideAddMarket()} />
-            <DialogEdit hidden={hideDialogEdit()} />
-            <DialogManage hidden={hideDialogManage()} />
-            <MarketInvite hidden={hideMarketInvite()} />
-            <SlackInvite hidden={hideSlackInvite()} />
-            <ChangePassword hidden={hideChangePassword()} />
-            <ChangeNotificationPreferences hidden={hideChangeNotification()} />
-            <PageNotFound hidden={hidePNF} />
+            <Home hidden={hideHome()}/>
+            <Market hidden={hideMarket()}/>
+            <Support hidden={hideSupport()}/>
+            <Investible hidden={hideInvestible()}/>
+            <InvestibleEdit hidden={hideInvestibleEdit()}/>
+            <Archives hidden={hideArchvies()}/>
+            <DialogArchives hidden={hideDialogArchives()}/>
+            <InvestibleAdd hidden={hideInvestibleAdd()}/>
+            <DialogAdd hidden={hideAddMarket()}/>
+            <DialogEdit hidden={hideDialogEdit()}/>
+            <DialogManage hidden={hideDialogManage()}/>
+            <MarketInvite hidden={hideMarketInvite()}/>
+            <SlackInvite hidden={hideSlackInvite()}/>
+            <ChangePassword hidden={hideChangePassword()}/>
+            <ChangeNotificationPreferences hidden={hideChangeNotification()}/>
+            <PageNotFound hidden={hidePNF}/>
           </div>
         </div>
       </div>
-    </ThemeProvider>
+    </div>
   );
 }
 

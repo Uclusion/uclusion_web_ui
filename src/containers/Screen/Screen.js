@@ -87,6 +87,7 @@ function Screen(props) {
     sidebarActions,
     tabTitle,
     toolbarButtons,
+    appEnabled,
   } = props;
   let prePendWarning = '';
   if (messagesState) {
@@ -115,7 +116,7 @@ function Screen(props) {
   const [versionsState, versionsDispatch] = useContext(VersionsContext);
   const { notificationVersion } = versionsState;
   const { version } = notificationVersion;
-  const myLoading = !hidden && (loading || version < 0);
+  const myLoading = !hidden && (appEnabled && (loading || version < 0));
   useEffect(() => {
     if (!operationRunning && myLoading) {
       setOperationRunning(true);
@@ -142,7 +143,7 @@ function Screen(props) {
       if (loadingFailedTimer) {
         clearTimeout(loadingFailedTimer);
       }
-    } else if (loadingExpired && operationRunning && operationRunningWasSet) {
+    } else if (appEnabled && loadingExpired && operationRunning && operationRunningWasSet) {
       setLoadingExpired(false);
       // In case you missed a push
       console.warn('Loading attempting to fix corrupted data');
@@ -170,7 +171,9 @@ function Screen(props) {
     };
   }, [firstRender, location, operationRunning, operationRunningWasSet,
     versionsState, myLoading, setOperationRunning, loadingExpired, history,
-    loadingExpiredTimer, versionsDispatch, loadingFailedTimer, loadingFailed, hidden]);
+    loadingExpiredTimer, versionsDispatch, loadingFailedTimer, loadingFailed, hidden,
+    appEnabled,
+  ]);
 
   const [sidebarOpen] = useContext(SidebarContext);
 
@@ -228,6 +231,7 @@ Screen.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   sidebarActions: PropTypes.arrayOf(PropTypes.element),
   tabTitle: PropTypes.string.isRequired,
+  appEnabled: PropTypes.bool,
 };
 
 Screen.defaultProps = {
@@ -237,6 +241,7 @@ Screen.defaultProps = {
   loading: false,
   toolbarButtons: [],
   sidebarActions: [],
+  appEnabled: true,
 };
 
 export default Screen;

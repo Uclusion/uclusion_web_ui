@@ -1,12 +1,12 @@
+import HtmlDiff from 'htmldiff-js';
 import { DIFF_CONTEXT_NAMESPACE } from './DiffContext';
 import LocalForageHelper from '../LocalForageHelper';
-import HtmlDiff from 'htmldiff-js';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_DIFF = 'UPDATE_DIFF';
 const UPDATE_DIFFS = 'UPDATE_DIFFS';
 const DELETE_DIFF = 'DELETE_DIFF';
-
+const MARK_SEEN_DIFF = 'MARK_SEEN_DIFF';
 
 export function initializeState(newState) {
   return {
@@ -36,18 +36,42 @@ export function deleteDiff(id) {
   };
 }
 
+export function diffSeen(id) {
+  return {
+    type: MARK_SEEN_DIFF,
+    id,
+  };
+}
+
 function doDelete(state, id) {
   console.log(`Deleting diff for ${id}`);
   if (state[id]) {
     const oldValue = state[id];
+    // If you dismiss a diff then the investible has been seen before
     const newValue = {
-      ...oldValue,
+      ...oldValue, isNew: false,
     };
     delete newValue.diff;
     return {
       ...state,
       [id]: newValue,
-    }
+    };
+  }
+  return state;
+}
+
+function doMarkSeen(state, id) {
+  console.log(`Marking seen for ${id}`);
+  if (state[id]) {
+    const oldValue = state[id];
+    // the investible has been seen
+    const newValue = {
+      ...oldValue, isNew: false,
+    };
+    return {
+      ...state,
+      [id]: newValue,
+    };
   }
   return state;
 }
@@ -58,7 +82,7 @@ function getUpdatedItemState(state, newItem) {
     return state;
   }
   if (state[id]) {
-    const { contents, diff: oldDiff } = state[id];
+    const { contents, diff: oldDiff, isNew } = state[id];
     // some updates do not change the contents
     let diff = oldDiff;
     if (description !== contents) {
@@ -76,7 +100,7 @@ function getUpdatedItemState(state, newItem) {
           contents: newContents,
           updatedBy,
           diff,
-          isNew: false,
+          isNew,
         },
       };
     }
@@ -115,6 +139,8 @@ function computeNewState(state, action) {
       return doUpdates(state, action);
     case DELETE_DIFF:
       return doDelete(state, action.id);
+    case MARK_SEEN_DIFF:
+      return doMarkSeen(state, action.id);
     default:
       return state;
   }
@@ -128,5 +154,3 @@ function reducer(state, action) {
 }
 
 export default reducer;
-
-

@@ -76,8 +76,6 @@ function Summary(props) {
   const marketPresencesParticipating = marketPresences.filter((presence) => presence.following && !presence.is_admin);
   const marketPresencesModerating = marketPresences.filter((presence) => presence.is_admin);
 
-  const diff = getDiff(diffState, id, myPresence.id);
-
   function displayUserList(presencesList) {
     return presencesList.map((presence) => {
       const { id: presenceId, name } = presence;
@@ -91,7 +89,7 @@ function Summary(props) {
       );
     });
   }
-
+  const diffId = marketType !== INITIATIVE_TYPE ? id : investibleId;
   return (
     <Paper className={classes.container}>
       <Typography className={classes.title} variant="h3" component="h1">
@@ -116,8 +114,8 @@ function Summary(props) {
         />
       </CardActions>
       <div>
-        { diff && <DiffDisplay id={marketType !== INITIATIVE_TYPE ? id : investibleId} />}
-        { !diff && (
+        <DiffDisplay id={diffId} />
+        { !getDiff(diffState, diffId, myPresence.id) && (
         <ReadOnlyQuillEditor
           className={classes.content}
           marketId={id}

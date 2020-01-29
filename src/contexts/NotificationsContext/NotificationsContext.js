@@ -12,6 +12,7 @@ import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext';
 import { DiffContext } from '../DiffContext/DiffContext';
 import { getIsNew } from '../DiffContext/diffContextHelper';
+import { diffSeen } from '../DiffContext/diffContextReducer'
 
 export const EMPTY_STATE = {
   messages: [],
@@ -27,7 +28,7 @@ function NotificationsProvider(props) {
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const { page, messages } = state;
-  const [diffState] = useContext(DiffContext);
+  const [diffState, diffDispatch] = useContext(DiffContext);
   const [isInitialization, setIsInitialization] = useState(true);
   const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   useEffect(() => {
@@ -65,6 +66,7 @@ function NotificationsProvider(props) {
           const diffId = commentId || messageInvestibleId || marketId;
           // Do not toast unread as already have diff and dismiss - unless is new
           if (aType !== 'UNREAD' || getIsNew(diffState, diffId)) {
+            diffDispatch(diffSeen(diffId));
             if (commentId) {
               highlightedCommentDispatch({ type: HIGHTLIGHT_ADD, commentId, level });
             }
@@ -90,7 +92,7 @@ function NotificationsProvider(props) {
     }
     return () => {
     };
-  }, [page, messages, highlightedCommentDispatch, diffState]);
+  }, [page, messages, highlightedCommentDispatch, diffState, diffDispatch]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

@@ -24,16 +24,23 @@ const useStyles = makeStyles((theme) => ({
 function Identity() {
   const classes = useStyles();
   const [user, setUser] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const history = useHistory();
   const intl = useIntl();
   useEffect(() => {
+    let isCanceled = false;
     if (!user) {
       Auth.currentAuthenticatedUser()
         .then((user) => {
           const { attributes } = user;
-          setUser(attributes);
+          if (isCanceled === false) {
+            setUser(attributes);
+          }
         });
+    }
+
+    return () => {
+      isCanceled = true;
     }
   });
   const chipLabel = !user ? '' : user.name;

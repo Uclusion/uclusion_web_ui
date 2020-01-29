@@ -175,6 +175,20 @@ function Screen(props) {
     appEnabled,
   ]);
 
+  // TODO: this indicates that the effect above does not handle 
+  // all state transitions correctly. Without this explicit cleanup of the
+  // timer it leaks causing "Can't perform a React state update on an unmounted component"
+  React.useEffect(() => {
+    return () => {
+      clearTimeout(loadingExpiredTimer);
+    };
+  }, [loadingExpiredTimer]);
+  React.useEffect(() => {
+    return () => {
+      clearTimeout(loadingFailedTimer);
+    };
+  }, [loadingFailedTimer]);
+
   const [sidebarOpen] = useContext(SidebarContext);
 
   return (

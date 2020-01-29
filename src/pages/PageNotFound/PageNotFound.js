@@ -1,58 +1,51 @@
-import Button from '@material-ui/core/Button';
-import Icon from '@material-ui/core/Icon';
 import Paper from '@material-ui/core/Paper';
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { injectIntl } from 'react-intl';
-import { withStyles } from '@material-ui/core/styles';
+import { useIntl } from 'react-intl';
+import { makeStyles } from '@material-ui/styles';
+import PropTypes from 'prop-types';
 import Screen from '../../containers/Screen/Screen';
 
-const styles = theme => ({
-  icon: {
-    width: 192,
-    height: 192,
-    color: theme.palette.secondary.main,
-  },
+const useStyles = makeStyles((theme) => ({
   container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
+    padding: '3px 89px 21px 21px',
+    marginTop: '-6px',
+    boxShadow: 'none',
+    [theme.breakpoints.down('sm')]: {
+      padding: '3px 21px 42px 21px',
+    },
   },
-  paper: {
-    backgroundColor: theme.palette.background.default,
-    height: '100vh',
-    margin: 0,
-  },
-  button: {
-    marginTop: 20,
-  },
-
-});
+}));
 
 function PageNotFound(props) {
-  const { intl, classes, hidden, } = props;
+  const { hidden } = props;
+  const intl = useIntl();
+  const classes = useStyles();
 
   return (
     <Screen
       hidden={hidden}
       tabTitle={intl.formatMessage({ id: 'warning_404_message' })}
+      loading={false}
     >
-      <Paper className={classes.paper}>
-        <div className={classes.container}>
-          <Typography variant="h2">
-            {intl.formatMessage({ id: 'warning_404_message' })}
-          </Typography>
-          <Typography variant="h2">
-            {intl.formatMessage({ id: 'warning_404_description' })}
-          </Typography>
-          <Button variant="outlined" color="secondary" aria-label="home" href="/" className={classes.button}>
-            <Icon>home</Icon>
-          </Button>
-        </div>
+      <Paper className={classes.container}>
+        <Typography variant="h2">
+          {intl.formatMessage({ id: 'warning_404_message' })}
+        </Typography>
+        <Typography variant="h3">
+          {intl.formatMessage({ id: 'warning_404_description' })}
+        </Typography>
       </Paper>
     </Screen>
   );
 }
-export default injectIntl(withStyles(styles)(PageNotFound));
+
+PageNotFound.propTypes = {
+  hidden: PropTypes.bool,
+};
+
+PageNotFound.defaultProps = {
+  hidden: false,
+};
+
+export default PageNotFound;

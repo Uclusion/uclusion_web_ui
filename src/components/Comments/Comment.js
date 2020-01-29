@@ -1,5 +1,10 @@
 import React, { useContext, useState } from "react";
-import { FormattedDate, FormattedRelativeTime, useIntl } from "react-intl";
+import {
+  FormattedDate,
+  FormattedMessage,
+  FormattedRelativeTime,
+  useIntl
+} from "react-intl";
 import PropTypes from "prop-types";
 import {
   Button,
@@ -143,6 +148,11 @@ const useCommentStyles = makeStyles(
         boxShadow: "none"
       }
     },
+    repliesToggle: {
+      backgroundColor: "#E0E0E0",
+      color: "#8B8B8B",
+      fontSize: 12
+    },
     childWrapper: {
       // borderTop: '1px solid #DCDCDC',
     },
@@ -187,11 +197,7 @@ function Comment(props) {
 
   const [replyOpen, setReplyOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [toggledOpen, setToggledOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
-
-  const expanded =
-    replyOpen || toggledOpen || !comment.resolved || comment.reply_id;
 
   // TODO: what's the difference between comments and initialCommentS
   // while it uses plural it only returns a single comment
@@ -216,10 +222,11 @@ function Comment(props) {
     return resolveComment(marketId, id);
   }
 
-  function flipToggledOpen() {
-    setToggledOpen(!toggledOpen);
-  }
+  const [repliesExpanded, setRepliesExpanded] = React.useState(
+    !comment.resolved || comment.reply_id
+  );
 
+  const showActions = !replyOpen || replies.length > 0;
   return (
     <React.Fragment>
       <Card className={classes.container}>
@@ -233,11 +240,7 @@ function Comment(props) {
             </Typography>
           )}
           <Box marginTop={1}>
-            <ReadOnlyQuillEditor
-              value={comment.body}
-              heading={toggledOpen}
-              paddingLeft={0}
-            />
+            <ReadOnlyQuillEditor value={comment.body} heading paddingLeft={0} />
             {editOpen && (
               <CommentEdit
                 marketId={marketId}
@@ -248,11 +251,27 @@ function Comment(props) {
             )}
           </Box>
         </CardContent>
-        {!toggledOpen && !replyOpen && (
-          <CardActions className={classes.cardActions}>
+        {showActions && (
+          <CardActions className={`${classes.cardActions} ${classes.actions}`}>
+            {replies.length > 0 && (
+              <Button
+                className={classes.repliesToggle}
+                variant="contained"
+                onClick={() => {
+                  setRepliesExpanded(!repliesExpanded);
+                }}
+              >
+                <FormattedMessage
+                  id={
+                    repliesExpanded
+                      ? "commentCloseThreadLabel"
+                      : "commentViewThreadLabel"
+                  }
+                />
+              </Button>
+            )}
             {!comment.resolved && (
               <ButtonGroup
-                className={classes.actions}
                 disabled={operationRunning}
                 color="primary"
                 variant="contained"
@@ -278,19 +297,10 @@ function Comment(props) {
             )}
             {comment.resolved && (
               <ButtonGroup
-                className={classes.actions}
                 disabled={operationRunning}
                 color="primary"
                 variant="contained"
               >
-                {replies && (
-                  <Button className={classes.action} onClick={flipToggledOpen}>
-                    {!toggledOpen &&
-                      intl.formatMessage({ id: "commentViewThreadLabel" })}
-                    {toggledOpen &&
-                      intl.formatMessage({ id: "commentCloseThreadLabel" })}
-                  </Button>
-                )}
                 <SpinBlockingButton
                   className={classes.action}
                   marketId={marketId}
@@ -314,7 +324,7 @@ function Comment(props) {
       </Card>
       <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
         <CommentsContext.Provider value={comments}>
-          {expanded &&
+          {repliesExpanded &&
             sortedReplies.map(child => {
               const { id: childId } = child;
               return (

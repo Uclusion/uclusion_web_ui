@@ -70,6 +70,7 @@ function NoAccount(props) {
   return (
     <Screen
       title="Email not Verified"
+      appEnabled={false}
     >
       <Typography variant="h3">
         Email not Verified

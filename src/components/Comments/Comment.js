@@ -1,6 +1,6 @@
-import React, { useContext, useState } from 'react';
-import { useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
+import React, { useContext, useState } from "react";
+import { FormattedDate, FormattedRelativeTime, useIntl } from "react-intl";
+import PropTypes from "prop-types";
 import {
   Avatar,
   Button,
@@ -9,220 +9,155 @@ import {
   Card,
   CardContent,
   CardActions,
-  Typography,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles';
-import _ from 'lodash';
-import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
-import CommentAdd from './CommentAdd';
-import { REPLY_TYPE } from '../../constants/comments';
-import { reopenComment, resolveComment } from '../../api/comments';
-import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import CustomChip from '../CustomChip';
-import CommentEdit from './CommentEdit';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { HighlightedCommentContext } from '../../contexts/HighlightedCommentContext';
+  Typography
+} from "@material-ui/core";
+import { makeStyles } from "@material-ui/styles";
+import _ from "lodash";
+import ReadOnlyQuillEditor from "../TextEditors/ReadOnlyQuillEditor";
+import CommentAdd from "./CommentAdd";
+import { REPLY_TYPE } from "../../constants/comments";
+import { reopenComment, resolveComment } from "../../api/comments";
+import SpinBlockingButton from "../SpinBlocking/SpinBlockingButton";
+import { OperationInProgressContext } from "../../contexts/OperationInProgressContext";
+import { MarketPresencesContext } from "../../contexts/MarketPresencesContext/MarketPresencesContext";
+import { getMarketPresences } from "../../contexts/MarketPresencesContext/marketPresencesHelper";
+import CustomChip from "../CustomChip";
+import CommentEdit from "./CommentEdit";
+import { MarketsContext } from "../../contexts/MarketsContext/MarketsContext";
+import { getMyUserForMarket } from "../../contexts/MarketsContext/marketsContextHelper";
+import { HighlightedCommentContext } from "../../contexts/HighlightedCommentContext";
 
-const useStyles = makeStyles({
-  container: {
-    padding: '30px 20px 16px',
-    background: 'white',
-    boxShadow: 'none',
-  },
-  childContainer: {
-    padding: '8px 20px',
-    background: 'white',
-    boxShadow: 'none',
-  },
-  containerRed: {
-    padding: '30px 20px 16px',
-    background: 'white',
-    boxShadow: '10px 5px 5px red',
-  },
-  containerYellow: {
-    padding: '30px 20px 16px',
-    background: 'white',
-    boxShadow: '10px 5px 5px yellow',
-  },
-  chip: {
-    marginTop: '12px',
-  },
-  content: {
-    marginTop: '12px',
-    fontSize: 15,
-    lineHeight: '175%',
-  },
-  cardContent: {
-    padding: '0 20px',
-  },
-  childCardContent: {
-    padding: 0,
-  },
-  cardActions: {
-    padding: '8px',
-  },
-  childCardActions: {
-    padding: 0,
-  },
-  actions: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    boxShadow: 'none',
-    width: '100%',
-  },
-  childActions: {
-    display: 'flex',
-    boxShadow: 'none',
-    width: '100%',
-  },
-  action: {
-    minWidth: '89px',
-    height: '36px',
-    color: 'rgba(0,0,0,0.38)',
-    fontWeight: '700',
-    fontSize: 14,
-    lineHeight: '18px',
-    letterSpacing: '0.02em',
-    textTransform: 'uppercase',
-    background: 'transparent',
-    borderRight: 'none !important',
-    '&:hover': {
-      color: '#ca2828',
-      background: 'white',
-      boxShadow: 'none',
+const useCommentStyles = makeStyles(
+  {
+    container: {
+      background: "white"
     },
-  },
-  childAction: {
-    padding: '0 4px',
-    minWidth: '20px',
-    height: '20px',
-    color: '#A7A7A7',
-    fontWeight: '500',
-    fontSize: 10,
-    lineHeight: '18px',
-    textTransform: 'capitalize',
-    background: 'transparent',
-    borderRight: 'none !important',
-    '&:hover': {
-      color: '#ca2828',
-      background: 'white',
-      boxShadow: 'none',
+    containerRed: {
+      padding: "30px 20px 16px",
+      background: "white",
+      boxShadow: "10px 5px 5px red"
     },
-  },
-  actionResolve: {
-    minWidth: '89px',
-    height: '36px',
-    color: '#D40000',
-    fontWeight: '700',
-    fontSize: 14,
-    lineHeight: '18px',
-    letterSpacing: '0.02em',
-    textTransform: 'uppercase',
-    background: 'transparent',
-    borderRight: 'none !important',
-    '&:hover': {
-      color: '#ca2828',
-      background: 'white',
-      boxShadow: 'none',
+    containerYellow: {
+      padding: "30px 20px 16px",
+      background: "white",
+      boxShadow: "10px 5px 5px yellow"
     },
+    chip: {
+      marginTop: "12px"
+    },
+    content: {
+      marginTop: "12px",
+      fontSize: 15,
+      lineHeight: "175%"
+    },
+    cardContent: {
+      padding: "0 20px"
+    },
+    cardActions: {
+      padding: "8px"
+    },
+    actions: {
+      display: "flex",
+      justifyContent: "flex-end",
+      boxShadow: "none",
+      width: "100%"
+    },
+    action: {
+      minWidth: "89px",
+      height: "36px",
+      color: "rgba(0,0,0,0.38)",
+      fontWeight: "700",
+      fontSize: 14,
+      lineHeight: "18px",
+      letterSpacing: "0.02em",
+      textTransform: "uppercase",
+      background: "transparent",
+      borderRight: "none !important",
+      "&:hover": {
+        color: "#ca2828",
+        background: "white",
+        boxShadow: "none"
+      }
+    },
+    actionResolve: {
+      minWidth: "89px",
+      height: "36px",
+      color: "#D40000",
+      fontWeight: "700",
+      fontSize: 14,
+      lineHeight: "18px",
+      letterSpacing: "0.02em",
+      textTransform: "uppercase",
+      background: "transparent",
+      borderRight: "none !important",
+      "&:hover": {
+        color: "#ca2828",
+        background: "white",
+        boxShadow: "none"
+      }
+    },
+    childWrapper: {
+      // borderTop: '1px solid #DCDCDC',
+    },
+    topicWrapper: {
+      borderBottom: "1px solid #DCDCDC"
+    },
+    initialComment: {
+      display: "flex"
+    },
+    avatarWrapper: {
+      marginRight: "20px"
+    },
+    commenter: {
+      fontWeight: "bold",
+      fontSize: 15
+    }
   },
-  childWrapper: {
-    // borderTop: '1px solid #DCDCDC',
-  },
-  topicWrapper: {
-    borderBottom: '1px solid #DCDCDC',
-  },
-  initialComment: {
-    display: 'flex',
-  },
-  avatarWrapper: {
-    marginRight: '20px',
-  },
-  commenter: {
-    fontWeight: 'bold',
-    fontSize: 15,
-  },
-});
+  { name: "Comment" }
+);
 
+/**
+ * @type {React.Context<Comment[]>}
+ */
+const CommentsContext = React.createContext(null);
+function useComments() {
+  return React.useCallback(CommentsContext);
+}
+
+/**
+ * A question or issue
+ * @param {{comment: Comment, comments: Comment[]}} props
+ */
 function Comment(props) {
-  const {
-    comment, depth, marketId, comments,
-  } = props;
+  const { comment, marketId, comments } = props;
+  const depth = 0;
+
   const intl = useIntl();
-  const classes = useStyles();
+  const classes = useCommentStyles();
   const { id, comment_type: commentType, created_by: createdBy } = comment;
-  const [presencesState] = useContext(MarketPresencesContext);
-  const presences = getMarketPresences(presencesState, marketId) || [];
-  const commenter = presences.find((presence) => presence.id === createdBy);
-  const updatedBy = presences.find((presence) => presence.id === comment.updated_by);
+  const presences = usePresences(marketId);
+  const commenter = useCommenter(comment, presences);
+  const updatedBy = useUpdatedBy(comment, presences);
   const [marketsState] = useContext(MarketsContext);
   const user = getMyUserForMarket(marketsState, marketId) || {};
-  const children = comments.filter((comment) => comment.reply_id === id);
-  const sortedChildren = _.sortBy(children, 'created_at');
+  const replies = comments.filter(comment => comment.reply_id === id);
+  const sortedReplies = _.sortBy(replies, "created_at");
+
   const [replyOpen, setReplyOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [toggledOpen, setToggledOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [highlightedCommentState] = useContext(HighlightedCommentContext);
 
-  const isRoot = !comment.reply_id;
-  const expanded = replyOpen
-    || toggledOpen
-    || (isRoot && !comment.resolved)
-    || comment.reply_id;
+  const expanded =
+    replyOpen || toggledOpen || !comment.resolved || comment.reply_id;
 
-  function getChildComments() {
-    if (_.isEmpty(sortedChildren)) {
-      return <></>;
-    }
-    return sortedChildren.map((child) => {
-      const { id: childId } = child;
-      const childDepth = depth + 1;
-      // we are rendering ourselves, so we don't get the injection automagically
-      return (
-        <Comment
-          key={childId}
-          comment={child}
-          depth={childDepth}
-          marketId={marketId}
-          comments={comments}
-        />
-      );
-    });
-  }
-
-  function getInitialChildComments() {
-    if (_.isEmpty(sortedChildren)) {
-      return <></>;
-    }
-    const initialComment = sortedChildren[0];
-    return (
-      <Box marginTop={4} marginBottom={4} className={classes.initialComment}>
-        <div className={classes.avatarWrapper}>
-          <Avatar>H</Avatar>
-        </div>
-        <div>
-          {commenter && <Typography className={classes.commenter}>{commenter.name}</Typography>}
-          <ReadOnlyQuillEditor value={initialComment.body} paddingLeft={0} />
-        </div>
-      </Box>
-    );
-  }
-
-  function getCommentHighlightStyle() {
-    if (id in highlightedCommentState) {
-      const level = highlightedCommentState[id];
-      if (level === 'YELLOW') {
-        return classes.containerYellow;
-      }
-      return classes.containerRed;
-    }
-    return classes.container;
-  }
+  // TODO: what's the difference between comments and initialCommentS
+  // while it uses plural it only returns a single comment
+  // UPDATE: It's probably misinterpreted from the figma sketches
+  // there's an issue with two comments: one has replies the other doesn't
+  // the one without uses the same dummy text as the issue which includes
+  // "initial comment"
 
   function toggleReply() {
     setReplyOpen(!replyOpen);
@@ -245,121 +180,118 @@ function Comment(props) {
   }
 
   return (
-    <Card
-      className={!isRoot ? classes.childContainer : getCommentHighlightStyle()}
-    >
-      <CardContent
-        className={!isRoot ? classes.childCardContent : classes.cardContent}
-      >
-        {isRoot && (
+    <React.Fragment>
+      <Card className={classes.container}>
+        <CardContent className={classes.cardContent}>
           <CustomChip
             className={classes.chip}
             active
             type={commentType}
             content={comment.body}
           />
-        )}
-        {updatedBy && comment.updated_by !== createdBy && (
-          <Typography className={classes.commenter}>
-            {`${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}`}
-          </Typography>
-        )}
-        <Box
-          marginTop={1}
-          className={isRoot && toggledOpen ? classes.topicWrapper : ''}
-        >
-          <ReadOnlyQuillEditor
-            value={comment.body}
-            heading={toggledOpen}
-            paddingLeft={0}
-          />
-          {editOpen && (
-            <CommentEdit
-              marketId={marketId}
-              comment={comment}
-              onSave={toggleEdit}
-              onCancel={toggleEdit}
+          {updatedBy && comment.updated_by !== createdBy && (
+            <Typography className={classes.commenter}>
+              {`${intl.formatMessage({ id: "lastUpdatedBy" })} ${
+                updatedBy.name
+              }`}
+            </Typography>
+          )}
+          <Box marginTop={1} className={classes.topicWrapper}>
+            <ReadOnlyQuillEditor
+              value={comment.body}
+              heading={toggledOpen}
+              paddingLeft={0}
             />
-          )}
-          {expanded && isRoot && getInitialChildComments()}
-        </Box>
-      </CardContent>
-      {!toggledOpen && !replyOpen && (
-        <CardActions
-          className={!isRoot ? classes.childCardActions : classes.cardActions}
-        >
-          {!comment.resolved && (
-            <ButtonGroup
-              className={!isRoot ? classes.childActions : classes.actions}
-              disabled={operationRunning}
-              color="primary"
-              variant="contained"
-            >
-              <Button
-                className={!isRoot ? classes.childAction : classes.action}
-                onClick={toggleReply}
-              >
-                {intl.formatMessage({ id: 'commentReplyLabel' })}
-              </Button>
-              {createdBy === user.id && (
-                <Button
-                  className={!isRoot ? classes.childAction : classes.action}
-                  onClick={toggleEdit}
-                >
-                  {intl.formatMessage({ id: 'commentEditLabel' })}
-                </Button>
-              )}
-              {!comment.reply_id && (
-                <SpinBlockingButton
-                  className={classes.actionResolve}
-                  marketId={marketId}
-                  onClick={resolve}
-                >
-                  {intl.formatMessage({ id: 'commentResolveLabel' })}
-                </SpinBlockingButton>
-              )}
-            </ButtonGroup>
-          )}
-          {comment.resolved && (
-            <ButtonGroup
-              className={classes.actions}
-              disabled={operationRunning}
-              color="primary"
-              variant="contained"
-            >
-              {children && (
-                <Button className={classes.action} onClick={flipToggledOpen}>
-                  {!toggledOpen
-                    && intl.formatMessage({ id: 'commentViewThreadLabel' })}
-                  {toggledOpen
-                    && intl.formatMessage({ id: 'commentCloseThreadLabel' })}
-                </Button>
-              )}
-              <SpinBlockingButton
-                className={classes.action}
+            {editOpen && (
+              <CommentEdit
                 marketId={marketId}
-                onClick={reopen}
+                comment={comment}
+                onSave={toggleEdit}
+                onCancel={toggleEdit}
+              />
+            )}
+          </Box>
+        </CardContent>
+        {!toggledOpen && !replyOpen && (
+          <CardActions className={classes.cardActions}>
+            {!comment.resolved && (
+              <ButtonGroup
+                className={classes.actions}
+                disabled={operationRunning}
+                color="primary"
+                variant="contained"
               >
-                {intl.formatMessage({ id: 'commentReopenLabel' })}
-              </SpinBlockingButton>
-            </ButtonGroup>
-          )}
-        </CardActions>
-      )}
+                <Button className={classes.action} onClick={toggleReply}>
+                  {intl.formatMessage({ id: "commentReplyLabel" })}
+                </Button>
+                {createdBy === user.id && (
+                  <Button className={classes.action} onClick={toggleEdit}>
+                    {intl.formatMessage({ id: "commentEditLabel" })}
+                  </Button>
+                )}
+                {!comment.reply_id && (
+                  <SpinBlockingButton
+                    className={classes.actionResolve}
+                    marketId={marketId}
+                    onClick={resolve}
+                  >
+                    {intl.formatMessage({ id: "commentResolveLabel" })}
+                  </SpinBlockingButton>
+                )}
+              </ButtonGroup>
+            )}
+            {comment.resolved && (
+              <ButtonGroup
+                className={classes.actions}
+                disabled={operationRunning}
+                color="primary"
+                variant="contained"
+              >
+                {replies && (
+                  <Button className={classes.action} onClick={flipToggledOpen}>
+                    {!toggledOpen &&
+                      intl.formatMessage({ id: "commentViewThreadLabel" })}
+                    {toggledOpen &&
+                      intl.formatMessage({ id: "commentCloseThreadLabel" })}
+                  </Button>
+                )}
+                <SpinBlockingButton
+                  className={classes.action}
+                  marketId={marketId}
+                  onClick={reopen}
+                >
+                  {intl.formatMessage({ id: "commentReopenLabel" })}
+                </SpinBlockingButton>
+              </ButtonGroup>
+            )}
+          </CardActions>
+        )}
+        {replyOpen && (
+          <CommentAdd
+            marketId={marketId}
+            parent={comment}
+            onSave={toggleReply}
+            onCancel={toggleReply}
+            type={REPLY_TYPE}
+          />
+        )}
+      </Card>
       <Box marginTop={1} className={classes.childWrapper}>
-        {expanded && getChildComments()}
+        <CommentsContext.Provider value={comments}>
+          {expanded &&
+            sortedReplies.map(child => {
+              const { id: childId } = child;
+              return (
+                <InitialReply
+                  key={childId}
+                  comment={child}
+                  marketId={marketId}
+                />
+              );
+            })}
+        </CommentsContext.Provider>
       </Box>
-
-      {replyOpen && (
-        <CommentAdd
-          marketId={marketId}
-          parent={comment}
-          onSave={toggleReply}
-          onCancel={toggleReply}
-          type={REPLY_TYPE}
-        />
-      )}
-    </Card>
+    </React.Fragment>
   );
 }
 
@@ -368,8 +300,270 @@ Comment.propTypes = {
   comment: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
-  depth: PropTypes.number.isRequired,
-  marketId: PropTypes.string.isRequired,
+  depth: () => {
+    // TODO error
+    //return new Error('depth is deprecated')
+    return null;
+  },
+  marketId: PropTypes.string.isRequired
 };
+
+function InitialReply(props) {
+  const { comment } = props;
+
+  return <Reply comment={comment} />;
+}
+
+const useReplyStyles = makeStyles(
+  theme => {
+    return {
+      actions: {
+        display: "flex",
+        boxShadow: "none",
+        width: "100%"
+      },
+      action: {
+        padding: "0 4px",
+        minWidth: "20px",
+        height: "20px",
+        color: "#A7A7A7",
+        fontWeight: "500",
+        fontSize: 10,
+        lineHeight: "18px",
+        textTransform: "capitalize",
+        background: "transparent",
+        borderRight: "none !important",
+        "&:hover": {
+          color: "#ca2828",
+          background: "white",
+          boxShadow: "none"
+        },
+        display: "inline-block"
+      },
+      cardContent: {
+        // 25px in Figma
+        marginLeft: theme.spacing(3),
+        padding: 0
+      },
+      cardActions: {
+        marginLeft: theme.spacing(3),
+        padding: 0
+      },
+      commenter: {
+        color: "#7E7E7E",
+        display: "inline-block",
+        fontSize: 12,
+        fontWeight: "bold",
+        marginRight: "8px",
+        padding: "8px 0"
+      },
+      replyContainer: {
+        marginLeft: theme.spacing(3)
+      },
+      timeElapsed: {
+        color: "#A7A7A7",
+        display: "inline-block",
+        fontSize: 10
+      },
+      timePosted: {
+        color: "#A7A7A7",
+        display: "inline-block",
+        fontSize: 10
+      }
+    };
+  },
+  { name: "Reply" }
+);
+
+/**
+ * @type {Presence}
+ */
+const unknownPresence = {
+  name: "unknown"
+};
+
+/**
+ *
+ * @param {{comment: Comment}} props
+ */
+function Reply(props) {
+  const { comment, marketId } = props;
+
+  const presences = usePresences(marketId);
+  // TODO: these shouldn't be unknown?
+  const commenter = useCommenter(comment, presences) || unknownPresence;
+  const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
+
+  const classes = useReplyStyles();
+
+  function handleEditClick() {
+    console.log("TODO implement edit");
+  }
+
+  const [replyOpen, setReplyOpen] = React.useState(false);
+
+  const toggledOpen = true;
+  const createdAt = new Date(comment.created_at);
+
+  return (
+    <Card>
+      <CardContent className={classes.cardContent}>
+        <Typography className={classes.commenter} variant="body2">
+          {commenter.name}
+        </Typography>
+        <Typography className={classes.timeElapsed} variant="body2">
+          <UsefulRelativeTime
+            value={Date.parse(comment.created_at) - Date.now()}
+          />
+        </Typography>
+        <ReadOnlyQuillEditor
+          value={comment.body}
+          heading={toggledOpen}
+          paddingLeft={0}
+        />
+      </CardContent>
+      <CardActions className={classes.cardActions}>
+        <Typography className={classes.timePosted} variant="body2">
+          <FormattedDate value={comment.created_at} />
+        </Typography>
+        <Button
+          className={classes.action}
+          onClick={() => setReplyOpen(true)}
+          variant="text"
+        >
+          Reply
+        </Button>
+        <Button
+          className={classes.action}
+          onClick={handleEditClick}
+          variant="text"
+        >
+          Edit
+        </Button>
+      </CardActions>
+      {replyOpen === true && (
+        <div className={classes.replyContainer}>
+          <CommentAdd
+            marketId={marketId}
+            parent={comment}
+            onSave={() => setReplyOpen(false)}
+            onCancel={() => setReplyOpen(false)}
+            type={REPLY_TYPE}
+          />
+        </div>
+      )}
+      {comment.children !== undefined && (
+        <CardContent className={classes.cardContent}>
+          <ThreadedReplies replies={comment.children} />
+        </CardContent>
+      )}
+    </Card>
+  );
+}
+
+const useThreadedReplyStyles = makeStyles(
+  {
+    container: {
+      listStyle: "none",
+      marginLeft: 8,
+      borderLeft: "2px solid black"
+    }
+  },
+  { name: "ThreadedReplies" }
+);
+/**
+ *
+ * @param {{comments: Comment[], replies: string[]}} props
+ */
+function ThreadedReplies(props) {
+  const { replies: replyIds } = props;
+  const comments = useComments();
+
+  const classes = useThreadedReplyStyles();
+
+  const replies = replyIds.map(replyId => {
+    return comments.find(comment => comment.id === replyId);
+  });
+
+  return (
+    <ol className={classes.container}>
+      {replies.map(reply => {
+        return (
+          <ThreadedReply comment={reply} comments={comments}></ThreadedReply>
+        );
+      })}
+    </ol>
+  );
+}
+
+function ThreadedReply(props) {
+  const { comment } = props;
+  return <Reply comment={comment} />;
+}
+
+/**
+ * Convenience wrapper around FormattedRelativeTime that automatically
+ * uses to biggest possible unit so that the value is >= 1
+ */
+function UsefulRelativeTime(props) {
+  const { value: miliseconds, ...other } = props;
+  const seconds = Math.trunc(miliseconds / 1000);
+  const minutes = Math.trunc(seconds / 60);
+  const hours = Math.trunc(minutes / 60);
+  const days = Math.trunc(hours / 24);
+
+  if (minutes === 0) {
+    return <FormattedRelativeTime {...other} unit="second" value={seconds} />;
+  }
+  if (hours === 0) {
+    return <FormattedRelativeTime {...other} unit="minute" value={minutes} />;
+  }
+  if (days === 0) {
+    return <FormattedRelativeTime {...other} unit="hour" value={hours} />;
+  }
+  return <FormattedRelativeTime {...other} unit="day" value={days} />;
+}
+
+/**
+ * user-like
+ * @typedef {Object} Presence
+ * @property {string} name -
+ */
+
+/**
+ *
+ * @typedef {Object} Comment
+ * @property {string} id
+ * @property {string[]} [children] - ids of comments
+ * @property {string} created_by - presence id of creator
+ * @property {string} created_at -
+ * @property {string} updated_by - presence id of updater
+ * @property {string} updated_at -
+ */
+
+/**
+ * @param {string} marketId
+ * @returns {Presence[]}
+ */
+function usePresences(marketId) {
+  const [presencesState] = useContext(MarketPresencesContext);
+  return getMarketPresences(presencesState, marketId) || [];
+}
+
+/**
+ * @param {Comment} comment
+ * @param {Presence[]} presences
+ */
+function useCommenter(comment, presences) {
+  return presences.find(presence => presence.id === comment.created_by);
+}
+
+/**
+ * @param {Comment} comment
+ * @param {Presence[]} presences
+ */
+function useUpdatedBy(comment, presences) {
+  return presences.find(presence => presence.id === comment.updated_by);
+}
 
 export default Comment;

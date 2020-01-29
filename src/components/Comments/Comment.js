@@ -146,9 +146,6 @@ const useCommentStyles = makeStyles(
     childWrapper: {
       // borderTop: '1px solid #DCDCDC',
     },
-    topicWrapper: {
-      borderBottom: "1px solid #DCDCDC"
-    },
     initialComment: {
       display: "flex"
     },
@@ -235,7 +232,7 @@ function Comment(props) {
               }`}
             </Typography>
           )}
-          <Box marginTop={1} className={classes.topicWrapper}>
+          <Box marginTop={1}>
             <ReadOnlyQuillEditor
               value={comment.body}
               heading={toggledOpen}
@@ -315,7 +312,7 @@ function Comment(props) {
           />
         )}
       </Card>
-      <Box marginTop={1} className={classes.childWrapper}>
+      <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
         <CommentsContext.Provider value={comments}>
           {expanded &&
             sortedReplies.map(child => {

@@ -28,12 +28,19 @@ function Identity() {
   const history = useHistory();
   const intl = useIntl();
   useEffect(() => {
+    let isCanceled = false;
     if (!user) {
       Auth.currentAuthenticatedUser()
         .then((user) => {
           const { attributes } = user;
-          setUser(attributes);
+          if (isCanceled === false) {
+            setUser(attributes);
+          }
         });
+    }
+
+    return () => {
+      isCanceled = true;
     }
   });
   const chipLabel = !user ? '' : user.name;

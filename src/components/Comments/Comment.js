@@ -15,35 +15,84 @@ import { makeStyles } from "@material-ui/styles";
 import _ from "lodash";
 import ReadOnlyQuillEditor from "../TextEditors/ReadOnlyQuillEditor";
 import CommentAdd from "./CommentAdd";
-import { REPLY_TYPE } from "../../constants/comments";
+import {
+  REPLY_TYPE,
+  ISSUE_TYPE,
+  QUESTION_TYPE,
+  SUGGEST_CHANGE_TYPE
+} from "../../constants/comments";
 import { reopenComment, resolveComment } from "../../api/comments";
 import SpinBlockingButton from "../SpinBlocking/SpinBlockingButton";
 import { OperationInProgressContext } from "../../contexts/OperationInProgressContext";
 import { MarketPresencesContext } from "../../contexts/MarketPresencesContext/MarketPresencesContext";
 import { getMarketPresences } from "../../contexts/MarketPresencesContext/marketPresencesHelper";
-import CustomChip from "../CustomChip";
 import CommentEdit from "./CommentEdit";
 import { MarketsContext } from "../../contexts/MarketsContext/MarketsContext";
 import { getMyUserForMarket } from "../../contexts/MarketsContext/marketsContextHelper";
 import { HighlightedCommentContext } from "../../contexts/HighlightedCommentContext";
+// TODO create centralized icons repository
+import IssueIcon from "@material-ui/icons/ReportProblem";
+import QuestionIcon from "@material-ui/icons/ContactSupport";
+import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
+
+const useCommentTypeStyles = makeStyles(
+  {
+    root: ({ type }) => {
+      return {
+        backgroundColor: {
+          [ISSUE_TYPE]: "#E85757",
+          [QUESTION_TYPE]: "#2F80ED",
+          [SUGGEST_CHANGE_TYPE]: "#F29100"
+        }[type],
+        borderBottomRightRadius: 8,
+        color: "white",
+        display: "inline-flex",
+        flexFlow: "row",
+        flexWrap: "nowrap",
+        padding: 8
+      };
+    },
+    icon: {
+      marginRight: 6,
+      height: 16,
+      width: 16
+    },
+    label: {
+      fontSize: 12
+    }
+  },
+  { name: "CommentType" }
+);
+// this used to be handled in "CustomChip". But the name is not descriptive
+// so rather than messing with an unknown abstraction I handle it separately
+// following "copy first, abstract later"
+function CommentType(props) {
+  const { className, type } = props;
+  const classes = useCommentTypeStyles({ type });
+
+  const IconComponent = {
+    [ISSUE_TYPE]: IssueIcon,
+    [QUESTION_TYPE]: QuestionIcon,
+    [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon
+  }[type];
+
+  // TODO i18n type
+  return (
+    <div className={`${classes.root} ${className}`}>
+      <IconComponent className={classes.icon} />
+      <span className={classes.label}>{type}</span>
+    </div>
+  );
+}
+CommentType.propTypes = {
+  type: PropTypes.oneOf([ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE])
+};
 
 const useCommentStyles = makeStyles(
   {
-    container: {
-      background: "white"
-    },
-    containerRed: {
-      padding: "30px 20px 16px",
-      background: "white",
-      boxShadow: "10px 5px 5px red"
-    },
-    containerYellow: {
-      padding: "30px 20px 16px",
-      background: "white",
-      boxShadow: "10px 5px 5px yellow"
-    },
     chip: {
-      marginTop: "12px"
+      margin: 0,
+      marginBottom: 18
     },
     content: {
       marginTop: "12px",
@@ -182,13 +231,8 @@ function Comment(props) {
   return (
     <React.Fragment>
       <Card className={classes.container}>
+        <CommentType className={classes.commentType} type={commentType} />
         <CardContent className={classes.cardContent}>
-          <CustomChip
-            className={classes.chip}
-            active
-            type={commentType}
-            content={comment.body}
-          />
           {updatedBy && comment.updated_by !== createdBy && (
             <Typography className={classes.commenter}>
               {`${intl.formatMessage({ id: "lastUpdatedBy" })} ${

@@ -69,6 +69,8 @@ function NoAccount(props) {
 
   return (
     <Screen
+      // TODO: meaningful title
+      tabTitle=""
       title="Email not Verified"
       appEnabled={false}
     >

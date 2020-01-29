@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 function Identity() {
   const classes = useStyles();
   const [user, setUser] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const history = useHistory();
   const intl = useIntl();
   useEffect(() => {

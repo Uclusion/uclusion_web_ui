@@ -8,7 +8,7 @@ const SIDEBAR_CONTEXT_KEY = 'sidebar_context';
 function SidebarProvider(props) {
 
   const { children } = props;
-  const defaultValue = getUclusionLocalStorageItem(SIDEBAR_CONTEXT_KEY) || { open: false };
+  const defaultValue = getUclusionLocalStorageItem(SIDEBAR_CONTEXT_KEY) || { open: true };
   const [state, setState] = useState(defaultValue);
 
   function mySetState(value) {

@@ -2,7 +2,6 @@ import React, { useContext, useState } from "react";
 import { FormattedDate, FormattedRelativeTime, useIntl } from "react-intl";
 import PropTypes from "prop-types";
 import {
-  Avatar,
   Button,
   Box,
   ButtonGroup,
@@ -29,7 +28,6 @@ import { getMarketPresences } from "../../contexts/MarketPresencesContext/market
 import CommentEdit from "./CommentEdit";
 import { MarketsContext } from "../../contexts/MarketsContext/MarketsContext";
 import { getMyUserForMarket } from "../../contexts/MarketsContext/marketsContextHelper";
-import { HighlightedCommentContext } from "../../contexts/HighlightedCommentContext";
 // TODO create centralized icons repository
 import IssueIcon from "@material-ui/icons/ReportProblem";
 import QuestionIcon from "@material-ui/icons/ContactSupport";
@@ -179,13 +177,11 @@ function useComments() {
  */
 function Comment(props) {
   const { comment, marketId, comments } = props;
-  const depth = 0;
 
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, created_by: createdBy } = comment;
   const presences = usePresences(marketId);
-  const commenter = useCommenter(comment, presences);
   const updatedBy = useUpdatedBy(comment, presences);
   const [marketsState] = useContext(MarketsContext);
   const user = getMyUserForMarket(marketsState, marketId) || {};
@@ -196,7 +192,6 @@ function Comment(props) {
   const [editOpen, setEditOpen] = useState(false);
   const [toggledOpen, setToggledOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
-  const [highlightedCommentState] = useContext(HighlightedCommentContext);
 
   const expanded =
     replyOpen || toggledOpen || !comment.resolved || comment.reply_id;
@@ -436,7 +431,6 @@ function Reply(props) {
   const presences = usePresences(marketId);
   // TODO: these shouldn't be unknown?
   const commenter = useCommenter(comment, presences) || unknownPresence;
-  const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
 
   const classes = useReplyStyles();
 
@@ -447,7 +441,6 @@ function Reply(props) {
   const [replyOpen, setReplyOpen] = React.useState(false);
 
   const toggledOpen = true;
-  const createdAt = new Date(comment.created_at);
 
   return (
     <Card>

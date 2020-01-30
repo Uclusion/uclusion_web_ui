@@ -16,6 +16,7 @@ import {
   Typography
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import clsx from "clsx";
 import _ from "lodash";
 import ReadOnlyQuillEditor from "../TextEditors/ReadOnlyQuillEditor";
 import CommentAdd from "./CommentAdd";
@@ -64,43 +65,34 @@ const useCommentStyles = makeStyles(
       width: "100%"
     },
     action: {
-      minWidth: "89px",
-      height: "36px",
-      color: "rgba(0,0,0,0.38)",
-      fontWeight: "700",
-      fontSize: 14,
-      lineHeight: "18px",
-      letterSpacing: "0.02em",
-      textTransform: "uppercase",
-      background: "transparent",
-      borderRight: "none !important",
+      boxShadow: "none",
+      fontSize: 12,
+      padding: "4px 16px",
+      textTransform: "none",
       "&:hover": {
-        color: "#ca2828",
-        background: "white",
         boxShadow: "none"
       }
     },
-    actionResolve: {
-      minWidth: "89px",
-      height: "36px",
-      color: "#D40000",
-      fontWeight: "700",
-      fontSize: 14,
-      lineHeight: "18px",
-      letterSpacing: "0.02em",
-      textTransform: "uppercase",
-      background: "transparent",
-      borderRight: "none !important",
+    actionPrimary: {
+      backgroundColor: "#2D9CDB",
+      color: "white",
       "&:hover": {
-        color: "#ca2828",
-        background: "white",
-        boxShadow: "none"
+        backgroundColor: "#2D9CDB"
       }
     },
-    repliesToggle: {
-      backgroundColor: "#E0E0E0",
-      color: "#8B8B8B",
-      fontSize: 12
+    actionSecondary: {
+      backgroundColor: "#BDBDBD",
+      color: "white",
+      "&:hover": {
+        backgroundColor: "#BDBDBD"
+      }
+    },
+    acitonResolve: {
+      margin: "11px 12px 11px auto"
+    },
+    commentType: {
+      alignSelf: "start",
+      display: "inline-flex"
     },
     childWrapper: {
       // borderTop: '1px solid #DCDCDC',
@@ -182,7 +174,23 @@ function Comment(props) {
   return (
     <React.Fragment>
       <Card className={classes.container}>
-        <CommentType className={classes.commentType} type={commentType} />
+        <Box display="flex">
+          <CommentType className={classes.commentType} type={commentType} />
+          {!comment.reply_id && (
+            <SpinBlockingButton
+              className={clsx(
+                classes.action,
+                classes.actionSecondary,
+                classes.acitonResolve
+              )}
+              disabled={operationRunning}
+              marketId={marketId}
+              onClick={resolve}
+            >
+              {intl.formatMessage({ id: "commentResolveLabel" })}
+            </SpinBlockingButton>
+          )}
+        </Box>
         <CardContent className={classes.cardContent}>
           {updatedBy && comment.updated_by !== createdBy && (
             <Typography className={classes.commenter}>
@@ -207,7 +215,7 @@ function Comment(props) {
           <CardActions className={`${classes.cardActions} ${classes.actions}`}>
             {replies.length > 0 && (
               <Button
-                className={classes.repliesToggle}
+                className={clsx(classes.action, classes.actionSecondary)}
                 variant="contained"
                 onClick={() => {
                   setRepliesExpanded(!repliesExpanded);
@@ -223,29 +231,28 @@ function Comment(props) {
               </Button>
             )}
             {!comment.resolved && (
-              <ButtonGroup
-                disabled={operationRunning}
-                color="primary"
-                variant="contained"
-              >
-                <Button className={classes.action} onClick={toggleReply}>
+              <React.Fragment>
+                <Button
+                  className={clsx(classes.action, classes.actionPrimary)}
+                  color="primary"
+                  disabled={operationRunning}
+                  onClick={toggleReply}
+                  variant="contained"
+                >
                   {intl.formatMessage({ id: "commentReplyLabel" })}
                 </Button>
                 {createdBy === user.id && (
-                  <Button className={classes.action} onClick={toggleEdit}>
+                  <Button
+                    className={clsx(classes.action, classes.actionSecondary)}
+                    color="primary"
+                    disabled={operationRunning}
+                    onClick={toggleEdit}
+                    variant="contained"
+                  >
                     {intl.formatMessage({ id: "commentEditLabel" })}
                   </Button>
                 )}
-                {!comment.reply_id && (
-                  <SpinBlockingButton
-                    className={classes.actionResolve}
-                    marketId={marketId}
-                    onClick={resolve}
-                  >
-                    {intl.formatMessage({ id: "commentResolveLabel" })}
-                  </SpinBlockingButton>
-                )}
-              </ButtonGroup>
+              </React.Fragment>
             )}
             {comment.resolved && (
               <ButtonGroup
@@ -317,9 +324,6 @@ const useCommentTypeStyles = makeStyles(
         }[type],
         borderBottomRightRadius: 8,
         color: "white",
-        display: "inline-flex",
-        flexFlow: "row",
-        flexWrap: "nowrap",
         padding: 8
       };
     },
@@ -349,7 +353,7 @@ function CommentType(props) {
 
   // TODO i18n type
   return (
-    <div className={`${classes.root} ${className}`}>
+    <div className={clsx(classes.root, className)}>
       <IconComponent className={classes.icon} />
       <span className={classes.label}>{type}</span>
     </div>

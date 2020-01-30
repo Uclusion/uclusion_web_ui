@@ -38,6 +38,8 @@ import IssueIcon from "@material-ui/icons/ReportProblem";
 import QuestionIcon from "@material-ui/icons/ContactSupport";
 import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
 
+const enableEditing = false;
+
 const useCommentTypeStyles = makeStyles(
   {
     root: ({ type }) => {
@@ -481,13 +483,15 @@ function Reply(props) {
         >
           Reply
         </Button>
-        <Button
-          className={classes.action}
-          onClick={handleEditClick}
-          variant="text"
-        >
-          Edit
-        </Button>
+        {enableEditing && (
+          <Button
+            className={classes.action}
+            onClick={handleEditClick}
+            variant="text"
+          >
+            Edit
+          </Button>
+        )}
       </CardActions>
       {replyOpen === true && (
         <div className={classes.replyContainer}>

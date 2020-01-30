@@ -1,10 +1,10 @@
 import { markTourPortionCompleted } from './tourContextReducer';
 
-export function completePortion(stateDispatch, name){
+export function completeTour(stateDispatch, name){
   stateDispatch(markTourPortionCompleted(name));
 }
 
-export function portionCompleted(state, name) {
+export function isTourCompleted(state, name) {
   const { completed } = state;
   return completed && completed[name];
 }

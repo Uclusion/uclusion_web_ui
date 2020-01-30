@@ -18,8 +18,8 @@ import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingB
 import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper';
 import { DECISION_TYPE } from '../../constants/markets';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
-import ReactJoyride from 'react-joyride';
-
+import UclusionTour from '../../components/Tours/UclusionTour';
+import { PURE_SIGNUP_ADD_DIALOG } from '../../contexts/TourContext/tourComponentNames';
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: theme.spacing(2),
@@ -48,23 +48,29 @@ function DecisionAdd(props) {
 
   const tourSteps = [
     {
+      title: 'Making Decisions',
       content: "If you don't have a decision you need help with right now, then getting lunch with your friends is a good start.",
       target: '#tourRoot',
       placement: 'top-start',
       disableBeacon: true,
     },
     {
-      content: "Enter a good short name for your dialog in the 'Name' field, or 'Where should we get lunch' if you don't have one.",
+      content: "Enter a good short name for your dialog in the name field, or 'Where should we get lunch' if you don't have one.",
       target: '#name',
       disableBeacon: true,
     },
-    { content: "Decisions have deadlines, hence we make the dialog end after a set period of time. In this case 1 day. Feel free to set a longer time if you want",
+    {
+      content: "Decisions have deadlines, and to make sure you get results in a timely manner the dialog will end and expire after a certain number of days. Slide the slider to the left and right to set the number of days, up to two weeks.",
       target: '#expires',
     },
     {
       content: "Most of the time, one sentence isn't enough to describe the decision to be made. Enter any contextual information needed into the description. If it's just lunch, then feel free to just enter the time you want to go",
       target: '#description',
-    }
+    },
+    {
+      content: "Lastly, click save and we'll be taken to the Dialog's main screen where we can start adding the options we have for the decision",
+      target: '#save',
+    },
   ];
 
   useEffect(() => {
@@ -134,9 +140,9 @@ function DecisionAdd(props) {
 
   return (
     <Card id="tourRoot">
-      <ReactJoyride
+      <UclusionTour
+        name={PURE_SIGNUP_ADD_DIALOG}
         steps={tourSteps}
-        run
         hideBackButton
       />
       <CardContent>
@@ -184,6 +190,7 @@ function DecisionAdd(props) {
           </Button>
           <SpinBlockingButton
             marketId=""
+            id="save"
             variant="contained"
             color="primary"
             onClick={handleSave}

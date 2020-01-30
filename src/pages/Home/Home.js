@@ -24,7 +24,8 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { navigate } from '../../utils/marketIdPathFunctions';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import HomeCheatSheet from './HomeCheatSheet';
-import ReactJoyride from 'react-joyride';
+import UclusionTour from '../../components/Tours/UclusionTour';
+import { PURE_SIGNUP_HOME } from '../../contexts/TourContext/tourComponentNames';
 
 function Home(props) {
   const { hidden } = props;
@@ -37,11 +38,13 @@ function Home(props) {
     {
       disableBeacon: true,
       target: '#createDialog',
-      content: 'Welcome to Uclusion, lets show you how we can help make decisions.',
+      title: 'Welcome to Uclusion',
+      content: 'Lets show you how Uclusion can help make decisions. One quick note, if you see a red beacon on the screen, you can click it to continue the tour.',
     },
     {
       disableBeacon: true,
       target: '#createDialog',
+      title: 'Dialogs',
       content: "We'll be creating a new Dialog. To get started, click the 'Create Dialog' button",
     },
   ];
@@ -127,9 +130,9 @@ function Home(props) {
       hidden={hidden}
       sidebarActions={sidebarActions}
     >
-      <ReactJoyride
+      <UclusionTour
+        name={PURE_SIGNUP_HOME}
         steps={tourSteps}
-        run
         continuous
         hideBackButton
       />

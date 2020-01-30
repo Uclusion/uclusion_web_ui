@@ -40,59 +40,6 @@ import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
 
 const enableEditing = true;
 
-const useCommentTypeStyles = makeStyles(
-  {
-    root: ({ type }) => {
-      return {
-        backgroundColor: {
-          [ISSUE_TYPE]: "#E85757",
-          [QUESTION_TYPE]: "#2F80ED",
-          [SUGGEST_CHANGE_TYPE]: "#F29100"
-        }[type],
-        borderBottomRightRadius: 8,
-        color: "white",
-        display: "inline-flex",
-        flexFlow: "row",
-        flexWrap: "nowrap",
-        padding: 8
-      };
-    },
-    icon: {
-      marginRight: 6,
-      height: 16,
-      width: 16
-    },
-    label: {
-      fontSize: 12
-    }
-  },
-  { name: "CommentType" }
-);
-// this used to be handled in "CustomChip". But the name is not descriptive
-// so rather than messing with an unknown abstraction I handle it separately
-// following "copy first, abstract later"
-function CommentType(props) {
-  const { className, type } = props;
-  const classes = useCommentTypeStyles({ type });
-
-  const IconComponent = {
-    [ISSUE_TYPE]: IssueIcon,
-    [QUESTION_TYPE]: QuestionIcon,
-    [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon
-  }[type];
-
-  // TODO i18n type
-  return (
-    <div className={`${classes.root} ${className}`}>
-      <IconComponent className={classes.icon} />
-      <span className={classes.label}>{type}</span>
-    </div>
-  );
-}
-CommentType.propTypes = {
-  type: PropTypes.oneOf([ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE])
-};
-
 const useCommentStyles = makeStyles(
   {
     chip: {
@@ -357,6 +304,59 @@ Comment.propTypes = {
     return null;
   },
   marketId: PropTypes.string.isRequired
+};
+
+const useCommentTypeStyles = makeStyles(
+  {
+    root: ({ type }) => {
+      return {
+        backgroundColor: {
+          [ISSUE_TYPE]: "#E85757",
+          [QUESTION_TYPE]: "#2F80ED",
+          [SUGGEST_CHANGE_TYPE]: "#F29100"
+        }[type],
+        borderBottomRightRadius: 8,
+        color: "white",
+        display: "inline-flex",
+        flexFlow: "row",
+        flexWrap: "nowrap",
+        padding: 8
+      };
+    },
+    icon: {
+      marginRight: 6,
+      height: 16,
+      width: 16
+    },
+    label: {
+      fontSize: 12
+    }
+  },
+  { name: "CommentType" }
+);
+// this used to be handled in "CustomChip". But the name is not descriptive
+// so rather than messing with an unknown abstraction I handle it separately
+// following "copy first, abstract later"
+function CommentType(props) {
+  const { className, type } = props;
+  const classes = useCommentTypeStyles({ type });
+
+  const IconComponent = {
+    [ISSUE_TYPE]: IssueIcon,
+    [QUESTION_TYPE]: QuestionIcon,
+    [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon
+  }[type];
+
+  // TODO i18n type
+  return (
+    <div className={`${classes.root} ${className}`}>
+      <IconComponent className={classes.icon} />
+      <span className={classes.label}>{type}</span>
+    </div>
+  );
+}
+CommentType.propTypes = {
+  type: PropTypes.oneOf([ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE])
 };
 
 function InitialReply(props) {

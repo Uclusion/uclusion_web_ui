@@ -175,7 +175,7 @@ class QuillEditor extends React.PureComponent {
   }
 
   render() {
-    const { theme, intl } = this.props;
+    const { theme, intl, id } = this.props;
     const { uploadInProgress } = this.state;
     const editorStyle = {
       fontFamily: theme.typography.fontFamily,
@@ -183,7 +183,7 @@ class QuillEditor extends React.PureComponent {
     };
 
     return (
-      <div ref={this.editorContainer}>
+      <div ref={this.editorContainer} id={id}>
         <LoadingOverlay
           active={uploadInProgress}
           spinner
@@ -208,6 +208,7 @@ QuillEditor.propTypes = {
   noToolbar: PropTypes.bool,
   setOperationInProgress: PropTypes.func,
   intl: PropTypes.object.isRequired,
+  id: PropTypes.string,
 };
 
 QuillEditor.defaultProps = {
@@ -224,6 +225,7 @@ QuillEditor.defaultProps = {
   marketId: undefined,
   uploadDisabled: false,
   noToolbar: false,
+  id: undefined,
 };
 
 

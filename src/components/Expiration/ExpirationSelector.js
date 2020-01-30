@@ -6,7 +6,7 @@ import Slider from '@material-ui/core/Slider';
 function ExpirationSelector(props) {
 
   const DAY_IN_MINUTES = 1440;
-  const { onChange, value, valueLabelDisplay } = props;
+  const { onChange, value, valueLabelDisplay, id } = props;
 
   function createDaysOption(numDays) {
     const value = numDays * DAY_IN_MINUTES;
@@ -31,6 +31,7 @@ function ExpirationSelector(props) {
 
   return (
     <Slider
+      id={id}
       defaultValue={1440}
       value={value}
       marks={options}
@@ -49,11 +50,13 @@ ExpirationSelector.propTypes = {
   onChange: PropTypes.func,
   value: PropTypes.number.isRequired,
   valueLabelDisplay: PropTypes.string,
+  id: PropTypes.string,
 };
 
 ExpirationSelector.defaultProps = {
   onChange: () => {},
   valueLabelDisplay: 'auto',
+  id: undefined,
 };
 
 export default injectIntl(ExpirationSelector);

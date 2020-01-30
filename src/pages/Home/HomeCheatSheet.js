@@ -6,7 +6,6 @@ import { Typography } from '@material-ui/core';
 
 function HomeCheatSheat() {
   const intl = useIntl();
-
   return (
     <div>
       <Typography variant="h3">

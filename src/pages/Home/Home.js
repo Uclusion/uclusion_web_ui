@@ -3,6 +3,7 @@ import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
+import ExploreIcon from '@material-ui/icons/Explore';
 import { useIntl } from 'react-intl';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import Screen from '../../containers/Screen/Screen';
@@ -23,6 +24,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { navigate } from '../../utils/marketIdPathFunctions';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import HomeCheatSheet from './HomeCheatSheet';
+import ReactJoyride from 'react-joyride';
 
 function Home(props) {
   const { hidden } = props;
@@ -30,6 +32,22 @@ function Home(props) {
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+
+  const tourSteps = [
+    {
+      disableBeacon: true,
+      target: '#createDialog',
+      content: 'Welcome to Uclusion, lets show you how we can help make decisions.',
+    },
+    {
+      disableBeacon: true,
+      target: '#createDialog',
+      content: "We'll be creating a new Dialog. To get started, click the 'Create Dialog' button",
+    },
+  ];
+
+
+
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
     marketsState,
     marketPresencesState,
@@ -68,6 +86,7 @@ function Home(props) {
     {
       label: intl.formatMessage({ id: 'homeAddDecision' }),
       icon: getDialogTypeIcon(DECISION_TYPE),
+      id: 'createDialog',
       onClick: () => addDecision(),
     },
     {
@@ -80,12 +99,18 @@ function Home(props) {
       icon: <MenuBookIcon/>,
       onClick: () => navigate(history, '/archives'),
     },
+    {
+      label: 'Start Tour',
+      icon: <ExploreIcon/>,
+      onClick: () => {},
+    }
   ];
 
   const sidebarActions = [];
   SIDEBAR_ACTIONS.forEach((action, index) => {
     sidebarActions.push(
       <ExpandableSidebarAction
+        id={action.id}
         key={index}
         icon={action.icon}
         label={action.label}
@@ -102,6 +127,12 @@ function Home(props) {
       hidden={hidden}
       sidebarActions={sidebarActions}
     >
+      <ReactJoyride
+        steps={tourSteps}
+        run
+        continuous
+        hideBackButton
+      />
       {noMarkets && (
         <HomeCheatSheet/>
       )}

@@ -18,6 +18,7 @@ import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingB
 import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper';
 import { DECISION_TYPE } from '../../constants/markets';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import ReactJoyride from 'react-joyride';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -44,6 +45,27 @@ function DecisionAdd(props) {
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes } = currentValues;
+
+  const tourSteps = [
+    {
+      content: "If you don't have a decision you need help with right now, then getting lunch with your friends is a good start.",
+      target: '#tourRoot',
+      placement: 'top-start',
+      disableBeacon: true,
+    },
+    {
+      content: "Enter a good short name for your dialog in the 'Name' field, or 'Where should we get lunch' if you don't have one.",
+      target: '#name',
+      disableBeacon: true,
+    },
+    { content: "Decisions have deadlines, hence we make the dialog end after a set period of time. In this case 1 day. Feel free to set a longer time if you want",
+      target: '#expires',
+    },
+    {
+      content: "Most of the time, one sentence isn't enough to describe the decision to be made. Enter any contextual information needed into the description. If it's just lunch, then feel free to just enter the time you want to go",
+      target: '#description',
+    }
+  ];
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -111,7 +133,12 @@ function DecisionAdd(props) {
   }
 
   return (
-    <Card>
+    <Card id="tourRoot">
+      <ReactJoyride
+        steps={tourSteps}
+        run
+        hideBackButton
+      />
       <CardContent>
         <TextField
           className={classes.row}
@@ -132,6 +159,7 @@ function DecisionAdd(props) {
         </Typography>
 
         <ExpirationSelector
+          id="expires"
           value={expiration_minutes}
           className={classes.row}
           onChange={handleChange('expiration_minutes')}
@@ -140,6 +168,7 @@ function DecisionAdd(props) {
           {intl.formatMessage({ id: 'descriptionEdit' })}
         </Typography>
         <QuillEditor
+          id="description"
           onS3Upload={onS3Upload}
           onChange={onEditorChange}
           onStoreChange={onStorageChange}

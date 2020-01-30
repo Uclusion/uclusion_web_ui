@@ -10,6 +10,7 @@ import { Auth } from 'aws-amplify';
 import LogRocket from 'logrocket';
 import { defaultTheme } from '../../config/themes';
 import { ThemeProvider } from '@material-ui/core/styles';
+import { TourProvider } from '../../contexts/TourContext/TourContext';
 
 function App(props) {
 
@@ -67,7 +68,9 @@ function App(props) {
       <WebSocketProvider config={config}>
         <AppConfigProvider appConfig={configs}>
           <ThemeProvider theme={defaultTheme}>
-            <Root appConfig={configs}/>
+            <TourProvider>
+              <Root appConfig={configs}/>
+            </TourProvider>
           </ThemeProvider>
         </AppConfigProvider>
       </WebSocketProvider>

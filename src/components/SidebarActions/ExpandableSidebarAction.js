@@ -37,6 +37,7 @@ export const useStyles = makeStyles((theme) => {
 function ExpandableSidebarAction(props) {
   const {
     icon,
+    id,
     label,
     onClick,
   } = props;
@@ -51,6 +52,7 @@ function ExpandableSidebarAction(props) {
 
   return (
     <ListItem
+      id={id}
       className={classes.menuItem}
       key={label}
       button

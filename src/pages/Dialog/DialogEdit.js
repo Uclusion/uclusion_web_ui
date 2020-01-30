@@ -6,6 +6,7 @@ import localforage from 'localforage';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash';
 import {
   makeBreadCrumbs, decomposeMarketPath, formMarketLink, navigate,
 } from '../../utils/marketIdPathFunctions';
@@ -133,6 +134,11 @@ function DialogEdit(props) {
     setLockedMarketId(marketId);
     setLockFailed(false);
   }
+
+  if (_.isEmpty(marketId)) {
+    return <React.Fragment/>
+  }
+
   return (
     <Screen
       title={editVerbiage}

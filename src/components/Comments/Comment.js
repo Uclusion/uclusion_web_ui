@@ -38,7 +38,7 @@ import IssueIcon from "@material-ui/icons/ReportProblem";
 import QuestionIcon from "@material-ui/icons/ContactSupport";
 import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
 
-const enableEditing = false;
+const enableEditing = true;
 
 const useCommentTypeStyles = makeStyles(
   {
@@ -447,13 +447,14 @@ function Reply(props) {
 
   const classes = useReplyStyles();
 
+  const [editing, setEditing] = React.useState(false);
   function handleEditClick() {
-    console.log("TODO implement edit");
+    setEditing(true);
   }
 
   const [replyOpen, setReplyOpen] = React.useState(false);
 
-  const toggledOpen = true;
+  const intl = useIntl();
 
   return (
     <Card {...other}>
@@ -466,11 +467,17 @@ function Reply(props) {
             value={Date.parse(comment.created_at) - Date.now()}
           />
         </Typography>
-        <ReadOnlyQuillEditor
-          value={comment.body}
-          heading={toggledOpen}
-          paddingLeft={0}
-        />
+        {editing ? (
+          <CommentEdit
+            intl={intl}
+            marketId={marketId}
+            onSave={() => setEditing(false)}
+            onCancel={() => setEditing(false)}
+            comment={comment}
+          />
+        ) : (
+          <ReadOnlyQuillEditor value={comment.body} paddingLeft={0} />
+        )}
       </CardContent>
       <CardActions className={classes.cardActions}>
         <Typography className={classes.timePosted} variant="body2">
@@ -489,7 +496,7 @@ function Reply(props) {
             onClick={handleEditClick}
             variant="text"
           >
-            Edit
+            <FormattedMessage id="commentEditLabel" />
           </Button>
         )}
       </CardActions>

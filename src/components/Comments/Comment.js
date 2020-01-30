@@ -539,9 +539,7 @@ function ThreadedReplies(props) {
   return (
     <ol className={classes.container}>
       {replies.map(reply => {
-        return (
-          <ThreadedReply comment={reply} comments={comments}></ThreadedReply>
-        );
+        return <ThreadedReply key={reply.id} comment={reply}></ThreadedReply>;
       })}
     </ol>
   );

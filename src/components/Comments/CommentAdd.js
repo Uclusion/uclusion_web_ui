@@ -196,7 +196,7 @@ function CommentAdd(props) {
 CommentAdd.propTypes = {
   type: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
-  issueWarningId: PropTypes.string.isRequired,
+  issueWarningId: PropTypes.string,
   onSave: PropTypes.func.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   intl: PropTypes.object.isRequired,

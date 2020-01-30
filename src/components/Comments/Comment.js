@@ -436,7 +436,7 @@ const unknownPresence = {
  * @param {{comment: Comment}} props
  */
 function Reply(props) {
-  const { comment } = props;
+  const { comment, ...other } = props;
 
   const marketId = useMarketId();
   const presences = usePresences(marketId);
@@ -454,7 +454,7 @@ function Reply(props) {
   const toggledOpen = true;
 
   return (
-    <Card>
+    <Card {...other}>
       <CardContent className={classes.cardContent}>
         <Typography className={classes.commenter} variant="body2">
           {commenter.name}
@@ -515,9 +515,11 @@ Reply.propTypes = {
 const useThreadedReplyStyles = makeStyles(
   {
     container: {
+      borderLeft: "2px solid #ADADAD",
       listStyle: "none",
-      marginLeft: 8,
-      borderLeft: "2px solid black"
+      margin: 0,
+      marginTop: 15,
+      padding: 0
     }
   },
   { name: "ThreadedReplies" }
@@ -547,7 +549,7 @@ function ThreadedReplies(props) {
 
 function ThreadedReply(props) {
   const { comment } = props;
-  return <Reply comment={comment} />;
+  return <Reply comment={comment} elevation={0} />;
 }
 
 /**

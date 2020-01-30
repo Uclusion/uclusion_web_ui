@@ -171,11 +171,14 @@ const useCommentStyles = makeStyles(
 );
 
 /**
- * @type {React.Context<Comment[]>}
+ * @type {React.Context<{comments: Comment[], marketId: string}>}
  */
 const CommentsContext = React.createContext(null);
 function useComments() {
-  return React.useCallback(CommentsContext);
+  return React.useContext(CommentsContext).comments;
+}
+function useMarketId() {
+  return React.useContext(CommentsContext).marketId;
 }
 
 /**
@@ -323,7 +326,7 @@ function Comment(props) {
         )}
       </Card>
       <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
-        <CommentsContext.Provider value={comments}>
+        <CommentsContext.Provider value={{ comments, marketId }}>
           {repliesExpanded &&
             sortedReplies.map(child => {
               const { id: childId } = child;
@@ -433,8 +436,9 @@ const unknownPresence = {
  * @param {{comment: Comment}} props
  */
 function Reply(props) {
-  const { comment, marketId } = props;
+  const { comment } = props;
 
+  const marketId = useMarketId();
   const presences = usePresences(marketId);
   // TODO: these shouldn't be unknown?
   const commenter = useCommenter(comment, presences) || unknownPresence;
@@ -504,6 +508,9 @@ function Reply(props) {
     </Card>
   );
 }
+Reply.propTypes = {
+  comment: PropTypes.object.isRequired
+};
 
 const useThreadedReplyStyles = makeStyles(
   {

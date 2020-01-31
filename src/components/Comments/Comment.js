@@ -449,6 +449,10 @@ function Reply(props) {
   // TODO: these shouldn't be unknown?
   const commenter = useCommenter(comment, presences) || unknownPresence;
 
+  const [marketsState] = useContext(MarketsContext);
+  const user = getMyUserForMarket(marketsState, marketId) || {};
+  const isEditable = user !== undefined && comment.created_by === user.id;
+
   const classes = useReplyStyles();
 
   const [editing, setEditing] = React.useState(false);
@@ -494,7 +498,7 @@ function Reply(props) {
         >
           Reply
         </Button>
-        {enableEditing && (
+        {enableEditing && isEditable && (
           <Button
             className={classes.action}
             onClick={handleEditClick}

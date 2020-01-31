@@ -62,7 +62,6 @@ export function withSpinLock(Component) {
         console.debug('Operation check interval firing');
         return getVersions()
           .then((versions) => {
-            versionsDispatch(refreshVersionsAction(versions));
             const { marketVersions } = versions;
             const newMarket = _.isEmpty(marketId);
             // eslint-disable-next-line max-len
@@ -71,6 +70,7 @@ export function withSpinLock(Component) {
               operationCheckStopper();
               removeListener(VERSIONS_HUB_CHANNEL, listenerName);
               endSpinning();
+              versionsDispatch(refreshVersionsAction(versions));
             }
           })
           .catch((error) => {

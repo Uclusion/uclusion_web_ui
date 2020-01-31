@@ -87,8 +87,17 @@ const useCommentStyles = makeStyles(
         backgroundColor: "#BDBDBD"
       }
     },
-    acitonResolve: {
-      margin: "11px 12px 11px auto"
+    commenter: {
+      alignSelf: "baseline",
+      color: "#434343",
+      fontWeight: "bold",
+      fontSize: 8,
+      lineHeight: 1.75,
+      marginLeft: "auto"
+    },
+    actionResolve: {
+      alignSelf: "baseline",
+      margin: "11px 12px 11px 16px"
     },
     commentType: {
       alignSelf: "start",
@@ -102,10 +111,6 @@ const useCommentStyles = makeStyles(
     },
     avatarWrapper: {
       marginRight: "20px"
-    },
-    commenter: {
-      fontWeight: "bold",
-      fontSize: 15
     }
   },
   { name: "Comment" }
@@ -133,7 +138,7 @@ function Comment(props) {
   const classes = useCommentStyles();
   const { id, comment_type: commentType, created_by: createdBy } = comment;
   const presences = usePresences(marketId);
-  const updatedBy = useUpdatedBy(comment, presences);
+  const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
   const [marketsState] = useContext(MarketsContext);
   const user = getMyUserForMarket(marketsState, marketId) || {};
   const replies = comments.filter(comment => comment.reply_id === id);
@@ -170,18 +175,28 @@ function Comment(props) {
     !comment.resolved || comment.reply_id
   );
 
+  const displayUpdatedBy =
+    updatedBy !== undefined && comment.updated_by !== createdBy;
+
   const showActions = !replyOpen || replies.length > 0;
   return (
     <React.Fragment>
       <Card className={classes.container}>
         <Box display="flex">
           <CommentType className={classes.commentType} type={commentType} />
+          {displayUpdatedBy && (
+            <Typography className={classes.commenter}>
+              {`${intl.formatMessage({ id: "lastUpdatedBy" })} ${
+                updatedBy.name
+              }`}
+            </Typography>
+          )}
           {!comment.reply_id && (
             <SpinBlockingButton
               className={clsx(
                 classes.action,
                 classes.actionSecondary,
-                classes.acitonResolve
+                classes.actionResolve
               )}
               disabled={operationRunning}
               marketId={marketId}
@@ -192,13 +207,6 @@ function Comment(props) {
           )}
         </Box>
         <CardContent className={classes.cardContent}>
-          {updatedBy && comment.updated_by !== createdBy && (
-            <Typography className={classes.commenter}>
-              {`${intl.formatMessage({ id: "lastUpdatedBy" })} ${
-                updatedBy.name
-              }`}
-            </Typography>
-          )}
           <Box marginTop={1}>
             <ReadOnlyQuillEditor value={comment.body} heading paddingLeft={0} />
             {editOpen && (
@@ -623,6 +631,7 @@ function usePresences(marketId) {
 /**
  * @param {Comment} comment
  * @param {Presence[]} presences
+ * @returns {Presence | undefined}
  */
 function useCommenter(comment, presences) {
   return presences.find(presence => presence.id === comment.created_by);
@@ -631,6 +640,7 @@ function useCommenter(comment, presences) {
 /**
  * @param {Comment} comment
  * @param {Presence[]} presences
+ * @returns {Presence | undefined}
  */
 function useUpdatedBy(comment, presences) {
   return presences.find(presence => presence.id === comment.updated_by);

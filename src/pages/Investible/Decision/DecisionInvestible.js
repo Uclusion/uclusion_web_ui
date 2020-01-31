@@ -90,7 +90,7 @@ function DecisionInvestible(props) {
   const classes = useStyles();
 
   const { name: marketName, id: marketId, market_stage: marketStage } = market;
-  const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId) }];
+  const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
   const breadCrumbs = inArchives
     ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
     : makeBreadCrumbs(history, breadCrumbTemplates);
@@ -147,7 +147,7 @@ function DecisionInvestible(props) {
     {
       title: 'Back to the Dialog',
       content: "Now that you've voted lets see how the option is displayed on the Dialog page. Click the dialog's name in the bread crumbs",
-      target: '#homeCrumb',
+      target: '#marketCrumb',
     }
   ];
 

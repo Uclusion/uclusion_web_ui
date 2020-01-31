@@ -32,7 +32,7 @@ function UclusionTour(props) {
       if (lifecycle === 'complete') {
         // the've finished, register complete
         console.log(`Tour ${name} is complete`);
-        completeTour(tourDispatch, name);
+        //completeTour(tourDispatch, name);
       }
       if (type === 'step:after') {
         setCurrentStep(tourDispatch, name, index + 1);

@@ -64,12 +64,12 @@ function NotificationsProvider(props) {
         if (doRemove) {
           dispatch(removeMessage(message));
           const diffId = commentId || messageInvestibleId || marketId;
+          if (commentId) {
+            highlightedCommentDispatch({ type: HIGHTLIGHT_ADD, commentId, level });
+          }
           // Do not toast unread as already have diff and dismiss - unless is new
           if (aType !== 'UNREAD' || getIsNew(diffState, diffId)) {
             diffDispatch(diffSeen(diffId));
-            if (commentId) {
-              highlightedCommentDispatch({ type: HIGHTLIGHT_ADD, commentId, level });
-            }
             console.debug('Toasting from NotificationsContext');
             switch (level) {
               case 'RED':

@@ -9,7 +9,6 @@ import PropTypes from "prop-types";
 import {
   Button,
   Box,
-  ButtonGroup,
   Card,
   CardContent,
   CardActions,
@@ -99,6 +98,16 @@ const useCommentStyles = makeStyles(
       alignSelf: "baseline",
       margin: "11px 12px 11px 16px"
     },
+    actionReopen: {
+      alignSelf: "baseline",
+      backgroundColor: "#27AE60",
+      color: "white",
+      margin: "11px 12px 11px 16px",
+      "&:hover": {
+        backgroundColor: "#27AE60",
+        color: "white"
+      }
+    },
     commentType: {
       alignSelf: "start",
       display: "inline-flex"
@@ -183,18 +192,41 @@ function Comment(props) {
                 updatedBy.name
               }`}
           </Typography>
-          {!comment.reply_id && (
+          {comment.resolved ? (
             <SpinBlockingButton
               className={clsx(
                 classes.action,
                 classes.actionSecondary,
                 classes.actionResolve
               )}
+              color="primary"
+              disabled={operationRunning}
+              marketId={marketId}
+              onClick={reopen}
+              variant="contained"
+            >
+              {intl.formatMessage({ id: "commentReopenLabel" })}
+            </SpinBlockingButton>
+          ) : (
+            <SpinBlockingButton
+              className={clsx(
+                classes.action,
+                classes.actionSecondary,
+                classes.actionReopen
+              )}
+              color="primary"
               disabled={operationRunning}
               marketId={marketId}
               onClick={resolve}
+              variant="contained"
             >
-              {intl.formatMessage({ id: "commentResolveLabel" })}
+              <FormattedMessage
+                id={
+                  comment.resolved
+                    ? "commentReopenLabel"
+                    : "commentResolveLabel"
+                }
+              />
             </SpinBlockingButton>
           )}
         </Box>
@@ -253,21 +285,6 @@ function Comment(props) {
                   </Button>
                 )}
               </React.Fragment>
-            )}
-            {comment.resolved && (
-              <ButtonGroup
-                disabled={operationRunning}
-                color="primary"
-                variant="contained"
-              >
-                <SpinBlockingButton
-                  className={classes.action}
-                  marketId={marketId}
-                  onClick={reopen}
-                >
-                  {intl.formatMessage({ id: "commentReopenLabel" })}
-                </SpinBlockingButton>
-              </ButtonGroup>
             )}
           </CardActions>
         )}

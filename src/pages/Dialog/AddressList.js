@@ -15,7 +15,6 @@ import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
-import Grid from '@material-ui/core/Grid';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import { addParticipants, inviteParticipants } from '../../api/users';
@@ -53,45 +52,29 @@ function AddressList(props) {
   const { id: addToMarketId, market_stage: marketStage, market_type: marketType } = market;
   const classes = useStyles();
   const intl = useIntl();
+  const observerLabel = marketType === DECISION_TYPE ? intl.formatMessage({ id: 'isObserver' }) :
+    intl.formatMessage({ id: 'isApprover' });
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [email1, setEmail1] = useState(undefined);
-  const [email2, setEmail2] = useState(undefined);
-  const [email3, setEmail3] = useState(undefined);
-  const [email4, setEmail4] = useState(undefined);
   function handleEmail1(event) {
     const { value } = event.target;
     setEmail1(value);
   }
-  function handleEmail2(event) {
-    const { value } = event.target;
-    setEmail2(value);
+  const [isObserver1, setIsObserver1] = useState(false);
+  function handleIsObserver1() {
+    setIsObserver1(!isObserver1);
   }
-  function handleEmail3(event) {
-    const { value } = event.target;
-    setEmail3(value);
-  }
-  function handleEmail4(event) {
-    const { value } = event.target;
-    setEmail4(value);
-  }
-  const inviteFormInvalid = _.isEmpty(email1) && _.isEmpty(email2)
-    && _.isEmpty(email3) && _.isEmpty(email4);
+  const inviteFormInvalid = _.isEmpty(email1);
   function onInvite(form) {
     form.preventDefault();
-    const emailList = [];
+    const participants = [];
     if (email1) {
-      emailList.push(email1);
+      participants.push({email: email1, is_observer: isObserver1});
     }
-    if (email2) {
-      emailList.push(email2);
-    }
-    if (email3) {
-      emailList.push(email3);
-    }
-    if (email4) {
-      emailList.push(email4);
-    }
-    return inviteParticipants(addToMarketId, emailList).then(() => console.debug('Invite successful'));
+    return inviteParticipants(addToMarketId, participants).then(() => {
+      setEmail1(undefined);
+      setIsObserver1(false);
+    });
   }
 
   function extractUsersList() {
@@ -267,54 +250,41 @@ function AddressList(props) {
         autoComplete="off"
         onSubmit={onInvite}
       >
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <TextField
-              variant="outlined"
-              fullWidth
-              id="email1"
-              name="email1"
-              type="email"
-              label={intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
-              onChange={handleEmail1}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              variant="outlined"
-              fullWidth
-              id="email2"
-              name="email2"
-              type="email"
-              label={intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
-              onChange={handleEmail2}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              variant="outlined"
-              fullWidth
-              id="email3"
-              name="email3"
-              type="email"
-              label={intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
-              onChange={handleEmail3}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              variant="outlined"
-              fullWidth
-              id="email4"
-              name="email4"
-              type="email"
-              label={intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
-              onChange={handleEmail4}
-            />
-          </Grid>
-        </Grid>
+        <List
+          dense
+        >
+          <ListItem key="observer" divider>
+              <ListItemText className={classes.name}>
+                {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+              </ListItemText>
+              <ListItemIcon>
+                <ListItemText>
+                  {observerLabel}
+                </ListItemText>
+              </ListItemIcon>
+          </ListItem>
+          <ListItem key="emailInput">
+            <ListItemText className={classes.name}>
+              <TextField
+                variant="outlined"
+                fullWidth
+                id="email1"
+                name="email1"
+                type="email"
+                label={intl.formatMessage({ id: 'email' })}
+                onChange={handleEmail1}
+              />
+            </ListItemText>
+            <ListItemIcon>
+              <Checkbox
+                id="isObserver1"
+                onClick={handleIsObserver1}
+                checked={isObserver1}
+              />
+            </ListItemIcon>
+          </ListItem>
+        </List>
         <ApiBlockingButton
-          fullWidth
           variant="contained"
           className={classes.submit}
           type="submit"
@@ -344,7 +314,7 @@ function AddressList(props) {
           {showObservers && (
             <ListItemIcon>
               <ListItemText>
-                {intl.formatMessage({ id: 'isObserver' })}
+                {observerLabel}
               </ListItemText>
             </ListItemIcon>
           )}

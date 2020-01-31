@@ -123,7 +123,8 @@ const messages = defineMessages({
   observers: 'Approver:',
   dialogParticipants: 'Collaborators',
   dialogObservers: 'Approvers',
-  isObserver: 'Is Approver',
+  isApprover: 'Is Approver',
+  isObserver: 'Is Observer',
 
   addDecision: 'Add Dialog',
   addPlanning: 'Add Agile Plan',

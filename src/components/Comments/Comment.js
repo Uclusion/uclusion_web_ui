@@ -148,13 +148,6 @@ function Comment(props) {
   const [editOpen, setEditOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
 
-  // TODO: what's the difference between comments and initialCommentS
-  // while it uses plural it only returns a single comment
-  // UPDATE: It's probably misinterpreted from the figma sketches
-  // there's an issue with two comments: one has replies the other doesn't
-  // the one without uses the same dummy text as the issue which includes
-  // "initial comment"
-
   function toggleReply() {
     setReplyOpen(!replyOpen);
   }

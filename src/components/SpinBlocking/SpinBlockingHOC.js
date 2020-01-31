@@ -67,7 +67,6 @@ export function withSpinLock(Component) {
             // eslint-disable-next-line max-len
             const newVersion = marketVersions.find((version) => version.marketId === marketId || (newMarket && version.version === 1));
             if (newVersion && (newMarket || !_.isEqual(newVersion, currentVersion))) {
-              operationCheckStopper();
               // There should not be any need to stop spinning here
               // - the spinner should clean itself up if conditions are met
               versionsDispatch(refreshVersionsAction(versions));

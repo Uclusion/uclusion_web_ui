@@ -244,6 +244,7 @@ function AddressList(props) {
       </Typography>
       <InviteLinker
         marketId={addToMarketId}
+        observerLabel={observerLabel}
       />
       <form
         className={classes.form}

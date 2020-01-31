@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
 
 function InviteLinker(props) {
   const intl = useIntl();
-  const { marketId, hidden } = props;
+  const { marketId, hidden, observerLabel } = props;
   const classes = useStyles();
 
   const link = formInviteLink(marketId);
@@ -28,12 +28,20 @@ function InviteLinker(props) {
         {intl.formatMessage({ id: 'inviteLinkerDirections' })}
       </Typography>
       <Typography>
-        {link}
+        {`${link}#is_obs=false`}
       </Typography>
       <TooltipIconButton
         translationId='inviteLinkerCopyToClipboard'
         icon={<AssignmentIcon />}
-        onClick={() => navigator.clipboard.writeText(link)}
+        onClick={() => navigator.clipboard.writeText(`${link}#is_obs=false`)}
+      />
+      <Typography>
+        {`${observerLabel} ${link}#is_obs=true`}
+      </Typography>
+      <TooltipIconButton
+        translationId='inviteLinkerCopyToClipboard'
+        icon={<AssignmentIcon />}
+        onClick={() => navigator.clipboard.writeText(`${link}#is_obs=true`)}
       />
     </div>
   );
@@ -41,6 +49,7 @@ function InviteLinker(props) {
 
 InviteLinker.propTypes = {
   marketId: PropTypes.string.isRequired,
+  observerLabel: PropTypes.string.isRequired,
   hidden: PropTypes.bool,
 };
 

@@ -131,6 +131,7 @@ function Home(props) {
       sidebarActions={sidebarActions}
     >
       <UclusionTour
+        shouldRun={!hidden}
         name={PURE_SIGNUP_HOME}
         steps={tourSteps}
         continuous

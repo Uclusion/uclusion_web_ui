@@ -31,6 +31,8 @@ import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
 import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
+import UclusionTour from '../../../components/Tours/UclusionTour';
+import { PURE_SIGNUP_VIEW_FIRST_OPTION } from '../../../contexts/TourContext/tourNames';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -117,6 +119,41 @@ function DecisionInvestible(props) {
   const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id;
   const activeMarket = marketStage === ACTIVE_STAGE;
 
+  const adminTourSteps = [
+    {
+      title: 'Your Option',
+      content: 'Options are what participants can vote on, and are under your complete control',
+      target: '#target',
+    },
+    {
+      title: 'Voting',
+      content: "Options are voted for and since you are also a participant in a dialog, you can for the option you want. Bo ahead and click the 'Vote for this option' button",
+      target: '#voteForThis',
+      disableBeacon: true,
+    },
+    {
+      title: 'Voting Explained',
+      content: "Uclusion asks users two things about their dialog votes. The first is how certain they are about their vote. This helps both of you understand how much support the idea really has. The second is the reason why they voted for this option, and lets the participant give you context around thier vote",
+      target: '#voteForThis',
+      disableBeacon: true,
+    },
+    {
+      title: 'Vote',
+      content: "Go ahead and enter a vote for this option, and give it a certainty and a reaso. Don't worry if it's not the one you really want, as you can change your by voting on another option. You'll see your vote appear in the 'Current Voting' section below",
+      disableBeacon: true,
+    },
+    {
+      title: 'Back to the Dialog',
+      content: "Now that you've voted lets see how the option is displayed on the Dialog page. Click the dialog's name in the bread crumbs",
+      target: '#homeCrumb',
+    }
+  ];
+
+  const userTourSteps = [];
+  const tourSteps = isAdmin? adminTourSteps : userTourSteps;
+  const tourName = isAdmin? PURE_SIGNUP_VIEW_FIRST_OPTION : '';
+
+
   const {
     description, name, created_by: createdBy, locked_by: lockedBy,
   } = investible;
@@ -158,6 +195,7 @@ function DecisionInvestible(props) {
       }
       if (allowDelete) {
         sidebarActions.push(<DeleteInvestibleActionButton
+          key="delete"
           investibleId={investibleId}
           marketId={marketId}
         />);
@@ -192,15 +230,22 @@ function DecisionInvestible(props) {
       hidden={hidden}
       sidebarActions={getSidebarActions()}
     >
+      <UclusionTour
+        shouldRun={!hidden}
+        name={tourName}
+        steps={tourSteps}
+      />
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <SubSection
+            id="description"
             type={SECTION_TYPE_PRIMARY}
             title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
           >
-            <Paper className={classes.container}>
-              <Typography className={classes.title} variant="h3" component="h1">
-                {name}
+            <Paper
+              className={classes.container}>
+              <Typography className={classes.title} variant="h3" component="h1" id="target">
+                {tourName}{name}
               </Typography>
               {diff && (
                 <DiffDisplay id={investibleId} />
@@ -221,6 +266,7 @@ function DecisionInvestible(props) {
         {!inProposed && (
         <Grid item xs={12}>
           <SubSection
+
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
           >

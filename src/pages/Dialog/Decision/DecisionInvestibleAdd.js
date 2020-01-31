@@ -39,7 +39,14 @@ const styles = (theme) => ({
 
 function DecisionInvestibleAdd(props) {
   const {
-    marketId, intl, classes, onCancel, isAdmin, onSave, storedDescription,
+    marketId,
+    intl,
+    classes,
+    onCancel,
+    isAdmin,
+    onSave,
+    storedDescription,
+    hidden
   } = props;
 
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -143,6 +150,7 @@ function DecisionInvestibleAdd(props) {
   return (
     <Card>
       <UclusionTour
+        shouldRun={!hidden}
         name={PURE_SIGNUP_ADD_FIRST_OPTION}
         steps={tourSteps}
       />
@@ -208,6 +216,7 @@ DecisionInvestibleAdd.propTypes = {
   onSave: PropTypes.func,
   isAdmin: PropTypes.bool,
   storedDescription: PropTypes.string.isRequired,
+  hidden: PropTypes.bool,
 };
 
 DecisionInvestibleAdd.defaultProps = {
@@ -216,6 +225,7 @@ DecisionInvestibleAdd.defaultProps = {
   onCancel: () => {
   },
   isAdmin: false,
+  hidden: false,
 };
 
 export default withStyles(styles)(injectIntl(DecisionInvestibleAdd));

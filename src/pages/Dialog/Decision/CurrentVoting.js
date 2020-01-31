@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import _ from "lodash";
 import { Grid, CardContent } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
+import { pink } from '@material-ui/core/colors';
+import { useIntl } from 'react-intl';
 import { useHistory } from "react-router";
 import {
   formInvestibleLink,
@@ -13,6 +15,7 @@ import { getVoteTotalsForUser } from "../../../utils/userFunctions";
 import VoteCard from "../../../components/Cards/VoteCard";
 import { ISSUE_TYPE } from "../../../constants/comments";
 import { getCommentTypeIcon } from "../../../components/Comments/commentFunctions";
+import useFitText from 'use-fit-text'
 
 const useStyles = makeStyles(theme => ({
   noPadding: {
@@ -20,12 +23,33 @@ const useStyles = makeStyles(theme => ({
     "&:last-child": {
       padding: 0
     }
-  }
+  },
+  warnNoOptions: {
+    backgroundColor: pink[500],
+    display: 'grid',
+    gridTemplateColumns: 'calc(100% - 130px) 130px',
+    width: '100%',
+    height: '97px',
+    padding: '10px 0',
+    background: 'white',
+  },
+  title: {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    height: '77px',
+    margin: '3px',
+    padding: '0 20px',
+    fontWeight: 'bold',
+    color: '#3e3e3e',
+    overflow: 'hidden',
+  },
 }));
 
 function CurrentVoting(props) {
   const history = useHistory();
   const classes = useStyles();
+  const intl = useIntl();
   const { marketPresences, investibles, marketId, comments } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
 
@@ -100,10 +124,29 @@ function CurrentVoting(props) {
     'numSupporters',
     'name'
   ).reverse();
-
+  const { fontSize, ref } = useFitText({ maxFontSize: 200 });
   return (
     <Grid container spacing={1}>
-      {sortedTalliesArray.map((item) => getItemVote(item))}
+      {!_.isEmpty(sortedTalliesArray) && sortedTalliesArray.map((item) => getItemVote(item))}
+      {_.isEmpty(sortedTalliesArray) && (
+        <Grid item key="noneWarning">
+          <RaisedCard
+            className="raisedcard"
+          >
+            <CardContent className={classes.warnNoOptions}>
+              <div
+                ref={ref}
+                style={{
+                  fontSize,
+                }}
+                className={classes.title}
+              >
+                {intl.formatMessage({ id: 'decisionDialogNoInvestiblesWarning' })}
+              </div>
+            </CardContent>
+          </RaisedCard>
+        </Grid>
+      )}
     </Grid>
   );
 }

@@ -356,6 +356,7 @@ const messages = defineMessages({
   decisionDialogAddInvestibleLabel: 'Add Option',
   decisionDialogProposeInvestibleLabel: 'Propose Option',
   decisionDialogExtendDaysLabel: 'Number of days to extend deadline?',
+  decisionDialogNoInvestiblesWarning: 'No votable options',
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',

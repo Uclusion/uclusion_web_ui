@@ -50,7 +50,7 @@ function Investible(props) {
   const usedInv = inv || emptyInvestible;
   const { investible } = usedInv;
   const { name } = investible;
-  const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId) }];
+  const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId), id: 'marketCrumb' }];
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || _.isEmpty(user));
   const isDecision = market && market.market_type === DECISION_TYPE;

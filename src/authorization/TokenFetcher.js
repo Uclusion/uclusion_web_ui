@@ -7,12 +7,13 @@ import TokenStorageManager, { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET, TOKEN_TYPE_
 
 class TokenFetcher {
 
-  constructor(tokenRefresher, ssoClient, tokenType, itemId) {
+  constructor(tokenRefresher, ssoClient, tokenType, itemId, isObserver) {
     this.ssoClient = ssoClient;
     this.tokenRefresher = tokenRefresher;
     this.tokenStorageManager = new TokenStorageManager();
     this.tokenType = tokenType;
     this.itemId = itemId;
+    this.isObserver = isObserver;
   }
 
   getToken() {
@@ -21,7 +22,7 @@ class TokenFetcher {
       return Promise.resolve(token);
     }
     if (this.tokenType === TOKEN_TYPE_MARKET || this.tokenType === TOKEN_TYPE_ACCOUNT) {
-      return this.getIdentityBasedToken();
+      return this.getIdentityBasedToken(this.isObserver);
     }
     if (this.tokenType === TOKEN_TYPE_FILE) {
       return this.refreshFileToken();
@@ -45,12 +46,12 @@ class TokenFetcher {
       });
   }
 
-  getIdentityBasedToken() {
+  getIdentityBasedToken(isObserver) {
     return this.tokenRefresher.getIdentity()
       .then((identity) => {
         switch(this.tokenType){
           case TOKEN_TYPE_MARKET:
-            return this.getMarketToken(identity, this.itemId);
+            return this.getMarketToken(identity, this.itemId, isObserver);
           case TOKEN_TYPE_ACCOUNT:
             return this.getAccountToken(identity, this.itemId);
           default:
@@ -59,9 +60,9 @@ class TokenFetcher {
       });
   }
 
-  getMarketToken(identity, marketId){
-    console.debug(`logging into market ${marketId} with cognito identity ${identity}`);
-    return this.ssoClient.marketCognitoLogin(identity, marketId)
+  getMarketToken(identity, marketId, isObserver){
+    console.debug(`logging into market ${marketId} with cognito identity ${identity} and isObserver ${isObserver}`);
+    return this.ssoClient.marketCognitoLogin(identity, marketId, isObserver)
       .then((loginData) => {
         const { uclusion_token } = loginData;
         this.tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, uclusion_token);

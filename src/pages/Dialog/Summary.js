@@ -8,7 +8,7 @@ import { makeStyles } from '@material-ui/styles';
 import ReadOnlyQuillEditor from '../../components/TextEditors/ReadOnlyQuillEditor';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import DiffDisplay from '../../components/TextEditors/DiffDisplay';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
@@ -214,7 +214,8 @@ function Summary(props) {
             key="ob2"
           >
             <Typography>
-              {intl.formatMessage({ id: 'dialogObservers' })}
+              {marketType === DECISION_TYPE ? intl.formatMessage({ id: 'dialogObservers' }) :
+                intl.formatMessage({ id: 'planningObservers' })}
             </Typography>
           </Grid>
           <Grid

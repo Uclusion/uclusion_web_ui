@@ -12,6 +12,7 @@ import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSo
 import { getMarketClient } from '../../api/uclusionClient';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { toastError } from '../../utils/userMessage';
+import queryString from 'query-string'
 
 function MarketInvite(props) {
   const { hidden } = props;
@@ -19,6 +20,7 @@ function MarketInvite(props) {
   const history = useHistory();
   const { location } = history;
   const { pathname } = location;
+  const { hash } = location;
   const { marketId } = decomposeMarketPath(pathname);
   const [myLoading, setMyLoading] = useState(true);
 
@@ -43,14 +45,16 @@ function MarketInvite(props) {
         }
       });
       console.debug(`Logging into market ${marketId}`);
-      getMarketClient(marketId)
+      const values = queryString.parse(hash);
+      const { is_obs: isObserver } = values;
+      getMarketClient(marketId, isObserver)
         .catch((error) => {
           setMyLoading(false);
           console.error(error);
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [hidden, marketId, history]);
+  }, [hidden, marketId, history, hash]);
 
   return (
     <Screen

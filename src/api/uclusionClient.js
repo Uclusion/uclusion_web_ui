@@ -6,11 +6,11 @@ import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityToken
 import FileTokenRefresher from '../authorization/FileTokenRefresher';
 import { updateFileToken } from '../authorization/tokenStorageUtils';
 
-export const getMarketClient = (marketId) => {
+export const getMarketClient = (marketId, isObserver) => {
   const ssoClient = client.constructSSOClient(config.api_configuration);
   return ssoClient.then((sso) => {
     const identitySource = new AmplifyIdentityTokenRefresher();
-    const tokenManager = new TokenFetcher(identitySource, sso, TOKEN_TYPE_MARKET, marketId);
+    const tokenManager = new TokenFetcher(identitySource, sso, TOKEN_TYPE_MARKET, marketId, isObserver);
     return tokenManager.getToken() // force login
       .then(() => client.constructClient({ ...config.api_configuration, tokenManager }));
   });

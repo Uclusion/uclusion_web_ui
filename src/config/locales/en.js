@@ -122,7 +122,8 @@ const messages = defineMessages({
   created_by: 'Created by',
   observers: 'Approver:',
   dialogParticipants: 'Collaborators',
-  dialogObservers: 'Approvers',
+  dialogObservers: 'Observers',
+  planningObservers: 'Approvers',
   isApprover: 'Is Approver',
   isObserver: 'Is Observer',
 

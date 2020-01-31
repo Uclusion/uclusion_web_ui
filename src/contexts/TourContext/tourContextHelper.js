@@ -1,10 +1,21 @@
-import { markTourPortionCompleted } from './tourContextReducer';
+import { markTourPortionCompleted, setTourCurrentStep } from './tourContextReducer';
 
-export function completeTour(stateDispatch, name){
-  stateDispatch(markTourPortionCompleted(name));
+export function completeTour(dispatch, name){
+  dispatch(markTourPortionCompleted(name));
+}
+
+export function setCurrentStep(dispatch, name, currentStep){
+  dispatch(setTourCurrentStep(name, currentStep));
+}
+
+export function getCurrentStep(state, name){
+  const status = state[name] || {};
+  const { currentStep } = status;
+  return currentStep || 0;
 }
 
 export function isTourCompleted(state, name) {
-  const { completed } = state;
-  return completed && completed[name];
+  const status = state[name] || {};
+  const { completed } = status;
+  return !!completed;
 }

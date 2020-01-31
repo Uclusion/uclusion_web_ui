@@ -10,6 +10,7 @@ import { useStyles } from '../SidebarActions/ExpandableSidebarAction';
 function SpinBlockingSidebarAction(props) {
   const {
     marketId,
+    id,
     icon,
     label,
     onClick,
@@ -25,6 +26,7 @@ function SpinBlockingSidebarAction(props) {
   return (
     <SpinningListItem
       key={label}
+      id={id}
       button
       marketId={marketId}
       onClick={onClick}
@@ -53,11 +55,13 @@ SpinBlockingSidebarAction.propTypes = {
   onClick: PropTypes.func.isRequired,
   onSpinStart: PropTypes.func,
   onSpinStop: PropTypes.func,
+  id: PropTypes.string,
 };
 
 SpinBlockingSidebarAction.defaultProps = {
   onSpinStart: () => {},
   onSpinStop: () => {},
+  id: undefined,
 };
 
 export default SpinBlockingSidebarAction;

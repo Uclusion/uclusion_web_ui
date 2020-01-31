@@ -240,7 +240,7 @@ const messages = defineMessages({
   lockFailedWarning: 'Failed to acquire lock. Retry?',
   breakLock: 'Break Lock',
   newStory: 'New Story',
-
+  newOption: 'New Option',
   // Issues
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',

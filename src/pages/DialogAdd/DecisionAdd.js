@@ -19,7 +19,7 @@ import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsConte
 import { DECISION_TYPE } from '../../constants/markets';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import UclusionTour from '../../components/Tours/UclusionTour';
-import { PURE_SIGNUP_ADD_DIALOG } from '../../contexts/TourContext/tourComponentNames';
+import { PURE_SIGNUP_ADD_DIALOG } from '../../contexts/TourContext/tourNames';
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: theme.spacing(2),

@@ -30,6 +30,8 @@ import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBloc
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import { DECISION_TYPE } from '../../../constants/markets';
+import UclusionTour from '../../../components/Tours/UclusionTour';
+import { PURE_SIGNUP_ADD_DIALOG_OPTIONS } from '../../../contexts/TourContext/tourNames';
 
 function DecisionDialog(props) {
   const {
@@ -61,6 +63,25 @@ function DecisionDialog(props) {
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
+
+  const adminTourSteps = [
+    {
+      title: 'Your New Dialog',
+      content: "The first thing a new dialog needs is the options that we want to present. Click the 'Add Option' button in the sidebar to add the first one",
+      target: '#newOption',
+      disableBeacon: true,
+    },
+    { title: 'Add Some More',
+      content: "Good, A decision with just one option isn't really a decision, so add some more options, if it's lunch try adding your favorite food types",
+      target: '#currentVoting',
+    }
+  ];
+
+  const participantTourSteps = [
+
+  ];
+
+  const tourSteps = isAdmin? adminTourSteps : participantTourSteps;
 
   const addLabel = isAdmin ? 'decisionDialogAddInvestibleLabel' : 'decisionDialogProposeInvestibleLabel';
   function getInvestiblesForStage(stage) {
@@ -113,6 +134,7 @@ function DecisionDialog(props) {
     {
       label: intl.formatMessage({ id: addLabel }),
       icon: <AddIcon />,
+      id: "newOption",
       onClick: () => navigate(history, formMarketAddInvestibleLink(marketId)),
     },
     manageAction,
@@ -142,10 +164,11 @@ function DecisionDialog(props) {
     }
 
     return sidebarMenuList.map((item, index) => {
-      const { onClick, label, icon } = item;
+      const { onClick, label, icon, id } = item;
       if (item.spinBlocking) {
         return (
           <SpinBlockingSidebarAction
+            id={id}
             key={index}
             label={label}
             onClick={onClick}
@@ -154,7 +177,7 @@ function DecisionDialog(props) {
           />
         );
       }
-      return <ExpandableSidebarAction key={index} label={label} icon={icon} onClick={onClick} />;
+      return <ExpandableSidebarAction id={id} key={index} label={label} icon={icon} onClick={onClick} />;
     });
   }
 
@@ -167,6 +190,12 @@ function DecisionDialog(props) {
       breadCrumbs={breadCrumbs}
       sidebarActions={sidebarActions}
     >
+      <UclusionTour
+        name={PURE_SIGNUP_ADD_DIALOG_OPTIONS}
+        steps={tourSteps}
+        continuous
+        hideBackButton
+      />
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <SubSection
@@ -178,6 +207,7 @@ function DecisionDialog(props) {
         </Grid>
         <Grid item xs={12} style={{ marginTop: '30px' }}>
           <SubSection
+            id="currentVoting"
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
           >

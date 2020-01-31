@@ -22,6 +22,8 @@ import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingBut
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 import { checkInvestibleInStorage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
+import UclusionTour from '../../../components/Tours/UclusionTour';
+import { PURE_SIGNUP_ADD_FIRST_OPTION } from '../../../contexts/TourContext/tourNames';
 
 const styles = (theme) => ({
   root: {
@@ -55,6 +57,24 @@ function DecisionInvestibleAdd(props) {
   const [validForm, setValidForm] = useState(false);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
+
+  const tourSteps = [
+    {
+      title: 'The First Option',
+      content: "Like dialogs, options need a name. This name will show in the dialog's 'Current Voting' section, so make it short, but descriptive. If we're having lunch, then add your favorite food type.",
+      target: "#name",
+      disableBeacon: true
+    },
+    {
+      content: 'Options will also need a detailed description so people know what their voting for. Put those details in the description field. For lunch, just put the address of the eatery you want to go to for this food type',
+      target: '#description'
+    },
+    {
+      title: 'Save',
+      target: '#save',
+      content: "Great, almost done, all we need to do is save the option, and we'll be taken to see it.",
+    }
+  ];
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -122,6 +142,10 @@ function DecisionInvestibleAdd(props) {
 
   return (
     <Card>
+      <UclusionTour
+        name={PURE_SIGNUP_ADD_FIRST_OPTION}
+        steps={tourSteps}
+      />
       <CardContent>
         <TextField
           className={classes.row}
@@ -139,6 +163,7 @@ function DecisionInvestibleAdd(props) {
           {intl.formatMessage({ id: 'descriptionEdit' })}
         </Typography>
         <QuillEditor
+          id="description"
           marketId={marketId}
           onChange={onEditorChange}
           onStoreChange={onStorageChange}
@@ -158,6 +183,7 @@ function DecisionInvestibleAdd(props) {
           <SpinBlockingButton
             variant="contained"
             color="primary"
+            id="save"
             onClick={handleSave}
             disabled={!validForm}
             marketId={marketId}

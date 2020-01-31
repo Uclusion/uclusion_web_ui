@@ -48,6 +48,7 @@ function SubSection(props) {
     actionButton,
     type,
     titleIcon,
+    id,
   } = props;
 
   const classes = useStyles();
@@ -55,6 +56,7 @@ function SubSection(props) {
   return (
     <React.Fragment>
       <AppBar
+        id={id}
         className={type === SECTION_TYPE_PRIMARY ? classes.primarySubHeader : classes.secondarySubHeader}
         position="static"
         hidden={hidden}
@@ -85,6 +87,7 @@ SubSection.propTypes = {
   actionButton: PropTypes.object,
   type: PropTypes.string,
   titleIcon: PropTypes.element,
+  id: PropTypes.string,
 };
 
 SubSection.defaultProps = {
@@ -93,6 +96,7 @@ SubSection.defaultProps = {
   children: undefined,
   type: SECTION_TYPE_PRIMARY,
   titleIcon: undefined,
+  id: undefined,
 };
 
 export default SubSection;

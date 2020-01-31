@@ -25,7 +25,7 @@ import { navigate } from '../../utils/marketIdPathFunctions';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import HomeCheatSheet from './HomeCheatSheet';
 import UclusionTour from '../../components/Tours/UclusionTour';
-import { PURE_SIGNUP_HOME } from '../../contexts/TourContext/tourComponentNames';
+import { PURE_SIGNUP_HOME } from '../../contexts/TourContext/tourNames';
 
 function Home(props) {
   const { hidden } = props;

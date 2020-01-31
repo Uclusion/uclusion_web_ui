@@ -1,32 +1,55 @@
-const MARK_TOUR_PORTION_COMPLETED = 'MARK_COMPLETED';
+const MARK_TOUR_COMPLETED = 'MARK_COMPLETED';
+const SET_TOUR_CURRENT_STEP = 'SET_TOUR_CURRENT_STEP';
 
 export function markTourPortionCompleted(name){
   return {
-    type: MARK_TOUR_PORTION_COMPLETED,
+    type: MARK_TOUR_COMPLETED,
+    name,
+  };
+}
+
+export function setTourCurrentStep(name, currentStep) {
+  return {
+    type: SET_TOUR_CURRENT_STEP,
+    currentStep,
     name,
   };
 }
 
 
 function markCompleted(state, action) {
-  const { completed } = state;
-  const usedCompleted = completed || {};
   const { name } = action;
-  const newCompleted = {
-    ...usedCompleted,
-    [name]: true
+  const status = state[name] || {};
+  const newStatus = {
+    ...status,
+    completed: true,
   };
   return {
     ...state,
-    completed: newCompleted,
+    [name]: newStatus,
+  };
+}
+
+function setCurrentStep(state, action) {
+  const { name, currentStep } = action;
+  const status = state[name] || {};
+  const newStatus = {
+    ...status,
+    currentStep,
+  };
+  return {
+    ...state,
+    [name]: newStatus,
   };
 }
 
 export function reducer(state, action) {
   const { type } = action;
   switch (type) {
-    case MARK_TOUR_PORTION_COMPLETED:
+    case MARK_TOUR_COMPLETED:
       return markCompleted(state, action);
+    case SET_TOUR_CURRENT_STEP:
+      return setCurrentStep(state, action);
     default:
       return state;
   }

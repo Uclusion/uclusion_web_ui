@@ -33,7 +33,8 @@ function InvestibleAdd(props) {
   const { is_admin: isAdmin } = myTruePresence;
   const breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-  const newStory = intl.formatMessage({ id: 'newStory' });
+  const titleKey = marketType === PLANNING_TYPE? 'newStory' : 'newOption';
+  const title = intl.formatMessage({ id: titleKey});
   const [storedDescription, setStoredDescription] = useState(undefined);
   const [idLoaded, setIdLoaded] = useState(undefined);
 
@@ -64,9 +65,9 @@ function InvestibleAdd(props) {
     || (marketType === DECISION_TYPE && !myPresence);
   return (
     <Screen
-      title={newStory}
+      title={title}
       hidden={hidden}
-      tabTitle={newStory}
+      tabTitle={title}
       breadCrumbs={myBreadCrumbs}
       loading={loading}
     >

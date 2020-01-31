@@ -303,6 +303,9 @@ function Comment(props) {
                 variant="contained"
                 onClick={() => {
                   highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, id });
+                  if (myHighLightId) {
+                    setMyHighLightId(undefined);
+                  }
                   setRepliesExpanded(!repliesExpanded);
                 }}
               >

@@ -12,7 +12,8 @@ import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext';
 import { DiffContext } from '../DiffContext/DiffContext';
 import { getIsNew } from '../DiffContext/diffContextHelper';
-import { diffSeen } from '../DiffContext/diffContextReducer'
+import { diffSeen } from '../DiffContext/diffContextReducer';
+import { HighlightedVotingContext } from '../HighlightedVotingContext';
 
 export const EMPTY_STATE = {
   messages: [],
@@ -31,6 +32,7 @@ function NotificationsProvider(props) {
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [isInitialization, setIsInitialization] = useState(true);
   const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
+  const [, highlightedVotingDispatch] = useContext(HighlightedVotingContext);
   useEffect(() => {
     if (isInitialization) {
       const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
@@ -59,6 +61,7 @@ function NotificationsProvider(props) {
           level,
           aType,
           commentId,
+          associatedUserId,
         } = message;
         const doRemove = marketId === messageMarketId && investibleId === messageInvestibleId;
         if (doRemove) {
@@ -66,6 +69,9 @@ function NotificationsProvider(props) {
           const diffId = commentId || messageInvestibleId || marketId;
           if (commentId) {
             highlightedCommentDispatch({ type: HIGHTLIGHT_ADD, commentId, level });
+          }
+          if (associatedUserId) {
+            highlightedVotingDispatch({ type: HIGHTLIGHT_ADD, associatedUserId, level });
           }
           // Do not toast unread as already have diff and dismiss - unless is new
           if (aType !== 'UNREAD' || getIsNew(diffState, diffId)) {

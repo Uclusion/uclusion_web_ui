@@ -63,7 +63,18 @@ function getMassagedMessages(messages) {
         ...message, marketId, aType, level, userId,
       };
     }
-    if (aType !== 'NEW_VOTES' && associatedObjectId) {
+    if (associatedObjectId) {
+      if (aType === 'NEW_VOTES') {
+        return {
+          ...message,
+          marketId,
+          aType,
+          level,
+          investibleId: objectId,
+          associatedUserId: associatedObjectId,
+          userId,
+        };
+      }
       return {
         ...message,
         marketId,

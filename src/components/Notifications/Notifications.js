@@ -53,7 +53,7 @@ function Notifications(props) {
         userId,
         aType,
         commentId,
-        associated_object_id,
+        associatedUserId,
       } = current;
       const link = investibleId
         ? formInvestibleLink(marketId, investibleId)
@@ -68,7 +68,7 @@ function Notifications(props) {
           fullLink = `${link}#${userId}`;
           break;
         case NEW_VOTES_TYPE:
-          fullLink = `${link}#cv${associated_object_id}`
+          fullLink = `${link}#cv${associatedUserId}`
           break;
         default:
           fullLink = link;

@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import { Paper, Typography } from '@material-ui/core';
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
+import { HighlightedVotingContext } from '../../../contexts/HighlightedVotingContext';
+import { makeStyles } from '@material-ui/styles'
+
+const useVoteStyles = makeStyles(
+  {
+    containerYellow: {
+      boxShadow: '10px 5px 5px yellow',
+    },
+  },
+  { name: "Vote" }
+);
 
 /**
  * The voting for an investible screen is the detail. It lists the people,
@@ -12,6 +23,8 @@ import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEd
  */
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons } = props;
+  const [ highlightedVoteState ] = useContext(HighlightedVotingContext);
+  const classes = useVoteStyles();
   const intl = useIntl();
   function getInvestibleVoters() {
     const acc = [];
@@ -57,6 +70,7 @@ function Voting(props) {
       const voteId = `cv${userId}`;
       return (
         <Paper
+          className={userId in highlightedVoteState ? classes.containerYellow : classes.container}
           key={userId}
           id={voteId}
         >

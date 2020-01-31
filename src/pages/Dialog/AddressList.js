@@ -235,7 +235,6 @@ function AddressList(props) {
       {active && marketType === DECISION_TYPE && !following && (
         <ChangeToParticipantButton
           marketId={addToMarketId}
-          userId={myUserId}
           translationId="manageParticipantsMakeParticipant"
         />
       )}

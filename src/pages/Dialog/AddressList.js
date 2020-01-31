@@ -267,11 +267,12 @@ function AddressList(props) {
             <ListItemText className={classes.name}>
               <TextField
                 variant="outlined"
-                fullWidth
                 id="email1"
                 name="email1"
                 type="email"
+                fullWidth
                 label={intl.formatMessage({ id: 'email' })}
+                value={email1}
                 onChange={handleEmail1}
               />
             </ListItemText>

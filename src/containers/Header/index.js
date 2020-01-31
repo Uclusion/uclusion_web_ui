@@ -96,7 +96,7 @@ function Header(props) {
       return (
         <Breadcrumbs className={classes.breadcrumbs} separator="/">
           {breadCrumbs.map((crumb, index) => (
-            <Link key={index} href="#" onClick={crumb.onClick} color="inherit">
+            <Link id={crumb.id} key={index} href="#" onClick={crumb.onClick} color="inherit">
               {crumb.image && (
                 <img
                   src={crumb.image}

@@ -14,21 +14,22 @@ function UclusionTour(props) {
 
   const [tourState, tourDispatch] = useContext(TourContext);
 
-
+  const isCompleted = isTourCompleted(tourState, name);
   function tourCallback(state) {
     const {
       lifecycle,
       index,
       type,
     } = state;
-    console.log(state);
-    if (lifecycle === 'complete') {
+    if (lifecycle === 'complete' && !isCompleted) {
       // the've finished, register complete
       console.log(`Tour ${name} is complete`);
       //TODO, save the state here
     }
-    if (type === 'step:after') {
-      setCurrentStep(tourDispatch, name, index + 1);
+    if (type === 'step:after' && !isCompleted) {
+     console.log('firng step after');
+     console.log(state);
+      //setCurrentStep(tourDispatch, name, index + 1);
     }
   }
 
@@ -38,18 +39,25 @@ function UclusionTour(props) {
     }
   };
 
-  const runTour = shouldRun && !isTourCompleted(tourState, name);
+  const runTour = false; //shouldRun && !isCompleted;
   const currentStep = getCurrentStep(tourState, name);
   const continuous = currentStep === 0;
+  console.log(`name: ${name}, currentStep: ${currentStep}, shouldRun ${shouldRun}`);
+  console.log(props.steps[currentStep]);
+  if (!runTour) {
+    return <React.Fragment/>
+  }
+
+
   return (
-    <ReactJoyride
-      styles={ourStyles}
-      run={runTour}
-      stepIndex={currentStep}
-      {...rest}
-      callback={tourCallback}
-      continuous={continuous}
-    />
+      <ReactJoyride
+        styles={ourStyles}
+        run={runTour}
+        stepIndex={currentStep}
+        {...rest}
+        callback={tourCallback}
+        continuous={continuous}
+      />
   );
 
 

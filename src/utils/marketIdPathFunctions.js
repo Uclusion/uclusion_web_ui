@@ -54,7 +54,7 @@ export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
   const homeName = intl.formatMessage({ id: 'homeBreadCrumb' });
   const homeCrumb = [];
   if (includeHome) {
-    homeCrumb.push({ name: homeName, link: '/'});
+    homeCrumb.push({ name: homeName, link: '/', id:'homeCrumb'});
   }
   const myCrumbs = homeCrumb.concat(crumbs);
   const breadCrumbs = myCrumbs.map((crumb) => {

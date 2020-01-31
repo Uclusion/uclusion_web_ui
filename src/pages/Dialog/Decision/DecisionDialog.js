@@ -191,6 +191,7 @@ function DecisionDialog(props) {
       sidebarActions={sidebarActions}
     >
       <UclusionTour
+        shouldRun={!hidden}
         name={PURE_SIGNUP_ADD_DIALOG_OPTIONS}
         steps={tourSteps}
         continuous

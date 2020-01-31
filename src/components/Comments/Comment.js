@@ -184,13 +184,12 @@ function Comment(props) {
       <Card className={classes.container}>
         <Box display="flex">
           <CommentType className={classes.commentType} type={commentType} />
-          {displayUpdatedBy && (
-            <Typography className={classes.commenter}>
-              {`${intl.formatMessage({ id: "lastUpdatedBy" })} ${
+          <Typography className={classes.commenter}>
+            {displayUpdatedBy &&
+              `${intl.formatMessage({ id: "lastUpdatedBy" })} ${
                 updatedBy.name
               }`}
-            </Typography>
-          )}
+          </Typography>
           {!comment.reply_id && (
             <SpinBlockingButton
               className={clsx(

@@ -123,24 +123,26 @@ function DecisionInvestible(props) {
     {
       title: 'Your Option',
       content: 'Options are what participants can vote on, and are under your complete control',
-      target: '#target',
+      target: '#description',
+      disableBeacon: true,
     },
     {
       title: 'Voting',
-      content: "Options are voted for and since you are also a participant in a dialog, you can for the option you want. Bo ahead and click the 'Vote for this option' button",
-      target: '#voteForThis',
+      content: "Options are voted for, and since you are also a participant in a dialog you vote too! Go ahead and click the 'Vote for this option' button",
+      target: '#yourVote',
       disableBeacon: true,
     },
     {
       title: 'Voting Explained',
       content: "Uclusion asks users two things about their dialog votes. The first is how certain they are about their vote. This helps both of you understand how much support the idea really has. The second is the reason why they voted for this option, and lets the participant give you context around thier vote",
-      target: '#voteForThis',
+      target: '#yourVote',
       disableBeacon: true,
     },
     {
       title: 'Vote',
-      content: "Go ahead and enter a vote for this option, and give it a certainty and a reaso. Don't worry if it's not the one you really want, as you can change your by voting on another option. You'll see your vote appear in the 'Current Voting' section below",
+      content: "Go ahead and enter a vote for this option, and give it a certainty and a reason. Don't worry if it's not the one you really want, as you can change your by voting on another option. You'll see your vote appear in the 'Current Voting' section below",
       disableBeacon: true,
+      target: '#yourVote',
     },
     {
       title: 'Back to the Dialog',
@@ -236,16 +238,17 @@ function DecisionInvestible(props) {
         steps={tourSteps}
       />
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid
+          id="description"
+          item xs={12}>
           <SubSection
-            id="description"
             type={SECTION_TYPE_PRIMARY}
             title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
           >
             <Paper
               className={classes.container}>
-              <Typography className={classes.title} variant="h3" component="h1" id="target">
-                {tourName}{name}
+              <Typography className={classes.title} variant="h3" component="h1">
+                {name}
               </Typography>
               {diff && (
                 <DiffDisplay id={investibleId} />
@@ -264,9 +267,10 @@ function DecisionInvestible(props) {
           </SubSection>
         </Grid>
         {!inProposed && (
-        <Grid item xs={12}>
+        <Grid
+          id="yourVote"
+          item xs={12}>
           <SubSection
-
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
           >

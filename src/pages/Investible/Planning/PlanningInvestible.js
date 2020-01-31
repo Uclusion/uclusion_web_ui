@@ -44,7 +44,7 @@ import PlanningInvestibleEditActionButton from './PlanningInvestibleEditActionBu
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
 import { convertDates } from '../../../contexts/ContextUtils';
 import { ACTIVE_STAGE } from '../../../constants/markets';
-import { SECTION_TYPE_PRIMARY, SECTION_TYPE_SECONDARY } from '../../../constants/global'
+import { SECTION_TYPE_PRIMARY, SECTION_TYPE_PRIMARY_WARNING, SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
@@ -325,7 +325,7 @@ function PlanningInvestible(props) {
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <SubSection
-            type={SECTION_TYPE_PRIMARY}
+            type={isInBlocked ? SECTION_TYPE_PRIMARY_WARNING : SECTION_TYPE_PRIMARY}
             title={`${stageName} - ${intl.formatMessage({ id: 'decisionInvestibleDescription' })}`}
           >
             <Paper className={classes.container}>

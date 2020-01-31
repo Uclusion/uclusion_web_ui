@@ -68,8 +68,8 @@ export function withSpinLock(Component) {
             const newVersion = marketVersions.find((version) => version.marketId === marketId || (newMarket && version.version === 1));
             if (newVersion && (newMarket || !_.isEqual(newVersion, currentVersion))) {
               operationCheckStopper();
-              removeListener(VERSIONS_HUB_CHANNEL, listenerName);
-              endSpinning();
+              // There should not be any need to stop spinning here
+              // - the spinner should clean itself up if conditions are met
               versionsDispatch(refreshVersionsAction(versions));
             }
           })

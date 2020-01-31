@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { TourContext } from '../../contexts/TourContext/TourContext';
 import {
-  completeTour,
   getCurrentStep,
   isTourCompleted,
   setCurrentStep

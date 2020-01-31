@@ -37,7 +37,7 @@ import { getMyUserForMarket } from "../../contexts/MarketsContext/marketsContext
 import IssueIcon from "@material-ui/icons/ReportProblem";
 import QuestionIcon from "@material-ui/icons/ContactSupport";
 import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
-import { HighlightedCommentContext } from '../../contexts/HighlightedCommentContext';
+import { HIGHLIGHT_REMOVE, HighlightedCommentContext } from '../../contexts/HighlightedCommentContext'
 
 const enableEditing = true;
 
@@ -159,7 +159,7 @@ function Comment(props) {
   const user = getMyUserForMarket(marketsState, marketId) || {};
   const replies = comments.filter(comment => comment.reply_id === id);
   const sortedReplies = _.sortBy(replies, "created_at");
-  const [highlightedCommentState] = useContext(HighlightedCommentContext);
+  const [highlightedCommentState, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const [replyOpen, setReplyOpen] = useState(false);
   const [myHighLightId, setMyHighLightId] = useState(undefined);
   const [editOpen, setEditOpen] = useState(false);
@@ -302,6 +302,7 @@ function Comment(props) {
                 className={clsx(classes.action, classes.actionSecondary)}
                 variant="contained"
                 onClick={() => {
+                  highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, id });
                   setRepliesExpanded(!repliesExpanded);
                 }}
               >

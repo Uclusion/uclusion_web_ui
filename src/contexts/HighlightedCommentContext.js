@@ -4,6 +4,7 @@ import _ from 'lodash';
 const HighlightedCommentContext = React.createContext({});
 const HIGHLIGHT_DELAY = 300000;
 export const HIGHTLIGHT_ADD = 'ADD';
+export const HIGHLIGHT_REMOVE = 'REMOVE';
 
 function HighlightedCommentProvider(props) {
   const { children } = props;
@@ -11,7 +12,7 @@ function HighlightedCommentProvider(props) {
     const { type, commentId, level } = action;
     if (type === HIGHTLIGHT_ADD) {
       setTimeout(() => {
-        dispatch({ type: 'REMOVE', commentId, level });
+        dispatch({ type: HIGHLIGHT_REMOVE, commentId });
       }, HIGHLIGHT_DELAY);
       return { ...state, [commentId]: level };
     }

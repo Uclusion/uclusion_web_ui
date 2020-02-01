@@ -56,9 +56,10 @@ function Identity() {
       navigate(history, to);
     };
   }
-
   return (
-    <>
+    <div
+      id="profileLink"
+    >
       <Chip
         avatar={<Avatar>{chipAvatar}</Avatar>}
         label={chipLabel}
@@ -100,7 +101,7 @@ function Identity() {
           <SignOut />
         </MenuItem>
       </Popover>
-    </>
+    </div>
   );
 }
 export default Identity;

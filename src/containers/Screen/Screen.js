@@ -191,6 +191,10 @@ function Screen(props) {
 
   const [sidebarOpen] = useContext(SidebarContext);
 
+  if (hidden) {
+    return <React.Fragment/>
+  }
+  
   return (
     <div className={hidden ? classes.hidden : classes.root}>
       {!hidden && (

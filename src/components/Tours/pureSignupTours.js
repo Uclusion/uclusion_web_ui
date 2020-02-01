@@ -71,9 +71,21 @@ export const PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS = [
     target: '#manageDialog',
   },
   {
-    title: 'All Done!',
-    content: 'Congratulations on creating your first decision, if you want to watch videos explaining all the concepts please head over to our video help section',
+    title: 'Congrats on your first Dialog!',
+    content: "Congratulations on creating your first decision, there's a few things we need to talk about before we let you go.",
     target: '#summary'
+  },
+  {
+    title: 'Notifications',
+    content: "When Uclusion has something for you to do, we'll display a notification alert down here. Red notifications mean something is blocked and needs your attention immediately, while Yellow needs action, but nothing is immediately blocked.",
+    target: '#notifications',
+    disableBeacon: true,
+  },
+  {
+    title: 'Your Profile',
+    target: '#profileLink',
+    content: 'You can change your notification preferences, or perform profile actions by clicking on your name in the upper right of the screen. Now would be a good time to enable the Slack integration to get your notifications over Slack instead of email.',
+    disableBeacon: true,
   }
 
 ];

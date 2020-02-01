@@ -124,8 +124,8 @@ function Sidebar(props) {
             {sidebarActions}
           </List>
         </div>
-        <div className={classes.sidebarNotification}>
-          <div className={classes.notification}>
+        <div id="notifications" className={classes.sidebarNotification}>
+          <div  className={classes.notification}>
             <Notifications />
           </div>
         </div>

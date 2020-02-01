@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import {
   Grid, Typography, Paper, TextField, CardActions,
@@ -49,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
 
 function Summary(props) {
   const {
-    market, showObservers, investibleId, investibleDescription, investibleName,
+    market, investibleId, investibleDescription, investibleName,
   } = props;
   const intl = useIntl();
   const classes = useStyles();
@@ -179,7 +180,7 @@ function Summary(props) {
           </Grid>
         </Grid>
       )}
-      {showObservers && Array.isArray(marketPresencesObserving) && (
+      {marketType !== PLANNING_TYPE && !_.isEmpty(marketPresencesParticipating) && (
         <Grid
           container
         >
@@ -203,7 +204,7 @@ function Summary(props) {
           </Grid>
         </Grid>
       )}
-      {marketType !== INITIATIVE_TYPE && showObservers && (
+      {!_.isEmpty(marketPresencesObserving) && (
         <Grid
           container
         >
@@ -235,14 +236,12 @@ function Summary(props) {
 Summary.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
-  showObservers: PropTypes.bool,
   investibleName: PropTypes.string,
   investibleDescription: PropTypes.string,
   investibleId: PropTypes.string,
 };
 
 Summary.defaultProps = {
-  showObservers: true,
   investibleName: undefined,
   investibleDescription: undefined,
   investibleId: undefined,

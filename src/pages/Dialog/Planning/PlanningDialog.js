@@ -225,7 +225,7 @@ function PlanningDialog(props) {
             title={intl.formatMessage({ id: 'planningDialogSummaryLabel' })}
             titleIcon={getDialogTypeIcon(PLANNING_TYPE)}
           >
-            <Summary market={market} showObservers={false} />
+            <Summary market={market} />
             {lockedBy && (
               <Typography>
                 {intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName })}

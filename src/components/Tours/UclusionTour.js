@@ -4,7 +4,8 @@ import { TourContext } from '../../contexts/TourContext/TourContext';
 import {
   getCurrentStep,
   isTourCompleted,
-  setCurrentStep
+  setCurrentStep,
+  completeTour
 } from '../../contexts/TourContext/tourContextHelper';
 import ReactJoyride from 'react-joyride';
 
@@ -13,6 +14,7 @@ function UclusionTour(props) {
   const {
     name,
     shouldRun,
+    hidden,
     ...rest
   } = props;
 
@@ -23,15 +25,15 @@ function UclusionTour(props) {
   function tourCallback(state) {
     console.log(state);
     const {
-      lifecycle,
+      status,
       index,
       type,
     } = state;
     if (!isCompleted) {
-      if (lifecycle === 'complete') {
+      if (status === 'finished') {
         // the've finished, register complete
         console.log(`Tour ${name} is complete`);
-        //completeTour(tourDispatch, name);
+        completeTour(tourDispatch, name);
       }
       if (type === 'step:after') {
         setCurrentStep(tourDispatch, name, index + 1);
@@ -45,7 +47,7 @@ function UclusionTour(props) {
     }
   };
 
-  const runTour = shouldRun && !isCompleted;
+  const runTour = !hidden && shouldRun && !isCompleted;
   const currentStep = getCurrentStep(tourState, name);
   const continuous = currentStep === 0;
   if (!runTour) {
@@ -71,10 +73,12 @@ function UclusionTour(props) {
 UclusionTour.propTypes = {
   name: PropTypes.string.isRequired,
   shouldRun: PropTypes.bool,
+  hidden: PropTypes.bool,
 };
 
 UclusionTour.defaultProps = {
   shouldRun: true,
+  hidden: false,
 };
 
 export default UclusionTour;

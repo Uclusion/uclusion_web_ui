@@ -87,7 +87,7 @@ function CurrentVoting(props) {
     return tallies;
   }
 
-  function getItemVote(item) {
+  function getItemVote(item, index) {
     const { id, investments, name } = item;
     const investibleComments = comments.filter(
       comment =>
@@ -97,9 +97,9 @@ function CurrentVoting(props) {
         getCommentTypeIcon(comment.comment_type) &&
         comment.comment_type === ISSUE_TYPE
     );
-
+    const cssId = `option${index}`;
     return (
-      <Grid item key={id} xs={12} sm={12} md={6}>
+      <Grid item id={cssId} key={id} xs={12} sm={12} md={6}>
         <RaisedCard
           className="raisedcard"
           onClick={() => navigate(history, formInvestibleLink(marketId, id))}
@@ -127,7 +127,7 @@ function CurrentVoting(props) {
   const { fontSize, ref } = useFitText({ maxFontSize: 200 });
   return (
     <Grid container spacing={1}>
-      {!_.isEmpty(sortedTalliesArray) && sortedTalliesArray.map((item) => getItemVote(item))}
+      {!_.isEmpty(sortedTalliesArray) && sortedTalliesArray.map((item, index) => getItemVote(item, index))}
       {_.isEmpty(sortedTalliesArray) && (
         <Grid item key="noneWarning">
           <RaisedCard

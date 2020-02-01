@@ -25,7 +25,7 @@ import { navigate } from '../../utils/marketIdPathFunctions';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import HomeCheatSheet from './HomeCheatSheet';
 import UclusionTour from '../../components/Tours/UclusionTour';
-import { PURE_SIGNUP_HOME } from '../../contexts/TourContext/tourNames';
+import { PURE_SIGNUP_HOME, PURE_SIGNUP_HOME_STEPS } from '../../components/Tours/pureSignupTours';
 
 function Home(props) {
   const { hidden } = props;
@@ -33,22 +33,6 @@ function Home(props) {
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-
-  const tourSteps = [
-    {
-      disableBeacon: true,
-      target: '#createDialog',
-      title: 'Welcome to Uclusion',
-      content: 'Lets show you how Uclusion can help make decisions. One quick note, if you see a red beacon on the screen, you can click it to continue the tour.',
-    },
-    {
-      disableBeacon: true,
-      target: '#createDialog',
-      title: 'Dialogs',
-      content: "We'll be creating a new Dialog. To get started, click the 'Create Dialog' button",
-    },
-  ];
-
 
 
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
@@ -133,7 +117,7 @@ function Home(props) {
       <UclusionTour
         shouldRun={!hidden}
         name={PURE_SIGNUP_HOME}
-        steps={tourSteps}
+        steps={PURE_SIGNUP_HOME_STEPS}
         continuous
         hideBackButton
       />

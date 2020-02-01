@@ -19,7 +19,7 @@ import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsConte
 import { DECISION_TYPE } from '../../constants/markets';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import UclusionTour from '../../components/Tours/UclusionTour';
-import { PURE_SIGNUP_ADD_DIALOG } from '../../contexts/TourContext/tourNames';
+import { PURE_SIGNUP_ADD_DIALOG, PURE_SIGNUP_ADD_DIALOG_STEPS } from '../../components/Tours/pureSignupTours';
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: theme.spacing(2),
@@ -46,32 +46,7 @@ function DecisionAdd(props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes } = currentValues;
 
-  const tourSteps = [
-    {
-      title: 'Making Decisions',
-      content: "If you don't have a decision you need help with right now, then getting lunch with your friends is a good start.",
-      target: '#tourRoot',
-      placement: 'top-start',
-      disableBeacon: true,
-    },
-    {
-      content: "Enter a good short name for your dialog in the name field, or 'Where should we get lunch' if you don't have one.",
-      target: '#name',
-      disableBeacon: true,
-    },
-    {
-      content: "Decisions have deadlines, and to make sure you get results in a timely manner the dialog will end and expire after a certain number of days. Slide the slider to the left and right to set the number of days, up to two weeks.",
-      target: '#expires',
-    },
-    {
-      content: "Most of the time, one sentence isn't enough to describe the decision to be made. Enter any contextual information needed into the description. If it's just lunch, then feel free to just enter the time you want to go",
-      target: '#description',
-    },
-    {
-      content: "Lastly, click save and we'll be taken to the Dialog's main screen where we can start adding the options we have for the decision",
-      target: '#save',
-    },
-  ];
+
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -142,7 +117,7 @@ function DecisionAdd(props) {
     <Card id="tourRoot">
       <UclusionTour
         name={PURE_SIGNUP_ADD_DIALOG}
-        steps={tourSteps}
+        steps={PURE_SIGNUP_ADD_DIALOG_STEPS}
         hideBackButton
       />
       <CardContent>

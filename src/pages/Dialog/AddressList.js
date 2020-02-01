@@ -263,7 +263,10 @@ function AddressList(props) {
                 </ListItemText>
               </ListItemIcon>
           </ListItem>
-          <ListItem key="emailInput">
+          <ListItem
+            id="emailInput"
+            key="emailInput"
+          >
             <ListItemText className={classes.name}>
               <TextField
                 variant="outlined"
@@ -296,6 +299,7 @@ function AddressList(props) {
       </form>
       <List
         dense
+        id="addressBook"
       >
         <ListItem key="search" divider>
           <ListItemText className={classes.name}>

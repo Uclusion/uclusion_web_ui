@@ -31,7 +31,10 @@ import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctio
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import { DECISION_TYPE } from '../../../constants/markets';
 import UclusionTour from '../../../components/Tours/UclusionTour';
-import { PURE_SIGNUP_ADD_DIALOG_OPTIONS } from '../../../contexts/TourContext/tourNames';
+import {
+  PURE_SIGNUP_ADD_DIALOG_OPTIONS,
+  PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS
+} from '../../../components/Tours/pureSignupTours';
 
 function DecisionDialog(props) {
   const {
@@ -64,25 +67,11 @@ function DecisionDialog(props) {
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
 
-  const adminTourSteps = [
-    {
-      title: 'Your New Dialog',
-      content: "The first thing a new dialog needs is the options that we want to present. Click the 'Add Option' button in the sidebar to add the first one",
-      target: '#newOption',
-      disableBeacon: true,
-    },
-    { title: 'Add Some More',
-      content: "Good, A decision with just one option isn't really a decision, so add some more options, if it's lunch try adding your favorite food types",
-      target: '#currentVoting',
-    }
-  ];
 
   const participantTourSteps = [
-
   ];
-
-  const tourSteps = isAdmin? adminTourSteps : participantTourSteps;
-
+  const tourSteps = isAdmin? PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS : participantTourSteps;
+  const tourName = isAdmin? PURE_SIGNUP_ADD_DIALOG_OPTIONS : '';
   const addLabel = isAdmin ? 'decisionDialogAddInvestibleLabel' : 'decisionDialogProposeInvestibleLabel';
   function getInvestiblesForStage(stage) {
     if (stage) {
@@ -119,6 +108,7 @@ function DecisionDialog(props) {
 
   const manageDialog = {
     label: intl.formatMessage({ id: 'dialogManageLabel' }),
+    id: 'manageDialog',
     icon: <EditAttributesIcon />,
     onClick: () => toggleAddParticipantsMode(),
   };
@@ -192,7 +182,7 @@ function DecisionDialog(props) {
     >
       <UclusionTour
         shouldRun={!hidden}
-        name={PURE_SIGNUP_ADD_DIALOG_OPTIONS}
+        name={tourName}
         steps={tourSteps}
         continuous
         hideBackButton
@@ -202,6 +192,7 @@ function DecisionDialog(props) {
           <SubSection
             title={intl.formatMessage({ id: 'decisionDialogSummaryLabel' })}
             titleIcon={getDialogTypeIcon(DECISION_TYPE)}
+            id="summary"
           >
             <Summary market={market} />
           </SubSection>

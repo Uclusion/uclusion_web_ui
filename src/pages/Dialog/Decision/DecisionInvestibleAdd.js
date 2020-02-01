@@ -23,7 +23,10 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { checkInvestibleInStorage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 import UclusionTour from '../../../components/Tours/UclusionTour';
-import { PURE_SIGNUP_ADD_FIRST_OPTION } from '../../../contexts/TourContext/tourNames';
+import {
+  PURE_SIGNUP_ADD_FIRST_OPTION,
+  PURE_SIGNUP_ADD_FIRST_OPTION_STEPS
+} from '../../../components/Tours/pureSignupTours';
 
 const styles = (theme) => ({
   root: {
@@ -64,24 +67,6 @@ function DecisionInvestibleAdd(props) {
   const [validForm, setValidForm] = useState(false);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
-
-  const tourSteps = [
-    {
-      title: 'The First Option',
-      content: "Like dialogs, options need a name. This name will show in the dialog's 'Current Voting' section, so make it short, but descriptive. If we're having lunch, then add your favorite food type.",
-      target: "#name",
-      disableBeacon: true
-    },
-    {
-      content: 'Options will also need a detailed description so people know what their voting for. Put those details in the description field. For lunch, just put the address of the eatery you want to go to for this food type',
-      target: '#description'
-    },
-    {
-      title: 'Save',
-      target: '#save',
-      content: "Great, almost done, all we need to do is save the option, and we'll be taken to see it.",
-    }
-  ];
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -152,7 +137,7 @@ function DecisionInvestibleAdd(props) {
       <UclusionTour
         shouldRun={!hidden}
         name={PURE_SIGNUP_ADD_FIRST_OPTION}
-        steps={tourSteps}
+        steps={PURE_SIGNUP_ADD_FIRST_OPTION_STEPS}
       />
       <CardContent>
         <TextField

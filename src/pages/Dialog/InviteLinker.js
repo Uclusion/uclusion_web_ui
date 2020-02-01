@@ -22,6 +22,7 @@ function InviteLinker(props) {
   const link = formInviteLink(marketId);
   return (
     <div
+      id="inviteLinker"
       className={hidden ? classes.hidden : classes.linker}
     >
       <Typography>

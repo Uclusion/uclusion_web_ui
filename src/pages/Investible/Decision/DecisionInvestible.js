@@ -32,7 +32,10 @@ import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
 import UclusionTour from '../../../components/Tours/UclusionTour';
-import { PURE_SIGNUP_VIEW_FIRST_OPTION } from '../../../contexts/TourContext/tourNames';
+import {
+  PURE_SIGNUP_VIEW_FIRST_OPTION,
+  PURE_SIGNUP_VIEW_FIRST_OPTION_STEPS
+} from '../../../components/Tours/pureSignupTours';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -119,40 +122,8 @@ function DecisionInvestible(props) {
   const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id;
   const activeMarket = marketStage === ACTIVE_STAGE;
 
-  const adminTourSteps = [
-    {
-      title: 'Your Option',
-      content: 'Options are what participants can vote on, and are under your complete control',
-      target: '#description',
-      disableBeacon: true,
-    },
-    {
-      title: 'Voting',
-      content: "Options are voted for, and since you are also a participant in a dialog you vote too! Go ahead and click the 'Vote for this option' button",
-      target: '#yourVote',
-      disableBeacon: true,
-    },
-    {
-      title: 'Voting Explained',
-      content: "Uclusion asks users two things about their dialog votes. The first is how certain they are about their vote. This helps both of you understand how much support the idea really has. The second is the reason why they voted for this option, and lets the participant give you context around thier vote",
-      target: '#yourVote',
-      disableBeacon: true,
-    },
-    {
-      title: 'Vote',
-      content: "Go ahead and enter a vote for this option, and give it a certainty and a reason. Don't worry if it's not the one you really want, as you can change your by voting on another option. You'll see your vote appear in the 'Current Voting' section below",
-      disableBeacon: true,
-      target: '#yourVote',
-    },
-    {
-      title: 'Back to the Dialog',
-      content: "Now that you've voted lets see how the option is displayed on the Dialog page. Click the dialog's name in the bread crumbs",
-      target: '#marketCrumb',
-    }
-  ];
-
   const userTourSteps = [];
-  const tourSteps = isAdmin? adminTourSteps : userTourSteps;
+  const tourSteps = isAdmin? PURE_SIGNUP_VIEW_FIRST_OPTION_STEPS : userTourSteps;
   const tourName = isAdmin? PURE_SIGNUP_VIEW_FIRST_OPTION : '';
 
 

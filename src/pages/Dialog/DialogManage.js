@@ -16,6 +16,8 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import UclusionTour from '../../components/Tours/UclusionTour';
+import { PURE_SIGNUP_ADD_PEOPLE, PURE_SIGNUP_ADD_PEOPLE_STEPS } from '../../components/Tours/pureSignupTours';
 
 function DialogManage(props) {
   const { hidden } = props;
@@ -37,18 +39,21 @@ function DialogManage(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const loading = !marketType || (marketType !== PLANNING_TYPE && !myPresence);
+
   function onDone() {
     navigate(history, formMarketLink(marketId));
   }
+
   function getInitiativeLinkName(baseInvestible) {
     const { investible } = baseInvestible;
     const { name } = investible;
     return name;
   }
+
   const linkName = marketType === INITIATIVE_TYPE && !_.isEmpty(investibles)
     ? getInitiativeLinkName(investibles[0])
     : currentMarketName;
-  const breadCrumbTemplates = [{ name: linkName, link: formMarketLink(marketId) }];
+  const breadCrumbTemplates = [{ name: linkName, link: formMarketLink(marketId), id: 'marketCrumb'}];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   return (
     <Screen
@@ -59,14 +64,22 @@ function DialogManage(props) {
       loading={loading}
     >
       {marketType === DECISION_TYPE && myPresence && (
-        <AddressList
-          market={renderableMarket}
-          isAdmin={isAdmin}
-          following={following}
-          myUserId={myUserId}
-          onCancel={onDone}
-          onSave={onDone}
-        />
+        <div id="decisionAddressList">
+          <UclusionTour
+            name={PURE_SIGNUP_ADD_PEOPLE}
+            steps={PURE_SIGNUP_ADD_PEOPLE_STEPS}
+            shouldRun={isAdmin}
+            hidden={hidden}
+          />
+          <AddressList
+            market={renderableMarket}
+            isAdmin={isAdmin}
+            following={following}
+            myUserId={myUserId}
+            onCancel={onDone}
+            onSave={onDone}
+          />
+        </div>
       )}
       {marketType === PLANNING_TYPE && (
         <ManageParticipants

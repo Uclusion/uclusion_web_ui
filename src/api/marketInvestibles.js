@@ -2,13 +2,17 @@ import _ from 'lodash';
 import { getMarketClient } from './uclusionClient';
 import { toastErrorAndThrow } from '../utils/userMessage';
 import { JUSTIFY_TYPE } from '../constants/comments';
+import { AllSequentialMap } from '../utils/PromiseUtils';
 
 export function fetchInvestibles(idList, marketId) {
   const clientPromise = getMarketClient(marketId);
   // console.debug(idList);
   // console.debug(`Fetching idList ${idList}`);
-  return clientPromise.then((client) => client.markets.getMarketInvestibles(idList))
-    .catch((error) => toastErrorAndThrow(error, 'errorInvestibleFetchFailed'));
+  const chunks = _.chunk(idList, 50);
+  return clientPromise.then((client) => {
+    return AllSequentialMap(chunks, (idList) => client.markets.getMarketInvestibles(idList))
+      .then((investibleLists) => _.flatten(investibleLists));
+  }).catch((error) => toastErrorAndThrow(error, 'errorInvestibleFetchFailed'));
 }
 
 export function fetchInvestibleList(marketId) {

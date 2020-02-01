@@ -194,7 +194,7 @@ function Screen(props) {
   if (hidden) {
     return <React.Fragment/>
   }
-  
+
   return (
     <div className={hidden ? classes.hidden : classes.root}>
       {!hidden && (

@@ -26,7 +26,7 @@ export function refreshMarketComments(dispatch, marketId) {
           const deletedRemoved = removeDeletedObjects(fetchedCommentsList, oldMarketComments);
           const needsUpdating = getOutdatedObjectIds(fetchedCommentsList, deletedRemoved);
           // the api supports max of 100 at a time
-          const fetchChunks = _.chunk(needsUpdating, 100);
+          const fetchChunks = _.chunk(needsUpdating, 50);
           const promises = fetchChunks.reduce((acc, chunk) => {
             const chunkPromise = fetchComments(chunk, marketId);
             return acc.concat(chunkPromise);

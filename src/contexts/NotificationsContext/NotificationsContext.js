@@ -98,7 +98,7 @@ function NotificationsProvider(props) {
     }
     return () => {
     };
-  }, [page, messages, highlightedCommentDispatch, diffState, diffDispatch]);
+  }, [page, messages, highlightedCommentDispatch, diffState, diffDispatch, highlightedVotingDispatch]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

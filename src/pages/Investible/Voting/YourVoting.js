@@ -56,6 +56,7 @@ function YourVoting(props) {
         color="primary"
       >
         <Button
+          id="voteForThis"
           onClick={() => setVoteForThis(investibleId)}
         >
           {intl.formatMessage({ id: getVotingActionId() })}

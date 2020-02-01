@@ -11,6 +11,7 @@ import LogRocket from 'logrocket';
 import { defaultTheme } from '../../config/themes';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { TourProvider } from '../../contexts/TourContext/TourContext';
+import { CognitoUserProvider } from '../../contexts/CongitoUserContext';
 
 function App(props) {
 
@@ -55,26 +56,30 @@ function App(props) {
 
   if (!hasAccount) {
     return (
-      <OnlineStateProvider>
-        <ThemeProvider theme={defaultTheme}>
-          <NoAccount email={email}/>
-        </ThemeProvider>
-      </OnlineStateProvider>
+      <CognitoUserProvider authState={authState}>
+        <OnlineStateProvider>
+          <ThemeProvider theme={defaultTheme}>
+            <NoAccount email={email}/>
+          </ThemeProvider>
+        </OnlineStateProvider>
+      </CognitoUserProvider>
     );
   }
 
   return (
-    <OnlineStateProvider>
-      <WebSocketProvider config={config}>
-        <AppConfigProvider appConfig={configs}>
-          <ThemeProvider theme={defaultTheme}>
-            <TourProvider>
-              <Root appConfig={configs}/>
-            </TourProvider>
-          </ThemeProvider>
-        </AppConfigProvider>
-      </WebSocketProvider>
-    </OnlineStateProvider>
+    <CognitoUserProvider authState={authState}>
+      <OnlineStateProvider>
+        <WebSocketProvider config={config}>
+          <AppConfigProvider appConfig={configs}>
+            <ThemeProvider theme={defaultTheme}>
+              <TourProvider>
+                <Root appConfig={configs}/>
+              </TourProvider>
+            </ThemeProvider>
+          </AppConfigProvider>
+        </WebSocketProvider>
+      </OnlineStateProvider>
+    </CognitoUserProvider>
   );
 }
 

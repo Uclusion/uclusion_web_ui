@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Auth } from 'aws-amplify';
+import React, { useState, useContext } from 'react';
 import _ from 'lodash';
 import {
   Avatar, makeStyles, Typography,
@@ -11,6 +10,7 @@ import Popover from '@material-ui/core/Popover';
 import Chip from '@material-ui/core/Chip';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import SignOut from '../../pages/Authentication/SignOut';
+import { CognitoUserContext } from '../../contexts/CongitoUserContext';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -23,26 +23,10 @@ const useStyles = makeStyles((theme) => ({
 
 function Identity() {
   const classes = useStyles();
-  const [user, setUser] = useState(null);
+  const user = useContext(CognitoUserContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const history = useHistory();
   const intl = useIntl();
-  useEffect(() => {
-    let isCanceled = false;
-    if (!user) {
-      Auth.currentAuthenticatedUser()
-        .then((user) => {
-          const { attributes } = user;
-          if (isCanceled === false) {
-            setUser(attributes);
-          }
-        });
-    }
-
-    return () => {
-      isCanceled = true;
-    }
-  });
   const chipLabel = !user ? '' : user.name;
   const chipAvatar = _.isEmpty(chipLabel) ? '' : chipLabel.substr(0, 1);
 

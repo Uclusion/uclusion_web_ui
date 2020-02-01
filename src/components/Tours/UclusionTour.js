@@ -28,6 +28,7 @@ function UclusionTour(props) {
       status,
       index,
       type,
+      step,
     } = state;
     if (!isCompleted) {
       if (status === 'finished') {
@@ -37,6 +38,9 @@ function UclusionTour(props) {
       }
       if (type === 'step:after') {
         setCurrentStep(tourDispatch, name, index + 1);
+        if (step && step.onClose) {
+          step.onClose();
+        }
       }
     }
   }
@@ -47,7 +51,7 @@ function UclusionTour(props) {
     }
   };
 
-  const runTour = !hidden && shouldRun && !isCompleted;
+  const runTour = !hidden && shouldRun; //&& !isCompleted;
   const currentStep = getCurrentStep(tourState, name);
   const continuous = currentStep === 0;
   if (!runTour) {

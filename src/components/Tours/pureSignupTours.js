@@ -5,20 +5,24 @@ export const PURE_SIGNUP_ADD_FIRST_OPTION = 'pure_signup_add_first_option';
 export const PURE_SIGNUP_VIEW_FIRST_OPTION = 'pure_signup_view_first_option';
 export const PURE_SIGNUP_ADD_PEOPLE = 'pure_signup_add_people';
 
-export const PURE_SIGNUP_HOME_STEPS = [
-  {
-    disableBeacon: true,
-    target: '#createDialog',
-    title: 'Welcome to Uclusion',
-    content: 'Lets show you how Uclusion can help make decisions. One quick note, if you see a red beacon on the screen, you can click it to continue the tour.',
-  },
-  {
-    disableBeacon: true,
-    target: '#createDialog',
-    title: 'Dialogs',
-    content: "We'll be creating a new Dialog. To get started, click the 'Create Dialog' button",
-  },
-];
+export function pureSignupHomeSteps(variables) {
+  const { name } = variables;
+  return [
+    {
+      disableBeacon: true,
+      target: '#createDialog',
+      title: `Welcome to Uclusion ${name}!`,
+      content: 'Lets show you how Uclusion can help make decisions',
+    },
+    {
+      disableBeacon: true,
+      target: '#createDialog',
+      title: 'Dialogs',
+      content: "To get started we'll be creating a new dialog",
+      onClose: () => document.getElementById('createDialog').click(),
+    },
+  ];
+}
 
 export const PURE_SIGNUP_ADD_DIALOG_STEPS = [
   {
@@ -31,44 +35,44 @@ export const PURE_SIGNUP_ADD_DIALOG_STEPS = [
   {
     content: "Enter a good short name for your dialog in the name field, or 'Where should we get lunch' if you don't have one.",
     target: '#name',
+    placement: 'auto',
     disableBeacon: true,
   },
   {
     content: "Decisions have deadlines, and to make sure you get results in a timely manner the dialog will end and expire after a certain number of days. Slide the slider to the left and right to set the number of days, up to two weeks.",
     target: '#expires',
+    placement: 'auto',
   },
   {
     content: "Most of the time, one sentence isn't enough to describe the decision to be made. Enter any contextual information needed into the description. If it's just lunch, then feel free to just enter the time you want to go",
     target: '#description',
-  },
-  {
-    content: "Lastly, click save and we'll be taken to the Dialog's main screen where we can start adding the options we have for the decision",
-    target: '#save',
   },
 ];
 
 export const PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS = [
   {
     title: 'Your New Dialog',
-    content: "The first thing a new dialog needs is the options that we want to present. Click the 'Add Option' button in the sidebar to add the first one",
+    content: "The first thing a new dialog needs is the options that we want to present. That's done via the 'Add Option' button in the sidebar.",
     target: '#newOption',
+    onClose: () => document.getElementById('newOption').click(),
     disableBeacon: true,
   },
   {
     title: 'Dialog Current Voting',
-    content: "You can see the newly created option in the 'Current Voting' section of the dialog. Votes will be visible in a histogram to the right of the name. The colors and position of the histogram convey the certainty, with uncerain being red and on the right and comlpetely certain being green and on the left.",
+    content: "You can see the newly created option in the 'Current Voting' section of the dialog. Votes will be visible in a histogram to the right of the name. The colors and position of the histogram convey the certainty, with uncertain being red and on the right and completely certain being green and on the left.",
     target: '#option0',
   },
   {
     title: 'Add Some More Options',
-    content: "A decision with just one option isn't really a decision, so add some more options, if it's lunch try adding your favorite food types. When you're done adding optons click the beacon over 'Manage Dialog' to resume the tour." ,
+    content: "A decision with just one option isn't really a decision, so add some more options, if it's lunch try adding your favorite food types. When you're done adding optons click the beacon over 'Manage Dialog' to resume the tour.",
     target: '#currentVoting',
     disableBeacon: true,
   },
   {
     title: 'Invite People',
-    content: "It's now time to invite other participants. Click the 'Manage Dialog' button in the sidebar.",
+    content: "It's now time to invite other participants. We do that via the 'Manage Dialog' button in the sidebar.",
     target: '#manageDialog',
+    onClose: () => document.getElementById('manageDialog').click(),
   },
   {
     title: 'Congrats on your first Dialog!',
@@ -87,7 +91,6 @@ export const PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS = [
     content: 'You can change your notification preferences, or perform profile actions by clicking on your name in the upper right of the screen. Now would be a good time to enable the Slack integration to get your notifications over Slack instead of email.',
     disableBeacon: true,
   }
-
 ];
 
 export const PURE_SIGNUP_ADD_FIRST_OPTION_STEPS = [
@@ -98,44 +101,37 @@ export const PURE_SIGNUP_ADD_FIRST_OPTION_STEPS = [
     disableBeacon: true
   },
   {
-    content: 'Options will also need a detailed description so people know what their voting for. Put those details in the description field. For lunch, just put the address of the eatery you want to go to for this food type',
+    content: "Options will also need a detailed description so people know what their voting for. Put those details in the description field. For lunch, just put the address of the eatery you want to go to for this food type. When you're done, click 'Save'",
     target: '#description'
   },
-  {
-    title: 'Save',
-    target: '#save',
-    content: "Great, almost done, all we need to do is save the option, and we'll be taken to see it.",
-  }
 ];
 
 export const PURE_SIGNUP_VIEW_FIRST_OPTION_STEPS = [
   {
     title: 'Your Option',
-    content: 'Options are what participants can vote on, and are under your complete control',
+    content: "Options are what participants can vote on. Generally you'll be the one creating them, but participants can propose them, and you can promote the proposed ones to current voting.",
     target: '#description',
     disableBeacon: true,
   },
   {
-    title: 'Voting',
-    content: "Options are voted for, and since you are also a participant in a dialog you vote too! Go ahead and click the 'Vote for this option' button",
-    target: '#yourVote',
+    title: 'Vote',
+    content: "Since you're a participant in the dialog you vote too! We're going to vote for the option you just created. Don't worry if it's not the one you really want, as you can change your vote by voting on another option later.",
+    disableBeacon: true,
+    target: '#voteForThis',
+    onClose: () => document.getElementById('voteForThis').click(),
   },
   {
     title: 'Voting Explained',
-    content: "Uclusion asks users two things about their dialog votes. The first is how certain they are about their vote. This helps both of you understand how much support the idea really has. The second is the reason why they voted for this option, and lets the participant give you context around thier vote",
+    content: "Uclusion asks users two things about their dialog votes. The first is how certain they are about their vote. This helps both of you understand how much support the idea really has. The second is the reason why they voted for this option, and lets the participant give you context around their vote",
     target: '#yourVote',
     disableBeacon: true,
   },
+
   {
     title: 'Vote',
-    content: "Go ahead and enter a vote for this option, and give it a certainty and a reason. Don't worry if it's not the one you really want, as you can change your by voting on another option. You'll see your vote appear in the 'Current Voting' section below",
-    disableBeacon: true,
+    content: "Tell us your certainty, and give us a reason for the vote. If you're uncertain, and the reason is 'Uclusion made me do it', that's fine, you can vote for something else later. When done, click 'Save'.",
     target: '#yourVote',
-  },
-  {
-    title: 'Back to the Dialog',
-    content: "Now that you've voted lets see how the option is displayed on the Dialog page. Click the dialog's name in the bread crumbs",
-    target: '#marketCrumb',
+    disableBeacon: true,
   }
 ];
 
@@ -160,7 +156,7 @@ export const PURE_SIGNUP_ADD_PEOPLE_STEPS = [
   },
   {
     title: 'Address Book',
-    content: "Lastly, if you've used Uclusion with them before, they'll show up in your address book. Select the people you want to add and click 'Add Participants' to add them. If you're having trouble finding them, try searching for them by name.",
+    content: "Lastly, if you've used Uclusion with them before, they'll show up in your address book. Since you're just starting out, you won't have any of these",
     target: '#addressBook',
     disableBeacon: true,
   },

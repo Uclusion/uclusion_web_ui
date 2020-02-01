@@ -24,11 +24,13 @@ import { navigate } from '../../utils/marketIdPathFunctions';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import HomeCheatSheet from './HomeCheatSheet';
 import UclusionTour from '../../components/Tours/UclusionTour';
-import { PURE_SIGNUP_HOME, PURE_SIGNUP_HOME_STEPS } from '../../components/Tours/pureSignupTours';
+import { PURE_SIGNUP_HOME, pureSignupHomeSteps } from '../../components/Tours/pureSignupTours';
+import { CognitoUserContext } from '../../contexts/CongitoUserContext';
 
 function Home(props) {
   const { hidden } = props;
   const history = useHistory();
+  const cognitoUser = useContext(CognitoUserContext);
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -100,7 +102,7 @@ function Home(props) {
     );
   });
   const noMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
-
+  const tourSteps = pureSignupHomeSteps({ name: cognitoUser.name });
   return (
     <Screen
       title={intl.formatMessage({ 'id': 'homeBreadCrumb' })}
@@ -111,7 +113,7 @@ function Home(props) {
       <UclusionTour
         hidden={hidden}
         name={PURE_SIGNUP_HOME}
-        steps={PURE_SIGNUP_HOME_STEPS}
+        steps={tourSteps}
         continuous
         hideBackButton
       />

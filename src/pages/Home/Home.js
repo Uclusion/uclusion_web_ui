@@ -3,7 +3,6 @@ import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
-import ExploreIcon from '@material-ui/icons/Explore';
 import { useIntl } from 'react-intl';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import Screen from '../../containers/Screen/Screen';
@@ -86,11 +85,6 @@ function Home(props) {
       icon: <MenuBookIcon/>,
       onClick: () => navigate(history, '/archives'),
     },
-    {
-      label: 'Start Tour',
-      icon: <ExploreIcon/>,
-      onClick: () => {},
-    }
   ];
 
   const sidebarActions = [];

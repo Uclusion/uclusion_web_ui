@@ -38,8 +38,8 @@ function PlanningAdd(props) {
   const [currentValues, setCurrentValues] = useState(emptyPlan);
   const [validForm, setValidForm] = useState(false);
   const [description, setDescription] = useState(storedDescription);
-  const [investmentExpiration, setInvestmentExpiration] = useState(undefined);
-  const [maxBudget, setMaxBudget] = useState(undefined);
+  const [investmentExpiration, setInvestmentExpiration] = useState(14);
+  const [maxBudget, setMaxBudget] = useState(14);
   const [daysEstimate, setDaysEstimate] = useState(undefined);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = currentValues;
@@ -156,6 +156,7 @@ function PlanningAdd(props) {
             shrink: true,
           }}
           variant="outlined"
+          value={investmentExpiration}
           onChange={onInvestmentExpirationChange}
         />
         <TextField
@@ -166,6 +167,7 @@ function PlanningAdd(props) {
             shrink: true,
           }}
           variant="outlined"
+          value={maxBudget}
           onChange={onMaxBudgetChange}
         />
         <TextField

@@ -135,8 +135,8 @@ function Root() {
   useEffect(() => {
     function pegView(isEntry) {
       const currentPath = window.location.pathname;
-      const { marketId, investibleId } = decomposeMarketPath(currentPath);
-      broadcastView(marketId, investibleId, isEntry);
+      const { action, marketId, investibleId } = decomposeMarketPath(currentPath);
+      broadcastView(marketId, investibleId, isEntry, action);
     }
 
     const perfEntries = performance.getEntriesByType("navigation");

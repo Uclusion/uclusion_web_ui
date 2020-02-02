@@ -1,9 +1,14 @@
 import { getAccountClient, getMarketClient } from './uclusionClient';
 import { toastErrorAndThrow } from '../utils/userMessage';
+import { USER_POKED_TYPE } from '../constants/notifications'
 
 export function deleteMessage(message) {
   const { marketId, type_object_id: typeObjectId, aType } = message;
   const objectId = typeObjectId.split('_').pop();
+  if (aType === USER_POKED_TYPE) {
+    return getAccountClient()
+      .then((client) => client.users.removeNotification(objectId, aType));
+  }
   return getMarketClient(marketId)
     .then((client) => client.users.removeNotification(objectId, aType));
 }

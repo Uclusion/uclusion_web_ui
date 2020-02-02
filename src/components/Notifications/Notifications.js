@@ -5,7 +5,13 @@ import { useHistory } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { nextMessage } from '../../contexts/NotificationsContext/notificationsContextReducer';
-import { ISSUE_RESOLVED_TYPE, ISSUE_TYPE, NEW_VOTES_TYPE, NO_PIPELINE_TYPE } from '../../constants/notifications';
+import {
+  ISSUE_RESOLVED_TYPE,
+  ISSUE_TYPE,
+  NEW_VOTES_TYPE,
+  NO_PIPELINE_TYPE,
+  USER_POKED_TYPE
+} from '../../constants/notifications'
 
 const useStyles = makeStyles({
   red: {
@@ -54,6 +60,7 @@ function Notifications(props) {
         aType,
         commentId,
         associatedUserId,
+        pokeType,
       } = current;
       const link = investibleId
         ? formInvestibleLink(marketId, investibleId)
@@ -68,7 +75,12 @@ function Notifications(props) {
           fullLink = `${link}#${userId}`;
           break;
         case NEW_VOTES_TYPE:
-          fullLink = `${link}#cv${associatedUserId}`
+          fullLink = `${link}#cv${associatedUserId}`;
+          break;
+        case USER_POKED_TYPE:
+          if (pokeType === 'slack_reminder') {
+            fullLink = '/notificationPreferences';
+          }
           break;
         default:
           fullLink = link;

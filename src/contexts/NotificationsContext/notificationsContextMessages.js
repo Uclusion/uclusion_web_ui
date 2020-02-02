@@ -29,13 +29,13 @@ function beginListening(dispatch, versionsDispatch) {
 
   registerListener(VISIT_CHANNEL, 'notificationsVisitStart', (data) => {
     const { payload: { event, message } } = data;
-    // console.debug(message);
+    console.debug(message);
     switch (event) {
       case VIEW_EVENT: {
-        const { marketId, investibleId, isEntry } = message;
+        const { marketId, investibleId, isEntry, action } = message;
         if (isEntry) {
           if (!investibleId) {
-            dispatch(updatePage({ marketId }));
+            dispatch(updatePage({ marketId, action }));
           } else {
             dispatch(updatePage({ marketId, investibleId }));
           }

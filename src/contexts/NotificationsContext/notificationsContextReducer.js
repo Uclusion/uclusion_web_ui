@@ -55,9 +55,13 @@ function getMassagedMessages(messages) {
     } = message;
     const objectId = typeObjectId.substring(typeObjectId.lastIndexOf('_') + 1);
     const aType = typeObjectId.substring(0, typeObjectId.lastIndexOf('_'));
-    const marketIdUserIdSplit = marketIdUserId.split('_');
-    const marketId = marketIdUserIdSplit[0];
-    const userId = marketIdUserIdSplit[1];
+    const marketId = marketIdUserId.substring(0, marketIdUserId.lastIndexOf('_'));
+    const userId = marketIdUserId.substring(marketIdUserId.lastIndexOf('_') + 1);
+    if (aType === 'USER_POKED') {
+      return {
+        ...message, pokeType: marketId, aType, level, userId,
+      };
+    }
     if (marketId === objectId || userId === objectId) {
       return {
         ...message, marketId, aType, level, userId,

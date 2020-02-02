@@ -28,8 +28,8 @@ class Main extends Component {
             <DiffProvider>
               <OperationInProgressProvider>
                 <OperationInProgressGlobalProvider>
-                  <NotificationsProvider>
-                    <VersionsProvider>
+                  <VersionsProvider>
+                    <NotificationsProvider>
                       <MarketsProvider>
                         <MarketStagesProvider>
                           <CommentsProvider>
@@ -46,8 +46,8 @@ class Main extends Component {
                           </CommentsProvider>
                         </MarketStagesProvider>
                       </MarketsProvider>
-                    </VersionsProvider>
-                  </NotificationsProvider>
+                    </NotificationsProvider>
+                  </VersionsProvider>
                 </OperationInProgressGlobalProvider>
               </OperationInProgressProvider>
             </DiffProvider>

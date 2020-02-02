@@ -150,7 +150,7 @@ function Screen(props) {
       getVersions().then((versions) => versionsDispatch(refreshVersionsAction(versions)));
       setLoadingFailedTimer(setTimeout(() => {
         setLoadingFailed(true);
-      }, 7500));
+      }, 10000));
     } else if (loadingFailed && operationRunning && operationRunningWasSet) {
       setLoadingFailed(false);
       navigate(history, '/404');

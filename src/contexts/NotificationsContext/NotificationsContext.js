@@ -14,6 +14,7 @@ import { DiffContext } from '../DiffContext/DiffContext';
 import { getIsNew } from '../DiffContext/diffContextHelper';
 import { diffSeen } from '../DiffContext/diffContextReducer';
 import { HighlightedVotingContext } from '../HighlightedVotingContext';
+import { VersionsContext } from '../VersionsContext/VersionsContext'
 
 export const EMPTY_STATE = {
   messages: [],
@@ -33,8 +34,9 @@ function NotificationsProvider(props) {
   const [isInitialization, setIsInitialization] = useState(true);
   const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const [, highlightedVotingDispatch] = useContext(HighlightedVotingContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
   useEffect(() => {
-    if (isInitialization) {
+    if (isInitialization && versionsDispatch) {
       const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
       lfg.getState()
         .then((state) => {
@@ -42,12 +44,12 @@ function NotificationsProvider(props) {
             dispatch(initializeState(state));
           }
         });
-      beginListening(dispatch);
+      beginListening(dispatch, versionsDispatch);
       setIsInitialization(false);
     }
     return () => {
     };
-  }, [isInitialization]);
+  }, [isInitialization, versionsDispatch]);
 
   useEffect(() => {
     console.debug(page);

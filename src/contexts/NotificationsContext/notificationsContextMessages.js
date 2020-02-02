@@ -4,8 +4,10 @@ import { VIEW_EVENT, VISIT_CHANNEL, EMPTY_STATE } from './NotificationsContext';
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
+import { getVersions } from '../../api/summaries'
+import { refreshVersionsAction } from '../VersionsContext/versionsContextReducer'
 
-function beginListening(dispatch) {
+function beginListening(dispatch, versionsDispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
     const { payload: { event } } = data;
     // console.debug(`Notifications context responding to push event ${event}`);
@@ -13,7 +15,11 @@ function beginListening(dispatch) {
     switch (event) {
       case VERSIONS_EVENT:
         getMessages().then((messages) => {
-          dispatch(updateMessages(messages));
+          return getVersions().then((versions) => {
+            // Have to check versions before process messages in case not up to date
+            versionsDispatch(refreshVersionsAction(versions));
+            dispatch(updateMessages(messages));
+          });
         });
         break;
       default:

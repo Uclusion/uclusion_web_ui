@@ -29,7 +29,7 @@ import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
-import { DECISION_TYPE } from '../../../constants/markets';
+import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
 import UclusionTour from '../../../components/Tours/UclusionTour';
 import {
   PURE_SIGNUP_ADD_DIALOG_OPTIONS,
@@ -51,7 +51,9 @@ function DecisionDialog(props) {
   const intl = useIntl();
   const {
     name: marketName,
+    market_stage: marketStage,
   } = market;
+  const activeMarket = marketStage === ACTIVE_STAGE;
   const {
     is_admin: isAdmin,
   } = myPresence;
@@ -120,25 +122,25 @@ function DecisionDialog(props) {
   };
   const manageAction = isAdmin ? manageDialog : addParticipants;
 
-  const sidebarMenuList = [
-    {
+  const sidebarMenuList = [manageAction];
+  if (activeMarket) {
+    sidebarMenuList.unshift({
       label: intl.formatMessage({ id: addLabel }),
       icon: <AddIcon />,
       id: "newOption",
       onClick: () => navigate(history, formMarketAddInvestibleLink(marketId)),
-    },
-    manageAction,
-    {
+    });
+    sidebarMenuList.push({
       label: intl.formatMessage({ id: 'commentIconRaiseIssueLabel' }),
       icon: getCommentTypeIcon(ISSUE_TYPE),
       onClick: () => commentButtonOnClick(ISSUE_TYPE),
-    },
-    {
+    });
+    sidebarMenuList.push({
       label: intl.formatMessage({ id: 'commentIconAskQuestionLabel' }),
       icon: getCommentTypeIcon(QUESTION_TYPE),
       onClick: () => commentButtonOnClick(QUESTION_TYPE),
-    },
-  ];
+    });
+  }
 
   const adminMenuList = [
     {
@@ -149,7 +151,7 @@ function DecisionDialog(props) {
   ];
 
   function getSidebarActions() {
-    if (isAdmin) {
+    if (isAdmin && activeMarket) {
       sidebarMenuList.unshift(...adminMenuList);
     }
 

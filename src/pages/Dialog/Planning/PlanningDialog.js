@@ -187,9 +187,15 @@ function PlanningDialog(props) {
 
   function getSidebarActions() {
     if (!activeMarket) {
-      return [<ViewArchiveActionButton key="archives" marketId={marketId} />];
+      return [
+        <ManageParticipantsActionButton
+          key="addParticipants"
+          onClick={toggleManageUsersMode}
+        />,
+        <ViewArchiveActionButton key="archives" marketId={marketId} />
+        ];
     }
-    const userActions = [
+    return [
       <DialogEditActionButton
         key="edit"
         onClick={() => navigate(history, formMarketEditLink(marketId))}
@@ -207,7 +213,6 @@ function PlanningDialog(props) {
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
       <AskQuestions key="question" onClick={commentButtonOnClick} />,
     ];
-    return userActions;
   }
 
   const sidebarActions = getSidebarActions();

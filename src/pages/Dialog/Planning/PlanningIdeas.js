@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
 import {
-  Paper, Typography, Badge,
+  Paper, Typography, Badge, Link,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import AnnouncementIcon from '@material-ui/icons/Announcement';
@@ -10,7 +10,7 @@ import RateReviewIcon from '@material-ui/icons/RateReview';
 import LiveHelpIcon from '@material-ui/icons/LiveHelp';
 import { FormattedDate, useIntl } from 'react-intl';
 import GridListTile from '@material-ui/core/GridListTile';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import { pink } from '@material-ui/core/colors';
 
@@ -65,39 +65,61 @@ function PlanningIdeas(props) {
     if (Array.isArray(issues) && issues.length > 0) {
       icons.push(
         <Badge badgeContent={issues.length} color="primary" id="issues">
-          <AnnouncementIcon />
+          <AnnouncementIcon/>
         </Badge>,
       );
     }
     if (Array.isArray(suggestions) && suggestions.length > 0) {
       icons.push(
         <Badge badgeContent={suggestions.length} color="primary" id="suggestions">
-          <RateReviewIcon />
+          <RateReviewIcon/>
         </Badge>,
       );
     }
     if (Array.isArray(questions) && questions.length > 0) {
       icons.push(
         <Badge badgeContent={questions.length} color="primary" id="questions">
-          <LiveHelpIcon />
+          <LiveHelpIcon/>
         </Badge>,
       );
     }
   }
 
   function createWarningShellInvestible(stageId) {
+
     const isAccepted = stageId === acceptedStageId;
     const warningText = isAccepted ? intl.formatMessage(({ id: 'planningNoneAcceptedWarning' }))
       : intl.formatMessage(({ id: 'planningNoneInDialogWarning' }));
+
+    const contents = (
+      <Paper className={classes.warningCard}>
+        <Typography
+          noWrap
+        >
+          {warningText}
+        </Typography>
+      </Paper>
+    );
+
+    if (!isAccepted) {
+      function onClick() {
+        const link = formMarketAddInvestibleLink(marketId);
+        const assignedLink = link + `#assignee=${presenceId}`;
+        navigate(history, assignedLink);
+      }
+      return (
+        <Link
+          underline="none"
+          key={stageId}
+          onClick={onClick}
+        >
+          {contents}
+        </Link>
+      );
+    }
     return (
-      <div key={stageId}>
-        <Paper className={classes.warningCard}>
-          <Typography
-            noWrap
-          >
-            {warningText}
-          </Typography>
-        </Paper>
+      <div>
+        {contents}
       </div>
     );
   }
@@ -111,7 +133,7 @@ function PlanningIdeas(props) {
       return marketInfo.stage === stageId;
     });
     if (doCreateWarningShells && (!Array.isArray(filtered) || filtered.length === 0)) {
-      return createWarningShellInvestible(stageId);
+      return createWarningShellInvestible(stageId,);
     }
     return filtered.map((inv) => {
       const { investible, market_infos: marketInfos } = inv;
@@ -140,7 +162,7 @@ function PlanningIdeas(props) {
               className={classes.textData}
             >
               {updatedText}
-              <FormattedDate value={marketInfo.updated_at} />
+              <FormattedDate value={marketInfo.updated_at}/>
             </Typography>
             {getCommentIcons(investibleComments)}
           </Paper>

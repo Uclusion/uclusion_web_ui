@@ -20,6 +20,8 @@ import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingBut
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { checkInvestibleInStorage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import { useHistory } from 'react-router';
+import queryString from 'query-string';
 
 const styles = (theme) => ({
   root: {
@@ -46,6 +48,21 @@ function PlanningInvestibleAdd(props) {
   const [assignments, setAssignments] = useState([]);
   const [validForm, setValidForm] = useState(false);
   const { name } = currentValues;
+  const history = useHistory();
+
+
+  function getUrlAssignee() {
+    const { location } = history;
+    const { hash } = location;
+    if (!_.isEmpty(hash)) {
+      const values = queryString.parse(hash);
+      const { assignee } = values;
+      return [assignee];
+    }
+    return undefined;
+  }
+
+
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -120,6 +137,7 @@ function PlanningInvestibleAdd(props) {
         <AssignmentList
           marketId={marketId}
           onChange={onAssignmentsChange}
+          previouslyAssigned={getUrlAssignee()}
         />
         <TextField
           className={classes.row}

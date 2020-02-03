@@ -47,7 +47,6 @@ function AddressList(props) {
     isOwnScreen,
     isAdmin,
     following,
-    myUserId,
   } = props;
   const { id: addToMarketId, market_stage: marketStage, market_type: marketType } = market;
   const classes = useStyles();
@@ -360,12 +359,10 @@ AddressList.propTypes = {
   isOwnScreen: PropTypes.bool,
   isAdmin: PropTypes.bool,
   following: PropTypes.bool,
-  myUserId: PropTypes.string,
 };
 
 AddressList.defaultProps = {
   showObservers: true,
-  myUserId: '',
   onSave: () => {
   },
   onCancel: () => {

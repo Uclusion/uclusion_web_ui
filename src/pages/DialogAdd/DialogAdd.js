@@ -1,23 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
-import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
-import localforage from 'localforage';
-import queryString from 'query-string';
-import Screen from '../../containers/Screen/Screen';
-import DecisionAdd from './DecisionAdd';
-import PlanningAdd from './PlanningAdd';
+import React, { useEffect, useState } from 'react'
+import { useHistory } from 'react-router'
+import PropTypes from 'prop-types'
+import { useIntl } from 'react-intl'
+import localforage from 'localforage'
+import queryString from 'query-string'
+import Screen from '../../containers/Screen/Screen'
+import DecisionAdd from './DecisionAdd'
+import PlanningAdd from './PlanningAdd'
+import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets'
+import InitiativeAdd from './InitiativeAdd'
 import {
-  DECISION_TYPE, INITIATIVE_TYPE,
-  PLANNING_TYPE,
-} from '../../constants/markets';
-import InitiativeAdd from './InitiativeAdd';
-import {
+  formInvestibleLink,
   formMarketAddInvestibleLink,
   formMarketLink,
   makeBreadCrumbs,
   navigate
-} from '../../utils/marketIdPathFunctions';
+} from '../../utils/marketIdPathFunctions'
 
 function DialogAdd(props) {
   const { hidden } = props;
@@ -44,15 +42,20 @@ function DialogAdd(props) {
     }
   }, [hidden, type]);
 
-  function onDone(marketId) {
+  function onDone(result) {
     setIdLoaded(undefined);
     return localforage.removeItem(`add_market_${type}`)
       .finally(() => {
-        if (marketId) {
+        if (result) {
           if (type === DECISION_TYPE) {
-            navigate(history, formMarketAddInvestibleLink(marketId));
-          } else {
-            navigate(history, formMarketLink(marketId));
+            navigate(history, formMarketAddInvestibleLink(result));
+          }
+          else if (type === INITIATIVE_TYPE) {
+            const { marketId, investibleId } = result;
+            navigate(history, formInvestibleLink(marketId, investibleId))
+          }
+          else {
+            navigate(history, formMarketLink(result));
           }
         }
         else {

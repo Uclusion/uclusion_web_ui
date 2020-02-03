@@ -105,7 +105,7 @@ function InitiativeAdd(props) {
           name,
         };
         return addDecisionInvestible(addInfo).then((investibleId) => ({
-          result: marketId,
+          result: { marketId, investibleId },
           spinChecker: () => checkInvestibleInStorage(investibleId),
         }));
       });

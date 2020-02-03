@@ -44,7 +44,7 @@ function DialogAdd(props) {
     }
   }, [hidden, type]);
 
-  function onDone({marketId, type}) {
+  function onDone(marketId) {
     setIdLoaded(undefined);
     return localforage.removeItem(`add_market_${type}`)
       .finally(() => {
@@ -54,6 +54,10 @@ function DialogAdd(props) {
           } else {
             navigate(history, formMarketLink(marketId));
           }
+        }
+        else {
+          // This is a cancel
+          navigate(history, '/');
         }
       });
   }

@@ -60,7 +60,7 @@ function InitiativeAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onDone('/');
+    onDone();
   }
 
   function handleChange(field) {
@@ -97,7 +97,6 @@ function InitiativeAdd(props) {
     };
     return createDecision(addInfo, 'errorInitiativeAddFailed')
       .then((result) => {
-        onDone();
         const { market_id: marketId } = result;
         const addInfo = {
           marketId,
@@ -106,7 +105,7 @@ function InitiativeAdd(props) {
           name,
         };
         return addDecisionInvestible(addInfo).then((investibleId) => ({
-          result: { marketId, type: INITIATIVE_TYPE },
+          result: marketId,
           spinChecker: () => checkInvestibleInStorage(investibleId),
         }));
       });

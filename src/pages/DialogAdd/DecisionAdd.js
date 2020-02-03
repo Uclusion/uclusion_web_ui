@@ -49,8 +49,6 @@ function DecisionAdd(props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes } = currentValues;
 
-
-
   useEffect(() => {
     // Long form to prevent flicker
     if (name && expiration_minutes > 0 && description && description.length > 0) {
@@ -69,7 +67,7 @@ function DecisionAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onDone('/');
+    onDone();
   }
 
   function handleChange(field) {
@@ -109,7 +107,7 @@ function DecisionAdd(props) {
       .then((result) => {
         const { market_id: marketId } = result;
         return {
-          result: { marketId, type: DECISION_TYPE },
+          result: marketId,
           spinChecker: () => checkMarketInStorage(marketId),
         };
       });

@@ -61,7 +61,7 @@ function PlanningAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onDone('/');
+    onDone();
   }
 
   function handleChange(field) {
@@ -122,10 +122,9 @@ function PlanningAdd(props) {
     }
     return createPlanning(addInfo)
       .then((result) => {
-        onDone();
         const { market_id: marketId } = result;
         return {
-          result: { marketId, type: PLANNING_TYPE },
+          result: marketId,
           spinChecker: () => checkMarketInStorage(marketId),
         };
       });

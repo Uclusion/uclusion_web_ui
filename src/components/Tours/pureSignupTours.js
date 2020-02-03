@@ -63,16 +63,10 @@ export const PURE_SIGNUP_ADD_DIALOG_STEPS = [
 
 export const PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS = [
   {
-    title: 'Your New Dialog',
-    content: "The first thing a new dialog needs is the options that we want to present. That's done via the 'Add Option' button in the sidebar.",
-    target: '#newOption',
-    onClose: () => document.getElementById('newOption').click(),
-    disableBeacon: true,
-  },
-  {
     title: 'Dialog Current Voting',
     content: "You can see the newly created option in the 'Current Voting' section of the dialog. Votes will be visible in a histogram to the right of the name. The colors and position of the histogram convey the certainty, with uncertain being red and on the right and completely certain being green and on the left.",
     target: '#option0',
+    disableBeacon: true,
   },
   {
     title: 'Add Some More Options',
@@ -106,6 +100,12 @@ export const PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS = [
 ];
 
 export const PURE_SIGNUP_ADD_FIRST_OPTION_STEPS = [
+  {
+    title: 'Your New Dialog',
+    content: "The first thing a new dialog needs is the options that we want to present. When you create a dialog we'll take you directly to the add options page to create the first one.",
+    target: '#name',
+    disableBeacon: true,
+  },
   {
     title: 'The First Option',
     content: "Like dialogs, options need a name. This name will show in the dialog's 'Current Voting' section, so make it short, but descriptive. If we're having lunch, then add your favorite food type.",

@@ -46,7 +46,7 @@ export function initializeState(newState) {
 
 /** Helper functions * */
 function getMassagedMessages(messages) {
-  return messages.map((message) => {
+  const rawMessages = messages.map((message) => {
     const {
       type_object_id: typeObjectId,
       market_id_user_id: marketIdUserId,
@@ -104,6 +104,11 @@ function getMassagedMessages(messages) {
       ...message, marketId, aType, level, investibleId: objectId, userId,
     };
   });
+  const filterMessages = rawMessages.filter((massagedMessage) => massagedMessage.pokeType !== 'new_user');
+  if (filterMessages.length !== rawMessages.length) {
+    // TODO Do something here like store a cookie if new user
+  }
+  return filterMessages;
 }
 
 function isMessageEqual(aMessage, message) {

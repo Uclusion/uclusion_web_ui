@@ -4,6 +4,8 @@ import { Paper, Button, ButtonGroup } from '@material-ui/core';
 import AddEditVote from './AddEditVote';
 import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { useIntl } from 'react-intl';
+import { useHistory } from 'react-router';
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 
 function YourVoting(props) {
@@ -17,11 +19,16 @@ function YourVoting(props) {
   } = props;
   const intl = useIntl();
 
+  const history = useHistory();
   const { market_type, id: marketId, max_budget: storyMaxBudget } = market;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const yourReason = comments.find((comment) => comment.created_by === userId);
   const [voteForThis, setVoteForThis] = useState(undefined);
+
+  function onVoteSave(){
+    navigate(history, formMarketLink(marketId));
+  }
 
   function getVotingActionId() {
     switch (market_type) {
@@ -43,6 +50,7 @@ function YourVoting(props) {
         reason={yourReason}
         investment={yourVote}
         showBudget={showBudget}
+        onSave={onVoteSave}
         storyMaxBudget={storyMaxBudget}
       />
     );

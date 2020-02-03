@@ -46,11 +46,6 @@ export function updateMarket(marketId, name, description, uploaded_files, maxBud
     .catch((error) => toastErrorAndThrow(error, 'errorMarketUpdateFailed'));
 }
 
-export function changeToObserver(marketId) {
-  return getMarketClient(marketId)
-    .then((client) => client.markets.followMarket(true))
-    .catch((error) => toastErrorAndThrow(error, 'errorChangeToObserverFailed'));
-}
 
 export function changeUserToParticipant(marketId, userId){
   return getMarketClient(marketId)
@@ -62,12 +57,6 @@ export function changeUserToObserver(marketId, userId){
   return getMarketClient(marketId)
     .then((client) => client.markets.followMarket(true, userId))
     .catch((error) => toastErrorAndThrow(error, 'errorChangeToObserverFailed'));
-}
-
-export function changeToParticipant(marketId) {
-  return getMarketClient(marketId)
-    .then((client) => client.markets.followMarket(false))
-    .catch((error) => toastErrorAndThrow(error, 'errorChangeToParticipantFailed'));
 }
 
 export function createDecision(marketInfo, messageKey = 'errorDecisionAddFailed') {

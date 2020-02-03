@@ -228,7 +228,6 @@ function AddressList(props) {
       {!isAdmin && active && marketType === DECISION_TYPE && following && (
         <ChangeToObserverButton
           marketId={addToMarketId}
-          userId={myUserId}
           translationId="addressListMakeObserver"
         />
       )}

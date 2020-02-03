@@ -127,7 +127,7 @@ function DecisionInvestible(props) {
   const tourSteps = isAdmin? PURE_SIGNUP_VIEW_FIRST_OPTION_STEPS : userTourSteps;
   const tourName = isAdmin? PURE_SIGNUP_VIEW_FIRST_OPTION : '';
   const tourFamily = isAdmin? PURE_SIGNUP_FAMILY_NAME: '';
-
+  const myPresence = marketPresences.find((presence) => presence.current_user);
 
   const {
     description, name, created_by: createdBy, locked_by: lockedBy,
@@ -196,6 +196,7 @@ function DecisionInvestible(props) {
 
   const hasDiscussion = !_.isEmpty(investmentReasonsRemoved);
   const discussionVisible = !commentAddHidden || hasDiscussion;
+  const canVote = myPresence && myPresence.following;
 
   return (
     <Screen
@@ -241,7 +242,7 @@ function DecisionInvestible(props) {
             )}
           </SubSection>
         </Grid>
-        {!inProposed && (
+        {!inProposed && canVote && (
         <Grid
           id="yourVote"
           item xs={12}>

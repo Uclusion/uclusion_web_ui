@@ -1,4 +1,6 @@
 import Quill from 'quill';
+import isUrl from 'is-url';
+import _ from 'lodash';
 
 const Clipboard = Quill.import('modules/clipboard');
 
@@ -30,8 +32,16 @@ class CustomQuillClipboard extends Clipboard {
     const range = this.quill.getSelection(true);
     if (range == null) return;
     const html = e.clipboardData.getData('text/html');
-    const filteredHtml = stripImageTags(html);
-    const text = e.clipboardData.getData('text/plain');
+    let filteredHtml = stripImageTags(html);
+    let text = e.clipboardData.getData('text/plain');
+    if (_.isEmpty(filteredHtml)){
+      if(isUrl(text)){
+        const encoded = encodeURI(text)
+        filteredHtml = `<a href="${encoded}">${text}</a>`;
+        text = undefined;
+      }
+    }
+
     this.onPaste(range, { html: filteredHtml, text });
   }
 }

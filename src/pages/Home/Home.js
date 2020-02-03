@@ -27,7 +27,7 @@ import UclusionTour from '../../components/Tours/UclusionTour';
 import { PURE_SIGNUP_FAMILY_NAME, PURE_SIGNUP_HOME, pureSignupHomeSteps } from '../../components/Tours/pureSignupTours';
 import { CognitoUserContext } from '../../contexts/CongitoUserContext';
 import { TourContext } from '../../contexts/TourContext/TourContext';
-import { beginTourFamily, endTourFamily } from '../../contexts/TourContext/tourContextHelper';
+import { beginTourFamily } from '../../contexts/TourContext/tourContextHelper';
 
 function Home(props) {
   const { hidden } = props;

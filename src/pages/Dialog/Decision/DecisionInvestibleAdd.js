@@ -25,7 +25,7 @@ import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlocki
 import UclusionTour from '../../../components/Tours/UclusionTour';
 import {
   PURE_SIGNUP_ADD_FIRST_OPTION,
-  PURE_SIGNUP_ADD_FIRST_OPTION_STEPS
+  PURE_SIGNUP_ADD_FIRST_OPTION_STEPS, PURE_SIGNUP_FAMILY_NAME
 } from '../../../components/Tours/pureSignupTours';
 
 const styles = (theme) => ({
@@ -135,7 +135,9 @@ function DecisionInvestibleAdd(props) {
   return (
     <Card>
       <UclusionTour
-        shouldRun={!hidden}
+        hidden={hidden}
+        shouldRun={isAdmin}
+        family={PURE_SIGNUP_FAMILY_NAME}
         name={PURE_SIGNUP_ADD_FIRST_OPTION}
         steps={PURE_SIGNUP_ADD_FIRST_OPTION_STEPS}
       />

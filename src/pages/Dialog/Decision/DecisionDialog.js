@@ -33,7 +33,7 @@ import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
 import UclusionTour from '../../../components/Tours/UclusionTour';
 import {
   PURE_SIGNUP_ADD_DIALOG_OPTIONS,
-  PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS
+  PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS, PURE_SIGNUP_FAMILY_NAME
 } from '../../../components/Tours/pureSignupTours';
 
 function DecisionDialog(props) {
@@ -74,6 +74,7 @@ function DecisionDialog(props) {
   ];
   const tourSteps = isAdmin? PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS : participantTourSteps;
   const tourName = isAdmin? PURE_SIGNUP_ADD_DIALOG_OPTIONS : '';
+  const tourFamily = isAdmin? PURE_SIGNUP_FAMILY_NAME: '';
   const addLabel = isAdmin ? 'decisionDialogAddInvestibleLabel' : 'decisionDialogProposeInvestibleLabel';
   function getInvestiblesForStage(stage) {
     if (stage) {
@@ -183,8 +184,9 @@ function DecisionDialog(props) {
       sidebarActions={sidebarActions}
     >
       <UclusionTour
-        shouldRun={!hidden}
+        hidden={hidden}
         name={tourName}
+        family={tourFamily}
         steps={tourSteps}
         continuous
         hideBackButton

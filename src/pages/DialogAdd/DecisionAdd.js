@@ -19,7 +19,11 @@ import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsConte
 import { DECISION_TYPE } from '../../constants/markets';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import UclusionTour from '../../components/Tours/UclusionTour';
-import { PURE_SIGNUP_ADD_DIALOG, PURE_SIGNUP_ADD_DIALOG_STEPS } from '../../components/Tours/pureSignupTours';
+import {
+  PURE_SIGNUP_ADD_DIALOG,
+  PURE_SIGNUP_ADD_DIALOG_STEPS,
+  PURE_SIGNUP_FAMILY_NAME
+} from '../../components/Tours/pureSignupTours';
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: theme.spacing(2),
@@ -117,6 +121,7 @@ function DecisionAdd(props) {
     <Card id="tourRoot">
       <UclusionTour
         name={PURE_SIGNUP_ADD_DIALOG}
+        family={PURE_SIGNUP_FAMILY_NAME}
         steps={PURE_SIGNUP_ADD_DIALOG_STEPS}
         hideBackButton
       />

@@ -17,7 +17,11 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import UclusionTour from '../../components/Tours/UclusionTour';
-import { PURE_SIGNUP_ADD_PEOPLE, PURE_SIGNUP_ADD_PEOPLE_STEPS } from '../../components/Tours/pureSignupTours';
+import {
+  PURE_SIGNUP_ADD_PEOPLE,
+  PURE_SIGNUP_ADD_PEOPLE_STEPS,
+  PURE_SIGNUP_FAMILY_NAME
+} from '../../components/Tours/pureSignupTours';
 
 function DialogManage(props) {
   const { hidden } = props;
@@ -67,6 +71,7 @@ function DialogManage(props) {
         <div id="decisionAddressList">
           <UclusionTour
             name={PURE_SIGNUP_ADD_PEOPLE}
+            family={PURE_SIGNUP_FAMILY_NAME}
             steps={PURE_SIGNUP_ADD_PEOPLE_STEPS}
             shouldRun={isAdmin}
             hidden={hidden}

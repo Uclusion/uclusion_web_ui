@@ -1,18 +1,21 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { TourContext } from '../../contexts/TourContext/TourContext';
 import {
   getCurrentStep,
   isTourCompleted,
   setCurrentStep,
-  completeTour
+  completeTour, isTourFamilyRunning
 } from '../../contexts/TourContext/tourContextHelper';
 import ReactJoyride from 'react-joyride';
+import { getTourSequence } from './tourSequences';
 
 
 function UclusionTour(props) {
   const {
     name,
+    family,
     shouldRun,
     hidden,
     ...rest
@@ -45,15 +48,42 @@ function UclusionTour(props) {
     }
   }
 
+  const defaultLocale = { back: 'Back', close: 'Close', last: 'Close', next: 'Next', skip: 'Skip' };
+
+  // Override close to next if we're not the last in the sequence
+  function getLocale() {
+    const sequence = getTourSequence(family);
+    const last = _.last(sequence);
+    if (last !== name) {
+      return {
+        ...defaultLocale,
+        close: 'Next',
+      };
+    }
+    return defaultLocale;
+  }
+
   const ourStyles = {
     buttonNext: {
-      display: 'none',
-    }
+      backgroundColor: '#3f6b72',
+      color: '#fff'
+    },
   };
 
-  const runTour = !hidden && shouldRun; //&& !isCompleted;
   const currentStep = getCurrentStep(tourState, name);
   const continuous = currentStep === 0;
+  const [runTour, setRunTour] = useState(false);
+
+  useEffect(() => {
+    const myTourFamlyActive = isTourFamilyRunning(tourState, family);
+    console.log(`Tour family active ${myTourFamlyActive}`);
+    const iCanRun = !hidden && myTourFamlyActive && shouldRun && !isCompleted;
+    console.log(`I can run ${iCanRun}`);
+    setRunTour(iCanRun);
+    return () => {
+    };
+  }, [hidden, tourState, family, shouldRun, isCompleted]);
+
   if (!runTour) {
     return <React.Fragment/>;
   }
@@ -64,10 +94,10 @@ function UclusionTour(props) {
       styles={ourStyles}
       run={runTour}
       stepIndex={currentStep}
+      locale={getLocale()}
       {...rest}
       callback={tourCallback}
       continuous={continuous}
-      hideBackButton
     />
   );
 
@@ -76,6 +106,7 @@ function UclusionTour(props) {
 
 UclusionTour.propTypes = {
   name: PropTypes.string.isRequired,
+  family: PropTypes.string.isRequired,
   shouldRun: PropTypes.bool,
   hidden: PropTypes.bool,
 };

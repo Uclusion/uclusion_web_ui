@@ -17,9 +17,14 @@ function LocaleProvider(props) {
   useEffect(() => {
     setUclusionLocalStorageItem(LOCALE_CONTEXT_KEY, state);
     registerListener(AUTH_HUB_CHANNEL, 'localeContext', (data) => {
-      const { payload: { event } } = data;
+      const { payload: { event, data: { username } } } = data;
       switch (event) {
         case 'signIn':
+          const oldUserName = getUclusionLocalStorageItem('userName');
+          if (oldUserName !== username) {
+            setState(defaultValue)
+          }
+          break;
         case 'signOut':
           setState(defaultValue);
           break;

@@ -8,6 +8,7 @@ import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { EMPTY_STATE } from './MarketPresencesContext';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
+import { getUclusionLocalStorageItem } from '../../components/utils';
 
 function beginListening(dispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketPresenceRemovedMarketStart', (data) => {
@@ -32,9 +33,14 @@ function beginListening(dispatch) {
     }
   });
   registerListener(AUTH_HUB_CHANNEL, 'marketPresencesHubStart', (data) => {
-    const { payload: { event } } = data;
+    const { payload: { event, data: { username } } } = data;
     switch (event) {
       case 'signIn':
+        const oldUserName = getUclusionLocalStorageItem('userName');
+        if (oldUserName !== username) {
+          dispatch(initializeState(EMPTY_STATE));
+        }
+        break;
       case 'signOut':
         dispatch(initializeState(EMPTY_STATE));
         break;

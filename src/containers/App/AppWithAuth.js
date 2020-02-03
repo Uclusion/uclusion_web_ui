@@ -20,6 +20,11 @@ import UclusionForgotPassword from '../../pages/Authentication/ForgotPassword';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import TokenStorageManager from '../../authorization/TokenStorageManager';
+import {
+  clearUclusionLocalStorage,
+  getUclusionLocalStorageItem,
+  setUclusionLocalStorageItem
+} from '../../components/utils';
 
 
 LogRocket.init(config.logRocketInstance)
@@ -72,10 +77,18 @@ function AppWithAuth(props) {
   };
 
   registerListener(AUTH_HUB_CHANNEL, 'signinSignoutLocalClearingHandler', (data) => {
-    const { payload: { event } } = data;
+    const { payload: { event, data: { username } } } = data;
     switch (event) {
       case 'signIn':
+        const oldUserName = getUclusionLocalStorageItem('userName');
+        if (oldUserName !== username) {
+          clearUclusionLocalStorage();
+          new TokenStorageManager().clearTokenStorage();
+        }
+        setUclusionLocalStorageItem('userName', username);
+        break;
       case 'signOut':
+        clearUclusionLocalStorage();
         new TokenStorageManager().clearTokenStorage();
         break;
       default:

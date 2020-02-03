@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
@@ -24,8 +24,10 @@ import { navigate } from '../../utils/marketIdPathFunctions';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
 import HomeCheatSheet from './HomeCheatSheet';
 import UclusionTour from '../../components/Tours/UclusionTour';
-import { PURE_SIGNUP_HOME, pureSignupHomeSteps } from '../../components/Tours/pureSignupTours';
+import { PURE_SIGNUP_FAMILY_NAME, PURE_SIGNUP_HOME, pureSignupHomeSteps } from '../../components/Tours/pureSignupTours';
 import { CognitoUserContext } from '../../contexts/CongitoUserContext';
+import { TourContext } from '../../contexts/TourContext/TourContext';
+import { beginTourFamily, endTourFamily } from '../../contexts/TourContext/tourContextHelper';
 
 function Home(props) {
   const { hidden } = props;
@@ -103,6 +105,21 @@ function Home(props) {
   });
   const noMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
   const tourSteps = pureSignupHomeSteps({ name: cognitoUser.name });
+  const [, tourDispatch] = useContext(TourContext);
+  // Delay starting the tour for 10 seconds to let stuff settle. This will be fixed when loading is properly defined
+  const tourStartDelay = 10000;
+  useEffect(() => {
+    if (noMarkets) {
+        setTimeout(() => {
+          if (noMarkets) {
+            console.log('Starting tour family');
+            beginTourFamily(tourDispatch, PURE_SIGNUP_FAMILY_NAME);
+          }
+      }, tourStartDelay);
+    }
+    return () => {};
+  }, [noMarkets, tourDispatch]);
+
   return (
     <Screen
       title={intl.formatMessage({ 'id': 'homeBreadCrumb' })}
@@ -112,9 +129,11 @@ function Home(props) {
     >
       <UclusionTour
         hidden={hidden}
+        family={PURE_SIGNUP_FAMILY_NAME}
         name={PURE_SIGNUP_HOME}
         steps={tourSteps}
         continuous
+        shouldRun={noMarkets}
         hideBackButton
       />
       {noMarkets && (

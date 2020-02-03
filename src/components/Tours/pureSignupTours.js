@@ -1,9 +1,21 @@
+export const PURE_SIGNUP_FAMILY_NAME = 'pure_signup';
 export const PURE_SIGNUP_HOME = 'pure_signup_home';
 export const PURE_SIGNUP_ADD_DIALOG = 'pure_signup_add_dialog';
 export const PURE_SIGNUP_ADD_DIALOG_OPTIONS = 'pure_signup_add_options';
 export const PURE_SIGNUP_ADD_FIRST_OPTION = 'pure_signup_add_first_option';
 export const PURE_SIGNUP_VIEW_FIRST_OPTION = 'pure_signup_view_first_option';
 export const PURE_SIGNUP_ADD_PEOPLE = 'pure_signup_add_people';
+
+export const PURE_SIGNUP_SEQUENCE = [
+  PURE_SIGNUP_HOME,
+  PURE_SIGNUP_ADD_DIALOG,
+  PURE_SIGNUP_ADD_DIALOG_OPTIONS,
+  PURE_SIGNUP_ADD_FIRST_OPTION,
+  PURE_SIGNUP_VIEW_FIRST_OPTION,
+  PURE_SIGNUP_ADD_PEOPLE
+];
+
+
 
 export function pureSignupHomeSteps(variables) {
   const { name } = variables;

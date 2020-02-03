@@ -15,7 +15,6 @@ function TourProvider(props) {
   const { children } = props;
   const defaultValue = getUclusionLocalStorageItem(TOUR_CONTEXT_KEY) || EMPTY_CONTEXT;
   const [state, dispatch] = useReducer(reducer, defaultValue);
-
   useEffect(() => {
     setUclusionLocalStorageItem(TOUR_CONTEXT_KEY, state);
   }, [state]);

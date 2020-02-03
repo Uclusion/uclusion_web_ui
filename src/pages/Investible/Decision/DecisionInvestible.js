@@ -33,6 +33,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
 import UclusionTour from '../../../components/Tours/UclusionTour';
 import {
+  PURE_SIGNUP_FAMILY_NAME,
   PURE_SIGNUP_VIEW_FIRST_OPTION,
   PURE_SIGNUP_VIEW_FIRST_OPTION_STEPS
 } from '../../../components/Tours/pureSignupTours';
@@ -125,6 +126,7 @@ function DecisionInvestible(props) {
   const userTourSteps = [];
   const tourSteps = isAdmin? PURE_SIGNUP_VIEW_FIRST_OPTION_STEPS : userTourSteps;
   const tourName = isAdmin? PURE_SIGNUP_VIEW_FIRST_OPTION : '';
+  const tourFamily = isAdmin? PURE_SIGNUP_FAMILY_NAME: '';
 
 
   const {
@@ -204,7 +206,9 @@ function DecisionInvestible(props) {
       sidebarActions={getSidebarActions()}
     >
       <UclusionTour
-        shouldRun={!hidden}
+        hidden={hidden}
+        shouldRun={isAdmin}
+        family={tourFamily}
         name={tourName}
         steps={tourSteps}
       />

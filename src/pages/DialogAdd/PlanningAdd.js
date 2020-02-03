@@ -7,7 +7,6 @@ import {
 import localforage from 'localforage';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 import { createPlanning } from '../../api/markets';
-import { formMarketLink } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';
 import { PLANNING_TYPE } from '../../constants/markets';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
@@ -125,9 +124,8 @@ function PlanningAdd(props) {
       .then((result) => {
         onDone();
         const { market_id: marketId } = result;
-        const link = formMarketLink(marketId);
         return {
-          result: link,
+          result: { marketId, type: PLANNING_TYPE },
           spinChecker: () => checkMarketInStorage(marketId),
         };
       });

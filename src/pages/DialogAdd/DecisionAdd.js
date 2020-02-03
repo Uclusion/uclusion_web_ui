@@ -11,7 +11,6 @@ import localforage from 'localforage';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 import ExpirationSelector from '../../components/Expiration/ExpirationSelector';
 import { createDecision } from '../../api/markets';
-import { formMarketLink } from '../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
@@ -109,9 +108,8 @@ function DecisionAdd(props) {
     return createDecision(addInfo)
       .then((result) => {
         const { market_id: marketId } = result;
-        const link = formMarketLink(marketId);
         return {
-          result: link,
+          result: { marketId, type: DECISION_TYPE },
           spinChecker: () => checkMarketInStorage(marketId),
         };
       });

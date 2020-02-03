@@ -12,7 +12,12 @@ import {
   PLANNING_TYPE,
 } from '../../constants/markets';
 import InitiativeAdd from './InitiativeAdd';
-import { makeBreadCrumbs, navigate } from '../../utils/marketIdPathFunctions';
+import {
+  formMarketAddInvestibleLink,
+  formMarketLink,
+  makeBreadCrumbs,
+  navigate
+} from '../../utils/marketIdPathFunctions';
 
 function DialogAdd(props) {
   const { hidden } = props;
@@ -39,12 +44,16 @@ function DialogAdd(props) {
     }
   }, [hidden, type]);
 
-  function onDone(marketLink) {
+  function onDone({marketId, type}) {
     setIdLoaded(undefined);
     return localforage.removeItem(`add_market_${type}`)
       .finally(() => {
-        if (marketLink) {
-          navigate(history, marketLink);
+        if (marketId) {
+          if (type === DECISION_TYPE) {
+            navigate(history, formMarketAddInvestibleLink(marketId));
+          } else {
+            navigate(history, formMarketLink(marketId));
+          }
         }
       });
   }

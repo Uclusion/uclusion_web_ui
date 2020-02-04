@@ -1,18 +1,40 @@
-export function getDiff(state, id, userId) {
-  const item = (state && state[id]) || {};
-  const { diff, updatedBy } = item;
-  if (updatedBy === userId) {
+import { viewContent, viewDiff } from './diffContextReducer';
+
+export function hasUnViewedDiff(state, itemId) {
+  const content = state[itemId];
+  if (!content) {
+    return false;
+  }
+  const { diffViewed, diff } = content;
+  return !diffViewed && diff;
+}
+
+export function getDiff(state, itemId) {
+  const content = state[itemId];
+  if (!content) {
     return undefined;
   }
+  const { diff } = content;
   return diff;
 }
 
-export function getIsNew(state, id) {
-  if (!(state && state[id])) {
-    console.debug('Returning true is new diff');
-    return true;
+export function hasDiff(state, itemId) {
+  return !!getDiff(state, itemId);
+}
+
+export function markDiffViewed(dispatch, itemId){
+  dispatch(viewDiff(itemId));
+}
+
+export function getLastSeenContent(state, itemId) {
+  const content = state[itemId];
+  if (!content) {
+    return undefined;
   }
-  const { isNew } = state[id];
-  console.debug(`Returning ${isNew} new diff`);
-  return isNew;
+  const { lastSeenContent } = content;
+  return lastSeenContent;
+}
+
+export function markContentViewed(dispatch, itemId, content){
+  dispatch(viewContent(itemId, content));
 }

@@ -6,16 +6,13 @@ import {
   Grid, Typography, Paper, TextField, CardActions,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import ReadOnlyQuillEditor from '../../components/TextEditors/ReadOnlyQuillEditor';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
-import DiffDisplay from '../../components/TextEditors/DiffDisplay';
-import { DiffContext } from '../../contexts/DiffContext/DiffContext';
-import { getDiff } from '../../contexts/DiffContext/diffContextHelper';
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
 import DialogActions from '../Home/DialogActions';
+import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -50,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
 
 function Summary(props) {
   const {
-    market, investibleId, investibleDescription, investibleName,
+    market, investibleId, investibleDescription, investibleName, hidden,
   } = props;
   const intl = useIntl();
   const classes = useStyles();
@@ -69,7 +66,6 @@ function Summary(props) {
   } = market;
   const active = marketStage === ACTIVE_STAGE;
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [diffState] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
@@ -90,7 +86,6 @@ function Summary(props) {
       );
     });
   }
-  const diffId = marketType !== INITIATIVE_TYPE ? id : investibleId;
   return (
     <Paper className={classes.container}>
       <Typography className={classes.title} variant="h3" component="h1">
@@ -115,14 +110,11 @@ function Summary(props) {
         />
       </CardActions>
       <div>
-        <DiffDisplay id={diffId} />
-        { !getDiff(diffState, diffId, myPresence.id) && (
-        <ReadOnlyQuillEditor
-          className={classes.content}
-          marketId={id}
-          value={marketType !== INITIATIVE_TYPE ? description : investibleDescription}
+        <DescriptionOrDiff
+          hidden={hidden}
+          id={marketType !== INITIATIVE_TYPE ? id : investibleId }
+          description={marketType !== INITIATIVE_TYPE ? description : investibleDescription}
         />
-        )}
       </div>
       {maxBudget && (
         <TextField
@@ -239,6 +231,7 @@ Summary.propTypes = {
   investibleName: PropTypes.string,
   investibleDescription: PropTypes.string,
   investibleId: PropTypes.string,
+  hidden: PropTypes.bool.isRequired,
 };
 
 Summary.defaultProps = {

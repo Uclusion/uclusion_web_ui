@@ -408,7 +408,7 @@ const messages = defineMessages({
 
   // diff display
   diffDisplayDismissLabel: 'Hide Changes',
-
+  diffDisplayShowLabel: 'Show Changes',
 
   // expiration extender
   deadlineExtenderSave: 'Extend',

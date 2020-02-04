@@ -1,9 +1,8 @@
 import React, { useContext, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
-import { getDiff, getIsNew } from '../../contexts/DiffContext/diffContextHelper';
+import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextHelper';
 import './DiffDisplay.css';
-import { deleteDiff } from '../../contexts/DiffContext/diffContextReducer';
 import { Button } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 
@@ -11,14 +10,10 @@ import { useIntl } from 'react-intl';
 function DiffDisplay(props) {
   const ref = useRef(null);
   const intl = useIntl();
-  const { id } = props;
+  const { id, showToggle } = props;
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const diff = getDiff(diffState, id, null);
-  const isNew = getIsNew(diffState, id);
+  const diff = getDiff(diffState, id);
 
-  function onDismiss() {
-    diffDispatch(deleteDiff(id));
-  }
 
   useEffect(() => {
     if (ref.current !== null) {
@@ -30,11 +25,9 @@ function DiffDisplay(props) {
     };
   }, [ref, diff, id]);
 
-  // If the user has never seen the investible before then do not display diff
-  if (!diff || isNew) {
-    return (
-      <></>
-    );
+  function myOnHide() {
+    markDiffViewed(diffDispatch, id);
+    showToggle();
   }
 
   return (
@@ -44,7 +37,7 @@ function DiffDisplay(props) {
         variant="contained"
         size="small"
         color="primary"
-        onClick={onDismiss}
+        onClick={myOnHide}
       >
         {intl.formatMessage({ id: 'diffDisplayDismissLabel' })}
       </Button>
@@ -54,6 +47,11 @@ function DiffDisplay(props) {
 
 DiffDisplay.propTypes = {
   id: PropTypes.string.isRequired,
+  showToggle: PropTypes.func,
+};
+
+DiffDisplay.defaultProps = {
+  showToggle: () => {},
 };
 
 export default DiffDisplay;

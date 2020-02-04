@@ -8,7 +8,6 @@ import { makeStyles } from '@material-ui/styles';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from './Voting';
-import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
   ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
@@ -28,15 +27,13 @@ import {
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import { SECTION_TYPE_PRIMARY, SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
-import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
 import UclusionTour from '../../../components/Tours/UclusionTour';
 import {
   PURE_SIGNUP_FAMILY_NAME,
   PURE_SIGNUP_VIEW_FIRST_OPTION,
   PURE_SIGNUP_VIEW_FIRST_OPTION_STEPS
 } from '../../../components/Tours/pureSignupTours';
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -187,8 +184,6 @@ function DecisionInvestible(props) {
     return sidebarActions;
   }
 
-  const [diffState] = useContext(DiffContext);
-  const diff = getDiff(diffState, investibleId, userId);
   if (!investibleId) {
     // we have no usable data;
     return <></>;
@@ -226,14 +221,11 @@ function DecisionInvestible(props) {
               <Typography className={classes.title} variant="h3" component="h1">
                 {name}
               </Typography>
-              {diff && (
-                <DiffDisplay id={investibleId} />
-              )}
-              {!diff && (
-                <ReadOnlyQuillEditor
-                  value={description}
-                />
-              )}
+              <DescriptionOrDiff
+                hidden={hidden}
+                id={investibleId}
+                description={description}
+              />
             </Paper>
             {inProposed && lockedBy && (
               <Typography>

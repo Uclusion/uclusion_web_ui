@@ -198,7 +198,10 @@ function DecisionDialog(props) {
             titleIcon={getDialogTypeIcon(DECISION_TYPE)}
             id="summary"
           >
-            <Summary market={market} />
+            <Summary
+              market={market}
+              hidden={hidden}
+            />
           </SubSection>
         </Grid>
         <Grid item xs={12} style={{ marginTop: '30px' }}>

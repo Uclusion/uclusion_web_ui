@@ -9,7 +9,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { SignIn } from 'aws-amplify-react';
 import { injectIntl } from 'react-intl';
-import ApiBlockingButton from '../components/SpinBlocking/ApiBlockingButton';
+import SpinningButton from '../components/SpinBlocking/SpinningButton';
 
 const useStyles = (theme) => ({
   paper: {
@@ -96,14 +96,15 @@ class CustomSignIn extends SignIn {
             onChange={this.handleInputChange}
             autoComplete="current-password"
           />
-          <ApiBlockingButton
+          <SpinningButton
             type="submit"
+            spinning={this.state.loading}
             fullWidth
             variant="contained"
             className={classes.submit}
           >
             {intl.formatMessage({ id: 'signInSignIn'})}
-          </ApiBlockingButton>
+          </SpinningButton>
           <Grid container>
             <Grid item xs>
               <Link

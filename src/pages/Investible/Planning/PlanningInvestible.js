@@ -260,7 +260,7 @@ function PlanningInvestible(props) {
           key="acceptedFromReview"
         />);
       }
-      
+
       if (isInBlocked) {
         // eslint-disable-next-line max-len
         const blockingComments = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);

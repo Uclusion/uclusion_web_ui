@@ -53,6 +53,9 @@ function AddEditVote(props) {
     }
   }, [showBudget, maxBudget, validForm, storyMaxBudget]);
 
+  const saveEnabled = addMode || (newQuantity !== initialInvestment) || (maxBudget !== initialMaxBudget)
+    || (reasonText !== body);
+
   function mySave() {
     console.debug('saving now');
     const oldQuantity = addMode ? 0 : quantity;
@@ -162,7 +165,7 @@ function AddEditVote(props) {
           </Grid>
         </RadioGroup>
       </FormControl>
-      <br />
+      <br/>
       {showBudget && (
         <TextField
           id="standard-number"
@@ -186,15 +189,9 @@ function AddEditVote(props) {
         setOperationInProgress={setOperationRunning}
       />
       <SpinBlockingButtonGroup>
-        {addMode && (
-          <Button
-            onClick={() => onCancel()}
-          >
-            {intl.formatMessage({ id: 'cancelVote' })}
-          </Button>
-        )}
         {!addMode && (
           <SpinBlockingButton
+            size="Small"
             marketId={marketId}
             onClick={() => onRemove()}
             onSpinStop={onSave}
@@ -202,16 +199,25 @@ function AddEditVote(props) {
             {intl.formatMessage({ id: 'removeVote' })}
           </SpinBlockingButton>
         )}
-        <SpinBlockingButton
-          marketId={marketId}
-          onClick={() => mySave()}
-          disabled={!validForm}
-          onSpinStop={onSave}
-        >
-          {addMode ? intl.formatMessage({ id: 'saveVote' }) : intl.formatMessage({ id: 'updateVote' })}
-        </SpinBlockingButton>
-
+        {addMode && (
+          <Button
+            onClick={() => onCancel()}
+          >
+            {intl.formatMessage({ id: 'cancelVote' })}
+          </Button>
+        )}
+        {saveEnabled && (
+          <SpinBlockingButton
+            marketId={marketId}
+            onClick={mySave}
+            disabled={!validForm}
+            onSpinStop={onSave}
+          >
+            {addMode ? intl.formatMessage({ id: 'saveVote' }) : intl.formatMessage({ id: 'updateVote' })}
+          </SpinBlockingButton>
+        )}
       </SpinBlockingButtonGroup>
+
     </Paper>
   );
 }

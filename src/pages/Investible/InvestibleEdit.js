@@ -114,6 +114,7 @@ function InvestibleEdit(props) {
     }
     return () => {
       if (hidden) {
+        setStoredDescription(undefined);
         setLockFailed(false);
       }
     };

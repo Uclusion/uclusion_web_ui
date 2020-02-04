@@ -366,6 +366,9 @@ const messages = defineMessages({
   inviteParticipantsEmailLabel: 'Email address for Uclusion to send to',
   initiativeManageLabel: 'Manage Initiative',
 
+  // DecisionIvestibleSave
+  decisionInvestibleSaveAddAnother: 'Save and add Another',
+
   // DecisionInvestible
   decisionInvestibleYourVoting: 'Your Vote',
   decisionInvestibleOthersVoting: 'Current Votes',

@@ -1,13 +1,13 @@
 import React from "react";
 import PropTypes from "prop-types";
 import _ from "lodash";
-import { Grid, CardContent } from "@material-ui/core";
+import { Grid, CardContent, Link } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { pink } from '@material-ui/core/colors';
 import { useIntl } from 'react-intl';
 import { useHistory } from "react-router";
 import {
-  formInvestibleLink,
+  formInvestibleLink, formMarketAddInvestibleLink,
   navigate
 } from "../../../utils/marketIdPathFunctions";
 import RaisedCard from "../../../components/Cards/RaisedCard";
@@ -15,7 +15,7 @@ import { getVoteTotalsForUser } from "../../../utils/userFunctions";
 import VoteCard from "../../../components/Cards/VoteCard";
 import { ISSUE_TYPE } from "../../../constants/comments";
 import { getCommentTypeIcon } from "../../../components/Comments/commentFunctions";
-import useFitText from 'use-fit-text'
+import useFitText from 'use-fit-text';
 
 const useStyles = makeStyles(theme => ({
   noPadding: {
@@ -116,6 +116,11 @@ function CurrentVoting(props) {
     );
   }
 
+  function goToAddOption() {
+    const link = formMarketAddInvestibleLink(marketId);
+    navigate(history, link);
+  }
+
   const tallies = getInvestibleVotes();
   const talliesArray = Object.values(tallies);
   // descending order of support
@@ -130,21 +135,26 @@ function CurrentVoting(props) {
       {!_.isEmpty(sortedTalliesArray) && sortedTalliesArray.map((item, index) => getItemVote(item, index))}
       {_.isEmpty(sortedTalliesArray) && (
         <Grid item key="noneWarning">
-          <RaisedCard
-            className="raisedcard"
+          <Link
+            onClick={goToAddOption}
+            underline="none"
           >
-            <CardContent className={classes.warnNoOptions}>
-              <div
-                ref={ref}
-                style={{
-                  fontSize,
-                }}
-                className={classes.title}
-              >
-                {intl.formatMessage({ id: 'decisionDialogNoInvestiblesWarning' })}
-              </div>
-            </CardContent>
-          </RaisedCard>
+            <RaisedCard
+              className="raisedcard"
+            >
+              <CardContent className={classes.warnNoOptions}>
+                <div
+                  ref={ref}
+                  style={{
+                    fontSize,
+                  }}
+                  className={classes.title}
+                >
+                  {intl.formatMessage({ id: 'decisionDialogNoInvestiblesWarning' })}
+                </div>
+              </CardContent>
+            </RaisedCard>
+          </Link>
         </Grid>
       )}
     </Grid>

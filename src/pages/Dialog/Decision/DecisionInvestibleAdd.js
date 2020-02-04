@@ -17,7 +17,10 @@ import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions';
+import {
+  formInvestibleLink,
+  formMarketLink,
+} from '../../../utils/marketIdPathFunctions';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 import { checkInvestibleInStorage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -62,6 +65,10 @@ function DecisionInvestibleAdd(props) {
   };
   const emptyInvestible = { name: '', description: '' };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
+  const defaultClearFunc = () => {};
+  //see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react for why we have a func
+  // that returns  func for editorClearFunc
+  const [editorClearFunc, setEditorClearFunc] = useState(() => defaultClearFunc);
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [validForm, setValidForm] = useState(false);
@@ -132,6 +139,14 @@ function DecisionInvestibleAdd(props) {
     });
   }
 
+  function onSaveAddAnother() {
+    localforage.removeItem(`add_investible_${marketId}`)
+      .finally(() => {
+        zeroCurrentValues();
+        editorClearFunc();
+      });
+  }
+
   return (
     <Card>
       <UclusionTour
@@ -166,6 +181,11 @@ function DecisionInvestibleAdd(props) {
           onS3Upload={onS3Upload}
           defaultValue={description}
           setOperationInProgress={setOperationRunning}
+          setEditorClearFunc={(func) => {
+            console.log('Setting dia clear func');
+            console.log(func);
+            setEditorClearFunc(func);
+          }}
         />
       </CardContent>
       <CardActions>
@@ -187,6 +207,18 @@ function DecisionInvestibleAdd(props) {
             {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
           </SpinBlockingButton>
         </SpinBlockingButtonGroup>
+        <SpinBlockingButton
+          variant="contained"
+          color="primary"
+          size="small"
+          disabled={!validForm}
+          id="saveAddAnother"
+          onClick={handleSave}
+          marketId={marketId}
+          onSpinStop={onSaveAddAnother}
+        >
+          {intl.formatMessage({ id: 'decisionInvestibleSaveAddAnother' })}
+        </SpinBlockingButton>
       </CardActions>
     </Card>
 

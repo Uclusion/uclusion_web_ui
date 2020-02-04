@@ -20,26 +20,29 @@ export const SUCCESS = 'success';
  */
 export function sendIntlMessage(level, i18nMessageId, ii18nMessageValues) {
   Auth.currentAuthenticatedUser()
-    .then(() => {
-      const message = intl.formatMessage({ id: i18nMessageId }, ii18nMessageValues);
-      // it's expected this function will bet more complex as we customize toasts
-      switch (level) {
-        case INFO:
-          toast.info(message);
-          break;
-        case WARN:
-          toast.warn(message);
-          break;
-        case ERROR:
-          toast.error(message);
-          break;
-        case SUCCESS:
-          toast.success(message);
-          break;
-        default:
-          toast(message);
-      }
-    }).catch(() => console.debug('Suppressed toast after user logged out'));
+    .then(() => sendIntlMessageBase(intl, level, i18nMessageId, ii18nMessageValues))
+    .catch(() => console.debug('Suppressed toast after user logged out'));
+}
+
+export function sendIntlMessageBase(intl, level, i18nMessageId, ii18nMessageValues) {
+  const message = intl.formatMessage({ id: i18nMessageId }, ii18nMessageValues);
+  // it's expected this function will bet more complex as we customize toasts
+  switch (level) {
+    case INFO:
+      toast.info(message);
+      break;
+    case WARN:
+      toast.warn(message);
+      break;
+    case ERROR:
+      toast.error(message);
+      break;
+    case SUCCESS:
+      toast.success(message);
+      break;
+    default:
+      toast(message);
+  }
 }
 
 /**

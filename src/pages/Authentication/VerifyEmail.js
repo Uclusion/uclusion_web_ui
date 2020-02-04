@@ -8,8 +8,8 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import { verifyEmail } from "../../api/sso";
 import { redirectToPath, setRedirect } from "../../utils/redirectUtils";
-import { extractErrorJSON } from "../../api/errorUtils";
-import { sendIntlMessage, ERROR } from "../../utils/userMessage";
+import { sendIntlMessageBase, ERROR } from "../../utils/userMessage";
+import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -37,6 +37,7 @@ function VerifyEmail(props) {
   const LOGIN = "/";
   const ALTERNATE_SIDEBAR_LOGO = "Uclusion_Logo_White_Micro.png";
   const history = useHistory();
+  const intl = useIntl();
   const classes = useStyles();
   const params = new URL(document.location).searchParams;
   const [verificationState, setVerificationState] = useState(undefined);
@@ -59,21 +60,9 @@ function VerifyEmail(props) {
           setVerificationState("VERIFIED");
           initiateRedirect();
         })
-        .catch(error => {
-          return extractErrorJSON(error)
-            .then(errorData => {
-              const { error_message } = errorData;
-              console.debug(error);
-              if (error_message === "Already verified") {
-                initiateRedirect();
-                setVerificationState("ALREADY_EXISTS");
-              } else {
-                sendIntlMessage(ERROR, "errorVerifyFailed");
-              }
-            })
-            .catch(() => {
-              sendIntlMessage(ERROR, "errorVerifyFailed");
-            });
+        .catch((error) => {
+          console.error(error);
+          sendIntlMessageBase(intl, ERROR, "errorVerifyFailed");
         });
     }
   }, [code, verificationState, history]);

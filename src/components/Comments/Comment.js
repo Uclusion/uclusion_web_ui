@@ -415,7 +415,7 @@ const useCommentTypeStyles = makeStyles(
 // this used to be handled in "CustomChip". But the name is not descriptive
 // so rather than messing with an unknown abstraction I handle it separately
 // following "copy first, abstract later"
-function CommentType(props) {
+export function CommentType(props) {
   const { className, type } = props;
   const classes = useCommentTypeStyles({ type });
 

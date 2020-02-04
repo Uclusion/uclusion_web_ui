@@ -19,6 +19,10 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { ACTIVE_STAGE } from '../../constants/markets';
 import DialogActions from './DialogActions';
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { ISSUE_TYPE } from '../../constants/comments'
+import { CommentType } from '../../components/Comments/Comment'
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -37,7 +41,7 @@ function DecisionDialogs(props) {
   const { markets } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
-
+  const [commentsState] = useContext(CommentsContext);
 
   function getMarketItems() {
     return markets.map((market) => {
@@ -51,6 +55,9 @@ function DecisionDialogs(props) {
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
       const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
       const active = marketStage === ACTIVE_STAGE;
+      const comments = getMarketComments(commentsState, marketId);
+      const marketIssues = comments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved && !comment.investible_id);
+      const hasMarketIssue = !_.isEmpty(marketIssues);
       return (
         <Grid
           item
@@ -111,6 +118,9 @@ function DecisionDialogs(props) {
                   {getParticipantInfo(sortedPresences, marketInvestibles)}
                 </Grid>
               </Grid>
+              {hasMarketIssue && (
+                <CommentType className={classes.commentType} type={ISSUE_TYPE} />
+              )}
             </CardContent>
             <CardActions>
               <DialogActions

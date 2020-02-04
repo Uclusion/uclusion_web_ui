@@ -8,11 +8,13 @@ import {
   getAcceptedStage, getInReviewStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { stageChangeInvestible } from '../../../api/investibles';
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
 
 function MoveToNextVisibleStageActionButton(props) {
   const { investibleId, marketId, stageId } = props;
   const intl = useIntl();
-
+  const history = useHistory();
   const [marketStagesState] = useContext(MarketStagesContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId);
   let destinationStage = acceptedStage;
@@ -31,7 +33,7 @@ function MoveToNextVisibleStageActionButton(props) {
         stage_id: destinationStage.id,
       },
     };
-    return stageChangeInvestible(moveInfo);
+    return stageChangeInvestible(moveInfo).then(() => navigate(history, formMarketLink(marketId)));
   }
 
   return (

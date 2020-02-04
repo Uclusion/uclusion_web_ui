@@ -252,6 +252,15 @@ function PlanningInvestible(props) {
           key="voting"
         />);
       }
+      if (isInReview && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id))) {
+        sidebarActions.push(<MoveToAcceptedActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+          stageId={stage}
+          key="acceptedFromReview"
+        />);
+      }
+      
       if (isInBlocked) {
         // eslint-disable-next-line max-len
         const blockingComments = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);

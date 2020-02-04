@@ -34,18 +34,19 @@ function DescriptionOrDiff(props) {
   }
 
   useEffect(() => {
-    const shouldEmit = !hidden && !showDiff && lastSeenContent !== description;
-    if (shouldEmit) {
+    const shouldEmitContent = !hidden && !(showDiff && diffAvailable) && lastSeenContent !== description;
+    if (shouldEmitContent) {
       markContentViewed(diffDispatch, id, description);
+    }
+    if (hasNewDiff) {
+      setShowDiff(true);
     }
     return () => {
     };
-  }, [id, description, hidden, showDiff, lastSeenContent, diffDispatch]);
+  }, [id, description, hidden, showDiff, lastSeenContent, diffAvailable, diffDispatch, hasNewDiff]);
 
-  // we'll override the users selection if they have a diff they haven't seen
-  const diffMustBeDisplayed = hasNewDiff || (showDiff && diffAvailable);
 
-  if (diffMustBeDisplayed) {
+  if (showDiff && diffAvailable) {
     return (
       <DiffDisplay
         id={id}

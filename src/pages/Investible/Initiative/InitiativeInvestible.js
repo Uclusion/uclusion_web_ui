@@ -121,6 +121,7 @@ function InitiativeInvestible(props) {
             titleIcon={getDialogTypeIcon(INITIATIVE_TYPE)}
           >
             <Summary
+              hidden={hidden}
               market={market}
               investibleId={investibleId}
               investibleName={name}

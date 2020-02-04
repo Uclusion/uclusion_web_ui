@@ -8,7 +8,6 @@ import { useIntl } from 'react-intl';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
-import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
   ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
@@ -45,9 +44,7 @@ import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
 import { convertDates } from '../../../contexts/ContextUtils';
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import { SECTION_TYPE_PRIMARY, SECTION_TYPE_PRIMARY_WARNING, SECTION_TYPE_SECONDARY } from '../../../constants/global'
-import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import DiffDisplay from '../../../components/TextEditors/DiffDisplay';
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -188,8 +185,6 @@ function PlanningInvestible(props) {
     setCommentAddHidden(true);
   }
 
-  const [diffState] = useContext(DiffContext);
-  const diff = getDiff(diffState, investibleId, userId);
 
   if (!investibleId) {
     // we have no usable data;
@@ -332,14 +327,11 @@ function PlanningInvestible(props) {
               <Typography className={classes.title} variant="h3" component="h1">
                 {name}
               </Typography>
-              {diff && (
-                <DiffDisplay id={investibleId} />
-              )}
-              {!diff && (
-                <ReadOnlyQuillEditor
-                  value={description}
-                />
-              )}
+              <DescriptionOrDiff
+                hidden={hidden}
+                id={investibleId}
+                description={description}
+              />
             </Paper>
             {lockedBy && (
               <Typography>

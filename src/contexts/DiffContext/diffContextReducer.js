@@ -3,10 +3,9 @@ import { DIFF_CONTEXT_NAMESPACE } from './DiffContext';
 import LocalForageHelper from '../LocalForageHelper';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
-const UPDATE_DIFF = 'UPDATE_DIFF';
-const UPDATE_DIFFS = 'UPDATE_DIFFS';
-const DELETE_DIFF = 'DELETE_DIFF';
-const MARK_SEEN_DIFF = 'MARK_SEEN_DIFF';
+const ADD_CONTENTS = 'ADD_CONTENTS';
+const VIEW_CONTENT = 'VIEW_CONTENT';
+const VIEW_DIFF = 'VIEW_DIFF';
 
 export function initializeState(newState) {
   return {
@@ -15,117 +14,138 @@ export function initializeState(newState) {
   };
 }
 
-export function updateDiff(newItem) {
+export function addContents(items) {
   return {
-    type: UPDATE_DIFF,
-    newItem,
+    type: ADD_CONTENTS,
+    items,
+  }
+}
+
+export function viewContent(itemId, content) {
+  return {
+    type: VIEW_CONTENT,
+    itemId,
+    content,
+  }
+}
+
+export function viewDiff(itemId) {
+  return {
+    type: VIEW_DIFF,
+    itemId,
   };
 }
 
-export function updateDiffs(newItems) {
-  return {
-    type: UPDATE_DIFFS,
-    newItems,
-  };
+/* Struct for an individual item
+{
+  id,
+  lastSeenContent
+  diff,
+  updated_by
 }
+ */
 
-export function deleteDiff(id) {
-  return {
-    type: DELETE_DIFF,
+function getNotSeenContent(state, content) {
+  const { id, description, updated_by: updatedBy } = content;
+  const firstReceived = {
     id,
+    currentContent: description,
+    updatedBy,
   };
-}
-
-export function diffSeen(id) {
-  return {
-    type: MARK_SEEN_DIFF,
-    id,
-  };
-}
-
-function doDelete(state, id) {
-  console.log(`Deleting diff for ${id}`);
-  if (state[id]) {
-    const oldValue = state[id];
-    // If you dismiss a diff then the investible has been seen before
-    const newValue = {
-      ...oldValue, isNew: false,
-    };
-    delete newValue.diff;
-    return {
-      ...state,
-      [id]: newValue,
-    };
-  }
-  return state;
-}
-
-function doMarkSeen(state, id) {
-  console.log(`Marking seen for ${id}`);
-  if (state[id]) {
-    const oldValue = state[id];
-    // the investible has been seen
-    const newValue = {
-      ...oldValue, isNew: false,
-    };
-    return {
-      ...state,
-      [id]: newValue,
-    };
-  }
-  return state;
-}
-
-function getUpdatedItemState(state, newItem) {
-  const { id, description, updated_by: updatedBy } = newItem;
-  if (!id && description) {
-    return state;
-  }
-  if (state[id]) {
-    const { contents, diff: oldDiff, isNew } = state[id];
-    // some updates do not change the contents
-    let diff = oldDiff;
-    if (description !== contents) {
-      const newDiff = HtmlDiff.execute(contents, description);
-      diff = newDiff;
-      // if we have an old diff, it means the user hasn't dismissed it yet.
-      // Hence we need to keep around the old contents as that's the baseline
-      // the have seen and want to compare against
-      // if we don't have a diff, then we are free to set the contents to the
-      // new value
-      const newContents = (oldDiff) ? contents : description;
-      return {
-        ...state,
-        [id]: {
-          contents: newContents,
-          updatedBy,
-          diff,
-          isNew,
-        },
-      };
-    }
-    return state;
-  }
-  // no existing version, so nothing to diff against yet
-  // just store the contents for the future
   return {
     ...state,
-    [id]: {
-      contents: description,
-      updatedBy,
-      isNew: true,
-    },
+    [id]: firstReceived,
   };
 }
 
-function doUpdates(state, action) {
-  const { newItems } = action;
-  return newItems.reduce((accState, item) => getUpdatedItemState(accState, item), state);
+function addContentsState(state, action) {
+  const { items } = action;
+  return items.reduce((state, item) => addContentState(state, item), state);
 }
 
-function doUpdate(state, action) {
-  const { newItem } = action;
-  return getUpdatedItemState(state, newItem);
+
+function addContentState(state, item) {
+  const {
+    id,
+    description,
+    updated_by: updatedBy,
+    updated_by_you: updatedByYou } = item;
+  // if we've not seen anything yet, the data structure is the same regardless of hoe many
+  // times we update it
+  const existing = state[id];
+  if (!existing) {
+    return getNotSeenContent(state, item);
+  }
+  const { lastSeenContent } = existing;
+  if (!lastSeenContent) {
+    return getNotSeenContent(state, item);
+  }
+  // if it's updated by you, we can advance to last seen to this,
+  // and then discard any previous diff because it's out of date
+  // hence it looks a lot like a "haven't ever seen this"
+  if (updatedByYou) {
+    return getNotSeenContent(state, item);
+  }
+  // Updates may come in that doesn't update the description
+  // so don't bother updating anything
+  if (lastSeenContent === description ) {
+    return state;
+  }
+  // ok at this point, you've seen something, and this new stuff
+  // is genuinely new to you. Hence we need to calculate the diff
+  const diff = HtmlDiff.execute(lastSeenContent, description);
+  const newContent = {
+    id,
+    lastSeenContent,
+    diff,
+    diffViewed: false,
+    updatedBy
+  };
+  return {
+    ...state,
+    [id]: newContent,
+  }
+}
+
+function viewDiffState(state, action) {
+  const { itemId } = action;
+  const oldContent = state[itemId];
+  if (!oldContent) {
+    return state;
+  }
+  const newContent = {
+    ...oldContent,
+    diffViewed: true,
+  };
+  const newState = {
+    ...state,
+    [itemId]: newContent,
+  };
+  return newState;
+}
+
+function viewContentState(state, action) {
+  const { itemId, content } = action;
+  const oldData = state[itemId];
+  if (!oldData) {
+    const notSeenContent = {
+      id: itemId,
+      lastSeenContent: content,
+    };
+    return {
+      ...state,
+      [itemId]: notSeenContent,
+    };
+  }
+  const newData = {
+    ...oldData,
+    id: itemId,
+    lastSeenContent: content,
+  };
+  return {
+    ...state,
+    [itemId]: newData,
+  };
 }
 
 function computeNewState(state, action) {
@@ -133,14 +153,12 @@ function computeNewState(state, action) {
   switch (type) {
     case INITIALIZE_STATE:
       return action.newState;
-    case UPDATE_DIFF:
-      return doUpdate(state, action);
-    case UPDATE_DIFFS:
-      return doUpdates(state, action);
-    case DELETE_DIFF:
-      return doDelete(state, action.id);
-    case MARK_SEEN_DIFF:
-      return doMarkSeen(state, action.id);
+    case ADD_CONTENTS:
+      return addContentsState(state, action);
+    case VIEW_CONTENT:
+      return viewContentState(state, action);
+    case VIEW_DIFF:
+      return viewDiffState(state, action);
     default:
       return state;
   }

@@ -9,7 +9,7 @@ import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { EMPTY_STATE } from './MarketsContext';
-import { updateDiffs } from '../DiffContext/diffContextReducer';
+import { addContents } from '../DiffContext/diffContextReducer';
 import { getUclusionLocalStorageItem } from '../../components/utils';
 
 function beginListening(dispatch, diffDispatch) {
@@ -31,7 +31,7 @@ function beginListening(dispatch, diffDispatch) {
         console.debug(`Markets context responding to updated market event ${event}`);
         return AllSequentialMap(message, (marketId) => getMarketDetails(marketId))
           .then((marketDetails) => {
-            diffDispatch(updateDiffs(marketDetails));
+            diffDispatch(addContents(marketDetails));
             dispatch(updateMarketDetails(marketDetails));
           });
       }

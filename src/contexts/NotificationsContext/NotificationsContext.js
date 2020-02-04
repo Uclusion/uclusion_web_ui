@@ -11,10 +11,9 @@ import LocalForageHelper from '../LocalForageHelper';
 import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext';
 import { DiffContext } from '../DiffContext/DiffContext';
-import { getIsNew } from '../DiffContext/diffContextHelper';
-import { diffSeen } from '../DiffContext/diffContextReducer';
 import { HighlightedVotingContext } from '../HighlightedVotingContext';
 import { VersionsContext } from '../VersionsContext/VersionsContext';
+import { hasUnViewedDiff } from '../DiffContext/diffContextHelper';
 
 export const EMPTY_STATE = {
   messages: [],
@@ -78,8 +77,7 @@ function NotificationsProvider(props) {
             highlightedVotingDispatch({ type: HIGHTLIGHT_ADD, associatedUserId, level });
           }
           // Do not toast unread as already have diff and dismiss - unless is new
-          if (aType !== 'UNREAD' || getIsNew(diffState, diffId)) {
-            diffDispatch(diffSeen(diffId));
+          if (aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)) {
             console.debug('Toasting from NotificationsContext');
             switch (level) {
               case 'RED':

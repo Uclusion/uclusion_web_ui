@@ -54,8 +54,8 @@ function DecisionInvestibleAdd(props) {
 
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketStages = getStages(marketStagesState, marketId) || [];
-  const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment);
-  const createdStage = marketStages.find((stage) => !stage.allows_investment);
+  const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
+  const createdStage = marketStages.find((stage) => !stage.allows_investment) || {};
   const stageChangeInfo = {
     stage_id: investmentAllowedStage.id,
     current_stage_id: createdStage.id,

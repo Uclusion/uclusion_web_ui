@@ -7,15 +7,16 @@ import { useIntl } from 'react-intl';
 function PlanningInvestibleEditActionButton(props) {
 
   const intl = useIntl();
-  const label = intl.formatMessage({ id: 'investibleEditLabel' });
   const {
     onClick,
     marketId,
     disabled,
     onSpinStart,
     onSpinStop,
+    isInNotDoing,
   } = props;
-
+  const labelId = isInNotDoing ? 'investibleAssignForVotingLabel' : 'investibleEditLabel';
+  const label = intl.formatMessage({ id: labelId});
   return (
     <SpinBlockingSidebarAction
       disabled={disabled}
@@ -32,6 +33,7 @@ function PlanningInvestibleEditActionButton(props) {
 PlanningInvestibleEditActionButton.propTypes = {
   onClick: PropTypes.func,
   marketId: PropTypes.string.isRequired,
+  isInNotDoing: PropTypes.bool,
   disabled: PropTypes.bool,
   onSpinStart: PropTypes.func,
   onSpinStop: PropTypes.func,
@@ -40,6 +42,7 @@ PlanningInvestibleEditActionButton.propTypes = {
 PlanningInvestibleEditActionButton.defaultProps = {
   onClick: () => {},
   disabled: false,
+  isInNotDoing: false,
   onSpinStart: () => {},
   onSpinStop: () => {},
 };

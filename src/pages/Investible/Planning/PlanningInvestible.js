@@ -225,6 +225,7 @@ function PlanningInvestible(props) {
       sidebarActions.push(<PlanningInvestibleEditActionButton
         marketId={marketId}
         key="edit"
+        isInNotDoing={isInNotDoing}
         onClick={toggleEdit}
       />);
     }
@@ -293,6 +294,8 @@ function PlanningInvestible(props) {
         stageId={stage}
         key="verified"
       />);
+    }
+    if (!isInNotDoing) {
       sidebarActions.push(<MoveToNotDoingActionButton
         investibleId={investibleId}
         marketId={marketId}

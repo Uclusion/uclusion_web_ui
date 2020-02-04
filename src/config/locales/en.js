@@ -222,6 +222,7 @@ const messages = defineMessages({
 
   // Investible
   investibleEditLabel: 'Edit',
+  investibleAssignForVotingLabel: 'Assign & Move Voting',
   investibleAddHeader: 'Add Investible',
   investibleEditStageHelper: 'Select to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',

@@ -60,13 +60,37 @@ class TokenFetcher {
       });
   }
 
+  getIdentityBasedTokenAndInfo(isObserver) {
+    return this.tokenRefresher.getIdentity()
+      .then((identity) => {
+        switch(this.tokenType){
+          case TOKEN_TYPE_MARKET:
+            return this.getMarketTokenAndLoginData(identity, this.itemId, isObserver);
+          case TOKEN_TYPE_ACCOUNT:
+            return this.getAccountToken(identity, this.itemId);
+          default:
+            throw new Error('Unknown token type');
+        }
+      });
+  }
+
   getMarketToken(identity, marketId, isObserver){
+    console.debug(`logging into market ${marketId} with cognito identity ${identity} and isObserver ${isObserver}`);
+    return this.getMarketTokenAndLoginData(identity, marketId, isObserver)
+      .then((loginData) => {
+        const { uclusion_token } = loginData;
+        return uclusion_token;
+      });
+
+  }
+
+  getMarketTokenAndLoginData(identity, marketId, isObserver) {
     console.debug(`logging into market ${marketId} with cognito identity ${identity} and isObserver ${isObserver}`);
     return this.ssoClient.marketCognitoLogin(identity, marketId, isObserver)
       .then((loginData) => {
         const { uclusion_token } = loginData;
         this.tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, uclusion_token);
-        return uclusion_token;
+        return loginData;
       });
 
   }

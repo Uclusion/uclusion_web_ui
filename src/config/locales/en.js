@@ -541,6 +541,7 @@ const messages = defineMessages({
   errorGetIdFailed: 'There was a problem displaying your identification.',
   errorUpdateUserFailed: 'There was a problem updating your profile. Please try again.',
   errorMarketFetchFailed: 'There was an error processing your invite. Please try again.',
+  warningAlreadyInMarket: 'You are already a part of this market.',
 
   // home cheat sheet
   homeCheatWelcome: 'Welcome to Uclusion!',

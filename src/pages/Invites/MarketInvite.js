@@ -9,7 +9,7 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import Screen from '../../containers/Screen/Screen';
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
-import { getMarketClient } from '../../api/uclusionClient';
+import { getMarketLogin } from '../../api/uclusionClient';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { toastError } from '../../utils/userMessage';
 import queryString from 'query-string'
@@ -47,7 +47,15 @@ function MarketInvite(props) {
       console.debug(`Logging into market ${marketId}`);
       const values = queryString.parse(hash);
       const { is_obs: isObserver } = values;
-      getMarketClient(marketId, isObserver === 'true')
+      getMarketLogin(marketId, isObserver === 'true')
+        .then((result) => {
+          const { is_new_capability: loggedIntoNewMarket } = result;
+          if (!loggedIntoNewMarket) {
+            setMyLoading(false);
+            registerListener(VERSIONS_HUB_CHANNEL, 'inviteListener', () => {});
+            toastError('warningAlreadyInMarket');
+          }
+        })
         .catch((error) => {
           setMyLoading(false);
           console.error(error);

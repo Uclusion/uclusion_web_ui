@@ -126,7 +126,7 @@ const messages = defineMessages({
   planningObservers: 'Approvers',
   isApprover: 'Is Approver',
   isObserver: 'Is Observer',
-
+  browserNotSupported: 'Currently only the latest Chrome browser is supported',
   addDecision: 'Add Dialog',
   addPlanning: 'Add Agile Plan',
   addInitiative: 'Add Initiative',

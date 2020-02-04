@@ -55,6 +55,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+
 function scroller(location) {
   const { hash } = location;
   if (hash && hash.length > 1) {
@@ -220,10 +222,17 @@ function Screen(props) {
           [classes.contentUnShift]: !sidebarOpen,
         })}
       >
-        {!myLoading && (
+        {!isChrome && (
+          <div className={classes.loadingDisplay}>
+            <Typography variant="h3">
+              {intl.formatMessage({ id: 'browserNotSupported' })}
+            </Typography>
+          </div>
+        )}
+        {isChrome && !myLoading && (
           <Container className={classes.container}>{children}</Container>
         )}
-        {myLoading && (
+        {isChrome && myLoading && (
           <div className={classes.loadingDisplay}>
             <Typography variant="h3">
               {intl.formatMessage({ id: 'loadingMessage' })}

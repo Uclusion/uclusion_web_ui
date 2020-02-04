@@ -257,6 +257,7 @@ function Signup(props) {
                 type="password"
                 variant="outlined"
                 autoComplete="new-password"
+                error={repeat && password !== repeat}
                 helperText={repeat !== password ? intl.formatMessage({ id: 'signupPasswordRepeatHelper' }) : ''}
                 InputProps={{
                   minLength: 6,

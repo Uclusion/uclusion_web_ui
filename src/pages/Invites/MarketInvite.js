@@ -47,7 +47,7 @@ function MarketInvite(props) {
       console.debug(`Logging into market ${marketId}`);
       const values = queryString.parse(hash);
       const { is_obs: isObserver } = values;
-      getMarketClient(marketId, isObserver)
+      getMarketClient(marketId, isObserver === 'true')
         .catch((error) => {
           setMyLoading(false);
           console.error(error);

@@ -15,7 +15,7 @@ function CommentBox(props) {
       const { id } = comment;
       return (
         <Grid item key={id} xs={12}>
-          <div id={id}>
+          <div id={`c${id}`}>
             <Comment
               depth={0}
               marketId={marketId}

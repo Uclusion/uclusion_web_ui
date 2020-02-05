@@ -1,8 +1,9 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
+import DirectionsIcon from '@material-ui/icons/Directions';
 import { useIntl } from 'react-intl';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import Screen from '../../containers/Screen/Screen';
@@ -66,6 +67,11 @@ function Home(props) {
   function addPlanning() {
     navigate(history, '/dialogAdd#type=PLANNING');
   }
+  const noMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
+  const tourSteps = pureSignupHomeSteps({ name: cognitoUser.name });
+  const [, tourDispatch] = useContext(TourContext);
+  // Delay starting the tour for 10 seconds to let stuff settle. This will be fixed when loading is properly defined
+
 
   const SIDEBAR_ACTIONS = [
     {
@@ -89,6 +95,11 @@ function Home(props) {
       icon: <MenuBookIcon/>,
       onClick: () => navigate(history, '/archives'),
     },
+    {
+      label: intl.formatMessage( { id: 'homeStartTour' }),
+      icon: <DirectionsIcon/>,
+      onClick: () => beginTourFamily(tourDispatch, PURE_SIGNUP_FAMILY_NAME),
+    },
   ];
 
   const sidebarActions = [];
@@ -103,22 +114,6 @@ function Home(props) {
       />,
     );
   });
-  const noMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
-  const tourSteps = pureSignupHomeSteps({ name: cognitoUser.name });
-  const [, tourDispatch] = useContext(TourContext);
-  // Delay starting the tour for 10 seconds to let stuff settle. This will be fixed when loading is properly defined
-  const tourStartDelay = 10000;
-  useEffect(() => {
-    if (noMarkets) {
-        setTimeout(() => {
-          if (noMarkets) {
-            console.log('Starting tour family');
-            beginTourFamily(tourDispatch, PURE_SIGNUP_FAMILY_NAME);
-          }
-      }, tourStartDelay);
-    }
-    return () => {};
-  }, [noMarkets, tourDispatch]);
 
   return (
     <Screen
@@ -133,7 +128,6 @@ function Home(props) {
         name={PURE_SIGNUP_HOME}
         steps={tourSteps}
         continuous
-        shouldRun={noMarkets}
         hideBackButton
       />
       {noMarkets && (

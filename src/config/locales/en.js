@@ -550,7 +550,7 @@ const messages = defineMessages({
 
   // home cheat sheet
   homeCheatWelcome: 'Welcome to Uclusion!',
-
+  homeStartTour: 'Start Tour',
   //summary
   summaryExpiredAt: 'Expired on {expireDate}',
 

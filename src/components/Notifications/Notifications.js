@@ -69,10 +69,10 @@ function Notifications(props) {
       switch (aType) {
         case ISSUE_RESOLVED_TYPE:
         case ISSUE_TYPE:
-          fullLink = `${link}#${commentId}`;
+          fullLink = `${link}#c${commentId}`;
           break;
         case NO_PIPELINE_TYPE:
-          fullLink = `${link}#${userId}`;
+          fullLink = `${link}#u${userId}`;
           break;
         case NEW_VOTES_TYPE:
           fullLink = `${link}#cv${associatedUserId}`;

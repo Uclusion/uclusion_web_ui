@@ -461,7 +461,7 @@ const messages = defineMessages({
   signupCreatedUser: 'Your user is created, and a verification link has been sent to your email. Please click the link inside to continue.',
   signupResendCodeButton: 'Resend Link',
   signupAgreeTermsOfUse: 'I agree to the Uclusion ',
-  signupTermsOfUse: 'Terms of Use',
+  signupTermsOfUse: 'Beta Program Terms of Use',
 
   // Forgot Password
   forgotPasswordHeader: 'Reset your password',

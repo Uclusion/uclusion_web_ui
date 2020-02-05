@@ -45,6 +45,8 @@ import { convertDates } from '../../../contexts/ContextUtils';
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import { SECTION_TYPE_PRIMARY, SECTION_TYPE_PRIMARY_WARNING, SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -351,10 +353,17 @@ function PlanningInvestible(props) {
               </Typography>
             )}
             {newestVote && isInVoting && (
-              <ExpiresDisplay
-                createdAt={newestVote}
-                expirationMinutes={expirationDays * 1440}
-              />
+              <List>
+                <ListItem>
+                  <ExpiresDisplay
+                    createdAt={newestVote}
+                    expirationMinutes={expirationDays * 1440}
+                  />
+                  <Typography>
+                    {intl.formatMessage({ id: 'investmentExpiration' })}
+                  </Typography>
+                </ListItem>
+              </List>
             )}
           </SubSection>
         </Grid>

@@ -159,7 +159,7 @@ function PlanningDialog(props) {
                 style={{ height: 'auto', width: '100%' }}
               >
                 <ListSubheader component="div">
-                  <div id={id}>{name}</div>
+                  <div id={`u${id}`}>{name}</div>
                 </ListSubheader>
               </GridListTile>
               {marketId &&

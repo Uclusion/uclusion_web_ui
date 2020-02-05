@@ -65,7 +65,7 @@ function VerifyEmail(props) {
           sendIntlMessageBase(intl, ERROR, "errorVerifyFailed");
         });
     }
-  }, [code, verificationState, history]);
+  }, [code, verificationState, history, intl]);
 
   if (!code) {
     return (

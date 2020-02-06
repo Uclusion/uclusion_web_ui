@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formMarketLink, formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
@@ -108,6 +108,7 @@ function DecisionDialogs(props) {
                     <ExpiresDisplay
                       createdAt={createdAt}
                       expirationMinutes={expirationMinutes}
+                      onClick={() => navigate(history, formMarketManageLink(marketId))}
                     />
                   )}
                 </Grid>

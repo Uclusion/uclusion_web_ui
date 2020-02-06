@@ -77,7 +77,7 @@ function describeArc(x, y, radius, startAngle, endAngle) {
 function ExpiresDisplay(props) {
   const classes = useStyles();
   const intl = useIntl();
-  const { createdAt, expirationMinutes } = props;
+  const { createdAt, expirationMinutes, onClick } = props;
   const [now, setNow] = useState(new Date());
   const expiresDurationMillis = expirationMinutes * 60000;
   const createdAtMillis = createdAt.getTime();
@@ -136,7 +136,10 @@ function ExpiresDisplay(props) {
   return (
     <div className={classes.countdownWrapper}>
       {shouldDisplay && (
-        <div className={classes.countdownItem}>
+        <div
+          onClick={onClick}
+          className={classes.countdownItem}
+        >
           <svg className={classes.countdownSvg}>
             <path
               fill="none"
@@ -159,9 +162,14 @@ function ExpiresDisplay(props) {
 }
 
 ExpiresDisplay.propTypes = {
+  onClick: PropTypes.func,
   expirationMinutes: PropTypes.number.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   createdAt: PropTypes.object.isRequired,
+};
+
+ExpiresDisplay.defaultProps = {
+  onClick: () => {},
 };
 
 export default ExpiresDisplay;

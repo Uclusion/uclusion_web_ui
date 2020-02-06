@@ -13,6 +13,8 @@ import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
 import DialogActions from '../Home/DialogActions';
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff';
+import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -51,6 +53,7 @@ function Summary(props) {
   } = props;
   const intl = useIntl();
   const classes = useStyles();
+  const history = useHistory();
   const {
     id,
     name,
@@ -92,12 +95,15 @@ function Summary(props) {
         {marketType !== INITIATIVE_TYPE ? name : investibleName}
       </Typography>
       {marketType !== PLANNING_TYPE && !active && (
-        <ExpiredDisplay expiresDate={updatedAt} />
+        <ExpiredDisplay
+          expiresDate={updatedAt}
+        />
       )}
       {marketType !== PLANNING_TYPE && active && (
         <ExpiresDisplay
           createdAt={createdAt}
           expirationMinutes={expirationMinutes}
+          onClick={() => navigate(history, formMarketManageLink(id))}
         />
       )}
       <CardActions>

@@ -420,7 +420,10 @@ const messages = defineMessages({
   deadlineExtenderCancel: 'Clear',
 
   // invite linker
-  inviteLinkerDirections: 'Share this link to invite others to the dialog',
+  inviteLinkerDirectionsDecision: 'Share this link to invite others to the dialog',
+  inviteLinkerDirectionsPlan: 'Share this link to invite others to the plan',
+  inviteLinkerDirectionsInitiative: 'Share this link to invite others to the initiative',
+
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
 
   slackIntegrationSuccessful: 'Slack was successfully integrated.',

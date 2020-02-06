@@ -21,7 +21,7 @@ import { addParticipants, inviteParticipants } from '../../api/users';
 import InviteLinker from './InviteLinker';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 import DeadlineExtender from './Decision/DeadlineExtender';
-import { ACTIVE_STAGE, DECISION_TYPE } from '../../constants/markets';
+import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import ChangeToObserverButton from './ChangeToObserverButton';
 import ChangeToParticipantButton from './ChangeToParticipantButton';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -51,24 +51,32 @@ function AddressList(props) {
   const { id: addToMarketId, market_stage: marketStage, market_type: marketType } = market;
   const classes = useStyles();
   const intl = useIntl();
-  const observerLabel = marketType === DECISION_TYPE ? intl.formatMessage({ id: 'isObserver' }) :
+  const isInitative = marketType === INITIATIVE_TYPE;
+  const isPlan = marketType === PLANNING_TYPE;
+  const isDecision = marketType === DECISION_TYPE;
+  const observerLabel = isDecision ? intl.formatMessage({ id: 'isObserver' }) :
     intl.formatMessage({ id: 'isApprover' });
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [email1, setEmail1] = useState(undefined);
+
   function handleEmail1(event) {
     const { value } = event.target;
     setEmail1(value);
   }
+
   const [isObserver1, setIsObserver1] = useState(false);
+
   function handleIsObserver1() {
     setIsObserver1(!isObserver1);
   }
+
   const inviteFormInvalid = _.isEmpty(email1);
+
   function onInvite(form) {
     form.preventDefault();
     const participants = [];
     if (email1) {
-      participants.push({email: email1, is_observer: isObserver1});
+      participants.push({ email: email1, is_observer: isObserver1 });
     }
     return inviteParticipants(addToMarketId, participants).then(() => {
       setEmail1(undefined);
@@ -100,6 +108,7 @@ function AddressList(props) {
       return { ...acc, ...macc };
     }, {});
   }
+
   const defaultChecked = extractUsersList();
   const [checked, setChecked] = useState(defaultChecked);
   const [searchValue, setSearchValue] = useState(undefined);
@@ -184,7 +193,7 @@ function AddressList(props) {
         >
           {domain}
         </ListItemText>
-        {showObservers && (
+        {!isInitative && showObservers && (
           <ListItemIcon>
             <Checkbox
               onClick={getObserverToggle(id)}
@@ -240,6 +249,8 @@ function AddressList(props) {
         {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
       </Typography>
       <InviteLinker
+        marketType={marketType}
+        showObserverLink={showObservers}
         marketId={addToMarketId}
         observerLabel={observerLabel}
       />
@@ -251,15 +262,17 @@ function AddressList(props) {
         <List
           dense
         >
-          <ListItem key="observer" divider>
-              <ListItemText className={classes.name}>
-                {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
-              </ListItemText>
+          <ListItem key="participantEmailAdd" divider>
+            <ListItemText className={classes.name}>
+              {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+            </ListItemText>
+            {showObservers && (
               <ListItemIcon>
                 <ListItemText>
                   {observerLabel}
                 </ListItemText>
               </ListItemIcon>
+            )}
           </ListItem>
           <ListItem
             id="emailInput"
@@ -277,13 +290,15 @@ function AddressList(props) {
                 onChange={handleEmail1}
               />
             </ListItemText>
-            <ListItemIcon>
-              <Checkbox
-                id="isObserver1"
-                onClick={handleIsObserver1}
-                checked={isObserver1}
-              />
-            </ListItemIcon>
+            {showObservers && (
+              <ListItemIcon>
+                <Checkbox
+                  id="isObserver1"
+                  onClick={handleIsObserver1}
+                  checked={isObserver1}
+                />
+              </ListItemIcon>
+            )}
           </ListItem>
         </List>
         <ApiBlockingButton
@@ -307,7 +322,7 @@ function AddressList(props) {
                 endAdornment: (
                   <InputAdornment>
                     <IconButton>
-                      <SearchIcon />
+                      <SearchIcon/>
                     </IconButton>
                   </InputAdornment>
                 ),

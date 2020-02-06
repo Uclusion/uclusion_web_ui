@@ -51,6 +51,7 @@ function DecisionDialogs(props) {
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+      const isAdmin = myPresence && myPresence.is_admin;
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
       const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
@@ -108,7 +109,7 @@ function DecisionDialogs(props) {
                     <ExpiresDisplay
                       createdAt={createdAt}
                       expirationMinutes={expirationMinutes}
-                      onClick={() => navigate(history, formMarketManageLink(marketId))}
+                      onClick={() => isAdmin && navigate(history, formMarketManageLink(marketId))}
                     />
                   )}
                 </Grid>

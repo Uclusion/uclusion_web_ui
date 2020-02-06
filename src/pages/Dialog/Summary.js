@@ -71,6 +71,7 @@ function Summary(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+  const isAdmin = myPresence.is_admin;
   const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
   // eslint-disable-next-line max-len
   const marketPresencesParticipating = marketPresences.filter((presence) => presence.following && !presence.is_admin);
@@ -103,7 +104,7 @@ function Summary(props) {
         <ExpiresDisplay
           createdAt={createdAt}
           expirationMinutes={expirationMinutes}
-          onClick={() => navigate(history, formMarketManageLink(id))}
+          onClick={() => isAdmin && navigate(history, formMarketManageLink(id))}
         />
       )}
       <CardActions>

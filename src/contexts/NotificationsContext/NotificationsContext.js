@@ -76,8 +76,9 @@ function NotificationsProvider(props) {
           if (associatedUserId) {
             highlightedVotingDispatch({ type: HIGHTLIGHT_ADD, associatedUserId, level });
           }
-          // Do not toast unread as already have diff and dismiss - unless is new
-          if (aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)) {
+          // Do not toast a non red unread as already have diff and dismiss - unless is new
+          const shouldToast = (level === 'RED') || aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId);
+          if (shouldToast) {
             console.debug('Toasting from NotificationsContext');
             switch (level) {
               case 'RED':

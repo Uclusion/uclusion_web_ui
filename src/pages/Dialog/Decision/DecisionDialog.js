@@ -7,13 +7,13 @@ import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
 import { Grid } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
-import EditIcon from '@material-ui/icons/Edit';
 import EditAttributesIcon from '@material-ui/icons/EditAttributes';
 import {
   formMarketAddInvestibleLink,
   makeBreadCrumbs,
   navigate,
-  formMarketEditLink, formMarketManageLink, makeArchiveBreadCrumbs,
+  formMarketManageLink,
+  makeArchiveBreadCrumbs,
 } from '../../../utils/marketIdPathFunctions';
 import Summary from '../Summary';
 import ProposedIdeas from './ProposedIdeas';
@@ -143,19 +143,7 @@ function DecisionDialog(props) {
     });
   }
 
-  const adminMenuList = [
-    {
-      label: intl.formatMessage({ id: 'dialogEditButtonTooltip' }),
-      icon: <EditIcon />,
-      onClick: () => navigate(history, formMarketEditLink(marketId)),
-    },
-  ];
-
   function getSidebarActions() {
-    if (isAdmin && activeMarket) {
-      sidebarMenuList.unshift(...adminMenuList);
-    }
-
     return sidebarMenuList.map((item, index) => {
       const { onClick, label, icon, id } = item;
       if (item.spinBlocking) {

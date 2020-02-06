@@ -14,8 +14,8 @@ import PlanningIdeas from './PlanningIdeas';
 import Screen from '../../../containers/Screen/Screen';
 import {
   formMarketAddInvestibleLink,
-  formMarketEditLink,
-  formMarketManageLink, makeArchiveBreadCrumbs,
+  formMarketManageLink,
+  makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate,
 } from '../../../utils/marketIdPathFunctions';
@@ -26,7 +26,6 @@ import SubSection from '../../../containers/SubSection/SubSection';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import InvestibleAddActionButton from './InvestibleAddActionButton';
-import DialogEditActionButton from './DialogEditActionButton';
 import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets';
@@ -196,11 +195,6 @@ function PlanningDialog(props) {
         ];
     }
     return [
-      <DialogEditActionButton
-        key="edit"
-        onClick={() => navigate(history, formMarketEditLink(marketId))}
-        marketId={marketId}
-      />,
       <InvestibleAddActionButton
         key="investibleadd"
         onClick={toggleAddInvestibleMode}

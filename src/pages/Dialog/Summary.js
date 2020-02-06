@@ -114,6 +114,7 @@ function Summary(props) {
           marketType={marketType}
           inArchives={myPresence.market_hidden}
           marketId={id}
+          initiativeId={investibleId}
         />
       </CardActions>
       <div>

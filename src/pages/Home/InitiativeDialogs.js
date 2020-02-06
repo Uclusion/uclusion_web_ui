@@ -50,7 +50,7 @@ function InitiativeDialogs(props) {
       }
       const baseInvestible = investibles[0];
       const { investible } = baseInvestible;
-      const { name } = investible;
+      const { name, id: baseInvestibleId } = investible;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
@@ -127,6 +127,7 @@ function InitiativeDialogs(props) {
                 marketType={marketType}
                 isAdmin
                 inArchives={myPresence.market_hidden}
+                initiativeId={baseInvestibleId}
               />
             </CardActions>
           </RaisedCard>

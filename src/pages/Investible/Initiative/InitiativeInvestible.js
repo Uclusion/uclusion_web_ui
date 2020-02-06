@@ -20,7 +20,6 @@ import {
   makeBreadCrumbs,
   navigate,
 } from '../../../utils/marketIdPathFunctions';
-import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import { ACTIVE_STAGE, INITIATIVE_TYPE } from '../../../constants/markets';
 import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
@@ -41,7 +40,6 @@ function InitiativeInvestible(props) {
     userId,
     market,
     fullInvestible,
-    toggleEdit,
     isAdmin,
     inArchives,
     hidden,
@@ -88,9 +86,6 @@ function InitiativeInvestible(props) {
     }
     const sidebarActions = [];
 
-    if (isAdmin) {
-      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
-    }
     sidebarActions.push(<AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />);
     sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
     sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
@@ -203,7 +198,6 @@ InitiativeInvestible.propTypes = {
   investibleComments: PropTypes.arrayOf(PropTypes.object),
   investibleId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
-  toggleEdit: PropTypes.func,
   isAdmin: PropTypes.bool,
   inArchives: PropTypes.bool,
   hidden: PropTypes.bool,
@@ -212,8 +206,6 @@ InitiativeInvestible.propTypes = {
 InitiativeInvestible.defaultProps = {
   marketPresences: [],
   investibleComments: [],
-  toggleEdit: () => {
-  },
   isAdmin: false,
   inArchives: false,
   hidden: false,

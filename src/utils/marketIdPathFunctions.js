@@ -106,6 +106,10 @@ export function formInviteLink(marketId) {
   return url.toString();
 }
 
+export function formInvestibleEditLink(marketId, investibleId){
+  return formInvestibleLinkWithPrefix('investibleEdit', marketId, investibleId)
+}
+
 export function formInvestibleLinkWithPrefix(preFix, marketId, investibleId) {
   return `/${preFix}/${marketId}/${investibleId}`;
 }

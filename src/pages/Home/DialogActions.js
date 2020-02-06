@@ -5,7 +5,7 @@ import HideMarketButton from './HideMarketButton';
 import ShowMarketButton from './ShowMarketButton';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import { makeStyles } from '@material-ui/core';
-import { formMarketEditLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formInvestibleEditLink, formMarketEditLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import EditMarketButton from '../Dialog/EditMarketButton';
 
@@ -27,6 +27,7 @@ function DialogActions(props) {
     marketType,
     isAdmin,
     inArchives,
+    initiativeId,
   } = props;
 
   const classes = useStyles();
@@ -53,7 +54,10 @@ function DialogActions(props) {
   function getActions() {
     const actions = [];
     const editLabel = getEditLabel();
-    const editAction = () => navigate(history, formMarketEditLink(marketId));
+    const editLink = marketType === INITIATIVE_TYPE
+      ? formInvestibleEditLink(marketId, initiativeId)
+      : formMarketEditLink(marketId);
+    const editAction = () => navigate(history, editLink);
     if (isAdmin) {
       if (marketStage === 'Active') {
         actions.push(
@@ -97,6 +101,7 @@ DialogActions.propTypes = {
   marketStage: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
   marketType: PropTypes.string.isRequired,
+  initiativeId: PropTypes.string,
   isAdmin: PropTypes.bool,
   inArchives: PropTypes.bool,
 };
@@ -104,6 +109,7 @@ DialogActions.propTypes = {
 DialogActions.defaultProps = {
   isAdmin: false,
   inArchives: false,
+  initiativeId: '',
 };
 
 export default DialogActions;

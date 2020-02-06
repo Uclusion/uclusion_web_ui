@@ -4,7 +4,6 @@ import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import TextField from '@material-ui/core/TextField';
 import {
-  Button,
   Paper,
   RadioGroup,
   FormControl,
@@ -27,7 +26,6 @@ function AddEditVote(props) {
     investibleId,
     investment,
     onSave,
-    onCancel,
     showBudget,
     storyMaxBudget,
   } = props;
@@ -199,13 +197,6 @@ function AddEditVote(props) {
             {intl.formatMessage({ id: 'removeVote' })}
           </SpinBlockingButton>
         )}
-        {addMode && (
-          <Button
-            onClick={() => onCancel()}
-          >
-            {intl.formatMessage({ id: 'cancelVote' })}
-          </Button>
-        )}
         {saveEnabled && (
           <SpinBlockingButton
             marketId={marketId}
@@ -232,15 +223,12 @@ AddEditVote.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   investment: PropTypes.object,
   onSave: PropTypes.func,
-  onCancel: PropTypes.func,
 };
 
 AddEditVote.defaultProps = {
   showBudget: false,
   investment: {},
   onSave: () => {
-  },
-  onCancel: () => {
   },
   reason: {},
 };

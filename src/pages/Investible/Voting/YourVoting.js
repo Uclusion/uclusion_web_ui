@@ -1,9 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Paper, Button, ButtonGroup } from '@material-ui/core';
 import AddEditVote from './AddEditVote';
-import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets';
-import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 
@@ -17,61 +14,29 @@ function YourVoting(props) {
     userId,
     showBudget,
   } = props;
-  const intl = useIntl();
 
   const history = useHistory();
-  const { market_type, id: marketId, max_budget: storyMaxBudget } = market;
+  const { id: marketId, max_budget: storyMaxBudget } = market;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const yourReason = comments.find((comment) => comment.created_by === userId);
-  const [voteForThis, setVoteForThis] = useState(undefined);
 
-  function onVoteSave(){
+  function onVoteSave() {
     navigate(history, formMarketLink(marketId));
   }
 
-  function getVotingActionId() {
-    switch (market_type) {
-      case PLANNING_TYPE:
-        return 'yourVotingVoteForThisPlanning';
-      case DECISION_TYPE:
-        return 'yourVotingVoteForThisDecision';
-      default: //also initiative
-        return 'yourVotingVoteForThisInitiative';
-    }
-  }
-
-  if (yourVote || voteForThis === investibleId) {
-    return (
-      <AddEditVote
-        marketId={marketId}
-        investibleId={investibleId}
-        onCancel={() => setVoteForThis(undefined)}
-        reason={yourReason}
-        investment={yourVote}
-        showBudget={showBudget}
-        onSave={onVoteSave}
-        storyMaxBudget={storyMaxBudget}
-      />
-    );
-  }
-
   return (
-    <Paper>
-      <ButtonGroup
-        variant="contained"
-        size="small"
-        color="primary"
-      >
-        <Button
-          id="voteForThis"
-          onClick={() => setVoteForThis(investibleId)}
-        >
-          {intl.formatMessage({ id: getVotingActionId() })}
-        </Button>
-      </ButtonGroup>
-    </Paper>
+    <AddEditVote
+      marketId={marketId}
+      investibleId={investibleId}
+      reason={yourReason}
+      investment={yourVote}
+      showBudget={showBudget}
+      onSave={onVoteSave}
+      storyMaxBudget={storyMaxBudget}
+    />
   );
+
 }
 
 YourVoting.propTypes = {

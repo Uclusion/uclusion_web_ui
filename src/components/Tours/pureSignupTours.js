@@ -118,35 +118,6 @@ export const PURE_SIGNUP_ADD_FIRST_OPTION_STEPS = [
   },
 ];
 
-export const PURE_SIGNUP_VIEW_FIRST_OPTION_STEPS = [
-  {
-    title: 'Your Option',
-    content: "Options are what participants can vote on. Generally you'll be the one creating them, but participants can propose them, and you can promote the proposed ones to current voting.",
-    target: '#description',
-    disableBeacon: true,
-  },
-  {
-    title: 'Vote',
-    content: "Since you're a participant in the dialog you vote too! We're going to vote for the option you just created. Don't worry if it's not the one you really want, as you can change your vote by voting on another option later.",
-    disableBeacon: true,
-    target: '#voteForThis',
-    onClose: () => document.getElementById('voteForThis').click(),
-  },
-  {
-    title: 'Voting Explained',
-    content: "Uclusion asks users two things about their dialog votes. The first is how certain they are about their vote. This helps both of you understand how much support the idea really has. The second is the reason why they voted for this option, and lets the participant give you context around their vote",
-    target: '#yourVote',
-    disableBeacon: true,
-  },
-
-  {
-    title: 'Vote',
-    content: "Tell us your certainty, and give us a reason for the vote. If you're uncertain, and the reason is 'Uclusion made me do it', that's fine, you can vote for something else later. When done, click 'Save'.",
-    target: '#yourVote',
-    disableBeacon: true,
-  }
-];
-
 export const PURE_SIGNUP_ADD_PEOPLE_STEPS = [
   {
     title: 'Collaborate with Uclusion',

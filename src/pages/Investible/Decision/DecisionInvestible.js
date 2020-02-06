@@ -27,12 +27,6 @@ import {
 import { ACTIVE_STAGE } from '../../../constants/markets';
 import { SECTION_TYPE_PRIMARY, SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
-import UclusionTour from '../../../components/Tours/UclusionTour';
-import {
-  PURE_SIGNUP_FAMILY_NAME,
-  PURE_SIGNUP_VIEW_FIRST_OPTION,
-  PURE_SIGNUP_VIEW_FIRST_OPTION_STEPS
-} from '../../../components/Tours/pureSignupTours';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 
 const useStyles = makeStyles((theme) => ({
@@ -119,11 +113,6 @@ function DecisionInvestible(props) {
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id;
   const activeMarket = marketStage === ACTIVE_STAGE;
-
-  const userTourSteps = [];
-  const tourSteps = isAdmin? PURE_SIGNUP_VIEW_FIRST_OPTION_STEPS : userTourSteps;
-  const tourName = isAdmin? PURE_SIGNUP_VIEW_FIRST_OPTION : '';
-  const tourFamily = isAdmin? PURE_SIGNUP_FAMILY_NAME: '';
   const myPresence = marketPresences.find((presence) => presence.current_user);
 
   const {
@@ -201,13 +190,6 @@ function DecisionInvestible(props) {
       hidden={hidden}
       sidebarActions={getSidebarActions()}
     >
-      <UclusionTour
-        hidden={hidden}
-        shouldRun={isAdmin}
-        family={tourFamily}
-        name={tourName}
-        steps={tourSteps}
-      />
       <Grid container spacing={2}>
         <Grid
           id="description"

@@ -39,12 +39,12 @@ function InvestibleAdd(props) {
   const [idLoaded, setIdLoaded] = useState(undefined);
 
 
-  function onDone(investibleLink) {
-    console.log(`Called with link ${investibleLink}`);
+  function onDone(destinationLink) {
+    console.log(`Called with link ${destinationLink}`);
     localforage.removeItem(`add_investible_${marketId}`)
       .finally(() => {
-        if (investibleLink) {
-          navigate(history, investibleLink);
+        if (destinationLink) {
+          navigate(history, destinationLink);
         }
       });
   }

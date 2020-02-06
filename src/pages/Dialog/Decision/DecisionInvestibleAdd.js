@@ -18,7 +18,6 @@ import { processTextAndFilesForSave } from '../../../api/files';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import {
-  formInvestibleLink,
   formMarketLink,
 } from '../../../utils/marketIdPathFunctions';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
@@ -131,7 +130,7 @@ function DecisionInvestibleAdd(props) {
     };
     const promise = isAdmin ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
     return promise.then((investibleId) => {
-      const link = isAdmin ? formInvestibleLink(marketId, investibleId) : formMarketLink(marketId);
+      const link = formMarketLink(marketId);
       return {
         result: link,
         spinChecker: () => checkInvestibleInStorage(investibleId),

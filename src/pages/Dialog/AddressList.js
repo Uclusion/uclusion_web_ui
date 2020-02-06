@@ -21,7 +21,7 @@ import { addParticipants, inviteParticipants } from '../../api/users';
 import InviteLinker from './InviteLinker';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 import DeadlineExtender from './Decision/DeadlineExtender';
-import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
 import ChangeToObserverButton from './ChangeToObserverButton';
 import ChangeToParticipantButton from './ChangeToParticipantButton';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -52,7 +52,7 @@ function AddressList(props) {
   const classes = useStyles();
   const intl = useIntl();
   const isInitative = marketType === INITIATIVE_TYPE;
-  const isPlan = marketType === PLANNING_TYPE;
+ // const isPlan = marketType === PLANNING_TYPE;
   const isDecision = marketType === DECISION_TYPE;
   const observerLabel = isDecision ? intl.formatMessage({ id: 'isObserver' }) :
     intl.formatMessage({ id: 'isApprover' });

@@ -14,6 +14,7 @@ import Link from '@material-ui/core/Link';
 import { resendVerification, signUp } from '../../api/sso';
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
 import config from '../../config';
+import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -59,6 +60,7 @@ function Signup(props) {
 
   const [userState, dispatch] = useReducer(reducer, empty);
   const [postSignUp, setPostSignUp] = useState(undefined);
+  const [callActive, setCallActive] = useState(false);
   const intl = useIntl();
   const history = useHistory();
   const { location } = history;
@@ -97,21 +99,25 @@ function Signup(props) {
 
   function onResend() {
     const { email } = userState;
+    setCallActive(true);
     const redirect = getRedirect();
     return resendVerification(email, redirect).then((result) => {
       const { response } = result;
       setPostSignUp(response);
+      setCallActive(false);
     });
   }
 
   function onSignUp(form) {
     form.preventDefault();
+    setCallActive(true);
     const { name, email, password } = userState;
     const redirect = getRedirect();
 
     return signUp(name, email, password, redirect).then((result) => {
       const { response } = result;
       setPostSignUp(response);
+      setCallActive(false);
     });
   }
 
@@ -290,7 +296,8 @@ function Signup(props) {
               </div>
             </Grid>
           </Grid>
-          <ApiBlockingButton
+          <SpinningButton
+            spinning={callActive}
             fullWidth
             variant="contained"
             className={classes.submit}
@@ -298,7 +305,7 @@ function Signup(props) {
             disabled={formInvalid}
           >
             {intl.formatMessage({ id: 'signupSignupLabel' })}
-          </ApiBlockingButton>
+          </SpinningButton>
           <Grid container justify="flex-end">
             <Grid item>
               <Link href="/" variant="body2">

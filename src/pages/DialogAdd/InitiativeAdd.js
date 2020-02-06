@@ -105,7 +105,7 @@ function InitiativeAdd(props) {
           name,
         };
         return addDecisionInvestible(addInfo).then((investibleId) => ({
-          result: { marketId, investibleId },
+          result: marketId,
           spinChecker: () => checkInvestibleInStorage(investibleId),
         }));
       });
@@ -163,6 +163,7 @@ function InitiativeAdd(props) {
             onClick={handleSave}
             disabled={!validForm}
             onSpinStop={onDone}
+            hasSpinChecker
           >
             {intl.formatMessage({ id: 'marketAddSaveLabel' })}
           </SpinBlockingButton>

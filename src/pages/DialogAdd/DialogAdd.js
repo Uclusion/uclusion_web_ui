@@ -10,12 +10,11 @@ import PlanningAdd from './PlanningAdd'
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets'
 import InitiativeAdd from './InitiativeAdd'
 import {
-  formInvestibleLink,
   formMarketAddInvestibleLink,
-  formMarketLink,
+  formMarketLink, formMarketManageLink,
   makeBreadCrumbs,
   navigate
-} from '../../utils/marketIdPathFunctions'
+} from '../../utils/marketIdPathFunctions';
 
 function DialogAdd(props) {
   const { hidden } = props;
@@ -51,16 +50,14 @@ function DialogAdd(props) {
             navigate(history, formMarketAddInvestibleLink(result));
           }
           else if (type === INITIATIVE_TYPE) {
-            const { marketId, investibleId } = result;
-            navigate(history, formInvestibleLink(marketId, investibleId))
+            navigate(history, formMarketManageLink(result));
           }
           else {
             navigate(history, formMarketLink(result));
           }
-        }
-        else {
+        } else {
           // This is a cancel
-          navigate(history, '/');
+         // navigate(history, '/');
         }
       });
   }

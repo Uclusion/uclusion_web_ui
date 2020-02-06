@@ -27,6 +27,7 @@ export function withSpinLock(Component) {
       onClick,
       children,
       disabled,
+      hasSpinChecker,
       ...rest
     } = props;
 
@@ -101,7 +102,9 @@ export function withSpinLock(Component) {
       setOperationRunning(true);
       setSpinning(true);
       startOperationCheckInterval();
-      registerListener(VERSIONS_HUB_CHANNEL, listenerName, hubListener);
+      if (!hasSpinChecker) {
+        registerListener(VERSIONS_HUB_CHANNEL, listenerName, hubListener);
+      }
       onSpinStart();
     }
 
@@ -165,6 +168,8 @@ export function withSpinLock(Component) {
     // eslint-disable-next-line react/forbid-prop-types
     marketId: PropTypes.string.isRequired,
     disabled: PropTypes.bool,
+    // are we giving you a spin checker, so don't wait for messages
+    hasSpinChecker: PropTypes.bool,
   };
   Spinning.defaultProps = {
     onSpinStart: () => {
@@ -174,6 +179,7 @@ export function withSpinLock(Component) {
     onClick: () => {
     },
     disabled: false,
+    hasSpinChecker: false,
   };
   return Spinning;
 }

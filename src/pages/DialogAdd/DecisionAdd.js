@@ -137,7 +137,7 @@ function DecisionAdd(props) {
         <Typography
           className={classes.row}
         >
-          {intl.formatMessage({ id: 'marketAddExpirationLabel' }, { x: expiration_minutes / 1440 })}
+          {intl.formatMessage({ id: 'decisionAddExpirationLabel' }, { x: expiration_minutes / 1440 })}
         </Typography>
 
         <ExpirationSelector

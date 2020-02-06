@@ -129,9 +129,8 @@ function InitiativeAdd(props) {
         <Typography
           className={classes.row}
         >
-          {intl.formatMessage({ id: 'marketAddExpirationLabel' }, { x: expirationMinutes / 1440 })}
+          {intl.formatMessage({ id: 'initiativeAddExpirationLabel' }, { x: expirationMinutes / 1440 })}
         </Typography>
-
         <ExpirationSelector
           value={expirationMinutes}
           className={classes.row}

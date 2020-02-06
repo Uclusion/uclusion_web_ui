@@ -91,7 +91,7 @@ function Summary(props) {
     });
   }
   return (
-    <Paper className={classes.container}>
+    <Paper className={classes.container} id="summary">
       <Typography className={classes.title} variant="h3" component="h1">
         {marketType !== INITIATIVE_TYPE ? name : investibleName}
       </Typography>

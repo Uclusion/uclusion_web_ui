@@ -81,7 +81,7 @@ export const PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS = [
   },
   {
     title: 'Notifications',
-    content: "We'll display notification alert downs here. Red notifications mean something is blocked, while Yellow needs attention.",
+    content: "We'll display notification alerts down here. Red notifications mean something is blocked, while yellow needs attention.",
     target: '#notifications',
     disableBeacon: true,
   },
@@ -90,13 +90,19 @@ export const PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS = [
     target: '#profileLink',
     content: 'You can change your profile and notification preferences here.',
     disableBeacon: true,
+  },
+  {
+    title: 'All Done!',
+    target: '#summary',
+    content: 'Thanks for taking our tour! Further information can be found in tooltips and the help sections',
+    disableBeacon: true,
   }
 ];
 
 export const PURE_SIGNUP_ADD_FIRST_OPTION_STEPS = [
   {
     title: 'Your New Dialog',
-    content: "When you create a dialog we'll take you directly to the add options page to create the first one.",
+    content: "When you create a dialog we'll take you directly to the 'New Option' page to create the first option.",
     target: '#name',
     disableBeacon: true,
   },

@@ -5,6 +5,8 @@ import HideMarketButton from './HideMarketButton';
 import ShowMarketButton from './ShowMarketButton';
 import { PLANNING_TYPE } from '../../constants/markets';
 import { makeStyles } from '@material-ui/core';
+import { navigate } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles(() => {
   return {
@@ -16,6 +18,7 @@ const useStyles = makeStyles(() => {
 });
 
 function DialogActions(props) {
+  const history = useHistory();
 
   const {
     marketId,
@@ -27,6 +30,10 @@ function DialogActions(props) {
 
   const classes = useStyles();
 
+  function goHome() {
+    navigate(history, '/');
+  }
+
   function getActions() {
     const actions = [];
     if (isAdmin) {
@@ -37,7 +44,7 @@ function DialogActions(props) {
       }
       if (!inArchives && (marketType === PLANNING_TYPE || marketStage !== 'Active')) {
         actions.push(
-          <HideMarketButton key="leave" marketId={marketId}/>,
+          <HideMarketButton key="leave" marketId={marketId} onClick={goHome}/>,
         );
       } else if (inArchives) {
         actions.push(
@@ -46,7 +53,7 @@ function DialogActions(props) {
       }
     } else if (!inArchives) {
       actions.push(
-        <HideMarketButton key="leave" marketId={marketId}/>,
+        <HideMarketButton key="leave" marketId={marketId} onClick={goHome}/>,
       );
     } else {
       actions.push(

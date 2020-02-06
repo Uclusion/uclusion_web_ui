@@ -16,7 +16,7 @@ import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getParticipantInfo } from '../../utils/userFunctions';
-import { ACTIVE_STAGE } from '../../constants/markets';
+import { ACTIVE_STAGE, INITIATIVE_TYPE } from '../../constants/markets';
 import DialogActions from './DialogActions';
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
 
@@ -114,7 +114,7 @@ function InitiativeDialogs(props) {
                   item
                   xs={9}
                 >
-                  {getParticipantInfo(sortedPresences, marketInvestibles)}
+                  {getParticipantInfo(sortedPresences, marketInvestibles, INITIATIVE_TYPE)}
                 </Grid>
               </Grid>
             </CardContent>

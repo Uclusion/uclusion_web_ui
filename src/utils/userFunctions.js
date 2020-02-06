@@ -1,6 +1,7 @@
 import { VerticalBarSeries, XYPlot } from "react-vis";
 import React from "react";
 import { Card, Grid, Typography } from "@material-ui/core";
+import { INITIATIVE_TYPE } from '../constants/markets';
 
 export function getFlags(user) {
   return (user && user.flags) || {};
@@ -187,7 +188,7 @@ export function getCertaintyChart(investments) {
   );
 }
 
-export function getParticipantInfo(presences, marketInvestibles) {
+export function getParticipantInfo(presences, marketInvestibles, marketType) {
   return presences.map(presence => {
     const { id: userId, name } = presence;
     const investible = getVotedInvestible(presence, marketInvestibles);
@@ -195,15 +196,18 @@ export function getParticipantInfo(presences, marketInvestibles) {
     const voteTotal = getVoteTotalsForUser(presence);
     const investments =
       investibleId in voteTotal ? [voteTotal[investibleId]] : null;
+    const isInitiative = marketType === INITIATIVE_TYPE;
     return (
       <Card key={userId}>
         <Grid container spacing={3}>
+            <Grid item>
+              <Typography>{name}</Typography>
+            </Grid>
+          {!isInitiative && (
           <Grid item>
-            <Typography>{name}</Typography>
-          </Grid>
-          <Grid item xs={9}>
             <Typography noWrap>{investibleName}</Typography>
           </Grid>
+          )}
           <Grid item>{investments && getCertaintyChart(investments)}</Grid>
         </Grid>
       </Card>

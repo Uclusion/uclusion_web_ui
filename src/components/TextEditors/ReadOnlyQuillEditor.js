@@ -1,26 +1,46 @@
-import React, { useRef, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import Quill from 'quill';
-import { useTheme } from '@material-ui/core';
+import React, { useRef, useEffect } from "react";
+import PropTypes from "prop-types";
+import Quill from "quill";
+import { makeStyles } from "@material-ui/core";
+import clsx from "clsx";
+
+const useStyles = makeStyles(
+  theme => {
+    return {
+      root: {
+        "& .ql-container.ql-snow": {
+          fontFamily: theme.typography.fontFamily,
+          fontSize: 15,
+          border: 0
+        },
+        "& .ql-editor": {
+          paddingLeft: 0
+        }
+      },
+
+      heading: {
+        "& .ql-container.ql-snow": {
+          fontSize: 20,
+          fontWeight: "bold"
+        }
+      }
+    };
+  },
+  { name: "ReadOnlyQuillEditor" }
+);
 
 function ReadOnlyQuillEditor(props) {
-  const { value } = props;
+  const { className, heading, value } = props;
   const box = useRef(null);
-  const theme = useTheme();
 
-  const style = {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: props.heading ? 20 : 15,
-    fontWeight: props.heading ? 'bold' : '',
-    border: 0,
-    marginLeft: -15,
-  };
+  const classes = useStyles(props);
+
   const quillOptions = {
     modules: {
-      toolbar: false,
+      toolbar: false
     },
     readOnly: true,
-    theme: 'snow',
+    theme: "snow"
   };
 
   useEffect(() => {
@@ -28,24 +48,24 @@ function ReadOnlyQuillEditor(props) {
       box.current.innerHTML = value;
       new Quill(box.current, quillOptions);
     }
-    return () => {
-    };
+    return () => {};
   }, [box, value, quillOptions]);
 
   return (
-    <div>
-      <div ref={box} style={style}/>
+    <div className={clsx(classes.root, heading && classes.heading, className)}>
+      <div ref={box} />
     </div>
   );
 }
 
 ReadOnlyQuillEditor.propTypes = {
+  editorClassName: PropTypes.string,
   value: PropTypes.string.isRequired,
-  heading: PropTypes.bool,
+  heading: PropTypes.bool
 };
 
 ReadOnlyQuillEditor.defaultProps = {
-  heading: false,
+  heading: false
 };
 
 export default ReadOnlyQuillEditor;

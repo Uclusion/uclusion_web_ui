@@ -36,8 +36,8 @@ const useStyles = makeStyles((theme) => {
       flexGrow: 1,
     },
     headerTitle: {
-      fontSize: 14,
-      lineHeight: '18px',
+      fontSize: 18,
+      lineHeight: 1,
       cursor: 'default',
     },
     headerPrimaryTitle: {

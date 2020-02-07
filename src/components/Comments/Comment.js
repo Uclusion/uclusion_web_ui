@@ -398,7 +398,7 @@ const useCommentTypeStyles = makeStyles(
         }[type],
         borderBottomRightRadius: 8,
         color: "white",
-        padding: 8
+        padding: `4px 8px`
       };
     },
     icon: {
@@ -407,7 +407,8 @@ const useCommentTypeStyles = makeStyles(
       width: 16
     },
     label: {
-      fontSize: 12
+      fontSize: 12,
+      textTransform: "capitalize"
     }
   },
   { name: "CommentType" }
@@ -425,11 +426,18 @@ export function CommentType(props) {
     [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon
   }[type];
 
-  // TODO i18n type
+  const labelIntlId = {
+    [ISSUE_TYPE]: "commentTypeLabelIssue",
+    [QUESTION_TYPE]: "commentTypeLabelQuestion",
+    [SUGGEST_CHANGE_TYPE]: "commentTypeLabelSuggestedChange"
+  }[type];
+
   return (
     <div className={clsx(classes.root, className)}>
       <IconComponent className={classes.icon} />
-      <span className={classes.label}>{type}</span>
+      <span className={classes.label}>
+        <FormattedMessage id={labelIntlId} />
+      </span>
     </div>
   );
 }

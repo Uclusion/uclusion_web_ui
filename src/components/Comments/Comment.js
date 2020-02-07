@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from "react";
 import {
   FormattedDate,
   FormattedMessage,
@@ -37,7 +37,10 @@ import { getMyUserForMarket } from "../../contexts/MarketsContext/marketsContext
 import IssueIcon from "@material-ui/icons/ReportProblem";
 import QuestionIcon from "@material-ui/icons/ContactSupport";
 import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
-import { HIGHLIGHT_REMOVE, HighlightedCommentContext } from '../../contexts/HighlightedCommentContext'
+import {
+  HIGHLIGHT_REMOVE,
+  HighlightedCommentContext
+} from "../../contexts/HighlightedCommentContext";
 
 const enableEditing = true;
 
@@ -82,7 +85,7 @@ const useCommentStyles = makeStyles(
     },
     actionSecondary: {
       backgroundColor: "#BDBDBD",
-      color: "white",
+      color: "black",
       "&:hover": {
         backgroundColor: "#BDBDBD"
       }
@@ -91,7 +94,7 @@ const useCommentStyles = makeStyles(
       alignSelf: "baseline",
       color: "#434343",
       fontWeight: "bold",
-      fontSize: 8,
+      fontSize: 12,
       lineHeight: 1.75,
       marginLeft: "auto"
     },
@@ -123,11 +126,11 @@ const useCommentStyles = makeStyles(
       marginRight: "20px"
     },
     containerRed: {
-      boxShadow: '10px 5px 5px red',
+      boxShadow: "10px 5px 5px red"
     },
     containerYellow: {
-      boxShadow: '10px 5px 5px yellow',
-    },
+      boxShadow: "10px 5px 5px yellow"
+    }
   },
   { name: "Comment" }
 );
@@ -159,7 +162,9 @@ function Comment(props) {
   const user = getMyUserForMarket(marketsState, marketId) || {};
   const replies = comments.filter(comment => comment.reply_id === id);
   const sortedReplies = _.sortBy(replies, "created_at");
-  const [highlightedCommentState, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
+  const [highlightedCommentState, highlightedCommentDispatch] = useContext(
+    HighlightedCommentContext
+  );
   const [replyOpen, setReplyOpen] = useState(false);
   const [myHighLightId, setMyHighLightId] = useState(undefined);
   const [editOpen, setEditOpen] = useState(false);
@@ -189,10 +194,12 @@ function Comment(props) {
       if (_.isEmpty(myReplies)) {
         return undefined;
       }
-      const highlightedReplies = myReplies.filter((reply) => reply.id in highlightedCommentState);
-      const highlightedRepliesRed = highlightedReplies.filter((reply) => {
+      const highlightedReplies = myReplies.filter(
+        reply => reply.id in highlightedCommentState
+      );
+      const highlightedRepliesRed = highlightedReplies.filter(reply => {
         const level = highlightedCommentState[reply.id];
-        return level === 'RED';
+        return level === "RED";
       });
       if (!_.isEmpty(highlightedRepliesRed)) {
         return highlightedRepliesRed[0].id;
@@ -201,8 +208,10 @@ function Comment(props) {
         return highlightedReplies[0].id;
       }
       let descendentHighlightedId = undefined;
-      myReplies.map((reply) => {
-        const replyReplies = comments.filter(comment => comment.reply_id === reply.id);
+      myReplies.map(reply => {
+        const replyReplies = comments.filter(
+          comment => comment.reply_id === reply.id
+        );
         const myDescendentHighlightedId = getHilightedLeveId(replyReplies);
         if (myDescendentHighlightedId) {
           descendentHighlightedId = myDescendentHighlightedId;
@@ -213,7 +222,8 @@ function Comment(props) {
     }
     const highlightId = getHilightedLeveId(replies);
     setMyHighLightId(highlightId);
-    const shouldBeExpanded = (id in highlightedCommentState) || highlightId !== undefined;
+    const shouldBeExpanded =
+      id in highlightedCommentState || highlightId !== undefined;
     if (shouldBeExpanded && !repliesExpanded) {
       setRepliesExpanded(true);
     }
@@ -226,7 +236,7 @@ function Comment(props) {
   function getCommentHighlightStyle() {
     if (id in highlightedCommentState) {
       const level = highlightedCommentState[id];
-      if (level === 'YELLOW') {
+      if (level === "YELLOW") {
         return classes.containerYellow;
       }
       return classes.containerRed;
@@ -398,7 +408,7 @@ const useCommentTypeStyles = makeStyles(
         }[type],
         borderBottomRightRadius: 8,
         color: "white",
-        padding: 8
+        padding: `4px 8px`
       };
     },
     icon: {
@@ -407,7 +417,9 @@ const useCommentTypeStyles = makeStyles(
       width: 16
     },
     label: {
-      fontSize: 12
+      fontSize: 14,
+      lineHeight: 1,
+      textTransform: "capitalize"
     }
   },
   { name: "CommentType" }
@@ -425,11 +437,18 @@ export function CommentType(props) {
     [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon
   }[type];
 
-  // TODO i18n type
+  const labelIntlId = {
+    [ISSUE_TYPE]: "commentTypeLabelIssue",
+    [QUESTION_TYPE]: "commentTypeLabelQuestion",
+    [SUGGEST_CHANGE_TYPE]: "commentTypeLabelSuggestedChange"
+  }[type];
+
   return (
     <div className={clsx(classes.root, className)}>
       <IconComponent className={classes.icon} />
-      <span className={classes.label}>{type}</span>
+      <span className={classes.label}>
+        <FormattedMessage id={labelIntlId} />
+      </span>
     </div>
   );
 }
@@ -456,8 +475,8 @@ const useReplyStyles = makeStyles(
         minWidth: "20px",
         height: "20px",
         color: "#A7A7A7",
-        fontWeight: "500",
-        fontSize: 10,
+        fontWeight: "bold",
+        fontSize: 12,
         lineHeight: "18px",
         textTransform: "capitalize",
         background: "transparent",
@@ -472,7 +491,11 @@ const useReplyStyles = makeStyles(
       cardContent: {
         // 25px in Figma
         marginLeft: theme.spacing(3),
-        padding: 0
+        padding: 0,
+        paddingTop: 8,
+        "&:last-child": {
+          paddingBottom: 8
+        }
       },
       cardActions: {
         marginLeft: theme.spacing(3),
@@ -481,10 +504,9 @@ const useReplyStyles = makeStyles(
       commenter: {
         color: "#7E7E7E",
         display: "inline-block",
-        fontSize: 12,
+        fontSize: 14,
         fontWeight: "bold",
-        marginRight: "8px",
-        padding: "8px 0"
+        marginRight: "8px"
       },
       replyContainer: {
         marginLeft: theme.spacing(3)
@@ -492,16 +514,24 @@ const useReplyStyles = makeStyles(
       timeElapsed: {
         color: "#A7A7A7",
         display: "inline-block",
-        fontSize: 10
+        fontSize: 14
       },
       timePosted: {
         color: "#A7A7A7",
         display: "inline-block",
-        fontSize: 10
+        fontSize: 12,
+        fontWeight: "bold"
       },
       containerYellow: {
-        boxShadow: '10px 5px 5px yellow',
+        boxShadow: "10px 5px 5px yellow"
       },
+      editor: {
+        margin: "2px 0px",
+        "& .ql-editor": {
+          paddingTop: 0,
+          paddingBottom: 0
+        }
+      }
     };
   },
   { name: "Reply" }
@@ -541,7 +571,12 @@ function Reply(props) {
 
   const intl = useIntl();
   return (
-    <Card className={highLightId === comment.id ? classes.containerYellow : classes.container} {...other}>
+    <Card
+      className={
+        highLightId === comment.id ? classes.containerYellow : classes.container
+      }
+      {...other}
+    >
       <CardContent className={classes.cardContent}>
         <Typography className={classes.commenter} variant="body2">
           {commenter.name}
@@ -560,7 +595,10 @@ function Reply(props) {
             comment={comment}
           />
         ) : (
-          <ReadOnlyQuillEditor value={comment.body} paddingLeft={0} />
+          <ReadOnlyQuillEditor
+            className={classes.editor}
+            value={comment.body}
+          />
         )}
       </CardContent>
       <CardActions className={classes.cardActions}>
@@ -597,7 +635,10 @@ function Reply(props) {
       )}
       {comment.children !== undefined && (
         <CardContent className={classes.cardContent}>
-          <ThreadedReplies replies={comment.children} highLightId={highLightId} />
+          <ThreadedReplies
+            replies={comment.children}
+            highLightId={highLightId}
+          />
         </CardContent>
       )}
     </Card>
@@ -636,7 +677,13 @@ function ThreadedReplies(props) {
   return (
     <ol className={classes.container}>
       {replies.map(reply => {
-        return <ThreadedReply key={reply.id} comment={reply} highLightId={highLightId} />;
+        return (
+          <ThreadedReply
+            key={reply.id}
+            comment={reply}
+            highLightId={highLightId}
+          />
+        );
       })}
     </ol>
   );

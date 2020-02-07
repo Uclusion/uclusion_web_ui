@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import {
-  Card, Button, ButtonGroup, CardContent, CardActions, makeStyles,
+  Card, Button, CardContent, CardActions, makeStyles, darken
 } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import QuillEditor from '../TextEditors/QuillEditor';
@@ -15,7 +15,23 @@ const useStyles = makeStyles(() => ({
     display: 'none',
   },
   add: {},
-}));
+  cardContent: {
+    padding: 0,
+  },
+  cardActions: {
+    padding: 8,
+  },
+  buttonPrimary: {
+    backgroundColor: '#2d9cdb',
+    color: '#fff',
+    "&:hover": {
+      backgroundColor: darken('#2d9cdb', 0.08)
+    },
+    "&:focus": {
+      backgroundColor: darken('#2d9cdb', 0.24)
+    },
+  },
+}), { name: 'CommentEdit' });
 
 function CommentEdit(props) {
   const {
@@ -51,8 +67,8 @@ function CommentEdit(props) {
     <div
       className={classes.add}
     >
-      <Card>
-        <CardContent>
+      <Card elevation={0}>
+        <CardContent className={classes.cardContent}>
           <QuillEditor
             defaultValue={initialBody}
             onChange={onEditorChange}
@@ -60,28 +76,28 @@ function CommentEdit(props) {
             setOperationInProgress={setOperationRunning}
           />
         </CardContent>
-        <CardActions>
-          <ButtonGroup
+        <CardActions className={classes.cardActions}>
+          <SpinBlockingButton
+            className={classes.buttonPrimary}
             disabled={operationRunning}
             variant="contained"
             size="small"
-            color="primary"
+            marketId={marketId}
+            onClick={handleSave}
+            onSpinStop={() => {
+              onSave();
+            }}
           >
-            <SpinBlockingButton
-              marketId={marketId}
-              onClick={handleSave}
-              onSpinStop={() => {
-                onSave();
-              }}
-            >
-              {intl.formatMessage({ id: 'save' })}
-            </SpinBlockingButton>
-            <Button
-              onClick={handleCancel}
-            >
-              {intl.formatMessage({ id: 'cancel' })}
-            </Button>
-          </ButtonGroup>
+            {intl.formatMessage({ id: 'save' })}
+          </SpinBlockingButton>
+          <Button
+            onClick={handleCancel}
+            disabled={operationRunning}
+            variant="text"
+            size="small"
+          >
+            {intl.formatMessage({ id: 'cancel' })}
+          </Button>
         </CardActions>
       </Card>
     </div>

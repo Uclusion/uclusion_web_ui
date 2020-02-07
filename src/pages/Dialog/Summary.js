@@ -7,7 +7,10 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getMarketPresences,
+  marketHasOnlyCurrentUser
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
@@ -45,6 +48,9 @@ const useStyles = makeStyles((theme) => ({
       fontSize: '15 !important',
     },
   },
+  draft: {
+    color: '#E85757',
+  },
 }));
 
 function Summary(props) {
@@ -70,6 +76,7 @@ function Summary(props) {
   const active = marketStage === ACTIVE_STAGE;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
+  const isDraft = marketHasOnlyCurrentUser(marketPresencesState, id);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const isAdmin = myPresence.is_admin;
   const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
@@ -92,6 +99,11 @@ function Summary(props) {
   }
   return (
     <Paper className={classes.container} id="summary">
+      {isDraft && (
+        <Typography className={classes.draft}>
+          {intl.formatMessage({ id: 'draft' })}
+        </Typography>
+      )}
       <Typography className={classes.title} variant="h3" component="h1">
         {marketType !== INITIATIVE_TYPE ? name : investibleName}
       </Typography>

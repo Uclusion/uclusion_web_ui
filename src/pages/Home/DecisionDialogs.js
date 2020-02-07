@@ -7,7 +7,10 @@ import { useHistory } from 'react-router';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getMarketPresences,
+  marketHasOnlyCurrentUser
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
@@ -19,10 +22,10 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { ACTIVE_STAGE } from '../../constants/markets';
 import DialogActions from './DialogActions';
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
-import { ISSUE_TYPE } from '../../constants/comments'
-import { CommentType } from '../../components/Comments/Comment'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import { ISSUE_TYPE } from '../../constants/comments';
+import { CommentType } from '../../components/Comments/Comment';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -31,7 +34,9 @@ const useStyles = makeStyles(() => ({
   textData: {
     fontSize: 12,
   },
-
+  draft: {
+    color: '#E85757',
+  },
 }));
 
 function DecisionDialogs(props) {
@@ -50,6 +55,7 @@ function DecisionDialogs(props) {
         market_type: marketType, market_stage: marketStage, updated_at: updatedAt,
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+      const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const isAdmin = myPresence && myPresence.is_admin;
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
@@ -81,17 +87,26 @@ function DecisionDialogs(props) {
                   {getDialogTypeIcon(marketType)}
                 </Grid>
               </Grid>
-              <Typography>
-                <Link
-                  href="#"
-                  variant="inherit"
-                  underline="always"
-                  color="primary"
-                  onClick={() => navigate(history, formMarketLink(marketId))}
-                >
-                  {name}
-                </Link>
-              </Typography>
+              <div>
+                {isDraft && (
+                  <Typography
+                    className={classes.draft}
+                  >
+                    {intl.formatMessage({ id: 'draft' })}
+                  </Typography>
+                )}
+                <Typography>
+                  <Link
+                    href="#"
+                    variant="inherit"
+                    underline="always"
+                    color="primary"
+                    onClick={() => navigate(history, formMarketLink(marketId))}
+                  >
+                    {name}
+                  </Link>
+                </Typography>
+              </div>
               <Typography>
                 {intl.formatMessage({ id: 'homeCreatedAt' }, { dateString: intl.formatDate(createdAt) })}
               </Typography>
@@ -103,7 +118,7 @@ function DecisionDialogs(props) {
                   xs={3}
                 >
                   {!active && (
-                    <ExpiredDisplay expiresDate={updatedAt} />
+                    <ExpiredDisplay expiresDate={updatedAt}/>
                   )}
                   {active && (
                     <ExpiresDisplay
@@ -121,7 +136,7 @@ function DecisionDialogs(props) {
                 </Grid>
               </Grid>
               {hasMarketIssue && (
-                <CommentType className={classes.commentType} type={ISSUE_TYPE} />
+                <CommentType className={classes.commentType} type={ISSUE_TYPE}/>
               )}
             </CardContent>
             <CardActions>
@@ -135,7 +150,8 @@ function DecisionDialogs(props) {
             </CardActions>
           </RaisedCard>
         </Grid>
-      );
+      )
+        ;
     });
   }
 

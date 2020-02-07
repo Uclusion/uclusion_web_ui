@@ -7,7 +7,10 @@ import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getMarketPresences,
+  marketHasOnlyCurrentUser
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
@@ -27,7 +30,9 @@ const useStyles = makeStyles(() => ({
   textData: {
     fontSize: 12,
   },
-
+  draft: {
+    color: '#E85757',
+  },
 }));
 
 function InitiativeDialogs(props) {
@@ -52,6 +57,7 @@ function InitiativeDialogs(props) {
       const { investible } = baseInvestible;
       const { name, id: baseInvestibleId } = investible;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+      const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const isAdmin = myPresence && myPresence.is_admin;
@@ -80,20 +86,27 @@ function InitiativeDialogs(props) {
                   {getDialogTypeIcon(marketType)}
                 </Grid>
               </Grid>
-              <Typography>
-                <Link
-                  href="#"
-                  variant="inherit"
-                  underline="always"
-                  color="primary"
-                  onClick={() => navigate(history, formMarketLink(marketId))}
-                >
-                  {name}
-                </Link>
-              </Typography>
-              <Typography>
-                {intl.formatMessage({ id: 'homeCreatedAt' }, { dateString: intl.formatDate(createdAt) })}
-              </Typography>
+              <div>
+                {isDraft && (
+                  <Typography className={classes.draft}>
+                    {intl.formatMessage({ id: 'draft' })}
+                  </Typography>
+                )}
+                <Typography>
+                  <Link
+                    href="#"
+                    variant="inherit"
+                    underline="always"
+                    color="primary"
+                    onClick={() => navigate(history, formMarketLink(marketId))}
+                  >
+                    {name}
+                  </Link>
+                </Typography>
+                <Typography>
+                  {intl.formatMessage({ id: 'homeCreatedAt' }, { dateString: intl.formatDate(createdAt) })}
+                </Typography>
+              </div>
               <Grid
                 container
               >
@@ -102,7 +115,7 @@ function InitiativeDialogs(props) {
                   xs={3}
                 >
                   {!active && (
-                    <ExpiredDisplay expiresDate={updatedAt} />
+                    <ExpiredDisplay expiresDate={updatedAt}/>
                   )}
                   {active && (
                     <ExpiresDisplay

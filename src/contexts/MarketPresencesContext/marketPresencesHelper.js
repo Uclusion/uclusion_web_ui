@@ -20,3 +20,13 @@ export function getPresenceMap(state, marketId) {
     };
   }, {});
 }
+
+export function marketHasOnlyCurrentUser(state, marketId){
+  const presences = getMarketPresences(state, marketId);
+  if (!presences) {
+    return false;
+  }
+  // if you can get the market presences, you're guaranteed that there's at least one, and it contains you
+  // hence if you have more than one, then you have somebody else.
+  return presences.length === 1;
+}

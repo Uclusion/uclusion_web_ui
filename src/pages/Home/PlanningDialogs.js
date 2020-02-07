@@ -7,7 +7,10 @@ import { useHistory } from 'react-router';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getMarketPresences,
+  marketHasOnlyCurrentUser
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
@@ -29,7 +32,9 @@ const useStyles = makeStyles(() => ({
   textData: {
     fontSize: 12,
   },
-
+  draft: {
+    color: '#E85757',
+  },
 }));
 
 function PlanningDialogs(props) {
@@ -115,6 +120,7 @@ function PlanningDialogs(props) {
         created_at: createdAt,
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+      const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
@@ -131,20 +137,27 @@ function PlanningDialogs(props) {
           >
             <CardContent>
               {getDialogTypeIcon(marketType)}
-              <Typography>
-                <Link
-                  href="#"
-                  variant="inherit"
-                  underline="always"
-                  color="primary"
-                  onClick={() => navigate(history, formMarketLink(marketId))}
-                >
-                  {name}
-                </Link>
-              </Typography>
-              <Typography>
-                {intl.formatMessage({ id: 'homeCreatedAt' }, { dateString: intl.formatDate(createdAt) })}
-              </Typography>
+              <div>
+                {isDraft && (
+                  <Typography className={classes.draft}>
+                    {intl.formatMessage({ id: 'draft' })}
+                  </Typography>
+                )}
+                <Typography>
+                  <Link
+                    href="#"
+                    variant="inherit"
+                    underline="always"
+                    color="primary"
+                    onClick={() => navigate(history, formMarketLink(marketId))}
+                  >
+                    {name}
+                  </Link>
+                </Typography>
+                <Typography>
+                  {intl.formatMessage({ id: 'homeCreatedAt' }, { dateString: intl.formatDate(createdAt) })}
+                </Typography>
+              </div>
               <Grid
                 container
               >

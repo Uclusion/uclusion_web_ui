@@ -199,6 +199,7 @@ const messages = defineMessages({
   cancelVote: 'Cancel',
   removeVote: 'Remove Vote',
   maxBudgetInputLabel: 'Number of days before might not be worth doing - value must be less than {x}',
+  draft: 'Draft',
 
   // Address list
   addressAddCancelLabel: 'Close',

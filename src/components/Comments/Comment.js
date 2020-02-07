@@ -90,7 +90,7 @@ const useCommentStyles = makeStyles(
         backgroundColor: "#BDBDBD"
       }
     },
-    commenter: {
+    updatedBy: {
       alignSelf: "baseline",
       color: "#434343",
       fontWeight: "bold",
@@ -115,6 +115,10 @@ const useCommentStyles = makeStyles(
     commentType: {
       alignSelf: "start",
       display: "inline-flex"
+    },
+    createdBy: {
+      fontSize: "15px",
+      fontWeight: "bold"
     },
     childWrapper: {
       // borderTop: '1px solid #DCDCDC',
@@ -155,8 +159,9 @@ function Comment(props) {
 
   const intl = useIntl();
   const classes = useCommentStyles();
-  const { id, comment_type: commentType, created_by: createdBy } = comment;
+  const { id, comment_type: commentType } = comment;
   const presences = usePresences(marketId);
+  const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
   const [marketsState] = useContext(MarketsContext);
   const user = getMyUserForMarket(marketsState, marketId) || {};
@@ -230,7 +235,7 @@ function Comment(props) {
   }, [id, highlightedCommentState, repliesExpanded, replies, comments]);
 
   const displayUpdatedBy =
-    updatedBy !== undefined && comment.updated_by !== createdBy;
+    updatedBy !== undefined && comment.updated_by !== comment.created_by;
 
   const showActions = !replyOpen || replies.length > 0;
   function getCommentHighlightStyle() {
@@ -248,7 +253,7 @@ function Comment(props) {
       <Card className={getCommentHighlightStyle()}>
         <Box display="flex">
           <CommentType className={classes.commentType} type={commentType} />
-          <Typography className={classes.commenter}>
+          <Typography className={classes.updatedBy}>
             {displayUpdatedBy &&
               `${intl.formatMessage({ id: "lastUpdatedBy" })} ${
                 updatedBy.name
@@ -293,8 +298,11 @@ function Comment(props) {
           )}
         </Box>
         <CardContent className={classes.cardContent}>
+          <Typography className={classes.createdBy} variant="caption">
+            {createdBy.name}
+          </Typography>
           <Box marginTop={1}>
-            <ReadOnlyQuillEditor value={comment.body} heading paddingLeft={0} />
+            <ReadOnlyQuillEditor value={comment.body} />
             {editOpen && (
               <CommentEdit
                 marketId={marketId}

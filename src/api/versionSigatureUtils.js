@@ -1,54 +1,5 @@
-/**
- * Repeatedly calls fetcher for up to maxTries until the version signatures are
- * satisfied. Returns the linear list of results from the fetch.
- * @param fetcher
- * @param versionSignatures an array of method signatures, where a signature is
- * of the form { id: objectid, sub_object_key:minversion} where the sub object key
- * is the key under which an item resides, and the min version is the minimum version which will
- * satisfy the requirement
- */
 
-function fetchVersioned(versionSignatures, maxTries) {
-
-}
-
-async function fetchUntilAllMatched(fetcher, fetchSignatures, maxTries) {
-  const FETCH_WAIT_DELAY = 6000;
-
-  function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  let currentTries = 0;
-
-  async function fetchAndMatch() {
-    currentTries += 1;
-    const fetched = await fetcher();
-    return genericMatcher(fetched, fetchSignatures);
-  }
-
-  let totalMatched = [];
-  // the first iteration
-  let { matched, unmatched } = fetchAndMatch();
-  totalMatched = totalMatched.concat(matched);
-  if (_.isEmpty(unmatched)) {
-    return totalMatched;
-  }
-  // the while sleep loop;
-  await sleep(FETCH_WAIT_DELAY);
-  while (currentTries < maxTries) {
-    let { matched, unmatched } = fetchAndMatch();
-    totalMatched = totalMatched.concat(matched);
-    if (_.isEmpty(unmatched)) {
-      return totalMatched;
-    }
-    await sleep(FETCH_WAIT_DELAY);
-  }
-  throw('Unable to fetch matching values');
-
-}
-
-export function getSignatureGenerators(versionSignatures) {
+export function getFetchSignatures(versionSignatures) {
   // I know how to fetch markets, marketPresences (users), investibles, and comments
   const comments = commentsSignatureGenerator(versionSignatures);
   const markets = marketSignatureGenerator(versionSignatures);
@@ -61,7 +12,6 @@ export function getSignatureGenerators(versionSignatures) {
     investibles,
   };
 }
-
 
 function generateSimpleObjectSignature(versionsSignatures, type) {
   const mySignature = versionsSignatures.find((signature) => signature.type === type);
@@ -138,7 +88,7 @@ function investiblesSignatureGenerator(versionsSignatures) {
     const version = sig.object_id;
     const infoId = sig.object_id_one;
     if (fetchSigs[invId]) {
-      const newFetchSig = {
+      fetchSigs[invId] = {
         ...fetchSigs[invId],
         market_infos: [
           {
@@ -147,7 +97,6 @@ function investiblesSignatureGenerator(versionsSignatures) {
           }
         ]
       };
-      fetchSigs[invId] = newFetchSig;
     } else {
       fetchSigs[invId] = {
         investible: {
@@ -185,67 +134,3 @@ function commentsSignatureGenerator(versionsSignatures) {
   return generateSimpleObjectSignature(versionsSignatures, 'comment');
 }
 
-/**
- * A matcher that checks if the version is greater than or equal to the
- * value in the signature. However, If the signature contains an ID key (e..g market_id) then it
- * checks for exact match for the objects value with that key
- * @param signature
- * @param object
- * @returns {boolean}
- */
-function signatureMatches(signature, object) {
-  for (const key of Object.keys(signature)) {
-    const signatureVersion = signature[key];
-    const objectVersion = object[key];
-    if (!objectVersion) {
-      return false;
-    }
-    let keySatisfied;
-    if (_.isArray(signatureVersion)) {
-      if (!_.isArray(objectVersion)) {
-        return false;
-      }
-      // we're not going to consider order, so we'll consider a match if
-      // a least one of the objectVersion entries matches the signatureVersion
-      keySatisfied = signatureVersion.reduce((acc, entry) => {
-        acc = acc && !!objectVersion.find((obj) => signatureMatches(entry, obj));
-        return acc;
-      }, true);
-    } else if ('object' === typeof signatureVersion) {
-      keySatisfied = signatureMatches(signatureVersion, objectVersion);
-    } else if (key.endsWith('id')) {
-      keySatisfied = objectVersion === signatureVersion;
-    } else {
-      keySatisfied = objectVersion >= signatureVersion;
-    }
-    if (!keySatisfied) {
-      return false;
-    }
-  }
-  return true;
-}
-
-/**
- * Given a list of objects that were fetched, and signature definitions returns a new object
- * with two values {
- *   matched: these are the values that have been satisfied
- *   unmatched: these are the values that have _not_ been satisfied
- * }
- * this runs in 0_n^2, so be careful.
- * @param fetched
- * @param signatures
- */
-function genericMatcher(fetched, signatures) {
-  const matched = [];
-  const unmatched = [];
-  for (let x = 0; x < fetched.length; x++) {
-    const object = fetched[x];
-    const matchingSignature = signatures.find((signature) => signatureMatches(signature, object));
-    if (matchingSignature) {
-      matched.push(object);
-    } else {
-      unmatched.push(object);
-    }
-  }
-  return { matched, unmatched };
-}

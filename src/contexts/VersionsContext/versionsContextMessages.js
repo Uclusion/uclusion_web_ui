@@ -3,8 +3,9 @@ import {
   NOTIFICATION_MESSAGE_EVENT,
   VERSIONS_HUB_CHANNEL,
 } from '../WebSocketContext';
-import { getVersions } from '../../api/summaries';
+import { getNotifications, getVersions } from '../../api/summaries';
 import {
+  addNewMarket,
   EMPTY_STATE,
   initializeState, initializeVersionsAction, loadingState,
   refreshNotificationVersionAction,
@@ -13,6 +14,7 @@ import {
 import { registerListener } from '../../utils/MessageBusUtils';
 
 export const GLOBAL_VERSION_UPDATE = 'global_version_update';
+export const NEW_MARKET = 'new_market'
 
 function beginListening(dispatch) {
   registerListener(AUTH_HUB_CHANNEL, 'versionAuthStart', (data) => {
@@ -37,16 +39,21 @@ function beginListening(dispatch) {
   });
 
   registerListener(VERSIONS_HUB_CHANNEL, 'versionVersionStart', (data) => {
-    const { payload: { event, globalVersion } } = data;
+    const { payload: { event, globalVersion, marketId } } = data;
     console.debug(`Versions context responding to push event ${event}`);
     switch (event) {
       case GLOBAL_VERSION_UPDATE:
-        console.log(globalVersion);
         dispatch(updateGlobalVersion(globalVersion));
         break;
-      case NOTIFICATION_MESSAGE_EVENT:
-        dispatch(refreshNotificationVersionAction());
+      case NEW_MARKET:
+        dispatch(addNewMarket(marketId));
         break;
+      case NOTIFICATION_MESSAGE_EVENT:
+        return getNotifications()
+          .then((notifications) => {
+            const notification = notifications.find((item) => item.type_object_id.startsWith("notification"));
+            dispatch(refreshNotificationVersionAction(notification));
+          });
       default:
         console.debug(`Ignoring push event ${event}`);
     }

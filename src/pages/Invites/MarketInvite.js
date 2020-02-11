@@ -29,7 +29,7 @@ function MarketInvite(props) {
       registerListener(VERSIONS_HUB_CHANNEL, 'inviteListener', (data) => {
         const { payload: { event, message } } = data;
         switch (event) {
-          case MARKET_MESSAGE_EVENT: {
+          case  MARKET_MESSAGE_EVENT: {
             const { object_id: messageMarketId } = message;
             if (messageMarketId === marketId) {
               console.log(`Redirecting us to market ${marketId}`);

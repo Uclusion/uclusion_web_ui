@@ -18,6 +18,8 @@ import { createTitle, navigate } from '../../utils/marketIdPathFunctions'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
 import { refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper';
+import { getNotifications } from '../../api/summaries';
+import { refreshNotificationVersionAction } from '../../contexts/VersionsContext/versionsContextReducer';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -116,8 +118,10 @@ function Screen(props) {
   const [loadingFailedTimer, setLoadingFailedTimer] = useState(undefined);
   const [versionsState, versionsDispatch] = useContext(VersionsContext);
   const { notificationVersion } = versionsState;
-  //const { version } = notificationVersion;
-  const myLoading = !hidden && (appEnabled && loading); //|| version < 0));
+  const usedNotificationVersion = notificationVersion || {};
+  const { version } = usedNotificationVersion;
+  const usedVersion = version || -1;
+  const myLoading = !hidden && (appEnabled && (loading || usedVersion < 0));
   useEffect(() => {
     if (!operationRunning && myLoading) {
       setOperationRunning(true);
@@ -149,6 +153,11 @@ function Screen(props) {
       // In case you missed a push
       console.warn('Loading attempting to fix corrupted data');
       refreshVersions(versionsState);
+      getNotifications()
+        .then((notifications) => {
+          const notification = notifications.find((item) => item.type_object_id.startsWith("notification"));
+          versionsDispatch(refreshNotificationVersionAction(notification));
+        });
       setLoadingFailedTimer(setTimeout(() => {
         setLoadingFailed(true);
       }, 10000));

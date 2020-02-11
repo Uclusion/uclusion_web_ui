@@ -8,12 +8,18 @@ function getSummaryInfo() {
       .then((summaryClient) => ({ summaryClient, idToken })));
 }
 
-export function getVersions() {
+export function getVersions(currentVersion) {
   return getSummaryInfo()
     .then((summaryInfo) => {
       const { summaryClient, idToken } = summaryInfo;
-      // as a side effect, whenever we get the active market list, we'll update the
-      // authorization tokens contained inside, since it's free
-      return summaryClient.versions(idToken);
+      return summaryClient.versions(idToken, currentVersion);
+    });
+}
+
+export function getNotifications() {
+  return getSummaryInfo()
+    .then((summaryInfo) => {
+      const { summaryClient, idToken } = summaryInfo;
+      return summaryClient.notifications(idToken);
     });
 }

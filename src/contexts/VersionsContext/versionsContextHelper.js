@@ -11,6 +11,14 @@ export const PUSH_STAGE_CHANNEL = 'MarketsStagesChannel';
 export const VERSIONS_EVENT = 'version_push';
 
 
+export function getGlobalVersion(state) {
+  return state.globalVersion;
+}
+
+export function getExistingMarkets(state) {
+  return state.existingMarkets || [];
+}
+
 
 function processNewNotification(newNotificationVersion, notificationVersion) {
   const { version: notificationVersionNumber } = notificationVersion;

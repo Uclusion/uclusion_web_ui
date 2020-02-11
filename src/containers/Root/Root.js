@@ -25,9 +25,8 @@ import MarketInvite from '../../pages/Invites/MarketInvite';
 import SlackInvite from '../../pages/Invites/SlackInvite';
 import ChangePassword from '../../pages/Authentication/ChangePassword';
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences';
-import { getVersions } from '../../api/summaries'
-import { refreshVersionsAction } from '../../contexts/VersionsContext/versionsContextReducer'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
+import { refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper';
 
 const useStyles = makeStyles({
   body: {
@@ -60,7 +59,7 @@ function Root() {
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
-  const [, versionsDispatch] = useContext(VersionsContext);
+  const [versionsState] = useContext(VersionsContext);
 
   function hideHome() {
     return !pathname || pathname !== '/';
@@ -150,9 +149,7 @@ function Root() {
     }
     if (reloaded) {
       // A push could have been missed and then have to rely on the user to refresh
-      getVersions().then((versions) => {
-        versionsDispatch(refreshVersionsAction(versions));
-      });
+      refreshVersions(versionsState);
     }
 
     if (!window.myListenerMarker) {

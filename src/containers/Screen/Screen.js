@@ -17,8 +17,7 @@ import {
 import { createTitle, navigate } from '../../utils/marketIdPathFunctions'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
-import { getVersions } from '../../api/summaries';
-import { refreshVersionsAction } from '../../contexts/VersionsContext/versionsContextReducer';
+import { refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -149,7 +148,7 @@ function Screen(props) {
       setLoadingExpired(false);
       // In case you missed a push
       console.warn('Loading attempting to fix corrupted data');
-      getVersions().then((versions) => versionsDispatch(refreshVersionsAction(versions)));
+      refreshVersions(versionsState);
       setLoadingFailedTimer(setTimeout(() => {
         setLoadingFailed(true);
       }, 10000));

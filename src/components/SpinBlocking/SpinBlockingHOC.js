@@ -58,10 +58,10 @@ export function withSpinLock(Component) {
      * off then we force version check.
      */
     function startOperationCheckInterval() {
-      const currentVersion = getMarketVersion(versionsState, marketId);
+     // const currentVersion = getMarketVersion(versionsState, marketId);
       operationCheckStopper = startTimerChain(OPERATION_TIMEOUT, 20, () => {
         console.debug('Operation check interval firing');
-        return getVersions()
+       /* return getVersions()
           .then((versions) => {
             const { marketVersions } = versions;
             const newMarket = _.isEmpty(marketId);
@@ -77,7 +77,7 @@ export function withSpinLock(Component) {
             operationCheckStopper();
             endSpinning();
             toastErrorAndThrow(error, 'spinVersionCheckError');
-          });
+          }); */
       });
     }
 

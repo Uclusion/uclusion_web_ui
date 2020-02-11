@@ -1,9 +1,6 @@
 import uclusion from 'uclusion_sdk';
-import _ from 'lodash';
 import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher';
 import config from '../config';
-import { notifyNewApplicationVersion } from '../contexts/WebSocketContext';
-
 
 function getSummaryInfo() {
   return new AmpifyIdentitySource().getIdentity()

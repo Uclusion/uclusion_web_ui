@@ -2,7 +2,7 @@
  * Web socket context provider must appear within the markets context, since it needs to
  * properly update it
  */
-import React, { useReducer, useState } from 'react';
+import React, { useContext, useReducer, useState } from 'react';
 import localforage from 'localforage';
 import PropTypes from 'prop-types';
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner';
@@ -10,6 +10,8 @@ import config from '../config';
 import { sendInfoPersistent, toastErrorAndThrow } from '../utils/userMessage';
 import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext/NotificationsContext';
 import { registerListener, pushMessage, removeListener } from '../utils/MessageBusUtils';
+import { VersionsContext } from './VersionsContext/VersionsContext';
+import { refreshVersions } from './VersionsContext/versionsContextHelper';
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -49,6 +51,7 @@ function WebSocketProvider(props) {
   const { children, config } = props;
   const [state, setState] = useState();
   const [socketListener, setSocketListener] = useState();
+  const [versionsState] = useContext(VersionsContext);
   const [, connectionCheckTimerDispatch] = useReducer((state, action) => {
     const { timer } = state;
     if (timer) {
@@ -80,13 +83,7 @@ function WebSocketProvider(props) {
     });
 
     newSocket.registerHandler('market', (message) => {
-      pushMessage(
-        VERSIONS_HUB_CHANNEL,
-        {
-          event: MARKET_MESSAGE_EVENT,
-          message,
-        },
-      );
+      refreshVersions(versionsState);
     });
 
     newSocket.registerHandler('notification', (message) => {
@@ -95,20 +92,6 @@ function WebSocketProvider(props) {
         {
           event: NOTIFICATION_MESSAGE_EVENT,
           message,
-        },
-      );
-    });
-
-    newSocket.registerHandler('USER_LEFT_MARKET', (message) => {
-      // since we left, going to fake remove event to the versions message channel
-      pushMessage(
-        VERSIONS_HUB_CHANNEL,
-        {
-          event: MARKET_MESSAGE_EVENT,
-          message: {
-            version: -1, // < 0 will trigger a remove
-            object_id: message.indirect_object_id,
-          },
         },
       );
     });

@@ -1,8 +1,5 @@
-import { fetchCommentList, fetchComments } from '../../api/comments';
 import {
   fixupItemsForStorage,
-  getOutdatedObjectIds,
-  removeDeletedObjects
 } from '../ContextUtils';
 import _ from 'lodash';
 import LocalForageHelper from '../LocalForageHelper';
@@ -19,7 +16,7 @@ export function refreshMarketComments(dispatch, marketId, comments) {
   return lfh.getState()
     .then((state) => {
       const usedState = state || EMPTY_STATE;
-      const oldMarketComments = getMarketComments(state, marketId);
+      const oldMarketComments = getMarketComments(usedState, marketId);
       const fixedUp = fixupItemsForStorage(comments);
       const newMarketComments = _.unionBy(fixedUp, oldMarketComments, 'id');
       dispatch(updateMarketComments(marketId, newMarketComments));

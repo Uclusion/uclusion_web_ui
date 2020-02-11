@@ -5,7 +5,6 @@ import {
   VERSIONS_EVENT
 } from '../VersionsContext/versionsContextHelper';
 import { removeMarketsComments, initializeState } from './commentsContextReducer';
-import { AllSequentialMap } from '../../utils/PromiseUtils';
 import{ registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { EMPTY_STATE } from './CommentsContext';
@@ -26,11 +25,9 @@ function beginListening(dispatch) {
     const { payload: { event, marketId, comments } } = data;
 
     switch (event) {
-      case VERSIONS_EVENT: {
-        console.debug(message);
-        AllSequentialMap(message, (marketId) => refreshMarketComments(dispatch, marketId));
+      case VERSIONS_EVENT:
+        refreshMarketComments(dispatch, marketId, comments);
         break;
-      }
       default:
         console.debug(`Ignoring push event ${event}`);
     }

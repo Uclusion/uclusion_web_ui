@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { pushMessage } from '../utils/MessageBusUtils';
 import { getVersions } from './summaries';
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets';
@@ -15,11 +16,8 @@ import { VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext';
 import { GLOBAL_VERSION_UPDATE } from '../contexts/VersionsContext/versionsContextMessages';
 
 const MAX_RETRIES = 10;
-const DELAY_BETWEEN_RETRIES = 6000;
 
 export function refreshGlobalVersion(currentHeldVersion, existingMarkets) {
-  let done = false;
-  let retries = 0;
   let timeoutClearer;
   const execFunction = () => {
     return doVersionRefresh(currentHeldVersion, existingMarkets)
@@ -114,7 +112,7 @@ function fetchMarketPresences(marketId, mpSignatures) {
   return getMarketUsers(marketId)
     .then((users) => {
       const match = signatureMatcher(users, mpSignatures);
-      pushMessage(PUSH_PRESENCE_CHANNEL, {event: VERSIONS_EVENT, marketId, presences});
+      pushMessage(PUSH_PRESENCE_CHANNEL, {event: VERSIONS_EVENT, marketId, users});
       if (!match.allMatched) {
         throw new Error("Presences didn't match");
       }

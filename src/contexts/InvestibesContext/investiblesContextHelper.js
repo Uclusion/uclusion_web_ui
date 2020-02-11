@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import { fetchInvestibleList, fetchInvestibles } from '../../api/marketInvestibles';
 import { updateStorableInvestibles } from './investiblesContextReducer';
 import { fixupItemForStorage } from '../ContextUtils';
 import LocalForageHelper from '../LocalForageHelper';

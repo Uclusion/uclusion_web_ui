@@ -3,7 +3,6 @@ import {
   PUSH_INVESTIBLES_CHANNEL,
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
-import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { initializeState } from './investiblesContextReducer';

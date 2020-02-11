@@ -5,7 +5,6 @@ import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/ve
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { getVersions } from '../../api/summaries'
-import { refreshVersionsAction } from '../VersionsContext/versionsContextReducer'
 import { getUclusionLocalStorageItem } from '../../components/utils';
 
 function beginListening(dispatch, versionsDispatch) {
@@ -18,7 +17,7 @@ function beginListening(dispatch, versionsDispatch) {
         getMessages().then((messages) => {
           return getVersions().then((versions) => {
             // Have to check versions before process messages in case not up to date
-            versionsDispatch(refreshVersionsAction(versions));
+     //       versionsDispatch(refreshVersionsAction(versions));
             dispatch(updateMessages(messages));
           });
         });

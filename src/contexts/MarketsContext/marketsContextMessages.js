@@ -1,11 +1,9 @@
-import { getMarketDetails } from '../../api/markets';
 import {
   PUSH_CONTEXT_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
 import { removeMarketDetails, updateMarketDetails, initializeState } from './marketsContextReducer';
-import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { EMPTY_STATE } from './MarketsContext';

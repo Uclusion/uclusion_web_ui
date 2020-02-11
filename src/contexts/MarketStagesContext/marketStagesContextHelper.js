@@ -1,6 +1,3 @@
-import { getMarketStages } from '../../api/markets';
-import { updateMarketStages } from './marketStagesContextReducer';
-import { AllSequentialMap } from '../../utils/PromiseUtils';
 
 export function getStages(state, marketId) {
   return state[marketId] || [];

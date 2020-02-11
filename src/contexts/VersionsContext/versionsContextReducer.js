@@ -65,6 +65,12 @@ export function refreshNotificationVersionAction(message) {
 function doAddNewMarket(state, action) {
   const { marketId } = action;
   const { existingMarkets } = state;
+  if (!existingMarkets) {
+    return {
+      ...state,
+      existingMarkets: [marketId],
+    };
+  }
   const newMarkets = [
     ...existingMarkets,
     marketId,

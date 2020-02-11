@@ -94,6 +94,9 @@ export function getFetchSignaturesForMarket(marketVersionSignatures) {
 
 function generateSimpleObjectSignature(versionsSignatures, type) {
   const mySignature = versionsSignatures.find((signature) => signature.type === type);
+  if (!mySignature) {
+    return [];
+  }
   const { object_versions: objectVersions } = mySignature;
   return objectVersions.map((objVersion) => {
     return {
@@ -116,7 +119,7 @@ function usersSignatureGenerator(versionsSignatures) {
       }
     };
   }, {});
-  investmentsSignatures.object_versions.forEach((sig) => {
+  investmentsSignatures && investmentsSignatures.object_versions && investmentsSignatures.object_versions.forEach((sig) => {
     const userId = sig.object_id_two;
     const marketInfoId = sig.object_id_one;
     if (fetchSigs[userId]) {
@@ -146,8 +149,8 @@ function usersSignatureGenerator(versionsSignatures) {
 }
 
 function investiblesSignatureGenerator(versionsSignatures) {
-  const invSignature = versionsSignatures.find((signature) => signature.type === 'investible');
-  const infoSignature = versionsSignatures.find((signature) => signature.type === 'market_investible');
+  const invSignature = versionsSignatures.find((signature) => signature.type === 'investible') || {object_versions: []};
+  const infoSignature = versionsSignatures.find((signature) => signature.type === 'market_investible') || {object_versions: []};
   // an investible needs an update regardless of whether or not it's the market info or the
   // investible itself, so we need to join here
   const fetchSigs = invSignature.object_versions.reduce((acc, sig) => {

@@ -107,8 +107,8 @@ function generateSimpleObjectSignature(versionsSignatures, type) {
 }
 
 function usersSignatureGenerator(versionsSignatures) {
-  const userSignatures = versionsSignatures.find((signature) => signature.type === 'market_capability');
-  const investmentsSignatures = versionsSignatures.find((signature) => signature.type === 'investment');
+  const userSignatures = versionsSignatures.find((signature) => signature.type === 'market_capability') || {object_versions: []};
+  const investmentsSignatures = versionsSignatures.find((signature) => signature.type === 'investment') || {object_versions: []};
   const fetchSigs = userSignatures.object_versions.reduce((acc, sig) => {
     const userId = sig.object_id_one;
     return {
@@ -119,7 +119,7 @@ function usersSignatureGenerator(versionsSignatures) {
       }
     };
   }, {});
-  investmentsSignatures && investmentsSignatures.object_versions && investmentsSignatures.object_versions.forEach((sig) => {
+  investmentsSignatures.object_versions.forEach((sig) => {
     const userId = sig.object_id_two;
     const marketInfoId = sig.object_id_one;
     if (fetchSigs[userId]) {

@@ -27,8 +27,10 @@ function beginListening(dispatch, diffDispatch) {
     switch (event) {
       case VERSIONS_EVENT:
         console.debug(`Markets context responding to updated market event ${event}`);
-        diffDispatch(addContents(marketDetails));
-        dispatch(updateMarketDetails(marketDetails));
+        diffDispatch(addContents([marketDetails]));
+        console.log("My Market details");
+        console.log(marketDetails);
+        dispatch(updateMarketDetails([marketDetails]));
         break;
       default:
         console.debug(`Ignoring identity event ${event}`);

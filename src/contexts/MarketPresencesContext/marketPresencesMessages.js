@@ -1,10 +1,8 @@
-import { refreshMarketPresence } from './marketPresencesHelper';
 import {
   PUSH_PRESENCE_CHANNEL, REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
 } from '../VersionsContext/versionsContextHelper';
-import { removeMarketsPresence, initializeState } from './marketPresencesContextReducer';
-import { AllSequentialMap } from '../../utils/PromiseUtils';
+import { removeMarketsPresence, initializeState, updateMarketPresence } from './marketPresencesContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { EMPTY_STATE } from './MarketPresencesContext';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
@@ -22,12 +20,12 @@ function beginListening(dispatch) {
     }
   });
   registerListener(PUSH_PRESENCE_CHANNEL, 'marketPresencePushStart', (data) => {
-    const { payload: { event, message } } = data;
+    const { payload: { event, marketId, users } } = data;
 
     switch (event) {
-      case VERSIONS_EVENT: {
-        return AllSequentialMap(message, (marketId) => refreshMarketPresence(dispatch, marketId));
-      }
+      case VERSIONS_EVENT:
+        dispatch(updateMarketPresence(marketId, users));
+        break;
       default:
         console.debug(`Ignoring push event ${event}`);
     }

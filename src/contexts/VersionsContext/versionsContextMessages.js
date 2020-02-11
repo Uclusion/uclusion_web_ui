@@ -37,16 +37,14 @@ function beginListening(dispatch) {
   });
 
   registerListener(VERSIONS_HUB_CHANNEL, 'versionVersionStart', (data) => {
-    const { payload: { event, message } } = data;
+    const { payload: { event, globalVersion } } = data;
     console.debug(`Versions context responding to push event ${event}`);
-    console.debug(message);
     switch (event) {
       case GLOBAL_VERSION_UPDATE:
-        const { globalVersion } = message;
         dispatch(updateGlobalVersion(globalVersion));
         break;
       case NOTIFICATION_MESSAGE_EVENT:
-        dispatch(refreshNotificationVersionAction(message));
+        dispatch(refreshNotificationVersionAction());
         break;
       default:
         console.debug(`Ignoring push event ${event}`);

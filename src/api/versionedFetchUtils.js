@@ -33,6 +33,7 @@ function doVersionRefresh(currentHeldVersion, existingMarkets) {
   let newGlobalVersion;
   return getVersions()
     .then((versions) => {
+      console.log(versions);
       const { global_version, signatures: marketSignatures } = versions;
       newGlobalVersion = global_version;
       return AllSequentialMap(marketSignatures, (marketSignature) => {
@@ -55,10 +56,11 @@ function doVersionRefresh(currentHeldVersion, existingMarkets) {
 
 function doRefreshMarket(marketId, componentSignatures) {
   const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
-  const { market, comments, marketPresences, investibles } = fetchSignatures;
+  console.log(fetchSignatures);
+  const { markets, comments, marketPresences, investibles } = fetchSignatures;
   const promises = [];
-  if (!_.isEmpty(market)) {
-    promises.push(fetchMarketVersion(marketId, market[0])) // can only be one market object per market:)
+  if (!_.isEmpty(markets)) {
+    promises.push(fetchMarketVersion(marketId, markets[0])) // can only be one market object per market:)
   }
   if (!_.isEmpty(comments)) {
     promises.push(fetchMarketComments(marketId, comments));
@@ -75,6 +77,7 @@ function doRefreshMarket(marketId, componentSignatures) {
 function fetchMarketVersion(marketId, marketSignature) {
   return getMarketDetails(marketId)
     .then((marketDetails) => {
+      console.log(marketDetails);
       const match = signatureMatcher([marketDetails], [marketSignature]);
       // we bothered to fetch the data, so we should use it:)
       pushMessage(PUSH_CONTEXT_CHANNEL, {event: VERSIONS_EVENT, marketDetails});
@@ -111,7 +114,9 @@ function fetchMarketInvestibles(marketId, investiblesSignatures) {
 function fetchMarketPresences(marketId, mpSignatures) {
   return getMarketUsers(marketId)
     .then((users) => {
+      console.log(users);
       const match = signatureMatcher(users, mpSignatures);
+      console.log(mpSignatures);
       pushMessage(PUSH_PRESENCE_CHANNEL, {event: VERSIONS_EVENT, marketId, users});
       if (!match.allMatched) {
         throw new Error("Presences didn't match");

@@ -116,8 +116,8 @@ function Screen(props) {
   const [loadingFailedTimer, setLoadingFailedTimer] = useState(undefined);
   const [versionsState, versionsDispatch] = useContext(VersionsContext);
   const { notificationVersion } = versionsState;
-  const { version } = notificationVersion;
-  const myLoading = !hidden && (appEnabled && (loading || version < 0));
+  //const { version } = notificationVersion;
+  const myLoading = !hidden && (appEnabled && loading); //|| version < 0));
   useEffect(() => {
     if (!operationRunning && myLoading) {
       setOperationRunning(true);

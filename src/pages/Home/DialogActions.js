@@ -61,7 +61,7 @@ function DialogActions(props) {
     if (isAdmin) {
       if (marketStage === 'Active') {
         actions.push(
-          <EditMarketButton labelId={editLabel} marketId={marketId} onClick={editAction} />
+          <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction} />
         );
         actions.push(
           <DismissMarketButton key="archive" marketId={marketId}/>,

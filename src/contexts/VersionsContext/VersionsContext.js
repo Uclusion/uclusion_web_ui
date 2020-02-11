@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useReducer } from 'react';
 import reducer, { EMPTY_STATE, initializeVersionsAction, VERSIONS_CONTEXT_NAMESPACE } from './versionsContextReducer';
 import beginListening from './versionsContextMessages';
-import { getVersions } from '../../api/summaries';
 import LocalForageHelper from '../LocalForageHelper';
+import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
 
 const VersionsContext = React.createContext(EMPTY_STATE);
 
@@ -19,10 +19,12 @@ function VersionsProvider(props) {
       // load state from storage
       const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
       lfg.getState()
-        .then((diskState) => getVersions().then((versions) => {
-          dispatch(initializeVersionsAction(diskState, versions));
+        .then((diskState) => {
+          dispatch(initializeVersionsAction(diskState));
+          const { globalVersion, existingMarkets } = diskState;
+          refreshGlobalVersion(globalVersion, existingMarkets);
           setIsInitialization(false);
-        }));
+        });
     }
     return () => {
     };

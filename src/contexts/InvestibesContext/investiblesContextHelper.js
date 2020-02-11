@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import { fetchInvestibleList, fetchInvestibles } from '../../api/marketInvestibles';
 import { updateStorableInvestibles } from './investiblesContextReducer';
 import { fixupItemForStorage } from '../ContextUtils';
 import LocalForageHelper from '../LocalForageHelper';
@@ -23,7 +22,7 @@ export function getInvestible(state, investibleId) {
   return state[investibleId];
 }
 
-export function getInvestiblesInStage(investibles, stageId){
+export function getInvestiblesInStage(investibles, stageId) {
   const stageInvestibles = investibles.filter((inv) => {
     const { market_infos } = inv;
     if (!market_infos) {
@@ -34,31 +33,17 @@ export function getInvestiblesInStage(investibles, stageId){
   return stageInvestibles;
 }
 
-export function refreshInvestibles(dispatch, diffDispatch, marketId) {
-  return fetchInvestibleList(marketId)
-    .then((investibleList) => {
-      // console.debug(investibleList);
-      if (_.isEmpty(investibleList)) {
-        return Promise.resolve([]);
-      }
-      const idList = investibleList.map((investible) => investible.id);
-      return fetchInvestibles(idList, marketId);
-    }).then((investibles) => {
-      if (_.isEmpty(investibles)) {
-        return Promise.resolve([]);
-      }
-      // console.debug(investibles);
-      const fixed = investibles.map((item) => {
-        const { investible, market_infos } = item;
-        const fixedInvestible = fixupItemForStorage(investible);
-        return { investible: fixedInvestible, market_infos };
-      });
-      const diffInvestibles = fixed.map((inv) => inv.investible);
-      diffDispatch(addContents(diffInvestibles));
-      const investibleHash = _.keyBy(fixed, (item) => item.investible.id);
-      // console.debug(investibleHash);
-      dispatch(updateStorableInvestibles(marketId, investibleHash));
-    });
+export function refreshInvestibles(dispatch, diffDispatch, marketId, investibles) {
+  const fixed = investibles.map((item) => {
+    const { investible, market_infos } = item;
+    const fixedInvestible = fixupItemForStorage(investible);
+    return { investible: fixedInvestible, market_infos };
+  });
+  const diffInvestibles = fixed.map((inv) => inv.investible);
+  diffDispatch(addContents(diffInvestibles));
+  const investibleHash = _.keyBy(fixed, (item) => item.investible.id);
+  // console.debug(investibleHash);
+  dispatch(updateStorableInvestibles(marketId, investibleHash));
 }
 
 export function checkInvestibleInStorage(investibleId) {

@@ -3,7 +3,6 @@ import {
   PUSH_INVESTIBLES_CHANNEL,
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
-import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { initializeState } from './investiblesContextReducer';
@@ -12,12 +11,10 @@ import { getUclusionLocalStorageItem } from '../../components/utils';
 
 function beginListening(dispatch, diffDispatch) {
   registerListener(PUSH_INVESTIBLES_CHANNEL, 'pushInvestibleStart', (data) => {
-    const { payload: { event, message } } = data;
-
+    const { payload: { event, marketId, investibles } } = data;
     switch (event) {
-      case VERSIONS_EVENT: {
-        return AllSequentialMap(message, (marketId) => refreshInvestibles(dispatch, diffDispatch, marketId));
-      }
+      case VERSIONS_EVENT:
+        return refreshInvestibles(dispatch, diffDispatch, marketId, investibles);
       default:
         console.debug(`Ignoring push event ${event}`);
     }

@@ -1,11 +1,9 @@
-import { getMarketDetails } from '../../api/markets';
 import {
   PUSH_CONTEXT_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
 import { removeMarketDetails, updateMarketDetails, initializeState } from './marketsContextReducer';
-import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { EMPTY_STATE } from './MarketsContext';
@@ -25,16 +23,15 @@ function beginListening(dispatch, diffDispatch) {
     }
   });
   registerListener(PUSH_CONTEXT_CHANNEL, 'marketsPushStart', (data) => {
-    const { payload: { event, message } } = data;
+    const { payload: { event, marketDetails } } = data;
     switch (event) {
-      case VERSIONS_EVENT: {
+      case VERSIONS_EVENT:
         console.debug(`Markets context responding to updated market event ${event}`);
-        return AllSequentialMap(message, (marketId) => getMarketDetails(marketId))
-          .then((marketDetails) => {
-            diffDispatch(addContents(marketDetails));
-            dispatch(updateMarketDetails(marketDetails));
-          });
-      }
+        diffDispatch(addContents([marketDetails]));
+        console.log("My Market details");
+        console.log(marketDetails);
+        dispatch(updateMarketDetails([marketDetails]));
+        break;
       default:
         console.debug(`Ignoring identity event ${event}`);
     }

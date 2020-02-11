@@ -1,40 +1,42 @@
 import {
-  refreshMarketVersion,
   refreshNotificationVersion,
-  refreshVersions,
-  removeMarketVersion,
 } from './versionsContextHelper';
 import LocalForageHelper from '../LocalForageHelper';
 
+export const VERSIONS_CONTEXT_NAMESPACE = 'versions_context';
 export const EMPTY_STATE = {
-  marketVersions: [],
-  notificationVersion: {},
+  globalVersion: '',
+  existingMarkets: '',
+  notificationVersion: {version: -1 },
 };
 
-const LOADING_STATE = {
-  marketVersions: [],
-  notificationVersion: { version: -1 },
-};
 
-const UPDATE_VERSIONS = 'UPDATE_VERSIONS';
+const UPDATE_GLOBAL_VERSION = 'UPDATE_GLOBAL_VERSION';
+const NEW_MARKET = 'NEW_MARKET';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const INITIALIZE_LOADING = 'INITIALIZE_LOADING';
 const REMOVE_MARKET = 'REMOVE_MARKET';
-const REFRESH_MARKET = 'REFRESH_MARKET';
 const REFRESH_NOTIFICATION = 'REFRESH_NOTIFICATION';
 const INITIALIZE_STATE_VERSIONS = 'INITIALIZE_STATE_VERSIONS';
 
-export function refreshVersionsAction(versions) {
+
+export function addNewMarket(marketId) {
   return {
-    type: UPDATE_VERSIONS,
-    versions,
+    type: NEW_MARKET,
+    marketId,
+  }
+}
+
+export function updateGlobalVersion(globalVersion) {
+  return {
+    type: UPDATE_GLOBAL_VERSION,
+    globalVersion,
   };
 }
 
-export function initializeVersionsAction(diskState, versions) {
+export function initializeVersionsAction(diskState) {
   return {
     type: INITIALIZE_STATE_VERSIONS,
-    versions,
     diskState,
   };
 }
@@ -51,20 +53,6 @@ export function loadingState() {
   };
 }
 
-export function removeMarketVersionAction(marketId) {
-  return {
-    type: REMOVE_MARKET,
-    marketId,
-  };
-}
-
-export function refreshMarketVersionAction(message) {
-  return {
-    type: REFRESH_MARKET,
-    message,
-  };
-}
-
 export function refreshNotificationVersionAction(message) {
   return {
     type: REFRESH_NOTIFICATION,
@@ -74,14 +62,23 @@ export function refreshNotificationVersionAction(message) {
 
 /* Functions that mutate the state */
 
-function updateStoredVersions(state, marketVersions, notificationVersion) {
+function doAddNewMarket(state, action) {
+  const { marketId } = action;
+  const { existingMarkets } = state;
+  const newMarkets = [
+    ...existingMarkets,
+    marketId,
+  ];
   return {
-    marketVersions,
-    notificationVersion,
+    ...state,
+    existingMarkets: newMarkets,
   };
 }
 
-function removeStoredMarket(state, marketId) {
+
+
+function removeStoredMarket(state, action) {
+  const { marketId } = action;
   const { marketVersions } = state;
   const newMarketVersions = marketVersions.filter((market) => (market.marketId !== marketId));
   return {
@@ -90,15 +87,6 @@ function removeStoredMarket(state, marketId) {
   };
 }
 
-function refreshStoredMarket(state, version) {
-  const { marketVersions } = state;
-  // eslint-disable-next-line max-len
-  const existingMarketVersions = marketVersions.filter((market) => (market.marketId !== version.marketId));
-  return {
-    ...state,
-    marketVersions: [...existingMarketVersions, version],
-  };
-}
 
 function refreshStoredNotification(state, version) {
   return {
@@ -107,49 +95,32 @@ function refreshStoredNotification(state, version) {
   };
 }
 
-export const VERSIONS_CONTEXT_NAMESPACE = 'versions_context';
-
 function reducer(state, action) {
   let newState;
   switch (action.type) {
-    case UPDATE_VERSIONS: {
-      const { versions } = action;
-      const { marketVersions, notificationVersion } = versions;
-      refreshVersions(state, marketVersions, notificationVersion);
-      newState = updateStoredVersions(state, marketVersions, notificationVersion);
+    case UPDATE_GLOBAL_VERSION:
+      newState = {
+        ...state,
+        globalVersion: action.globalVersion,
+      };
       break;
-    }
-    case REMOVE_MARKET: {
-      const { marketId } = action;
-      removeMarketVersion(marketId);
-      newState = removeStoredMarket(state, marketId);
+    case NEW_MARKET:
+      newState = doAddNewMarket(state, action);
       break;
-    }
-    case REFRESH_MARKET: {
-      const { message } = action;
-      refreshMarketVersion(state, message);
-      newState = refreshStoredMarket(state, message);
+    case REMOVE_MARKET:
+      newState = removeStoredMarket(state, action);
       break;
-    }
-    case REFRESH_NOTIFICATION: {
+    case REFRESH_NOTIFICATION:
       const { message } = action;
       refreshNotificationVersion(state, message);
       newState = refreshStoredNotification(state, message);
       break;
-    }
-    case INITIALIZE_STATE_VERSIONS: {
-      const { versions, diskState } = action;
-      const { marketVersions, notificationVersion } = versions;
-      const myState = diskState || EMPTY_STATE;
-      refreshVersions(myState, marketVersions, notificationVersion);
-      newState = updateStoredVersions(myState, marketVersions, notificationVersion);
+    case INITIALIZE_STATE_VERSIONS:
+      const { diskState } = action;
+      newState = diskState || EMPTY_STATE;
       break;
-    }
     case INITIALIZE_STATE:
       newState = EMPTY_STATE;
-      break;
-    case INITIALIZE_LOADING:
-      newState = LOADING_STATE;
       break;
     default:
       newState = state;

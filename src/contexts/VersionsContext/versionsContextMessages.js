@@ -1,18 +1,20 @@
 import {
   AUTH_HUB_CHANNEL,
-  MARKET_MESSAGE_EVENT,
-  NOTIFICATION_MESSAGE_EVENT, SOCKET_OPEN_EVENT,
+  NOTIFICATION_MESSAGE_EVENT,
   VERSIONS_HUB_CHANNEL,
 } from '../WebSocketContext';
-import { getVersions } from '../../api/summaries';
+import { getNotifications, getVersions } from '../../api/summaries';
 import {
+  addNewMarket,
   EMPTY_STATE,
   initializeState, initializeVersionsAction, loadingState,
-  refreshMarketVersionAction,
-  refreshNotificationVersionAction, refreshVersionsAction,
-  removeMarketVersionAction,
+  refreshNotificationVersionAction,
+  updateGlobalVersion
 } from './versionsContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
+
+export const GLOBAL_VERSION_UPDATE = 'global_version_update';
+export const NEW_MARKET = 'new_market'
 
 function beginListening(dispatch) {
   registerListener(AUTH_HUB_CHANNEL, 'versionAuthStart', (data) => {
@@ -37,31 +39,21 @@ function beginListening(dispatch) {
   });
 
   registerListener(VERSIONS_HUB_CHANNEL, 'versionVersionStart', (data) => {
-    const { payload: { event, message } } = data;
+    const { payload: { event, globalVersion, marketId } } = data;
     console.debug(`Versions context responding to push event ${event}`);
-    console.debug(message);
     switch (event) {
-      case MARKET_MESSAGE_EVENT: {
-        const { version, object_id: marketId } = message;
-        if (version < 0) {
-          dispatch(removeMarketVersionAction(marketId));
-        } else {
-          const cloneMessage = { ...message };
-          delete cloneMessage.object_id;
-          dispatch(refreshMarketVersionAction({ marketId, ...cloneMessage }));
-        }
+      case GLOBAL_VERSION_UPDATE:
+        dispatch(updateGlobalVersion(globalVersion));
         break;
-      }
-      case NOTIFICATION_MESSAGE_EVENT: {
-        dispatch(refreshNotificationVersionAction(message));
+      case NEW_MARKET:
+        dispatch(addNewMarket(marketId));
         break;
-      }
-      case SOCKET_OPEN_EVENT: {
-        getVersions().then((versions) => {
-          dispatch(refreshVersionsAction(versions));
-        });
-        break;
-      }
+      case NOTIFICATION_MESSAGE_EVENT:
+        return getNotifications()
+          .then((notifications) => {
+            const notification = notifications.find((item) => item.type_object_id.startsWith("notification"));
+            dispatch(refreshNotificationVersionAction(notification));
+          });
       default:
         console.debug(`Ignoring push event ${event}`);
     }

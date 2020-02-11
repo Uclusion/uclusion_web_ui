@@ -1,16 +1,14 @@
 import React, { useContext, useState } from 'react';
-import _ from 'lodash';
+import { toastErrorAndThrow } from '../../utils/userMessage';
 import { CircularProgress, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { registerListener, removeListener } from '../../utils/MessageBusUtils';
-import { getMarketVersion } from '../../contexts/VersionsContext/versionsContextHelper';
+import { getExistingMarkets, getGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
-import { getVersions } from '../../api/summaries';
-import { toastErrorAndThrow } from '../../utils/userMessage';
-import { refreshVersionsAction } from '../../contexts/VersionsContext/versionsContextReducer';
 import { startTimerChain } from '../../utils/timerUtils';
+import { doVersionRefresh, MatchError } from '../../api/versionedFetchUtils';
 
 const FETCH_DELAY = 200; // give us 200 ms pull data from the hub event;
 const SPIN_CHECKER_POLL_DELAY = 10; // how often to run the spin checker
@@ -33,10 +31,11 @@ export function withSpinLock(Component) {
 
     const theme = useTheme();
     const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-    const [versionsState, versionsDispatch] = useContext(VersionsContext);
+    const [versionsState] = useContext(VersionsContext);
     const [spinning, setSpinning] = useState(false);
     const listenerName = 'SPINNER';
-    let operationCheckStopper = () => {};
+    let operationCheckStopper = () => {
+    };
 
     function endSpinning(result) {
       setSpinning(false);
@@ -58,35 +57,27 @@ export function withSpinLock(Component) {
      * off then we force version check.
      */
     function startOperationCheckInterval() {
-      const currentVersion = getMarketVersion(versionsState, marketId);
+      // const currentVersion = getMarketVersion(versionsState, marketId);
       operationCheckStopper = startTimerChain(OPERATION_TIMEOUT, 20, () => {
         console.debug('Operation check interval firing');
-        return getVersions()
-          .then((versions) => {
-            const { marketVersions } = versions;
-            const newMarket = _.isEmpty(marketId);
-            // eslint-disable-next-line max-len
-            const newVersion = marketVersions.find((version) => version.marketId === marketId || (newMarket && version.version === 1));
-            if (newVersion && (newMarket || !_.isEqual(newVersion, currentVersion))) {
-              // There should not be any need to stop spinning here
-              // - the spinner should clean itself up if conditions are met
-              versionsDispatch(refreshVersionsAction(versions));
-            }
-          })
+        const globalVersion = getGlobalVersion(versionsState);
+        const existingMarkets = getExistingMarkets(versionsState);
+        return doVersionRefresh(globalVersion, existingMarkets)
           .catch((error) => {
-            operationCheckStopper();
-            endSpinning();
-            toastErrorAndThrow(error, 'spinVersionCheckError');
+            if (!(error instanceof MatchError)) {
+              operationCheckStopper();
+              endSpinning();
+              toastErrorAndThrow(error, 'spinVersionCheckError');
+            }
           });
       });
     }
 
     const hubListener = (data) => {
-      const { payload: { event, message } } = data;
+      const { payload: { event, marketId: messageMarketId } } = data;
       switch (event) {
         case MARKET_MESSAGE_EVENT: {
-          const { object_id: messageMarketId, version } = message;
-          if ((messageMarketId === marketId) || (_.isEmpty(marketId) && version === 1)) {
+          if (messageMarketId === marketId) {
             myOnSpinStop();
           }
           break;
@@ -119,6 +110,7 @@ export function withSpinLock(Component) {
             if (spinChecker) {
               // if we have a spin checker we'll use it instead of our listener
               removeListener(VERSIONS_HUB_CHANNEL, listenerName);
+
               function spinCheck() {
                 spinChecker()
                   .then((checkResult) => {
@@ -134,6 +126,7 @@ export function withSpinLock(Component) {
                     operationCheckStopper();
                   });
               }
+
               setTimeout(spinCheck, SPIN_CHECKER_POLL_DELAY);
             }
           }

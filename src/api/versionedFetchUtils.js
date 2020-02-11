@@ -69,7 +69,7 @@ export function doVersionRefresh(currentHeldVersion, existingMarkets) {
           // for this market
           pushMessage(VERSIONS_HUB_CHANNEL, { event: MARKET_MESSAGE_EVENT, marketId });
         }
-        if (!existingMarkets.includes(marketId)) {
+        if (!existingMarkets || !existingMarkets.includes(marketId)) {
           pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
           promises.push(getMarketStages(marketId)
             .then((stages) => {

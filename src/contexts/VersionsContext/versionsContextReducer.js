@@ -92,6 +92,12 @@ export const VERSIONS_CONTEXT_NAMESPACE = 'versions_context';
 function reducer(state, action) {
   let newState;
   switch (action.type) {
+    case UPDATE_GLOBAL_VERSION:
+      newState = {
+        ...state,
+        globalVersion: action.globalVersion,
+      };
+      break;
     case REMOVE_MARKET:
       const { marketId } = action;
       newState = removeStoredMarket(state, marketId);

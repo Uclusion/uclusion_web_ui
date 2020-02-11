@@ -41,6 +41,7 @@ function beginListening(dispatch) {
     console.debug(`Versions context responding to push event ${event}`);
     switch (event) {
       case GLOBAL_VERSION_UPDATE:
+        console.log(globalVersion);
         dispatch(updateGlobalVersion(globalVersion));
         break;
       case NOTIFICATION_MESSAGE_EVENT:

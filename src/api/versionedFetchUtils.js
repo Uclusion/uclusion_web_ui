@@ -22,6 +22,7 @@ export function refreshGlobalVersion(currentHeldVersion, existingMarkets) {
   const execFunction = () => {
     return doVersionRefresh(currentHeldVersion, existingMarkets)
       .then((globalVersion) => {
+        console.log(`My new global version ${globalVersion}`);
         timeoutClearer();
         pushMessage(VERSIONS_HUB_CHANNEL, {event: GLOBAL_VERSION_UPDATE, globalVersion});
       });
@@ -103,6 +104,9 @@ function fetchMarketInvestibles(marketId, investiblesSignatures) {
   const investibleIds = investiblesSignatures.map((inv) => inv.investible.id);
   return fetchInvestibles(investibleIds, marketId)
     .then((investibles) => {
+      console.log("Fetching investibles");
+      console.log(investibles);
+      console.log(investiblesSignatures);
       const match = signatureMatcher(investibles, investiblesSignatures);
       pushMessage(PUSH_INVESTIBLES_CHANNEL, {event: VERSIONS_EVENT, marketId, investibles});
       if (!match.allMatched) {

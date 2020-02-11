@@ -3,6 +3,8 @@ import { DIFF_CONTEXT_NAMESPACE } from './DiffContext';
 import LocalForageHelper from '../LocalForageHelper';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
+const REMOVE_CONTENTS = 'REMOVE_CONTENTS';
+
 const ADD_CONTENTS = 'ADD_CONTENTS';
 const VIEW_CONTENT = 'VIEW_CONTENT';
 const VIEW_DIFF = 'VIEW_DIFF';
@@ -11,6 +13,13 @@ export function initializeState(newState) {
   return {
     type: INITIALIZE_STATE,
     newState,
+  };
+}
+
+export function removeContents(items) {
+  return {
+    type: REMOVE_CONTENTS,
+    items,
   };
 }
 
@@ -56,6 +65,15 @@ function getNotSeenContent(state, content) {
     ...state,
     [id]: firstReceived,
   };
+}
+
+function removeContentsState(state, action) {
+  const { items } = action;
+  const newState = { ...state };
+  items.forEach((id) => {
+    delete newState[id];
+  });
+  return newState;
 }
 
 function addContentsState(state, action) {
@@ -153,6 +171,8 @@ function computeNewState(state, action) {
   switch (type) {
     case INITIALIZE_STATE:
       return action.newState;
+    case REMOVE_CONTENTS:
+      return removeContentsState(state, action);
     case ADD_CONTENTS:
       return addContentsState(state, action);
     case VIEW_CONTENT:

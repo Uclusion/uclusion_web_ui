@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { pushMessage } from '../utils/MessageBusUtils';
 import { getVersions } from './summaries';
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets';
-import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils';
+import { getFetchSignaturesForMarket, signatureMatcher, getRemoveListForMarket } from './versionSignatureUtils';
 import {
   PUSH_COMMENTS_CHANNEL,
   PUSH_CONTEXT_CHANNEL, PUSH_INVESTIBLES_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
@@ -14,6 +14,7 @@ import { AllSequentialMap } from '../utils/PromiseUtils';
 import { startTimerChain } from '../utils/timerUtils';
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext';
 import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages';
+import { REMOVE_INVESTIBLES } from '../contexts/InvestibesContext/investiblesContextMessages'
 
 const MAX_RETRIES = 10;
 
@@ -63,6 +64,8 @@ export function doVersionRefresh(currentHeldVersion, existingMarkets) {
       newGlobalVersion = global_version;
       return AllSequentialMap(marketSignatures, (marketSignature) => {
         const { market_id: marketId, signatures: componentSignatures } = marketSignature;
+        console.log(componentSignatures);
+        doPushRemovals(marketId, componentSignatures);
         const promises = doRefreshMarket(marketId, componentSignatures);
         if (!_.isEmpty(promises)) {
           // send a notification to the versions channel saying we have incoming stuff
@@ -84,6 +87,12 @@ export function doVersionRefresh(currentHeldVersion, existingMarkets) {
     });
 }
 
+function doPushRemovals(marketId, marketRemovalSignatures) {
+  const { investibles } = getRemoveListForMarket(marketRemovalSignatures);
+  if (!_.isEmpty(investibles)){
+    pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: REMOVE_INVESTIBLES, marketId, investibles });
+  }
+}
 
 function doRefreshMarket(marketId, componentSignatures) {
   const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);

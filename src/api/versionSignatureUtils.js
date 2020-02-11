@@ -8,7 +8,7 @@ import _ from 'lodash';
  * @param object
  * @returns {boolean}
  */
-function signatureMatches(signature, object) {
+function signatureMatches (signature, object) {
   for (const key of Object.keys(signature)) {
     const signatureVersion = signature[key];
     console.log(signatureVersion);
@@ -19,7 +19,7 @@ function signatureMatches(signature, object) {
     }
     let keySatisfied;
     if (_.isArray(signatureVersion)) {
-      console.log("Checking array match");
+      console.log('Checking array match');
       if (!_.isArray(objectVersion)) {
         return false;
       }
@@ -30,17 +30,17 @@ function signatureMatches(signature, object) {
         return acc;
       }, true);
     } else if ('object' === typeof signatureVersion) {
-      console.log("Checking object signature");
+      console.log('Checking object signature');
       keySatisfied = signatureMatches(signatureVersion, objectVersion);
     } else if (key.endsWith('id')) {
-      console.log("Checking exact id match");
+      console.log('Checking exact id match');
       keySatisfied = objectVersion === signatureVersion;
     } else {
-      console.log("Checking numeric version");
+      console.log('Checking numeric version');
       keySatisfied = objectVersion >= signatureVersion;
     }
     if (!keySatisfied) {
-      console.log("Key not satisifed");
+      console.log('Key not satisifed');
       return false;
     }
   }
@@ -58,7 +58,7 @@ function signatureMatches(signature, object) {
  * @param fetched
  * @param signatures
  */
-export function signatureMatcher(fetched, signatures) {
+export function signatureMatcher (fetched, signatures) {
   const matched = [];
   const matchedSignatures = [];
   for (let x = 0; x < fetched.length; x++) {
@@ -74,11 +74,39 @@ export function signatureMatcher(fetched, signatures) {
   const allMatched = _.isEmpty(unmatchedSignatures);
   // console.log(allMatched);
   // console.log(unmatchedSignatures);
-  return { matched, unmatchedSignatures, allMatched};
+  return { matched, unmatchedSignatures, allMatched };
 }
 
+export function getRemoveListForMarket (marketVersionSignatures) {
+  const investibles = investiblesRemovalGenerator(marketVersionSignatures);
+  return {
+    investibles,
+  };
+}
 
-export function getFetchSignaturesForMarket(marketVersionSignatures) {
+function investiblesRemovalGenerator (versionsSignatures) {
+  const invSignature = versionsSignatures.find((signature) => signature.type === 'investible') || { object_versions: [] };
+  const infoSignature = versionsSignatures.find((signature) => signature.type === 'market_investible') || { object_versions: [] };
+  const baseRemovals = invSignature.object_versions.reduce((acc, signature) => {
+    if (signature.version === 0) {
+      return [...acc, signature.object_id_one];
+    }
+    return acc;
+  }, []);
+
+  const infoRemovals = infoSignature.object_versions.reduce((acc, signature) => {
+    const { object_id_two: invId, version } = signature;
+    if (version === 0) {
+      return [acc, invId];
+    }
+    return acc;
+  }, []);
+  const combined = [...baseRemovals, infoRemovals];
+  const unique = _.uniq(combined);
+  return unique;
+}
+
+export function getFetchSignaturesForMarket (marketVersionSignatures) {
   // I know how to fetch markets, marketPresences (users), investibles, and comments
   const comments = commentsSignatureGenerator(marketVersionSignatures);
   const markets = marketSignatureGenerator(marketVersionSignatures);
@@ -92,36 +120,49 @@ export function getFetchSignaturesForMarket(marketVersionSignatures) {
   };
 }
 
-function generateSimpleObjectSignature(versionsSignatures, type) {
+function generateSimpleObjectSignature (versionsSignatures, type) {
   const mySignature = versionsSignatures.find((signature) => signature.type === type);
   if (!mySignature) {
     return [];
   }
   const { object_versions: objectVersions } = mySignature;
-  return objectVersions.map((objVersion) => {
-    return {
-      id: objVersion.object_id_one,
-      version: objVersion.version,
-    };
-  });
+  return objectVersions.reduce((acc, objVersion) => {
+    const { version, object_id_one: id } = objVersion;
+    if (version === 0) {
+      return acc;
+    }
+    return [
+      ...acc,
+      {
+        id,
+        version,
+      }
+    ];
+  }, []);
 }
 
-function usersSignatureGenerator(versionsSignatures) {
-  const userSignatures = versionsSignatures.find((signature) => signature.type === 'market_capability') || {object_versions: []};
-  const investmentsSignatures = versionsSignatures.find((signature) => signature.type === 'investment') || {object_versions: []};
+function usersSignatureGenerator (versionsSignatures) {
+  const userSignatures = versionsSignatures.find((signature) => signature.type === 'market_capability') || { object_versions: [] };
+  const investmentsSignatures = versionsSignatures.find((signature) => signature.type === 'investment') || { object_versions: [] };
   const fetchSigs = userSignatures.object_versions.reduce((acc, sig) => {
+    const { version } = sig;
+    if (sig === 0) {
+      return acc;
+    }
     const userId = sig.object_id_one;
     return {
       ...acc,
       [userId]: {
         id: userId,
-        market_capability_version: sig.version,
+        market_capability_version: version,
       }
     };
   }, {});
   investmentsSignatures.object_versions.forEach((sig) => {
-    const userId = sig.object_id_two;
-    const marketInfoId = sig.object_id_one;
+    const { object_id_two: userId, version, object_id_one: marketInfoId } = sig;
+    if (version === 0) {
+      return;
+    }
     if (fetchSigs[userId]) {
       const investments = fetchSigs[userId]['investments'] || [];
       fetchSigs[userId] = {
@@ -129,7 +170,7 @@ function usersSignatureGenerator(versionsSignatures) {
         investments: [
           ...investments, {
             market_investible_id: marketInfoId,
-            market_investible_version: sig.version,
+            market_investible_version: version,
           }
         ]
       };
@@ -139,7 +180,7 @@ function usersSignatureGenerator(versionsSignatures) {
         investments: [
           {
             market_investible_id: marketInfoId,
-            market_investible_version: sig.version,
+            market_investible_version: version,
           }
         ]
       };
@@ -148,13 +189,16 @@ function usersSignatureGenerator(versionsSignatures) {
   return Object.values(fetchSigs);
 }
 
-function investiblesSignatureGenerator(versionsSignatures) {
-  const invSignature = versionsSignatures.find((signature) => signature.type === 'investible') || {object_versions: []};
-  const infoSignature = versionsSignatures.find((signature) => signature.type === 'market_investible') || {object_versions: []};
+function investiblesSignatureGenerator (versionsSignatures) {
+  const invSignature = versionsSignatures.find((signature) => signature.type === 'investible') || { object_versions: [] };
+  const infoSignature = versionsSignatures.find((signature) => signature.type === 'market_investible') || { object_versions: [] };
   // an investible needs an update regardless of whether or not it's the market info or the
   // investible itself, so we need to join here
   const fetchSigs = invSignature.object_versions.reduce((acc, sig) => {
-    const invId = sig.object_id_one;
+    const { object_id_one: invId, version } = sig;
+    if (version === 0) {
+      return acc;
+    }
     return {
       ...acc,
       [invId]: {
@@ -166,9 +210,11 @@ function investiblesSignatureGenerator(versionsSignatures) {
     };
   }, {});
   infoSignature.object_versions.forEach((sig) => {
-    const invId = sig.object_id_two;
-    const version = sig.version;
-    const infoId = sig.object_id_one;
+    const { object_id_two: invId, version, object_id_one: infoId } = sig;
+    if (version === 0) {
+      delete fetchSigs[invId]; // if market investible gone, we can't fetch the base
+      return;
+    }
     if (fetchSigs[invId]) {
       fetchSigs[invId] = {
         ...fetchSigs[invId],
@@ -202,7 +248,7 @@ function investiblesSignatureGenerator(versionsSignatures) {
  * @param versionsSignatures
  * @returns {*}
  */
-function marketSignatureGenerator(versionsSignatures) {
+function marketSignatureGenerator (versionsSignatures) {
   return generateSimpleObjectSignature(versionsSignatures, 'market');
 }
 
@@ -212,7 +258,7 @@ function marketSignatureGenerator(versionsSignatures) {
  * @param versionsSignatures
  * @returns {*}
  */
-function commentsSignatureGenerator(versionsSignatures) {
+function commentsSignatureGenerator (versionsSignatures) {
   return generateSimpleObjectSignature(versionsSignatures, 'comment');
 }
 

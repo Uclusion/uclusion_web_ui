@@ -1,9 +1,9 @@
-import _ from 'lodash';
 import LocalForageHelper from '../LocalForageHelper';
 import { INVESTIBLES_CONTEXT_NAMESPACE } from './InvestiblesContext';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
+const REMOVE_INVESTIBLES = 'REMOVE_INVESTIBLES';
 
 /** Possible messages to reducer * */
 
@@ -14,10 +14,16 @@ export function initializeState(newState) {
   };
 }
 
-export function updateStorableInvestibles(marketId, investibles) {
+export function removeStoredInvestbiles(investibles) {
+  return {
+    type: REMOVE_INVESTIBLES,
+    investibles,
+  }
+}
+
+export function updateStorableInvestibles(investibles) {
   return {
     type: UPDATE_INVESTIBLES,
-    marketId,
     investibles,
   };
 }
@@ -25,20 +31,25 @@ export function updateStorableInvestibles(marketId, investibles) {
 
 /** Reducer functions */
 
+function doRemvoveInvestibles(state, action) {
+  const { investibles } = action;
+  const newState = { ...state };
+  investibles.forEach((id) => {
+    delete newState[id];
+  });
+  return newState;
+}
+
 // expects that the investibles are already in a storable state
 function doUpdateInvestibles(state, action) {
-  const { investibles: updateHash, marketId } = action;
-  // Remove any investibles not included in the update
-  const newState = _.pickBy(state, (value) => {
-    const { market_infos: marketInfos } = value;
-    const { market_id: myMarketId } = marketInfos[0]; // TODO fix if need real sharing
-    return myMarketId !== marketId;
-  });
-  return { ...newState, ...updateHash };
+  const { investibles: updateHash } = action;
+  return { ...state, ...updateHash };
 }
 
 function computeNewState(state, action) {
   switch (action.type) {
+    case REMOVE_INVESTIBLES:
+      return doRemvoveInvestibles(state, action);
     case UPDATE_INVESTIBLES:
       return doUpdateInvestibles(state, action);
     case INITIALIZE_STATE:

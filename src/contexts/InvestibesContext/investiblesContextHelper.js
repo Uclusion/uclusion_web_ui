@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import { updateStorableInvestibles } from './investiblesContextReducer';
+import { removeStoredInvestbiles, updateStorableInvestibles } from './investiblesContextReducer'
 import { fixupItemForStorage } from '../ContextUtils';
 import LocalForageHelper from '../LocalForageHelper';
 import { INVESTIBLES_CONTEXT_NAMESPACE } from './InvestiblesContext';
-import { addContents } from '../DiffContext/diffContextReducer';
+import { addContents, removeContents } from '../DiffContext/diffContextReducer'
 
 export function getMarketInvestibles(state, marketId) {
   const values = Object.values(state);
@@ -33,7 +33,12 @@ export function getInvestiblesInStage(investibles, stageId) {
   return stageInvestibles;
 }
 
-export function refreshInvestibles(dispatch, diffDispatch, marketId, investibles) {
+export function removeInvestibles(dispatch, diffDispatch, investibles) {
+  diffDispatch(removeContents(investibles));
+  dispatch(removeStoredInvestbiles(investibles));
+}
+
+export function refreshInvestibles(dispatch, diffDispatch, investibles) {
   const fixed = investibles.map((item) => {
     const { investible, market_infos } = item;
     const fixedInvestible = fixupItemForStorage(investible);
@@ -43,7 +48,7 @@ export function refreshInvestibles(dispatch, diffDispatch, marketId, investibles
   diffDispatch(addContents(diffInvestibles));
   const investibleHash = _.keyBy(fixed, (item) => item.investible.id);
   // console.debug(investibleHash);
-  dispatch(updateStorableInvestibles(marketId, investibleHash));
+  dispatch(updateStorableInvestibles(investibleHash));
 }
 
 export function checkInvestibleInStorage(investibleId) {

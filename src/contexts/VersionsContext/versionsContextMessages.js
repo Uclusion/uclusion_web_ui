@@ -14,6 +14,8 @@ import {
 } from './versionsContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
 
+export const GLOBAL_VERSION_UPDATE = 'global_version_update';
+
 function beginListening(dispatch) {
   registerListener(AUTH_HUB_CHANNEL, 'versionAuthStart', (data) => {
     const { payload: { event } } = data;
@@ -41,6 +43,9 @@ function beginListening(dispatch) {
     console.debug(`Versions context responding to push event ${event}`);
     console.debug(message);
     switch (event) {
+      case GLOBAL_VERSION_UPDATE:
+        const { globalVersion } = message;
+        dispatch(updateGlobalVersion(globalVersion));
       case MARKET_MESSAGE_EVENT: {
         const { version, object_id: marketId } = message;
         if (version < 0) {

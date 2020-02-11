@@ -1,10 +1,77 @@
+import _ from 'lodash';
 
-export function getFetchSignatures(versionSignatures) {
+/**
+ * A matcher that checks if the version is greater than or equal to the
+ * value in the signature. However, If the signature contains an ID key (e..g market_id) then it
+ * checks for exact match for the objects value with that key
+ * @param signature
+ * @param object
+ * @returns {boolean}
+ */
+function signatureMatches(signature, object) {
+  for (const key of Object.keys(signature)) {
+    const signatureVersion = signature[key];
+    const objectVersion = object[key];
+    if (!objectVersion) {
+      return false;
+    }
+    let keySatisfied;
+    if (_.isArray(signatureVersion)) {
+      if (!_.isArray(objectVersion)) {
+        return false;
+      }
+      // we're not going to consider order, so we'll consider a match if
+      // a least one of the objectVersion entries matches the signatureVersion
+      keySatisfied = signatureVersion.reduce((acc, entry) => {
+        acc = acc && !!objectVersion.find((obj) => signatureMatches(entry, obj));
+        return acc;
+      }, true);
+    } else if ('object' === typeof signatureVersion) {
+      keySatisfied = signatureMatches(signatureVersion, objectVersion);
+    } else if (key.endsWith('id')) {
+      keySatisfied = objectVersion === signatureVersion;
+    } else {
+      keySatisfied = objectVersion >= signatureVersion;
+    }
+    if (!keySatisfied) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Given a list of objects that were fetched, and signature definitions returns a new object
+ * with two values {
+ *   matched: these are the values that have been satisfied
+ *   unmatched: these are the values that have _not_ been satisfied
+ * }
+ * this runs in 0_n^2, so be careful.
+ * @param fetched
+ * @param signatures
+ */
+export function signatureMatcher(fetched, signatures) {
+  const matched = [];
+  const matchedSignatures = [];
+  for (let x = 0; x < fetched.length; x++) {
+    const object = fetched[x];
+    const matchingSignature = signatures.find((signature) => signatureMatches(signature, object));
+    if (matchingSignature) {
+      matched.push(object);
+      matchedSignatures.push(object);
+    }
+  }
+  const unmatchedSignatures = _.difference(signatures, matchedSignatures);
+  return { matched, unmatchedSignatures, allMatched: _.isEmpty(unmatchedSignatures) };
+}
+
+
+export function getFetchSignaturesForMarket(marketVersionSignatures) {
   // I know how to fetch markets, marketPresences (users), investibles, and comments
-  const comments = commentsSignatureGenerator(versionSignatures);
-  const markets = marketSignatureGenerator(versionSignatures);
-  const marketPresences = usersSignatureGenerator(versionSignatures);
-  const investibles = investiblesSignatureGenerator(versionSignatures);
+  const comments = commentsSignatureGenerator(marketVersionSignatures);
+  const markets = marketSignatureGenerator(marketVersionSignatures);
+  const marketPresences = usersSignatureGenerator(marketVersionSignatures);
+  const investibles = investiblesSignatureGenerator(marketVersionSignatures);
   return {
     comments,
     markets,

@@ -1,156 +1,122 @@
-import { getMarketDetails, getMarketUsers } from './markets';
-import { fetchInvestibles } from './marketInvestibles';
+import { pushMessage } from '../utils/MessageBusUtils';
+import { getVersions } from './summaries';
+import { getMarketDetails, getMarketStages, getMarketUsers } from './markets';
+import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils';
+import {
+  PUSH_COMMENTS_CHANNEL,
+  PUSH_CONTEXT_CHANNEL, PUSH_INVESTIBLES_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
+  VERSIONS_EVENT
+} from '../contexts/VersionsContext/versionsContextHelper';
 import { fetchComments } from './comments';
-import _ from 'lodash';
+import { fetchInvestibles } from './marketInvestibles';
+import { AllSequentialMap } from '../utils/PromiseUtils';
+import { startTimerChain } from '../utils/timerUtils';
+import { VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext';
+import { GLOBAL_VERSION_UPDATE } from '../contexts/VersionsContext/versionsContextMessages';
 
-// the delay between sequential calls to the api. Used to let things
-// become "eventually" consistent
-const FETCH_WAIT_DELAY = 6000;
-// the default number of times we'll fetch before we decide it's never going to be consistent
-const MAX_FETCH_TRIES = 20;
+const MAX_RETRIES = 10;
+const DELAY_BETWEEN_RETRIES = 6000;
 
-/**
- * A matcher that checks if the version is greater than or equal to the
- * value in the signature. However, If the signature contains an ID key (e..g market_id) then it
- * checks for exact match for the objects value with that key
- * @param signature
- * @param object
- * @returns {boolean}
- */
-function signatureMatches(signature, object) {
-  for (const key of Object.keys(signature)) {
-    const signatureVersion = signature[key];
-    const objectVersion = object[key];
-    if (!objectVersion) {
-      return false;
-    }
-    let keySatisfied;
-    if (_.isArray(signatureVersion)) {
-      if (!_.isArray(objectVersion)) {
-        return false;
+export function refreshGlobalVersion(currentHeldVersion, existingMarkets) {
+  let done = false;
+  let retries = 0;
+  let timeoutClearer;
+  const execFunction = () => {
+    return doVersionRefresh(currentHeldVersion, existingMarkets)
+      .then((globalVersion) => {
+        timeoutClearer();
+        pushMessage(VERSIONS_HUB_CHANNEL, {event: GLOBAL_VERSION_UPDATE, globalVersion});
+      });
+  };
+  timeoutClearer = startTimerChain(6000, MAX_RETRIES, execFunction);
+}
+
+function doVersionRefresh(currentHeldVersion, existingMarkets) {
+  let newGlobalVersion;
+  return getVersions()
+    .then((versions) => {
+      const { global_version, signatures: marketSignatures } = versions;
+      newGlobalVersion = global_version;
+      return AllSequentialMap(marketSignatures, (marketSignature) => {
+        const { market_id: marketId, signatures: componentSignatures } = marketSignature;
+        const promises = doRefreshMarket(marketId, componentSignatures);
+          if (!existingMarkets.includes(marketId)) {
+              promises.push(getMarketStages(marketId)
+                .then((stages) => {
+                  return pushMessage(PUSH_STAGE_CHANNEL, {event: VERSIONS_EVENT, marketId, stages})
+                }));
+            }
+          return Promise.all(promises);
+      });
+    })
+    .then(() => {
+      return newGlobalVersion;
+    });
+}
+
+
+function doRefreshMarket(marketId, componentSignatures) {
+  const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
+  const { market, comments, marketPresences, investibles } = fetchSignatures;
+  const promises = [];
+  if (!_.isEmpty(market)) {
+    promises.push(fetchMarketVersion(marketId, market[0])) // can only be one market object per market:)
+  }
+  if (!_.isEmpty(comments)) {
+    promises.push(fetchMarketComments(marketId, comments));
+  }
+  if (!_.isEmpty(investibles)) {
+    promises.push(fetchMarketInvestibles(marketId, investibles));
+  }
+  if (!_.isEmpty(marketPresences)) {
+    promises.push(fetchMarketPresences(marketId, marketPresences));
+  }
+  return promises;
+}
+
+function fetchMarketVersion(marketId, marketSignature) {
+  return getMarketDetails(marketId)
+    .then((marketDetails) => {
+      const match = signatureMatcher([marketDetails], [marketSignature]);
+      // we bothered to fetch the data, so we should use it:)
+      pushMessage(PUSH_CONTEXT_CHANNEL, {event: VERSIONS_EVENT, marketDetails});
+      if (!match.allMatched) {
+        throw new Error("Market didn't match");
       }
-      // we're not going to consider order, so we'll consider a match if
-      // a least one of the objectVersion entries matches the signatureVersion
-      keySatisfied = signatureVersion.reduce((acc, entry) => {
-        acc = acc && !!objectVersion.find((obj) => signatureMatches(entry, obj));
-        return acc;
-      }, true);
-    } else if ('object' === typeof signatureVersion) {
-      keySatisfied = signatureMatches(signatureVersion, objectVersion);
-    } else if (key.endsWith('id')) {
-      keySatisfied = objectVersion === signatureVersion;
-    } else {
-      keySatisfied = objectVersion >= signatureVersion;
-    }
-    if (!keySatisfied) {
-      return false;
-    }
-  }
-  return true;
+    });
 }
 
-
-/**
- * Repeatedly calls fetcher for up to maxTries until the version signatures are
- * satisfied. Returns the linear list of results from the fetch.
- * @param fetcher
- * @param fetchSignature an array of fetch signatures, where a signature is
- * of the form { id: objectid, sub_object_key:minversion} where the sub object key
- * is the key under which an item resides, and the min version is the minimum version which will
- * satisfy the requirement
- */
-async function fetchUntilAllMatched(fetcher, fetchSignatures, maxTries) {
-  function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  let currentTries = 0;
-
-  async function fetchAndMatch(unmatchedSignatures) {
-    currentTries += 1;
-    const fetched = await fetcher(unmatchedSignatures);
-    return signatureMatcher(fetched, unmatchedSignatures);
-  }
-
-  let totalMatched = [];
-  // the first iteration
-  let { matched, unmatchedSignatures } = fetchAndMatch(fetchSignatures);
-  totalMatched = totalMatched.concat(matched);
-  if (_.isEmpty(unmatchedSignatures)) {
-    return totalMatched;
-  }
-  // the while sleep loop;
-  await sleep(FETCH_WAIT_DELAY);
-  let result;
-  while (currentTries < maxTries) {
-    result = fetchAndMatch(unmatchedSignatures);
-    matched = result.matched;
-    unmatchedSignatures = result.unmatchedSignatures;
-    totalMatched = totalMatched.concat(matched);
-    if (_.isEmpty(unmatchedSignatures)) {
-      return totalMatched;
-    }
-    await sleep(FETCH_WAIT_DELAY);
-  }
-  throw new Error('Unable to fetch matching values');
+function fetchMarketComments(marketId, commentsSignatures) {
+  const commentIds = commentsSignatures.map((comment) => comment.id);
+  return fetchComments(commentIds, marketId)
+    .then((comments) => {
+      const match = signatureMatcher(comments, commentsSignatures);
+      pushMessage(PUSH_COMMENTS_CHANNEL, {event: VERSIONS_EVENT, marketId, comments});
+      if (!match.allMatched) {
+        throw new Error("Comments didn't match");
+      }
+    });
 }
 
-
-/**
- * Given a list of objects that were fetched, and signature definitions returns a new object
- * with two values {
- *   matched: these are the values that have been satisfied
- *   unmatched: these are the values that have _not_ been satisfied
- * }
- * this runs in 0_n^2, so be careful.
- * @param fetched
- * @param signatures
- */
-function signatureMatcher(fetched, signatures) {
-  const matched = [];
-  const matchedSignatures = [];
-  for (let x = 0; x < fetched.length; x++) {
-    const object = fetched[x];
-    const matchingSignature = signatures.find((signature) => signatureMatches(signature, object));
-    if (matchingSignature) {
-      matched.push(object);
-      matchedSignatures.push(object);
-    }
-  }
-  const unmatchedSignatures = _.difference(signatures, matchedSignatures);
-  return { matched, unmatchedSignatures };
+function fetchMarketInvestibles(marketId, investiblesSignatures) {
+  const investibleIds = investiblesSignatures.map((inv) => inv.investible.id);
+  return fetchInvestibles(investibleIds, marketId)
+    .then((investibles) => {
+      const match = signatureMatcher(investibles, investiblesSignatures);
+      pushMessage(PUSH_INVESTIBLES_CHANNEL, {event: VERSIONS_EVENT, marketId, investibles});
+      if (!match.allMatched) {
+        throw new Error("Investibles didn't match");
+      }
+    });
 }
 
-export async function fetchMarketUntilMatched(marketSignature, maxTries= MAX_FETCH_TRIES) {
-  const { marketId } = marketSignature;
-  const fetcher = () => {
-    return getMarketDetails(marketId)
-      .then((details) => [details]);
-  };
-  return fetchUntilAllMatched(fetcher, [marketSignature], maxTries);
-}
-
-export async function fetchInvestiblesUntilMatched(marketId, invSignatures, maxTries= MAX_FETCH_TRIES) {
-  const fetcher = (unmatchedSignatures) => {
-    const idList = unmatchedSignatures.map((sig) => sig.investible.id);
-    // this function already chunks stuff, so we don't need to care here
-    return fetchInvestibles(idList, marketId);
-  };
-  return fetchUntilAllMatched(fetcher, invSignatures, maxTries);
-}
-
-export async function fetchCommentsUntilMatched(marketId, commentSignatures, maxTries= MAX_FETCH_TRIES) {
-  const fetcher = (unmatchedSignatures) => {
-    const idList = unmatchedSignatures.map((sig) => sig.id);
-    // fetch comments chunks stuff so we don't have to care
-    return fetchComments(idList, marketId);
-  };
-  return fetchUntilAllMatched(fetcher, commentSignatures, maxTries);
-}
-
-export async function fetchPresencesUntilMatched(marketId, presenceSignatures, maxTries = MAX_FETCH_TRIES) {
-  const fetcher = () => {
-    return getMarketUsers(marketId);
-  };
-  return fetchCommentsUntilMatched(fetcher, presenceSignatures, maxTries);
+function fetchMarketPresences(marketId, mpSignatures) {
+  return getMarketUsers(marketId)
+    .then((users) => {
+      const match = signatureMatcher(users, mpSignatures);
+      pushMessage(PUSH_PRESENCE_CHANNEL, {event: VERSIONS_EVENT, marketId, presences});
+      if (!match.allMatched) {
+        throw new Error("Presences didn't match");
+      }
+    });
 }

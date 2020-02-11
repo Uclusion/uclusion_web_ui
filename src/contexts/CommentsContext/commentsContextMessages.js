@@ -23,7 +23,7 @@ function beginListening(dispatch) {
     }
   });
   registerListener(PUSH_COMMENTS_CHANNEL, 'commentsPushStart', (data) => {
-    const { payload: { event, message } } = data;
+    const { payload: { event, marketId, comments } } = data;
 
     switch (event) {
       case VERSIONS_EVENT: {

@@ -41,9 +41,3 @@ export function getNotDoingStage(state, marketId) {
   // eslint-disable-next-line max-len
   return marketStages.find((stage) => (!stage.appears_in_context && !stage.appears_in_market_summary));
 }
-
-export function refreshMarketStages(dispatch, marketIds) {
-  const updater = (marketId) => getMarketStages(marketId)
-    .then((marketStages) => dispatch(updateMarketStages(marketId, marketStages)));
-  return AllSequentialMap(marketIds, updater);
-}

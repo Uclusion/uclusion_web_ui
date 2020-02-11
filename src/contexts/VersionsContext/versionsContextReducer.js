@@ -1,14 +1,12 @@
 import {
-  refreshMarketVersion,
   refreshNotificationVersion,
   refreshVersions,
-  removeMarketVersion,
 } from './versionsContextHelper';
 import LocalForageHelper from '../LocalForageHelper';
 
 export const EMPTY_STATE = {
-  marketVersions: [],
-  notificationVersion: {},
+  globalVersion: '',
+  existingMarkets: '',
 };
 
 const LOADING_STATE = {
@@ -16,7 +14,8 @@ const LOADING_STATE = {
   notificationVersion: { version: -1 },
 };
 
-const UPDATE_VERSIONS = 'UPDATE_VERSIONS';
+const UPDATE_GLOBAL_VERSION = 'UPDATE_GLOBAL_VERSION';
+const UPDATE_EXISTING_MARKETS = 'UPDATE_EXISTING_MARKETS';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const INITIALIZE_LOADING = 'INITIALIZE_LOADING';
 const REMOVE_MARKET = 'REMOVE_MARKET';
@@ -55,13 +54,6 @@ export function removeMarketVersionAction(marketId) {
   return {
     type: REMOVE_MARKET,
     marketId,
-  };
-}
-
-export function refreshMarketVersionAction(message) {
-  return {
-    type: REFRESH_MARKET,
-    message,
   };
 }
 
@@ -123,12 +115,6 @@ function reducer(state, action) {
       const { marketId } = action;
       removeMarketVersion(marketId);
       newState = removeStoredMarket(state, marketId);
-      break;
-    }
-    case REFRESH_MARKET: {
-      const { message } = action;
-      refreshMarketVersion(state, message);
-      newState = refreshStoredMarket(state, message);
       break;
     }
     case REFRESH_NOTIFICATION: {

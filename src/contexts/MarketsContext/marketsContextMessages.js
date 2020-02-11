@@ -25,16 +25,13 @@ function beginListening(dispatch, diffDispatch) {
     }
   });
   registerListener(PUSH_CONTEXT_CHANNEL, 'marketsPushStart', (data) => {
-    const { payload: { event, message } } = data;
+    const { payload: { event, marketDetails } } = data;
     switch (event) {
-      case VERSIONS_EVENT: {
+      case VERSIONS_EVENT:
         console.debug(`Markets context responding to updated market event ${event}`);
-        return AllSequentialMap(message, (marketId) => getMarketDetails(marketId))
-          .then((marketDetails) => {
-            diffDispatch(addContents(marketDetails));
-            dispatch(updateMarketDetails(marketDetails));
-          });
-      }
+        diffDispatch(addContents(marketDetails));
+        dispatch(updateMarketDetails(marketDetails));
+        break;
       default:
         console.debug(`Ignoring identity event ${event}`);
     }

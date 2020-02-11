@@ -3,8 +3,7 @@ import {
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
-import { refreshMarketStages } from './marketStagesContextHelper';
-import { removeMarketsStageDetails, initializeState } from './marketStagesContextReducer';
+import { removeMarketsStageDetails, initializeState, updateMarketStages } from './marketStagesContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { EMPTY_STATE } from './MarketStagesContext';
@@ -23,13 +22,12 @@ function beginListening(dispatch) {
     }
   });
   registerListener(PUSH_STAGE_CHANNEL, 'marketStagesPushStart',  (data) => {
-    const { payload: { event, message } } = data;
+    const { payload: { event, marketId, stages } } = data;
     switch (event) {
-      case VERSIONS_EVENT: {
+      case VERSIONS_EVENT:
         console.debug(`Stages context responding to updated market event ${event}`);
-        refreshMarketStages(dispatch, message);
+        dispatch(updateMarketStages(marketId, stages));
         break;
-      }
       default:
         console.debug(`Ignoring identity event ${event}`);
     }

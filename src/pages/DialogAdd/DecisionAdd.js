@@ -108,7 +108,10 @@ function DecisionAdd(props) {
         const { market_id: marketId } = result;
         return {
           result: marketId,
-          spinChecker: () => checkMarketInStorage(marketId),
+          spinChecker: () => {
+            console.log(`Checking storage for market id ${marketId}`);
+            return checkMarketInStorage(marketId)
+          },
         };
       });
   }

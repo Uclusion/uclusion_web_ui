@@ -14,7 +14,7 @@ import {
 import { registerListener } from '../../utils/MessageBusUtils';
 
 export const GLOBAL_VERSION_UPDATE = 'global_version_update';
-export const NEW_MARKET = 'new_market'
+export const NEW_MARKET = 'new_market';
 
 function beginListening(dispatch) {
   registerListener(AUTH_HUB_CHANNEL, 'versionAuthStart', (data) => {

@@ -128,7 +128,8 @@ export function withSpinLock(Component) {
                       setTimeout(spinCheck, SPIN_CHECKER_POLL_DELAY);
                     }
                   })
-                  .catch(() => {
+                  .catch((error) => {
+                    console.error(error);
                     operationCheckStopper();
                   });
               }

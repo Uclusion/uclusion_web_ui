@@ -8,11 +8,12 @@ import {
   navigate,
 } from '../../utils/marketIdPathFunctions';
 import Screen from '../../containers/Screen/Screen';
-import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
+import { VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import { getMarketLogin } from '../../api/uclusionClient';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { toastError } from '../../utils/userMessage';
-import queryString from 'query-string'
+import queryString from 'query-string';
+import { NEW_MARKET } from '../../contexts/VersionsContext/versionsContextMessages';
 
 function MarketInvite(props) {
   const { hidden } = props;
@@ -27,10 +28,9 @@ function MarketInvite(props) {
   useEffect(() => {
     if (!hidden) {
       registerListener(VERSIONS_HUB_CHANNEL, 'inviteListener', (data) => {
-        const { payload: { event, message } } = data;
+        const { payload: { event, marketId: messageMarketId } } = data;
         switch (event) {
-          case  MARKET_MESSAGE_EVENT: {
-            const { object_id: messageMarketId } = message;
+          case  NEW_MARKET: {
             if (messageMarketId === marketId) {
               console.log(`Redirecting us to market ${marketId}`);
               setTimeout(() => {

@@ -85,6 +85,21 @@ function WebSocketProvider(props) {
     newSocket.registerHandler('market', (message) => {
       refreshVersions(versionsState);
     });
+    newSocket.registerHandler('investible', (message) => {
+      refreshVersions(versionsState);
+    });
+    newSocket.registerHandler('market_investible', (message) => {
+      refreshVersions(versionsState);
+    });
+    newSocket.registerHandler('comment', (message) => {
+      refreshVersions(versionsState);
+    });
+    newSocket.registerHandler('market_capability', (message) => {
+      refreshVersions(versionsState);
+    });
+    newSocket.registerHandler('investment', (message) => {
+      refreshVersions(versionsState);
+    });
 
     newSocket.registerHandler('notification', (message) => {
       pushMessage(

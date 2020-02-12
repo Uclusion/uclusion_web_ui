@@ -156,7 +156,9 @@ function Screen(props) {
       getNotifications()
         .then((notifications) => {
           const notification = notifications.find((item) => item.type_object_id.startsWith("notification"));
-          versionsDispatch(refreshNotificationVersionAction(notification));
+          if (notification) {
+            versionsDispatch(refreshNotificationVersionAction(notification));
+          }
         });
       setLoadingFailedTimer(setTimeout(() => {
         setLoadingFailed(true);

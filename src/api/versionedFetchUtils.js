@@ -96,7 +96,7 @@ export function doVersionRefresh(currentHeldVersion, existingMarkets) {
 function doPushRemovals(marketId, marketRemovalSignatures) {
   const { investibles } = getRemoveListForMarket(marketRemovalSignatures);
   if (!_.isEmpty(investibles)){
-    console.log("Removal List");
+    console.log(`Removal List size ${investibles.length}`);
     console.log(investibles);
     pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: REMOVE_INVESTIBLES, marketId, investibles });
   }

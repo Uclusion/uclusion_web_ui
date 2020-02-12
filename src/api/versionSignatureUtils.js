@@ -11,9 +11,9 @@ import _ from 'lodash';
 function signatureMatches (signature, object) {
   for (const key of Object.keys(signature)) {
     const signatureVersion = signature[key];
-    console.log(signatureVersion);
+  //  console.log(signatureVersion);
     const objectVersion = object[key];
-    console.log(objectVersion);
+ //   console.log(objectVersion);
     if (!objectVersion) {
       return false;
     }
@@ -30,17 +30,17 @@ function signatureMatches (signature, object) {
         return acc;
       }, true);
     } else if ('object' === typeof signatureVersion) {
-      console.log('Checking object signature');
+  //    console.log('Checking object signature');
       keySatisfied = signatureMatches(signatureVersion, objectVersion);
     } else if (key.endsWith('id')) {
       console.log('Checking exact id match');
       keySatisfied = objectVersion === signatureVersion;
     } else {
-      console.log('Checking numeric version');
+  //    console.log('Checking numeric version');
       keySatisfied = objectVersion >= signatureVersion;
     }
     if (!keySatisfied) {
-      console.log('Key not satisifed');
+   //   console.log('Key not satisifed');
       return false;
     }
   }
@@ -101,7 +101,7 @@ function investiblesRemovalGenerator (versionsSignatures) {
     }
     return acc;
   }, []);
-  const combined = [...baseRemovals, infoRemovals];
+  const combined = [...baseRemovals, ...infoRemovals];
   const unique = _.uniq(combined);
   console.log(unique);
   return unique;

@@ -6,7 +6,7 @@ import Screen from '../../containers/Screen/Screen';
 import {
   makeBreadCrumbs,
   formMarketLink,
-  decomposeMarketPath, navigate, makeArchiveBreadCrumbs, formInvestibleLink,
+  decomposeMarketPath, navigate, makeArchiveBreadCrumbs, formInvestibleEditLink,
 } from '../../utils/marketIdPathFunctions';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
@@ -63,7 +63,7 @@ function Investible(props) {
     makeBreadCrumbs(history, breadCrumbTemplates);
 
   function toggleEdit() {
-    navigate(history, formInvestibleLink(marketId, investibleId));
+    navigate(history, formInvestibleEditLink(marketId, investibleId));
   }
 
   if (loading) {

@@ -150,6 +150,7 @@ function DecisionInvestible(props) {
       sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
       if (inProposed) {
         sidebarActions.push(<MoveToCurrentVotingActionButton
+          key="moveToCurrent"
           investibleId={investibleId}
           marketId={marketId}
         />);

@@ -103,6 +103,7 @@ function investiblesRemovalGenerator (versionsSignatures) {
   }, []);
   const combined = [...baseRemovals, infoRemovals];
   const unique = _.uniq(combined);
+  console.log(unique);
   return unique;
 }
 

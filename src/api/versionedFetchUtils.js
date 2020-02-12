@@ -35,7 +35,9 @@ export function refreshGlobalVersion(currentHeldVersion, existingMarkets) {
       .then((globalVersion) => {
         console.log(`My new global version ${globalVersion}`);
         timeoutClearer();
-        pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
+        if(globalVersion !== currentHeldVersion) {
+          pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
+        }
       }).catch((error) => {
         // we'll log match problems, but raise the rest
         if (error instanceof MatchError) {
@@ -59,8 +61,12 @@ export function doVersionRefresh(currentHeldVersion, existingMarkets) {
   let newGlobalVersion;
   return getVersions(currentHeldVersion)
     .then((versions) => {
+      console.log("Version fetch");
       console.log(versions);
       const { global_version, signatures: marketSignatures } = versions;
+      if (_.isEmpty(marketSignatures) || _.isEmpty(global_version) ) {
+        return currentHeldVersion;
+      }
       newGlobalVersion = global_version;
       return AllSequentialMap(marketSignatures, (marketSignature) => {
         const { market_id: marketId, signatures: componentSignatures } = marketSignature;
@@ -90,6 +96,8 @@ export function doVersionRefresh(currentHeldVersion, existingMarkets) {
 function doPushRemovals(marketId, marketRemovalSignatures) {
   const { investibles } = getRemoveListForMarket(marketRemovalSignatures);
   if (!_.isEmpty(investibles)){
+    console.log("Removal List");
+    console.log(investibles);
     pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: REMOVE_INVESTIBLES, marketId, investibles });
   }
 }

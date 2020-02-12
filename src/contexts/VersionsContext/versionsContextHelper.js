@@ -29,6 +29,10 @@ function processNewNotification(newNotificationVersion, notificationVersion) {
   }
 }
 
+export function refreshVersionsFromScratch(){
+  return refreshVersions({ existingMarkets: [], globalVersion: ''});
+}
+
 export function refreshVersions(state) {
   console.debug('Refreshing versions');
   const {

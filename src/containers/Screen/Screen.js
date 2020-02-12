@@ -17,7 +17,7 @@ import {
 import { createTitle, navigate } from '../../utils/marketIdPathFunctions'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
-import { refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper';
+import { refreshVersionsFromScratch } from '../../contexts/VersionsContext/versionsContextHelper';
 import { getNotifications } from '../../api/summaries';
 import { refreshNotificationVersionAction } from '../../contexts/VersionsContext/versionsContextReducer';
 
@@ -152,7 +152,7 @@ function Screen(props) {
       setLoadingExpired(false);
       // In case you missed a push
       console.warn('Loading attempting to fix corrupted data');
-      refreshVersions(versionsState);
+      refreshVersionsFromScratch(); // start over;
       getNotifications()
         .then((notifications) => {
           const notification = notifications.find((item) => item.type_object_id.startsWith("notification"));

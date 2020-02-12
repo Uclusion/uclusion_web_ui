@@ -39,6 +39,7 @@ export function refreshGlobalVersion(currentHeldVersion, existingMarkets) {
           pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
         }
       }).catch((error) => {
+        timeoutClearer();
         // we'll log match problems, but raise the rest
         if (error instanceof MatchError) {
           console.error(error.message);

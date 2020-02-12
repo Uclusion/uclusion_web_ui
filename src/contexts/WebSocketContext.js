@@ -29,19 +29,16 @@ export function notifyNewApplicationVersion(currentVersion, cacheClear) {
   // if we don't have any version stored, we're either in dev, or we've dumped our data
   if (currentVersion !== version && !currentVersion.includes('fake')) {
     console.debug(`Current version: ${version}. Upgrading to version: ${currentVersion}`);
+    const reloader = () => {
+      window.location.reload(true);
+    };
     if (cacheClear) {
       localforage.clear().then(() => {
         console.info('Clearing cache');
-        const reloader = () => {
-          window.location.reload(true);
-        };
         sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
       }).catch((error) => toastErrorAndThrow(error, 'noticeNewApplicationVersion'));
     } else {
       // deprecated, but the simplest way to ignore cache
-      const reloader = () => {
-        window.location.reload(true);
-      };
       sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
     }
   }

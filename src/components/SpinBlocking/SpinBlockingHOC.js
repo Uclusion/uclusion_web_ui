@@ -12,7 +12,7 @@ import { doVersionRefresh, MatchError } from '../../api/versionedFetchUtils';
 import { GLOBAL_VERSION_UPDATE } from '../../contexts/VersionsContext/versionsContextMessages';
 
 const FETCH_DELAY = 200; // give us 200 ms pull data from the hub event;
-const SPIN_CHECKER_POLL_DELAY = 10; // how often to run the spin checker
+const SPIN_CHECKER_POLL_DELAY = 50; // how often to run the spin checker
 // if an operation isn't cancelled within the operation timeout period, we're going to force
 // a versions check and see if one has happenedourselves.
 const OPERATION_TIMEOUT = 1500; // Time to wait before trying the first poll attempt

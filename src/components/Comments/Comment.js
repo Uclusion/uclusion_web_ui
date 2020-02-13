@@ -104,7 +104,7 @@ const useCommentStyles = makeStyles(
     },
     actionEdit: {
       alignSelf: "baseline",
-      margin: "11px 12px 11px 16px"
+      margin: "11px 0px 11px 16px"
     },
     commentType: {
       alignSelf: "start",
@@ -242,6 +242,9 @@ function Comment(props) {
     }
     return classes.container;
   }
+
+  const isEditable = user !== undefined && comment.created_by === user.id;
+
   return (
     <React.Fragment>
       <Card className={getCommentHighlightStyle()}>
@@ -253,6 +256,19 @@ function Comment(props) {
                 updatedBy.name
               }`}
           </Typography>
+          {enableEditing && isEditable && (
+            <Button
+              className={clsx(
+                classes.action,
+                classes.actionSecondary,
+                classes.actionEdit
+              )}
+              onClick={toggleEdit}
+              variant="contained"
+            >
+              <FormattedMessage id="edit" />
+            </Button>
+          )}
           <SpinBlockingButton
             className={clsx(
               classes.action,

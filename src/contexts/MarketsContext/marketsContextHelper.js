@@ -63,7 +63,7 @@ export function checkMarketInStorage(marketId) {
   const lfh = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
   return lfh.getState()
     .then((state) => {
-      console.log(`Checking localforage for market ${marketId}`);
+      console.debug(`Checking localforage for market ${marketId}`);
       return !!getMarket(state, marketId);
     });
 }

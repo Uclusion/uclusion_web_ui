@@ -1,8 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { injectIntl } from 'react-intl';
+import classNames from 'clsx';
 import _ from 'lodash';
 import {
-  Button, makeStyles,
+  Button, makeStyles, Paper, darken
 } from '@material-ui/core';
 import Modal from '@material-ui/core/Modal';
 import PropTypes from 'prop-types';
@@ -50,22 +51,29 @@ const useStyles = makeStyles((theme) => ({
   },
   add: {
     display: 'flex',
+    marginBottom: 16,
   },
   editor: {
     flex: 1,
   },
-  primaryButton: {
-    width: '57px',
-    marginLeft: '4px',
-    backgroundColor: '#2d9cdb',
-    height: '41px',
-    color: '#fff',
+  button: {
     borderRadius: '4px',
-    fontSize: '10px',
+    fontSize: '14px',
     fontWeight: 'bold',
+    margin: 8,
     textTransform: 'capitalize',
   },
-}));
+  buttonPrimary: {
+    backgroundColor: '#2d9cdb',
+    color: '#fff',
+    "&:hover": {
+      backgroundColor: darken('#2d9cdb', 0.08)
+    },
+    "&:focus": {
+      backgroundColor: darken('#2d9cdb', 0.24)
+    },
+  },
+}), { name: 'CommentAdd' });
 
 function CommentAdd(props) {
   const {
@@ -129,50 +137,21 @@ function CommentAdd(props) {
   const showIssueWarning = issueWarningId !== null && type === ISSUE_TYPE;
   console.debug(`show issue warning is ${showIssueWarning}`);
   return (
-    <div
+    <Paper
       className={(hidden) ? classes.hidden : classes.add}
+      elevation={2}
     >
       <div className={classes.editor}>
         <QuillEditor
           placeholder={placeHolder}
           defaultValue={body}
           onChange={onEditorChange}
-          noToolbar
           onS3Upload={onS3Upload}
           setOperationInProgress={setOperationRunning}
-        />
-      </div>
-      {!showIssueWarning && (
-        <SpinBlockingButton
-          className={classes.primaryButton}
-          marketId={marketId}
-          onClick={handleSave}
-          onSpinStop={handleSpinStop}
-          disabled={_.isEmpty(body)}
         >
-          {intl.formatMessage({ id: commentSaveLabel })}
-        </SpinBlockingButton>
-      )}
-      {showIssueWarning && (
-        <Button className={classes.primaryButton} onClick={toggleIssue}>
-          {intl.formatMessage({ id: commentSaveLabel })}
-        </Button>
-      )}
-      {showIssueWarning && (
-        <Modal
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-          open={openIssue}
-          className={classes.modal}
-          onClose={toggleIssue}
-        >
-          <div className={classes.paper}>
-            <h2 id="simple-modal-title">{intl.formatMessage({ id: 'warning' })}</h2>
-            <p id="simple-modal-description">
-              {intl.formatMessage({ id: issueWarningId })}
-            </p>
+          {!showIssueWarning && (
             <SpinBlockingButton
-              className={classes.primaryButton}
+              className={classNames(classes.button, classes.buttonPrimary)}
               marketId={marketId}
               onClick={handleSave}
               onSpinStop={handleSpinStop}
@@ -180,16 +159,46 @@ function CommentAdd(props) {
             >
               {intl.formatMessage({ id: commentSaveLabel })}
             </SpinBlockingButton>
-          </div>
-        </Modal>
-      )}
-      <Button
-        onClick={handleCancel}
-        className={classes.primaryButton}
-      >
-        {intl.formatMessage({ id: commentCancelLabel })}
-      </Button>
-    </div>
+          )}
+          {showIssueWarning && (
+            <Button className={classNames(classes.button, classes.buttonPrimary)} onClick={toggleIssue}>
+              {intl.formatMessage({ id: commentSaveLabel })}
+            </Button>
+          )}
+          {showIssueWarning && (
+            <Modal
+              aria-labelledby="simple-modal-title"
+              aria-describedby="simple-modal-description"
+              open={openIssue}
+              className={classes.modal}
+              onClose={toggleIssue}
+            >
+              <div className={classes.paper}>
+                <h2 id="simple-modal-title">{intl.formatMessage({ id: 'warning' })}</h2>
+                <p id="simple-modal-description">
+                  {intl.formatMessage({ id: issueWarningId })}
+                </p>
+                <SpinBlockingButton
+                  className={classNames(classes.button, classes.buttonPrimary)}
+                  marketId={marketId}
+                  onClick={handleSave}
+                  onSpinStop={handleSpinStop}
+                  disabled={_.isEmpty(body)}
+                >
+                  {intl.formatMessage({ id: commentSaveLabel })}
+                </SpinBlockingButton>
+              </div>
+            </Modal>
+          )}
+          <Button
+            onClick={handleCancel}
+            className={classes.button}
+          >
+            {intl.formatMessage({ id: commentCancelLabel })}
+          </Button>
+        </QuillEditor>
+      </div>
+    </Paper>
   );
 }
 

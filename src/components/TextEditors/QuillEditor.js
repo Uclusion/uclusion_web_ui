@@ -184,7 +184,7 @@ class QuillEditor extends React.PureComponent {
   }
 
   render() {
-    const { theme, intl, id } = this.props;
+    const { children, theme, intl, id } = this.props;
     const { uploadInProgress } = this.state;
     const editorStyle = {
       fontFamily: theme.typography.fontFamily,
@@ -200,6 +200,7 @@ class QuillEditor extends React.PureComponent {
         >
           <div ref={this.editorBox} style={editorStyle} />
         </LoadingOverlay>
+        {children}
       </div>
     );
   }

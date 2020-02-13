@@ -98,19 +98,13 @@ const useCommentStyles = makeStyles(
       lineHeight: 1.75,
       marginLeft: "auto"
     },
-    actionResolve: {
+    actionResolveToggle: {
       alignSelf: "baseline",
       margin: "11px 12px 11px 16px"
     },
-    actionReopen: {
+    actionEdit: {
       alignSelf: "baseline",
-      backgroundColor: "#27AE60",
-      color: "white",
-      margin: "11px 12px 11px 16px",
-      "&:hover": {
-        backgroundColor: "#27AE60",
-        color: "white"
-      }
+      margin: "11px 0px 11px 16px"
     },
     commentType: {
       alignSelf: "start",
@@ -248,6 +242,9 @@ function Comment(props) {
     }
     return classes.container;
   }
+
+  const isEditable = user !== undefined && comment.created_by === user.id;
+
   return (
     <React.Fragment>
       <Card className={getCommentHighlightStyle()}>
@@ -259,43 +256,37 @@ function Comment(props) {
                 updatedBy.name
               }`}
           </Typography>
-          {comment.resolved ? (
-            <SpinBlockingButton
+          {enableEditing && isEditable && (
+            <Button
               className={clsx(
                 classes.action,
                 classes.actionSecondary,
-                classes.actionResolve
+                classes.actionEdit
               )}
-              color="primary"
-              disabled={operationRunning}
-              marketId={marketId}
-              onClick={reopen}
+              onClick={toggleEdit}
               variant="contained"
             >
-              {intl.formatMessage({ id: "commentReopenLabel" })}
-            </SpinBlockingButton>
-          ) : (
-            <SpinBlockingButton
-              className={clsx(
-                classes.action,
-                classes.actionSecondary,
-                classes.actionReopen
-              )}
-              color="primary"
-              disabled={operationRunning}
-              marketId={marketId}
-              onClick={resolve}
-              variant="contained"
-            >
-              <FormattedMessage
-                id={
-                  comment.resolved
-                    ? "commentReopenLabel"
-                    : "commentResolveLabel"
-                }
-              />
-            </SpinBlockingButton>
+              <FormattedMessage id="edit" />
+            </Button>
           )}
+          <SpinBlockingButton
+            className={clsx(
+              classes.action,
+              classes.actionSecondary,
+              classes.actionResolveToggle
+            )}
+            color="primary"
+            disabled={operationRunning}
+            marketId={marketId}
+            onClick={comment.resolved ? reopen : resolve}
+            variant="contained"
+          >
+            {intl.formatMessage({
+              id: comment.resolved
+                ? "commentReopenLabel"
+                : "commentResolveLabel"
+            })}
+          </SpinBlockingButton>
         </Box>
         <CardContent className={classes.cardContent}>
           <Typography className={classes.createdBy} variant="caption">

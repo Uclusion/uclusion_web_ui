@@ -15,7 +15,8 @@ import {
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
-import { checkIfCommentInStorage } from '../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 
 function getPlaceHolderLabelId(type) {
   switch (type) {
@@ -80,6 +81,7 @@ function CommentAdd(props) {
     intl, marketId, onSave, onCancel, type, investible, parent, hidden, issueWarningId,
   } = props;
   const [body, setBody] = useState('');
+  const [, commentDispatch] = useContext(CommentsContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [openIssue, setOpenIssue] = useState(false);
   const classes = useStyles();
@@ -111,9 +113,9 @@ function CommentAdd(props) {
     const investibleId = (investible) ? investible.id : parentInvestible;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((comment) => {
-        const { id } = comment;
+        refreshMarketComments(commentDispatch, marketId, [comment]);
         return {
-          spinChecker: () => checkIfCommentInStorage(marketId, id),
+          spinChecker: () => Promise.resolve(true),
         };
       });
   }

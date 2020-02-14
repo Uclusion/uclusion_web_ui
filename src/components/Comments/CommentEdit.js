@@ -8,7 +8,7 @@ import QuillEditor from '../TextEditors/QuillEditor';
 import { updateComment } from '../../api/comments';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 const useStyles = makeStyles(() => ({
   hidden: {

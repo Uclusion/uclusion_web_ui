@@ -15,7 +15,7 @@ import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { DECISION_TYPE } from '../../constants/markets';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import UclusionTour from '../../components/Tours/UclusionTour';
 import {
   PURE_SIGNUP_ADD_DIALOG,

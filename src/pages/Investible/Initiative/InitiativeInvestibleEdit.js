@@ -9,7 +9,7 @@ import { updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 const styles = (theme) => ({

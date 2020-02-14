@@ -14,7 +14,7 @@ import {
 } from '../../constants/comments';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 

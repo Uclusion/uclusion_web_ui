@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { showMarket } from '../../api/markets';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import LaunchIcon from '@material-ui/icons/Launch';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
 
 function ShowMarketButton(props) {

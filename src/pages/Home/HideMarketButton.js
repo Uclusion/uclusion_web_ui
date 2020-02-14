@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { hideMarket } from '../../api/markets';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
 
 function HideMarketButton(props) {

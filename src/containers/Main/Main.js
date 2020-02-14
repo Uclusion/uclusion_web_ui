@@ -12,7 +12,7 @@ import { MarketStagesProvider } from '../../contexts/MarketStagesContext/MarketS
 import { VersionsProvider } from '../../contexts/VersionsContext/VersionsContext';
 import { SidebarProvider } from '../../contexts/SidebarContext';
 import AppWithAuth from '../App/AppWithAuth';
-import { OperationInProgressProvider } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressProvider } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import OperationInProgressGlobalProvider from '../../components/ContextHacks/OperationInProgressGlobalProvider';
 import { DiffProvider } from '../../contexts/DiffContext/DiffContext';
 import { HighlightedCommentProvider } from '../../contexts/HighlightedCommentContext';

@@ -3,7 +3,7 @@ import { toastErrorAndThrow } from '../../utils/userMessage';
 import { CircularProgress, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { pushMessage, registerListener, removeListener } from '../../utils/MessageBusUtils';
 import { getExistingMarkets, getGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';

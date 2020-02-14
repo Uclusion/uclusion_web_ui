@@ -13,7 +13,7 @@ import { INITIATIVE_TYPE } from '../../constants/markets';
 import { addDecisionInvestible } from '../../api/investibles';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';

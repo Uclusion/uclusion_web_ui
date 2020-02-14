@@ -15,6 +15,10 @@ import { startTimerChain } from '../utils/timerUtils';
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext';
 import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages';
 import { REMOVE_INVESTIBLES } from '../contexts/InvestibesContext/investiblesContextMessages';
+import {
+  OPERATION_HUB_CHANNEL,
+  START_OPERATION, STOP_OPERATION
+} from '../contexts/OperationInProgressContext/operationInProgressMessages';
 
 const MAX_RETRIES = 10;
 
@@ -60,6 +64,7 @@ export function refreshGlobalVersion (currentHeldVersion, existingMarkets) {
  */
 export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   let newGlobalVersion;
+  pushMessage(OPERATION_HUB_CHANNEL, {event: START_OPERATION});
   return getVersions(currentHeldVersion)
     .then((versions) => {
       console.log('Version fetch');
@@ -90,6 +95,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
       });
     })
     .then(() => {
+      pushMessage(OPERATION_HUB_CHANNEL, {event: STOP_OPERATION});
       return newGlobalVersion;
     });
 }

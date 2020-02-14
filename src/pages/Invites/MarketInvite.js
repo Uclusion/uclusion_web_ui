@@ -72,7 +72,7 @@ function MarketInvite(props) {
           });
       }
     }
-  }, [hidden, marketId, history, hash]);
+  }, [hidden, marketId, history, hash, marketState]);
 
   return (
     <Screen

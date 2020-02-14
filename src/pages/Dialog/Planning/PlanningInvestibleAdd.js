@@ -18,7 +18,7 @@ import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathF
 import AssignmentList from './AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
 import queryString from 'query-string';
 

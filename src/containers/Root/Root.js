@@ -13,7 +13,7 @@ import Home from '../../pages/Home/Home';
 import Investible from '../../pages/Investible/Investible';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
 import Archives from '../../pages/Archives/Archives';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils';
 import InvestibleEdit from '../../pages/Investible/InvestibleEdit';

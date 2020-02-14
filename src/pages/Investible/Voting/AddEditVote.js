@@ -16,7 +16,7 @@ import {
 import { removeInvestment, updateInvestment } from '../../../api/marketInvestibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 
 function AddEditVote(props) {

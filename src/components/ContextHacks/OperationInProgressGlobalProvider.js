@@ -4,7 +4,7 @@
  * */
 
 import { useContext } from 'react';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 export let setOperationInProgress = null;
 

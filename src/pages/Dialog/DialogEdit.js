@@ -19,7 +19,7 @@ import DecisionDialogEdit from './Decision/DecisionDialogEdit';
 import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../api/markets';
 import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 

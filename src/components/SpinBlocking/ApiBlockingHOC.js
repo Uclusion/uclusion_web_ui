@@ -6,7 +6,7 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { CircularProgress, useTheme } from '@material-ui/core';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 export function withApiLock(Component) {
   function Locking(props) {

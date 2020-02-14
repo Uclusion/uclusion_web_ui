@@ -33,7 +33,7 @@ import PlanningInvestibleEdit from './Planning/PlanningInvestibleEdit';
 import InitiativeInvestibleEdit from './Initiative/InitiativeInvestibleEdit';
 import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 const useStyles = makeStyles((theme) => ({
   modal: {

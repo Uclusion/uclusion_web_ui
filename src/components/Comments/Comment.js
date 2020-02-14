@@ -27,7 +27,7 @@ import {
 } from "../../constants/comments";
 import { reopenComment, resolveComment } from "../../api/comments";
 import SpinBlockingButton from "../SpinBlocking/SpinBlockingButton";
-import { OperationInProgressContext } from "../../contexts/OperationInProgressContext";
+import { OperationInProgressContext } from "../../contexts/OperationInProgressContext/OperationInProgressContext";
 import { MarketPresencesContext } from "../../contexts/MarketPresencesContext/MarketPresencesContext";
 import { getMarketPresences } from "../../contexts/MarketPresencesContext/marketPresencesHelper";
 import CommentEdit from "./CommentEdit";

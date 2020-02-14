@@ -7,21 +7,19 @@
  * @param execFunction a function that is executed every waitTime milliseconds unless the timer is cleared
  * @returns a function that if called stops the timer
  */
-export function startTimerChain(waitTime, maxIterations, execFunction) {
+export function startTimerChain (waitTime, maxIterations, execFunction) {
   let iterCount = 0;
-  let timeout = null;
-
   function callFunc() {
-    execFunction();
-    if (iterCount >= maxIterations) {
-      return;
-    }
-    iterCount += 1;
-    timeout = setTimeout(callFunc, waitTime);
+    Promise.resolve(execFunction())
+      .then((success) => {
+        if (success || iterCount >= maxIterations) {
+          console.log('Call succeeded, stoping chain');
+          return;
+        }
+        console.log('Call failed, resuming chain');
+        iterCount += 1;
+        setTimeout(callFunc, waitTime);
+      });
   }
-
-  timeout = setTimeout(callFunc, 0);
-  return () => {
-    clearTimeout(timeout);
-  };
+  setTimeout(callFunc, 0);
 }

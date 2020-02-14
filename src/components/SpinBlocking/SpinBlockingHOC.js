@@ -60,21 +60,24 @@ export function withSpinLock(Component) {
      */
     function startOperationCheckInterval() {
       // const currentVersion = getMarketVersion(versionsState, marketId);
-      operationCheckStopper = startTimerChain(OPERATION_TIMEOUT, 20, () => {
+      const globalVersion = getGlobalVersion(versionsState);
+      const existingMarkets = getExistingMarkets(versionsState);
+      startTimerChain(OPERATION_TIMEOUT, 20, () => {
         console.debug('Operation check interval firing');
-        const globalVersion = getGlobalVersion(versionsState);
-        const existingMarkets = getExistingMarkets(versionsState);
         return doVersionRefresh(globalVersion, existingMarkets)
           .then((newGlobalVersion) => {
             if (globalVersion !== newGlobalVersion ) {
               pushMessage(VERSIONS_HUB_CHANNEL, {event: GLOBAL_VERSION_UPDATE, globalVersion: newGlobalVersion});
             }
+            return true;
           })
           .catch((error) => {
             if (!(error instanceof MatchError)) {
               operationCheckStopper();
               endSpinning();
               toastErrorAndThrow(error, 'spinVersionCheckError');
+            } else {
+              return false;
             }
           });
       });

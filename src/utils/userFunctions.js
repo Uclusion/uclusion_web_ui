@@ -13,6 +13,9 @@ export function getMarketInfo(investible, marketId) {
 
 export function getVoteTotalsForUser(presence) {
   const { investments, name } = presence;
+  if (!investments) {
+    return {};
+  }
   return investments.reduce((uInv, investment) => {
     const { investible_id, quantity } = investment;
     return {
@@ -26,6 +29,9 @@ function getMinBudget(investibleId, marketPresences) {
   const budgets = [];
   marketPresences.forEach(presence => {
     const { investments } = presence;
+    if (!investments) {
+      return 0;
+    }
     const filteredInvestments = investments.filter(investment => {
       const { investible_id: id } = investment;
       return id === investibleId;

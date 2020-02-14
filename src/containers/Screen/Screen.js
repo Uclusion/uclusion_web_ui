@@ -152,14 +152,14 @@ function Screen(props) {
       setLoadingExpired(false);
       // In case you missed a push
       console.warn('Loading attempting to fix corrupted data');
-      refreshVersionsFromScratch(); // start over;
+      /*refreshVersionsFromScratch(); // start over;
       getNotifications()
         .then((notifications) => {
           const notification = notifications.find((item) => item.type_object_id.startsWith("notification"));
           if (notification) {
             versionsDispatch(refreshNotificationVersionAction(notification));
           }
-        });
+        }); */
       setLoadingFailedTimer(setTimeout(() => {
         setLoadingFailed(true);
       }, 10000));

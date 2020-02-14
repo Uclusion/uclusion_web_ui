@@ -251,6 +251,11 @@ const messages = defineMessages({
   // Issues
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',
+  // lock dialog
+  lockDialogCancel: 'cancel',
+  pageLockEditPage: 'edit page',
+  lockDialogTitle: 'page locked',
+  lockDialogContent: 'A user is currently editing this page, would you like to take over editing capabilities?',
 
   // CommentAdd
   commentAddIssueDefault: 'Your issue...',

@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import localforage from 'localforage';
-import LockOpenIcon from '@material-ui/icons/LockOpen';
-import Modal from '@material-ui/core/Modal';
-import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import { darken, makeStyles } from '@material-ui/core/styles';
+import LockedDialogTitleIcon from '@material-ui/icons/Lock';
+import clsx from 'clsx';
 import _ from 'lodash';
 import {
   makeBreadCrumbs, decomposeMarketPath, formMarketLink, navigate,
@@ -17,38 +18,73 @@ import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import PlanningDialogEdit from './Planning/PlanningDialogEdit';
 import DecisionDialogEdit from './Decision/DecisionDialogEdit';
 import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../api/markets';
-import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { Dialog } from '../../components/Dialogs'
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 
-const useStyles = makeStyles((theme) => ({
-  modal: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+const useLockedDialogStyles = makeStyles(
+  theme => {
+    return {
+      title: {
+        backgroundColor: "#F2C94C",
+        fontWeight: 'bold',
+        textTransform: "capitalize",
+        "& h2": {
+          display: "flex",
+          alignItems: "center"
+        }
+      },
+      titleIcon: {
+        height: 16,
+        width: 16,
+        marginRight: 8,
+      },
+      content: {
+        lineHeight: 1.75,
+        textAlign: "center"
+      },
+      actions: {
+        backgroundColor: "#F2F2F2",
+        flexBasis: "unset",
+        justifyContent: "center"
+      },
+      action: {
+        color: 'white',
+        fontWeight: 'bold',
+        paddingLeft: 24,
+        paddingRight: 24,
+        textTransform: "capitalize"
+      },
+      actionEdit: {
+        backgroundColor: "#2D9CDB",
+        "&:hover": {
+          backgroundColor: darken("#2D9CDB", 0.08)
+        },
+        "&:focus": {
+          backgroundColor: darken("#2D9CDB", 0.24)
+        },
+      },
+      actionCancel: {
+        backgroundColor: "#8C8C8C",
+        "&:hover": {
+          backgroundColor: darken("#8C8C8C", 0.04)
+        },
+        "&:focus": {
+          backgroundColor: darken("#8C8C8C", 0.12)
+        },
+      }
+    };
   },
-  paper: {
-    position: 'absolute',
-    width: 400,
-    backgroundColor: theme.palette.background.paper,
-    border: '2px solid #000',
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-  },
-}));
+  { name: "LockedDialog" }
+);
 
 function DialogEdit(props) {
   const { hidden } = props;
   const intl = useIntl();
-  const classes = useStyles();
   const history = useHistory();
   const { location } = history;
   const { pathname } = location;
   const { marketId } = decomposeMarketPath(pathname);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const [marketsState] = useContext(MarketsContext);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_type: marketType, locked_by: lockedBy } = renderableMarket;
@@ -112,19 +148,6 @@ function DialogEdit(props) {
   function onSave() {
     localforage.removeItem(marketId).finally(() => navigate(history, formMarketLink(marketId)));
   }
-  let lockedByName;
-  if (lockedBy) {
-    const lockedByPresence = marketPresences.find(
-      (presence) => presence.id === lockedBy,
-    );
-    if (lockedByPresence) {
-      const { name } = lockedByPresence;
-      lockedByName = name;
-    }
-  }
-  const lockWarning = lockFailed ? intl.formatMessage({ id: 'lockFailedWarning' })
-    : intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName });
-  const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
   function myOnClick() {
     const breakLock = true;
     return lockPlanningMarketForEdit(marketId, breakLock)
@@ -135,6 +158,8 @@ function DialogEdit(props) {
     setLockFailed(false);
   }
 
+  const lockedDialogClasses = useLockedDialogStyles();
+
   if (_.isEmpty(marketId)) {
     return <React.Fragment/>
   }
@@ -142,33 +167,28 @@ function DialogEdit(props) {
   return (
     <Screen
       title={editVerbiage}
-      hidden={hidden}
       tabTitle={editVerbiage}
       breadCrumbs={myBreadCrumbs}
       loading={loading}
     >
-      <Modal
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
+      <LockedDialog
+        classes={lockedDialogClasses}
         open={!hidden && (someoneElseEditing || lockFailed)}
-        className={classes.modal}
         onClose={onDone}
-      >
-        <div className={classes.paper}>
-          <h2 id="simple-modal-title">{intl.formatMessage({ id: 'warning' })}</h2>
-          <p id="simple-modal-description">
-            {lockWarning}
-          </p>
-          <SpinningTooltipIconButton
+        /* slots */
+        actions={
+          <SpinBlockingButton
+            className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
+            disableFocusRipple
             marketId={marketId}
             onClick={myOnClick}
             onSpinStop={onLock}
             disabled={operationRunning}
-            translationId="breakLock"
-            icon={<LockOpenIcon />}
-          />
-        </div>
-      </Modal>
+          >
+            <FormattedMessage id="pageLockEditPage" />
+          </SpinBlockingButton>
+        }
+      />
       {!hidden && marketType === DECISION_TYPE && idLoaded === marketId && (
         <DecisionDialogEdit
           editToggle={onSave}
@@ -191,6 +211,53 @@ function DialogEdit(props) {
 
 DialogEdit.propTypes = {
   hidden: PropTypes.bool.isRequired,
+};
+
+function LockedDialog(props) {
+  const { actions, classes, open, onClose } = props;
+
+  const autoFocusRef = React.useRef(null);
+
+  return (
+    <Dialog
+      autoFocusRef={autoFocusRef}
+      classes={{
+        root: classes.root,
+        actions: classes.actions,
+        content: classes.contet,
+        title: classes.title
+      }}
+      open={open}
+      onClose={onClose}
+      /* slots */
+      actions={
+        <React.Fragment>
+          {actions}
+          <Button
+            className={clsx(classes.action, classes.actionCancel)}
+            disableFocusRipple
+            onClick={onClose}
+            ref={autoFocusRef}
+          >
+            <FormattedMessage id="lockDialogCancel" />
+          </Button>
+        </React.Fragment>
+      }
+      content={<FormattedMessage id="lockDialogContent" />}
+      title={
+        <React.Fragment>
+          <LockedDialogTitleIcon className={classes.titleIcon} />
+          <FormattedMessage id="lockDialogTitle" />
+        </React.Fragment>
+      }
+    />
+  );
+}
+
+LockedDialog.propTypes = {
+  actions: PropTypes.node.isRequired,
+  onClose: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired
 };
 
 export default DialogEdit;

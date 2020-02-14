@@ -18,7 +18,6 @@ import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathF
 import AssignmentList from './AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { checkInvestibleInStorage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
 import { useHistory } from 'react-router';
 import queryString from 'query-string';
@@ -38,6 +37,7 @@ const styles = (theme) => ({
 function PlanningInvestibleAdd(props) {
   const {
     marketId, intl, classes, onCancel, onSave, storedDescription,
+    onSpinComplete,
   } = props;
 
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -122,11 +122,13 @@ function PlanningInvestibleAdd(props) {
       name,
       assignments,
     };
-    return addPlanningInvestible(addInfo).then((investibleId) => {
-      const link = formInvestibleLink(marketId, investibleId);
+    return addPlanningInvestible(addInfo).then((inv) => {
+      const { investible } = inv;
+      onSave(investible);
+      const link = formInvestibleLink(marketId, investible.id);
       return {
         result: link,
-        spinChecker: () => checkInvestibleInStorage(investibleId),
+        spinChecker: () => Promise.resolve(true),
       };
     });
   }
@@ -177,7 +179,7 @@ function PlanningInvestibleAdd(props) {
             color="primary"
             onClick={handleSave}
             disabled={!validForm}
-            onSpinStop={onSave}
+            onSpinStop={onSpinComplete}
           >
             {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
           </SpinBlockingButton>
@@ -195,6 +197,7 @@ PlanningInvestibleAdd.propTypes = {
   classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
+  onSpinComplete: PropTypes.func,
   onSave: PropTypes.func,
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -204,6 +207,7 @@ PlanningInvestibleAdd.propTypes = {
 PlanningInvestibleAdd.defaultProps = {
   onSave: () => {
   },
+  onSpinComplete: () => {},
   onCancel: () => {
   },
 };

@@ -41,6 +41,7 @@ export function withSpinLock(Component) {
     function endSpinning(result) {
       setSpinning(false);
       setOperationRunning(false);
+      console.log(`Calling on spin stop with ${result}`);
       onSpinStop(result);
     }
 

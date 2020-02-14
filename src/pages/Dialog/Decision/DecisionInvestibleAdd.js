@@ -22,7 +22,6 @@ import {
 } from '../../../utils/marketIdPathFunctions';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
-import { checkInvestibleInStorage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 import UclusionTour from '../../../components/Tours/UclusionTour';
 import {
@@ -51,7 +50,8 @@ function DecisionInvestibleAdd(props) {
     isAdmin,
     onSave,
     storedDescription,
-    hidden
+    hidden,
+    onSpinComplete,
   } = props;
 
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -129,11 +129,14 @@ function DecisionInvestibleAdd(props) {
       stageInfo: stageChangeInfo, // ignored by addDecisionInvestible
     };
     const promise = isAdmin ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
-    return promise.then((investibleId) => {
+    return promise.then((investible) => {
+      console.log('Adding investible to market');
+      onSave(investible);
       const link = formMarketLink(marketId);
       return {
         result: link,
-        spinChecker: () => checkInvestibleInStorage(investibleId),
+        //stop spinning immediately
+        spinChecker: () => Promise.resolve(true),
       };
     });
   }
@@ -201,7 +204,7 @@ function DecisionInvestibleAdd(props) {
             onClick={handleSave}
             disabled={!validForm}
             marketId={marketId}
-            onSpinStop={onSave}
+            onSpinStop={onSpinComplete}
           >
             {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
           </SpinBlockingButton>
@@ -235,6 +238,7 @@ DecisionInvestibleAdd.propTypes = {
   isAdmin: PropTypes.bool,
   storedDescription: PropTypes.string.isRequired,
   hidden: PropTypes.bool,
+  onSpinComplete: PropTypes.func,
 };
 
 DecisionInvestibleAdd.defaultProps = {
@@ -242,6 +246,7 @@ DecisionInvestibleAdd.defaultProps = {
   },
   onCancel: () => {
   },
+  onSpinComplete: () => {},
   isAdmin: false,
   hidden: false,
 };

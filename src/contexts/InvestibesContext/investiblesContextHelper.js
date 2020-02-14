@@ -33,6 +33,10 @@ export function getInvestiblesInStage(investibles, stageId) {
   return stageInvestibles;
 }
 
+export function addInvestible(dispatch, diffDispatch, investible) {
+  return refreshInvestibles(dispatch, diffDispatch, [investible]);
+}
+
 export function removeInvestibles(dispatch, diffDispatch, investibles) {
   diffDispatch(removeContents(investibles));
   dispatch(removeStoredInvestbiles(investibles));

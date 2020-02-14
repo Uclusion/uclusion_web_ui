@@ -14,6 +14,9 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import DecisionInvestibleAdd from './Decision/DecisionInvestibleAdd';
 import PlanningInvestibleAdd from './Planning/PlanningInvestibleAdd';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { DiffContext } from '../../contexts/DiffContext/DiffContext';
+import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 
 function InvestibleAdd(props) {
   const { hidden } = props;
@@ -24,6 +27,10 @@ function InvestibleAdd(props) {
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  // we're going to talk directly to the contexts instead of pushing messages for speed reasons
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
+
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
@@ -37,6 +44,10 @@ function InvestibleAdd(props) {
   const title = intl.formatMessage({ id: titleKey});
   const [storedDescription, setStoredDescription] = useState(undefined);
   const [idLoaded, setIdLoaded] = useState(undefined);
+
+  function onInvestibleSave(investible) {
+    addInvestible(investiblesDispatch, diffDispatch, investible);
+  }
 
 
   function onDone(destinationLink) {
@@ -74,8 +85,9 @@ function InvestibleAdd(props) {
       {marketType === DECISION_TYPE && myPresence && idLoaded === marketId && (
         <DecisionInvestibleAdd
           marketId={marketId}
+          onSave={onInvestibleSave}
           onCancel={onDone}
-          onSave={onDone}
+          onSpinComplete={onDone}
           isAdmin={isAdmin}
           storedDescription={storedDescription}
         />
@@ -84,7 +96,8 @@ function InvestibleAdd(props) {
         <PlanningInvestibleAdd
           marketId={marketId}
           onCancel={onDone}
-          onSave={onDone}
+          onSave={onInvestibleSave}
+          onSpinComplete={onDone}
           marketPresences={marketPresences}
           storedDescription={storedDescription}
         />

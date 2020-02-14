@@ -1,7 +1,7 @@
 import { getMarketClient } from './uclusionClient';
 import { toastErrorAndThrow } from '../utils/userMessage';
 
-export function updateInvestible(updateInfo) {
+export function updateInvestible (updateInfo) {
   const {
     marketId,
     investibleId,
@@ -16,7 +16,7 @@ export function updateInvestible(updateInfo) {
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
 }
 
-export function addDecisionInvestible(addInfo) {
+export function addDecisionInvestible (addInfo) {
   const {
     marketId,
     name,
@@ -28,7 +28,7 @@ export function addDecisionInvestible(addInfo) {
     .catch((error) => toastErrorAndThrow(error, 'errorDecisionInvestibleAddFailed'));
 }
 
-export function addPlanningInvestible(addInfo) {
+export function addPlanningInvestible (addInfo) {
   const {
     marketId,
     name,
@@ -41,8 +41,7 @@ export function addPlanningInvestible(addInfo) {
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningInvestibleAddFailed'));
 }
 
-
-export function stageChangeInvestible(acceptInfo, customError) {
+export function stageChangeInvestible (acceptInfo, customError) {
   const {
     marketId,
     investibleId,
@@ -53,29 +52,29 @@ export function stageChangeInvestible(acceptInfo, customError) {
     .catch((error) => toastErrorAndThrow(error, customError || 'errorInvestibleStageChangeFailed'));
 }
 
-export function lockInvestibleForEdit(marketId, investibleId, breakLock) {
+export function lockInvestibleForEdit (marketId, investibleId, breakLock) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.lock(investibleId, breakLock))
     .catch((error) => toastErrorAndThrow(error, 'errorEditLockFailed'));
 }
 
-export function realeaseInvestibleEditLock(marketId, investibleId) {
+export function realeaseInvestibleEditLock (marketId, investibleId) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.unlock(investibleId))
     .catch((error) => toastErrorAndThrow(error, 'errorEditLockReleaseFailed'));
 }
 
-export function moveInvestibleToCurrentVoting(moveInfo) {
+export function moveInvestibleToCurrentVoting (moveInfo) {
   return stageChangeInvestible(moveInfo, 'errorInvestibleMoveToCurrentVotingFailed');
 }
 
-export function deleteInvestible(marketId, investibleId) {
+export function deleteInvestible (marketId, investibleId) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.delete(investibleId))
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleDeleteFailed'));
 }
 
-export function addInvestibleToStage(addInfo) {
+export function addInvestibleToStage (addInfo) {
   const {
     marketId,
     name,
@@ -85,6 +84,22 @@ export function addInvestibleToStage(addInfo) {
   } = addInfo;
   return getMarketClient(marketId)
     .then((client) => client.investibles.create(name, description, uploadedFiles)
-      .then((investibleId) => client.investibles.stateChange(investibleId, stageInfo)
-        .then(() => investibleId))).catch((error) => toastErrorAndThrow(error, 'errorInvestibleAddFailed'));
+      .then((inv) => {
+        const { investible } = inv;
+        const { id } = investible;
+        return client.investibles.stateChange(id, stageInfo)
+          .then(() => {
+            const { market_infos } = inv;
+            const [info] = market_infos;
+            const newInfo = {
+              ...info,
+              stage: stageInfo.stage_id,
+            };
+            const newMarketInfos = [newInfo];
+            return {
+              ...inv,
+              market_infos: newMarketInfos,
+            };
+          });
+      })).catch((error) => toastErrorAndThrow(error, 'errorInvestibleAddFailed'));
 }

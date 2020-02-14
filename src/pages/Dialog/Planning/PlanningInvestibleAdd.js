@@ -124,7 +124,7 @@ function PlanningInvestibleAdd(props) {
     };
     return addPlanningInvestible(addInfo).then((inv) => {
       const { investible } = inv;
-      onSave(investible);
+      onSave(inv);
       const link = formInvestibleLink(marketId, investible.id);
       return {
         result: link,

@@ -10,7 +10,7 @@ import {
 import Screen from '../../containers/Screen/Screen';
 import { VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import { getMarketLogin } from '../../api/uclusionClient';
-import { registerListener } from '../../utils/MessageBusUtils';
+import { registerListener, removeListener } from '../../utils/MessageBusUtils';
 import { toastError } from '../../utils/userMessage';
 import queryString from 'query-string';
 import { NEW_MARKET } from '../../contexts/VersionsContext/versionsContextMessages';
@@ -52,8 +52,8 @@ function MarketInvite(props) {
           const { is_new_capability: loggedIntoNewMarket } = result;
           if (!loggedIntoNewMarket) {
             setMyLoading(false);
-            registerListener(VERSIONS_HUB_CHANNEL, 'inviteListener', () => {});
-            toastError('warningAlreadyInMarket');
+            removeListener(VERSIONS_HUB_CHANNEL, 'inviteListener');
+            navigate(history, formMarketLink(marketId));
           }
         })
         .catch((error) => {

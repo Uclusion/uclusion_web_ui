@@ -31,11 +31,12 @@ export class MatchError extends Error {
 export function refreshGlobalVersion(currentHeldVersion, existingMarkets) {
   let timeoutClearer;
   const execFunction = () => {
+    console.log(`My global version ${currentHeldVersion}`);
     return doVersionRefresh(currentHeldVersion, existingMarkets)
       .then((globalVersion) => {
-        console.log(`My new global version ${globalVersion}`);
         timeoutClearer();
         if(globalVersion !== currentHeldVersion) {
+          console.log('Got new version');
           pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
         }
       }).catch((error) => {

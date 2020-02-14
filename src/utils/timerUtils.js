@@ -20,7 +20,7 @@ export function startTimerChain(waitTime, maxIterations, execFunction) {
     timeout = setTimeout(callFunc, waitTime);
   }
 
-  timeout = setTimeout(callFunc, waitTime);
+  timeout = setTimeout(callFunc, 0);
   return () => {
     clearTimeout(timeout);
   };

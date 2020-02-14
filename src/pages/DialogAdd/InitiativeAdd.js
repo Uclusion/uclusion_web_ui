@@ -13,8 +13,10 @@ import { INITIATIVE_TYPE } from '../../constants/markets';
 import { addDecisionInvestible } from '../../api/investibles';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { checkInvestibleInStorage } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { DiffContext } from '../../contexts/DiffContext/DiffContext';
+import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,10 +33,12 @@ const useStyles = makeStyles((theme) => ({
 function InitiativeAdd(props) {
   const intl = useIntl();
   const {
-    onDone, storedDescription,
+    onSpinStop, onSave, storedDescription,
   } = props;
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, invDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
   const [validForm, setValidForm] = useState(false);
   const [currentValues, setCurrentValues] = useState(emptyMarket);
@@ -60,7 +64,7 @@ function InitiativeAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onDone();
+    onSpinStop();
   }
 
   function handleChange(field) {
@@ -97,17 +101,21 @@ function InitiativeAdd(props) {
     };
     return createDecision(addInfo, 'errorInitiativeAddFailed')
       .then((result) => {
-        const { market_id: marketId } = result;
+        onSave(result);
+        const { market: { id: marketId }} = result;
         const addInfo = {
           marketId,
           uploadedFiles: filteredUploads,
           description: tokensRemoved,
           name,
         };
-        return addDecisionInvestible(addInfo).then((investibleId) => ({
-          result: marketId,
-          spinChecker: () => checkInvestibleInStorage(investibleId),
-        }));
+        return addDecisionInvestible(addInfo).then((investible) => {
+          addInvestible(invDispatch, diffDispatch, investible);
+          return {
+            result: marketId,
+            spinChecker: () => Promise.resolve(true),
+          };
+        });
       });
   }
 
@@ -161,7 +169,7 @@ function InitiativeAdd(props) {
             color="primary"
             onClick={handleSave}
             disabled={!validForm}
-            onSpinStop={onDone}
+            onSpinStop={onSpinStop}
             hasSpinChecker
           >
             {intl.formatMessage({ id: 'marketAddSaveLabel' })}
@@ -173,12 +181,14 @@ function InitiativeAdd(props) {
 }
 
 InitiativeAdd.propTypes = {
-  onDone: PropTypes.func,
+  onSpinStop: PropTypes.func,
+  onSave: PropTypes.func,
   storedDescription: PropTypes.string.isRequired,
 };
 
 InitiativeAdd.defaultProps = {
-  onDone: () => {
+  onSave: () => {},
+  onSpinStop: () => {
   },
 };
 

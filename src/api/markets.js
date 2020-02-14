@@ -20,8 +20,14 @@ export function getMarketDetails(marketId) {
         }))));
 }
 
-export function extendMarketExpiration(marketId, expiration_minutes) {
-  const updateOptions = { expiration_minutes };
+export function manageMarket(marketId, expirationMinutes, allowMultiVote) {
+  const updateOptions = { };
+  if (expirationMinutes !== undefined) {
+    updateOptions.expiration_minutes = expirationMinutes;
+  }
+  if (allowMultiVote !== undefined) {
+    updateOptions.allow_multi_vote = allowMultiVote;
+  }
   return getMarketClient(marketId)
     .then((client) => client.markets.updateMarket(updateOptions))
     .catch((error) => toastErrorAndThrow(error, 'errorMarketExpirationExtendFailed'));

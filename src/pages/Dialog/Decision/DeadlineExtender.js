@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import { Button } from '@material-ui/core';
+import { Button, Checkbox } from '@material-ui/core'
 import { useIntl } from 'react-intl';
 import ExpirationSelector from '../../../components/Expiration/ExpirationSelector';
-import { extendMarketExpiration } from '../../../api/markets';
+import { manageMarket } from '../../../api/markets';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
+import Typography from '@material-ui/core/Typography'
+import { DECISION_TYPE } from '../../../constants/markets'
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -19,24 +21,37 @@ function DeadlineExtender(props) {
   const {
     market, hidden,
   } = props;
-  const { id: marketId, expiration_minutes: expirationMinutes } = market;
+  const { id: marketId, expiration_minutes: expirationMinutes, allow_multi_vote: allowMultiVote,
+    market_type: marketType } = market;
   const classes = useStyles();
   const intl = useIntl();
-  const defaultExtension = 1440;
-  const [extensionPeriod, setExtensionPeriod] = useState(defaultExtension);
+  const [extensionPeriod, setExtensionPeriod] = useState(0);
+  const [multiVote, setMultiVote] = useState(allowMultiVote);
 
   function selectorOnChange(event) {
     const { value } = event.target;
     setExtensionPeriod(parseInt(value, 10));
   }
 
+  function toggleMultiVote() {
+    setMultiVote(!multiVote);
+  }
+
   function mySave() {
-    const newExpirationMinutes = expirationMinutes + extensionPeriod;
-    return extendMarketExpiration(marketId, newExpirationMinutes);
+    let newExpirationMinutes = undefined;
+    if (extensionPeriod > 0) {
+      newExpirationMinutes = expirationMinutes + extensionPeriod;
+    }
+    let newAllowMultiVote = undefined;
+    if (allowMultiVote !== multiVote) {
+      newAllowMultiVote = multiVote;
+    }
+    return manageMarket(marketId, newExpirationMinutes, newAllowMultiVote);
   }
 
   function myCancel() {
-    setExtensionPeriod(defaultExtension);
+    setExtensionPeriod(0);
+    setMultiVote(allowMultiVote);
   }
 
   return (
@@ -47,6 +62,19 @@ function DeadlineExtender(props) {
         value={extensionPeriod}
         onChange={selectorOnChange}
       />
+      {marketType === DECISION_TYPE && (
+        <>
+          <Typography>
+            {intl.formatMessage({ id: 'allowMultiVote' })}
+            <Checkbox
+              id="multiVote"
+              name="multiVote"
+              checked={multiVote}
+              onChange={toggleMultiVote}
+            />
+          </Typography>
+        </>
+      )}
       <SpinBlockingButtonGroup>
         <Button
           onClick={myCancel}
@@ -57,6 +85,7 @@ function DeadlineExtender(props) {
           marketId={marketId}
           variant="contained"
           color="primary"
+          disabled={extensionPeriod === 0 && multiVote === allowMultiVote}
           onClick={mySave}
         >
           {intl.formatMessage({ id: 'deadlineExtenderSave' })}

@@ -11,7 +11,6 @@ import { processTextAndFilesForSave } from '../../api/files';
 import { PLANNING_TYPE } from '../../constants/markets';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 
 const useStyles = makeStyles((theme) => ({
@@ -29,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
 function PlanningAdd(props) {
   const intl = useIntl();
   const {
-    onDone, storedDescription,
+    onSpinStop, storedDescription, onSave
   } = props;
   const classes = useStyles();
   const emptyPlan = { name: '' };
@@ -61,7 +60,7 @@ function PlanningAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onDone();
+    onSpinStop();
   }
 
   function handleChange(field) {
@@ -122,10 +121,11 @@ function PlanningAdd(props) {
     }
     return createPlanning(addInfo)
       .then((result) => {
-        const { market_id: marketId } = result;
+        onSave(result);
+        const { market: {id: marketId} } = result;
         return {
           result: marketId,
-          spinChecker: () => checkMarketInStorage(marketId),
+          spinChecker: () => Promise.resolve(true),
         };
       });
   }
@@ -202,7 +202,7 @@ function PlanningAdd(props) {
             color="primary"
             onClick={handleSave}
             disabled={!validForm}
-            onSpinStop={onDone}
+            onSpinStop={onSpinStop}
           >
             {intl.formatMessage({ id: 'marketAddSaveLabel' })}
           </SpinBlockingButton>
@@ -213,13 +213,15 @@ function PlanningAdd(props) {
 }
 
 PlanningAdd.propTypes = {
-  onDone: PropTypes.func,
+  onSpinStop: PropTypes.func,
+  onSave: PropTypes.func,
   storedDescription: PropTypes.string.isRequired,
 };
 
 PlanningAdd.defaultProps = {
-  onDone: () => {
+  onSpinStop: () => {
   },
+  onSave: () => {},
 };
 
 export default PlanningAdd;

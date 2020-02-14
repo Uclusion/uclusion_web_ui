@@ -1,6 +1,9 @@
 import { getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper';
 import LocalForageHelper from '../LocalForageHelper';
 import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext';
+import { addContents } from '../DiffContext/diffContextReducer';
+import { updateMarketDetails } from './marketsContextReducer';
+import { fixupItemForStorage } from '../ContextUtils';
 
 export function getMarket(state, marketId) {
   const { marketDetails } = state;
@@ -41,6 +44,12 @@ export function getHiddenMarketDetailsForUser(state, marketPresenceState) {
   return [];
 }
 
+export function addMarketToStorage(dispatch, diffDispatch, marketDetails){
+  const fixed = fixupItemForStorage(marketDetails);
+  diffDispatch(addContents([fixed]));
+  dispatch(updateMarketDetails([fixed]));
+}
+
 export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {
   if (state.marketDetails) {
     const newMarketDetails = state.marketDetails.filter((market) => {
@@ -54,10 +63,6 @@ export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {
   return state;
 }
 
-
-export function getAllMarketDetails(state) {
-  return state.marketDetails;
-}
 
 export function checkMarketInStorage(marketId) {
   const lfh = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);

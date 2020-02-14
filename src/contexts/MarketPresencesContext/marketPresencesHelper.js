@@ -1,3 +1,8 @@
+import { addMarketPresence } from './marketPresencesContextReducer';
+
+export function addPresenceToMarket(dispatch, marketId, presence) {
+  dispatch(addMarketPresence(marketId, presence));
+}
 
 export function getMarketPresences(state, marketId) {
   return state[marketId];

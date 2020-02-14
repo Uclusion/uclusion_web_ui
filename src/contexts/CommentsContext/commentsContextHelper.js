@@ -13,6 +13,7 @@ export function getMarketComments(state, marketId) {
 
 export function refreshMarketComments(dispatch, marketId, comments) {
   const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
+  //TODO: We should just make the reducer handle this state instead of reading from local forage
   return lfh.getState()
     .then((state) => {
       const usedState = state || EMPTY_STATE;

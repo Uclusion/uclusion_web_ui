@@ -3,7 +3,8 @@ import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from './MarketPresencesContext';
 import _ from 'lodash';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
-const UPDATE_MARKET_PRESENCE = 'UPDATE_MARKET_PRESENCE';
+const ADD_MARKET_PRESENCE = 'ADD_MARKET_PRESENCE';
+const UPDATE_MARKET_PRESENCES = 'UPDATE_MARKET_PRESENCES';
 const REMOVE_MARKETS_PRESENCE = 'REMOVE_MARKETS_PRESENCE';
 
 /** Messages you can send the reducer **/
@@ -15,9 +16,17 @@ export function initializeState(newState) {
   };
 }
 
-export function updateMarketPresence(marketId, users) {
+export function addMarketPresence(marketId, user) {
   return {
-    type: UPDATE_MARKET_PRESENCE,
+    type: ADD_MARKET_PRESENCE,
+    marketId,
+    user,
+  };
+}
+
+export function updateMarketPresences(marketId, users) {
+  return {
+    type: UPDATE_MARKET_PRESENCES,
     marketId,
     users,
   };
@@ -31,8 +40,17 @@ export function removeMarketsPresence(marketIds) {
 }
 
 /** Functions that update the state **/
+function doAddMarketPresence(state, action) {
+  const { marketId, user } = action;
+  const oldUsers = state[marketId] || [];
+  const newUsers = _.unionBy([user], oldUsers, 'id');
+  return {
+    ...state,
+    [marketId]: newUsers,
+  };
+}
 
-function doUpdateMarketPresence(state, action) {
+function doUpdateMarketPresences(state, action) {
   const { marketId, users } = action;
   return {
     ...state,
@@ -49,8 +67,10 @@ function computeNewState(state, action) {
   switch (action.type) {
     case INITIALIZE_STATE:
       return action.newState;
-    case UPDATE_MARKET_PRESENCE:
-      return doUpdateMarketPresence(state, action);
+    case ADD_MARKET_PRESENCE:
+      return doAddMarketPresence(state, action);
+    case UPDATE_MARKET_PRESENCES:
+      return doUpdateMarketPresences(state, action);
     case REMOVE_MARKETS_PRESENCE:
       return doRemoveMarketsPresence(state, action);
     default:

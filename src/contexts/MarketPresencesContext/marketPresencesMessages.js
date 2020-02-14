@@ -2,7 +2,7 @@ import {
   PUSH_PRESENCE_CHANNEL, REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
 } from '../VersionsContext/versionsContextHelper';
-import { removeMarketsPresence, initializeState, updateMarketPresence } from './marketPresencesContextReducer';
+import { removeMarketsPresence, initializeState, updateMarketPresences } from './marketPresencesContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { EMPTY_STATE } from './MarketPresencesContext';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
@@ -24,7 +24,7 @@ function beginListening(dispatch) {
 
     switch (event) {
       case VERSIONS_EVENT:
-        dispatch(updateMarketPresence(marketId, users));
+        dispatch(updateMarketPresences(marketId, users));
         break;
       default:
         console.debug(`Ignoring push event ${event}`);

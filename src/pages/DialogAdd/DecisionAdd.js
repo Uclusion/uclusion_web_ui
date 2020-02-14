@@ -14,7 +14,6 @@ import { createDecision } from '../../api/markets';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper';
 import { DECISION_TYPE } from '../../constants/markets';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
 import UclusionTour from '../../components/Tours/UclusionTour';
@@ -38,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
 function DecisionAdd(props) {
   const intl = useIntl();
   const {
-    onDone, storedDescription,
+    onSpinStop, storedDescription, onSave
   } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useStyles();
@@ -67,7 +66,7 @@ function DecisionAdd(props) {
 
   function handleCancel() {
     zeroCurrentValues();
-    onDone();
+    onSpinStop();
   }
 
   function handleChange(field) {
@@ -105,11 +104,13 @@ function DecisionAdd(props) {
     };
     return createDecision(addInfo)
       .then((result) => {
-        const { market_id: marketId } = result;
+        const { market } = result;
+        onSave(result);
+        const { id: marketId } = market;
         return {
           result: marketId,
           spinChecker: () => {
-            return checkMarketInStorage(marketId)
+            return Promise.resolve(true);
           },
         };
       });
@@ -173,7 +174,7 @@ function DecisionAdd(props) {
             color="primary"
             onClick={handleSave}
             disabled={!validForm}
-            onSpinStop={onDone}
+            onSpinStop={onSpinStop}
           >
             {intl.formatMessage({ id: 'marketAddSaveLabel' })}
           </SpinBlockingButton>
@@ -184,12 +185,14 @@ function DecisionAdd(props) {
 }
 
 DecisionAdd.propTypes = {
-  onDone: PropTypes.func,
+  onSpinStop: PropTypes.func,
+  onSave: PropTypes.func,
   storedDescription: PropTypes.string.isRequired,
 };
 
 DecisionAdd.defaultProps = {
-  onDone: () => {
+  onSave: () => {},
+  onSpinStop: () => {
   },
 };
 

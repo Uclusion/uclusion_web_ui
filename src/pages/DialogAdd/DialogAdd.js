@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
@@ -15,6 +15,11 @@ import {
   makeBreadCrumbs,
   navigate
 } from '../../utils/marketIdPathFunctions';
+import { DiffContext } from '../../contexts/DiffContext/DiffContext';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper';
+import { addPresenceToMarket } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function DialogAdd(props) {
   const { hidden } = props;
@@ -24,6 +29,11 @@ function DialogAdd(props) {
   const values = queryString.parse(hash);
   const { type } = values;
   const intl = useIntl();
+
+  const [, diffDispatch] = useContext(DiffContext);
+  const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [, marketDispatch] = useContext(MarketsContext);
+
   // eslint-disable-next-line no-nested-ternary
   const addTitleName = type === DECISION_TYPE ? 'addDecision' : type === PLANNING_TYPE ? 'addPlanning' : 'addInitiative';
   const [storedDescription, setStoredDescription] = useState(undefined);
@@ -40,6 +50,16 @@ function DialogAdd(props) {
       setIdLoaded(undefined);
     }
   }, [hidden, type]);
+
+  function onSave(result){
+    const {
+      market,
+      presence,
+    } = result;
+    const { id: marketId } = market;
+    addMarketToStorage(marketDispatch, diffDispatch, market);
+    addPresenceToMarket(presenceDispatch, marketId, presence);
+  }
 
   function onDone(result) {
     setIdLoaded(undefined);
@@ -71,14 +91,14 @@ function DialogAdd(props) {
       breadCrumbs={breadCrumbs}
     >
       {type === PLANNING_TYPE && idLoaded === type && (
-        <PlanningAdd onDone={onDone} storedDescription={storedDescription}/>
+        <PlanningAdd onSave={onSave} onSpinStop={onDone} storedDescription={storedDescription}/>
       )}
       {type === DECISION_TYPE && idLoaded === type && (
-        <DecisionAdd onDone={onDone} storedDescription={storedDescription}/>
+        <DecisionAdd onSave={onSave} onSpinStop={onDone} storedDescription={storedDescription}/>
       )}
 
       {type === INITIATIVE_TYPE && idLoaded === type && (
-        <InitiativeAdd onDone={onDone} storedDescription={storedDescription}/>
+        <InitiativeAdd onSave={onSave} onSpinStop={onDone} storedDescription={storedDescription}/>
       )}
     </Screen>
   );

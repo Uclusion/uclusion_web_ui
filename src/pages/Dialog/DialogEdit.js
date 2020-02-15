@@ -20,11 +20,7 @@ import DecisionDialogEdit from './Decision/DecisionDialogEdit';
 import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../api/markets';
 import { Dialog } from '../../components/Dialogs'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 const useLockedDialogStyles = makeStyles(
   theme => {

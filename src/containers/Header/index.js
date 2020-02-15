@@ -118,7 +118,7 @@ function Header(props) {
 
   return (
     <>
-      {!hidden && (
+      {!hidden && screenRef.current && (
         <Popper
           className={classes.elevated}
           open={!online}

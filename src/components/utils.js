@@ -1,5 +1,8 @@
 import _ from 'lodash';
-
+/*
+Keys under context ROOT (standard uclusion local storage) are cleared when the user logs in our out.
+Keys uner LOGIN_PERSISTENT stick around until cleared by our code
+ */
 const ROOT = 'uclusion:root';
 const LOGIN_PERSISTENT = 'uclusion:loginPersistent';
 

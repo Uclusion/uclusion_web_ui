@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from 'react';
 import { injectIntl } from 'react-intl';
 import classNames from 'clsx';
 import _ from 'lodash';
-import { navigate } from '../../utils/marketIdPathFunctions';
 import {
   Button, makeStyles, Paper, darken
 } from '@material-ui/core';
@@ -18,8 +17,6 @@ import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
-import { useHistory } from 'react-router';
-import { appendCommentAddBoxHash } from '../../utils/marketIdPathFunctions';
 import { scrollToCommentAddBox } from './commentFunctions';
 
 function getPlaceHolderLabelId (type) {
@@ -93,7 +90,7 @@ function CommentAdd (props) {
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [firstOpen, setFirstOpen] = useState(true);
-  const history = useHistory();
+
   useEffect(() => {
     if (!hidden && firstOpen) {
       scrollToCommentAddBox();

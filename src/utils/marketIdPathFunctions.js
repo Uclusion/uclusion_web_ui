@@ -97,12 +97,6 @@ export function createTitle(fullTitle, titleSize) {
   return `${fullTitle.substring(0, titleSize)}...`;
 }
 
-export function appendCommentAddBoxHash(path) {
-  const current = window.location.href;
-  const url = new URL(current);
-  return url.pathname + '#cabox';
-}
-
 export function formInviteLink(marketId) {
   const current = window.location.href;
   const url = new URL(current);

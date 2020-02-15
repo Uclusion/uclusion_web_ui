@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useReducer, useContext } from 'react';
 import { toast } from 'react-toastify';
 import reducer, {
-  initializeState,
+  initializeState, newToast,
   NOTIFICATIONS_CONTEXT_NAMESPACE,
   removeMessage,
-} from './notificationsContextReducer';
+} from './notificationsContextReducer'
 import { deleteMessage } from '../../api/users';
 import beginListening from './notificationsContextMessages';
 import LocalForageHelper from '../LocalForageHelper';
@@ -80,18 +80,22 @@ function NotificationsProvider(props) {
           const shouldToast = (level === 'RED') || aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId);
           if (shouldToast) {
             console.debug('Toasting from NotificationsContext');
+            let toastId = undefined;
             switch (level) {
               case 'RED':
-                toast.error(text);
+                toastId = toast.error(text);
                 break;
               case 'YELLOW':
                 if (!commentId) {
-                  toast.warn(text);
+                  toastId = toast.warn(text);
                 }
                 break;
               default:
-                toast.info(text);
+                toastId = toast.info(text);
                 break;
+            }
+            if (toastId) {
+              dispatch(newToast(toastId))
             }
           }
         }

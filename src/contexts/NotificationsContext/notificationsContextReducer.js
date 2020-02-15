@@ -1,5 +1,6 @@
 import LocalForageHelper from '../LocalForageHelper';
 import { EMPTY_STATE } from './NotificationsContext';
+import { toast } from 'react-toastify';
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -7,6 +8,7 @@ const UPDATE_PAGE = 'UPDATE_PAGE';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
 const INCREMENT_CURRENT = 'INCREMENT_CURRENT';
+const UPDATE_TOAST = 'UPDATE_TOAST';
 
 /** Messages you can send the reducer */
 
@@ -22,6 +24,13 @@ export function removeMessage(message) {
     type: REMOVE_MESSAGE,
     message,
   };
+}
+
+export function newToast(toastId) {
+  return {
+    type: UPDATE_TOAST,
+    toastId
+  }
 }
 
 export function nextMessage() {
@@ -177,6 +186,17 @@ function doRemoveMessage(state, action) {
   };
 }
 
+function updateToast(state, action) {
+  const { toastId } = state;
+  if (toast.isActive(toastId)) {
+    toast.dismiss(toastId);
+  }
+  return {
+    ...state,
+    toastId: action.toastId
+  };
+}
+
 function doNext(state) {
   const { messages, current } = state;
   const newCurrent = getNextCurrent(messages, current);
@@ -198,6 +218,8 @@ function computeNewState(state, action) {
       return doRemoveMessage(state, action);
     case INCREMENT_CURRENT:
       return doNext(state);
+    case UPDATE_TOAST:
+      return updateToast(state, action);
     default:
       return state;
   }

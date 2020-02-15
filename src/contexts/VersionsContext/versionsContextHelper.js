@@ -33,7 +33,7 @@ export function refreshVersions(state) {
 
 export function refreshNotifications() {
   // tell versions to go and get new notifications
-  pushMessage(VERSIONS_HUB_CHANNEL, {event: VERSIONS_EVENT});
+  pushMessage(NOTIFICATIONS_HUB_CHANNEL, {event: VERSIONS_EVENT});
 }
 
 

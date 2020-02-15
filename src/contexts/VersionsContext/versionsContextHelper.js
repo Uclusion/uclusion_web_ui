@@ -1,6 +1,5 @@
 import { pushMessage } from '../../utils/MessageBusUtils';
 import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
-import { VERSIONS_HUB_CHANNEL } from '../WebSocketContext';
 
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
 export const PUSH_CONTEXT_CHANNEL = 'MarketsChannel';

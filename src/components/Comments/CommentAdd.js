@@ -1,7 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { injectIntl } from 'react-intl';
 import classNames from 'clsx';
 import _ from 'lodash';
+import { navigate } from '../../utils/marketIdPathFunctions';
 import {
   Button, makeStyles, Paper, darken
 } from '@material-ui/core';
@@ -17,8 +18,11 @@ import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import { useHistory } from 'react-router';
+import { appendCommentAddBoxHash } from '../../utils/marketIdPathFunctions';
+import { scrollToCommentAddBox } from './commentFunctions';
 
-function getPlaceHolderLabelId(type) {
+function getPlaceHolderLabelId (type) {
   switch (type) {
     case QUESTION_TYPE:
       return 'commentAddQuestionDefault';
@@ -67,16 +71,16 @@ const useStyles = makeStyles((theme) => ({
   buttonPrimary: {
     backgroundColor: '#2d9cdb',
     color: '#fff',
-    "&:hover": {
+    '&:hover': {
       backgroundColor: darken('#2d9cdb', 0.08)
     },
-    "&:focus": {
+    '&:focus': {
       backgroundColor: darken('#2d9cdb', 0.24)
     },
   },
 }), { name: 'CommentAdd' });
 
-function CommentAdd(props) {
+function CommentAdd (props) {
   const {
     intl, marketId, onSave, onCancel, type, investible, parent, hidden, issueWarningId,
   } = props;
@@ -88,20 +92,29 @@ function CommentAdd(props) {
   const placeHolderLabelId = getPlaceHolderLabelId(type);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [firstOpen, setFirstOpen] = useState(true);
+  const history = useHistory();
+  useEffect(() => {
+    if (!hidden && firstOpen) {
+      scrollToCommentAddBox();
+      setFirstOpen(false);
+    }
+    return () => {};
+  }, [hidden, firstOpen]);
 
-  function onEditorChange(content) {
+  function onEditorChange (content) {
     setBody(content);
   }
 
-  function toggleIssue() {
+  function toggleIssue () {
     setOpenIssue(!openIssue);
   }
 
-  function onS3Upload(metadatas) {
+  function onS3Upload (metadatas) {
     setUploadedFiles(metadatas);
   }
 
-  function handleSave() {
+  function handleSave () {
     const usedParent = parent || {};
     const { investible_id: parentInvestible, id: parentId } = usedParent;
     const {
@@ -120,14 +133,14 @@ function CommentAdd(props) {
       });
   }
 
-  function handleCancel() {
+  function handleCancel () {
     setBody('');
     setUploadedFiles([]);
     setOpenIssue(false);
     onCancel();
   }
 
-  function handleSpinStop() {
+  function handleSpinStop () {
     setBody('');
     setUploadedFiles([]);
     setOpenIssue(false);
@@ -140,6 +153,7 @@ function CommentAdd(props) {
   console.debug(`show issue warning is ${showIssueWarning}`);
   return (
     <Paper
+      id={hidden ? '' : 'cabox'}
       className={(hidden) ? classes.hidden : classes.add}
       elevation={2}
     >

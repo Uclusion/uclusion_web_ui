@@ -13,7 +13,7 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 const styles = (theme) => ({
   root: {

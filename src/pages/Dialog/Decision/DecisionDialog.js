@@ -117,7 +117,7 @@ function DecisionDialog(props) {
   };
 
   const addParticipants = {
-    label: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
+    label: intl.formatMessage({ id: 'dialogManageLabel' }),
     icon: <GroupAddIcon />,
     onClick: () => toggleAddParticipantsMode(),
   };

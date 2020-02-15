@@ -20,18 +20,6 @@ export function getExistingMarkets(state) {
 }
 
 
-function processNewNotification(newNotificationVersion, notificationVersion) {
-  const { version: notificationVersionNumber } = notificationVersion;
-  const { version: newNotificationVersionNumber } = newNotificationVersion;
-  console.debug(`Refreshing notifications from ${notificationVersionNumber} to ${newNotificationVersionNumber}`);
-  if (notificationVersionNumber !== newNotificationVersionNumber) {
-    pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT });
-  }
-}
-
-export function refreshVersionsFromScratch(){
-  return refreshVersions({ existingMarkets: [], globalVersion: ''});
-}
 
 export function refreshVersions(state) {
   console.debug('Refreshing versions');
@@ -42,10 +30,24 @@ export function refreshVersions(state) {
   return refreshGlobalVersion(globalVersion, existingMarkets);
 }
 
+export function refreshNotifications() {
+  // tell versions to go and get new notifications
+  pushMessage(NOTIFICATIONS_HUB_CHANNEL, {event: VERSIONS_EVENT});
+}
+
+
+// used by the reducer to actually process the new event
 export function refreshNotificationVersion(state, version) {
   const { notificationVersion } = state;
   processNewNotification(version, notificationVersion);
 }
 
-
+function processNewNotification(newNotificationVersion, notificationVersion) {
+  const { version: notificationVersionNumber } = notificationVersion;
+  const { version: newNotificationVersionNumber } = newNotificationVersion;
+  console.debug(`Refreshing notifications from ${notificationVersionNumber} to ${newNotificationVersionNumber}`);
+  if (notificationVersionNumber !== newNotificationVersionNumber) {
+    pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT });
+  }
+}
 

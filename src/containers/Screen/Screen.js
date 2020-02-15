@@ -14,12 +14,13 @@ import {
   DRAWER_WIDTH_CLOSED,
   DRAWER_WIDTH_OPENED,
 } from '../../constants/global';
-import { createTitle, navigate } from '../../utils/marketIdPathFunctions'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { createTitle } from '../../utils/marketIdPathFunctions'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
-import { refreshVersionsFromScratch } from '../../contexts/VersionsContext/versionsContextHelper';
-import { getNotifications } from '../../api/summaries';
-import { refreshNotificationVersionAction } from '../../contexts/VersionsContext/versionsContextReducer';
+import {
+  refreshNotifications,
+  refreshVersions,
+} from '../../contexts/VersionsContext/versionsContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -59,6 +60,7 @@ const useStyles = makeStyles((theme) => ({
 const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
 
 function scroller(location) {
+  console.log('Scroller firing');
   const { hash } = location;
   if (hash && hash.length > 1) {
     const target = hash.substring(1, hash.length);
@@ -80,7 +82,10 @@ function Screen(props) {
   const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
   const { location } = history;
-  history.listen(scroller);
+  history.listen((location) => {
+    console.log('firing scroller on history');
+    scroller(location);
+  });
   const {
     breadCrumbs,
     hidden,
@@ -110,96 +115,31 @@ function Screen(props) {
   }
 
   const [firstRender, setFirstRender] = useState(true);
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [operationRunningWasSet, setOperationRunningWasSet] = useState(true);
-  const [loadingExpired, setLoadingExpired] = useState(false);
-  const [loadingFailed, setLoadingFailed] = useState(false);
-  const [loadingExpiredTimer, setLoadingExpiredTimer] = useState(undefined);
-  const [loadingFailedTimer, setLoadingFailedTimer] = useState(undefined);
-  const [versionsState, versionsDispatch] = useContext(VersionsContext);
-  const { notificationVersion } = versionsState;
-  const usedNotificationVersion = notificationVersion || {};
-  const { version } = usedNotificationVersion;
-  const usedVersion = version || -1;
-  const myLoading = !hidden && (appEnabled && (loading || usedVersion < 0));
+  const [operationRunning] = useContext(OperationInProgressContext);
+  const [versionsState] = useContext(VersionsContext);
+  const reallyAmLoading = !hidden && appEnabled && loading;
   useEffect(() => {
-    if (!operationRunning && myLoading) {
-      setOperationRunning(true);
-      setOperationRunningWasSet(true);
-      if (loadingExpiredTimer) {
-        clearTimeout(loadingExpiredTimer);
+    if (reallyAmLoading) {
+      if (!operationRunning) {
+        //we're loading, but no operation is in progress, so there's nothing to update
+        // our state. In that case, it's time to fetch versions
+        refreshVersions(versionsState);
       }
-      if (loadingFailedTimer) {
-        clearTimeout(loadingFailedTimer);
-      }
-      setLoadingExpired(false);
-      setLoadingFailed(false);
-      setLoadingExpiredTimer(setTimeout(() => {
-        setLoadingExpired(true);
-      }, 5000));
-    } else if (operationRunningWasSet && !myLoading) {
-      setOperationRunningWasSet(false);
-      setOperationRunning(false);
-      setLoadingExpired(false);
-      setLoadingFailed(false);
-      if (loadingExpiredTimer) {
-        clearTimeout(loadingExpiredTimer);
-      }
-      if (loadingFailedTimer) {
-        clearTimeout(loadingFailedTimer);
-      }
-    } else if (appEnabled && loadingExpired && operationRunning && operationRunningWasSet) {
-      setLoadingExpired(false);
-      // In case you missed a push
-      console.warn('Loading attempting to fix corrupted data');
-      refreshVersionsFromScratch(); // start over;
-      getNotifications()
-        .then((notifications) => {
-          const notification = notifications.find((item) => item.type_object_id.startsWith("notification"));
-          if (notification) {
-            versionsDispatch(refreshNotificationVersionAction(notification));
-          }
-        });
-      setLoadingFailedTimer(setTimeout(() => {
-        setLoadingFailed(true);
-      }, 10000));
-    } else if (loadingFailed && operationRunning && operationRunningWasSet) {
-      setLoadingFailed(false);
-      navigate(history, '/404');
-    }
-    if (firstRender) {
-      scroller(location);
+    } else if (firstRender) {
       setFirstRender(false);
-    }
-    return () => {
-      if (hidden) {
-        if (loadingExpiredTimer) {
-          clearTimeout(loadingExpiredTimer);
-        }
-        if (loadingFailedTimer) {
-          clearTimeout(loadingFailedTimer);
-        }
+      if (!hidden && appEnabled) {
+        console.log('Firing scroller on first render');
+        scroller(location);
+        // if it's the first time we're here we need to update things
+        refreshVersions(versionsState);
+        refreshNotifications();
       }
-    };
-  }, [firstRender, location, operationRunning, operationRunningWasSet,
-    versionsState, myLoading, setOperationRunning, loadingExpired, history,
-    loadingExpiredTimer, versionsDispatch, loadingFailedTimer, loadingFailed, hidden,
-    appEnabled,
+    }
+    return () => {};
+  }, [firstRender, location, operationRunning,
+    versionsState, reallyAmLoading, history, hidden, appEnabled
   ]);
 
-  // TODO: this indicates that the effect above does not handle 
-  // all state transitions correctly. Without this explicit cleanup of the
-  // timer it leaks causing "Can't perform a React state update on an unmounted component"
-  React.useEffect(() => {
-    return () => {
-      clearTimeout(loadingExpiredTimer);
-    };
-  }, [loadingExpiredTimer]);
-  React.useEffect(() => {
-    return () => {
-      clearTimeout(loadingFailedTimer);
-    };
-  }, [loadingFailedTimer]);
 
   const [sidebarOpen] = useContext(SidebarContext);
 
@@ -223,7 +163,7 @@ function Screen(props) {
         title={title}
         breadCrumbs={breadCrumbs}
         toolbarButtons={toolbarButtons}
-        hidden={hidden || myLoading}
+        hidden={hidden || reallyAmLoading}
       />
       <Sidebar sidebarActions={sidebarActions} />
       <div
@@ -239,10 +179,10 @@ function Screen(props) {
             </Typography>
           </div>
         )}
-        {isChrome && !myLoading && (
+        {isChrome && !reallyAmLoading && (
           <Container className={classes.container}>{children}</Container>
         )}
-        {isChrome && myLoading && (
+        {isChrome && reallyAmLoading && (
           <div className={classes.loadingDisplay}>
             <Typography variant="h3">
               {intl.formatMessage({ id: 'loadingMessage' })}
@@ -269,6 +209,7 @@ Screen.propTypes = {
   sidebarActions: PropTypes.arrayOf(PropTypes.element),
   tabTitle: PropTypes.string.isRequired,
   appEnabled: PropTypes.bool,
+  isHome: PropTypes.bool,
 };
 
 Screen.defaultProps = {
@@ -279,6 +220,7 @@ Screen.defaultProps = {
   toolbarButtons: [],
   sidebarActions: [],
   appEnabled: true,
+  isHome: false,
 };
 
 export default Screen;

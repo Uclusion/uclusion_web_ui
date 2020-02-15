@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import EditIcon from '@material-ui/icons/Edit';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function EditMarketButton(props) {
   const [operationRunning] = useContext(OperationInProgressContext);

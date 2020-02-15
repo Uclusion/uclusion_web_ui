@@ -19,7 +19,7 @@ function signatureMatches (signature, object) {
     }
     let keySatisfied;
     if (_.isArray(signatureVersion)) {
-      console.log('Checking array match');
+      // console.log('Checking array match');
       if (!_.isArray(objectVersion)) {
         return false;
       }
@@ -33,7 +33,7 @@ function signatureMatches (signature, object) {
   //    console.log('Checking object signature');
       keySatisfied = signatureMatches(signatureVersion, objectVersion);
     } else if (key.endsWith('id')) {
-      console.log('Checking exact id match');
+   //   console.log('Checking exact id match');
       keySatisfied = objectVersion === signatureVersion;
     } else {
   //    console.log('Checking numeric version');
@@ -103,7 +103,7 @@ function investiblesRemovalGenerator (versionsSignatures) {
   }, []);
   const combined = [...baseRemovals, ...infoRemovals];
   const unique = _.uniq(combined);
-  console.log(unique);
+  // console.log(unique);
   return unique;
 }
 

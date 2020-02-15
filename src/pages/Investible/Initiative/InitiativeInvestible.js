@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
-import { Typography, Grid } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
@@ -50,8 +50,6 @@ function InitiativeInvestible(props) {
   // eslint-disable-next-line max-len
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
   // eslint-disable-next-line max-len
-  const myIssues = investmentReasonsRemoved.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
-  // eslint-disable-next-line max-len
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
@@ -65,7 +63,6 @@ function InitiativeInvestible(props) {
   const commentAddRef = useRef(null);
   const activeMarket = marketStage === ACTIVE_STAGE;
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
-  const hasIssue = !_.isEmpty(myIssues);
 
   function commentButtonOnClick(type) {
     setCommentAddType(type);
@@ -131,20 +128,13 @@ function InitiativeInvestible(props) {
               type={SECTION_TYPE_SECONDARY}
               title={intl.formatMessage({ id: 'initiativeInvestibleYourVoting' })}
             >
-              {hasIssue && (
-                <Typography>
-                  {intl.formatMessage({ id: 'initiativeInvestibleVotingBlocked' })}
-                </Typography>
-              )}
-              {!hasIssue && (
-                <YourVoting
-                  investibleId={investibleId}
-                  marketPresences={marketPresences}
-                  comments={investmentReasons}
-                  userId={userId}
-                  market={market}
-                />
-              )}
+              <YourVoting
+                investibleId={investibleId}
+                marketPresences={marketPresences}
+                comments={investmentReasons}
+                userId={userId}
+                market={market}
+              />
             </SubSection>
           </Grid>
         )}

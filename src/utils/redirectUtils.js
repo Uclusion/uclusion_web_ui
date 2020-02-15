@@ -1,18 +1,18 @@
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
+import { getLoginPersistentItem, setLoginPersistentItem } from '../components/utils';
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 
 export function setRedirect(location) {
-  setUclusionLocalStorageItem(REDIRECT_LOCAL_STORAGE_KEY, location);
+  setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, location);
 }
 
 export function getRedirect() {
-  return getUclusionLocalStorageItem(REDIRECT_LOCAL_STORAGE_KEY);
+  return getLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY);
 }
 
 export function getAndClearRedirect() {
   const redirect = getRedirect();
-  setUclusionLocalStorageItem(REDIRECT_LOCAL_STORAGE_KEY, undefined);
+  setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, undefined);
   return redirect;
 }
 

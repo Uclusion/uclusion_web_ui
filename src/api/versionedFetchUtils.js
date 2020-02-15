@@ -14,7 +14,11 @@ import { AllSequentialMap } from '../utils/PromiseUtils';
 import { startTimerChain } from '../utils/timerUtils';
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext';
 import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages';
-import { REMOVE_INVESTIBLES } from '../contexts/InvestibesContext/investiblesContextMessages'
+import { REMOVE_INVESTIBLES } from '../contexts/InvestibesContext/investiblesContextMessages';
+import {
+  OPERATION_HUB_CHANNEL,
+  START_OPERATION, STOP_OPERATION
+} from '../contexts/OperationInProgressContext/operationInProgressMessages';
 
 const MAX_RETRIES = 10;
 
@@ -28,28 +32,27 @@ export class MatchError extends Error {
  * @param currentHeldVersion
  * @param existingMarkets
  */
-export function refreshGlobalVersion(currentHeldVersion, existingMarkets) {
-  let timeoutClearer;
+export function refreshGlobalVersion (currentHeldVersion, existingMarkets) {
   const execFunction = () => {
     console.log(`My global version ${currentHeldVersion}`);
     return doVersionRefresh(currentHeldVersion, existingMarkets)
       .then((globalVersion) => {
-        timeoutClearer();
-        if(globalVersion !== currentHeldVersion) {
+        if (globalVersion !== currentHeldVersion) {
           console.log('Got new version');
           pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
         }
+        return true;
       }).catch((error) => {
         // we'll log match problems, but raise the rest
         if (error instanceof MatchError) {
           console.error(error.message);
+          return false;
         } else {
-          timeoutClearer();
           throw error;
         }
-      })
+      });
   };
-  timeoutClearer = startTimerChain(6000, MAX_RETRIES, execFunction);
+  startTimerChain(6000, MAX_RETRIES, execFunction);
 }
 
 /**
@@ -59,14 +62,15 @@ export function refreshGlobalVersion(currentHeldVersion, existingMarkets) {
  * @param existingMarkets
  * @returns {Promise<*>}
  */
-export function doVersionRefresh(currentHeldVersion, existingMarkets) {
+export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   let newGlobalVersion;
+  pushMessage(OPERATION_HUB_CHANNEL, {event: START_OPERATION});
   return getVersions(currentHeldVersion)
     .then((versions) => {
-      console.log("Version fetch");
+      console.log('Version fetch');
       console.log(versions);
       const { global_version, signatures: marketSignatures } = versions;
-      if (_.isEmpty(marketSignatures) || _.isEmpty(global_version) ) {
+      if (_.isEmpty(marketSignatures) || _.isEmpty(global_version)) {
         return currentHeldVersion;
       }
       newGlobalVersion = global_version;
@@ -91,20 +95,21 @@ export function doVersionRefresh(currentHeldVersion, existingMarkets) {
       });
     })
     .then(() => {
+      pushMessage(OPERATION_HUB_CHANNEL, {event: STOP_OPERATION});
       return newGlobalVersion;
     });
 }
 
-function doPushRemovals(marketId, marketRemovalSignatures) {
+function doPushRemovals (marketId, marketRemovalSignatures) {
   const { investibles } = getRemoveListForMarket(marketRemovalSignatures);
-  if (!_.isEmpty(investibles)){
+  if (!_.isEmpty(investibles)) {
     console.log(`Removal List size ${investibles.length}`);
     console.log(investibles);
     pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: REMOVE_INVESTIBLES, marketId, investibles });
   }
 }
 
-function doRefreshMarket(marketId, componentSignatures) {
+function doRefreshMarket (marketId, componentSignatures) {
   const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   console.log(fetchSignatures);
   const { markets, comments, marketPresences, investibles } = fetchSignatures;
@@ -124,7 +129,7 @@ function doRefreshMarket(marketId, componentSignatures) {
   return promises;
 }
 
-function fetchMarketVersion(marketId, marketSignature) {
+function fetchMarketVersion (marketId, marketSignature) {
   return getMarketDetails(marketId)
     .then((marketDetails) => {
       console.log(marketDetails);
@@ -132,39 +137,39 @@ function fetchMarketVersion(marketId, marketSignature) {
       // we bothered to fetch the data, so we should use it:)
       pushMessage(PUSH_CONTEXT_CHANNEL, { event: VERSIONS_EVENT, marketDetails });
       if (!match.allMatched) {
-        throw new MatchError("Market didn't match");
+        throw new MatchError('Market didn\'t match');
       }
     });
 }
 
-function fetchMarketComments(marketId, commentsSignatures) {
+function fetchMarketComments (marketId, commentsSignatures) {
   const commentIds = commentsSignatures.map((comment) => comment.id);
   return fetchComments(commentIds, marketId)
     .then((comments) => {
       const match = signatureMatcher(comments, commentsSignatures);
       pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId, comments });
       if (!match.allMatched) {
-        throw new MatchError("Comments didn't match");
+        throw new MatchError('Comments didn\'t match');
       }
     });
 }
 
-function fetchMarketInvestibles(marketId, investiblesSignatures) {
+function fetchMarketInvestibles (marketId, investiblesSignatures) {
   const investibleIds = investiblesSignatures.map((inv) => inv.investible.id);
   return fetchInvestibles(investibleIds, marketId)
     .then((investibles) => {
-      console.log("Fetching investibles");
+      console.log('Fetching investibles');
       console.log(investibles);
       console.log(investiblesSignatures);
       const match = signatureMatcher(investibles, investiblesSignatures);
       pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId, investibles });
       if (!match.allMatched) {
-        throw new MatchError("Investibles didn't match");
+        throw new MatchError('Investibles didn\'t match');
       }
     });
 }
 
-function fetchMarketPresences(marketId, mpSignatures) {
+function fetchMarketPresences (marketId, mpSignatures) {
   return getMarketUsers(marketId)
     .then((users) => {
       console.log(users);
@@ -172,7 +177,7 @@ function fetchMarketPresences(marketId, mpSignatures) {
       console.log(mpSignatures);
       pushMessage(PUSH_PRESENCE_CHANNEL, { event: VERSIONS_EVENT, marketId, users });
       if (!match.allMatched) {
-        throw new MatchError("Presences didn't match");
+        throw new MatchError('Presences didn\'t match');
       }
     });
 }

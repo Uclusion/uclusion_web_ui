@@ -6,7 +6,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import { archiveMarket } from '../../api/markets';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
 
 const useStyles = makeStyles((theme) => ({

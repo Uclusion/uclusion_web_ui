@@ -53,8 +53,10 @@ function VerifyEmail(props) {
     if (code && !verificationState) {
       verifyEmail(code)
         .then(result => {
+          console.log(result);
           const { redirect } = result;
           if (!_.isEmpty(redirect)) {
+            console.log(`Setting redirect to ${redirect}`);
             setRedirect(redirect);
           }
           setVerificationState("VERIFIED");

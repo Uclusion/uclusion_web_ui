@@ -2,6 +2,7 @@ import React, { useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
+import { withStyles } from '@material-ui/core/styles';
 import { makeStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
 import { Checkbox, TextField } from '@material-ui/core';
@@ -37,6 +38,16 @@ const useStyles = makeStyles(theme => ({
     color: '#fff',
   },
 }));
+
+const GreenCheckbox = withStyles({
+  root: {
+    color: '#ff0000',
+    '&$checked': {
+      color: '#00cc00',
+    },
+  },
+  checked: {},
+})(props => <Checkbox color="default" {...props} />);
 
 function reducer(state, action) {
   const { name, value } = action;
@@ -278,7 +289,7 @@ function Signup(props) {
             </Grid>
             <Grid item xs={12}>
               <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                <Checkbox
+                <GreenCheckbox
                   id="terms"
                   name="terms"
                   required

@@ -23,8 +23,9 @@ export function getCommentTypeIcon(type) {
   }
 }
 
-export function scrollToCommentAddBox(commentAddRef) {
-  if (commentAddRef.current) {
-    commentAddRef.current.scrollIntoView();
+export function scrollToCommentAddBox() {
+  const box = document.getElementById('cabox');
+  if (box) {
+    box.scrollIntoView();
   }
 }

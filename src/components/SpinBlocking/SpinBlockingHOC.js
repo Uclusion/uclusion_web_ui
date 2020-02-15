@@ -3,7 +3,7 @@ import { toastErrorAndThrow } from '../../utils/userMessage';
 import { CircularProgress, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { pushMessage, registerListener, removeListener } from '../../utils/MessageBusUtils';
 import { getExistingMarkets, getGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
@@ -60,21 +60,24 @@ export function withSpinLock(Component) {
      */
     function startOperationCheckInterval() {
       // const currentVersion = getMarketVersion(versionsState, marketId);
-      operationCheckStopper = startTimerChain(OPERATION_TIMEOUT, 20, () => {
+      const globalVersion = getGlobalVersion(versionsState);
+      const existingMarkets = getExistingMarkets(versionsState);
+      startTimerChain(OPERATION_TIMEOUT, 20, () => {
         console.debug('Operation check interval firing');
-        const globalVersion = getGlobalVersion(versionsState);
-        const existingMarkets = getExistingMarkets(versionsState);
         return doVersionRefresh(globalVersion, existingMarkets)
           .then((newGlobalVersion) => {
             if (globalVersion !== newGlobalVersion ) {
               pushMessage(VERSIONS_HUB_CHANNEL, {event: GLOBAL_VERSION_UPDATE, globalVersion: newGlobalVersion});
             }
+            return true;
           })
           .catch((error) => {
             if (!(error instanceof MatchError)) {
               operationCheckStopper();
               endSpinning();
               toastErrorAndThrow(error, 'spinVersionCheckError');
+            } else {
+              return false;
             }
           });
       });

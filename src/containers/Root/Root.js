@@ -6,6 +6,7 @@ import { useHistory } from 'react-router';
 import Market from '../../pages/Dialog/Dialog';
 import Support from '../../pages/About/Support';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
+import _ from 'lodash';
 import {
   broadcastView, decomposeMarketPath,
 } from '../../utils/marketIdPathFunctions';
@@ -13,7 +14,7 @@ import Home from '../../pages/Home/Home';
 import Investible from '../../pages/Investible/Investible';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
 import Archives from '../../pages/Archives/Archives';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils';
 import InvestibleEdit from '../../pages/Investible/InvestibleEdit';
@@ -63,11 +64,6 @@ function Root() {
 
   function hideHome() {
     return !pathname || pathname !== '/';
-  }
-
-  const redirect = getAndClearRedirect();
-  if (redirect) {
-    redirectToPath(history, redirect);
   }
 
   function hideSupport() {
@@ -132,6 +128,12 @@ function Root() {
     && hideSlackInvite() && hideChangePassword() && hideChangeNotification());
 
   useEffect(() => {
+    const redirect = getAndClearRedirect();
+    if (!_.isEmpty(redirect)) {
+      console.log(`Root Redirecting you to ${redirect}`);
+      redirectToPath(history, redirect);
+    }
+
     function pegView(isEntry) {
       const currentPath = window.location.pathname;
       const { action, marketId, investibleId } = decomposeMarketPath(currentPath);

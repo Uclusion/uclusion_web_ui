@@ -17,7 +17,10 @@ import {
 import { createTitle } from '../../utils/marketIdPathFunctions'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
-import { refreshVersions, } from '../../contexts/VersionsContext/versionsContextHelper';
+import {
+  refreshNotifications,
+  refreshVersions,
+} from '../../contexts/VersionsContext/versionsContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -122,7 +125,9 @@ function Screen(props) {
       scroller(location);
       setFirstRender(false);
       if (!hidden && appEnabled) {
+        // if it's the firs ttime we're here we need to update things
         refreshVersions(versionsState);
+        refreshNotifications();
       }
     }
     return () => {};

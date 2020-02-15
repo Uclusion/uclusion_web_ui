@@ -1,12 +1,12 @@
 /**
- An API blocking component sets operation in progress during the onclick,
+ An API blocking component that spins during the onclick,
  but releases it when that is done. It does _not_ attempt to check
- for anything in our data stores
+ for anything in our data stores, and it does not set the global operation in progress.
+ It should only be used for things that don't affect the data stores.
  **/
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { CircularProgress, useTheme } from '@material-ui/core';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 export function withApiLock(Component) {
   function Locking(props) {
@@ -19,15 +19,12 @@ export function withApiLock(Component) {
 
     const theme = useTheme();
     const [spinning, setSpinning] = useState(false);
-    const [operationInProgress, setOperationInProgress] = useContext(OperationInProgressContext);
 
     function startSpinning() {
-      setOperationInProgress(true);
       setSpinning(true);
     }
 
     function stopSpinning() {
-      setOperationInProgress(false);
       setSpinning(false);
     }
 
@@ -40,7 +37,7 @@ export function withApiLock(Component) {
 
     return (
       <Component
-        disabled={disabled || operationInProgress || spinning}
+        disabled={disabled || spinning}
         onClick={myOnClick}
         {...rest}
       >

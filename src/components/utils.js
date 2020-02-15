@@ -1,25 +1,30 @@
 import _ from 'lodash';
-  const ROOT = 'uclusion:root';
 
-export const getUclusionLocalStorage = () => {
-  const storage = localStorage.getItem(ROOT);
+const ROOT = 'uclusion:root';
+const LOGIN_PERSISTENT = 'uclusion:loginPersistent';
+
+function getStorage(storageKey) {
+  const storage = localStorage.getItem(storageKey);
   if (_.isEmpty(storage)) {
     return {};
   }
   return JSON.parse(storage);
-};
+}
 
-export const getUclusionLocalStorageItem = (key) => {
-  const data = getUclusionLocalStorage();
+function getStorageItem(storageKey, key) {
+  const data = getStorage(storageKey);
   return data && key in data ? data[key] : null;
-};
+}
+export function getUclusionLocalStorageItem(key) {
+  return getStorageItem(ROOT, key);
+}
 
-export const clearUclusionLocalStorage = () => {
+export function clearUclusionLocalStorage() {
   localStorage.setItem(ROOT, '');
-};
+}
 
-export const setUclusionLocalStorageItem = (key, value) => {
-  let data = getUclusionLocalStorage();
+function setStorageItem(storageKey, key, value) {
+  let data = getStorage(storageKey);
   if (!data) {
     data = {};
   }
@@ -28,6 +33,17 @@ export const setUclusionLocalStorageItem = (key, value) => {
   } else {
     delete data[key];
   }
-  localStorage.setItem(ROOT, JSON.stringify(data));
-};
+  localStorage.setItem(storageKey, JSON.stringify(data));
+}
 
+export function setUclusionLocalStorageItem(key, value){
+  setStorageItem(ROOT, key, value);
+}
+
+export function getLoginPersistentItem(key){
+  return getStorageItem(LOGIN_PERSISTENT, key);
+}
+
+export function setLoginPersistentItem (key, value){
+  setStorageItem(LOGIN_PERSISTENT, key, value);
+}

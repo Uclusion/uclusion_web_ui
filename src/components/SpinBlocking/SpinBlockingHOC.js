@@ -161,7 +161,8 @@ export function withSpinLock(Component) {
             color="inherit"
           />
         )}
-        {!spinning && children}
+        {/* keep the children in layout to avoid vertical layout shifts */}
+        <span style={{ visibility: spinning ? 'hidden' : 'visible'  }}>{children}</span>
       </Component>
     );
   };

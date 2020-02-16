@@ -20,7 +20,12 @@ function VersionsProvider(props) {
       const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
       lfg.getState()
         .then((diskState) => {
-          const myDiskState = diskState || EMPTY_STATE;
+          const MY_EMPTY_STATE = {
+            globalVersion: '',
+            existingMarkets: '',
+            notificationVersion: {version: -1 },
+          };
+          const myDiskState = diskState || MY_EMPTY_STATE;
           dispatch(initializeVersionsAction(myDiskState));
           const { globalVersion, existingMarkets } = myDiskState;
           refreshGlobalVersion(globalVersion, existingMarkets);

@@ -33,6 +33,8 @@ export class MatchError extends Error {
  * @param existingMarkets
  */
 export function refreshGlobalVersion (currentHeldVersion, existingMarkets) {
+  // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
+  if (currentHeldVersion === 'FAKE') return;
   const execFunction = () => {
     console.log(`My global version ${currentHeldVersion}`);
     return doVersionRefresh(currentHeldVersion, existingMarkets)
@@ -63,7 +65,7 @@ export function refreshGlobalVersion (currentHeldVersion, existingMarkets) {
  * @returns {Promise<*>}
  */
 export function doVersionRefresh (currentHeldVersion, existingMarkets) {
-  let newGlobalVersion;
+  let newGlobalVersion = currentHeldVersion;
   pushMessage(OPERATION_HUB_CHANNEL, {event: START_OPERATION});
   return getVersions(currentHeldVersion)
     .then((versions) => {
@@ -71,8 +73,10 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
       console.log(versions);
       const { global_version, signatures: marketSignatures } = versions;
       if (_.isEmpty(marketSignatures) || _.isEmpty(global_version)) {
+        console.log('Got new empty');
         return currentHeldVersion;
       }
+      console.log(`Got new ${global_version}`);
       newGlobalVersion = global_version;
       return AllSequentialMap(marketSignatures, (marketSignature) => {
         const { market_id: marketId, signatures: componentSignatures } = marketSignature;

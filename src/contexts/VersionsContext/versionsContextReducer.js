@@ -5,7 +5,7 @@ import LocalForageHelper from '../LocalForageHelper';
 
 export const VERSIONS_CONTEXT_NAMESPACE = 'versions_context';
 export const EMPTY_STATE = {
-  globalVersion: '',
+  globalVersion: 'FAKE',
   existingMarkets: '',
   notificationVersion: {version: -1 },
 };

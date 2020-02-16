@@ -119,13 +119,7 @@ function Screen(props) {
   const [versionsState] = useContext(VersionsContext);
   const reallyAmLoading = !hidden && appEnabled && loading;
   useEffect(() => {
-    if (reallyAmLoading) {
-      if (!operationRunning) {
-        //we're loading, but no operation is in progress, so there's nothing to update
-        // our state. In that case, it's time to fetch versions
-        refreshVersions(versionsState);
-      }
-    } else if (firstRender) {
+    if (firstRender) {
       setFirstRender(false);
       if (!hidden && appEnabled) {
         console.log('Firing scroller on first render');

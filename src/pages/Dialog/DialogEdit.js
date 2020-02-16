@@ -167,6 +167,7 @@ function DialogEdit(props) {
   return (
     <Screen
       title={editVerbiage}
+      hidden={hidden}
       tabTitle={editVerbiage}
       breadCrumbs={myBreadCrumbs}
       loading={loading}

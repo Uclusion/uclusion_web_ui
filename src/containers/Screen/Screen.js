@@ -142,22 +142,20 @@ function Screen(props) {
   }
 
   return (
-    <div className={hidden ? classes.hidden : classes.root}>
-      {!hidden && (
-        <Helmet>
-          <title>
-            {`${prePendWarning}Uclusion | ${createTitle(
-              tabTitle,
-              11,
-            )}`}
-          </title>
-        </Helmet>
-      )}
+    <div className={classes.root}>
+      <Helmet>
+        <title>
+          {`${prePendWarning}Uclusion | ${createTitle(
+            tabTitle,
+            11,
+          )}`}
+        </title>
+      </Helmet>
       <Header
         title={title}
         breadCrumbs={breadCrumbs}
         toolbarButtons={toolbarButtons}
-        hidden={hidden || reallyAmLoading}
+        hidden={reallyAmLoading}
       />
       <Sidebar sidebarActions={sidebarActions} />
       <div

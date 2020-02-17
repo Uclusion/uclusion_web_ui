@@ -19,12 +19,7 @@ import clsx from "clsx";
 import _ from "lodash";
 import ReadOnlyQuillEditor from "../TextEditors/ReadOnlyQuillEditor";
 import CommentAdd from "./CommentAdd";
-import {
-  REPLY_TYPE,
-  ISSUE_TYPE,
-  QUESTION_TYPE,
-  SUGGEST_CHANGE_TYPE
-} from "../../constants/comments";
+import { REPLY_TYPE } from "../../constants/comments";
 import { reopenComment, resolveComment } from "../../api/comments";
 import SpinBlockingButton from "../SpinBlocking/SpinBlockingButton";
 import { OperationInProgressContext } from "../../contexts/OperationInProgressContext/OperationInProgressContext";
@@ -33,14 +28,11 @@ import { getMarketPresences } from "../../contexts/MarketPresencesContext/market
 import CommentEdit from "./CommentEdit";
 import { MarketsContext } from "../../contexts/MarketsContext/MarketsContext";
 import { getMyUserForMarket } from "../../contexts/MarketsContext/marketsContextHelper";
-// TODO create centralized icons repository
-import IssueIcon from "@material-ui/icons/ReportProblem";
-import QuestionIcon from "@material-ui/icons/ContactSupport";
-import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
 import {
   HIGHLIGHT_REMOVE,
   HighlightedCommentContext
 } from "../../contexts/HighlightedCommentContext";
+import CardType from '../CardType';
 
 const enableEditing = true;
 
@@ -249,7 +241,7 @@ function Comment(props) {
     <React.Fragment>
       <Card className={getCommentHighlightStyle()}>
         <Box display="flex">
-          <CommentType className={classes.commentType} type={commentType} />
+          <CardType className={classes.commentType} type={commentType} />
           <Typography className={classes.updatedBy}>
             {displayUpdatedBy &&
               `${intl.formatMessage({ id: "lastUpdatedBy" })} ${
@@ -394,65 +386,6 @@ Comment.propTypes = {
     return null;
   },
   marketId: PropTypes.string.isRequired
-};
-
-const useCommentTypeStyles = makeStyles(
-  {
-    root: ({ type }) => {
-      return {
-        backgroundColor: {
-          [ISSUE_TYPE]: "#E85757",
-          [QUESTION_TYPE]: "#2F80ED",
-          [SUGGEST_CHANGE_TYPE]: "#F29100"
-        }[type],
-        borderBottomRightRadius: 8,
-        color: "white",
-        padding: `4px 8px`
-      };
-    },
-    icon: {
-      marginRight: 6,
-      height: 16,
-      width: 16
-    },
-    label: {
-      fontSize: 14,
-      lineHeight: 1,
-      textTransform: "capitalize"
-    }
-  },
-  { name: "CommentType" }
-);
-// this used to be handled in "CustomChip". But the name is not descriptive
-// so rather than messing with an unknown abstraction I handle it separately
-// following "copy first, abstract later"
-export function CommentType(props) {
-  const { className, type } = props;
-  const classes = useCommentTypeStyles({ type });
-
-  const IconComponent = {
-    [ISSUE_TYPE]: IssueIcon,
-    [QUESTION_TYPE]: QuestionIcon,
-    [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon
-  }[type];
-
-  const labelIntlId = {
-    [ISSUE_TYPE]: "commentTypeLabelIssue",
-    [QUESTION_TYPE]: "commentTypeLabelQuestion",
-    [SUGGEST_CHANGE_TYPE]: "commentTypeLabelSuggestedChange"
-  }[type];
-
-  return (
-    <div className={clsx(classes.root, className)}>
-      <IconComponent className={classes.icon} />
-      <span className={classes.label}>
-        <FormattedMessage id={labelIntlId} />
-      </span>
-    </div>
-  );
-}
-CommentType.propTypes = {
-  type: PropTypes.oneOf([ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE])
 };
 
 function InitialReply(props) {

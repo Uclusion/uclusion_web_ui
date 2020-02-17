@@ -1,4 +1,4 @@
-import { refreshMarketComments } from './commentsContextHelper';
+import { refreshMarketComments, removeComments } from './commentsContextHelper';
 import {
   PUSH_COMMENTS_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
@@ -9,6 +9,9 @@ import{ registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { EMPTY_STATE } from './CommentsContext';
 import { getUclusionLocalStorageItem } from '../../components/utils';
+
+export const REMOVE_COMMENTS = 'REMOVE_COMMENTS';
+
 
 function beginListening(dispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'commentsRemovedMarketStart', (data) => {
@@ -25,6 +28,9 @@ function beginListening(dispatch) {
     const { payload: { event, marketId, comments } } = data;
 
     switch (event) {
+      case REMOVE_COMMENTS:
+        removeComments(dispatch, marketId, comments);
+        break;
       case VERSIONS_EVENT:
         refreshMarketComments(dispatch, marketId, comments);
         break;

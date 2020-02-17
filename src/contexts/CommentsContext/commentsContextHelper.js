@@ -4,11 +4,22 @@ import {
 import _ from 'lodash';
 import LocalForageHelper from '../LocalForageHelper';
 import { COMMENTS_CONTEXT_NAMESPACE, EMPTY_STATE } from './CommentsContext';
-import { updateMarketComments } from './commentsContextReducer';
+import { removeCommentsFromMarket, updateMarketComments } from './commentsContextReducer';
 
 
 export function getMarketComments(state, marketId) {
   return state[marketId] || [];
+}
+
+/**
+ * Comment removal is really an investment comment thing,
+ * so we're not going to handle the case of comment threads etc.
+ * That will probably have to be modeld by an overwrite of contents.
+ * Or we will plain not support it
+ * @param dispatch
+ */
+export function removeComments(dispatch, marketId, comments) {
+  dispatch(removeCommentsFromMarket(marketId, comments));
 }
 
 export function refreshMarketComments(dispatch, marketId, comments) {

@@ -77,10 +77,17 @@ export function signatureMatcher (fetched, signatures) {
   return { matched, unmatchedSignatures, allMatched };
 }
 
+/** We support removing investibles for draft (no other participant) markets, and
+ * removing comments from investments
+ * @param marketVersionSignatures
+ * @returns {{investibles: Array}}
+ */
 export function getRemoveListForMarket (marketVersionSignatures) {
   const investibles = investiblesRemovalGenerator(marketVersionSignatures);
+  const comments = commentsRemovalGenerator(marketVersionSignatures);
   return {
     investibles,
+    comments,
   };
 }
 
@@ -105,6 +112,17 @@ function investiblesRemovalGenerator (versionsSignatures) {
   const unique = _.uniq(combined);
   // console.log(unique);
   return unique;
+}
+
+function commentsRemovalGenerator(versionsSignatures) {
+  const commentsSignature = versionsSignatures.find((signature) => signature.type === 'comment') || { object_versions: [] }
+  const commentRemovals = commentsSignature.object_versions.reduce((acc, signature) => {
+    if (signature.version === 0) {
+      return [...acc, signature.object_id_one];
+    }
+    return acc;
+  }, []);
+  return commentRemovals;
 }
 
 export function getFetchSignaturesForMarket (marketVersionSignatures) {

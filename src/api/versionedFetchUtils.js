@@ -19,6 +19,7 @@ import {
   OPERATION_HUB_CHANNEL,
   START_OPERATION, STOP_OPERATION
 } from '../contexts/OperationInProgressContext/operationInProgressMessages';
+import { REMOVE_COMMENTS } from '../contexts/CommentsContext/commentsContextMessages';
 
 const MAX_RETRIES = 10;
 
@@ -105,11 +106,15 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
 }
 
 function doPushRemovals (marketId, marketRemovalSignatures) {
-  const { investibles } = getRemoveListForMarket(marketRemovalSignatures);
+  const {
+    investibles,
+    comments,
+  } = getRemoveListForMarket(marketRemovalSignatures);
   if (!_.isEmpty(investibles)) {
-    console.log(`Removal List size ${investibles.length}`);
-    console.log(investibles);
     pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: REMOVE_INVESTIBLES, marketId, investibles });
+  }
+  if (!_.isEmpty(comments)) {
+    pushMessage(PUSH_COMMENTS_CHANNEL, { event: REMOVE_COMMENTS, marketId, comments });
   }
 }
 

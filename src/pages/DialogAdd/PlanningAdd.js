@@ -1,37 +1,41 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
+import React, { useContext, useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { useIntl } from "react-intl";
 import {
-  Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
-} from '@material-ui/core';
-import localforage from 'localforage';
-import QuillEditor from '../../components/TextEditors/QuillEditor';
-import { createPlanning } from '../../api/markets';
-import { processTextAndFilesForSave } from '../../api/files';
-import { PLANNING_TYPE } from '../../constants/markets';
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  makeStyles,
+  TextField,
+  Typography
+} from "@material-ui/core";
+import localforage from "localforage";
+import QuillEditor from "../../components/TextEditors/QuillEditor";
+import { createPlanning } from "../../api/markets";
+import { processTextAndFilesForSave } from "../../api/files";
+import { PLANNING_TYPE } from "../../constants/markets";
+import SpinBlockingButton from "../../components/SpinBlocking/SpinBlockingButton";
+import SpinBlockingButtonGroup from "../../components/SpinBlocking/SpinBlockingButtonGroup";
+import { OperationInProgressContext } from "../../contexts/OperationInProgressContext/OperationInProgressContext";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(2)
   },
   row: {
     marginBottom: theme.spacing(2),
-    '&:last-child': {
-      marginBottom: 0,
-    },
-  },
+    "&:last-child": {
+      marginBottom: 0
+    }
+  }
 }));
 
 function PlanningAdd(props) {
   const intl = useIntl();
-  const {
-    onSpinStop, storedDescription, onSave
-  } = props;
+  const { onSpinStop, storedDescription, onSave } = props;
   const classes = useStyles();
-  const emptyPlan = { name: '' };
+  const emptyPlan = { name: "" };
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [currentValues, setCurrentValues] = useState(emptyPlan);
   const [validForm, setValidForm] = useState(false);
@@ -55,7 +59,7 @@ function PlanningAdd(props) {
 
   function zeroCurrentValues() {
     setCurrentValues(emptyPlan);
-    setDescription('');
+    setDescription("");
   }
 
   function handleCancel() {
@@ -64,7 +68,7 @@ function PlanningAdd(props) {
   }
 
   function handleChange(field) {
-    return (event) => {
+    return event => {
       const { value } = event.target;
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
@@ -102,13 +106,13 @@ function PlanningAdd(props) {
   function handleSave() {
     const {
       uploadedFiles: filteredUploads,
-      text: tokensRemoved,
+      text: tokensRemoved
     } = processTextAndFilesForSave(uploadedFiles, description);
     const addInfo = {
       name,
       uploaded_files: filteredUploads,
       market_type: PLANNING_TYPE,
-      description: tokensRemoved,
+      description: tokensRemoved
     };
     if (investmentExpiration) {
       addInfo.investment_expiration = investmentExpiration;
@@ -119,15 +123,16 @@ function PlanningAdd(props) {
     if (daysEstimate) {
       addInfo.days_estimate = daysEstimate;
     }
-    return createPlanning(addInfo)
-      .then((result) => {
-        onSave(result);
-        const { market: {id: marketId} } = result;
-        return {
-          result: marketId,
-          spinChecker: () => Promise.resolve(true),
-        };
-      });
+    return createPlanning(addInfo).then(result => {
+      onSave(result);
+      const {
+        market: { id: marketId }
+      } = result;
+      return {
+        result: marketId,
+        spinChecker: () => Promise.resolve(true)
+      };
+    });
   }
 
   return (
@@ -137,20 +142,20 @@ function PlanningAdd(props) {
           className={classes.row}
           inputProps={{ maxLength: 255 }}
           id="name"
-          helperText={intl.formatMessage({ id: 'marketAddTitleLabel' })}
-          placeholder={intl.formatMessage({ id: 'marketAddTitleDefault' })}
+          helperText={intl.formatMessage({ id: "marketAddTitleLabel" })}
+          placeholder={intl.formatMessage({ id: "marketAddTitleDefault" })}
           margin="normal"
           fullWidth
           variant="outlined"
           value={name}
-          onChange={handleChange('name')}
+          onChange={handleChange("name")}
         />
         <TextField
           id="standard-number"
-          label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
+          label={intl.formatMessage({ id: "investmentExpirationInputLabel" })}
           type="number"
           InputLabelProps={{
-            shrink: true,
+            shrink: true
           }}
           variant="outlined"
           value={investmentExpiration}
@@ -158,10 +163,10 @@ function PlanningAdd(props) {
         />
         <TextField
           id="standard-number"
-          label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
+          label={intl.formatMessage({ id: "maxMaxBudgetInputLabel" })}
           type="number"
           InputLabelProps={{
-            shrink: true,
+            shrink: true
           }}
           variant="outlined"
           value={maxBudget}
@@ -169,32 +174,30 @@ function PlanningAdd(props) {
         />
         <TextField
           id="standard-number"
-          label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
+          label={intl.formatMessage({ id: "daysEstimateInputLabel" })}
           type="number"
           InputLabelProps={{
-            shrink: true,
+            shrink: true
           }}
           variant="outlined"
           onChange={onDaysEstimateChange}
         />
-        <Typography>
-          {intl.formatMessage({ id: 'descriptionEdit' })}
-        </Typography>
+        <Typography>{intl.formatMessage({ id: "descriptionEdit" })}</Typography>
         <QuillEditor
           onS3Upload={onS3Upload}
           onChange={onEditorChange}
           onStoreChange={onStorageChange}
-          placeHolder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
+          placeHolder={intl.formatMessage({
+            id: "marketAddDescriptionDefault"
+          })}
           defaultValue={description}
           setOperationInProgress={setOperationRunning}
         />
       </CardContent>
       <CardActions>
         <SpinBlockingButtonGroup>
-          <Button
-            onClick={handleCancel}
-          >
-            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+          <Button onClick={handleCancel}>
+            {intl.formatMessage({ id: "marketAddCancelLabel" })}
           </Button>
           <SpinBlockingButton
             marketId=""
@@ -204,7 +207,7 @@ function PlanningAdd(props) {
             disabled={!validForm}
             onSpinStop={onSpinStop}
           >
-            {intl.formatMessage({ id: 'marketAddSaveLabel' })}
+            {intl.formatMessage({ id: "marketAddSaveLabel" })}
           </SpinBlockingButton>
         </SpinBlockingButtonGroup>
       </CardActions>
@@ -215,13 +218,12 @@ function PlanningAdd(props) {
 PlanningAdd.propTypes = {
   onSpinStop: PropTypes.func,
   onSave: PropTypes.func,
-  storedDescription: PropTypes.string.isRequired,
+  storedDescription: PropTypes.string.isRequired
 };
 
 PlanningAdd.defaultProps = {
-  onSpinStop: () => {
-  },
-  onSave: () => {},
+  onSpinStop: () => {},
+  onSave: () => {}
 };
 
 export default PlanningAdd;

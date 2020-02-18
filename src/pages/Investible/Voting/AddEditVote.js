@@ -18,6 +18,10 @@ import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { refreshMarketComments, removeComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function AddEditVote(props) {
   const {
@@ -39,6 +43,8 @@ function AddEditVote(props) {
   const { body, id: reasonId } = reason;
   const [reasonText, setReasonText] = useState(body);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, commentsDispatch] = useContext(CommentsContext);
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
 
   // If new investment data comes in, reset the quantity and budget
   useEffect(() => {
@@ -84,7 +90,31 @@ function AddEditVote(props) {
       maxBudget,
     };
     console.debug(updateInfo);
-    return updateInvestment(updateInfo);
+    return updateInvestment(updateInfo)
+      .then((result) => {
+        console.log('INVESTMENT');
+        console.log(result);
+        return {
+          result,
+          spinChecker: () => Promise.resolve(true),
+        };
+      })
+  }
+
+  function onSaveSpinStop(result) {
+    if (!result) {
+      return;
+    }
+    const { commentResult, investmentResult } = result;
+    const { commentAction, comment } = commentResult;
+    const { id: commentId } = comment;
+    if (commentAction === 'DELETED') {
+      removeComments(commentsDispatch, marketId, [commentId]);
+    } else if (commentAction !== 'NOOP') {
+      refreshMarketComments(commentsDispatch, marketId, [comment]);
+    }
+    partialUpdateInvestment(marketPresencesDispatch, investmentResult);
+    onSave();
   }
 
   function onRemove() {
@@ -203,7 +233,7 @@ function AddEditVote(props) {
       <SpinBlockingButtonGroup>
         {!addMode && (
           <SpinBlockingButton
-            size="Small"
+            size="small"
             marketId={marketId}
             onClick={() => onRemove()}
             onSpinStop={onSave}
@@ -216,7 +246,8 @@ function AddEditVote(props) {
             marketId={marketId}
             onClick={mySave}
             disabled={!validForm}
-            onSpinStop={onSave}
+            onSpinStop={onSaveSpinStop}
+            hasSpinChecker
           >
             {addMode ? intl.formatMessage({ id: 'saveVote' }) : intl.formatMessage({ id: 'updateVote' })}
           </SpinBlockingButton>
@@ -231,7 +262,7 @@ AddEditVote.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   reason: PropTypes.object,
   showBudget: PropTypes.bool,
-  storyMaxBudget: PropTypes.number.isRequired,
+  storyMaxBudget: PropTypes.number,
   marketId: PropTypes.string.isRequired,
   investibleId: PropTypes.string.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
@@ -242,6 +273,7 @@ AddEditVote.propTypes = {
 AddEditVote.defaultProps = {
   showBudget: false,
   investment: {},
+  storyMaxBudget: 0,
   onSave: () => {
   },
   reason: {},

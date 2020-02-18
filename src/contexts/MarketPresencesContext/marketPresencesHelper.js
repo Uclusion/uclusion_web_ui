@@ -1,4 +1,4 @@
-import { addMarketPresence } from './marketPresencesContextReducer';
+import { addMarketPresence, patchInvestment } from './marketPresencesContextReducer';
 
 export function addPresenceToMarket(dispatch, marketId, presence) {
   dispatch(addMarketPresence(marketId, presence));
@@ -17,6 +17,13 @@ export function getPresenceMap(state, marketId) {
       [id]: element,
     };
   }, {});
+}
+
+/** Used for quick add. Updates our investment with what data we know.
+ * Has to be filled in later with an actual versions call
+ */
+export function partialUpdateInvestment(dispatch, investmentPatch) {
+  dispatch(patchInvestment(investmentPatch))
 }
 
 export function marketHasOnlyCurrentUser(state, marketId){

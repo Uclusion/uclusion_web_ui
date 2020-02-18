@@ -5,7 +5,6 @@ import { MARKET_STAGES_CONTEXT_NAMESPACE } from './MarketStagesContext';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_STAGES = 'UPDATE_MARKET_STAGES';
 const REMOVE_MARKET_STAGES = 'REMOVE_MARKET_STAGES';
-
 /** Messages we can send the reducer **/
 
 export function initializeState(newState) {

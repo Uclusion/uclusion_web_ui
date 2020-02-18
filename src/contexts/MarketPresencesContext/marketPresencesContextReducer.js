@@ -6,6 +6,8 @@ const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_MARKET_PRESENCE = 'ADD_MARKET_PRESENCE';
 const UPDATE_MARKET_PRESENCES = 'UPDATE_MARKET_PRESENCES';
 const REMOVE_MARKETS_PRESENCE = 'REMOVE_MARKETS_PRESENCE';
+const PATCH_INVESTMENT = 'PATCH_INVESTMENT';
+
 
 /** Messages you can send the reducer **/
 
@@ -13,6 +15,13 @@ export function initializeState(newState) {
   return {
     type: INITIALIZE_STATE,
     newState,
+  };
+}
+
+export function patchInvestment(investmentPatch) {
+  return {
+    type: PATCH_INVESTMENT,
+    investmentPatch,
   };
 }
 
@@ -40,6 +49,44 @@ export function removeMarketsPresence(marketIds) {
 }
 
 /** Functions that update the state **/
+
+function doPatchInvestment(state, action) {
+  const { investmentPatch } = action;
+  const {
+    market_id,
+    quantity,
+    max_budget,
+    user_id,
+    investible_id,
+  } = investmentPatch;
+  const oldMarketUsers = state[market_id] || [];
+  const oldPresence = oldMarketUsers.find((oldUser) => oldUser.id === user_id);
+  if (_.isEmpty(oldPresence)) {
+    // I don't even have a presence, I can't do anything
+    return state;
+  }
+  const investments = oldPresence.investments || [];
+  const oldInvestment = investments.find((investment) => investment.investible_id === investible_id) || {};
+  const newInvestment = {
+    ...oldInvestment,
+    investible_id,
+    quantity,
+    max_budget
+  };
+  const newInvestments = _.unionBy([newInvestment], investments, 'investible_id');
+  const newPresence = {
+    ...oldPresence,
+    investments: newInvestments,
+  };
+  const newMarketUsers = _.unionBy([newPresence], oldMarketUsers, 'id');
+  return {
+    ...state,
+    [market_id]: newMarketUsers,
+  };
+}
+
+
+
 function doAddMarketPresence(state, action) {
   const { marketId, user } = action;
   const oldUsers = state[marketId] || [];
@@ -73,6 +120,8 @@ function computeNewState(state, action) {
       return doUpdateMarketPresences(state, action);
     case REMOVE_MARKETS_PRESENCE:
       return doRemoveMarketsPresence(state, action);
+    case PATCH_INVESTMENT:
+      return doPatchInvestment(state, action);
     default:
       return state;
   }

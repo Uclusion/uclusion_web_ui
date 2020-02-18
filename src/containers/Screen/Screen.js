@@ -16,7 +16,6 @@ import {
 } from '../../constants/global';
 import { createTitle } from '../../utils/marketIdPathFunctions'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
 import {
   refreshNotifications,
   refreshVersions,
@@ -116,7 +115,6 @@ function Screen(props) {
 
   const [firstRender, setFirstRender] = useState(true);
   const [operationRunning] = useContext(OperationInProgressContext);
-  const [versionsState] = useContext(VersionsContext);
   const reallyAmLoading = !hidden && appEnabled && loading;
   useEffect(() => {
     if (firstRender) {
@@ -125,13 +123,12 @@ function Screen(props) {
         console.log('Firing scroller on first render');
         scroller(location);
         // if it's the first time we're here we need to update things
-        refreshVersions(versionsState);
+        refreshVersions();
         refreshNotifications();
       }
     }
     return () => {};
-  }, [firstRender, location, operationRunning,
-    versionsState, reallyAmLoading, history, hidden, appEnabled
+  }, [firstRender, location, operationRunning, reallyAmLoading, history, hidden, appEnabled
   ]);
 
 

@@ -2,7 +2,7 @@
  * Web socket context provider must appear within the markets context, since it needs to
  * properly update it
  */
-import React, { useContext, useReducer, useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import localforage from 'localforage';
 import PropTypes from 'prop-types';
 import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner';
@@ -10,7 +10,6 @@ import config from '../config';
 import { sendInfoPersistent, toastErrorAndThrow } from '../utils/userMessage';
 import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext/NotificationsContext';
 import { registerListener, pushMessage, removeListener } from '../utils/MessageBusUtils';
-import { VersionsContext } from './VersionsContext/VersionsContext';
 import { refreshVersions } from './VersionsContext/versionsContextHelper';
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
@@ -48,7 +47,6 @@ function WebSocketProvider(props) {
   const { children, config } = props;
   const [state, setState] = useState();
   const [socketListener, setSocketListener] = useState();
-  const [versionsState] = useContext(VersionsContext);
   const [, connectionCheckTimerDispatch] = useReducer((state, action) => {
     const { timer } = state;
     if (timer) {
@@ -80,25 +78,27 @@ function WebSocketProvider(props) {
     });
 
     newSocket.registerHandler('market', (message) => {
-      refreshVersions(versionsState);
+      refreshVersions();
     });
     newSocket.registerHandler('investible', (message) => {
-      refreshVersions(versionsState);
+      refreshVersions();
     });
     newSocket.registerHandler('market_investible', (message) => {
-      refreshVersions(versionsState);
+      refreshVersions();
     });
     newSocket.registerHandler('comment', (message) => {
-      refreshVersions(versionsState);
+      refreshVersions();
     });
     newSocket.registerHandler('market_capability', (message) => {
-      refreshVersions(versionsState);
+      refreshVersions();
     });
     newSocket.registerHandler('investment', (message) => {
-      refreshVersions(versionsState);
+      refreshVersions();
     });
 
     newSocket.registerHandler('notification', (message) => {
+      // Try to be up to date before we push the notification out (which might need new data)
+      refreshVersions();
       pushMessage(
         VERSIONS_HUB_CHANNEL,
         {
@@ -148,10 +148,17 @@ function WebSocketProvider(props) {
           switch (event) {
             case VIEW_EVENT: {
               const { isEntry } = message;
-              if (isEntry) {
-                if (newSocket.getSocketState() === WebSocket.OPEN
-                  && (Date.now() - newSocket.getSocketLastSentTime()) > 5000) {
-                  console.debug('Pong');
+              if (isEntry && (Date.now() - newSocket.getSocketLastSentTime()) > 5000) {
+                console.debug('Pong and refresh');
+                // Otherwise if we miss a push out of luck until tab is closed
+                refreshVersions();
+                pushMessage(
+                  VERSIONS_HUB_CHANNEL,
+                  {
+                    event: NOTIFICATION_MESSAGE_EVENT,
+                  },
+                );
+                if (newSocket.getSocketState() === WebSocket.OPEN) {
                   const actionString = JSON.stringify({ action: 'ping' });
                   newSocket.send(actionString);
                   const pongTimer = setTimeout((socket, setSocket) => {

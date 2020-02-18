@@ -40,6 +40,20 @@ function AddEditVote(props) {
   const [reasonText, setReasonText] = useState(body);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
 
+  // If new investment data comes in, reset the quantity and budget
+  useEffect(() => {
+    const addMode = _.isEmpty(investment);
+    const {
+      quantity: investmentQuantity,
+      max_budget: investmentBudget,
+    } = investment;
+
+    const initialInvestment = (addMode) ? 50 : investmentQuantity;
+    setNewQuantity(initialInvestment);
+    setMaxBudget(investmentBudget);
+  }, [investment, setNewQuantity, setMaxBudget]);
+
+
   useEffect(() => {
     // Long form to prevent flicker
     if ((showBudget && maxBudget > 0 && maxBudget <= storyMaxBudget) || (!showBudget)) {

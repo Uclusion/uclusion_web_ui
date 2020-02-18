@@ -20,7 +20,7 @@ export function getExistingMarkets (state) {
   return state.existingMarkets || [];
 }
 
-export function refreshVersions (state) {
+export function refreshVersions () {
   console.debug('Refreshing versions');
   const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
   return disk.getState()

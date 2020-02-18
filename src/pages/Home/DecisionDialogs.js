@@ -136,7 +136,7 @@ function DecisionDialogs(props) {
                 </Grid>
               </Grid>
               {hasMarketIssue && (
-                <CardType className={classes.commentType} type={ISSUE_TYPE}/>
+                <CardType type={ISSUE_TYPE}/>
               )}
             </CardContent>
             <CardActions>

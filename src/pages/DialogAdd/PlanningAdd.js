@@ -1,109 +1,158 @@
-import React, { useContext, useEffect, useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import { useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import {
-  Button,
   Card,
   CardActions,
   CardContent,
+  Divider,
   makeStyles,
   TextField,
-  Typography
+  darken
 } from "@material-ui/core";
+import { KeyboardDatePicker } from "@material-ui/pickers";
 import localforage from "localforage";
 import QuillEditor from "../../components/TextEditors/QuillEditor";
 import { createPlanning } from "../../api/markets";
 import { processTextAndFilesForSave } from "../../api/files";
 import { PLANNING_TYPE } from "../../constants/markets";
 import SpinBlockingButton from "../../components/SpinBlocking/SpinBlockingButton";
-import SpinBlockingButtonGroup from "../../components/SpinBlocking/SpinBlockingButtonGroup";
 import { OperationInProgressContext } from "../../contexts/OperationInProgressContext/OperationInProgressContext";
+import CardType, { AGILE_PLAN_TYPE } from "../../components/CardType";
+import clsx from "clsx";
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    padding: theme.spacing(2)
-  },
-  row: {
-    marginBottom: theme.spacing(2),
-    "&:last-child": {
-      marginBottom: 0
+const noop = () => {};
+
+const PlanContext = React.createContext(
+  Object.defineProperties(
+    {},
+    {
+      plan: {
+        get() {
+          throw new TypeError("missing PlanContext.Provider");
+        }
+      },
+      dispatch: {
+        get() {
+          throw new TypeError("missing PlanContext.Provider");
+        }
+      }
     }
-  }
-}));
+  )
+);
+
+const usePlanningAddStyles = makeStyles(
+  theme => {
+    return {
+      cardType: {
+        display: "inline-flex",
+        alignSelf: "flex-start"
+      },
+      actions: {
+        justifyContent: "flex-end"
+      },
+      action: {
+        textTransform: "capitalize"
+      },
+      actionCancel: {
+        backgroundColor: "#BDBDBD",
+        color: "black",
+        "&:hover": {
+          backgroundColor: darken("#BDBDBD", 0.04)
+        },
+        "&:focus": {
+          backgroundColor: darken("#BDBDBD", 0.12)
+        }
+      },
+      actionSubmit: {
+        backgroundColor: "#2D9CDB",
+        color: "white",
+        "&:hover": {
+          backgroundColor: darken("#2D9CDB", 0.04)
+        },
+        "&:focus": {
+          backgroundColor: darken("#2D9CDB", 0.12)
+        }
+      }
+    };
+  },
+  { name: "PlanningAdd" }
+);
 
 function PlanningAdd(props) {
-  const intl = useIntl();
-  const { onSpinStop, storedDescription, onSave } = props;
-  const classes = useStyles();
-  const emptyPlan = { name: "" };
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [currentValues, setCurrentValues] = useState(emptyPlan);
-  const [validForm, setValidForm] = useState(false);
-  const [description, setDescription] = useState(storedDescription);
-  const [investmentExpiration, setInvestmentExpiration] = useState(14);
-  const [maxBudget, setMaxBudget] = useState(14);
-  const [daysEstimate, setDaysEstimate] = useState(undefined);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const { name } = currentValues;
+  const {
+    onSpinStop: handleSpinStop = noop,
+    storedDescription,
+    onSave = noop
+  } = props;
 
-  useEffect(() => {
-    // Long form to prevent flicker
-    if (name && description && description.length > 0) {
-      if (!validForm) {
-        setValidForm(true);
+  const [plan, dispatch] = React.useReducer(
+    (state, action) => {
+      const nextState = { ...state };
+      switch (action.type) {
+        case "CHANGE_NAME":
+          nextState.name = action.payload;
+          break;
+        case "CHANGE_DESCRIPTION":
+          nextState.description = action.payload;
+          break;
+        case "CHANGE_FILES":
+          nextState.files = action.payload;
+          break;
+        case "ZERO_CURRENT_VALUES":
+          nextState.description = "";
+          nextState.name = "";
+          break;
+        case "CHANGE_INVESTMENT_EXPIRATION":
+          nextState.investmentExpiration = action.payload;
+          break;
+        case "CHANGE_MAX_BUDGET":
+          nextState.maxBudget = action.payload;
+          break;
+        case "CHANGE_DAYS_ESTIMATE":
+          nextState.daysEstimate = action.payload;
+          break;
+        default:
+          throw new TypeError(`unknown action '${action.type}'`);
       }
-    } else if (validForm) {
-      setValidForm(false);
+
+      nextState.valid =
+        nextState.name.length > 0 && nextState.description.length > 0;
+
+      return nextState;
+    },
+    {
+      name: "",
+      /**
+       * @type {Date | undefined}
+       */
+      daysEstimate: undefined,
+      description: storedDescription,
+      files: [],
+      investmentExpiration: 14,
+      maxBudget: 14,
+      valid: false
     }
-  }, [name, description, validForm]);
+  );
 
   function zeroCurrentValues() {
-    setCurrentValues(emptyPlan);
-    setDescription("");
+    dispatch({ type: "ZERO_CURRENT_VALUES", payload: "" });
   }
 
   function handleCancel() {
     zeroCurrentValues();
-    onSpinStop();
-  }
-
-  function handleChange(field) {
-    return event => {
-      const { value } = event.target;
-      const newValues = { ...currentValues, [field]: value };
-      setCurrentValues(newValues);
-    };
-  }
-
-  /** This might not work if the newUploads it sees is always old * */
-  function onS3Upload(metadatas) {
-    setUploadedFiles(metadatas);
-  }
-
-  function onEditorChange(description) {
-    setDescription(description);
-  }
-
-  function onStorageChange(description) {
-    localforage.setItem(`add_market_${PLANNING_TYPE}`, description);
-  }
-
-  function onInvestmentExpirationChange(event) {
-    const { value } = event.target;
-    setInvestmentExpiration(parseInt(value, 10));
-  }
-
-  function onMaxBudgetChange(event) {
-    const { value } = event.target;
-    setMaxBudget(parseInt(value, 10));
-  }
-
-  function onDaysEstimateChange(event) {
-    const { value } = event.target;
-    setDaysEstimate(parseInt(value, 10));
+    handleSpinStop();
   }
 
   function handleSave() {
+    const {
+      daysEstimate,
+      description,
+      files: uploadedFiles,
+      investmentExpiration,
+      maxBudget,
+      name
+    } = plan;
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved
@@ -135,83 +184,44 @@ function PlanningAdd(props) {
     });
   }
 
+  const planContextValue = React.useMemo(() => ({ plan, dispatch }), [
+    plan,
+    dispatch
+  ]);
+
+  const classes = usePlanningAddStyles();
+
   return (
-    <Card>
-      <CardContent>
-        <TextField
-          className={classes.row}
-          inputProps={{ maxLength: 255 }}
-          id="name"
-          helperText={intl.formatMessage({ id: "marketAddTitleLabel" })}
-          placeholder={intl.formatMessage({ id: "marketAddTitleDefault" })}
-          margin="normal"
-          fullWidth
-          variant="outlined"
-          value={name}
-          onChange={handleChange("name")}
-        />
-        <TextField
-          id="standard-number"
-          label={intl.formatMessage({ id: "investmentExpirationInputLabel" })}
-          type="number"
-          InputLabelProps={{
-            shrink: true
-          }}
-          variant="outlined"
-          value={investmentExpiration}
-          onChange={onInvestmentExpirationChange}
-        />
-        <TextField
-          id="standard-number"
-          label={intl.formatMessage({ id: "maxMaxBudgetInputLabel" })}
-          type="number"
-          InputLabelProps={{
-            shrink: true
-          }}
-          variant="outlined"
-          value={maxBudget}
-          onChange={onMaxBudgetChange}
-        />
-        <TextField
-          id="standard-number"
-          label={intl.formatMessage({ id: "daysEstimateInputLabel" })}
-          type="number"
-          InputLabelProps={{
-            shrink: true
-          }}
-          variant="outlined"
-          onChange={onDaysEstimateChange}
-        />
-        <Typography>{intl.formatMessage({ id: "descriptionEdit" })}</Typography>
-        <QuillEditor
-          onS3Upload={onS3Upload}
-          onChange={onEditorChange}
-          onStoreChange={onStorageChange}
-          placeHolder={intl.formatMessage({
-            id: "marketAddDescriptionDefault"
-          })}
-          defaultValue={description}
-          setOperationInProgress={setOperationRunning}
-        />
-      </CardContent>
-      <CardActions>
-        <SpinBlockingButtonGroup>
-          <Button onClick={handleCancel}>
-            {intl.formatMessage({ id: "marketAddCancelLabel" })}
-          </Button>
+    <PlanContext.Provider value={planContextValue}>
+      <Card>
+        <CardType className={classes.cardType} type={AGILE_PLAN_TYPE} />
+        <CardContent>
+          <Content />
+        </CardContent>
+        <CardActions className={classes.actions}>
+          <SpinBlockingButton
+            className={clsx(classes.action, classes.actionCancel)}
+            color="secondary"
+            marketId=""
+            onClick={handleCancel}
+            variant="contained"
+          >
+            <FormattedMessage id="marketAddCancelLabel" />
+          </SpinBlockingButton>
           <SpinBlockingButton
             marketId=""
             variant="contained"
+            className={clsx(classes.action, classes.actionSubmit)}
             color="primary"
             onClick={handleSave}
-            disabled={!validForm}
-            onSpinStop={onSpinStop}
+            disabled={!plan.valid}
+            onSpinStop={handleSpinStop}
           >
-            {intl.formatMessage({ id: "marketAddSaveLabel" })}
+            <FormattedMessage id="marketAddSaveLabel" />
           </SpinBlockingButton>
-        </SpinBlockingButtonGroup>
-      </CardActions>
-    </Card>
+        </CardActions>
+      </Card>
+    </PlanContext.Provider>
   );
 }
 
@@ -221,9 +231,167 @@ PlanningAdd.propTypes = {
   storedDescription: PropTypes.string.isRequired
 };
 
-PlanningAdd.defaultProps = {
-  onSpinStop: () => {},
-  onSave: () => {}
-};
+const useContentStyles = makeStyles(
+  theme => ({
+    root: {
+      padding: theme.spacing(2)
+    },
+    divider: {
+      margin: theme.spacing(2, 0)
+    },
+    fieldsetRequired: {
+      border: "none",
+      borderRight: `1px solid ${theme.palette.grey[400]}`,
+      display: "inline",
+      "& legend": {
+        // Figma sketches have those as red but this is already used as an
+        // error color
+        // color: "red"
+      },
+      "& $input": {
+        marginRight: theme.spacing(2)
+      }
+    },
+    fieldsetOptional: {
+      border: "none",
+      display: "inline",
+      "& legend": {}
+    },
+    input: {
+      margin: 0
+    },
+    label: {
+      fontWeight: "bold",
+      textTransform: "capitalize",
+      "&.Mui-focused": {
+        color: "initial"
+      }
+    }
+  }),
+  { name: "Content" }
+);
+
+function Content(props) {
+  const classes = useContentStyles();
+
+  const { plan, dispatch } = React.useContext(PlanContext);
+
+  function handleNameChange(event) {
+    dispatch({ type: "CHANGE_NAME", payload: event.target.value });
+  }
+
+  /** This might not work if the newUploads it sees is always old * */
+  function onS3Upload(metadatas) {
+    dispatch({ type: "CHANGE_FILES", payload: metadatas });
+  }
+  const [, setOperationRunning] = React.useContext(OperationInProgressContext);
+
+  function handleEditorChange(description) {
+    dispatch({ type: "CHANGE_DESCRIPTION", payload: description });
+  }
+  function handleStorageChange(description) {
+    localforage.setItem(`add_market_${PLANNING_TYPE}`, description);
+  }
+
+  function handleInvestmentExpirationChange(event) {
+    const { value } = event.target;
+    dispatch({
+      type: "CHANGE_INVESTMENT_EXPIRATION",
+      payload: parseInt(value, 10)
+    });
+  }
+
+  function handleMaxBudgetChange(event) {
+    const { value } = event.target;
+    dispatch({ type: "CHANGE_MAX_BUDGET", payload: parseInt(value, 10) });
+  }
+
+  function handleDaysEstimateChange(date) {
+    dispatch({ type: "CHANGE_DAYS_ESTIMATE", payload: date });
+  }
+
+  const intl = useIntl();
+
+  return (
+    <React.Fragment>
+      <TextField
+        inputProps={{
+          maxLength: 255
+        }}
+        id="plan-name"
+        label={<FormattedMessage id="marketAddTitleLabel" />}
+        InputLabelProps={{ className: classes.label, shrink: true }}
+        placeholder={intl.formatMessage({ id: "marketAddTitlePlaceholder" })}
+        margin="normal"
+        fullWidth
+        variant="filled"
+        value={plan.name}
+        onChange={handleNameChange}
+      />
+      <QuillEditor
+        onS3Upload={onS3Upload}
+        onChange={handleEditorChange}
+        onStoreChange={handleStorageChange}
+        placeHolder={intl.formatMessage({
+          id: "marketAddDescriptionPlaceholder"
+        })}
+        defaultValue={plan.description}
+        setOperationInProgress={setOperationRunning}
+      />
+      <Divider className={classes.divider} />
+      <fieldset className={classes.fieldsetRequired}>
+        <legend>
+          <FormattedMessage id="marketAddFieldsetLabelRequired" />
+        </legend>
+        <TextField
+          className={classes.input}
+          id="plan-max-budget"
+          type="number"
+          variant="filled"
+          label={<FormattedMessage id="maxMaxBudgetInputLabel" />}
+          InputLabelProps={{ className: classes.label }}
+          value={plan.maxBudget}
+          onChange={handleMaxBudgetChange}
+        />
+        <TextField
+          className={classes.input}
+          id="plan-expiration"
+          type="number"
+          variant="filled"
+          label={<FormattedMessage id="investmentExpirationInputLabel" />}
+          InputLabelProps={{ className: classes.label }}
+          value={plan.investmentExpiration}
+          onChange={handleInvestmentExpirationChange}
+        />
+      </fieldset>
+      <fieldset className={classes.fieldsetOptional}>
+        <legend>
+          <FormattedMessage id="marketAddFieldsetLabelOptional" />
+        </legend>
+        <KeyboardDatePicker
+          className={classes.input}
+          disableToolbar
+          format="MM/dd/yyyy"
+          id="plan-days-estimate"
+          InputLabelProps={{
+            className: classes.label
+          }}
+          inputVariant="filled"
+          KeyboardButtonProps={{
+            "aria-label": "change date"
+          }}
+          label={<FormattedMessage id="daysEstimateInputLabel" />}
+          margin="normal"
+          onChange={handleDaysEstimateChange}
+          placeholder={intl.formatMessage({
+            id: "marketAddDaysEstimatePlaceholder"
+          })}
+          value={plan.daysEstimate}
+          variant="inline"
+        />
+      </fieldset>
+    </React.Fragment>
+  );
+}
 
 export default PlanningAdd;

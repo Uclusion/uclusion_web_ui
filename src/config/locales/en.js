@@ -156,16 +156,21 @@ const messages = defineMessages({
 
   // Market Add
   marketAddTitleDefault: 'Add a name...',
+  marketAddTitlePlaceholder: 'Name your agile plan',
   marketAddTitleLabel: 'Name',
   marketAddDescriptionDefault: 'Add a description...',
+  marketAddDescriptionPlaceholder: 'Describe your agile plan. Changes will be stored locally until save.',
   marketAddCancelLabel: 'Cancel',
-  marketAddSaveLabel: 'Save',
+  marketAddSaveLabel: 'Save & Post',
   decisionAddExpirationLabel: 'Dialog ends after {x} day(s)',
   initiativeAddExpirationLabel: 'Initiative ends after {x} day(s)',
-  investmentExpirationInputLabel: 'Number of days before a vote expires',
-  maxMaxBudgetInputLabel: 'Maximum number of days for story budget',
-  daysEstimateInputLabel: 'Very rough number of days to complete these requirements',
+  investmentExpirationInputLabel: 'vote expiration [days]',
+  maxMaxBudgetInputLabel: 'story budget [days]',
+  daysEstimateInputLabel: 'ideal delivery',
+  marketAddDaysEstimatePlaceholder: "Pick a Date",
   investmentExpiration: 'before votes expire',
+  marketAddFieldsetLabelOptional: 'Optional',
+  marketAddFieldsetLabelRequired: 'Required',
 
   // Market Nav
   marketNavTabContextLabel: 'Context',
@@ -289,7 +294,7 @@ const messages = defineMessages({
   cardTypeLabelIssue: 'issue present',
   cardTypeLabelQuestion: 'question',
   cardTypeLabelSuggestedChange: 'suggested changes',
-  cardTypeAgilePlane: 'plan requirements',
+  cardTypeAgilePlan: 'plan requirements',
 
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',

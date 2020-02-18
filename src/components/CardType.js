@@ -12,7 +12,7 @@ import {
 import IssueIcon from "@material-ui/icons/ReportProblem";
 import QuestionIcon from "@material-ui/icons/ContactSupport";
 import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
-import AgilePlanIcon from "@material-ui/icons/PlaylistAdd"
+import AgilePlanIcon from "@material-ui/icons/PlaylistAdd";
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE };
 export const AGILE_PLAN_TYPE = "AGILE_PLAN";
@@ -74,5 +74,10 @@ export default function CardType(props) {
   );
 }
 CardType.propTypes = {
-  type: PropTypes.oneOf([ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE])
+  type: PropTypes.oneOf([
+    AGILE_PLAN_TYPE,
+    ISSUE_TYPE,
+    QUESTION_TYPE,
+    SUGGEST_CHANGE_TYPE
+  ])
 };

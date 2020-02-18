@@ -17,6 +17,8 @@ import OperationInProgressGlobalProvider from '../../components/ContextHacks/Ope
 import { DiffProvider } from '../../contexts/DiffContext/DiffContext';
 import { HighlightedCommentProvider } from '../../contexts/HighlightedCommentContext';
 import { HighlightedVotingProvider } from '../../contexts/HighlightedVotingContext';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import DateFnsUtils from '@date-io/date-fns';
 
 class Main extends Component {
   render() {
@@ -37,8 +39,10 @@ class Main extends Component {
                               <MarketPresencesProvider>
                                 <LocaleProvider>
                                   <SidebarProvider>
-                                    <ToastContainer />
-                                    <AppWithAuth />
+                                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                      <ToastContainer />
+                                      <AppWithAuth />
+                                    </MuiPickersUtilsProvider>
                                   </SidebarProvider>
                                 </LocaleProvider>
                               </MarketPresencesProvider>

@@ -28,7 +28,7 @@ export function refreshVersions () {
       const {
         existingMarkets,
         globalVersion,
-      } = state;
+      } = state || {};
       return refreshGlobalVersion(globalVersion, existingMarkets);
     });
 }

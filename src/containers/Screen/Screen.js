@@ -58,22 +58,6 @@ const useStyles = makeStyles((theme) => ({
 
 const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
 
-function scroller(location) {
-  console.log('Scroller firing');
-  const { hash } = location;
-  if (hash && hash.length > 1) {
-    const target = hash.substring(1, hash.length);
-    if (target) {
-      const element = document.getElementById(target);
-      if (element) {
-        element.scrollIntoView();
-      }
-    }
-  } else {
-    window.scrollTo(0, 0);
-  }
-}
-
 function Screen(props) {
   const classes = useStyles();
   // enable scrolling based on hash
@@ -81,10 +65,7 @@ function Screen(props) {
   const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
   const { location } = history;
-  history.listen((location) => {
-    console.log('firing scroller on history');
-    scroller(location);
-  });
+
   const {
     breadCrumbs,
     hidden,
@@ -120,8 +101,6 @@ function Screen(props) {
     if (firstRender) {
       setFirstRender(false);
       if (!hidden && appEnabled) {
-        console.log('Firing scroller on first render');
-        scroller(location);
         // if it's the first time we're here we need to update things
         refreshVersions();
         refreshNotifications();

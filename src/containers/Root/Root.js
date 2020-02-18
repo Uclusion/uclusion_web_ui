@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
@@ -49,6 +49,23 @@ const useStyles = makeStyles({
   },
 });
 
+function scroller(location) {
+  console.log('Scroller firing');
+  const { hash } = location;
+  if (hash && hash.length > 1) {
+    const target = hash.substring(1, hash.length);
+    if (target) {
+      const element = document.getElementById(target);
+      if (element) {
+        element.scrollIntoView();
+      }
+    }
+  } else {
+    window.scrollTo(0, 0);
+  }
+}
+
+
 function Root() {
   console.debug('Root being rerendered');
   const history = useHistory();
@@ -59,6 +76,9 @@ function Root() {
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
+  const [scrollerBound, setScrollerBound] = useState(false);
+
+
 
   function hideHome() {
     return !pathname || pathname !== '/';
@@ -126,6 +146,14 @@ function Root() {
     && hideSlackInvite() && hideChangePassword() && hideChangeNotification());
 
   useEffect(() => {
+
+    if (!scrollerBound) {
+        history.listen((location) => {
+          scroller(location);
+        });
+        setScrollerBound(true);
+    }
+
     const redirect = getAndClearRedirect();
     if (!_.isEmpty(redirect)) {
       console.log(`Root Redirecting you to ${redirect}`);

@@ -210,7 +210,7 @@ function Root() {
       });
       window.onanimationiteration = console.debug;
     }
-  });
+  },  [scrollerBound, history, setOnline, setOperationsLocked]);
 
   return (
     <div>

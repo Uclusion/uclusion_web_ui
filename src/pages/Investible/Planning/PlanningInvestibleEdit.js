@@ -104,7 +104,13 @@ function PlanningInvestibleEdit(props) {
     if (!_.isEqual(assignments, assigned)) {
       updateInfo.assignments = assignments;
     }
-    return updateInvestible(updateInfo);
+    return updateInvestible(updateInfo)
+      .then((investible) => {
+        return {
+          result: investible,
+          spinChecker: () => Promise.resolve(true),
+        };
+      });
   }
 
   function handleAssignmentChange(newAssignments) {
@@ -166,6 +172,7 @@ function PlanningInvestibleEdit(props) {
             onClick={handleSave}
             disabled={!validForm}
             onSpinStop={onSave}
+            hasSpinChecker
           >
             {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
           </SpinBlockingButton>

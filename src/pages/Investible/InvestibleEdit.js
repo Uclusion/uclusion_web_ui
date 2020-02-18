@@ -16,7 +16,7 @@ import {
   makeBreadCrumbs, navigate,
 } from '../../utils/marketIdPathFunctions';
 import {
-  getInvestible,
+  getInvestible, refreshInvestibles,
 } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import {
@@ -34,6 +34,7 @@ import InitiativeInvestibleEdit from './Initiative/InitiativeInvestibleEdit';
 import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -51,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function InvestibleEdit(props) {
+function InvestibleEdit (props) {
   const { hidden } = props;
   const intl = useIntl();
   const classes = useStyles();
@@ -59,7 +60,8 @@ function InvestibleEdit(props) {
   const { location } = history;
   const { pathname } = location;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
-  const [investiblesState] = useContext(InvestiblesContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const inv = getInvestible(investiblesState, investibleId);
   const fullInvestible = inv || { investible: { name: '' } };
   const [marketsState] = useContext(MarketsContext);
@@ -84,11 +86,13 @@ function InvestibleEdit(props) {
   const loading = idLoaded !== investibleId || !market || !inv;
   const someoneElseEditing = lockedBy && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);
-  function onLock() {
+
+  function onLock () {
     setLockedInvestibleId(investibleId);
     setLockedInvestibleIdMarketId(marketId);
     setLockFailed(false);
   }
+
   useEffect(() => {
     if (!hidden) {
       if (investibleId !== lockedInvestibleId && !loading && !someoneElseEditing && !lockFailed) {
@@ -118,10 +122,23 @@ function InvestibleEdit(props) {
         setLockFailed(false);
       }
     };
-  }, [hidden, lockedInvestibleId, investibleId, marketId, lockedInvestibleIdMarketId,
-    lockedBy, someoneElseEditing, loading, lockFailed]);
+  }, [
+    hidden, lockedInvestibleId, investibleId, marketId, lockedInvestibleIdMarketId,
+    lockedBy, someoneElseEditing, loading, lockFailed
+  ]);
 
-  function onDone() {
+  function onDone (investible) {
+    // the edit ony updates the investible data, not the market infos
+    if (investible) {
+      const withMarketInfo = {
+        ...fullInvestible,
+        investible: {
+          ...investible,
+          updated_by: userId,
+        },
+      };
+      refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);
+    }
     navigate(history, formInvestibleLink(marketId, investibleId));
   }
 
@@ -140,7 +157,7 @@ function InvestibleEdit(props) {
         hidden={hidden}
         loading
       >
-        <div />
+        <div/>
       </Screen>
     );
   }
@@ -157,11 +174,13 @@ function InvestibleEdit(props) {
   const lockWarning = lockFailed ? intl.formatMessage({ id: 'lockFailedWarning' })
     : intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName });
   const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
-  function myOnClick() {
+
+  function myOnClick () {
     const breakLock = true;
     return lockInvestibleForEdit(marketId, investibleId, breakLock)
       .catch(() => setLockFailed(true));
   }
+
   return (
     <Screen
       title={intl.formatMessage({ id: 'edit' })}
@@ -187,7 +206,7 @@ function InvestibleEdit(props) {
             onSpinStop={onLock}
             disabled={operationRunning}
             translationId="breakLock"
-            icon={<LockOpenIcon />}
+            icon={<LockOpenIcon/>}
           />
         </div>
       </Modal>

@@ -93,11 +93,13 @@ function DecisionInvestibleEdit(props) {
       marketId,
       investibleId: id,
     };
-    return updateInvestible(updateInfo);
-  }
-
-  function handleSave() {
-    saveInvestible();
+    return updateInvestible(updateInfo)
+      .then((investible) => {
+        return {
+          result: investible,
+          spinChecker: () => Promise.resolve(true),
+        };
+      });
   }
 
   return (
@@ -137,9 +139,10 @@ function DecisionInvestibleEdit(props) {
             marketId={marketId}
             variant="contained"
             color="primary"
-            onClick={handleSave}
+            onClick={saveInvestible}
             disabled={!validForm}
             onSpinStop={onSave}
+            hasSpinChecker
           >
             {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
           </SpinBlockingButton>

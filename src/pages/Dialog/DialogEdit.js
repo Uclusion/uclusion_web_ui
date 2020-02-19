@@ -13,7 +13,7 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
+import { addMarketToStorage, getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import PlanningDialogEdit from './Planning/PlanningDialogEdit';
 import DecisionDialogEdit from './Decision/DecisionDialogEdit';
@@ -21,6 +21,7 @@ import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../ap
 import { Dialog } from '../../components/Dialogs'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 
 const useLockedDialogStyles = makeStyles(
   theme => {
@@ -85,7 +86,8 @@ function DialogEdit(props) {
   const { location } = history;
   const { pathname } = location;
   const { marketId } = decomposeMarketPath(pathname);
-  const [marketsState] = useContext(MarketsContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_type: marketType, locked_by: lockedBy } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
@@ -145,8 +147,19 @@ function DialogEdit(props) {
     }
   }
 
-  function onSave() {
-    localforage.removeItem(marketId).finally(() => navigate(history, formMarketLink(marketId)));
+  function onSpinStop(market) {
+    console.log("Received market");
+    console.log(market);
+    const diffSafe = {
+      ...market,
+      updated_by: userId,
+      updated_by_you: true,
+    };
+    addMarketToStorage(marketsDispatch, diffDispatch, diffSafe);
+    return localforage.removeItem(marketId)
+      .finally(() => {
+        navigate(history, formMarketLink(marketId))
+      });
   }
   function myOnClick() {
     const breakLock = true;
@@ -192,7 +205,7 @@ function DialogEdit(props) {
       />
       {!hidden && marketType === DECISION_TYPE && idLoaded === marketId && (
         <DecisionDialogEdit
-          editToggle={onSave}
+          onSpinStop={onSpinStop}
           market={renderableMarket}
           onCancel={onDone}
           storedDescription={storedDescription}
@@ -200,7 +213,7 @@ function DialogEdit(props) {
       )}
       {!hidden && marketType === PLANNING_TYPE && idLoaded === marketId && (
         <PlanningDialogEdit
-          editToggle={onSave}
+          onSpinStop={onSpinStop}
           market={renderableMarket}
           onCancel={onDone}
           storedDescription={storedDescription}

@@ -8,7 +8,6 @@ import localforage from 'localforage';
 import { lockPlanningMarketForEdit, updateMarket } from '../../../api/markets';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { PLANNING_TYPE } from '../../../constants/markets';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -27,12 +26,12 @@ const useStyles = makeStyles((theme) => ({
 
 function PlanningDialogEdit(props) {
   const {
-    editToggle,
+    onSpinStop,
     onCancel,
     market,
     storedDescription,
   } = props;
-  const { id, market_type: marketType } = market;
+  const { id } = market;
   const intl = useIntl();
   const classes = useStyles();
   const [mutableMarket, setMutableMarket] = useState(market);
@@ -69,15 +68,15 @@ function PlanningDialogEdit(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
-    let chain = Promise.resolve(true);
-    if (marketType === PLANNING_TYPE) {
-      chain = chain.then(() => lockPlanningMarketForEdit(id, true));
-    }
     const daysEstimateInt = days_estimate ? parseInt(days_estimate, 10) : null;
-    chain = chain.then(() => updateMarket(id, name, tokensRemoved, filteredUploads,
-      parseInt(max_budget, 10), parseInt(investment_expiration, 10), daysEstimateInt))
-      .then(() => editToggle());
-    return chain;
+    return lockPlanningMarketForEdit(id, true)
+      .then(() => updateMarket(id, name, tokensRemoved, filteredUploads, parseInt(max_budget, 10), parseInt(investment_expiration, 10), daysEstimateInt))
+      .then((market) => {
+        return {
+          result: market,
+          spinChecker: () => Promise.resolve(true),
+        }
+      });
   }
 
   function onEditorChange(content) {
@@ -107,7 +106,6 @@ function PlanningDialogEdit(props) {
           value={name}
           onChange={handleChange('name')}
         />
-        {marketType === PLANNING_TYPE && (
           <TextField
             id="maxBudget"
             label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
@@ -119,8 +117,6 @@ function PlanningDialogEdit(props) {
             onChange={handleChange('max_budget')}
             value={max_budget}
           />
-        )}
-        {marketType === PLANNING_TYPE && (
           <TextField
             id="daysEstimate"
             label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
@@ -132,8 +128,6 @@ function PlanningDialogEdit(props) {
             onChange={handleChange('days_estimate')}
             value={days_estimate}
           />
-        )}
-        {marketType === PLANNING_TYPE && (
           <TextField
             id="investmentExpiration"
             label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
@@ -145,7 +139,6 @@ function PlanningDialogEdit(props) {
             onChange={handleChange('investment_expiration')}
             value={investment_expiration}
           />
-        )}
         <Typography>
           {intl.formatMessage({ id: 'descriptionEdit' })}
         </Typography>
@@ -171,6 +164,7 @@ function PlanningDialogEdit(props) {
             variant="contained"
             color="primary"
             disabled={!validForm}
+            onSpinStop={onSpinStop}
             onClick={handleSave}
           >
             {intl.formatMessage({ id: 'marketEditSaveLabel' })}
@@ -184,7 +178,7 @@ function PlanningDialogEdit(props) {
 PlanningDialogEdit.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
-  editToggle: PropTypes.func,
+  onSpinStop: PropTypes.func,
   onCancel: PropTypes.func,
   storedDescription: PropTypes.string.isRequired,
 };
@@ -192,7 +186,7 @@ PlanningDialogEdit.propTypes = {
 PlanningDialogEdit.defaultProps = {
   onCancel: () => {
   },
-  editToggle: () => {
+  onSpinStop: () => {
   },
 };
 

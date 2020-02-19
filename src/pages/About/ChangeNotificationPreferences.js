@@ -3,9 +3,9 @@ import {
   Button,
   Checkbox, ListItem,
   ListItemIcon,
-  ListItemText, makeStyles,
+  ListItemText, makeStyles, TextField,
   Typography,
-} from '@material-ui/core';
+} from '@material-ui/core'
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { updateUser } from '../../api/users';
@@ -28,6 +28,7 @@ function ChangeNotificationPreferences(props) {
   const [emailEnabled, setEmailEnabled] = useState(undefined);
   const [slackEnabled, setSlackEnabled] = useState(undefined);
   const [user, setUser] = useState(undefined);
+  const [slackDelay, setSlackDelay] = useState(undefined);
   const intl = useIntl();
   const classes = useStyles();
 
@@ -39,6 +40,7 @@ function ChangeNotificationPreferences(props) {
           const { user: myUser } = loginInfo;
           setEmailEnabled(myUser.email_enabled);
           setSlackEnabled(myUser.slack_enabled);
+          setSlackDelay(myUser.slack_delay);
           setUser(myUser);
         });
       }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
@@ -46,7 +48,7 @@ function ChangeNotificationPreferences(props) {
   }, [user, hidden]);
 
   function onSetPreferences() {
-    updateUser({ emailEnabled, slackEnabled });
+    updateUser({ emailEnabled, slackEnabled, slackDelay });
   }
 
   function handleToggleEmail() {
@@ -56,6 +58,12 @@ function ChangeNotificationPreferences(props) {
   function handleToggleSlack() {
     setSlackEnabled(!slackEnabled);
   }
+
+  function handleChangeSlackDelay(event) {
+    const { value } = event.target;
+    setSlackDelay(parseInt(value, 10));
+  }
+
   const history = useHistory();
   const breadCrumbs = makeBreadCrumbs(history, [], true);
   return (
@@ -124,6 +132,17 @@ function ChangeNotificationPreferences(props) {
               {intl.formatMessage({ id: 'slackEnabledLabel' })}
             </ListItemText>
           </ListItem>
+          <TextField
+            id="daysEstimate"
+            label={intl.formatMessage({ id: 'slackDelayInputLabel' })}
+            type="number"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            variant="outlined"
+            onChange={handleChangeSlackDelay}
+            value={slackDelay}
+          />
         </form>
       )}
       <Button

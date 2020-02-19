@@ -508,6 +508,7 @@ const messages = defineMessages({
   emailEnabledLabel: 'Send daily digest of notifications via email',
   slackEnabledLabel: 'Send notifications via Slack',
   changePreferencesButton: 'Update Preferences',
+  slackDelayInputLabel: 'Minimum delay between notifications in Slack in minutes',
 
   // your voting
   yourVotingVoteForThisPlanning: 'Vote for this story',

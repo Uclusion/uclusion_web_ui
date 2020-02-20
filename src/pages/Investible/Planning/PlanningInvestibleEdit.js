@@ -32,14 +32,16 @@ const styles = (theme) => ({
 
 function PlanningInvestibleEdit(props) {
   const {
-    fullInvestible, intl, classes, onCancel, onSave, marketId, storedDescription,
+    fullInvestible, intl, classes, onCancel, onSave, marketId, storedState,
   } = props;
+  const { description: storedDescription, name: storedName } = storedState;
+  const [draftState, setDraftState] = useState(storedState);
   const myInvestible = fullInvestible.investible;
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
   const { assigned: marketAssigned } = marketInfo;
   const assigned = marketAssigned || [];
-  const { id, description: initialDescription } = myInvestible;
-  const [currentValues, setCurrentValues] = useState(myInvestible);
+  const { id, description: initialDescription, name: initialName } = myInvestible;
+  const [currentValues, setCurrentValues] = useState({ ...myInvestible, name: storedName || initialName });
   const [assignments, setAssignments] = useState(assigned);
   const [validForm, setValidForm] = useState(true);
   const { name } = currentValues;
@@ -64,11 +66,17 @@ function PlanningInvestibleEdit(props) {
     }
   }, [name, description, assignments, validForm]);
 
+  function handleDraftState(newDraftState) {
+    setDraftState(newDraftState);
+    localforage.setItem(id, newDraftState);
+  }
+
   function handleChange(field) {
     return (event) => {
       const { value } = event.target;
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
+      handleDraftState({ ...draftState, [field]: value });
     };
   }
 
@@ -77,7 +85,9 @@ function PlanningInvestibleEdit(props) {
   }
 
   function onStorageChange(description) {
-    localforage.setItem(id, description);
+    localforage.getItem(id).then((stateFromDisk) => {
+      handleDraftState({ ...stateFromDisk, description });
+    });
   }
 
   function handleFileUpload(metadatas) {
@@ -193,7 +203,7 @@ PlanningInvestibleEdit.propTypes = {
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
-  storedDescription: PropTypes.string.isRequired,
+  storedState: PropTypes.object.isRequired,
 };
 
 PlanningInvestibleEdit.defaultProps = {

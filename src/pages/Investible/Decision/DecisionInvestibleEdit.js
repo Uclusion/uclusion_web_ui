@@ -30,17 +30,18 @@ const styles = (theme) => ({
 function DecisionInvestibleEdit(props) {
   const {
     fullInvestible, intl, classes, onCancel, onSave, marketId,
-    isAdmin, userId, storedDescription,
+    isAdmin, userId, storedState,
   } = props;
-
+  const { description: storedDescription, name: storedName } = storedState;
+  const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const { market_infos: marketInfos, investible: myInvestible } = fullInvestible;
   const marketInfo = marketInfos.find((info) => info.market_id === marketId);
   const inProposed = marketInfo.stage === inProposedStage.id;
-  const { id, description: initialDescription, created_by: createdBy } = myInvestible;
-  const [currentValues, setCurrentValues] = useState(myInvestible);
+  const { id, description: initialDescription, created_by: createdBy, name: initialName } = myInvestible;
+  const [currentValues, setCurrentValues] = useState({ ...myInvestible, name: storedName || initialName });
   const [validForm, setValidForm] = useState(true);
   const { name } = currentValues;
   const initialUploadedFiles = myInvestible.uploaded_files || [];
@@ -58,11 +59,17 @@ function DecisionInvestibleEdit(props) {
     }
   }, [name, description, validForm]);
 
+  function handleDraftState(newDraftState) {
+    setDraftState(newDraftState);
+    localforage.setItem(id, newDraftState);
+  }
+
   function handleChange(field) {
     return (event) => {
       const { value } = event.target;
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
+      handleDraftState({ ...draftState, [field]: value });
     };
   }
 
@@ -71,7 +78,9 @@ function DecisionInvestibleEdit(props) {
   }
 
   function onStorageChange(description) {
-    localforage.setItem(id, description);
+    localforage.getItem(id).then((stateFromDisk) => {
+      handleDraftState({ ...stateFromDisk, description });
+    });
   }
 
   function handleFileUpload(metadatas) {
@@ -165,7 +174,7 @@ DecisionInvestibleEdit.propTypes = {
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
   isAdmin: PropTypes.bool,
-  storedDescription: PropTypes.string.isRequired,
+  storedState: PropTypes.object.isRequired,
 };
 
 DecisionInvestibleEdit.defaultProps = {

@@ -17,7 +17,6 @@ import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import Screen from '../../../containers/Screen/Screen';
 import { formMarketLink, makeArchiveBreadCrumbs, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
-import InvestibleEditActionButton from '../InvestibleEditActionButton';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';

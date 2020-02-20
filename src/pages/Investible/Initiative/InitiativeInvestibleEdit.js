@@ -26,12 +26,14 @@ const styles = (theme) => ({
 
 function InitiativeInvestibleEdit(props) {
   const {
-    fullInvestible, intl, classes, onCancel, onSave, marketId, storedDescription,
+    fullInvestible, intl, classes, onCancel, onSave, marketId, storedState,
   } = props;
+  const { description: storedDescription, name: storedName } = storedState;
+  const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const myInvestible = fullInvestible.investible;
-  const { id, description: initialDescription } = myInvestible;
-  const [currentValues, setCurrentValues] = useState(myInvestible);
+  const { id, description: initialDescription, name: initialName } = myInvestible;
+  const [currentValues, setCurrentValues] = useState({ ...myInvestible, name: storedName || initialName });
   const [validForm, setValidForm] = useState(true);
   const { name } = currentValues;
   const initialUploadedFiles = myInvestible.uploaded_files || [];
@@ -49,21 +51,28 @@ function InitiativeInvestibleEdit(props) {
     }
   }, [name, description, validForm]);
 
+  function handleDraftState(newDraftState) {
+    setDraftState(newDraftState);
+    localforage.setItem(id, newDraftState);
+  }
+
   function handleChange(field) {
     return (event) => {
       const { value } = event.target;
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
+      handleDraftState({ ...draftState, [field]: value });
     };
   }
 
   function onEditorChange(description) {
     setDescription(description);
-    localforage.setItem(id, description);
   }
 
   function onStorageChange(description) {
-    localforage.setItem(id, description);
+    localforage.getItem(id).then((stateFromDisk) => {
+      handleDraftState({ ...stateFromDisk, description });
+    });
   }
 
   function handleFileUpload(metadatas) {
@@ -155,7 +164,7 @@ InitiativeInvestibleEdit.propTypes = {
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
-  storedDescription: PropTypes.string.isRequired,
+  storedState: PropTypes.object.isRequired,
 };
 
 InitiativeInvestibleEdit.defaultProps = {

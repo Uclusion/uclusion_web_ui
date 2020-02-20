@@ -75,7 +75,7 @@ function InvestibleEdit (props) {
   const { name, locked_by: lockedBy } = myInvestible;
   const [lockedInvestibleId, setLockedInvestibleId] = useState(undefined);
   const [idLoaded, setIdLoaded] = useState(undefined);
-  const [storedDescription, setStoredDescription] = useState(undefined);
+  const [storedState, setStoredState] = useState(undefined);
   const [lockedInvestibleIdMarketId, setLockedInvestibleIdMarketId] = useState(undefined);
   const emptyMarket = { name: '' };
   const market = getMarket(marketsState, marketId) || emptyMarket;
@@ -102,29 +102,25 @@ function InvestibleEdit (props) {
         lockInvestibleForEdit(marketId, investibleId)
           .catch(() => setLockFailed(true));
       }
-      localforage.getItem(investibleId).then((description) => {
-        setStoredDescription(description || '');
+      localforage.getItem(investibleId).then((stateFromDisk) => {
+        setStoredState(stateFromDisk || {});
         setIdLoaded(investibleId);
       });
     }
-    // We need this way otherwise if they navigate out by back button we don't release the lock
-    if (hidden && lockedBy && lockedInvestibleId) {
-      const originalLockedId = lockedInvestibleId;
-      // Set right away to avoid multiple calls
+    if (hidden && idLoaded) {
+      setIdLoaded(undefined);
+    }
+    if (hidden && !lockedBy && lockedInvestibleId) {
       setLockedInvestibleId(undefined);
-      realeaseInvestibleEditLock(lockedInvestibleIdMarketId, lockedInvestibleId)
-        .then(() => localforage.removeItem(originalLockedId))
-        .catch(() => setLockedInvestibleId(originalLockedId));
     }
     return () => {
       if (hidden) {
-        setStoredDescription(undefined);
         setLockFailed(false);
       }
     };
   }, [
     hidden, lockedInvestibleId, investibleId, marketId, lockedInvestibleIdMarketId,
-    lockedBy, someoneElseEditing, loading, lockFailed
+    lockedBy, someoneElseEditing, loading, lockFailed, idLoaded
   ]);
 
   function onDone (investible) {
@@ -139,7 +135,11 @@ function InvestibleEdit (props) {
       };
       refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);
     }
-    navigate(history, formInvestibleLink(marketId, investibleId));
+    const originalLockedId = lockedInvestibleId;
+    realeaseInvestibleEditLock(lockedInvestibleIdMarketId, lockedInvestibleId)
+      .then(() => localforage.removeItem(originalLockedId))
+      .catch(() => setLockedInvestibleId(originalLockedId))
+      .finally(() => navigate(history, formInvestibleLink(marketId, investibleId)));
   }
 
   const { name: marketName } = market;
@@ -218,7 +218,7 @@ function InvestibleEdit (props) {
           onSave={onDone}
           onCancel={onDone}
           isAdmin={isAdmin}
-          storedDescription={storedDescription}
+          storedState={storedState}
         />
       )}
       {!hidden && isPlanning && inv && idLoaded === investibleId && (
@@ -229,7 +229,7 @@ function InvestibleEdit (props) {
           onSave={onDone}
           onCancel={onDone}
           isAdmin={isAdmin}
-          storedDescription={storedDescription}
+          storedState={storedState}
         />
       )}
       {!hidden && isInitiative && inv && idLoaded === investibleId && (
@@ -239,7 +239,7 @@ function InvestibleEdit (props) {
           marketPresences={marketPresences}
           onSave={onDone}
           onCancel={onDone}
-          storedDescription={storedDescription}
+          storedState={storedState}
         />
       )}
     </Screen>

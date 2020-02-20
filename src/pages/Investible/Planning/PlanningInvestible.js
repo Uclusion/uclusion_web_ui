@@ -17,7 +17,7 @@ import {
   formMarketArchivesLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
-  makeBreadCrumbs, navigate,
+  makeBreadCrumbs,
 } from '../../../utils/marketIdPathFunctions'
 import Screen from '../../../containers/Screen/Screen';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';

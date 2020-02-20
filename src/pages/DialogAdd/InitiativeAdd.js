@@ -9,7 +9,7 @@ import QuillEditor from '../../components/TextEditors/QuillEditor';
 import ExpirationSelector from '../../components/Expiration/ExpirationSelector';
 import { createDecision } from '../../api/markets';
 import { processTextAndFilesForSave } from '../../api/files';
-import { INITIATIVE_TYPE } from '../../constants/markets';
+import { INITIATIVE_TYPE } from '../../constants/markets'
 import { addDecisionInvestible } from '../../api/investibles';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
@@ -33,13 +33,16 @@ const useStyles = makeStyles((theme) => ({
 function InitiativeAdd(props) {
   const intl = useIntl();
   const {
-    onSpinStop, onSave, storedDescription,
+    onSpinStop, onSave, storedState,
   } = props;
+  const { description: storedDescription, name: storedName, expiration_minutes: storedExpirationMinutes } = storedState;
+  const [draftState, setDraftState] = useState(storedState);
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
+  const emptyMarket = { name: storedName, description: storedDescription,
+    expiration_minutes: storedExpirationMinutes || 1440 };
   const [validForm, setValidForm] = useState(false);
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const [description, setDescription] = useState(storedDescription);
@@ -57,14 +60,14 @@ function InitiativeAdd(props) {
     }
   }, [name, description, expirationMinutes, validForm]);
 
-  function zeroCurrentValues() {
-    setCurrentValues(emptyMarket);
-    setDescription('');
+  function handleCancel() {
+    onSpinStop();
   }
 
-  function handleCancel() {
-    zeroCurrentValues();
-    onSpinStop();
+  const itemKey = `add_market_${INITIATIVE_TYPE}`;
+  function handleDraftState(newDraftState) {
+    setDraftState(newDraftState);
+    localforage.setItem(itemKey, newDraftState);
   }
 
   function handleChange(field) {
@@ -72,6 +75,7 @@ function InitiativeAdd(props) {
       const { value } = event.target;
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
+      handleDraftState({ ...draftState, [field]: value });
     };
   }
 
@@ -85,7 +89,9 @@ function InitiativeAdd(props) {
   }
 
   function onStorageChange(description) {
-    localforage.setItem(`add_market_${INITIATIVE_TYPE}`, description);
+    localforage.getItem(itemKey).then((stateFromDisk) => {
+      handleDraftState({ ...stateFromDisk, description });
+    });
   }
 
   function handleSave() {
@@ -183,7 +189,7 @@ function InitiativeAdd(props) {
 InitiativeAdd.propTypes = {
   onSpinStop: PropTypes.func,
   onSave: PropTypes.func,
-  storedDescription: PropTypes.string.isRequired,
+  storedState: PropTypes.object.isRequired,
 };
 
 InitiativeAdd.defaultProps = {

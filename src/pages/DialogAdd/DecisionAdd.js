@@ -14,7 +14,7 @@ import { createDecision } from '../../api/markets';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { DECISION_TYPE } from '../../constants/markets';
+import { DECISION_TYPE } from '../../constants/markets'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import UclusionTour from '../../components/Tours/UclusionTour';
 import {
@@ -37,11 +37,13 @@ const useStyles = makeStyles((theme) => ({
 function DecisionAdd(props) {
   const intl = useIntl();
   const {
-    onSpinStop, storedDescription, onSave
+    onSpinStop, storedState, onSave
   } = props;
+  const { description: storedDescription, name: storedName, expiration_minutes: storedExpirationMinutes } = storedState;
+  const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useStyles();
-  const emptyMarket = { name: '', description: '', expiration_minutes: 1440 };
+  const emptyMarket = { name: storedName, expiration_minutes: storedExpirationMinutes || 1440 };
   const [validForm, setValidForm] = useState(false);
   const [currentValues, setCurrentValues] = useState(emptyMarket);
   const [description, setDescription] = useState(storedDescription);
@@ -59,14 +61,14 @@ function DecisionAdd(props) {
     }
   }, [name, description, expiration_minutes, validForm]);
 
-  function zeroCurrentValues() {
-    setCurrentValues(emptyMarket);
-    setDescription('');
+  function handleCancel() {
+    onSpinStop();
   }
 
-  function handleCancel() {
-    zeroCurrentValues();
-    onSpinStop();
+  const itemKey = `add_market_${DECISION_TYPE}`;
+  function handleDraftState(newDraftState) {
+    setDraftState(newDraftState);
+    localforage.setItem(itemKey, newDraftState);
   }
 
   function handleChange(field) {
@@ -74,6 +76,7 @@ function DecisionAdd(props) {
       const { value } = event.target;
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
+      handleDraftState({ ...draftState, [field]: value });
     };
   }
 
@@ -87,7 +90,9 @@ function DecisionAdd(props) {
   }
 
   function onStorageChange(description) {
-    localforage.setItem(`add_market_${DECISION_TYPE}`, description);
+    localforage.getItem(itemKey).then((stateFromDisk) => {
+      handleDraftState({ ...stateFromDisk, description });
+    });
   }
 
   function handleSave() {
@@ -187,7 +192,7 @@ function DecisionAdd(props) {
 DecisionAdd.propTypes = {
   onSpinStop: PropTypes.func,
   onSave: PropTypes.func,
-  storedDescription: PropTypes.string.isRequired,
+  storedState: PropTypes.object.isRequired,
 };
 
 DecisionAdd.defaultProps = {

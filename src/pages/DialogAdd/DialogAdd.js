@@ -36,13 +36,13 @@ function DialogAdd(props) {
 
   // eslint-disable-next-line no-nested-ternary
   const addTitleName = type === DECISION_TYPE ? 'addDecision' : type === PLANNING_TYPE ? 'addPlanning' : 'addInitiative';
-  const [storedDescription, setStoredDescription] = useState(undefined);
+  const [storedState, setStoredState] = useState(undefined);
   const [idLoaded, setIdLoaded] = useState(undefined);
 
   useEffect(() => {
     if (!hidden) {
-      localforage.getItem(`add_market_${type}`).then((description) => {
-        setStoredDescription(description || '');
+      localforage.getItem(`add_market_${type}`).then((stateFromDisk) => {
+        setStoredState(stateFromDisk || {});
         setIdLoaded(type);
       });
     }
@@ -77,7 +77,7 @@ function DialogAdd(props) {
           }
         } else {
           // This is a cancel
-         // navigate(history, '/');
+          navigate(history, '/');
         }
       });
   }
@@ -91,14 +91,14 @@ function DialogAdd(props) {
       breadCrumbs={breadCrumbs}
     >
       {type === PLANNING_TYPE && idLoaded === type && (
-        <PlanningAdd onSave={onSave} onSpinStop={onDone} storedDescription={storedDescription}/>
+        <PlanningAdd onSave={onSave} onSpinStop={onDone} storedState={storedState}/>
       )}
       {type === DECISION_TYPE && idLoaded === type && (
-        <DecisionAdd onSave={onSave} onSpinStop={onDone} storedDescription={storedDescription}/>
+        <DecisionAdd onSave={onSave} onSpinStop={onDone} storedState={storedState}/>
       )}
 
       {type === INITIATIVE_TYPE && idLoaded === type && (
-        <InitiativeAdd onSave={onSave} onSpinStop={onDone} storedDescription={storedDescription}/>
+        <InitiativeAdd onSave={onSave} onSpinStop={onDone} storedState={storedState}/>
       )}
     </Screen>
   );

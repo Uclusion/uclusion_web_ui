@@ -28,17 +28,20 @@ const useStyles = makeStyles((theme) => ({
 function PlanningAdd(props) {
   const intl = useIntl();
   const {
-    onSpinStop, storedDescription, onSave
+    onSpinStop, storedState, onSave
   } = props;
+  const { description: storedDescription, name: storedName, max_budget: storedBudget,
+    investment_expiration: storedExpiration, days_estimate: storedDaysEstimate } = storedState;
+  const [draftState, setDraftState] = useState(storedState);
   const classes = useStyles();
-  const emptyPlan = { name: '' };
+  const emptyPlan = { name: storedName };
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [currentValues, setCurrentValues] = useState(emptyPlan);
   const [validForm, setValidForm] = useState(false);
   const [description, setDescription] = useState(storedDescription);
-  const [investmentExpiration, setInvestmentExpiration] = useState(14);
-  const [maxBudget, setMaxBudget] = useState(14);
-  const [daysEstimate, setDaysEstimate] = useState(undefined);
+  const [investmentExpiration, setInvestmentExpiration] = useState(storedExpiration || 14);
+  const [maxBudget, setMaxBudget] = useState(storedBudget || 14);
+  const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = currentValues;
 
@@ -53,14 +56,13 @@ function PlanningAdd(props) {
     }
   }, [name, description, validForm]);
 
-  function zeroCurrentValues() {
-    setCurrentValues(emptyPlan);
-    setDescription('');
-  }
-
   function handleCancel() {
-    zeroCurrentValues();
     onSpinStop();
+  }
+  const itemKey = `add_market_${PLANNING_TYPE}`;
+  function handleDraftState(newDraftState) {
+    setDraftState(newDraftState);
+    localforage.setItem(itemKey, newDraftState);
   }
 
   function handleChange(field) {
@@ -68,6 +70,7 @@ function PlanningAdd(props) {
       const { value } = event.target;
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
+      handleDraftState({ ...draftState, [field]: value });
     };
   }
 
@@ -81,22 +84,30 @@ function PlanningAdd(props) {
   }
 
   function onStorageChange(description) {
-    localforage.setItem(`add_market_${PLANNING_TYPE}`, description);
+    localforage.getItem(itemKey).then((stateFromDisk) => {
+      handleDraftState({ ...stateFromDisk, description });
+    });
   }
 
   function onInvestmentExpirationChange(event) {
     const { value } = event.target;
-    setInvestmentExpiration(parseInt(value, 10));
+    const valueInt = value ? parseInt(value, 10) : null;
+    setInvestmentExpiration(valueInt);
+    handleDraftState({ ...draftState, investment_expiration: valueInt });
   }
 
   function onMaxBudgetChange(event) {
     const { value } = event.target;
-    setMaxBudget(parseInt(value, 10));
+    const valueInt = value ? parseInt(value, 10) : null;
+    setMaxBudget(valueInt);
+    handleDraftState({ ...draftState, max_budget: valueInt });
   }
 
   function onDaysEstimateChange(event) {
     const { value } = event.target;
-    setDaysEstimate(parseInt(value, 10));
+    const valueInt = value ? parseInt(value, 10) : null;
+    setDaysEstimate(valueInt);
+    handleDraftState({ ...draftState, days_estimate: valueInt });
   }
 
   function handleSave() {
@@ -176,6 +187,7 @@ function PlanningAdd(props) {
           }}
           variant="outlined"
           onChange={onDaysEstimateChange}
+          value={daysEstimate}
         />
         <Typography>
           {intl.formatMessage({ id: 'descriptionEdit' })}
@@ -215,7 +227,7 @@ function PlanningAdd(props) {
 PlanningAdd.propTypes = {
   onSpinStop: PropTypes.func,
   onSave: PropTypes.func,
-  storedDescription: PropTypes.string.isRequired,
+  storedState: PropTypes.object.isRequired,
 };
 
 PlanningAdd.defaultProps = {

@@ -57,7 +57,7 @@ function DecisionDialogEdit(props) {
   function handleChange(name) {
     return (event) => {
       const { value } = event.target;
-      setMutableMarket({ ...market, [name]: value });
+      setMutableMarket({ ...mutableMarket, [name]: value });
       handleDraftState({ ...draftState, [name]: value });
     };
   }

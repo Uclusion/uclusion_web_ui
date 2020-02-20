@@ -31,11 +31,15 @@ function PlanningDialogEdit(props) {
     market,
     storedState,
   } = props;
-  const { id, name: initialMarketName } = market;
-  const { description: storedDescription, name: storedName } = storedState;
+  const { id, name: initialMarketName, max_budget: initialBudget,
+    investment_expiration: initialExpiration, days_estimate: initialDaysEstimate } = market;
+  const { description: storedDescription, name: storedName, max_budget: storedBudget,
+    investment_expiration: storedExpiration, days_estimate: storedDaysEstimate } = storedState;
   const intl = useIntl();
   const classes = useStyles();
-  const [mutableMarket, setMutableMarket] = useState({ ...market, name: storedName || initialMarketName });
+  const [mutableMarket, setMutableMarket] = useState({ ...market, name: storedName || initialMarketName,
+  max_budget: storedBudget || initialBudget, investment_expiration: storedExpiration || initialExpiration,
+    days_estimate: storedDaysEstimate || initialDaysEstimate });
   const [draftState, setDraftState] = useState(storedState);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -58,7 +62,7 @@ function PlanningDialogEdit(props) {
   function handleChange(name) {
     return (event) => {
       const { value } = event.target;
-      setMutableMarket({ ...market, [name]: value });
+      setMutableMarket({ ...mutableMarket, [name]: value });
       handleDraftState({ ...draftState, [name]: value });
     };
   }

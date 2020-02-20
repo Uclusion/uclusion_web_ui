@@ -281,9 +281,11 @@ const messages = defineMessages({
   commentViewThreadLabel: 'View Thread',
   commentCloseThreadLabel: 'Close Thread',
   lastUpdatedBy: 'Last Updated By',
-  commentTypeLabelIssue: 'issue present',
-  commentTypeLabelQuestion: 'question',
-  commentTypeLabelSuggestedChange: 'suggested changes',
+
+  // card types
+  cardTypeLabelIssue: 'issue present',
+  cardTypeLabelQuestion: 'question',
+  cardTypeLabelSuggestedChange: 'suggested changes',
 
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',

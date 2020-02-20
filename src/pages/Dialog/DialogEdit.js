@@ -133,15 +133,13 @@ function DialogEdit(props) {
     lockFailed, someoneElseEditing]);
 
   function onDone() {
-    if (marketType !== PLANNING_TYPE) {
+    if (marketType === PLANNING_TYPE) {
       setLockedMarketId(undefined);
       unlockPlanningMarketForEdit(marketId)
         .catch(() => setLockedMarketId(marketId))
-        .finally(() => localforage.removeItem(marketId)
-          .finally(() => navigate(history, formMarketLink(marketId))));
-    } else {
-      navigate(history, formMarketLink(marketId));
     }
+    localforage.removeItem(marketId)
+      .finally(() => navigate(history, formMarketLink(marketId)));
   }
 
   function onSpinStop(market) {

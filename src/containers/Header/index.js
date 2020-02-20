@@ -2,6 +2,7 @@ import React, { useContext, useRef } from 'react';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
+import _ from 'lodash';
 import {
   AppBar,
   Toolbar,
@@ -95,18 +96,22 @@ function Header(props) {
     if (breadCrumbs && !hidden) {
       return (
         <Breadcrumbs className={classes.breadcrumbs} separator="/">
-          {breadCrumbs.map((crumb, index) => (
-            <Link id={crumb.id} key={index} href="#" onClick={crumb.onClick} color="inherit">
-              {crumb.image && (
-                <img
-                  src={crumb.image}
-                  alt={crumb.title}
-                  className={classes.breadCrumbImage}
-                />
-              )}
-              {!crumb.image && createTitle(crumb.title, 25)}
-            </Link>
-          ))}
+          {breadCrumbs.map((crumb, index) => {
+            const { id, onClick, link, image, title } = crumb;
+            const href = _.isEmpty(link)? '#' : link;
+            return (
+              <Link id={id} key={index} href={href} onClick={onClick} color="inherit">
+                {image && (
+                  <img
+                    src={image}
+                    alt={title}
+                    className={classes.breadCrumbImage}
+                  />
+                )}
+                {!crumb.image && createTitle(title, 25)}
+              </Link>
+            )
+          })}
           <Typography color="textPrimary">{createTitle(title, 25)}</Typography>
         </Breadcrumbs>
       );

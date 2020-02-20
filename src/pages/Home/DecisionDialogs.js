@@ -25,7 +25,7 @@ import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { ISSUE_TYPE } from '../../constants/comments';
-import { CommentType } from '../../components/Comments/Comment';
+import CardType from '../../components/CardType';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -136,7 +136,7 @@ function DecisionDialogs(props) {
                 </Grid>
               </Grid>
               {hasMarketIssue && (
-                <CommentType className={classes.commentType} type={ISSUE_TYPE}/>
+                <CardType className={classes.commentType} type={ISSUE_TYPE}/>
               )}
             </CardContent>
             <CardActions>

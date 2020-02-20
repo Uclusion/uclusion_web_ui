@@ -12,8 +12,10 @@ import {
 import IssueIcon from "@material-ui/icons/ReportProblem";
 import QuestionIcon from "@material-ui/icons/ContactSupport";
 import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
+import VotingIcon from "@material-ui/icons/Assessment";
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE };
+export const VOTING_TYPE = "VOTING";
 
 const useCardTypeStyles = makeStyles(
   {
@@ -22,7 +24,8 @@ const useCardTypeStyles = makeStyles(
         backgroundColor: {
           [ISSUE_TYPE]: "#E85757",
           [QUESTION_TYPE]: "#2F80ED",
-          [SUGGEST_CHANGE_TYPE]: "#F29100"
+          [SUGGEST_CHANGE_TYPE]: "#F29100",
+          [VOTING_TYPE]: "#9B51E0"
         }[type],
         borderBottomRightRadius: 8,
         color: "white",
@@ -50,13 +53,15 @@ export default function CardType(props) {
   const IconComponent = {
     [ISSUE_TYPE]: IssueIcon,
     [QUESTION_TYPE]: QuestionIcon,
-    [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon
+    [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon,
+    [VOTING_TYPE]: VotingIcon
   }[type];
 
   const labelIntlId = {
     [ISSUE_TYPE]: "cardTypeLabelIssue",
     [QUESTION_TYPE]: "cardTypeLabelQuestion",
-    [SUGGEST_CHANGE_TYPE]: "cardTypeLabelSuggestedChange"
+    [SUGGEST_CHANGE_TYPE]: "cardTypeLabelSuggestedChange",
+    [VOTING_TYPE]: "cardTypeVoting"
   }[type];
 
   return (
@@ -69,5 +74,10 @@ export default function CardType(props) {
   );
 }
 CardType.propTypes = {
-  type: PropTypes.oneOf([ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE])
+  type: PropTypes.oneOf([
+    ISSUE_TYPE,
+    QUESTION_TYPE,
+    SUGGEST_CHANGE_TYPE,
+    VOTING_TYPE
+  ])
 };

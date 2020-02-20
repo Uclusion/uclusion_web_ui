@@ -5,13 +5,16 @@ import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import LaunchIcon from '@material-ui/icons/Launch';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
+import { navigate } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 
 function ShowMarketButton(props) {
   const [operationRunning] = useContext(OperationInProgressContext);
   const {
-    onClick,
     marketId,
   } = props;
+
+  const history = useHistory();
 
   function myOnClick() {
     return showMarket(marketId);
@@ -23,7 +26,7 @@ function ShowMarketButton(props) {
     <SpinningTooltipIconButton
       marketId={marketId}
       onClick={myOnClick}
-      onSpinStop={onClick}
+      onSpinStop={() => navigate(history, '/')}
       disabled={operationRunning}
       key="exit"
       translationId="decisionDialogsRestoreDialog"
@@ -34,12 +37,7 @@ function ShowMarketButton(props) {
 
 ShowMarketButton.propTypes = {
   marketId: PropTypes.string.isRequired,
-  onClick: PropTypes.func,
 };
 
-ShowMarketButton.defaultProps = {
-  onClick: () => {
-  },
-};
 
 export default ShowMarketButton;

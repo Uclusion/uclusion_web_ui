@@ -8,6 +8,8 @@ import { archiveMarket } from '../../api/markets';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
+import { navigate } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -30,8 +32,8 @@ function DismissMarketButton(props) {
   const [operationRunning] = useContext(OperationInProgressContext);
   const {
     marketId,
-    onClick,
   } = props;
+  const history = useHistory();
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 
@@ -68,7 +70,7 @@ function DismissMarketButton(props) {
           <SpinningTooltipIconButton
             marketId={marketId}
             onClick={myOnClick}
-            onSpinStop={onClick}
+            onSpinStop={() => navigate(history, '/')}
             disabled={operationRunning}
             translationId="decisionDialogsArchiveDialog"
             icon={<ArchiveIcon />}
@@ -81,12 +83,7 @@ function DismissMarketButton(props) {
 
 DismissMarketButton.propTypes = {
   marketId: PropTypes.string.isRequired,
-  onClick: PropTypes.func,
 };
 
-DismissMarketButton.defaultProps = {
-  onClick: () => {
-  },
-};
 
 export default DismissMarketButton;

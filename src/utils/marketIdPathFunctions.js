@@ -64,6 +64,7 @@ export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
       title: name,
       image,
       id,
+      link,
       onClick: usedOnClick,
     };
   });

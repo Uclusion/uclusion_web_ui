@@ -70,10 +70,6 @@ function PlanningDialog(props) {
     }
   }
 
-  function toggleAddInvestibleMode() {
-    navigate(history, formMarketAddInvestibleLink(marketId));
-  }
-
   function toggleManageUsersMode() {
     navigate(history, formMarketManageLink(marketId));
   }
@@ -195,10 +191,6 @@ function PlanningDialog(props) {
         ];
     }
     return [
-      <InvestibleAddActionButton
-        key="investibleadd"
-        onClick={toggleAddInvestibleMode}
-      />,
       <ManageParticipantsActionButton
         key="addParticipants"
         onClick={toggleManageUsersMode}

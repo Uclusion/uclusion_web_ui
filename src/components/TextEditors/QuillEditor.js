@@ -7,6 +7,7 @@ import Quill from 'quill';
 import LoadingOverlay from 'react-loading-overlay';
 import ImageResize from 'quill-image-resize-module-withfix';
 import QuillS3ImageUploader from './QuillS3ImageUploader';
+import NoOpUploader from './NoOpUploader';
 import CustomQuillClipboard from './CustomQuillClipboard';
 import QuillTableUI from 'quill-table-ui';
 import 'quill/dist/quill.snow.css';
@@ -16,7 +17,10 @@ import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core';
 import _ from 'lodash';
 
+// install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
+Quill.register('modules/uploader', NoOpUploader, true);
+
 Quill.register('modules/tableUI', QuillTableUI);
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);

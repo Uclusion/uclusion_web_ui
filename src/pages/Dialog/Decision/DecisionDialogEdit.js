@@ -29,12 +29,14 @@ function DecisionDialogEdit(props) {
     onSpinStop,
     onCancel,
     market,
-    storedDescription,
+    storedState,
   } = props;
-  const { id } = market;
+  const { id, name: initialMarketName } = market;
+  const { description: storedDescription, name: storedName } = storedState;
   const intl = useIntl();
   const classes = useStyles();
-  const [mutableMarket, setMutableMarket] = useState(market);
+  const [mutableMarket, setMutableMarket] = useState({ ...market, name: storedName || initialMarketName });
+  const [draftState, setDraftState] = useState(storedState);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = mutableMarket;
   const [description, setDescription] = useState(storedDescription || mutableMarket.description);
@@ -56,7 +58,13 @@ function DecisionDialogEdit(props) {
     return (event) => {
       const { value } = event.target;
       setMutableMarket({ ...market, [name]: value });
+      handleDraftState({ ...draftState, [name]: value });
     };
+  }
+
+  function handleDraftState(newDraftState) {
+    setDraftState(newDraftState);
+    localforage.setItem(id, newDraftState);
   }
 
   function handleSave() {
@@ -82,7 +90,9 @@ function DecisionDialogEdit(props) {
   }
 
   function onStorageChange(description) {
-    localforage.setItem(id, description);
+    localforage.getItem(id).then((stateFromDisk) => {
+      handleDraftState({ ...stateFromDisk, description });
+    });
   }
 
   function onS3Upload(metadatas) {
@@ -144,7 +154,7 @@ DecisionDialogEdit.propTypes = {
   market: PropTypes.object.isRequired,
   onSpinStop: PropTypes.func,
   onCancel: PropTypes.func,
-  storedDescription: PropTypes.string.isRequired,
+  storedState: PropTypes.object.isRequired,
 };
 
 DecisionDialogEdit.defaultProps = {

@@ -95,7 +95,7 @@ function DialogEdit(props) {
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const editVerbiage = intl.formatMessage({ id: 'edit' });
   const [idLoaded, setIdLoaded] = useState(undefined);
-  const [storedDescription, setStoredDescription] = useState(undefined);
+  const [storedState, setStoredState] = useState(undefined);
   const [lockedMarketId, setLockedMarketId] = useState(undefined);
   const user = getMyUserForMarket(marketsState, marketId) || {};
   const locked = renderableMarket && renderableMarket.locked_by;
@@ -113,43 +113,38 @@ function DialogEdit(props) {
         lockPlanningMarketForEdit(marketId)
           .catch(() => setLockedMarketId(undefined));
       }
-      localforage.getItem(marketId).then((description) => {
-        setStoredDescription(description || '');
+      localforage.getItem(marketId).then((stateFromDisk) => {
+        setStoredState(stateFromDisk || {});
         setIdLoaded(marketId);
       });
     }
-    const originalLockedId = lockedMarketId;
-    // We need this way otherwise if they navigate out by back button we don't release the lock
-    if (hidden && lockedMarketId && locked && marketType === PLANNING_TYPE) {
-      // Set right away to avoid multiple calls
-      setLockedMarketId(undefined);
-      unlockPlanningMarketForEdit(originalLockedId)
-        .catch(() => setLockedMarketId(originalLockedId))
-        .finally(() => localforage.removeItem(originalLockedId));
+    if (hidden && idLoaded) {
+      setIdLoaded(undefined);
     }
     if (hidden && !locked && lockedMarketId) {
       setLockedMarketId(undefined);
-      localforage.removeItem(originalLockedId);
     }
     return () => {
       if (hidden) {
         setLockFailed(false);
       }
     };
-  }, [hidden, marketId, lockedMarketId, marketType, locked, loading,
+  }, [hidden, marketId, lockedMarketId, marketType, locked, loading, idLoaded,
     lockFailed, someoneElseEditing]);
 
   function onDone() {
     if (marketType !== PLANNING_TYPE) {
-      localforage.removeItem(marketId).finally(() => navigate(history, formMarketLink(marketId)));
+      setLockedMarketId(undefined);
+      unlockPlanningMarketForEdit(marketId)
+        .catch(() => setLockedMarketId(marketId))
+        .finally(() => localforage.removeItem(marketId)
+          .finally(() => navigate(history, formMarketLink(marketId))));
     } else {
       navigate(history, formMarketLink(marketId));
     }
   }
 
   function onSpinStop(market) {
-    console.log("Received market");
-    console.log(market);
     const diffSafe = {
       ...market,
       updated_by: userId,
@@ -208,7 +203,7 @@ function DialogEdit(props) {
           onSpinStop={onSpinStop}
           market={renderableMarket}
           onCancel={onDone}
-          storedDescription={storedDescription}
+          storedState={storedState}
         />
       )}
       {!hidden && marketType === PLANNING_TYPE && idLoaded === marketId && (
@@ -216,7 +211,7 @@ function DialogEdit(props) {
           onSpinStop={onSpinStop}
           market={renderableMarket}
           onCancel={onDone}
-          storedDescription={storedDescription}
+          storedState={storedState}
         />
       )}
     </Screen>

@@ -29,12 +29,14 @@ function PlanningDialogEdit(props) {
     onSpinStop,
     onCancel,
     market,
-    storedDescription,
+    storedState,
   } = props;
-  const { id } = market;
+  const { id, name: initialMarketName } = market;
+  const { description: storedDescription, name: storedName } = storedState;
   const intl = useIntl();
   const classes = useStyles();
-  const [mutableMarket, setMutableMarket] = useState(market);
+  const [mutableMarket, setMutableMarket] = useState({ ...market, name: storedName || initialMarketName });
+  const [draftState, setDraftState] = useState(storedState);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { name, max_budget, investment_expiration, days_estimate } = mutableMarket;
@@ -57,7 +59,13 @@ function PlanningDialogEdit(props) {
     return (event) => {
       const { value } = event.target;
       setMutableMarket({ ...market, [name]: value });
+      handleDraftState({ ...draftState, [name]: value });
     };
+  }
+
+  function handleDraftState(newDraftState) {
+    setDraftState(newDraftState);
+    localforage.setItem(id, newDraftState);
   }
 
   function handleSave() {
@@ -80,12 +88,13 @@ function PlanningDialogEdit(props) {
   }
 
   function onEditorChange(content) {
-    // console.log(content);
     setDescription(content);
   }
 
   function onStorageChange(description) {
-    localforage.setItem(id, description);
+    localforage.getItem(id).then((stateFromDisk) => {
+      handleDraftState({ ...stateFromDisk, description });
+    });
   }
 
   function onS3Upload(metadatas) {
@@ -180,7 +189,7 @@ PlanningDialogEdit.propTypes = {
   market: PropTypes.object.isRequired,
   onSpinStop: PropTypes.func,
   onCancel: PropTypes.func,
-  storedDescription: PropTypes.string.isRequired,
+  storedState: PropTypes.object.isRequired,
 };
 
 PlanningDialogEdit.defaultProps = {

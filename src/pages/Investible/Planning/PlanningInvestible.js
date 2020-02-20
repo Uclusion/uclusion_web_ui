@@ -1,10 +1,19 @@
 import React, { useContext, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import _ from "lodash";
-import { Grid, Paper, Typography } from "@material-ui/core";
+import {
+  Card,
+  Grid,
+  Paper,
+  Typography,
+  CardContent,
+  Divider,
+  Box,
+  CircularProgress
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useHistory } from "react-router";
-import { useIntl } from "react-intl";
+import { useIntl, FormattedMessage, FormattedRelativeTime } from "react-intl";
 import SubSection from "../../../containers/SubSection/SubSection";
 import YourVoting from "../Voting/YourVoting";
 import Voting from "../Decision/Voting";
@@ -58,37 +67,53 @@ import DescriptionOrDiff from "../../../components/Descriptions/DescriptionOrDif
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import EditMarketButton from "../../Dialog/EditMarketButton";
+import CardType, { VOTING_TYPE } from "../../../components/CardType";
+import ReadOnlyQuillEditor from "../../../components/TextEditors/ReadOnlyQuillEditor";
+import clsx from "clsx";
 
-const useStyles = makeStyles(theme => ({
-  container: {
-    padding: "3px 89px 21px 21px",
-    marginTop: "-6px",
-    boxShadow: "none",
-    [theme.breakpoints.down("sm")]: {
-      padding: "3px 21px 42px 21px"
-    }
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    lineHeight: "42px",
-    paddingBottom: "9px",
-    [theme.breakpoints.down("xs")]: {
-      fontSize: 25
-    }
-  },
-  content: {
-    fontSize: "15 !important",
-    lineHeight: "175%",
-    color: "#414141",
-    [theme.breakpoints.down("xs")]: {
-      fontSize: 13
+const useStyles = makeStyles(
+  theme => ({
+    container: {
+      padding: "3px 89px 21px 21px",
+      marginTop: "-6px",
+      boxShadow: "none",
+      [theme.breakpoints.down("sm")]: {
+        padding: "3px 21px 42px 21px"
+      }
     },
-    "& > .ql-container": {
-      fontSize: "15 !important"
+    title: {
+      fontSize: 32,
+      fontWeight: "bold",
+      lineHeight: "42px",
+      paddingBottom: "9px",
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 25
+      }
+    },
+    content: {
+      fontSize: "15 !important",
+      lineHeight: "175%",
+      color: "#414141",
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 13
+      },
+      "& > .ql-container": {
+        fontSize: "15 !important"
+      }
+    },
+    cardType: {
+      display: "inline-flex"
+    },
+    votingContainer: {
+      backgroundColor: "#E8E8E8"
+    },
+    votingCardContent: {
+      margin: theme.spacing(2, 6),
+      padding: 0
     }
-  }
-}));
+  }),
+  { name: "PlanningInvestible" }
+);
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -401,7 +426,44 @@ function PlanningInvestible(props) {
   const discussionVisible =
     !commentAddHidden || !_.isEmpty(investmentReasonsRemoved);
   const newestVote = getNewestVote();
+
   const canEdit = isAdmin && (isInNotDoing || assigned.includes(userId));
+
+  const votes = []; // TODO
+  return (
+    <Screen>
+      <div className={classes.votingContainer}>
+        <Card elevation={0}>
+          <CardType className={classes.cardType} type={VOTING_TYPE} />
+          <CardContent className={classes.votingCardContent}>
+            <h1>Vote Page UI TODO</h1>
+            <DescriptionOrDiff
+              hidden={hidden}
+              id={investibleId}
+              description={description}
+            />
+            <Divider />
+            <MetaData investible={investible} />
+          </CardContent>
+        </Card>
+        <h2>Add a vote</h2>
+        <AddVote />
+      </div>
+      <h2>
+        Current Votes <button> uncertain-to-certain</button>
+      </h2>
+      <ol>
+        {votes.map(vote => {
+          return (
+            <li>
+              <Vote key={vote.id} vote={vote} />
+            </li>
+          );
+        })}
+      </ol>
+    </Screen>
+  );
+
   return (
     <Screen
       title={name}
@@ -474,6 +536,22 @@ function PlanningInvestible(props) {
               />
             </SubSection>
           </Grid>
+        )}
+        <Grid item xs={12}>
+          <SubSection
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: "decisionInvestibleYourVoting" })}
+          >
+            <YourVoting
+              investibleId={investibleId}
+              marketPresences={marketPresences}
+              comments={investmentReasons}
+              userId={userId}
+              market={market}
+              showBudget
+            />
+          </SubSection>
+        </Grid>
         )}
         <Grid item xs={12}>
           <SubSection
@@ -558,4 +636,110 @@ PlanningInvestible.defaultProps = {
   inArchives: false,
   hidden: false
 };
+
+const useMetaDataStyles = makeStyles(
+  theme => {
+    return {
+      root: {
+        alignItems: "flex-start",
+        display: "flex"
+      },
+      group: {
+        backgroundColor: "#dcdcdc",
+        borderRadius: 6,
+        display: "flex",
+        flexDirection: "column",
+        margin: theme.spacing(0, 1),
+        padding: theme.spacing(1, 2),
+        "&:first-child": {
+          marginLeft: 0
+        },
+        "& dt": {
+          color: "#828282",
+          fontSize: 10,
+          fontWeight: "bold",
+          marginBottom: theme.spacing(0.5)
+        },
+        "& dd": {
+          fontSize: 20,
+          margin: 0,
+          lineHeight: "26px"
+        }
+      },
+      expiration: {
+        "& dd": {
+          alignItems: "center",
+          display: "flex",
+          flex: "1 auto",
+          flexDirection: "row",
+          fontWeight: "bold"
+        }
+      },
+      expirationProgress: {
+        marginRight: theme.spacing(1)
+      },
+      assignments: {
+        "& ul": {
+          margin: 0,
+          padding: 0
+        },
+        "& li": {
+          display: "inline-flex",
+          marginLeft: theme.spacing(1),
+          "&:first-child": {
+            marginLeft: 0
+          }
+        }
+      }
+    };
+  },
+  { name: "MetaData" }
+);
+
+function MetaData(props) {
+  const { investible } = props;
+
+  const classes = useMetaDataStyles();
+
+  return (
+    <dl className={classes.root}>
+      <div className={clsx(classes.group, classes.expiration)}>
+        <dt>
+          <FormattedMessage id="decisionInvestibleVotingExpirationLabel" />
+        </dt>
+        <dd>
+          <CircularProgress
+            className={classes.expirationProgress}
+            size={22}
+            thickness={8}
+            variant="static"
+            value={33}
+          />
+          <FormattedRelativeTime unit="day" value={13} />
+        </dd>
+      </div>
+      <div className={clsx(classes.group, classes.assignments)}>
+        <dt>
+          <FormattedMessage id="decisionInvestibleVotingAssignmentsLabel" />
+        </dt>
+        <dd>
+          <ul>
+            <li>Matt UI</li>
+            <li>Matt Blitzel</li>
+            <li>David Tesch</li>
+          </ul>
+        </dd>
+      </div>
+    </dl>
+  );
+}
+
+function AddVote() {
+  return null;
+}
+
+function Vote() {
+  return null;
+}
+
 export default PlanningInvestible;

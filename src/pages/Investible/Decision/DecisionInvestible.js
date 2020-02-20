@@ -28,6 +28,7 @@ import { ACTIVE_STAGE } from '../../../constants/markets';
 import { SECTION_TYPE_PRIMARY, SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
+import EditMarketButton from '../../Dialog/EditMarketButton';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -147,7 +148,6 @@ function DecisionInvestible(props) {
     }
     const sidebarActions = [];
     if (isAdmin) {
-      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
       if (inProposed) {
         sidebarActions.push(<MoveToCurrentVotingActionButton
           key="moveToCurrent"
@@ -162,10 +162,6 @@ function DecisionInvestible(props) {
           marketId={marketId}
         />);
       }
-    }
-
-    if (inProposed && createdBy === userId) {
-      sidebarActions.push(<InvestibleEditActionButton key="edit" onClick={toggleEdit} />);
     }
 
     sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
@@ -209,6 +205,10 @@ function DecisionInvestible(props) {
                 id={investibleId}
                 description={description}
               />
+              {(isAdmin || (inProposed && createdBy === userId)) && (
+                <EditMarketButton key="edit" labelId={intl.formatMessage({id: 'edit'})} marketId={marketId}
+                                onClick={toggleEdit} />
+              )}
             </Paper>
             {inProposed && lockedBy && (
               <Typography>

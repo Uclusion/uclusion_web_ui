@@ -17,8 +17,8 @@ import {
   formMarketArchivesLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
-  makeBreadCrumbs,
-} from '../../../utils/marketIdPathFunctions';
+  makeBreadCrumbs, navigate,
+} from '../../../utils/marketIdPathFunctions'
 import Screen from '../../../containers/Screen/Screen';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
@@ -47,6 +47,7 @@ import { SECTION_TYPE_PRIMARY, SECTION_TYPE_PRIMARY_WARNING, SECTION_TYPE_SECOND
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
+import EditMarketButton from '../../Dialog/EditMarketButton'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -223,7 +224,7 @@ function PlanningInvestible(props) {
     }
     const sidebarActions = [];
 
-    if (isAdmin) {
+    if (isAdmin && isInNotDoing) {
       sidebarActions.push(<PlanningInvestibleEditActionButton
         marketId={marketId}
         key="edit"
@@ -322,7 +323,6 @@ function PlanningInvestible(props) {
 
   const discussionVisible = !commentAddHidden || !_.isEmpty(investmentReasonsRemoved);
   const newestVote = getNewestVote();
-
   return (
     <Screen
       title={name}
@@ -346,6 +346,10 @@ function PlanningInvestible(props) {
                 id={investibleId}
                 description={description}
               />
+              {isAdmin && !isInNotDoing && (
+                <EditMarketButton key="edit" labelId={intl.formatMessage({id: 'edit'})} marketId={marketId}
+                                onClick={toggleEdit} />
+              )}
             </Paper>
             {lockedBy && (
               <Typography>

@@ -42,17 +42,17 @@ function InvestibleAdd(props) {
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const titleKey = marketType === PLANNING_TYPE? 'newStory' : 'newOption';
   const title = intl.formatMessage({ id: titleKey});
-  const [storedDescription, setStoredDescription] = useState(undefined);
+  const [storedState, setStoredState] = useState(undefined);
   const [idLoaded, setIdLoaded] = useState(undefined);
 
   function onInvestibleSave(investible) {
     addInvestible(investiblesDispatch, diffDispatch, investible);
   }
 
-
+  const itemKey = `add_investible_${marketId}`;
   function onDone(destinationLink) {
     console.log(`Called with link ${destinationLink}`);
-    localforage.removeItem(`add_investible_${marketId}`)
+    localforage.removeItem(itemKey)
       .finally(() => {
         if (destinationLink) {
           navigate(history, destinationLink);
@@ -62,15 +62,15 @@ function InvestibleAdd(props) {
 
   useEffect(() => {
     if (!hidden) {
-      localforage.getItem(`add_investible_${marketId}`).then((description) => {
-        setStoredDescription(description || '');
+      localforage.getItem(itemKey).then((stateFromDisk) => {
+        setStoredState(stateFromDisk || {});
         setIdLoaded(marketId);
       });
     }
     if (hidden) {
       setIdLoaded(undefined);
     }
-  }, [hidden, marketId]);
+  }, [hidden, marketId, itemKey]);
 
   const loading = idLoaded !== marketId || !marketType
     || (marketType === DECISION_TYPE && !myPresence);
@@ -89,7 +89,7 @@ function InvestibleAdd(props) {
           onCancel={onDone}
           onSpinComplete={onDone}
           isAdmin={isAdmin}
-          storedDescription={storedDescription}
+          storedState={storedState}
         />
       )}
       {marketType === PLANNING_TYPE && idLoaded === marketId && (
@@ -99,7 +99,7 @@ function InvestibleAdd(props) {
           onSave={onInvestibleSave}
           onSpinComplete={onDone}
           marketPresences={marketPresences}
-          storedDescription={storedDescription}
+          storedState={storedState}
         />
       )}
     </Screen>

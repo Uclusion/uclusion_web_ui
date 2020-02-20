@@ -36,20 +36,19 @@ const styles = (theme) => ({
 
 function PlanningInvestibleAdd(props) {
   const {
-    marketId, intl, classes, onCancel, onSave, storedDescription,
-    onSpinComplete,
+    marketId, intl, classes, onCancel, onSave, storedState, onSpinComplete,
   } = props;
-
+  const { description: storedDescription, name: storedName, assignments: storedAssignments } = storedState;
+  const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const emptyInvestible = { name: '', assignments: [] };
+  const emptyInvestible = { name: storedName };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [assignments, setAssignments] = useState([]);
+  const [assignments, setAssignments] = useState(storedAssignments);
   const [validForm, setValidForm] = useState(false);
   const { name } = currentValues;
   const history = useHistory();
-
 
   function getUrlAssignee() {
     const { location } = history;
@@ -61,8 +60,6 @@ function PlanningInvestibleAdd(props) {
     }
     return undefined;
   }
-
-
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -76,16 +73,23 @@ function PlanningInvestibleAdd(props) {
     }
   }, [name, description, assignments, validForm]);
 
+  const itemKey = `add_investible_${marketId}`;
+  function handleDraftState(newDraftState) {
+    setDraftState(newDraftState);
+    localforage.setItem(itemKey, newDraftState);
+  }
   function handleChange(field) {
     return (event) => {
       const { value } = event.target;
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
+      handleDraftState({ ...draftState, [field]: value });
     };
   }
 
   function onAssignmentsChange(newAssignments) {
     setAssignments(newAssignments);
+    handleDraftState({ ...draftState, assignments: newAssignments });
   }
 
   function onEditorChange(description) {
@@ -93,7 +97,9 @@ function PlanningInvestibleAdd(props) {
   }
 
   function onStorageChange(description) {
-    localforage.setItem(`add_investible_${marketId}`, description);
+    localforage.getItem(itemKey).then((stateFromDisk) => {
+      handleDraftState({ ...stateFromDisk, description });
+    });
   }
 
   function onS3Upload(metadatas) {
@@ -139,7 +145,7 @@ function PlanningInvestibleAdd(props) {
         <AssignmentList
           marketId={marketId}
           onChange={onAssignmentsChange}
-          previouslyAssigned={getUrlAssignee()}
+          previouslyAssigned={storedAssignments || getUrlAssignee()}
         />
         <TextField
           className={classes.row}
@@ -201,7 +207,7 @@ PlanningInvestibleAdd.propTypes = {
   onSave: PropTypes.func,
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
-  storedDescription: PropTypes.string.isRequired,
+  storedState: PropTypes.object.isRequired,
 };
 
 PlanningInvestibleAdd.defaultProps = {

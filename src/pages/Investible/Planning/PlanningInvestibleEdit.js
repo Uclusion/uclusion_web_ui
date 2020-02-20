@@ -34,12 +34,12 @@ function PlanningInvestibleEdit(props) {
   const {
     fullInvestible, intl, classes, onCancel, onSave, marketId, storedState,
   } = props;
-  const { description: storedDescription, name: storedName } = storedState;
+  const { description: storedDescription, name: storedName, assignments: storedAssignments } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const myInvestible = fullInvestible.investible;
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
   const { assigned: marketAssigned } = marketInfo;
-  const assigned = marketAssigned || [];
+  const assigned = storedAssignments || marketAssigned;
   const { id, description: initialDescription, name: initialName } = myInvestible;
   const [currentValues, setCurrentValues] = useState({ ...myInvestible, name: storedName || initialName });
   const [assignments, setAssignments] = useState(assigned);
@@ -125,6 +125,7 @@ function PlanningInvestibleEdit(props) {
 
   function handleAssignmentChange(newAssignments) {
     setAssignments(newAssignments);
+    handleDraftState({ ...draftState, assignments: newAssignments });
   }
 
   return (

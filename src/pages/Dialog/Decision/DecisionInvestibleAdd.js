@@ -49,11 +49,12 @@ function DecisionInvestibleAdd(props) {
     onCancel,
     isAdmin,
     onSave,
-    storedDescription,
+    storedState,
     hidden,
     onSpinComplete,
   } = props;
-
+  const { description: storedDescription, name: storedName } = storedState;
+  const [draftState, setDraftState] = useState(storedState);
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketStages = getStages(marketStagesState, marketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
@@ -62,7 +63,7 @@ function DecisionInvestibleAdd(props) {
     stage_id: investmentAllowedStage.id,
     current_stage_id: createdStage.id,
   };
-  const emptyInvestible = { name: '', description: '' };
+  const emptyInvestible = { name: storedName, description: storedDescription };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const defaultClearFunc = () => {};
   //see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react for why we have a func
@@ -85,11 +86,17 @@ function DecisionInvestibleAdd(props) {
     }
   }, [name, description, validForm]);
 
+  const itemKey = `add_investible_${marketId}`;
+  function handleDraftState(newDraftState) {
+    setDraftState(newDraftState);
+    localforage.setItem(itemKey, newDraftState);
+  }
   function handleChange(field) {
     return (event) => {
       const { value } = event.target;
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
+      handleDraftState({ ...draftState, [field]: value });
     };
   }
 
@@ -99,20 +106,16 @@ function DecisionInvestibleAdd(props) {
   }
 
   function onStorageChange(description) {
-    localforage.setItem(`add_investible_${marketId}`, description);
+    localforage.getItem(itemKey).then((stateFromDisk) => {
+      handleDraftState({ ...stateFromDisk, description });
+    });
   }
 
   function onS3Upload(metadatas) {
     setUploadedFiles(metadatas);
   }
 
-  function zeroCurrentValues() {
-    setCurrentValues(emptyInvestible);
-    setDescription('');
-  }
-
   function handleCancel() {
-    zeroCurrentValues();
     onCancel(formMarketLink(marketId));
   }
 
@@ -142,9 +145,9 @@ function DecisionInvestibleAdd(props) {
   }
 
   function onSaveAddAnother() {
-    localforage.removeItem(`add_investible_${marketId}`)
+    localforage.removeItem(itemKey)
       .finally(() => {
-        zeroCurrentValues();
+        setCurrentValues({ name: '' });
         editorClearFunc();
       });
   }
@@ -236,7 +239,7 @@ DecisionInvestibleAdd.propTypes = {
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
   isAdmin: PropTypes.bool,
-  storedDescription: PropTypes.string.isRequired,
+  storedState: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
   onSpinComplete: PropTypes.func,
 };

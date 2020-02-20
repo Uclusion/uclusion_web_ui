@@ -347,8 +347,7 @@ function PlanningInvestible(props) {
                 description={description}
               />
               {isAdmin && !isInNotDoing && (
-                <EditMarketButton key="edit" labelId={intl.formatMessage({id: 'edit'})} marketId={marketId}
-                                onClick={toggleEdit} />
+                <EditMarketButton key="edit" labelId="edit" marketId={marketId} onClick={toggleEdit} />
               )}
             </Paper>
             {lockedBy && (

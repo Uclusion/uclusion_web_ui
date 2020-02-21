@@ -97,7 +97,7 @@ function InitiativeInvestibleEdit(props) {
     return updateInvestible(updateInfo)
       .then((investible) => {
         return {
-          result: investible,
+          result: { investible },
           spinChecker: () => Promise.resolve(true),
         };
       });

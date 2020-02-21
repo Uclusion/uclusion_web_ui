@@ -117,7 +117,7 @@ function PlanningInvestibleEdit(props) {
     return updateInvestible(updateInfo)
       .then((investible) => {
         return {
-          result: investible,
+          result: { investible, assignments },
           spinChecker: () => Promise.resolve(true),
         };
       });

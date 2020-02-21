@@ -3,6 +3,7 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
 import localforage from 'localforage';
+import _ from 'lodash';
 import {
   lockInvestibleForEdit,
   realeaseInvestibleEditLock,
@@ -104,14 +105,33 @@ function InvestibleEdit (props) {
     lockedBy, someoneElseEditing, loading, lockFailed, idLoaded
   ]);
 
-  function onDone (investible) {
-    // the edit ony updates the investible data, not the market infos
-    if (investible) {
+  function getNewMarketInfo(assignments) {
+    const { market_infos: marketInfos } = fullInvestible;
+    if (!assignments) {
+      return marketInfos;
+    }
+    const thisMarketInfo = marketInfos.find((info) => info.market_id === marketId);
+    if (!thisMarketInfo) {
+      return marketInfos;
+    }
+    const replacementInfo = {
+     ...thisMarketInfo,
+     assigned: assignments,
+    };
+    return _.unionBy([replacementInfo], marketInfos, 'market_id');
+  }
+
+  function onDone (result) {
+    // the edit ony contains the investible data and assignments, not the full market infos
+    if (result) {
+      const { investible, assignments } = result;
+      const newInfos = getNewMarketInfo(assignments);
       const withMarketInfo = {
-        ...fullInvestible,
+        market_infos: newInfos,
         investible: {
           ...investible,
           updated_by: userId,
+          updated_by_you: true,
         },
       };
       refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);

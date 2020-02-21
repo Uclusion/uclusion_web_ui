@@ -83,8 +83,8 @@ function VerifyEmail(props) {
             />
           </Avatar>
           <Typography component="h1" variant="h5" align="center">
-            No code was provided. Please provide a verification link from the
-            email.
+            Sorry, we couldn't verify you.
+            Please re-visit this page via a verification link from the email we sent.
           </Typography>
         </div>
       </Container>

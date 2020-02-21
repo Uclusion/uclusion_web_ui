@@ -148,7 +148,7 @@ function VerifyEmail(props) {
           />
         </Avatar>
         <Typography component="h1" variant="h5" align="center">
-          We are verifying your email now.
+          Please wait while we verify your email. This may take a few seconds.
         </Typography>
       </div>
     </Container>

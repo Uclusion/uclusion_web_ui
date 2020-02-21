@@ -514,6 +514,7 @@ const messages = defineMessages({
   yourVotingVoteForThisPlanning: 'Vote for this story',
   yourVotingVoteForThisDecision: 'Vote for this option',
   yourVotingVoteForThisInitiative: 'Vote for this',
+  clearVotes: 'Your other vote will be cleared',
 
   // add participants
   addParticipantsNewPerson: 'Need to add someone not on this list?',

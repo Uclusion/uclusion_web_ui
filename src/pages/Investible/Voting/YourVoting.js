@@ -4,7 +4,6 @@ import AddEditVote from './AddEditVote';
 import { useHistory } from 'react-router';
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 
-
 function YourVoting(props) {
   const {
     marketPresences,
@@ -16,7 +15,7 @@ function YourVoting(props) {
   } = props;
 
   const history = useHistory();
-  const { id: marketId, max_budget: storyMaxBudget } = market;
+  const { id: marketId, max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote } = market;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const yourReason = comments.find((comment) => comment.created_by === userId);
@@ -31,6 +30,8 @@ function YourVoting(props) {
       investibleId={investibleId}
       reason={yourReason}
       investment={yourVote}
+      hasVoted={yourPresence && yourPresence.investments.length > 0}
+      allowMultiVote={allowMultiVote}
       showBudget={showBudget}
       onSave={onVoteSave}
       storyMaxBudget={storyMaxBudget}

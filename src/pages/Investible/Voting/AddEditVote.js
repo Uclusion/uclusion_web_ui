@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl'
 import TextField from '@material-ui/core/TextField';
 import {
   Paper,
@@ -11,8 +11,8 @@ import {
   FormLabel,
   Radio,
   Typography,
-  Grid,
-} from '@material-ui/core';
+  Grid, Button, makeStyles,
+} from '@material-ui/core'
 import { removeInvestment, updateInvestment } from '../../../api/marketInvestibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
@@ -22,6 +22,20 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { refreshMarketComments, removeComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import clsx from 'clsx';
+import { Dialog } from '../../../components/Dialogs';
+import WarningIcon from '@material-ui/icons/Warning';
+import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
+
+const useStyles = makeStyles(() => ({
+  button: {
+    borderRadius: '4px',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    margin: 8,
+    textTransform: 'capitalize',
+  },
+}), { name: 'VoteAdd' });
 
 function AddEditVote(props) {
   const {
@@ -32,8 +46,11 @@ function AddEditVote(props) {
     onSave,
     showBudget,
     storyMaxBudget,
+    hasVoted,
+    allowMultiVote,
   } = props;
   const intl = useIntl();
+  const classes = useStyles();
   const addMode = _.isEmpty(investment);
   const { quantity, max_budget: initialMaxBudget } = investment;
   const [validForm, setValidForm] = useState(false);
@@ -45,6 +62,12 @@ function AddEditVote(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [open, setOpen] = useState(body);
+  const warnClearVotes = !allowMultiVote && hasVoted && addMode;
+
+  function toggleOpen() {
+    setOpen(!open);
+  }
 
   // If new investment data comes in, reset the quantity and budget
   useEffect(() => {
@@ -134,7 +157,7 @@ function AddEditVote(props) {
   function onEditorChange(body) {
     setReasonText(body);
   }
-
+  const lockedDialogClasses = useLockedDialogStyles();
   return (
     <Paper>
       <FormControl
@@ -241,7 +264,7 @@ function AddEditVote(props) {
             {intl.formatMessage({ id: 'removeVote' })}
           </SpinBlockingButton>
         )}
-        {saveEnabled && (
+        {saveEnabled && !warnClearVotes && (
           <SpinBlockingButton
             marketId={marketId}
             onClick={mySave}
@@ -252,11 +275,85 @@ function AddEditVote(props) {
             {addMode ? intl.formatMessage({ id: 'saveVote' }) : intl.formatMessage({ id: 'updateVote' })}
           </SpinBlockingButton>
         )}
+        {saveEnabled && warnClearVotes && (
+          <Button
+            onClick={toggleOpen}
+            className={classes.button}
+          >
+            {intl.formatMessage({ id: 'saveVote' })}
+          </Button>
+        )}
       </SpinBlockingButtonGroup>
-
+      <ClearVotesDialog
+        classes={lockedDialogClasses}
+        open={open}
+        onClose={toggleOpen}
+        issueWarningId="clearVotes"
+        /* slots */
+        actions={
+          <SpinBlockingButton
+            className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
+            disableFocusRipple
+            marketId={marketId}
+            onClick={mySave}
+            onSpinStop={onSaveSpinStop}
+            disabled={!validForm}
+          >
+            <FormattedMessage id="issueProceed" />
+          </SpinBlockingButton>
+        }
+      />
     </Paper>
   );
 }
+
+function ClearVotesDialog(props) {
+  const { actions, classes, open, onClose, issueWarningId } = props;
+
+  const autoFocusRef = React.useRef(null);
+
+  return (
+    <Dialog
+      autoFocusRef={autoFocusRef}
+      classes={{
+        root: classes.root,
+        actions: classes.actions,
+        content: classes.issueWarningContent,
+        title: classes.title
+      }}
+      open={open}
+      onClose={onClose}
+      /* slots */
+      actions={
+        <React.Fragment>
+          {actions}
+          <Button
+            className={clsx(classes.action, classes.actionCancel)}
+            disableFocusRipple
+            onClick={onClose}
+            ref={autoFocusRef}
+          >
+            <FormattedMessage id="lockDialogCancel" />
+          </Button>
+        </React.Fragment>
+      }
+      content={<FormattedMessage id={issueWarningId} />}
+      title={
+        <React.Fragment>
+          <WarningIcon className={classes.warningTitleIcon} />
+          <FormattedMessage id="warning" />
+        </React.Fragment>
+      }
+    />
+  );
+}
+
+ClearVotesDialog.propTypes = {
+  actions: PropTypes.node.isRequired,
+  onClose: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
+  issueWarningId: PropTypes.string.isRequired,
+};
 
 AddEditVote.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
@@ -268,10 +365,14 @@ AddEditVote.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   investment: PropTypes.object,
   onSave: PropTypes.func,
+  hasVoted: PropTypes.bool,
+  allowMultiVote: PropTypes.bool,
 };
 
 AddEditVote.defaultProps = {
   showBudget: false,
+  hasVoted: false,
+  allowMultiVote: true,
   investment: {},
   storyMaxBudget: 0,
   onSave: () => {

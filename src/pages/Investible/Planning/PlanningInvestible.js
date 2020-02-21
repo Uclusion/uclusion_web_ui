@@ -323,6 +323,7 @@ function PlanningInvestible(props) {
 
   const discussionVisible = !commentAddHidden || !_.isEmpty(investmentReasonsRemoved);
   const newestVote = getNewestVote();
+  const canEdit = isAdmin && (isInNotDoing || assigned.includes(userId));
   return (
     <Screen
       title={name}
@@ -346,7 +347,7 @@ function PlanningInvestible(props) {
                 id={investibleId}
                 description={description}
               />
-              {isAdmin && !isInNotDoing && (
+              {canEdit && (
                 <EditMarketButton key="edit" labelId="edit" marketId={marketId} onClick={toggleEdit} />
               )}
             </Paper>

@@ -56,6 +56,7 @@ function DecisionDialog(props) {
   const activeMarket = marketStage === ACTIVE_STAGE;
   const {
     is_admin: isAdmin,
+    following: isParticipant,
   } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
@@ -125,12 +126,14 @@ function DecisionDialog(props) {
 
   const sidebarMenuList = [manageAction];
   if (activeMarket) {
-    sidebarMenuList.unshift({
-      label: intl.formatMessage({ id: addLabel }),
-      icon: <AddIcon />,
-      id: "newOption",
-      onClick: () => navigate(history, formMarketAddInvestibleLink(marketId)),
-    });
+    if (isParticipant) {
+      sidebarMenuList.unshift({
+        label: intl.formatMessage({ id: addLabel }),
+        icon: <AddIcon/>,
+        id: 'newOption',
+        onClick: () => navigate(history, formMarketAddInvestibleLink(marketId)),
+      });
+    }
     sidebarMenuList.push({
       label: intl.formatMessage({ id: 'commentIconRaiseIssueLabel' }),
       icon: getCommentTypeIcon(ISSUE_TYPE),

@@ -2,16 +2,27 @@ import React, { useContext, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import _ from "lodash";
 import {
+  darken,
+  Button,
   Card,
-  Grid,
-  Paper,
-  Typography,
+  CardActions,
   CardContent,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  FormLabel,
+  Grid,
+  InputAdornment,
+  makeStyles,
+  Paper,
+  Radio,
+  TextField,
+  Typography,
   Divider,
-  Box,
-  CircularProgress
+  CircularProgress,
+  RadioGroup
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
+import localforage from "localforage";
 import { useHistory } from "react-router";
 import { useIntl, FormattedMessage, FormattedRelativeTime } from "react-intl";
 import SubSection from "../../../containers/SubSection/SubSection";
@@ -70,6 +81,7 @@ import EditMarketButton from "../../Dialog/EditMarketButton";
 import CardType, { VOTING_TYPE } from "../../../components/CardType";
 import ReadOnlyQuillEditor from "../../../components/TextEditors/ReadOnlyQuillEditor";
 import clsx from "clsx";
+import QuillEditor from "../../../components/TextEditors/QuillEditor";
 
 const useStyles = makeStyles(
   theme => ({
@@ -103,9 +115,6 @@ const useStyles = makeStyles(
     },
     cardType: {
       display: "inline-flex"
-    },
-    votingContainer: {
-      backgroundColor: "#E8E8E8"
     },
     votingCardContent: {
       margin: theme.spacing(2, 6),
@@ -432,23 +441,21 @@ function PlanningInvestible(props) {
   const votes = []; // TODO
   return (
     <Screen>
-      <div className={classes.votingContainer}>
-        <Card elevation={0}>
-          <CardType className={classes.cardType} type={VOTING_TYPE} />
-          <CardContent className={classes.votingCardContent}>
-            <h1>Vote Page UI TODO</h1>
-            <DescriptionOrDiff
-              hidden={hidden}
-              id={investibleId}
-              description={description}
-            />
-            <Divider />
-            <MetaData investible={investible} />
-          </CardContent>
-        </Card>
-        <h2>Add a vote</h2>
-        <AddVote />
-      </div>
+      <Card elevation={0}>
+        <CardType className={classes.cardType} type={VOTING_TYPE} />
+        <CardContent className={classes.votingCardContent}>
+          <h1>Vote Page UI TODO</h1>
+          <DescriptionOrDiff
+            hidden={hidden}
+            id={investibleId}
+            description={description}
+          />
+          <Divider />
+          <MetaData investible={investible} />
+        </CardContent>
+      </Card>
+      <h2>Add a vote</h2>
+      <AddVote market={market} />
       <h2>
         Current Votes <button> uncertain-to-certain</button>
       </h2>
@@ -645,7 +652,7 @@ const useMetaDataStyles = makeStyles(
         display: "flex"
       },
       group: {
-        backgroundColor: "#dcdcdc",
+        backgroundColor: theme.palette.grey["300"],
         borderRadius: 6,
         display: "flex",
         flexDirection: "column",
@@ -734,8 +741,242 @@ function MetaData(props) {
   );
 }
 
-function AddVote() {
-  return null;
+const useAddVoteStyles = makeStyles(
+  theme => {
+    return {
+      certainty: {},
+      certaintyGroup: {
+        display: "flex",
+        flexDirection: "row"
+      },
+      certaintyLabel: {
+        marginBottom: theme.spacing(2),
+        textTransform: "capitalize"
+      },
+      certaintyValue: {
+        backgroundColor: theme.palette.grey["300"],
+        borderRadius: 6,
+        paddingLeft: theme.spacing(1),
+        margin: theme.spacing(0, 2, 2, 0)
+      },
+      certaintyValueLabel: {
+        fontWeight: "bold"
+      },
+      effortValue: {
+        marginBottom: theme.spacing(1)
+      },
+      effortValueLabel: {
+        display: "block",
+        marginBottom: theme.spacing(1)
+      },
+      actions: {
+        display: "flex",
+        padding: theme.spacing(0, 0, 1, 2)
+      },
+      submit: {
+        backgroundColor: "#2F80ED",
+        color: "white",
+        textTransform: "capitalize",
+        "&:hover": {
+          backgroundColor: darken("#2F80ED", 0.08)
+        },
+        "&:focus": {
+          backgroundColor: darken("#2F80ED", 0.24)
+        }
+      }
+    };
+  },
+  { name: "AddVote" }
+);
+
+function AddVote(props) {
+  const { market } = props;
+
+  const classes = useAddVoteStyles();
+
+  const isCertaintyValid = certainty => certainty !== -1;
+  const isReasonValid = reason => reason.length > 0;
+  const isEffortValueValid = effortValue => effortValue > 0;
+  const isFormValid = form =>
+    isCertaintyValid(form.certainty) &&
+    isEffortValueValid(form.effortValue) &&
+    isReasonValid(form.reason);
+
+  const [form, dispatch] = React.useReducer(
+    (state, action) => {
+      const nextState = { ...state };
+
+      switch (action.type) {
+        case "change-certainty":
+          nextState.certainty = action.payload;
+          nextState.errors.certainty = !isCertaintyValid(nextState.certainty);
+          break;
+        case "change-reason":
+          nextState.reason = action.payload;
+          nextState.errors.reason = !isReasonValid(nextState.reason);
+          break;
+        case "change-effort-value":
+          nextState.effortValue = action.payload;
+          nextState.errors.effortValue = !isEffortValueValid(
+            nextState.effortValue
+          );
+          break;
+        case "s3-upload":
+          nextState.files = action.payload;
+          break;
+        case "submit":
+          nextState.state = "submitting";
+          break;
+        case "validate":
+          nextState.errors.certainty = !isCertaintyValid(nextState.certainty);
+          nextState.errors.reason = !isReasonValid(nextState.reason);
+          nextState.errors.effortValue = !isEffortValueValid(nextState.reason);
+          break;
+        default:
+          throw new TypeError(`unknown action '${action.type}'`);
+      }
+
+      return nextState;
+    },
+    {
+      certainty: -1,
+      errors: {},
+      reason: "",
+      files: [],
+      state: "draft"
+    }
+  );
+
+  const currentRef = React.useRef(true);
+  React.useEffect(() => {
+    return () => {
+      currentRef.current = false;
+    };
+  }, []);
+
+  function handleSubmit() {
+    if (!isFormValid(form)) {
+      dispatch({ type: "validate" });
+      return;
+    }
+
+    dispatch({ type: "submit" });
+    // TODO save
+  }
+
+  return (
+    <Card>
+      <CardContent>
+        <FormControl
+          className={classes.certainty}
+          error={Boolean(form.errors.certainty)}
+        >
+          <FormLabel className={classes.certaintyLabel} id="add-vote-certainty">
+            rate your certainty
+          </FormLabel>
+          <RadioGroup
+            aria-labelledby="add-vote-certainty"
+            className={classes.certaintyGroup}
+            name="customized-radios"
+            onChange={event => {
+              dispatch({
+                type: "change-certainty",
+                payload: +event.target.value
+              });
+            }}
+            required
+            value={form.certainty}
+          >
+            {Array.from({ length: 5 }).map((_, certainty) => {
+              return (
+                <FormControlLabel
+                  className={classes.certaintyValue}
+                  classes={{
+                    label: classes.certaintyValueLabel
+                  }}
+                  /* prevent clicking the label stealing focus */
+                  onMouseDown={e => e.preventDefault()}
+                  // otherwise we prevent the default when bubbling to the mouseDown
+                  // from FormControlLabel
+                  control={<Radio onMouseDown={e => e.stopPropagation()} />}
+                  label={
+                    <FormattedMessage
+                      id={`planningInvestibleCertainty${certainty}`}
+                    />
+                  }
+                  labelPlacement="start"
+                  value={certainty}
+                />
+              );
+            })}
+          </RadioGroup>
+          <FormHelperText>
+            {form.errors.certainty && (
+              <FormattedMessage id="planningInvestibleCertaintyError" />
+            )}
+          </FormHelperText>
+        </FormControl>
+        <Typography
+          className={classes.effortValueLabel}
+          component="label"
+          htmlFor="add-vote-effort-value"
+          variant="body"
+        >
+          <FormattedMessage id="planningInvestibleEffortValue" />
+        </Typography>
+        <TextField
+          className={classes.effortValue}
+          error={Boolean(form.errors.effortValue)}
+          id="add-vote-effort-value"
+          helperText={
+            form.errors.effortValue && (
+              <FormattedMessage id="planningInvestibleEffortValueError" />
+            )
+          }
+          InputProps={{
+            endAdornment: <InputAdornment position="end">days</InputAdornment>
+          }}
+          onChange={event => {
+            dispatch({
+              type: "change-effort-value",
+              payload: event.target.valueAsNumber
+            });
+          }}
+          required
+          type="number"
+          value={form.effortValue}
+          variant="filled"
+        />
+        <QuillEditor
+          onChange={content => {
+            dispatch({ type: "change-reason", payload: content });
+          }}
+          onStoreChange={reason => {
+            localforage.setItem(market.id, reason);
+          }}
+          defaultValue={form.reason}
+          marketId={market.id}
+          onS3Upload={metadatas => {
+            dispatch({ type: "s3-upload", payload: metadatas });
+          }}
+          setOperationInProgress={() => {
+            // TODO
+          }}
+        />
+      </CardContent>
+      <CardActions className={classes.actions}>
+        <Button
+          className={classes.submit}
+          color="primary"
+          disabled={form.state === "submitting"}
+          onClick={handleSubmit}
+          variant="contained"
+        >
+          <FormattedMessage id="submit" />
+        </Button>
+      </CardActions>
+    </Card>
+  );
 }
 
 function Vote() {

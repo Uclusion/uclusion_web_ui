@@ -1,40 +1,24 @@
 import React, { useContext } from 'react';
-import { useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl'
 import PropTypes from 'prop-types';
 import ArchiveIcon from '@material-ui/icons/Archive';
-import { makeStyles } from '@material-ui/core/styles';
-import Modal from '@material-ui/core/Modal';
 import { archiveMarket } from '../../api/markets';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-
-const useStyles = makeStyles((theme) => ({
-  modal: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  paper: {
-    position: 'absolute',
-    width: 400,
-    backgroundColor: theme.palette.background.paper,
-    border: '2px solid #000',
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-  },
-}));
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
+import clsx from 'clsx';
+import { useLockedDialogStyles } from '../Dialog/DialogEdit';
+import { Dialog } from '../../components/Dialogs';
+import { Button } from '@material-ui/core';
 
 function DismissMarketButton(props) {
-  const intl = useIntl();
   const [operationRunning] = useContext(OperationInProgressContext);
   const {
     marketId,
   } = props;
   const history = useHistory();
-  const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 
   const handleOpen = () => {
@@ -45,45 +29,87 @@ function DismissMarketButton(props) {
     setOpen(false);
   };
 
-
   function myOnClick() {
     return archiveMarket(marketId);
   }
 
-  const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
-
+  const lockedDialogClasses = useLockedDialogStyles();
   return (
     <div>
       <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon />} onClick={handleOpen} translationId="decisionDialogsArchiveDialog" />
-      <Modal
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
+      <DismissDialog
+        classes={lockedDialogClasses}
         open={open}
-        className={classes.modal}
         onClose={handleClose}
-      >
-        <div className={classes.paper}>
-          <h2 id="simple-modal-title">{intl.formatMessage({ id: 'warning' })}</h2>
-          <p id="simple-modal-description">
-            {intl.formatMessage({ id: 'archiveWarning' })}
-          </p>
-          <SpinningTooltipIconButton
+        issueWarningId="archiveWarning"
+        /* slots */
+        actions={
+          <SpinBlockingButton
+            className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
+            disableFocusRipple
             marketId={marketId}
             onClick={myOnClick}
             onSpinStop={() => navigate(history, '/')}
             disabled={operationRunning}
-            translationId="decisionDialogsArchiveDialog"
-            icon={<ArchiveIcon />}
-          />
-        </div>
-      </Modal>
+          >
+            <FormattedMessage id="issueProceed" />
+          </SpinBlockingButton>
+        }
+      />
     </div>
   );
 }
 
+function DismissDialog(props) {
+  const { actions, classes, open, onClose, issueWarningId } = props;
+
+  const autoFocusRef = React.useRef(null);
+
+  return (
+    <Dialog
+      autoFocusRef={autoFocusRef}
+      classes={{
+        root: classes.root,
+        actions: classes.actions,
+        content: classes.issueWarningContent,
+        title: classes.title
+      }}
+      open={open}
+      onClose={onClose}
+      /* slots */
+      actions={
+        <React.Fragment>
+          {actions}
+          <Button
+            className={clsx(classes.action, classes.actionCancel)}
+            disableFocusRipple
+            onClick={onClose}
+            ref={autoFocusRef}
+          >
+            <FormattedMessage id="lockDialogCancel" />
+          </Button>
+        </React.Fragment>
+      }
+      content={<FormattedMessage id={issueWarningId} />}
+      title={
+        <React.Fragment>
+          <ArchiveIcon className={classes.warningTitleIcon} />
+          <FormattedMessage id="warning" />
+        </React.Fragment>
+      }
+    />
+  );
+}
+
+DismissDialog.propTypes = {
+  actions: PropTypes.node.isRequired,
+  onClose: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
+  issueWarningId: PropTypes.string.isRequired,
+};
+
 DismissMarketButton.propTypes = {
   marketId: PropTypes.string.isRequired,
 };
-
 
 export default DismissMarketButton;

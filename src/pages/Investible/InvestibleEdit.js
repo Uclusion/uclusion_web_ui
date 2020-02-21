@@ -1,11 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
 import localforage from 'localforage';
-import LockOpenIcon from '@material-ui/icons/LockOpen';
-import Modal from '@material-ui/core/Modal';
-import { makeStyles } from '@material-ui/core/styles';
 import {
   lockInvestibleForEdit,
   realeaseInvestibleEditLock,
@@ -31,31 +28,15 @@ import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/m
 import DecisionInvestibleEdit from './Decision/DecisionInvestibleEdit';
 import PlanningInvestibleEdit from './Planning/PlanningInvestibleEdit';
 import InitiativeInvestibleEdit from './Initiative/InitiativeInvestibleEdit';
-import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
-
-const useStyles = makeStyles((theme) => ({
-  modal: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  paper: {
-    position: 'absolute',
-    width: 400,
-    backgroundColor: theme.palette.background.paper,
-    border: '2px solid #000',
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-  },
-}));
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
+import clsx from 'clsx';
+import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogEdit';
 
 function InvestibleEdit (props) {
   const { hidden } = props;
   const intl = useIntl();
-  const classes = useStyles();
   const history = useHistory();
   const { location } = history;
   const { pathname } = location;
@@ -148,6 +129,7 @@ function InvestibleEdit (props) {
     breadCrumbTemplates.unshift({ name: marketName, link: formMarketLink(marketId) });
   }
   const breadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
+  const lockedDialogClasses = useLockedDialogStyles();
   if (loading) {
     return (
       <Screen
@@ -161,26 +143,12 @@ function InvestibleEdit (props) {
       </Screen>
     );
   }
-  let lockedByName;
-  if (lockedBy) {
-    const lockedByPresence = marketPresences.find(
-      (presence) => presence.id === lockedBy,
-    );
-    if (lockedByPresence) {
-      const { name } = lockedByPresence;
-      lockedByName = name;
-    }
-  }
-  const lockWarning = lockFailed ? intl.formatMessage({ id: 'lockFailedWarning' })
-    : intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName });
-  const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
 
   function myOnClick () {
     const breakLock = true;
     return lockInvestibleForEdit(marketId, investibleId, breakLock)
       .catch(() => setLockFailed(true));
   }
-
   return (
     <Screen
       title={intl.formatMessage({ id: 'edit' })}
@@ -188,28 +156,24 @@ function InvestibleEdit (props) {
       breadCrumbs={breadCrumbs}
       hidden={hidden}
     >
-      <Modal
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
+      <LockedDialog
+        classes={lockedDialogClasses}
         open={!hidden && (someoneElseEditing || lockFailed)}
-        className={classes.modal}
         onClose={onDone}
-      >
-        <div className={classes.paper}>
-          <h2 id="simple-modal-title">{intl.formatMessage({ id: 'warning' })}</h2>
-          <p id="simple-modal-description">
-            {lockWarning}
-          </p>
-          <SpinningTooltipIconButton
+        /* slots */
+        actions={
+          <SpinBlockingButton
+            className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
+            disableFocusRipple
             marketId={marketId}
             onClick={myOnClick}
             onSpinStop={onLock}
             disabled={operationRunning}
-            translationId="breakLock"
-            icon={<LockOpenIcon/>}
-          />
-        </div>
-      </Modal>
+          >
+            <FormattedMessage id="pageLockEditPage" />
+          </SpinBlockingButton>
+        }
+      />
       {!hidden && isDecision && inv && idLoaded === investibleId && (
         <DecisionInvestibleEdit
           fullInvestible={inv}

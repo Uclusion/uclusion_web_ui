@@ -205,8 +205,7 @@ function DecisionInvestible(props) {
                 description={description}
               />
               {(isAdmin || (inProposed && createdBy === userId)) && (
-                <EditMarketButton key="edit" labelId={intl.formatMessage({id: 'edit'})} marketId={marketId}
-                                onClick={toggleEdit} />
+                <EditMarketButton key="edit" labelId='edit' marketId={marketId} onClick={toggleEdit} />
               )}
             </Paper>
             {inProposed && lockedBy && (

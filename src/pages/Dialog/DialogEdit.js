@@ -23,7 +23,7 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 
-const useLockedDialogStyles = makeStyles(
+export const useLockedDialogStyles = makeStyles(
   theme => {
     return {
       title: {
@@ -40,8 +40,15 @@ const useLockedDialogStyles = makeStyles(
         width: 16,
         marginRight: 8,
       },
+      warningTitleIcon: {
+        marginRight: 8,
+      },
       content: {
         lineHeight: 1.75,
+        textAlign: "center"
+      },
+      issueWarningContent: {
+        lineHeight: 3,
         textAlign: "center"
       },
       actions: {
@@ -220,7 +227,7 @@ DialogEdit.propTypes = {
   hidden: PropTypes.bool.isRequired,
 };
 
-function LockedDialog(props) {
+export function LockedDialog(props) {
   const { actions, classes, open, onClose } = props;
 
   const autoFocusRef = React.useRef(null);

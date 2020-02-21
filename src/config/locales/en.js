@@ -248,6 +248,7 @@ const messages = defineMessages({
   // Issues
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',
+  issueProceed: 'Proceed',
   // lock dialog
   lockDialogCancel: 'cancel',
   pageLockEditPage: 'edit page',

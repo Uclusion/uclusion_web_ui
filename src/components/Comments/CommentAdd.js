@@ -1,11 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { injectIntl } from 'react-intl';
+import { FormattedMessage, injectIntl } from 'react-intl'
 import classNames from 'clsx';
 import _ from 'lodash';
 import {
   Button, makeStyles, Paper, darken
 } from '@material-ui/core';
-import Modal from '@material-ui/core/Modal';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import QuillEditor from '../TextEditors/QuillEditor';
 import { saveComment } from '../../api/comments';
@@ -18,6 +18,9 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { scrollToCommentAddBox } from './commentFunctions';
+import { Dialog } from '../Dialogs';
+import WarningIcon from '@material-ui/icons/Warning';
+import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit';
 
 function getPlaceHolderLabelId (type) {
   switch (type) {
@@ -148,6 +151,7 @@ function CommentAdd (props) {
   const commentCancelLabel = parent ? 'commentAddCancelLabel' : 'commentReplyCancelLabel';
   const showIssueWarning = issueWarningId !== null && type === ISSUE_TYPE;
   console.debug(`show issue warning is ${showIssueWarning}`);
+  const lockedDialogClasses = useLockedDialogStyles();
   return (
     <Paper
       id={hidden ? '' : 'cabox'}
@@ -178,31 +182,25 @@ function CommentAdd (props) {
               {intl.formatMessage({ id: commentSaveLabel })}
             </Button>
           )}
-          {showIssueWarning && (
-            <Modal
-              aria-labelledby="simple-modal-title"
-              aria-describedby="simple-modal-description"
-              open={openIssue}
-              className={classes.modal}
-              onClose={toggleIssue}
-            >
-              <div className={classes.paper}>
-                <h2 id="simple-modal-title">{intl.formatMessage({ id: 'warning' })}</h2>
-                <p id="simple-modal-description">
-                  {intl.formatMessage({ id: issueWarningId })}
-                </p>
-                <SpinBlockingButton
-                  className={classNames(classes.button, classes.buttonPrimary)}
-                  marketId={marketId}
-                  onClick={handleSave}
-                  onSpinStop={handleSpinStop}
-                  disabled={_.isEmpty(body)}
-                >
-                  {intl.formatMessage({ id: commentSaveLabel })}
-                </SpinBlockingButton>
-              </div>
-            </Modal>
-          )}
+          <IssueDialog
+            classes={lockedDialogClasses}
+            open={!hidden && openIssue}
+            onClose={toggleIssue}
+            issueWarningId={issueWarningId}
+            /* slots */
+            actions={
+              <SpinBlockingButton
+                className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
+                disableFocusRipple
+                marketId={marketId}
+                onClick={handleSave}
+                onSpinStop={handleSpinStop}
+                disabled={_.isEmpty(body)}
+              >
+                <FormattedMessage id="issueProceed" />
+              </SpinBlockingButton>
+            }
+          />
           <Button
             onClick={handleCancel}
             className={classes.button}
@@ -214,6 +212,54 @@ function CommentAdd (props) {
     </Paper>
   );
 }
+
+function IssueDialog(props) {
+  const { actions, classes, open, onClose, issueWarningId } = props;
+
+  const autoFocusRef = React.useRef(null);
+
+  return (
+    <Dialog
+      autoFocusRef={autoFocusRef}
+      classes={{
+        root: classes.root,
+        actions: classes.actions,
+        content: classes.issueWarningContent,
+        title: classes.title
+      }}
+      open={open}
+      onClose={onClose}
+      /* slots */
+      actions={
+        <React.Fragment>
+          {actions}
+          <Button
+            className={clsx(classes.action, classes.actionCancel)}
+            disableFocusRipple
+            onClick={onClose}
+            ref={autoFocusRef}
+          >
+            <FormattedMessage id="lockDialogCancel" />
+          </Button>
+        </React.Fragment>
+      }
+      content={<FormattedMessage id={issueWarningId} />}
+      title={
+        <React.Fragment>
+          <WarningIcon className={classes.warningTitleIcon} />
+          <FormattedMessage id="warning" />
+        </React.Fragment>
+      }
+    />
+  );
+}
+
+IssueDialog.propTypes = {
+  actions: PropTypes.node.isRequired,
+  onClose: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
+  issueWarningId: PropTypes.string.isRequired,
+};
 
 CommentAdd.propTypes = {
   type: PropTypes.string.isRequired,

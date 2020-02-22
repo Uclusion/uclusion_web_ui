@@ -59,7 +59,10 @@ export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
   const myCrumbs = homeCrumb.concat(crumbs);
   const breadCrumbs = myCrumbs.map((crumb) => {
     const { name, link, image, id, onClick } = crumb;
-    const usedOnClick = onClick || (() => navigate(history, link));
+    const usedOnClick = onClick || ((event) => {
+      event.preventDefault();
+      navigate(history, link);
+    });
     return {
       title: name,
       image,

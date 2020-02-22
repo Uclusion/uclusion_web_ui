@@ -37,7 +37,6 @@ export function refreshGlobalVersion (currentHeldVersion, existingMarkets) {
   // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
   if (currentHeldVersion === 'FAKE') return;
   const execFunction = () => {
-    console.log(`My global version ${currentHeldVersion}`);
     return doVersionRefresh(currentHeldVersion, existingMarkets)
       .then((globalVersion) => {
         if (globalVersion !== currentHeldVersion) {

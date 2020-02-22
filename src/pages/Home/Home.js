@@ -38,7 +38,6 @@ function Home(props) {
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
 
-
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
     marketsState,
     marketPresencesState,
@@ -70,8 +69,6 @@ function Home(props) {
   const noMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
   const tourSteps = pureSignupHomeSteps({ name: cognitoUser.name });
   const [, tourDispatch] = useContext(TourContext);
-  // Delay starting the tour for 10 seconds to let stuff settle. This will be fixed when loading is properly defined
-
 
   const SIDEBAR_ACTIONS = [
     {

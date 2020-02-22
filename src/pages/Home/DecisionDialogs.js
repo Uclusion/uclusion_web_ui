@@ -97,11 +97,14 @@ function DecisionDialogs(props) {
                 )}
                 <Typography>
                   <Link
-                    href="#"
+                    href={formMarketLink(marketId)}
                     variant="inherit"
                     underline="always"
                     color="primary"
-                    onClick={() => navigate(history, formMarketLink(marketId))}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      navigate(history, formMarketLink(marketId));
+                    }}
                   >
                     {name}
                   </Link>

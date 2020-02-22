@@ -1,5 +1,10 @@
 import React, { useEffect, useState, useReducer } from 'react';
-import reducer, { EMPTY_STATE, initializeVersionsAction, VERSIONS_CONTEXT_NAMESPACE } from './versionsContextReducer';
+import reducer, {
+  EMPTY_STATE,
+  initializeVersionsAction,
+  MY_STORED_EMPTY_STATE,
+  VERSIONS_CONTEXT_NAMESPACE
+} from './versionsContextReducer'
 import beginListening from './versionsContextMessages';
 import LocalForageHelper from '../LocalForageHelper';
 import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
@@ -20,12 +25,7 @@ function VersionsProvider(props) {
       const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
       lfg.getState()
         .then((diskState) => {
-          const MY_EMPTY_STATE = {
-            globalVersion: '',
-            existingMarkets: '',
-            notificationVersion: {version: -1 },
-          };
-          const myDiskState = diskState || MY_EMPTY_STATE;
+          const myDiskState = diskState || MY_STORED_EMPTY_STATE;
           dispatch(initializeVersionsAction(myDiskState));
           const { globalVersion, existingMarkets } = myDiskState;
           refreshGlobalVersion(globalVersion, existingMarkets);

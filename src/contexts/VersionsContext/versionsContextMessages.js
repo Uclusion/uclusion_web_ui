@@ -6,11 +6,10 @@ import {
 import { getNotifications, getVersions } from '../../api/summaries';
 import {
   addNewMarket,
-  EMPTY_STATE,
-  initializeState, initializeVersionsAction, loadingState,
+  initializeState, initializeVersionsAction, loadingState, MY_STORED_EMPTY_STATE,
   refreshNotificationVersionAction,
   updateGlobalVersion
-} from './versionsContextReducer';
+} from './versionsContextReducer'
 import { registerListener } from '../../utils/MessageBusUtils';
 
 export const GLOBAL_VERSION_UPDATE = 'global_version_update';
@@ -26,7 +25,7 @@ function beginListening(dispatch) {
         dispatch(loadingState());
         // An optimization would be to check if newly signed is same person
         getVersions().then((versions) => {
-          dispatch(initializeVersionsAction(EMPTY_STATE, versions));
+          dispatch(initializeVersionsAction(MY_STORED_EMPTY_STATE, versions));
         });
         break;
       }

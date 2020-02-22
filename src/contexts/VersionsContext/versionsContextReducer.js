@@ -9,6 +9,11 @@ export const EMPTY_STATE = {
   existingMarkets: '',
   notificationVersion: {version: -1 },
 };
+export const MY_STORED_EMPTY_STATE = {
+  globalVersion: '',
+  existingMarkets: '',
+  notificationVersion: {version: -1 },
+};
 
 
 const UPDATE_GLOBAL_VERSION = 'UPDATE_GLOBAL_VERSION';

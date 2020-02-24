@@ -25,6 +25,7 @@ import {
 import localforage from "localforage";
 import { useHistory } from "react-router";
 import { useIntl, FormattedMessage, FormattedRelativeTime } from "react-intl";
+import { updateInvestment } from "../../../api/marketInvestibles";
 import SubSection from "../../../containers/SubSection/SubSection";
 import YourVoting from "../Voting/YourVoting";
 import Voting from "../Decision/Voting";
@@ -80,8 +81,11 @@ import ListItem from "@material-ui/core/ListItem";
 import EditMarketButton from "../../Dialog/EditMarketButton";
 import CardType, { VOTING_TYPE } from "../../../components/CardType";
 import ReadOnlyQuillEditor from "../../../components/TextEditors/ReadOnlyQuillEditor";
+import SpinBlockingButton from "../../../components/SpinBlocking/SpinBlockingButton";
 import clsx from "clsx";
 import QuillEditor from "../../../components/TextEditors/QuillEditor";
+import { partialUpdateInvestment } from "../../../contexts/MarketPresencesContext/marketPresencesHelper";
+import { MarketPresencesContext } from "../../../contexts/MarketPresencesContext/MarketPresencesContext";
 
 const useStyles = makeStyles(
   theme => ({
@@ -455,7 +459,7 @@ function PlanningInvestible(props) {
         </CardContent>
       </Card>
       <h2>Add a vote</h2>
-      <AddVote market={market} />
+      <AddVote investibleId={investibleId} market={market} />
       <h2>
         Current Votes <button> uncertain-to-certain</button>
       </h2>
@@ -790,7 +794,7 @@ const useAddVoteStyles = makeStyles(
 );
 
 function AddVote(props) {
-  const { market } = props;
+  const { investibleId, market } = props;
 
   const classes = useAddVoteStyles();
 
@@ -830,7 +834,12 @@ function AddVote(props) {
         case "validate":
           nextState.errors.certainty = !isCertaintyValid(nextState.certainty);
           nextState.errors.reason = !isReasonValid(nextState.reason);
-          nextState.errors.effortValue = !isEffortValueValid(nextState.reason);
+          nextState.errors.effortValue = !isEffortValueValid(
+            nextState.effortValue
+          );
+          break;
+        case "submitted":
+          nextState.state = "submitted";
           break;
         default:
           throw new TypeError(`unknown action '${action.type}'`);
@@ -840,6 +849,7 @@ function AddVote(props) {
     },
     {
       certainty: -1,
+      effortValue: "",
       errors: {},
       reason: "",
       files: [],
@@ -857,11 +867,56 @@ function AddVote(props) {
   function handleSubmit() {
     if (!isFormValid(form)) {
       dispatch({ type: "validate" });
-      return;
+      return {
+        spinChecker: () => Promise.resolve(true)
+      };
     }
 
     dispatch({ type: "submit" });
-    // TODO save
+
+    // dont include reason text if it's not changing, otherwise we'll update the reason comment
+    const updateInfo = {
+      marketId: market.id,
+      investibleId,
+      newQuantity: form.certainty,
+      currentQuantity: 0,
+      newReasonText: form.reason,
+      currentReasonId: undefined,
+      reasonNeedsUpdate: true,
+      maxBudget: form.effortValue
+    };
+    console.debug(updateInfo);
+    return updateInvestment(updateInfo)
+      .then(result => {
+        return {
+          result,
+          spinChecker: () => Promise.resolve(true)
+        };
+      })
+      .finally(() => {
+        if (currentRef.current === true) {
+          dispatch({ type: "submitted" });
+        }
+      });
+  }
+
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  function onSaveSpinStop(result) {
+    if (!result) {
+      return;
+    }
+    const { commentResult, investmentResult } = result;
+    const { commentAction } = commentResult;
+    if (commentAction === "DELETED") {
+      throw new TypeError("DELETED not implemented");
+      //const { comment } = commentResult;
+      //const { id: commentId } = comment;
+      //removeComments(commentsDispatch, marketId, [commentId]);
+    } else if (commentAction !== "NOOP") {
+      throw new TypeError("NOOP not implemented");
+      // refreshMarketComments(commentsDispatch, marketId, [comment]);
+    }
+    partialUpdateInvestment(marketPresencesDispatch, investmentResult);
   }
 
   return (
@@ -887,7 +942,7 @@ function AddVote(props) {
             required
             value={form.certainty}
           >
-            {Array.from({ length: 5 }).map((_, certainty) => {
+            {[0, 25, 50, 75, 100].map(certainty => {
               return (
                 <FormControlLabel
                   className={classes.certaintyValue}
@@ -920,7 +975,7 @@ function AddVote(props) {
           className={classes.effortValueLabel}
           component="label"
           htmlFor="add-vote-effort-value"
-          variant="body"
+          variant="body2"
         >
           <FormattedMessage id="planningInvestibleEffortValue" />
         </Typography>
@@ -965,15 +1020,16 @@ function AddVote(props) {
         />
       </CardContent>
       <CardActions className={classes.actions}>
-        <Button
+        <SpinBlockingButton
           className={classes.submit}
-          color="primary"
           disabled={form.state === "submitting"}
+          hasSpinChecker
+          marketId={market.id}
           onClick={handleSubmit}
-          variant="contained"
+          onSpinStop={onSaveSpinStop}
         >
           <FormattedMessage id="submit" />
-        </Button>
+        </SpinBlockingButton>
       </CardActions>
     </Card>
   );

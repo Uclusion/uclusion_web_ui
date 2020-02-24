@@ -62,7 +62,7 @@ function AddEditVote(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const [open, setOpen] = useState(body);
+  const [open, setOpen] = useState(false);
   const warnClearVotes = !allowMultiVote && hasVoted && addMode;
 
   function toggleOpen() {

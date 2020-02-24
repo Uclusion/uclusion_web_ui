@@ -25,7 +25,8 @@ function FeatureRequest() {
     };
     return createDecision(addInfo)
       .then((result) => {
-        const { market_id: marketId } = result;
+        const { market } = result;
+        const { id: marketId } = market;
         const link = formMarketLink(marketId);
         return addParticipants(marketId, [{
           user_id: config.support_user_id,

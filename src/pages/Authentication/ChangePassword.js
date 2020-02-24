@@ -79,6 +79,7 @@ function ChangePassword(props) {
           id="repeat"
           label={intl.formatMessage({ id: 'changePasswordRepeatLabel' })}
           onChange={handleChangeRepeat}
+          error={repeatPassword && newPassword !== repeatPassword}
           type="password"
           margin="normal"
         />

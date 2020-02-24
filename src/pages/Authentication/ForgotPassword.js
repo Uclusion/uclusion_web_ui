@@ -251,6 +251,7 @@ function ForgotPassword(props) {
               })}
               helperText={password !== repeat ? intl.formatMessage({ id: 'forgotPasswordRepeatHelper' }) : ''}
               onChange={handleChange('repeat')}
+              error={repeat && password !== repeat}
               type="password"
               margin="normal"
             />

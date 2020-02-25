@@ -421,6 +421,7 @@ function PlanningInvestible(props) {
   const newestVote = getNewestVote();
 
   const canEdit = isAdmin && (isInNotDoing || assigned.includes(userId));
+  const canVote = (!assigned || !assigned.includes(userId)) && isInVoting;
 
   const votes = []; // TODO
   return (
@@ -444,14 +445,18 @@ function PlanningInvestible(props) {
         </CardContent>
       </Card>
       <h2>Add a vote</h2>
-      <YourVoting
-        investibleId={investibleId}
-        marketPresences={marketPresences}
-        comments={investmentReasons}
-        userId={userId}
-        market={market}
-        showBudget
-      />
+      {canVote ? (
+        <YourVoting
+          investibleId={investibleId}
+          marketPresences={marketPresences}
+          comments={investmentReasons}
+          userId={userId}
+          market={market}
+          showBudget
+        />
+      ) : (
+        <Typography>You can't vote if you're assigned TODO i18n</Typography>
+      )}
       <h2>
         Current Votes <button> uncertain-to-certain</button>
       </h2>

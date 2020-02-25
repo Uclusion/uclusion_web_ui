@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Grid, Paper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
+import InsertLinkIcon from '@material-ui/icons/InsertLink';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import SubSection from '../../../containers/SubSection/SubSection';
@@ -17,7 +18,7 @@ import {
   formMarketArchivesLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
-  makeBreadCrumbs,
+  makeBreadCrumbs, navigate,
 } from '../../../utils/marketIdPathFunctions'
 import Screen from '../../../containers/Screen/Screen';
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
@@ -43,11 +44,13 @@ import PlanningInvestibleEditActionButton from './PlanningInvestibleEditActionBu
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
 import { convertDates } from '../../../contexts/ContextUtils';
 import { ACTIVE_STAGE } from '../../../constants/markets';
-import { SECTION_TYPE_PRIMARY, SECTION_TYPE_PRIMARY_WARNING, SECTION_TYPE_SECONDARY } from '../../../constants/global'
+import { SECTION_TYPE_PRIMARY, SECTION_TYPE_PRIMARY_WARNING, SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import EditMarketButton from '../../Dialog/EditMarketButton'
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import EditMarketButton from '../../Dialog/EditMarketButton';
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
+import MarketLinks from '../../Dialog/MarketLinks';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -114,7 +117,7 @@ function PlanningInvestible(props) {
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const marketInfo = getMarketInfo(marketInvestible, marketId);
-  const { stage, assigned } = marketInfo;
+  const { stage, assigned, children } = marketInfo;
   const { investible } = marketInvestible;
   const { description, name, locked_by: lockedBy } = investible;
   let lockedByName;
@@ -314,6 +317,13 @@ function PlanningInvestible(props) {
         stageId={stage}
         key="notdoing"
       />);
+      sidebarActions.push(<ExpandableSidebarAction
+        id="link"
+        key="link"
+        icon={<InsertLinkIcon />}
+        label={intl.formatMessage({ id: 'planningInvestibleDecision' })}
+        onClick={() => navigate(history, `/dialogAdd#type=DECISION&investibleId=${investibleId}&id=${marketId}`)}
+      />)
     }
     sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);
     sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick}/>);
@@ -350,6 +360,7 @@ function PlanningInvestible(props) {
               {canEdit && (
                 <EditMarketButton key="edit" labelId="edit" marketId={marketId} onClick={toggleEdit} />
               )}
+              <MarketLinks links={children || []} />
             </Paper>
             {lockedBy && (
               <Typography>

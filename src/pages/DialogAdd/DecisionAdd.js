@@ -14,7 +14,7 @@ import { createDecision } from '../../api/markets';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { DECISION_TYPE } from '../../constants/markets'
+import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import UclusionTour from '../../components/Tours/UclusionTour';
 import {
@@ -22,6 +22,13 @@ import {
   PURE_SIGNUP_ADD_DIALOG_STEPS,
   PURE_SIGNUP_FAMILY_NAME
 } from '../../components/Tours/pureSignupTours';
+import { useHistory } from 'react-router';
+import queryString from 'query-string';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarket, getMarketDetailsForType } from '../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { addParticipants } from '../../api/users';
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: theme.spacing(2),
@@ -36,6 +43,11 @@ const useStyles = makeStyles((theme) => ({
 
 function DecisionAdd(props) {
   const intl = useIntl();
+  const history = useHistory();
+  const { location } = history;
+  const { hash } = location;
+  const values = queryString.parse(hash);
+  const { investibleId: parentInvestibleId, id: parentMarketId } = values;
   const {
     onSpinStop, storedState, onSave
   } = props;
@@ -49,6 +61,8 @@ function DecisionAdd(props) {
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes } = currentValues;
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketState] = useContext(MarketsContext);
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -107,17 +121,42 @@ function DecisionAdd(props) {
       description: tokensRemoved,
       expiration_minutes,
     };
+    if (parentInvestibleId) {
+      addInfo.parent_investible_id = parentInvestibleId;
+    }
+    if (parentMarketId) {
+      addInfo.parent_market_id = parentMarketId;
+    }
+    const turnOffSpin = {
+      spinChecker: () => {
+        return Promise.resolve(true);
+      },
+    };
     return createDecision(addInfo)
       .then((result) => {
         const { market } = result;
         onSave(result);
         const { id: marketId } = market;
-        return {
-          result: marketId,
-          spinChecker: () => {
-            return Promise.resolve(true);
-          },
-        };
+        turnOffSpin.result = marketId;
+        if (parentMarketId) {
+          const planningMarkets = getMarketDetailsForType(marketState, PLANNING_TYPE);
+          const marketDetails = planningMarkets.find((planningMarket) => planningMarket.id === parentMarketId);
+          if (marketDetails) {
+            const marketPresences = getMarketPresences(marketPresencesState, parentMarketId);
+            const others = marketPresences.filter((presence) => !presence.current_user)
+            if (others) {
+              const participants = others.map((presence) => {
+                return {
+                  user_id: presence.id,
+                  account_id: presence.account_id,
+                  is_observer: !presence.following
+                };
+              });
+              return addParticipants(marketId, participants).then(() => turnOffSpin);
+            }
+          }
+        }
+        return turnOffSpin;
       });
   }
 

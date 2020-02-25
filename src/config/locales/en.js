@@ -240,6 +240,8 @@ const messages = defineMessages({
   planningVerifiedStageLabel: 'Verified',
   planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'Assignments',
+  planningInvestibleDecision: 'Create Linked Decision',
+  marketLinksSection: 'Child decisions',
   lockedBy: 'Locked by {x}',
   lockFailedWarning: 'Failed to acquire lock. Retry?',
   breakLock: 'Break Lock',

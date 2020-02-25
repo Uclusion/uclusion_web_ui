@@ -2,18 +2,20 @@ import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import _ from "lodash";
 import { FormattedMessage, useIntl } from "react-intl";
-import TextField from "@material-ui/core/TextField";
 import {
-  Paper,
+  Card,
+  CardActions,
+  CardContent,
   RadioGroup,
   FormControl,
   FormControlLabel,
   FormLabel,
   Radio,
   Typography,
-  Grid,
   Button,
-  makeStyles
+  TextField,
+  makeStyles,
+  darken
 } from "@material-ui/core";
 import {
   removeInvestment,
@@ -22,7 +24,6 @@ import {
 import QuillEditor from "../../../components/TextEditors/QuillEditor";
 import SpinBlockingButton from "../../../components/SpinBlocking/SpinBlockingButton";
 import { OperationInProgressContext } from "../../../contexts/OperationInProgressContext/OperationInProgressContext";
-import SpinBlockingButtonGroup from "../../../components/SpinBlocking/SpinBlockingButtonGroup";
 import { CommentsContext } from "../../../contexts/CommentsContext/CommentsContext";
 import {
   refreshMarketComments,
@@ -36,15 +37,50 @@ import WarningIcon from "@material-ui/icons/Warning";
 import { useLockedDialogStyles } from "../../Dialog/DialogEdit";
 
 const useStyles = makeStyles(
-  () => ({
-    button: {
-      borderRadius: "4px",
-      fontSize: "14px",
-      fontWeight: "bold",
-      margin: 8,
-      textTransform: "capitalize"
-    }
-  }),
+  theme => {
+    return {
+      certainty: {},
+      certaintyGroup: {
+        display: "flex",
+        flexDirection: "row"
+      },
+      certaintyLabel: {
+        marginBottom: theme.spacing(2),
+        textTransform: "capitalize"
+      },
+      certaintyValue: {
+        backgroundColor: theme.palette.grey["300"],
+        borderRadius: 6,
+        paddingLeft: theme.spacing(1),
+        margin: theme.spacing(0, 2, 2, 0)
+      },
+      certaintyValueLabel: {
+        fontWeight: "bold"
+      },
+      effortValue: {
+        marginBottom: theme.spacing(1)
+      },
+      effortValueLabel: {
+        display: "block",
+        marginBottom: theme.spacing(1)
+      },
+      actions: {
+        display: "flex",
+        padding: theme.spacing(0, 0, 1, 2)
+      },
+      submit: {
+        backgroundColor: "#2F80ED",
+        color: "white",
+        textTransform: "capitalize",
+        "&:hover": {
+          backgroundColor: darken("#2F80ED", 0.08)
+        },
+        "&:focus": {
+          backgroundColor: darken("#2F80ED", 0.24)
+        }
+      }
+    };
+  },
   { name: "VoteAdd" }
 );
 
@@ -174,112 +210,106 @@ function AddEditVote(props) {
   }
   const lockedDialogClasses = useLockedDialogStyles();
   return (
-    <Paper>
-      <FormControl component="fieldset">
-        <FormLabel component="legend">
-          {intl.formatMessage({ id: "certaintyQuestion" })}
-        </FormLabel>
-        <RadioGroup value={newQuantity} onChange={onChange}>
-          <Grid container justify="space-between">
-            <Grid item xs={2}>
-              <FormControlLabel
-                labelPlacement="bottom"
-                control={<Radio />}
-                label={intl.formatMessage({ id: "uncertain" })}
-                value={0}
-              />
-            </Grid>
-            <Grid item xs={2}>
-              <FormControlLabel
-                labelPlacement="bottom"
-                control={<Radio />}
-                label={intl.formatMessage({ id: "somewhatUncertain" })}
-                value={25}
-              />
-            </Grid>
-            <Grid item xs={2}>
-              <FormControlLabel
-                labelPlacement="bottom"
-                control={<Radio />}
-                label={intl.formatMessage({ id: "somewhatCertain" })}
-                value={50}
-              />
-            </Grid>
-            <Grid item xs={2}>
-              <FormControlLabel
-                labelPlacement="bottom"
-                control={<Radio />}
-                label={intl.formatMessage({ id: "certain" })}
-                value={75}
-              />
-            </Grid>
-            <Grid item xs={2}>
-              <FormControlLabel
-                labelPlacement="bottom"
-                control={<Radio />}
-                label={intl.formatMessage({ id: "veryCertain" })}
-                value={100}
-              />
-            </Grid>
-          </Grid>
-        </RadioGroup>
-      </FormControl>
-      <br />
-      {showBudget && (
-        <TextField
-          id="standard-number"
-          label={intl.formatMessage(
-            { id: "maxBudgetInputLabel" },
-            { x: storyMaxBudget + 1 }
+    <React.Fragment>
+      <Card>
+        <CardContent>
+          <FormControl className={classes.certainty}>
+            <FormLabel
+              className={classes.certaintyLabel}
+              id="add-vote-certainty"
+            >
+              <FormattedMessage id="certaintyQuestion" />
+            </FormLabel>
+            <RadioGroup
+              aria-labelledby="add-vote-certainty"
+              className={classes.certaintyGroup}
+              onChange={onChange}
+              value={newQuantity}
+            >
+              {[0, 25, 50, 75, 100].map(certainty => {
+                return (
+                  <FormControlLabel
+                    className={classes.certaintyValue}
+                    classes={{
+                      label: classes.certaintyValueLabel
+                    }}
+                    /* prevent clicking the label stealing focus */
+                    onMouseDown={e => e.preventDefault()}
+                    // otherwise we prevent the default when bubbling to the mouseDown
+                    // from FormControlLabel
+                    control={<Radio onMouseDown={e => e.stopPropagation()} />}
+                    label={
+                      <FormattedMessage
+                        id={`planningInvestibleCertainty${certainty}`}
+                      />
+                    }
+                    labelPlacement="start"
+                    value={certainty}
+                  />
+                );
+              })}
+            </RadioGroup>
+          </FormControl>
+          <br />
+          {showBudget && (
+            <TextField
+              id="standard-number"
+              label={intl.formatMessage(
+                { id: "maxBudgetInputLabel" },
+                { x: storyMaxBudget + 1 }
+              )}
+              type="number"
+              InputLabelProps={{
+                shrink: true
+              }}
+              variant="outlined"
+              onChange={onBudgetChange}
+              value={maxBudget}
+              error={maxBudget > storyMaxBudget}
+            />
           )}
-          type="number"
-          InputLabelProps={{
-            shrink: true
-          }}
-          variant="outlined"
-          onChange={onBudgetChange}
-          value={maxBudget}
-          error={maxBudget > storyMaxBudget}
-        />
-      )}
-      <Typography>{intl.formatMessage({ id: "reasonQuestion" })}</Typography>
-      <QuillEditor
-        placeholder={intl.formatMessage({ id: "yourReason" })}
-        defaultValue={body}
-        onChange={onEditorChange}
-        uploadDisabled
-        setOperationInProgress={setOperationRunning}
-      />
-      <SpinBlockingButtonGroup>
-        {!addMode && (
-          <SpinBlockingButton
-            size="small"
-            marketId={marketId}
-            onClick={() => onRemove()}
-            onSpinStop={onSave}
-          >
-            {intl.formatMessage({ id: "removeVote" })}
-          </SpinBlockingButton>
-        )}
-        {saveEnabled && !warnClearVotes && (
-          <SpinBlockingButton
-            marketId={marketId}
-            onClick={mySave}
-            disabled={!validForm}
-            onSpinStop={onSaveSpinStop}
-            hasSpinChecker
-          >
-            {addMode
-              ? intl.formatMessage({ id: "saveVote" })
-              : intl.formatMessage({ id: "updateVote" })}
-          </SpinBlockingButton>
-        )}
-        {saveEnabled && warnClearVotes && (
-          <Button onClick={toggleOpen} className={classes.button}>
-            {intl.formatMessage({ id: "saveVote" })}
-          </Button>
-        )}
-      </SpinBlockingButtonGroup>
+          <Typography>
+            {intl.formatMessage({ id: "reasonQuestion" })}
+          </Typography>
+          <QuillEditor
+            placeholder={intl.formatMessage({ id: "yourReason" })}
+            defaultValue={body}
+            onChange={onEditorChange}
+            uploadDisabled
+            setOperationInProgress={setOperationRunning}
+          />
+        </CardContent>
+        <CardActions className={classes.actions}>
+          {!addMode && (
+            <SpinBlockingButton
+              size="small"
+              marketId={marketId}
+              onClick={() => onRemove()}
+              onSpinStop={onSave}
+            >
+              {intl.formatMessage({ id: "removeVote" })}
+            </SpinBlockingButton>
+          )}
+          {saveEnabled && !warnClearVotes && (
+            <SpinBlockingButton
+              marketId={marketId}
+              onClick={mySave}
+              disabled={!validForm}
+              onSpinStop={onSaveSpinStop}
+              hasSpinChecker
+            >
+              {addMode
+                ? intl.formatMessage({ id: "saveVote" })
+                : intl.formatMessage({ id: "updateVote" })}
+            </SpinBlockingButton>
+          )}
+          {saveEnabled && warnClearVotes && (
+            <Button onClick={toggleOpen} className={classes.button}>
+              {intl.formatMessage({ id: "saveVote" })}
+            </Button>
+          )}
+        </CardActions>
+      </Card>
       <ClearVotesDialog
         classes={lockedDialogClasses}
         open={open}
@@ -302,7 +332,7 @@ function AddEditVote(props) {
           </SpinBlockingButton>
         }
       />
-    </Paper>
+    </React.Fragment>
   );
 }
 

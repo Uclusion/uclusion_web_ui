@@ -425,7 +425,13 @@ function PlanningInvestible(props) {
 
   const votes = []; // TODO
   return (
-    <Screen>
+    <Screen
+      title={name}
+      tabTitle={name}
+      breadCrumbs={breadCrumbs}
+      hidden={hidden}
+      sidebarActions={getSidebarActions()}
+    >
       <Card elevation={0}>
         <CardType className={classes.cardType} type={VOTING_TYPE} />
         <CardContent className={classes.votingCardContent}>

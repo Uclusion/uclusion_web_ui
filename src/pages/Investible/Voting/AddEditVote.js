@@ -68,7 +68,7 @@ const useStyles = makeStyles(
         display: "flex",
         padding: theme.spacing(0, 0, 1, 2)
       },
-      submit: {
+      primaryAction: {
         backgroundColor: "#2F80ED",
         color: "white",
         textTransform: "capitalize",
@@ -77,6 +77,17 @@ const useStyles = makeStyles(
         },
         "&:focus": {
           backgroundColor: darken("#2F80ED", 0.24)
+        }
+      },
+      secondaryAction: {
+        backgroundColor: "#8C8C8C",
+        color: "white",
+        textTransform: "capitalize",
+        "&:hover": {
+          backgroundColor: darken("#8C8C8C", 0.04)
+        },
+        "&:focus": {
+          backgroundColor: darken("#8C8C8C", 0.12)
         }
       }
     };
@@ -282,7 +293,7 @@ function AddEditVote(props) {
         <CardActions className={classes.actions}>
           {!addMode && (
             <SpinBlockingButton
-              size="small"
+              className={classes.secondaryAction}
               marketId={marketId}
               onClick={() => onRemove()}
               onSpinStop={onSave}
@@ -292,6 +303,7 @@ function AddEditVote(props) {
           )}
           {saveEnabled && !warnClearVotes && (
             <SpinBlockingButton
+              className={classes.primaryAction}
               marketId={marketId}
               onClick={mySave}
               disabled={!validForm}
@@ -304,7 +316,7 @@ function AddEditVote(props) {
             </SpinBlockingButton>
           )}
           {saveEnabled && warnClearVotes && (
-            <Button onClick={toggleOpen} className={classes.button}>
+            <Button onClick={toggleOpen} className={classes.primaryAction}>
               {intl.formatMessage({ id: "saveVote" })}
             </Button>
           )}

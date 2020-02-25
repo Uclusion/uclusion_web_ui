@@ -436,7 +436,8 @@ function PlanningInvestible(props) {
           />
           <Divider />
           <MarketMetaData
-            marketId={marketId}
+            isInVoting={isInVoting}
+            market={market}
             marketInvestible={marketInvestible}
             marketPresences={marketPresences}
           />
@@ -686,35 +687,55 @@ const useMetaDataStyles = makeStyles(
 );
 
 function MarketMetaData(props) {
-  const { marketId, marketPresences, marketInvestible } = props;
+  const {
+    investibleId,
+    isInVoting,
+    market,
+    marketPresences,
+    marketInvestible
+  } = props;
 
   const classes = useMetaDataStyles();
 
+  const newestVote = React.useMemo(() => {
+    let latest;
+    marketPresences.forEach(presence => {
+      const { investments } = presence;
+      investments.forEach(investment => {
+        const { updated_at: updatedAt, investible_id: invId } = convertDates(
+          investment
+        );
+        if (investibleId === invId && (!latest || updatedAt > latest)) {
+          latest = updatedAt;
+        }
+      });
+    });
+    return latest;
+  }, [investibleId, marketPresences]);
+
   return (
     <dl className={classes.root}>
-      <div className={clsx(classes.group, classes.expiration)}>
-        <dt>
-          <FormattedMessage id="decisionInvestibleVotingExpirationLabel" />
-        </dt>
-        <dd>
-          <CircularProgress
-            className={classes.expirationProgress}
-            size={22}
-            thickness={8}
-            variant="static"
-            value={33}
-          />
-          <FormattedRelativeTime unit="day" value={13} />
-        </dd>
-      </div>
-      {marketId && marketInvestible.investible && (
+      {newestVote && isInVoting && (
+        <div className={clsx(classes.group, classes.expiration)}>
+          <dt>
+            <FormattedMessage id="investmentExpiration" />
+          </dt>
+          <dd>
+            <ExpiresDisplay
+              createdAt={newestVote}
+              expirationMinutes={market.investment_expiration * 1440}
+            />
+          </dd>
+        </div>
+      )}
+      {market.id && marketInvestible.investible && (
         <div className={clsx(classes.group, classes.assignments)}>
           <dt>
             <FormattedMessage id="planningInvestibleAssignments" />
           </dt>
           <dd>
             <Assignments
-              marketId={marketId}
+              marketId={market.id}
               marketPresences={marketPresences}
               investible={marketInvestible}
             />

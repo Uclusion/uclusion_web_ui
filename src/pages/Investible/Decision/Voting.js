@@ -1,17 +1,17 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import { useIntl } from 'react-intl';
-import { Paper, Typography } from '@material-ui/core';
-import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
-import { HighlightedVotingContext } from '../../../contexts/HighlightedVotingContext';
-import { makeStyles } from '@material-ui/styles'
+import React, { useContext } from "react";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import { useIntl } from "react-intl";
+import { Paper, Typography } from "@material-ui/core";
+import ReadOnlyQuillEditor from "../../../components/TextEditors/ReadOnlyQuillEditor";
+import { HighlightedVotingContext } from "../../../contexts/HighlightedVotingContext";
+import { makeStyles } from "@material-ui/styles";
 
 const useVoteStyles = makeStyles(
   {
     containerYellow: {
-      boxShadow: '10px 5px 5px yellow',
-    },
+      boxShadow: "10px 5px 5px yellow"
+    }
   },
   { name: "Vote" }
 );
@@ -23,15 +23,19 @@ const useVoteStyles = makeStyles(
  */
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons } = props;
-  const [ highlightedVoteState ] = useContext(HighlightedVotingContext);
+  const [highlightedVoteState] = useContext(HighlightedVotingContext);
   const classes = useVoteStyles();
   const intl = useIntl();
   function getInvestibleVoters() {
     const acc = [];
-    marketPresences.forEach((presence) => {
+    marketPresences.forEach(presence => {
       const { name, id, investments } = presence;
-      investments.forEach((investment) => {
-        const { quantity, investible_id: invId, max_budget: maxBudget } = investment;
+      investments.forEach(investment => {
+        const {
+          quantity,
+          investible_id: invId,
+          max_budget: maxBudget
+        } = investment;
         // console.debug(investment);
         if (investibleId === invId) {
           acc.push({ name, userId: id, quantity, maxBudget });
@@ -43,66 +47,56 @@ function Voting(props) {
 
   function getInvestmentConfidence(quantity) {
     if (quantity === 100) {
-      return intl.formatMessage({ id: 'veryCertain' });
+      return intl.formatMessage({ id: "veryCertain" });
     }
     if (quantity >= 75) {
-      return intl.formatMessage({ id: 'certain' });
+      return intl.formatMessage({ id: "certain" });
     }
     if (quantity >= 50) {
-      return intl.formatMessage({ id: 'somewhatCertain' });
+      return intl.formatMessage({ id: "somewhatCertain" });
     }
     if (quantity >= 25) {
-      return intl.formatMessage({ id: 'somewhatUncertain' });
+      return intl.formatMessage({ id: "somewhatUncertain" });
     }
-    return intl.formatMessage({ id: 'uncertain' });
+    return intl.formatMessage({ id: "uncertain" });
   }
 
   function getVoterReason(userId) {
-    return investmentReasons.find((comment) => comment.created_by === userId);
+    return investmentReasons.find(comment => comment.created_by === userId);
   }
 
   function renderInvestibleVoters(voters) {
-    return voters.map((voter) => {
-      const {
-        name, userId, quantity, maxBudget,
-      } = voter;
+    return voters.map(voter => {
+      const { name, userId, quantity, maxBudget } = voter;
       const reason = getVoterReason(userId);
       const voteId = `cv${userId}`;
       return (
         <Paper
-          className={userId in highlightedVoteState ? classes.containerYellow : classes.container}
+          className={
+            userId in highlightedVoteState
+              ? classes.containerYellow
+              : classes.container
+          }
           key={userId}
           id={voteId}
         >
-          <Typography>
-            {name}
-          </Typography>
-          <Typography>
-            {getInvestmentConfidence(quantity)}
-          </Typography>
+          <Typography>{name}</Typography>
+          <Typography>{getInvestmentConfidence(quantity)}</Typography>
           {maxBudget > 0 && (
             <Typography>
-              {intl.formatMessage({ id: 'maxBudget' }, { x: maxBudget })}
+              {intl.formatMessage({ id: "maxBudget" }, { x: maxBudget })}
             </Typography>
           )}
-          {reason && (
-            <ReadOnlyQuillEditor
-              value={reason.body}
-            />
-          )}
+          {reason && <ReadOnlyQuillEditor value={reason.body} />}
         </Paper>
       );
     });
   }
 
   const voters = getInvestibleVoters();
-  const sortedVoters = _.sortBy(voters, 'name');
+  const sortedVoters = _.sortBy(voters, "name");
 
-  return (
-    <Paper>
-      {renderInvestibleVoters(sortedVoters)}
-    </Paper>
-  );
+  return <Paper>{renderInvestibleVoters(sortedVoters)}</Paper>;
 }
 
 Voting.propTypes = {
@@ -110,12 +104,12 @@ Voting.propTypes = {
   investmentReasons: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object),
-  investibleId: PropTypes.string.isRequired,
+  investibleId: PropTypes.string.isRequired
 };
 
 Voting.defaultProps = {
   investmentReasons: [],
-  marketPresences: [],
+  marketPresences: []
 };
 
 export default Voting;

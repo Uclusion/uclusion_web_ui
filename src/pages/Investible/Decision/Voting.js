@@ -1,17 +1,60 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import _ from "lodash";
-import { useIntl } from "react-intl";
-import { Paper, Typography } from "@material-ui/core";
+import { FormattedMessage } from "react-intl";
+import clsx from "clsx";
+import { Card, CardContent, Typography } from "@material-ui/core";
 import ReadOnlyQuillEditor from "../../../components/TextEditors/ReadOnlyQuillEditor";
 import { HighlightedVotingContext } from "../../../contexts/HighlightedVotingContext";
 import { makeStyles } from "@material-ui/styles";
+import CardType from "../../../components/CardType";
 
 const useVoteStyles = makeStyles(
-  {
-    containerYellow: {
-      boxShadow: "10px 5px 5px yellow"
-    }
+  theme => {
+    return {
+      root: {
+        listStyle: "none",
+        margin: 0,
+        padding: 0
+      },
+      card: {
+        alignItems: "flex-start",
+        display: "flex",
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between"
+      },
+      maxBudget: {
+        alignItems: "flex-end",
+        display: "flex",
+        flexDirection: "column",
+        margin: theme.spacing(2),
+        textTransform: "capitalize"
+      },
+      maxBudgetLabel: {
+        color: "#757575",
+        fontSize: 14
+      },
+      maxBudgetValue: {
+        fontSize: 16,
+        fontWeight: "bold"
+      },
+      cardContent: {
+        flex: "0 1 100%",
+        padding: 0,
+        margin: theme.spacing(0, 2),
+        "& .ql-editor": {
+          padding: 0
+        }
+      },
+      voter: {
+        fontSize: 16,
+        fontWeight: "bold"
+      },
+      containerYellow: {
+        boxShadow: "10px 5px 5px yellow"
+      }
+    };
   },
   { name: "Vote" }
 );
@@ -25,7 +68,6 @@ function Voting(props) {
   const { marketPresences, investibleId, investmentReasons } = props;
   const [highlightedVoteState] = useContext(HighlightedVotingContext);
   const classes = useVoteStyles();
-  const intl = useIntl();
   function getInvestibleVoters() {
     const acc = [];
     marketPresences.forEach(presence => {
@@ -45,58 +87,63 @@ function Voting(props) {
     return acc;
   }
 
-  function getInvestmentConfidence(quantity) {
-    if (quantity === 100) {
-      return intl.formatMessage({ id: "veryCertain" });
-    }
-    if (quantity >= 75) {
-      return intl.formatMessage({ id: "certain" });
-    }
-    if (quantity >= 50) {
-      return intl.formatMessage({ id: "somewhatCertain" });
-    }
-    if (quantity >= 25) {
-      return intl.formatMessage({ id: "somewhatUncertain" });
-    }
-    return intl.formatMessage({ id: "uncertain" });
-  }
-
   function getVoterReason(userId) {
     return investmentReasons.find(comment => comment.created_by === userId);
-  }
-
-  function renderInvestibleVoters(voters) {
-    return voters.map(voter => {
-      const { name, userId, quantity, maxBudget } = voter;
-      const reason = getVoterReason(userId);
-      const voteId = `cv${userId}`;
-      return (
-        <Paper
-          className={
-            userId in highlightedVoteState
-              ? classes.containerYellow
-              : classes.container
-          }
-          key={userId}
-          id={voteId}
-        >
-          <Typography>{name}</Typography>
-          <Typography>{getInvestmentConfidence(quantity)}</Typography>
-          {maxBudget > 0 && (
-            <Typography>
-              {intl.formatMessage({ id: "maxBudget" }, { x: maxBudget })}
-            </Typography>
-          )}
-          {reason && <ReadOnlyQuillEditor value={reason.body} />}
-        </Paper>
-      );
-    });
   }
 
   const voters = getInvestibleVoters();
   const sortedVoters = _.sortBy(voters, "name");
 
-  return <Paper>{renderInvestibleVoters(sortedVoters)}</Paper>;
+  if (sortedVoters.length === 0) {
+    return (
+      <Typography>
+        <FormattedMessage id="noVoters" />
+      </Typography>
+    );
+  }
+
+  return (
+    <ol className={classes.root}>
+      {sortedVoters.map(voter => {
+        const { name, userId, quantity, maxBudget } = voter;
+        const reason = getVoterReason(userId);
+        const voteId = `cv${userId}`;
+
+        return (
+          <Card
+            key={userId}
+            className={clsx(
+              classes.card,
+              userId in highlightedVoteState && classes.highlighted
+            )}
+            component="li"
+            id={voteId}
+          >
+            <CardType type={`certainty${quantity}`} />
+            {maxBudget > 0 && (
+              <Typography className={classes.maxBudget} component="div">
+                <div className={classes.maxBudgetLabel}>
+                  <FormattedMessage id="maxBudgetLabel" />
+                </div>
+                <div className={classes.maxBudgetValue}>
+                  <FormattedMessage
+                    id="maxBudgetValue"
+                    values={{ x: maxBudget }}
+                  />
+                </div>
+              </Typography>
+            )}
+            <CardContent className={classes.cardContent}>
+              <Typography className={classes.voter} component="strong">
+                {name}
+              </Typography>
+              {reason && <ReadOnlyQuillEditor value={reason.body} />}
+            </CardContent>
+          </Card>
+        );
+      })}
+    </ol>
+  );
 }
 
 Voting.propTypes = {

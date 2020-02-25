@@ -17,6 +17,10 @@ import VotingIcon from "@material-ui/icons/Assessment";
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE };
 export const VOTING_TYPE = "VOTING";
 
+function NoIcon() {
+  return null;
+}
+
 const useCardTypeStyles = makeStyles(
   {
     root: ({ type }) => {
@@ -25,7 +29,12 @@ const useCardTypeStyles = makeStyles(
           [ISSUE_TYPE]: "#E85757",
           [QUESTION_TYPE]: "#2F80ED",
           [SUGGEST_CHANGE_TYPE]: "#F29100",
-          [VOTING_TYPE]: "#9B51E0"
+          [VOTING_TYPE]: "#9B51E0",
+          certainty0: "#D54F22",
+          certainty25: "#F4AB3B",
+          certainty50: "#A5C86B",
+          certainty75: "#FCEC69",
+          certainty100: "#73B76C"
         }[type],
         borderBottomRightRadius: 8,
         color: "white",
@@ -54,14 +63,24 @@ export default function CardType(props) {
     [ISSUE_TYPE]: IssueIcon,
     [QUESTION_TYPE]: QuestionIcon,
     [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon,
-    [VOTING_TYPE]: VotingIcon
+    [VOTING_TYPE]: VotingIcon,
+    certainty0: NoIcon,
+    certainty25: NoIcon,
+    certainty50: NoIcon,
+    certainty75: NoIcon,
+    certainty100: NoIcon
   }[type];
 
   const labelIntlId = {
     [ISSUE_TYPE]: "cardTypeLabelIssue",
     [QUESTION_TYPE]: "cardTypeLabelQuestion",
     [SUGGEST_CHANGE_TYPE]: "cardTypeLabelSuggestedChange",
-    [VOTING_TYPE]: "cardTypeVoting"
+    [VOTING_TYPE]: "cardTypeVoting",
+    certainty0: "veryCertain",
+    certainty25: "certain",
+    certainty50: "somewhatCertain",
+    certainty75: "somewhatUncertain",
+    certainty100: "uncertain"
   }[type];
 
   return (

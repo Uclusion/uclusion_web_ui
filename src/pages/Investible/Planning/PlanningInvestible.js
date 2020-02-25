@@ -423,7 +423,6 @@ function PlanningInvestible(props) {
   const canEdit = isAdmin && (isInNotDoing || assigned.includes(userId));
   const canVote = (!assigned || !assigned.includes(userId)) && isInVoting;
 
-  const votes = []; // TODO
   return (
     <Screen
       title={name}
@@ -464,17 +463,13 @@ function PlanningInvestible(props) {
         <Typography>You can't vote if you're assigned TODO i18n</Typography>
       )}
       <h2>
-        Current Votes <button> uncertain-to-certain</button>
+        <FormattedMessage id="decisionInvestibleOthersVoting" />
       </h2>
-      <ol>
-        {votes.map(vote => {
-          return (
-            <li>
-              <Vote key={vote.id} vote={vote} />
-            </li>
-          );
-        })}
-      </ol>
+      <Voting
+        investibleId={investibleId}
+        marketPresences={marketPresences}
+        investmentReasons={investmentReasons}
+      />
     </Screen>
   );
 

@@ -6,13 +6,11 @@ import {
   CardContent,
   Grid,
   makeStyles,
-  Paper,
   Typography,
-  Divider,
-  CircularProgress
+  Divider
 } from "@material-ui/core";
 import { useHistory } from "react-router";
-import { useIntl, FormattedMessage, FormattedRelativeTime } from "react-intl";
+import { useIntl, FormattedMessage } from "react-intl";
 import SubSection from "../../../containers/SubSection/SubSection";
 import YourVoting from "../Voting/YourVoting";
 import Voting from "../Decision/Voting";
@@ -61,8 +59,6 @@ import {
   SECTION_TYPE_SECONDARY
 } from "../../../constants/global";
 import DescriptionOrDiff from "../../../components/Descriptions/DescriptionOrDiff";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
 import EditMarketButton from "../../Dialog/EditMarketButton";
 import CardType, { VOTING_TYPE } from "../../../components/CardType";
 import clsx from "clsx";
@@ -130,12 +126,7 @@ function PlanningInvestible(props) {
     hidden
   } = props;
   const classes = useStyles();
-  const {
-    name: marketName,
-    id: marketId,
-    investment_expiration: expirationDays,
-    market_stage: marketStage
-  } = market;
+  const { name: marketName, id: marketId, market_stage: marketStage } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const investmentReasonsRemoved = investibleComments.filter(
     comment => comment.comment_type !== JUSTIFY_TYPE
@@ -207,22 +198,6 @@ function PlanningInvestible(props) {
     : isInVerified
     ? intl.formatMessage({ id: "planningVerifiedStageLabel" })
     : intl.formatMessage({ id: "planningNotDoingStageLabel" });
-
-  function getNewestVote() {
-    let latest;
-    marketPresences.forEach(presence => {
-      const { investments } = presence;
-      investments.forEach(investment => {
-        const { updated_at: updatedAt, investible_id: invId } = convertDates(
-          investment
-        );
-        if (investibleId === invId && (!latest || updatedAt > latest)) {
-          latest = updatedAt;
-        }
-      });
-    });
-    return latest;
-  }
 
   function commentButtonOnClick(type) {
     setCommentAddType(type);
@@ -418,9 +393,7 @@ function PlanningInvestible(props) {
 
   const discussionVisible =
     !commentAddHidden || !_.isEmpty(investmentReasonsRemoved);
-  const newestVote = getNewestVote();
 
-  const canEdit = isAdmin && (isInNotDoing || assigned.includes(userId));
   const canVote = (!assigned || !assigned.includes(userId)) && isInVoting;
 
   return (
@@ -477,17 +450,7 @@ function PlanningInvestible(props) {
         marketPresences={marketPresences}
         investmentReasons={investmentReasons}
       />
-    </Screen>
-  );
-
-  return (
-    <Screen
-      title={name}
-      tabTitle={name}
-      breadCrumbs={breadCrumbs}
-      hidden={hidden}
-      sidebarActions={getSidebarActions()}
-    >
+      {/* unstyled from here on out because no FIGMA */}
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <SubSection
@@ -704,10 +667,6 @@ function Assignments(props) {
       })}
     </ul>
   );
-}
-
-function Vote() {
-  return null;
 }
 
 export default PlanningInvestible;

@@ -26,7 +26,7 @@ import { useHistory } from 'react-router';
 import queryString from 'query-string';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarket, getMarketDetailsForType } from '../../contexts/MarketsContext/marketsContextHelper';
+import { getMarketDetailsForType } from '../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { addParticipants } from '../../api/users';
 const useStyles = makeStyles((theme) => ({

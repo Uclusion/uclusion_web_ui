@@ -440,6 +440,13 @@ function PlanningInvestible(props) {
             id={investibleId}
             description={description}
           />
+          {isAdmin && !isInNotDoing && (
+            <EditMarketButton
+              labelId="edit"
+              marketId={marketId}
+              onClick={toggleEdit}
+            />
+          )}
           <Divider />
           <MarketMetaData
             isInVoting={isInVoting}
@@ -500,14 +507,6 @@ function PlanningInvestible(props) {
                 id={investibleId}
                 description={description}
               />
-              {isAdmin && !isInNotDoing && (
-                <EditMarketButton
-                  key="edit"
-                  labelId={intl.formatMessage({ id: "edit" })}
-                  marketId={marketId}
-                  onClick={toggleEdit}
-                />
-              )}
             </Paper>
             {lockedBy && (
               <Typography>

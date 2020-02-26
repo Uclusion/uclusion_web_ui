@@ -249,11 +249,7 @@ function AddEditVote(props) {
                     // otherwise we prevent the default when bubbling to the mouseDown
                     // from FormControlLabel
                     control={<Radio onMouseDown={e => e.stopPropagation()} />}
-                    label={
-                      <FormattedMessage
-                        id={`planningInvestibleCertainty${certainty}`}
-                      />
-                    }
+                    label={<FormattedMessage id={`certainty${certainty}`} />}
                     labelPlacement="start"
                     value={certainty}
                   />

@@ -81,11 +81,11 @@ export default function CardType(props) {
     [QUESTION_TYPE]: "cardTypeLabelQuestion",
     [SUGGEST_CHANGE_TYPE]: "cardTypeLabelSuggestedChange",
     [VOTING_TYPE]: "cardTypeVoting",
-    certainty0: "uncertain",
-    certainty25: "somewhatUncertain",
-    certainty50: "certain",
-    certainty75: "somewhatCertain",
-    certainty100: "veryCertain"
+    certainty0: "certainty0",
+    certainty25: "certainty25",
+    certainty50: "certainty50",
+    certainty75: "certainty75",
+    certainty100: "certainty100"
   }[type];
 
   return (

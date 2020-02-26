@@ -182,11 +182,11 @@ const messages = defineMessages({
 
   // CurrentVoting
   numVoting: '{x} votes',
-  certain: 'Certain',
-  veryCertain: 'Very Certain',
-  somewhatCertain: 'Somewhat Certain',
-  somewhatUncertain: 'Somewhat Uncertain',
-  uncertain: 'Uncertain',
+  certainty100: 'Very Certain',
+  certainty75: 'Somewhat Certain',
+  certainty50: 'Certain',
+  certainty25: 'Somewhat Uncertain',
+  certainty0: 'Uncertain',
   maxBudgetLabel: 'effort value',
   maxBudgetValue: '{x} days',
   certaintyQuestion: 'How certain are you of your vote?',

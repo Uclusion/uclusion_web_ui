@@ -498,79 +498,11 @@ function PlanningInvestible(props) {
               id: "decisionInvestibleDescription"
             })}`}
           >
-            <Paper className={classes.container}>
-              <Typography className={classes.title} variant="h3" component="h1">
-                {name}
-              </Typography>
-              <DescriptionOrDiff
-                hidden={hidden}
-                id={investibleId}
-                description={description}
-              />
-            </Paper>
             {lockedBy && (
               <Typography>
                 {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
               </Typography>
             )}
-            {newestVote && isInVoting && (
-              <List>
-                <ListItem>
-                  <ExpiresDisplay
-                    createdAt={newestVote}
-                    expirationMinutes={expirationDays * 1440}
-                  />
-                  <Typography>
-                    {intl.formatMessage({ id: "investmentExpiration" })}
-                  </Typography>
-                </ListItem>
-              </List>
-            )}
-          </SubSection>
-        </Grid>
-        {(!assigned || !assigned.includes(userId)) && isInVoting && (
-          <Grid item xs={12}>
-            <SubSection
-              type={SECTION_TYPE_SECONDARY}
-              title={intl.formatMessage({ id: "decisionInvestibleYourVoting" })}
-            >
-              <YourVoting
-                investibleId={investibleId}
-                marketPresences={marketPresences}
-                comments={investmentReasons}
-                userId={userId}
-                market={market}
-                showBudget
-              />
-            </SubSection>
-          </Grid>
-        )}
-        <Grid item xs={12}>
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: "decisionInvestibleYourVoting" })}
-          >
-            <YourVoting
-              investibleId={investibleId}
-              marketPresences={marketPresences}
-              comments={investmentReasons}
-              userId={userId}
-              market={market}
-              showBudget
-            />
-          </SubSection>
-        </Grid>
-        )}
-        <Grid item xs={12}>
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: "decisionInvestibleOthersVoting" })}
-          >
-            <Voting
-              investibleId={investibleId}
-              marketPresences={marketPresences}
-              investmentReasons={investmentReasons}
-            />
           </SubSection>
         </Grid>
         {discussionVisible && (

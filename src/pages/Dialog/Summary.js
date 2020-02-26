@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import {
-  Grid, Typography, Paper, TextField, CardActions,
-} from '@material-ui/core';
+  Grid, Typography, Paper, TextField, CardActions, Link,
+} from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
@@ -16,8 +16,11 @@ import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
 import DialogActions from '../Home/DialogActions';
 import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff';
-import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formMarketLink, formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
+import { getMarketInfo } from '../../api/sso';
+import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -72,6 +75,8 @@ function Summary(props) {
     created_at: createdAt,
     updated_at: updatedAt,
     expiration_minutes: expirationMinutes,
+    parent_market_id: parentMarketId,
+    parent_investible_id: parentInvestibleId,
   } = market;
   const active = marketStage === ACTIVE_STAGE;
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -80,9 +85,24 @@ function Summary(props) {
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const isAdmin = myPresence.is_admin;
   const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
-  // eslint-disable-next-line max-len
   const marketPresencesParticipating = marketPresences.filter((presence) => presence.following && !presence.is_admin);
   const marketPresencesModerating = marketPresences.filter((presence) => presence.is_admin);
+  const [parentLoaded, setParentLoaded] = useState(false);
+  const [parentMarket, setParentMarket] = useState(undefined);
+  const [investiblesState] = useContext(InvestiblesContext);
+
+  useEffect(() => {
+    if (parentMarketId) {
+      if (!parentLoaded && !hidden) {
+        setParentLoaded(true)
+        getMarketInfo(parentMarketId).then((market) => {
+            setParentMarket(market);
+        })
+      } else if (hidden) {
+        setParentLoaded(false);
+      }
+    }
+  }, [parentMarketId, hidden, parentLoaded])
 
   function displayUserList(presencesList) {
     return presencesList.map((presence) => {
@@ -96,6 +116,72 @@ function Summary(props) {
         </Grid>
       );
     });
+  }
+  function displayParentLink(parentMarketId, parentInvestibleId) {
+    const { name: parentMarketName, market_type: parentMarketType } = parentMarket;
+    const marketPresences = getMarketPresences(marketPresencesState, parentMarketId) || [];
+    const myParentPresence = marketPresences.find((presence) => presence.current_user);
+    const baseLink = formInvestibleLink(parentMarketId, parentInvestibleId) ? parentInvestibleId : formMarketLink(parentMarketId);
+    const baseInviteLink = `/invite/${parentMarketId}`;
+    const inv = getInvestible(investiblesState, parentInvestibleId) || {};
+    const { investible } = inv;
+    const { name: parentInvestibleName } = investible || {};
+    return (
+      <>
+        <Grid
+          item
+          key={parentMarketId}
+        >
+          {(myParentPresence || parentMarketType === INITIATIVE_TYPE) && (
+            <Link
+              href={baseLink}
+              variant="inherit"
+              underline="always"
+              color="primary"
+              onClick={(event) => {
+                event.preventDefault()
+                navigate(history, baseLink)
+              }}
+            >
+              {parentInvestibleName || parentMarketName}
+            </Link>
+          )}
+          {!myParentPresence && parentMarketType !== INITIATIVE_TYPE && (
+            <Link
+              href={`${baseInviteLink}#is_obs=false`}
+              variant="inherit"
+              underline="always"
+              color="primary"
+              onClick={(event) => {
+                event.preventDefault()
+                navigate(history, `${baseInviteLink}#is_obs=false`)
+              }}
+            >
+              {intl.formatMessage({ id: 'marketParticipationLink' }, { x: parentMarketName })}
+            </Link>
+          )}
+        </Grid>
+        <Grid
+          item
+          key={`${parentMarketId}obs`}
+        >
+          {!myParentPresence && parentMarketType !== INITIATIVE_TYPE && (
+            <Link
+              href={`${baseInviteLink}#is_obs=true`}
+              variant="inherit"
+              underline="always"
+              color="primary"
+              onClick={(event) => {
+                event.preventDefault()
+                navigate(history, `${baseInviteLink}#is_obs=true`)
+              }}
+            >
+              {intl.formatMessage({ id: 'marketObservationLink' }, { x: parentMarketName })}
+            </Link>
+          )}
+        </Grid>
+      </>
+    );
   }
   return (
     <Paper className={classes.container} id="summary">
@@ -239,6 +325,23 @@ function Summary(props) {
           >
             {displayUserList(marketPresencesObserving)}
           </Grid>
+        </Grid>
+      )}
+      {parentMarket && (
+        <Grid
+          container
+        >
+          <Grid
+            item
+            xs={12}
+            sm={2}
+            key="parentLabel"
+          >
+            <Typography>
+              {intl.formatMessage({ id: 'parentLinkSection' })}
+            </Typography>
+          </Grid>
+          {displayParentLink(parentMarketId, parentInvestibleId)}
         </Grid>
       )}
     </Paper>

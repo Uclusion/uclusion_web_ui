@@ -10,7 +10,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import {
   getMarketPresences,
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { formInviteLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
+import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { AllSequentialMap } from '../../utils/PromiseUtils'
 import { INITIATIVE_TYPE } from '../../constants/markets'
@@ -46,13 +46,13 @@ function MarketLinks (props) {
       setLoaded(true)
       AllSequentialMap(links, (marketId) => {
         return getMarketInfo(marketId).then((market) => {
-          const { name, market_type: marketType } = market
-          marketNamesDispatch({ marketId, name, marketType })
-          return market
+          const { name, market_type: marketType } = market;
+          marketNamesDispatch({ marketId, name, marketType });
+          return market;
         })
       })
     } else if (hidden) {
-      setLoaded(false)
+      setLoaded(false);
     }
   }, [links, hidden, loaded])
 

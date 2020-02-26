@@ -242,6 +242,7 @@ const messages = defineMessages({
   planningInvestibleAssignments: 'Assignments',
   planningInvestibleDecision: 'Create Linked Decision',
   marketLinksSection: 'Child decisions',
+  parentLinkSection: 'Parent',
   marketParticipationLink: 'Participate in - {x}',
   marketObservationLink: 'Observe - {x}',
   lockedBy: 'Locked by {x}',

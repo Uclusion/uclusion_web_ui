@@ -60,8 +60,23 @@ const useCardTypeStyles = makeStyles(
   { name: "CardType" }
 );
 
+const labelIntlIds = {
+  [ISSUE_TYPE]: "cardTypeLabelIssue",
+  [QUESTION_TYPE]: "cardTypeLabelQuestion",
+  [SUGGEST_CHANGE_TYPE]: "cardTypeLabelSuggestedChange",
+  certainty0: "certainty0",
+  certainty25: "certainty25",
+  certainty50: "certainty50",
+  certainty75: "certainty75",
+  certainty100: "certainty100"
+};
+
 export default function CardType(props) {
-  const { className, type } = props;
+  const {
+    className,
+    type,
+    label = <FormattedMessage id={labelIntlIds[type]} />
+  } = props;
   const classes = useCardTypeStyles({ type });
 
   const IconComponent = {
@@ -76,28 +91,15 @@ export default function CardType(props) {
     certainty100: NoIcon
   }[type];
 
-  const labelIntlId = {
-    [ISSUE_TYPE]: "cardTypeLabelIssue",
-    [QUESTION_TYPE]: "cardTypeLabelQuestion",
-    [SUGGEST_CHANGE_TYPE]: "cardTypeLabelSuggestedChange",
-    [VOTING_TYPE]: "decisionInvestibleDescription",
-    certainty0: "certainty0",
-    certainty25: "certainty25",
-    certainty50: "certainty50",
-    certainty75: "certainty75",
-    certainty100: "certainty100"
-  }[type];
-
   return (
     <div className={clsx(classes.root, className)}>
       <IconComponent className={classes.icon} />
-      <span className={classes.label}>
-        <FormattedMessage id={labelIntlId} />
-      </span>
+      <span className={classes.label}>{label}</span>
     </div>
   );
 }
 CardType.propTypes = {
+  label: PropTypes.node,
   type: PropTypes.oneOf([
     "certainty0",
     "certainty25",

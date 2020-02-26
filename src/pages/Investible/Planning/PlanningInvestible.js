@@ -423,7 +423,13 @@ function PlanningInvestible(props) {
       sidebarActions={getSidebarActions()}
     >
       <Card elevation={0}>
-        <CardType className={classes.cardType} type={VOTING_TYPE} />
+        <CardType
+          className={classes.cardType}
+          label={`${stageName} - ${intl.formatMessage({
+            id: "decisionInvestibleDescription"
+          })}`}
+          type={VOTING_TYPE}
+        />
         <CardContent className={classes.votingCardContent}>
           <h1>{name}</h1>
           <DescriptionOrDiff

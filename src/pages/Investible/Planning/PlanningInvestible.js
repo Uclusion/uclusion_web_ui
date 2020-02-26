@@ -360,7 +360,7 @@ function PlanningInvestible(props) {
               {canEdit && (
                 <EditMarketButton key="edit" labelId="edit" marketId={marketId} onClick={toggleEdit} />
               )}
-              <MarketLinks links={children || []} />
+              <MarketLinks links={children || []} hidden={hidden} />
             </Paper>
             {lockedBy && (
               <Typography>

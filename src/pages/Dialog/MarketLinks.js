@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react'
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
@@ -11,7 +11,9 @@ import {
   getMarketPresences,
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router';
+import { AllSequentialMap } from '../../utils/PromiseUtils';
+import { getMarketDetails } from '../../api/markets';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -26,12 +28,34 @@ const useStyles = makeStyles((theme) => ({
 
 function MarketLinks(props) {
   const {
-    links,
+    links, hidden
   } = props;
   const intl = useIntl();
   const history = useHistory();
   const classes = useStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [loaded, setLoaded] = useState(false);
+  const [marketNameState, marketNamesDispatch] = useReducer((state, action) => {
+    const { marketId, name } = action;
+    return {...state, [marketId]: name};
+  }, {});
+
+  useEffect(() => {
+    if (!loaded && !hidden) {
+      setLoaded(true);
+      AllSequentialMap(links, (marketId) => {
+        return getMarketDetails(marketId).then((market) => {
+          const { name } = market;
+          marketNamesDispatch({ marketId, name });
+          return market;
+        });
+      });
+    }
+    else if (hidden) {
+      setLoaded(false);
+    }
+  }, [hidden, loaded]);
+
   function displayLinksList(linksList) {
     return linksList.map((marketId) => {
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -51,7 +75,7 @@ function MarketLinks(props) {
               navigate(history, formMarketLink(marketId));
             }}
           >
-            TODO need decent way of getting the name here
+            {marketId in marketNameState && marketNameState[marketId]}
           </Link>
         </Grid>
       );
@@ -89,6 +113,7 @@ function MarketLinks(props) {
 
 MarketLinks.propTypes = {
   links: PropTypes.arrayOf(PropTypes.string).isRequired,
+  hidden: PropTypes.bool.isRequired,
 };
 
 export default MarketLinks;

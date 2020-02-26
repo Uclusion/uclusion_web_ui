@@ -243,9 +243,7 @@ function AddEditVote(props) {
                     }}
                     /* prevent clicking the label stealing focus */
                     onMouseDown={e => e.preventDefault()}
-                    // otherwise we prevent the default when bubbling to the mouseDown
-                    // from FormControlLabel
-                    control={<Radio onMouseDown={e => e.stopPropagation()} />}
+                    control={<Radio />}
                     label={<FormattedMessage id={`certainty${certainty}`} />}
                     labelPlacement="start"
                     value={certainty}

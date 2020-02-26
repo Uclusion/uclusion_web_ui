@@ -43,7 +43,7 @@ import MoveToInReviewActionButton from './MoveToInReviewActionButton';
 import PlanningInvestibleEditActionButton from './PlanningInvestibleEditActionButton';
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
 import { convertDates } from '../../../contexts/ContextUtils';
-import { ACTIVE_STAGE } from '../../../constants/markets';
+import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets';
 import { SECTION_TYPE_PRIMARY, SECTION_TYPE_PRIMARY_WARNING, SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import List from '@material-ui/core/List';
@@ -322,7 +322,7 @@ function PlanningInvestible(props) {
         key="link"
         icon={<InsertLinkIcon />}
         label={intl.formatMessage({ id: 'planningInvestibleDecision' })}
-        onClick={() => navigate(history, `/dialogAdd#type=DECISION&investibleId=${investibleId}&id=${marketId}`)}
+        onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
       />)
     }
     sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick}/>);

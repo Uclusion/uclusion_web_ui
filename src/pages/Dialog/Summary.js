@@ -19,7 +19,7 @@ import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff';
 import { formInvestibleLink, formMarketLink, formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 import { getMarketInfo } from '../../api/sso';
-import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 
 const useStyles = makeStyles((theme) => ({
@@ -121,7 +121,7 @@ function Summary(props) {
     const { name: parentMarketName, market_type: parentMarketType } = parentMarket;
     const marketPresences = getMarketPresences(marketPresencesState, parentMarketId) || [];
     const myParentPresence = marketPresences.find((presence) => presence.current_user);
-    const baseLink = formInvestibleLink(parentMarketId, parentInvestibleId) ? parentInvestibleId : formMarketLink(parentMarketId);
+    const baseLink = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) : formMarketLink(parentMarketId);
     const baseInviteLink = `/invite/${parentMarketId}`;
     const inv = getInvestible(investiblesState, parentInvestibleId) || {};
     const { investible } = inv;

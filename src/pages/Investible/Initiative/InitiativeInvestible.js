@@ -21,11 +21,14 @@ import {
   navigate,
 } from '../../../utils/marketIdPathFunctions';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
-import { ACTIVE_STAGE, INITIATIVE_TYPE } from '../../../constants/markets';
+import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 import Summary from '../../Dialog/Summary';
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
+import InsertLinkIcon from '@material-ui/icons/InsertLink'
+import MarketLinks from '../../Dialog/MarketLinks'
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -53,12 +56,15 @@ function InitiativeInvestible(props) {
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
-  const { investible } = fullInvestible;
+  const { investible, market_infos: marketInfos } = fullInvestible;
   const { description, name } = investible;
   const {
     id: marketId,
     market_stage: marketStage,
   } = market;
+  const safeMarketInfos = marketInfos || [];
+  const thisMarketInfo = safeMarketInfos.find((info) => info.market_id === marketId);
+  const { children } = thisMarketInfo || {};
   const breadCrumbs = inArchives ? makeArchiveBreadCrumbs(history) : makeBreadCrumbs(history);
   const commentAddRef = useRef(null);
   const activeMarket = marketStage === ACTIVE_STAGE;
@@ -87,6 +93,13 @@ function InitiativeInvestible(props) {
     sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
     sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
     sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
+    sidebarActions.push(<ExpandableSidebarAction
+      id="link"
+      key="link"
+      icon={<InsertLinkIcon />}
+      label={intl.formatMessage({ id: 'initiativePlanningParent' })}
+      onClick={() => navigate(history, `/dialogAdd#type=${PLANNING_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
+    />)
     return sidebarActions;
   }
 
@@ -119,6 +132,7 @@ function InitiativeInvestible(props) {
               investibleName={name}
               investibleDescription={description}
             />
+            <MarketLinks links={children || []} hidden={hidden} />
           </SubSection>
         </Grid>
         {!isAdmin && (

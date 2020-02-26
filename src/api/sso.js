@@ -16,10 +16,17 @@ export function getMessages() {
       const { ssoClient, idToken } = ssoInfo;
       return ssoClient.getMessages(idToken)
         .then((messages) => {
-          console.debug('Got messages');
-          console.debug(messages);
           return messages;
         });
+    });
+}
+
+export function getMarketInfo(marketId) {
+  return getSSOInfo()
+    .then((ssoInfo) => {
+      const { ssoClient, idToken } = ssoInfo;
+      return ssoClient.getMarketInfo(idToken, marketId)
+        .then((market) => market);
     });
 }
 

@@ -3,9 +3,9 @@ import { useHistory } from 'react-router';
 import localforage from 'localforage';
 import PropTypes from 'prop-types';
 import {
-  Paper, Typography, Button, makeStyles,
+  Paper, Typography, Button, makeStyles, Link,
 } from '@material-ui/core';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import Screen from '../../containers/Screen/Screen';
 import config from '../../config';
 import { toastErrorAndThrow } from '../../utils/userMessage';
@@ -35,6 +35,10 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 600,
     marginRight: theme.spacing(1),
     minWidth: 140,
+  },
+  embed: {
+    marginRight: 3,
+    whiteSpace: 'nowrap',
   },
   value: {
     //
@@ -92,8 +96,18 @@ function Support(props) {
           </Typography>
         </Paper>
         <Paper className={classes.section}>
-          <Typography className={classes.row}>
-            {intl.formatMessage({ id: 'supportInfoText' })}
+          <Typography className={classes.embed}>
+            <FormattedMessage
+              id="supportInfoText"
+              values={{
+                a: (...chunks) => (
+                  <Link className={classes.embed} target="_blank" href="https://github.com/Uclusion/uclusion_customer_issues/issues">{chunks}</Link>
+                ),
+                b: (...chunks) => (
+                  <Link className={classes.embed} target="_blank" href="mailto:support@uclusion.com">{chunks}</Link>
+                ),
+              }}
+            />
           </Typography>
         </Paper>
         <FeatureRequest />

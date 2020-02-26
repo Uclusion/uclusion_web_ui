@@ -129,7 +129,7 @@ const messages = defineMessages({
   addInitiative: 'Add Initiative',
 
   // Support
-  supportInfoText: 'Create a bug in https://github.com/Uclusion/uclusion_customer_issues/issues or send an email to support@uclusion.com which includes steps to reproduce and the version and user ID above. To request a feature open a Dialog or Initiative explaining your use case or solution respectively and send the invite link to support@uclusion.com.',
+  supportInfoText: 'Create bugs (but not feature requests) in <a>Uclusion issues</a> or send an email to <b>support</b> which includes the version and user ID above.',
   featureRequest: 'Feature Request',
   createFeatureRequest: 'Create feature request',
   // Loadable Image
@@ -242,6 +242,11 @@ const messages = defineMessages({
   planningVerifiedStageLabel: 'Verified',
   planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'Assignments',
+  planningInvestibleDecision: 'Create Linked Decision',
+  marketLinksSection: 'Child decisions',
+  parentLinkSection: 'Parent',
+  marketParticipationLink: 'Participate in - {x}',
+  marketObservationLink: 'Observe - {x}',
   lockedBy: 'Locked by {x}',
   lockFailedWarning: 'Failed to acquire lock. Retry?',
   breakLock: 'Break Lock',

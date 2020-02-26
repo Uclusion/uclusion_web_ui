@@ -9,6 +9,7 @@ import {
   Typography,
   Divider
 } from "@material-ui/core";
+import InsertLinkIcon from "@material-ui/icons/InsertLink";
 import { useHistory } from "react-router";
 import { useIntl, FormattedMessage } from "react-intl";
 import SubSection from "../../../containers/SubSection/SubSection";
@@ -25,7 +26,8 @@ import {
   formMarketArchivesLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
-  makeBreadCrumbs
+  makeBreadCrumbs,
+  navigate
 } from "../../../utils/marketIdPathFunctions";
 import Screen from "../../../containers/Screen/Screen";
 import RaiseIssue from "../../../components/SidebarActions/RaiseIssue";
@@ -60,6 +62,8 @@ import {
 } from "../../../constants/global";
 import DescriptionOrDiff from "../../../components/Descriptions/DescriptionOrDiff";
 import EditMarketButton from "../../Dialog/EditMarketButton";
+import ExpandableSidebarAction from "../../../components/SidebarActions/ExpandableSidebarAction";
+import MarketLinks from "../../Dialog/MarketLinks";
 import CardType, { VOTING_TYPE } from "../../../components/CardType";
 import clsx from "clsx";
 
@@ -137,7 +141,7 @@ function PlanningInvestible(props) {
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const marketInfo = getMarketInfo(marketInvestible, marketId);
-  const { stage, assigned } = marketInfo;
+  const { stage, assigned, children } = marketInfo;
   const { investible } = marketInvestible;
   const { description, name, locked_by: lockedBy } = investible;
   let lockedByName;
@@ -378,6 +382,20 @@ function PlanningInvestible(props) {
           key="notdoing"
         />
       );
+      sidebarActions.push(
+        <ExpandableSidebarAction
+          id="link"
+          key="link"
+          icon={<InsertLinkIcon />}
+          label={intl.formatMessage({ id: "planningInvestibleDecision" })}
+          onClick={() =>
+            navigate(
+              history,
+              `/dialogAdd#type=DECISION&investibleId=${investibleId}&id=${marketId}`
+            )
+          }
+        />
+      );
     }
     sidebarActions.push(
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />
@@ -420,6 +438,7 @@ function PlanningInvestible(props) {
               onClick={toggleEdit}
             />
           )}
+          <MarketLinks links={children || []} hidden={hidden} />
           <Divider />
           <MarketMetaData
             isInVoting={isInVoting}

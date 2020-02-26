@@ -434,7 +434,7 @@ function PlanningInvestible(props) {
       <Card elevation={0}>
         <CardType className={classes.cardType} type={VOTING_TYPE} />
         <CardContent className={classes.votingCardContent}>
-          <h1>Vote Page UI TODO</h1>
+          <h1>{name}</h1>
           <DescriptionOrDiff
             hidden={hidden}
             id={investibleId}

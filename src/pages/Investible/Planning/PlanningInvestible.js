@@ -427,7 +427,16 @@ function PlanningInvestible(props) {
           type={VOTING_TYPE}
         />
         <CardContent className={classes.votingCardContent}>
-          <h1>{name}</h1>
+          <h1>
+            {name}
+            {isAdmin && !isInNotDoing && (
+              <EditMarketButton
+                labelId="edit"
+                marketId={marketId}
+                onClick={toggleEdit}
+              />
+            )}
+          </h1>
           {lockedBy && (
             <Typography>
               {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
@@ -438,13 +447,6 @@ function PlanningInvestible(props) {
             id={investibleId}
             description={description}
           />
-          {isAdmin && !isInNotDoing && (
-            <EditMarketButton
-              labelId="edit"
-              marketId={marketId}
-              onClick={toggleEdit}
-            />
-          )}
           <MarketLinks links={children || []} hidden={hidden} />
           <Divider />
           <MarketMetaData

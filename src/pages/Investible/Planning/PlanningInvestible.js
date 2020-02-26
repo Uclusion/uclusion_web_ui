@@ -55,11 +55,7 @@ import PlanningInvestibleEditActionButton from "./PlanningInvestibleEditActionBu
 import ExpiresDisplay from "../../../components/Expiration/ExpiresDisplay";
 import { convertDates } from "../../../contexts/ContextUtils";
 import { ACTIVE_STAGE } from "../../../constants/markets";
-import {
-  SECTION_TYPE_PRIMARY,
-  SECTION_TYPE_PRIMARY_WARNING,
-  SECTION_TYPE_SECONDARY
-} from "../../../constants/global";
+import { SECTION_TYPE_SECONDARY } from "../../../constants/global";
 import DescriptionOrDiff from "../../../components/Descriptions/DescriptionOrDiff";
 import EditMarketButton from "../../Dialog/EditMarketButton";
 import ExpandableSidebarAction from "../../../components/SidebarActions/ExpandableSidebarAction";

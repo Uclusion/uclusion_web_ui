@@ -289,7 +289,6 @@ const messages = defineMessages({
   cardTypeLabelIssue: 'issue present',
   cardTypeLabelQuestion: 'question',
   cardTypeLabelSuggestedChange: 'suggested changes',
-  cardTypeVoting: 'Voting - Description',
 
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
@@ -386,7 +385,7 @@ const messages = defineMessages({
   // DecisionInvestible
   decisionInvestibleYourVoting: 'Your Vote',
   decisionInvestibleOthersVoting: 'Current Votes',
-  decisionInvestibleDescription: 'Description',
+  decisionInvestibleDescription: 'Voting - Description',
   decisionInvestibleDiscussion: 'Discussion',
   decisionInvestibleVotingBlockedMarket: 'Voting is blocked because there is an open issue on the decision',
   decisionInvestibleVotingBlockedInvestible: 'Voting is blocked because there is an open issue',

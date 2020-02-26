@@ -80,7 +80,7 @@ export default function CardType(props) {
     [ISSUE_TYPE]: "cardTypeLabelIssue",
     [QUESTION_TYPE]: "cardTypeLabelQuestion",
     [SUGGEST_CHANGE_TYPE]: "cardTypeLabelSuggestedChange",
-    [VOTING_TYPE]: "cardTypeVoting",
+    [VOTING_TYPE]: "decisionInvestibleDescription",
     certainty0: "certainty0",
     certainty25: "certainty25",
     certainty50: "certainty50",

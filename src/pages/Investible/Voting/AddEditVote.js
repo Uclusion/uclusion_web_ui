@@ -236,6 +236,7 @@ function AddEditVote(props) {
               {[0, 25, 50, 75, 100].map(certainty => {
                 return (
                   <FormControlLabel
+                    key={certainty}
                     className={classes.certaintyValue}
                     classes={{
                       label: classes.certaintyValueLabel

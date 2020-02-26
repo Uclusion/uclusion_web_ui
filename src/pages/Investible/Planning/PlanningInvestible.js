@@ -432,6 +432,11 @@ function PlanningInvestible(props) {
         />
         <CardContent className={classes.votingCardContent}>
           <h1>{name}</h1>
+          {lockedBy && (
+            <Typography>
+              {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
+            </Typography>
+          )}
           <DescriptionOrDiff
             hidden={hidden}
             id={investibleId}
@@ -477,22 +482,6 @@ function PlanningInvestible(props) {
       />
       {/* unstyled from here on out because no FIGMA */}
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <SubSection
-            type={
-              isInBlocked ? SECTION_TYPE_PRIMARY_WARNING : SECTION_TYPE_PRIMARY
-            }
-            title={`${stageName} - ${intl.formatMessage({
-              id: "decisionInvestibleDescription"
-            })}`}
-          >
-            {lockedBy && (
-              <Typography>
-                {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
-              </Typography>
-            )}
-          </SubSection>
-        </Grid>
         {discussionVisible && (
           <Grid item xs={12}>
             <SubSection

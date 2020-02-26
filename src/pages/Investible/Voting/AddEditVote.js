@@ -11,11 +11,11 @@ import {
   FormControlLabel,
   FormLabel,
   Radio,
-  Typography,
   Button,
   TextField,
   makeStyles,
-  darken
+  darken,
+  Divider
 } from "@material-ui/core";
 import {
   removeInvestment,
@@ -57,12 +57,8 @@ const useStyles = makeStyles(
       certaintyValueLabel: {
         fontWeight: "bold"
       },
-      effortValue: {
-        marginBottom: theme.spacing(1)
-      },
-      effortValueLabel: {
-        display: "block",
-        marginBottom: theme.spacing(1)
+      divider: {
+        margin: theme.spacing(2, 0)
       },
       actions: {
         display: "flex",
@@ -257,27 +253,24 @@ function AddEditVote(props) {
               })}
             </RadioGroup>
           </FormControl>
-          <br />
           {showBudget && (
             <TextField
-              id="standard-number"
-              label={intl.formatMessage(
-                { id: "maxBudgetInputLabel" },
-                { x: storyMaxBudget + 1 }
-              )}
+              id="vote-max-budget"
+              label={intl.formatMessage({ id: "maxBudgetInputLabel" })}
               type="number"
-              InputLabelProps={{
-                shrink: true
-              }}
-              variant="outlined"
+              variant="filled"
               onChange={onBudgetChange}
               value={maxBudget}
               error={maxBudget > storyMaxBudget}
+              helperText={intl.formatMessage(
+                {
+                  id: "maxBudgetInputHelperText"
+                },
+                { x: storyMaxBudget + 1 }
+              )}
             />
           )}
-          <Typography>
-            {intl.formatMessage({ id: "reasonQuestion" })}
-          </Typography>
+          <Divider className={classes.divider} />
           <QuillEditor
             placeholder={intl.formatMessage({ id: "yourReason" })}
             defaultValue={body}

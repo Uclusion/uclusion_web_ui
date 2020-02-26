@@ -189,14 +189,15 @@ const messages = defineMessages({
   certainty0: 'Uncertain',
   maxBudgetLabel: 'effort value',
   maxBudgetValue: '{x} days',
-  certaintyQuestion: 'How certain are you of your vote?',
+  certaintyQuestion: 'Rate Your Certainty',
   reasonQuestion: 'Why did you vote for this option?',
   saveVote: 'Cast Vote',
   updateVote: 'Update Vote',
   yourReason: 'Your reason...',
   cancelVote: 'Cancel',
   removeVote: 'Remove Vote',
-  maxBudgetInputLabel: 'Number of days before might not be worth doing - value must be less than {x}',
+  maxBudgetInputLabel: 'effort value',
+  maxBudgetInputHelperText: 'value must be less than {x}',
   draft: 'Draft',
 
   // Address list

@@ -60,6 +60,9 @@ const useStyles = makeStyles(
       divider: {
         margin: theme.spacing(2, 0)
       },
+      maxBudget: {
+        display: "block"
+      },
       actions: {
         display: "flex",
         padding: theme.spacing(0, 0, 1, 2)
@@ -254,6 +257,7 @@ function AddEditVote(props) {
           </FormControl>
           {showBudget && (
             <TextField
+              className={classes.maxBudget}
               id="vote-max-budget"
               label={intl.formatMessage({ id: "maxBudgetInputLabel" })}
               type="number"

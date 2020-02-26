@@ -37,7 +37,12 @@ const useCardTypeStyles = makeStyles(
           certainty100: "#73B76C"
         }[type],
         borderBottomRightRadius: 8,
-        color: "white",
+        color:
+          ["certainty25", "certainty50", "certainty75", "certainty100"].indexOf(
+            type
+          ) === -1
+            ? "white"
+            : "black",
         padding: `4px 8px`
       };
     },
@@ -76,11 +81,11 @@ export default function CardType(props) {
     [QUESTION_TYPE]: "cardTypeLabelQuestion",
     [SUGGEST_CHANGE_TYPE]: "cardTypeLabelSuggestedChange",
     [VOTING_TYPE]: "cardTypeVoting",
-    certainty0: "veryCertain",
-    certainty25: "certain",
-    certainty50: "somewhatCertain",
-    certainty75: "somewhatUncertain",
-    certainty100: "uncertain"
+    certainty0: "uncertain",
+    certainty25: "somewhatUncertain",
+    certainty50: "certain",
+    certainty75: "somewhatCertain",
+    certainty100: "veryCertain"
   }[type];
 
   return (
@@ -94,6 +99,11 @@ export default function CardType(props) {
 }
 CardType.propTypes = {
   type: PropTypes.oneOf([
+    "certainty0",
+    "certainty25",
+    "certainty50",
+    "certainty75",
+    "certainty100",
     ISSUE_TYPE,
     QUESTION_TYPE,
     SUGGEST_CHANGE_TYPE,

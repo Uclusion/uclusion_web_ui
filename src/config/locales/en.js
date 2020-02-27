@@ -223,6 +223,7 @@ const messages = defineMessages({
 
   // Investible
   investibleEditLabel: 'Edit',
+  investibleAssignLabel: 'Assign',
   investibleAssignForVotingLabel: 'Assign & Move Voting',
   investibleAddHeader: 'Add Investible',
   investibleEditStageHelper: 'Select to change stage',

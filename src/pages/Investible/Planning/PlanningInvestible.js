@@ -227,10 +227,10 @@ function PlanningInvestible(props) {
     }
     const sidebarActions = [];
 
-    if (isAdmin && isInNotDoing) {
+    if (isAdmin) {
       sidebarActions.push(<PlanningInvestibleEditActionButton
         marketId={marketId}
-        key="edit"
+        key="assign"
         isInNotDoing={isInNotDoing}
         onClick={toggleEdit}
       />);

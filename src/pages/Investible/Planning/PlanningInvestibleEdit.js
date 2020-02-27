@@ -136,36 +136,31 @@ function PlanningInvestibleEdit(props) {
           previouslyAssigned={assigned}
           onChange={handleAssignmentChange}
         />
-        <TextField
-          className={classes.row}
-          inputProps={{ maxLength: 255 }}
-          id="name"
-          helperText={intl.formatMessage({ id: 'investibleEditTitleLabel' })}
-          margin="normal"
-          fullWidth
-          variant="outlined"
-          value={name}
-          disabled={!assignee}
-          onChange={handleChange('name')}
-        />
         {assignee && (
           <>
-            <Typography>
-              {intl.formatMessage({ id: 'descriptionEdit' })}
-            </Typography>
-            <QuillEditor
-              onS3Upload={handleFileUpload}
-              onChange={onEditorChange}
-              onStoreChange={onStorageChange}
-              defaultValue={description}
-              setOperationInProgress={setOperationRunning}
-            />
-          </>
-        )}
-        {!assignee && (
-          <ReadOnlyQuillEditor
-            value={description}
+          <TextField
+            className={classes.row}
+            inputProps={{ maxLength: 255 }}
+            id="name"
+            helperText={intl.formatMessage({ id: 'investibleEditTitleLabel' })}
+            margin="normal"
+            fullWidth
+            variant="outlined"
+            value={name}
+            disabled={!assignee}
+            onChange={handleChange('name')}
           />
+          <Typography>
+            {intl.formatMessage({ id: 'descriptionEdit' })}
+          </Typography>
+          <QuillEditor
+            onS3Upload={handleFileUpload}
+            onChange={onEditorChange}
+            onStoreChange={onStorageChange}
+            defaultValue={description}
+            setOperationInProgress={setOperationRunning}
+          />
+        </>
         )}
       </CardContent>
       <CardActions>

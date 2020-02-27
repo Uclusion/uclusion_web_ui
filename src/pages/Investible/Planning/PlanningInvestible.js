@@ -457,7 +457,7 @@ function PlanningInvestible(props) {
           showBudget
         />
       ) : (
-        <Typography>You can't vote if you're assigned TODO i18n</Typography>
+        <Typography>{intl.formatMessage({ id: 'planningInvestibleCantVote' })}</Typography>
       )}
       <h2>
         <FormattedMessage id="decisionInvestibleOthersVoting" />

@@ -244,6 +244,7 @@ const messages = defineMessages({
   planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'Assignments',
   planningInvestibleDecision: 'Create Linked Decision',
+  planningInvestibleCantVote: 'You can\'t vote if you\'re assigned',
   initiativePlanningParent: 'Create Linked Plan',
   marketLinksSection: 'Children',
   parentLinkSection: 'Parent',

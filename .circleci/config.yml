@@ -29,7 +29,7 @@ jobs:
           name: Install web ui
           command: |
             cd ~/repo
-            echo 'export MY_RELEASE_VAR=`git rev-parse HEAD | head -c 16`' >> $BASH_ENV
+            echo 'export MY_RELEASE_VAR=`echo $CIRCLE_SHA1 | head -c 16`' >> $BASH_ENV
             yarn install
       - run:
           name: Copy env file
@@ -80,7 +80,7 @@ workflows:
       - build:
           filters:
             tags:
-              only: /^stage_only.*/
+              only: /^stage_backend.*/
             branches:
               ignore: /.*/
           context: stage
@@ -89,7 +89,7 @@ workflows:
       - build:
           filters:
             tags:
-              only: /^production_only.*/
+              only: /^production_backend.*/
             branches:
               ignore: /.*/
           context: production

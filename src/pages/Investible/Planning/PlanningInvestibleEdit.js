@@ -12,7 +12,6 @@ import { processTextAndFilesForSave } from '../../../api/files';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import AssignmentList from '../../Dialog/Planning/AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
@@ -136,36 +135,31 @@ function PlanningInvestibleEdit(props) {
           previouslyAssigned={assigned}
           onChange={handleAssignmentChange}
         />
-        <TextField
-          className={classes.row}
-          inputProps={{ maxLength: 255 }}
-          id="name"
-          helperText={intl.formatMessage({ id: 'investibleEditTitleLabel' })}
-          margin="normal"
-          fullWidth
-          variant="outlined"
-          value={name}
-          disabled={!assignee}
-          onChange={handleChange('name')}
-        />
         {assignee && (
           <>
-            <Typography>
-              {intl.formatMessage({ id: 'descriptionEdit' })}
-            </Typography>
-            <QuillEditor
-              onS3Upload={handleFileUpload}
-              onChange={onEditorChange}
-              onStoreChange={onStorageChange}
-              defaultValue={description}
-              setOperationInProgress={setOperationRunning}
-            />
-          </>
-        )}
-        {!assignee && (
-          <ReadOnlyQuillEditor
-            value={description}
+          <TextField
+            className={classes.row}
+            inputProps={{ maxLength: 255 }}
+            id="name"
+            helperText={intl.formatMessage({ id: 'investibleEditTitleLabel' })}
+            margin="normal"
+            fullWidth
+            variant="outlined"
+            value={name}
+            disabled={!assignee}
+            onChange={handleChange('name')}
           />
+          <Typography>
+            {intl.formatMessage({ id: 'descriptionEdit' })}
+          </Typography>
+          <QuillEditor
+            onS3Upload={handleFileUpload}
+            onChange={onEditorChange}
+            onStoreChange={onStorageChange}
+            defaultValue={description}
+            setOperationInProgress={setOperationRunning}
+          />
+        </>
         )}
       </CardContent>
       <CardActions>

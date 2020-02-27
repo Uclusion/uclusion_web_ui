@@ -12,6 +12,8 @@ import { PLANNING_TYPE } from '../../constants/markets';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { useHistory } from 'react-router'
+import queryString from 'query-string'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,6 +29,11 @@ const useStyles = makeStyles((theme) => ({
 
 function PlanningAdd(props) {
   const intl = useIntl();
+  const history = useHistory();
+  const { location } = history;
+  const { hash } = location;
+  const values = queryString.parse(hash);
+  const { investibleId: parentInvestibleId, id: parentMarketId } = values;
   const {
     onSpinStop, storedState, onSave
   } = props;
@@ -129,6 +136,12 @@ function PlanningAdd(props) {
     }
     if (daysEstimate) {
       addInfo.days_estimate = daysEstimate;
+    }
+    if (parentInvestibleId) {
+      addInfo.parent_investible_id = parentInvestibleId;
+    }
+    if (parentMarketId) {
+      addInfo.parent_market_id = parentMarketId;
     }
     return createPlanning(addInfo)
       .then((result) => {

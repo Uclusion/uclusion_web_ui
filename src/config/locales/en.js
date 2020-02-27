@@ -225,6 +225,7 @@ const messages = defineMessages({
 
   // Investible
   investibleEditLabel: 'Edit',
+  investibleAssignLabel: 'Assign',
   investibleAssignForVotingLabel: 'Assign & Move Voting',
   investibleAddHeader: 'Add Investible',
   investibleEditStageHelper: 'Select to change stage',
@@ -243,7 +244,8 @@ const messages = defineMessages({
   planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'Assignments',
   planningInvestibleDecision: 'Create Linked Decision',
-  marketLinksSection: 'Child decisions',
+  initiativePlanningParent: 'Create Linked Plan',
+  marketLinksSection: 'Children',
   parentLinkSection: 'Parent',
   marketParticipationLink: 'Participate in - {x}',
   marketObservationLink: 'Observe - {x}',

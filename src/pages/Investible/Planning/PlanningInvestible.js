@@ -62,6 +62,26 @@ import ExpandableSidebarAction from "../../../components/SidebarActions/Expandab
 import MarketLinks from "../../Dialog/MarketLinks";
 import CardType, { VOTING_TYPE } from "../../../components/CardType";
 import clsx from "clsx";
+  getInReviewStage, getNotDoingStage, getVerifiedStage,
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import MoveToVerifiedActionButton from './MoveToVerifiedActionButton';
+import MoveToVotingActionButton from './MoveToVotingActionButton';
+import MoveToNotDoingActionButton from './MoveToNotDoingActionButton';
+import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
+import MoveToAcceptedActionButton from './MoveToAcceptedActionButton';
+import MoveToInReviewActionButton from './MoveToInReviewActionButton';
+import PlanningInvestibleEditActionButton from './PlanningInvestibleEditActionButton';
+import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
+import { convertDates } from '../../../contexts/ContextUtils';
+import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets';
+import { SECTION_TYPE_PRIMARY, SECTION_TYPE_PRIMARY_WARNING, SECTION_TYPE_SECONDARY } from '../../../constants/global';
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import EditMarketButton from '../../Dialog/EditMarketButton';
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
+import MarketLinks from '../../Dialog/MarketLinks';
 
 const useStyles = makeStyles(
   theme => ({
@@ -248,15 +268,13 @@ function PlanningInvestible(props) {
     }
     const sidebarActions = [];
 
-    if (isAdmin && isInNotDoing) {
-      sidebarActions.push(
-        <PlanningInvestibleEditActionButton
-          marketId={marketId}
-          key="edit"
-          isInNotDoing={isInNotDoing}
-          onClick={toggleEdit}
-        />
-      );
+    if (isAdmin) {
+      sidebarActions.push(<PlanningInvestibleEditActionButton
+        marketId={marketId}
+        key="assign"
+        isInNotDoing={isInNotDoing}
+        onClick={toggleEdit}
+      />);
     }
     // you can only move stages besides not doing or verfied if you're assigned to it
     if (assigned && assigned.includes(userId)) {
@@ -370,28 +388,19 @@ function PlanningInvestible(props) {
       );
     }
     if (!isInNotDoing) {
-      sidebarActions.push(
-        <MoveToNotDoingActionButton
-          investibleId={investibleId}
-          marketId={marketId}
-          stageId={stage}
-          key="notdoing"
-        />
-      );
-      sidebarActions.push(
-        <ExpandableSidebarAction
-          id="link"
-          key="link"
-          icon={<InsertLinkIcon />}
-          label={intl.formatMessage({ id: "planningInvestibleDecision" })}
-          onClick={() =>
-            navigate(
-              history,
-              `/dialogAdd#type=DECISION&investibleId=${investibleId}&id=${marketId}`
-            )
-          }
-        />
-      );
+      sidebarActions.push(<MoveToNotDoingActionButton
+        investibleId={investibleId}
+        marketId={marketId}
+        stageId={stage}
+        key="notdoing"
+      />);
+      sidebarActions.push(<ExpandableSidebarAction
+        id="link"
+        key="link"
+        icon={<InsertLinkIcon />}
+        label={intl.formatMessage({ id: 'planningInvestibleDecision' })}
+        onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
+      />)
     }
     sidebarActions.push(
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />

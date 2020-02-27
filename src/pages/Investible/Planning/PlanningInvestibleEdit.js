@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import {
+  Button,
   Card, CardActions, CardContent, TextField, Typography, withStyles,
-} from '@material-ui/core';
+} from '@material-ui/core'
 import _ from 'lodash';
 import localforage from 'localforage';
 import PropTypes from 'prop-types';
@@ -31,7 +32,7 @@ const styles = (theme) => ({
 
 function PlanningInvestibleEdit(props) {
   const {
-    fullInvestible, intl, classes, onCancel, onSave, marketId, storedState,
+    fullInvestible, intl, classes, onCancel, onSave, marketId, storedState, isAssign,
   } = props;
   const { description: storedDescription, name: storedName, assignments: storedAssignments } = storedState;
   const [draftState, setDraftState] = useState(storedState);
@@ -47,11 +48,7 @@ function PlanningInvestibleEdit(props) {
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const [description, setDescription] = useState(storedDescription || initialDescription);
-  const [marketsState] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const me = getMyUserForMarket(marketsState, marketId) || {};
-  const { id: myId } = me;
-  const assignee = assigned.includes(myId);
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -130,12 +127,14 @@ function PlanningInvestibleEdit(props) {
   return (
     <Card>
       <CardContent>
-        <AssignmentList
-          marketId={marketId}
-          previouslyAssigned={assigned}
-          onChange={handleAssignmentChange}
-        />
-        {assignee && (
+        {isAssign && (
+          <AssignmentList
+            marketId={marketId}
+            previouslyAssigned={assigned}
+            onChange={handleAssignmentChange}
+          />
+        )}
+        {!isAssign && (
           <>
           <TextField
             className={classes.row}
@@ -146,7 +145,6 @@ function PlanningInvestibleEdit(props) {
             fullWidth
             variant="outlined"
             value={name}
-            disabled={!assignee}
             onChange={handleChange('name')}
           />
           <Typography>
@@ -163,13 +161,22 @@ function PlanningInvestibleEdit(props) {
         )}
       </CardContent>
       <CardActions>
-        <SpinBlockingButtonGroup>
-          <SpinBlockingButton
-            marketId={marketId}
+        {isAssign && (
+          <Button
             onClick={onCancel}
           >
             {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
-          </SpinBlockingButton>
+          </Button>
+        )}
+        <SpinBlockingButtonGroup>
+          {!isAssign && (
+            <SpinBlockingButton
+              marketId={marketId}
+              onClick={onCancel}
+            >
+              {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
+            </SpinBlockingButton>
+          )}
           <SpinBlockingButton
             marketId={marketId}
             variant="contained"
@@ -199,6 +206,7 @@ PlanningInvestibleEdit.propTypes = {
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
   storedState: PropTypes.object.isRequired,
+  isAssign: PropTypes.bool.isRequired,
 };
 
 PlanningInvestibleEdit.defaultProps = {

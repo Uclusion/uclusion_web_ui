@@ -34,13 +34,17 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import clsx from 'clsx';
 import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogEdit';
+import queryString from 'query-string'
 
 function InvestibleEdit (props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
   const { location } = history;
-  const { pathname } = location;
+  const { pathname, hash } = location;
+  const values = queryString.parse(hash || {}) || {};
+  const { assign } = values;
+  const isAssign = assign === 'true';
   const { marketId, investibleId } = decomposeMarketPath(pathname);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -214,6 +218,7 @@ function InvestibleEdit (props) {
           onCancel={onDone}
           isAdmin={isAdmin}
           storedState={storedState}
+          isAssign={isAssign}
         />
       )}
       {!hidden && isInitiative && inv && idLoaded === investibleId && (

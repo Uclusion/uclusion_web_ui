@@ -23,12 +23,13 @@ import {
   SUGGEST_CHANGE_TYPE
 } from "../../../constants/comments";
 import {
+  formInvestibleEditLink,
   formMarketArchivesLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate
-} from "../../../utils/marketIdPathFunctions";
+} from '../../../utils/marketIdPathFunctions'
 import Screen from "../../../containers/Screen/Screen";
 import RaiseIssue from "../../../components/SidebarActions/RaiseIssue";
 import AskQuestions from "../../../components/SidebarActions/AskQuestion";
@@ -51,7 +52,6 @@ import MoveToNotDoingActionButton from "./MoveToNotDoingActionButton";
 import { scrollToCommentAddBox } from "../../../components/Comments/commentFunctions";
 import MoveToAcceptedActionButton from "./MoveToAcceptedActionButton";
 import MoveToInReviewActionButton from "./MoveToInReviewActionButton";
-import PlanningInvestibleEditActionButton from "./PlanningInvestibleEditActionButton";
 import ExpiresDisplay from "../../../components/Expiration/ExpiresDisplay";
 import { convertDates } from "../../../contexts/ContextUtils";
 import { SECTION_TYPE_SECONDARY } from "../../../constants/global";
@@ -248,14 +248,6 @@ function PlanningInvestible(props) {
     }
     const sidebarActions = [];
 
-    if (isAdmin) {
-      sidebarActions.push(<PlanningInvestibleEditActionButton
-        marketId={marketId}
-        key="assign"
-        isInNotDoing={isInNotDoing}
-        onClick={toggleEdit}
-      />);
-    }
     // you can only move stages besides not doing or verfied if you're assigned to it
     if (assigned && assigned.includes(userId)) {
       if (isInVoting || isInAccepted) {
@@ -399,6 +391,9 @@ function PlanningInvestible(props) {
 
   const canVote = (!assigned || !assigned.includes(userId)) && isInVoting;
 
+  function toggleAssign() {
+    navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
+  }
   return (
     <Screen
       title={name}
@@ -418,7 +413,7 @@ function PlanningInvestible(props) {
         <CardContent className={classes.votingCardContent}>
           <h1>
             {name}
-            {isAdmin && !isInNotDoing && (
+            {isAdmin && (
               <EditMarketButton
                 labelId="edit"
                 marketId={marketId}
@@ -443,6 +438,8 @@ function PlanningInvestible(props) {
             market={market}
             marketInvestible={marketInvestible}
             marketPresences={marketPresences}
+            isAdmin={isAdmin}
+            toggleAssign={toggleAssign}
           />
         </CardContent>
       </Card>
@@ -593,7 +590,9 @@ function MarketMetaData(props) {
     isInVoting,
     market,
     marketPresences,
-    marketInvestible
+    marketInvestible,
+    isAdmin,
+    toggleAssign,
   } = props;
 
   const classes = useMetaDataStyles();
@@ -639,6 +638,8 @@ function MarketMetaData(props) {
               marketId={market.id}
               marketPresences={marketPresences}
               investible={marketInvestible}
+              isAdmin={isAdmin}
+              toggleAssign={toggleAssign}
             />
           </dd>
         </div>
@@ -648,7 +649,7 @@ function MarketMetaData(props) {
 }
 
 function Assignments(props) {
-  const { investible, marketId, marketPresences } = props;
+  const { investible, marketId, marketPresences, isAdmin, toggleAssign } = props;
 
   const marketInfo = getMarketInfo(investible, marketId);
   const { assigned = [] } = marketInfo;
@@ -663,6 +664,13 @@ function Assignments(props) {
         return (
           <Typography key={userId} component="li">
             {user.name}
+            {isAdmin && (
+              <EditMarketButton
+                labelId="edit"
+                marketId={marketId}
+                onClick={toggleAssign}
+              />
+            )}
           </Typography>
         );
       })}

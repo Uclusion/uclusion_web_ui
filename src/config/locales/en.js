@@ -255,6 +255,7 @@ const messages = defineMessages({
   breakLock: 'Break Lock',
   newStory: 'New Story',
   newOption: 'New Option',
+  noVoters: 'No Voters',
   // Issues
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',

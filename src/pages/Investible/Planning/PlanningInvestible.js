@@ -54,7 +54,6 @@ import MoveToInReviewActionButton from "./MoveToInReviewActionButton";
 import PlanningInvestibleEditActionButton from "./PlanningInvestibleEditActionButton";
 import ExpiresDisplay from "../../../components/Expiration/ExpiresDisplay";
 import { convertDates } from "../../../contexts/ContextUtils";
-import { ACTIVE_STAGE } from "../../../constants/markets";
 import { SECTION_TYPE_SECONDARY } from "../../../constants/global";
 import DescriptionOrDiff from "../../../components/Descriptions/DescriptionOrDiff";
 import EditMarketButton from "../../Dialog/EditMarketButton";
@@ -62,26 +61,7 @@ import ExpandableSidebarAction from "../../../components/SidebarActions/Expandab
 import MarketLinks from "../../Dialog/MarketLinks";
 import CardType, { VOTING_TYPE } from "../../../components/CardType";
 import clsx from "clsx";
-  getInReviewStage, getNotDoingStage, getVerifiedStage,
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import MoveToVerifiedActionButton from './MoveToVerifiedActionButton';
-import MoveToVotingActionButton from './MoveToVotingActionButton';
-import MoveToNotDoingActionButton from './MoveToNotDoingActionButton';
-import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
-import MoveToAcceptedActionButton from './MoveToAcceptedActionButton';
-import MoveToInReviewActionButton from './MoveToInReviewActionButton';
-import PlanningInvestibleEditActionButton from './PlanningInvestibleEditActionButton';
-import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
-import { convertDates } from '../../../contexts/ContextUtils';
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets';
-import { SECTION_TYPE_PRIMARY, SECTION_TYPE_PRIMARY_WARNING, SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import EditMarketButton from '../../Dialog/EditMarketButton';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
-import MarketLinks from '../../Dialog/MarketLinks';
 
 const useStyles = makeStyles(
   theme => ({

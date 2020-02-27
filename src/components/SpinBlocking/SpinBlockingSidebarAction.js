@@ -33,6 +33,7 @@ function SpinBlockingSidebarAction(props) {
       onSpinStart={onSpinStart}
       onSpinStop={onSpinStop}
       className={classes.menuItem}
+      spanChildren={false}
     >
       <Tooltip title={label}>
         <ListItemIcon className={classes.menuIcon}>

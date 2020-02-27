@@ -27,6 +27,7 @@ export function withSpinLock(Component) {
       children,
       disabled,
       hasSpinChecker,
+      spanChildren,
       ...rest
     } = props;
 
@@ -161,8 +162,11 @@ export function withSpinLock(Component) {
             color="inherit"
           />
         )}
+        {!spanChildren && !spinning && children}
         {/* keep the children in layout to avoid vertical layout shifts */}
-        <span style={{ visibility: spinning ? 'hidden' : 'visible'  }}>{children}</span>
+        {spanChildren && (
+          <span style={{ visibility: spinning ? 'hidden' : 'visible'  }}>{children}</span>
+        )}
       </Component>
     );
   };
@@ -175,6 +179,7 @@ export function withSpinLock(Component) {
     disabled: PropTypes.bool,
     // are we giving you a spin checker, so don't wait for messages
     hasSpinChecker: PropTypes.bool,
+    spanChildren: PropTypes.bool,
   };
   Spinning.defaultProps = {
     onSpinStart: () => {
@@ -185,6 +190,7 @@ export function withSpinLock(Component) {
     },
     disabled: false,
     hasSpinChecker: false,
+    spanChildren: true,
   };
   return Spinning;
 }

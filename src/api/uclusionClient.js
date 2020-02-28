@@ -5,6 +5,7 @@ import { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET, TOKEN_TYPE_FILE } from '../autho
 import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityTokenRefresher';
 import FileTokenRefresher from '../authorization/FileTokenRefresher';
 import { updateFileToken } from '../authorization/tokenStorageUtils';
+import { getSSOInfo } from './sso';
 
 export const getMarketClient = (marketId, isObserver) => {
   const ssoClient = client.constructSSOClient(config.api_configuration);
@@ -33,6 +34,15 @@ export const getAccountClient = () => {
     return tokenManager.getToken() // force login
       .then(() => client.constructClient({ ...config.api_configuration, tokenManager }));
   });
+};
+
+export const getAccount = () => {
+  return getSSOInfo()
+    .then((ssoInfo) => {
+      const { idToken, ssoClient } = ssoInfo;
+      return ssoClient.accountCognitoLogin(idToken)
+        .then((loginInfo) => loginInfo.account);
+    })
 };
 
 export const getFileClient = (metadata) => {

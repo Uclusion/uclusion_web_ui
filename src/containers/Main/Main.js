@@ -17,42 +17,45 @@ import OperationInProgressGlobalProvider from '../../components/ContextHacks/Ope
 import { DiffProvider } from '../../contexts/DiffContext/DiffContext';
 import { HighlightedCommentProvider } from '../../contexts/HighlightedCommentContext';
 import { HighlightedVotingProvider } from '../../contexts/HighlightedVotingContext';
+import { AccountProvider } from '../../contexts/AccountContext/AccountContext';
 
 class Main extends Component {
-  render() {
+  render () {
     console.debug('Main being rerendered');
     return (
       <div>
-        <HighlightedVotingProvider>
-          <HighlightedCommentProvider>
-            <DiffProvider>
-              <OperationInProgressProvider>
-                <OperationInProgressGlobalProvider>
-                  <VersionsProvider>
-                    <NotificationsProvider>
-                      <MarketsProvider>
-                        <MarketStagesProvider>
-                          <CommentsProvider>
-                            <InvestiblesProvider>
-                              <MarketPresencesProvider>
-                                <LocaleProvider>
-                                  <SidebarProvider>
-                                    <ToastContainer />
-                                    <AppWithAuth />
-                                  </SidebarProvider>
-                                </LocaleProvider>
-                              </MarketPresencesProvider>
-                            </InvestiblesProvider>
-                          </CommentsProvider>
-                        </MarketStagesProvider>
-                      </MarketsProvider>
-                    </NotificationsProvider>
-                  </VersionsProvider>
-                </OperationInProgressGlobalProvider>
-              </OperationInProgressProvider>
-            </DiffProvider>
-          </HighlightedCommentProvider>
-        </HighlightedVotingProvider>
+        <AccountProvider>
+          <HighlightedVotingProvider>
+            <HighlightedCommentProvider>
+              <DiffProvider>
+                <OperationInProgressProvider>
+                  <OperationInProgressGlobalProvider>
+                    <VersionsProvider>
+                      <NotificationsProvider>
+                        <MarketsProvider>
+                          <MarketStagesProvider>
+                            <CommentsProvider>
+                              <InvestiblesProvider>
+                                <MarketPresencesProvider>
+                                  <LocaleProvider>
+                                    <SidebarProvider>
+                                      <ToastContainer/>
+                                      <AppWithAuth/>
+                                    </SidebarProvider>
+                                  </LocaleProvider>
+                                </MarketPresencesProvider>
+                              </InvestiblesProvider>
+                            </CommentsProvider>
+                          </MarketStagesProvider>
+                        </MarketsProvider>
+                      </NotificationsProvider>
+                    </VersionsProvider>
+                  </OperationInProgressGlobalProvider>
+                </OperationInProgressProvider>
+              </DiffProvider>
+            </HighlightedCommentProvider>
+          </HighlightedVotingProvider>
+        </AccountProvider>
       </div>
     );
   }

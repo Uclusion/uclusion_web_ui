@@ -32,6 +32,10 @@ function AccountProvider(props) {
               });
           case 'signOut':
             setState(undefined);
+            break;
+          default:
+            console.log(`Unrecognized event ${event}`);
+            break;
         }
       });
       setIsInitialization(false);

@@ -9,10 +9,11 @@ export function updateInvestible (updateInfo) {
     description,
     uploadedFiles,
     assignments,
+    daysEstimate,
   } = updateInfo;
   return getMarketClient(marketId)
     .then((client) => client.investibles.update(investibleId, name,
-      description, undefined, uploadedFiles, assignments))
+      description, undefined, uploadedFiles, assignments, daysEstimate))
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
 }
 
@@ -35,9 +36,10 @@ export function addPlanningInvestible (addInfo) {
     description,
     uploadedFiles,
     assignments,
+    daysEstimate,
   } = addInfo;
   return getMarketClient(marketId)
-    .then((client) => client.investibles.create(name, description, uploadedFiles, assignments))
+    .then((client) => client.investibles.create(name, description, uploadedFiles, assignments, daysEstimate))
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningInvestibleAddFailed'));
 }
 

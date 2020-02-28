@@ -38,7 +38,8 @@ function PlanningInvestibleAdd(props) {
   const {
     marketId, intl, classes, onCancel, onSave, storedState, onSpinComplete,
   } = props;
-  const { description: storedDescription, name: storedName, assignments: storedAssignments } = storedState;
+  const { description: storedDescription, name: storedName, assignments: storedAssignments,
+    days_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const emptyInvestible = { name: storedName };
@@ -47,6 +48,7 @@ function PlanningInvestibleAdd(props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [assignments, setAssignments] = useState(storedAssignments);
   const [validForm, setValidForm] = useState(false);
+  const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
   const { name } = currentValues;
   const history = useHistory();
 
@@ -116,6 +118,13 @@ function PlanningInvestibleAdd(props) {
     onCancel(formMarketLink(marketId));
   }
 
+  function onDaysEstimateChange(event) {
+    const { value } = event.target;
+    const valueInt = value ? parseInt(value, 10) : null;
+    setDaysEstimate(valueInt);
+    handleDraftState({ ...draftState, days_estimate: valueInt });
+  }
+
   function handleSave() {
     const {
       uploadedFiles: filteredUploads,
@@ -128,6 +137,9 @@ function PlanningInvestibleAdd(props) {
       name,
       assignments,
     };
+    if (daysEstimate) {
+      addInfo.daysEstimate = daysEstimate;
+    }
     return addPlanningInvestible(addInfo).then((inv) => {
       const { investible } = inv;
       onSave(inv);
@@ -158,6 +170,17 @@ function PlanningInvestibleAdd(props) {
           variant="outlined"
           value={name}
           onChange={handleChange('name')}
+        />
+        <TextField
+          id="standard-number"
+          label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
+          type="number"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          variant="outlined"
+          onChange={onDaysEstimateChange}
+          value={daysEstimate}
         />
         <Typography>
           {intl.formatMessage({ id: 'descriptionEdit' })}

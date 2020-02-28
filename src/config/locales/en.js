@@ -179,6 +179,7 @@ const messages = defineMessages({
 
   // InvestibleEditButton
   investibleEditButtonTooltip: 'Edit',
+  daysEstimateLabel: 'effort estimate',
 
   // CurrentVoting
   numVoting: '{x} votes',

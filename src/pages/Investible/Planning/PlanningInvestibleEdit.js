@@ -32,15 +32,18 @@ function PlanningInvestibleEdit(props) {
   const {
     fullInvestible, intl, classes, onCancel, onSave, marketId, storedState, isAssign,
   } = props;
-  const { description: storedDescription, name: storedName, assignments: storedAssignments } = storedState;
+  const { description: storedDescription, name: storedName, assignments: storedAssignments,
+    days_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const myInvestible = fullInvestible.investible;
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
-  const { assigned: marketAssigned } = marketInfo;
+  const { assigned: marketAssigned, days_estimate: marketDaysEstimate } = marketInfo;
   const assigned = storedAssignments || marketAssigned;
+  const daysEstimatePersisted = storedDaysEstimate || marketDaysEstimate;
   const { id, description: initialDescription, name: initialName } = myInvestible;
   const [currentValues, setCurrentValues] = useState({ ...myInvestible, name: storedName || initialName });
   const [assignments, setAssignments] = useState(assigned);
+  const [daysEstimate, setDaysEstimate] = useState(daysEstimatePersisted);
   const [validForm, setValidForm] = useState(true);
   const { name } = currentValues;
   const initialUploadedFiles = myInvestible.uploaded_files || [];
@@ -84,6 +87,13 @@ function PlanningInvestibleEdit(props) {
     });
   }
 
+  function onDaysEstimateChange(event) {
+    const { value } = event.target;
+    const valueInt = value ? parseInt(value, 10) : null;
+    setDaysEstimate(valueInt);
+    handleDraftState({ ...draftState, days_estimate: valueInt });
+  }
+
   function handleFileUpload(metadatas) {
     setUploadedFiles(metadatas);
   }
@@ -105,6 +115,9 @@ function PlanningInvestibleEdit(props) {
     };
     // changes to assignments should only be sent if they actually changed
     // otherwise we'll generate a spurious version bump due to market info changes
+    if (!_.isEqual(daysEstimate, marketDaysEstimate)) {
+      updateInfo.daysEstimate = daysEstimate;
+    }
     if (!_.isEqual(assignments, assigned)) {
       updateInfo.assignments = assignments;
     }
@@ -144,6 +157,17 @@ function PlanningInvestibleEdit(props) {
             variant="outlined"
             value={name}
             onChange={handleChange('name')}
+          />
+          <TextField
+            id="standard-number"
+            label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
+            type="number"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            variant="outlined"
+            onChange={onDaysEstimateChange}
+            value={daysEstimate}
           />
           <Typography>
             {intl.formatMessage({ id: 'descriptionEdit' })}

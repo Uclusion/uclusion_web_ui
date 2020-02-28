@@ -99,7 +99,22 @@ const useStyles = makeStyles(
     votingCardContent: {
       margin: theme.spacing(2, 6),
       padding: 0
-    }
+    },
+    maxBudget: {
+      alignItems: "flex-end",
+      display: "flex",
+      flexDirection: "column",
+      margin: theme.spacing(2),
+      textTransform: "capitalize"
+    },
+    maxBudgetLabel: {
+      color: "#757575",
+      fontSize: 14
+    },
+    maxBudgetValue: {
+      fontSize: 16,
+      fontWeight: "bold"
+    },
   }),
   { name: "PlanningInvestible" }
 );
@@ -137,7 +152,7 @@ function PlanningInvestible(props) {
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const marketInfo = getMarketInfo(marketInvestible, marketId);
-  const { stage, assigned, children } = marketInfo;
+  const { stage, assigned, children, days_estimate: daysEstimate } = marketInfo;
   const { investible } = marketInvestible;
   const { description, name, locked_by: lockedBy } = investible;
   let lockedByName;
@@ -410,6 +425,19 @@ function PlanningInvestible(props) {
           })}`}
           type={VOTING_TYPE}
         />
+        {daysEstimate > 0 && (
+          <Typography className={classes.maxBudget} component="div">
+            <div className={classes.maxBudgetLabel}>
+              <FormattedMessage id="daysEstimateLabel" />
+            </div>
+            <div className={classes.maxBudgetValue}>
+              <FormattedMessage
+                id="maxBudgetValue"
+                values={{ x: daysEstimate }}
+              />
+            </div>
+          </Typography>
+        )}
         <CardContent className={classes.votingCardContent}>
           <h1>
             {name}

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { pushMessage } from '../utils/MessageBusUtils';
 import { getVersions } from './summaries';
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets';
-import { getFetchSignaturesForMarket, signatureMatcher, getRemoveListForMarket } from './versionSignatureUtils';
+import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils';
 import {
   PUSH_COMMENTS_CHANNEL,
   PUSH_CONTEXT_CHANNEL, PUSH_INVESTIBLES_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
@@ -14,12 +14,10 @@ import { AllSequentialMap } from '../utils/PromiseUtils';
 import { startTimerChain } from '../utils/timerUtils';
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext';
 import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages';
-import { REMOVE_INVESTIBLES } from '../contexts/InvestibesContext/investiblesContextMessages';
 import {
   OPERATION_HUB_CHANNEL,
   START_OPERATION, STOP_OPERATION
 } from '../contexts/OperationInProgressContext/operationInProgressMessages';
-import { REMOVE_COMMENTS } from '../contexts/CommentsContext/commentsContextMessages';
 
 const MAX_RETRIES = 10;
 
@@ -81,7 +79,6 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
       return AllSequentialMap(marketSignatures, (marketSignature) => {
         const { market_id: marketId, signatures: componentSignatures } = marketSignature;
         console.log(componentSignatures);
-        doPushRemovals(marketId, componentSignatures);
         const promises = doRefreshMarket(marketId, componentSignatures);
         if (!_.isEmpty(promises)) {
           // send a notification to the versions channel saying we have incoming stuff
@@ -104,19 +101,6 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
     });
 }
 
-function doPushRemovals (marketId, marketRemovalSignatures) {
-  const {
-    investibles,
-    comments,
-  } = getRemoveListForMarket(marketRemovalSignatures);
-  if (!_.isEmpty(investibles)) {
-    pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: REMOVE_INVESTIBLES, marketId, investibles });
-  }
-  if (!_.isEmpty(comments)) {
-    pushMessage(PUSH_COMMENTS_CHANNEL, { event: REMOVE_COMMENTS, marketId, comments });
-  }
-}
-
 function doRefreshMarket (marketId, componentSignatures) {
   const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   console.log(fetchSignatures);
@@ -125,14 +109,24 @@ function doRefreshMarket (marketId, componentSignatures) {
   if (!_.isEmpty(markets)) {
     promises.push(fetchMarketVersion(marketId, markets[0])); // can only be one market object per market:)
   }
+  // So far only three kinds of deletion supported by UI so handle them below as special cases
   if (!_.isEmpty(comments)) {
     promises.push(fetchMarketComments(marketId, comments));
+  }
+  else if (componentSignatures.find((signature) => signature.type === 'comment')) {
+    // We are not keeping zero version around anymore so handle the rare case of last comment deleted
+    pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId, comments: [] });
   }
   if (!_.isEmpty(investibles)) {
     promises.push(fetchMarketInvestibles(marketId, investibles));
   }
-  if (!_.isEmpty(marketPresences)) {
-    promises.push(fetchMarketPresences(marketId, marketPresences));
+  else if (componentSignatures.find((signature) => signature.type === 'market_investible')) {
+    // We are not keeping zero version around anymore so handle the rare case of last investible deleted
+    pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId, investibles: [] });
+  }
+  if (!_.isEmpty(marketPresences) || componentSignatures.find((signature) => signature.type === 'investment')) {
+    // Handle the case of the last investment being deleted by just refreshing users
+    promises.push(fetchMarketPresences(marketId, marketPresences || []));
   }
   return promises;
 }

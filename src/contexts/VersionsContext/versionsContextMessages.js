@@ -1,12 +1,10 @@
 import {
-  AUTH_HUB_CHANNEL,
   NOTIFICATION_MESSAGE_EVENT,
   VERSIONS_HUB_CHANNEL,
 } from '../WebSocketContext';
-import { getNotifications, getVersions } from '../../api/summaries';
+import { getNotifications } from '../../api/summaries';
 import {
   addNewMarket,
-  initializeState, initializeVersionsAction, loadingState, MY_STORED_EMPTY_STATE,
   refreshNotificationVersionAction,
   updateGlobalVersion
 } from './versionsContextReducer'

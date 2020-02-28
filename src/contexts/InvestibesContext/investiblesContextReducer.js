@@ -3,7 +3,6 @@ import { INVESTIBLES_CONTEXT_NAMESPACE } from './InvestiblesContext';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
-const REMOVE_INVESTIBLES = 'REMOVE_INVESTIBLES';
 
 /** Possible messages to reducer * */
 
@@ -12,13 +11,6 @@ export function initializeState(newState) {
     type: INITIALIZE_STATE,
     newState,
   };
-}
-
-export function removeStoredInvestbiles(investibles) {
-  return {
-    type: REMOVE_INVESTIBLES,
-    investibles,
-  }
 }
 
 export function updateStorableInvestibles(investibles) {
@@ -31,15 +23,6 @@ export function updateStorableInvestibles(investibles) {
 
 /** Reducer functions */
 
-function doRemvoveInvestibles(state, action) {
-  const { investibles } = action;
-  const newState = { ...state };
-  investibles.forEach((id) => {
-    delete newState[id];
-  });
-  return newState;
-}
-
 // expects that the investibles are already in a storable state
 function doUpdateInvestibles(state, action) {
   const { investibles: updateHash } = action;
@@ -48,8 +31,6 @@ function doUpdateInvestibles(state, action) {
 
 function computeNewState(state, action) {
   switch (action.type) {
-    case REMOVE_INVESTIBLES:
-      return doRemvoveInvestibles(state, action);
     case UPDATE_INVESTIBLES:
       return doUpdateInvestibles(state, action);
     case INITIALIZE_STATE:

@@ -77,54 +77,6 @@ export function signatureMatcher (fetched, signatures) {
   return { matched, unmatchedSignatures, allMatched };
 }
 
-/** We support removing investibles for draft (no other participant) markets, and
- * removing comments from investments
- * @param marketVersionSignatures
- * @returns {{investibles: Array}}
- */
-export function getRemoveListForMarket (marketVersionSignatures) {
-  const investibles = investiblesRemovalGenerator(marketVersionSignatures);
-  const comments = commentsRemovalGenerator(marketVersionSignatures);
-  return {
-    investibles,
-    comments,
-  };
-}
-
-function investiblesRemovalGenerator (versionsSignatures) {
-  const invSignature = versionsSignatures.find((signature) => signature.type === 'investible') || { object_versions: [] };
-  const infoSignature = versionsSignatures.find((signature) => signature.type === 'market_investible') || { object_versions: [] };
-  const baseRemovals = invSignature.object_versions.reduce((acc, signature) => {
-    if (signature.version === 0) {
-      return [...acc, signature.object_id_one];
-    }
-    return acc;
-  }, []);
-
-  const infoRemovals = infoSignature.object_versions.reduce((acc, signature) => {
-    const { object_id_two: invId, version } = signature;
-    if (version === 0) {
-      return [acc, invId];
-    }
-    return acc;
-  }, []);
-  const combined = [...baseRemovals, ...infoRemovals];
-  const unique = _.uniq(combined);
-  // console.log(unique);
-  return unique;
-}
-
-function commentsRemovalGenerator(versionsSignatures) {
-  const commentsSignature = versionsSignatures.find((signature) => signature.type === 'comment') || { object_versions: [] }
-  const commentRemovals = commentsSignature.object_versions.reduce((acc, signature) => {
-    if (signature.version === 0) {
-      return [...acc, signature.object_id_one];
-    }
-    return acc;
-  }, []);
-  return commentRemovals;
-}
-
 export function getFetchSignaturesForMarket (marketVersionSignatures) {
   // I know how to fetch markets, marketPresences (users), investibles, and comments
   const comments = commentsSignatureGenerator(marketVersionSignatures);
@@ -147,9 +99,6 @@ function generateSimpleObjectSignature (versionsSignatures, type) {
   const { object_versions: objectVersions } = mySignature;
   return objectVersions.reduce((acc, objVersion) => {
     const { version, object_id_one: id } = objVersion;
-    if (version === 0) {
-      return acc;
-    }
     return [
       ...acc,
       {
@@ -165,9 +114,6 @@ function usersSignatureGenerator (versionsSignatures) {
   const investmentsSignatures = versionsSignatures.find((signature) => signature.type === 'investment') || { object_versions: [] };
   const fetchSigs = userSignatures.object_versions.reduce((acc, sig) => {
     const { version } = sig;
-    if (sig === 0) {
-      return acc;
-    }
     const userId = sig.object_id_one;
     return {
       ...acc,
@@ -179,9 +125,6 @@ function usersSignatureGenerator (versionsSignatures) {
   }, {});
   investmentsSignatures.object_versions.forEach((sig) => {
     const { object_id_two: userId, version, object_id_one: marketInfoId } = sig;
-    if (version === 0) {
-      return;
-    }
     if (fetchSigs[userId]) {
       const investments = fetchSigs[userId]['investments'] || [];
       fetchSigs[userId] = {
@@ -215,25 +158,18 @@ function investiblesSignatureGenerator (versionsSignatures) {
   // investible itself, so we need to join here
   const fetchSigs = invSignature.object_versions.reduce((acc, sig) => {
     const { object_id_one: invId, version } = sig;
-    if (version === 0) {
-      return acc;
-    }
     return {
       ...acc,
       [invId]: {
         investible: {
           id: invId,
-          version: sig.version,
+          version,
         }
       }
     };
   }, {});
   infoSignature.object_versions.forEach((sig) => {
     const { object_id_two: invId, version, object_id_one: infoId } = sig;
-    if (version === 0) {
-      delete fetchSigs[invId]; // if market investible gone, we can't fetch the base
-      return;
-    }
     if (fetchSigs[invId]) {
       fetchSigs[invId] = {
         ...fetchSigs[invId],

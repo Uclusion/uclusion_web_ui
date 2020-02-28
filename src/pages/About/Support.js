@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
-import localforage from 'localforage';
 import PropTypes from 'prop-types';
 import {
   Paper, Typography, Button, makeStyles, Link,

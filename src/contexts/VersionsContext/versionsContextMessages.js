@@ -16,27 +16,6 @@ export const GLOBAL_VERSION_UPDATE = 'global_version_update';
 export const NEW_MARKET = 'new_market';
 
 function beginListening(dispatch) {
-  registerListener(AUTH_HUB_CHANNEL, 'versionAuthStart', (data) => {
-    const { payload: { event } } = data;
-    console.debug(`Versions context responding to auth event ${event}`);
-
-    switch (event) {
-      case 'signIn': {
-        dispatch(loadingState());
-        // An optimization would be to check if newly signed is same person
-        getVersions().then((versions) => {
-          dispatch(initializeVersionsAction(MY_STORED_EMPTY_STATE, versions));
-        });
-        break;
-      }
-      case 'signOut':
-        dispatch(initializeState());
-        break;
-      default:
-        console.debug(`Ignoring auth event ${event}`);
-    }
-  });
-
   registerListener(VERSIONS_HUB_CHANNEL, 'versionVersionStart', (data) => {
     const { payload: { event, globalVersion, marketId } } = data;
     console.debug(`Versions context responding to push event ${event}`);

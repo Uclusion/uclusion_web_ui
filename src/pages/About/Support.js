@@ -12,6 +12,7 @@ import { toastErrorAndThrow } from '../../utils/userMessage';
 import { getSSOInfo } from '../../api/sso';
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
 import FeatureRequest from './FeatureRequest';
+import { clearUclusionLocalStorage } from '../../components/utils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -54,12 +55,6 @@ function Support(props) {
   const classes = useStyles();
   const { version } = config;
   const [externalId, setExternalId] = useState(undefined);
-  function handleClear() {
-    localforage.clear().then(() => {
-      console.info('Reloading after clearing cache');
-      window.location.reload(true);
-    }).catch((error) => toastErrorAndThrow(error, 'errorClearFailed'));
-  }
 
   useEffect(() => {
     if (!externalId && !hidden) {
@@ -112,7 +107,7 @@ function Support(props) {
         </Paper>
         <FeatureRequest />
         <br />
-        <Button onClick={handleClear}>{intl.formatMessage({ id: 'aboutClearStorageButton' })}</Button>
+        <Button onClick={clearUclusionLocalStorage}>{intl.formatMessage({ id: 'aboutClearStorageButton' })}</Button>
       </div>
     </Screen>
   );

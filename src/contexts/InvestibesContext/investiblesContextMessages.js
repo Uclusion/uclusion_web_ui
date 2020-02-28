@@ -4,10 +4,6 @@ import {
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
 import { registerListener } from '../../utils/MessageBusUtils';
-import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
-import { initializeState } from './investiblesContextReducer';
-import { EMPTY_STATE } from './InvestiblesContext';
-import { getUclusionLocalStorageItem } from '../../components/utils';
 
 export const REMOVE_INVESTIBLES = 'remove_investibles';
 
@@ -21,22 +17,6 @@ function beginListening(dispatch, diffDispatch) {
         return removeInvestibles(dispatch, diffDispatch, investibles);
       default:
         console.debug(`Ignoring push event ${event}`);
-    }
-  });
-  registerListener(AUTH_HUB_CHANNEL, 'investiblesHubStart', (data) => {
-    const { payload: { event, data: { username } } } = data;
-    switch (event) {
-      case 'signIn':
-        const oldUserName = getUclusionLocalStorageItem('userName');
-        if (oldUserName !== username) {
-          dispatch(initializeState(EMPTY_STATE));
-        }
-        break;
-      case 'signOut':
-        dispatch(initializeState(EMPTY_STATE));
-        break;
-      default:
-        console.debug(`Ignoring event ${event}`);
     }
   });
 }

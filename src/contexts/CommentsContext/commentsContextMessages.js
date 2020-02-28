@@ -4,11 +4,8 @@ import {
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
 } from '../VersionsContext/versionsContextHelper';
-import { removeMarketsComments, initializeState } from './commentsContextReducer';
+import { removeMarketsComments } from './commentsContextReducer';
 import{ registerListener } from '../../utils/MessageBusUtils';
-import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
-import { EMPTY_STATE } from './CommentsContext';
-import { getUclusionLocalStorageItem } from '../../components/utils';
 
 export const REMOVE_COMMENTS = 'REMOVE_COMMENTS';
 
@@ -36,22 +33,6 @@ function beginListening(dispatch) {
         break;
       default:
         console.debug(`Ignoring push event ${event}`);
-    }
-  });
-  registerListener(AUTH_HUB_CHANNEL, 'commentsHubStart', (data) => {
-    const { payload: { event, data: { username } } } = data;
-    switch (event) {
-      case 'signIn':
-        const oldUserName = getUclusionLocalStorageItem('userName');
-        if (oldUserName !== username) {
-          dispatch(initializeState(EMPTY_STATE));
-        }
-        break;
-      case 'signOut':
-        dispatch(initializeState(EMPTY_STATE));
-        break;
-      default:
-        console.debug(`Ignoring event ${event}`);
     }
   });
 }

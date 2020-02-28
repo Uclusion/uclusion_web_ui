@@ -3,11 +3,8 @@ import {
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper';
-import { removeMarketsStageDetails, initializeState, updateMarketStages } from './marketStagesContextReducer';
+import { removeMarketsStageDetails, updateMarketStages } from './marketStagesContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
-import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
-import { EMPTY_STATE } from './MarketStagesContext';
-import { getUclusionLocalStorageItem } from '../../components/utils';
 
 function beginListening(dispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketStagesRemovedMarketStart', (data) => {
@@ -30,22 +27,6 @@ function beginListening(dispatch) {
         break;
       default:
         console.debug(`Ignoring identity event ${event}`);
-    }
-  });
-  registerListener(AUTH_HUB_CHANNEL, 'marketStagesHubStart', (data) => {
-    const { payload: { event, data: { username } } } = data;
-    switch (event) {
-      case 'signIn':
-        const oldUserName = getUclusionLocalStorageItem('userName');
-        if (oldUserName !== username) {
-          dispatch(initializeState(EMPTY_STATE));
-        }
-        break;
-      case 'signOut':
-        dispatch(initializeState(EMPTY_STATE));
-        break;
-      default:
-        console.debug(`Ignoring event ${event}`);
     }
   });
 }

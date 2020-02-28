@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import localforage from "localforage"
+import { toastErrorAndThrow } from '../utils/userMessage'
 /*
 Keys under context ROOT (standard uclusion local storage) are cleared when the user logs in our out.
 Keys uner LOGIN_PERSISTENT stick around until cleared by our code
@@ -24,6 +26,10 @@ export function getUclusionLocalStorageItem(key) {
 
 export function clearUclusionLocalStorage() {
   localStorage.setItem(ROOT, '');
+  localforage.clear().then(() => {
+    console.info('Reloading after clearing cache');
+    window.location.reload(true);
+  }).catch((error) => toastErrorAndThrow(error, 'errorClearFailed'));
 }
 
 function setStorageItem(storageKey, key, value) {

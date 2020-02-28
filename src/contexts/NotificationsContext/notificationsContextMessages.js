@@ -1,10 +1,8 @@
 import { getMessages } from '../../api/sso';
-import { updateMessages, updatePage, initializeState } from './notificationsContextReducer';
-import { VIEW_EVENT, VISIT_CHANNEL, EMPTY_STATE } from './NotificationsContext';
+import { updateMessages, updatePage } from './notificationsContextReducer';
+import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext';
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper';
 import { registerListener } from '../../utils/MessageBusUtils';
-import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
-import { getUclusionLocalStorageItem } from '../../components/utils';
 
 function beginListening(dispatch, versionsDispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
@@ -39,22 +37,6 @@ function beginListening(dispatch, versionsDispatch) {
         }
         break;
       }
-      default:
-        console.debug(`Ignoring event ${event}`);
-    }
-  });
-  registerListener(AUTH_HUB_CHANNEL, 'notificationsHubStart', (data) => {
-    const { payload: { event, data: { username } } } = data;
-    switch (event) {
-      case 'signIn':
-        const oldUserName = getUclusionLocalStorageItem('userName');
-        if (oldUserName !== username) {
-          dispatch(initializeState(EMPTY_STATE));
-        }
-        break;
-      case 'signOut':
-        dispatch(initializeState(EMPTY_STATE));
-        break;
       default:
         console.debug(`Ignoring event ${event}`);
     }

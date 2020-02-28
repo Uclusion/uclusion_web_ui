@@ -2,11 +2,8 @@ import {
   PUSH_PRESENCE_CHANNEL, REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
 } from '../VersionsContext/versionsContextHelper';
-import { removeMarketsPresence, initializeState, updateMarketPresences } from './marketPresencesContextReducer';
+import { removeMarketsPresence, updateMarketPresences } from './marketPresencesContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
-import { EMPTY_STATE } from './MarketPresencesContext';
-import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
-import { getUclusionLocalStorageItem } from '../../components/utils';
 
 function beginListening(dispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketPresenceRemovedMarketStart', (data) => {
@@ -28,22 +25,6 @@ function beginListening(dispatch) {
         break;
       default:
         console.debug(`Ignoring push event ${event}`);
-    }
-  });
-  registerListener(AUTH_HUB_CHANNEL, 'marketPresencesHubStart', (data) => {
-    const { payload: { event, data: { username } } } = data;
-    switch (event) {
-      case 'signIn':
-        const oldUserName = getUclusionLocalStorageItem('userName');
-        if (oldUserName !== username) {
-          dispatch(initializeState(EMPTY_STATE));
-        }
-        break;
-      case 'signOut':
-        dispatch(initializeState(EMPTY_STATE));
-        break;
-      default:
-        console.debug(`Ignoring event ${event}`);
     }
   });
 }

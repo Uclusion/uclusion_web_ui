@@ -3,8 +3,9 @@ import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { useIntl } from 'react-intl';
+import _ from 'lodash';
 import {
-  decomposeMarketPath, formInvestibleLink, navigate,
+  decomposeMarketPath, formatMarketLinkWithPrefix, formInvestibleLink, navigate,
 } from '../../utils/marketIdPathFunctions';
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
@@ -72,8 +73,10 @@ function Dialog(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const comments = getMarketComments(commentsState, marketId);
-  const renderableMarket = getMarket(marketsState, marketId) || {};
+  const loadedMarket = getMarket(marketsState, marketId);
+  const renderableMarket = loadedMarket || {};
   const { market_type: marketType } = renderableMarket || '';
+  const [isInitialization, setIsInitialization] = useState(false);
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
@@ -96,9 +99,24 @@ function Dialog(props) {
       && investibles.length > 0) {
       getInitiativeInvestible(investibles[0]);
     }
+    const loadedMarketAtAll = !(_.isEmpty(loadedMarket) && _.isEmpty(marketStages) && _.isEmpty(marketPresences));
+    if (!hidden && !loadedMarketAtAll) {
+      setTimeout(() => {
+        console.warn('Failed to load market after allotted time.');
+        setIsInitialization(true);
+      }, 3500);
+    }
+    if (isInitialization) {
+      setIsInitialization(false);
+      if (!loadedMarketAtAll && !hidden) {
+        const inviteLink = formatMarketLinkWithPrefix('invite', marketId);
+        navigate(history, inviteLink);
+      }
+    }
     return () => {
     };
-  }, [hidden, marketType, investibles, marketId, history]);
+  }, [hidden, marketType, investibles, marketId, history, isInitialization, loadedMarket, marketStages,
+  marketPresences]);
 
   if (loading) {
     return (

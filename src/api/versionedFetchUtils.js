@@ -114,6 +114,7 @@ function doRefreshMarket (marketId, componentSignatures) {
     promises.push(fetchMarketComments(marketId, comments));
   }
   else if (componentSignatures.find((signature) => signature.type === 'comment')) {
+    promises.push(Promise.resolve(true));
     // We are not keeping zero version around anymore so handle the rare case of last comment deleted
     pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId, comments: [] });
   }
@@ -121,6 +122,7 @@ function doRefreshMarket (marketId, componentSignatures) {
     promises.push(fetchMarketInvestibles(marketId, investibles));
   }
   else if (componentSignatures.find((signature) => signature.type === 'market_investible')) {
+    promises.push(Promise.resolve(true));
     // We are not keeping zero version around anymore so handle the rare case of last investible deleted
     pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId, investibles: [] });
   }

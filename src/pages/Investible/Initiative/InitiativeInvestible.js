@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, Divider, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
+import { Card, CardContent, Divider, Grid, makeStyles } from '@material-ui/core'
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
@@ -22,19 +22,17 @@ import {
   navigate,
 } from '../../../utils/marketIdPathFunctions'
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
-import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets';
+import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets';
 import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
-import Summary from '../../Dialog/Summary';
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import InsertLinkIcon from '@material-ui/icons/InsertLink';
 import MarketLinks from '../../Dialog/MarketLinks';
 import CardType, { VOTING_TYPE } from '../../../components/CardType';
 import EditMarketButton from '../../Dialog/EditMarketButton';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
-import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay'
-import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
+import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay';
+import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
 
 const useStyles = makeStyles(
   theme => ({

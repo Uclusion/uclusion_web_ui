@@ -28,7 +28,7 @@ function ChangeNotificationPreferences(props) {
   const [emailEnabled, setEmailEnabled] = useState(undefined);
   const [slackEnabled, setSlackEnabled] = useState(undefined);
   const [user, setUser] = useState(undefined);
-  const [slackDelay, setSlackDelay] = useState(undefined);
+  const [slackDelay, setSlackDelay] = useState(30);
   const intl = useIntl();
   const classes = useStyles();
 
@@ -40,7 +40,9 @@ function ChangeNotificationPreferences(props) {
           const { user: myUser } = loginInfo;
           setEmailEnabled(myUser.email_enabled);
           setSlackEnabled(myUser.slack_enabled);
-          setSlackDelay(myUser.slack_delay);
+          if (myUser.slack_delay) {
+            setSlackDelay(myUser.slack_delay);
+          }
           setUser(myUser);
         });
       }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));

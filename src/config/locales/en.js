@@ -246,6 +246,7 @@ const messages = defineMessages({
   planningInvestibleAssignments: 'Assignments',
   planningInvestibleDecision: 'Create Linked Decision',
   planningInvestibleCantVote: 'You can\'t vote if you\'re assigned',
+  planningInvestibleDescription: '- Description',
   initiativePlanningParent: 'Create Linked Plan',
   marketLinksSection: 'Children',
   parentLinkSection: 'Parent',
@@ -395,7 +396,7 @@ const messages = defineMessages({
   // DecisionInvestible
   decisionInvestibleYourVoting: 'Your Vote',
   decisionInvestibleOthersVoting: 'Current Votes',
-  decisionInvestibleDescription: 'Description',
+  decisionInvestibleDescription: 'Option - Description',
   decisionInvestibleDiscussion: 'Discussion',
   decisionInvestibleVotingBlockedMarket: 'Voting is blocked because there is an open issue on the decision',
   decisionInvestibleVotingBlockedInvestible: 'Voting is blocked because there is an open issue',
@@ -527,6 +528,8 @@ const messages = defineMessages({
   yourVotingVoteForThisDecision: 'Vote for this option',
   yourVotingVoteForThisInitiative: 'Vote for this',
   clearVotes: 'Your other vote will be cleared',
+  addAVote: 'Add a vote',
+  changeVote: 'Change vote',
 
   // add participants
   addParticipantsNewPerson: 'Need to add someone not on this list?',

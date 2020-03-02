@@ -420,8 +420,8 @@ function PlanningInvestible(props) {
       <Card elevation={0}>
         <CardType
           className={classes.cardType}
-          label={`${stageName} - ${intl.formatMessage({
-            id: "decisionInvestibleDescription"
+          label={`${stageName} ${intl.formatMessage({
+            id: "planningInvestibleDescription"
           })}`}
           type={VOTING_TYPE}
         />
@@ -471,7 +471,6 @@ function PlanningInvestible(props) {
           />
         </CardContent>
       </Card>
-      <h2>Add a vote</h2>
       {canVote ? (
         <YourVoting
           investibleId={investibleId}

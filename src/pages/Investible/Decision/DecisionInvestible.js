@@ -2,8 +2,8 @@ import React, { useState, useRef, useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
-import { useIntl } from 'react-intl';
-import { Grid, Paper, Typography } from '@material-ui/core';
+import { FormattedMessage, useIntl } from 'react-intl'
+import { Card, CardContent, Grid, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
@@ -24,39 +24,47 @@ import {
   getProposedOptionsStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { ACTIVE_STAGE } from '../../../constants/markets';
-import { SECTION_TYPE_PRIMARY, SECTION_TYPE_SECONDARY } from '../../../constants/global'
+import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import EditMarketButton from '../../Dialog/EditMarketButton';
+import CardType, { VOTING_TYPE } from '../../../components/CardType';
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    padding: '3px 89px 21px 21px',
-    marginTop: '-6px',
-    boxShadow: 'none',
-    [theme.breakpoints.down('sm')]: {
-      padding: '3px 21px 42px 21px',
-    },
+    padding: "3px 89px 21px 21px",
+    marginTop: "-6px",
+    boxShadow: "none",
+    [theme.breakpoints.down("sm")]: {
+      padding: "3px 21px 42px 21px"
+    }
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: '42px',
-    paddingBottom: '9px',
-    [theme.breakpoints.down('xs')]: {
-      fontSize: 25,
-    },
+    fontWeight: "bold",
+    lineHeight: "42px",
+    paddingBottom: "9px",
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 25
+    }
   },
   content: {
-    fontSize: '15 !important',
-    lineHeight: '175%',
-    color: '#414141',
-    [theme.breakpoints.down('xs')]: {
-      fontSize: 13,
+    fontSize: "15 !important",
+    lineHeight: "175%",
+    color: "#414141",
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 13
     },
-    '& > .ql-container': {
-      fontSize: '15 !important',
-    },
+    "& > .ql-container": {
+      fontSize: "15 !important"
+    }
+  },
+  cardType: {
+    display: "inline-flex"
+  },
+  votingCardContent: {
+    margin: theme.spacing(2, 6),
+    padding: 0
   },
 }));
 
@@ -186,74 +194,64 @@ function DecisionInvestible(props) {
       hidden={hidden}
       sidebarActions={getSidebarActions()}
     >
+      <Card elevation={0}>
+        <CardType
+          className={classes.cardType}
+          label={`${intl.formatMessage({
+            id: "decisionInvestibleDescription"
+          })}`}
+          type={VOTING_TYPE}
+        />
+        <CardContent className={classes.votingCardContent}>
+          <h1>
+            {name}
+            {(isAdmin || (inProposed && createdBy === userId)) && (
+              <EditMarketButton
+                labelId="edit"
+                marketId={marketId}
+                onClick={toggleEdit}
+              />
+            )}
+          </h1>
+          {lockedBy && (
+            <Typography>
+              {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
+            </Typography>
+          )}
+          <DescriptionOrDiff
+            hidden={hidden}
+            id={investibleId}
+            description={description}
+          />
+        </CardContent>
+      </Card>
+      {!inProposed && hasIssueOrMarketIssue && (
+        <Typography>
+          {intl.formatMessage({ id: votingBlockedMessage })}
+        </Typography>
+      )}
+      {!inProposed && canVote && !hasIssueOrMarketIssue && (
+        <YourVoting
+          investibleId={investibleId}
+          marketPresences={marketPresences}
+          comments={investmentReasons}
+          userId={userId}
+          market={market}
+        />
+      )}
+      {!inProposed && (
+        <>
+          <h2>
+            <FormattedMessage id="decisionInvestibleOthersVoting" />
+          </h2>
+          <Voting
+            investibleId={investibleId}
+            marketPresences={marketPresences}
+            investmentReasons={investmentReasons}
+          />
+        </>
+      )}
       <Grid container spacing={2}>
-        <Grid
-          id="description"
-          item xs={12}>
-          <SubSection
-            type={SECTION_TYPE_PRIMARY}
-            title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
-          >
-            <Paper
-              className={classes.container}>
-              <Typography className={classes.title} variant="h3" component="h1">
-                {name}
-              </Typography>
-              <DescriptionOrDiff
-                hidden={hidden}
-                id={investibleId}
-                description={description}
-              />
-              {(isAdmin || (inProposed && createdBy === userId)) && (
-                <EditMarketButton key="edit" labelId='edit' marketId={marketId} onClick={toggleEdit} />
-              )}
-            </Paper>
-            {inProposed && lockedBy && (
-              <Typography>
-                {intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName })}
-              </Typography>
-            )}
-          </SubSection>
-        </Grid>
-        {!inProposed && canVote && (
-        <Grid
-          id="yourVote"
-          item xs={12}>
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'decisionInvestibleYourVoting' })}
-          >
-            {hasIssueOrMarketIssue && (
-              <Typography>
-                {intl.formatMessage({ id: votingBlockedMessage })}
-              </Typography>
-            )}
-            {!hasIssueOrMarketIssue && (
-              <YourVoting
-                investibleId={investibleId}
-                marketPresences={marketPresences}
-                comments={investmentReasons}
-                userId={userId}
-                market={market}
-              />
-            )}
-          </SubSection>
-        </Grid>
-        )}
-        {!inProposed && (
-        <Grid item xs={12}>
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'decisionInvestibleOthersVoting' })}
-          >
-            <Voting
-              investibleId={investibleId}
-              marketPresences={marketPresences}
-              investmentReasons={investmentReasons}
-            />
-          </SubSection>
-        </Grid>
-        )}
         {discussionVisible && (
         <Grid item xs={12}>
           <SubSection

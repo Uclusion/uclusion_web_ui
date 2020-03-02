@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import AddEditVote from './AddEditVote';
 import { useHistory } from 'react-router';
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { useIntl } from 'react-intl'
 
 function YourVoting(props) {
   const {
@@ -13,7 +14,7 @@ function YourVoting(props) {
     userId,
     showBudget,
   } = props;
-
+  const intl = useIntl();
   const history = useHistory();
   const { id: marketId, max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote } = market;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
@@ -25,17 +26,20 @@ function YourVoting(props) {
   }
 
   return (
-    <AddEditVote
-      marketId={marketId}
-      investibleId={investibleId}
-      reason={yourReason}
-      investment={yourVote}
-      hasVoted={yourPresence && yourPresence.investments.length > 0}
-      allowMultiVote={allowMultiVote}
-      showBudget={showBudget}
-      onSave={onVoteSave}
-      storyMaxBudget={storyMaxBudget}
-    />
+    <>
+      <h2>{yourVote ? intl.formatMessage({ id: 'changeVote' }) : intl.formatMessage({ id: 'addAVote' })}</h2>
+      <AddEditVote
+        marketId={marketId}
+        investibleId={investibleId}
+        reason={yourReason}
+        investment={yourVote}
+        hasVoted={yourPresence && yourPresence.investments.length > 0}
+        allowMultiVote={allowMultiVote}
+        showBudget={showBudget}
+        onSave={onVoteSave}
+        storyMaxBudget={storyMaxBudget}
+      />
+    </>
   );
 
 }

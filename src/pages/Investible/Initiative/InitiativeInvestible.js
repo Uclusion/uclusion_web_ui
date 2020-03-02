@@ -225,8 +225,6 @@ function InitiativeInvestible(props) {
         </CardContent>
       </Card>
       {!isAdmin && (
-        <>
-        <h2>Add a vote</h2>
         <YourVoting
           investibleId={investibleId}
           marketPresences={marketPresences}
@@ -234,7 +232,6 @@ function InitiativeInvestible(props) {
           userId={userId}
           market={market}
         />
-        </>
       )}
       <h2>
         <FormattedMessage id="decisionInvestibleOthersVoting" />

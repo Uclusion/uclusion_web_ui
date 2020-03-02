@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
-import { useIntl } from 'react-intl';
-import { Grid } from '@material-ui/core';
+import { FormattedMessage, useIntl } from 'react-intl'
+import { Card, CardContent, Divider, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
@@ -16,19 +16,81 @@ import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import Screen from '../../../containers/Screen/Screen';
 import {
+  formInvestibleEditLink,
   formMarketManageLink, makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate,
-} from '../../../utils/marketIdPathFunctions';
+} from '../../../utils/marketIdPathFunctions'
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 import Summary from '../../Dialog/Summary';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
-import InsertLinkIcon from '@material-ui/icons/InsertLink'
-import MarketLinks from '../../Dialog/MarketLinks'
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
+import InsertLinkIcon from '@material-ui/icons/InsertLink';
+import MarketLinks from '../../Dialog/MarketLinks';
+import CardType, { VOTING_TYPE } from '../../../components/CardType';
+import EditMarketButton from '../../Dialog/EditMarketButton';
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
+import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay'
+import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
+
+const useStyles = makeStyles(
+  theme => ({
+    container: {
+      padding: "3px 89px 21px 21px",
+      marginTop: "-6px",
+      boxShadow: "none",
+      [theme.breakpoints.down("sm")]: {
+        padding: "3px 21px 42px 21px"
+      }
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: "bold",
+      lineHeight: "42px",
+      paddingBottom: "9px",
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 25
+      }
+    },
+    content: {
+      fontSize: "15 !important",
+      lineHeight: "175%",
+      color: "#414141",
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 13
+      },
+      "& > .ql-container": {
+        fontSize: "15 !important"
+      }
+    },
+    cardType: {
+      display: "inline-flex"
+    },
+    votingCardContent: {
+      margin: theme.spacing(2, 6),
+      padding: 0
+    },
+    maxBudget: {
+      alignItems: "flex-end",
+      display: "flex",
+      flexDirection: "column",
+      margin: theme.spacing(2),
+      textTransform: "capitalize"
+    },
+    maxBudgetLabel: {
+      color: "#757575",
+      fontSize: 14
+    },
+    maxBudgetValue: {
+      fontSize: 16,
+      fontWeight: "bold"
+    },
+  }),
+  { name: "InitiativeInvestible" }
+);
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -50,7 +112,7 @@ function InitiativeInvestible(props) {
 
   const intl = useIntl();
   const history = useHistory();
-  // eslint-disable-next-line max-len
+  const classes = useStyles();
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
   // eslint-disable-next-line max-len
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
@@ -61,6 +123,9 @@ function InitiativeInvestible(props) {
   const {
     id: marketId,
     market_stage: marketStage,
+    expiration_minutes: expirationMinutes,
+    created_at: createdAt,
+    updated_at: updatedAt,
   } = market;
   const safeMarketInfos = marketInfos || [];
   const thisMarketInfo = safeMarketInfos.find((info) => info.market_id === marketId);
@@ -119,52 +184,67 @@ function InitiativeInvestible(props) {
       sidebarActions={getSidebarActions()}
       hidden={hidden}
     >
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <SubSection
-            title={intl.formatMessage({ id: 'decisionInvestibleDescription' })}
-            titleIcon={getDialogTypeIcon(INITIATIVE_TYPE)}
-          >
-            <Summary
-              hidden={hidden}
-              market={market}
-              investibleId={investibleId}
-              investibleName={name}
-              investibleDescription={description}
-            />
-            <MarketLinks links={children || []} hidden={hidden} />
-          </SubSection>
-        </Grid>
-        {!isAdmin && (
-          <Grid item xs={12}>
-
-            <SubSection
-              type={SECTION_TYPE_SECONDARY}
-              title={intl.formatMessage({ id: 'initiativeInvestibleYourVoting' })}
-            >
-              <YourVoting
-                investibleId={investibleId}
-                marketPresences={marketPresences}
-                comments={investmentReasons}
-                userId={userId}
-                market={market}
+      <Card elevation={0}>
+        <CardType
+          className={classes.cardType}
+          label={`${intl.formatMessage({
+            id: "initiativeInvestibleDescription"
+          })}`}
+          type={VOTING_TYPE}
+        />
+        <CardContent className={classes.votingCardContent}>
+          <h1>
+            {name}
+            {isAdmin && (
+              <EditMarketButton
+                labelId="edit"
+                marketId={marketId}
+                onClick={() => navigate(history, formInvestibleEditLink(marketId, investibleId))}
               />
-            </SubSection>
-          </Grid>
-        )}
-        <Grid item xs={12}>
-
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'initiativeInvestibleOthersVoting' })}
-          >
-            <Voting
-              investibleId={investibleId}
-              marketPresences={marketPresences}
-              investmentReasons={investmentReasons}
+            )}
+          </h1>
+          <DescriptionOrDiff
+            hidden={hidden}
+            id={investibleId}
+            description={description}
+          />
+          <MarketLinks links={children || []} hidden={hidden} />
+          <Divider />
+          {!activeMarket && (
+            <ExpiredDisplay
+              expiresDate={updatedAt}
             />
-          </SubSection>
-        </Grid>
+          )}
+          {activeMarket && (
+            <ExpiresDisplay
+              createdAt={createdAt}
+              expirationMinutes={expirationMinutes}
+              onClick={() => isAdmin && navigate(history, formMarketManageLink(marketId))}
+            />
+          )}
+        </CardContent>
+      </Card>
+      {!isAdmin && (
+        <>
+        <h2>Add a vote</h2>
+        <YourVoting
+          investibleId={investibleId}
+          marketPresences={marketPresences}
+          comments={investmentReasons}
+          userId={userId}
+          market={market}
+        />
+        </>
+      )}
+      <h2>
+        <FormattedMessage id="decisionInvestibleOthersVoting" />
+      </h2>
+      <Voting
+        investibleId={investibleId}
+        marketPresences={marketPresences}
+        investmentReasons={investmentReasons}
+      />
+      <Grid container spacing={2}>
         {discussionVisible && (
           <Grid item xs={12}>
 

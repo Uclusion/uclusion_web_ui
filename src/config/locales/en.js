@@ -404,7 +404,7 @@ const messages = defineMessages({
   initiativeInvestibleVotingBlocked: 'Voting is blocked because there is an open issue',
   initiativeInvestibleYourVoting: 'Your Vote',
   initiativeInvestibleOthersVoting: 'Current Voting',
-  initiativeInvestibleDescription: 'Contents',
+  initiativeInvestibleDescription: 'Initiative - Description',
   initiativeInvestibleDiscussion: 'Discussion',
 
   // About

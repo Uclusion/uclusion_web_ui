@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React from 'react';
+import config from '../../config';
 import { withA2HS } from 'a2hs';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -18,47 +19,49 @@ import { DiffProvider } from '../../contexts/DiffContext/DiffContext';
 import { HighlightedCommentProvider } from '../../contexts/HighlightedCommentContext';
 import { HighlightedVotingProvider } from '../../contexts/HighlightedVotingContext';
 import { AccountProvider } from '../../contexts/AccountContext/AccountContext';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
-class Main extends Component {
-  render () {
-    console.debug('Main being rerendered');
-    return (
-      <div>
-        <AccountProvider>
-          <HighlightedVotingProvider>
-            <HighlightedCommentProvider>
-              <DiffProvider>
-                <OperationInProgressProvider>
-                  <OperationInProgressGlobalProvider>
-                    <VersionsProvider>
-                      <NotificationsProvider>
-                        <MarketsProvider>
-                          <MarketStagesProvider>
-                            <CommentsProvider>
-                              <InvestiblesProvider>
-                                <MarketPresencesProvider>
-                                  <LocaleProvider>
-                                    <SidebarProvider>
-                                      <ToastContainer/>
+function Main (props) {
+  const stripePromise = loadStripe(config.payments.stripeKey);
+  return (
+    <div>
+      <AccountProvider>
+        <HighlightedVotingProvider>
+          <HighlightedCommentProvider>
+            <DiffProvider>
+              <OperationInProgressProvider>
+                <OperationInProgressGlobalProvider>
+                  <VersionsProvider>
+                    <NotificationsProvider>
+                      <MarketsProvider>
+                        <MarketStagesProvider>
+                          <CommentsProvider>
+                            <InvestiblesProvider>
+                              <MarketPresencesProvider>
+                                <LocaleProvider>
+                                  <SidebarProvider>
+                                    <ToastContainer/>
+                                    <Elements stripe={stripePromise}>
                                       <AppWithAuth/>
-                                    </SidebarProvider>
-                                  </LocaleProvider>
-                                </MarketPresencesProvider>
-                              </InvestiblesProvider>
-                            </CommentsProvider>
-                          </MarketStagesProvider>
-                        </MarketsProvider>
-                      </NotificationsProvider>
-                    </VersionsProvider>
-                  </OperationInProgressGlobalProvider>
-                </OperationInProgressProvider>
-              </DiffProvider>
-            </HighlightedCommentProvider>
-          </HighlightedVotingProvider>
-        </AccountProvider>
-      </div>
-    );
-  }
+                                    </Elements>
+                                  </SidebarProvider>
+                                </LocaleProvider>
+                              </MarketPresencesProvider>
+                            </InvestiblesProvider>
+                          </CommentsProvider>
+                        </MarketStagesProvider>
+                      </MarketsProvider>
+                    </NotificationsProvider>
+                  </VersionsProvider>
+                </OperationInProgressGlobalProvider>
+              </OperationInProgressProvider>
+            </DiffProvider>
+          </HighlightedCommentProvider>
+        </HighlightedVotingProvider>
+      </AccountProvider>
+    </div>
+  );
 }
 
 export default withA2HS(Main);

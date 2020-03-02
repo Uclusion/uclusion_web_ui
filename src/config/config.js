@@ -4,6 +4,9 @@ const config = {
   initial_state: {
     locale: 'en',
   },
+  payments: {
+    stripeKey: process.env.REACT_APP_STRIPE_PUBLIC_API_KEY,
+  },
   cognito_domain: process.env.REACT_APP_COGNITO_DOMAIN,
   ui_base_url: process.env.REACT_APP_UI_URL,
   maxRichTextEditorSize: 7340032,

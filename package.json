@@ -42,6 +42,8 @@
     "react-vis": "^1.11.7",
     "reconnecting-websocket": "^4.2.0",
     "reselect": "^4.0.0",
+    "@stripe/react-stripe-js": "^1.0.3",
+    "@stripe/stripe-js": "^1.0.2",
     "uclusion_sdk": "file:../uclusion_sdk",
     "use-debounce": "^3.3.0",
     "use-fit-text": "^2.1.0",

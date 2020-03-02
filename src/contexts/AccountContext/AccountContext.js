@@ -43,7 +43,7 @@ function AccountProvider(props) {
   }, [state, isInitialization, setState, setIsInitialization]);
 
   return (
-    <AccountContext.Provider value={[state, setState]}>
+    <AccountContext.Provider value={state}>
       {children}
     </AccountContext.Provider>
   );

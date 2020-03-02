@@ -32,8 +32,8 @@ const useCardTypeStyles = makeStyles(
           [VOTING_TYPE]: "#9B51E0",
           certainty0: "#D54F22",
           certainty25: "#F4AB3B",
-          certainty50: "#A5C86B",
-          certainty75: "#FCEC69",
+          certainty50: "#FCEC69",
+          certainty75: "#A5C86B",
           certainty100: "#73B76C"
         }[type],
         borderBottomRightRadius: 8,

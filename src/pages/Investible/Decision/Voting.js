@@ -92,7 +92,7 @@ function Voting(props) {
   }
 
   const voters = getInvestibleVoters();
-  const sortedVoters = _.sortBy(voters, "name");
+  const sortedVoters = _.sortBy(voters, "quantity");
 
   if (sortedVoters.length === 0) {
     return (

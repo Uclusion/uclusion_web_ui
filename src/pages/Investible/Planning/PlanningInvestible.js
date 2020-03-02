@@ -183,7 +183,7 @@ function PlanningInvestible(props) {
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
   const isInNotDoing = notDoingStage && stage === notDoingStage.id;
   const inMarketArchives = isInNotDoing || isInVerified;
-
+  const isAssigned = assigned && assigned.includes(userId);
   const breadCrumbTemplates = [
     { name: marketName, link: formMarketLink(marketId) }
   ];
@@ -262,9 +262,8 @@ function PlanningInvestible(props) {
       return [];
     }
     const sidebarActions = [];
-
     // you can only move stages besides not doing or verfied if you're assigned to it
-    if (assigned && assigned.includes(userId)) {
+    if (isAssigned) {
       if (isInVoting || isInAccepted) {
         const nextStageId = isInVoting ? inAcceptedStage.id : inReviewStage.id;
         const assignedInNextStage = assignedInStage(
@@ -441,7 +440,7 @@ function PlanningInvestible(props) {
         <CardContent className={classes.votingCardContent}>
           <h1>
             {name}
-            {isAdmin && (
+            {isAssigned && (
               <EditMarketButton
                 labelId="edit"
                 marketId={marketId}

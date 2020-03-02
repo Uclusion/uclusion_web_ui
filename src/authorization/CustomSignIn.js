@@ -10,6 +10,9 @@ import Container from '@material-ui/core/Container';
 import { SignIn } from 'aws-amplify-react';
 import { injectIntl } from 'react-intl';
 import SpinningButton from '../components/SpinBlocking/SpinningButton';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
+import { Visibility, VisibilityOff } from '@material-ui/icons';
 
 const useStyles = (theme) => ({
   paper: {
@@ -42,6 +45,9 @@ const useStyles = (theme) => ({
 });
 
 class CustomSignIn extends SignIn {
+  state = {
+    showPassword: false,
+  }
   constructor(props) {
     super(props);
     this._validAuthStates = ['signIn', 'signedOut', 'signedUp'];
@@ -91,10 +97,22 @@ class CustomSignIn extends SignIn {
             name="password"
             label={intl.formatMessage({ id: 'signInPasswordLabel' })}
             key="password"
-            type="password"
+            type={this.state.showPassword ? 'text' : 'password'}
             id="password"
             onChange={this.handleInputChange}
             autoComplete="current-password"
+            InputProps={{
+              endAdornment:
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={() => this.setState({showPassword: !this.state.showPassword})}
+                  onMouseDown={(event) => event.preventDefault()}
+                  >
+                  {this.state.showPassword ? <Visibility /> : <VisibilityOff />}
+                </IconButton>
+              </InputAdornment>,
+            }}
           />
           <SpinningButton
             type="submit"

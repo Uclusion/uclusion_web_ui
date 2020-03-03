@@ -213,11 +213,6 @@ function Comment(props) {
     }
     const highlightId = getHilightedLeveId(replies);
     setMyHighLightId(highlightId);
-    const shouldBeExpanded =
-      id in highlightedCommentState || highlightId !== undefined;
-    if (shouldBeExpanded && !repliesExpanded) {
-      setRepliesExpanded(true);
-    }
   }, [id, highlightedCommentState, repliesExpanded, replies, comments]);
 
   const displayUpdatedBy =

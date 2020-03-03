@@ -49,22 +49,6 @@ const useStyles = makeStyles({
   },
 });
 
-function scroller(location) {
-  console.log('Scroller firing');
-  const { hash } = location;
-  if (hash && hash.length > 1) {
-    const target = hash.substring(1, hash.length);
-    if (target) {
-      const element = document.getElementById(target);
-      if (element) {
-        element.scrollIntoView();
-      }
-    }
-  } else {
-    window.scrollTo(0, 0);
-  }
-}
-
 
 function Root() {
   console.debug('Root being rerendered');
@@ -76,7 +60,7 @@ function Root() {
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
-  const [scrollerBound, setScrollerBound] = useState(false);
+  const [scrollerBound, setScrollerBound] = useState(undefined);
 
 
 
@@ -146,12 +130,24 @@ function Root() {
     && hideSlackInvite() && hideChangePassword() && hideChangeNotification());
 
   useEffect(() => {
-
-    if (!scrollerBound) {
-        history.listen((location) => {
-          scroller(location);
-        });
-        setScrollerBound(true);
+    function scroller(myLocation) {
+      const { hash } = myLocation;
+      if (hash && hash.length > 1) {
+        const target = hash.substring(1, hash.length);
+        if (target) {
+          console.log('Scroller firing');
+          const element = document.getElementById(target);
+          if (element) {
+            element.scrollIntoView();
+          }
+        }
+      } else {
+        window.scrollTo(0, 0);
+      }
+    }
+    if (scrollerBound !== location) {
+      setScrollerBound(location);
+      scroller(location)
     }
 
     const redirect = getAndClearRedirect();
@@ -213,7 +209,7 @@ function Root() {
       });
       window.onanimationiteration = console.debug;
     }
-  },  [scrollerBound, history, setOnline, setOperationsLocked]);
+  },  [scrollerBound, history, setOnline, setOperationsLocked, location]);
 
   return (
     <div>

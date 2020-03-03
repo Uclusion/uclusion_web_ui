@@ -183,7 +183,10 @@ function Root() {
     if (!window.myListenerMarker) {
       window.myListenerMarker = true;
       console.debug('Adding listeners');
-      // Need this or won't see events where url doesn't change
+      window.addEventListener('load', () => {
+        console.debug('Load listener');
+        pegView(true);
+      });
       window.addEventListener('focus', () => {
         console.debug('Focus listener');
         pegView(true);

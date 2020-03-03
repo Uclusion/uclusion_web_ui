@@ -51,7 +51,7 @@ const useVoteStyles = makeStyles(
         fontSize: 16,
         fontWeight: "bold"
       },
-      containerYellow: {
+      highlighted: {
         boxShadow: "10px 5px 5px yellow"
       }
     };

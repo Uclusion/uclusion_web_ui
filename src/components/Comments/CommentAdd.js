@@ -93,6 +93,10 @@ function CommentAdd (props) {
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [firstOpen, setFirstOpen] = useState(true);
+  const defaultClearFunc = () => {};
+  //see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react for why we have a func
+  // that returns  func for editorClearFunc
+  const [editorClearFunc, setEditorClearFunc] = useState(() => defaultClearFunc);
 
   useEffect(() => {
     if (!hidden && firstOpen) {
@@ -135,6 +139,7 @@ function CommentAdd (props) {
 
   function handleCancel () {
     setBody('');
+    editorClearFunc();
     setUploadedFiles([]);
     setOpenIssue(false);
     onCancel();
@@ -142,6 +147,7 @@ function CommentAdd (props) {
 
   function handleSpinStop () {
     setBody('');
+    editorClearFunc();
     setUploadedFiles([]);
     setOpenIssue(false);
     onSave();
@@ -165,6 +171,9 @@ function CommentAdd (props) {
           onChange={onEditorChange}
           onS3Upload={onS3Upload}
           setOperationInProgress={setOperationRunning}
+          setEditorClearFunc={(func) => {
+            setEditorClearFunc(func);
+          }}
         >
           {!showIssueWarning && (
             <SpinBlockingButton

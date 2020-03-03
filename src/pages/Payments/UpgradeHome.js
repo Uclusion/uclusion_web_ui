@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { CognitoUserContext } from '../../contexts/CongitoUserContext';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-
+import UpgradeForm from './UpgradeForm';
 
 function UpgradeHome(props){
   const cognitoUser = useContext(CognitoUserContext);

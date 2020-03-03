@@ -537,6 +537,13 @@ const messages = defineMessages({
   // Spinning
   spinVersionCheckError: 'There was an error checking if the operation was successful. Please reload the page',
 
+  // upgrade form
+  upgradeFormCardName: 'Cardholder Name',
+  upgradeFormCardPhone: 'Cardholder Phone Number',
+  upgradeFormCardEmail: 'Cardholder Email',
+  upgradeFormUpgradeLabel: 'Upgrade',
+
+
   // API errors
   errorDecisionInvestibleAddFailed: 'There was a problem adding the option.',
   errorInvestibleAddFailed: 'There was a problem adding.',

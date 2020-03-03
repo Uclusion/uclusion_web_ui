@@ -31,16 +31,18 @@ export function broadcastView(marketId, investibleId, isEntry, action) {
 
 export function navigate(history, to) {
   const {
+    action: fromAction,
     marketId: fromMarketId,
     investibleId: fromInvestibleId,
   } = decomposeMarketPath(history.location.pathname);
-  broadcastView(fromMarketId, fromInvestibleId, false);
+  broadcastView(fromMarketId, fromInvestibleId, false, fromAction);
   history.push(to);
   const {
+    action: toAction,
     marketId: toMarketId,
     investibleId: toInvestibleId,
   } = decomposeMarketPath(history.location.pathname);
-  broadcastView(toMarketId, toInvestibleId, true);
+  broadcastView(toMarketId, toInvestibleId, true, toAction);
 }
 
 

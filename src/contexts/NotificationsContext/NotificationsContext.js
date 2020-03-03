@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useReducer, useContext } from 'react';
 import { toast } from 'react-toastify';
+import _ from 'lodash';
 import reducer, {
   initializeState, newToast,
   NOTIFICATIONS_CONTEXT_NAMESPACE,
   removeMessage,
-} from './notificationsContextReducer'
+} from './notificationsContextReducer';
 import { deleteMessage } from '../../api/users';
 import beginListening from './notificationsContextMessages';
 import LocalForageHelper from '../LocalForageHelper';
@@ -65,7 +66,7 @@ function NotificationsProvider(props) {
           associatedUserId,
           pokeType,
         } = message;
-        const doRemove = (marketId === messageMarketId && investibleId === messageInvestibleId)
+        const doRemove = (!_.isEmpty(messageMarketId) && marketId === messageMarketId && investibleId === messageInvestibleId)
           || (pokeType === 'slack_reminder' && action === 'notificationPreferences');
         if (doRemove) {
           dispatch(removeMessage(message));

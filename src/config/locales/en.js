@@ -538,6 +538,10 @@ const messages = defineMessages({
   // Spinning
   spinVersionCheckError: 'There was an error checking if the operation was successful. Please reload the page',
 
+  //upgradeMenu
+  upgradeMenuItem: 'Upgrade',
+
+
   // upgrade form
   upgradeFormCardName: 'Cardholder Name',
   upgradeFormCardPhone: 'Cardholder Phone Number',

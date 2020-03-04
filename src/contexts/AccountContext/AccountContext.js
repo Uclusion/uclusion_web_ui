@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
-import { getAccount } from '../../api/uclusionClient';
+import { getAccount } from '../../api/sso';
 
 const AccountContext = React.createContext(undefined);
 
@@ -43,7 +43,7 @@ function AccountProvider(props) {
   }, [state, isInitialization, setState, setIsInitialization]);
 
   return (
-    <AccountContext.Provider value={state}>
+    <AccountContext.Provider value={[state, setState]}>
       {children}
     </AccountContext.Provider>
   );

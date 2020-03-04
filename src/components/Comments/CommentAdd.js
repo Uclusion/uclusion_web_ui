@@ -16,7 +16,7 @@ import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import { getMarketComments, refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { scrollToCommentAddBox } from './commentFunctions';
 import { Dialog } from '../Dialogs';
 import WarningIcon from '@material-ui/icons/Warning';
@@ -85,7 +85,7 @@ function CommentAdd (props) {
     intl, marketId, onSave, onCancel, type, investible, parent, hidden, issueWarningId,
   } = props;
   const [body, setBody] = useState('');
-  const [, commentDispatch] = useContext(CommentsContext);
+  const [commentsState, commentDispatch] = useContext(CommentsContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [openIssue, setOpenIssue] = useState(false);
   const classes = useStyles();
@@ -130,7 +130,8 @@ function CommentAdd (props) {
     const investibleId = (investible) ? investible.id : parentInvestible;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((comment) => {
-        refreshMarketComments(commentDispatch, marketId, [comment]);
+        const comments = getMarketComments(commentsState, marketId)
+        refreshMarketComments(commentDispatch, marketId, [comment, ...comments]);
         return {
           spinChecker: () => Promise.resolve(true),
         };

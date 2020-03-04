@@ -21,6 +21,15 @@ export function getMessages() {
     });
 }
 
+export const getAccount = () => {
+  return getSSOInfo()
+    .then((ssoInfo) => {
+      const { idToken, ssoClient } = ssoInfo;
+      return ssoClient.accountCognitoLogin(idToken)
+        .then((loginInfo) => loginInfo.account);
+    })
+};
+
 export function getMarketInfo(marketId) {
   return getSSOInfo()
     .then((ssoInfo) => {

@@ -26,6 +26,7 @@ import MarketInvite from '../../pages/Invites/MarketInvite';
 import SlackInvite from '../../pages/Invites/SlackInvite';
 import ChangePassword from '../../pages/Authentication/ChangePassword';
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences';
+import UpgradeHome from '../../pages/Payments/UpgradeHome';
 import { refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper';
 
 const useStyles = makeStyles({
@@ -124,10 +125,15 @@ function Root() {
     return action !== 'invite' || !marketId;
   }
 
+  function hideUpgradeHome() {
+    return action !== 'upgrade';
+  }
+
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible()
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
     && hideAddMarket() && hideDialogEdit() && hideDialogManage() && hideMarketInvite()
-    && hideSlackInvite() && hideChangePassword() && hideChangeNotification());
+    && hideSlackInvite() && hideChangePassword() && hideChangeNotification()
+    && hideUpgradeHome());
 
   useEffect(() => {
     function scroller(myLocation) {
@@ -220,6 +226,7 @@ function Root() {
             <Home hidden={hideHome()}/>
             <Market hidden={hideMarket()}/>
             <Support hidden={hideSupport()}/>
+            <UpgradeHome hidden={hideUpgradeHome()}/>
             <Investible hidden={hideInvestible()}/>
             <InvestibleEdit hidden={hideInvestibleEdit()}/>
             <Archives hidden={hideArchvies()}/>

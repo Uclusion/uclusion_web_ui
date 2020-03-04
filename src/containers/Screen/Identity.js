@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Identity() {
+function Identity () {
   const classes = useStyles();
   const user = useContext(CognitoUserContext);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -34,12 +34,13 @@ function Identity() {
     setAnchorEl(event.currentTarget);
   };
 
-  function goTo(to) {
+  function goTo (to) {
     return () => {
       setAnchorEl(null);
       navigate(history, to);
     };
   }
+
   return (
     <div
       id="profileLink"
@@ -81,11 +82,19 @@ function Identity() {
             {intl.formatMessage({ id: 'changePasswordHeader' })}
           </Typography>
         </MenuItem>
+        <MenuItem
+          onClick={goTo('/upgrade')}
+        >
+          <Typography className={classes.name}>
+            {intl.formatMessage({ id: 'upgradeMenuItem' })}
+          </Typography>
+        </MenuItem>
         <MenuItem>
-          <SignOut />
+          <SignOut/>
         </MenuItem>
       </Popover>
     </div>
   );
 }
+
 export default Identity;

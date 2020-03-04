@@ -13,6 +13,11 @@ export function deleteMessage(message) {
     .then((client) => client.users.removeNotification(objectId, aType));
 }
 
+export function startSubscription(paymentId, tier) {
+  return getAccountClient()
+    .then((client) => client.users.startSubscription(paymentId, tier));
+}
+
 export function addParticipants(marketId, participants) {
   return getMarketClient(marketId)
     .then((client) => client.users.addUsers(participants))

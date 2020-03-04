@@ -141,7 +141,7 @@ function PlanningInvestible(props) {
     hidden
   } = props;
   const classes = useStyles();
-  const { name: marketName, id: marketId, market_stage: marketStage } = market;
+  const { name: marketName, id: marketId, market_stage: marketStage, votes_required: votesRequired } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const investmentReasonsRemoved = investibleComments.filter(
     comment => comment.comment_type !== JUSTIFY_TYPE
@@ -257,6 +257,11 @@ function PlanningInvestible(props) {
     });
   }
 
+  function hasEnoughVotes (myInvested, myRequired) {
+    const required = myRequired !== undefined ? myRequired : 1;
+    return _.size(myInvested) >= required;
+  }
+
   function getSidebarActions() {
     if (!activeMarket) {
       return [];
@@ -272,7 +277,7 @@ function PlanningInvestible(props) {
           nextStageId
         );
         if (
-          !_.isEmpty(invested) &&
+          hasEnoughVotes(invested, votesRequired) &&
           (_.isEmpty(assignedInNextStage) || isInAccepted)
         ) {
           sidebarActions.push(
@@ -334,7 +339,7 @@ function PlanningInvestible(props) {
               />
             );
           }
-          if (!_.isEmpty(invested)) {
+          if (hasEnoughVotes(invested, votesRequired)) {
             // eslint-disable-next-line max-len
             const assignedInAcceptedStage = assignedInStage(
               investibles,

@@ -38,7 +38,8 @@ function PlanningAdd(props) {
     onSpinStop, storedState, onSave
   } = props;
   const { description: storedDescription, name: storedName, max_budget: storedBudget,
-    investment_expiration: storedExpiration, days_estimate: storedDaysEstimate } = storedState;
+    investment_expiration: storedExpiration, days_estimate: storedDaysEstimate,
+    votes_required: storedVotesRequired } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const classes = useStyles();
   const emptyPlan = { name: storedName };
@@ -49,6 +50,7 @@ function PlanningAdd(props) {
   const [investmentExpiration, setInvestmentExpiration] = useState(storedExpiration || 14);
   const [maxBudget, setMaxBudget] = useState(storedBudget || 14);
   const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
+  const [votesRequired, setVotesRequired] = useState(storedVotesRequired);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = currentValues;
 
@@ -117,6 +119,13 @@ function PlanningAdd(props) {
     handleDraftState({ ...draftState, days_estimate: valueInt });
   }
 
+  function onVotesRequiredEstimateChange(event) {
+    const { value } = event.target;
+    const valueInt = value ? parseInt(value, 10) : null;
+    setVotesRequired(valueInt);
+    handleDraftState({ ...draftState, votes_required: valueInt });
+  }
+
   function handleSave() {
     const {
       uploadedFiles: filteredUploads,
@@ -128,13 +137,13 @@ function PlanningAdd(props) {
       market_type: PLANNING_TYPE,
       description: tokensRemoved,
     };
-    if (investmentExpiration) {
+    if (investmentExpiration != null) {
       addInfo.investment_expiration = investmentExpiration;
     }
-    if (maxBudget) {
+    if (maxBudget != null) {
       addInfo.max_budget = maxBudget;
     }
-    if (daysEstimate) {
+    if (daysEstimate != null) {
       addInfo.days_estimate = daysEstimate;
     }
     if (parentInvestibleId) {
@@ -142,6 +151,9 @@ function PlanningAdd(props) {
     }
     if (parentMarketId) {
       addInfo.parent_market_id = parentMarketId;
+    }
+    if (votesRequired != null) {
+      addInfo.votes_required = votesRequired;
     }
     return createPlanning(addInfo)
       .then((result) => {
@@ -170,7 +182,7 @@ function PlanningAdd(props) {
           onChange={handleChange('name')}
         />
         <TextField
-          id="standard-number"
+          id="investmentExpiration"
           label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
           type="number"
           InputLabelProps={{
@@ -181,7 +193,7 @@ function PlanningAdd(props) {
           onChange={onInvestmentExpirationChange}
         />
         <TextField
-          id="standard-number"
+          id="maxBudget"
           label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
           type="number"
           InputLabelProps={{
@@ -192,7 +204,7 @@ function PlanningAdd(props) {
           onChange={onMaxBudgetChange}
         />
         <TextField
-          id="standard-number"
+          id="daysEstimate"
           label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
           type="number"
           InputLabelProps={{
@@ -201,6 +213,17 @@ function PlanningAdd(props) {
           variant="outlined"
           onChange={onDaysEstimateChange}
           value={daysEstimate}
+        />
+        <TextField
+          id="votesRequired"
+          label={intl.formatMessage({ id: 'votesRequiredInputLabel' })}
+          type="number"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          variant="outlined"
+          onChange={onVotesRequiredEstimateChange}
+          value={votesRequired}
         />
         <Typography>
           {intl.formatMessage({ id: 'descriptionEdit' })}

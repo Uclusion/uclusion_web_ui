@@ -34,16 +34,19 @@ export function manageMarket(marketId, expirationMinutes, allowMultiVote) {
 }
 
 export function updateMarket(marketId, name, description, uploaded_files, maxBudget,
-  investmentExpiration, daysEstimate) {
+  investmentExpiration, daysEstimate, votesRequired) {
   const updateOptions = { name, description, uploaded_files };
-  if (maxBudget) {
+  if (maxBudget != null) {
     updateOptions.max_budget = maxBudget;
   }
-  if (investmentExpiration) {
+  if (investmentExpiration != null) {
     updateOptions.investment_expiration = investmentExpiration;
   }
-  if (daysEstimate) {
+  if (daysEstimate != null) {
     updateOptions.days_estimate = daysEstimate;
+  }
+  if (votesRequired != null) {
+    updateOptions.votes_required = votesRequired;
   }
   // console.debug(`Updating market ${marketId}`);
   // console.debug(updateOptions);

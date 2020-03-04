@@ -32,18 +32,21 @@ function PlanningDialogEdit(props) {
     storedState,
   } = props;
   const { id, name: initialMarketName, max_budget: initialBudget,
-    investment_expiration: initialExpiration, days_estimate: initialDaysEstimate } = market;
+    investment_expiration: initialExpiration, days_estimate: initialDaysEstimate,
+    votes_required: initialVotesRequired } = market;
   const { description: storedDescription, name: storedName, max_budget: storedBudget,
-    investment_expiration: storedExpiration, days_estimate: storedDaysEstimate } = storedState;
+    investment_expiration: storedExpiration, days_estimate: storedDaysEstimate,
+    votes_required: storedVotesRequired } = storedState;
   const intl = useIntl();
   const classes = useStyles();
   const [mutableMarket, setMutableMarket] = useState({ ...market, name: storedName || initialMarketName,
   max_budget: storedBudget || initialBudget, investment_expiration: storedExpiration || initialExpiration,
-    days_estimate: storedDaysEstimate || initialDaysEstimate });
+    days_estimate: storedDaysEstimate || initialDaysEstimate,
+    votes_required: storedVotesRequired || initialVotesRequired });
   const [draftState, setDraftState] = useState(storedState);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const { name, max_budget, investment_expiration, days_estimate } = mutableMarket;
+  const { name, max_budget, investment_expiration, days_estimate, votes_required } = mutableMarket;
   const [description, setDescription] = useState(storedDescription || mutableMarket.description);
   const [validForm, setValidForm] = useState(true);
 
@@ -80,9 +83,11 @@ function PlanningDialogEdit(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
-    const daysEstimateInt = days_estimate ? parseInt(days_estimate, 10) : null;
+    const daysEstimateInt = days_estimate != null ? parseInt(days_estimate, 10) : null;
+    const votesRequiredInt = votes_required != null ? parseInt(votes_required, 10) : null;
     return lockPlanningMarketForEdit(id, true)
-      .then(() => updateMarket(id, name, tokensRemoved, filteredUploads, parseInt(max_budget, 10), parseInt(investment_expiration, 10), daysEstimateInt))
+      .then(() => updateMarket(id, name, tokensRemoved, filteredUploads, parseInt(max_budget, 10),
+        parseInt(investment_expiration, 10), daysEstimateInt, votesRequiredInt))
       .then((market) => {
         return {
           result: market,
@@ -140,6 +145,17 @@ function PlanningDialogEdit(props) {
             variant="outlined"
             onChange={handleChange('days_estimate')}
             value={days_estimate}
+          />
+          <TextField
+            id="votesRequired"
+            label={intl.formatMessage({ id: 'votesRequiredInputLabel' })}
+            type="number"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            variant="outlined"
+            onChange={handleChange('votes_required')}
+            value={votes_required}
           />
           <TextField
             id="investmentExpiration"

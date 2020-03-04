@@ -26,9 +26,10 @@ import SpinBlockingButton from "../../../components/SpinBlocking/SpinBlockingBut
 import { OperationInProgressContext } from "../../../contexts/OperationInProgressContext/OperationInProgressContext";
 import { CommentsContext } from "../../../contexts/CommentsContext/CommentsContext";
 import {
+  getMarketComments,
   refreshMarketComments,
   removeComments
-} from "../../../contexts/CommentsContext/commentsContextHelper";
+} from '../../../contexts/CommentsContext/commentsContextHelper'
 import { MarketPresencesContext } from "../../../contexts/MarketPresencesContext/MarketPresencesContext";
 import { partialUpdateInvestment } from "../../../contexts/MarketPresencesContext/marketPresencesHelper";
 import clsx from "clsx";
@@ -117,7 +118,7 @@ function AddEditVote(props) {
   const { body, id: reasonId } = reason;
   const [reasonText, setReasonText] = useState(body);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [, commentsDispatch] = useContext(CommentsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [open, setOpen] = useState(false);
   const warnClearVotes = !allowMultiVote && hasVoted && addMode;
@@ -195,7 +196,8 @@ function AddEditVote(props) {
     if (commentAction === "DELETED") {
       removeComments(commentsDispatch, marketId, [commentId]);
     } else if (commentAction !== "NOOP") {
-      refreshMarketComments(commentsDispatch, marketId, [comment]);
+      const comments = getMarketComments(commentsState, marketId);
+      refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
     }
     partialUpdateInvestment(marketPresencesDispatch, investmentResult);
     onSave();

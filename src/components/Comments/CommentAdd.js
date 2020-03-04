@@ -130,7 +130,7 @@ function CommentAdd (props) {
     const investibleId = (investible) ? investible.id : parentInvestible;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((comment) => {
-        const comments = getMarketComments(commentsState, marketId)
+        const comments = getMarketComments(commentsState, marketId);
         refreshMarketComments(commentDispatch, marketId, [comment, ...comments]);
         return {
           spinChecker: () => Promise.resolve(true),

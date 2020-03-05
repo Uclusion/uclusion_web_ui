@@ -445,7 +445,7 @@ function PlanningInvestible(props) {
         <CardContent className={classes.votingCardContent}>
           <h1>
             {name}
-            {isAssigned && (
+            {(isAssigned || isInNotDoing) && (
               <EditMarketButton
                 labelId="edit"
                 marketId={marketId}
@@ -681,31 +681,40 @@ function MarketMetaData(props) {
 
 function Assignments(props) {
   const { investible, marketId, marketPresences, isAdmin, toggleAssign } = props;
-
+  const intl = useIntl();
   const marketInfo = getMarketInfo(investible, marketId);
   const { assigned = [] } = marketInfo;
 
   return (
-    <ul>
-      {assigned.map(userId => {
-        let user = marketPresences.find(presence => presence.id === userId);
-        if (!user) {
-          user = { name: "Removed" };
-        }
-        return (
-          <Typography key={userId} component="li">
-            {user.name}
-            {isAdmin && (
-              <EditMarketButton
-                labelId="edit"
-                marketId={marketId}
-                onClick={toggleAssign}
-              />
-            )}
+    <>
+      <ul>
+        {_.isEmpty(assigned) && (
+          <Typography key="unassigned" component="li">
+            {intl.formatMessage({ id: 'reassignToMove' })}
           </Typography>
-        );
-      })}
-    </ul>
+        )}
+        {assigned.map(userId => {
+          let user = marketPresences.find(presence => presence.id === userId);
+          if (!user) {
+            user = { name: "Removed" };
+          }
+          return (
+            <Typography key={userId} component="li">
+              {user.name}
+            </Typography>
+          );
+        })}
+      </ul>
+      <ul>
+        {isAdmin && (
+          <EditMarketButton
+            labelId="edit"
+            marketId={marketId}
+            onClick={toggleAssign}
+          />
+        )}
+      </ul>
+    </>
   );
 }
 

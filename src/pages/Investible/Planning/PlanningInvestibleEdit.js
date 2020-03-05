@@ -54,14 +54,14 @@ function PlanningInvestibleEdit(props) {
   useEffect(() => {
     // Long form to prevent flicker
     if (name && description && description.length > 0
-      && Array.isArray(assignments) && assignments.length > 0) {
+      && (!isAssign || (Array.isArray(assignments) && assignments.length > 0))) {
       if (!validForm) {
         setValidForm(true);
       }
     } else if (validForm) {
       setValidForm(false);
     }
-  }, [name, description, assignments, validForm]);
+  }, [name, description, assignments, validForm, isAssign]);
 
   function handleDraftState(newDraftState) {
     setDraftState(newDraftState);

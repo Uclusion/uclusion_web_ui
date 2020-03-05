@@ -248,6 +248,7 @@ const messages = defineMessages({
   planningInvestibleDecision: 'Create Linked Decision',
   planningInvestibleCantVote: 'You can\'t vote if you\'re assigned',
   planningInvestibleDescription: '- Description',
+  reassignToMove: 'Re-assigning will move into voting.',
   initiativePlanningParent: 'Create Linked Plan',
   marketLinksSection: 'Children',
   parentLinkSection: 'Parent',

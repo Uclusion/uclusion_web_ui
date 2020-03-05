@@ -475,18 +475,18 @@ function PlanningInvestible(props) {
           />
         </CardContent>
       </Card>
-      {canVote ? (
-        <YourVoting
-          investibleId={investibleId}
-          marketPresences={marketPresences}
-          comments={investmentReasons}
-          userId={userId}
-          market={market}
-          showBudget
-        />
-      ) : (
-        <Typography>{intl.formatMessage({ id: 'planningInvestibleCantVote' })}</Typography>
-      )}
+      {isInVoting && (canVote ? (
+            <YourVoting
+              investibleId={investibleId}
+              marketPresences={marketPresences}
+              comments={investmentReasons}
+              userId={userId}
+              market={market}
+              showBudget
+            />
+          ) : (
+            <Typography>{intl.formatMessage({ id: 'planningInvestibleCantVote' })}</Typography>
+        ))}
       <h2>
         <FormattedMessage id="decisionInvestibleOthersVoting" />
       </h2>

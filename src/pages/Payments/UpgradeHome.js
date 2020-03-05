@@ -6,13 +6,12 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import UpgradeForm from './UpgradeForm';
 import { startSubscription } from '../../api/users';
 import { PRODUCT_TIER_FREE, PRODUCT_TIER_STANDARD } from '../../constants/billing';
-import { getTier } from '../../contexts/AccountContext/accountContextHelper';
+import { getTier, updateAccount } from '../../contexts/AccountContext/accountContextHelper';
 
 function UpgradeHome(props){
   const { hidden } = props;
 
-  const [accountState, setAccountState] = useContext(AccountContext);
-
+  const [accountState, accountDispatch] = useContext(AccountContext);
 
   const tier = getTier(accountState);
 
@@ -23,7 +22,7 @@ function UpgradeHome(props){
     // we only support upgrading to standard for now
     return startSubscription(methodId, PRODUCT_TIER_STANDARD)
       .then((upgradedAccount) => {
-        setAccountState(upgradedAccount);
+        updateAccount(accountDispatch, upgradedAccount);
       })
   }
 

@@ -31,10 +31,12 @@ function MarketInvite(props) {
   useEffect(() => {
     if (!hidden) {
       const marketDetails = getMarket(marketState, marketId);
+      // Put a marker on this link to avoid looping back
+      const marketLink = `${formMarketLink(marketId)}#fromInvite=true`;
       if (!_.isEmpty(marketDetails)) {
         // if I know about the market, I must be part of it since we never leave
         // TODO: IF we do implement leave on a market I know about fix this
-        navigate(history, formMarketLink(marketId));
+        navigate(history, marketLink);
       } else {
         registerListener(VERSIONS_HUB_CHANNEL, 'inviteListener', (data) => {
           const { payload: { event, marketId: messageMarketId } } = data;
@@ -43,7 +45,7 @@ function MarketInvite(props) {
               if (messageMarketId === marketId) {
                 console.log(`Redirecting us to market ${marketId}`);
                 setTimeout(() => {
-                  navigate(history, formMarketLink(marketId));
+                  navigate(history, marketLink);
                 }, 500);
               }
               break;
@@ -62,7 +64,7 @@ function MarketInvite(props) {
             if (!loggedIntoNewMarket) {
               setMyLoading(false);
               removeListener(VERSIONS_HUB_CHANNEL, 'inviteListener');
-              navigate(history, formMarketLink(marketId));
+              navigate(history, marketLink);
             }
           })
           .catch((error) => {

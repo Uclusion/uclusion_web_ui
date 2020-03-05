@@ -21,6 +21,7 @@ import { getStages } from '../../contexts/MarketStagesContext/marketStagesContex
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import queryString from 'query-string'
 
 const styles = (theme) => ({
   root: {
@@ -64,7 +65,10 @@ function Dialog(props) {
   const history = useHistory();
   const intl = useIntl();
   const { location } = history;
-  const { pathname } = location;
+  const { pathname, hash } = location;
+  const values = queryString.parse(hash || '');
+  const { fromInvite } = values || {};
+  const isFromInvite = fromInvite === 'true';
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -100,13 +104,14 @@ function Dialog(props) {
       getInitiativeInvestible(investibles[0]);
     }
     const loadedMarketAtAll = !(_.isEmpty(loadedMarket) && _.isEmpty(marketStages) && _.isEmpty(marketPresences));
-    if (!hidden && !loadedMarketAtAll) {
+    if (!hidden && !loadedMarketAtAll && !isFromInvite) {
+      console.log('Setting load timer.');
       setTimeout(() => {
         console.warn('Failed to load market after allotted time.');
         setIsInitialization(true);
       }, 3500);
     }
-    if (isInitialization) {
+    if (isInitialization && !isFromInvite) {
       setIsInitialization(false);
       if (!loadedMarketAtAll && !hidden) {
         const inviteLink = formatMarketLinkWithPrefix('invite', marketId);
@@ -116,7 +121,7 @@ function Dialog(props) {
     return () => {
     };
   }, [hidden, marketType, investibles, marketId, history, isInitialization, loadedMarket, marketStages,
-  marketPresences]);
+  marketPresences, isFromInvite]);
 
   if (loading) {
     return (

@@ -42,7 +42,7 @@ function InvestibleEdit (props) {
   const history = useHistory();
   const { location } = history;
   const { pathname, hash } = location;
-  const values = queryString.parse(hash || {}) || {};
+  const values = queryString.parse(hash || '') || {};
   const { assign } = values;
   const isAssign = assign === 'true';
   const { marketId, investibleId } = decomposeMarketPath(pathname);

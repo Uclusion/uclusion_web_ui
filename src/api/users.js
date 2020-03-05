@@ -3,11 +3,11 @@ import { toastErrorAndThrow } from '../utils/userMessage';
 import { USER_POKED_TYPE } from '../constants/notifications'
 
 export function deleteMessage(message) {
-  const { marketId, type_object_id: typeObjectId, aType } = message;
+  const { marketId, type_object_id: typeObjectId, aType, pokeType } = message;
   const objectId = typeObjectId.split('_').pop();
   if (aType === USER_POKED_TYPE) {
     return getAccountClient()
-      .then((client) => client.users.removeNotification(objectId, aType));
+      .then((client) => client.users.removeNotification(objectId, aType, pokeType));
   }
   return getMarketClient(marketId)
     .then((client) => client.users.removeNotification(objectId, aType));

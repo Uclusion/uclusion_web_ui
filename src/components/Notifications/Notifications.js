@@ -81,6 +81,9 @@ function Notifications(props) {
           if (pokeType === 'slack_reminder') {
             fullLink = '/notificationPreferences';
           }
+          else if (pokeType === 'upgrade_reminder') {
+            fullLink = '/upgrade';
+          }
           break;
         default:
           fullLink = link;

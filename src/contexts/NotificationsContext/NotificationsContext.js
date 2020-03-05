@@ -67,7 +67,8 @@ function NotificationsProvider(props) {
           pokeType,
         } = message;
         const doRemove = (!_.isEmpty(messageMarketId) && marketId === messageMarketId && investibleId === messageInvestibleId)
-          || (pokeType === 'slack_reminder' && action === 'notificationPreferences');
+          || (pokeType === 'slack_reminder' && action === 'notificationPreferences')
+          || (pokeType === 'upgrade_reminder' && action === 'upgrade');
         if (doRemove) {
           dispatch(removeMessage(message));
           const diffId = commentId || messageInvestibleId || marketId;

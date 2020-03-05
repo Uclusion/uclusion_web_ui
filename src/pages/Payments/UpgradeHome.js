@@ -6,7 +6,7 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import UpgradeForm from './UpgradeForm';
 import { startSubscription } from '../../api/users';
 import { PRODUCT_TIER_FREE, PRODUCT_TIER_STANDARD } from '../../constants/billing';
-import { getTier, updateAccount } from '../../contexts/AccountContext/accountContextHelper';
+import { canCreate, getTier, updateAccount } from '../../contexts/AccountContext/accountContextHelper';
 
 function UpgradeHome(props){
   const { hidden } = props;
@@ -32,6 +32,9 @@ function UpgradeHome(props){
     >
       <Typography>
         {tier}
+      </Typography>
+      <Typography>
+        {`Can create ${canCreate(accountState)}`}
       </Typography>
       Need some copy here telling them all the great benefits of upgrading to paid.
       We'll integrate stripe elements, and we have name email et all from our contexts.

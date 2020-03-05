@@ -555,7 +555,7 @@ PlanningInvestible.defaultProps = {
   hidden: false
 };
 
-const useMetaDataStyles = makeStyles(
+export const useMetaDataStyles = makeStyles(
   theme => {
     return {
       root: {

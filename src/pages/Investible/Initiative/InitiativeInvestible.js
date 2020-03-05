@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, Divider, Grid, makeStyles } from '@material-ui/core'
+import { Card, CardContent, Divider, Grid, makeStyles, Typography } from '@material-ui/core'
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
@@ -33,6 +33,8 @@ import EditMarketButton from '../../Dialog/EditMarketButton';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay';
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
+import clsx from 'clsx';
+import { useMetaDataStyles } from '../Planning/PlanningInvestible';
 
 const useStyles = makeStyles(
   theme => ({
@@ -165,7 +167,7 @@ function InitiativeInvestible(props) {
     />)
     return sidebarActions;
   }
-
+  const metaClasses = useMetaDataStyles();
   if (!investibleId) {
     // we have no usable data;
     return <></>;
@@ -212,6 +214,18 @@ function InitiativeInvestible(props) {
             <ExpiredDisplay
               expiresDate={updatedAt}
             />
+          )}
+          {marketPresences && (
+            <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+              <dt>
+                <FormattedMessage id="dialogParticipants" />
+              </dt>
+              <dd>
+                <Collaborators
+                  marketPresences={marketPresences}
+                />
+              </dd>
+            </div>
           )}
           {activeMarket && (
             <ExpiresDisplay
@@ -263,6 +277,23 @@ function InitiativeInvestible(props) {
         )}
       </Grid>
     </Screen>
+  );
+}
+
+function Collaborators(props) {
+  const { marketPresences } = props;
+
+  return (
+    <ul>
+      {marketPresences.map(presence => {
+        const { id: presenceId, name } = presence;
+        return (
+          <Typography key={presenceId} component="li">
+            {name}
+          </Typography>
+        );
+      })}
+    </ul>
   );
 }
 

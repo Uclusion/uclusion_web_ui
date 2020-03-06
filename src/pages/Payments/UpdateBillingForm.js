@@ -59,7 +59,13 @@ function UpdateBillingForm (props) {
   const billingInfo = getCurrentBillingInfo(accountState);
   const validForm = stripe && elements && cardComplete && !error && billingDetailsValid;
 
-  async function onSubmit (e) {
+  function resetForm () {
+    setError(null);
+    setProcessing(false);
+    setBillingDetails(EMPTY_DETAILS);
+  }
+
+  function onSubmit (e) {
     e.preventDefault();
     if (!stripe || !elements) {
       return; //abort
@@ -83,7 +89,7 @@ function UpdateBillingForm (props) {
           return getPaymentInfo();
         }).then((info) => {
           updateBilling(accountDispatch, info);
-          setProcessing(false);
+          resetForm();
           onUpdate();
         });
     }).catch((e) => {
@@ -92,12 +98,6 @@ function UpdateBillingForm (props) {
     });
   }
 
-  /*  function resetForm () {
-      setError(null);
-      setProcessing(false);
-      setBillingDetails(EMPTY_DETAILS);
-    }
-  */
   function onBillingDetailsChange (name) {
     return (event) => {
       const { target: { value } } = event;
@@ -180,6 +180,7 @@ function UpdateBillingForm (props) {
               id="email"
               name="email"
               type="email"
+              value={billingDetails.email}
               autoComplete="email"
               label={intl.formatMessage({ id: 'upgradeFormCardEmail' })}
               onChange={onBillingDetailsChange('email')}
@@ -193,6 +194,7 @@ function UpdateBillingForm (props) {
               id="phone"
               name="phone"
               type="tel"
+              value={billingDetails.phone}
               autoComplete="tel"
               label={intl.formatMessage({ id: 'upgradeFormCardPhone' })}
               onChange={onBillingDetailsChange('phone')}

@@ -1,13 +1,16 @@
 // cribbed from stripe example
 // https://github.com/stripe/react-stripe-js/blob/90b7992c5232de7312d0fcc226541b62db95017b/examples/hooks/1-Card-Detailed.js
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
-import { TextField } from '@material-ui/core';
+import { Paper, TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import Grid from '@material-ui/core/Grid';
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 import { makeStyles } from '@material-ui/core/styles';
+import { AccountContext } from '../../contexts/AccountContext/AccountContext';
+import { getCurrentBillingInfo } from '../../contexts/AccountContext/accountContextHelper';
 // this is used to style the Elements Card component
 const CARD_OPTIONS = {
   iconStyle: 'solid',
@@ -40,12 +43,14 @@ function UpdateBillingForm (props) {
   const elements = useElements();
   const intl = useIntl();
 
+  const [accountState] = useContext(AccountContext);
   const [cardComplete, setCardComplete] = useState(false);
   // we have to manage our own processing state because it's a form submit
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
   const [billingDetails, setBillingDetails] = useState(EMPTY_DETAILS);
 
+  const billingInfo = getCurrentBillingInfo(accountState);
   const validForm = stripe && elements && cardComplete && !error;
 
   async function onSubmit (e) {
@@ -96,8 +101,38 @@ function UpdateBillingForm (props) {
     setCardComplete(e.complete);
   }
 
+  function renderCurrentBillingInfo() {
+    if (_.isEmpty(billingInfo)){
+      return <React.Fragment/>;
+    }
+
+    const cardInfos = billingInfo.map(cardInfo => {
+      const {
+        brand,
+        last4,
+        exp_month: expMonth,
+        exp_year: expYear
+      } = cardInfo;
+      return (
+        <Typography>
+          {brand}: ****-{last4} {expMonth}/{expYear}
+        </Typography>
+      );
+    });
+
+    return (
+      <Paper>
+        <Typography>
+          Current Cards:
+        </Typography>
+        {cardInfos}
+      </Paper>
+    )
+  }
+
   return (
     <div>
+      {renderCurrentBillingInfo()}
       <form
         className={classes.form}
         autoComplete="off"

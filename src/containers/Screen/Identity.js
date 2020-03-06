@@ -83,10 +83,10 @@ function Identity () {
           </Typography>
         </MenuItem>
         <MenuItem
-          onClick={goTo('/upgrade')}
+          onClick={goTo('/billing')}
         >
           <Typography className={classes.name}>
-            {intl.formatMessage({ id: 'upgradeMenuItem' })}
+            {intl.formatMessage({ id: 'billingMenuItem' })}
           </Typography>
         </MenuItem>
         <MenuItem>

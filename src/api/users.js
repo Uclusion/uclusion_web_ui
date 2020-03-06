@@ -20,7 +20,12 @@ export function startSubscription(paymentId, tier) {
 
 export function updatePaymentInfo(paymentId) {
   return getAccountClient()
-    .then((client) => client.users.updatePayment(paymentId));
+    .then((client) => client.users.updatePaymentInfo(paymentId));
+}
+
+export function getPaymentInfo() {
+  return getAccountClient()
+    .then((client) => client.users.getPaymentInfo());
 }
 
 export function addParticipants(marketId, participants) {

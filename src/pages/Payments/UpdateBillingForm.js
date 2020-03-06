@@ -1,6 +1,6 @@
 // cribbed from stripe example
 // https://github.com/stripe/react-stripe-js/blob/90b7992c5232de7312d0fcc226541b62db95017b/examples/hooks/1-Card-Detailed.js
-import React, {  useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { TextField } from '@material-ui/core';
@@ -31,15 +31,14 @@ const useStyles = makeStyles(theme => ({
 
 const EMPTY_DETAILS = { name: '', email: '', phone: '' };
 
-function UpgradeForm (props) {
+function UpdateBillingForm (props) {
 
-  const { onUpgrade } = props;
+  const { onUpdate } = props;
 
   const classes = useStyles();
   const stripe = useStripe();
   const elements = useElements();
   const intl = useIntl();
-
 
   const [cardComplete, setCardComplete] = useState(false);
   // we have to manage our own processing state because it's a form submit
@@ -67,11 +66,12 @@ function UpgradeForm (props) {
       card: elements.getElement(CardElement),
       billing_details: billingDetails
     }));
-    setProcessing(false);
+
     if (paymentResult.error) {
       setError(paymentResult.error);
+      setProcessing(false);
     } else {
-      onUpgrade(paymentResult.paymentMethod);
+      onUpdate(paymentResult.paymentMethod)
     }
   }
 
@@ -165,7 +165,11 @@ function UpgradeForm (props) {
   );
 }
 
-UpgradeForm.propTypes = {
-  onUpgrade: PropTypes.func.isRequired,
+UpdateBillingForm.propTypes = {
+  onUpdate: PropTypes.func,
 };
-export default UpgradeForm;
+
+UpdateBillingForm.defaultProps = {
+  onUpdate: () => {},
+};
+export default UpdateBillingForm;

@@ -18,6 +18,11 @@ export function startSubscription(paymentId, tier) {
     .then((client) => client.users.startSubscription(paymentId, tier));
 }
 
+export function updatePaymentInfo(paymentId) {
+  return getAccountClient()
+    .then((client) => client.users.updatePayment(paymentId));
+}
+
 export function addParticipants(marketId, participants) {
   return getMarketClient(marketId)
     .then((client) => client.users.addUsers(participants))

@@ -18,14 +18,12 @@ function BillingHome(props){
 
   const upgradable = tier === PRODUCT_TIER_FREE;
 
-
   function beginSubscription() {
     return startSubscription(PRODUCT_TIER_STANDARD)
       .then((upgradedAccount) => {
         updateAccount(accountDispatch, upgradedAccount);
       })
   }
-
   return (
     <Screen
       hidden={hidden}

@@ -10,7 +10,12 @@ import Grid from '@material-ui/core/Grid';
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 import { makeStyles } from '@material-ui/core/styles';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { getCurrentBillingInfo } from '../../contexts/AccountContext/accountContextHelper';
+import { getPaymentInfo, updatePaymentInfo } from '../../api/users';
+import {
+  updateBilling,
+  updateAccount,
+  getCurrentBillingInfo
+} from '../../contexts/AccountContext/accountContextHelper';
 // this is used to style the Elements Card component
 const CARD_OPTIONS = {
   iconStyle: 'solid',
@@ -31,7 +36,6 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-
 const EMPTY_DETAILS = { name: '', email: '', phone: '' };
 
 function UpdateBillingForm (props) {
@@ -43,15 +47,17 @@ function UpdateBillingForm (props) {
   const elements = useElements();
   const intl = useIntl();
 
-  const [accountState] = useContext(AccountContext);
+  const [accountState, accountDispatch] = useContext(AccountContext);
   const [cardComplete, setCardComplete] = useState(false);
   // we have to manage our own processing state because it's a form submit
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
   const [billingDetails, setBillingDetails] = useState(EMPTY_DETAILS);
-
+  const billingDetailsValid = !_.isEmpty(billingDetails.name)
+    && !_.isEmpty(billingDetails.email)
+    && !_.isEmpty(billingDetails.phone);
   const billingInfo = getCurrentBillingInfo(accountState);
-  const validForm = stripe && elements && cardComplete && !error;
+  const validForm = stripe && elements && cardComplete && !error && billingDetailsValid;
 
   async function onSubmit (e) {
     e.preventDefault();
@@ -66,26 +72,32 @@ function UpdateBillingForm (props) {
       setProcessing(true);
     }
 
-    const paymentResult = await stripe.createPaymentMethod(({
+    return stripe.createPaymentMethod(({
       type: 'card',
       card: elements.getElement(CardElement),
       billing_details: billingDetails
-    }));
-
-    if (paymentResult.error) {
-      setError(paymentResult.error);
+    })).then((paymentResult) => {
+      return updatePaymentInfo(paymentResult.paymentMethod.id,)
+        .then((upgradedAccount) => {
+          updateAccount(accountDispatch, upgradedAccount);
+          return getPaymentInfo();
+        }).then((info) => {
+          updateBilling(accountDispatch, info);
+          setProcessing(false);
+          onUpdate();
+        });
+    }).catch((e) => {
+      setError(e.error || e.error_message);
       setProcessing(false);
-    } else {
-      onUpdate(paymentResult.paymentMethod)
-    }
+    });
   }
 
-/*  function resetForm () {
-    setError(null);
-    setProcessing(false);
-    setBillingDetails(EMPTY_DETAILS);
-  }
-*/
+  /*  function resetForm () {
+      setError(null);
+      setProcessing(false);
+      setBillingDetails(EMPTY_DETAILS);
+    }
+  */
   function onBillingDetailsChange (name) {
     return (event) => {
       const { target: { value } } = event;
@@ -101,8 +113,8 @@ function UpdateBillingForm (props) {
     setCardComplete(e.complete);
   }
 
-  function renderCurrentBillingInfo() {
-    if (_.isEmpty(billingInfo)){
+  function renderCurrentBillingInfo () {
+    if (_.isEmpty(billingInfo)) {
       return <React.Fragment/>;
     }
 
@@ -127,12 +139,15 @@ function UpdateBillingForm (props) {
         </Typography>
         {cardInfos}
       </Paper>
-    )
+    );
   }
 
   return (
     <div>
       {renderCurrentBillingInfo()}
+      <div>
+        Error Info: {error}
+      </div>
       <form
         className={classes.form}
         autoComplete="off"

@@ -30,8 +30,8 @@ function AccountProvider(props) {
       getAccount()
         .then((newAccount) => {
           updateAccount(dispatch, newAccount);
-        }).then(() => getPaymentInfo())
-        .then((paymentInfo) => {
+          return getPaymentInfo();
+        }).then((paymentInfo) => {
           updateBilling(dispatch, paymentInfo);
         });
       setIsInitialization(false);

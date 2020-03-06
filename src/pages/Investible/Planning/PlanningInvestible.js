@@ -466,6 +466,7 @@ function PlanningInvestible(props) {
           <MarketLinks links={children || []} hidden={hidden} />
           <Divider />
           <MarketMetaData
+            investibleId={investibleId}
             isInVoting={isInVoting}
             market={market}
             marketInvestible={marketInvestible}
@@ -677,6 +678,16 @@ function MarketMetaData(props) {
       )}
     </dl>
   );
+}
+
+MarketMetaData.propTypes = {
+  investibleId: PropTypes.string.isRequired,
+  isInVoting: PropTypes.bool.isRequired,
+  market: PropTypes.object.isRequired,
+  marketPresences: PropTypes.array.isRequired,
+  marketInvestible: PropTypes.object.isRequired,
+  isAdmin: PropTypes.bool.isRequired,
+  toggleAssign: PropTypes.func.isRequired,
 }
 
 function Assignments(props) {

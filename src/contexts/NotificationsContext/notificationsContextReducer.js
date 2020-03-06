@@ -139,6 +139,9 @@ function getMassagedMessages(messages) {
       }
       return 0;
     }
+    if (!aMarketId) {
+      return -1;
+    }
     return aMarketId.localeCompare(bMarketId);
   })
   return filterMessages;

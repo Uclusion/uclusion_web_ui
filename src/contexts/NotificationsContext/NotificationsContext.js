@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useReducer, useContext } from 'react';
 import { toast } from 'react-toastify';
+import { useHistory } from 'react-router';
 import _ from 'lodash';
 import reducer, {
   initializeState, newToast,
@@ -15,6 +16,8 @@ import { DiffContext } from '../DiffContext/DiffContext';
 import { HighlightedVotingContext } from '../HighlightedVotingContext';
 import { VersionsContext } from '../VersionsContext/VersionsContext';
 import { hasUnViewedDiff } from '../DiffContext/diffContextHelper';
+import { navigate } from '../../utils/marketIdPathFunctions';
+import { getFullLink } from '../../components/Notifications/Notifications';
 
 export const EMPTY_STATE = {
   messages: [],
@@ -35,6 +38,8 @@ function NotificationsProvider(props) {
   const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const [, highlightedVotingDispatch] = useContext(HighlightedVotingContext);
   const [, versionsDispatch] = useContext(VersionsContext);
+  const history = useHistory();
+
   useEffect(() => {
     if (isInitialization && versionsDispatch) {
       const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
@@ -59,9 +64,7 @@ function NotificationsProvider(props) {
         const {
           marketId: messageMarketId,
           investibleId: messageInvestibleId,
-          text,
           level,
-          aType,
           commentId,
           associatedUserId,
           pokeType,
@@ -71,43 +74,59 @@ function NotificationsProvider(props) {
           || (pokeType === 'upgrade_reminder' && action === 'upgrade');
         if (doRemove) {
           dispatch(removeMessage(message));
-          const diffId = commentId || messageInvestibleId || marketId;
           if (commentId) {
             highlightedCommentDispatch({ type: HIGHTLIGHT_ADD, commentId, level });
           }
           if (associatedUserId) {
             highlightedVotingDispatch({ type: HIGHTLIGHT_ADD, associatedUserId, level });
           }
-          // Do not toast a non red unread as already have diff and dismiss - unless is new
-          const shouldToast = (level === 'RED') || aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId);
-          if (shouldToast) {
-            console.debug('Toasting from NotificationsContext');
-            let toastId = undefined;
-            switch (level) {
-              case 'RED':
-                toastId = toast.error(text);
-                break;
-              case 'YELLOW':
-                if (!commentId) {
-                  toastId = toast.warn(text);
-                }
-                break;
-              default:
-                toastId = toast.info(text);
-                break;
-            }
-            if (toastId) {
-              dispatch(newToast(toastId))
-            }
-          }
         }
         return doRemove;
       });
       AllSequentialMap(filtered, (message) => deleteMessage(message));
+      const message = filtered.pop();
+      if (message) {
+        const {
+          marketId,
+          investibleId,
+          text,
+          level,
+          aType,
+          commentId,
+        } = message;
+        // Sadly intl not available here TODO - Fix
+        const myText = filtered.length > 0 ? 'Multiple Updates' : text;
+        const diffId = commentId || investibleId || marketId;
+        // Do not toast a non red unread as already have diff and dismiss - unless is new
+        const shouldToast = (level === 'RED') || aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId);
+        if (shouldToast) {
+          console.debug('Toasting from NotificationsContext');
+          let toastId = undefined;
+          const options = {
+            onClick: () => navigate(history, getFullLink(message))
+          }
+          switch (level) {
+            case 'RED':
+              toastId = toast.error(myText, options);
+              break;
+            case 'YELLOW':
+              if (!commentId) {
+                toastId = toast.warn(myText, options);
+              }
+              break;
+            default:
+              toastId = toast.info(myText, options);
+              break;
+          }
+          if (toastId) {
+            dispatch(newToast(toastId))
+          }
+        }
+      }
     }
     return () => {
     };
-  }, [page, messages, highlightedCommentDispatch, diffState, diffDispatch, highlightedVotingDispatch]);
+  }, [page, messages, highlightedCommentDispatch, diffState, diffDispatch, highlightedVotingDispatch, history]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

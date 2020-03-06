@@ -117,6 +117,30 @@ function getMassagedMessages(messages) {
   if (filterMessages.length !== rawMessages.length) {
     // TODO Do something here like store a cookie if new user
   }
+  //market level must come before investibles in the market
+  filterMessages.sort(function(a, b) {
+    const {
+      marketId: aMarketId,
+      investibleId: aInvestibleId,
+    } = a;
+    const {
+      marketId: bMarketId,
+      investibleId: bInvestibleId,
+    } = b;
+    if (aMarketId === bMarketId) {
+      if (aInvestibleId === bInvestibleId) {
+        return 0;
+      }
+      if (!aInvestibleId) {
+        return -1;
+      }
+      if (!bInvestibleId) {
+        return  1;
+      }
+      return 0;
+    }
+    return aMarketId.localeCompare(bMarketId);
+  })
   return filterMessages;
 }
 

@@ -30,6 +30,46 @@ const useStyles = makeStyles({
   }
 });
 
+export function getFullLink(current) {
+  const {
+    marketId,
+    investibleId,
+    userId,
+    aType,
+    commentId,
+    associatedUserId,
+    pokeType,
+  } = current;
+  const link = investibleId
+    ? formInvestibleLink(marketId, investibleId)
+    : formMarketLink(marketId);
+  let fullLink;
+  switch (aType) {
+    case ISSUE_RESOLVED_TYPE:
+    case ISSUE_TYPE:
+      fullLink = `${link}#c${commentId}`;
+      break;
+    case NO_PIPELINE_TYPE:
+      fullLink = `${link}#u${userId}`;
+      break;
+    case NEW_VOTES_TYPE:
+      fullLink = `${link}#cv${associatedUserId}`;
+      break;
+    case USER_POKED_TYPE:
+      if (pokeType === 'slack_reminder') {
+        fullLink = '/notificationPreferences';
+      }
+      else if (pokeType === 'upgrade_reminder') {
+        fullLink = '/upgrade';
+      }
+      break;
+    default:
+      fullLink = link;
+      break;
+  }
+  return fullLink;
+}
+
 function Notifications(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const { current } = messagesState;
@@ -53,43 +93,7 @@ function Notifications(props) {
 
   function nextOnClick() {
     if (current) {
-      const {
-        marketId,
-        investibleId,
-        userId,
-        aType,
-        commentId,
-        associatedUserId,
-        pokeType,
-      } = current;
-      const link = investibleId
-        ? formInvestibleLink(marketId, investibleId)
-        : formMarketLink(marketId);
-      let fullLink;
-      switch (aType) {
-        case ISSUE_RESOLVED_TYPE:
-        case ISSUE_TYPE:
-          fullLink = `${link}#c${commentId}`;
-          break;
-        case NO_PIPELINE_TYPE:
-          fullLink = `${link}#u${userId}`;
-          break;
-        case NEW_VOTES_TYPE:
-          fullLink = `${link}#cv${associatedUserId}`;
-          break;
-        case USER_POKED_TYPE:
-          if (pokeType === 'slack_reminder') {
-            fullLink = '/notificationPreferences';
-          }
-          else if (pokeType === 'upgrade_reminder') {
-            fullLink = '/upgrade';
-          }
-          break;
-        default:
-          fullLink = link;
-          break;
-      }
-      navigate(history, fullLink);
+      navigate(history, getFullLink(current));
       messagesDispatch(nextMessage());
     }
   }

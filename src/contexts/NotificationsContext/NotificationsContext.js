@@ -98,12 +98,14 @@ function NotificationsProvider(props) {
         const myText = filtered.length > 0 ? 'Multiple Updates' : text;
         const diffId = commentId || investibleId || marketId;
         // Do not toast a non red unread as already have diff and dismiss - unless is new
-        const shouldToast = (level === 'RED') || aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId);
-        if (shouldToast) {
+        const shouldToast = (level === 'RED') || aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)
+        const myCustomToastId = myText + '_' + diffId;
+        if (shouldToast && !toast.isActive(myCustomToastId)) {
           console.debug('Toasting from NotificationsContext');
           let toastId = undefined;
           const options = {
-            onClick: () => navigate(history, getFullLink(message))
+            onClick: () => navigate(history, getFullLink(message)),
+            toastId: myCustomToastId
           }
           switch (level) {
             case 'RED':

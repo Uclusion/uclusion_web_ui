@@ -1,6 +1,6 @@
 // cribbed from stripe example
 // https://github.com/stripe/react-stripe-js/blob/90b7992c5232de7312d0fcc226541b62db95017b/examples/hooks/1-Card-Detailed.js
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { TextField } from '@material-ui/core';
@@ -8,10 +8,6 @@ import { useIntl } from 'react-intl';
 import Grid from '@material-ui/core/Grid';
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 import { makeStyles } from '@material-ui/core/styles';
-import { startSubscription } from '../../api/users';
-import { PRODUCT_TIER_STANDARD } from '../../constants/billing';
-import { updateAccount } from '../../contexts/AccountContext/accountContextHelper';
-import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 // this is used to style the Elements Card component
 const CARD_OPTIONS = {
   iconStyle: 'solid',
@@ -35,16 +31,15 @@ const useStyles = makeStyles(theme => ({
 
 const EMPTY_DETAILS = { name: '', email: '', phone: '' };
 
-function UpgradeForm (props) {
+function UpdateBillingForm (props) {
 
-  const { onUpgrade } = props;
+  const { onUpdate } = props;
 
   const classes = useStyles();
   const stripe = useStripe();
   const elements = useElements();
   const intl = useIntl();
 
-  const [, accountDispatch] = useContext(AccountContext);
   const [cardComplete, setCardComplete] = useState(false);
   // we have to manage our own processing state because it's a form submit
   const [processing, setProcessing] = useState(false);
@@ -76,7 +71,7 @@ function UpgradeForm (props) {
       setError(paymentResult.error);
       setProcessing(false);
     } else {
-
+      onUpdate(paymentResult.paymentMethod)
     }
   }
 
@@ -170,11 +165,11 @@ function UpgradeForm (props) {
   );
 }
 
-UpgradeForm.propTypes = {
-  onUpgrade: PropTypes.func,
+UpdateBillingForm.propTypes = {
+  onUpdate: PropTypes.func,
 };
 
-UpgradeForm.defaultProps = {
-  onUpgrade: () => {},
+UpdateBillingForm.defaultProps = {
+  onUpdate: () => {},
 };
-export default UpgradeForm;
+export default UpdateBillingForm;

@@ -253,6 +253,20 @@ function DecisionDialog(props) {
               </dd>
             </div>
             {marketPresences && (
+              <>
+              <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+                <dt>
+                  <FormattedMessage id="author" />
+                </dt>
+                <dd>
+                  <Collaborators
+                    marketPresences={marketPresences}
+                    authorId={createdBy}
+                    intl={intl}
+                    authorDisplay
+                  />
+                </dd>
+              </div>
               <div className={clsx(metaClasses.group, metaClasses.assignments)}>
                 <dt>
                   <FormattedMessage id="dialogParticipants" />
@@ -265,6 +279,7 @@ function DecisionDialog(props) {
                   />
                 </dd>
               </div>
+              </>
             )}
           </dl>
           <ParentSummary market={market} hidden={hidden}/>

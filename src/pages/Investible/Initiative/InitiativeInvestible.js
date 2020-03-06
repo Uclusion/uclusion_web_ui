@@ -192,6 +192,20 @@ function InitiativeInvestible(props) {
               </dd>
             </div>
             {marketPresences && (
+              <>
+              <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+                <dt>
+                  <FormattedMessage id="author" />
+                </dt>
+                <dd>
+                  <Collaborators
+                    marketPresences={marketPresences}
+                    authorId={createdBy}
+                    intl={intl}
+                    authorDisplay
+                  />
+                </dd>
+              </div>
               <div className={clsx(metaClasses.group, metaClasses.assignments)}>
                 <dt>
                   <FormattedMessage id="dialogParticipants" />
@@ -204,6 +218,7 @@ function InitiativeInvestible(props) {
                   />
                 </dd>
               </div>
+              </>
             )}
           </dl>
         </CardContent>
@@ -253,36 +268,40 @@ function InitiativeInvestible(props) {
 }
 
 export function Collaborators(props) {
-  const { marketPresences, authorId, intl } = props;
+  const { marketPresences, authorId, intl, authorDisplay } = props;
   marketPresences.sort(function(a, b) {
     if (a.id === authorId) return -1;
     return 0;
   })
   return (
     <>
-    <ul>
-    {marketPresences.length === 1 && (
-      <Typography>
-        <Box color="#E85757" m={1}>
-          {intl.formatMessage({ id: 'draft' })}
-        </Box>
-      </Typography>
-    )}
-    </ul>
-    <ul>
-      {marketPresences.map(presence => {
-        const { id: presenceId, name } = presence;
-        return (
-          <Typography key={presenceId} component="li">
-            {presenceId === authorId ? (
-              <Box fontSize={24} m={1}>
-                {name}
-              </Box>
-            ) : (name)}
+      {authorDisplay && (
+        <ul>
+            <Typography key={marketPresences[0].id} component="li">
+              {marketPresences[0].name}
+            </Typography>
+        </ul>
+      )}
+      <ul>
+        {!authorDisplay && marketPresences.map(presence => {
+          const { id: presenceId, name } = presence;
+          if (presenceId === authorId ) {
+            return <React.Fragment/>;
+          }
+          return (
+            <Typography key={presenceId} component="li">
+              {name}
+            </Typography>
+          );
+        })}
+        {!authorDisplay && marketPresences.length === 1 && (
+          <Typography>
+            <Box color="#E85757" m={1}>
+              {intl.formatMessage({ id: 'draft' })}
+            </Box>
           </Typography>
-        );
-      })}
-    </ul>
+        )}
+      </ul>
     </>
   );
 }

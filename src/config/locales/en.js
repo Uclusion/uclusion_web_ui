@@ -127,6 +127,7 @@ const messages = defineMessages({
   addDecision: 'Add Dialog',
   addPlanning: 'Add Agile Plan',
   addInitiative: 'Add Initiative',
+  author: 'Author',
 
   // Support
   supportInfoText: 'Create bugs (but not feature requests) in <a>Uclusion issues</a> or send an email to <b>support</b> which includes the version and user ID above.',

@@ -3,9 +3,9 @@
  */
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router';
-import { Grid } from '@material-ui/core';
+import { Card, CardContent, Divider, Grid, makeStyles } from '@material-ui/core'
 import AddIcon from '@material-ui/icons/Add';
 import EditAttributesIcon from '@material-ui/icons/EditAttributes';
 import {
@@ -14,7 +14,7 @@ import {
   navigate,
   formMarketManageLink,
   makeArchiveBreadCrumbs,
-} from '../../../utils/marketIdPathFunctions';
+} from '../../../utils/marketIdPathFunctions'
 import Summary from '../Summary';
 import ProposedIdeas from './ProposedIdeas';
 import SubSection from '../../../containers/SubSection/SubSection';
@@ -35,6 +35,28 @@ import {
   PURE_SIGNUP_ADD_DIALOG_OPTIONS,
   PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS, PURE_SIGNUP_FAMILY_NAME
 } from '../../../components/Tours/pureSignupTours';
+import CardType from '../../../components/CardType';
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
+import clsx from 'clsx';
+import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
+import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay'
+import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
+import { Collaborators } from '../../Investible/Initiative/InitiativeInvestible'
+import DialogActions from '../../Home/DialogActions'
+import ParentSummary from '../ParentSummary'
+
+const useStyles = makeStyles(
+  theme => ({
+    cardType: {
+      display: "inline-flex"
+    },
+    votingCardContent: {
+      margin: theme.spacing(2, 6),
+      padding: 0
+    },
+  }),
+  { name: "InitiativeInvestible" }
+);
 
 function DecisionDialog(props) {
   const {
@@ -46,14 +68,10 @@ function DecisionDialog(props) {
     marketPresences,
     myPresence,
   } = props;
-
+  const classes = useStyles();
+  const metaClasses = useMetaDataStyles();
   const commentAddRef = useRef(null);
   const intl = useIntl();
-  const {
-    name: marketName,
-    market_stage: marketStage,
-  } = market;
-  const activeMarket = marketStage === ACTIVE_STAGE;
   const {
     is_admin: isAdmin,
     following: isParticipant,
@@ -69,8 +87,20 @@ function DecisionDialog(props) {
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
-
-
+  const {
+    id: marketId,
+    name: marketName,
+    description,
+    market_stage: marketStage,
+    market_type: marketType,
+    created_at: createdAt,
+    updated_at: updatedAt,
+    expiration_minutes: expirationMinutes,
+    created_by: createdBy,
+    parent_market_id: parentMarketId,
+    parent_investible_id: parentInvestibleId,
+  } = market;
+  const activeMarket = marketStage === ACTIVE_STAGE;
   const participantTourSteps = [
   ];
   const tourSteps = isAdmin? PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS : participantTourSteps;
@@ -93,8 +123,6 @@ function DecisionDialog(props) {
   }
   const underConsideration = getInvestiblesForStage(underConsiderationStage);
   const proposed = getInvestiblesForStage(proposedStage);
-
-  const { id: marketId } = market;
 
   function closeCommentAddBox() {
     setCommentAddHidden(true);
@@ -182,19 +210,71 @@ function DecisionDialog(props) {
         continuous
         hideBackButton
       />
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <SubSection
-            title={intl.formatMessage({ id: 'decisionDialogSummaryLabel' })}
-            titleIcon={getDialogTypeIcon(DECISION_TYPE)}
-            id="summary"
-          >
-            <Summary
-              market={market}
-              hidden={hidden}
+      <Card elevation={0}>
+        <CardType
+          className={classes.cardType}
+          label={`${intl.formatMessage({
+            id: "dialogDescription"
+          })}`}
+          type={DECISION_TYPE}
+        />
+        <CardContent className={classes.votingCardContent}>
+          <h1>
+            {marketName}
+            <DialogActions
+              isAdmin={myPresence.is_admin}
+              marketStage={marketStage}
+              marketType={marketType}
+              inArchives={myPresence.market_hidden}
+              marketId={marketId}
             />
-          </SubSection>
-        </Grid>
+          </h1>
+          <DescriptionOrDiff
+            hidden={hidden}
+            id={marketId}
+            description={description}
+          />
+          <Divider />
+          <dl className={metaClasses.root}>
+            <div className={clsx(metaClasses.group, metaClasses.expiration)}>
+              {activeMarket && (
+                <dt>
+                  <FormattedMessage id="decisionExpiration" />
+                </dt>
+              )}
+              <dd>
+                {activeMarket ? (
+                  <ExpiresDisplay
+                    createdAt={createdAt}
+                    expirationMinutes={expirationMinutes}
+                    onClick={() => isAdmin && navigate(history, formMarketManageLink(marketId))}
+                  />
+                ) : (
+                  <ExpiredDisplay
+                    expiresDate={updatedAt}
+                  />
+                )}
+              </dd>
+            </div>
+            {marketPresences && (
+              <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+                <dt>
+                  <FormattedMessage id="dialogParticipants" />
+                </dt>
+                <dd>
+                  <Collaborators
+                    marketPresences={marketPresences}
+                    authorId={createdBy}
+                    intl={intl}
+                  />
+                </dd>
+              </div>
+            )}
+          </dl>
+          <ParentSummary market={market} hidden={hidden}/>
+        </CardContent>
+      </Card>
+      <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '30px' }}>
           <SubSection
             id="currentVoting"

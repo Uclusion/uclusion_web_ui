@@ -16,7 +16,6 @@ import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import Screen from '../../../containers/Screen/Screen';
 import {
-  formInvestibleEditLink,
   formMarketManageLink, makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate,
@@ -29,64 +28,22 @@ import ExpandableSidebarAction from '../../../components/SidebarActions/Expandab
 import InsertLinkIcon from '@material-ui/icons/InsertLink';
 import MarketLinks from '../../Dialog/MarketLinks';
 import CardType, { VOTING_TYPE } from '../../../components/CardType';
-import EditMarketButton from '../../Dialog/EditMarketButton';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay';
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
 import clsx from 'clsx';
 import { useMetaDataStyles } from '../Planning/PlanningInvestible';
+import DialogActions from '../../Home/DialogActions'
+import Box from '@material-ui/core/Box'
 
 const useStyles = makeStyles(
   theme => ({
-    container: {
-      padding: "3px 89px 21px 21px",
-      marginTop: "-6px",
-      boxShadow: "none",
-      [theme.breakpoints.down("sm")]: {
-        padding: "3px 21px 42px 21px"
-      }
-    },
-    title: {
-      fontSize: 32,
-      fontWeight: "bold",
-      lineHeight: "42px",
-      paddingBottom: "9px",
-      [theme.breakpoints.down("xs")]: {
-        fontSize: 25
-      }
-    },
-    content: {
-      fontSize: "15 !important",
-      lineHeight: "175%",
-      color: "#414141",
-      [theme.breakpoints.down("xs")]: {
-        fontSize: 13
-      },
-      "& > .ql-container": {
-        fontSize: "15 !important"
-      }
-    },
     cardType: {
       display: "inline-flex"
     },
     votingCardContent: {
       margin: theme.spacing(2, 6),
       padding: 0
-    },
-    maxBudget: {
-      alignItems: "flex-end",
-      display: "flex",
-      flexDirection: "column",
-      margin: theme.spacing(2),
-      textTransform: "capitalize"
-    },
-    maxBudgetLabel: {
-      color: "#757575",
-      fontSize: 14
-    },
-    maxBudgetValue: {
-      fontSize: 16,
-      fontWeight: "bold"
     },
   }),
   { name: "InitiativeInvestible" }
@@ -109,7 +66,7 @@ function InitiativeInvestible(props) {
     inArchives,
     hidden,
   } = props;
-
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const intl = useIntl();
   const history = useHistory();
   const classes = useStyles();
@@ -125,7 +82,9 @@ function InitiativeInvestible(props) {
     market_stage: marketStage,
     expiration_minutes: expirationMinutes,
     created_at: createdAt,
+    created_by: createdBy,
     updated_at: updatedAt,
+    market_type: marketType,
   } = market;
   const safeMarketInfos = marketInfos || [];
   const thisMarketInfo = safeMarketInfos.find((info) => info.market_id === marketId);
@@ -195,13 +154,14 @@ function InitiativeInvestible(props) {
         <CardContent className={classes.votingCardContent}>
           <h1>
             {name}
-            {isAdmin && (
-              <EditMarketButton
-                labelId="edit"
-                marketId={marketId}
-                onClick={() => navigate(history, formInvestibleEditLink(marketId, investibleId))}
-              />
-            )}
+            <DialogActions
+              isAdmin={isAdmin}
+              marketStage={marketStage}
+              marketType={marketType}
+              inArchives={myPresence.market_hidden}
+              marketId={marketId}
+              initiativeId={investibleId}
+            />
           </h1>
           <DescriptionOrDiff
             hidden={hidden}
@@ -239,6 +199,8 @@ function InitiativeInvestible(props) {
                 <dd>
                   <Collaborators
                     marketPresences={marketPresences}
+                    authorId={createdBy}
+                    intl={intl}
                   />
                 </dd>
               </div>
@@ -290,20 +252,38 @@ function InitiativeInvestible(props) {
   );
 }
 
-function Collaborators(props) {
-  const { marketPresences } = props;
-
+export function Collaborators(props) {
+  const { marketPresences, authorId, intl } = props;
+  marketPresences.sort(function(a, b) {
+    if (a.id === authorId) return -1;
+    return 0;
+  })
   return (
+    <>
+    <ul>
+    {marketPresences.length === 1 && (
+      <Typography>
+        <Box color="#E85757" m={1}>
+          {intl.formatMessage({ id: 'draft' })}
+        </Box>
+      </Typography>
+    )}
+    </ul>
     <ul>
       {marketPresences.map(presence => {
         const { id: presenceId, name } = presence;
         return (
           <Typography key={presenceId} component="li">
-            {name}
+            {presenceId === authorId ? (
+              <Box fontSize={24} m={1}>
+                {name}
+              </Box>
+            ) : (name)}
           </Typography>
         );
       })}
     </ul>
+    </>
   );
 }
 

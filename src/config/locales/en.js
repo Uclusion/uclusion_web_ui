@@ -165,6 +165,7 @@ const messages = defineMessages({
   votesRequiredInputLabel: 'Number of votes required to move a story to in progress',
   investmentExpiration: 'before votes expire',
   initiativeExpiration: 'before initiative expires',
+  decisionExpiration: 'before dialog expires',
 
   // Market Nav
   marketNavTabContextLabel: 'Context',
@@ -246,7 +247,7 @@ const messages = defineMessages({
   planningVerifiedStageLabel: 'Verified',
   planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'Assignments',
-  planningInvestibleDecision: 'Create Linked Decision',
+  planningInvestibleDecision: 'Create Linked Dialog',
   planningInvestibleCantVote: 'You can\'t vote if you\'re assigned',
   planningInvestibleDescription: '- Description',
   reassignToMove: 'Re-assigning will move into voting.',
@@ -409,6 +410,7 @@ const messages = defineMessages({
   initiativeInvestibleYourVoting: 'Your Vote',
   initiativeInvestibleOthersVoting: 'Current Voting',
   initiativeInvestibleDescription: 'Initiative - Description',
+  dialogDescription: 'Dialog - Description',
   initiativeInvestibleDiscussion: 'Discussion',
 
   // About

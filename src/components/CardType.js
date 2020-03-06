@@ -13,8 +13,10 @@ import IssueIcon from "@material-ui/icons/ReportProblem";
 import QuestionIcon from "@material-ui/icons/ContactSupport";
 import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
 import VotingIcon from "@material-ui/icons/Assessment";
+import GavelIcon from '@material-ui/icons/Gavel';
+import { DECISION_TYPE } from '../constants/markets';
 
-export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE };
+export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, DECISION_TYPE };
 export const VOTING_TYPE = "VOTING";
 
 function NoIcon() {
@@ -30,6 +32,7 @@ const useCardTypeStyles = makeStyles(
           [QUESTION_TYPE]: "#2F80ED",
           [SUGGEST_CHANGE_TYPE]: "#F29100",
           [VOTING_TYPE]: "#9B51E0",
+          [DECISION_TYPE]: "#0B51E0",
           certainty0: "#D54F22",
           certainty25: "#F4AB3B",
           certainty50: "#FCEC69",
@@ -84,6 +87,7 @@ export default function CardType(props) {
     [QUESTION_TYPE]: QuestionIcon,
     [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon,
     [VOTING_TYPE]: VotingIcon,
+    [DECISION_TYPE]: GavelIcon,
     certainty0: NoIcon,
     certainty25: NoIcon,
     certainty50: NoIcon,
@@ -109,6 +113,7 @@ CardType.propTypes = {
     ISSUE_TYPE,
     QUESTION_TYPE,
     SUGGEST_CHANGE_TYPE,
-    VOTING_TYPE
+    VOTING_TYPE,
+    DECISION_TYPE,
   ])
 };

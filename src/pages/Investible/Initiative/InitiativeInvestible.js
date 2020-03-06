@@ -208,32 +208,42 @@ function InitiativeInvestible(props) {
             id={investibleId}
             description={description}
           />
-          <MarketLinks links={children || []} hidden={hidden} />
           <Divider />
-          {!activeMarket && (
-            <ExpiredDisplay
-              expiresDate={updatedAt}
-            />
-          )}
-          {marketPresences && (
-            <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-              <dt>
-                <FormattedMessage id="dialogParticipants" />
-              </dt>
+          <MarketLinks links={children || []} hidden={hidden} />
+          <dl className={metaClasses.root}>
+            <div className={clsx(metaClasses.group, metaClasses.expiration)}>
+              {activeMarket && (
+                <dt>
+                  <FormattedMessage id="initiativeExpiration" />
+                </dt>
+              )}
               <dd>
-                <Collaborators
-                  marketPresences={marketPresences}
-                />
+                {activeMarket ? (
+                  <ExpiresDisplay
+                    createdAt={createdAt}
+                    expirationMinutes={expirationMinutes}
+                    onClick={() => isAdmin && navigate(history, formMarketManageLink(marketId))}
+                  />
+                ) : (
+                  <ExpiredDisplay
+                    expiresDate={updatedAt}
+                  />
+                )}
               </dd>
             </div>
-          )}
-          {activeMarket && (
-            <ExpiresDisplay
-              createdAt={createdAt}
-              expirationMinutes={expirationMinutes}
-              onClick={() => isAdmin && navigate(history, formMarketManageLink(marketId))}
-            />
-          )}
+            {marketPresences && (
+              <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+                <dt>
+                  <FormattedMessage id="dialogParticipants" />
+                </dt>
+                <dd>
+                  <Collaborators
+                    marketPresences={marketPresences}
+                  />
+                </dd>
+              </div>
+            )}
+          </dl>
         </CardContent>
       </Card>
       {!isAdmin && (

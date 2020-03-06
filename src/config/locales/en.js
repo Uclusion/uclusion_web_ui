@@ -164,6 +164,7 @@ const messages = defineMessages({
   daysEstimateInputLabel: 'Very rough number of days to complete these requirements',
   votesRequiredInputLabel: 'Number of votes required to move a story to in progress',
   investmentExpiration: 'before votes expire',
+  initiativeExpiration: 'before initiative expires',
 
   // Market Nav
   marketNavTabContextLabel: 'Context',

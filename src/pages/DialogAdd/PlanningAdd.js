@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import {
   Button,
   Card,
@@ -8,30 +8,85 @@ import {
   CardContent,
   makeStyles,
   TextField,
-  Typography
+  InputAdornment,
+  darken
 } from "@material-ui/core";
+import { KeyboardDatePicker } from "@material-ui/pickers";
+import { addDays, differenceInCalendarDays } from "date-fns";
 import localforage from "localforage";
 import QuillEditor from "../../components/TextEditors/QuillEditor";
 import { createPlanning } from "../../api/markets";
 import { processTextAndFilesForSave } from "../../api/files";
 import { PLANNING_TYPE } from "../../constants/markets";
 import SpinBlockingButton from "../../components/SpinBlocking/SpinBlockingButton";
-import SpinBlockingButtonGroup from "../../components/SpinBlocking/SpinBlockingButtonGroup";
 import { OperationInProgressContext } from "../../contexts/OperationInProgressContext/OperationInProgressContext";
 import { useHistory } from "react-router";
 import queryString from "query-string";
+import CardType, { AGILE_PLAN_TYPE } from "../../components/CardType";
+import clsx from "clsx";
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    padding: theme.spacing(2)
-  },
-  row: {
-    marginBottom: theme.spacing(2),
-    "&:last-child": {
-      marginBottom: 0
+const useStyles = makeStyles(
+  theme => ({
+    adornmentSuffix: {},
+    cardContent: {
+      display: "flex",
+      flexWrap: "wrap",
+      padding: theme.spacing(6),
+      "& > *": {
+        "flex-grow": 1,
+        margin: theme.spacing(1, 0),
+        "&:first-child": {
+          marginTop: 0
+        },
+        "&:last-child": {
+          marginBottom: 0
+        }
+      }
+    },
+    cardType: {
+      display: "inline-flex"
+    },
+    fieldset: {
+      border: "none",
+      display: "inline-block",
+      margin: 0,
+      padding: 0,
+      "& > legend": {},
+      "& > *:not(legend)": {
+        margin: theme.spacing(1)
+      }
+    },
+    fieldsetRequired: {
+      "& > legend": {
+        color: "red" // TODO
+      }
+    },
+    actions: {
+      margin: theme.spacing(1, 0, 0, 0)
+    },
+    actionPrimary: {
+      backgroundColor: "#2D9CDB",
+      color: "black",
+      "&:hover": {
+        backgroundColor: darken("#2D9CDB", 0.04)
+      },
+      "&:focus": {
+        backgroundColor: darken("#2D9CDB", 0.12)
+      }
+    },
+    actionSecondary: {
+      backgroundColor: "#BDBDBD",
+      color: "black",
+      "&:hover": {
+        backgroundColor: darken("#BDBDBD", 0.04)
+      },
+      "&:focus": {
+        backgroundColor: darken("#BDBDBD", 0.12)
+      }
     }
-  }
-}));
+  }),
+  { name: "PlanningAdd" }
+);
 
 function PlanningAdd(props) {
   const intl = useIntl();
@@ -60,7 +115,11 @@ function PlanningAdd(props) {
     storedExpiration || 14
   );
   const [maxBudget, setMaxBudget] = useState(storedBudget || 14);
-  const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
+  const [idealDelivery, setDaysEstimate] = useState(
+    typeof storedDaysEstimate === "number"
+      ? addDays(new Date(), storedDaysEstimate)
+      : null
+  );
   const [votesRequired, setVotesRequired] = useState(storedVotesRequired);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = currentValues;
@@ -123,11 +182,13 @@ function PlanningAdd(props) {
     handleDraftState({ ...draftState, max_budget: valueInt });
   }
 
-  function onDaysEstimateChange(event) {
-    const { value } = event.target;
-    const valueInt = value ? parseInt(value, 10) : null;
-    setDaysEstimate(valueInt);
-    handleDraftState({ ...draftState, days_estimate: valueInt });
+  function onIdealDeliveryChange(date) {
+    setDaysEstimate(date);
+    handleDraftState({
+      ...draftState,
+      days_estimate:
+        date !== null ? differenceInCalendarDays(date, new Date()) : null
+    });
   }
 
   function onVotesRequiredEstimateChange(event) {
@@ -154,8 +215,11 @@ function PlanningAdd(props) {
     if (maxBudget != null) {
       addInfo.max_budget = maxBudget;
     }
-    if (daysEstimate != null) {
-      addInfo.days_estimate = daysEstimate;
+    if (idealDelivery != null) {
+      addInfo.days_estimate = differenceInCalendarDays(
+        idealDelivery,
+        new Date()
+      );
     }
     if (parentInvestibleId) {
       addInfo.parent_investible_id = parentInvestibleId;
@@ -178,93 +242,128 @@ function PlanningAdd(props) {
     });
   }
 
+  // TODO remove
+  console.debug(
+    "estimate: ",
+    idealDelivery && differenceInCalendarDays(idealDelivery, new Date())
+  );
+
   return (
     <Card>
-      <CardContent>
+      <CardType className={classes.cardType} type={AGILE_PLAN_TYPE} />
+      <CardContent className={classes.cardContent}>
         <TextField
-          className={classes.row}
-          inputProps={{ maxLength: 255 }}
-          id="name"
-          helperText={intl.formatMessage({ id: "marketAddTitleLabel" })}
-          placeholder={intl.formatMessage({ id: "marketAddTitleDefault" })}
-          margin="normal"
           fullWidth
-          variant="outlined"
-          value={name}
+          id="agile-plan-name"
+          label={intl.formatMessage({ id: "agilePlanAddTitleLabel" })}
           onChange={handleChange("name")}
+          placeholder={intl.formatMessage({
+            id: "agilePlanAddTitlePlaceholder"
+          })}
+          startAdornment={<InputAdornment>TODO Edit icon</InputAdornment>}
+          value={name}
+          variant="filled"
         />
-        <TextField
-          id="investmentExpiration"
-          label={intl.formatMessage({ id: "investmentExpirationInputLabel" })}
-          type="number"
-          InputLabelProps={{
-            shrink: true
-          }}
-          variant="outlined"
-          value={investmentExpiration}
-          onChange={onInvestmentExpirationChange}
-        />
-        <TextField
-          id="maxBudget"
-          label={intl.formatMessage({ id: "maxMaxBudgetInputLabel" })}
-          type="number"
-          InputLabelProps={{
-            shrink: true
-          }}
-          variant="outlined"
-          value={maxBudget}
-          onChange={onMaxBudgetChange}
-        />
-        <TextField
-          id="daysEstimate"
-          label={intl.formatMessage({ id: "daysEstimateInputLabel" })}
-          type="number"
-          InputLabelProps={{
-            shrink: true
-          }}
-          variant="outlined"
-          onChange={onDaysEstimateChange}
-          value={daysEstimate}
-        />
-        <TextField
-          id="votesRequired"
-          label={intl.formatMessage({ id: "votesRequiredInputLabel" })}
-          type="number"
-          InputLabelProps={{
-            shrink: true
-          }}
-          variant="outlined"
-          onChange={onVotesRequiredEstimateChange}
-          value={votesRequired}
-        />
-        <Typography>{intl.formatMessage({ id: "descriptionEdit" })}</Typography>
         <QuillEditor
           onS3Upload={onS3Upload}
           onChange={onEditorChange}
           onStoreChange={onStorageChange}
           placeHolder={intl.formatMessage({
-            id: "marketAddDescriptionDefault"
+            id: "descriptionEdit"
           })}
           defaultValue={description}
           setOperationInProgress={setOperationRunning}
         />
+        <fieldset className={clsx(classes.fieldset, classes.fieldsetRequired)}>
+          <legend>Required</legend>
+          <TextField
+            id="agile-plan-max-budget"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment className={classes.adornmentSuffix}>
+                  days
+                </InputAdornment>
+              )
+            }}
+            inputProps={{
+              inputMode: "numeric",
+              pattern: "[0-9]*"
+            }}
+            label={intl.formatMessage({
+              id: "agilePlanAddMaxMaxBudgetInputLabel"
+            })}
+            onChange={onMaxBudgetChange}
+            placeholder="14"
+            value={maxBudget}
+            variant="filled"
+          />
+          <TextField
+            InputProps={{
+              endAdornment: (
+                <InputAdornment className={classes.adornmentSuffix}>
+                  days
+                </InputAdornment>
+              )
+            }}
+            id="agile-plan-expiration"
+            label={intl.formatMessage({
+              id: "agilePlanAddInvestmentExpirationLabel"
+            })}
+            type="number"
+            value={investmentExpiration}
+            variant="filled"
+            onChange={onInvestmentExpirationChange}
+          />
+          <TextField
+            helperText={intl.formatMessage({
+              id: "votesRequiredInputHelperText"
+            })}
+            id="agile-plan-votes-required"
+            inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+            label={intl.formatMessage({ id: "votesRequiredInputLabelShort" })}
+            onChange={onVotesRequiredEstimateChange}
+            value={votesRequired}
+            variant="filled"
+          />
+        </fieldset>
+        <fieldset className={classes.fieldset}>
+          <legend>optional</legend>
+          <KeyboardDatePicker
+            clearable
+            disablePast
+            format="yyyy/MM/dd"
+            inputVariant="filled"
+            label={intl.formatMessage({
+              id: "agilePlanAddIdealDeliveryLabel"
+            })}
+            onChange={onIdealDeliveryChange}
+            placeholder={intl.formatMessage({
+              id: "agilePlanAddIdealDeliveryPlaceholder"
+            })}
+            value={idealDelivery}
+          />
+        </fieldset>
       </CardContent>
-      <CardActions>
-        <SpinBlockingButtonGroup>
-          <Button onClick={handleCancel}>
-            {intl.formatMessage({ id: "marketAddCancelLabel" })}
-          </Button>
-          <SpinBlockingButton
-            marketId=""
-            variant="contained"
-            color="primary"
-            onClick={handleSave}
-            disabled={!validForm}
-            onSpinStop={onSpinStop}
-          >
-            {intl.formatMessage({ id: "marketAddSaveLabel" })}
-          </SpinBlockingButton>
-        </SpinBlockingButtonGroup>
+      <CardActions className={classes.action}>
+        <Button
+          className={classes.actionSecondary}
+          color="secondary"
+          onClick={handleCancel}
+          variant="contained"
+        >
+          <FormattedMessage id="marketAddCancelLabel" />
+        </Button>
+        <SpinBlockingButton
+          className={classes.actionPrimary}
+          color="primary"
+          disabled={!validForm}
+          marketId=""
+          onClick={handleSave}
+          onSpinStop={onSpinStop}
+          variant="contained"
+        >
+          <FormattedMessage id="agilePlanAddSaveLabel" />
+        </SpinBlockingButton>
       </CardActions>
     </Card>
   );

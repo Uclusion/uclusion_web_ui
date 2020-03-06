@@ -163,9 +163,23 @@ const messages = defineMessages({
   maxMaxBudgetInputLabel: 'Maximum number of days for story budget',
   daysEstimateInputLabel: 'Very rough number of days to complete these requirements',
   votesRequiredInputLabel: 'Number of votes required to move a story to in progress',
+  votesRequiredInputLabelShort: 'votes required',
+  votesRequiredInputHelperText: 'Number required to move a story to in progress',
   investmentExpiration: 'before votes expire',
   initiativeExpiration: 'before initiative expires',
   decisionExpiration: 'before dialog expires',
+
+  agilePlanAddTitlePlaceholder: 'Name your agile plan',
+  agilePlanAddTitleLabel: 'Name',
+  agilePlanAddFieldsetLabelOptional: 'Optional',
+  agilePlanAddFieldsetLabelRequired: 'Required',
+  agilePlanAddDescriptionPlaceholder: 'Describe your agile plan. Changes will be stored locally until save.',
+  agilePlanAddIdealDeliveryLabel: "Ideal delivery", 
+  agilePlanAddIdealDeliveryPlaceholder: "Pick a Date",   
+  agilePlanAddInvestmentExpirationLabel: 'vote expiration',
+  agilePlanAddMaxMaxBudgetInputLabel: 'story budget',
+  agilePlanAddDaysEstimateInputLabel: 'ideal delivery',
+  agilePlanAddSaveLabel: 'Save & Post',
 
   // Market Nav
   marketNavTabContextLabel: 'Context',
@@ -304,7 +318,7 @@ const messages = defineMessages({
   cardTypeLabelIssue: 'issue present',
   cardTypeLabelQuestion: 'question',
   cardTypeLabelSuggestedChange: 'suggested changes',
-  cardTypeAgilePlane: 'plan requirements',
+  cardTypeAgilePlan: 'plan requirements',
 
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',

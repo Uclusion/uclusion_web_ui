@@ -18,17 +18,16 @@ const useVoteStyles = makeStyles(
         padding: 0
       },
       card: {
-        alignItems: "flex-start",
-        display: "flex",
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "space-between"
+        position: "relative"
       },
       maxBudget: {
         alignItems: "flex-end",
         display: "flex",
         flexDirection: "column",
         margin: theme.spacing(2),
+        position: "absolute",
+        top: 0,
+        right: 0,
         textTransform: "capitalize"
       },
       maxBudgetLabel: {
@@ -42,10 +41,13 @@ const useVoteStyles = makeStyles(
       cardContent: {
         flex: "0 1 100%",
         padding: 0,
-        margin: theme.spacing(0, 2),
+        margin: theme.spacing(2, 2, 0),
         "& .ql-editor": {
           padding: 0
         }
+      },
+      cardType: {
+        display: "inline-block"
       },
       voter: {
         fontSize: 16,
@@ -119,7 +121,10 @@ function Voting(props) {
             component="li"
             id={voteId}
           >
-            <CardType type={`certainty${quantity}`} />
+            <CardType
+              className={classes.cardType}
+              type={`certainty${quantity}`}
+            />
             {maxBudget > 0 && (
               <Typography className={classes.maxBudget} component="div">
                 <div className={classes.maxBudgetLabel}>

@@ -15,7 +15,6 @@ import {
   formMarketManageLink,
   makeArchiveBreadCrumbs,
 } from '../../../utils/marketIdPathFunctions'
-import Summary from '../Summary';
 import ProposedIdeas from './ProposedIdeas';
 import SubSection from '../../../containers/SubSection/SubSection';
 import CurrentVoting from './CurrentVoting';
@@ -27,7 +26,6 @@ import ExpandableSidebarAction from '../../../components/SidebarActions/Expandab
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
-import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
 import UclusionTour from '../../../components/Tours/UclusionTour';
@@ -97,8 +95,6 @@ function DecisionDialog(props) {
     updated_at: updatedAt,
     expiration_minutes: expirationMinutes,
     created_by: createdBy,
-    parent_market_id: parentMarketId,
-    parent_investible_id: parentInvestibleId,
   } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const participantTourSteps = [

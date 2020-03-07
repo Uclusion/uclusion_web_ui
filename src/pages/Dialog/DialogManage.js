@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
 import {
-  makeBreadCrumbs, decomposeMarketPath, formMarketLink, navigate,
-} from '../../utils/marketIdPathFunctions';
+  makeBreadCrumbs, decomposeMarketPath, formMarketLink, navigate, formInvestibleLink,
+} from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
@@ -48,10 +48,18 @@ function DialogManage(props) {
   const { is_admin: isAdmin, following, id: myUserId } = myRealPresence;
   const [investiblesState] = useContext(InvestiblesContext);
   const investibles = getMarketInvestibles(investiblesState, marketId);
-  const loading = !marketType || (marketType !== PLANNING_TYPE && !myPresence);
+  const loading = !marketType || (marketType !== PLANNING_TYPE && !myPresence)
+    || (marketType === INITIATIVE_TYPE && _.isEmpty(investibles));
 
   function onDone() {
-    navigate(history, formMarketLink(marketId));
+    if (marketType === INITIATIVE_TYPE) {
+      const { investible } = investibles[0];
+      const { id } = investible;
+      navigate(history, formInvestibleLink(marketId, id));
+    }
+    else {
+      navigate(history, formMarketLink(marketId));
+    }
   }
 
   function getInitiativeLinkName(baseInvestible) {

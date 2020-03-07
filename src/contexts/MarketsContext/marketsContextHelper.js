@@ -46,7 +46,9 @@ export function getHiddenMarketDetailsForUser(state, marketPresenceState) {
 
 export function addMarketToStorage(dispatch, diffDispatch, marketDetails){
   const fixed = fixupItemForStorage(marketDetails);
-  diffDispatch(addContents([fixed]));
+  if (diffDispatch) {
+    diffDispatch(addContents([fixed]));
+  }
   dispatch(updateMarketDetails([fixed]));
 }
 

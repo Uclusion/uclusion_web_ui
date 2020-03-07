@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { Button } from '@material-ui/core'
@@ -7,6 +7,10 @@ import ExpirationSelector from '../../../components/Expiration/ExpirationSelecto
 import { manageMarket } from '../../../api/markets';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
+import localforage from "localforage"
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -19,6 +23,7 @@ function DeadlineExtender(props) {
   const {
     market, hidden, onCancel
   } = props;
+  const [, marketsDispatch] = useContext(MarketsContext);
   const { id: marketId, expiration_minutes: expirationMinutes } = market;
   const classes = useStyles();
   const intl = useIntl();
@@ -31,7 +36,17 @@ function DeadlineExtender(props) {
 
   function mySave() {
     let newExpirationMinutes = expirationMinutes + extensionPeriod;
-    return manageMarket(marketId, newExpirationMinutes);
+    return manageMarket(marketId, newExpirationMinutes).then((market) => {
+      return {
+        result: market,
+        spinChecker: () => Promise.resolve(true),
+      };
+    });
+  }
+
+  function onSpinStop(market) {
+    addMarketToStorage(marketsDispatch, null, market);
+    return myCancel();
   }
 
   function myCancel() {
@@ -59,6 +74,8 @@ function DeadlineExtender(props) {
           color="primary"
           disabled={extensionPeriod === 0}
           onClick={mySave}
+          onSpinStop={onSpinStop}
+          hasSpinChecker
         >
           {intl.formatMessage({ id: 'deadlineExtenderSave' })}
         </SpinBlockingButton>

@@ -7,10 +7,8 @@ import ExpirationSelector from '../../../components/Expiration/ExpirationSelecto
 import { manageMarket } from '../../../api/markets';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
-import localforage from "localforage"
-import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 const useStyles = makeStyles(() => ({
   hidden: {

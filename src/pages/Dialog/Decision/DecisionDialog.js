@@ -11,7 +11,6 @@ import {
   formMarketAddInvestibleLink,
   makeBreadCrumbs,
   navigate,
-  formMarketManageLink,
   makeArchiveBreadCrumbs,
 } from '../../../utils/marketIdPathFunctions'
 import ProposedIdeas from './ProposedIdeas';

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, Divider, Grid, makeStyles, Typography } from '@material-ui/core'
+import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
 import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
@@ -22,7 +22,6 @@ import {
 } from '../../../utils/marketIdPathFunctions'
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets';
-import AddParticipantsActionButton from '../../Dialog/AddParticipantsActionButton';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import InsertLinkIcon from '@material-ui/icons/InsertLink';
@@ -34,7 +33,8 @@ import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
 import clsx from 'clsx';
 import { useMetaDataStyles } from '../Planning/PlanningInvestible';
 import DialogActions from '../../Home/DialogActions'
-import Box from '@material-ui/core/Box'
+import Box from '@material-ui/core/Box';
+import EditIcon from '@material-ui/icons/Edit';
 
 const useStyles = makeStyles(
   theme => ({
@@ -103,17 +103,12 @@ function InitiativeInvestible(props) {
     setCommentAddHidden(true);
   }
 
-  function toggleAddParticipantsMode() {
-    navigate(history, formMarketManageLink(marketId));
-  }
-
   function getSidebarActions() {
     if (!activeMarket) {
       return [];
     }
     const sidebarActions = [];
 
-    sidebarActions.push(<AddParticipantsActionButton key="addParticipants" onClick={toggleAddParticipantsMode} />);
     sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
     sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
     sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
@@ -182,7 +177,9 @@ function InitiativeInvestible(props) {
                   <ExpiresDisplay
                     createdAt={createdAt}
                     expirationMinutes={expirationMinutes}
-                    onClick={() => isAdmin && navigate(history, formMarketManageLink(marketId))}
+                    showEdit={isAdmin}
+                    history={history}
+                    marketId={marketId}
                   />
                 ) : (
                   <ExpiredDisplay
@@ -215,6 +212,8 @@ function InitiativeInvestible(props) {
                     marketPresences={marketPresences}
                     authorId={createdBy}
                     intl={intl}
+                    marketId={marketId}
+                    history={history}
                   />
                 </dd>
               </div>
@@ -268,41 +267,48 @@ function InitiativeInvestible(props) {
 }
 
 export function Collaborators(props) {
-  const { marketPresences, authorId, intl, authorDisplay } = props;
+  const { marketPresences, authorId, intl, authorDisplay, history, marketId } = props;
   marketPresences.sort(function(a, b) {
     if (a.id === authorId) return -1;
     return 0;
   })
   return (
-    <>
+    <ul>
       {authorDisplay && (
-        <ul>
-            <Typography key={marketPresences[0].id} component="li">
-              {marketPresences[0].name}
-            </Typography>
-        </ul>
+        <Typography key={marketPresences[0].id} component="li">
+          {marketPresences[0].name}
+        </Typography>
       )}
-      <ul>
-        {!authorDisplay && marketPresences.map(presence => {
-          const { id: presenceId, name } = presence;
-          if (presenceId === authorId ) {
-            return <React.Fragment/>;
-          }
-          return (
-            <Typography key={presenceId} component="li">
-              {name}
-            </Typography>
-          );
-        })}
-        {!authorDisplay && marketPresences.length === 1 && (
-          <Typography>
-            <Box color="#E85757" m={1}>
-              {intl.formatMessage({ id: 'draft' })}
-            </Box>
+      {!authorDisplay && marketPresences.map(presence => {
+        const { id: presenceId, name } = presence;
+        if (presenceId === authorId ) {
+          return <React.Fragment/>;
+        }
+        return (
+          <Typography key={presenceId} component="li">
+            {name}
           </Typography>
-        )}
-      </ul>
-    </>
+        );
+      })}
+      {!authorDisplay && marketPresences.length === 1 && (
+        <Typography>
+          <Box color="#E85757" m={1}>
+            {intl.formatMessage({ id: 'draft' })}
+          </Box>
+        </Typography>
+      )}
+      {!authorDisplay && (
+        <Tooltip
+          title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
+        >
+          <IconButton
+            onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
+          >
+            <EditIcon />
+          </IconButton>
+        </Tooltip>
+      )}
+    </ul>
   );
 }
 

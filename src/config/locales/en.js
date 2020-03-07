@@ -391,9 +391,9 @@ const messages = defineMessages({
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
-  dialogManageLabel: 'Manage Dialog',
+  dialogAddParticipantsLabel: 'Add Collaborators',
+  dialogEditExpiresLabel: 'Add Time',
   inviteParticipantsEmailLabel: 'Email address for Uclusion to send to',
-  initiativeManageLabel: 'Manage Initiative',
 
   // DecisionIvestibleSave
   decisionInvestibleSaveAddAnother: 'Save and add Another',
@@ -446,7 +446,7 @@ const messages = defineMessages({
 
   // expiration extender
   deadlineExtenderSave: 'Modify',
-  deadlineExtenderCancel: 'Clear',
+  deadlineExtenderCancel: 'Close',
   allowMultiVote: 'Can Dialog participants vote for more than one option?',
 
   // invite linker

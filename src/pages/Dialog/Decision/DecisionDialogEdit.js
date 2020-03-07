@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
-} from '@material-ui/core';
+  Button, Card, CardActions, CardContent, Checkbox, makeStyles, TextField, Typography,
+} from '@material-ui/core'
 import localforage from 'localforage';
+import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import { updateMarket } from '../../../api/markets';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
@@ -31,7 +32,7 @@ function DecisionDialogEdit(props) {
     market,
     storedState,
   } = props;
-  const { id, name: initialMarketName } = market;
+  const { id, name: initialMarketName, allow_multi_vote: allowMultiVote, description: initialDescription } = market;
   const { description: storedDescription, name: storedName } = storedState;
   const intl = useIntl();
   const classes = useStyles();
@@ -39,9 +40,14 @@ function DecisionDialogEdit(props) {
   const [draftState, setDraftState] = useState(storedState);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = mutableMarket;
-  const [description, setDescription] = useState(storedDescription || mutableMarket.description);
+  const [description, setDescription] = useState(storedDescription || initialDescription);
   const [validForm, setValidForm] = useState(true);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [multiVote, setMultiVote] = useState(allowMultiVote);
+
+  function toggleMultiVote() {
+    setMultiVote(!multiVote);
+  }
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -75,7 +81,12 @@ function DecisionDialogEdit(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, description);
-    return updateMarket(id, name, tokensRemoved, filteredUploads)
+    const updatedMultiVote = allowMultiVote !== multiVote ? multiVote : null;
+    const updatedName = name !== initialMarketName ? name : null;
+    const updatedDescription = description !== initialDescription ? tokensRemoved : null;
+    const updatedFilteredUploads = _.isEmpty(uploadedFiles) ? filteredUploads : null;
+    return updateMarket(id, updatedName, updatedDescription, updatedFilteredUploads, null,
+      null, null, null, updatedMultiVote)
       .then((market) => {
         return {
           result: market,
@@ -102,6 +113,15 @@ function DecisionDialogEdit(props) {
   return (
     <Card>
       <CardContent>
+        <Typography>
+          {intl.formatMessage({ id: 'allowMultiVote' })}
+          <Checkbox
+            id="multiVote"
+            name="multiVote"
+            checked={multiVote}
+            onChange={toggleMultiVote}
+          />
+        </Typography>
         <TextField
           className={classes.row}
           inputProps={{ maxLength: 255 }}

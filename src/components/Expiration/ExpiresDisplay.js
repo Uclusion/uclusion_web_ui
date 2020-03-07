@@ -3,6 +3,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import * as moment from 'moment';
 import { useIntl } from 'react-intl';
+import { IconButton, Tooltip } from '@material-ui/core'
+import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
+import EditIcon from '@material-ui/icons/Edit'
 
 const ONE_MINUTE = 60000;
 const THIRTY_MINUTES = 1800000;
@@ -77,7 +80,7 @@ function describeArc(x, y, radius, startAngle, endAngle) {
 function ExpiresDisplay(props) {
   const classes = useStyles();
   const intl = useIntl();
-  const { createdAt, expirationMinutes, onClick } = props;
+  const { createdAt, expirationMinutes, history, marketId, showEdit } = props;
   const [now, setNow] = useState(new Date());
   const expiresDurationMillis = expirationMinutes * 60000;
   const createdAtMillis = createdAt.getTime();
@@ -137,7 +140,6 @@ function ExpiresDisplay(props) {
     <div className={classes.countdownWrapper}>
       {shouldDisplay && (
         <div
-          onClick={onClick}
           className={classes.countdownItem}
         >
           <svg className={classes.countdownSvg}>
@@ -156,6 +158,17 @@ function ExpiresDisplay(props) {
           </svg>
             {getDisplayText()}
         </div>
+      )}
+      {showEdit && (
+        <Tooltip
+          title={intl.formatMessage({ id: 'dialogEditExpiresLabel' })}
+        >
+          <IconButton
+            onClick={() => navigate(history, `${formMarketManageLink(marketId)}#expires=true`)}
+          >
+            <EditIcon />
+          </IconButton>
+        </Tooltip>
       )}
     </div>
   );

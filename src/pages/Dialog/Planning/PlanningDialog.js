@@ -9,7 +9,7 @@ import { Grid, Typography } from '@material-ui/core';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import ListSubheader from '@material-ui/core/ListSubheader';
-import Summary from '../Summary';
+import Summary from './Summary';
 import PlanningIdeas from './PlanningIdeas';
 import Screen from '../../../containers/Screen/Screen';
 import {

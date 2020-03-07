@@ -20,22 +20,28 @@ export function getMarketDetails(marketId) {
         }))));
 }
 
-export function manageMarket(marketId, expirationMinutes, allowMultiVote) {
+export function manageMarket(marketId, expirationMinutes) {
   const updateOptions = { };
   if (expirationMinutes !== undefined) {
     updateOptions.expiration_minutes = expirationMinutes;
-  }
-  if (allowMultiVote !== undefined) {
-    updateOptions.allow_multi_vote = allowMultiVote;
   }
   return getMarketClient(marketId)
     .then((client) => client.markets.updateMarket(updateOptions))
     .catch((error) => toastErrorAndThrow(error, 'errorMarketExpirationExtendFailed'));
 }
 
-export function updateMarket(marketId, name, description, uploaded_files, maxBudget,
-  investmentExpiration, daysEstimate, votesRequired) {
-  const updateOptions = { name, description, uploaded_files };
+export function updateMarket(marketId, name, description, uploadedFiles, maxBudget,
+  investmentExpiration, daysEstimate, votesRequired, allowMultiVote) {
+  const updateOptions = {};
+  if (name != null) {
+    updateOptions.name = name;
+  }
+  if (description != null) {
+    updateOptions.description = description;
+  }
+  if (uploadedFiles != null) {
+    updateOptions.uploaded_files = uploadedFiles;
+  }
   if (maxBudget != null) {
     updateOptions.max_budget = maxBudget;
   }
@@ -47,6 +53,9 @@ export function updateMarket(marketId, name, description, uploaded_files, maxBud
   }
   if (votesRequired != null) {
     updateOptions.votes_required = votesRequired;
+  }
+  if (allowMultiVote !== null) {
+    updateOptions.allow_multi_vote = allowMultiVote;
   }
   // console.debug(`Updating market ${marketId}`);
   // console.debug(updateOptions);

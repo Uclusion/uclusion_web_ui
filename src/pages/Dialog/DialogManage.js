@@ -9,7 +9,7 @@ import {
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import ManageParticipants from './Planning/ManageParticipants';
 import AddressList from './AddressList';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -22,17 +22,23 @@ import {
   PURE_SIGNUP_ADD_PEOPLE_STEPS,
   PURE_SIGNUP_FAMILY_NAME
 } from '../../components/Tours/pureSignupTours';
+import queryString from 'query-string'
+import { Typography } from '@material-ui/core'
+import DeadlineExtender from './Decision/DeadlineExtender'
 
 function DialogManage(props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
   const { location } = history;
-  const { pathname } = location;
+  const { pathname, hash } = location;
+  const values = queryString.parse(hash || '');
+  const { expires, participation } = values || {};
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const renderableMarket = getMarket(marketsState, marketId) || {};
-  const { market_type: marketType } = renderableMarket;
+  const { market_type: marketType, market_stage: marketStage } = renderableMarket;
+  const active = marketStage === ACTIVE_STAGE;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const manageVerbiage = intl.formatMessage({ id: 'manage' });
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -67,7 +73,7 @@ function DialogManage(props) {
       breadCrumbs={myBreadCrumbs}
       loading={loading}
     >
-      {marketType === DECISION_TYPE && myPresence && (
+      {participation && marketType === DECISION_TYPE && myPresence && (
         <div id="decisionAddressList">
           <UclusionTour
             name={PURE_SIGNUP_ADD_PEOPLE}
@@ -86,6 +92,17 @@ function DialogManage(props) {
           />
         </div>
       )}
+      {marketType !== PLANNING_TYPE && expires && isAdmin && active && (
+        <>
+          <Typography>
+            {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
+          </Typography>
+          <DeadlineExtender
+            market={renderableMarket}
+            onCancel={onDone}
+          />
+        </>
+      )}
       {marketType === PLANNING_TYPE && (
         <ManageParticipants
           market={renderableMarket}
@@ -95,7 +112,7 @@ function DialogManage(props) {
           onSave={onDone}
         />
       )}
-      {marketType === INITIATIVE_TYPE && myPresence && (
+      {participation && marketType === INITIATIVE_TYPE && myPresence && (
         <AddressList
           market={renderableMarket}
           isAdmin={isAdmin}

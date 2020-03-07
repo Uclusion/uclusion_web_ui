@@ -7,7 +7,6 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router';
 import { Card, CardContent, Divider, Grid, makeStyles } from '@material-ui/core'
 import AddIcon from '@material-ui/icons/Add';
-import EditAttributesIcon from '@material-ui/icons/EditAttributes';
 import {
   formMarketAddInvestibleLink,
   makeBreadCrumbs,
@@ -26,7 +25,6 @@ import ExpandableSidebarAction from '../../../components/SidebarActions/Expandab
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
-import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
 import UclusionTour from '../../../components/Tours/UclusionTour';
 import {
@@ -124,31 +122,13 @@ function DecisionDialog(props) {
     setCommentAddHidden(true);
   }
 
-  function toggleAddParticipantsMode() {
-    navigate(history, formMarketManageLink(marketId));
-  }
-
   function commentButtonOnClick(type) {
     setCommentAddType(type);
     setCommentAddHidden(false);
     scrollToCommentAddBox(commentAddRef);
   }
 
-  const manageDialog = {
-    label: intl.formatMessage({ id: 'dialogManageLabel' }),
-    id: 'manageDialog',
-    icon: <EditAttributesIcon />,
-    onClick: () => toggleAddParticipantsMode(),
-  };
-
-  const addParticipants = {
-    label: intl.formatMessage({ id: 'dialogManageLabel' }),
-    icon: <GroupAddIcon />,
-    onClick: () => toggleAddParticipantsMode(),
-  };
-  const manageAction = isAdmin ? manageDialog : addParticipants;
-
-  const sidebarMenuList = [manageAction];
+  const sidebarMenuList = [];
   if (activeMarket) {
     if (isParticipant) {
       sidebarMenuList.unshift({
@@ -243,7 +223,9 @@ function DecisionDialog(props) {
                   <ExpiresDisplay
                     createdAt={createdAt}
                     expirationMinutes={expirationMinutes}
-                    onClick={() => isAdmin && navigate(history, formMarketManageLink(marketId))}
+                    showEdit={isAdmin}
+                    history={history}
+                    marketId={marketId}
                   />
                 ) : (
                   <ExpiredDisplay
@@ -276,6 +258,8 @@ function DecisionDialog(props) {
                     marketPresences={marketPresences}
                     authorId={createdBy}
                     intl={intl}
+                    marketId={marketId}
+                    history={history}
                   />
                 </dd>
               </div>

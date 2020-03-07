@@ -20,7 +20,6 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import { addParticipants, inviteParticipants } from '../../api/users';
 import InviteLinker from './InviteLinker';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import DeadlineExtender from './Decision/DeadlineExtender';
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
 import ChangeToObserverButton from './ChangeToObserverButton';
 import ChangeToParticipantButton from './ChangeToParticipantButton';
@@ -223,16 +222,6 @@ function AddressList(props) {
 
   return (
     <div>
-      {isAdmin && active && (
-        <>
-          <Typography>
-            {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
-          </Typography>
-          <DeadlineExtender
-            market={market}
-          />
-        </>
-      )}
       {!isAdmin && active && marketType === DECISION_TYPE && following && (
         <ChangeToObserverButton
           marketId={addToMarketId}

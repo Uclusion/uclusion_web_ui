@@ -1,27 +1,34 @@
 import _ from 'lodash';
 import { PRODUCT_TIER_FREE } from '../../constants/billing';
-import { accountRefresh } from './accountContextReducer';
+import { accountRefresh, billingInfoRefresh } from './accountContextReducer';
 
 export function canCreate(state) {
-  if (_.isEmpty(state)) {
+  if (_.isEmpty(state.account)) {
     return false;
   }
-  const { tier } = state;
+  const { tier } = state.account;
   return tier !== PRODUCT_TIER_FREE;
 }
 
 export function getTier(state) {
-  if (_.isEmpty(state)) {
+  if (_.isEmpty(state.account)) {
     return undefined;
   }
-  return state.tier;
+  return state.account.tier;
 }
 
 export function getId(state) {
-  if (_.isEmpty(state)) {
+  if (_.isEmpty(state.account)) {
     return undefined;
   }
-  return state.id;
+  return state.account.id;
+}
+
+export function getCurrentBillingInfo(state) {
+  if (_.isEmpty(state.billingInfo)){
+    return undefined;
+  }
+  return state.billingInfo;
 }
 
 
@@ -41,6 +48,10 @@ function fixDates (account) {
     updated_at: fixDate(account, 'updated_at'),
   };
   return fixedState;
+}
+
+export function updateBilling(dispatch, billingInfo) {
+  dispatch(billingInfoRefresh(billingInfo));
 }
 
 export function updateAccount(dispatch, account) {

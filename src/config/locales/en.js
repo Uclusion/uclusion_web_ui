@@ -544,14 +544,14 @@ const messages = defineMessages({
   spinVersionCheckError: 'There was an error checking if the operation was successful. Please reload the page',
 
   //upgradeMenu
-  upgradeMenuItem: 'Upgrade',
+  billingMenuItem: 'Manage Subscription',
 
 
   // upgrade form
   upgradeFormCardName: 'Cardholder Name',
   upgradeFormCardPhone: 'Cardholder Phone Number',
   upgradeFormCardEmail: 'Cardholder Email',
-  upgradeFormUpgradeLabel: 'Upgrade',
+  upgradeFormUpgradeLabel: 'Update Card',
 
 
   // API errors

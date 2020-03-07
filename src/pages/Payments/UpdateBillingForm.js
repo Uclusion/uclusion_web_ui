@@ -1,13 +1,21 @@
 // cribbed from stripe example
 // https://github.com/stripe/react-stripe-js/blob/90b7992c5232de7312d0fcc226541b62db95017b/examples/hooks/1-Card-Detailed.js
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
-import { TextField } from '@material-ui/core';
+import { Paper, TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import Grid from '@material-ui/core/Grid';
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 import { makeStyles } from '@material-ui/core/styles';
+import { AccountContext } from '../../contexts/AccountContext/AccountContext';
+import { getPaymentInfo, updatePaymentInfo } from '../../api/users';
+import {
+  updateBilling,
+  updateAccount,
+  getCurrentBillingInfo
+} from '../../contexts/AccountContext/accountContextHelper';
 // this is used to style the Elements Card component
 const CARD_OPTIONS = {
   iconStyle: 'solid',
@@ -28,7 +36,6 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-
 const EMPTY_DETAILS = { name: '', email: '', phone: '' };
 
 function UpdateBillingForm (props) {
@@ -40,15 +47,25 @@ function UpdateBillingForm (props) {
   const elements = useElements();
   const intl = useIntl();
 
+  const [accountState, accountDispatch] = useContext(AccountContext);
   const [cardComplete, setCardComplete] = useState(false);
   // we have to manage our own processing state because it's a form submit
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
   const [billingDetails, setBillingDetails] = useState(EMPTY_DETAILS);
+  const billingDetailsValid = !_.isEmpty(billingDetails.name)
+    && !_.isEmpty(billingDetails.email)
+    && !_.isEmpty(billingDetails.phone);
+  const billingInfo = getCurrentBillingInfo(accountState);
+  const validForm = stripe && elements && cardComplete && !error && billingDetailsValid;
 
-  const validForm = stripe && elements && cardComplete && !error;
+  function resetForm () {
+    setError(null);
+    setProcessing(false);
+    setBillingDetails(EMPTY_DETAILS);
+  }
 
-  async function onSubmit (e) {
+  function onSubmit (e) {
     e.preventDefault();
     if (!stripe || !elements) {
       return; //abort
@@ -61,26 +78,26 @@ function UpdateBillingForm (props) {
       setProcessing(true);
     }
 
-    const paymentResult = await stripe.createPaymentMethod(({
+    return stripe.createPaymentMethod(({
       type: 'card',
       card: elements.getElement(CardElement),
       billing_details: billingDetails
-    }));
-
-    if (paymentResult.error) {
-      setError(paymentResult.error);
+    })).then((paymentResult) => {
+      return updatePaymentInfo(paymentResult.paymentMethod.id,)
+        .then((upgradedAccount) => {
+          updateAccount(accountDispatch, upgradedAccount);
+          return getPaymentInfo();
+        }).then((info) => {
+          updateBilling(accountDispatch, info);
+          resetForm();
+          onUpdate();
+        });
+    }).catch((e) => {
+      setError(e.error || e.error_message);
       setProcessing(false);
-    } else {
-      onUpdate(paymentResult.paymentMethod)
-    }
+    });
   }
 
-/*  function resetForm () {
-    setError(null);
-    setProcessing(false);
-    setBillingDetails(EMPTY_DETAILS);
-  }
-*/
   function onBillingDetailsChange (name) {
     return (event) => {
       const { target: { value } } = event;
@@ -96,8 +113,41 @@ function UpdateBillingForm (props) {
     setCardComplete(e.complete);
   }
 
+  function renderCurrentBillingInfo () {
+    if (_.isEmpty(billingInfo)) {
+      return <React.Fragment/>;
+    }
+
+    const cardInfos = billingInfo.map(cardInfo => {
+      const {
+        brand,
+        last4,
+        exp_month: expMonth,
+        exp_year: expYear
+      } = cardInfo;
+      return (
+        <Typography>
+          {brand}: ****-{last4} {expMonth}/{expYear}
+        </Typography>
+      );
+    });
+
+    return (
+      <Paper>
+        <Typography>
+          Current Cards:
+        </Typography>
+        {cardInfos}
+      </Paper>
+    );
+  }
+
   return (
     <div>
+      {renderCurrentBillingInfo()}
+      <div>
+        Error Info: {error}
+      </div>
       <form
         className={classes.form}
         autoComplete="off"
@@ -130,6 +180,7 @@ function UpdateBillingForm (props) {
               id="email"
               name="email"
               type="email"
+              value={billingDetails.email}
               autoComplete="email"
               label={intl.formatMessage({ id: 'upgradeFormCardEmail' })}
               onChange={onBillingDetailsChange('email')}
@@ -143,6 +194,7 @@ function UpdateBillingForm (props) {
               id="phone"
               name="phone"
               type="tel"
+              value={billingDetails.phone}
               autoComplete="tel"
               label={intl.formatMessage({ id: 'upgradeFormCardPhone' })}
               onChange={onBillingDetailsChange('phone')}

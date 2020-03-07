@@ -7,8 +7,9 @@ import { PRODUCT_TIER_FREE, PRODUCT_TIER_STANDARD } from '../../constants/billin
 import { canCreate, getTier, updateAccount } from '../../contexts/AccountContext/accountContextHelper';
 import { startSubscription } from '../../api/users';
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
+import UpdateBillingForm from './UpdateBillingForm';
 
-function UpgradeHome(props){
+function BillingHome(props){
   const { hidden } = props;
 
   const [accountState, accountDispatch] = useContext(AccountContext);
@@ -17,14 +18,12 @@ function UpgradeHome(props){
 
   const upgradable = tier === PRODUCT_TIER_FREE;
 
-
   function beginSubscription() {
     return startSubscription(PRODUCT_TIER_STANDARD)
       .then((upgradedAccount) => {
         updateAccount(accountDispatch, upgradedAccount);
       })
   }
-
   return (
     <Screen
       hidden={hidden}
@@ -44,15 +43,16 @@ function UpgradeHome(props){
           Begin Subscription
         </ApiBlockingButton>
       )}
+      {<UpdateBillingForm/>}
     </Screen>
   );
 }
 
-UpgradeHome.propTypes = {
+BillingHome.propTypes = {
   hidden: PropTypes.bool,
 };
 
-UpgradeHome.defaultProps = {
+BillingHome.defaultProps = {
   hidden: false,
 };
-export default UpgradeHome;
+export default BillingHome;

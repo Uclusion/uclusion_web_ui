@@ -1,5 +1,13 @@
 const REFRESH_ACCOUNT = 'REFRESH_ACCOUNT';
 const CLEAR_ACCOUNT = 'CLEAR_ACCOUNT';
+const REFRESH_BILLING_INFO = 'REFRESH_BILLING_INFO';
+
+export function billingInfoRefresh(billingInfo) {
+  return {
+    type: REFRESH_BILLING_INFO,
+    billingInfo,
+  }
+}
 
 export function accountRefresh(account) {
   return {
@@ -17,11 +25,22 @@ export function clearAccount() {
 // functions that mutate the state;
 function doAccountRefresh(state, action) {
   const { account } = action;
-  return account;
+  return {
+    ...state,
+    account,
+  };
 }
 
 function doAccountClear(state, action) {
   return {};
+}
+
+function doBillingInfoRefresh(state, action) {
+  const { billingInfo } = action;
+  return {
+    ...state,
+    billingInfo,
+  };
 }
 
 export function reducer(state, action) {
@@ -31,6 +50,8 @@ export function reducer(state, action) {
       return doAccountRefresh(state, action);
     case CLEAR_ACCOUNT:
       return doAccountClear(state, action);
+    case REFRESH_BILLING_INFO:
+      return doBillingInfoRefresh(state, action);
     default:
       return state;
   }

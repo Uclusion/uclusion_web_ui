@@ -70,7 +70,7 @@ function DialogAdd(props) {
             navigate(history, formMarketAddInvestibleLink(result));
           }
           else if (type === INITIATIVE_TYPE) {
-            navigate(history, formMarketManageLink(result));
+            navigate(history, `${formMarketManageLink(result)}#expires=true`);
           }
           else {
             navigate(history, formMarketLink(result));

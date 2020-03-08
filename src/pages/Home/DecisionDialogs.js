@@ -127,7 +127,9 @@ function DecisionDialogs(props) {
                     <ExpiresDisplay
                       createdAt={createdAt}
                       expirationMinutes={expirationMinutes}
-                      onClick={() => isAdmin && navigate(history, formMarketManageLink(marketId))}
+                      showEdit={isAdmin}
+                      history={history}
+                      marketId={marketId}
                     />
                   )}
                 </Grid>

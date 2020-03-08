@@ -35,3 +35,11 @@ export function marketHasOnlyCurrentUser(state, marketId){
   // hence if you have more than one, then you have somebody else.
   return presences.length === 1;
 }
+
+export function marketHasOnlyApprovers(state, marketId){
+  const presences = getMarketPresences(state, marketId);
+  if (!presences) {
+    return false;
+  }
+  return !presences.find((presence) => presence.following);
+}

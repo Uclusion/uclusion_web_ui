@@ -8,9 +8,9 @@ import {
 import { makeStyles } from '@material-ui/styles';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
-  getMarketPresences,
+  getMarketPresences, marketHasOnlyApprovers,
   marketHasOnlyCurrentUser
-} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DialogActions from '../../Home/DialogActions';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import ParentSummary from '../ParentSummary';
@@ -68,6 +68,7 @@ function Summary(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const isDraft = marketHasOnlyCurrentUser(marketPresencesState, id);
+  const isChannel = marketHasOnlyApprovers(marketPresencesState, id);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
 
@@ -112,33 +113,37 @@ function Summary(props) {
           description={description}
         />
       </div>
-      <TextField
-        className={classes.row}
-        disabled
-        id="maxBudget"
-        label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
-        margin="normal"
-        variant="outlined"
-        value={maxBudget}
-      />
-      <TextField
-        className={classes.row}
-        disabled
-        id="investmentExpiration"
-        label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
-        margin="normal"
-        variant="outlined"
-        value={investmentExpiration}
-      />
-      <TextField
-        className={classes.row}
-        disabled
-        id="daysEstimate"
-        label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
-        margin="normal"
-        variant="outlined"
-        value={daysEstimate}
-      />
+      {!isChannel && (
+        <>
+          <TextField
+            className={classes.row}
+            disabled
+            id="maxBudget"
+            label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
+            margin="normal"
+            variant="outlined"
+            value={maxBudget}
+          />
+          <TextField
+            className={classes.row}
+            disabled
+            id="investmentExpiration"
+            label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
+            margin="normal"
+            variant="outlined"
+            value={investmentExpiration}
+          />
+          <TextField
+            className={classes.row}
+            disabled
+            id="daysEstimate"
+            label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
+            margin="normal"
+            variant="outlined"
+            value={daysEstimate}
+          />
+        </>
+      )}
       {!_.isEmpty(marketPresencesObserving) && (
         <Grid
           container

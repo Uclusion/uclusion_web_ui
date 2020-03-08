@@ -1,7 +1,7 @@
 /**
  * A component that renders a _planning_ dialog
  */
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react'
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -31,6 +31,8 @@ import ManageParticipantsActionButton from './ManageParticipantsActionButton';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import { getUserInvestibles } from './userUtils';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { marketHasOnlyApprovers } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -56,6 +58,8 @@ function PlanningDialog(props) {
   const [commentAddHidden, setCommentAddHidden] = useState(true);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const isChannel = marketHasOnlyApprovers(marketPresencesState, marketId);
 
   let lockedByName;
   if (lockedBy) {
@@ -225,14 +229,16 @@ function PlanningDialog(props) {
             )}
           </SubSection>
         </Grid>
-        <Grid item xs={12}>
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'planningDialogPeopleLabel' })}
-          >
-            {getInvestiblesByPerson(investibles, marketPresences)}
-          </SubSection>
-        </Grid>
+        {!isChannel && (
+          <Grid item xs={12}>
+            <SubSection
+              type={SECTION_TYPE_SECONDARY}
+              title={intl.formatMessage({ id: 'planningDialogPeopleLabel' })}
+            >
+              {getInvestiblesByPerson(investibles, marketPresences)}
+            </SubSection>
+          </Grid>
+        )}
         <Grid item xs={12}>
           <SubSection
             type={SECTION_TYPE_SECONDARY}

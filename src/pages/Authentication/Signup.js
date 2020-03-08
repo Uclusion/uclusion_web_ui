@@ -102,7 +102,7 @@ function Signup(props) {
       // we came here by some other link and need to log in
       redirect = pathname;
       if (hash) {
-        redirect += `#${hash}`;
+        redirect += hash;
       }
     }
     return redirect;

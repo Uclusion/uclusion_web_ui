@@ -14,6 +14,7 @@ import {
 import DialogActions from '../../Home/DialogActions';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import ParentSummary from '../ParentSummary';
+import MarketLinks from '../MarketLinks'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -64,6 +65,7 @@ function Summary(props) {
     max_budget: maxBudget,
     investment_expiration: investmentExpiration,
     days_estimate: daysEstimate,
+    children,
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
@@ -169,6 +171,7 @@ function Summary(props) {
         </Grid>
       )}
       <ParentSummary market={market} hidden={hidden}/>
+      <MarketLinks links={children || []} hidden={hidden} />
     </Paper>
   );
 }

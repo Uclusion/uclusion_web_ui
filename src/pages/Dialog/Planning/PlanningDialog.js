@@ -18,7 +18,7 @@ import {
   makeBreadCrumbs,
   navigate,
 } from '../../../utils/marketIdPathFunctions';
-import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import SubSection from '../../../containers/SubSection/SubSection';
@@ -26,13 +26,16 @@ import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import ViewArchiveActionButton from './ViewArchivesActionButton';
 import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
-import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets';
+import { ACTIVE_STAGE, DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets'
 import ManageParticipantsActionButton from './ManageParticipantsActionButton';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import { getUserInvestibles } from './userUtils';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { marketHasOnlyApprovers } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
+import InsertLinkIcon from '@material-ui/icons/InsertLink'
+import SuggestChanges from '../../../components/SidebarActions/SuggestChanges'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -56,7 +59,7 @@ function PlanningDialog(props) {
   const marketComments = comments.filter(comment => !comment.investible_id);
   const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
   const [commentAddHidden, setCommentAddHidden] = useState(true);
-  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
+  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const isChannel = marketHasOnlyApprovers(marketPresencesState, marketId);
@@ -200,6 +203,14 @@ function PlanningDialog(props) {
       <ViewArchiveActionButton key="archives" marketId={marketId} />,
       <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
       <AskQuestions key="question" onClick={commentButtonOnClick} />,
+      <SuggestChanges key="suggest" onClick={commentButtonOnClick} />,
+      <ExpandableSidebarAction
+        id="link"
+        key="link"
+        icon={<InsertLinkIcon />}
+        label={intl.formatMessage({ id: 'planningInvestibleDecision' })}
+        onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${marketId}`)}
+      />,
     ];
   }
 

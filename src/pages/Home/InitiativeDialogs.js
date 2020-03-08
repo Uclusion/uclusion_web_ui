@@ -12,7 +12,7 @@ import {
   marketHasOnlyCurrentUser
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { formMarketLink, formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';

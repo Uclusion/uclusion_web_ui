@@ -43,7 +43,9 @@ function NotificationsProvider(props) {
       lfg.getState()
         .then((state) => {
           if (state) {
-            dispatch(initializeState(state));
+            const { messages } = state;
+            //We don't want to load up page or lastPage from disk
+            dispatch(initializeState({messages}));
           }
         });
       beginListening(dispatch);
@@ -54,72 +56,78 @@ function NotificationsProvider(props) {
   }, [isInitialization]);
 
   useEffect(() => {
-    if (page && !_.isEmpty(messages)) {
-      const isOldPage = _.isEqual(page, lastPage);
-      console.debug(`is old page is ${isOldPage}`);
-      const filtered = messages.filter((message) => {
-        const { marketId, investibleId, action } = page;
-        const {
-          marketId: messageMarketId,
-          investibleId: messageInvestibleId,
-          level,
-          commentId,
-          associatedUserId,
-          pokeType,
-        } = message;
-        const doRemove = (!_.isEmpty(messageMarketId) && marketId === messageMarketId && investibleId === messageInvestibleId)
-          || (pokeType === 'slack_reminder' && action === 'notificationPreferences')
-          || (pokeType === 'upgrade_reminder' && action === 'upgrade');
-        if (doRemove) {
-          if (commentId) {
-            highlightedCommentDispatch({ type: HIGHTLIGHT_ADD, commentId, level });
-          }
-          if (associatedUserId) {
-            highlightedVotingDispatch({ type: HIGHTLIGHT_ADD, associatedUserId, level });
-          }
+    if (page) {
+      const isOldPage = lastPage !== undefined && _.isEqual(page, lastPage);
+      console.debug(`is old page is ${isOldPage} and ${page.marketId} and ${page.investibleId}`);
+      if (_.isEmpty(messages)) {
+        if (!isOldPage) {
+          dispatch(processedPage(page));
         }
-        return doRemove;
-      });
-      dispatch(processedPage(page, filtered));
-      AllSequentialMap(filtered, (message) => deleteMessage(message));
-      const message = filtered.pop();
-      if (message) {
-        const {
-          marketId,
-          investibleId,
-          text,
-          level,
-          aType,
-          commentId,
-        } = message;
-        // Sadly intl not available here TODO - Fix
-        const myText = filtered.length > 0 ? 'Multiple Updates' : text;
-        const diffId = commentId || investibleId || marketId;
-        // Do not toast a non red unread as already have diff and dismiss - unless is new
-        // Do toast if the page hasn't changed since will not scroll in that case and need toast if want to scroll
-        const shouldToast = isOldPage || (level === 'RED') || (!commentId &&
-          (aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)));
-        const myCustomToastId = myText + '_' + diffId;
-        if (shouldToast && !toast.isActive(myCustomToastId)) {
-          console.debug('Toasting on page from NotificationsContext');
-          let toastId = undefined;
-          const options = {
-            onClick: () => navigate(history, getFullLink(message)),
-            toastId: myCustomToastId
+      } else {
+        const filtered = messages.filter((message) => {
+          const { marketId, investibleId, action } = page;
+          const {
+            marketId: messageMarketId,
+            investibleId: messageInvestibleId,
+            level,
+            commentId,
+            associatedUserId,
+            pokeType,
+          } = message;
+          const doRemove = (!_.isEmpty(messageMarketId) && marketId === messageMarketId && investibleId === messageInvestibleId)
+            || (pokeType === 'slack_reminder' && action === 'notificationPreferences')
+            || (pokeType === 'upgrade_reminder' && action === 'upgrade');
+          if (doRemove) {
+            if (commentId) {
+              highlightedCommentDispatch({ type: HIGHTLIGHT_ADD, commentId, level });
+            }
+            if (associatedUserId) {
+              highlightedVotingDispatch({ type: HIGHTLIGHT_ADD, associatedUserId, level });
+            }
           }
-          switch (level) {
-            case 'RED':
-              toastId = toast.error(myText, options);
-              break;
-            case 'YELLOW':
-              toastId = toast.warn(myText, options);
-              break;
-            default:
-              toastId = toast.info(myText, options);
-              break;
-          }
-          if (toastId) {
-            dispatch(newToast(toastId))
+          return doRemove;
+        });
+        dispatch(processedPage(page, filtered));
+        AllSequentialMap(filtered, (message) => deleteMessage(message));
+        const message = filtered.pop();
+        if (message) {
+          const {
+            marketId,
+            investibleId,
+            text,
+            level,
+            aType,
+            commentId,
+          } = message;
+          // Sadly intl not available here TODO - Fix
+          const myText = filtered.length > 0 ? 'Multiple Updates' : text;
+          const diffId = commentId || investibleId || marketId;
+          // Do not toast a non red unread as already have diff and dismiss - unless is new
+          // Do toast if the page hasn't changed since will not scroll in that case and need toast if want to scroll
+          const shouldToast = isOldPage || (level === 'RED') || (!commentId &&
+            (aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)));
+          const myCustomToastId = myText + '_' + diffId;
+          if (shouldToast && !toast.isActive(myCustomToastId)) {
+            console.debug('Toasting on page from NotificationsContext');
+            let toastId = undefined;
+            const options = {
+              onClick: () => navigate(history, getFullLink(message)),
+              toastId: myCustomToastId
+            }
+            switch (level) {
+              case 'RED':
+                toastId = toast.error(myText, options);
+                break;
+              case 'YELLOW':
+                toastId = toast.warn(myText, options);
+                break;
+              default:
+                toastId = toast.info(myText, options);
+                break;
+            }
+            if (toastId) {
+              dispatch(newToast(toastId))
+            }
           }
         }
       }

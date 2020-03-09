@@ -1,6 +1,6 @@
 import LocalForageHelper from '../LocalForageHelper';
 import { toast } from 'react-toastify';
-
+import _ from 'lodash';
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const UPDATE_PAGE = 'UPDATE_PAGE';
@@ -173,7 +173,13 @@ function doUpdatePage(state, action) {
 }
 
 function markPageProcessed(state, action) {
-  const { page, messages: removedMessages } = action
+  const { page, messages: removedMessages } = action;
+  if (_.isEmpty(removedMessages)) {
+    return {
+      ...state,
+      lastPage: page,
+    };
+  }
   const { messages, current } = state;
   let removedCurrent = false;
   const filteredMessages = messages.filter((aMessage) => {

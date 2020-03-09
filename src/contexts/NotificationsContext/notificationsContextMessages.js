@@ -4,7 +4,7 @@ import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext';
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper';
 import { registerListener } from '../../utils/MessageBusUtils';
 
-function beginListening(dispatch, versionsDispatch) {
+function beginListening(dispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
     const { payload: { event } } = data;
     // console.debug(`Notifications context responding to push event ${event}`);

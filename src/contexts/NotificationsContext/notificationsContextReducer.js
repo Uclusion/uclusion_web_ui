@@ -1,14 +1,13 @@
 import LocalForageHelper from '../LocalForageHelper';
-import { EMPTY_STATE } from './NotificationsContext';
 import { toast } from 'react-toastify';
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const UPDATE_PAGE = 'UPDATE_PAGE';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
-const REMOVE_MESSAGE = 'REMOVE_MESSAGE';
 const INCREMENT_CURRENT = 'INCREMENT_CURRENT';
 const UPDATE_TOAST = 'UPDATE_TOAST';
+const PROCESSED_PAGE = 'PROCESSED_PAGE'
 
 /** Messages you can send the reducer */
 
@@ -19,18 +18,19 @@ export function updateMessages(messages) {
   };
 }
 
-export function removeMessage(message) {
-  return {
-    type: REMOVE_MESSAGE,
-    message,
-  };
-}
-
 export function newToast(toastId) {
   return {
     type: UPDATE_TOAST,
     toastId
   }
+}
+
+export function processedPage(page, messages) {
+  return {
+    type: PROCESSED_PAGE,
+    page,
+    messages
+  };
 }
 
 export function nextMessage() {
@@ -172,10 +172,50 @@ function doUpdatePage(state, action) {
   };
 }
 
+function markPageProcessed(state, action) {
+  const { page, messages: removedMessages } = action
+  const { messages, current } = state;
+  let removedCurrent = false;
+  const filteredMessages = messages.filter((aMessage) => {
+    let doRemove = false;
+    removedMessages.forEach((removedMessage) => {
+      if (isMessageEqual(aMessage, removedMessage)) {
+        doRemove = true;
+      }
+      if (isMessageEqual(current, removedMessage)) {
+        removedCurrent = true;
+      }
+    });
+    return doRemove;
+  });
+  let newCurrent = current;
+  if (removedCurrent) {
+    newCurrent = getNextCurrent(messages, current);
+    if (isMessageEqual(newCurrent, current)) {
+      // Just removed the last one
+      return {
+        ...state,
+        messages: [],
+        current: undefined,
+      };
+    }
+  }
+  return {
+    ...state,
+    messages: filteredMessages,
+    current: newCurrent,
+    lastPage: page,
+  };
+}
+
 function doUpdateMessages(state, action) {
   const { messages } = action;
   if (!Array.isArray(messages) || !messages.length) {
-    return EMPTY_STATE;
+    return {
+      ...state,
+      messages: [],
+      current: undefined,
+    };
   }
   const { current } = state;
   const massagedMessages = getMassagedMessages(messages);
@@ -187,28 +227,6 @@ function doUpdateMessages(state, action) {
   return {
     ...state,
     messages: massagedMessages,
-    current: newCurrent,
-  };
-}
-
-function doRemoveMessage(state, action) {
-  const { message } = action;
-  const { messages, current } = state;
-  const filteredMessages = messages.filter((aMessage) => !isMessageEqual(aMessage, message));
-  let newCurrent = current;
-  if (isMessageEqual(current, message)) {
-    newCurrent = getNextCurrent(messages, current);
-    if (isMessageEqual(newCurrent, message)) {
-      // Just removed the last one
-      return {
-        ...state,
-        messages: [],
-      };
-    }
-  }
-  return {
-    ...state,
-    messages: filteredMessages,
     current: newCurrent,
   };
 }
@@ -241,12 +259,12 @@ function computeNewState(state, action) {
       return doUpdatePage(state, action);
     case INITIALIZE_STATE:
       return action.newState;
-    case REMOVE_MESSAGE:
-      return doRemoveMessage(state, action);
     case INCREMENT_CURRENT:
       return doNext(state);
     case UPDATE_TOAST:
       return updateToast(state, action);
+    case PROCESSED_PAGE:
+      return markPageProcessed(state, action);
     default:
       return state;
   }

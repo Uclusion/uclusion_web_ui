@@ -4,9 +4,8 @@ import { useHistory } from 'react-router';
 import _ from 'lodash';
 import reducer, {
   initializeState, newToast,
-  NOTIFICATIONS_CONTEXT_NAMESPACE,
-  removeMessage,
-} from './notificationsContextReducer';
+  NOTIFICATIONS_CONTEXT_NAMESPACE, processedPage,
+} from './notificationsContextReducer'
 import { deleteMessage } from '../../api/users';
 import beginListening from './notificationsContextMessages';
 import LocalForageHelper from '../LocalForageHelper';
@@ -14,7 +13,6 @@ import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext';
 import { DiffContext } from '../DiffContext/DiffContext';
 import { HighlightedVotingContext } from '../HighlightedVotingContext';
-import { VersionsContext } from '../VersionsContext/VersionsContext';
 import { hasUnViewedDiff } from '../DiffContext/diffContextHelper';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import { getFullLink } from '../../components/Notifications/Notifications';
@@ -32,16 +30,15 @@ function NotificationsProvider(props) {
   // eslint-disable-next-line react/prop-types
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
-  const { page, messages } = state;
+  const { page, messages, lastPage } = state;
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [isInitialization, setIsInitialization] = useState(true);
   const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const [, highlightedVotingDispatch] = useContext(HighlightedVotingContext);
-  const [, versionsDispatch] = useContext(VersionsContext);
   const history = useHistory();
 
   useEffect(() => {
-    if (isInitialization && versionsDispatch) {
+    if (isInitialization) {
       const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
       lfg.getState()
         .then((state) => {
@@ -49,16 +46,17 @@ function NotificationsProvider(props) {
             dispatch(initializeState(state));
           }
         });
-      beginListening(dispatch, versionsDispatch);
+      beginListening(dispatch);
       setIsInitialization(false);
     }
     return () => {
     };
-  }, [isInitialization, versionsDispatch]);
+  }, [isInitialization]);
 
   useEffect(() => {
-    console.debug(page);
-    if (page) {
+    if (page && !_.isEmpty(messages)) {
+      const isOldPage = _.isEqual(page, lastPage);
+      console.debug(`is old page is ${isOldPage}`);
       const filtered = messages.filter((message) => {
         const { marketId, investibleId, action } = page;
         const {
@@ -73,7 +71,6 @@ function NotificationsProvider(props) {
           || (pokeType === 'slack_reminder' && action === 'notificationPreferences')
           || (pokeType === 'upgrade_reminder' && action === 'upgrade');
         if (doRemove) {
-          dispatch(removeMessage(message));
           if (commentId) {
             highlightedCommentDispatch({ type: HIGHTLIGHT_ADD, commentId, level });
           }
@@ -83,6 +80,7 @@ function NotificationsProvider(props) {
         }
         return doRemove;
       });
+      dispatch(processedPage(page, filtered));
       AllSequentialMap(filtered, (message) => deleteMessage(message));
       const message = filtered.pop();
       if (message) {
@@ -98,10 +96,12 @@ function NotificationsProvider(props) {
         const myText = filtered.length > 0 ? 'Multiple Updates' : text;
         const diffId = commentId || investibleId || marketId;
         // Do not toast a non red unread as already have diff and dismiss - unless is new
-        const shouldToast = (level === 'RED') || aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)
+        // Do toast if the page hasn't changed since will not scroll in that case and need toast if want to scroll
+        const shouldToast = isOldPage || (level === 'RED') || (!commentId &&
+          (aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)));
         const myCustomToastId = myText + '_' + diffId;
         if (shouldToast && !toast.isActive(myCustomToastId)) {
-          console.debug('Toasting from NotificationsContext');
+          console.debug('Toasting on page from NotificationsContext');
           let toastId = undefined;
           const options = {
             onClick: () => navigate(history, getFullLink(message)),
@@ -112,9 +112,7 @@ function NotificationsProvider(props) {
               toastId = toast.error(myText, options);
               break;
             case 'YELLOW':
-              if (!commentId) {
-                toastId = toast.warn(myText, options);
-              }
+              toastId = toast.warn(myText, options);
               break;
             default:
               toastId = toast.info(myText, options);
@@ -128,7 +126,8 @@ function NotificationsProvider(props) {
     }
     return () => {
     };
-  }, [page, messages, highlightedCommentDispatch, diffState, diffDispatch, highlightedVotingDispatch, history]);
+  }, [page, messages, highlightedCommentDispatch, diffState, diffDispatch, highlightedVotingDispatch, history,
+  lastPage]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

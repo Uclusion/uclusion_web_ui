@@ -10,6 +10,10 @@ export function canCreate(state) {
   return tier !== PRODUCT_TIER_FREE;
 }
 
+export function getAccount(state) {
+  return state.account || {};
+}
+
 export function getTier(state) {
   if (_.isEmpty(state.account)) {
     return undefined;

@@ -528,6 +528,7 @@ const messages = defineMessages({
   slackEnabledLabel: 'Send notifications via Slack',
   changePreferencesButton: 'Update Preferences',
   slackDelayInputLabel: 'Minimum delay between notifications in Slack in minutes',
+  emailDelayInputLabel: 'Minimum delay between emails of notifications in minutes',
 
   // your voting
   yourVotingVoteForThisPlanning: 'Vote for this story',

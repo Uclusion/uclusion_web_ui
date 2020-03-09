@@ -29,6 +29,7 @@ function ChangeNotificationPreferences(props) {
   const [slackEnabled, setSlackEnabled] = useState(undefined);
   const [user, setUser] = useState(undefined);
   const [slackDelay, setSlackDelay] = useState(30);
+  const [emailDelay, setEmailDelay] = useState(30);
   const intl = useIntl();
   const classes = useStyles();
 
@@ -40,6 +41,7 @@ function ChangeNotificationPreferences(props) {
           const { user: myUser } = loginInfo;
           setEmailEnabled(myUser.email_enabled);
           setSlackEnabled(myUser.slack_enabled);
+          setEmailDelay(myUser.email_delay)
           if (myUser.slack_delay) {
             setSlackDelay(myUser.slack_delay);
           }
@@ -50,7 +52,7 @@ function ChangeNotificationPreferences(props) {
   }, [user, hidden]);
 
   function onSetPreferences() {
-    updateUser({ emailEnabled, slackEnabled, slackDelay });
+    updateUser({ emailEnabled, slackEnabled, slackDelay, emailDelay });
   }
 
   function handleToggleEmail() {
@@ -64,6 +66,11 @@ function ChangeNotificationPreferences(props) {
   function handleChangeSlackDelay(event) {
     const { value } = event.target;
     setSlackDelay(parseInt(value, 10));
+  }
+
+  function handleChangeEmailDelay(event) {
+    const { value } = event.target;
+    setEmailDelay(parseInt(value, 10));
   }
 
   const history = useHistory();
@@ -135,7 +142,18 @@ function ChangeNotificationPreferences(props) {
             </ListItemText>
           </ListItem>
           <TextField
-            id="daysEstimate"
+            id="emailDelay"
+            label={intl.formatMessage({ id: 'emailDelayInputLabel' })}
+            type="number"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            variant="outlined"
+            onChange={handleChangeEmailDelay}
+            value={emailDelay}
+          />
+          <TextField
+            id="slackDelay"
             label={intl.formatMessage({ id: 'slackDelayInputLabel' })}
             type="number"
             InputLabelProps={{

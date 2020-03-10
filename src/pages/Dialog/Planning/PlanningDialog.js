@@ -255,16 +255,14 @@ function PlanningDialog(props) {
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'planningDialogDiscussionLabel' })}
           >
-            {!commentAddHidden && (
-              <CommentAddBox
-                hidden={commentAddHidden}
-                type={commentAddType}
-                allowedTypes={allowedCommentTypes}
-                marketId={marketId}
-                onSave={closeCommentAddBox}
-                onCancel={closeCommentAddBox}
-              />
-            )}
+            <CommentAddBox
+              hidden={commentAddHidden}
+              type={commentAddType}
+              allowedTypes={allowedCommentTypes}
+              marketId={marketId}
+              onSave={closeCommentAddBox}
+              onCancel={closeCommentAddBox}
+            />
             <CommentBox comments={marketComments} marketId={marketId} />
           </SubSection>
         </Grid>

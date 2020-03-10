@@ -97,14 +97,18 @@ function CommentAdd (props) {
   //see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react for why we have a func
   // that returns  func for editorClearFunc
   const [editorClearFunc, setEditorClearFunc] = useState(() => defaultClearFunc);
+  const defaultFocusFunc = () => {};
+  const [editorFocusFunc, setEditorFocusFunc] = useState(() => defaultFocusFunc);
 
   useEffect(() => {
     if (!hidden && firstOpen) {
+      console.log('Focus on first open');
       scrollToCommentAddBox();
+      editorFocusFunc();
       setFirstOpen(false);
     }
     return () => {};
-  }, [hidden, firstOpen]);
+  }, [hidden, firstOpen, editorFocusFunc]);
 
   function onEditorChange (content) {
     setBody(content);
@@ -175,6 +179,10 @@ function CommentAdd (props) {
           setEditorClearFunc={(func) => {
             setEditorClearFunc(func);
           }}
+          setEditorFocusFunc={(func) => {
+            console.log('Setting focus func');
+            setEditorFocusFunc(func);
+          }}
         >
           {!showIssueWarning && (
             <SpinBlockingButton
@@ -192,25 +200,27 @@ function CommentAdd (props) {
               {intl.formatMessage({ id: commentSaveLabel })}
             </Button>
           )}
-          <IssueDialog
-            classes={lockedDialogClasses}
-            open={!hidden && openIssue}
-            onClose={toggleIssue}
-            issueWarningId={issueWarningId}
-            /* slots */
-            actions={
-              <SpinBlockingButton
-                className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
-                disableFocusRipple
-                marketId={marketId}
-                onClick={handleSave}
-                onSpinStop={handleSpinStop}
-                disabled={_.isEmpty(body)}
-              >
-                <FormattedMessage id="issueProceed" />
-              </SpinBlockingButton>
-            }
-          />
+          {issueWarningId && (
+            <IssueDialog
+              classes={lockedDialogClasses}
+              open={!hidden && openIssue}
+              onClose={toggleIssue}
+              issueWarningId={issueWarningId}
+              /* slots */
+              actions={
+                <SpinBlockingButton
+                  className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
+                  disableFocusRipple
+                  marketId={marketId}
+                  onClick={handleSave}
+                  onSpinStop={handleSpinStop}
+                  disabled={_.isEmpty(body)}
+                >
+                  <FormattedMessage id="issueProceed" />
+                </SpinBlockingButton>
+              }
+            />
+          )}
           <Button
             onClick={handleCancel}
             className={classes.button}

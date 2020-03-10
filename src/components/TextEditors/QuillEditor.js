@@ -128,7 +128,7 @@ class QuillEditor extends React.PureComponent {
   }
 
   componentDidMount() {
-    const { defaultValue, onChange, onStoreChange, setEditorClearFunc } = this.props;
+    const { defaultValue, onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc } = this.props;
     this.editorBox.current.innerHTML = defaultValue;
     this.editor = new Quill(this.editorBox.current, this.options);
     const debouncedOnChange = _.debounce((delta) => {
@@ -160,8 +160,12 @@ class QuillEditor extends React.PureComponent {
       this.editor.history.clear();
       this.editor.root.innerHTML='';
     };
-
     setEditorClearFunc(editorClearFunc);
+    const editorFocusFunc = () => () => {
+      console.log('Setting focus');
+      this.editor.focus();
+    };
+    setEditorFocusFunc(editorFocusFunc);
   }
 
   setUploadInProgress(value) {
@@ -224,6 +228,7 @@ QuillEditor.propTypes = {
   intl: PropTypes.object.isRequired,
   id: PropTypes.string,
   setEditorClearFunc: PropTypes.func,
+  setEditorFocusFunc: PropTypes.func,
 };
 
 QuillEditor.defaultProps = {
@@ -236,6 +241,8 @@ QuillEditor.defaultProps = {
   setOperationInProgress: () => {
   },
   setEditorClearFunc: () => {
+  },
+  setEditorFocusFunc: () => {
   },
   defaultValue: '',
   placeholder: '',

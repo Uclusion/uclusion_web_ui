@@ -127,9 +127,6 @@ function InitiativeInvestible(props) {
     return <></>;
   }
 
-  const hasDiscussion = !_.isEmpty(investmentReasonsRemoved);
-  const discussionVisible = !commentAddHidden || hasDiscussion;
-
   return (
     <Screen
       title={name}
@@ -240,27 +237,24 @@ function InitiativeInvestible(props) {
         investmentReasons={investmentReasons}
       />
       <Grid container spacing={2}>
-        {discussionVisible && (
-          <Grid item xs={12}>
-
-            <SubSection
-              type={SECTION_TYPE_SECONDARY}
-              title={intl.formatMessage({ id: 'initiativeInvestibleDiscussion' })}
-            >
-              <CommentAddBox
-                hidden={commentAddHidden}
-                allowedTypes={allowedCommentTypes}
-                investible={investible}
-                marketId={marketId}
-                type={commentAddType}
-                onSave={closeCommentAdd}
-                onCancel={closeCommentAdd}
-              />
-              <div ref={commentAddRef} />
-              <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
-            </SubSection>
-          </Grid>
-        )}
+        <Grid item xs={12}>
+          <SubSection
+            type={SECTION_TYPE_SECONDARY}
+            title={intl.formatMessage({ id: 'initiativeInvestibleDiscussion' })}
+          >
+            <CommentAddBox
+              hidden={commentAddHidden}
+              allowedTypes={allowedCommentTypes}
+              investible={investible}
+              marketId={marketId}
+              type={commentAddType}
+              onSave={closeCommentAdd}
+              onCancel={closeCommentAdd}
+            />
+            <div ref={commentAddRef} />
+            <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
+          </SubSection>
+        </Grid>
       </Grid>
     </Screen>
   );

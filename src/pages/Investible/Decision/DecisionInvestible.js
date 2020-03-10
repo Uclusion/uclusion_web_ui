@@ -182,8 +182,6 @@ function DecisionInvestible(props) {
     return <></>;
   }
 
-  const hasDiscussion = !_.isEmpty(investmentReasonsRemoved);
-  const discussionVisible = !commentAddHidden || hasDiscussion;
   const canVote = myPresence && myPresence.following;
 
   return (
@@ -252,7 +250,6 @@ function DecisionInvestible(props) {
         </>
       )}
       <Grid container spacing={2}>
-        {discussionVisible && (
         <Grid item xs={12}>
           <SubSection
             type={SECTION_TYPE_SECONDARY}
@@ -272,7 +269,6 @@ function DecisionInvestible(props) {
             <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
           </SubSection>
         </Grid>
-        )}
       </Grid>
     </Screen>
   );

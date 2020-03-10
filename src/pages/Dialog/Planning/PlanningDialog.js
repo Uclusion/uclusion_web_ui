@@ -255,7 +255,6 @@ function PlanningDialog(props) {
             type={SECTION_TYPE_SECONDARY}
             title={intl.formatMessage({ id: 'planningDialogDiscussionLabel' })}
           >
-            <CommentBox comments={marketComments} marketId={marketId} />
             {!commentAddHidden && (
               <CommentAddBox
                 hidden={commentAddHidden}
@@ -266,6 +265,7 @@ function PlanningDialog(props) {
                 onCancel={closeCommentAddBox}
               />
             )}
+            <CommentBox comments={marketComments} marketId={marketId} />
           </SubSection>
         </Grid>
       </Grid>

@@ -340,15 +340,14 @@ function Comment(props) {
             )}
           </CardActions>
         )}
-        {replyOpen && (
-          <CommentAdd
-            marketId={marketId}
-            parent={comment}
-            onSave={toggleReply}
-            onCancel={toggleReply}
-            type={REPLY_TYPE}
-          />
-        )}
+        <CommentAdd
+          marketId={marketId}
+          hidden={!replyOpen}
+          parent={comment}
+          onSave={toggleReply}
+          onCancel={toggleReply}
+          type={REPLY_TYPE}
+        />
       </Card>
       <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
         <CommentsContext.Provider value={{ comments, marketId }}>
@@ -549,17 +548,16 @@ function Reply(props) {
           </Button>
         )}
       </CardActions>
-      {replyOpen === true && (
-        <div className={classes.replyContainer}>
-          <CommentAdd
-            marketId={marketId}
-            parent={comment}
-            onSave={() => setReplyOpen(false)}
-            onCancel={() => setReplyOpen(false)}
-            type={REPLY_TYPE}
-          />
-        </div>
-      )}
+      <div className={classes.replyContainer}>
+        <CommentAdd
+          marketId={marketId}
+          hidden={!replyOpen}
+          parent={comment}
+          onSave={() => setReplyOpen(false)}
+          onCancel={() => setReplyOpen(false)}
+          type={REPLY_TYPE}
+        />
+      </div>
       {comment.children !== undefined && (
         <CardContent className={classes.cardContent}>
           <ThreadedReplies

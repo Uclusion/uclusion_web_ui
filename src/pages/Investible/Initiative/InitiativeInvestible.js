@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'

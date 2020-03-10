@@ -70,11 +70,17 @@ function NotificationsProvider(props) {
             marketId: messageMarketId,
             investibleId: messageInvestibleId,
             pokeType,
+            beingProcessed,
           } = message;
           const marketMatch = !_.isEmpty(messageMarketId) && marketId === messageMarketId
             && investibleId === messageInvestibleId;
-          return marketMatch || (pokeType === 'slack_reminder' && action === 'notificationPreferences')
-            || (pokeType === 'upgrade_reminder' && action === 'upgrade');
+          const doRemove = (beingProcessed !== true) && (marketMatch ||
+            (pokeType === 'slack_reminder' && action === 'notificationPreferences')
+            || (pokeType === 'upgrade_reminder' && action === 'upgrade'));
+          if (doRemove) {
+            message.beingProcessed = true;
+          }
+          return doRemove;
         });
         if (_.isEmpty(filtered)) {
           return;

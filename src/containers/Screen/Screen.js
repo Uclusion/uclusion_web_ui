@@ -96,8 +96,29 @@ function Screen(props) {
 
   const [firstRender, setFirstRender] = useState(true);
   const [operationRunning] = useContext(OperationInProgressContext);
+  const [scrollerBound, setScrollerBound] = useState(undefined);
   const reallyAmLoading = !hidden && appEnabled && loading;
+  const doneLoading = !hidden && appEnabled && !loading;
   useEffect(() => {
+    function scroller(myLocation) {
+      const { hash } = myLocation;
+      if (hash && hash.length > 1) {
+        const target = hash.substring(1, hash.length);
+        if (target) {
+          console.log('Scroller firing');
+          const element = document.getElementById(target);
+          if (element) {
+            element.scrollIntoView();
+          } else {
+            console.warn(`No element found for target ${target}`);
+            return false;
+          }
+        }
+      } else {
+        window.scrollTo(0, 0);
+      }
+      return true;
+    }
     if (firstRender) {
       setFirstRender(false);
       if (!hidden && appEnabled) {
@@ -106,11 +127,15 @@ function Screen(props) {
         refreshNotifications();
       }
     }
+    if (doneLoading && scrollerBound !== location) {
+      if (scroller(location)) {
+        setScrollerBound(location);
+      }
+    }
     return () => {};
-  }, [firstRender, location, operationRunning, reallyAmLoading, history, hidden, appEnabled
-  ]);
-
-
+  }, [firstRender, location, operationRunning, reallyAmLoading, history, hidden, appEnabled, scrollerBound,
+    doneLoading]);
+  
   const [sidebarOpen] = useContext(SidebarContext);
 
   if (hidden) {

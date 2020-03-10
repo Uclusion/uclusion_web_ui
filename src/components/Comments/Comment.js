@@ -386,7 +386,7 @@ Comment.propTypes = {
 function InitialReply(props) {
   const { comment, highLightId } = props;
 
-  return <Reply comment={comment} highLightId={highLightId} />;
+  return <Reply id={`c${comment.id}`} comment={comment} highLightId={highLightId} />;
 }
 
 const useReplyStyles = makeStyles(
@@ -607,7 +607,6 @@ function ThreadedReplies(props) {
         if (reply) {
           return (
             <ThreadedReply
-              key={reply.id}
               comment={reply}
               highLightId={highLightId}
             />
@@ -621,7 +620,7 @@ function ThreadedReplies(props) {
 
 function ThreadedReply(props) {
   const { comment, highLightId } = props;
-  return <Reply comment={comment} elevation={0} highLightId={highLightId} />;
+  return <Reply id={`c${comment.id}`} comment={comment} elevation={0} highLightId={highLightId} />;
 }
 
 /**

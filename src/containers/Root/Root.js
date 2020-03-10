@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
@@ -27,7 +27,7 @@ import SlackInvite from '../../pages/Invites/SlackInvite';
 import ChangePassword from '../../pages/Authentication/ChangePassword';
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences';
 import BillingHome from '../../pages/Payments/BillingHome';
-import { refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper';
+import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
 
 const useStyles = makeStyles({
   body: {
@@ -61,9 +61,6 @@ function Root() {
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
-  const [scrollerBound, setScrollerBound] = useState(undefined);
-
-
 
   function hideHome() {
     return !pathname || pathname !== '/';
@@ -136,28 +133,6 @@ function Root() {
     && hideBillingHome());
 
   useEffect(() => {
-    function scroller(myLocation) {
-      const { hash } = myLocation;
-      if (hash && hash.length > 1) {
-        const target = hash.substring(1, hash.length);
-        if (target) {
-          console.log('Scroller firing');
-          const element = document.getElementById(target);
-          if (element) {
-            element.scrollIntoView();
-          } else {
-            console.warn(`No element found for target ${target}`);
-          }
-        }
-      } else {
-        window.scrollTo(0, 0);
-      }
-    }
-    if (scrollerBound !== location) {
-      setScrollerBound(location);
-      scroller(location)
-    }
-
     const redirect = getAndClearRedirect();
     if (!_.isEmpty(redirect)) {
       console.log(`Root Redirecting you to ${redirect}`);
@@ -182,6 +157,7 @@ function Root() {
     if (reloaded) {
       // A push could have been missed and then have to rely on the user to refresh
       refreshVersions();
+      refreshNotifications();
     }
 
     if (!window.myListenerMarker) {
@@ -217,7 +193,7 @@ function Root() {
       });
       window.onanimationiteration = console.debug;
     }
-  },  [scrollerBound, history, setOnline, setOperationsLocked, location]);
+  },  [history, setOnline, setOperationsLocked, location]);
 
   return (
     <div>

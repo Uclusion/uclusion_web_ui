@@ -10,7 +10,7 @@ import config from '../config';
 import { sendInfoPersistent, toastErrorAndThrow } from '../utils/userMessage';
 import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext/NotificationsContext';
 import { registerListener, pushMessage, removeListener } from '../utils/MessageBusUtils';
-import { refreshVersions } from './VersionsContext/versionsContextHelper';
+import { refreshNotifications, refreshVersions } from './VersionsContext/versionsContextHelper'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -152,12 +152,7 @@ function WebSocketProvider(props) {
                 console.debug('Pong and refresh');
                 // Otherwise if we miss a push out of luck until tab is closed
                 refreshVersions();
-                pushMessage(
-                  VERSIONS_HUB_CHANNEL,
-                  {
-                    event: NOTIFICATION_MESSAGE_EVENT,
-                  },
-                );
+                refreshNotifications();
                 if (newSocket.getSocketState() === WebSocket.OPEN) {
                   const actionString = JSON.stringify({ action: 'ping' });
                   newSocket.send(actionString);

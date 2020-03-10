@@ -74,11 +74,11 @@ function NotificationsProvider(props) {
           } = message;
           const marketMatch = !_.isEmpty(messageMarketId) && marketId === messageMarketId
             && investibleId === messageInvestibleId;
-          const doRemove = (beingProcessed !== true) && (marketMatch ||
+          const doRemove = (beingProcessed !== page) && (marketMatch ||
             (pokeType === 'slack_reminder' && action === 'notificationPreferences')
             || (pokeType === 'upgrade_reminder' && action === 'upgrade'));
           if (doRemove) {
-            message.beingProcessed = true;
+            message.beingProcessed = page;
           }
           return doRemove;
         });

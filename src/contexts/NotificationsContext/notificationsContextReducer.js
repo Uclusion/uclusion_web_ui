@@ -141,7 +141,10 @@ function getMassagedMessages(messages) {
 }
 
 function isMessageEqual(aMessage, message) {
-  return message && aMessage.type_object_id === message.type_object_id
+  if (!message && !aMessage) {
+    return true;
+  }
+  return message && aMessage && aMessage.type_object_id === message.type_object_id
     && aMessage.market_id_user_id === message.market_id_user_id;
 }
 

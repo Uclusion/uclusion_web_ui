@@ -2,6 +2,7 @@ import { pushMessage } from '../../utils/MessageBusUtils';
 import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
 import LocalForageHelper from '../LocalForageHelper';
 import { VERSIONS_CONTEXT_NAMESPACE } from './versionsContextReducer';
+import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../WebSocketContext'
 
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
 export const PUSH_CONTEXT_CHANNEL = 'MarketsChannel';
@@ -34,8 +35,8 @@ export function refreshVersions () {
 }
 
 export function refreshNotifications () {
-  // tell versions to go and get new notifications
-  pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT });
+  // tell versions to go and check if new notifications
+  pushMessage(VERSIONS_HUB_CHANNEL, { event: NOTIFICATION_MESSAGE_EVENT });
 }
 
 // used by the reducer to actually process the new event

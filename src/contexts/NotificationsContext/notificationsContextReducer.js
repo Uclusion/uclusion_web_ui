@@ -6,8 +6,7 @@ const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const UPDATE_PAGE = 'UPDATE_PAGE';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const INCREMENT_CURRENT = 'INCREMENT_CURRENT';
-const UPDATE_TOAST = 'UPDATE_TOAST';
-const PROCESSED_PAGE = 'PROCESSED_PAGE'
+const PROCESSED_PAGE = 'PROCESSED_PAGE';
 
 /** Messages you can send the reducer */
 
@@ -18,18 +17,12 @@ export function updateMessages(messages) {
   };
 }
 
-export function newToast(toastId) {
-  return {
-    type: UPDATE_TOAST,
-    toastId
-  }
-}
-
-export function processedPage(page, messages) {
+export function processedPage(page, messages, toastId) {
   return {
     type: PROCESSED_PAGE,
     page,
-    messages
+    messages,
+    toastId
   };
 }
 
@@ -173,12 +166,15 @@ function doUpdatePage(state, action) {
 }
 
 function markPageProcessed(state, action) {
-  const { page, messages: removedMessages } = action;
+  const { page, messages: removedMessages, toastId } = action;
   if (_.isEmpty(removedMessages)) {
     return {
       ...state,
       lastPage: page,
     };
+  }
+  if (toastId && toast.isActive(toastId)) {
+    toast.dismiss(toastId);
   }
   const { messages, current } = state;
   let removedCurrent = false;
@@ -203,6 +199,8 @@ function markPageProcessed(state, action) {
         ...state,
         messages: [],
         current: undefined,
+        lastPage: page,
+        toastId: action.toastId
       };
     }
   }
@@ -211,6 +209,7 @@ function markPageProcessed(state, action) {
     messages: filteredMessages,
     current: newCurrent,
     lastPage: page,
+    toastId: action.toastId
   };
 }
 
@@ -237,17 +236,6 @@ function doUpdateMessages(state, action) {
   };
 }
 
-function updateToast(state, action) {
-  const { toastId } = state;
-  if (toast.isActive(toastId)) {
-    toast.dismiss(toastId);
-  }
-  return {
-    ...state,
-    toastId: action.toastId
-  };
-}
-
 function doNext(state) {
   const { messages, current } = state;
   const newCurrent = getNextCurrent(messages, current);
@@ -267,8 +255,6 @@ function computeNewState(state, action) {
       return action.newState;
     case INCREMENT_CURRENT:
       return doNext(state);
-    case UPDATE_TOAST:
-      return updateToast(state, action);
     case PROCESSED_PAGE:
       return markPageProcessed(state, action);
     default:
@@ -277,8 +263,8 @@ function computeNewState(state, action) {
 }
 
 function reducer(state, action) {
-  console.log(`Reducer mark page processed with ${JSON.stringify(action)}`);
   const newState = computeNewState(state, action);
+  //console.log(`Processed ${JSON.stringify(action)} to produce ${JSON.stringify(newState)}`);
   const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
   lfh.setState(newState);
   return newState;

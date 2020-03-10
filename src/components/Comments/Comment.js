@@ -603,14 +603,17 @@ function ThreadedReplies(props) {
 
   return (
     <ol className={classes.container}>
-      {replies.map(reply => {
-        return (
-          <ThreadedReply
-            key={reply.id}
-            comment={reply}
-            highLightId={highLightId}
-          />
-        );
+      {replies.map((reply) => {
+        if (reply) {
+          return (
+            <ThreadedReply
+              key={reply.id}
+              comment={reply}
+              highLightId={highLightId}
+            />
+          );
+        }
+        return React.Fragment;
       })}
     </ol>
   );

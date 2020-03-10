@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
 import reducer, {
-  initializeState, newToast,
+  initializeState,
   NOTIFICATIONS_CONTEXT_NAMESPACE, processedPage,
 } from './notificationsContextReducer'
 import { deleteMessage } from '../../api/users';
@@ -31,7 +31,7 @@ function NotificationsProvider(props) {
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const { page, messages, lastPage } = state;
-  const [diffState, diffDispatch] = useContext(DiffContext);
+  const [diffState] = useContext(DiffContext);
   const [isInitialization, setIsInitialization] = useState(true);
   const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const [, highlightedVotingDispatch] = useContext(HighlightedVotingContext);
@@ -60,11 +60,10 @@ function NotificationsProvider(props) {
       const isOldPage = lastPage !== undefined && _.isEqual(page, lastPage);
       if (_.isEmpty(messages)) {
         if (!isOldPage) {
-          console.debug('Processing page with empty messages')
+          console.debug('Processing page with empty messages');
           dispatch(processedPage(page));
         }
       } else {
-        console.debug(`is old page is ${isOldPage} and ${page.marketId} and ${page.investibleId}`);
         const filtered = messages.filter((message) => {
           const { marketId, investibleId, action } = page;
           const {
@@ -77,9 +76,10 @@ function NotificationsProvider(props) {
           return marketMatch || (pokeType === 'slack_reminder' && action === 'notificationPreferences')
             || (pokeType === 'upgrade_reminder' && action === 'upgrade');
         });
-        const myAction = processedPage(page, filtered);
-        console.log(`Dispatch mark page processed with ${JSON.stringify(myAction)}`);
-        dispatch(myAction);
+        if (_.isEmpty(filtered)) {
+          return;
+        }
+        console.debug(`old page ${isOldPage}, ${page.marketId}, ${page.investibleId} and ${JSON.stringify(filtered)}`);
         AllSequentialMap(filtered, (message) => {
           const {
             level,
@@ -94,7 +94,8 @@ function NotificationsProvider(props) {
           }
           return deleteMessage(message);
         });
-        const message = filtered.pop();
+        let toastId;
+        const message = filtered[0];
         if (message) {
           const {
             marketId,
@@ -105,7 +106,7 @@ function NotificationsProvider(props) {
             commentId,
           } = message;
           // Sadly intl not available here TODO - Fix
-          const myText = filtered.length > 0 ? 'Multiple Updates' : text;
+          const myText = filtered.length > 1 ? 'Multiple Updates' : text;
           const diffId = commentId || investibleId || marketId;
           // Do not toast a non red unread as already have diff and dismiss - unless is new
           // Do toast if the page hasn't changed since will not scroll in that case and need toast if want to scroll
@@ -114,7 +115,6 @@ function NotificationsProvider(props) {
           const myCustomToastId = myText + '_' + diffId;
           if (shouldToast && !toast.isActive(myCustomToastId)) {
             console.debug('Toasting on page from NotificationsContext');
-            let toastId = undefined;
             const options = {
               onClick: () => navigate(history, getFullLink(message)),
               toastId: myCustomToastId
@@ -130,17 +130,14 @@ function NotificationsProvider(props) {
                 toastId = toast.info(myText, options);
                 break;
             }
-            if (toastId) {
-              dispatch(newToast(toastId))
-            }
           }
         }
+        dispatch(processedPage(page, filtered, toastId));
       }
     }
     return () => {
     };
-  }, [page, messages, highlightedCommentDispatch, diffState, diffDispatch, highlightedVotingDispatch, history,
-  lastPage]);
+  }, [page, messages, diffState, history, lastPage, highlightedCommentDispatch, highlightedVotingDispatch]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

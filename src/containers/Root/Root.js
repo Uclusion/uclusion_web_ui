@@ -145,6 +145,8 @@ function Root() {
           const element = document.getElementById(target);
           if (element) {
             element.scrollIntoView();
+          } else {
+            console.warn(`No element found for target ${target}`);
           }
         }
       } else {

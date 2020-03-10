@@ -277,6 +277,7 @@ function computeNewState(state, action) {
 }
 
 function reducer(state, action) {
+  console.log(`Reducer mark page processed with ${JSON.stringify(action)}`);
   const newState = computeNewState(state, action);
   const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
   lfh.setState(newState);

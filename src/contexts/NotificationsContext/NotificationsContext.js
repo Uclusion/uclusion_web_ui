@@ -58,37 +58,42 @@ function NotificationsProvider(props) {
   useEffect(() => {
     if (page) {
       const isOldPage = lastPage !== undefined && _.isEqual(page, lastPage);
-      console.debug(`is old page is ${isOldPage} and ${page.marketId} and ${page.investibleId}`);
       if (_.isEmpty(messages)) {
         if (!isOldPage) {
+          console.debug('Processing page with empty messages')
           dispatch(processedPage(page));
         }
       } else {
+        console.debug(`is old page is ${isOldPage} and ${page.marketId} and ${page.investibleId}`);
         const filtered = messages.filter((message) => {
           const { marketId, investibleId, action } = page;
           const {
             marketId: messageMarketId,
             investibleId: messageInvestibleId,
+            pokeType,
+          } = message;
+          const marketMatch = !_.isEmpty(messageMarketId) && marketId === messageMarketId
+            && investibleId === messageInvestibleId;
+          return marketMatch || (pokeType === 'slack_reminder' && action === 'notificationPreferences')
+            || (pokeType === 'upgrade_reminder' && action === 'upgrade');
+        });
+        const myAction = processedPage(page, filtered);
+        console.log(`Dispatch mark page processed with ${JSON.stringify(myAction)}`);
+        dispatch(myAction);
+        AllSequentialMap(filtered, (message) => {
+          const {
             level,
             commentId,
             associatedUserId,
-            pokeType,
           } = message;
-          const doRemove = (!_.isEmpty(messageMarketId) && marketId === messageMarketId && investibleId === messageInvestibleId)
-            || (pokeType === 'slack_reminder' && action === 'notificationPreferences')
-            || (pokeType === 'upgrade_reminder' && action === 'upgrade');
-          if (doRemove) {
-            if (commentId) {
-              highlightedCommentDispatch({ type: HIGHTLIGHT_ADD, commentId, level });
-            }
-            if (associatedUserId) {
-              highlightedVotingDispatch({ type: HIGHTLIGHT_ADD, associatedUserId, level });
-            }
+          if (commentId) {
+            highlightedCommentDispatch({ type: HIGHTLIGHT_ADD, commentId, level });
           }
-          return doRemove;
+          if (associatedUserId) {
+            highlightedVotingDispatch({ type: HIGHTLIGHT_ADD, associatedUserId, level });
+          }
+          return deleteMessage(message);
         });
-        dispatch(processedPage(page, filtered));
-        AllSequentialMap(filtered, (message) => deleteMessage(message));
         const message = filtered.pop();
         if (message) {
           const {

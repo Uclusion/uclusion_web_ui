@@ -2,16 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
 import {
-  Paper, Typography, Badge, Link,
+  Paper, Typography, Link,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import AnnouncementIcon from '@material-ui/icons/Announcement';
-import RateReviewIcon from '@material-ui/icons/RateReview';
-import LiveHelpIcon from '@material-ui/icons/LiveHelp';
 import { FormattedDate, useIntl } from 'react-intl';
 import GridListTile from '@material-ui/core/GridListTile';
 import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import { pink } from '@material-ui/core/colors';
 
 const useStyles = makeStyles((theme) => ({
@@ -50,7 +46,7 @@ function PlanningIdeas(props) {
   const history = useHistory();
   const classes = useStyles();
   const {
-    investibles, marketId, comments, acceptedStageId, inDialogStageId, inReviewStageId, inBlockingStageId, presenceId,
+    investibles, marketId, acceptedStageId, inDialogStageId, inReviewStageId, inBlockingStageId, presenceId,
   } = props;
   const intl = useIntl();
 
@@ -102,13 +98,11 @@ function PlanningIdeas(props) {
       return marketInfo.stage === stageId;
     });
     if (doCreateWarningShells && (!Array.isArray(filtered) || filtered.length === 0)) {
-      return createWarningShellInvestible(stageId,);
+      return createWarningShellInvestible(stageId);
     }
     return filtered.map((inv) => {
       const { investible, market_infos: marketInfos } = inv;
       const { id, name } = investible;
-      const investibleComments = Array.isArray(comments)
-        && comments.filter((comment) => comment.investible_id === id);
       const marketInfo = marketInfos.find((info) => info.market_id === marketId);
       const updatedText = marketInfo.stage === acceptedStageId
         ? intl.formatMessage(({ id: 'acceptedInvestiblesUpdatedAt' }))

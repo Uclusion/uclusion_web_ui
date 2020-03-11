@@ -14,11 +14,12 @@ import Summary from './Summary';
 import PlanningIdeas from './PlanningIdeas';
 import Screen from '../../../containers/Screen/Screen';
 import {
+  formMarketAddInvestibleLink,
   formMarketManageLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate,
-} from '../../../utils/marketIdPathFunctions';
+} from '../../../utils/marketIdPathFunctions'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
 import AskQuestions from '../../../components/SidebarActions/AskQuestion';
@@ -37,6 +38,7 @@ import ExpandableSidebarAction from '../../../components/SidebarActions/Expandab
 import InsertLinkIcon from '@material-ui/icons/InsertLink';
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import InvestibleAddActionButton from './InvestibleAddActionButton'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -207,7 +209,16 @@ function PlanningDialog(props) {
         <ViewArchiveActionButton key="archives" marketId={marketId} />
         ];
     }
+    function onClick() {
+      const link = formMarketAddInvestibleLink(marketId);
+      const assignedLink = link + `#assignee=${myPresence.id}`;
+      navigate(history, assignedLink);
+    }
     return [
+      <InvestibleAddActionButton
+        key="investibleadd"
+        onClick={onClick}
+      />,
       <ManageParticipantsActionButton
         key="addParticipants"
         onClick={toggleManageUsersMode}

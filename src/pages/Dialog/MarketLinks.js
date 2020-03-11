@@ -1,20 +1,19 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react'
-import PropTypes from 'prop-types'
-import _ from 'lodash'
-import { useIntl } from 'react-intl'
+import React, { useContext, useEffect, useReducer, useState } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import { useIntl } from 'react-intl';
 import {
   Grid, Typography, Paper, Link,
 } from '@material-ui/core'
-import { makeStyles } from '@material-ui/styles'
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { makeStyles } from '@material-ui/styles';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
   getMarketPresences,
-} from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
-import { AllSequentialMap } from '../../utils/PromiseUtils'
-import { INITIATIVE_TYPE } from '../../constants/markets'
-import { getMarketInfo } from '../../api/sso'
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { AllSequentialMap } from '../../utils/PromiseUtils';
+import { getMarketInfo } from '../../api/sso';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -68,7 +67,7 @@ function MarketLinks (props) {
             item
             key={marketId}
           >
-            {marketId in marketNameState && (myPresence || marketNameState[marketId].marketType === INITIATIVE_TYPE) && (
+            {marketId in marketNameState && myPresence && (
               <Link
                 href={baseLink}
                 variant="inherit"
@@ -82,7 +81,7 @@ function MarketLinks (props) {
                 {marketNameState[marketId].name}
               </Link>
             )}
-            {!myPresence && marketId in marketNameState && marketNameState[marketId].marketType !== INITIATIVE_TYPE && (
+            {!myPresence && marketId in marketNameState && (
               <Link
                 href={`${baseInviteLink}#is_obs=false`}
                 variant="inherit"
@@ -94,25 +93,6 @@ function MarketLinks (props) {
                 }}
               >
                 {intl.formatMessage({ id: 'marketParticipationLink' }, { x: marketNameState[marketId].name })}
-              </Link>
-            )}
-          </Grid>
-          <Grid
-            item
-            key={`${marketId}obs`}
-          >
-            {!myPresence && marketId in marketNameState && marketNameState[marketId].marketType !== INITIATIVE_TYPE && (
-              <Link
-                href={`${baseInviteLink}#is_obs=true`}
-                variant="inherit"
-                underline="always"
-                color="primary"
-                onClick={(event) => {
-                  event.preventDefault()
-                  navigate(history, `${baseInviteLink}#is_obs=true`)
-                }}
-              >
-                {intl.formatMessage({ id: 'marketObservationLink' }, { x: marketNameState[marketId].name })}
               </Link>
             )}
           </Grid>

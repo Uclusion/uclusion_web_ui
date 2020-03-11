@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import {
@@ -9,7 +9,6 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import {
   getMarketPresences,
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { INITIATIVE_TYPE } from '../../constants/markets';
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { getMarketInfo } from '../../api/sso';
@@ -77,7 +76,7 @@ function ParentSummary(props) {
   }, [parentMarketId, hidden, parentLoaded])
 
   function displayParentLink(parentMarketId, parentInvestibleId) {
-    const { name: parentMarketName, market_type: parentMarketType } = parentMarket;
+    const { name: parentMarketName } = parentMarket;
     const marketPresences = getMarketPresences(marketPresencesState, parentMarketId) || [];
     const myParentPresence = marketPresences.find((presence) => presence.current_user);
     const baseLink = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) : formMarketLink(parentMarketId);
@@ -91,7 +90,7 @@ function ParentSummary(props) {
           item
           key={parentMarketId}
         >
-          {(myParentPresence || parentMarketType === INITIATIVE_TYPE) && (
+          {myParentPresence && (
             <Link
               href={baseLink}
               variant="inherit"
@@ -105,7 +104,7 @@ function ParentSummary(props) {
               {parentInvestibleName || parentMarketName}
             </Link>
           )}
-          {!myParentPresence && parentMarketType !== INITIATIVE_TYPE && (
+          {!myParentPresence && (
             <Link
               href={`${baseInviteLink}#is_obs=false`}
               variant="inherit"
@@ -117,25 +116,6 @@ function ParentSummary(props) {
               }}
             >
               {intl.formatMessage({ id: 'marketParticipationLink' }, { x: parentMarketName })}
-            </Link>
-          )}
-        </Grid>
-        <Grid
-          item
-          key={`${parentMarketId}obs`}
-        >
-          {!myParentPresence && parentMarketType !== INITIATIVE_TYPE && (
-            <Link
-              href={`${baseInviteLink}#is_obs=true`}
-              variant="inherit"
-              underline="always"
-              color="primary"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate(history, `${baseInviteLink}#is_obs=true`)
-              }}
-            >
-              {intl.formatMessage({ id: 'marketObservationLink' }, { x: parentMarketName })}
             </Link>
           )}
         </Grid>

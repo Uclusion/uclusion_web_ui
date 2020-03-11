@@ -101,6 +101,7 @@ function Summary(props) {
       <CardActions>
         <DialogActions
           isAdmin={myPresence.is_admin}
+          isFollowing={myPresence.following}
           marketStage={marketStage}
           marketType={marketType}
           inArchives={myPresence.market_hidden}

@@ -10,7 +10,6 @@ import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import ManageParticipants from './Planning/ManageParticipants';
 import AddressList from './AddressList';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -112,10 +111,9 @@ function DialogManage(props) {
         </>
       )}
       {marketType === PLANNING_TYPE && (
-        <ManageParticipants
+        <AddressList
           market={renderableMarket}
-          investibles={investibles}
-          marketPresences={marketPresences}
+          isOwnScreen={false}
           onCancel={onDone}
           onSave={onDone}
         />

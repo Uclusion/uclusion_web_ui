@@ -65,15 +65,15 @@ export function updateMarket(marketId, name, description, uploadedFiles, maxBudg
 }
 
 
-export function changeUserToParticipant(marketId, userId){
+export function changeUserToParticipant(marketId){
   return getMarketClient(marketId)
-    .then((client) => client.markets.followMarket(false, userId))
+    .then((client) => client.markets.followMarket(false))
     .catch((error) => toastErrorAndThrow(error, 'errorChangeToParticipantFailed'));
 }
 
-export function changeUserToObserver(marketId, userId){
+export function changeUserToObserver(marketId){
   return getMarketClient(marketId)
-    .then((client) => client.markets.followMarket(true, userId))
+    .then((client) => client.markets.followMarket(true))
     .catch((error) => toastErrorAndThrow(error, 'errorChangeToObserverFailed'));
 }
 

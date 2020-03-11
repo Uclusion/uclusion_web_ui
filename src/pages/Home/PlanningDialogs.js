@@ -214,7 +214,8 @@ function PlanningDialogs(props) {
                 marketStage={marketStage}
                 marketId={marketId}
                 marketType={marketType}
-                isAdmin={true}
+                isAdmin
+                isFollowing={myPresence.following}
                 inArchives={myPresence.market_hidden}
               />
             </CardActions>

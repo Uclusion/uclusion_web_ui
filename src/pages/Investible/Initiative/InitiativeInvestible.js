@@ -150,6 +150,7 @@ function InitiativeInvestible(props) {
               marketStage={marketStage}
               marketType={marketType}
               inArchives={myPresence.market_hidden}
+              isFollowing={myPresence.following}
               marketId={marketId}
               initiativeId={investibleId}
             />

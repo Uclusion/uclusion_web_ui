@@ -8,6 +8,8 @@ import { makeStyles } from '@material-ui/core';
 import { formInvestibleEditLink, formMarketEditLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import EditMarketButton from '../Dialog/EditMarketButton';
+import ChangeToObserverButton from '../Dialog/ChangeToObserverButton'
+import ChangeToParticipantButton from '../Dialog/ChangeToParticipantButton'
 
 const useStyles = makeStyles(() => {
   return {
@@ -26,6 +28,7 @@ function DialogActions(props) {
     marketStage,
     marketType,
     isAdmin,
+    isFollowing,
     inArchives,
     initiativeId,
   } = props;
@@ -66,7 +69,16 @@ function DialogActions(props) {
         actions.push(
           <DismissMarketButton key="archive" marketId={marketId}/>,
         );
+        if (isFollowing) {
+          actions.push(
+            <ChangeToObserverButton marketId={marketId}/>,
+          );
+        } else {
+          actions.push(
+            <ChangeToParticipantButton marketId={marketId}/>,
+          );
         }
+      }
       if (!inArchives && (marketType === PLANNING_TYPE || marketStage !== 'Active')) {
         actions.push(
           <HideMarketButton key="leave" marketId={marketId} onClick={goHome}/>,
@@ -103,11 +115,13 @@ DialogActions.propTypes = {
   marketType: PropTypes.string.isRequired,
   initiativeId: PropTypes.string,
   isAdmin: PropTypes.bool,
+  isFollowing: PropTypes.bool,
   inArchives: PropTypes.bool,
 };
 
 DialogActions.defaultProps = {
   isAdmin: false,
+  isFollowing: true,
   inArchives: false,
   initiativeId: '',
 };

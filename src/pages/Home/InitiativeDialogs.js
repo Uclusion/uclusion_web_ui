@@ -145,6 +145,7 @@ function InitiativeDialogs(props) {
                 marketType={marketType}
                 isAdmin
                 inArchives={myPresence.market_hidden}
+                isFollowing={myPresence.following}
                 initiativeId={baseInvestibleId}
               />
             </CardActions>

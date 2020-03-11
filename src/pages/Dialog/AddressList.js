@@ -20,9 +20,7 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import { addParticipants, inviteParticipants } from '../../api/users';
 import InviteLinker from './InviteLinker';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
-import ChangeToObserverButton from './ChangeToObserverButton';
-import ChangeToParticipantButton from './ChangeToParticipantButton';
+import { DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
 
@@ -44,10 +42,8 @@ function AddressList(props) {
     onCancel,
     showObservers,
     isOwnScreen,
-    isAdmin,
-    following,
   } = props;
-  const { id: addToMarketId, market_stage: marketStage, market_type: marketType } = market;
+  const { id: addToMarketId, market_type: marketType } = market;
   const classes = useStyles();
   const intl = useIntl();
   const isInitative = marketType === INITIATIVE_TYPE;
@@ -114,7 +110,6 @@ function AddressList(props) {
   const [filteredNames, setFilteredNames] = useState(undefined);
   const participants = Object.keys(checked).map((key) => checked[key]);
   const anySelected = participants.find((participant) => participant.isChecked);
-  const active = marketStage === ACTIVE_STAGE;
 
   function myOnCancel() {
     setChecked(defaultChecked);
@@ -222,18 +217,6 @@ function AddressList(props) {
 
   return (
     <div>
-      {!isAdmin && active && marketType === DECISION_TYPE && following && (
-        <ChangeToObserverButton
-          marketId={addToMarketId}
-          translationId="addressListMakeObserver"
-        />
-      )}
-      {active && marketType === DECISION_TYPE && !following && (
-        <ChangeToParticipantButton
-          marketId={addToMarketId}
-          translationId="manageParticipantsMakeParticipant"
-        />
-      )}
       <Typography>
         {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
       </Typography>

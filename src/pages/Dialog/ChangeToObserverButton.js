@@ -1,44 +1,35 @@
-import React from 'react';
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
 import { changeUserToObserver } from '../../api/markets';
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
+import VolumeOffIcon from '@material-ui/icons/VolumeOff';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC'
+import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
 
 
 function ChangeToObserverButton(props) {
-  const { marketId, onClick, translationId, userId } = props;
-  const intl = useIntl();
+  const [operationRunning] = useContext(OperationInProgressContext);
+  const { marketId } = props;
+  const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
 
   function myOnClick() {
-    return changeUserToObserver(marketId, userId);
+    return changeUserToObserver(marketId);
   }
 
   return (
-    <SpinBlockingButton
+    <SpinningTooltipIconButton
       marketId={marketId}
       onClick={myOnClick}
-      onSpinStop={onClick}
-      size="small"
-      variant="contained"
-      color="primary"
-    >
-      {intl.formatMessage({ id: translationId })}
-    </SpinBlockingButton>
+      disabled={operationRunning}
+      key="subscribe"
+      translationId="decisionDialogsBecomeObserver"
+      icon={<VolumeOffIcon />}
+    />
   );
 }
 
 ChangeToObserverButton.propTypes = {
   marketId: PropTypes.string.isRequired,
-  onClick: PropTypes.func,
-  translationId: PropTypes.string,
-  userId: PropTypes.string,
-};
-
-ChangeToObserverButton.defaultProps = {
-  onClick: () => {
-  },
-  userId: undefined,
-  translationId: 'decisionDialogsBecomeObserver',
 };
 
 export default ChangeToObserverButton;

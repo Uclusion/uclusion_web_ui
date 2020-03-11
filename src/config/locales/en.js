@@ -360,8 +360,8 @@ const messages = defineMessages({
   decisionDialogsExtendDeadline: 'Extend Deadline',
   decisionDialogsDismissDialog: 'Dismiss',
   decisionDialogsRestoreDialog: 'Restore',
-  decisionDialogsBecomeObserver: 'Become Observer',
-  decisionDialogsBecomeParticipant: 'Become Participant',
+  decisionDialogsBecomeObserver: 'Turn off notifications',
+  decisionDialogsBecomeParticipant: 'Turn on notifications',
   decisionDialogsInviteParticipant: 'Invite Participant',
   decisionDialogsArchiveDialog: 'Deactivate',
 

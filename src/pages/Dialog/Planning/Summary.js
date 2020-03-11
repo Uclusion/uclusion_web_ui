@@ -8,13 +8,13 @@ import {
 import { makeStyles } from '@material-ui/styles';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
-  getMarketPresences, marketHasOnlyApprovers,
+  getMarketPresences,
   marketHasOnlyCurrentUser
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DialogActions from '../../Home/DialogActions';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import ParentSummary from '../ParentSummary';
-import MarketLinks from '../MarketLinks'
+import MarketLinks from '../MarketLinks';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
 
 function Summary(props) {
   const {
-    market, investibleId, hidden,
+    market, investibleId, hidden, isChannel, unassigned
   } = props;
   const intl = useIntl();
   const classes = useStyles();
@@ -70,9 +70,7 @@ function Summary(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const isDraft = marketHasOnlyCurrentUser(marketPresencesState, id);
-  const isChannel = marketHasOnlyApprovers(marketPresencesState, id);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const marketPresencesObserving = marketPresences.filter((presence) => !presence.following);
 
   function displayUserList(presencesList) {
     return presencesList.map((presence) => {
@@ -147,7 +145,7 @@ function Summary(props) {
           />
         </>
       )}
-      {!_.isEmpty(marketPresencesObserving) && (
+      {!_.isEmpty(unassigned) && (
         <Grid
           container
         >
@@ -167,7 +165,7 @@ function Summary(props) {
             sm={10}
             key="ol"
           >
-            {displayUserList(marketPresencesObserving)}
+            {displayUserList(unassigned)}
           </Grid>
         </Grid>
       )}
@@ -184,12 +182,15 @@ Summary.propTypes = {
   investibleDescription: PropTypes.string,
   investibleId: PropTypes.string,
   hidden: PropTypes.bool.isRequired,
+  isChannel: PropTypes.bool.isRequired,
+  unassigned: PropTypes.array,
 };
 
 Summary.defaultProps = {
   investibleName: undefined,
   investibleDescription: undefined,
   investibleId: undefined,
+  unassigned: [],
 };
 
 export default Summary;

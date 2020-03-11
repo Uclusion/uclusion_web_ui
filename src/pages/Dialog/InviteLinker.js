@@ -21,7 +21,6 @@ function InviteLinker(props) {
     marketId,
     hidden,
     observerLabel,
-    showObserverLink,
     marketType,
   } = props;
   const classes = useStyles();
@@ -56,18 +55,16 @@ function InviteLinker(props) {
         icon={<AssignmentIcon/>}
         onClick={() => navigator.clipboard.writeText(`${link}#is_obs=false`)}
       />
-      {showObserverLink && (
-        <div>
-          <Typography>
-            {`${observerLabel} ${link}#is_obs=true`}
-          </Typography>
-          <TooltipIconButton
-            translationId="inviteLinkerCopyToClipboard"
-            icon={<AssignmentIcon/>}
-            onClick={() => navigator.clipboard.writeText(`${link}#is_obs=true`)}
-          />
-        </div>
-      )}
+      <div>
+        <Typography>
+          {`${observerLabel} ${link}#is_obs=true`}
+        </Typography>
+        <TooltipIconButton
+          translationId="inviteLinkerCopyToClipboard"
+          icon={<AssignmentIcon/>}
+          onClick={() => navigator.clipboard.writeText(`${link}#is_obs=true`)}
+        />
+      </div>
     </div>
   );
 }
@@ -76,13 +73,11 @@ InviteLinker.propTypes = {
   marketId: PropTypes.string.isRequired,
   observerLabel: PropTypes.string.isRequired,
   hidden: PropTypes.bool,
-  showObserverLink: PropTypes.bool,
-  markeType: PropTypes.string.isRequired,
+  marketType: PropTypes.string.isRequired,
 };
 
 InviteLinker.defaultProps = {
   hidden: false,
-  showObserverLink: true,
 };
 
 export default InviteLinker;

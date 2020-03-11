@@ -20,7 +20,7 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import { addParticipants, inviteParticipants } from '../../api/users';
 import InviteLinker from './InviteLinker';
 import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
+import { INITIATIVE_TYPE } from '../../constants/markets';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
 
@@ -47,10 +47,7 @@ function AddressList(props) {
   const classes = useStyles();
   const intl = useIntl();
   const isInitative = marketType === INITIATIVE_TYPE;
- // const isPlan = marketType === PLANNING_TYPE;
-  const isDecision = marketType === DECISION_TYPE;
-  const observerLabel = isDecision ? intl.formatMessage({ id: 'isObserver' }) :
-    intl.formatMessage({ id: 'isApprover' });
+  const observerLabel = intl.formatMessage({ id: 'isObserver' });
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [email1, setEmail1] = useState(undefined);
 

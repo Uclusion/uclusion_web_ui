@@ -5,6 +5,7 @@ import React, { useState, useRef, useContext } from 'react'
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { Grid, Typography } from '@material-ui/core';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
@@ -32,10 +33,10 @@ import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import { getUserInvestibles } from './userUtils';
 import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { marketHasOnlyApprovers } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
-import InsertLinkIcon from '@material-ui/icons/InsertLink'
-import SuggestChanges from '../../../components/SidebarActions/SuggestChanges'
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
+import InsertLinkIcon from '@material-ui/icons/InsertLink';
+import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -62,7 +63,34 @@ function PlanningDialog(props) {
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const isChannel = marketHasOnlyApprovers(marketPresencesState, marketId);
+  const presences = getMarketPresences(marketPresencesState, marketId);
+  const acceptedStage = marketStages.find(
+    stage => !stage.allows_investment && stage.singular_only,
+  );
+  const inDialogStage = marketStages.find(stage => stage.allows_investment);
+  const inReviewStage = marketStages.find(
+    stage =>
+      stage.appears_in_context &&
+      !stage.singular_only &&
+      !stage.allows_issues,
+  );
+  const inBlockingStage = marketStages.find(
+    stage => stage.appears_in_context && stage.allows_issues,
+  );
+  const assignedPresences = presences.filter((presence) => {
+    const assignedInvestibles = getUserInvestibles(presence.id, marketId, investibles);
+    if (_.isEmpty(assignedInvestibles)) {
+      return false;
+    }
+    const filtered = assignedInvestibles.filter((investible) => {
+      const { market_infos: marketInfos } = investible;
+      const marketInfo = marketInfos.find((info) => info.market_id === marketId);
+      return marketInfo.stage in [inDialogStage.id, acceptedStage.id, inReviewStage.id, inBlockingStage.id];
+    });
+    return _.isEmpty(filtered);
+  });
+  const isChannel = _.isEmpty(assignedPresences);
+  const unassigned = _.difference(presences, assignedPresences);
 
   let lockedByName;
   if (lockedBy) {
@@ -89,23 +117,7 @@ function PlanningDialog(props) {
     setCommentAddHidden(true);
   }
 
-  function getInvestiblesByPerson(investibles, marketPresences) {
-    const followingPresences = marketPresences.filter(
-      presence => presence.following,
-    );
-    const acceptedStage = marketStages.find(
-      stage => !stage.allows_investment && stage.singular_only,
-    );
-    const inDialogStage = marketStages.find(stage => stage.allows_investment);
-    const inReviewStage = marketStages.find(
-      stage =>
-        stage.appears_in_context &&
-        !stage.singular_only &&
-        !stage.allows_issues,
-    );
-    const inBlockingStage = marketStages.find(
-      stage => stage.appears_in_context && stage.allows_issues,
-    );
+  function getInvestiblesByPerson(investibles, assignedPresences) {
     return (
       <GridList key="toppresencelist" cellHeight="auto" cols={3}>
         <GridListTile
@@ -144,7 +156,7 @@ function PlanningDialog(props) {
             {intl.formatMessage({ id: 'planningBlockedStageLabel' })}
           </ListSubheader>
         </GridListTile>
-        {followingPresences.map(presence => {
+        {assignedPresences.map(presence => {
           const myInvestibles = getUserInvestibles(
             presence.id,
             marketId,
@@ -232,6 +244,8 @@ function PlanningDialog(props) {
             <Summary
               market={market}
               hidden={hidden}
+              isChannel={isChannel}
+              unassigned={unassigned}
             />
             {lockedBy && (
               <Typography>
@@ -246,7 +260,7 @@ function PlanningDialog(props) {
               type={SECTION_TYPE_SECONDARY}
               title={intl.formatMessage({ id: 'planningDialogPeopleLabel' })}
             >
-              {getInvestiblesByPerson(investibles, marketPresences)}
+              {getInvestiblesByPerson(investibles, assignedPresences)}
             </SubSection>
           </Grid>
         )}

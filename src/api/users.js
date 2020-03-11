@@ -18,6 +18,16 @@ export function startSubscription(paymentId, tier) {
     .then((client) => client.users.startSubscription(paymentId, tier));
 }
 
+export function endSubscription() {
+  return getAccountClient()
+    .then((client) => client.users.cancelSubscription());
+}
+
+export function restartSubscription(paymentId) {
+  return getAccountClient()
+    .then((client) => client.users.restartSubscription(paymentId));
+}
+
 export function updatePaymentInfo(paymentId) {
   return getAccountClient()
     .then((client) => client.users.updatePaymentInfo(paymentId));

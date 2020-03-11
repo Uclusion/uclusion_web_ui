@@ -5,7 +5,7 @@ import Screen from '../../containers/Screen/Screen';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { PRODUCT_TIER_FREE, PRODUCT_TIER_STANDARD } from '../../constants/billing';
 import { canCreate, getAccount, updateAccount } from '../../contexts/AccountContext/accountContextHelper';
-import { startSubscription } from '../../api/users';
+import { startSubscription, endSubscription } from '../../api/users';
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
 import UpdateBillingForm from './UpdateBillingForm';
 import { useIntl } from 'react-intl';
@@ -29,6 +29,14 @@ function BillingHome(props){
         updateAccount(accountDispatch, upgradedAccount);
       })
   }
+
+  function cancelSubscription() {
+    return endSubscription()
+      .then((cancelledAccount) => {
+        updateAccount(accountDispatch, cancelledAccount);
+      })
+  }
+
   return (
     <Screen
       hidden={hidden}
@@ -52,6 +60,13 @@ function BillingHome(props){
           onClick={beginSubscription}
         >
           Begin Subscription
+        </ApiBlockingButton>
+      )}
+      {!upgradable && (
+        <ApiBlockingButton
+          onClick={cancelSubscription}
+        >
+          Cancel Subscription
         </ApiBlockingButton>
       )}
       {<UpdateBillingForm/>}

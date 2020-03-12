@@ -19,7 +19,8 @@ function Invoices (props) {
         </Typography>
       );
     }
-    return invoices.map((invoice) => {
+    const sortedInvoices = _.sortBy(invoices, 'created').reverse();
+    return sortedInvoices.map((invoice) => {
       const { total, created, invoice_pdf } = invoice;
       const totalDollars = total / 100.0;
       const milliCreated = created * 1000;

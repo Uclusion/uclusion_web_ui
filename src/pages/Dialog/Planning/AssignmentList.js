@@ -48,7 +48,6 @@ function AssignmentList(props) {
 
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || {};
-  const participantPresences = marketPresences.filter((presence) => presence.following);
   const [investiblesState] = useContext(InvestiblesContext);
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
 
@@ -59,7 +58,6 @@ function AssignmentList(props) {
   const blockedStage = getBlockedStage(marketStagesState, marketId);
   const [marketsState] = useContext(MarketsContext);
   const user = getMyUserForMarket(marketsState, marketId) || {};
-  const userPresence = marketPresences.find((presence) => presence.id === user.id);
 
   function getInvestibleState(investibleId, stageId) {
     if (stageId === blockedStage.id) {
@@ -81,7 +79,7 @@ function AssignmentList(props) {
    * Returns an object keyed by the market presence id, containing the above computed array.
    */
   function computeAssignments() {
-    return participantPresences.reduce((acc, presence) => {
+    return marketPresences.reduce((acc, presence) => {
       const { id: presenceId } = presence;
       const assignments = marketInvestibles.filter((inv) => {
         const info = inv.market_infos.find((info) => info.market_id === marketId);
@@ -114,13 +112,10 @@ function AssignmentList(props) {
       }), {});
     }
     const assignments = computeAssignments();
-    const canBeAssigned = userPresence && userPresence.following;
-    if (canBeAssigned) {
-      const userAssignments = assignments[user.id] || [];
-      const assigned = userAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
-      if (!assigned) {
-        return { [user.id]: true };
-      }
+    const userAssignments = assignments[user.id] || [];
+    const assigned = userAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
+    if (!assigned) {
+      return { [user.id]: true };
     }
     return {};
   }
@@ -137,7 +132,7 @@ function AssignmentList(props) {
   }, [checked, onChange, submitted]);
 
   function getSortedPresenceWithAssignable() {
-    const sortedParticipants = _.sortBy(participantPresences, 'name');
+    const sortedParticipants = _.sortBy(marketPresences, 'name');
     const assignments = computeAssignments();
     // console.log(assignments);
     return sortedParticipants.map((presence) => {

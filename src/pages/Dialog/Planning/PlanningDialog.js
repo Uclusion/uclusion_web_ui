@@ -211,8 +211,7 @@ function PlanningDialog(props) {
     }
     function onClick() {
       const link = formMarketAddInvestibleLink(marketId);
-      const assignedLink = link + `#assignee=${myPresence.id}`;
-      navigate(history, assignedLink);
+      navigate(history, link);
     }
     return [
       <InvestibleAddActionButton

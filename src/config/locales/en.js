@@ -552,6 +552,7 @@ const messages = defineMessages({
   upgradeFormCardPhone: 'Cardholder Phone Number',
   upgradeFormCardEmail: 'Cardholder Email',
   upgradeFormUpgradeLabel: 'Update Card',
+  upgradeFormRestartLabel: 'Restart Subscription',
 
 
   // API errors

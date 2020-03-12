@@ -3,14 +3,14 @@ import { Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import Screen from '../../containers/Screen/Screen';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { PRODUCT_TIER_FREE, PRODUCT_TIER_STANDARD } from '../../constants/billing';
+import { PRODUCT_TIER_FREE, PRODUCT_TIER_STANDARD, SUBSCRIPTION_STATUS_CANCELED } from '../../constants/billing';
 import { canCreate, getAccount, updateAccount } from '../../contexts/AccountContext/accountContextHelper';
-import { startSubscription, endSubscription } from '../../api/users';
-import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
+import { startSubscription, endSubscription, restartSubscription } from '../../api/users';
 import UpdateBillingForm from './UpdateBillingForm';
 import { useIntl } from 'react-intl';
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 
-function BillingHome(props){
+function BillingHome (props) {
   const { hidden } = props;
   const intl = useIntl();
   const [accountState, accountDispatch] = useContext(AccountContext);
@@ -22,20 +22,43 @@ function BillingHome(props){
   } = account;
 
   const upgradable = tier === PRODUCT_TIER_FREE;
+  const cancellable = subStatus !== SUBSCRIPTION_STATUS_CANCELED
+  const restartable = !cancellable && !upgradable;
 
-  function beginSubscription() {
+  function onSpinStop (account) {
+    updateAccount(accountDispatch, account);
+  }
+
+  function beginSubscription () {
     return startSubscription(PRODUCT_TIER_STANDARD)
       .then((upgradedAccount) => {
-        updateAccount(accountDispatch, upgradedAccount);
-      })
+        return {
+          result: upgradedAccount,
+          spinChecker: () => Promise.resolve(true)
+        };
+      });
   }
 
-  function cancelSubscription() {
+  function cancelSubscription () {
     return endSubscription()
       .then((cancelledAccount) => {
-        updateAccount(accountDispatch, cancelledAccount);
-      })
+        return {
+          result: cancelledAccount,
+          spinChecker: () => Promise.resolve(true)
+        };
+      });
   }
+
+  function resumeSubscription(paymentResult, formResetter) {
+    console.log('Resume called');
+    return restartSubscription(paymentResult.paymentMethod.id)
+      .then((restartedAccount) => {
+        updateAccount(accountDispatch, restartedAccount);
+        formResetter();
+      });
+  }
+
+  const billingSubmit = restartable? resumeSubscription : undefined;
 
   return (
     <Screen
@@ -56,20 +79,27 @@ function BillingHome(props){
       Need some copy here telling them all the great benefits of upgrading to paid.
       We'll integrate stripe elements, and we have name email et all from our contexts.
       {upgradable && (
-        <ApiBlockingButton
+        <SpinBlockingButton
           onClick={beginSubscription}
+          onSpinStop={onSpinStop}
+          hasSpinChecker
         >
           Begin Subscription
-        </ApiBlockingButton>
+        </SpinBlockingButton>
       )}
-      {!upgradable && (
-        <ApiBlockingButton
+      {cancellable && (
+        <SpinBlockingButton
           onClick={cancelSubscription}
+          onSpinStop={onSpinStop}
+          hasSpinChecker
         >
           Cancel Subscription
-        </ApiBlockingButton>
+        </SpinBlockingButton>
       )}
-      {<UpdateBillingForm/>}
+      {<UpdateBillingForm
+        submitLabelId={restartable? "upgradeFormRestartLabel" : undefined }
+        onSubmit={billingSubmit}
+      />}
     </Screen>
   );
 }

@@ -6,9 +6,10 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { PRODUCT_TIER_FREE, PRODUCT_TIER_STANDARD, SUBSCRIPTION_STATUS_CANCELED } from '../../constants/billing';
 import { canCreate, getAccount, updateAccount } from '../../contexts/AccountContext/accountContextHelper';
 import { startSubscription, endSubscription, restartSubscription } from '../../api/users';
-import UpdateBillingForm from './UpdateBillingForm';
+import CardInputForm from './CardInputForm';
 import { useIntl } from 'react-intl';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
+import Invoices from './Invoices';
 
 function BillingHome (props) {
   const { hidden } = props;
@@ -76,8 +77,8 @@ function BillingHome (props) {
       <Typography>
         {`Can create ${canCreate(accountState)}`}
       </Typography>
-      Need some copy here telling them all the great benefits of upgrading to paid.
-      We'll integrate stripe elements, and we have name email et all from our contexts.
+      Need more copy here for billing
+      <Invoices/>
       {upgradable && (
         <SpinBlockingButton
           onClick={beginSubscription}
@@ -96,7 +97,7 @@ function BillingHome (props) {
           Cancel Subscription
         </SpinBlockingButton>
       )}
-      {<UpdateBillingForm
+      {<CardInputForm
         submitLabelId={restartable? "upgradeFormRestartLabel" : undefined }
         onSubmit={billingSubmit}
       />}

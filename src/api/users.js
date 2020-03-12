@@ -33,6 +33,11 @@ export function updatePaymentInfo(paymentId) {
     .then((client) => client.users.updatePaymentInfo(paymentId));
 }
 
+export function getInvoices() {
+  return getAccountClient()
+    .then((client) => client.users.getInvoices());
+}
+
 export function getPaymentInfo() {
   return getAccountClient()
     .then((client) => client.users.getPaymentInfo());

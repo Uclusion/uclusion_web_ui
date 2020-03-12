@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
 
 const EMPTY_DETAILS = { name: '', email: '', phone: '' };
 
-function UpdateBillingForm (props) {
+function CardInputForm (props) {
 
   const { onUpdate, onSubmit, submitLabelId } = props;
 
@@ -223,15 +223,15 @@ function UpdateBillingForm (props) {
   );
 }
 
-UpdateBillingForm.propTypes = {
+CardInputForm.propTypes = {
   onUpdate: PropTypes.func,
   onSubmit: PropTypes.func,
   submitLabelId: PropTypes.string,
 };
 
-UpdateBillingForm.defaultProps = {
+CardInputForm.defaultProps = {
   onUpdate: () => {},
   onSubmit: undefined,
   submitLabelId: 'upgradeFormUpgradeLabel',
 };
-export default UpdateBillingForm;
+export default CardInputForm;

@@ -56,7 +56,7 @@ function Root() {
   const history = useHistory();
   const classes = useStyles();
   const { location } = history;
-  const { pathname, hash } = location;
+  const { pathname } = location;
   console.debug(`pathname is ${pathname}`);
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);

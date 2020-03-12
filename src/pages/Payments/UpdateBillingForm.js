@@ -40,7 +40,7 @@ const EMPTY_DETAILS = { name: '', email: '', phone: '' };
 
 function UpdateBillingForm (props) {
 
-  const { onUpdate } = props;
+  const { onUpdate, onSubmit, submitLabelId } = props;
 
   const classes = useStyles();
   const stripe = useStripe();
@@ -65,7 +65,7 @@ function UpdateBillingForm (props) {
     setBillingDetails(EMPTY_DETAILS);
   }
 
-  function onSubmit (e) {
+  function myOnSubmit (e) {
     e.preventDefault();
     if (!stripe || !elements) {
       return; //abort
@@ -77,21 +77,27 @@ function UpdateBillingForm (props) {
     if (cardComplete) {
       setProcessing(true);
     }
+    const updateBillingSubmit = (paymentResult) => {
+     return updatePaymentInfo(paymentResult.paymentMethod.id)
+        .then((upgradedAccount) => {
+          updateAccount(accountDispatch, upgradedAccount);
+          return getPaymentInfo();
+        }).then((info) => {
+        updateBilling(accountDispatch, info);
+        resetForm();
+        onUpdate();
+      });
+    };
+
+    const usedSubmit = (onSubmit)? onSubmit : updateBillingSubmit;
 
     return stripe.createPaymentMethod(({
       type: 'card',
       card: elements.getElement(CardElement),
       billing_details: billingDetails
-    })).then((paymentResult) => {
-      return updatePaymentInfo(paymentResult.paymentMethod.id,)
-        .then((upgradedAccount) => {
-          updateAccount(accountDispatch, upgradedAccount);
-          return getPaymentInfo();
-        }).then((info) => {
-          updateBilling(accountDispatch, info);
-          resetForm();
-          onUpdate();
-        });
+    })).then((paymentResult) =>{
+      console.log('Payment method creation successful');
+      return usedSubmit(paymentResult, resetForm);
     }).catch((e) => {
       setError(e.error || e.error_message);
       setProcessing(false);
@@ -151,7 +157,7 @@ function UpdateBillingForm (props) {
       <form
         className={classes.form}
         autoComplete="off"
-        onSubmit={onSubmit}
+        onSubmit={myOnSubmit}
 
       >
         <Grid container spacing={2}>
@@ -209,7 +215,7 @@ function UpdateBillingForm (props) {
             type="submit"
             disabled={!validForm}
           >
-            {intl.formatMessage({ id: 'upgradeFormUpgradeLabel' })}
+            {intl.formatMessage({ id: submitLabelId })}
           </SpinningButton>
         </Grid>
       </form>
@@ -219,9 +225,13 @@ function UpdateBillingForm (props) {
 
 UpdateBillingForm.propTypes = {
   onUpdate: PropTypes.func,
+  onSubmit: PropTypes.func,
+  submitLabelId: PropTypes.string,
 };
 
 UpdateBillingForm.defaultProps = {
   onUpdate: () => {},
+  onSubmit: undefined,
+  submitLabelId: 'upgradeFormUpgradeLabel',
 };
 export default UpdateBillingForm;

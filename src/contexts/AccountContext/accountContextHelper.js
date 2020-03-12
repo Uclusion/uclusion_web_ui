@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { PRODUCT_TIER_FREE } from '../../constants/billing';
-import { accountRefresh, billingInfoRefresh } from './accountContextReducer';
+import { accountRefresh, billingInfoRefresh, invoicesRefresh } from './accountContextReducer';
 
 export function canCreate(state) {
   if (_.isEmpty(state.account)) {
@@ -35,6 +35,12 @@ export function getCurrentBillingInfo(state) {
   return state.billingInfo;
 }
 
+export function getCurrentInvoices(state) {
+  if (_.isEmpty(state.invoices)) {
+    return undefined;
+  }
+  return state.invoices;
+}
 
 function fixDate (account, name) {
   const value = account[name];
@@ -52,6 +58,10 @@ function fixDates (account) {
     updated_at: fixDate(account, 'updated_at'),
   };
   return fixedState;
+}
+
+export function updateInvoices(dispatch, invoices) {
+  dispatch(invoicesRefresh(invoices));
 }
 
 export function updateBilling(dispatch, billingInfo) {

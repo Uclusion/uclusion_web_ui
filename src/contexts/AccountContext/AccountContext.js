@@ -3,8 +3,8 @@ import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../
 import { reducer } from './accountContextReducer';
 import { beginListening } from './accountContextMessages';
 import { getAccount } from '../../api/sso';
-import { updateAccount, updateBilling } from './accountContextHelper';
-import { getPaymentInfo } from '../../api/users';
+import { updateAccount, updateBilling, updateInvoices } from './accountContextHelper';
+import { getInvoices, getPaymentInfo } from '../../api/users';
 
 const EMPTY_STATE = { account: {}, billingInfo: {} };
 const AccountContext = React.createContext(EMPTY_STATE);
@@ -33,6 +33,9 @@ function AccountProvider(props) {
           return getPaymentInfo();
         }).then((paymentInfo) => {
           updateBilling(dispatch, paymentInfo);
+          return getInvoices();
+        }).then((invoices) => {
+          updateInvoices(dispatch, invoices);
         });
       setIsInitialization(false);
     }

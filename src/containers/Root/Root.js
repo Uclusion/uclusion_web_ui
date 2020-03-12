@@ -115,7 +115,7 @@ function Root() {
   }
 
   function hideSlackInvite() {
-    return action !== 'slack' || !hash;
+    return action !== 'slack';
   }
 
   function hideMarketInvite() {

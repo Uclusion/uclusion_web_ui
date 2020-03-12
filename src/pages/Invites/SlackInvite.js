@@ -28,11 +28,7 @@ const useStyles = makeStyles((theme) => ({
     '&:last-child': {
       marginBottom: 0,
     },
-  },
-  label: {
     fontWeight: 600,
-    marginRight: theme.spacing(1),
-    minWidth: 140,
   },
   value: {
     //
@@ -49,7 +45,7 @@ function SlackInvite(props) {
   const [myLoading, setMyLoading] = useState(true);
 
   useEffect(() => {
-    if (!hidden) {
+    if (!hidden && hash) {
       const values = queryString.parse(hash);
       const { nonce } = values;
       if (nonce) {
@@ -66,18 +62,18 @@ function SlackInvite(props) {
       }
     }
   }, [hidden, hash, history]);
-
+  const messageId = hash ? 'slackIntegrationSuccessful' : 'slackIntegrationPartial';
   return (
     <Screen
       title={intl.formatMessage({ id: 'loadingSlack' })}
       tabTitle={intl.formatMessage({ id: 'loadingSlack' })}
       hidden={hidden}
-      loading={myLoading}
+      loading={hash && myLoading}
     >
       <div className={classes.root}>
         <Paper className={classes.section}>
           <Typography className={classes.row}>
-            {intl.formatMessage({ id: 'slackIntegrationSuccessful' })}
+            {intl.formatMessage({ id: messageId })}
           </Typography>
         </Paper>
       </div>

@@ -145,7 +145,7 @@ const messages = defineMessages({
 
   loadingMessage: 'Loading',
   loadingMarket: 'Processing Invite',
-  loadingSlack: 'Processing Slack Integration',
+  loadingSlack: 'Slack Integration',
 
   // ExpirationSelector
   expirationSelectorOneDay: '1 day',
@@ -456,6 +456,7 @@ const messages = defineMessages({
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
 
   slackIntegrationSuccessful: 'Slack was successfully integrated.',
+  slackIntegrationPartial: 'Almost there! Now type /uclusion in any Slack channel to complete installation.',
 
   // Assignment List
   assignmentListHeader: 'Assigned to',

@@ -1,7 +1,6 @@
 import React, {
   useState, useContext, useEffect,
 } from 'react';
-import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
   Button,
@@ -9,7 +8,6 @@ import {
   CardActions,
   CardContent,
   TextField, Typography,
-  withStyles,
 } from '@material-ui/core';
 import localforage from 'localforage';
 import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles';
@@ -28,23 +26,12 @@ import {
   PURE_SIGNUP_ADD_FIRST_OPTION,
   PURE_SIGNUP_ADD_FIRST_OPTION_STEPS, PURE_SIGNUP_FAMILY_NAME
 } from '../../../components/Tours/pureSignupTours';
-
-const styles = (theme) => ({
-  root: {
-    padding: theme.spacing(2),
-  },
-  row: {
-    marginBottom: theme.spacing(2),
-    '&:last-child': {
-      marginBottom: 0,
-    },
-  },
-});
+import CardType, { VOTING_TYPE } from '../../../components/CardType';
+import { FormattedMessage, useIntl } from 'react-intl'
 
 function DecisionInvestibleAdd(props) {
   const {
     marketId,
-    intl,
     classes,
     onCancel,
     isAdmin,
@@ -53,6 +40,7 @@ function DecisionInvestibleAdd(props) {
     hidden,
     onSpinComplete,
   } = props;
+  const intl = useIntl();
   const { description: storedDescription, name: storedName } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -161,22 +149,25 @@ function DecisionInvestibleAdd(props) {
         name={PURE_SIGNUP_ADD_FIRST_OPTION}
         steps={PURE_SIGNUP_ADD_FIRST_OPTION_STEPS}
       />
-      <CardContent>
+      <CardType
+        className={classes.cardType}
+        label={`${intl.formatMessage({
+          id: "decisionInvestibleDescription"
+        })}`}
+        type={VOTING_TYPE}
+      />
+      <CardContent className={classes.cardContent}>
         <TextField
-          className={classes.row}
-          inputProps={{ maxLength: 255 }}
-          id="name"
-          helperText={intl.formatMessage({ id: 'investibleAddTitleLabel' })}
-          placeholder={intl.formatMessage({ id: 'investibleAddTitleDefault' })}
-          margin="normal"
           fullWidth
-          variant="outlined"
-          value={name}
+          id="decision-investible-name"
+          label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
           onChange={handleChange('name')}
+          placeholder={intl.formatMessage({
+            id: "optionTitlePlaceholder"
+          })}
+          value={name}
+          variant="filled"
         />
-        <Typography>
-          {intl.formatMessage({ id: 'descriptionEdit' })}
-        </Typography>
         <QuillEditor
           id="description"
           marketId={marketId}
@@ -187,42 +178,47 @@ function DecisionInvestibleAdd(props) {
           defaultValue={description}
           setOperationInProgress={setOperationRunning}
           setEditorClearFunc={(func) => {
-            console.log('Setting dia clear func');
-            console.log(func);
             setEditorClearFunc(func);
           }}
         />
       </CardContent>
-      <CardActions>
-        <SpinBlockingButtonGroup>
-          <Button
-            onClick={handleCancel}
-          >
-            {intl.formatMessage({ id: 'investibleAddCancelLabel' })}
-          </Button>
-          <SpinBlockingButton
-            variant="contained"
-            color="primary"
-            id="save"
-            onClick={handleSave}
-            disabled={!validForm}
-            marketId={marketId}
-            onSpinStop={onSpinComplete}
-          >
-            {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
-          </SpinBlockingButton>
-        </SpinBlockingButtonGroup>
+      <CardActions className={classes.actions}>
+        <Button
+          onClick={handleCancel}
+          className={classes.actionSecondary}
+          color="secondary"
+          variant="contained"
+        >
+          <FormattedMessage
+            id={"marketAddCancelLabel"}
+          />
+        </Button>
+        <SpinBlockingButton
+          id="save"
+          onClick={handleSave}
+          onSpinStop={onSpinComplete}
+          className={classes.actionPrimary}
+          color="primary"
+          disabled={!validForm}
+          marketId={marketId}
+          variant="contained"
+        >
+          <FormattedMessage
+            id={"agilePlanFormSaveLabel"}
+          />
+        </SpinBlockingButton>
         <SpinBlockingButton
           variant="contained"
           color="primary"
-          size="small"
           disabled={!validForm}
           id="saveAddAnother"
           onClick={handleSave}
           marketId={marketId}
           onSpinStop={onSaveAddAnother}
         >
-          {intl.formatMessage({ id: 'decisionInvestibleSaveAddAnother' })}
+          <FormattedMessage
+            id={"decisionInvestibleSaveAddAnother"}
+          />
         </SpinBlockingButton>
       </CardActions>
     </Card>
@@ -231,9 +227,6 @@ function DecisionInvestibleAdd(props) {
 }
 
 DecisionInvestibleAdd.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  intl: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
@@ -254,4 +247,4 @@ DecisionInvestibleAdd.defaultProps = {
   hidden: false,
 };
 
-export default withStyles(styles)(injectIntl(DecisionInvestibleAdd));
+export default DecisionInvestibleAdd;

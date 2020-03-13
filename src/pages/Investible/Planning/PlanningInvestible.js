@@ -12,7 +12,6 @@ import {
 import InsertLinkIcon from "@material-ui/icons/InsertLink";
 import { useHistory } from "react-router";
 import { useIntl, FormattedMessage } from "react-intl";
-import SubSection from "../../../containers/SubSection/SubSection";
 import YourVoting from "../Voting/YourVoting";
 import Voting from "../Decision/Voting";
 import CommentBox from "../../../containers/CommentBox/CommentBox";
@@ -54,7 +53,6 @@ import MoveToAcceptedActionButton from "./MoveToAcceptedActionButton";
 import MoveToInReviewActionButton from "./MoveToInReviewActionButton";
 import ExpiresDisplay from "../../../components/Expiration/ExpiresDisplay";
 import { convertDates } from "../../../contexts/ContextUtils";
-import { SECTION_TYPE_SECONDARY } from "../../../constants/global";
 import DescriptionOrDiff from "../../../components/Descriptions/DescriptionOrDiff";
 import EditMarketButton from "../../Dialog/EditMarketButton";
 import ExpandableSidebarAction from "../../../components/SidebarActions/ExpandableSidebarAction";

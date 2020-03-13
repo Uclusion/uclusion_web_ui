@@ -169,6 +169,7 @@ const messages = defineMessages({
   initiativeExpiration: 'before initiative expires',
   decisionExpiration: 'before dialog expires',
   storyTitlePlaceholder: 'Name your story',
+  optionTitlePlaceholder: 'Name your option',
   agilePlanFormTitlePlaceholder: 'Name your plan',
   agilePlanFormTitleLabel: 'Name',
   agilePlanFormFieldsetLabelOptional: 'Optional',
@@ -412,7 +413,7 @@ const messages = defineMessages({
   inviteParticipantsEmailLabel: 'Email address for Uclusion to send to',
 
   // DecisionIvestibleSave
-  decisionInvestibleSaveAddAnother: 'Save and add Another',
+  decisionInvestibleSaveAddAnother: 'Save & add another',
 
   // DecisionInvestible
   decisionInvestibleYourVoting: 'Your Vote',

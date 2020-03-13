@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { FormattedMessage, injectIntl, useIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types';
 import {
   Button,
@@ -16,14 +16,11 @@ import { processTextAndFilesForSave } from '../../../api/files';
 import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions';
 import AssignmentList from './AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
 import queryString from 'query-string';
-import { makeStyles } from '@material-ui/core/styles'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import CardType, { VOTING_TYPE } from '../../../components/CardType'
-import { DaysEstimate } from '../../../components/AgilePlan'
+import CardType, { VOTING_TYPE } from '../../../components/CardType';
+import { DaysEstimate } from '../../../components/AgilePlan';
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -210,29 +207,6 @@ function PlanningInvestibleAdd(props) {
       </CardActions>
     </Card>
 
-  );
-}
-
-const useInputSuffixStyles = makeStyles(
-  theme => {
-    return {
-      root: {
-        fontSize: "inherit",
-        paddingTop: theme.spacing(2) + 2
-      }
-    };
-  },
-  { name: "InputSuffix" }
-);
-
-function InputSuffix(props) {
-  const { children } = props;
-  const classes = useInputSuffixStyles();
-
-  return (
-    <InputAdornment className={classes.root} disableTypography position="end">
-      {children}
-    </InputAdornment>
   );
 }
 

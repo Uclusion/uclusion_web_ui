@@ -91,6 +91,7 @@ function InvestibleAdd(props) {
           onSpinComplete={onDone}
           isAdmin={isAdmin}
           storedState={storedState}
+          classes={classes}
         />
       )}
       {marketType === PLANNING_TYPE && idLoaded === marketId && (

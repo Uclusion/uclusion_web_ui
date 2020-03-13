@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { injectIntl } from 'react-intl';
 import {
   Button,
-  Card, CardActions, CardContent, TextField, Typography, withStyles,
+  Card, CardActions, CardContent, TextField, Typography,
 } from '@material-ui/core'
 import _ from 'lodash';
 import localforage from 'localforage';
@@ -15,25 +14,18 @@ import AssignmentList from '../../Dialog/Planning/AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { makeStyles } from '@material-ui/core/styles'
-import InputAdornment from '@material-ui/core/InputAdornment'
-
-const styles = (theme) => ({
-  root: {
-    padding: theme.spacing(2),
-  },
-  row: {
-    marginBottom: theme.spacing(2),
-    '&:last-child': {
-      marginBottom: 0,
-    },
-  },
-});
+import { makeStyles } from '@material-ui/core/styles';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import CardType, { VOTING_TYPE } from '../../../components/CardType'
+import { FormattedMessage, useIntl } from 'react-intl'
+import { DaysEstimate, usePlanFormStyles } from '../../../components/AgilePlan'
 
 function PlanningInvestibleEdit(props) {
   const {
-    fullInvestible, intl, classes, onCancel, onSave, marketId, storedState, isAssign,
+    fullInvestible, onCancel, onSave, marketId, storedState, isAssign,
   } = props;
+  const intl = useIntl();
+  const classes = usePlanFormStyles();
   const { description: storedDescription, name: storedName, assignments: storedAssignments,
     days_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
@@ -139,7 +131,14 @@ function PlanningInvestibleEdit(props) {
 
   return (
     <Card>
-      <CardContent>
+      <CardType
+        className={classes.cardType}
+        label={`${intl.formatMessage({
+          id: "investibleDescription"
+        })}`}
+        type={VOTING_TYPE}
+      />
+      <CardContent className={classes.cardContent}>
         {isAssign && (
           <AssignmentList
             marketId={marketId}
@@ -149,35 +148,21 @@ function PlanningInvestibleEdit(props) {
         )}
         {!isAssign && (
           <>
-          <TextField
-            className={classes.row}
-            inputProps={{ maxLength: 255 }}
-            id="name"
-            helperText={intl.formatMessage({ id: 'investibleEditTitleLabel' })}
-            margin="normal"
-            fullWidth
-            variant="outlined"
-            value={name}
-            onChange={handleChange('name')}
-          />
-          <TextField
-            id="standard-number"
-            label={intl.formatMessage({ id: 'agilePlanFormDaysEstimateLabel' })}
-            helperText={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
-            type="number"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            InputProps={{
-              endAdornment: <InputSuffix>days</InputSuffix>,
-            }}
-            variant="outlined"
-            onChange={onDaysEstimateChange}
-            value={daysEstimate}
-          />
-          <Typography>
-            {intl.formatMessage({ id: 'descriptionEdit' })}
-          </Typography>
+            <fieldset className={classes.fieldset}>
+              <legend>optional</legend>
+              <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} />
+            </fieldset>
+            <TextField
+              fullWidth
+              id="plan-investible-name"
+              label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
+              onChange={handleChange('name')}
+              placeholder={intl.formatMessage({
+                id: "storyTitlePlaceholder"
+              })}
+              value={name}
+              variant="filled"
+            />
           <QuillEditor
             onS3Upload={handleFileUpload}
             onChange={onEditorChange}
@@ -188,35 +173,46 @@ function PlanningInvestibleEdit(props) {
         </>
         )}
       </CardContent>
-      <CardActions>
+      <CardActions className={classes.actions}>
         {isAssign && (
           <Button
+            className={classes.actionSecondary}
+            color="secondary"
+            variant="contained"
             onClick={onCancel}
           >
-            {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
+            <FormattedMessage
+              id={"marketAddCancelLabel"}
+            />
           </Button>
         )}
-        <SpinBlockingButtonGroup>
-          {!isAssign && (
-            <SpinBlockingButton
-              marketId={marketId}
-              onClick={onCancel}
-            >
-              {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
-            </SpinBlockingButton>
-          )}
+        {!isAssign && (
           <SpinBlockingButton
             marketId={marketId}
+            onClick={onCancel}
+            className={classes.actionSecondary}
+            color="secondary"
             variant="contained"
-            color="primary"
-            onClick={handleSave}
-            disabled={!validForm}
-            onSpinStop={onSave}
-            hasSpinChecker
           >
-            {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
+            <FormattedMessage
+              id={"marketAddCancelLabel"}
+            />
           </SpinBlockingButton>
-        </SpinBlockingButtonGroup>
+        )}
+        <SpinBlockingButton
+          marketId={marketId}
+          variant="contained"
+          color="primary"
+          className={classes.actionPrimary}
+          onClick={handleSave}
+          disabled={!validForm}
+          onSpinStop={onSave}
+          hasSpinChecker
+        >
+          <FormattedMessage
+            id={"agilePlanFormSaveLabel"}
+          />
+        </SpinBlockingButton>
       </CardActions>
     </Card>
 
@@ -247,12 +243,7 @@ function InputSuffix(props) {
 }
 
 PlanningInvestibleEdit.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  intl: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   fullInvestible: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
@@ -266,4 +257,4 @@ PlanningInvestibleEdit.defaultProps = {
   onCancel: () => {
   },
 };
-export default withStyles(styles)(injectIntl(PlanningInvestibleEdit));
+export default PlanningInvestibleEdit;

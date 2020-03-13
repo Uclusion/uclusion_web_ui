@@ -1,46 +1,29 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { injectIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl'
 import {
-  Card, CardActions, CardContent, TextField, Typography, withStyles,
-} from '@material-ui/core';
+  Card, CardActions, CardContent, TextField,
+} from '@material-ui/core'
 import PropTypes from 'prop-types';
 import localforage from 'localforage';
 import { updateInvestible } from '../../../api/investibles';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import {
-  getProposedOptionsStage,
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-
-const styles = (theme) => ({
-  root: {
-    padding: theme.spacing(2),
-  },
-  row: {
-    marginBottom: theme.spacing(2),
-    '&:last-child': {
-      marginBottom: 0,
-    },
-  },
-});
+import { usePlanFormStyles } from '../../../components/AgilePlan'
+import CardType, { VOTING_TYPE } from '../../../components/CardType'
 
 function DecisionInvestibleEdit(props) {
   const {
-    fullInvestible, intl, classes, onCancel, onSave, marketId,
-    isAdmin, userId, storedState,
+    fullInvestible, onCancel, onSave, marketId, storedState,
   } = props;
+  const intl = useIntl();
+  const classes = usePlanFormStyles();
   const { description: storedDescription, name: storedName } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
-  const { market_infos: marketInfos, investible: myInvestible } = fullInvestible;
-  const marketInfo = marketInfos.find((info) => info.market_id === marketId);
-  const inProposed = marketInfo.stage === inProposedStage.id;
-  const { id, description: initialDescription, created_by: createdBy, name: initialName } = myInvestible;
+  const { investible: myInvestible } = fullInvestible;
+  const { id, description: initialDescription, name: initialName } = myInvestible;
   const [currentValues, setCurrentValues] = useState({ ...myInvestible, name: storedName || initialName });
   const [validForm, setValidForm] = useState(true);
   const { name } = currentValues;
@@ -113,21 +96,25 @@ function DecisionInvestibleEdit(props) {
 
   return (
     <Card>
-      <CardContent>
+      <CardType
+        className={classes.cardType}
+        label={`${intl.formatMessage({
+          id: "decisionInvestibleDescription"
+        })}`}
+        type={VOTING_TYPE}
+      />
+      <CardContent className={classes.cardContent}>
         <TextField
-          className={classes.row}
-          inputProps={{ maxLength: 255 }}
-          id="name"
-          helperText={intl.formatMessage({ id: 'investibleEditTitleLabel' })}
-          margin="normal"
           fullWidth
-          variant="outlined"
-          value={name}
+          id="decision-investible-name"
+          label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
           onChange={handleChange('name')}
+          placeholder={intl.formatMessage({
+            id: "optionTitlePlaceholder"
+          })}
+          value={name}
+          variant="filled"
         />
-        <Typography>
-          {intl.formatMessage({ id: 'descriptionEdit' })}
-        </Typography>
         <QuillEditor
           onS3Upload={handleFileUpload}
           onChange={onEditorChange}
@@ -136,26 +123,32 @@ function DecisionInvestibleEdit(props) {
           setOperationInProgress={setOperationRunning}
         />
       </CardContent>
-      <CardActions>
+      <CardActions className={classes.actions}>
         <SpinBlockingButton
           marketId={marketId}
           onClick={onCancel}
+          className={classes.actionSecondary}
+          color="secondary"
+          variant="contained"
         >
-          {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
+          <FormattedMessage
+            id={"marketAddCancelLabel"}
+          />
         </SpinBlockingButton>
-        {(isAdmin || (inProposed && createdBy === userId)) && (
-          <SpinBlockingButton
-            marketId={marketId}
-            variant="contained"
-            color="primary"
-            onClick={saveInvestible}
-            disabled={!validForm}
-            onSpinStop={onSave}
-            hasSpinChecker
-          >
-            {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
-          </SpinBlockingButton>
-        )}
+        <SpinBlockingButton
+          marketId={marketId}
+          variant="contained"
+          className={classes.actionPrimary}
+          color="primary"
+          onClick={saveInvestible}
+          disabled={!validForm}
+          onSpinStop={onSave}
+          hasSpinChecker
+        >
+          <FormattedMessage
+            id={"agilePlanFormSaveLabel"}
+          />
+        </SpinBlockingButton>
       </CardActions>
     </Card>
 
@@ -163,12 +156,7 @@ function DecisionInvestibleEdit(props) {
 }
 
 DecisionInvestibleEdit.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  intl: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   fullInvestible: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
@@ -182,4 +170,4 @@ DecisionInvestibleEdit.defaultProps = {
   onCancel: () => {},
   isAdmin: false,
 };
-export default withStyles(styles)(injectIntl(DecisionInvestibleEdit));
+export default DecisionInvestibleEdit;

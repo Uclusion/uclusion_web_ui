@@ -5,7 +5,6 @@ import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Card, CardContent, Grid, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
-import SubSection from '../../../containers/SubSection/SubSection';
 import YourVoting from '../Voting/YourVoting';
 import Voting from './Voting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
@@ -24,7 +23,6 @@ import {
   getProposedOptionsStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { ACTIVE_STAGE } from '../../../constants/markets';
-import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import EditMarketButton from '../../Dialog/EditMarketButton';
@@ -250,24 +248,19 @@ function DecisionInvestible(props) {
         </>
       )}
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'decisionInvestibleDiscussion' })}
-          >
-            <CommentAddBox
-              hidden={commentAddHidden}
-              allowedTypes={allowedCommentTypes}
-              investible={investible}
-              marketId={marketId}
-              issueWarningId="issueWarningInvestible"
-              type={commentAddType}
-              onSave={closeCommentAdd}
-              onCancel={closeCommentAdd}
-            />
-            <div ref={commentAddRef} />
-            <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
-          </SubSection>
+        <Grid item xs={12} style={{ marginTop: '71px' }}>
+          <CommentAddBox
+            hidden={commentAddHidden}
+            allowedTypes={allowedCommentTypes}
+            investible={investible}
+            marketId={marketId}
+            issueWarningId="issueWarningInvestible"
+            type={commentAddType}
+            onSave={closeCommentAdd}
+            onCancel={closeCommentAdd}
+          />
+          <div ref={commentAddRef} />
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
         </Grid>
       </Grid>
     </Screen>

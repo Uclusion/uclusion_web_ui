@@ -161,7 +161,7 @@ const messages = defineMessages({
   initiativeAddExpirationLabel: 'Initiative ends after {x} day(s)',
   investmentExpirationInputLabel: 'Number of days before a vote expires',
   maxMaxBudgetInputLabel: 'Maximum number of days for story budget',
-  daysEstimateInputLabel: 'Very rough number of days to complete these requirements',
+  daysEstimateInputLabel: 'Very rough number of days to complete',
   votesRequiredInputLabel: 'Number of votes required to move a story to in progress',
   votesRequiredInputLabelShort: 'votes required',
   votesRequiredInputHelperText: 'Number required to move a story to in progress',
@@ -174,11 +174,10 @@ const messages = defineMessages({
   agilePlanFormFieldsetLabelOptional: 'Optional',
   agilePlanFormFieldsetLabelRequired: 'Required',
   agilePlanFormDescriptionPlaceholder: 'Describe your agile plan. Changes will be stored locally until save.',
-  agilePlanFormDaysEstimateLabel: "Days estimate", 
-  agilePlanFormDaysEstimatePlaceholder: "",   
+  agilePlanFormDaysEstimateLabel: 'Days estimate',
+  agilePlanFormDaysEstimatePlaceholder: 'Very rough number of days to complete',
   agilePlanFormInvestmentExpirationLabel: 'vote expiration',
   agilePlanFormMaxMaxBudgetInputLabel: 'story budget',
-  agilePlanFormDaysEstimateInputLabel: 'ideal delivery',
   agilePlanFormSaveLabel: 'Save & Post',
 
   // Market Nav

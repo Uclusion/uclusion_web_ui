@@ -8,6 +8,7 @@ import {
   CardContent,
   Divider
 } from "@material-ui/core";
+import _ from "lodash";
 import { makeStyles } from "@material-ui/styles";
 import { MarketPresencesContext } from "../../../contexts/MarketPresencesContext/MarketPresencesContext";
 import {
@@ -23,6 +24,9 @@ import {
   VoteExpiration,
   Votes
 } from "../../../components/AgilePlan";
+import Grid from '@material-ui/core/Grid'
+import ParentSummary from '../ParentSummary'
+import MarketLinks from '../MarketLinks'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -69,7 +73,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function Summary(props) {
-  const { market, investibleId, hidden } = props;
+  const { market, investibleId, hidden, unassigned } = props;
   const intl = useIntl();
   const classes = useStyles();
   const {
@@ -81,13 +85,28 @@ function Summary(props) {
     max_budget: maxBudget,
     investment_expiration: investmentExpiration,
     days_estimate: daysEstimate,
-    votes_required: votesRequired
+    votes_required: votesRequired,
+    children
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const isDraft = marketHasOnlyCurrentUser(marketPresencesState, id);
   const myPresence =
     marketPresences.find(presence => presence.current_user) || {};
+
+  function displayUserList(presencesList) {
+    return presencesList.map((presence) => {
+      const { id: presenceId, name } = presence;
+      return (
+        <Grid
+          item
+          key={presenceId}
+        >
+          <Typography>{name}</Typography>
+        </Grid>
+      );
+    });
+  }
 
   return (
     <Card className={classes.root} id="summary">
@@ -114,14 +133,42 @@ function Summary(props) {
         </Typography>
         <DescriptionOrDiff hidden={hidden} id={id} description={description} />
         <Divider className={classes.divider} />
-        <fieldset className={classes.fieldset}>
-          <MaxBudget readOnly value={maxBudget} />
-          <VoteExpiration readOnly value={investmentExpiration} />
-          <Votes readOnly value={votesRequired} />
-        </fieldset>
-        <fieldset className={classes.fieldset}>
-          {daysEstimate && <DaysEstimate readOnly value={daysEstimate} />}
-        </fieldset>
+        {!_.isEmpty(unassigned) && (
+          <>
+            <fieldset className={classes.fieldset}>
+              <MaxBudget readOnly value={maxBudget} />
+              <VoteExpiration readOnly value={investmentExpiration} />
+              <Votes readOnly value={votesRequired} />
+            </fieldset>
+            <fieldset className={classes.fieldset}>
+              {daysEstimate && <DaysEstimate readOnly value={daysEstimate} />}
+            </fieldset>
+            <Grid
+              container
+            >
+              <Grid
+                item
+                xs={12}
+                sm={2}
+                key="ob2"
+              >
+                <Typography>
+                  {intl.formatMessage({ id: 'planningObservers' })}
+                </Typography>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                sm={10}
+                key="ol"
+              >
+                {displayUserList(unassigned)}
+              </Grid>
+            </Grid>
+            </>
+          )}
+        <ParentSummary market={market} hidden={hidden}/>
+        <MarketLinks links={children || []} hidden={hidden} />
       </CardContent>
     </Card>
   );

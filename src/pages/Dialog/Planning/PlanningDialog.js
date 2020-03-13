@@ -80,28 +80,23 @@ function PlanningDialog(props) {
   const inBlockingStage = marketStages.find(
     stage => stage.appears_in_context && stage.allows_issues
   );
+  const visibleStages = [
+    inDialogStage.id,
+    acceptedStage.id,
+    inReviewStage.id,
+    inBlockingStage.id
+  ];
   const assignedPresences = presences.filter(presence => {
     const assignedInvestibles = getUserInvestibles(
       presence.id,
       marketId,
-      investibles
+      investibles,
+      visibleStages
     );
-    if (_.isEmpty(assignedInvestibles)) {
-      return false;
-    }
-    const filtered = assignedInvestibles.filter(investible => {
-      const { market_infos: marketInfos } = investible;
-      const marketInfo = marketInfos.find(info => info.market_id === marketId);
-      return [
-        inDialogStage.id,
-        acceptedStage.id,
-        inReviewStage.id,
-        inBlockingStage.id
-      ].includes(marketInfo.stage);
-    });
-    return !_.isEmpty(filtered);
+    return !_.isEmpty(assignedInvestibles);
   });
   const isChannel = _.isEmpty(assignedPresences);
+  const unassigned = _.difference(presences, assignedPresences);
 
   let lockedByName;
   if (lockedBy) {
@@ -173,7 +168,7 @@ function PlanningDialog(props) {
       breadCrumbs={breadCrumbs}
       sidebarActions={sidebarActions}
     >
-      <Summary market={market} hidden={hidden} />
+      <Summary market={market} hidden={hidden} unassigned={unassigned} />
       {lockedBy && (
         <Typography>
           {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
@@ -185,7 +180,11 @@ function PlanningDialog(props) {
           investibles={investibles}
           marketId={marketId}
           marketPresences={marketPresences}
-          marketStages={marketStages}
+          visibleStages={visibleStages}
+          acceptedStage={acceptedStage}
+          inDialogStage={inDialogStage}
+          inBlockingStage={inBlockingStage}
+          inReviewStage={inReviewStage}
         />
       )}
 
@@ -253,31 +252,21 @@ function InvestiblesByPerson(props) {
     investibles,
     marketId,
     marketPresences,
-    marketStages
+    visibleStages,
+    acceptedStage,
+    inDialogStage,
+    inBlockingStage,
+    inReviewStage,
   } = props;
-
-  const followingPresences = marketPresences.filter(
-    presence => presence.following
-  );
-  const acceptedStage = marketStages.find(
-    stage => !stage.allows_investment && stage.singular_only
-  );
-  const inDialogStage = marketStages.find(stage => stage.allows_investment);
-  const inReviewStage = marketStages.find(
-    stage =>
-      stage.appears_in_context && !stage.singular_only && !stage.allows_issues
-  );
-  const inBlockingStage = marketStages.find(
-    stage => stage.appears_in_context && stage.allows_issues
-  );
 
   const classes = useInvestiblesByPersonStyles();
 
-  return followingPresences.map(presence => {
+  return marketPresences.map(presence => {
     const myInvestibles = getUserInvestibles(
       presence.id,
       marketId,
-      investibles
+      investibles,
+      visibleStages,
     );
     const { id, name } = presence;
     return (

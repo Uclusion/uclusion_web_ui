@@ -21,6 +21,8 @@ import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlocki
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
 import queryString from 'query-string';
+import { makeStyles } from '@material-ui/core/styles'
+import InputAdornment from '@material-ui/core/InputAdornment'
 
 const styles = (theme) => ({
   root: {
@@ -173,10 +175,14 @@ function PlanningInvestibleAdd(props) {
         />
         <TextField
           id="standard-number"
-          label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
+          label={intl.formatMessage({ id: 'agilePlanFormDaysEstimateLabel' })}
+          helperText={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
           type="number"
           InputLabelProps={{
             shrink: true,
+          }}
+          InputProps={{
+            endAdornment: <InputSuffix>days</InputSuffix>,
           }}
           variant="outlined"
           onChange={onDaysEstimateChange}
@@ -216,6 +222,29 @@ function PlanningInvestibleAdd(props) {
       </CardActions>
     </Card>
 
+  );
+}
+
+const useInputSuffixStyles = makeStyles(
+  theme => {
+    return {
+      root: {
+        fontSize: "inherit",
+        paddingTop: theme.spacing(2) + 2
+      }
+    };
+  },
+  { name: "InputSuffix" }
+);
+
+function InputSuffix(props) {
+  const { children } = props;
+  const classes = useInputSuffixStyles();
+
+  return (
+    <InputAdornment className={classes.root} disableTypography position="end">
+      {children}
+    </InputAdornment>
   );
 }
 

@@ -299,7 +299,7 @@ export function DaysEstimate(props) {
       label={intl.formatMessage({
         id: "agilePlanFormDaysEstimateLabel"
       })}
-      placeholder={intl.formatMessage({
+      helperText={intl.formatMessage({
         id: "agilePlanFormDaysEstimatePlaceholder"
       })}
       /* owner considers `null` as not set */

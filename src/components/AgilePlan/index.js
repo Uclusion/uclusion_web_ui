@@ -292,14 +292,16 @@ export function DaysEstimate(props) {
       inputProps={{
         className: classes.input,
         inputMode: "numeric",
-        size: 10,
+        size: 3,
         pattern: "[0-9]*"
       }}
       id="agile-plan-days-estimate"
       label={intl.formatMessage({
         id: "agilePlanFormDaysEstimateLabel"
       })}
-      helperText={intl.formatMessage({
+      helperText={
+        !readOnly &&
+        intl.formatMessage({
         id: "agilePlanFormDaysEstimatePlaceholder"
       })}
       /* owner considers `null` as not set */

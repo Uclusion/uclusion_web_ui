@@ -163,9 +163,23 @@ const messages = defineMessages({
   maxMaxBudgetInputLabel: 'Maximum number of days for story budget',
   daysEstimateInputLabel: 'Very rough number of days to complete these requirements',
   votesRequiredInputLabel: 'Number of votes required to move a story to in progress',
+  votesRequiredInputLabelShort: 'votes required',
+  votesRequiredInputHelperText: 'Number required to move a story to in progress',
   investmentExpiration: 'before votes expire',
   initiativeExpiration: 'before initiative expires',
   decisionExpiration: 'before dialog expires',
+
+  agilePlanFormTitlePlaceholder: 'Name your agile plan',
+  agilePlanFormTitleLabel: 'Name',
+  agilePlanFormFieldsetLabelOptional: 'Optional',
+  agilePlanFormFieldsetLabelRequired: 'Required',
+  agilePlanFormDescriptionPlaceholder: 'Describe your agile plan. Changes will be stored locally until save.',
+  agilePlanFormDaysEstimateLabel: "Days estimate", 
+  agilePlanFormDaysEstimatePlaceholder: "",   
+  agilePlanFormInvestmentExpirationLabel: 'vote expiration',
+  agilePlanFormMaxMaxBudgetInputLabel: 'story budget',
+  agilePlanFormDaysEstimateInputLabel: 'ideal delivery',
+  agilePlanFormSaveLabel: 'Save & Post',
 
   // Market Nav
   marketNavTabContextLabel: 'Context',
@@ -304,6 +318,7 @@ const messages = defineMessages({
   cardTypeLabelIssue: 'issue present',
   cardTypeLabelQuestion: 'question',
   cardTypeLabelSuggestedChange: 'suggested changes',
+  cardTypeAgilePlan: 'plan requirements',
 
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
@@ -373,6 +388,8 @@ const messages = defineMessages({
   planningDialogViewArchivesLabel: 'View Archives',
   planningNoneAcceptedWarning: 'No in progress assignment',
   planningNoneInDialogWarning: 'No votable assignment',
+  planningNoneInReviewWarning: 'No in Review assignment',
+  planningNoneInBlockingWarning: 'No Blockers',
   acceptedInvestiblesUpdatedAt: 'In progress from ',
   reviewingInvestiblesUpdatedAt: 'In review from ',
   inDialogInvestiblesUpdatedAt: 'Assigned for voting on ',

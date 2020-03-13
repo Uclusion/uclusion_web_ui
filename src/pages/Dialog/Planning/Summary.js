@@ -1,59 +1,75 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import { useIntl } from 'react-intl';
+import React, { useContext } from "react";
+import PropTypes from "prop-types";
+import { useIntl } from "react-intl";
 import {
-  Grid, Typography, Paper, TextField, CardActions,
-} from '@material-ui/core'
-import { makeStyles } from '@material-ui/styles';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+  Typography,
+  CardActions,
+  Card,
+  CardContent,
+  Divider
+} from "@material-ui/core";
+import { makeStyles } from "@material-ui/styles";
+import { MarketPresencesContext } from "../../../contexts/MarketPresencesContext/MarketPresencesContext";
 import {
   getMarketPresences,
   marketHasOnlyCurrentUser
-} from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import DialogActions from '../../Home/DialogActions';
-import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
-import ParentSummary from '../ParentSummary';
-import MarketLinks from '../MarketLinks';
+} from "../../../contexts/MarketPresencesContext/marketPresencesHelper";
+import DialogActions from "../../Home/DialogActions";
+import DescriptionOrDiff from "../../../components/Descriptions/DescriptionOrDiff";
+import CardType, { AGILE_PLAN_TYPE } from "../../../components/CardType";
+import {
+  DaysEstimate,
+  MaxBudget,
+  VoteExpiration,
+  Votes
+} from "../../../components/AgilePlan";
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    padding: '3px 89px 21px 21px',
-    marginTop: '-6px',
-    boxShadow: 'none',
-    [theme.breakpoints.down('sm')]: {
-      padding: '3px 21px 42px 21px',
-    },
+const useStyles = makeStyles(theme => ({
+  root: {
+    alignItems: "flex-start",
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "space-between"
+  },
+  actions: {},
+  content: {
+    flexBasis: "100%",
+    padding: theme.spacing(0, 4)
+  },
+  divider: {
+    marginBottom: theme.spacing(3)
+  },
+  fieldset: {
+    border: "none",
+    display: "inline-block",
+    padding: theme.spacing(0),
+    "& > *": {
+      margin: theme.spacing(2),
+      "&:first-child, &:last-child": {
+        marginLeft: 0,
+        marginRight: 0
+      }
+    }
+  },
+  type: {
+    display: "inline-flex"
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: '42px',
-    paddingBottom: '9px',
-    [theme.breakpoints.down('xs')]: {
-      fontSize: 25,
-    },
-  },
-  content: {
-    fontSize: '15 !important',
-    lineHeight: '175%',
-    color: '#414141',
-    [theme.breakpoints.down('xs')]: {
-      fontSize: 13,
-    },
-    '& > .ql-container': {
-      fontSize: '15 !important',
-    },
+    fontWeight: "bold",
+    lineHeight: "42px",
+    paddingBottom: "9px",
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 25
+    }
   },
   draft: {
-    color: '#E85757',
-  },
+    color: "#E85757"
+  }
 }));
 
 function Summary(props) {
-  const {
-    market, investibleId, hidden, isChannel, unassigned
-  } = props;
+  const { market, investibleId, hidden } = props;
   const intl = useIntl();
   const classes = useStyles();
   const {
@@ -65,38 +81,18 @@ function Summary(props) {
     max_budget: maxBudget,
     investment_expiration: investmentExpiration,
     days_estimate: daysEstimate,
-    children,
+    votes_required: votesRequired
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const isDraft = marketHasOnlyCurrentUser(marketPresencesState, id);
-  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-
-  function displayUserList(presencesList) {
-    return presencesList.map((presence) => {
-      const { id: presenceId, name } = presence;
-      return (
-        <Grid
-          item
-          key={presenceId}
-        >
-          <Typography>{name}</Typography>
-        </Grid>
-      );
-    });
-  }
+  const myPresence =
+    marketPresences.find(presence => presence.current_user) || {};
 
   return (
-    <Paper className={classes.container} id="summary">
-      {isDraft && (
-        <Typography className={classes.draft}>
-          {intl.formatMessage({ id: 'draft' })}
-        </Typography>
-      )}
-      <Typography className={classes.title} variant="h3" component="h1">
-        {name}
-      </Typography>
-      <CardActions>
+    <Card className={classes.root} id="summary">
+      <CardType className={classes.type} type={AGILE_PLAN_TYPE} />
+      <CardActions className={classes.actions}>
         <DialogActions
           isAdmin={myPresence.is_admin}
           isFollowing={myPresence.following}
@@ -107,71 +103,27 @@ function Summary(props) {
           initiativeId={investibleId}
         />
       </CardActions>
-      <div>
-        <DescriptionOrDiff
-          hidden={hidden}
-          id={id }
-          description={description}
-        />
-      </div>
-      {!isChannel && (
-        <>
-          <TextField
-            className={classes.row}
-            disabled
-            id="maxBudget"
-            label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
-            margin="normal"
-            variant="outlined"
-            value={maxBudget}
-          />
-          <TextField
-            className={classes.row}
-            disabled
-            id="investmentExpiration"
-            label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
-            margin="normal"
-            variant="outlined"
-            value={investmentExpiration}
-          />
-          <TextField
-            className={classes.row}
-            disabled
-            id="daysEstimate"
-            label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
-            margin="normal"
-            variant="outlined"
-            value={daysEstimate}
-          />
-        </>
-      )}
-      {!_.isEmpty(unassigned) && (
-        <Grid
-          container
-        >
-          <Grid
-            item
-            xs={12}
-            sm={2}
-            key="ob2"
-          >
-            <Typography>
-              {intl.formatMessage({ id: 'planningObservers' })}
-            </Typography>
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            sm={10}
-            key="ol"
-          >
-            {displayUserList(unassigned)}
-          </Grid>
-        </Grid>
-      )}
-      <ParentSummary market={market} hidden={hidden}/>
-      <MarketLinks links={children || []} hidden={hidden} />
-    </Paper>
+      <CardContent className={classes.content}>
+        {isDraft && (
+          <Typography className={classes.draft}>
+            {intl.formatMessage({ id: "draft" })}
+          </Typography>
+        )}
+        <Typography className={classes.title} variant="h3" component="h1">
+          {name}
+        </Typography>
+        <DescriptionOrDiff hidden={hidden} id={id} description={description} />
+        <Divider className={classes.divider} />
+        <fieldset className={classes.fieldset}>
+          <MaxBudget readOnly value={maxBudget} />
+          <VoteExpiration readOnly value={investmentExpiration} />
+          <Votes readOnly value={votesRequired} />
+        </fieldset>
+        <fieldset className={classes.fieldset}>
+          {daysEstimate && <DaysEstimate readOnly value={daysEstimate} />}
+        </fieldset>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -182,15 +134,14 @@ Summary.propTypes = {
   investibleDescription: PropTypes.string,
   investibleId: PropTypes.string,
   hidden: PropTypes.bool.isRequired,
-  isChannel: PropTypes.bool.isRequired,
-  unassigned: PropTypes.array,
+  unassigned: PropTypes.array
 };
 
 Summary.defaultProps = {
   investibleName: undefined,
   investibleDescription: undefined,
   investibleId: undefined,
-  unassigned: [],
+  unassigned: []
 };
 
 export default Summary;

@@ -1,53 +1,38 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
-import {
-  Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
-} from '@material-ui/core';
-import localforage from 'localforage';
-import QuillEditor from '../../components/TextEditors/QuillEditor';
-import { createPlanning } from '../../api/markets';
-import { processTextAndFilesForSave } from '../../api/files';
-import { PLANNING_TYPE } from '../../constants/markets';
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { useHistory } from 'react-router'
-import queryString from 'query-string'
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    padding: theme.spacing(2),
-  },
-  row: {
-    marginBottom: theme.spacing(2),
-    '&:last-child': {
-      marginBottom: 0,
-    },
-  },
-}));
+import React, { useContext, useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import localforage from "localforage";
+import { createPlanning } from "../../api/markets";
+import { processTextAndFilesForSave } from "../../api/files";
+import { PLANNING_TYPE } from "../../constants/markets";
+import { OperationInProgressContext } from "../../contexts/OperationInProgressContext/OperationInProgressContext";
+import { useHistory } from "react-router";
+import queryString from "query-string";
+import { Form } from "../../components/AgilePlan";
 
 function PlanningAdd(props) {
-  const intl = useIntl();
   const history = useHistory();
   const { location } = history;
   const { hash } = location;
   const values = queryString.parse(hash);
   const { investibleId: parentInvestibleId, id: parentMarketId } = values;
+  const { onSpinStop, storedState, onSave } = props;
   const {
-    onSpinStop, storedState, onSave
-  } = props;
-  const { description: storedDescription, name: storedName, max_budget: storedBudget,
-    investment_expiration: storedExpiration, days_estimate: storedDaysEstimate,
-    votes_required: storedVotesRequired } = storedState;
+    description: storedDescription,
+    name: storedName,
+    max_budget: storedBudget,
+    investment_expiration: storedExpiration,
+    days_estimate: storedDaysEstimate,
+    votes_required: storedVotesRequired
+  } = storedState;
   const [draftState, setDraftState] = useState(storedState);
-  const classes = useStyles();
   const emptyPlan = { name: storedName };
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [currentValues, setCurrentValues] = useState(emptyPlan);
   const [validForm, setValidForm] = useState(false);
   const [description, setDescription] = useState(storedDescription);
-  const [investmentExpiration, setInvestmentExpiration] = useState(storedExpiration || 14);
+  const [investmentExpiration, setInvestmentExpiration] = useState(
+    storedExpiration || 14
+  );
   const [maxBudget, setMaxBudget] = useState(storedBudget || 14);
   const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
   const [votesRequired, setVotesRequired] = useState(storedVotesRequired);
@@ -75,7 +60,7 @@ function PlanningAdd(props) {
   }
 
   function handleChange(field) {
-    return (event) => {
+    return event => {
       const { value } = event.target;
       const newValues = { ...currentValues, [field]: value };
       setCurrentValues(newValues);
@@ -93,7 +78,7 @@ function PlanningAdd(props) {
   }
 
   function onStorageChange(description) {
-    localforage.getItem(itemKey).then((stateFromDisk) => {
+    localforage.getItem(itemKey).then(stateFromDisk => {
       handleDraftState({ ...stateFromDisk, description });
     });
   }
@@ -129,13 +114,13 @@ function PlanningAdd(props) {
   function handleSave() {
     const {
       uploadedFiles: filteredUploads,
-      text: tokensRemoved,
+      text: tokensRemoved
     } = processTextAndFilesForSave(uploadedFiles, description);
     const addInfo = {
       name,
       uploaded_files: filteredUploads,
       market_type: PLANNING_TYPE,
-      description: tokensRemoved,
+      description: tokensRemoved
     };
     if (investmentExpiration != null) {
       addInfo.investment_expiration = investmentExpiration;
@@ -155,121 +140,53 @@ function PlanningAdd(props) {
     if (votesRequired != null) {
       addInfo.votes_required = votesRequired;
     }
-    return createPlanning(addInfo)
-      .then((result) => {
-        onSave(result);
-        const { market: {id: marketId} } = result;
-        return {
-          result: marketId,
-          spinChecker: () => Promise.resolve(true),
-        };
-      });
+    console.error(addInfo);
+    return createPlanning(addInfo).then(result => {
+      onSave(result);
+      const {
+        market: { id: marketId }
+      } = result;
+      return {
+        result: marketId,
+        spinChecker: () => Promise.resolve(true)
+      };
+    });
   }
 
   return (
-    <Card>
-      <CardContent>
-        <TextField
-          className={classes.row}
-          inputProps={{ maxLength: 255 }}
-          id="name"
-          helperText={intl.formatMessage({ id: 'marketAddTitleLabel' })}
-          placeholder={intl.formatMessage({ id: 'marketAddTitleDefault' })}
-          margin="normal"
-          fullWidth
-          variant="outlined"
-          value={name}
-          onChange={handleChange('name')}
-        />
-        <TextField
-          id="investmentExpiration"
-          label={intl.formatMessage({ id: 'investmentExpirationInputLabel' })}
-          type="number"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          variant="outlined"
-          value={investmentExpiration}
-          onChange={onInvestmentExpirationChange}
-        />
-        <TextField
-          id="maxBudget"
-          label={intl.formatMessage({ id: 'maxMaxBudgetInputLabel' })}
-          type="number"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          variant="outlined"
-          value={maxBudget}
-          onChange={onMaxBudgetChange}
-        />
-        <TextField
-          id="daysEstimate"
-          label={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
-          type="number"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          variant="outlined"
-          onChange={onDaysEstimateChange}
-          value={daysEstimate}
-        />
-        <TextField
-          id="votesRequired"
-          label={intl.formatMessage({ id: 'votesRequiredInputLabel' })}
-          type="number"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          variant="outlined"
-          onChange={onVotesRequiredEstimateChange}
-          value={votesRequired}
-        />
-        <Typography>
-          {intl.formatMessage({ id: 'descriptionEdit' })}
-        </Typography>
-        <QuillEditor
-          onS3Upload={onS3Upload}
-          onChange={onEditorChange}
-          onStoreChange={onStorageChange}
-          placeHolder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
-          defaultValue={description}
-          setOperationInProgress={setOperationRunning}
-        />
-      </CardContent>
-      <CardActions>
-        <SpinBlockingButtonGroup>
-          <Button
-            onClick={handleCancel}
-          >
-            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
-          </Button>
-          <SpinBlockingButton
-            marketId=""
-            variant="contained"
-            color="primary"
-            onClick={handleSave}
-            disabled={!validForm}
-            onSpinStop={onSpinStop}
-          >
-            {intl.formatMessage({ id: 'marketAddSaveLabel' })}
-          </SpinBlockingButton>
-        </SpinBlockingButtonGroup>
-      </CardActions>
-    </Card>
+    <Form
+      marketId=""
+      daysEstimate={daysEstimate}
+      onDaysEstimateChange={onDaysEstimateChange}
+      description={description}
+      onDescriptionChange={onEditorChange}
+      investmentExpiration={investmentExpiration}
+      onInvestmentExpirationChange={onInvestmentExpirationChange}
+      maxBudget={maxBudget}
+      onMaxBudgetChange={onMaxBudgetChange}
+      name={name}
+      onNameChange={handleChange("name")}
+      onCancel={handleCancel}
+      onSave={handleSave}
+      onS3Upload={onS3Upload}
+      onSpinStop={onSpinStop}
+      onStorageChange={onStorageChange}
+      setOperationRunning={setOperationRunning}
+      votesRequired={votesRequired}
+      onVotesRequiredChange={onVotesRequiredEstimateChange}
+    />
   );
 }
 
 PlanningAdd.propTypes = {
   onSpinStop: PropTypes.func,
   onSave: PropTypes.func,
-  storedState: PropTypes.object.isRequired,
+  storedState: PropTypes.object.isRequired
 };
 
 PlanningAdd.defaultProps = {
-  onSpinStop: () => {
-  },
-  onSave: () => {},
+  onSpinStop: () => {},
+  onSave: () => {}
 };
 
 export default PlanningAdd;

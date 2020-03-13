@@ -15,9 +15,11 @@ import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
 import VotingIcon from "@material-ui/icons/Assessment";
 import GavelIcon from '@material-ui/icons/Gavel';
 import { DECISION_TYPE } from '../constants/markets';
+import AgilePlanIcon from "@material-ui/icons/PlaylistAdd";
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, DECISION_TYPE };
 export const VOTING_TYPE = "VOTING";
+export const AGILE_PLAN_TYPE = "AGILE_PLAN";
 
 function NoIcon() {
   return null;
@@ -37,7 +39,8 @@ const useCardTypeStyles = makeStyles(
           certainty25: "#F4AB3B",
           certainty50: "#FCEC69",
           certainty75: "#A5C86B",
-          certainty100: "#73B76C"
+          certainty100: "#73B76C",
+          [AGILE_PLAN_TYPE]: "#9B51E0"
         }[type],
         borderBottomRightRadius: 8,
         color:
@@ -71,7 +74,8 @@ const labelIntlIds = {
   certainty25: "certainty25",
   certainty50: "certainty50",
   certainty75: "certainty75",
-  certainty100: "certainty100"
+  certainty100: "certainty100",
+  [AGILE_PLAN_TYPE]: "cardTypeAgilePlan"
 };
 
 export default function CardType(props) {
@@ -92,7 +96,8 @@ export default function CardType(props) {
     certainty25: NoIcon,
     certainty50: NoIcon,
     certainty75: NoIcon,
-    certainty100: NoIcon
+    certainty100: NoIcon,
+    [AGILE_PLAN_TYPE]: AgilePlanIcon
   }[type];
 
   return (
@@ -115,5 +120,6 @@ CardType.propTypes = {
     SUGGEST_CHANGE_TYPE,
     VOTING_TYPE,
     DECISION_TYPE,
+    AGILE_PLAN_TYPE
   ])
 };

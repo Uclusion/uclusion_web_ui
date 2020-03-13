@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { FormattedMessage } from 'react-intl'
 import PropTypes from 'prop-types';
-import ArchiveIcon from '@material-ui/icons/Archive';
+import DismissIcon from '@material-ui/icons/RemoveCircle';
 import { archiveMarket } from '../../api/markets';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -36,7 +36,7 @@ function DismissMarketButton(props) {
   const lockedDialogClasses = useLockedDialogStyles();
   return (
     <div>
-      <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon />} onClick={handleOpen} translationId="decisionDialogsArchiveDialog" />
+      <TooltipIconButton disabled={operationRunning} icon={<DismissIcon />} onClick={handleOpen} translationId="decisionDialogsArchiveDialog" />
       <DismissDialog
         classes={lockedDialogClasses}
         open={open}
@@ -93,7 +93,7 @@ function DismissDialog(props) {
       content={<FormattedMessage id={issueWarningId} />}
       title={
         <React.Fragment>
-          <ArchiveIcon className={classes.warningTitleIcon} />
+          <DismissIcon className={classes.warningTitleIcon} />
           <FormattedMessage id="warning" />
         </React.Fragment>
       }

@@ -237,11 +237,7 @@ function InitiativeInvestible(props) {
         investmentReasons={investmentReasons}
       />
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'initiativeInvestibleDiscussion' })}
-          >
+        <Grid item xs={12} style={{ marginTop: '71px' }}>
             <CommentAddBox
               hidden={commentAddHidden}
               allowedTypes={allowedCommentTypes}
@@ -253,7 +249,6 @@ function InitiativeInvestible(props) {
             />
             <div ref={commentAddRef} />
             <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
-          </SubSection>
         </Grid>
       </Grid>
     </Screen>

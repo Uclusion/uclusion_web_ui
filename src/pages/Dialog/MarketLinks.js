@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl'
 import {
-  Grid, Typography, Paper, Link,
+  Typography, Paper, Link,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -14,6 +14,8 @@ import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { getMarketInfo } from '../../api/sso';
+import clsx from 'clsx';
+import { useMetaDataStyles } from '../Investible/Planning/PlanningInvestible';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -54,7 +56,7 @@ function MarketLinks (props) {
       setLoaded(false);
     }
   }, [links, hidden, loaded])
-
+  const metaClasses = useMetaDataStyles();
   function displayLinksList (linksList) {
     return linksList.map((marketId) => {
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -62,41 +64,40 @@ function MarketLinks (props) {
       const baseLink = formMarketLink(marketId);
       const baseInviteLink = `/invite/${marketId}`;
       return (
-        <>
-          <Grid
-            item
-            key={marketId}
-          >
+        <ul>
             {marketId in marketNameState && myPresence && (
-              <Link
-                href={baseLink}
-                variant="inherit"
-                underline="always"
-                color="primary"
-                onClick={(event) => {
-                  event.preventDefault()
-                  navigate(history, baseLink)
-                }}
-              >
-                {marketNameState[marketId].name}
-              </Link>
+              <Typography key={marketId} component="li">
+                <Link
+                  href={baseLink}
+                  variant="inherit"
+                  underline="always"
+                  color="primary"
+                  onClick={(event) => {
+                    event.preventDefault()
+                    navigate(history, baseLink)
+                  }}
+                >
+                  {marketNameState[marketId].name}
+                </Link>
+              </Typography>
             )}
             {!myPresence && marketId in marketNameState && (
-              <Link
-                href={`${baseInviteLink}#is_obs=false`}
-                variant="inherit"
-                underline="always"
-                color="primary"
-                onClick={(event) => {
-                  event.preventDefault()
-                  navigate(history, `${baseInviteLink}#is_obs=false`)
-                }}
-              >
-                {intl.formatMessage({ id: 'marketParticipationLink' }, { x: marketNameState[marketId].name })}
-              </Link>
+              <Typography key={marketId} component="li">
+                <Link
+                  href={`${baseInviteLink}#is_obs=false`}
+                  variant="inherit"
+                  underline="always"
+                  color="primary"
+                  onClick={(event) => {
+                    event.preventDefault()
+                    navigate(history, `${baseInviteLink}#is_obs=false`)
+                  }}
+                >
+                  {intl.formatMessage({ id: 'marketParticipationLink' }, { x: marketNameState[marketId].name })}
+                </Link>
+              </Typography>
             )}
-          </Grid>
-        </>
+        </ul>
       )
     })
   }
@@ -104,28 +105,14 @@ function MarketLinks (props) {
   return (
     <Paper className={classes.container} id="summary">
       {!_.isEmpty(links) && (
-        <Grid
-          container
-        >
-          <Grid
-            item
-            xs={12}
-            sm={2}
-            key="ob2"
-          >
-            <Typography>
-              {intl.formatMessage({ id: 'marketLinksSection' })}
-            </Typography>
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            sm={10}
-            key="ol"
-          >
+        <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+          <dt>
+            <FormattedMessage id="marketLinksSection" />
+          </dt>
+          <dd>
             {displayLinksList(links)}
-          </Grid>
-        </Grid>
+          </dd>
+        </div>
       )}
     </Paper>
   )

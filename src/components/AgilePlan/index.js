@@ -209,7 +209,7 @@ export function MaxBudget(props) {
       inputProps={{
         className: classes.input,
         inputMode: "numeric",
-        size: 5,
+        size: 4,
         pattern: "[0-9]*"
       }}
       label={intl.formatMessage({
@@ -237,7 +237,7 @@ export function VoteExpiration(props) {
       inputProps={{
         className: classes.input,
         inputMode: "numeric",
-        size: 5,
+        size: 4,
         pattern: "[0-9]*"
       }}
       label={intl.formatMessage({
@@ -265,7 +265,9 @@ export function Votes(props) {
       InputProps={{ readOnly }}
       inputProps={{
         inputMode: "numeric",
-        pattern: "[0-9]*"
+        size: 8,
+        pattern: "[0-9]*",
+        style: {textAlign: 'center'}
       }}
       label={intl.formatMessage({ id: "votesRequiredInputLabelShort" })}
       variant="filled"
@@ -292,7 +294,7 @@ export function DaysEstimate(props) {
       inputProps={{
         className: classes.input,
         inputMode: "numeric",
-        size: 3,
+        size: 4,
         pattern: "[0-9]*"
       }}
       id="agile-plan-days-estimate"

@@ -5,7 +5,8 @@ import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router';
-import { Card, CardContent, Divider, Grid, makeStyles } from '@material-ui/core'
+import { Card, CardContent, Divider, Grid, makeStyles } from '@material-ui/core';
+import _ from 'lodash';
 import AddIcon from '@material-ui/icons/Add';
 import {
   formMarketAddInvestibleLink,
@@ -284,40 +285,36 @@ function DecisionDialog(props) {
             />
           </SubSection>
         </Grid>
-
-        <Grid item xs={12} style={{ marginTop: '56px' }}>
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
-          >
-            <ProposedIdeas
-              investibles={proposed}
-              marketId={marketId}
-              comments={investibleComments}
-            />
-          </SubSection>
-        </Grid>
-        <Grid item xs={12} style={{ marginTop: '71px' }}>
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'decisionDialogDiscussionLabel' })}
-          >
-            {!commentAddHidden && (
-              <CommentAddBox
-                type={commentAddType}
-                allowedTypes={allowedCommentTypes}
+        {!_.isEmpty(proposed) && (
+          <Grid item xs={12} style={{ marginTop: '56px' }}>
+            <SubSection
+              type={SECTION_TYPE_SECONDARY}
+              title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
+            >
+              <ProposedIdeas
+                investibles={proposed}
                 marketId={marketId}
-                issueWarningId="issueWarning"
-                onSave={closeCommentAddBox}
-                onCancel={closeCommentAddBox}
+                comments={investibleComments}
               />
-            )}
-            <div ref={commentAddRef} />
-            <CommentBox
-              comments={marketComments}
+            </SubSection>
+          </Grid>
+        )}
+        <Grid item xs={12} style={{ marginTop: '71px' }}>
+          {!commentAddHidden && (
+            <CommentAddBox
+              type={commentAddType}
+              allowedTypes={allowedCommentTypes}
               marketId={marketId}
+              issueWarningId="issueWarning"
+              onSave={closeCommentAddBox}
+              onCancel={closeCommentAddBox}
             />
-          </SubSection>
+          )}
+          <div ref={commentAddRef} />
+          <CommentBox
+            comments={marketComments}
+            marketId={marketId}
+          />
         </Grid>
       </Grid>
     </Screen>

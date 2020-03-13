@@ -5,7 +5,7 @@ import React, {
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
-  Button, Card, CardActions, CardContent, Checkbox, makeStyles, TextField, Typography,
+  Button, Card, CardActions, CardContent, Checkbox, TextField, Typography,
 } from '@material-ui/core'
 import localforage from 'localforage';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
@@ -13,7 +13,6 @@ import ExpirationSelector from '../../components/Expiration/ExpirationSelector';
 import { createDecision } from '../../api/markets';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import UclusionTour from '../../components/Tours/UclusionTour';

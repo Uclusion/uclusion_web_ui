@@ -7,7 +7,7 @@ import {
   Card,
   CardActions,
   CardContent,
-  TextField, Typography,
+  TextField,
 } from '@material-ui/core';
 import localforage from 'localforage';
 import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles';
@@ -20,7 +20,6 @@ import {
 } from '../../../utils/marketIdPathFunctions';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 import UclusionTour from '../../../components/Tours/UclusionTour';
 import {
   PURE_SIGNUP_ADD_FIRST_OPTION,

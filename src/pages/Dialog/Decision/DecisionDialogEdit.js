@@ -11,7 +11,6 @@ import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 import CardType, { DECISION_TYPE } from '../../../components/CardType';
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 

@@ -68,7 +68,7 @@ const useStyles = makeStyles(
       }
     },
   }),
-  { name: "InitiativeInvestible" }
+  { name: "DecisionDialog" }
 );
 
 function DecisionDialog(props) {

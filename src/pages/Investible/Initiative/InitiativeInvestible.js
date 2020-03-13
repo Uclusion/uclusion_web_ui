@@ -32,15 +32,32 @@ import { useMetaDataStyles } from '../Planning/PlanningInvestible';
 import DialogActions from '../../Home/DialogActions'
 import Box from '@material-ui/core/Box';
 import EditIcon from '@material-ui/icons/Edit';
+import CardActions from '@material-ui/core/CardActions'
 
 const useStyles = makeStyles(
   theme => ({
+    root: {
+      alignItems: "flex-start",
+      display: "flex",
+      flexWrap: "wrap",
+      justifyContent: "space-between"
+    },
     cardType: {
       display: "inline-flex"
     },
-    votingCardContent: {
-      margin: theme.spacing(2, 6),
-      padding: 0
+    actions: {},
+    content: {
+      flexBasis: "100%",
+      padding: theme.spacing(0, 4)
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: "bold",
+      lineHeight: "42px",
+      paddingBottom: "9px",
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 25
+      }
     },
   }),
   { name: "InitiativeInvestible" }
@@ -132,7 +149,7 @@ function InitiativeInvestible(props) {
       sidebarActions={getSidebarActions()}
       hidden={hidden}
     >
-      <Card elevation={0}>
+      <Card className={classes.root}>
         <CardType
           className={classes.cardType}
           label={`${intl.formatMessage({
@@ -140,19 +157,21 @@ function InitiativeInvestible(props) {
           })}`}
           type={VOTING_TYPE}
         />
-        <CardContent className={classes.votingCardContent}>
-          <h1>
+        <CardActions className={classes.actions}>
+          <DialogActions
+            isAdmin={isAdmin}
+            marketStage={marketStage}
+            marketType={marketType}
+            inArchives={myPresence.market_hidden}
+            isFollowing={myPresence.following}
+            marketId={marketId}
+            initiativeId={investibleId}
+          />
+        </CardActions>
+        <CardContent className={classes.content}>
+          <Typography className={classes.title} variant="h3" component="h1">
             {name}
-            <DialogActions
-              isAdmin={isAdmin}
-              marketStage={marketStage}
-              marketType={marketType}
-              inArchives={myPresence.market_hidden}
-              isFollowing={myPresence.following}
-              marketId={marketId}
-              initiativeId={investibleId}
-            />
-          </h1>
+          </Typography>
           <DescriptionOrDiff
             hidden={hidden}
             id={investibleId}

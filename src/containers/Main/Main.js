@@ -21,8 +21,6 @@ import { HighlightedVotingProvider } from "../../contexts/HighlightedVotingConte
 import { AccountProvider } from "../../contexts/AccountContext/AccountContext";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import { MuiPickersUtilsProvider } from "@material-ui/pickers";
-import DateFnsUtils from "@date-io/date-fns";
 
 function Main(props) {
   const stripePromise = loadStripe(config.payments.stripeKey);
@@ -44,13 +42,9 @@ function Main(props) {
                                 <LocaleProvider>
                                   <SidebarProvider>
                                     <ToastContainer />
-                                    <MuiPickersUtilsProvider
-                                      utils={DateFnsUtils}
-                                    >
-                                      <Elements stripe={stripePromise}>
-                                        <AppWithAuth />
-                                      </Elements>
-                                    </MuiPickersUtilsProvider>
+                                    <Elements stripe={stripePromise}>
+                                      <AppWithAuth />
+                                    </Elements>
                                   </SidebarProvider>
                                 </LocaleProvider>
                               </MarketPresencesProvider>

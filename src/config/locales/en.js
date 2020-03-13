@@ -175,7 +175,7 @@ const messages = defineMessages({
   agilePlanFormFieldsetLabelRequired: 'Required',
   agilePlanFormDescriptionPlaceholder: 'Describe your agile plan. Changes will be stored locally until save.',
   agilePlanFormDaysEstimateLabel: "Days estimate", 
-  agilePlanFormDaysEstimatePlaceholder: "TODO placeholder",   
+  agilePlanFormDaysEstimatePlaceholder: "",   
   agilePlanFormInvestmentExpirationLabel: 'vote expiration',
   agilePlanFormMaxMaxBudgetInputLabel: 'story budget',
   agilePlanFormDaysEstimateInputLabel: 'ideal delivery',

@@ -179,7 +179,7 @@ function PlanningDialog(props) {
           comments={comments}
           investibles={investibles}
           marketId={marketId}
-          marketPresences={marketPresences}
+          marketPresences={assignedPresences}
           visibleStages={visibleStages}
           acceptedStage={acceptedStage}
           inDialogStage={inDialogStage}

@@ -1,13 +1,13 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
-import { useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from 'react-intl'
 import {
   Typography,
   CardActions,
   Card,
   CardContent,
-  Divider
-} from "@material-ui/core";
+  Divider,
+} from '@material-ui/core'
 import _ from "lodash";
 import { makeStyles } from "@material-ui/styles";
 import { MarketPresencesContext } from "../../../contexts/MarketPresencesContext/MarketPresencesContext";
@@ -24,9 +24,10 @@ import {
   VoteExpiration,
   Votes
 } from "../../../components/AgilePlan";
-import Grid from '@material-ui/core/Grid'
 import ParentSummary from '../ParentSummary'
 import MarketLinks from '../MarketLinks'
+import clsx from 'clsx'
+import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -93,20 +94,7 @@ function Summary(props) {
   const isDraft = marketHasOnlyCurrentUser(marketPresencesState, id);
   const myPresence =
     marketPresences.find(presence => presence.current_user) || {};
-
-  function displayUserList(presencesList) {
-    return presencesList.map((presence) => {
-      const { id: presenceId, name } = presence;
-      return (
-        <Grid
-          item
-          key={presenceId}
-        >
-          <Typography>{name}</Typography>
-        </Grid>
-      );
-    });
-  }
+  const metaClasses = useMetaDataStyles();
 
   return (
     <Card className={classes.root} id="summary">
@@ -143,34 +131,38 @@ function Summary(props) {
             <fieldset className={classes.fieldset}>
               {daysEstimate && <DaysEstimate readOnly value={daysEstimate} />}
             </fieldset>
-            <Grid
-              container
-            >
-              <Grid
-                item
-                xs={12}
-                sm={2}
-                key="ob2"
-              >
-                <Typography>
-                  {intl.formatMessage({ id: 'planningObservers' })}
-                </Typography>
-              </Grid>
-              <Grid
-                item
-                xs={12}
-                sm={10}
-                key="ol"
-              >
-                {displayUserList(unassigned)}
-              </Grid>
-            </Grid>
+            <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+              <dt>
+                <FormattedMessage id="unassigned" />
+              </dt>
+              <dd>
+                <UnassignedDisplay
+                  marketPresences={unassigned}
+                />
+              </dd>
+            </div>
             </>
           )}
         <ParentSummary market={market} hidden={hidden}/>
         <MarketLinks links={children || []} hidden={hidden} />
       </CardContent>
     </Card>
+  );
+}
+
+export function UnassignedDisplay(props) {
+  const { marketPresences} = props;
+  return (
+    <ul>
+      {marketPresences.map(presence => {
+        const { id: presenceId, name } = presence;
+        return (
+          <Typography key={presenceId} component="li">
+            {name}
+          </Typography>
+        );
+      })}
+    </ul>
   );
 }
 

@@ -2,8 +2,7 @@ import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
-import SubSection from '../../../containers/SubSection/SubSection';
+import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
@@ -21,7 +20,6 @@ import {
 } from '../../../utils/marketIdPathFunctions'
 import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets';
-import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import InsertLinkIcon from '@material-ui/icons/InsertLink';
 import MarketLinks from '../../Dialog/MarketLinks';

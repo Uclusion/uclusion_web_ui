@@ -12,7 +12,7 @@ import SpinBlockingButton from "../../components/SpinBlocking/SpinBlockingButton
 import CardType, { AGILE_PLAN_TYPE } from "../../components/CardType";
 import QuillEditor from "../../components/TextEditors/QuillEditor";
 
-const usePlanFormStyles = makeStyles(
+export const usePlanFormStyles = makeStyles(
   theme => ({
     cardContent: {
       display: "flex",

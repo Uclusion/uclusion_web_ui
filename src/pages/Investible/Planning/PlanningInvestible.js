@@ -495,27 +495,22 @@ function PlanningInvestible(props) {
       />
       {/* unstyled from here on out because no FIGMA */}
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: "decisionInvestibleDiscussion" })}
-          >
-            <CommentAddBox
-              hidden={commentAddHidden}
-              allowedTypes={allowedCommentTypes}
-              investible={investible}
-              marketId={marketId}
-              issueWarningId="issueWarningPlanning"
-              type={commentAddType}
-              onSave={closeCommentAdd}
-              onCancel={closeCommentAdd}
-            />
-            <div ref={commentAddRef} />
-            <CommentBox
-              comments={investmentReasonsRemoved}
-              marketId={marketId}
-            />
-          </SubSection>
+        <Grid item xs={12} style={{ marginTop: '71px' }}>
+          <CommentAddBox
+            hidden={commentAddHidden}
+            allowedTypes={allowedCommentTypes}
+            investible={investible}
+            marketId={marketId}
+            issueWarningId="issueWarningPlanning"
+            type={commentAddType}
+            onSave={closeCommentAdd}
+            onCancel={closeCommentAdd}
+          />
+          <div ref={commentAddRef} />
+          <CommentBox
+            comments={investmentReasonsRemoved}
+            marketId={marketId}
+          />
         </Grid>
       </Grid>
     </Screen>

@@ -17,6 +17,7 @@ import PlanningInvestibleAdd from './Planning/PlanningInvestibleAdd';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { usePlanFormStyles } from '../../components/AgilePlan'
 
 function InvestibleAdd(props) {
   const { hidden } = props;
@@ -30,7 +31,7 @@ function InvestibleAdd(props) {
   // we're going to talk directly to the contexts instead of pushing messages for speed reasons
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
-
+  const classes = usePlanFormStyles();
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_type: marketType } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
@@ -100,6 +101,7 @@ function InvestibleAdd(props) {
           onSpinComplete={onDone}
           marketPresences={marketPresences}
           storedState={storedState}
+          classes={classes}
         />
       )}
     </Screen>

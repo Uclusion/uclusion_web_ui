@@ -1,14 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { injectIntl } from 'react-intl';
+import { FormattedMessage, injectIntl, useIntl } from 'react-intl'
 import PropTypes from 'prop-types';
 import {
   Button,
   Card,
   CardActions,
   CardContent,
-  TextField, Typography,
-  withStyles,
+  TextField,
 } from '@material-ui/core';
 import localforage from 'localforage';
 import { addPlanningInvestible } from '../../../api/investibles';
@@ -23,23 +22,14 @@ import { useHistory } from 'react-router';
 import queryString from 'query-string';
 import { makeStyles } from '@material-ui/core/styles'
 import InputAdornment from '@material-ui/core/InputAdornment'
-
-const styles = (theme) => ({
-  root: {
-    padding: theme.spacing(2),
-  },
-  row: {
-    marginBottom: theme.spacing(2),
-    '&:last-child': {
-      marginBottom: 0,
-    },
-  },
-});
+import CardType, { VOTING_TYPE } from '../../../components/CardType'
+import { DaysEstimate } from '../../../components/AgilePlan'
 
 function PlanningInvestibleAdd(props) {
   const {
-    marketId, intl, classes, onCancel, onSave, storedState, onSpinComplete,
+    marketId, classes, onCancel, onSave, storedState, onSpinComplete,
   } = props;
+  const intl = useIntl();
   const { description: storedDescription, name: storedName, assignments: storedAssignments,
     days_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
@@ -155,42 +145,34 @@ function PlanningInvestibleAdd(props) {
 
   return (
     <Card>
-      <CardContent>
+      <CardType
+        className={classes.cardType}
+        label={`${intl.formatMessage({
+          id: "investibleDescription"
+        })}`}
+        type={VOTING_TYPE}
+      />
+      <CardContent className={classes.cardContent}>
         <AssignmentList
           marketId={marketId}
           onChange={onAssignmentsChange}
           previouslyAssigned={storedAssignments || getUrlAssignee()}
         />
+        <fieldset className={classes.fieldset}>
+          <legend>optional</legend>
+          <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} />
+        </fieldset>
         <TextField
-          className={classes.row}
-          inputProps={{ maxLength: 255 }}
-          id="name"
-          helperText={intl.formatMessage({ id: 'investibleAddTitleLabel' })}
-          placeholder={intl.formatMessage({ id: 'investibleAddTitleDefault' })}
-          margin="normal"
           fullWidth
-          variant="outlined"
-          value={name}
+          id="plan-investible-name"
+          label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
           onChange={handleChange('name')}
+          placeholder={intl.formatMessage({
+            id: "storyTitlePlaceholder"
+          })}
+          value={name}
+          variant="filled"
         />
-        <TextField
-          id="standard-number"
-          label={intl.formatMessage({ id: 'agilePlanFormDaysEstimateLabel' })}
-          helperText={intl.formatMessage({ id: 'daysEstimateInputLabel' })}
-          type="number"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          InputProps={{
-            endAdornment: <InputSuffix>days</InputSuffix>,
-          }}
-          variant="outlined"
-          onChange={onDaysEstimateChange}
-          value={daysEstimate}
-        />
-        <Typography>
-          {intl.formatMessage({ id: 'descriptionEdit' })}
-        </Typography>
         <QuillEditor
           marketId={marketId}
           onChange={onEditorChange}
@@ -201,24 +183,30 @@ function PlanningInvestibleAdd(props) {
           setOperationInProgress={setOperationRunning}
         />
       </CardContent>
-      <CardActions>
-        <SpinBlockingButtonGroup>
+      <CardActions className={classes.actions}>
           <Button
+            className={classes.actionSecondary}
+            color="secondary"
+            variant="contained"
             onClick={handleCancel}
           >
-            {intl.formatMessage({ id: 'investibleAddCancelLabel' })}
+            <FormattedMessage
+              id={"marketAddCancelLabel"}
+            />
           </Button>
           <SpinBlockingButton
+            onClick={handleSave}
+            onSpinStop={onSpinComplete}
+            className={classes.actionPrimary}
+            color="primary"
+            disabled={!validForm}
             marketId={marketId}
             variant="contained"
-            color="primary"
-            onClick={handleSave}
-            disabled={!validForm}
-            onSpinStop={onSpinComplete}
           >
-            {intl.formatMessage({ id: 'investibleAddSaveLabel' })}
+            <FormattedMessage
+              id={"agilePlanFormSaveLabel"}
+            />
           </SpinBlockingButton>
-        </SpinBlockingButtonGroup>
       </CardActions>
     </Card>
 
@@ -249,9 +237,6 @@ function InputSuffix(props) {
 }
 
 PlanningInvestibleAdd.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  intl: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
@@ -270,4 +255,4 @@ PlanningInvestibleAdd.defaultProps = {
   },
 };
 
-export default withStyles(styles)(injectIntl(PlanningInvestibleAdd));
+export default PlanningInvestibleAdd;

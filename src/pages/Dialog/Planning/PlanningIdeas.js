@@ -241,7 +241,9 @@ function VotingStage(props) {
         <React.Fragment>
           <FormattedMessage id="planningNoneInDialogWarning" />
           <StageLink href={assignedLink} onClick={onClick}>
-            Create Assignment
+            {intl.formatMessage({
+              id: "createAssignment"
+            })}
           </StageLink>
         </React.Fragment>
       }
@@ -250,7 +252,7 @@ function VotingStage(props) {
         id: "acceptedInvestiblesUpdatedAt"
       })}
       {...other}
-    ></Stage>
+   />
   );
 }
 

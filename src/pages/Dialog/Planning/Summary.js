@@ -18,7 +18,7 @@ import DialogActions from "../../Home/DialogActions";
 import DescriptionOrDiff from "../../../components/Descriptions/DescriptionOrDiff";
 import CardType, { AGILE_PLAN_TYPE } from "../../../components/CardType";
 import {
-  IdealDelivery,
+  DaysEstimate,
   MaxBudget,
   VoteExpiration,
   Votes
@@ -120,7 +120,7 @@ function Summary(props) {
           <Votes readOnly value={votesRequired} />
         </fieldset>
         <fieldset className={classes.fieldset}>
-          {daysEstimate && <daysEstimate readOnly value={daysEstimate} />}
+          {daysEstimate && <DaysEstimate readOnly value={daysEstimate} />}
         </fieldset>
       </CardContent>
     </Card>

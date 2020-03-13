@@ -106,9 +106,9 @@ export function createTitle(fullTitle, titleSize) {
 export function formInviteLink(marketId) {
   const current = window.location.href;
   const url = new URL(current);
-  const invitePath = `invite/${marketId}`;
-  url.pathname = invitePath;
+  url.pathname = `invite/${marketId}`;
   url.search = '';
+  url.hash = '';
   return url.toString();
 }
 

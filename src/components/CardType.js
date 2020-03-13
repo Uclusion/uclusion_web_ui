@@ -75,7 +75,8 @@ const labelIntlIds = {
   certainty50: "certainty50",
   certainty75: "certainty75",
   certainty100: "certainty100",
-  [AGILE_PLAN_TYPE]: "cardTypeAgilePlan"
+  [AGILE_PLAN_TYPE]: "cardTypeAgilePlan",
+  [DECISION_TYPE]: "dialogDescription"
 };
 
 export default function CardType(props) {

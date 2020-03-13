@@ -1,29 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Button, Card, CardActions, CardContent, Checkbox, makeStyles, TextField, Typography,
+  Button, Card, CardActions, CardContent, Checkbox, TextField, Typography,
 } from '@material-ui/core'
 import localforage from 'localforage';
 import _ from 'lodash';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl'
 import { updateMarket } from '../../../api/markets';
 import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    padding: theme.spacing(2),
-  },
-  row: {
-    marginBottom: theme.spacing(2),
-    '&:last-child': {
-      marginBottom: 0,
-    },
-  },
-}));
+import CardType, { DECISION_TYPE } from '../../../components/CardType';
+import { usePlanFormStyles } from '../../../components/AgilePlan'
 
 function DecisionDialogEdit(props) {
   const {
@@ -35,7 +25,7 @@ function DecisionDialogEdit(props) {
   const { id, name: initialMarketName, allow_multi_vote: allowMultiVote, description: initialDescription } = market;
   const { description: storedDescription, name: storedName } = storedState;
   const intl = useIntl();
-  const classes = useStyles();
+  const classes = usePlanFormStyles();
   const [mutableMarket, setMutableMarket] = useState({ ...market, name: storedName || initialMarketName });
   const [draftState, setDraftState] = useState(storedState);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -112,7 +102,8 @@ function DecisionDialogEdit(props) {
 
   return (
     <Card>
-      <CardContent>
+      <CardType className={classes.cardType} type={DECISION_TYPE} />
+      <CardContent className={classes.cardContent}>
         <Typography>
           {intl.formatMessage({ id: 'allowMultiVote' })}
           <Checkbox
@@ -123,19 +114,16 @@ function DecisionDialogEdit(props) {
           />
         </Typography>
         <TextField
-          className={classes.row}
-          inputProps={{ maxLength: 255 }}
-          id="name"
-          helperText={intl.formatMessage({ id: 'marketEditTitleLabel' })}
-          margin="normal"
           fullWidth
-          variant="outlined"
-          value={name}
+          id="decision-name"
+          label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
           onChange={handleChange('name')}
+          placeholder={intl.formatMessage({
+            id: "decisionTitlePlaceholder"
+          })}
+          value={name}
+          variant="filled"
         />
-        <Typography>
-          {intl.formatMessage({ id: 'descriptionEdit' })}
-        </Typography>
         <QuillEditor
           onChange={onEditorChange}
           onStoreChange={onStorageChange}
@@ -146,24 +134,30 @@ function DecisionDialogEdit(props) {
         />
       </CardContent>
       <CardActions>
-        <SpinBlockingButtonGroup>
-          <Button
-            onClick={onCancel}
-          >
-            {intl.formatMessage({ id: 'marketEditCancelLabel' })}
-          </Button>
-          <SpinBlockingButton
-            variant="contained"
-            color="primary"
-            marketId={id}
-            disabled={!validForm}
-            onClick={handleSave}
-            onSpinStop={onSpinStop}
-            hasSpinChecker
-          >
-            {intl.formatMessage({ id: 'marketEditSaveLabel' })}
-          </SpinBlockingButton>
-        </SpinBlockingButtonGroup>
+        <Button
+          onClick={onCancel}
+          className={classes.actionSecondary}
+          color="secondary"
+          variant="contained">
+          <FormattedMessage
+            id="marketAddCancelLabel"
+          />
+        </Button>
+        <SpinBlockingButton
+          marketId={id}
+          id="save"
+          variant="contained"
+          color="primary"
+          onClick={handleSave}
+          disabled={!validForm}
+          onSpinStop={onSpinStop}
+          className={classes.actionPrimary}
+          hasSpinChecker
+        >
+          <FormattedMessage
+            id="agilePlanFormSaveLabel"
+          />
+        </SpinBlockingButton>
       </CardActions>
     </Card>
   );

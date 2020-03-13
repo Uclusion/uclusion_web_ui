@@ -3,10 +3,10 @@ import React, {
   useEffect, useState,
 } from 'react';
 import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl'
 import {
-  Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
-} from '@material-ui/core';
+  Button, Card, CardActions, CardContent, Checkbox, makeStyles, TextField, Typography,
+} from '@material-ui/core'
 import localforage from 'localforage';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
 import ExpirationSelector from '../../components/Expiration/ExpirationSelector';
@@ -29,17 +29,8 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { getMarketDetailsForType } from '../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { addParticipants } from '../../api/users';
-const useStyles = makeStyles((theme) => ({
-  root: {
-    padding: theme.spacing(2),
-  },
-  row: {
-    marginBottom: theme.spacing(2),
-    '&:last-child': {
-      marginBottom: 0,
-    },
-  },
-}));
+import CardType from '../../components/CardType';
+import { usePlanFormStyles } from '../../components/AgilePlan';
 
 function DecisionAdd(props) {
   const intl = useIntl();
@@ -54,7 +45,7 @@ function DecisionAdd(props) {
   const { description: storedDescription, name: storedName, expiration_minutes: storedExpirationMinutes } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const classes = useStyles();
+  const classes = usePlanFormStyles();
   const emptyMarket = { name: storedName, expiration_minutes: storedExpirationMinutes || 1440 };
   const [validForm, setValidForm] = useState(false);
   const [currentValues, setCurrentValues] = useState(emptyMarket);
@@ -63,6 +54,11 @@ function DecisionAdd(props) {
   const { name, expiration_minutes } = currentValues;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketState] = useContext(MarketsContext);
+  const [multiVote, setMultiVote] = useState(false);
+
+  function toggleMultiVote() {
+    setMultiVote(!multiVote);
+  }
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -117,10 +113,12 @@ function DecisionAdd(props) {
     const addInfo = {
       name,
       uploaded_files: filteredUploads,
-      market_type: 'DECISION',
+      market_type: DECISION_TYPE,
       description: tokensRemoved,
       expiration_minutes,
+      allow_multi_vote: multiVote,
     };
+
     if (parentInvestibleId) {
       addInfo.parent_investible_id = parentInvestibleId;
     }
@@ -168,25 +166,11 @@ function DecisionAdd(props) {
         steps={PURE_SIGNUP_ADD_DIALOG_STEPS}
         hideBackButton
       />
-      <CardContent>
-        <TextField
-          className={classes.row}
-          inputProps={{ maxLength: 255 }}
-          id="name"
-          helperText={intl.formatMessage({ id: 'marketAddTitleLabel' })}
-          placeholder={intl.formatMessage({ id: 'marketAddTitleDefault' })}
-          margin="normal"
-          fullWidth
-          variant="outlined"
-          value={name}
-          onChange={handleChange('name')}
-        />
-        <Typography
-          className={classes.row}
-        >
+      <CardType className={classes.cardType} type={DECISION_TYPE} />
+      <CardContent className={classes.cardContent}>
+        <Typography>
           {intl.formatMessage({ id: 'decisionAddExpirationLabel' }, { x: expiration_minutes / 1440 })}
         </Typography>
-
         <ExpirationSelector
           id="expires"
           value={expiration_minutes}
@@ -194,8 +178,25 @@ function DecisionAdd(props) {
           onChange={handleChange('expiration_minutes')}
         />
         <Typography>
-          {intl.formatMessage({ id: 'descriptionEdit' })}
+          {intl.formatMessage({ id: 'allowMultiVote' })}
+          <Checkbox
+            id="multiVote"
+            name="multiVote"
+            checked={multiVote}
+            onChange={toggleMultiVote}
+          />
         </Typography>
+        <TextField
+          fullWidth
+          id="decision-name"
+          label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
+          onChange={handleChange('name')}
+          placeholder={intl.formatMessage({
+            id: "decisionTitlePlaceholder"
+          })}
+          value={name}
+          variant="filled"
+        />
         <QuillEditor
           id="description"
           onS3Upload={onS3Upload}
@@ -206,23 +207,30 @@ function DecisionAdd(props) {
           setOperationInProgress={setOperationRunning}
         />
       </CardContent>
-      <CardActions>
-        <SpinBlockingButtonGroup>
-          <Button onClick={handleCancel}>
-            {intl.formatMessage({ id: 'marketAddCancelLabel' })}
-          </Button>
-          <SpinBlockingButton
-            marketId=""
-            id="save"
-            variant="contained"
-            color="primary"
-            onClick={handleSave}
-            disabled={!validForm}
-            onSpinStop={onSpinStop}
-          >
-            {intl.formatMessage({ id: 'marketAddSaveLabel' })}
-          </SpinBlockingButton>
-        </SpinBlockingButtonGroup>
+      <CardActions className={classes.actions}>
+        <Button
+          onClick={handleCancel}
+          className={classes.actionSecondary}
+          color="secondary"
+          variant="contained">
+          <FormattedMessage
+            id="marketAddCancelLabel"
+          />
+        </Button>
+        <SpinBlockingButton
+          marketId=""
+          id="save"
+          variant="contained"
+          color="primary"
+          onClick={handleSave}
+          disabled={!validForm}
+          onSpinStop={onSpinStop}
+          className={classes.actionPrimary}
+        >
+          <FormattedMessage
+            id="agilePlanFormSaveLabel"
+          />
+        </SpinBlockingButton>
       </CardActions>
     </Card>
   );

@@ -5,7 +5,7 @@ import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router';
-import { Card, CardContent, Divider, Grid, makeStyles } from '@material-ui/core';
+import { Card, CardContent, Divider, Grid, makeStyles, Typography } from '@material-ui/core'
 import _ from 'lodash';
 import AddIcon from '@material-ui/icons/Add';
 import {
@@ -40,15 +40,32 @@ import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import { Collaborators } from '../../Investible/Initiative/InitiativeInvestible'
 import DialogActions from '../../Home/DialogActions'
 import ParentSummary from '../ParentSummary'
+import CardActions from '@material-ui/core/CardActions'
 
 const useStyles = makeStyles(
   theme => ({
+    root: {
+      alignItems: "flex-start",
+      display: "flex",
+      flexWrap: "wrap",
+      justifyContent: "space-between"
+    },
     cardType: {
       display: "inline-flex"
     },
-    votingCardContent: {
-      margin: theme.spacing(2, 6),
-      padding: 0
+    actions: {},
+    content: {
+      flexBasis: "100%",
+      padding: theme.spacing(0, 4)
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: "bold",
+      lineHeight: "42px",
+      paddingBottom: "9px",
+      [theme.breakpoints.down("xs")]: {
+        fontSize: 25
+      }
     },
   }),
   { name: "InitiativeInvestible" }
@@ -186,26 +203,25 @@ function DecisionDialog(props) {
         continuous
         hideBackButton
       />
-      <Card elevation={0}>
+      <Card className={classes.root}>
         <CardType
           className={classes.cardType}
-          label={`${intl.formatMessage({
-            id: "dialogDescription"
-          })}`}
           type={DECISION_TYPE}
         />
-        <CardContent className={classes.votingCardContent}>
-          <h1>
+        <CardActions className={classes.actions}>
+          <DialogActions
+            isAdmin={myPresence.is_admin}
+            isFollowing={myPresence.following}
+            marketStage={marketStage}
+            marketType={marketType}
+            inArchives={myPresence.market_hidden}
+            marketId={marketId}
+          />
+        </CardActions>
+        <CardContent className={classes.content}>
+          <Typography className={classes.title} variant="h3" component="h1">
             {marketName}
-            <DialogActions
-              isAdmin={myPresence.is_admin}
-              isFollowing={myPresence.following}
-              marketStage={marketStage}
-              marketType={marketType}
-              inArchives={myPresence.market_hidden}
-              marketId={marketId}
-            />
-          </h1>
+          </Typography>
           <DescriptionOrDiff
             hidden={hidden}
             id={marketId}

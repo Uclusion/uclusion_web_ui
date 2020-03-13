@@ -36,7 +36,8 @@ function NotificationsProvider(props) {
   const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const [, highlightedVotingDispatch] = useContext(HighlightedVotingContext);
   const history = useHistory();
-
+  const { location } = history;
+  const { pathname, hash } = location;
   useEffect(() => {
     if (isInitialization) {
       const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
@@ -112,12 +113,14 @@ function NotificationsProvider(props) {
             commentId,
           } = message;
           // Sadly intl not available here TODO - Fix
-          const myText = filtered.length > 1 ? 'Multiple Updates' : text;
+          const multiUpdate = filtered.length > 1;
+          const myText = multiUpdate ? 'Multiple Updates' : text;
           const diffId = commentId || investibleId || marketId;
+          const linkNotMatching = getFullLink(message) !== `${pathname}${hash}`;
           // Do not toast a non red unread as already have diff and dismiss - unless is new
           // Do toast if the page hasn't changed since will not scroll in that case and need toast if want to scroll
-          const shouldToast = isOldPage || (level === 'RED') || (!commentId &&
-            (aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)));
+          const shouldToast = (multiUpdate || isOldPage || (!isOldPage && linkNotMatching))
+            || (level === 'RED') || (!commentId && (aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)));
           const myCustomToastId = myText + '_' + diffId;
           if (shouldToast && !toast.isActive(myCustomToastId)) {
             console.debug('Toasting on page from NotificationsContext');
@@ -143,7 +146,8 @@ function NotificationsProvider(props) {
     }
     return () => {
     };
-  }, [page, messages, diffState, history, lastPage, highlightedCommentDispatch, highlightedVotingDispatch]);
+  }, [page, messages, diffState, history, lastPage, highlightedCommentDispatch, highlightedVotingDispatch,
+    pathname, hash]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

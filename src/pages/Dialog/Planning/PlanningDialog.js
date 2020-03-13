@@ -1,44 +1,46 @@
 /**
  * A component that renders a _planning_ dialog
  */
-import React, { useState, useRef, useContext } from 'react'
-import { useHistory } from 'react-router';
-import { useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import { Grid, Typography } from '@material-ui/core';
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
-import ListSubheader from '@material-ui/core/ListSubheader';
-import Summary from './Summary';
-import PlanningIdeas from './PlanningIdeas';
-import Screen from '../../../containers/Screen/Screen';
+import React, { useState, useRef, useContext } from "react";
+import { useHistory } from "react-router";
+import { useIntl } from "react-intl";
+import PropTypes from "prop-types";
+import _ from "lodash";
+import { Typography } from "@material-ui/core";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
+import CardHeader from "@material-ui/core/CardHeader";
+import { makeStyles } from "@material-ui/core/styles";
+import Summary from "./Summary";
+import PlanningIdeas from "./PlanningIdeas";
+import Screen from "../../../containers/Screen/Screen";
 import {
   formMarketAddInvestibleLink,
   formMarketManageLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
-  navigate,
-} from '../../../utils/marketIdPathFunctions'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
-import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
-import AskQuestions from '../../../components/SidebarActions/AskQuestion';
-import SubSection from '../../../containers/SubSection/SubSection';
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
-import ViewArchiveActionButton from './ViewArchivesActionButton';
-import { scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
-import { ACTIVE_STAGE, DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets'
-import ManageParticipantsActionButton from './ManageParticipantsActionButton';
-import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import { getUserInvestibles } from './userUtils';
-import { getDialogTypeIcon } from '../../../components/Dialogs/dialogIconFunctions';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
-import InsertLinkIcon from '@material-ui/icons/InsertLink';
-import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import InvestibleAddActionButton from './InvestibleAddActionButton'
+  navigate
+} from "../../../utils/marketIdPathFunctions";
+import {
+  ISSUE_TYPE,
+  QUESTION_TYPE,
+  SUGGEST_CHANGE_TYPE
+} from "../../../constants/comments";
+import RaiseIssue from "../../../components/SidebarActions/RaiseIssue";
+import AskQuestions from "../../../components/SidebarActions/AskQuestion";
+import CommentAddBox from "../../../containers/CommentBox/CommentAddBox";
+import CommentBox from "../../../containers/CommentBox/CommentBox";
+import ViewArchiveActionButton from "./ViewArchivesActionButton";
+import { scrollToCommentAddBox } from "../../../components/Comments/commentFunctions";
+import { ACTIVE_STAGE, DECISION_TYPE } from "../../../constants/markets";
+import ManageParticipantsActionButton from "./ManageParticipantsActionButton";
+import { getUserInvestibles } from "./userUtils";
+import { MarketPresencesContext } from "../../../contexts/MarketPresencesContext/MarketPresencesContext";
+import ExpandableSidebarAction from "../../../components/SidebarActions/ExpandableSidebarAction";
+import InsertLinkIcon from "@material-ui/icons/InsertLink";
+import SuggestChanges from "../../../components/SidebarActions/SuggestChanges";
+import { getMarketPresences } from "../../../contexts/MarketPresencesContext/marketPresencesHelper";
+import InvestibleAddActionButton from "./InvestibleAddActionButton";
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -49,11 +51,12 @@ function PlanningDialog(props) {
     marketStages,
     comments,
     hidden,
-    myPresence,
+    myPresence
   } = props;
-  const breadCrumbs = myPresence && myPresence.market_hidden?
-    makeArchiveBreadCrumbs(history) :
-    makeBreadCrumbs(history);
+  const breadCrumbs =
+    myPresence && myPresence.market_hidden
+      ? makeArchiveBreadCrumbs(history)
+      : makeBreadCrumbs(history);
 
   const intl = useIntl();
   const commentAddRef = useRef(null);
@@ -67,37 +70,43 @@ function PlanningDialog(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(
-    stage => !stage.allows_investment && stage.singular_only,
+    stage => !stage.allows_investment && stage.singular_only
   );
   const inDialogStage = marketStages.find(stage => stage.allows_investment);
   const inReviewStage = marketStages.find(
     stage =>
-      stage.appears_in_context &&
-      !stage.singular_only &&
-      !stage.allows_issues,
+      stage.appears_in_context && !stage.singular_only && !stage.allows_issues
   );
   const inBlockingStage = marketStages.find(
-    stage => stage.appears_in_context && stage.allows_issues,
+    stage => stage.appears_in_context && stage.allows_issues
   );
-  const assignedPresences = presences.filter((presence) => {
-    const assignedInvestibles = getUserInvestibles(presence.id, marketId, investibles);
+  const assignedPresences = presences.filter(presence => {
+    const assignedInvestibles = getUserInvestibles(
+      presence.id,
+      marketId,
+      investibles
+    );
     if (_.isEmpty(assignedInvestibles)) {
       return false;
     }
-    const filtered = assignedInvestibles.filter((investible) => {
+    const filtered = assignedInvestibles.filter(investible => {
       const { market_infos: marketInfos } = investible;
-      const marketInfo = marketInfos.find((info) => info.market_id === marketId);
-      return [inDialogStage.id, acceptedStage.id, inReviewStage.id, inBlockingStage.id].includes(marketInfo.stage);
+      const marketInfo = marketInfos.find(info => info.market_id === marketId);
+      return [
+        inDialogStage.id,
+        acceptedStage.id,
+        inReviewStage.id,
+        inBlockingStage.id
+      ].includes(marketInfo.stage);
     });
     return !_.isEmpty(filtered);
   });
   const isChannel = _.isEmpty(assignedPresences);
-  const unassigned = _.difference(presences, assignedPresences);
 
   let lockedByName;
   if (lockedBy) {
     const lockedByPresence = marketPresences.find(
-      presence => presence.id === lockedBy,
+      presence => presence.id === lockedBy
     );
     if (lockedByPresence) {
       const { name } = lockedByPresence;
@@ -119,86 +128,6 @@ function PlanningDialog(props) {
     setCommentAddHidden(true);
   }
 
-  function getInvestiblesByPerson(investibles, assignedPresences) {
-    return (
-      <GridList key="toppresencelist" cellHeight="auto" cols={3}>
-        <GridListTile
-          key="Subheader1"
-          cols={1}
-          style={{ height: 'auto', width: '25%' }}
-        >
-          <ListSubheader component="div">
-            {intl.formatMessage({ id: 'planningVotingStageLabel' })}
-          </ListSubheader>
-        </GridListTile>
-        <GridListTile
-          key="Subheader2"
-          cols={1}
-          style={{ height: 'auto', width: '25%' }}
-        >
-          <ListSubheader component="div">
-            {intl.formatMessage({ id: 'planningAcceptedStageLabel' })}
-          </ListSubheader>
-        </GridListTile>
-        <GridListTile
-          key="Subheader3"
-          cols={1}
-          style={{ height: 'auto', width: '25%' }}
-        >
-          <ListSubheader component="div">
-            {intl.formatMessage({ id: 'planningReviewStageLabel' })}
-          </ListSubheader>
-        </GridListTile>
-        <GridListTile
-          key="Subheader4"
-          cols={1}
-          style={{ height: 'auto', width: '25%' }}
-        >
-          <ListSubheader component="div">
-            {intl.formatMessage({ id: 'planningBlockedStageLabel' })}
-          </ListSubheader>
-        </GridListTile>
-        {assignedPresences.map(presence => {
-          const myInvestibles = getUserInvestibles(
-            presence.id,
-            marketId,
-            investibles,
-          );
-          const { id, name } = presence;
-          return (
-            <GridList key={`topof${id}`} cellHeight="auto" cols={3}>
-              <GridListTile
-                key={`namecolumn${id}`}
-                cols={3}
-                style={{ height: 'auto', width: '100%' }}
-              >
-                <ListSubheader component="div">
-                  <div id={`u${id}`}>{name}</div>
-                </ListSubheader>
-              </GridListTile>
-              {marketId &&
-                acceptedStage &&
-                inDialogStage &&
-                inReviewStage &&
-                inBlockingStage && (
-                  <PlanningIdeas
-                    investibles={myInvestibles}
-                    marketId={marketId}
-                    acceptedStageId={acceptedStage.id}
-                    inDialogStageId={inDialogStage.id}
-                    inReviewStageId={inReviewStage.id}
-                    inBlockingStageId={inBlockingStage.id}
-                    comments={comments}
-                    presenceId={presence.id}
-                  />
-                )}
-            </GridList>
-          );
-        })}
-      </GridList>
-    );
-  }
-
   function getSidebarActions() {
     if (!activeMarket) {
       return [
@@ -207,17 +136,14 @@ function PlanningDialog(props) {
           onClick={toggleManageUsersMode}
         />,
         <ViewArchiveActionButton key="archives" marketId={marketId} />
-        ];
+      ];
     }
     function onClick() {
       const link = formMarketAddInvestibleLink(marketId);
       navigate(history, link);
     }
     return [
-      <InvestibleAddActionButton
-        key="investibleadd"
-        onClick={onClick}
-      />,
+      <InvestibleAddActionButton key="investibleadd" onClick={onClick} />,
       <ManageParticipantsActionButton
         key="addParticipants"
         onClick={toggleManageUsersMode}
@@ -230,9 +156,11 @@ function PlanningDialog(props) {
         id="link"
         key="link"
         icon={<InsertLinkIcon />}
-        label={intl.formatMessage({ id: 'planningInvestibleDecision' })}
-        onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${marketId}`)}
-      />,
+        label={intl.formatMessage({ id: "planningInvestibleDecision" })}
+        onClick={() =>
+          navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${marketId}`)
+        }
+      />
     ];
   }
 
@@ -245,52 +173,31 @@ function PlanningDialog(props) {
       breadCrumbs={breadCrumbs}
       sidebarActions={sidebarActions}
     >
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <SubSection
-            title={intl.formatMessage({ id: 'planningDialogSummaryLabel' })}
-            titleIcon={getDialogTypeIcon(PLANNING_TYPE)}
-          >
-            <Summary
-              market={market}
-              hidden={hidden}
-              isChannel={isChannel}
-              unassigned={unassigned}
-            />
-            {lockedBy && (
-              <Typography>
-                {intl.formatMessage({ id: 'lockedBy' }, { x: lockedByName })}
-              </Typography>
-            )}
-          </SubSection>
-        </Grid>
-        {!isChannel && (
-          <Grid item xs={12}>
-            <SubSection
-              type={SECTION_TYPE_SECONDARY}
-              title={intl.formatMessage({ id: 'planningDialogPeopleLabel' })}
-            >
-              {getInvestiblesByPerson(investibles, assignedPresences)}
-            </SubSection>
-          </Grid>
-        )}
-        <Grid item xs={12}>
-          <SubSection
-            type={SECTION_TYPE_SECONDARY}
-            title={intl.formatMessage({ id: 'planningDialogDiscussionLabel' })}
-          >
-            <CommentAddBox
-              hidden={commentAddHidden}
-              type={commentAddType}
-              allowedTypes={allowedCommentTypes}
-              marketId={marketId}
-              onSave={closeCommentAddBox}
-              onCancel={closeCommentAddBox}
-            />
-            <CommentBox comments={marketComments} marketId={marketId} />
-          </SubSection>
-        </Grid>
-      </Grid>
+      <Summary market={market} hidden={hidden} />
+      {lockedBy && (
+        <Typography>
+          {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
+        </Typography>
+      )}
+      {!isChannel && (
+        <InvestiblesByPerson
+          comments={comments}
+          investibles={investibles}
+          marketId={marketId}
+          marketPresences={marketPresences}
+          marketStages={marketStages}
+        />
+      )}
+
+      <CommentAddBox
+        hidden={commentAddHidden}
+        type={commentAddType}
+        allowedTypes={allowedCommentTypes}
+        marketId={marketId}
+        onSave={closeCommentAddBox}
+        onCancel={closeCommentAddBox}
+      />
+      <CommentBox comments={marketComments} marketId={marketId} />
     </Screen>
   );
 }
@@ -308,7 +215,7 @@ PlanningDialog.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
-  myPresence: PropTypes.object.isRequired,
+  myPresence: PropTypes.object.isRequired
 };
 
 PlanningDialog.defaultProps = {
@@ -316,7 +223,93 @@ PlanningDialog.defaultProps = {
   marketPresences: [],
   marketStages: [],
   hidden: false,
-  comments: [],
+  comments: []
 };
+
+const useInvestiblesByPersonStyles = makeStyles(
+  theme => {
+    return {
+      root: {
+        margin: theme.spacing(1, 0)
+      },
+      content: {
+        padding: theme.spacing(0, 1),
+        "&:last-child": {
+          paddingBottom: "inherit"
+        }
+      },
+      header: {
+        backgroundColor: theme.palette.grey["300"],
+        padding: theme.spacing(1)
+      }
+    };
+  },
+  { name: "InvestiblesByPerson" }
+);
+
+function InvestiblesByPerson(props) {
+  const {
+    comments,
+    investibles,
+    marketId,
+    marketPresences,
+    marketStages
+  } = props;
+
+  const followingPresences = marketPresences.filter(
+    presence => presence.following
+  );
+  const acceptedStage = marketStages.find(
+    stage => !stage.allows_investment && stage.singular_only
+  );
+  const inDialogStage = marketStages.find(stage => stage.allows_investment);
+  const inReviewStage = marketStages.find(
+    stage =>
+      stage.appears_in_context && !stage.singular_only && !stage.allows_issues
+  );
+  const inBlockingStage = marketStages.find(
+    stage => stage.appears_in_context && stage.allows_issues
+  );
+
+  const classes = useInvestiblesByPersonStyles();
+
+  return followingPresences.map(presence => {
+    const myInvestibles = getUserInvestibles(
+      presence.id,
+      marketId,
+      investibles
+    );
+    const { id, name } = presence;
+    return (
+      <Card key={id} className={classes.root}>
+        {/* TODO avatar */}
+        <CardHeader
+          className={classes.header}
+          id={`u${id}`}
+          title={name}
+          titleTypographyProps={{ variant: "subtitle2" }}
+        />
+        <CardContent className={classes.content}>
+          {marketId &&
+            acceptedStage &&
+            inDialogStage &&
+            inReviewStage &&
+            inBlockingStage && (
+              <PlanningIdeas
+                investibles={myInvestibles}
+                marketId={marketId}
+                acceptedStageId={acceptedStage.id}
+                inDialogStageId={inDialogStage.id}
+                inReviewStageId={inReviewStage.id}
+                inBlockingStageId={inBlockingStage.id}
+                comments={comments}
+                presenceId={presence.id}
+              />
+            )}
+        </CardContent>
+      </Card>
+    );
+  });
+}
 
 export default PlanningDialog;

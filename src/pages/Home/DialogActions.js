@@ -64,10 +64,10 @@ function DialogActions(props) {
     if (isAdmin) {
       if (marketStage === 'Active') {
         actions.push(
-          <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction} />
+          <DismissMarketButton key="archive" marketId={marketId}/>,
         );
         actions.push(
-          <DismissMarketButton key="archive" marketId={marketId}/>,
+          <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction} />
         );
         if (isFollowing) {
           actions.push(

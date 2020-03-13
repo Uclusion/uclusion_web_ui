@@ -388,6 +388,8 @@ const messages = defineMessages({
   planningDialogViewArchivesLabel: 'View Archives',
   planningNoneAcceptedWarning: 'No in progress assignment',
   planningNoneInDialogWarning: 'No votable assignment',
+  planningNoneInReviewWarning: 'No in Review assignment',
+  planningNoneInBlockingWarning: 'No Blockers',
   acceptedInvestiblesUpdatedAt: 'In progress from ',
   reviewingInvestiblesUpdatedAt: 'In review from ',
   inDialogInvestiblesUpdatedAt: 'Assigned for voting on ',

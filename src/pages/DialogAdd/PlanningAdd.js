@@ -11,7 +11,6 @@ import {
   InputAdornment,
   darken
 } from "@material-ui/core";
-import { KeyboardDatePicker } from "@material-ui/pickers";
 import { addDays, differenceInCalendarDays } from "date-fns";
 import localforage from "localforage";
 import QuillEditor from "../../components/TextEditors/QuillEditor";
@@ -23,6 +22,12 @@ import { OperationInProgressContext } from "../../contexts/OperationInProgressCo
 import { useHistory } from "react-router";
 import queryString from "query-string";
 import CardType, { AGILE_PLAN_TYPE } from "../../components/CardType";
+import {
+  IdealDelivery,
+  MaxBudget,
+  VoteExpiration,
+  Votes
+} from "../../components/AgilePlan";
 import clsx from "clsx";
 
 const useStyles = makeStyles(
@@ -276,70 +281,20 @@ function PlanningAdd(props) {
         />
         <fieldset className={clsx(classes.fieldset, classes.fieldsetRequired)}>
           <legend>Required</legend>
-          <TextField
-            id="agile-plan-max-budget"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment className={classes.adornmentSuffix}>
-                  days
-                </InputAdornment>
-              )
-            }}
-            inputProps={{
-              inputMode: "numeric",
-              pattern: "[0-9]*"
-            }}
-            label={intl.formatMessage({
-              id: "agilePlanAddMaxMaxBudgetInputLabel"
-            })}
-            onChange={onMaxBudgetChange}
-            placeholder="14"
-            value={maxBudget}
-            variant="filled"
-          />
-          <TextField
-            InputProps={{
-              endAdornment: (
-                <InputAdornment className={classes.adornmentSuffix}>
-                  days
-                </InputAdornment>
-              )
-            }}
-            id="agile-plan-expiration"
-            label={intl.formatMessage({
-              id: "agilePlanAddInvestmentExpirationLabel"
-            })}
-            type="number"
-            value={investmentExpiration}
-            variant="filled"
+          <MaxBudget onChange={onMaxBudgetChange} value={maxBudget} />
+          <VoteExpiration
             onChange={onInvestmentExpirationChange}
+            value={investmentExpiration}
           />
-          <TextField
-            helperText={intl.formatMessage({
-              id: "votesRequiredInputHelperText"
-            })}
-            id="agile-plan-votes-required"
-            inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-            label={intl.formatMessage({ id: "votesRequiredInputLabelShort" })}
+          <Votes
             onChange={onVotesRequiredEstimateChange}
             value={votesRequired}
-            variant="filled"
           />
         </fieldset>
         <fieldset className={classes.fieldset}>
           <legend>optional</legend>
-          <KeyboardDatePicker
-            clearable
-            disablePast
-            format="yyyy/MM/dd"
-            inputVariant="filled"
-            label={intl.formatMessage({
-              id: "agilePlanAddIdealDeliveryLabel"
-            })}
+          <IdealDelivery
             onChange={onIdealDeliveryChange}
-            placeholder={intl.formatMessage({
-              id: "agilePlanAddIdealDeliveryPlaceholder"
-            })}
             value={idealDelivery}
           />
         </fieldset>

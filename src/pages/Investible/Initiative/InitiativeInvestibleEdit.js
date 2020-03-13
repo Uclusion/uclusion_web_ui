@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
-  Button,
-  Card, CardActions, CardContent, TextField, Typography,
+  Card, CardActions, CardContent, TextField,
 } from '@material-ui/core'
 import localforage from 'localforage';
 import PropTypes from 'prop-types';

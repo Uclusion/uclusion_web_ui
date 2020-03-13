@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
-  Button, Card, CardActions, CardContent, makeStyles, TextField, Typography,
+  Button, Card, CardActions, CardContent, TextField, Typography,
 } from '@material-ui/core';
 import localforage from 'localforage';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
@@ -12,7 +12,6 @@ import { processTextAndFilesForSave } from '../../api/files';
 import { INITIATIVE_TYPE } from '../../constants/markets'
 import { addDecisionInvestible } from '../../api/investibles';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';

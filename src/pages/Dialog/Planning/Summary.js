@@ -134,7 +134,6 @@ Summary.propTypes = {
   investibleDescription: PropTypes.string,
   investibleId: PropTypes.string,
   hidden: PropTypes.bool.isRequired,
-  isChannel: PropTypes.bool.isRequired,
   unassigned: PropTypes.array
 };
 

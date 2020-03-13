@@ -201,7 +201,6 @@ function Stage(props) {
 }
 
 Stage.propTypes = {
-  comments: PropTypes.array.isRequired,
   id: PropTypes.string.isRequired,
   investibles: PropTypes.array.isRequired,
   marketId: PropTypes.string.isRequired

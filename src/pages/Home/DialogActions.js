@@ -71,11 +71,11 @@ function DialogActions(props) {
         );
         if (isFollowing) {
           actions.push(
-            <ChangeToObserverButton marketId={marketId}/>,
+            <ChangeToObserverButton key="change-to-observer" marketId={marketId}/>,
           );
         } else {
           actions.push(
-            <ChangeToParticipantButton marketId={marketId}/>,
+            <ChangeToParticipantButton key="change-to-participant" marketId={marketId}/>,
           );
         }
       }

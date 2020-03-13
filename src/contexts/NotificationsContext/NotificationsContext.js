@@ -114,7 +114,7 @@ function NotificationsProvider(props) {
           } = message;
           // Sadly intl not available here TODO - Fix
           const multiUpdate = filtered.length > 1;
-          const myText = multiUpdate ? 'Multiple Updates' : text;
+          const myText = multiUpdate ? `${filtered.length} Updates` : text;
           const diffId = commentId || investibleId || marketId;
           const linkNotMatching = getFullLink(message) !== `${pathname}${hash}`;
           // Do not toast a non red unread as already have diff and dismiss - unless is new

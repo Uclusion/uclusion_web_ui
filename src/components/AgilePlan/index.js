@@ -139,7 +139,7 @@ export function Form(props) {
           onS3Upload={onS3Upload}
           onChange={onDescriptionChange}
           onStoreChange={onStorageChange}
-          placeHolder={intl.formatMessage({
+          placeholder={intl.formatMessage({
             id: "descriptionEdit"
           })}
           defaultValue={description}

@@ -172,6 +172,7 @@ const messages = defineMessages({
   optionTitlePlaceholder: 'Name your option',
   agilePlanFormTitlePlaceholder: 'Name your plan',
   decisionTitlePlaceholder: 'Name your dialog',
+  initiativeTitlePlaceholder: 'Name your initiative',
   agilePlanFormTitleLabel: 'Name',
   agilePlanFormFieldsetLabelOptional: 'Optional',
   agilePlanFormFieldsetLabelRequired: 'Required',

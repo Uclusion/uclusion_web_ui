@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { injectIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl'
 import {
-  Card, CardActions, CardContent, TextField, Typography, withStyles,
-} from '@material-ui/core';
+  Button,
+  Card, CardActions, CardContent, TextField, Typography,
+} from '@material-ui/core'
 import localforage from 'localforage';
 import PropTypes from 'prop-types';
 import { updateInvestible } from '../../../api/investibles';
@@ -10,24 +11,15 @@ import QuillEditor from '../../../components/TextEditors/QuillEditor';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
-
-const styles = (theme) => ({
-  root: {
-    padding: theme.spacing(2),
-  },
-  row: {
-    marginBottom: theme.spacing(2),
-    '&:last-child': {
-      marginBottom: 0,
-    },
-  },
-});
+import { usePlanFormStyles } from '../../../components/AgilePlan';
+import CardType, { VOTING_TYPE } from '../../../components/CardType'
 
 function InitiativeInvestibleEdit(props) {
   const {
-    fullInvestible, intl, classes, onCancel, onSave, marketId, storedState,
+    fullInvestible, onCancel, onSave, marketId, storedState,
   } = props;
+  const intl = useIntl();
+  const classes = usePlanFormStyles();
   const { description: storedDescription, name: storedName } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -105,21 +97,25 @@ function InitiativeInvestibleEdit(props) {
 
   return (
     <Card>
-      <CardContent>
+      <CardType
+        className={classes.cardType}
+        label={`${intl.formatMessage({
+          id: "initiativeInvestibleDescription"
+        })}`}
+        type={VOTING_TYPE}
+      />
+      <CardContent className={classes.cardContent}>
         <TextField
-          className={classes.row}
-          inputProps={{ maxLength: 255 }}
-          id="name"
-          helperText={intl.formatMessage({ id: 'investibleEditTitleLabel' })}
-          margin="normal"
           fullWidth
-          variant="outlined"
-          value={name}
+          id="initiative-name"
+          label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
           onChange={handleChange('name')}
+          placeholder={intl.formatMessage({
+            id: "initiativeTitlePlaceholder"
+          })}
+          value={name}
+          variant="filled"
         />
-        <Typography>
-          {intl.formatMessage({ id: 'descriptionEdit' })}
-        </Typography>
         <QuillEditor
           onS3Upload={handleFileUpload}
           onChange={onEditorChange}
@@ -128,26 +124,33 @@ function InitiativeInvestibleEdit(props) {
           setOperationInProgress={setOperationRunning}
         />
       </CardContent>
-      <CardActions>
-        <SpinBlockingButtonGroup>
-          <SpinBlockingButton
-            marketId={marketId}
-            onClick={onCancel}
-          >
-            {intl.formatMessage({ id: 'investibleEditCancelLabel' })}
-          </SpinBlockingButton>
-          <SpinBlockingButton
-            marketId={marketId}
-            variant="contained"
-            color="primary"
-            onClick={saveInvestible}
-            disabled={!validForm}
-            onSpinStop={onSave}
-            hasSpinChecker
-          >
-            {intl.formatMessage({ id: 'investibleEditSaveLabel' })}
-          </SpinBlockingButton>
-        </SpinBlockingButtonGroup>
+      <CardActions className={classes.actions}>
+        <SpinBlockingButton
+          marketId={marketId}
+          onClick={onCancel}
+          className={classes.actionSecondary}
+          color="secondary"
+          variant="contained"
+        >
+          <FormattedMessage
+            id="marketAddCancelLabel"
+          />
+        </SpinBlockingButton>
+        <SpinBlockingButton
+          marketId={marketId}
+          variant="contained"
+          color="primary"
+          onClick={saveInvestible}
+          disabled={!validForm}
+          onSpinStop={onSave}
+          hasSpinChecker
+          id="save"
+          className={classes.actionPrimary}
+        >
+          <FormattedMessage
+            id="agilePlanFormSaveLabel"
+          />
+        </SpinBlockingButton>
       </CardActions>
     </Card>
 
@@ -155,12 +158,7 @@ function InitiativeInvestibleEdit(props) {
 }
 
 InitiativeInvestibleEdit.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  intl: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   fullInvestible: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
-  classes: PropTypes.object.isRequired,
   marketId: PropTypes.string.isRequired,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
@@ -173,4 +171,4 @@ InitiativeInvestibleEdit.defaultProps = {
   onCancel: () => {
   },
 };
-export default withStyles(styles)(injectIntl(InitiativeInvestibleEdit));
+export default InitiativeInvestibleEdit;

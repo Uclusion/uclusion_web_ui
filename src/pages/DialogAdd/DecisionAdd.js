@@ -201,7 +201,7 @@ function DecisionAdd(props) {
           onS3Upload={onS3Upload}
           onChange={onEditorChange}
           onStoreChange={onStorageChange}
-          placeHolder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
+          placeholder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
           defaultValue={description}
           setOperationInProgress={setOperationRunning}
         />

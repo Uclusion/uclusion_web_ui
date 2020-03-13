@@ -87,9 +87,9 @@ function PlanningDialog(props) {
     const filtered = assignedInvestibles.filter((investible) => {
       const { market_infos: marketInfos } = investible;
       const marketInfo = marketInfos.find((info) => info.market_id === marketId);
-      return marketInfo.stage in [inDialogStage.id, acceptedStage.id, inReviewStage.id, inBlockingStage.id];
+      return [inDialogStage.id, acceptedStage.id, inReviewStage.id, inBlockingStage.id].includes(marketInfo.stage);
     });
-    return _.isEmpty(filtered);
+    return !_.isEmpty(filtered);
   });
   const isChannel = _.isEmpty(assignedPresences);
   const unassigned = _.difference(presences, assignedPresences);

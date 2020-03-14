@@ -30,6 +30,12 @@ export function getInvestiblesInStage(investibles, stageId) {
 }
 
 export function addInvestible(dispatch, diffDispatch, investible) {
+  const { investible: myInvestible } = investible;
+  const { id } = myInvestible;
+  if (!id) {
+    console.error('Attempting to store a corrupted investible');
+    return;
+  }
   return refreshInvestibles(dispatch, diffDispatch, [investible]);
 }
 

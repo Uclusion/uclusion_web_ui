@@ -87,7 +87,8 @@ function Summary(props) {
     investment_expiration: investmentExpiration,
     days_estimate: daysEstimate,
     votes_required: votesRequired,
-    children
+    children,
+    isChannel,
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
@@ -121,7 +122,7 @@ function Summary(props) {
         </Typography>
         <DescriptionOrDiff hidden={hidden} id={id} description={description} />
         <Divider className={classes.divider} />
-        {!_.isEmpty(unassigned) && (
+        {!isChannel && (
           <>
             <fieldset className={classes.fieldset}>
               <MaxBudget readOnly value={maxBudget} />
@@ -131,18 +132,20 @@ function Summary(props) {
             <fieldset className={classes.fieldset}>
               {daysEstimate && <DaysEstimate readOnly value={daysEstimate} />}
             </fieldset>
-            <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-              <dt>
-                <FormattedMessage id="unassigned" />
-              </dt>
-              <dd>
-                <UnassignedDisplay
-                  marketPresences={unassigned}
-                />
-              </dd>
-            </div>
-            </>
-          )}
+          </>
+        )}
+        {!_.isEmpty(unassigned) && (
+          <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+            <dt>
+              <FormattedMessage id="unassigned" />
+            </dt>
+            <dd>
+              <UnassignedDisplay
+                marketPresences={unassigned}
+              />
+            </dd>
+          </div>
+        )}
         <ParentSummary market={market} hidden={hidden}/>
         <MarketLinks links={children || []} hidden={hidden} />
       </CardContent>
@@ -173,6 +176,7 @@ Summary.propTypes = {
   investibleDescription: PropTypes.string,
   investibleId: PropTypes.string,
   hidden: PropTypes.bool.isRequired,
+  isChannel: PropTypes.bool.isRequired,
   unassigned: PropTypes.array
 };
 

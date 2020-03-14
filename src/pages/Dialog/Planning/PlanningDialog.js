@@ -168,7 +168,7 @@ function PlanningDialog(props) {
       breadCrumbs={breadCrumbs}
       sidebarActions={sidebarActions}
     >
-      <Summary market={market} hidden={hidden} unassigned={unassigned} />
+      <Summary market={market} hidden={hidden} unassigned={unassigned} isChannel={isChannel} />
       {lockedBy && (
         <Typography>
           {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}

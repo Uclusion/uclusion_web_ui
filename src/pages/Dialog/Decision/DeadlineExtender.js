@@ -1,11 +1,10 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types';
 import { Button, CardActions } from '@material-ui/core'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { FormattedMessage } from 'react-intl'
 import ExpirationSelector from '../../../components/Expiration/ExpirationSelector';
 import { manageMarket } from '../../../api/markets';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { usePlanFormStyles } from '../../../components/AgilePlan';
@@ -17,7 +16,6 @@ function DeadlineExtender(props) {
   const [, marketsDispatch] = useContext(MarketsContext);
   const { id: marketId, expiration_minutes: expirationMinutes } = market;
   const classes = usePlanFormStyles();
-  const intl = useIntl();
   const [extensionPeriod, setExtensionPeriod] = useState(0);
 
   function selectorOnChange(event) {

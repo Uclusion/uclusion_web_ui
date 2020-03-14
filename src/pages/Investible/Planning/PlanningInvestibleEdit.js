@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import {
   Button,
-  Card, CardActions, CardContent, TextField, Typography,
+  Card, CardActions, CardContent, TextField,
 } from '@material-ui/core'
 import _ from 'lodash';
 import localforage from 'localforage';
@@ -12,10 +12,7 @@ import { processTextAndFilesForSave } from '../../../api/files';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import AssignmentList from '../../Dialog/Planning/AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import SpinBlockingButtonGroup from '../../../components/SpinBlocking/SpinBlockingButtonGroup';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { makeStyles } from '@material-ui/core/styles';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import CardType, { VOTING_TYPE } from '../../../components/CardType'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { DaysEstimate, usePlanFormStyles } from '../../../components/AgilePlan'
@@ -216,29 +213,6 @@ function PlanningInvestibleEdit(props) {
       </CardActions>
     </Card>
 
-  );
-}
-
-const useInputSuffixStyles = makeStyles(
-  theme => {
-    return {
-      root: {
-        fontSize: "inherit",
-        paddingTop: theme.spacing(2) + 2
-      }
-    };
-  },
-  { name: "InputSuffix" }
-);
-
-function InputSuffix(props) {
-  const { children } = props;
-  const classes = useInputSuffixStyles();
-
-  return (
-    <InputAdornment className={classes.root} disableTypography position="end">
-      {children}
-    </InputAdornment>
   );
 }
 

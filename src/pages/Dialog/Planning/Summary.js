@@ -74,7 +74,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function Summary(props) {
-  const { market, investibleId, hidden, unassigned } = props;
+  const { market, investibleId, hidden, unassigned, isChannel } = props;
   const intl = useIntl();
   const classes = useStyles();
   const {
@@ -88,7 +88,6 @@ function Summary(props) {
     days_estimate: daysEstimate,
     votes_required: votesRequired,
     children,
-    isChannel,
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];

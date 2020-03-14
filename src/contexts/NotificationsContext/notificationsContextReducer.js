@@ -17,12 +17,12 @@ export function updateMessages(messages) {
   };
 }
 
-export function processedPage(page, messages, toastId) {
+export function processedPage(page, messages, toastInfo) {
   return {
     type: PROCESSED_PAGE,
     page,
     messages,
-    toastId
+    toastInfo
   };
 }
 
@@ -169,17 +169,32 @@ function doUpdatePage(state, action) {
 }
 
 function markPageProcessed(state, action) {
-  const { page, messages: removedMessages, toastId } = action;
+  const { page, messages: removedMessages, toastInfo } = action;
   if (_.isEmpty(removedMessages)) {
     return {
       ...state,
       lastPage: page,
     };
   }
-  if (toastId && toast.isActive(toastId)) {
-    toast.dismiss(toastId);
+  const { messages, current, toastId: currentToastId } = state;
+  if (currentToastId && toast.isActive(currentToastId)) {
+    toast.dismiss(currentToastId);
   }
-  const { messages, current } = state;
+  const { level, myText, options } = toastInfo;
+  let toastId;
+  if (level) {
+    switch (level) {
+      case 'RED':
+        toastId = toast.error(myText, options);
+        break;
+      case 'YELLOW':
+        toastId = toast.warn(myText, options);
+        break;
+      default:
+        toastId = toast.info(myText, options);
+        break;
+    }
+  }
   let removedCurrent = false;
   const filteredMessages = messages.filter((aMessage) => {
     let doRemove = false;
@@ -203,7 +218,7 @@ function markPageProcessed(state, action) {
         messages: [],
         current: undefined,
         lastPage: page,
-        toastId: action.toastId
+        toastId
       };
     }
   }
@@ -212,7 +227,7 @@ function markPageProcessed(state, action) {
     messages: filteredMessages,
     current: newCurrent,
     lastPage: page,
-    toastId: action.toastId
+    toastId
   };
 }
 

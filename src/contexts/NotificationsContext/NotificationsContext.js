@@ -101,8 +101,8 @@ function NotificationsProvider(props) {
           }
           return deleteMessage(message);
         });
-        let toastId;
         const message = filtered[0];
+        let toastInfo = {};
         if (message) {
           const {
             marketId,
@@ -128,20 +128,10 @@ function NotificationsProvider(props) {
               onClick: () => navigate(history, getFullLink(message)),
               toastId: myCustomToastId
             }
-            switch (level) {
-              case 'RED':
-                toastId = toast.error(myText, options);
-                break;
-              case 'YELLOW':
-                toastId = toast.warn(myText, options);
-                break;
-              default:
-                toastId = toast.info(myText, options);
-                break;
-            }
+            toastInfo = { myText, level, options };
           }
         }
-        dispatch(processedPage(page, filtered, toastId));
+        dispatch(processedPage(page, filtered, toastInfo));
       }
     }
     return () => {

@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router';
+import config from '../../config';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
@@ -29,14 +30,20 @@ import { PURE_SIGNUP_FAMILY_NAME, PURE_SIGNUP_HOME, pureSignupHomeSteps } from '
 import { CognitoUserContext } from '../../contexts/CongitoUserContext';
 import { TourContext } from '../../contexts/TourContext/TourContext';
 import { beginTourFamily } from '../../contexts/TourContext/tourContextHelper';
+import { AccountContext } from '../../contexts/AccountContext/AccountContext';
+import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
 
 function Home(props) {
   const { hidden } = props;
   const history = useHistory();
   const cognitoUser = useContext(CognitoUserContext);
+  const [accountState] = useContext(AccountContext);
+  const accountCanCreate = canCreate(accountState);
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+
+  const createEnabled = !config.payments.enabled || accountCanCreate;
 
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
     marketsState,
@@ -70,12 +77,12 @@ function Home(props) {
   const tourSteps = pureSignupHomeSteps({ name: cognitoUser.name });
   const [, tourDispatch] = useContext(TourContext);
 
-  const SIDEBAR_ACTIONS = [
+  const CREATE_ACTIONS = [
     {
-      label: intl.formatMessage({ id: 'homeAddPlanning' }),
-      icon: getDialogTypeIcon(PLANNING_TYPE),
-      onClick: () => addPlanning(),
-    },
+    label: intl.formatMessage({ id: 'homeAddPlanning' }),
+    icon: getDialogTypeIcon(PLANNING_TYPE),
+    onClick: () => addPlanning(),
+  },
     {
       label: intl.formatMessage({ id: 'homeAddDecision' }),
       icon: getDialogTypeIcon(DECISION_TYPE),
@@ -87,6 +94,9 @@ function Home(props) {
       icon: getDialogTypeIcon(INITIATIVE_TYPE),
       onClick: () => addInitiative(),
     },
+  ];
+
+  const VIEW_ACTIONS = [
     {
       label: intl.formatMessage({ id: 'homeViewArchives' }),
       icon: <MenuBookIcon/>,
@@ -99,7 +109,10 @@ function Home(props) {
     },
   ];
 
+  const SIDEBAR_ACTIONS = createEnabled? CREATE_ACTIONS.concat(VIEW_ACTIONS) : VIEW_ACTIONS;
+
   const sidebarActions = [];
+
   SIDEBAR_ACTIONS.forEach((action, index) => {
     sidebarActions.push(
       <ExpandableSidebarAction

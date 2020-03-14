@@ -132,7 +132,7 @@ function DecisionDialogEdit(props) {
           setOperationInProgress={setOperationRunning}
         />
       </CardContent>
-      <CardActions>
+      <CardActions className={classes.actions}>
         <Button
           onClick={onCancel}
           className={classes.actionSecondary}

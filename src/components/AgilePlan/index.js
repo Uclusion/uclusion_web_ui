@@ -69,7 +69,11 @@ export const usePlanFormStyles = makeStyles(
       "&:focus": {
         backgroundColor: darken("#BDBDBD", 0.12)
       }
-    }
+    },
+    form: {
+      width: '100%',
+      marginTop: theme.spacing(3),
+    },
   }),
   { name: "PlanningAdd" }
 );

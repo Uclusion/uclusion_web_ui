@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl'
 import {
-  Button,
+  Button, CardActions,
   Checkbox,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   makeStyles, Typography,
-} from '@material-ui/core';
+} from '@material-ui/core'
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
@@ -19,21 +19,9 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import { addParticipants, inviteParticipants } from '../../api/users';
 import InviteLinker from './InviteLinker';
-import SpinBlockingButtonGroup from '../../components/SpinBlocking/SpinBlockingButtonGroup';
-import { INITIATIVE_TYPE } from '../../constants/markets';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
-
-const useStyles = makeStyles((theme) => ({
-  name: {},
-  disabled: {
-    color: theme.palette.text.disabled,
-  },
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(3),
-  },
-}));
+import { usePlanFormStyles } from '../../components/AgilePlan';
 
 function AddressList(props) {
   const {
@@ -41,13 +29,10 @@ function AddressList(props) {
     onSave,
     onCancel,
     showObservers,
-    isOwnScreen,
   } = props;
   const { id: addToMarketId, market_type: marketType } = market;
-  const classes = useStyles();
+  const classes = usePlanFormStyles();
   const intl = useIntl();
-  const isInitative = marketType === INITIATIVE_TYPE;
-  const observerLabel = intl.formatMessage({ id: 'isObserver' });
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [email1, setEmail1] = useState(undefined);
 
@@ -184,14 +169,12 @@ function AddressList(props) {
         >
           {domain}
         </ListItemText>
-        {!isInitative && showObservers && (
-          <ListItemIcon>
-            <Checkbox
-              onClick={getObserverToggle(id)}
-              checked={isObserver}
-            />
-          </ListItemIcon>
-        )}
+        <ListItemIcon>
+          <Checkbox
+            onClick={getObserverToggle(id)}
+            checked={isObserver}
+          />
+        </ListItemIcon>
       </ListItem>
     );
   }
@@ -213,7 +196,7 @@ function AddressList(props) {
   const displayNames = filteredNames || Object.entries(checked) || [];
 
   return (
-    <div>
+    <>
       <Typography>
         {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
       </Typography>
@@ -221,7 +204,7 @@ function AddressList(props) {
         marketType={marketType}
         showObserverLink={showObservers}
         marketId={addToMarketId}
-        observerLabel={observerLabel}
+        observerLabel={intl.formatMessage({ id: 'isObserver' })}
       />
       <form
         className={classes.form}
@@ -238,7 +221,7 @@ function AddressList(props) {
             {showObservers && (
               <ListItemIcon>
                 <ListItemText>
-                  {observerLabel}
+                  {intl.formatMessage({ id: 'isObserver' })}
                 </ListItemText>
               </ListItemIcon>
             )}
@@ -259,25 +242,37 @@ function AddressList(props) {
                 onChange={handleEmail1}
               />
             </ListItemText>
-            {showObservers && (
-              <ListItemIcon>
-                <Checkbox
-                  id="isObserver1"
-                  onClick={handleIsObserver1}
-                  checked={isObserver1}
-                />
-              </ListItemIcon>
-            )}
+            <ListItemIcon>
+              <Checkbox
+                id="isObserver1"
+                onClick={handleIsObserver1}
+                checked={isObserver1}
+              />
+            </ListItemIcon>
           </ListItem>
         </List>
-        <ApiBlockingButton
-          variant="contained"
-          className={classes.submit}
-          type="submit"
-          disabled={inviteFormInvalid}
-        >
-          {intl.formatMessage({ id: 'inviteParticipantsLabel' })}
-        </ApiBlockingButton>
+        <CardActions className={classes.actions}>
+          <Button
+            onClick={myOnCancel}
+            className={classes.actionSecondary}
+            color="secondary"
+            variant="contained"
+          >
+            <FormattedMessage
+              id="marketAddCancelLabel"
+            />
+          </Button>
+          <ApiBlockingButton
+            variant="contained"
+            className={classes.actionPrimary}
+            type="submit"
+            disabled={inviteFormInvalid}
+          >
+            <FormattedMessage
+              id="inviteParticipantsLabel"
+            />
+          </ApiBlockingButton>
+        </CardActions>
       </form>
       <List
         dense
@@ -289,7 +284,7 @@ function AddressList(props) {
               onChange={onSearchChange}
               InputProps={{
                 endAdornment: (
-                  <InputAdornment>
+                  <InputAdornment position={'end'}>
                     <IconButton>
                       <SearchIcon/>
                     </IconButton>
@@ -298,39 +293,41 @@ function AddressList(props) {
               }}
             />
           </ListItemText>
-          {showObservers && (
-            <ListItemIcon>
-              <ListItemText>
-                {observerLabel}
-              </ListItemText>
-            </ListItemIcon>
-          )}
+          <ListItemIcon>
+            <ListItemText>
+              {intl.formatMessage({ id: 'isObserver' })}
+            </ListItemText>
+          </ListItemIcon>
         </ListItem>
         {displayNames.map((entry) => renderParticipantEntry(entry))}
-        <ListItem
-          key="buttons"
-        >
-          <SpinBlockingButtonGroup>
-            <Button
-              onClick={myOnCancel}
-            >
-              {!isOwnScreen && intl.formatMessage({ id: 'addressAddClearLabel' })}
-              {isOwnScreen && intl.formatMessage({ id: 'addressAddCancelLabel' })}
-            </Button>
-            <SpinBlockingButton
-              variant="contained"
-              color="primary"
-              onClick={handleSave}
-              marketId={addToMarketId}
-              onSpinStop={onSave}
-              disabled={_.isEmpty(anySelected)}
-            >
-              {intl.formatMessage({ id: 'addressAddSaveLabel' })}
-            </SpinBlockingButton>
-          </SpinBlockingButtonGroup>
-        </ListItem>
       </List>
-    </div>
+      <CardActions className={classes.actions}>
+        <Button
+          onClick={myOnCancel}
+          className={classes.actionSecondary}
+          color="secondary"
+          variant="contained"
+        >
+          <FormattedMessage
+            id="marketAddCancelLabel"
+          />
+        </Button>
+        <SpinBlockingButton
+          id="save"
+          variant="contained"
+          color="primary"
+          className={classes.actionPrimary}
+          onClick={handleSave}
+          marketId={addToMarketId}
+          onSpinStop={onSave}
+          disabled={_.isEmpty(anySelected)}
+        >
+          <FormattedMessage
+            id="agilePlanFormSaveLabel"
+          />
+        </SpinBlockingButton>
+      </CardActions>
+    </>
   );
 }
 

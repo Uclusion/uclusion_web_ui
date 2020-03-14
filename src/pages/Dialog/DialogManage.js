@@ -22,13 +22,16 @@ import {
   PURE_SIGNUP_FAMILY_NAME
 } from '../../components/Tours/pureSignupTours';
 import queryString from 'query-string'
-import { Typography } from '@material-ui/core'
+import { Card, CardContent, Typography } from '@material-ui/core'
 import DeadlineExtender from './Decision/DeadlineExtender'
+import CardType, { AGILE_PLAN_TYPE, VOTING_TYPE } from '../../components/CardType'
+import { usePlanFormStyles } from '../../components/AgilePlan';
 
 function DialogManage(props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
+  const classes = usePlanFormStyles();
   const { location } = history;
   const { pathname, hash } = location;
   const values = queryString.parse(hash || '');
@@ -80,6 +83,7 @@ function DialogManage(props) {
       breadCrumbs={myBreadCrumbs}
       loading={loading}
     >
+      <Card>
       {participation && marketType === DECISION_TYPE && myPresence && (
         <div id="decisionAddressList">
           <UclusionTour
@@ -89,45 +93,80 @@ function DialogManage(props) {
             shouldRun={isAdmin}
             hidden={hidden}
           />
-          <AddressList
-            market={renderableMarket}
-            isAdmin={isAdmin}
-            following={following}
-            myUserId={myUserId}
-            onCancel={onDone}
-            onSave={onDone}
+          <CardType
+            className={classes.cardType}
+            type={DECISION_TYPE}
+            label={intl.formatMessage({ id: "dialogAddress" })}
           />
+          <CardContent className={classes.cardContent}>
+            <AddressList
+              market={renderableMarket}
+              isAdmin={isAdmin}
+              following={following}
+              myUserId={myUserId}
+              onCancel={onDone}
+              onSave={onDone}
+            />
+          </CardContent>
         </div>
       )}
       {marketType !== PLANNING_TYPE && expires && isAdmin && active && (
         <>
-          <Typography>
-            {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
-          </Typography>
-          <DeadlineExtender
-            market={renderableMarket}
-            onCancel={onDone}
+          <CardType
+            className={classes.cardType}
+            type={marketType === INITIATIVE_TYPE ? VOTING_TYPE : DECISION_TYPE}
+            label={
+              intl.formatMessage({ id: marketType === INITIATIVE_TYPE ? 'initiativeExtend' : 'dialogExtend' })
+            }
           />
+          <CardContent className={classes.cardContent}>
+            <Typography>
+              {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
+            </Typography>
+            <DeadlineExtender
+              market={renderableMarket}
+              onCancel={onDone}
+            />
+          </CardContent>
         </>
       )}
       {marketType === PLANNING_TYPE && (
-        <AddressList
-          market={renderableMarket}
-          isOwnScreen={false}
-          onCancel={onDone}
-          onSave={onDone}
-        />
+        <>
+          <CardType
+            className={classes.cardType}
+            type={AGILE_PLAN_TYPE}
+            label={intl.formatMessage({ id: "planAddress"})}
+          />
+          <CardContent className={classes.cardContent}>
+            <AddressList
+              market={renderableMarket}
+              isOwnScreen={false}
+              onCancel={onDone}
+              onSave={onDone}
+            />
+          </CardContent>
+        </>
       )}
       {participation && marketType === INITIATIVE_TYPE && myPresence && (
-        <AddressList
-          market={renderableMarket}
-          isAdmin={isAdmin}
-          showObservers={false}
-          onCancel={onDone}
-          onSave={onDone}
-          intl={intl}
-        />
+        <>
+          <CardType
+            className={classes.cardType}
+            type={VOTING_TYPE}
+            label={intl.formatMessage({ id: "initiativeAddress" })}
+          />
+          <CardContent className={classes.cardContent}>
+            <AddressList
+              market={renderableMarket}
+              isAdmin={isAdmin}
+              showObservers={false}
+              onCancel={onDone}
+              onSave={onDone}
+              intl={intl}
+            />
+          </CardContent>
+        </>
       )}
+      </Card>
     </Screen>
   );
 }

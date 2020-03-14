@@ -432,6 +432,11 @@ const messages = defineMessages({
   initiativeInvestibleDescription: 'Initiative - Description',
   investibleDescription: 'Story - Description',
   dialogDescription: 'Dialog - Description',
+  dialogAddress: 'Dialog - Add collaborators',
+  planAddress: 'Plan - Add collaborators',
+  initiativeAddress: 'Initiative - Add collaborators',
+  dialogExtend: 'Dialog - Delay expiration',
+  initiativeExtend: 'Initiative - Delay expiration',
   initiativeInvestibleDiscussion: 'Discussion',
 
   // About

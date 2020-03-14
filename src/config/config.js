@@ -6,7 +6,7 @@ const config = {
   },
   payments: {
     stripeKey: process.env.REACT_APP_STRIPE_PUBLIC_API_KEY,
-    enabled: process.env.REACT_APP_PAYMENT_ENABLED,
+    enabled: 'true' === process.env.REACT_APP_PAYMENT_ENABLED,
   },
   cognito_domain: process.env.REACT_APP_COGNITO_DOMAIN,
   ui_base_url: process.env.REACT_APP_UI_URL,

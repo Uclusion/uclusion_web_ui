@@ -135,9 +135,12 @@ class CustomSignIn extends SignIn {
             </Grid>
             <Grid item>
               <Link
-                href={window.location.href}
+                href="#"
                 variant="body2"
-                onClick={() => super.changeState('signUp')}
+                onClick={(e) => {
+                  e.preventDefault();
+                  super.changeState('signUp');
+                }}
               >
                 {intl.formatMessage({ id: 'signInNoAccount' })}
               </Link>

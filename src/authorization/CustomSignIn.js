@@ -135,7 +135,7 @@ class CustomSignIn extends SignIn {
             </Grid>
             <Grid item>
               <Link
-                href="#"
+                href={window.location.href}
                 variant="body2"
                 onClick={(e) => {
                   e.preventDefault();

@@ -161,7 +161,6 @@ function CommentAdd (props) {
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentAddCancelLabel' : 'commentReplyCancelLabel';
   const showIssueWarning = issueWarningId !== null && type === ISSUE_TYPE;
-  console.debug(`show issue warning is ${showIssueWarning}`);
   const lockedDialogClasses = useLockedDialogStyles();
   return (
     <Paper

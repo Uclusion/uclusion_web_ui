@@ -16,10 +16,6 @@ import {
 } from '../../constants/global';
 import { createTitle } from '../../utils/marketIdPathFunctions'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import {
-  refreshNotifications,
-  refreshVersions,
-} from '../../contexts/VersionsContext/versionsContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -94,7 +90,6 @@ function Screen(props) {
     }
   }
 
-  const [firstRender, setFirstRender] = useState(true);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [scrollerBound, setScrollerBound] = useState(undefined);
   const reallyAmLoading = !hidden && appEnabled && loading;
@@ -119,21 +114,13 @@ function Screen(props) {
       }
       return true;
     }
-    if (firstRender) {
-      setFirstRender(false);
-      if (!hidden && appEnabled) {
-        // if it's the first time we're here we need to update things
-        refreshVersions();
-        refreshNotifications();
-      }
-    }
     if (doneLoading && scrollerBound !== location) {
       if (scroller(location)) {
         setScrollerBound(location);
       }
     }
     return () => {};
-  }, [firstRender, location, operationRunning, reallyAmLoading, history, hidden, appEnabled, scrollerBound,
+  }, [location, operationRunning, reallyAmLoading, history, hidden, appEnabled, scrollerBound,
     doneLoading]);
   
   const [sidebarOpen] = useContext(SidebarContext);

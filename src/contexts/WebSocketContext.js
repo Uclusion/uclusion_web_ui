@@ -108,7 +108,11 @@ function WebSocketProvider(props) {
       );
     });
 
-    // we need to subnscribe to our identity, but that requires reworking subscribe
+    // Go ahead and get the latest when bring up a new socket since you may not have been listening
+    refreshVersions();
+    refreshNotifications();
+
+    // we need to subscribe to our identity, but that requires reworking subscribe
     // newSocket.subscribe
     return newSocket;
   }

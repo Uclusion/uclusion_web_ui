@@ -9,7 +9,6 @@ import reducer, {
 import { deleteMessage } from '../../api/users';
 import beginListening from './notificationsContextMessages';
 import LocalForageHelper from '../LocalForageHelper';
-import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext';
 import { DiffContext } from '../DiffContext/DiffContext';
 import { HighlightedVotingContext } from '../HighlightedVotingContext';
@@ -87,7 +86,7 @@ function NotificationsProvider(props) {
           return;
         }
         console.debug(`old page ${isOldPage}, ${page.marketId}, ${page.investibleId} and ${JSON.stringify(filtered)}`);
-        AllSequentialMap(filtered, (message) => {
+        filtered.forEach((message) => {
           const {
             level,
             commentId,
@@ -99,9 +98,9 @@ function NotificationsProvider(props) {
           if (associatedUserId) {
             highlightedVotingDispatch({ type: HIGHTLIGHT_ADD, associatedUserId, level });
           }
-          return deleteMessage(message);
         });
         const message = filtered[0];
+        deleteMessage(message);
         let toastInfo = {};
         if (message) {
           const {

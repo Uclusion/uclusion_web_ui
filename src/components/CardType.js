@@ -27,12 +27,12 @@ function NoIcon() {
 
 const useCardTypeStyles = makeStyles(
   {
-    root: ({ type }) => {
+    root: ({ type, resolved }) => {
       return {
         backgroundColor: {
-          [ISSUE_TYPE]: "#E85757",
-          [QUESTION_TYPE]: "#2F80ED",
-          [SUGGEST_CHANGE_TYPE]: "#F29100",
+          [ISSUE_TYPE]: resolved ? "#BDC3C7" : "#E85757",
+          [QUESTION_TYPE]: resolved ? "#BDC3C7" : "#2F80ED",
+          [SUGGEST_CHANGE_TYPE]: resolved ? "#BDC3C7" : "#F29100",
           [VOTING_TYPE]: "#9B51E0",
           [DECISION_TYPE]: "#0B51E0",
           certainty0: "#D54F22",
@@ -83,9 +83,10 @@ export default function CardType(props) {
   const {
     className,
     type,
+    resolved,
     label = <FormattedMessage id={labelIntlIds[type]} />
   } = props;
-  const classes = useCardTypeStyles({ type });
+  const classes = useCardTypeStyles({ type, resolved });
 
   const IconComponent = {
     [ISSUE_TYPE]: IssueIcon,

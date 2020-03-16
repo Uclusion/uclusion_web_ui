@@ -145,7 +145,7 @@ function Comment(props) {
 
   const intl = useIntl();
   const classes = useCommentStyles();
-  const { id, comment_type: commentType } = comment;
+  const { id, comment_type: commentType, resolved } = comment;
   const presences = usePresences(marketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
@@ -236,7 +236,7 @@ function Comment(props) {
     <React.Fragment>
       <Card className={getCommentHighlightStyle()}>
         <Box display="flex">
-          <CardType className={classes.commentType} type={commentType} />
+          <CardType className={classes.commentType} type={commentType} resolved={resolved} />
           <Typography className={classes.updatedBy}>
             {displayUpdatedBy &&
               `${intl.formatMessage({ id: "lastUpdatedBy" })} ${

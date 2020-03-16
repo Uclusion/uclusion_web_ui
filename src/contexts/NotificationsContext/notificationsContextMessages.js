@@ -30,7 +30,7 @@ function beginListening(dispatch) {
           if (!investibleId) {
             dispatch(updatePage({ marketId, action }));
           } else {
-            dispatch(updatePage({ marketId, investibleId }));
+            dispatch(updatePage({ marketId, investibleId, action }));
           }
         } else {
           dispatch(updatePage(undefined));

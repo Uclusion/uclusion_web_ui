@@ -387,7 +387,7 @@ const messages = defineMessages({
   planningDialogSummaryLabel: 'Plan Detail',
   planningDialogPeopleLabel: 'collaborator\'s stories',
   planningDialogDiscussionLabel: 'Discussion',
-  planningDialogAddInvestibleLabel: 'Create story',
+  planningDialogAddInvestibleLabel: 'Create Story',
   planningDialogViewArchivesLabel: 'View Archives',
   planningNoneAcceptedWarning: 'No in progress story',
   planningNoneInDialogWarning: 'No votable story',

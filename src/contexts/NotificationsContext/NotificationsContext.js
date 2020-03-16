@@ -101,6 +101,24 @@ function NotificationsProvider(props) {
             highlightedVotingDispatch({ type: HIGHTLIGHT_ADD, associatedUserId, level });
           }
         });
+        filtered.sort(function(a, b) {
+          if (a.level === b.level) {
+            if (a.aType === b.aType || a.level !== 'RED') {
+              return 0;
+            }
+            if (a.aType === 'ISSUE') {
+              return -1;
+            }
+            if (b.aType === 'ISSUE') {
+              return 1;
+            }
+            return 0;
+          }
+          if (a.level === 'RED') {
+            return -1;
+          }
+          return 1;
+        });
         const message = filtered[0];
         deleteMessage(message);
         let toastInfo = {};
@@ -112,8 +130,9 @@ function NotificationsProvider(props) {
           aType,
           commentId,
         } = message;
+        // If there are multiple new RED on this page not much we can do - not a bug tracker
+        const multiUpdate = filtered.length > 1 && level !== 'RED';
         // Sadly intl not available here TODO - Fix
-        const multiUpdate = filtered.length > 1;
         const myText = multiUpdate ? `${filtered.length} Updates` : text;
         const diffId = commentId || investibleId || marketId;
         const linkNotMatching = getFullLink(message) !== `${pathname}${hash}`;

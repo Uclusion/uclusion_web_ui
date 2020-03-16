@@ -1,21 +1,16 @@
-import React from "react";
-import PropTypes from "prop-types";
-import _ from "lodash";
-import { Grid, CardContent, Link } from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
-import { pink } from '@material-ui/core/colors';
-import { useIntl } from 'react-intl';
-import { useHistory } from "react-router";
-import {
-  formInvestibleLink, formMarketAddInvestibleLink,
-  navigate
-} from "../../../utils/marketIdPathFunctions";
-import RaisedCard from "../../../components/Cards/RaisedCard";
-import { getVoteTotalsForUser } from "../../../utils/userFunctions";
-import VoteCard from "../../../components/Cards/VoteCard";
-import { ISSUE_TYPE } from "../../../constants/comments";
-import { getCommentTypeIcon } from "../../../components/Comments/commentFunctions";
-import useFitText from 'use-fit-text';
+import React from 'react'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+import { CardContent, Grid, Link } from '@material-ui/core'
+import { makeStyles } from '@material-ui/styles'
+import { pink } from '@material-ui/core/colors'
+import { useIntl } from 'react-intl'
+import { useHistory } from 'react-router'
+import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
+import RaisedCard from '../../../components/Cards/RaisedCard'
+import { getVoteTotalsForUser } from '../../../utils/userFunctions'
+import VoteCard from '../../../components/Cards/VoteCard'
+import useFitText from 'use-fit-text'
 
 const useStyles = makeStyles(theme => ({
   noPadding: {
@@ -57,12 +52,11 @@ function CurrentVoting(props) {
     // first set every investibles support and investments to 0
     const tallies = strippedInvestibles.reduce((acc, inv) => {
       const { id } = inv;
-      const augmented = {
+      acc[id] = {
         ...inv,
         investments: [],
         numSupporters: 0
       };
-      acc[id] = augmented;
       return acc;
     }, {});
     // now we fill in votes from market presences
@@ -75,12 +69,11 @@ function CurrentVoting(props) {
             ...oldValue.investments,
             userInvestments[investible_id],
           ];
-          const newValue = {
+          tallies[investible_id] = {
             ...oldValue,
             investments: newInvestments,
             numSupporters: newInvestments.length,
           };
-          tallies[investible_id] = newValue;
         }
       });
     });
@@ -90,12 +83,7 @@ function CurrentVoting(props) {
   function getItemVote(item, index) {
     const { id, investments, name } = item;
     const investibleComments = comments.filter(
-      comment =>
-        comment.investible_id === id &&
-        !comment.parent_id &&
-        !comment.resolved &&
-        getCommentTypeIcon(comment.comment_type) &&
-        comment.comment_type === ISSUE_TYPE
+      comment => comment.investible_id === id && !comment.parent_id
     );
     const cssId = `option${index}`;
     return (

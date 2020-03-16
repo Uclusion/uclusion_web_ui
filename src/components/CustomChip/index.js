@@ -4,6 +4,7 @@ import { useIntl } from 'react-intl';
 import { Chip } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { getCommentTypeIcon } from '../Comments/commentFunctions';
+import { ISSUE_TYPE, QUESTION_TYPE } from '../../constants/comments'
 
 const useStyles = makeStyles({
   chipItem: {
@@ -18,46 +19,44 @@ const useStyles = makeStyles({
       color: '#fff',
     },
   },
-  chipItemDisable: {
-    background: '#dfdfdf',
+  chipItemQuestion: {
+    background: '#2F80ED',
   },
-  chipItemActive: {
-    background: '#ca2828',
+  chipItemIssue: {
+    background: '#E85757',
+  },
+  chipItemSuggestion: {
+    background: '#F29100',
   },
 });
 
 function CustomChip(props) {
-  const { active, type, content } = props;
+  const { type } = props;
   const classes = useStyles();
   const intl = useIntl();
 
   return (
-    <>
-      {content && (
-        <Chip
-          className={
-            active
-              ? `${classes.chipItem} ${classes.chipItemActive}`
-              : `${classes.chipItem} ${classes.chipItemDisable}`
-          }
-          avatar={getCommentTypeIcon(type)}
-          label={intl.formatMessage({ id: 'issuePresent' })}
-        />
-      )}
-    </>
+    <Chip
+      className={
+        type === ISSUE_TYPE
+          ? `${classes.chipItem} ${classes.chipItemIssue}`
+          : type === QUESTION_TYPE ? `${classes.chipItem} ${classes.chipItemQuestion}`
+          : `${classes.chipItem} ${classes.chipItemSuggestion}`
+      }
+      avatar={getCommentTypeIcon(type)}
+      label={type === ISSUE_TYPE ? intl.formatMessage({ id: 'issuePresent' })
+      : type === QUESTION_TYPE ? intl.formatMessage({ id: 'questionPresent' })
+      : intl.formatMessage({ id: 'suggestionPresent' })}
+    />
   );
 }
 
 CustomChip.propTypes = {
-  active: PropTypes.bool,
   type: PropTypes.string,
-  content: PropTypes.string,
 };
 
 CustomChip.defaultProps = {
-  active: true,
   type: '',
-  content: '',
 };
 
 export default CustomChip;

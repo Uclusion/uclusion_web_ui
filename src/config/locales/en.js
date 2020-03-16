@@ -638,8 +638,9 @@ const messages = defineMessages({
   warningOffline: 'You are offline',
 
   // Issue Present
-  issuePresent: 'Issue Present',
-
+  issuePresent: 'Issue',
+  questionPresent: 'Question',
+  suggestionPresent: 'Suggestion',
 });
 
 export default messages;

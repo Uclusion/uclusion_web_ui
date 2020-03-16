@@ -15,6 +15,7 @@ import { HighlightedVotingContext } from '../HighlightedVotingContext';
 import { hasUnViewedDiff } from '../DiffContext/diffContextHelper';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import { getFullLink } from '../../components/Notifications/Notifications';
+import { ISSUE_TYPE } from '../../constants/notifications'
 
 export const EMPTY_STATE = {
   messages: [],
@@ -106,10 +107,10 @@ function NotificationsProvider(props) {
             if (a.aType === b.aType || a.level !== 'RED') {
               return 0;
             }
-            if (a.aType === 'ISSUE') {
+            if (a.aType === ISSUE_TYPE) {
               return -1;
             }
-            if (b.aType === 'ISSUE') {
+            if (b.aType === ISSUE_TYPE) {
               return 1;
             }
             return 0;

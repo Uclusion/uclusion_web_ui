@@ -6,6 +6,8 @@ import { makeStyles } from '@material-ui/styles';
 import useFitText from 'use-fit-text';
 import CustomChip from '../CustomChip';
 import Chart from './Chart';
+import { ISSUE_TYPE } from '../../constants/comments';
+import { getCommentTypeIcon } from '../Comments/commentFunctions';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -51,9 +53,22 @@ const useStyles = makeStyles(() => ({
 
 function VoteCard(props) {
   const { title, comments, votes } = props;
+  const filteredComments = comments.filter((comment) => !comment.resolved && getCommentTypeIcon(comment.comment_type));
+  filteredComments.sort(function(a, b) {
+    if (a.comment_type === b.comment_type) {
+      return 0;
+    }
+    if (a.comment_type === ISSUE_TYPE) {
+      return -1;
+    }
+    if (b.comment_type === ISSUE_TYPE) {
+      return -1;
+    }
+    return 0;
+  });
   const classes = useStyles();
   const intl = useIntl();
-  const issuesExist = comments.length > 0;
+  const issuesComment = filteredComments.length > 0 ? filteredComments[0] : undefined;
   const { fontSize, ref } = useFitText({ maxFontSize: 200 });
 
   return (
@@ -67,16 +82,14 @@ function VoteCard(props) {
       >
         {title}
       </div>
-      {issuesExist && (
+      {issuesComment && (
         <Grid className={classes.iconGrid} container spacing={1}>
-          {comments.map((item, index) => (
-            <Grid item key={index}>
-              <CustomChip type={item.comment_type} content={item.body} />
-            </Grid>
-          ))}
+          <Grid item key="issue">
+            <CustomChip type={issuesComment.comment_type} />
+          </Grid>
         </Grid>
       )}
-      {!issuesExist && (
+      {!issuesComment && (
         <div className={classes.chartContent}>
           <Chart data={votes} />
           <span className={classes.chartValue}>

@@ -292,7 +292,7 @@ const messages = defineMessages({
   // CommentAdd
   commentAddIssueDefault: 'Your issue...',
   commentAddQuestionDefault: 'Your question...',
-  commentAddSuggestDefault: 'Your suggested change...',
+  commentAddSuggestDefault: 'Your suggestion...',
   commentAddReplyDefault: 'Your reply...',
   commentAddSaveLabel: 'Save',
   commentAddCancelLabel: 'Cancel',
@@ -318,9 +318,9 @@ const messages = defineMessages({
   lastUpdatedBy: 'Last Updated By',
 
   // card types
-  cardTypeLabelIssue: 'issue present',
+  cardTypeLabelIssue: 'issue',
   cardTypeLabelQuestion: 'question',
-  cardTypeLabelSuggestedChange: 'suggested changes',
+  cardTypeLabelSuggestedChange: 'suggestion',
   cardTypeAgilePlan: 'plan - description',
 
   // Notices

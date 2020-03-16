@@ -107,6 +107,9 @@ function CommentAdd (props) {
       editorFocusFunc();
       setFirstOpen(false);
     }
+    if (hidden && !firstOpen) {
+      setFirstOpen(true);
+    }
     return () => {};
   }, [hidden, firstOpen, editorFocusFunc]);
 

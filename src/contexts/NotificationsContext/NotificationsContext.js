@@ -74,7 +74,9 @@ function NotificationsProvider(props) {
           } = message;
           const marketMatch = !_.isEmpty(messageMarketId) && marketId === messageMarketId
             && investibleId === messageInvestibleId;
-          const doRemove = (beingProcessed !== page) && (marketMatch ||
+          const isBeingProcessed = _.isEqual(beingProcessed, page);
+          console.debug(`is being processed is ${isBeingProcessed}`);
+          const doRemove = !isBeingProcessed && (marketMatch ||
             (pokeType === 'slack_reminder' && action === 'notificationPreferences')
             || (pokeType === 'upgrade_reminder' && action === 'upgrade'));
           if (doRemove) {
@@ -85,7 +87,7 @@ function NotificationsProvider(props) {
         if (_.isEmpty(filtered)) {
           return;
         }
-        console.debug(`old page ${isOldPage}, ${page.marketId}, ${page.investibleId} and ${JSON.stringify(filtered)}`);
+        console.debug(`processing old page ${isOldPage}, ${page.marketId}, ${page.investibleId} and ${JSON.stringify(filtered)}`);
         filtered.forEach((message) => {
           const {
             level,

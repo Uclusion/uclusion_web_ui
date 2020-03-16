@@ -102,33 +102,31 @@ function NotificationsProvider(props) {
         const message = filtered[0];
         deleteMessage(message);
         let toastInfo = {};
-        if (message) {
-          const {
-            marketId,
-            investibleId,
-            text,
-            level,
-            aType,
-            commentId,
-          } = message;
-          // Sadly intl not available here TODO - Fix
-          const multiUpdate = filtered.length > 1;
-          const myText = multiUpdate ? `${filtered.length} Updates` : text;
-          const diffId = commentId || investibleId || marketId;
-          const linkNotMatching = getFullLink(message) !== `${pathname}${hash}`;
-          // Do not toast a non red unread as already have diff and dismiss - unless is new
-          // Do toast if the page hasn't changed since will not scroll in that case and need toast if want to scroll
-          const shouldToast = (multiUpdate || isOldPage || (!isOldPage && linkNotMatching))
-            || (level === 'RED') || (!commentId && (aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)));
-          const myCustomToastId = myText + '_' + diffId;
-          if (shouldToast && !toast.isActive(myCustomToastId)) {
-            console.debug('Toasting on page from NotificationsContext');
-            const options = {
-              onClick: () => navigate(history, getFullLink(message)),
-              toastId: myCustomToastId
-            }
-            toastInfo = { myText, level, options };
+        const {
+          marketId,
+          investibleId,
+          text,
+          level,
+          aType,
+          commentId,
+        } = message;
+        // Sadly intl not available here TODO - Fix
+        const multiUpdate = filtered.length > 1;
+        const myText = multiUpdate ? `${filtered.length} Updates` : text;
+        const diffId = commentId || investibleId || marketId;
+        const linkNotMatching = getFullLink(message) !== `${pathname}${hash}`;
+        // Do not toast a non red unread as already have diff and dismiss - unless is new
+        // Do toast if the page hasn't changed since will not scroll in that case and need toast if want to scroll
+        const shouldToast = (multiUpdate || isOldPage || (!isOldPage && linkNotMatching))
+          || (level === 'RED') || (!commentId && (aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)));
+        const myCustomToastId = myText + '_' + diffId;
+        if (shouldToast && !toast.isActive(myCustomToastId)) {
+          console.debug('Toasting on page from NotificationsContext');
+          const options = {
+            onClick: () => navigate(history, getFullLink(message)),
+            toastId: myCustomToastId
           }
+          toastInfo = { myText, level, options };
         }
         dispatch(processedPage(page, filtered, toastInfo));
       }

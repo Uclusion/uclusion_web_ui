@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { PRODUCT_TIER_FREE } from '../../constants/billing';
+import { PRODUCT_TIER_FREE, SUBSCRIPTION_STATUS_ACTIVE, SUBSCRIPTION_STATUS_TRIAL } from '../../constants/billing';
 import { accountRefresh, billingInfoRefresh, invoicesRefresh } from './accountContextReducer';
 
 export function canCreate(state) {
@@ -26,6 +26,12 @@ export function getId(state) {
     return undefined;
   }
   return state.account.id;
+}
+
+export function subscriptionCancellable(state) {
+  const account = getAccount(state);
+  const { billing_subscription_status: subStatus } = account;
+  return subStatus === SUBSCRIPTION_STATUS_ACTIVE || subStatus === SUBSCRIPTION_STATUS_TRIAL;
 }
 
 export function getCurrentBillingInfo(state) {

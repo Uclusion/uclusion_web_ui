@@ -3,8 +3,13 @@ import { Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import Screen from '../../containers/Screen/Screen';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { PRODUCT_TIER_FREE, PRODUCT_TIER_STANDARD, SUBSCRIPTION_STATUS_CANCELED } from '../../constants/billing';
-import { canCreate, getAccount, updateAccount } from '../../contexts/AccountContext/accountContextHelper';
+import { PRODUCT_TIER_FREE, PRODUCT_TIER_STANDARD } from '../../constants/billing';
+import {
+  canCreate,
+  getAccount,
+  subscriptionCancellable,
+  updateAccount
+} from '../../contexts/AccountContext/accountContextHelper';
 import { startSubscription, endSubscription, restartSubscription } from '../../api/users';
 import CardInputForm from './CardInputForm';
 import { useIntl } from 'react-intl';
@@ -23,7 +28,7 @@ function BillingHome (props) {
   } = account;
 
   const upgradable = tier === PRODUCT_TIER_FREE;
-  const cancellable = subStatus !== SUBSCRIPTION_STATUS_CANCELED
+  const cancellable = subscriptionCancellable(accountState);
   const restartable = !cancellable && !upgradable;
 
   function onSpinStop (account) {

@@ -196,22 +196,24 @@ function markPageProcessed(state, action) {
     }
   }
   let removedCurrent = false;
+  let newCurrent = current;
   const filteredMessages = messages.filter((aMessage) => {
-    let doRemove = false;
+    let keep = true;
     removedMessages.forEach((removedMessage) => {
       if (isMessageEqual(aMessage, removedMessage)) {
-        doRemove = true;
-      }
-      if (isMessageEqual(current, removedMessage)) {
-        removedCurrent = true;
+        keep = false;
       }
     });
-    return doRemove;
+    if (!keep && isMessageEqual(current, aMessage)) {
+      removedCurrent = true;
+    }
+    if (keep && removedCurrent) {
+      newCurrent = aMessage;
+    }
+    return keep;
   });
-  let newCurrent = current;
-  if (removedCurrent) {
-    newCurrent = getNextCurrent(messages, current);
-    if (isMessageEqual(newCurrent, current)) {
+  if (removedCurrent && isMessageEqual(newCurrent, current)) {
+    if (_.isEmpty(filteredMessages)) {
       // Just removed the last one
       return {
         ...state,
@@ -221,6 +223,7 @@ function markPageProcessed(state, action) {
         toastId
       };
     }
+    newCurrent = filteredMessages[0];
   }
   return {
     ...state,

@@ -16,7 +16,7 @@ import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { getMarketComments, refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
 import { Dialog } from '../Dialogs';
 import WarningIcon from '@material-ui/icons/Warning';
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit';
@@ -134,8 +134,7 @@ function CommentAdd (props) {
     const investibleId = (investible) ? investible.id : parentInvestible;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((comment) => {
-        const comments = getMarketComments(commentsState, marketId);
-        refreshMarketComments(commentDispatch, marketId, [comment, ...comments]);
+        addCommentToMarket(comment, commentsState, commentDispatch);
         return {
           spinChecker: () => Promise.resolve(true),
         };

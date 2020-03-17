@@ -1,6 +1,7 @@
 import {
   fixupItemsForStorage,
 } from '../ContextUtils';
+import _ from 'lodash';
 import { removeCommentsFromMarket, updateMarketComments } from './commentsContextReducer';
 
 
@@ -17,6 +18,26 @@ export function getMarketComments(state, marketId) {
  */
 export function removeComments(dispatch, marketId, comments) {
   dispatch(removeCommentsFromMarket(marketId, comments));
+}
+
+export function addCommentToMarket(comment, state, dispatch) {
+  let updates = [comment];
+  const { reply_id: replyId, id, market_id: marketId } = comment;
+  const comments = getMarketComments(state, marketId);
+  if (!_.isEmpty(replyId)) {
+    const parent = comments.find((comment) => comment.id === replyId);
+    if (!_.isEmpty(parent)) {
+      const { children } = parent;
+      const newChildren = !_.isEmpty(children)? [...children, id] : [id];
+      const newParent = {
+        ...parent,
+        children: newChildren,
+      };
+      updates.push(newParent)
+    }
+  }
+  const merged = _.unionBy(updates, comments, 'id');
+  refreshMarketComments(dispatch, marketId, merged);
 }
 
 export function refreshMarketComments(dispatch, marketId, comments) {

@@ -16,8 +16,7 @@ import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { getMarketComments, refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
-import { scrollToCommentAddBox } from './commentFunctions';
+import { getMarketComments, refreshMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { Dialog } from '../Dialogs';
 import WarningIcon from '@material-ui/icons/Warning';
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit';
@@ -102,8 +101,6 @@ function CommentAdd (props) {
 
   useEffect(() => {
     if (!hidden && firstOpen) {
-      console.log('Focus on first open');
-      scrollToCommentAddBox();
       editorFocusFunc();
       setFirstOpen(false);
     }

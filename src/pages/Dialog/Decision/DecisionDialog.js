@@ -1,7 +1,7 @@
 /**
  * A component that renders a _decision_ dialog
  */
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router';
@@ -20,7 +20,6 @@ import CurrentVoting from './CurrentVoting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import Screen from '../../../containers/Screen/Screen';
-import { getCommentTypeIcon, scrollToCommentAddBox } from '../../../components/Comments/commentFunctions';
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
@@ -34,13 +33,13 @@ import {
 import CardType from '../../../components/CardType';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import clsx from 'clsx';
-import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
-import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay'
-import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
-import { Collaborators } from '../../Investible/Initiative/InitiativeInvestible'
-import DialogActions from '../../Home/DialogActions'
-import ParentSummary from '../ParentSummary'
-import CardActions from '@material-ui/core/CardActions'
+import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
+import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay';
+import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible';
+import { Collaborators } from '../../Investible/Initiative/InitiativeInvestible';
+import DialogActions from '../../Home/DialogActions';
+import ParentSummary from '../ParentSummary';
+import CardActions from '@material-ui/core/CardActions';
 
 const useStyles = makeStyles(
   theme => ({
@@ -83,7 +82,6 @@ function DecisionDialog(props) {
   } = props;
   const classes = useStyles();
   const metaClasses = useMetaDataStyles();
-  const commentAddRef = useRef(null);
   const intl = useIntl();
   const {
     is_admin: isAdmin,
@@ -97,8 +95,6 @@ function DecisionDialog(props) {
     makeBreadCrumbs(history);
   const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketComments = comments.filter((comment) => !comment.investible_id);
-  const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
-  const [commentAddHidden, setCommentAddHidden] = useState(true);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
   const {
     id: marketId,
@@ -135,16 +131,6 @@ function DecisionDialog(props) {
   const underConsideration = getInvestiblesForStage(underConsiderationStage);
   const proposed = getInvestiblesForStage(proposedStage);
 
-  function closeCommentAddBox() {
-    setCommentAddHidden(true);
-  }
-
-  function commentButtonOnClick(type) {
-    setCommentAddType(type);
-    setCommentAddHidden(false);
-    scrollToCommentAddBox(commentAddRef);
-  }
-
   const sidebarMenuList = [];
   if (activeMarket) {
     if (isParticipant) {
@@ -155,16 +141,6 @@ function DecisionDialog(props) {
         onClick: () => navigate(history, formMarketAddInvestibleLink(marketId)),
       });
     }
-    sidebarMenuList.push({
-      label: intl.formatMessage({ id: 'commentIconRaiseIssueLabel' }),
-      icon: getCommentTypeIcon(ISSUE_TYPE),
-      onClick: () => commentButtonOnClick(ISSUE_TYPE),
-    });
-    sidebarMenuList.push({
-      label: intl.formatMessage({ id: 'commentIconAskQuestionLabel' }),
-      icon: getCommentTypeIcon(QUESTION_TYPE),
-      onClick: () => commentButtonOnClick(QUESTION_TYPE),
-    });
   }
 
   function getSidebarActions() {
@@ -316,17 +292,11 @@ function DecisionDialog(props) {
           </Grid>
         )}
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          {!commentAddHidden && (
-            <CommentAddBox
-              type={commentAddType}
-              allowedTypes={allowedCommentTypes}
-              marketId={marketId}
-              issueWarningId="issueWarning"
-              onSave={closeCommentAddBox}
-              onCancel={closeCommentAddBox}
-            />
-          )}
-          <div ref={commentAddRef} />
+          <CommentAddBox
+            allowedTypes={allowedCommentTypes}
+            marketId={marketId}
+            issueWarningId="issueWarning"
+          />
           <CommentBox
             comments={marketComments}
             marketId={marketId}

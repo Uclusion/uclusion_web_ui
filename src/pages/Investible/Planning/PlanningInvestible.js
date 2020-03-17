@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import _ from "lodash";
 import {
@@ -30,9 +30,6 @@ import {
   navigate
 } from '../../../utils/marketIdPathFunctions'
 import Screen from "../../../containers/Screen/Screen";
-import RaiseIssue from "../../../components/SidebarActions/RaiseIssue";
-import AskQuestions from "../../../components/SidebarActions/AskQuestion";
-import SuggestChanges from "../../../components/SidebarActions/SuggestChanges";
 import CommentAddBox from "../../../containers/CommentBox/CommentAddBox";
 import MoveToNextVisibleStageActionButton from "./MoveToNextVisibleStageActionButton";
 import { getMarketInfo } from "../../../utils/userFunctions";
@@ -48,7 +45,6 @@ import { MarketStagesContext } from "../../../contexts/MarketStagesContext/Marke
 import MoveToVerifiedActionButton from "./MoveToVerifiedActionButton";
 import MoveToVotingActionButton from "./MoveToVotingActionButton";
 import MoveToNotDoingActionButton from "./MoveToNotDoingActionButton";
-import { scrollToCommentAddBox } from "../../../components/Comments/commentFunctions";
 import MoveToAcceptedActionButton from "./MoveToAcceptedActionButton";
 import MoveToInReviewActionButton from "./MoveToInReviewActionButton";
 import ExpiresDisplay from "../../../components/Expiration/ExpiresDisplay";
@@ -147,8 +143,6 @@ function PlanningInvestible(props) {
   const investmentReasons = investibleComments.filter(
     comment => comment.comment_type === JUSTIFY_TYPE
   );
-  const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
-  const [commentAddHidden, setCommentAddHidden] = useState(true);
   const marketInfo = getMarketInfo(marketInvestible, marketId);
   const { stage, assigned, children, days_estimate: daysEstimate } = marketInfo;
   const { investible } = marketInvestible;
@@ -163,7 +157,6 @@ function PlanningInvestible(props) {
       lockedByName = name;
     }
   }
-  const commentAddRef = useRef(null);
   const [marketStagesState] = useContext(MarketStagesContext);
   const inReviewStage = getInReviewStage(marketStagesState, marketId);
   const isInReview = inReviewStage && stage === inReviewStage.id;
@@ -211,16 +204,6 @@ function PlanningInvestible(props) {
     : isInVerified
     ? intl.formatMessage({ id: "planningVerifiedStageLabel" })
     : intl.formatMessage({ id: "planningNotDoingStageLabel" });
-
-  function commentButtonOnClick(type) {
-    setCommentAddType(type);
-    setCommentAddHidden(false);
-    scrollToCommentAddBox(commentAddRef);
-  }
-
-  function closeCommentAdd() {
-    setCommentAddHidden(true);
-  }
 
   if (!investibleId) {
     // we have no usable data;
@@ -391,15 +374,6 @@ function PlanningInvestible(props) {
         onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
       />)
     }
-    sidebarActions.push(
-      <RaiseIssue key="issue" onClick={commentButtonOnClick} />
-    );
-    sidebarActions.push(
-      <AskQuestions key="question" onClick={commentButtonOnClick} />
-    );
-    sidebarActions.push(
-      <SuggestChanges key="suggest" onClick={commentButtonOnClick} />
-    );
     return sidebarActions;
   }
 
@@ -495,16 +469,11 @@ function PlanningInvestible(props) {
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }}>
           <CommentAddBox
-            hidden={commentAddHidden}
             allowedTypes={allowedCommentTypes}
             investible={investible}
             marketId={marketId}
             issueWarningId="issueWarningPlanning"
-            type={commentAddType}
-            onSave={closeCommentAdd}
-            onCancel={closeCommentAdd}
           />
-          <div ref={commentAddRef} />
           <CommentBox
             comments={investmentReasonsRemoved}
             marketId={marketId}

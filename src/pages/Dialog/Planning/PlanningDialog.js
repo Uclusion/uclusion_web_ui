@@ -1,7 +1,7 @@
 /**
  * A component that renders a _planning_ dialog
  */
-import React, { useState, useRef, useContext } from "react";
+import React, { useContext } from "react";
 import { useHistory } from "react-router";
 import { useIntl } from "react-intl";
 import PropTypes from "prop-types";
@@ -26,19 +26,15 @@ import {
   QUESTION_TYPE,
   SUGGEST_CHANGE_TYPE
 } from "../../../constants/comments";
-import RaiseIssue from "../../../components/SidebarActions/RaiseIssue";
-import AskQuestions from "../../../components/SidebarActions/AskQuestion";
 import CommentAddBox from "../../../containers/CommentBox/CommentAddBox";
 import CommentBox from "../../../containers/CommentBox/CommentBox";
 import ViewArchiveActionButton from "./ViewArchivesActionButton";
-import { scrollToCommentAddBox } from "../../../components/Comments/commentFunctions";
 import { ACTIVE_STAGE, DECISION_TYPE } from "../../../constants/markets";
 import ManageParticipantsActionButton from "./ManageParticipantsActionButton";
 import { getUserInvestibles } from "./userUtils";
 import { MarketPresencesContext } from "../../../contexts/MarketPresencesContext/MarketPresencesContext";
 import ExpandableSidebarAction from "../../../components/SidebarActions/ExpandableSidebarAction";
 import InsertLinkIcon from "@material-ui/icons/InsertLink";
-import SuggestChanges from "../../../components/SidebarActions/SuggestChanges";
 import { getMarketPresences } from "../../../contexts/MarketPresencesContext/marketPresencesHelper";
 import InvestibleAddActionButton from "./InvestibleAddActionButton";
 
@@ -59,12 +55,9 @@ function PlanningDialog(props) {
       : makeBreadCrumbs(history);
 
   const intl = useIntl();
-  const commentAddRef = useRef(null);
   const { id: marketId, market_stage: marketStage } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const marketComments = comments.filter(comment => !comment.investible_id);
-  const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
-  const [commentAddHidden, setCommentAddHidden] = useState(true);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -113,16 +106,6 @@ function PlanningDialog(props) {
     navigate(history, formMarketManageLink(marketId));
   }
 
-  function commentButtonOnClick(type) {
-    setCommentAddType(type);
-    setCommentAddHidden(false);
-    scrollToCommentAddBox(commentAddRef);
-  }
-
-  function closeCommentAddBox() {
-    setCommentAddHidden(true);
-  }
-
   function getSidebarActions() {
     if (!activeMarket) {
       return [
@@ -144,9 +127,6 @@ function PlanningDialog(props) {
         onClick={toggleManageUsersMode}
       />,
       <ViewArchiveActionButton key="archives" marketId={marketId} />,
-      <RaiseIssue key="issue" onClick={commentButtonOnClick} />,
-      <AskQuestions key="question" onClick={commentButtonOnClick} />,
-      <SuggestChanges key="suggest" onClick={commentButtonOnClick} />,
       <ExpandableSidebarAction
         id="link"
         key="link"
@@ -189,12 +169,8 @@ function PlanningDialog(props) {
       )}
 
       <CommentAddBox
-        hidden={commentAddHidden}
-        type={commentAddType}
         allowedTypes={allowedCommentTypes}
         marketId={marketId}
-        onSave={closeCommentAddBox}
-        onCancel={closeCommentAddBox}
       />
       <CommentBox comments={marketComments} marketId={marketId} />
     </Screen>

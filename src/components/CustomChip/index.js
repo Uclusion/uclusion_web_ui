@@ -44,9 +44,7 @@ function CustomChip(props) {
           : `${classes.chipItem} ${classes.chipItemSuggestion}`
       }
       avatar={getCommentTypeIcon(type)}
-      label={type === ISSUE_TYPE ? intl.formatMessage({ id: 'issuePresent' })
-      : type === QUESTION_TYPE ? intl.formatMessage({ id: 'questionPresent' })
-      : intl.formatMessage({ id: 'suggestionPresent' })}
+      label={intl.formatMessage({ id: `${type.toLowerCase()}Present` })}
     />
   );
 }

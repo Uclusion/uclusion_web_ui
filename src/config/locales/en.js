@@ -636,7 +636,7 @@ const messages = defineMessages({
   // Issue Present
   issuePresent: 'Issue',
   questionPresent: 'Question',
-  suggestionPresent: 'Suggestion',
+  suggestPresent: 'Suggestion',
 });
 
 export default messages;

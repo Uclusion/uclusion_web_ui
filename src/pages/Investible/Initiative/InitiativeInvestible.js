@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -10,15 +10,12 @@ import {
   ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
 } from '../../../constants/comments';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
-import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
-import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import Screen from '../../../containers/Screen/Screen';
 import {
   formMarketManageLink, makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate,
-} from '../../../utils/marketIdPathFunctions'
-import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
+} from '../../../utils/marketIdPathFunctions';
 import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets';
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import InsertLinkIcon from '@material-ui/icons/InsertLink';
@@ -87,8 +84,6 @@ function InitiativeInvestible(props) {
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
   // eslint-disable-next-line max-len
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
-  const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
-  const [commentAddHidden, setCommentAddHidden] = useState(true);
   const { investible, market_infos: marketInfos } = fullInvestible;
   const { description, name } = investible;
   const {
@@ -104,28 +99,14 @@ function InitiativeInvestible(props) {
   const thisMarketInfo = safeMarketInfos.find((info) => info.market_id === marketId);
   const { children } = thisMarketInfo || {};
   const breadCrumbs = inArchives ? makeArchiveBreadCrumbs(history) : makeBreadCrumbs(history);
-  const commentAddRef = useRef(null);
   const activeMarket = marketStage === ACTIVE_STAGE;
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
-
-  function commentButtonOnClick(type) {
-    setCommentAddType(type);
-    setCommentAddHidden(false);
-  }
-
-  function closeCommentAdd() {
-    setCommentAddHidden(true);
-  }
 
   function getSidebarActions() {
     if (!activeMarket) {
       return [];
     }
     const sidebarActions = [];
-
-    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
-    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
-    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
     sidebarActions.push(<ExpandableSidebarAction
       id="link"
       key="link"
@@ -256,15 +237,10 @@ function InitiativeInvestible(props) {
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }}>
             <CommentAddBox
-              hidden={commentAddHidden}
               allowedTypes={allowedCommentTypes}
               investible={investible}
               marketId={marketId}
-              type={commentAddType}
-              onSave={closeCommentAdd}
-              onCancel={closeCommentAdd}
             />
-            <div ref={commentAddRef} />
             <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
         </Grid>
       </Grid>

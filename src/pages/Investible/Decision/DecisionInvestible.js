@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
@@ -12,11 +12,8 @@ import {
   ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
 } from '../../../constants/comments';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
-import RaiseIssue from '../../../components/SidebarActions/RaiseIssue';
-import AskQuestions from '../../../components/SidebarActions/AskQuestion';
 import Screen from '../../../containers/Screen/Screen';
 import { formMarketLink, makeArchiveBreadCrumbs, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
-import SuggestChanges from '../../../components/SidebarActions/SuggestChanges';
 import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
@@ -110,8 +107,6 @@ function DecisionInvestible(props) {
   const votingBlockedMessage = hasMarketIssue
     ? 'decisionInvestibleVotingBlockedMarket'
     : 'decisionInvestibleVotingBlockedInvestible';
-  const [commentAddType, setCommentAddType] = useState(ISSUE_TYPE);
-  const [commentAddHidden, setCommentAddHidden] = useState(true);
   const { investible, market_infos: marketInfos } = fullInvestible;
   const marketInfo = marketInfos.find((info) => info.market_id === marketId);
   const allowDelete = marketPresences && marketPresences.length < 2;
@@ -133,19 +128,7 @@ function DecisionInvestible(props) {
     }
   }
 
-  const commentAddRef = useRef(null);
-
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
-
-  function commentButtonOnClick(type) {
-    setCommentAddType(type);
-    setCommentAddHidden(false);
-  }
-
-  function closeCommentAdd() {
-    setCommentAddHidden(true);
-  }
-
 
   function getSidebarActions() {
     if (!activeMarket) {
@@ -168,10 +151,6 @@ function DecisionInvestible(props) {
         />);
       }
     }
-
-    sidebarActions.push(<RaiseIssue key="issue" onClick={commentButtonOnClick} />);
-    sidebarActions.push(<AskQuestions key="question" onClick={commentButtonOnClick} />);
-    sidebarActions.push(<SuggestChanges key="suggest" onClick={commentButtonOnClick} />);
     return sidebarActions;
   }
 
@@ -250,16 +229,11 @@ function DecisionInvestible(props) {
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }}>
           <CommentAddBox
-            hidden={commentAddHidden}
             allowedTypes={allowedCommentTypes}
             investible={investible}
             marketId={marketId}
             issueWarningId="issueWarningInvestible"
-            type={commentAddType}
-            onSave={closeCommentAdd}
-            onCancel={closeCommentAdd}
           />
-          <div ref={commentAddRef} />
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
         </Grid>
       </Grid>

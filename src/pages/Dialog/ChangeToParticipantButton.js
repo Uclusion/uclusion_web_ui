@@ -2,24 +2,27 @@ import React, { useContext } from 'react';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import PropTypes from 'prop-types';
 import { changeUserToParticipant } from '../../api/markets';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
+import SpinningTooltipIconButton from '../../components/SpinBlocking/SpinningTooltipIconButton';
+import { changeObserverStatus } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { EMPTY_SPIN_RESULT } from '../../constants/global';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function ChangeToParticipantButton(props) {
-  const [operationRunning] = useContext(OperationInProgressContext);
   const { marketId } = props;
-  const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
+  const [mpState, mpDispatch] = useContext(MarketPresencesContext);
 
   function myOnClick() {
-    return changeUserToParticipant(marketId);
+    return changeUserToParticipant(marketId)
+      .then(() => {
+        changeObserverStatus(mpState, mpDispatch, marketId, false);
+        return EMPTY_SPIN_RESULT;
+      });
   }
 
   return (
     <SpinningTooltipIconButton
       marketId={marketId}
       onClick={myOnClick}
-      disabled={operationRunning}
       key="subscribe"
       translationId="decisionDialogsBecomeParticipant"
       icon={<VolumeUpIcon />}

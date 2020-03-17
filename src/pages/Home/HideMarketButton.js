@@ -1,31 +1,35 @@
 import React, { useContext } from 'react';
+import { EMPTY_SPIN_RESULT } from '../../constants/global';
 import PropTypes from 'prop-types';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { hideMarket } from '../../api/markets';
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
+import SpinningTooltipIconButton from '../../components/SpinBlocking/SpinningTooltipIconButton';
+import { changeMarketHidden } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function HideMarketButton(props) {
-  const [operationRunning] = useContext(OperationInProgressContext);
   const {
     onClick,
     marketId,
   } = props;
 
-  function myOnClick() {
-    return hideMarket(marketId);
-  }
+  const [mpState, mpDispatch] = useContext(MarketPresencesContext);
 
-  const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
+  function myOnClick() {
+    return hideMarket(marketId)
+      .then(() => {
+        changeMarketHidden(mpState, mpDispatch, marketId, true);
+        return EMPTY_SPIN_RESULT;
+      });
+  }
 
   return (
     <SpinningTooltipIconButton
       marketId={marketId}
       onClick={myOnClick}
       onSpinStop={onClick}
-      disabled={operationRunning}
       key="exit"
+      hasSpinChecker
       translationId="decisionDialogsDismissDialog"
       icon={<ExitToAppIcon />}
     />

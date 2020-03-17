@@ -19,6 +19,36 @@ export function getPresenceMap(state, marketId) {
   }, {});
 }
 
+function changeMyPresence(state, dispatch, marketId, newValues) {
+  const marketPresences = getMarketPresences(state, marketId);
+  if (!marketPresences) {
+    return;
+  }
+  const myPresence = marketPresences.find((presence) => presence.current_user);
+  if (!myPresence) {
+    return;
+  }
+  const newPresence = {
+    ...myPresence,
+    ...newValues
+  };
+  dispatch(addMarketPresence(marketId, newPresence));
+}
+
+export function changeMarketHidden(state, dispatch, marketId, hidden) {
+  const newValues = {
+    market_hidden: hidden
+  };
+  changeMyPresence(state, dispatch, marketId, newValues);
+}
+
+export function changeObserverStatus(state, dispatch, marketId, isObserver) {
+  const newValues = {
+    following: !isObserver,
+  };
+  changeMyPresence(state, dispatch, marketId, newValues);
+}
+
 /** Used for quick add. Updates our investment with what data we know.
  * Has to be filled in later with an actual versions call
  */

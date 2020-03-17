@@ -1,34 +1,35 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import { EMPTY_SPIN_RESULT } from '../../constants/global';
 import { showMarket } from '../../api/markets';
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
+import SpinningTooltipIconButton from '../../components/SpinBlocking/SpinningTooltipIconButton';
 import LaunchIcon from '@material-ui/icons/Launch';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { withSpinLock } from '../../components/SpinBlocking/SpinBlockingHOC';
-import { navigate } from '../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { changeMarketHidden } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function ShowMarketButton(props) {
-  const [operationRunning] = useContext(OperationInProgressContext);
   const {
     marketId,
+    onClick,
   } = props;
 
-  const history = useHistory();
+  const [mpState, mpDispatch] = useContext(MarketPresencesContext);
 
   function myOnClick() {
-    return showMarket(marketId);
+    return showMarket(marketId)
+      .then(() => {
+        changeMarketHidden(mpState, mpDispatch, marketId, false);
+        return EMPTY_SPIN_RESULT;
+      })
   }
-
-  const SpinningTooltipIconButton = withSpinLock(TooltipIconButton);
 
   return (
     <SpinningTooltipIconButton
       marketId={marketId}
       onClick={myOnClick}
-      onSpinStop={() => navigate(history, '/')}
-      disabled={operationRunning}
-      key="exit"
+      onSpinStop={onClick}
+      key="enter"
+      hasSpinChecker
       translationId="decisionDialogsRestoreDialog"
       icon={<LaunchIcon />}
     />
@@ -37,7 +38,11 @@ function ShowMarketButton(props) {
 
 ShowMarketButton.propTypes = {
   marketId: PropTypes.string.isRequired,
+  onClick: PropTypes.func,
 };
 
+ShowMarketButton.defaultProps = {
+  onClick: () => {},
+};
 
 export default ShowMarketButton;

@@ -4,6 +4,7 @@ import AddEditVote from './AddEditVote';
 import { useHistory } from 'react-router';
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useIntl } from 'react-intl'
+import { INITIATIVE_TYPE } from '../../../constants/markets'
 
 function YourVoting(props) {
   const {
@@ -16,13 +17,16 @@ function YourVoting(props) {
   } = props;
   const intl = useIntl();
   const history = useHistory();
-  const { id: marketId, max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote } = market;
+  const { id: marketId, max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote, market_type: marketType } = market;
+  const isInitiative = marketType === INITIATIVE_TYPE;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const yourReason = comments.find((comment) => comment.created_by === userId);
 
   function onVoteSave() {
-    navigate(history, formMarketLink(marketId));
+    if (!isInitiative) {
+      navigate(history, formMarketLink(marketId));
+    }
   }
 
   return (

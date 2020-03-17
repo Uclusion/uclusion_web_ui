@@ -64,15 +64,15 @@ function PlanningDialog(props) {
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(
     stage => !stage.allows_investment && stage.singular_only
-  );
-  const inDialogStage = marketStages.find(stage => stage.allows_investment);
+  ) || {};
+  const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
   const inReviewStage = marketStages.find(
     stage =>
       stage.appears_in_context && !stage.singular_only && !stage.allows_issues
-  );
+  ) || {};
   const inBlockingStage = marketStages.find(
     stage => stage.appears_in_context && stage.allows_issues
-  );
+  ) || {};
   const visibleStages = [
     inDialogStage.id,
     acceptedStage.id,

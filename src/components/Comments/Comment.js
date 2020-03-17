@@ -599,9 +599,11 @@ function ThreadedReplies(props) {
     return comments.find(comment => comment.id === replyId);
   });
 
+  const sortedReplies = _.sortBy(replies, "created_at");
+
   return (
     <ol className={classes.container}>
-      {replies.map((reply) => {
+      {sortedReplies.map((reply) => {
         if (reply) {
           return (
             <ThreadedReply

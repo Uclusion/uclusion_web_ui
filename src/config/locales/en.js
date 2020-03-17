@@ -124,7 +124,7 @@ const messages = defineMessages({
   isObserver: 'Notifications off',
   browserNotSupported: 'Currently only the latest Chrome browser is supported',
   addDecision: 'Add Dialog',
-  addPlanning: 'Add Plan',
+  addPlanning: 'Add Workspace',
   addInitiative: 'Add Initiative',
   author: 'author',
 
@@ -141,7 +141,7 @@ const messages = defineMessages({
   sidebarNavTemplates: 'Templates',
   sidebarNavNotifications: 'Action Center',
   sideBarNavTempSignout: 'Signout(Temp)',
-  sidebarNewPlanning: 'Create New Plan',
+  sidebarNewPlanning: 'Create New Workspace',
 
   loadingMessage: 'Loading',
   loadingMarket: 'Processing Invite',
@@ -170,13 +170,12 @@ const messages = defineMessages({
   decisionExpiration: 'before dialog expires',
   storyTitlePlaceholder: 'Name your story',
   optionTitlePlaceholder: 'Name your option',
-  agilePlanFormTitlePlaceholder: 'Name your plan',
+  agilePlanFormTitlePlaceholder: 'Name your workspace',
   decisionTitlePlaceholder: 'Name your dialog',
   initiativeTitlePlaceholder: 'Name your initiative',
   agilePlanFormTitleLabel: 'Name',
   agilePlanFormFieldsetLabelOptional: 'Optional',
   agilePlanFormFieldsetLabelRequired: 'Required',
-  agilePlanFormDescriptionPlaceholder: 'Describe your plan. Changes will be stored locally until save.',
   agilePlanFormDaysEstimateLabel: 'Days estimate',
   agilePlanFormDaysEstimatePlaceholder: 'Very rough number of days to complete',
   agilePlanFormInvestmentExpirationLabel: 'vote expiration',
@@ -192,7 +191,7 @@ const messages = defineMessages({
   marketEditCancelLabel: 'Close',
   marketEditSaveLabel: 'Save',
 
-  editMarketButtonPlan: 'Edit plan',
+  editMarketButtonPlan: 'Edit workspace',
   editMarketButtonDecision: 'Edit dialog',
   editMarketButtonInitiative: 'Edit initiative',
 
@@ -268,7 +267,7 @@ const messages = defineMessages({
   planningInvestibleCantVote: 'You can\'t vote if you\'re assigned',
   planningInvestibleDescription: '- Description',
   reassignToMove: 'Re-assigning will move into voting.',
-  initiativePlanningParent: 'Create Child Plan',
+  initiativePlanningParent: 'Create Child Workspace',
   marketLinksSection: 'children',
   parentLinkSection: 'parent',
   marketParticipationLink: 'Participate in - {x}',
@@ -321,13 +320,10 @@ const messages = defineMessages({
   cardTypeLabelIssue: 'issue',
   cardTypeLabelQuestion: 'question',
   cardTypeLabelSuggestedChange: 'suggestion',
-  cardTypeAgilePlan: 'plan - description',
+  cardTypeAgilePlan: 'workspace - description',
 
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
-
-  // Proper names - DO NOT TRANSLATE
-  uclusionPlanningMarket: 'Uclusion Planning',
 
   // stages
   marketStageFollowTooltip: 'Subscribe',
@@ -352,10 +348,10 @@ const messages = defineMessages({
   investibleDetailClose: 'Close',
 
   // Home
-  homeSubsectionPlanning: 'Plans',
+  homeSubsectionPlanning: 'Workspaces',
   homeSubsectionDecision: 'Dialogs',
   homeAddDecision: 'Create Dialog',
-  homeAddPlanning: 'Create Plan',
+  homeAddPlanning: 'Create Workspace',
   homeAddInitiative: 'Create Initiative',
   homePlanningReport: 'Active Story Value Estimates (in days)',
   homeViewArchives: 'View Archives',
@@ -384,7 +380,7 @@ const messages = defineMessages({
 
   // Planning Dialog
   planningDialogManageParticipantsLabel: 'Add Collaborators',
-  planningDialogSummaryLabel: 'Plan Detail',
+  planningDialogSummaryLabel: 'Workspace Detail',
   planningDialogPeopleLabel: 'collaborator\'s stories',
   planningDialogDiscussionLabel: 'Discussion',
   planningDialogAddInvestibleLabel: 'Create Story',
@@ -433,7 +429,7 @@ const messages = defineMessages({
   investibleDescription: 'Story - Description',
   dialogDescription: 'Dialog - Description',
   dialogAddress: 'Dialog - Add collaborators',
-  planAddress: 'Plan - Add collaborators',
+  planAddress: 'Workspace - Add collaborators',
   initiativeAddress: 'Initiative - Add collaborators',
   dialogExtend: 'Dialog - Delay expiration',
   initiativeExtend: 'Initiative - Delay expiration',
@@ -476,7 +472,7 @@ const messages = defineMessages({
 
   // invite linker
   inviteLinkerDirectionsDecision: 'Share this link to invite others to the dialog',
-  inviteLinkerDirectionsPlan: 'Share this link to invite others to the plan',
+  inviteLinkerDirectionsPlan: 'Share this link to invite others to the workspace',
   inviteLinkerDirectionsInitiative: 'Share this link to invite others to the initiative',
 
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
@@ -494,7 +490,7 @@ const messages = defineMessages({
   // Dialog Archives
   dialogArchivesNotDoingHeader: 'Not Doing',
   dialogArchivesVerifiedHeader: 'Verified',
-  dialogArchivesLabel: 'Plan Archives',
+  dialogArchivesLabel: 'Workspace Archives',
 
   // SignIn
   signInEmailLabel: 'Email',
@@ -596,7 +592,7 @@ const messages = defineMessages({
   errorInviteParticipantsFailed: 'There was a problem inviting participants',
   errorDecisionAddFailed: 'There was a problem creating your Dialog',
   errorInitiativeAddFailed: 'There was a problem creating your Initiative',
-  errorPlanningAddFailed: 'There was a problem creating your Plan',
+  errorPlanningAddFailed: 'There was a problem creating your Workspace',
   errorFileUploadFailed: 'There was a problem uploading your file',
   errorEditLockFailed: 'There was a problem getting permission to edit',
   errorEditLockReleaseFailed: 'There was a problem releasing edit permission',

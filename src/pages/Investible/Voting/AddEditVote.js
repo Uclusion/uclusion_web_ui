@@ -181,7 +181,7 @@ function AddEditVote(props) {
       console.log(result);
       return {
         result,
-        spinChecker: () => Promise.resolve(true)
+        spinChecker: () => Promise.resolve(true),
       };
     });
   }

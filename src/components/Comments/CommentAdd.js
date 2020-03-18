@@ -181,6 +181,13 @@ function CommentAdd (props) {
             setEditorFocusFunc(func);
           }}
         >
+          {parent && (
+          <Button
+            onClick={handleCancel}
+            className={classes.button}
+          >
+            {intl.formatMessage({ id: commentCancelLabel })}
+          </Button>)}
           {!showIssueWarning && (
             <SpinBlockingButton
               className={classNames(classes.button, classes.buttonPrimary)}
@@ -218,12 +225,6 @@ function CommentAdd (props) {
               }
             />
           )}
-          <Button
-            onClick={handleCancel}
-            className={classes.button}
-          >
-            {intl.formatMessage({ id: commentCancelLabel })}
-          </Button>
         </QuillEditor>
       </div>
     </Paper>

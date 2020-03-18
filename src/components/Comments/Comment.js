@@ -29,9 +29,9 @@ import CommentEdit from "./CommentEdit";
 import { MarketsContext } from "../../contexts/MarketsContext/MarketsContext";
 import { getMyUserForMarket } from "../../contexts/MarketsContext/marketsContextHelper";
 import {
-  HIGHLIGHT_REMOVE,
+  EXPANDED,
   HighlightedCommentContext
-} from "../../contexts/HighlightedCommentContext";
+} from '../../contexts/HighlightedCommentContext'
 import CardType from '../CardType';
 import { EMPTY_SPIN_RESULT } from '../../constants/global';
 import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
@@ -187,20 +187,19 @@ function Comment(props) {
         return EMPTY_SPIN_RESULT;
       });
   }
-
-  const [repliesExpanded, setRepliesExpanded] = React.useState(
-    !comment.resolved || comment.reply_id
-  );
+  const myHighlightedExpandedState = highlightedCommentState[id] || {};
+  const { level: myHighlightedLevel, repliesExpanded: myRepliesExpanded } = myHighlightedExpandedState;
+  const repliesExpanded = myRepliesExpanded === undefined ? !comment.resolved || comment.reply_id : myRepliesExpanded;
   useEffect(() => {
     function getHilightedLeveId(myReplies) {
       if (_.isEmpty(myReplies)) {
         return undefined;
       }
       const highlightedReplies = myReplies.filter(
-        reply => reply.id in highlightedCommentState
+        reply => reply.id in highlightedCommentState && highlightedCommentState[reply.id].level
       );
       const highlightedRepliesRed = highlightedReplies.filter(reply => {
-        const level = highlightedCommentState[reply.id];
+        const { level } = highlightedCommentState[reply.id];
         return level === "RED";
       });
       if (!_.isEmpty(highlightedRepliesRed)) {
@@ -231,9 +230,8 @@ function Comment(props) {
 
   const showActions = !replyOpen || replies.length > 0;
   function getCommentHighlightStyle() {
-    if (id in highlightedCommentState) {
-      const level = highlightedCommentState[id];
-      if (level === "YELLOW") {
+    if (myHighlightedLevel) {
+      if (myHighlightedLevel === "YELLOW") {
         return classes.containerYellow;
       }
       return classes.containerRed;
@@ -309,11 +307,11 @@ function Comment(props) {
                 className={clsx(classes.action, classes.actionSecondary)}
                 variant="contained"
                 onClick={() => {
-                  highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, id });
-                  if (myHighLightId) {
+                  const newRepliesExpanded = !repliesExpanded;
+                  highlightedCommentDispatch({ type: EXPANDED, commentId: id, newRepliesExpanded });
+                  if (!newRepliesExpanded && myHighLightId) {
                     setMyHighLightId(undefined);
                   }
-                  setRepliesExpanded(!repliesExpanded);
                 }}
               >
                 <FormattedMessage

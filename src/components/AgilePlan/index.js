@@ -6,7 +6,6 @@ import CardContent from "@material-ui/core/CardContent";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import { darken, makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
-import clsx from "clsx";
 import { FormattedMessage, useIntl } from "react-intl";
 import SpinBlockingButton from "../../components/SpinBlocking/SpinBlockingButton";
 import CardType, { AGILE_PLAN_TYPE } from "../../components/CardType";

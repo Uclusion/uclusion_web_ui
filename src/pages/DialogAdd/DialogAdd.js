@@ -1,17 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useHistory } from 'react-router'
-import PropTypes from 'prop-types'
-import { useIntl } from 'react-intl'
-import localforage from 'localforage'
-import queryString from 'query-string'
-import Screen from '../../containers/Screen/Screen'
-import DecisionAdd from './DecisionAdd'
-import PlanningAdd from './PlanningAdd'
-import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets'
+import { useHistory } from 'react-router';
+import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
+import localforage from 'localforage';
+import queryString from 'query-string';
+import Screen from '../../containers/Screen/Screen';
+import DecisionAdd from './DecisionAdd';
+import PlanningAdd from './PlanningAdd';
+import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets';
 import InitiativeAdd from './InitiativeAdd'
 import {
   formMarketAddInvestibleLink,
-  formMarketLink, formMarketManageLink,
+  formMarketManageLink,
   makeBreadCrumbs,
   navigate
 } from '../../utils/marketIdPathFunctions';
@@ -69,11 +69,8 @@ function DialogAdd(props) {
           if (type === DECISION_TYPE) {
             navigate(history, formMarketAddInvestibleLink(result));
           }
-          else if (type === INITIATIVE_TYPE) {
-            navigate(history, `${formMarketManageLink(result)}#participation=true`);
-          }
           else {
-            navigate(history, formMarketLink(result));
+            navigate(history, `${formMarketManageLink(result)}#participation=true`);
           }
         } else {
           // This is a cancel

@@ -162,9 +162,9 @@ const messages = defineMessages({
   investmentExpirationInputLabel: 'Number of days before a vote expires',
   maxMaxBudgetInputLabel: 'Maximum number of days for story budget',
   daysEstimateInputLabel: 'Very rough number of days to complete',
-  votesRequiredInputLabel: 'Number of votes required to move a story to in progress',
+  votesRequiredInputLabel: 'Votes required to move a story to in progress',
   votesRequiredInputLabelShort: 'votes required',
-  votesRequiredInputHelperText: 'Number required to move a story to in progress',
+  votesRequiredInputHelperText: 'Votes required to move a story to in progress',
   investmentExpiration: 'before votes expire',
   initiativeExpiration: 'before initiative expires',
   decisionExpiration: 'before dialog expires',
@@ -632,6 +632,7 @@ const messages = defineMessages({
 
   // warnings
   warningOffline: 'You are offline',
+  optionalEdit: 'These fields are optional and can be changed at any time',
 
   // Issue Present
   issuePresent: 'Issue',

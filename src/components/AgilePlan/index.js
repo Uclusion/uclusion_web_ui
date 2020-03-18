@@ -35,7 +35,7 @@ export const usePlanFormStyles = makeStyles(
     fieldset: {
       border: "none",
       display: "inline-block",
-      margin: 0,
+      margin: 50,
       padding: 0,
       "& > legend": {},
       "& > *:not(legend)": {
@@ -149,17 +149,14 @@ export function Form(props) {
           defaultValue={description}
           setOperationInProgress={setOperationRunning}
         />
-        <fieldset className={clsx(classes.fieldset, classes.fieldsetRequired)}>
-          <legend>Required</legend>
+        <fieldset className={classes.fieldset}>
+          <legend>{intl.formatMessage({ id: "optionalEdit" })}</legend>
           <MaxBudget onChange={onMaxBudgetChange} value={maxBudget} />
           <VoteExpiration
             onChange={onInvestmentExpirationChange}
             value={investmentExpiration}
           />
           <Votes onChange={onVotesRequiredChange} value={votesRequired} />
-        </fieldset>
-        <fieldset className={classes.fieldset}>
-          <legend>optional</legend>
           <DaysEstimate onChange={onDaysEstimate} value={daysEstimate} />
         </fieldset>
       </CardContent>

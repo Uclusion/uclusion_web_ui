@@ -294,7 +294,7 @@ const messages = defineMessages({
   commentAddSuggestDefault: 'Your suggestion...',
   commentAddReplyDefault: 'Your reply...',
   commentAddSaveLabel: 'Save',
-  commentAddCancelLabel: 'Cancel',
+  commentAddCancelLabel: 'Clear',
   issueWarning: 'Opening an issue will halt voting on this dialog.',
   issueWarningInvestible: 'Opening an issue will halt voting on this option.',
   issueWarningPlanning: 'Opening an issue will move this story to blocked and stop execution or voting.',

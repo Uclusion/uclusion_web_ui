@@ -157,7 +157,7 @@ function CommentAdd (props) {
   }
 
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
-  const commentCancelLabel = parent ? 'commentAddCancelLabel' : 'commentReplyCancelLabel';
+  const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
   const showIssueWarning = issueWarningId !== null && type === ISSUE_TYPE;
   const lockedDialogClasses = useLockedDialogStyles();
   return (
@@ -181,13 +181,12 @@ function CommentAdd (props) {
             setEditorFocusFunc(func);
           }}
         >
-          {parent && (
           <Button
             onClick={handleCancel}
             className={classes.button}
           >
             {intl.formatMessage({ id: commentCancelLabel })}
-          </Button>)}
+          </Button>
           {!showIssueWarning && (
             <SpinBlockingButton
               className={classNames(classes.button, classes.buttonPrimary)}
@@ -290,13 +289,14 @@ CommentAdd.propTypes = {
   investible: PropTypes.object,
   // eslint-disable-next-line react/forbid-prop-types
   parent: PropTypes.object,
-  onCancel: PropTypes.func.isRequired,
+  onCancel: PropTypes.func,
   hidden: PropTypes.bool,
 };
 
 CommentAdd.defaultProps = {
   parent: null,
   investible: null,
+  onCancel: () => {},
   hidden: false,
 };
 

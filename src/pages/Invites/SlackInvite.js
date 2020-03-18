@@ -68,7 +68,7 @@ function SlackInvite(props) {
       title={intl.formatMessage({ id: 'loadingSlack' })}
       tabTitle={intl.formatMessage({ id: 'loadingSlack' })}
       hidden={hidden}
-      loading={hash && myLoading}
+      loading={!!hash && myLoading}
     >
       <div className={classes.root}>
         <Paper className={classes.section}>

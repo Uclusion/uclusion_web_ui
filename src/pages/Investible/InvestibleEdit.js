@@ -35,6 +35,7 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import clsx from 'clsx';
 import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogEdit';
 import queryString from 'query-string'
+import { EMPTY_SPIN_RESULT } from '../../constants/global';
 
 function InvestibleEdit (props) {
   const { hidden } = props;
@@ -125,7 +126,28 @@ function InvestibleEdit (props) {
     return _.unionBy([replacementInfo], marketInfos, 'market_id');
   }
 
-  function onDone (result) {
+  function onCancel() {
+    const originalLockedId = lockedInvestibleId;
+    return localforage.removeItem(originalLockedId)
+      .then(() => realeaseInvestibleEditLock(lockedInvestibleIdMarketId, lockedInvestibleId))
+      .then(() => {
+        const newInvestible = {
+          ...myInvestible,
+          locked_by: undefined,
+          locked_at: undefined,
+        };
+        const newInv = {
+          ...inv,
+          investible: newInvestible
+        };
+        refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
+        return EMPTY_SPIN_RESULT;
+      })
+      .catch(() => setLockedInvestibleId(originalLockedId))
+      .finally(() => navigate(history, formInvestibleLink(marketId, investibleId)));
+  }
+
+  function onSave (result) {
     // the edit ony contains the investible data and assignments, not the full market infos
     if (result) {
       const { investible, assignments } = result;
@@ -140,11 +162,7 @@ function InvestibleEdit (props) {
       };
       refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);
     }
-    const originalLockedId = lockedInvestibleId;
-    realeaseInvestibleEditLock(lockedInvestibleIdMarketId, lockedInvestibleId)
-      .then(() => localforage.removeItem(originalLockedId))
-      .catch(() => setLockedInvestibleId(originalLockedId))
-      .finally(() => navigate(history, formInvestibleLink(marketId, investibleId)));
+
   }
 
   const { name: marketName } = market;
@@ -183,7 +201,7 @@ function InvestibleEdit (props) {
       <LockedDialog
         classes={lockedDialogClasses}
         open={!hidden && (someoneElseEditing || lockFailed)}
-        onClose={onDone}
+        onClose={onSave}
         /* slots */
         actions={
           <SpinBlockingButton
@@ -203,8 +221,8 @@ function InvestibleEdit (props) {
           fullInvestible={inv}
           marketId={marketId}
           userId={userId}
-          onSave={onDone}
-          onCancel={onDone}
+          onSave={onSave}
+          onCancel={onCancel}
           isAdmin={isAdmin}
           storedState={storedState}
         />
@@ -214,8 +232,8 @@ function InvestibleEdit (props) {
           fullInvestible={inv}
           marketId={marketId}
           marketPresences={marketPresences}
-          onSave={onDone}
-          onCancel={onDone}
+          onSave={onSave}
+          onCancel={onCancel}
           isAdmin={isAdmin}
           storedState={storedState}
           isAssign={isAssign}
@@ -226,8 +244,8 @@ function InvestibleEdit (props) {
           fullInvestible={inv}
           marketId={marketId}
           marketPresences={marketPresences}
-          onSave={onDone}
-          onCancel={onDone}
+          onSave={onSave}
+          onCancel={onCancel}
           storedState={storedState}
         />
       )}

@@ -5,7 +5,7 @@ import * as moment from 'moment';
 import { useIntl } from 'react-intl';
 import { IconButton, Tooltip } from '@material-ui/core'
 import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
-import EditIcon from '@material-ui/icons/Edit'
+import AlarmAddIcon from '@material-ui/icons/AlarmAdd';
 
 const ONE_MINUTE = 60000;
 const THIRTY_MINUTES = 1800000;
@@ -166,7 +166,7 @@ function ExpiresDisplay(props) {
           <IconButton
             onClick={() => navigate(history, `${formMarketManageLink(marketId)}#expires=true`)}
           >
-            <EditIcon />
+            <AlarmAddIcon />
           </IconButton>
         </Tooltip>
       )}

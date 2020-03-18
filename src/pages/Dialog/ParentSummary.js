@@ -15,6 +15,8 @@ import { getInvestible } from '../../contexts/InvestibesContext/investiblesConte
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import clsx from 'clsx';
 import { useMetaDataStyles } from '../Investible/Planning/PlanningInvestible';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 
 function ParentSummary(props) {
   const {
@@ -28,6 +30,7 @@ function ParentSummary(props) {
     parent_investible_id: parentInvestibleId,
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketState] = useContext(MarketsContext);
   const [parentLoaded, setParentLoaded] = useState(false);
   const [parentMarket, setParentMarket] = useState(undefined);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -35,15 +38,20 @@ function ParentSummary(props) {
   useEffect(() => {
     if (parentMarketId) {
       if (!parentLoaded && !hidden) {
-        setParentLoaded(true)
-        getMarketInfo(parentMarketId).then((market) => {
+        setParentLoaded(true);
+        const marketDetails = getMarket(marketState, parentMarketId);
+        if (marketDetails) {
+          setParentMarket(marketDetails);
+        } else {
+          getMarketInfo(parentMarketId).then((market) => {
             setParentMarket(market);
-        })
+          });
+        }
       } else if (hidden) {
         setParentLoaded(false);
       }
     }
-  }, [parentMarketId, hidden, parentLoaded])
+  }, [parentMarketId, hidden, parentLoaded, marketState])
 
   function displayParentLink(parentMarketId, parentInvestibleId) {
     const { name: parentMarketName } = parentMarket;

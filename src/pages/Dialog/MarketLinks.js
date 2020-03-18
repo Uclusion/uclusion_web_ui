@@ -16,6 +16,8 @@ import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { getMarketInfo } from '../../api/sso';
 import clsx from 'clsx';
 import { useMetaDataStyles } from '../Investible/Planning/PlanningInvestible';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -32,11 +34,12 @@ function MarketLinks (props) {
   const {
     links, hidden
   } = props
-  const intl = useIntl()
-  const history = useHistory()
-  const classes = useStyles()
-  const [marketPresencesState] = useContext(MarketPresencesContext)
-  const [loaded, setLoaded] = useState(false)
+  const intl = useIntl();
+  const history = useHistory();
+  const classes = useStyles();
+  const [marketState] = useContext(MarketsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [loaded, setLoaded] = useState(false);
   const [marketNameState, marketNamesDispatch] = useReducer((state, action) => {
     const { marketId, name, marketType } = action
     return { ...state, [marketId]: { name, marketType } }
@@ -44,8 +47,17 @@ function MarketLinks (props) {
 
   useEffect(() => {
     if (!loaded && !hidden) {
-      setLoaded(true)
-      AllSequentialMap(links, (marketId) => {
+      setLoaded(true);
+      const missingLinks = links.filter((marketId) => {
+        const marketDetails = getMarket(marketState, marketId);
+        if (marketDetails) {
+          const { name, market_type: marketType } = marketDetails;
+          marketNamesDispatch({ marketId, name, marketType });
+          return false;
+        }
+        return true;
+      })
+      AllSequentialMap(missingLinks, (marketId) => {
         return getMarketInfo(marketId).then((market) => {
           const { name, market_type: marketType } = market;
           marketNamesDispatch({ marketId, name, marketType });
@@ -55,7 +67,7 @@ function MarketLinks (props) {
     } else if (hidden) {
       setLoaded(false);
     }
-  }, [links, hidden, loaded])
+  }, [links, hidden, loaded, marketState])
   const metaClasses = useMetaDataStyles();
   function displayLinksList (linksList) {
     return linksList.map((marketId) => {

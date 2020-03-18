@@ -9,6 +9,9 @@ import { updateComment } from '../../api/comments';
 import { processTextAndFilesForSave } from '../../api/files';
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
+import { EMPTY_SPIN_RESULT } from '../../constants/global';
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -42,6 +45,7 @@ function CommentEdit(props) {
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const classes = useStyles();
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, commentDispatch] = useContext(CommentsContext);
 
   function onEditorChange(content) {
     setBody(content);
@@ -52,7 +56,11 @@ function CommentEdit(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(uploadedFiles, body);
-    return updateComment(marketId, id, tokensRemoved, filteredUploads);
+    return updateComment(marketId, id, tokensRemoved, filteredUploads)
+      .then((comment) => {
+        addCommentToMarket(comment, marketId, commentDispatch);
+        return EMPTY_SPIN_RESULT;
+      })
   }
 
   function onS3Upload(metadatas) {
@@ -77,19 +85,6 @@ function CommentEdit(props) {
           />
         </CardContent>
         <CardActions className={classes.cardActions}>
-          <SpinBlockingButton
-            className={classes.buttonPrimary}
-            disabled={operationRunning}
-            variant="contained"
-            size="small"
-            marketId={marketId}
-            onClick={handleSave}
-            onSpinStop={() => {
-              onSave();
-            }}
-          >
-            {intl.formatMessage({ id: 'save' })}
-          </SpinBlockingButton>
           <Button
             onClick={handleCancel}
             disabled={operationRunning}
@@ -98,6 +93,19 @@ function CommentEdit(props) {
           >
             {intl.formatMessage({ id: 'cancel' })}
           </Button>
+          <SpinBlockingButton
+            className={classes.buttonPrimary}
+            disabled={operationRunning}
+            variant="contained"
+            size="small"
+            hasSpinChecker
+            marketId={marketId}
+            onClick={handleSave}
+            onSpinStop={onSave}
+          >
+            {intl.formatMessage({ id: 'save' })}
+          </SpinBlockingButton>
+
         </CardActions>
       </Card>
     </div>

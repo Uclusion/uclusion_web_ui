@@ -29,9 +29,10 @@ export function addCommentToMarket(comment, state, dispatch) {
     if (!_.isEmpty(parent)) {
       const { children } = parent;
       const newChildren = !_.isEmpty(children)? [...children, id] : [id];
+      const uniqueNewChildren = _.uniq(newChildren);
       const newParent = {
         ...parent,
-        children: newChildren,
+        children: uniqueNewChildren,
       };
       updates.push(newParent)
     }

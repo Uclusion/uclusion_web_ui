@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import clsx from 'clsx';
@@ -14,7 +15,7 @@ import {
   DRAWER_WIDTH_CLOSED,
   DRAWER_WIDTH_OPENED,
 } from '../../constants/global';
-import { createTitle } from '../../utils/marketIdPathFunctions'
+import { createTitle, makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 const useStyles = makeStyles((theme) => ({
@@ -72,6 +73,7 @@ function Screen(props) {
     tabTitle,
     toolbarButtons,
     appEnabled,
+    isHome
   } = props;
   let prePendWarning = '';
   if (messagesState) {
@@ -128,6 +130,10 @@ function Screen(props) {
   if (hidden) {
     return <React.Fragment/>
   }
+  let usedBreadCrumbs = breadCrumbs;
+  if (_.isEmpty(breadCrumbs) && !isHome) {
+    usedBreadCrumbs = makeBreadCrumbs(history);
+  }
 
   return (
     <div className={classes.root}>
@@ -141,7 +147,7 @@ function Screen(props) {
       </Helmet>
       <Header
         title={title}
-        breadCrumbs={breadCrumbs}
+        breadCrumbs={usedBreadCrumbs}
         toolbarButtons={toolbarButtons}
         hidden={reallyAmLoading}
       />

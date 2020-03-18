@@ -69,6 +69,8 @@ function BillingHome (props) {
   return (
     <Screen
       hidden={hidden}
+      title="Manage Subscription"
+      tabTitle="Manage Subscription"
     >
       <Typography>
         {tier}
@@ -89,6 +91,7 @@ function BillingHome (props) {
           onClick={beginSubscription}
           onSpinStop={onSpinStop}
           hasSpinChecker
+          marketId="unused"
         >
           Begin Subscription
         </SpinBlockingButton>
@@ -97,6 +100,7 @@ function BillingHome (props) {
         <SpinBlockingButton
           onClick={cancelSubscription}
           onSpinStop={onSpinStop}
+          marketId="unused"
           hasSpinChecker
         >
           Cancel Subscription

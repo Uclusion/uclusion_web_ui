@@ -253,7 +253,7 @@ export function Collaborators(props) {
   marketPresences.sort(function(a, b) {
     if (a.id === authorId) return -1;
     return 0;
-  })
+  });
   return (
     <ul>
       {authorDisplay && (
@@ -264,7 +264,7 @@ export function Collaborators(props) {
       {!authorDisplay && marketPresences.map(presence => {
         const { id: presenceId, name } = presence;
         if (presenceId === authorId ) {
-          return <React.Fragment/>;
+          return <React.Fragment key={presenceId}/>;
         }
         return (
           <Typography key={presenceId} component="li">
@@ -273,7 +273,7 @@ export function Collaborators(props) {
         );
       })}
       {!authorDisplay && marketPresences.length === 1 && (
-        <Typography>
+        <Typography component="div">
           <Box color="#E85757" m={1}>
             {intl.formatMessage({ id: 'draft' })}
           </Box>

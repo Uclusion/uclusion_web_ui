@@ -65,6 +65,29 @@ function NotificationsProvider(props) {
           dispatch(processedPage(page));
         }
       } else {
+        const newUserMessage = messages.find((massagedMessage) => massagedMessage.pokeType === 'new_user');
+        if (newUserMessage) {
+          if (pathname === '/') {
+            // This is a new user going to home page but we need to redirect
+            navigate(history, '/dialogAdd#type=PLANNING');
+          } else {
+            const { marketId, action } = page;
+            let removeNewUserNotification = false;
+            if (marketId) {
+              // This user is coming in on a market invite
+              removeNewUserNotification = true;
+            } else if (action === 'dialogAdd' ) {
+              // This new user reached the dialog add page successfully so delete this message
+              // Otherwise they might click on the notification in the tray when already where supposed to be
+              removeNewUserNotification = true;
+            }
+            if (removeNewUserNotification) {
+              deleteMessage(newUserMessage);
+              dispatch(processedPage(page, [newUserMessage], {}));
+              return;
+            }
+          }
+        }
         const filtered = messages.filter((message) => {
           const { marketId, investibleId, action } = page;
           const {
@@ -75,8 +98,9 @@ function NotificationsProvider(props) {
           } = message;
           const marketMatch = action === 'dialog' && !_.isEmpty(messageMarketId)
             && marketId === messageMarketId && investibleId === messageInvestibleId;
-          const isBeingProcessed = _.isEqual(beingProcessed, page);
-          console.debug(`is being processed is ${isBeingProcessed} and action ${action}`);
+          const isBeingProcessed = !_.isEmpty(beingProcessed) && beingProcessed.marketId === marketId
+            && beingProcessed.investibleId === investibleId && beingProcessed.action === action;
+          console.debug(`is being processed is ${isBeingProcessed}`);
           const doRemove = !isBeingProcessed && (marketMatch ||
             (pokeType === 'slack_reminder' && action === 'notificationPreferences')
             || (pokeType === 'upgrade_reminder' && action === 'upgrade'));

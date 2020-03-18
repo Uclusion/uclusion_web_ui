@@ -106,12 +106,8 @@ function getMassagedMessages(messages) {
       ...message, marketId, aType, level, investibleId: objectId, userId,
     };
   });
-  const filterMessages = rawMessages.filter((massagedMessage) => massagedMessage.pokeType !== 'new_user');
-  if (filterMessages.length !== rawMessages.length) {
-    // TODO Do something here like store a cookie if new user
-  }
   //market level must come before investibles in the market
-  filterMessages.sort(function(a, b) {
+  rawMessages.sort(function(a, b) {
     const {
       marketId: aMarketId,
       investibleId: aInvestibleId,
@@ -137,7 +133,7 @@ function getMassagedMessages(messages) {
     }
     return aMarketId.localeCompare(bMarketId);
   })
-  return filterMessages;
+  return rawMessages;
 }
 
 function isMessageEqual(aMessage, message) {

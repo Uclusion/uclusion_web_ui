@@ -62,6 +62,9 @@ export function getFullLink(current) {
       else if (pokeType === 'upgrade_reminder') {
         fullLink = '/upgrade';
       }
+      else if (pokeType === 'new_user') {
+        fullLink = '/dialogAdd#type=PLANNING';
+      }
       break;
     default:
       fullLink = link;

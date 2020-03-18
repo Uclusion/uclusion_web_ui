@@ -16,6 +16,7 @@ function SpinBlockingSidebarAction(props) {
     onClick,
     onSpinStart,
     onSpinStop,
+    hasSpinChecker,
   } = props;
   const classes = useStyles();
   const [amOpen] = useContext(SidebarContext);
@@ -33,6 +34,7 @@ function SpinBlockingSidebarAction(props) {
       onSpinStart={onSpinStart}
       onSpinStop={onSpinStop}
       className={classes.menuItem}
+      hasSpinChecker={hasSpinChecker}
       spanChildren={false}
     >
       <Tooltip title={label}>
@@ -54,6 +56,7 @@ SpinBlockingSidebarAction.propTypes = {
   icon: PropTypes.element.isRequired,
   label: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
+  hasSpinChecker: PropTypes.bool,
   onSpinStart: PropTypes.func,
   onSpinStop: PropTypes.func,
   id: PropTypes.string,
@@ -62,6 +65,7 @@ SpinBlockingSidebarAction.propTypes = {
 SpinBlockingSidebarAction.defaultProps = {
   onSpinStart: () => {},
   onSpinStop: () => {},
+  hasSpinChecker: false,
   id: undefined,
 };
 

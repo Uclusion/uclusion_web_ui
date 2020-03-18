@@ -266,7 +266,7 @@ function PlanningInvestible(props) {
               key="visible"
               investibleId={investibleId}
               marketId={marketId}
-              stageId={stage}
+              currentStageId={stage}
             />
           );
         }
@@ -279,7 +279,7 @@ function PlanningInvestible(props) {
           <MoveToVotingActionButton
             investibleId={investibleId}
             marketId={marketId}
-            stageId={stage}
+            currentStageId={stage}
             key="voting"
           />
         );
@@ -292,7 +292,7 @@ function PlanningInvestible(props) {
           <MoveToAcceptedActionButton
             investibleId={investibleId}
             marketId={marketId}
-            stageId={stage}
+            currentStageId={stage}
             key="acceptedFromReview"
           />
         );
@@ -315,7 +315,7 @@ function PlanningInvestible(props) {
               <MoveToVotingActionButton
                 investibleId={investibleId}
                 marketId={marketId}
-                stageId={stage}
+                currentStageId={stage}
                 key="voting"
               />
             );
@@ -332,7 +332,7 @@ function PlanningInvestible(props) {
                 <MoveToAcceptedActionButton
                   investibleId={investibleId}
                   marketId={marketId}
-                  stageId={stage}
+                  currentStageId={stage}
                   key="accepted"
                 />
               );
@@ -341,7 +341,7 @@ function PlanningInvestible(props) {
               <MoveToInReviewActionButton
                 investibleId={investibleId}
                 marketId={marketId}
-                stageId={stage}
+                currentStageId={stage}
                 key="inreview"
               />
             );
@@ -354,7 +354,7 @@ function PlanningInvestible(props) {
         <MoveToVerifiedActionButton
           investibleId={investibleId}
           marketId={marketId}
-          stageId={stage}
+          currentStageId={stage}
           key="verified"
         />
       );
@@ -363,7 +363,7 @@ function PlanningInvestible(props) {
       sidebarActions.push(<MoveToNotDoingActionButton
         investibleId={investibleId}
         marketId={marketId}
-        stageId={stage}
+        currentStageId={stage}
         key="notdoing"
       />);
       sidebarActions.push(<ExpandableSidebarAction

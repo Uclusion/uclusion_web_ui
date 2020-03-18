@@ -1,47 +1,31 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
 import RateReviewIcon from '@material-ui/icons/RateReview';
-import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getInReviewStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { stageChangeInvestible } from '../../../api/investibles';
+import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction';
 
 function MoveToInReviewActionButton(props) {
-  const { investibleId, marketId, stageId } = props;
-  const intl = useIntl();
+  const { marketId } = props;
+
 
   const [marketStagesState] = useContext(MarketStagesContext);
   const inReviewStage = getInReviewStage(marketStagesState, marketId);
 
-  function moveToInReview() {
-    const moveInfo = {
-      marketId,
-      investibleId,
-      stageInfo: {
-        current_stage_id: stageId,
-        stage_id: inReviewStage.id,
-      },
-    };
-    return stageChangeInvestible(moveInfo);
-  }
-
   return (
-    <SpinBlockingSidebarAction
-      marketId={marketId}
+    <StageChangeAction
+      {...props}
       icon={<RateReviewIcon />}
-      label={intl.formatMessage({ id: 'planningInvestibleNextStageInReviewLabel' })}
-      onClick={moveToInReview}
+      targetStageId={inReviewStage.id}
+      label="planningInvestibleNextStageInReviewLabel"
     />
   );
 }
 
 MoveToInReviewActionButton.propTypes = {
-  investibleId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
-  stageId: PropTypes.string.isRequired,
 };
 
 export default MoveToInReviewActionButton;

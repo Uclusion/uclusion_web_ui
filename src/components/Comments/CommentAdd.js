@@ -20,6 +20,7 @@ import { addCommentToMarket } from '../../contexts/CommentsContext/commentsConte
 import { Dialog } from '../Dialogs';
 import WarningIcon from '@material-ui/icons/Warning';
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit';
+import { EMPTY_SPIN_RESULT } from '../../constants/global';
 
 function getPlaceHolderLabelId (type) {
   switch (type) {
@@ -135,9 +136,7 @@ function CommentAdd (props) {
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentDispatch);
-        return {
-          spinChecker: () => Promise.resolve(true),
-        };
+        return EMPTY_SPIN_RESULT;
       });
   }
 
@@ -182,6 +181,13 @@ function CommentAdd (props) {
             setEditorFocusFunc(func);
           }}
         >
+          {parent && (
+          <Button
+            onClick={handleCancel}
+            className={classes.button}
+          >
+            {intl.formatMessage({ id: commentCancelLabel })}
+          </Button>)}
           {!showIssueWarning && (
             <SpinBlockingButton
               className={classNames(classes.button, classes.buttonPrimary)}
@@ -219,12 +225,6 @@ function CommentAdd (props) {
               }
             />
           )}
-          <Button
-            onClick={handleCancel}
-            className={classes.button}
-          >
-            {intl.formatMessage({ id: commentCancelLabel })}
-          </Button>
         </QuillEditor>
       </div>
     </Paper>

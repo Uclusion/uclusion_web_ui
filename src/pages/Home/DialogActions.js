@@ -85,7 +85,7 @@ function DialogActions(props) {
         );
       } else if (inArchives) {
         actions.push(
-          <ShowMarketButton key="enter" marketId={marketId}/>,
+          <ShowMarketButton key="enter" marketId={marketId} onClick={goHome}/>,
         );
       }
     } else if (!inArchives) {
@@ -94,7 +94,7 @@ function DialogActions(props) {
       );
     } else {
       actions.push(
-        <ShowMarketButton key="enter" marketId={marketId}/>
+        <ShowMarketButton key="enter" marketId={marketId} onClick={goHome}/>
       );
     }
 

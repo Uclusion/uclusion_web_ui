@@ -100,7 +100,7 @@ function NotificationsProvider(props) {
             && marketId === messageMarketId && investibleId === messageInvestibleId;
           const isBeingProcessed = !_.isEmpty(beingProcessed) && beingProcessed.marketId === marketId
             && beingProcessed.investibleId === investibleId && beingProcessed.action === action;
-          console.debug(`is being processed is ${isBeingProcessed}`);
+          console.debug(`being processed ${isBeingProcessed} and ${JSON.stringify(beingProcessed)} and ${JSON.stringify(page)}`);
           const doRemove = !isBeingProcessed && (marketMatch ||
             (pokeType === 'slack_reminder' && action === 'notificationPreferences')
             || (pokeType === 'upgrade_reminder' && action === 'upgrade'));

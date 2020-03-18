@@ -4,6 +4,7 @@ const config = {
   initial_state: {
     locale: 'en',
   },
+  globalLockEnabled: process.env.REACT_APP_GLOBAL_OPERATION_LOCK_ENABLED,
   payments: {
     stripeKey: process.env.REACT_APP_STRIPE_PUBLIC_API_KEY,
     enabled: 'true' === process.env.REACT_APP_PAYMENT_ENABLED,

@@ -160,7 +160,6 @@ function Comment(props) {
     HighlightedCommentContext
   );
   const [replyOpen, setReplyOpen] = useState(false);
-  const [myHighLightId, setMyHighLightId] = useState(undefined);
   const [editOpen, setEditOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
 
@@ -187,43 +186,50 @@ function Comment(props) {
         return EMPTY_SPIN_RESULT;
       });
   }
+  function getHilightedLeveId(myReplies, highlightedCommentState) {
+    if (_.isEmpty(myReplies) || _.isEmpty(highlightedCommentState)) {
+      return undefined;
+    }
+    const highlightedReplies = myReplies.filter(
+      reply => reply.id in highlightedCommentState && highlightedCommentState[reply.id].level
+    );
+    const highlightedRepliesRed = highlightedReplies.filter(reply => {
+      const { level } = highlightedCommentState[reply.id];
+      return level === "RED";
+    });
+    if (!_.isEmpty(highlightedRepliesRed)) {
+      return highlightedRepliesRed[0].id;
+    }
+    if (!_.isEmpty(highlightedReplies)) {
+      return highlightedReplies[0].id;
+    }
+    let descendentHighlightedId = undefined;
+    myReplies.forEach((reply) => {
+      const replyReplies = comments.filter(
+        comment => comment.reply_id === reply.id
+      );
+      const myDescendentHighlightedId = getHilightedLeveId(replyReplies, highlightedCommentState);
+      if (myDescendentHighlightedId) {
+        descendentHighlightedId = myDescendentHighlightedId;
+      }
+    });
+    return descendentHighlightedId;
+  }
+  const [myHighLightId, setMyHighLightId] = useState(getHilightedLeveId(replies, highlightedCommentState));
   const myHighlightedExpandedState = highlightedCommentState[id] || {};
   const { level: myHighlightedLevel, repliesExpanded: myRepliesExpanded } = myHighlightedExpandedState;
-  const repliesExpanded = myRepliesExpanded === undefined ? !comment.resolved || comment.reply_id : myRepliesExpanded;
+  const myRepliesExpandedCalc = myRepliesExpanded === undefined ? myHighLightId === undefined ? undefined : true : myRepliesExpanded;
+  const repliesExpanded = myRepliesExpandedCalc === undefined ? !comment.resolved || comment.reply_id : myRepliesExpandedCalc;
+
   useEffect(() => {
-    function getHilightedLeveId(myReplies) {
-      if (_.isEmpty(myReplies)) {
-        return undefined;
-      }
-      const highlightedReplies = myReplies.filter(
-        reply => reply.id in highlightedCommentState && highlightedCommentState[reply.id].level
-      );
-      const highlightedRepliesRed = highlightedReplies.filter(reply => {
-        const { level } = highlightedCommentState[reply.id];
-        return level === "RED";
-      });
-      if (!_.isEmpty(highlightedRepliesRed)) {
-        return highlightedRepliesRed[0].id;
-      }
-      if (!_.isEmpty(highlightedReplies)) {
-        return highlightedReplies[0].id;
-      }
-      let descendentHighlightedId = undefined;
-      myReplies.map(reply => {
-        const replyReplies = comments.filter(
-          comment => comment.reply_id === reply.id
-        );
-        const myDescendentHighlightedId = getHilightedLeveId(replyReplies);
-        if (myDescendentHighlightedId) {
-          descendentHighlightedId = myDescendentHighlightedId;
-        }
-        return reply;
-      });
-      return descendentHighlightedId;
+    const highlightId = getHilightedLeveId(replies, highlightedCommentState);
+    if (highlightId && !myRepliesExpanded) {
+      // Open if need to highlight inside - user can close again
+      highlightedCommentDispatch({ type: EXPANDED, commentId: id, newRepliesExpanded: true });
     }
-    const highlightId = getHilightedLeveId(replies);
     setMyHighLightId(highlightId);
-  }, [id, highlightedCommentState, repliesExpanded, replies, comments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, highlightedCommentState, myRepliesExpanded, replies, comments, highlightedCommentDispatch]);
 
   const displayUpdatedBy =
     updatedBy !== undefined && comment.updated_by !== comment.created_by;

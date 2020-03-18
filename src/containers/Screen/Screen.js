@@ -107,7 +107,9 @@ function Screen(props) {
           if (element) {
             element.scrollIntoView();
           } else {
-            console.warn(`No element found for target ${target}`);
+            if (doneLoading) {
+              console.warn(`No element found for target ${target}`);
+            }
             return false;
           }
         }
@@ -116,7 +118,7 @@ function Screen(props) {
       }
       return true;
     }
-    if (doneLoading && scrollerBound !== location) {
+    if (scrollerBound !== location) {
       if (scroller(location)) {
         setScrollerBound(location);
       }

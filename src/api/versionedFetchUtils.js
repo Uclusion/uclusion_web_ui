@@ -18,6 +18,7 @@ import {
   OPERATION_HUB_CHANNEL,
   START_OPERATION, STOP_OPERATION
 } from '../contexts/OperationInProgressContext/operationInProgressMessages';
+import config from '../config';
 
 const MAX_RETRIES = 10;
 
@@ -64,7 +65,10 @@ export function refreshGlobalVersion (currentHeldVersion, existingMarkets) {
  */
 export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   let newGlobalVersion = currentHeldVersion;
-  pushMessage(OPERATION_HUB_CHANNEL, {event: START_OPERATION});
+  const globalLockEnabled = config.globalLockEnabled === 'true';
+  if (globalLockEnabled) {
+    pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
+  }
   return getVersions(currentHeldVersion)
     .then((versions) => {
       console.log('Version fetch');
@@ -96,7 +100,9 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
       });
     })
     .then(() => {
-      pushMessage(OPERATION_HUB_CHANNEL, {event: STOP_OPERATION});
+      if (globalLockEnabled) {
+        pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+      }
       return newGlobalVersion;
     });
 }
@@ -112,16 +118,14 @@ function doRefreshMarket (marketId, componentSignatures) {
   // So far only three kinds of deletion supported by UI so handle them below as special cases
   if (!_.isEmpty(comments)) {
     promises.push(fetchMarketComments(marketId, comments));
-  }
-  else if (componentSignatures.find((signature) => signature.type === 'comment')) {
+  } else if (componentSignatures.find((signature) => signature.type === 'comment')) {
     promises.push(Promise.resolve(true));
     // We are not keeping zero version around anymore so handle the rare case of last comment deleted
     pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId, comments: [] });
   }
   if (!_.isEmpty(investibles)) {
     promises.push(fetchMarketInvestibles(marketId, investibles));
-  }
-  else if (componentSignatures.find((signature) => signature.type === 'market_investible')) {
+  } else if (componentSignatures.find((signature) => signature.type === 'market_investible')) {
     promises.push(Promise.resolve(true));
     // We are not keeping zero version around anymore so handle the rare case of last investible deleted
     pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId, investibles: [] });

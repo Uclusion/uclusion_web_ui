@@ -69,6 +69,7 @@ function BillingHome (props) {
   return (
     <Screen
       hidden={hidden}
+      title="Manage Subscription"
     >
       <Typography>
         {tier}

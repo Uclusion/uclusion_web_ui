@@ -20,7 +20,7 @@ import _ from "lodash";
 import ReadOnlyQuillEditor from "../TextEditors/ReadOnlyQuillEditor";
 import CommentAdd from "./CommentAdd";
 import { REPLY_TYPE } from "../../constants/comments";
-import { reopenComment, resolveComment } from "../../api/comments";
+import { reopenComment, resolveComment } from '../../api/comments';
 import SpinBlockingButton from "../SpinBlocking/SpinBlockingButton";
 import { OperationInProgressContext } from "../../contexts/OperationInProgressContext/OperationInProgressContext";
 import { MarketPresencesContext } from "../../contexts/MarketPresencesContext/MarketPresencesContext";
@@ -33,6 +33,9 @@ import {
   HighlightedCommentContext
 } from "../../contexts/HighlightedCommentContext";
 import CardType from '../CardType';
+import { EMPTY_SPIN_RESULT } from '../../constants/global';
+import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 
 const enableEditing = true;
 
@@ -128,12 +131,12 @@ const useCommentStyles = makeStyles(
 /**
  * @type {React.Context<{comments: Comment[], marketId: string}>}
  */
-const CommentsContext = React.createContext(null);
+const LocalCommentsContext = React.createContext(null);
 function useComments() {
-  return React.useContext(CommentsContext).comments;
+  return React.useContext(LocalCommentsContext).comments;
 }
 function useMarketId() {
-  return React.useContext(CommentsContext).marketId;
+  return React.useContext(LocalCommentsContext).marketId;
 }
 
 /**
@@ -142,7 +145,7 @@ function useMarketId() {
  */
 function Comment(props) {
   const { comment, marketId, comments } = props;
-
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, resolved } = comment;
@@ -170,11 +173,19 @@ function Comment(props) {
   }
 
   function reopen() {
-    return reopenComment(marketId, id);
+    return reopenComment(marketId, id)
+      .then((comment) => {
+        addCommentToMarket(comment, commentsState, commentsDispatch);
+        return EMPTY_SPIN_RESULT;
+      });
   }
 
   function resolve() {
-    return resolveComment(marketId, id);
+    return resolveComment(marketId, id)
+      .then((comment) => {
+        addCommentToMarket(comment, commentsState, commentsDispatch);
+        return EMPTY_SPIN_RESULT;
+      });
   }
 
   const [repliesExpanded, setRepliesExpanded] = React.useState(
@@ -263,10 +274,10 @@ function Comment(props) {
               classes.actionResolveToggle
             )}
             color="primary"
-            disabled={operationRunning}
             marketId={marketId}
             onClick={comment.resolved ? reopen : resolve}
             variant="contained"
+            hasSpinChecker
           >
             {intl.formatMessage({
               id: comment.resolved
@@ -350,7 +361,7 @@ function Comment(props) {
         />
       </Card>
       <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
-        <CommentsContext.Provider value={{ comments, marketId }}>
+        <LocalCommentsContext.Provider value={{ comments, marketId }}>
           {repliesExpanded &&
             sortedReplies.map(child => {
               const { id: childId } = child;
@@ -363,7 +374,7 @@ function Comment(props) {
                 />
               );
             })}
-        </CommentsContext.Provider>
+        </LocalCommentsContext.Provider>
       </Box>
     </React.Fragment>
   );

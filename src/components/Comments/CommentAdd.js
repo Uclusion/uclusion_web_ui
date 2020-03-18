@@ -20,6 +20,7 @@ import { addCommentToMarket } from '../../contexts/CommentsContext/commentsConte
 import { Dialog } from '../Dialogs';
 import WarningIcon from '@material-ui/icons/Warning';
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit';
+import { EMPTY_SPIN_RESULT } from '../../constants/global';
 
 function getPlaceHolderLabelId (type) {
   switch (type) {
@@ -135,9 +136,7 @@ function CommentAdd (props) {
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentDispatch);
-        return {
-          spinChecker: () => Promise.resolve(true),
-        };
+        return EMPTY_SPIN_RESULT;
       });
   }
 

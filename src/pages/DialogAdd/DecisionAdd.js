@@ -30,6 +30,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { addParticipants } from '../../api/users';
 import CardType from '../../components/CardType';
 import { usePlanFormStyles } from '../../components/AgilePlan';
+import { formMarketAddInvestibleLink } from '../../utils/marketIdPathFunctions'
 
 function DecisionAdd(props) {
   const intl = useIntl();
@@ -134,7 +135,7 @@ function DecisionAdd(props) {
         const { market } = result;
         onSave(result);
         const { id: marketId } = market;
-        turnOffSpin.result = marketId;
+        turnOffSpin.result = formMarketAddInvestibleLink(marketId);
         if (parentMarketId) {
           const planningMarkets = getMarketDetailsForType(marketState, PLANNING_TYPE);
           const marketDetails = planningMarkets.find((planningMarket) => planningMarket.id === parentMarketId);

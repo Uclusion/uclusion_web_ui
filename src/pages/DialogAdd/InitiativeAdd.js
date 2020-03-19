@@ -18,6 +18,7 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { usePlanFormStyles } from '../../components/AgilePlan';
 import CardType, { VOTING_TYPE } from '../../components/CardType'
+import { formMarketManageLink } from '../../utils/marketIdPathFunctions'
 
 function InitiativeAdd(props) {
   const intl = useIntl();
@@ -107,7 +108,7 @@ function InitiativeAdd(props) {
         return addDecisionInvestible(addInfo).then((investible) => {
           addInvestible(invDispatch, diffDispatch, investible);
           return {
-            result: marketId,
+            result: `${formMarketManageLink(marketId)}#participation=true`,
             spinChecker: () => Promise.resolve(true),
           };
         });

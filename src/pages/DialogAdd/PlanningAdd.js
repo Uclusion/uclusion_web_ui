@@ -8,6 +8,7 @@ import { OperationInProgressContext } from "../../contexts/OperationInProgressCo
 import { useHistory } from "react-router";
 import queryString from "query-string";
 import { Form } from "../../components/AgilePlan";
+import { formMarketLink, formMarketManageLink } from '../../utils/marketIdPathFunctions';
 
 function PlanningAdd(props) {
   const history = useHistory();
@@ -140,14 +141,13 @@ function PlanningAdd(props) {
     if (votesRequired != null) {
       addInfo.votes_required = votesRequired;
     }
-    console.error(addInfo);
     return createPlanning(addInfo).then(result => {
       onSave(result);
       const {
         market: { id: marketId }
       } = result;
       return {
-        result: marketId,
+        result: parentMarketId ? formMarketLink(marketId) : `${formMarketManageLink(marketId)}#participation=true`,
         spinChecker: () => Promise.resolve(true)
       };
     });

@@ -8,10 +8,8 @@ import Screen from '../../containers/Screen/Screen';
 import DecisionAdd from './DecisionAdd';
 import PlanningAdd from './PlanningAdd';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets';
-import InitiativeAdd from './InitiativeAdd'
+import InitiativeAdd from './InitiativeAdd';
 import {
-  formMarketAddInvestibleLink,
-  formMarketManageLink,
   makeBreadCrumbs,
   navigate
 } from '../../utils/marketIdPathFunctions';
@@ -61,17 +59,12 @@ function DialogAdd(props) {
     addPresenceToMarket(presenceDispatch, marketId, presence);
   }
 
-  function onDone(result) {
+  function onDone(link) {
     setIdLoaded(undefined);
     return localforage.removeItem(`add_market_${type}`)
       .finally(() => {
-        if (result) {
-          if (type === DECISION_TYPE) {
-            navigate(history, formMarketAddInvestibleLink(result));
-          }
-          else {
-            navigate(history, `${formMarketManageLink(result)}#participation=true`);
-          }
+        if (link) {
+          navigate(history, link);
         } else {
           // This is a cancel
           navigate(history, '/');

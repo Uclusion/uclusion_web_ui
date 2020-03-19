@@ -176,6 +176,7 @@ export function Form(props) {
           disabled={!validForm}
           marketId={marketId}
           onClick={onSave}
+          hasSpinChecker
           onSpinStop={onSpinStop}
           variant="contained"
         >

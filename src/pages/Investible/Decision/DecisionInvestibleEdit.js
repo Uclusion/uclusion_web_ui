@@ -127,6 +127,7 @@ function DecisionInvestibleEdit(props) {
         <SpinBlockingButton
           marketId={marketId}
           onClick={onCancel}
+          hasSpinChecker
           className={classes.actionSecondary}
           color="secondary"
           variant="contained"

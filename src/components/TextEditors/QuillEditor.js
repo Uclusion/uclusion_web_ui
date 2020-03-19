@@ -153,16 +153,18 @@ class QuillEditor extends React.PureComponent {
     };
     this.disableToolbarTabs(this.editorContainer.current);
     this.editor.on('text-change', both);
-    console.log(`setting clear func`);
     // see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react
-    const editorClearFunc = () => () => {
+    const editorClearFunc = () => (newPlaceHolder) => {
       // this might not really work, zo C-Z will undo the clear, but it's still better than nothing
       this.editor.history.clear();
       this.editor.root.innerHTML='';
+      if (newPlaceHolder) {
+        const el = this.editorBox.current.firstChild;
+        el.setAttribute('data-placeholder', newPlaceHolder);
+      }
     };
     setEditorClearFunc(editorClearFunc);
     const editorFocusFunc = () => () => {
-      console.log('Setting focus');
       this.editor.focus();
     };
     setEditorFocusFunc(editorFocusFunc);

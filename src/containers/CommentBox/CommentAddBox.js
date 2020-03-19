@@ -53,22 +53,6 @@ function CommentAddBox(props) {
   const [type, setType] = useState(ISSUE_TYPE);
   const classes = useStyles();
 
-  function getAddRegions() {
-    return allowedTypes.map((allowedType) => {
-      return (
-        <CommentAdd
-          key={allowedType}
-          hidden={allowedType !== type}
-          type={allowedType}
-          investible={investible}
-          marketId={marketId}
-          issueWarningId={issueWarningId}
-          onSave={onSave}
-        />
-      );
-    });
-  }
-
   function onTypeChange(event) {
     const { value } = event.target;
     setType(value);
@@ -110,7 +94,14 @@ function CommentAddBox(props) {
         </CardContent>
       </Card>
       <div className={classes.addBox}>
-        {getAddRegions()}
+        <CommentAdd
+          key="CommentAdd"
+          type={type}
+          investible={investible}
+          marketId={marketId}
+          issueWarningId={issueWarningId}
+          onSave={onSave}
+        />
       </div>
     </>
   );

@@ -93,7 +93,8 @@ function CommentAdd (props) {
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [firstOpen, setFirstOpen] = useState(true);
-  const defaultClearFunc = () => {};
+  const [placeHolderType, setPlaceHolderType] = useState(type);
+  const defaultClearFunc = (newPlaceHolder) => {};
   //see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react for why we have a func
   // that returns  func for editorClearFunc
   const [editorClearFunc, setEditorClearFunc] = useState(() => defaultClearFunc);
@@ -108,8 +109,12 @@ function CommentAdd (props) {
     if (hidden && !firstOpen) {
       setFirstOpen(true);
     }
+    if (_.isEmpty(body) && type !== placeHolderType) {
+      setPlaceHolderType(type);
+      editorClearFunc(placeHolder);
+    }
     return () => {};
-  }, [hidden, firstOpen, editorFocusFunc]);
+  }, [hidden, firstOpen, editorFocusFunc, body, type, placeHolderType, placeHolder, editorClearFunc]);
 
   function onEditorChange (content) {
     setBody(content);

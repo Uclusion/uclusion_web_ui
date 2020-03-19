@@ -185,7 +185,7 @@ function AddressList(props) {
       const { user_id, account_id, isObserver } = participant;
       return { user_id, account_id, is_observer: isObserver };
     });
-    return addParticipants(addToMarketId, toAddClean).then(() => console.debug('Add successful'));
+    return addParticipants(addToMarketId, toAddClean).then((added) => console.debug(added));
   }
 
   function onSearchChange(event) {

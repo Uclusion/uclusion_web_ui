@@ -199,6 +199,7 @@ function CommentAdd (props) {
               onClick={handleSave}
               onSpinStop={handleSpinStop}
               disabled={_.isEmpty(body)}
+              hasSpinChecker
             >
               {intl.formatMessage({ id: commentSaveLabel })}
             </SpinBlockingButton>
@@ -223,6 +224,7 @@ function CommentAdd (props) {
                   onClick={handleSave}
                   onSpinStop={handleSpinStop}
                   disabled={_.isEmpty(body)}
+                  hasSpinChecker
                 >
                   <FormattedMessage id="issueProceed" />
                 </SpinBlockingButton>

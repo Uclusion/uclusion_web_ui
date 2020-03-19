@@ -162,7 +162,7 @@ function InvestibleEdit (props) {
       };
       refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);
     }
-
+    navigate(history, formInvestibleLink(marketId, investibleId));
   }
 
   const { name: marketName } = market;

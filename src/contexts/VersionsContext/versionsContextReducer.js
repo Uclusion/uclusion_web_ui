@@ -10,7 +10,7 @@ export const EMPTY_STATE = {
   notificationVersion: {version: -1 },
 };
 export const MY_STORED_EMPTY_STATE = {
-  globalVersion: '',
+  globalVersion: 'INITIALIZATION',
   existingMarkets: '',
   notificationVersion: {version: -1 },
 };

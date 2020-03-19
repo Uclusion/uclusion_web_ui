@@ -65,7 +65,7 @@ export function refreshGlobalVersion (currentHeldVersion, existingMarkets) {
  */
 export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   let newGlobalVersion = currentHeldVersion;
-  const globalLockEnabled = config.globalLockEnabled === 'true';
+  const globalLockEnabled = config.globalLockEnabled === 'true' || currentHeldVersion === 'INITIALIZATION';
   if (globalLockEnabled) {
     pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
   }

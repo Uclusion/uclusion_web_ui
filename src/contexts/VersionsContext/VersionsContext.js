@@ -25,6 +25,8 @@ function VersionsProvider(props) {
       const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
       lfg.getState()
         .then((diskState) => {
+          // Note: My stored empty state has the version set to INITIALIZATION
+          // which lets the global version refresh know to turn on the global spin lock
           const myDiskState = diskState || MY_STORED_EMPTY_STATE;
           dispatch(initializeVersionsAction(myDiskState));
           const { globalVersion, existingMarkets } = myDiskState;

@@ -188,8 +188,10 @@ function PlanningInvestible(props) {
     ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
     : makeBreadCrumbs(history, breadCrumbTemplates);
 
-  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
-  // eslint-disable-next-line no-nested-ternary
+  const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
+  if (!isInNotDoing) {
+    allowedCommentTypes.unshift(ISSUE_TYPE);
+  }
   const stageName = isInVoting
     ? intl.formatMessage({ id: "planningVotingStageLabel" })
     : // eslint-disable-next-line no-nested-ternary

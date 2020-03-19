@@ -12,9 +12,15 @@ import clsx from 'clsx';
 import { useLockedDialogStyles } from '../Dialog/DialogEdit';
 import { Dialog } from '../../components/Dialogs';
 import { Button } from '@material-ui/core';
+import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { EMPTY_SPIN_RESULT } from '../../constants/global';
+import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 
 function DismissMarketButton(props) {
   const [operationRunning] = useContext(OperationInProgressContext);
+  const [, marketDispatch] = useContext(MarketsContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const {
     marketId,
   } = props;
@@ -30,7 +36,11 @@ function DismissMarketButton(props) {
   };
 
   function myOnClick() {
-    return archiveMarket(marketId);
+    return archiveMarket(marketId)
+      .then((market) => {
+        addMarketToStorage(marketDispatch, diffDispatch, market);
+        return EMPTY_SPIN_RESULT;
+      });
   }
 
   const lockedDialogClasses = useLockedDialogStyles();
@@ -49,8 +59,8 @@ function DismissMarketButton(props) {
             disableFocusRipple
             marketId={marketId}
             onClick={myOnClick}
+            hasSpinChecker
             onSpinStop={() => navigate(history, '/')}
-            disabled={operationRunning}
           >
             <FormattedMessage id="issueProceed" />
           </SpinBlockingButton>

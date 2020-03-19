@@ -167,11 +167,12 @@ function PlanningDialog(props) {
           inReviewStage={inReviewStage}
         />
       )}
-
-      <CommentAddBox
-        allowedTypes={allowedCommentTypes}
-        marketId={marketId}
-      />
+      {activeMarket && (
+        <CommentAddBox
+          allowedTypes={allowedCommentTypes}
+          marketId={marketId}
+        />
+      )}
       <CommentBox comments={marketComments} marketId={marketId} />
     </Screen>
   );

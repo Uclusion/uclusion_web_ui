@@ -292,11 +292,13 @@ function DecisionDialog(props) {
           </Grid>
         )}
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          <CommentAddBox
-            allowedTypes={allowedCommentTypes}
-            marketId={marketId}
-            issueWarningId="issueWarning"
-          />
+          {activeMarket && (
+            <CommentAddBox
+              allowedTypes={allowedCommentTypes}
+              marketId={marketId}
+              issueWarningId="issueWarning"
+            />
+          )}
           <CommentBox
             comments={marketComments}
             marketId={marketId}

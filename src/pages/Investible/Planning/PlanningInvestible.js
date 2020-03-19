@@ -468,12 +468,14 @@ function PlanningInvestible(props) {
       {/* unstyled from here on out because no FIGMA */}
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          <CommentAddBox
-            allowedTypes={allowedCommentTypes}
-            investible={investible}
-            marketId={marketId}
-            issueWarningId="issueWarningPlanning"
-          />
+          {activeMarket && (
+            <CommentAddBox
+              allowedTypes={allowedCommentTypes}
+              investible={investible}
+              marketId={marketId}
+              issueWarningId="issueWarningPlanning"
+            />
+          )}
           <CommentBox
             comments={investmentReasonsRemoved}
             marketId={marketId}

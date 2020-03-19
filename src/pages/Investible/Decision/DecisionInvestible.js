@@ -228,12 +228,14 @@ function DecisionInvestible(props) {
       )}
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          <CommentAddBox
-            allowedTypes={allowedCommentTypes}
-            investible={investible}
-            marketId={marketId}
-            issueWarningId="issueWarningInvestible"
-          />
+          {activeMarket && (
+            <CommentAddBox
+              allowedTypes={allowedCommentTypes}
+              investible={investible}
+              marketId={marketId}
+              issueWarningId="issueWarningInvestible"
+            />
+          )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
         </Grid>
       </Grid>

@@ -236,12 +236,14 @@ function InitiativeInvestible(props) {
       />
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }}>
+          {activeMarket && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}
               marketId={marketId}
             />
-            <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
+          )}
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
         </Grid>
       </Grid>
     </Screen>

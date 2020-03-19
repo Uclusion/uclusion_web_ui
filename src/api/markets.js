@@ -9,15 +9,22 @@ function fixupMarketForStorage(market) {
   };
 }
 
-export function getMarketDetails(marketId) {
+export function getMarketDetails(marketId, marketUser) {
   return getMarketClient(marketId)
     .then((client) => client.markets.get()
       .then((market) => fixupMarketForStorage(market))
-      .then((market) => client.users.get()
-        .then((user) => ({
+      .then((market) => {
+        if (marketUser) {
+          return {
+            ...market,
+            currentUser: marketUser,
+          };
+        }
+        return client.users.get().then((user) => ({
           ...market,
           currentUser: user,
-        }))));
+        }));
+      }));
 }
 
 export function manageMarket(marketId, expirationMinutes) {
@@ -124,18 +131,24 @@ export function unlockPlanningMarketForEdit(marketId) {
     .then((client) => client.markets.unlock())
 }
 
-export function getMarketUsers(marketId) {
+export function getMarketUsers(marketId, marketUser) {
   if (!marketId) {
     console.error('No marketId');
     throw new Error('NO MARKET ID');
   }
+  let globalClient;
   return getMarketClient(marketId)
-    .then((client) => client.users.get() // this is me
-      .then((user) => client.markets.listUsers()
+    .then((client) => {
+      globalClient = client;
+      if (marketUser) {
+        return marketUser;
+      }
+      return client.users.get();
+    }).then((user) => globalClient.markets.listUsers()
         .then((presences) => presences.map((presence) => {
           if (presence.id === user.id) {
             return { ...presence, current_user: true };
           }
           return presence;
-        }))));
+        })));
 }

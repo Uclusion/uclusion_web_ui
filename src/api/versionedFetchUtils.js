@@ -19,6 +19,9 @@ import {
   START_OPERATION, STOP_OPERATION
 } from '../contexts/OperationInProgressContext/operationInProgressMessages';
 import config from '../config';
+import LocalForageHelper from '../contexts/LocalForageHelper';
+import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext';
+import { getMyUserForMarket } from '../contexts/MarketsContext/marketsContextHelper'
 
 const MAX_RETRIES = 10;
 
@@ -71,33 +74,35 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   }
   return getVersions(currentHeldVersion)
     .then((versions) => {
-      console.log('Version fetch');
       console.log(versions);
       const { global_version, signatures: marketSignatures } = versions;
       if (_.isEmpty(marketSignatures) || _.isEmpty(global_version)) {
-        console.log('Got new empty');
         return currentHeldVersion;
       }
-      console.log(`Got new ${global_version}`);
-      newGlobalVersion = global_version;
-      return AllSequentialMap(marketSignatures, (marketSignature) => {
-        const { market_id: marketId, signatures: componentSignatures } = marketSignature;
-        console.log(componentSignatures);
-        const promises = doRefreshMarket(marketId, componentSignatures);
-        if (!_.isEmpty(promises)) {
-          // send a notification to the versions channel saying we have incoming stuff
-          // for this market
-          pushMessage(VERSIONS_HUB_CHANNEL, { event: MARKET_MESSAGE_EVENT, marketId });
-        }
-        if (!existingMarkets || !existingMarkets.includes(marketId)) {
-          pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
-          promises.push(getMarketStages(marketId)
-            .then((stages) => {
-              return pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
-            }));
-        }
-        return Promise.all(promises);
-      });
+      // Pull from disk access of markets context and pass user down in refresh market
+      const disk = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
+      return disk.getState()
+        .then((state) => {
+          newGlobalVersion = global_version;
+          return AllSequentialMap(marketSignatures, (marketSignature) => {
+            const { market_id: marketId, signatures: componentSignatures } = marketSignature;
+            const marketUser = getMyUserForMarket(state || {}, marketId);
+            const promises = doRefreshMarket(marketId, componentSignatures, marketUser);
+            if (!_.isEmpty(promises)) {
+              // send a notification to the versions channel saying we have incoming stuff
+              // for this market
+              pushMessage(VERSIONS_HUB_CHANNEL, { event: MARKET_MESSAGE_EVENT, marketId });
+            }
+            if (!existingMarkets || !existingMarkets.includes(marketId)) {
+              pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
+              promises.push(getMarketStages(marketId)
+                .then((stages) => {
+                  return pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
+                }));
+            }
+            return Promise.all(promises);
+          });
+        });
     })
     .then(() => {
       if (globalLockEnabled) {
@@ -107,13 +112,13 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
     });
 }
 
-function doRefreshMarket (marketId, componentSignatures) {
+function doRefreshMarket (marketId, componentSignatures, marketUser) {
   const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   console.log(fetchSignatures);
   const { markets, comments, marketPresences, investibles } = fetchSignatures;
   const promises = [];
   if (!_.isEmpty(markets)) {
-    promises.push(fetchMarketVersion(marketId, markets[0])); // can only be one market object per market:)
+    promises.push(fetchMarketVersion(marketId, markets[0], marketUser)); // can only be one market object per market:)
   }
   // So far only three kinds of deletion supported by UI so handle them below as special cases
   if (!_.isEmpty(comments)) {
@@ -132,13 +137,13 @@ function doRefreshMarket (marketId, componentSignatures) {
   }
   if (!_.isEmpty(marketPresences) || componentSignatures.find((signature) => signature.type === 'investment')) {
     // Handle the case of the last investment being deleted by just refreshing users
-    promises.push(fetchMarketPresences(marketId, marketPresences || []));
+    promises.push(fetchMarketPresences(marketId, marketPresences || [], marketUser));
   }
   return promises;
 }
 
-function fetchMarketVersion (marketId, marketSignature) {
-  return getMarketDetails(marketId)
+function fetchMarketVersion (marketId, marketSignature, marketUser) {
+  return getMarketDetails(marketId, marketUser)
     .then((marketDetails) => {
       console.log(marketDetails);
       const match = signatureMatcher([marketDetails], [marketSignature]);
@@ -166,9 +171,6 @@ function fetchMarketInvestibles (marketId, investiblesSignatures) {
   const investibleIds = investiblesSignatures.map((inv) => inv.investible.id);
   return fetchInvestibles(investibleIds, marketId)
     .then((investibles) => {
-      console.log('Fetching investibles');
-      console.log(investibles);
-      console.log(investiblesSignatures);
       const match = signatureMatcher(investibles, investiblesSignatures);
       pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId, investibles });
       if (!match.allMatched) {
@@ -177,12 +179,10 @@ function fetchMarketInvestibles (marketId, investiblesSignatures) {
     });
 }
 
-function fetchMarketPresences (marketId, mpSignatures) {
-  return getMarketUsers(marketId)
+function fetchMarketPresences (marketId, mpSignatures, marketUser) {
+  return getMarketUsers(marketId, marketUser)
     .then((users) => {
-      console.log(users);
       const match = signatureMatcher(users, mpSignatures);
-      console.log(mpSignatures);
       pushMessage(PUSH_PRESENCE_CHANNEL, { event: VERSIONS_EVENT, marketId, users });
       if (!match.allMatched) {
         throw new MatchError('Presences didn\'t match');

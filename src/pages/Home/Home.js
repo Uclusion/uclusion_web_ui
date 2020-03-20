@@ -4,7 +4,6 @@ import config from '../../config';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
-import DirectionsIcon from '@material-ui/icons/Directions';
 import { useIntl } from 'react-intl';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import Screen from '../../containers/Screen/Screen';
@@ -28,8 +27,6 @@ import HomeCheatSheet from './HomeCheatSheet';
 import UclusionTour from '../../components/Tours/UclusionTour';
 import { PURE_SIGNUP_FAMILY_NAME, PURE_SIGNUP_HOME, pureSignupHomeSteps } from '../../components/Tours/pureSignupTours';
 import { CognitoUserContext } from '../../contexts/CongitoUserContext';
-import { TourContext } from '../../contexts/TourContext/TourContext';
-import { beginTourFamily } from '../../contexts/TourContext/tourContextHelper';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
 
@@ -75,7 +72,6 @@ function Home(props) {
   }
   const noMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
   const tourSteps = pureSignupHomeSteps({ name: cognitoUser.name });
-  const [, tourDispatch] = useContext(TourContext);
 
   const CREATE_ACTIONS = [
     {
@@ -101,12 +97,7 @@ function Home(props) {
       label: intl.formatMessage({ id: 'homeViewArchives' }),
       icon: <MenuBookIcon/>,
       onClick: () => navigate(history, '/archives'),
-    },
-    {
-      label: intl.formatMessage( { id: 'homeStartTour' }),
-      icon: <DirectionsIcon/>,
-      onClick: () => beginTourFamily(tourDispatch, PURE_SIGNUP_FAMILY_NAME),
-    },
+    }
   ];
 
   const SIDEBAR_ACTIONS = createEnabled? CREATE_ACTIONS.concat(VIEW_ACTIONS) : VIEW_ACTIONS;

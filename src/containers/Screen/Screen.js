@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
@@ -16,9 +16,8 @@ import {
   DRAWER_WIDTH_OPENED,
 } from '../../constants/global';
 import { createTitle, makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -76,7 +75,6 @@ function Screen(props) {
   const history = useHistory();
   const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
-  const { location } = history;
 
   const {
     breadCrumbs,
@@ -107,41 +105,7 @@ function Screen(props) {
     }
   }
 
-  const [operationRunning] = useContext(OperationInProgressContext);
-  const [scrollerBound, setScrollerBound] = useState(undefined);
   const reallyAmLoading = !hidden && appEnabled && loading;
-  const doneLoading = !hidden && appEnabled && !loading;
-  useEffect(() => {
-    function scroller(myLocation) {
-      const { hash } = myLocation;
-      if (hash && hash.length > 1) {
-        const target = hash.substring(1, hash.length);
-        if (target) {
-          console.log('Scroller firing');
-          const element = document.getElementById(target);
-          if (element) {
-            element.scrollIntoView();
-          } else {
-            if (doneLoading) {
-              console.warn(`No element found for target ${target}`);
-            }
-            return false;
-          }
-        }
-      } else {
-        window.scrollTo(0, 0);
-      }
-      return true;
-    }
-    if (scrollerBound !== location) {
-      if (scroller(location)) {
-        setScrollerBound(location);
-      }
-    }
-    return () => {};
-  }, [location, operationRunning, reallyAmLoading, history, hidden, appEnabled, scrollerBound,
-    doneLoading]);
-  
   const [sidebarOpen] = useContext(SidebarContext);
 
   if (hidden) {

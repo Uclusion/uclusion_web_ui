@@ -58,7 +58,28 @@ function NotificationsProvider(props) {
 
   useEffect(() => {
     if (page) {
+      function scroller(hash) {
+        if (hash && hash.length > 1) {
+          const target = hash.substring(1, hash.length);
+          if (target) {
+            const element = document.getElementById(target);
+            if (element) {
+              console.log(`Scroller firing for ${target}`);
+              element.scrollIntoView();
+            } else {
+              console.warn(`No element found for target ${target}`);
+              return false;
+            }
+          }
+        } else {
+          window.scrollTo(0, 0);
+        }
+        return true;
+      }
       const isOldPage = lastPage !== undefined && _.isEqual(page, lastPage);
+      if (!isOldPage) {
+        scroller(hash);
+      }
       if (_.isEmpty(messages)) {
         if (!isOldPage) {
           console.debug('Processing page with empty messages');

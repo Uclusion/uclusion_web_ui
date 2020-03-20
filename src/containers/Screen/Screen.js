@@ -17,6 +17,8 @@ import {
 } from '../../constants/global';
 import { createTitle, makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -39,7 +41,20 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   loadingDisplay: {
-    marginLeft: DRAWER_WIDTH_OPENED * 2,
+    marginLeft: DRAWER_WIDTH_OPENED,
+    display: "flex",
+    flexWrap: "wrap",
+    padding: theme.spacing(6),
+    "& > *": {
+      "flex-grow": 1,
+      margin: theme.spacing(1, 0),
+      "&:first-child": {
+        marginTop: 0
+      },
+      "&:last-child": {
+        marginBottom: 0
+      }
+    }
   },
   contentUnShift: {
     marginLeft: DRAWER_WIDTH_CLOSED,
@@ -161,21 +176,25 @@ function Screen(props) {
         })}
       >
         {!isChrome && (
-          <div className={classes.loadingDisplay}>
-            <Typography variant="h3">
-              {intl.formatMessage({ id: 'browserNotSupported' })}
-            </Typography>
-          </div>
+          <Card>
+            <CardContent className={classes.loadingDisplay}>
+              <Typography variant="h3">
+                {intl.formatMessage({ id: 'browserNotSupported' })}
+              </Typography>
+            </CardContent>
+          </Card>
         )}
         {isChrome && !reallyAmLoading && (
           <Container className={classes.container}>{children}</Container>
         )}
         {isChrome && reallyAmLoading && (
-          <div className={classes.loadingDisplay}>
-            <Typography variant="h3">
-              {intl.formatMessage({ id: 'loadingMessage' })}
-            </Typography>
-          </div>
+          <Card>
+            <CardContent className={classes.loadingDisplay}>
+              <Typography variant="h3">
+                {intl.formatMessage({ id: 'loadingMessage' })}
+              </Typography>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>

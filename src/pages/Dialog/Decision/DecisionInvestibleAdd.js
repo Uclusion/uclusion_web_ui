@@ -199,6 +199,7 @@ function DecisionInvestibleAdd(props) {
           className={classes.actionPrimary}
           color="primary"
           disabled={!validForm}
+          hasSpinChecker
           marketId={marketId}
           variant="contained"
         >
@@ -212,6 +213,7 @@ function DecisionInvestibleAdd(props) {
           disabled={!validForm}
           id="saveAddAnother"
           onClick={handleSave}
+          hasSpinChecker
           marketId={marketId}
           onSpinStop={onSaveAddAnother}
         >

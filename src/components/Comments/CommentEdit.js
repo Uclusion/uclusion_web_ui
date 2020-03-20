@@ -98,9 +98,9 @@ function CommentEdit(props) {
             disabled={operationRunning}
             variant="contained"
             size="small"
-            hasSpinChecker
             marketId={marketId}
             onClick={handleSave}
+            hasSpinChecker
             onSpinStop={onSave}
           >
             {intl.formatMessage({ id: 'save' })}

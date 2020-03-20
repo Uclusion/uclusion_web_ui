@@ -190,6 +190,7 @@ function PlanningInvestibleEdit(props) {
             className={classes.actionSecondary}
             color="secondary"
             variant="contained"
+            hasSpinChecker
           >
             <FormattedMessage
               id={"marketAddCancelLabel"}

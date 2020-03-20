@@ -289,7 +289,7 @@ function AddEditVote(props) {
             <SpinBlockingButton
               className={classes.secondaryAction}
               marketId={marketId}
-              onClick={() => onRemove()}
+              onClick={onRemove}
               onSpinStop={onSave}
             >
               {intl.formatMessage({ id: "removeVote" })}

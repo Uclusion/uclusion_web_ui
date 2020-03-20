@@ -191,7 +191,7 @@ function Root() {
         const isEntry = document.visibilityState === 'visible';
         pegView(isEntry);
       });
-      window.onanimationiteration = // console.debug;
+    //  window.onanimationiteration = console.debug;
     }
   },  [history, setOnline, setOperationsLocked, location]);
 

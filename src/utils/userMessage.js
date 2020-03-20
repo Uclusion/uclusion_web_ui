@@ -21,7 +21,7 @@ export const SUCCESS = 'success';
 export function sendIntlMessage(level, i18nMessageId, ii18nMessageValues) {
   Auth.currentAuthenticatedUser()
     .then(() => sendIntlMessageBase(intl, level, i18nMessageId, ii18nMessageValues))
-    .catch(() => // console.debug('Suppressed toast after user logged out'));
+    //.catch(() => // console.debug('Suppressed toast after user logged out'));
 }
 
 export function sendIntlMessageBase(intl, level, i18nMessageId, ii18nMessageValues) {

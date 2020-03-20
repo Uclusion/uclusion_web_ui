@@ -136,7 +136,7 @@ function getMassagedMessages(messages) {
   return rawMessages;
 }
 
-function isMessageEqual(aMessage, message) {
+export function isMessageEqual(aMessage, message) {
   if (!message && !aMessage) {
     return true;
   }

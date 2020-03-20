@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
 import reducer, {
-  initializeState,
+  initializeState, isMessageEqual,
   NOTIFICATIONS_CONTEXT_NAMESPACE, processedPage,
 } from './notificationsContextReducer'
 import { deleteMessage } from '../../api/users';
@@ -89,30 +89,32 @@ function NotificationsProvider(props) {
           }
         }
         const filtered = messages.filter((message) => {
-          const { marketId, investibleId, action } = page;
+          const { marketId, investibleId, action, beingProcessed } = page;
           const {
             marketId: messageMarketId,
             investibleId: messageInvestibleId,
             pokeType,
-            beingProcessed,
           } = message;
           const marketMatch = action === 'dialog' && !_.isEmpty(messageMarketId)
             && marketId === messageMarketId && investibleId === messageInvestibleId;
-          const isBeingProcessed = !_.isEmpty(beingProcessed) && beingProcessed.marketId === marketId
-            && beingProcessed.investibleId === investibleId && beingProcessed.action === action;
+          const processedMessage = (beingProcessed || []).find((processing) => isMessageEqual(message, processing));
+          const isBeingProcessed = !_.isEmpty(processedMessage);
           console.debug(`being processed ${isBeingProcessed} and ${JSON.stringify(beingProcessed)} and ${JSON.stringify(page)}`);
           const doRemove = !isBeingProcessed && (marketMatch ||
             (pokeType === 'slack_reminder' && action === 'notificationPreferences')
             || (pokeType === 'upgrade_reminder' && action === 'upgrade'));
           if (doRemove) {
-            message.beingProcessed = page;
+            if (!beingProcessed) {
+              page.beingProcessed = [];
+            }
+            page.beingProcessed.push(message);
           }
           return doRemove;
         });
         if (_.isEmpty(filtered)) {
           return;
         }
-        console.debug(`processing old page ${isOldPage}, ${page.marketId}, ${page.investibleId} and ${JSON.stringify(filtered)}`);
+        console.debug(`processing old page ${isOldPage} and ${JSON.stringify(filtered)}`);
         filtered.forEach((message) => {
           const {
             level,

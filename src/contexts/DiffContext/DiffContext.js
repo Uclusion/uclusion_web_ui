@@ -18,8 +18,8 @@ function DiffProvider(props) {
       const lfg = new LocalForageHelper(DIFF_CONTEXT_NAMESPACE);
       lfg.getState()
         .then((state) => {
-          console.debug(`Found diff ${state}`);
-          console.debug(state);
+          // console.debug(`Found diff ${state}`);
+          // console.debug(state);
           if (state) {
             dispatch(initializeState(state));
           }

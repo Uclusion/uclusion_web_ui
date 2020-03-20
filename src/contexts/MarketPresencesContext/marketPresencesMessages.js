@@ -13,7 +13,7 @@ function beginListening(dispatch) {
         dispatch(removeMarketsPresence(message));
         break;
       default:
-        console.debug(`Ignoring identity event ${event}`);
+        // console.debug(`Ignoring identity event ${event}`);
     }
   });
   registerListener(PUSH_PRESENCE_CHANNEL, 'marketPresencePushStart', (data) => {
@@ -24,7 +24,7 @@ function beginListening(dispatch) {
         dispatch(updateMarketPresences(marketId, users));
         break;
       default:
-        console.debug(`Ignoring push event ${event}`);
+        // console.debug(`Ignoring push event ${event}`);
     }
   });
 }

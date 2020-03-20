@@ -41,7 +41,7 @@ export function removeMarketDetails(marketIds) {
 
 function storeMarket(state, action) {
   const { market } = action;
-  console.debug(market);
+  // console.debug(market);
 
   const { marketDetails: oldDetails } = state;
   const newDetails = _.unionBy([market], oldDetails, 'id');
@@ -73,7 +73,7 @@ function removeStoredMarkets(state, action) {
 }
 
 function computeNewState(state, action) {
-  console.debug(`Computing state with type ${action.type}`);
+  // console.debug(`Computing state with type ${action.type}`);
   switch (action.type) {
     case ADD_MARKET:
       return storeMarket(state, action);

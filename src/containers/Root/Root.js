@@ -52,12 +52,12 @@ const useStyles = makeStyles({
 
 
 function Root() {
-  console.debug('Root being rerendered');
+  // console.debug('Root being rerendered');
   const history = useHistory();
   const classes = useStyles();
   const { location } = history;
   const { pathname } = location;
-  console.debug(`pathname is ${pathname}`);
+  // console.debug(`pathname is ${pathname}`);
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
@@ -135,7 +135,7 @@ function Root() {
   useEffect(() => {
     const redirect = getAndClearRedirect();
     if (!_.isEmpty(redirect)) {
-      console.log(`Root Redirecting you to ${redirect}`);
+      // console.log(`Root Redirecting you to ${redirect}`);
       redirectToPath(history, redirect);
     }
 
@@ -162,36 +162,36 @@ function Root() {
 
     if (!window.myListenerMarker) {
       window.myListenerMarker = true;
-      console.debug('Adding listeners');
+      // console.debug('Adding listeners');
       window.addEventListener('load', () => {
-        console.debug('Load listener');
+        // console.debug('Load listener');
         pegView(true);
       });
       window.addEventListener('focus', () => {
-        console.debug('Focus listener');
+        // console.debug('Focus listener');
         pegView(true);
       });
       window.addEventListener('blur', () => {
-        console.debug('Blur listener');
+        // console.debug('Blur listener');
         pegView(false);
       });
       window.addEventListener('online', () => {
-        console.debug('Back Online listener');
+        // console.debug('Back Online listener');
         setOnline(true);
         setOperationsLocked(false);
         pegView(true);
       });
       window.addEventListener('offline', () => {
-        console.debug('Offline listener');
+        // console.debug('Offline listener');
         setOnline(false);
         pegView(false);
       });
       document.addEventListener('visibilitychange', () => {
-        console.debug('Visibility change listener');
+        // console.debug('Visibility change listener');
         const isEntry = document.visibilityState === 'visible';
         pegView(isEntry);
       });
-      window.onanimationiteration = console.debug;
+      window.onanimationiteration = // console.debug;
     }
   },  [history, setOnline, setOperationsLocked, location]);
 

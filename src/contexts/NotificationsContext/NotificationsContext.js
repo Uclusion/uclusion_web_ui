@@ -64,7 +64,7 @@ function NotificationsProvider(props) {
           if (target) {
             const element = document.getElementById(target);
             if (element) {
-              console.log(`Scroller firing for ${target}`);
+              // console.log(`Scroller firing for ${target}`);
               element.scrollIntoView();
             } else {
               console.warn(`No element found for target ${target}`);
@@ -82,7 +82,7 @@ function NotificationsProvider(props) {
       }
       if (_.isEmpty(messages)) {
         if (!isOldPage) {
-          console.debug('Processing page with empty messages');
+          // console.debug('Processing page with empty messages');
           dispatch(processedPage(page));
         }
       } else {
@@ -120,7 +120,7 @@ function NotificationsProvider(props) {
             && marketId === messageMarketId && investibleId === messageInvestibleId;
           const processedMessage = (beingProcessed || []).find((processing) => isMessageEqual(message, processing));
           const isBeingProcessed = !_.isEmpty(processedMessage);
-          console.debug(`being processed ${isBeingProcessed} and ${JSON.stringify(beingProcessed)} and ${JSON.stringify(page)}`);
+          // console.debug(`being processed ${isBeingProcessed} and ${JSON.stringify(beingProcessed)} and ${JSON.stringify(page)}`);
           const doRemove = !isBeingProcessed && (marketMatch ||
             (pokeType === 'slack_reminder' && action === 'notificationPreferences')
             || (pokeType === 'upgrade_reminder' && action === 'upgrade'));
@@ -135,7 +135,7 @@ function NotificationsProvider(props) {
         if (_.isEmpty(filtered)) {
           return;
         }
-        console.debug(`processing old page ${isOldPage} and ${JSON.stringify(filtered)}`);
+        // console.debug(`processing old page ${isOldPage} and ${JSON.stringify(filtered)}`);
         filtered.forEach((message) => {
           const {
             level,
@@ -190,7 +190,7 @@ function NotificationsProvider(props) {
           || (level === 'RED') || (!commentId && (aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)));
         const myCustomToastId = myText + '_' + diffId;
         if (shouldToast && !toast.isActive(myCustomToastId)) {
-          console.debug('Toasting on page from NotificationsContext');
+          // console.debug('Toasting on page from NotificationsContext');
           const options = {
             onClick: () => navigate(history, getFullLink(message)),
             toastId: myCustomToastId

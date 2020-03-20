@@ -31,7 +31,7 @@ class WebSocketRunner {
   }
 
   registerHandler(messageType, handler) {
-    // console.debug(`Registering handler for ${messageType}`);
+    // // console.debug(`Registering handler for ${messageType}`);
     this.messageHandlers.push({ type: messageType, handler });
   }
 

@@ -37,7 +37,7 @@ function StageChangeAction(props) {
         stage_id: targetStageId,
       },
     };
-    console.log(inv);
+    // console.log(inv);
     const { market_infos: marketInfos } = inv;
     const thisMarketInfo = marketInfos.find((info) => info.market_id === marketId);
     return stageChangeInvestible(moveInfo)
@@ -51,7 +51,7 @@ function StageChangeAction(props) {
           ...inv,
           market_infos: newMarketInfos
         };
-        console.log(newInv);
+        // console.log(newInv);
         refreshInvestibles(invDispatch, diffDispatch, [newInv]);
         return EMPTY_SPIN_RESULT;
       });

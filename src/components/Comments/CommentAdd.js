@@ -182,7 +182,7 @@ function CommentAdd (props) {
             setEditorClearFunc(func);
           }}
           setEditorFocusFunc={(func) => {
-            console.log('Setting focus func');
+            // console.log('Setting focus func');
             setEditorFocusFunc(func);
           }}
         >

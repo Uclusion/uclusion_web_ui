@@ -151,10 +151,10 @@ function Stage(props) {
     updatedText
   } = props;
 
-  // console.log(comments);
+  // // console.log(comments);
   const stageInvestibles = investibles.filter(investible => {
     const { market_infos: marketInfos } = investible;
-    // console.log(`Investible id is ${id}`);
+    // // console.log(`Investible id is ${id}`);
     const marketInfo = marketInfos.find(info => info.market_id === marketId);
     if (process.env.NODE_ENV !== "production") {
       if (marketInfo === undefined) {

@@ -27,7 +27,7 @@ export function notifyNewApplicationVersion(currentVersion, cacheClear) {
   const { version } = config;
   // if we don't have any version stored, we're either in dev, or we've dumped our data
   if (currentVersion !== version && !currentVersion.includes('fake')) {
-    console.debug(`Current version: ${version}. Upgrading to version: ${currentVersion}`);
+    // console.debug(`Current version: ${version}. Upgrading to version: ${currentVersion}`);
     const reloader = () => {
       window.location.reload(true);
     };
@@ -50,7 +50,7 @@ function WebSocketProvider(props) {
   const [, connectionCheckTimerDispatch] = useReducer((state, action) => {
     const { timer } = state;
     if (timer) {
-      console.debug('Clearing socket pong timer');
+      // console.debug('Clearing socket pong timer');
       clearTimeout(timer);
     }
     const { pongTimer } = action;
@@ -61,7 +61,7 @@ function WebSocketProvider(props) {
   }, {});
 
   function createWebSocket() {
-    console.debug('Creating new websocket');
+    // console.debug('Creating new websocket');
     const { webSockets } = config;
     const sockConfig = { wsUrl: webSockets.wsUrl, reconnectInterval: webSockets.reconnectInterval };
     const newSocket = new WebSocketRunner(sockConfig);
@@ -119,7 +119,7 @@ function WebSocketProvider(props) {
 
   registerListener(AUTH_HUB_CHANNEL, 'webSocketsAuth', (data) => {
     const { payload: { event } } = data;
-    console.debug(`Web Sockets context responding to auth event ${event}`);
+    // console.debug(`Web Sockets context responding to auth event ${event}`);
     switch (event) {
       case 'signOut':
         if (state) {
@@ -133,7 +133,7 @@ function WebSocketProvider(props) {
         }
         break;
       default:
-        console.debug(`Ignoring auth event ${event}`);
+        // console.debug(`Ignoring auth event ${event}`);
     }
   });
   if (!state) {
@@ -153,7 +153,7 @@ function WebSocketProvider(props) {
             case VIEW_EVENT: {
               const { isEntry } = message;
               if (isEntry && (Date.now() - newSocket.getSocketLastSentTime()) > 5000) {
-                console.debug('Pong and refresh');
+                // console.debug('Pong and refresh');
                 // Otherwise if we miss a push out of luck until tab is closed
                 refreshVersions();
                 refreshNotifications();
@@ -161,7 +161,7 @@ function WebSocketProvider(props) {
                   const actionString = JSON.stringify({ action: 'ping' });
                   newSocket.send(actionString);
                   const pongTimer = setTimeout((socket, setSocket) => {
-                    console.debug('Terminating socket connection');
+                    // console.debug('Terminating socket connection');
                     socket.terminate();
                     setSocket(undefined);
                   }, 5000, newSocket, setState);
@@ -171,7 +171,7 @@ function WebSocketProvider(props) {
               break;
             }
             default:
-              console.debug(`Ignoring event ${event}`);
+              // console.debug(`Ignoring event ${event}`);
           }
         };
         registerListener(VISIT_CHANNEL, 'webSocketPongTimer', myListener);

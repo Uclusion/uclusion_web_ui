@@ -229,7 +229,7 @@ function PlanningInvestible(props) {
   function assignedInStage(investibles, userId, stageId) {
     return investibles.filter(investible => {
       const { market_infos: marketInfos } = investible;
-      // console.log(`Investible id is ${id}`);
+      // // console.log(`Investible id is ${id}`);
       const marketInfo = marketInfos.find(info => info.market_id === marketId);
       // eslint-disable-next-line max-len
       return (

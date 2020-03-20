@@ -96,7 +96,7 @@ function CardInputForm (props) {
       card: elements.getElement(CardElement),
       billing_details: billingDetails
     })).then((paymentResult) =>{
-      console.log('Payment method creation successful');
+      // console.log('Payment method creation successful');
       return usedSubmit(paymentResult, resetForm);
     }).catch((e) => {
       setError(e.error || e.error_message);

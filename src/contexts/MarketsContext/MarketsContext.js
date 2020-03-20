@@ -33,7 +33,7 @@ function MarketsProvider(props) {
   }, [isInitialization, state, diffDispatch]);
 
 
-  console.debug('Market context being rerendered');
+  // console.debug('Market context being rerendered');
 
   return (
     <MarketsContext.Provider value={[state, dispatch]}>

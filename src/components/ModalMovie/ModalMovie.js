@@ -5,7 +5,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import MoviePlayer from './MoviePlayer';
 
 function ModalMovie(props) {
-  console.log('Rerendered modal movie');
+  // console.log('Rerendered modal movie');
   const {
     url, onClose, autoPlay, open,
   } = props;

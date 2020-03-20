@@ -7,7 +7,7 @@ import { registerListener } from '../../utils/MessageBusUtils';
 function beginListening(dispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
     const { payload: { event } } = data;
-    // console.debug(`Notifications context responding to push event ${event}`);
+    // // console.debug(`Notifications context responding to push event ${event}`);
 
     switch (event) {
       case VERSIONS_EVENT:
@@ -16,13 +16,13 @@ function beginListening(dispatch) {
         });
         break;
       default:
-        console.debug(`Ignoring push event ${event}`);
+        // console.debug(`Ignoring push event ${event}`);
     }
   });
 
   registerListener(VISIT_CHANNEL, 'notificationsVisitStart', (data) => {
     const { payload: { event, message } } = data;
-    console.debug(message);
+    // console.debug(message);
     switch (event) {
       case VIEW_EVENT: {
         const { marketId, investibleId, isEntry, action } = message;
@@ -38,7 +38,7 @@ function beginListening(dispatch) {
         break;
       }
       default:
-        console.debug(`Ignoring event ${event}`);
+        // console.debug(`Ignoring event ${event}`);
     }
   });
 }

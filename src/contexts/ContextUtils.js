@@ -66,10 +66,10 @@ function fixFileLinks(item) {
 function fixupItemForStorage(item) {
   const dateConverted = convertDates(item);
   if (item.uploaded_files) {
-    console.debug(`Updating file tokens for id ${item.id} with ${item.uploaded_files}`);
+    // console.debug(`Updating file tokens for id ${item.id} with ${item.uploaded_files}`);
     item.uploaded_files.forEach((uploadedFile) => {
       const { uclusion_token, path } = uploadedFile;
-      console.debug(`Installing token [${uclusion_token}] for path ${path}`);
+      // console.debug(`Installing token [${uclusion_token}] for path ${path}`);
       updateFileToken(path, uclusion_token);
     });
     const fixed = fixFileLinks(dateConverted);

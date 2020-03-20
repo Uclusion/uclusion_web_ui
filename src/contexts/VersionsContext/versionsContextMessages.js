@@ -16,7 +16,7 @@ export const NEW_MARKET = 'new_market';
 function beginListening(dispatch) {
   registerListener(VERSIONS_HUB_CHANNEL, 'versionVersionStart', (data) => {
     const { payload: { event, globalVersion, marketId } } = data;
-    console.debug(`Versions context responding to push event ${event}`);
+    // console.debug(`Versions context responding to push event ${event}`);
     switch (event) {
       case GLOBAL_VERSION_UPDATE:
         dispatch(updateGlobalVersion(globalVersion));
@@ -31,7 +31,7 @@ function beginListening(dispatch) {
             dispatch(refreshNotificationVersionAction(notification));
           });
       default:
-        console.debug(`Ignoring push event ${event}`);
+        // console.debug(`Ignoring push event ${event}`);
     }
   });
 }

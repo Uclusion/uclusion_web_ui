@@ -80,7 +80,7 @@ function Voting(props) {
           investible_id: invId,
           max_budget: maxBudget
         } = investment;
-        // console.debug(investment);
+        // // console.debug(investment);
         if (investibleId === invId) {
           acc.push({ name, userId: id, quantity, maxBudget });
         }

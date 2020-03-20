@@ -13,7 +13,7 @@ export function beginListening (dispatch) {
         dispatch(clearAccount());
         break;
       default:
-        console.log(`Unrecognized event ${event}`);
+        // console.log(`Unrecognized event ${event}`);
         break;
     }
   });

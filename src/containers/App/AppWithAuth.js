@@ -71,7 +71,7 @@ function AppWithAuth(props) {
   const history = useHistory();
   const { location } = history;
   const { pathname } = location;
-  console.debug(location);
+  // console.debug(location);
   const messages = {
     ...getLocaleMessages(locale),
   };

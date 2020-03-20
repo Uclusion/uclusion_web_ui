@@ -22,7 +22,7 @@ export function getExistingMarkets (state) {
 }
 
 export function refreshVersions () {
-  console.debug('Refreshing versions');
+  // console.debug('Refreshing versions');
   const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
   return disk.getState()
     .then((state) => {
@@ -48,7 +48,7 @@ export function refreshNotificationVersion (state, version) {
 function processNewNotification (newNotificationVersion, notificationVersion) {
   const { version: notificationVersionNumber } = notificationVersion;
   const { version: newNotificationVersionNumber } = newNotificationVersion;
-  console.debug(`Refreshing notifications from ${notificationVersionNumber} to ${newNotificationVersionNumber}`);
+  // console.debug(`Refreshing notifications from ${notificationVersionNumber} to ${newNotificationVersionNumber}`);
   if (notificationVersionNumber !== newNotificationVersionNumber) {
     pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT });
   }

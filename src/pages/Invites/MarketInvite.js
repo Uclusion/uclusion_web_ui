@@ -43,7 +43,7 @@ function MarketInvite(props) {
           switch (event) {
             case  NEW_MARKET: {
               if (messageMarketId === marketId) {
-                console.log(`Redirecting us to market ${marketId}`);
+                // console.log(`Redirecting us to market ${marketId}`);
                 setTimeout(() => {
                   navigate(history, marketLink);
                 }, 500);
@@ -55,7 +55,7 @@ function MarketInvite(props) {
               break;
           }
         });
-        console.debug(`Logging into market ${marketId}`);
+        // console.debug(`Logging into market ${marketId}`);
         const values = queryString.parse(hash);
         const { is_obs: isObserver } = values;
         getMarketLogin(marketId, isObserver === 'true')

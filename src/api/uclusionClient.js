@@ -39,7 +39,7 @@ export const getAccountClient = () => {
 
 export const getFileClient = (metadata) => {
   const { path, uclusion_token } = metadata;
-  // console.log(metadata);
+  // // console.log(metadata);
   // since I have the token handy, I might as well update the storage with it;
   if (uclusion_token) {
     updateFileToken(path, uclusion_token);

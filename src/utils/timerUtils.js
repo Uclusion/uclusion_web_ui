@@ -13,10 +13,10 @@ export function startTimerChain (waitTime, maxIterations, execFunction) {
     Promise.resolve(execFunction())
       .then((success) => {
         if (success || iterCount >= maxIterations) {
-          console.log('Call succeeded, stoping chain');
+          // console.log('Call succeeded, stoping chain');
           return;
         }
-        console.log('Call failed, resuming chain');
+        // console.log('Call failed, resuming chain');
         iterCount += 1;
         setTimeout(callFunc, waitTime);
       });

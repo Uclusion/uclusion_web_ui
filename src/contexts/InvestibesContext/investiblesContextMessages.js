@@ -12,7 +12,7 @@ function beginListening(dispatch, diffDispatch) {
       case VERSIONS_EVENT:
         return refreshInvestibles(dispatch, diffDispatch, investibles);
       default:
-        console.debug(`Ignoring push event ${event}`);
+        // console.debug(`Ignoring push event ${event}`);
     }
   });
 }

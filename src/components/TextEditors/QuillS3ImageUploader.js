@@ -116,7 +116,7 @@ class QuillS3ImageUploader {
     if (this.onUploadStart) {
       this.onUploadStart();
     }
-    // console.debug(uploads);
+    // // console.debug(uploads);
     return this.s3Uploader(range, uploads)
       .then((metadatas) => {
         if (this.uploader) {

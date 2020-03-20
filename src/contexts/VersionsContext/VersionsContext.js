@@ -19,7 +19,7 @@ function VersionsProvider(props) {
 
   useEffect(() => {
     if (isInitialization) {
-      console.debug('Versions context listening');
+      // console.debug('Versions context listening');
       beginListening(dispatch);
       // load state from storage
       const lfg = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);

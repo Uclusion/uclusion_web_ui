@@ -42,7 +42,7 @@ export function withSpinLock(Component) {
     function endSpinning(result) {
       setSpinning(false);
       setOperationRunning(false);
-      console.log(`Calling on spin stop with ${result}`);
+      // console.log(`Calling on spin stop with ${result}`);
       onSpinStop(result);
     }
 
@@ -64,7 +64,7 @@ export function withSpinLock(Component) {
       const globalVersion = getGlobalVersion(versionsState);
       const existingMarkets = getExistingMarkets(versionsState);
       startTimerChain(OPERATION_TIMEOUT, 20, () => {
-        console.debug('Operation check interval firing');
+        // console.debug('Operation check interval firing');
         return doVersionRefresh(globalVersion, existingMarkets)
           .then((newGlobalVersion) => {
             if (globalVersion !== newGlobalVersion ) {
@@ -95,7 +95,7 @@ export function withSpinLock(Component) {
         }
         default:
           // ignore
-          console.debug(`Spin blocker ignoring ${event}`);
+          // console.debug(`Spin blocker ignoring ${event}`);
           break;
       }
     };
@@ -126,7 +126,7 @@ export function withSpinLock(Component) {
                 spinChecker()
                   .then((checkResult) => {
                     if (checkResult) {
-                      console.debug('Ending Spinning By Checker');
+                      // console.debug('Ending Spinning By Checker');
                       operationCheckStopper();
                       endSpinning(operationResult);
                     } else {

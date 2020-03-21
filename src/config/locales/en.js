@@ -143,7 +143,7 @@ const messages = defineMessages({
   sideBarNavTempSignout: 'Signout(Temp)',
   sidebarNewPlanning: 'Create New Workspace',
 
-  loadingMessage: 'Loading',
+  loadingMessage: 'Please wait while your page loads.',
   loadingMarket: 'Processing Invite',
   loadingSlack: 'Slack Integration',
 

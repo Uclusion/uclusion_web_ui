@@ -39,22 +39,6 @@ const useStyles = makeStyles((theme) => ({
       width: `calc(100% - ${DRAWER_WIDTH_CLOSED}px)`,
     },
   },
-  loadingDisplay: {
-    marginLeft: DRAWER_WIDTH_OPENED,
-    display: "flex",
-    flexWrap: "wrap",
-    padding: theme.spacing(6),
-    "& > *": {
-      "flex-grow": 1,
-      margin: theme.spacing(1, 0),
-      "&:first-child": {
-        marginTop: 0
-      },
-      "&:last-child": {
-        marginBottom: 0
-      }
-    }
-  },
   contentUnShift: {
     marginLeft: DRAWER_WIDTH_CLOSED,
     width: `calc(100% - ${DRAWER_WIDTH_CLOSED}px)`,
@@ -141,8 +125,8 @@ function Screen(props) {
       >
         {!isChrome && (
           <Card>
-            <CardContent className={classes.loadingDisplay}>
-              <Typography variant="h3">
+            <CardContent>
+              <Typography variant="h3" align="center">
                 {intl.formatMessage({ id: 'browserNotSupported' })}
               </Typography>
             </CardContent>
@@ -151,10 +135,10 @@ function Screen(props) {
         {isChrome && !reallyAmLoading && (
           <Container className={classes.container}>{children}</Container>
         )}
-        {isChrome && reallyAmLoading && (
+        {isChrome && true && (
           <Card>
-            <CardContent className={classes.loadingDisplay}>
-              <Typography variant="h3">
+            <CardContent>
+              <Typography variant="h3" align="center">
                 {intl.formatMessage({ id: 'loadingMessage' })}
               </Typography>
             </CardContent>

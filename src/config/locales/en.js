@@ -352,9 +352,13 @@ const messages = defineMessages({
   homeSubsectionDecision: 'Dialogs',
   homeAddDecision: 'Create Dialog',
   homeAddPlanning: 'Create Workspace',
+  homeAddPlanningExplanation: 'Create a workspace when you want to discuss a project or assign stories',
+  homeAddDecisionExplanation: 'Create a dialog when you want to brainstorm solution alternatives',
+  homeAddInitiativeExplanation: 'Create an initiative to measure support for an idea',
+  homeViewArchivesExplanation: 'Archive is where dismissed items go',
   homeAddInitiative: 'Create Initiative',
   homePlanningReport: 'Active Story Value Estimates (in days)',
-  homeViewArchives: 'View Archives',
+  homeViewArchives: 'View Archive',
   homeViewAbout: 'About',
   homeCreatedAt: 'Created on {dateString}',
   archiveWarning: 'Deactivating cannot be undone.',
@@ -362,7 +366,8 @@ const messages = defineMessages({
   information: 'Information',
   message: 'Message',
   // Archives
-  archivesTitle: 'Archives',
+  archivesTitle: 'Archive',
+  openDrawer: 'Open or close full sidebar menu',
 
 
   // Decision Dialogs
@@ -384,7 +389,7 @@ const messages = defineMessages({
   planningDialogPeopleLabel: 'collaborator\'s stories',
   planningDialogDiscussionLabel: 'Discussion',
   planningDialogAddInvestibleLabel: 'Create Story',
-  planningDialogViewArchivesLabel: 'View Archives',
+  planningDialogViewArchivesLabel: 'View Archive',
   planningNoneAcceptedWarning: 'No in progress story',
   planningNoneInDialogWarning: 'No votable story',
   planningNoneInReviewWarning: 'No in review story',
@@ -492,7 +497,7 @@ const messages = defineMessages({
   // Dialog Archives
   dialogArchivesNotDoingHeader: 'Not Doing',
   dialogArchivesVerifiedHeader: 'Verified',
-  dialogArchivesLabel: 'Workspace Archives',
+  dialogArchivesLabel: 'Workspace Archive',
 
   // SignIn
   signInEmailLabel: 'Email',

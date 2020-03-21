@@ -75,18 +75,21 @@ function Home(props) {
 
   const CREATE_ACTIONS = [
     {
-    label: intl.formatMessage({ id: 'homeAddPlanning' }),
+    label: intl.formatMessage({ id: 'homeAddPlanningExplanation' }),
+    openLabel: intl.formatMessage({ id: 'homeAddPlanning' }),
     icon: getDialogTypeIcon(PLANNING_TYPE),
     onClick: () => addPlanning(),
   },
     {
-      label: intl.formatMessage({ id: 'homeAddDecision' }),
+      label: intl.formatMessage({ id: 'homeAddDecisionExplanation' }),
+      openLabel: intl.formatMessage({ id: 'homeAddDecision' }),
       icon: getDialogTypeIcon(DECISION_TYPE),
       id: 'createDialog',
       onClick: () => addDecision(),
     },
     {
-      label: intl.formatMessage({ id: 'homeAddInitiative' }),
+      label: intl.formatMessage({ id: 'homeAddInitiativeExplanation' }),
+      openLabel: intl.formatMessage({ id: 'homeAddInitiative' }),
       icon: getDialogTypeIcon(INITIATIVE_TYPE),
       onClick: () => addInitiative(),
     },
@@ -94,7 +97,8 @@ function Home(props) {
 
   const VIEW_ACTIONS = [
     {
-      label: intl.formatMessage({ id: 'homeViewArchives' }),
+      label: intl.formatMessage({ id: 'homeViewArchivesExplanation' }),
+      openLabel: intl.formatMessage({ id: 'homeViewArchives' }),
       icon: <MenuBookIcon/>,
       onClick: () => navigate(history, '/archives'),
     }
@@ -111,6 +115,7 @@ function Home(props) {
         key={index}
         icon={action.icon}
         label={action.label}
+        openLabel={action.openLabel}
         onClick={action.onClick}
       />,
     );

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { NotificationImportant, Notifications as NotificationsIcon } from '@material-ui/icons';
-import { Fab, makeStyles } from '@material-ui/core';
+import { Fab, makeStyles, Tooltip } from '@material-ui/core'
 import { useHistory } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
@@ -107,7 +107,11 @@ function Notifications(props) {
       onClick={nextOnClick}
       className={classes.fab}
     >
-      {current && <NotificationImportant className={getIconClass()} />}
+      {current && (
+        <Tooltip title={current.text}>
+          <NotificationImportant className={getIconClass()} />
+        </Tooltip>
+      )}
       {!current && <NotificationsIcon className={getIconClass()} />}
     </Fab>
   );

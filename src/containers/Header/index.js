@@ -11,8 +11,8 @@ import {
   Breadcrumbs,
   IconButton,
   Popper,
-  Paper,
-} from '@material-ui/core';
+  Paper, Tooltip,
+} from '@material-ui/core'
 import MenuOpenIcon from '@material-ui/icons/MenuOpen';
 import { makeStyles } from '@material-ui/styles';
 import { SidebarContext } from '../../contexts/SidebarContext';
@@ -155,14 +155,16 @@ function Header(props) {
       >
         <div className={classes.topBar} />
         <Toolbar>
-          <IconButton
-            aria-label="open drawer"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            edge="start"
-            className={classes.menuButton}
-          >
-            <MenuOpenIcon className={classes.menuIcon} />
-          </IconButton>
+          <Tooltip title={intl.formatMessage({ id: 'openDrawer' })}>
+            <IconButton
+              aria-label="open drawer"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              edge="start"
+              className={classes.menuButton}
+            >
+              <MenuOpenIcon className={classes.menuIcon} />
+            </IconButton>
+          </Tooltip>
           {generateTitle()}
           {toolbarButtons}
           <div className={classes.grow} />

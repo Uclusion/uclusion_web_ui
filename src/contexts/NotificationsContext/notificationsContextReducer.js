@@ -53,10 +53,8 @@ function scroller(target, newPage, retry=true) {
     if (target) {
       const element = document.getElementById(target);
       if (element) {
-        console.log(`Processing scroll for ${target}`);
         element.scrollIntoView();
       } else if (retry) {
-        console.debug(`Processing scroll in 1s for ${target}`);
         setTimeout(() => {
           scroller(target, newPage, false);
         }, 1000);

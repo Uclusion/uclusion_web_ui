@@ -35,7 +35,11 @@ export function navigate(history, to) {
     investibleId: fromInvestibleId,
   } = decomposeMarketPath(history.location.pathname);
   broadcastView(fromMarketId, fromInvestibleId, false, fromAction);
-  history.push(to);
+  if (to) {
+    history.push(to);
+  } else {
+    history.goBack();
+  }
   const {
     action: toAction,
     marketId: toMarketId,

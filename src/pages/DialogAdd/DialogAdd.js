@@ -67,7 +67,7 @@ function DialogAdd(props) {
           navigate(history, link);
         } else {
           // This is a cancel
-          navigate(history, '/');
+          navigate(history);
         }
       });
   }

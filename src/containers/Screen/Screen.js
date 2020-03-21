@@ -135,7 +135,7 @@ function Screen(props) {
         {isChrome && !reallyAmLoading && (
           <Container className={classes.container}>{children}</Container>
         )}
-        {isChrome && true && (
+        {isChrome && reallyAmLoading && (
           <Card>
             <CardContent>
               <Typography variant="h3" align="center">

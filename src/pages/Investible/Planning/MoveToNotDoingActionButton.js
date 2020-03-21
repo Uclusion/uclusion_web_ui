@@ -19,6 +19,7 @@ function MoveToNotDoingActionButton(props) {
       icon={<NotInterestedIcon />}
       targetStageId={notDoingStage.id}
       translationId="planningInvestibleMoveToNotDoingLabel"
+      explanationId="planningInvestibleNotDoingExplanation"
     />
   );
 }

@@ -20,6 +20,7 @@ function StageChangeAction(props) {
     targetStageId,
     icon,
     translationId,
+    explanationId,
     onSpinStop,
   } = props;
 
@@ -63,7 +64,8 @@ function StageChangeAction(props) {
       icon={icon}
       hasSpinChecker
       onSpinStop={onSpinStop}
-      label={intl.formatMessage({ id: translationId })}
+      label={intl.formatMessage({ id: explanationId })}
+      openLabel={intl.formatMessage({ id: translationId })}
       onClick={moveToTarget}
     />
   );
@@ -74,6 +76,7 @@ StageChangeAction.propTypes = {
   onSpinStop: PropTypes.func,
   icon: PropTypes.element.isRequired,
   translationId: PropTypes.string.isRequired,
+  explanationId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
   currentStageId: PropTypes.string.isRequired,
   targetStageId: PropTypes.string.isRequired,

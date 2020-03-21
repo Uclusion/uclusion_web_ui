@@ -19,6 +19,7 @@ function MoveToVerfiedActionButton(props) {
       icon={<VerifiedUserIcon />}
       targetStageId={verifiedStage.id}
       translationId="planningInvestibleMoveToVerifiedLabel"
+      explanationId="planningInvestibleVerifiedExplanation"
     />
   );
 }

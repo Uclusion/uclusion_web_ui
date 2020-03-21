@@ -20,7 +20,8 @@ function ViewArchiveActionButton(props) {
   return (
     <ExpandableSidebarAction
       icon={<MenuBookIcon />}
-      label={intl.formatMessage({ id: 'planningDialogViewArchivesLabel'})}
+      label={intl.formatMessage({ id: 'planningDialogViewArchivesExplanation'})}
+      openLabel={intl.formatMessage({ id: 'planningDialogViewArchivesLabel'})}
       onClick={onClick}/>
   );
 }

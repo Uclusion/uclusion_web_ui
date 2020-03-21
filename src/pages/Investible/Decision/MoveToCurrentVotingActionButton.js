@@ -35,7 +35,8 @@ function MoveToCurrentVotingActionButton(props) {
     <SpinBlockingSidebarAction
       marketId={marketId}
       icon={<ArrowUpwardIcon />}
-      label={intl.formatMessage({ id: 'investibleAddToVotingLabel' })}
+      label={intl.formatMessage({ id: 'investibleAddToVotingExplanation' })}
+      openLabel={intl.formatMessage({ id: 'investibleAddToVotingLabel' })}
       onClick={moveToProposed}
     />
   );

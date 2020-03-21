@@ -13,6 +13,7 @@ function SpinBlockingSidebarAction(props) {
     id,
     icon,
     label,
+    openLabel,
     onClick,
     onSpinStart,
     onSpinStop,
@@ -44,7 +45,7 @@ function SpinBlockingSidebarAction(props) {
       </Tooltip>
       {amOpen && (
         <ListItemText className={classes.menuTitle}>
-          {label}
+          {openLabel}
         </ListItemText>
       )}
     </SpinningListItem>
@@ -55,6 +56,7 @@ SpinBlockingSidebarAction.propTypes = {
   marketId: PropTypes.string.isRequired,
   icon: PropTypes.element.isRequired,
   label: PropTypes.string.isRequired,
+  openLabel: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
   hasSpinChecker: PropTypes.bool,
   onSpinStart: PropTypes.func,

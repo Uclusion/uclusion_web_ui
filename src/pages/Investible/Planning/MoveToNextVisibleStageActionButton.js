@@ -15,10 +15,12 @@ function MoveToNextVisibleStageActionButton(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId);
   let destinationStage = acceptedStage;
+  let destinationExplanation = 'planningInvestibleAcceptedExplanation';
   let destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
   if (currentStageId === acceptedStage.id) {
     destinationStage = getInReviewStage(marketStagesState, marketId);
     destinationLabel = 'planningInvestibleNextStageInReviewLabel';
+    destinationExplanation = 'planningInvestibleInReviewExplanation';
   }
 
 
@@ -27,6 +29,7 @@ function MoveToNextVisibleStageActionButton(props) {
       {...props}
       icon={<ArrowUpwardIcon />}
       translationId={destinationLabel}
+      explanationId={destinationExplanation}
       targetStageId={destinationStage.id}
       onSpinStop={() => navigate(history, formMarketLink(marketId))}
     />

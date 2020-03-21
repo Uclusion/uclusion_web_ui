@@ -5,16 +5,14 @@ import { useIntl } from 'react-intl';
 import AddIcon from '@material-ui/icons/Add';
 
 function InvestibleAddActionButton(props) {
-
   const { onClick } = props;
-
   const intl = useIntl();
-  const label = intl.formatMessage({ id: 'planningDialogAddInvestibleLabel' });
 
   return (
     <ExpandableSidebarAction
       icon={<AddIcon />}
-      label={label}
+      label={intl.formatMessage({ id: 'planningDialogAddInvestibleExplanation' })}
+      openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel' })}
       onClick={onClick}
     />
   );

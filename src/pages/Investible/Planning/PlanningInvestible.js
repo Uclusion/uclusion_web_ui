@@ -259,9 +259,8 @@ function PlanningInvestible(props) {
           userId,
           nextStageId
         );
-        if (
-          hasEnoughVotes(invested, votesRequired) &&
-          (_.isEmpty(assignedInNextStage) || isInAccepted)
+        if (isInAccepted ||
+          (hasEnoughVotes(invested, votesRequired) && _.isEmpty(assignedInNextStage))
         ) {
           sidebarActions.push(
             <MoveToNextVisibleStageActionButton

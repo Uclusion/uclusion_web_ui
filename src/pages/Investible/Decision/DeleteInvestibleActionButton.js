@@ -21,7 +21,8 @@ function DeleteInvestibleActionButton(props) {
     <SpinBlockingSidebarAction
       marketId={marketId}
       icon={<DeleteForeverIcon />}
-      label={intl.formatMessage({ id: 'investibleDeleteLabel' })}
+      openLabel={intl.formatMessage({ id: 'investibleDeleteLabel' })}
+      label={intl.formatMessage({ id: 'investibleDeleteExplanationLabel' })}
       onClick={deleteInvestibleAction}
     />
   );

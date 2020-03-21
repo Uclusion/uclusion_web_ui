@@ -19,6 +19,7 @@ function MoveToVotingActionButton(props) {
       icon={<ThumbsUpDownIcon />}
       targetStageId={votingStage.id}
       translationId="investibleAddToVotingLabel"
+      explanationId="planningInvestibleVotingExplanation"
     />
   );
 }

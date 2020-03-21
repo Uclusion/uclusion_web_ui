@@ -6,14 +6,13 @@ import ExpandableSidebarAction from '../../../components/SidebarActions/Expandab
 
 function ManageParticipantsActionButton(props) {
   const { onClick } = props;
-
   const intl = useIntl();
-  const label = intl.formatMessage({ id: 'planningDialogManageParticipantsLabel' });
 
   return (
     <ExpandableSidebarAction
       icon={<GroupIcon />}
-      label={label}
+      label={intl.formatMessage({ id: 'planningDialogManageParticipantsExplanation' })}
+      openLabel={intl.formatMessage({ id: 'planningDialogManageParticipantsLabel' })}
       onClick={onClick}
     />
   );

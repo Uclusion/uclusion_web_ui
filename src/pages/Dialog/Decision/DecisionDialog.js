@@ -114,6 +114,7 @@ function DecisionDialog(props) {
   const tourName = isAdmin? PURE_SIGNUP_ADD_DIALOG_OPTIONS : '';
   const tourFamily = isAdmin? PURE_SIGNUP_FAMILY_NAME: '';
   const addLabel = isAdmin ? 'decisionDialogAddInvestibleLabel' : 'decisionDialogProposeInvestibleLabel';
+  const addLabelExplanation = isAdmin ? 'decisionDialogAddExplanationLabel' : 'decisionDialogProposeExplanationLabel';
   function getInvestiblesForStage(stage) {
     if (stage) {
       return investibles.reduce((acc, inv) => {
@@ -135,7 +136,8 @@ function DecisionDialog(props) {
   if (activeMarket) {
     if (isParticipant) {
       sidebarMenuList.unshift({
-        label: intl.formatMessage({ id: addLabel }),
+        label: intl.formatMessage({ id: addLabelExplanation }),
+        openLabel: intl.formatMessage({ id: addLabel }),
         icon: <AddIcon/>,
         id: 'newOption',
         onClick: () => navigate(history, formMarketAddInvestibleLink(marketId)),
@@ -145,7 +147,7 @@ function DecisionDialog(props) {
 
   function getSidebarActions() {
     return sidebarMenuList.map((item, index) => {
-      const { onClick, label, icon, id } = item;
+      const { onClick, label, icon, id, openLabel } = item;
       if (item.spinBlocking) {
         return (
           <SpinBlockingSidebarAction
@@ -155,10 +157,12 @@ function DecisionDialog(props) {
             onClick={onClick}
             icon={icon}
             marketId={marketId}
+            openLabel={openLabel}
           />
         );
       }
-      return <ExpandableSidebarAction id={id} key={index} label={label} icon={icon} onClick={onClick} />;
+      return <ExpandableSidebarAction id={id} key={index} label={label} icon={icon} onClick={onClick}
+      openLabel={openLabel}/>;
     });
   }
 

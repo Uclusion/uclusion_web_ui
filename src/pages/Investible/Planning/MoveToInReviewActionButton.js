@@ -19,7 +19,8 @@ function MoveToInReviewActionButton(props) {
       {...props}
       icon={<RateReviewIcon />}
       targetStageId={inReviewStage.id}
-      label="planningInvestibleNextStageInReviewLabel"
+      translationId="planningInvestibleNextStageInReviewLabel"
+      explanationId="planningInvestibleInReviewExplanation"
     />
   );
 }

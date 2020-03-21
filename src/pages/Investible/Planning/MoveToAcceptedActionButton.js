@@ -20,6 +20,7 @@ function MoveToAcceptedActionButton(props) {
       icon={<PlayForWorkIcon />}
       targetStageId={acceptedStage.id}
       translationId="planningInvestibleNextStageAcceptedLabel"
+      explanationId="planningInvestibleAcceptedExplanation"
     />
   );
 }

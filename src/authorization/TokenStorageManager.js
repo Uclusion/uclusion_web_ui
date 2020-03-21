@@ -85,8 +85,8 @@ class TokenStorageManager {
   storeToken(tokenType, itemId, token) {
     const tokenStorage = this.getTokenStorage();
     const existingToken = tokenStorage[tokenType][itemId];
-    // console.debug(existingToken);
-    // console.debug(token);
+    // // console.debug(existingToken);
+    // // console.debug(token);
     // bail out if our existing token is newer
     if (!_.isEmpty(existingToken)) {
       const longestLife = this.getLongestLivingToken(token, existingToken);

@@ -12,22 +12,22 @@ function beginListening(dispatch, diffDispatch) {
     const { payload: { event, message } } = data;
     switch (event) {
       case VERSIONS_EVENT:
-        console.debug(`Markets context responding to updated market event ${event}`);
+        // console.debug(`Markets context responding to updated market event ${event}`);
         dispatch(removeMarketDetails(message));
         break;
       default:
-        console.debug(`Ignoring identity event ${event}`);
+        // console.debug(`Ignoring identity event ${event}`);
     }
   });
   registerListener(PUSH_CONTEXT_CHANNEL, 'marketsPushStart', (data) => {
     const { payload: { event, marketDetails } } = data;
     switch (event) {
       case VERSIONS_EVENT:
-        console.debug(`Markets context responding to updated market event ${event}`);
+        // console.debug(`Markets context responding to updated market event ${event}`);
         addMarketToStorage(dispatch, diffDispatch, marketDetails);
         break;
       default:
-        console.debug(`Ignoring identity event ${event}`);
+        // console.debug(`Ignoring identity event ${event}`);
     }
   });
 }

@@ -161,7 +161,7 @@ function AddEditVote(props) {
     reasonText !== body;
 
   function mySave() {
-    console.debug("saving now");
+    // console.debug("saving now");
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body;
@@ -175,10 +175,10 @@ function AddEditVote(props) {
       reasonNeedsUpdate,
       maxBudget
     };
-    console.debug(updateInfo);
+    // console.debug(updateInfo);
     return updateInvestment(updateInfo).then(result => {
-      console.log("INVESTMENT");
-      console.log(result);
+      // console.log("INVESTMENT");
+      // console.log(result);
       return {
         result,
         spinChecker: () => Promise.resolve(true),

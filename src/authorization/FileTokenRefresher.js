@@ -7,7 +7,7 @@ import { getMarketClient } from '../api/uclusionClient';
  */
 class FileTokenRefresher {
   refreshTokens(oldToken) {
-    console.debug('Invoking refresh token');
+    // console.debug('Invoking refresh token');
     const decoded = jwt_decode(oldToken);
     const { id: marketId } = decoded;
     return getMarketClient(marketId)

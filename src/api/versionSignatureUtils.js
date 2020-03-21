@@ -11,15 +11,15 @@ import _ from 'lodash';
 function signatureMatches (signature, object) {
   for (const key of Object.keys(signature)) {
     const signatureVersion = signature[key];
-  //  console.log(signatureVersion);
+  //  // console.log(signatureVersion);
     const objectVersion = object[key];
- //   console.log(objectVersion);
+ //   // console.log(objectVersion);
     if (!objectVersion) {
       return false;
     }
     let keySatisfied;
     if (_.isArray(signatureVersion)) {
-      // console.log('Checking array match');
+      // // console.log('Checking array match');
       if (!_.isArray(objectVersion)) {
         return false;
       }
@@ -30,21 +30,21 @@ function signatureMatches (signature, object) {
         return acc;
       }, true);
     } else if ('object' === typeof signatureVersion) {
-  //    console.log('Checking object signature');
+  //    // console.log('Checking object signature');
       keySatisfied = signatureMatches(signatureVersion, objectVersion);
     } else if (key.endsWith('id')) {
-   //   console.log('Checking exact id match');
+   //   // console.log('Checking exact id match');
       keySatisfied = objectVersion === signatureVersion;
     } else {
-  //    console.log('Checking numeric version');
+  //    // console.log('Checking numeric version');
       keySatisfied = objectVersion >= signatureVersion;
     }
     if (!keySatisfied) {
-   //   console.log('Key not satisifed');
+   //   // console.log('Key not satisifed');
       return false;
     }
   }
-  // console.log("Key satisified");
+  // // console.log("Key satisified");
   return true;
 }
 
@@ -64,7 +64,7 @@ export function signatureMatcher (fetched, signatures) {
   for (let x = 0; x < fetched.length; x++) {
     const object = fetched[x];
     const matchingSignature = signatures.find((signature) => signatureMatches(signature, object));
-    // console.log(matchingSignature);
+    // // console.log(matchingSignature);
     if (matchingSignature) {
       matched.push(object);
       matchedSignatures.push(matchingSignature);
@@ -72,8 +72,8 @@ export function signatureMatcher (fetched, signatures) {
   }
   const unmatchedSignatures = _.difference(signatures, matchedSignatures);
   const allMatched = _.isEmpty(unmatchedSignatures);
-  // console.log(allMatched);
-  // console.log(unmatchedSignatures);
+  // // console.log(allMatched);
+  // // console.log(unmatchedSignatures);
   return { matched, unmatchedSignatures, allMatched };
 }
 

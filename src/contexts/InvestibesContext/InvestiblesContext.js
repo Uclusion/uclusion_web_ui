@@ -31,7 +31,7 @@ function InvestiblesProvider(props) {
     };
   }, [isInitialization, diffDispatch]);
 
-  console.debug('Investibles context being rerendered');
+  // console.debug('Investibles context being rerendered');
 
   return (
     <InvestiblesContext.Provider value={[state, dispatch]}>

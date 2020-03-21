@@ -52,7 +52,7 @@ function InvestibleAdd(props) {
 
   const itemKey = `add_investible_${marketId}`;
   function onDone(destinationLink) {
-    console.log(`Called with link ${destinationLink}`);
+    // console.log(`Called with link ${destinationLink}`);
     localforage.removeItem(itemKey)
       .finally(() => {
         if (destinationLink) {

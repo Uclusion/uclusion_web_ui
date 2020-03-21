@@ -8,7 +8,7 @@ import { AllSequentialMap } from '../utils/PromiseUtils';
 export function fetchComments(idList, marketId) {
   const clientPromise = getMarketClient(marketId);
   const chunks = _.chunk(idList, 50);
-  // console.debug(idList);
+  // // console.debug(idList);
   return clientPromise.then((client) => {
     return AllSequentialMap(chunks, (idList) => {
       return client.investibles.getMarketComments(idList);

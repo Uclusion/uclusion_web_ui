@@ -15,7 +15,7 @@ export function getMarketInvestibles(state, marketId) {
 }
 
 export function getInvestible(state, investibleId) {
-  // console.debug(state);
+  // // console.debug(state);
   return state[investibleId];
 }
 
@@ -48,7 +48,7 @@ export function refreshInvestibles(dispatch, diffDispatch, investibles) {
   const diffInvestibles = fixed.map((inv) => inv.investible);
   diffDispatch(addContents(diffInvestibles));
   const investibleHash = _.keyBy(fixed, (item) => item.investible.id);
-  // console.debug(investibleHash);
+  // // console.debug(investibleHash);
   dispatch(updateStorableInvestibles(investibleHash));
 }
 

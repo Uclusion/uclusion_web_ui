@@ -42,7 +42,7 @@ export function refreshGlobalVersion (currentHeldVersion, existingMarkets) {
     return doVersionRefresh(currentHeldVersion, existingMarkets)
       .then((globalVersion) => {
         if (globalVersion !== currentHeldVersion) {
-          console.log('Got new version');
+          // console.log('Got new version');
           pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
         }
         return true;
@@ -74,7 +74,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   }
   return getVersions(currentHeldVersion)
     .then((versions) => {
-      console.log(versions);
+      // console.log(versions);
       const { global_version, signatures: marketSignatures } = versions;
       if (_.isEmpty(marketSignatures) || _.isEmpty(global_version)) {
         return currentHeldVersion;
@@ -114,7 +114,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
 
 function doRefreshMarket (marketId, componentSignatures, marketUser) {
   const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
-  console.log(fetchSignatures);
+  // console.log(fetchSignatures);
   const { markets, comments, marketPresences, investibles } = fetchSignatures;
   const promises = [];
   if (!_.isEmpty(markets)) {
@@ -145,7 +145,7 @@ function doRefreshMarket (marketId, componentSignatures, marketUser) {
 function fetchMarketVersion (marketId, marketSignature, marketUser) {
   return getMarketDetails(marketId, marketUser)
     .then((marketDetails) => {
-      console.log(marketDetails);
+      // console.log(marketDetails);
       const match = signatureMatcher([marketDetails], [marketSignature]);
       // we bothered to fetch the data, so we should use it:)
       pushMessage(PUSH_CONTEXT_CHANNEL, { event: VERSIONS_EVENT, marketDetails });

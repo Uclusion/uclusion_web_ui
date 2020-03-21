@@ -46,17 +46,17 @@ function VerifyEmail(props) {
   useEffect(() => {
     function initiateRedirect() {
       setTimeout(() => {
-        console.debug("redirecting you to login");
+        // console.debug("redirecting you to login");
         redirectToPath(history, LOGIN);
       }, 5000);
     }
     if (code && !verificationState) {
       verifyEmail(code)
         .then(result => {
-          console.log(result);
+          // console.log(result);
           const { redirect } = result;
           if (!_.isEmpty(redirect)) {
-            console.log(`Setting redirect to ${redirect}`);
+            // console.log(`Setting redirect to ${redirect}`);
             setRedirect(redirect);
           }
           setVerificationState("VERIFIED");

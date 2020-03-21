@@ -40,7 +40,7 @@ export function uploadFileToS3(marketId, file) {
  */
 export function getS3FileUrl(metadata) {
   const { path, uclusion_token } = metadata;
-  // console.log(metadata);
+  // // console.log(metadata);
   // since I have the token handy, I might as well update the storage with it;
   // the storage will only update if this token is valid longer than the one it has
   if (uclusion_token) {
@@ -115,7 +115,7 @@ export function fixUploadedFileLinks(text) {
       const { pathname } = url;
       if (pathname.length > 0) {
         const path = pathname.startsWith('/') ? pathname.substr(1, pathname.length) : pathname;
-        console.debug(path);
+        // console.debug(path);
         const token = getStoredFileToken(path);
         if (token) {
           url.searchParams.set('authorization', token);

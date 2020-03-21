@@ -56,7 +56,7 @@ function BillingHome (props) {
   }
 
   function resumeSubscription(paymentResult, formResetter) {
-    console.log('Resume called');
+    // console.log('Resume called');
     return restartSubscription(paymentResult.paymentMethod.id)
       .then((restartedAccount) => {
         updateAccount(accountDispatch, restartedAccount);

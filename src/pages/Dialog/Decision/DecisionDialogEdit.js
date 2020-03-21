@@ -85,7 +85,7 @@ function DecisionDialogEdit(props) {
   }
 
   function onEditorChange(content) {
-    // console.log(content);
+    // // console.log(content);
     setDescription(content);
   }
 

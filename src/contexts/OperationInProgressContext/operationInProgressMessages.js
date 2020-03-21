@@ -20,7 +20,7 @@ export function beginListening(setState) {
         setState(false);
         break;
       default:
-        console.debug(`Operation in progres Ignoring event ${event}`);
+        // console.debug(`Operation in progres Ignoring event ${event}`);
     }
   });
 }

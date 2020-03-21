@@ -15,7 +15,7 @@ function beginListening(dispatch) {
         dispatch(removeMarketsComments(message));
         break;
       default:
-        console.debug(`Ignoring identity event ${event}`);
+        // console.debug(`Ignoring identity event ${event}`);
     }
   });
   registerListener(PUSH_COMMENTS_CHANNEL, 'commentsPushStart', (data) => {
@@ -26,7 +26,7 @@ function beginListening(dispatch) {
         refreshMarketComments(dispatch, marketId, comments);
         break;
       default:
-        console.debug(`Ignoring push event ${event}`);
+        // console.debug(`Ignoring push event ${event}`);
     }
   });
 }

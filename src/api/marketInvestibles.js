@@ -6,8 +6,8 @@ import { AllSequentialMap } from '../utils/PromiseUtils';
 
 export function fetchInvestibles(idList, marketId) {
   const clientPromise = getMarketClient(marketId);
-  // console.debug(idList);
-  // console.debug(`Fetching idList ${idList}`);
+  // // console.debug(idList);
+  // // console.debug(`Fetching idList ${idList}`);
   const chunks = _.chunk(idList, 50);
   return clientPromise.then((client) => {
     return AllSequentialMap(chunks, (idList) => client.markets.getMarketInvestibles(idList))

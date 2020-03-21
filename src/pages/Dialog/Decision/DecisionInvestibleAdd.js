@@ -120,7 +120,7 @@ function DecisionInvestibleAdd(props) {
     };
     const promise = isAdmin ? addInvestibleToStage(addInfo) : addDecisionInvestible(addInfo);
     return promise.then((investible) => {
-      console.log('Adding investible to market');
+      // console.log('Adding investible to market');
       onSave(investible);
       const link = formMarketLink(marketId);
       return {

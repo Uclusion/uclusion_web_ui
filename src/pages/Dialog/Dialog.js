@@ -105,7 +105,7 @@ function Dialog(props) {
     }
     const loadedMarketAtAll = !(_.isEmpty(loadedMarket) && _.isEmpty(marketStages) && _.isEmpty(marketPresences));
     if (!hidden && !loadedMarketAtAll && !isFromInvite) {
-      console.log('Setting load timer.');
+      // console.log('Setting load timer.');
       setTimeout(() => {
         console.warn('Failed to load market after allotted time.');
         setIsInitialization(true);

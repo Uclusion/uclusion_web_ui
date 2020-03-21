@@ -75,7 +75,7 @@ class TokenFetcher {
   }
 
   getMarketToken(identity, marketId, isObserver){
-    console.debug(`logging into market ${marketId} with cognito identity ${identity} and isObserver ${isObserver}`);
+    // console.debug(`logging into market ${marketId} with cognito identity ${identity} and isObserver ${isObserver}`);
     return this.getMarketTokenAndLoginData(identity, marketId, isObserver)
       .then((loginData) => {
         const { uclusion_token } = loginData;
@@ -85,7 +85,7 @@ class TokenFetcher {
   }
 
   getMarketTokenAndLoginData(identity, marketId, isObserver) {
-    console.debug(`logging into market ${marketId} with cognito identity ${identity} and isObserver ${isObserver}`);
+    // console.debug(`logging into market ${marketId} with cognito identity ${identity} and isObserver ${isObserver}`);
     return this.ssoClient.marketCognitoLogin(identity, marketId, isObserver)
       .then((loginData) => {
         const { uclusion_token } = loginData;

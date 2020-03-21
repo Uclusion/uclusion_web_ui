@@ -26,7 +26,7 @@ function UclusionTour(props) {
   const isCompleted = isTourCompleted(tourState, name);
 
   function tourCallback(state) {
-    console.log(state);
+    // console.log(state);
     const {
       status,
       index,
@@ -36,7 +36,7 @@ function UclusionTour(props) {
     if (!isCompleted) {
       if (status === 'finished') {
         // the've finished, register complete
-        console.log(`Tour ${name} is complete`);
+        // console.log(`Tour ${name} is complete`);
         completeTour(tourDispatch, name);
       }
       if (type === 'step:after') {
@@ -76,9 +76,9 @@ function UclusionTour(props) {
 
   useEffect(() => {
     const myTourFamlyActive = isTourFamilyRunning(tourState, family);
-    console.log(`Tour family active ${myTourFamlyActive}`);
+    // console.log(`Tour family active ${myTourFamlyActive}`);
     const iCanRun = !hidden && myTourFamlyActive && shouldRun && !isCompleted;
-    console.log(`I can run ${iCanRun}`);
+    // console.log(`I can run ${iCanRun}`);
     setRunTour(iCanRun);
     return () => {
     };

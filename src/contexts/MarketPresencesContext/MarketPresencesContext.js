@@ -8,7 +8,7 @@ const EMPTY_STATE = {};
 const MarketPresencesContext = React.createContext(EMPTY_STATE);
 
 function MarketPresencesProvider(props) {
-  console.debug('Context market presences being rerendered');
+  // console.debug('Context market presences being rerendered');
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [isInitialization, setIsInitialization] = useState(true);
 

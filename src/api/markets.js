@@ -64,8 +64,8 @@ export function updateMarket(marketId, name, description, uploadedFiles, maxBudg
   if (allowMultiVote !== null) {
     updateOptions.allow_multi_vote = allowMultiVote;
   }
-  // console.debug(`Updating market ${marketId}`);
-  // console.debug(updateOptions);
+  // // console.debug(`Updating market ${marketId}`);
+  // // console.debug(updateOptions);
   return getMarketClient(marketId)
     .then((client) => client.markets.updateMarket(updateOptions))
     .catch((error) => toastErrorAndThrow(error, 'errorMarketUpdateFailed'));

@@ -39,6 +39,7 @@ function ExpandableSidebarAction(props) {
     icon,
     id,
     label,
+    openLabel,
     onClick,
   } = props;
 
@@ -66,7 +67,7 @@ function ExpandableSidebarAction(props) {
       </Tooltip>
       {amOpen && (
         <ListItemText className={classes.menuTitle}>
-          {label}
+          {openLabel || label}
         </ListItemText>
       )}
     </ListItem>
@@ -76,6 +77,7 @@ function ExpandableSidebarAction(props) {
 ExpandableSidebarAction.propTypes = {
   icon: PropTypes.element.isRequired,
   label: PropTypes.string.isRequired,
+  openLabel: PropTypes.string,
   onClick: PropTypes.func.isRequired,
 };
 

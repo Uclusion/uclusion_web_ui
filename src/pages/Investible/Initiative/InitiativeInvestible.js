@@ -111,7 +111,8 @@ function InitiativeInvestible(props) {
       id="link"
       key="link"
       icon={<InsertLinkIcon />}
-      label={intl.formatMessage({ id: 'initiativePlanningParent' })}
+      label={intl.formatMessage({ id: 'childPlanExplanation' })}
+      openLabel={intl.formatMessage({ id: 'initiativePlanningParent' })}
       onClick={() => navigate(history, `/dialogAdd#type=${PLANNING_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
     />)
     return sidebarActions;

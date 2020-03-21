@@ -131,7 +131,8 @@ function PlanningDialog(props) {
         id="link"
         key="link"
         icon={<InsertLinkIcon />}
-        label={intl.formatMessage({ id: "planningInvestibleDecision" })}
+        openLabel={intl.formatMessage({ id: "planningInvestibleDecision" })}
+        label={intl.formatMessage({ id: "childDialogExplanation" })}
         onClick={() =>
           navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${marketId}`)
         }

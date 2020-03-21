@@ -403,6 +403,8 @@ const messages = defineMessages({
   decisionDialogProposeInvestibleLabel: 'Propose Option',
   decisionDialogExtendDaysLabel: 'Number of days to extend deadline?',
   decisionDialogNoInvestiblesWarning: 'No votable options',
+  childDialogExplanation: 'Click here to create and link in a child dialog deciding something relevant to this parent.',
+  childPlanExplanation: 'Click here to create and link in a child workspace relevant to this initiative.',
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',

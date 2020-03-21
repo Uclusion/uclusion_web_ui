@@ -76,7 +76,7 @@ function MarketLinks (props) {
       const baseLink = formMarketLink(marketId);
       const baseInviteLink = `/invite/${marketId}`;
       return (
-        <ul>
+        <ul key={marketId}>
             {marketId in marketNameState && myPresence && (
               <Typography key={marketId} component="li">
                 <Link

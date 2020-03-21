@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer, useContext } from 'react';
+import React, { useEffect, useState, useReducer, useContext, useLayoutEffect } from 'react'
 import { toast } from 'react-toastify';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
@@ -56,34 +56,24 @@ function NotificationsProvider(props) {
     };
   }, [isInitialization]);
 
-  useEffect(() => {
+  function pageIsEqual(page1, page2) {
+    return page1.marketId === page2.marketId && page1.investibleId === page2.investibleId
+      && page1.action === page2.action;
+  }
+
+  useLayoutEffect(() => {
     if (page) {
-      function scroller(hash) {
-        if (hash && hash.length > 1) {
-          const target = hash.substring(1, hash.length);
-          if (target) {
-            const element = document.getElementById(target);
-            if (element) {
-              console.log(`Scroller firing for ${target}`);
-              element.scrollIntoView();
-            } else {
-              console.warn(`No element found for target ${target}`);
-              return false;
-            }
-          }
-        } else {
-          window.scrollTo(0, 0);
-        }
-        return true;
-      }
-      const isOldPage = lastPage !== undefined && _.isEqual(page, lastPage);
-      if (!isOldPage) {
-        scroller(hash);
+      let isOldPage = lastPage !== undefined && pageIsEqual(page, lastPage);
+      console.debug(`processing old page ${isOldPage}`);
+      page.lastProcessed = Date.now();
+      const scrollTarget = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
+      if (!isOldPage && !hash) {
+        console.debug('processing scroll to top');
+        window.scrollTo(0, 0);
       }
       if (_.isEmpty(messages)) {
         if (!isOldPage) {
-          console.debug('Processing page with empty messages');
-          dispatch(processedPage(page));
+          dispatch(processedPage(page, undefined, undefined, true, scrollTarget));
         }
       } else {
         const newUserMessage = messages.find((massagedMessage) => massagedMessage.pokeType === 'new_user');
@@ -133,9 +123,14 @@ function NotificationsProvider(props) {
           return doRemove;
         });
         if (_.isEmpty(filtered)) {
+          if (!isOldPage) {
+            dispatch(processedPage(page, undefined, undefined, true, scrollTarget));
+          }
           return;
         }
-        console.debug(`processing old page ${isOldPage} and ${JSON.stringify(filtered)}`);
+        //If you've been on the page less than 3s count as new for the purposes of new messages
+        isOldPage = isOldPage && (Date.now() - page.lastProcessed > 3000);
+        console.debug(`processing ${JSON.stringify(filtered)}`);
         filtered.forEach((message) => {
           const {
             level,
@@ -197,7 +192,7 @@ function NotificationsProvider(props) {
           }
           toastInfo = { myText, level, options };
         }
-        dispatch(processedPage(page, filtered, toastInfo));
+        dispatch(processedPage(page, filtered, toastInfo, !isOldPage, scrollTarget));
       }
     }
     return () => {

@@ -5,7 +5,12 @@ import HideMarketButton from './HideMarketButton';
 import ShowMarketButton from './ShowMarketButton';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import { makeStyles } from '@material-ui/core';
-import { formInvestibleEditLink, formMarketEditLink, navigate } from '../../utils/marketIdPathFunctions';
+import {
+  decomposeMarketPath,
+  formInvestibleEditLink,
+  formMarketEditLink,
+  navigate
+} from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 import EditMarketButton from '../Dialog/EditMarketButton';
 import ChangeToObserverButton from '../Dialog/ChangeToObserverButton'
@@ -22,7 +27,9 @@ const useStyles = makeStyles(() => {
 
 function DialogActions(props) {
   const history = useHistory();
-
+  const { location } = history;
+  const { pathname } = location;
+  const { action } = decomposeMarketPath(pathname);
   const {
     marketId,
     marketStage,
@@ -36,7 +43,10 @@ function DialogActions(props) {
   const classes = useStyles();
 
   function goHome() {
-    navigate(history, '/');
+    if (action === 'dialog') {
+      // If we are in a dialog go to the previous page and if we are already home then just stay there
+      navigate(history);
+    }
   }
 
 
@@ -64,7 +74,7 @@ function DialogActions(props) {
     if (isAdmin) {
       if (marketStage === 'Active') {
         actions.push(
-          <DismissMarketButton key="archive" marketId={marketId}/>,
+          <DismissMarketButton key="archive" marketId={marketId} onClick={goHome}/>,
         );
         actions.push(
           <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction} />

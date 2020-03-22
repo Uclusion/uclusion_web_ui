@@ -17,6 +17,15 @@ import clsx from 'clsx';
 import { useMetaDataStyles } from '../Investible/Planning/PlanningInvestible';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { ACTIVE_STAGE } from '../../constants/markets'
+import { makeStyles } from '@material-ui/styles'
+
+const useStyles = makeStyles((theme) => ({
+  inactiveMarket: {
+    textDecoration: 'line-through',
+  },
+  activeMarket: {},
+}))
 
 function ParentSummary(props) {
   const {
@@ -25,6 +34,7 @@ function ParentSummary(props) {
   const intl = useIntl();
   const history = useHistory();
   const metaClasses = useMetaDataStyles();
+  const classes = useStyles();
   const {
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId,
@@ -54,7 +64,7 @@ function ParentSummary(props) {
   }, [parentMarketId, hidden, parentLoaded, marketState])
 
   function displayParentLink(parentMarketId, parentInvestibleId) {
-    const { name: parentMarketName } = parentMarket;
+    const { name: parentMarketName, market_stage: parentMarketStage } = parentMarket;
     const marketPresences = getMarketPresences(marketPresencesState, parentMarketId) || [];
     const myParentPresence = marketPresences.find((presence) => presence.current_user);
     const baseLink = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) : formMarketLink(parentMarketId);
@@ -71,6 +81,7 @@ function ParentSummary(props) {
               variant="inherit"
               underline="always"
               color="primary"
+              className={parentMarketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
               onClick={(event) => {
                 event.preventDefault()
                 navigate(history, baseLink)
@@ -87,6 +98,7 @@ function ParentSummary(props) {
               variant="inherit"
               underline="always"
               color="primary"
+              className={parentMarketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
               onClick={(event) => {
                 event.preventDefault()
                 navigate(history, `${baseInviteLink}#is_obs=false`)

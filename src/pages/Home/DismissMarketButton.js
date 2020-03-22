@@ -5,8 +5,6 @@ import DismissIcon from '@material-ui/icons/RemoveCircle';
 import { archiveMarket } from '../../api/markets';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { navigate } from '../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import clsx from 'clsx';
 import { useLockedDialogStyles } from '../Dialog/DialogEdit';
@@ -23,8 +21,8 @@ function DismissMarketButton(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const {
     marketId,
+    onClick,
   } = props;
-  const history = useHistory();
   const [open, setOpen] = React.useState(false);
 
   const handleOpen = () => {
@@ -60,7 +58,7 @@ function DismissMarketButton(props) {
             marketId={marketId}
             onClick={myOnClick}
             hasSpinChecker
-            onSpinStop={() => navigate(history, '/')}
+            onSpinStop={onClick}
           >
             <FormattedMessage id="issueProceed" />
           </SpinBlockingButton>
@@ -114,6 +112,7 @@ function DismissDialog(props) {
 DismissDialog.propTypes = {
   actions: PropTypes.node.isRequired,
   onClose: PropTypes.func.isRequired,
+  onClick: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   issueWarningId: PropTypes.string.isRequired,
 };

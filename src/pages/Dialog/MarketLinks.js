@@ -16,8 +16,9 @@ import { AllSequentialMap } from '../../utils/PromiseUtils';
 import { getMarketInfo } from '../../api/sso';
 import clsx from 'clsx';
 import { useMetaDataStyles } from '../Investible/Planning/PlanningInvestible';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
+import { ACTIVE_STAGE } from '../../constants/markets';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -28,6 +29,10 @@ const useStyles = makeStyles((theme) => ({
       padding: '3px 21px 42px 21px',
     },
   },
+  inactiveMarket: {
+    textDecoration: 'line-through',
+  },
+  activeMarket: {},
 }))
 
 function MarketLinks (props) {
@@ -41,8 +46,8 @@ function MarketLinks (props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [loaded, setLoaded] = useState(false);
   const [marketNameState, marketNamesDispatch] = useReducer((state, action) => {
-    const { marketId, name, marketType } = action
-    return { ...state, [marketId]: { name, marketType } }
+    const { marketId, name, marketType, marketStage } = action
+    return { ...state, [marketId]: { name, marketType, marketStage } }
   }, {})
 
   useEffect(() => {
@@ -51,16 +56,16 @@ function MarketLinks (props) {
       const missingLinks = links.filter((marketId) => {
         const marketDetails = getMarket(marketState, marketId);
         if (marketDetails) {
-          const { name, market_type: marketType } = marketDetails;
-          marketNamesDispatch({ marketId, name, marketType });
+          const { name, market_type: marketType, market_stage: marketStage } = marketDetails;
+          marketNamesDispatch({ marketId, name, marketType, marketStage });
           return false;
         }
         return true;
       })
       AllSequentialMap(missingLinks, (marketId) => {
         return getMarketInfo(marketId).then((market) => {
-          const { name, market_type: marketType } = market;
-          marketNamesDispatch({ marketId, name, marketType });
+          const { name, market_type: marketType, market_stage: marketStage } = market;
+          marketNamesDispatch({ marketId, name, marketType, marketStage });
           return market;
         })
       })
@@ -84,6 +89,7 @@ function MarketLinks (props) {
                   variant="inherit"
                   underline="always"
                   color="primary"
+                  className={marketNameState[marketId].marketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
                   onClick={(event) => {
                     event.preventDefault()
                     navigate(history, baseLink)
@@ -100,6 +106,7 @@ function MarketLinks (props) {
                   variant="inherit"
                   underline="always"
                   color="primary"
+                  className={marketNameState[marketId].marketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
                   onClick={(event) => {
                     event.preventDefault()
                     navigate(history, `${baseInviteLink}#is_obs=false`)

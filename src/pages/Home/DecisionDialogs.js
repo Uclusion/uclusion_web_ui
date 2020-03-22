@@ -52,7 +52,8 @@ function DecisionDialogs(props) {
     return markets.map((market) => {
       const {
         id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes,
-        market_type: marketType, market_stage: marketStage, updated_at: updatedAt,
+        market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,
+        parent_investible_id: parentInvestibleId,
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
@@ -150,6 +151,8 @@ function DecisionDialogs(props) {
                 isFollowing={myPresence.following}
                 marketStage={marketStage}
                 marketType={marketType}
+                parentMarketId={parentMarketId}
+                parentInvestibleId={parentInvestibleId}
                 inArchives={myPresence.market_hidden}
                 marketId={marketId}
               />

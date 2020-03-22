@@ -87,6 +87,8 @@ function Summary(props) {
     investment_expiration: investmentExpiration,
     days_estimate: daysEstimate,
     votes_required: votesRequired,
+    parent_market_id: parentMarketId,
+    parent_investible_id: parentInvestibleId,
     children,
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -105,6 +107,8 @@ function Summary(props) {
           isFollowing={myPresence.following}
           marketStage={marketStage}
           marketType={marketType}
+          parentMarketId={parentMarketId}
+          parentInvestibleId={parentInvestibleId}
           inArchives={myPresence.market_hidden}
           marketId={id}
           initiativeId={investibleId}

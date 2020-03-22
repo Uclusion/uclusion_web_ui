@@ -7,8 +7,8 @@ import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/m
 import { makeStyles } from '@material-ui/core';
 import {
   decomposeMarketPath,
-  formInvestibleEditLink,
-  formMarketEditLink,
+  formInvestibleEditLink, formInvestibleLink,
+  formMarketEditLink, formMarketLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
@@ -34,6 +34,8 @@ function DialogActions(props) {
     marketId,
     marketStage,
     marketType,
+    parentMarketId,
+    parentInvestibleId,
     isAdmin,
     isFollowing,
     inArchives,
@@ -44,8 +46,16 @@ function DialogActions(props) {
 
   function goHome() {
     if (action === 'dialog') {
-      // If we are in a dialog go to the previous page and if we are already home then just stay there
-      navigate(history);
+      // If you are on some page that is not in dialog path then stay there
+      if (parentMarketId) {
+        if (parentInvestibleId) {
+          navigate(history, formInvestibleLink(parentMarketId, parentInvestibleId));
+        } else {
+          navigate(history, formMarketLink(parentMarketId));
+        }
+      } else {
+        navigate(history, '/');
+      }
     }
   }
 

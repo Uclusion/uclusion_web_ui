@@ -94,6 +94,8 @@ function InitiativeInvestible(props) {
     created_by: createdBy,
     updated_at: updatedAt,
     market_type: marketType,
+    parent_market_id: parentMarketId,
+    parent_investible_id: parentInvestibleId,
   } = market;
   const safeMarketInfos = marketInfos || [];
   const thisMarketInfo = safeMarketInfos.find((info) => info.market_id === marketId);
@@ -144,6 +146,8 @@ function InitiativeInvestible(props) {
             isAdmin={isAdmin}
             marketStage={marketStage}
             marketType={marketType}
+            parentMarketId={parentMarketId}
+            parentInvestibleId={parentInvestibleId}
             inArchives={myPresence.market_hidden}
             isFollowing={myPresence.following}
             marketId={marketId}

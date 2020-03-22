@@ -106,6 +106,8 @@ function DecisionDialog(props) {
     updated_at: updatedAt,
     expiration_minutes: expirationMinutes,
     created_by: createdBy,
+    parent_market_id: parentMarketId,
+    parent_investible_id: parentInvestibleId,
   } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const participantTourSteps = [
@@ -194,6 +196,8 @@ function DecisionDialog(props) {
             isFollowing={myPresence.following}
             marketStage={marketStage}
             marketType={marketType}
+            parentMarketId={parentMarketId}
+            parentInvestibleId={parentInvestibleId}
             inArchives={myPresence.market_hidden}
             marketId={marketId}
           />

@@ -47,7 +47,8 @@ function InitiativeDialogs(props) {
     return markets.map((market) => {
       const {
         id: marketId, created_at: createdAt, expiration_minutes: expirationMinutes,
-        market_type: marketType, market_stage: marketStage, updated_at: updatedAt,
+        market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,
+        parent_investible_id: parentInvestibleId,
       } = market;
       const investibles = getMarketInvestibles(investiblesState, marketId);
       if (!investibles || _.isEmpty(investibles)) {
@@ -143,6 +144,8 @@ function InitiativeDialogs(props) {
                 marketStage={marketStage}
                 marketId={marketId}
                 marketType={marketType}
+                parentMarketId={parentMarketId}
+                parentInvestibleId={parentInvestibleId}
                 isAdmin
                 inArchives={myPresence.market_hidden}
                 isFollowing={myPresence.following}

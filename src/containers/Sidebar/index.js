@@ -74,7 +74,7 @@ const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
 
 function Sidebar(props) {
   const classes = useStyles();
-  const { sidebarActions } = props;
+  const { sidebarActions, appEnabled } = props;
   const history = useHistory();
   const [sidebarOpen] = useContext(SidebarContext);
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -83,23 +83,25 @@ function Sidebar(props) {
   const [pegLogo, setPegLogo] = useState(false);
 
   useEffect(() => {
-    if (operationRunning && !logoTimer) {
-      setLogoTimer(setInterval(() => {
-        setPegLogo(true);
-      }, 250));
-    }
-    if (!operationRunning && logoTimer) {
-      setLogoTimer(undefined);
-      clearInterval(logoTimer);
-      setPegLogo(false);
-      setLogoImage(DEFAULT_SIDEBAR_LOGO);
-    }
-    if (pegLogo) {
-      setPegLogo(false);
-      if (logoImage === DEFAULT_SIDEBAR_LOGO) {
-        setLogoImage(ALTERNATE_SIDEBAR_LOGO);
-      } else {
+    if (appEnabled) {
+      if (operationRunning && !logoTimer) {
+        setLogoTimer(setInterval(() => {
+          setPegLogo(true);
+        }, 250));
+      }
+      if (!operationRunning && logoTimer) {
+        setLogoTimer(undefined);
+        clearInterval(logoTimer);
+        setPegLogo(false);
         setLogoImage(DEFAULT_SIDEBAR_LOGO);
+      }
+      if (pegLogo) {
+        setPegLogo(false);
+        if (logoImage === DEFAULT_SIDEBAR_LOGO) {
+          setLogoImage(ALTERNATE_SIDEBAR_LOGO);
+        } else {
+          setLogoImage(DEFAULT_SIDEBAR_LOGO);
+        }
       }
     }
     return () => {
@@ -109,7 +111,7 @@ function Sidebar(props) {
         setPegLogo(false);
       }
     };
-  }, [operationRunning, logoTimer, pegLogo, logoImage]);
+  }, [operationRunning, logoTimer, pegLogo, logoImage, appEnabled]);
 
   function getSidebar() {
     return (
@@ -160,6 +162,7 @@ function Sidebar(props) {
 Sidebar.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   sidebarActions: PropTypes.arrayOf(PropTypes.element),
+  appEnabled: PropTypes.bool.isRequired,
 };
 
 Sidebar.defaultProps = {

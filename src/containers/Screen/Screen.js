@@ -116,7 +116,7 @@ function Screen(props) {
         toolbarButtons={toolbarButtons}
         hidden={reallyAmLoading}
       />
-      <Sidebar sidebarActions={sidebarActions} />
+      <Sidebar sidebarActions={sidebarActions} appEnabled={appEnabled} />
       <div
         className={clsx(classes.content, {
           [classes.contentShift]: sidebarOpen,

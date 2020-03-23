@@ -218,6 +218,7 @@ const messages = defineMessages({
   maxBudgetInputLabel: 'effort value',
   maxBudgetInputHelperText: 'value must be less than {x}',
   draft: 'Draft',
+  inactive: 'Inactive',
 
   // Address list
   addressAddCancelLabel: 'Close',

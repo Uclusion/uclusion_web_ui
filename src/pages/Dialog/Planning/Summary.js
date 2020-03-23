@@ -74,7 +74,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function Summary(props) {
-  const { market, investibleId, hidden, unassigned, isChannel } = props;
+  const { market, investibleId, hidden, unassigned, isChannel, activeMarket } = props;
   const intl = useIntl();
   const classes = useStyles();
   const {
@@ -115,9 +115,14 @@ function Summary(props) {
         />
       </CardActions>
       <CardContent className={classes.content}>
-        {isDraft && (
+        {isDraft && activeMarket && (
           <Typography className={classes.draft}>
             {intl.formatMessage({ id: "draft" })}
+          </Typography>
+        )}
+        {!activeMarket && (
+          <Typography className={classes.draft}>
+            {intl.formatMessage({ id: "inactive" })}
           </Typography>
         )}
         <Typography className={classes.title} variant="h3" component="h1">
@@ -137,20 +142,24 @@ function Summary(props) {
             </fieldset>
           </>
         )}
-        {!_.isEmpty(unassigned) && (
-          <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-            <dt>
-              <FormattedMessage id="unassigned" />
-            </dt>
-            <dd>
-              <UnassignedDisplay
-                marketPresences={unassigned}
-              />
-            </dd>
-          </div>
+        {!(_.isEmpty(unassigned) && _.isEmpty(children) && !market.parent_market_id) && (
+          <dl className={metaClasses.root}>
+            {!_.isEmpty(unassigned) && (
+              <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+                <dt>
+                  <FormattedMessage id="unassigned" />
+                </dt>
+                <dd>
+                  <UnassignedDisplay
+                    marketPresences={unassigned}
+                  />
+                </dd>
+              </div>
+            )}
+            <ParentSummary market={market} hidden={hidden}/>
+            <MarketLinks links={children || []} hidden={hidden} />
+          </dl>
         )}
-        <ParentSummary market={market} hidden={hidden}/>
-        <MarketLinks links={children || []} hidden={hidden} />
       </CardContent>
     </Card>
   );
@@ -180,6 +189,7 @@ Summary.propTypes = {
   investibleId: PropTypes.string,
   hidden: PropTypes.bool.isRequired,
   isChannel: PropTypes.bool.isRequired,
+  activeMarket: PropTypes.bool.isRequired,
   unassigned: PropTypes.array
 };
 

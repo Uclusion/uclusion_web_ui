@@ -72,6 +72,9 @@ function ParentSummary(props) {
     const inv = getInvestible(investiblesState, parentInvestibleId) || {};
     const { investible } = inv;
     const { name: parentInvestibleName } = investible || {};
+    if (!parentMarketId) {
+      return React.Fragment;
+    }
     return (
       <ul>
         {myParentPresence && (

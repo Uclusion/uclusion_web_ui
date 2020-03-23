@@ -121,18 +121,20 @@ function MarketLinks (props) {
     })
   }
 
+  if (_.isEmpty(links)) {
+    return React.Fragment;
+  }
+
   return (
     <Paper className={classes.container} id="summary">
-      {!_.isEmpty(links) && (
-        <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-          <dt>
-            <FormattedMessage id="marketLinksSection" />
-          </dt>
-          <dd>
-            {displayLinksList(links)}
-          </dd>
-        </div>
-      )}
+      <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+        <dt>
+          <FormattedMessage id="marketLinksSection" />
+        </dt>
+        <dd>
+          {displayLinksList(links)}
+        </dd>
+      </div>
     </Paper>
   )
 }

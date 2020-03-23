@@ -164,7 +164,6 @@ function InitiativeInvestible(props) {
             description={description}
           />
           <Divider />
-          <MarketLinks links={children || []} hidden={hidden} />
           <dl className={metaClasses.root}>
             <div className={clsx(metaClasses.group, metaClasses.expiration)}>
               {activeMarket && (
@@ -219,6 +218,7 @@ function InitiativeInvestible(props) {
               </div>
               </>
             )}
+            <MarketLinks links={children || []} hidden={hidden} />
           </dl>
         </CardContent>
       </Card>

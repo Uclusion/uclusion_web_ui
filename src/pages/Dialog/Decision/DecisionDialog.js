@@ -266,8 +266,8 @@ function DecisionDialog(props) {
               </div>
               </>
             )}
+            <ParentSummary market={market} hidden={hidden}/>
           </dl>
-          <ParentSummary market={market} hidden={hidden}/>
         </CardContent>
       </Card>
       <Grid container spacing={2}>

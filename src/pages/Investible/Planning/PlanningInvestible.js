@@ -434,7 +434,6 @@ function PlanningInvestible(props) {
             id={investibleId}
             description={description}
           />
-          <MarketLinks links={children || []} hidden={hidden} />
           <Divider />
           <MarketMetaData
             investibleId={investibleId}
@@ -444,6 +443,8 @@ function PlanningInvestible(props) {
             marketPresences={marketPresences}
             isAdmin={isAdmin}
             toggleAssign={toggleAssign}
+            hidden={hidden}
+            children={children || []}
           />
         </CardContent>
       </Card>
@@ -530,7 +531,7 @@ export const useMetaDataStyles = makeStyles(
         display: "flex",
         flexDirection: "column",
         margin: theme.spacing(0, 1),
-        padding: theme.spacing(1, 2),
+        padding: theme.spacing(1, 1),
         "&:first-child": {
           marginLeft: 0
         },
@@ -586,6 +587,8 @@ function MarketMetaData(props) {
     marketInvestible,
     isAdmin,
     toggleAssign,
+    children,
+    hidden,
   } = props;
 
   const classes = useMetaDataStyles();
@@ -637,6 +640,7 @@ function MarketMetaData(props) {
           </dd>
         </div>
       )}
+      <MarketLinks links={children} hidden={hidden} />
     </dl>
   );
 }
@@ -649,6 +653,8 @@ MarketMetaData.propTypes = {
   marketInvestible: PropTypes.object.isRequired,
   isAdmin: PropTypes.bool.isRequired,
   toggleAssign: PropTypes.func.isRequired,
+  children: PropTypes.arrayOf(PropTypes.string).isRequired,
+  hidden: PropTypes.bool.isRequired,
 }
 
 function Assignments(props) {

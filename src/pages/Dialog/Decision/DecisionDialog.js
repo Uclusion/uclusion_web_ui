@@ -85,7 +85,6 @@ function DecisionDialog(props) {
   const intl = useIntl();
   const {
     is_admin: isAdmin,
-    following: isParticipant,
   } = myPresence;
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
@@ -136,15 +135,13 @@ function DecisionDialog(props) {
 
   const sidebarMenuList = [];
   if (activeMarket) {
-    if (isParticipant) {
-      sidebarMenuList.unshift({
-        label: intl.formatMessage({ id: addLabelExplanation }),
-        openLabel: intl.formatMessage({ id: addLabel }),
-        icon: <AddIcon/>,
-        id: 'newOption',
-        onClick: () => navigate(history, formMarketAddInvestibleLink(marketId)),
-      });
-    }
+    sidebarMenuList.unshift({
+      label: intl.formatMessage({ id: addLabelExplanation }),
+      openLabel: intl.formatMessage({ id: addLabel }),
+      icon: <AddIcon/>,
+      id: 'newOption',
+      onClick: () => navigate(history, formMarketAddInvestibleLink(marketId)),
+    });
   }
 
   function getSidebarActions() {

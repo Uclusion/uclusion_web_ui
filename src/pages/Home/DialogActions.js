@@ -89,15 +89,6 @@ function DialogActions(props) {
         actions.push(
           <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction} />
         );
-        if (isFollowing) {
-          actions.push(
-            <ChangeToObserverButton key="change-to-observer" marketId={marketId}/>,
-          );
-        } else {
-          actions.push(
-            <ChangeToParticipantButton key="change-to-participant" marketId={marketId}/>,
-          );
-        }
       }
       if (!inArchives && (marketType === PLANNING_TYPE || marketStage !== 'Active')) {
         actions.push(
@@ -116,6 +107,17 @@ function DialogActions(props) {
       actions.push(
         <ShowMarketButton key="enter" marketId={marketId} onClick={goHome}/>
       );
+    }
+    if (marketStage === 'Active') {
+      if (isFollowing) {
+        actions.push(
+          <ChangeToObserverButton key="change-to-observer" marketId={marketId}/>,
+        );
+      } else {
+        actions.push(
+          <ChangeToParticipantButton key="change-to-participant" marketId={marketId}/>,
+        );
+      }
     }
 
     return actions;

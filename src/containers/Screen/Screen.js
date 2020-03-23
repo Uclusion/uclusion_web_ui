@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+//const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
 
 function Screen(props) {
   const classes = useStyles();
@@ -123,19 +123,10 @@ function Screen(props) {
           [classes.contentUnShift]: !sidebarOpen,
         })}
       >
-        {!isChrome && (
-          <Card>
-            <CardContent>
-              <Typography variant="h3" align="center">
-                {intl.formatMessage({ id: 'browserNotSupported' })}
-              </Typography>
-            </CardContent>
-          </Card>
-        )}
-        {isChrome && !reallyAmLoading && (
+        {!reallyAmLoading && (
           <Container className={classes.container}>{children}</Container>
         )}
-        {isChrome && reallyAmLoading && (
+        {reallyAmLoading && (
           <Card>
             <CardContent>
               <Typography variant="h3" align="center">

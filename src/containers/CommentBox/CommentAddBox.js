@@ -82,7 +82,7 @@ function CommentAddBox(props) {
                     }
                     /* prevent clicking the label stealing focus */
                     onMouseDown={e => e.preventDefault()}
-                    control={<Radio />}
+                    control={<Radio color="primary" />}
                     label={<FormattedMessage id={`${commentType.toLowerCase()}Present`} />}
                     labelPlacement="end"
                     value={commentType}

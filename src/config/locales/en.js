@@ -270,7 +270,7 @@ const messages = defineMessages({
   planningReviewStageLabel: 'In Review',
   planningVerifiedStageLabel: 'Verified',
   planningNotDoingStageLabel: 'Not Doing',
-  planningInvestibleAssignments: 'Assigned',
+  planningInvestibleAssignments: 'assigned',
   planningInvestibleDecision: 'Create Child Dialog',
   planningInvestibleCantVote: 'You can\'t vote if you\'re assigned',
   planningInvestibleDescription: '- Description',

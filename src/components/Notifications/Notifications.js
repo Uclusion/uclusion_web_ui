@@ -4,14 +4,14 @@ import { Fab, makeStyles, Tooltip } from '@material-ui/core'
 import { useHistory } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import { nextMessage } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import {
   ISSUE_RESOLVED_TYPE,
   ISSUE_TYPE,
   NEW_VOTES_TYPE,
   NO_PIPELINE_TYPE,
   USER_POKED_TYPE
-} from '../../constants/notifications'
+} from '../../constants/notifications';
+import { nextMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 
 const useStyles = makeStyles({
   red: {
@@ -74,8 +74,8 @@ export function getFullLink(current) {
 }
 
 function Notifications(props) {
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const { current } = messagesState;
+  const [messagesState] = useContext(NotificationsContext);
+  const current  = nextMessage(messagesState);
   const history = useHistory();
   const classes = useStyles();
 
@@ -97,7 +97,6 @@ function Notifications(props) {
   function nextOnClick() {
     if (current) {
       navigate(history, getFullLink(current));
-      messagesDispatch(nextMessage());
     }
   }
 

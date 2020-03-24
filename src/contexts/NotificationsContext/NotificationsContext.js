@@ -44,9 +44,9 @@ function NotificationsProvider(props) {
       lfg.getState()
         .then((state) => {
           if (state) {
-            const { current, messages } = state;
+            const { messages } = state;
             //We don't want to load up page or lastPage from disk
-            dispatch(initializeState({current, messages}));
+            dispatch(initializeState({messages}));
           }
         });
       beginListening(dispatch);

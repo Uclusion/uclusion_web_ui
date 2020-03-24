@@ -5,7 +5,6 @@ export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const UPDATE_PAGE = 'UPDATE_PAGE';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
-const INCREMENT_CURRENT = 'INCREMENT_CURRENT';
 const PROCESSED_PAGE = 'PROCESSED_PAGE';
 
 /** Messages you can send the reducer */
@@ -25,12 +24,6 @@ export function processedPage(page, messages, toastInfo, newPage, scrollTarget) 
     toastInfo,
     newPage,
     scrollTarget
-  };
-}
-
-export function nextMessage() {
-  return {
-    type: INCREMENT_CURRENT,
   };
 }
 
@@ -163,16 +156,6 @@ export function isMessageEqual(aMessage, message) {
     && aMessage.market_id_user_id === message.market_id_user_id;
 }
 
-function getNextCurrent(messages, current) {
-  let index = messages.findIndex((message) => isMessageEqual(message, current));
-  if (index === messages.length - 1) {
-    index = 0;
-  } else {
-    index += 1;
-  }
-  return messages[index];
-}
-
 /** Functions that mutate the state */
 
 function doUpdatePage(state, action) {
@@ -192,7 +175,7 @@ function markPageProcessed(state, action) {
       lastPage: page,
     };
   }
-  const { messages, current, toastId: currentToastId } = state;
+  const { messages, toastId: currentToastId } = state;
   if (currentToastId && toast.isActive(currentToastId)) {
     toast.dismiss(currentToastId);
   }
@@ -213,8 +196,6 @@ function markPageProcessed(state, action) {
   }
   // Done toasting so hopefully is safe to scroll without concern for re-render
   scroller(scrollTarget, newPage);
-  let removedCurrent = false;
-  let newCurrent = current;
   const filteredMessages = messages.filter((aMessage) => {
     let keep = true;
     removedMessages.forEach((removedMessage) => {
@@ -222,31 +203,11 @@ function markPageProcessed(state, action) {
         keep = false;
       }
     });
-    if (!keep && isMessageEqual(current, aMessage)) {
-      removedCurrent = true;
-    }
-    if (keep && removedCurrent) {
-      newCurrent = aMessage;
-    }
     return keep;
   });
-  if (removedCurrent && isMessageEqual(newCurrent, current)) {
-    if (_.isEmpty(filteredMessages)) {
-      // Just removed the last one
-      return {
-        ...state,
-        messages: [],
-        current: undefined,
-        lastPage: page,
-        toastId
-      };
-    }
-    newCurrent = filteredMessages[0];
-  }
   return {
     ...state,
     messages: filteredMessages,
-    current: newCurrent,
     lastPage: page,
     toastId
   };
@@ -258,29 +219,12 @@ function doUpdateMessages(state, action) {
     return {
       ...state,
       messages: [],
-      current: undefined,
     };
   }
-  const { current } = state;
   const massagedMessages = getMassagedMessages(messages);
-  let newCurrent = massagedMessages.find((aMessage) => isMessageEqual(aMessage, current));
-  if (!newCurrent && massagedMessages.length > 0) {
-    // eslint-disable-next-line prefer-destructuring
-    newCurrent = massagedMessages[0];
-  }
   return {
     ...state,
     messages: massagedMessages,
-    current: newCurrent,
-  };
-}
-
-function doNext(state) {
-  const { messages, current } = state;
-  const newCurrent = getNextCurrent(messages, current);
-  return {
-    ...state,
-    current: newCurrent,
   };
 }
 
@@ -292,8 +236,6 @@ function computeNewState(state, action) {
       return doUpdatePage(state, action);
     case INITIALIZE_STATE:
       return action.newState;
-    case INCREMENT_CURRENT:
-      return doNext(state);
     case PROCESSED_PAGE:
       return markPageProcessed(state, action);
     default:

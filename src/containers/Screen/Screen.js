@@ -79,7 +79,7 @@ function Screen(props) {
     messages.forEach((message) => {
       const { level } = message;
       if (level === 'RED') {
-        prePendWarning += '*';
+        prePendWarning += '!';
       } else {
         hasYellow = true;
       }

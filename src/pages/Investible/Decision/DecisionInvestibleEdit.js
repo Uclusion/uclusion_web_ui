@@ -11,7 +11,7 @@ import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingBut
 import { processTextAndFilesForSave } from '../../../api/files';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { usePlanFormStyles } from '../../../components/AgilePlan'
-import CardType, { VOTING_TYPE } from '../../../components/CardType'
+import CardType, { OPTION, VOTING_TYPE } from '../../../components/CardType'
 
 function DecisionInvestibleEdit(props) {
   const {
@@ -102,6 +102,7 @@ function DecisionInvestibleEdit(props) {
           id: "decisionInvestibleDescription"
         })}`}
         type={VOTING_TYPE}
+        subtype={OPTION}
       />
       <CardContent className={classes.cardContent}>
         <TextField

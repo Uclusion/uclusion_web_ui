@@ -57,7 +57,7 @@ import CardType, {
   IN_BLOCKED,
   IN_PROGRESS,
   IN_REVIEW,
-  IN_VERIFIED,
+  IN_VERIFIED, IN_VOTING,
   NOT_DOING,
   STORY_TYPE
 } from '../../../components/CardType'
@@ -391,7 +391,7 @@ function PlanningInvestible(props) {
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
   }
-  const subtype = isInVoting ? STORY_TYPE : isInAccepted ? IN_PROGRESS : isInReview ? IN_REVIEW :
+  const subtype = isInVoting ? IN_VOTING : isInAccepted ? IN_PROGRESS : isInReview ? IN_REVIEW :
     isInBlocked ? IN_BLOCKED : isInNotDoing ? NOT_DOING : IN_VERIFIED;
   return (
     <Screen

@@ -246,6 +246,7 @@ const messages = defineMessages({
   // Investible
   investibleEditLabel: 'Edit',
   investibleAssignLabel: 'Assign',
+  investibleAssign: 'Story - Assignments',
   createAssignment: 'Assign story',
   investibleAssignForVotingLabel: 'Assign & Move Voting',
   investibleAddHeader: 'Add Investible',

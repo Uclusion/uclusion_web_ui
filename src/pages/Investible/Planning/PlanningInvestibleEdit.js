@@ -13,7 +13,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import AssignmentList from '../../Dialog/Planning/AssignmentList';
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import CardType, { VOTING_TYPE } from '../../../components/CardType'
+import CardType, { ASSIGN_TYPE, STORY_TYPE } from '../../../components/CardType'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { DaysEstimate, usePlanFormStyles } from '../../../components/AgilePlan'
 
@@ -125,15 +125,15 @@ function PlanningInvestibleEdit(props) {
     setAssignments(newAssignments);
     handleDraftState({ ...draftState, assignments: newAssignments });
   }
-
+  const subtype = isAssign ? ASSIGN_TYPE : STORY_TYPE;
+  const operationLabel = isAssign ? "investibleAssign" : "investibleDescription";
   return (
     <Card>
       <CardType
         className={classes.cardType}
-        label={`${intl.formatMessage({
-          id: "investibleDescription"
-        })}`}
-        type={VOTING_TYPE}
+        label={intl.formatMessage({ id: operationLabel })}
+        type={STORY_TYPE}
+        subtype={subtype}
       />
       <CardContent className={classes.cardContent}>
         {isAssign && (

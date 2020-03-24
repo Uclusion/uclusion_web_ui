@@ -21,6 +21,8 @@ import BlockIcon from '@material-ui/icons/Block';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import StarRateIcon from '@material-ui/icons/StarRate';
+import EditIcon from '@material-ui/icons/Edit';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { DECISION_TYPE } from '../constants/markets';
 import AgilePlanIcon from "@material-ui/icons/PlaylistAdd";
 
@@ -34,6 +36,8 @@ export const IN_BLOCKED = "BLOCKED";
 export const NOT_DOING = "STOPPED";
 export const IN_VERIFIED = "VERIFIED";
 export const OPTION = "OPTION";
+export const IN_VOTING= "DELIBERATION";
+export const ASSIGN_TYPE = "ASSIGN";
 
 function NoIcon() {
   return null;
@@ -109,13 +113,15 @@ export default function CardType(props) {
     [QUESTION_TYPE]: QuestionIcon,
     [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon,
     [VOTING_TYPE]: VotingIcon,
-    [STORY_TYPE]: ThumbsUpDownIcon,
+    [STORY_TYPE]: EditIcon,
+    [IN_VOTING]: ThumbsUpDownIcon,
     [IN_PROGRESS]: PlayForWorkIcon,
     [IN_REVIEW]: RateReviewIcon,
     [IN_BLOCKED]: BlockIcon,
     [NOT_DOING]: NotInterestedIcon,
     [IN_VERIFIED]: VerifiedUserIcon,
     [OPTION]: StarRateIcon,
+    [ASSIGN_TYPE]: PersonAddIcon,
     [DECISION_TYPE]: GavelIcon,
     certainty0: NoIcon,
     certainty25: NoIcon,
@@ -134,6 +140,17 @@ export default function CardType(props) {
 }
 CardType.propTypes = {
   label: PropTypes.node,
+  subtype: PropTypes.oneOf([
+    IN_VOTING,
+    IN_VERIFIED,
+    IN_BLOCKED,
+    IN_REVIEW,
+    STORY_TYPE,
+    IN_PROGRESS,
+    NOT_DOING,
+    ASSIGN_TYPE,
+    OPTION
+  ]),
   type: PropTypes.oneOf([
     "certainty0",
     "certainty25",

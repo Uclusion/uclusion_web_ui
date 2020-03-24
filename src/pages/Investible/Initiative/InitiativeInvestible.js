@@ -19,6 +19,7 @@ import {
 import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets';
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
 import InsertLinkIcon from '@material-ui/icons/InsertLink';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import MarketLinks from '../../Dialog/MarketLinks';
 import CardType, { VOTING_TYPE } from '../../../components/CardType';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
@@ -293,7 +294,7 @@ export function Collaborators(props) {
           <IconButton
             onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
           >
-            <EditIcon />
+            <PersonAddIcon />
           </IconButton>
         </Tooltip>
       )}

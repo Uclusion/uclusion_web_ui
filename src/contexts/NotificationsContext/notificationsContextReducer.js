@@ -123,27 +123,35 @@ function getMassagedMessages(messages) {
     const {
       marketId: aMarketId,
       investibleId: aInvestibleId,
+      level: aLevel,
     } = a;
     const {
       marketId: bMarketId,
       investibleId: bInvestibleId,
+      level: bLevel,
     } = b;
-    if (aMarketId === bMarketId) {
-      if (aInvestibleId === bInvestibleId) {
+    if (aLevel === bLevel) {
+      if (aMarketId === bMarketId) {
+        if (aInvestibleId === bInvestibleId) {
+          return 0;
+        }
+        if (!aInvestibleId) {
+          return -1;
+        }
+        if (!bInvestibleId) {
+          return 1;
+        }
         return 0;
       }
-      if (!aInvestibleId) {
+      if (!aMarketId) {
         return -1;
       }
-      if (!bInvestibleId) {
-        return  1;
-      }
-      return 0;
+      return aMarketId.localeCompare(bMarketId);
     }
-    if (!aMarketId) {
+    if (aLevel === 'RED') {
       return -1;
     }
-    return aMarketId.localeCompare(bMarketId);
+    return 1;
   })
   return rawMessages;
 }

@@ -19,7 +19,7 @@ import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingBut
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
 import queryString from 'query-string';
-import CardType, { VOTING_TYPE } from '../../../components/CardType';
+import CardType, { STORY_TYPE } from '../../../components/CardType'
 import { DaysEstimate } from '../../../components/AgilePlan';
 
 function PlanningInvestibleAdd(props) {
@@ -147,7 +147,7 @@ function PlanningInvestibleAdd(props) {
         label={`${intl.formatMessage({
           id: "investibleDescription"
         })}`}
-        type={VOTING_TYPE}
+        type={STORY_TYPE}
       />
       <CardContent className={classes.cardContent}>
         <AssignmentList

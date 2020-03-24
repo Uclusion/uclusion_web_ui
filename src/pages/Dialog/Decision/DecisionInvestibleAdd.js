@@ -25,7 +25,7 @@ import {
   PURE_SIGNUP_ADD_FIRST_OPTION,
   PURE_SIGNUP_ADD_FIRST_OPTION_STEPS, PURE_SIGNUP_FAMILY_NAME
 } from '../../../components/Tours/pureSignupTours';
-import CardType, { VOTING_TYPE } from '../../../components/CardType';
+import CardType, { OPTION, VOTING_TYPE } from '../../../components/CardType'
 import { FormattedMessage, useIntl } from 'react-intl'
 
 function DecisionInvestibleAdd(props) {
@@ -154,6 +154,7 @@ function DecisionInvestibleAdd(props) {
           id: "decisionInvestibleDescription"
         })}`}
         type={VOTING_TYPE}
+        subtype={OPTION}
       />
       <CardContent className={classes.cardContent}>
         <TextField
@@ -218,7 +219,7 @@ function DecisionInvestibleAdd(props) {
           onSpinStop={onSaveAddAnother}
         >
           <FormattedMessage
-            id={"decisionInvestibleSaveAddAnother"}
+            id="decisionInvestibleSaveAddAnother"
           />
         </SpinBlockingButton>
       </CardActions>

@@ -13,13 +13,27 @@ import IssueIcon from "@material-ui/icons/ReportProblem";
 import QuestionIcon from "@material-ui/icons/ContactSupport";
 import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
 import VotingIcon from "@material-ui/icons/Assessment";
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import GavelIcon from '@material-ui/icons/Gavel';
+import PlayForWorkIcon from '@material-ui/icons/PlayForWork';
+import RateReviewIcon from '@material-ui/icons/RateReview';
+import BlockIcon from '@material-ui/icons/Block';
+import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
+import NotInterestedIcon from '@material-ui/icons/NotInterested';
+import StarRateIcon from '@material-ui/icons/StarRate';
 import { DECISION_TYPE } from '../constants/markets';
 import AgilePlanIcon from "@material-ui/icons/PlaylistAdd";
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, DECISION_TYPE };
 export const VOTING_TYPE = "VOTING";
+export const STORY_TYPE = "STORY";
 export const AGILE_PLAN_TYPE = "AGILE_PLAN";
+export const IN_PROGRESS = "PROGRESS";
+export const IN_REVIEW = "REVIEW";
+export const IN_BLOCKED = "BLOCKED";
+export const NOT_DOING = "STOPPED";
+export const IN_VERIFIED = "VERIFIED";
+export const OPTION = "OPTION";
 
 function NoIcon() {
   return null;
@@ -34,6 +48,7 @@ const useCardTypeStyles = makeStyles(
           [QUESTION_TYPE]: resolved ? "#BDC3C7" : "#2F80ED",
           [SUGGEST_CHANGE_TYPE]: resolved ? "#BDC3C7" : "#F29100",
           [VOTING_TYPE]: "#9B51E0",
+          [STORY_TYPE]: "#506999",
           [DECISION_TYPE]: "#0B51E0",
           certainty0: "#D54F22",
           certainty25: "#F4AB3B",
@@ -84,6 +99,7 @@ export default function CardType(props) {
     className,
     type,
     resolved,
+    subtype,
     label = <FormattedMessage id={labelIntlIds[type]} />
   } = props;
   const classes = useCardTypeStyles({ type, resolved });
@@ -93,6 +109,13 @@ export default function CardType(props) {
     [QUESTION_TYPE]: QuestionIcon,
     [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon,
     [VOTING_TYPE]: VotingIcon,
+    [STORY_TYPE]: ThumbsUpDownIcon,
+    [IN_PROGRESS]: PlayForWorkIcon,
+    [IN_REVIEW]: RateReviewIcon,
+    [IN_BLOCKED]: BlockIcon,
+    [NOT_DOING]: NotInterestedIcon,
+    [IN_VERIFIED]: VerifiedUserIcon,
+    [OPTION]: StarRateIcon,
     [DECISION_TYPE]: GavelIcon,
     certainty0: NoIcon,
     certainty25: NoIcon,
@@ -100,7 +123,7 @@ export default function CardType(props) {
     certainty75: NoIcon,
     certainty100: NoIcon,
     [AGILE_PLAN_TYPE]: AgilePlanIcon
-  }[type];
+  }[subtype || type];
 
   return (
     <div className={clsx(classes.root, className)}>
@@ -121,6 +144,7 @@ CardType.propTypes = {
     QUESTION_TYPE,
     SUGGEST_CHANGE_TYPE,
     VOTING_TYPE,
+    STORY_TYPE,
     DECISION_TYPE,
     AGILE_PLAN_TYPE
   ])

@@ -79,6 +79,7 @@ function getAssignedInvestibleIdsForStage(
   }
   // eslint-disable-next-line max-len
   const assignedMarketInfosForStage = marketInfosForStage.filter(marketInfo =>
+    marketInfo.assigned &&
     marketInfo.assigned.includes(userId)
   );
   if (

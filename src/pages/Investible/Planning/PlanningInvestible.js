@@ -53,7 +53,14 @@ import DescriptionOrDiff from "../../../components/Descriptions/DescriptionOrDif
 import EditMarketButton from "../../Dialog/EditMarketButton";
 import ExpandableSidebarAction from "../../../components/SidebarActions/ExpandableSidebarAction";
 import MarketLinks from "../../Dialog/MarketLinks";
-import CardType, { VOTING_TYPE } from "../../../components/CardType";
+import CardType, {
+  IN_BLOCKED,
+  IN_PROGRESS,
+  IN_REVIEW,
+  IN_VERIFIED,
+  NOT_DOING,
+  STORY_TYPE
+} from '../../../components/CardType'
 import clsx from "clsx";
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets';
 
@@ -384,6 +391,8 @@ function PlanningInvestible(props) {
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
   }
+  const subtype = isInVoting ? STORY_TYPE : isInAccepted ? IN_PROGRESS : isInReview ? IN_REVIEW :
+    isInBlocked ? IN_BLOCKED : isInNotDoing ? NOT_DOING : IN_VERIFIED;
   return (
     <Screen
       title={name}
@@ -398,7 +407,8 @@ function PlanningInvestible(props) {
           label={`${stageName} ${intl.formatMessage({
             id: "planningInvestibleDescription"
           })}`}
-          type={VOTING_TYPE}
+          type={STORY_TYPE}
+          subtype={subtype}
         />
         {daysEstimate > 0 && (
           <Typography className={classes.maxBudget} component="div">

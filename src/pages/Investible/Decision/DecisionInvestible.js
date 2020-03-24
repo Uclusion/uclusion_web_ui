@@ -23,7 +23,7 @@ import { ACTIVE_STAGE } from '../../../constants/markets';
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import EditMarketButton from '../../Dialog/EditMarketButton';
-import CardType, { VOTING_TYPE } from '../../../components/CardType';
+import CardType, { OPTION, VOTING_TYPE } from '../../../components/CardType'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -176,6 +176,7 @@ function DecisionInvestible(props) {
             id: "decisionInvestibleDescription"
           })}`}
           type={VOTING_TYPE}
+          subtype={OPTION}
         />
         <CardContent className={classes.votingCardContent}>
           <h1>

@@ -29,7 +29,6 @@ import clsx from 'clsx';
 import { useMetaDataStyles } from '../Planning/PlanningInvestible';
 import DialogActions from '../../Home/DialogActions'
 import Box from '@material-ui/core/Box';
-import EditIcon from '@material-ui/icons/Edit';
 import CardActions from '@material-ui/core/CardActions'
 
 const useStyles = makeStyles(

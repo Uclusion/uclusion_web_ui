@@ -72,8 +72,9 @@ export function signatureMatcher (fetched, signatures) {
   }
   const unmatchedSignatures = _.difference(signatures, matchedSignatures);
   const allMatched = _.isEmpty(unmatchedSignatures);
-  // // console.log(allMatched);
-  // // console.log(unmatchedSignatures);
+  if (!allMatched) {
+    console.warn(unmatchedSignatures);
+  }
   return { matched, unmatchedSignatures, allMatched };
 }
 

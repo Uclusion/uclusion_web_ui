@@ -37,7 +37,6 @@ function InviteLinker(props) {
   const {
     marketId,
     hidden,
-    observerLabel,
     marketType,
   } = props;
   const classes = useStyles();
@@ -87,7 +86,6 @@ function InviteLinker(props) {
 
 InviteLinker.propTypes = {
   marketId: PropTypes.string.isRequired,
-  observerLabel: PropTypes.string.isRequired,
   hidden: PropTypes.bool,
   marketType: PropTypes.string.isRequired,
 };

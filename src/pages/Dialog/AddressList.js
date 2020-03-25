@@ -255,6 +255,12 @@ function AddressList(props) {
             </ListItemIcon>
           </ListItem>
         </List>
+        <List
+          dense
+          id="addressBook"
+        >
+          {displayNames.map((entry) => renderParticipantEntry(entry))}
+        </List>
         <CardActions className={classes.actions}>
           <Button
             onClick={myOnCancel}
@@ -289,12 +295,6 @@ function AddressList(props) {
           observerLabel={intl.formatMessage({ id: 'isObserver' })}
         />
       </ListItem>
-      <List
-        dense
-        id="addressBook"
-      >
-        {displayNames.map((entry) => renderParticipantEntry(entry))}
-      </List>
       <CardActions className={classes.actions}>
         <Button
           onClick={myOnCancel}

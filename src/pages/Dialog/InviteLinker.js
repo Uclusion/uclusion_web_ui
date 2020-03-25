@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
   input: {
     width: '100%',
+    marginBottom: 15,
   },
   inputField: {
     width: '100%',

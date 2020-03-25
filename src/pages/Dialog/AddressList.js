@@ -209,31 +209,7 @@ function AddressList(props) {
           <Typography class={classes.sectionHeader}>
             {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
           </Typography>
-          <ListItem
-            id="emailInput"
-            key="emailInput"
-          >
-            <ListItemText className={classes.name}>
-              <TextField
-                variant="outlined"
-                id="email1"
-                name="email1"
-                type="email"
-                fullWidth
-                label={intl.formatMessage({ id: 'email' })}
-                value={email1}
-                onChange={handleEmail1}
-              />
-            </ListItemText>
-            <ListItemIcon>
-              <Checkbox
-                id="isObserver1"
-                onClick={handleIsObserver1}
-                checked={isObserver1}
-              />
-            </ListItemIcon>
-          </ListItem>
-          <ListItem key="search" divider>
+           <ListItem key="search" divider>
             <ListItemText className={classes.name}>
               <TextField
                 onChange={onSearchChange}
@@ -294,6 +270,30 @@ function AddressList(props) {
           marketId={addToMarketId}
           observerLabel={intl.formatMessage({ id: 'isObserver' })}
         />
+      </ListItem>
+      <ListItem
+        id="emailInput"
+        key="emailInput"
+      >
+        <ListItemText className={classes.name}>
+          <TextField
+            variant="outlined"
+            id="email1"
+            name="email1"
+            type="email"
+            fullWidth
+            label={intl.formatMessage({ id: 'email' })}
+            value={email1}
+            onChange={handleEmail1}
+          />
+        </ListItemText>
+        <ListItemIcon>
+          <Checkbox
+            id="isObserver1"
+            onClick={handleIsObserver1}
+            checked={isObserver1}
+          />
+        </ListItemIcon>
       </ListItem>
       <CardActions className={classes.actions}>
         <Button

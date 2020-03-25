@@ -64,7 +64,7 @@ function NotificationsProvider(props) {
   useLayoutEffect(() => {
     if (page) {
       let isOldPage = lastPage !== undefined && pageIsEqual(page, lastPage);
-      //console.debug(`processing old page ${isOldPage}`);
+      console.debug(`processing old page ${isOldPage}`);
       page.lastProcessed = Date.now();
       const scrollTarget = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
       if (!isOldPage && !hash) {
@@ -72,6 +72,7 @@ function NotificationsProvider(props) {
         window.scrollTo(0, 0);
       }
       if (_.isEmpty(messages)) {
+        console.debug(`processed empty messages and ${JSON.stringify(page)}`);
         if (!isOldPage) {
           dispatch(processedPage(page, undefined, undefined, true, scrollTarget));
         }
@@ -110,7 +111,7 @@ function NotificationsProvider(props) {
             && marketId === messageMarketId && investibleId === messageInvestibleId;
           const processedMessage = (beingProcessed || []).find((processing) => isMessageEqual(message, processing));
           const isBeingProcessed = !_.isEmpty(processedMessage);
-          //console.debug(`being processed ${isBeingProcessed} and ${JSON.stringify(beingProcessed)} and ${JSON.stringify(page)}`);
+          console.debug(`being processed ${JSON.stringify(beingProcessed)} and ${JSON.stringify(page)}`);
           const doRemove = !isBeingProcessed && (marketMatch ||
             (pokeType === 'slack_reminder' && action === 'notificationPreferences')
             || (pokeType === 'upgrade_reminder' && action === 'upgrade'));
@@ -130,7 +131,7 @@ function NotificationsProvider(props) {
         }
         //If you've been on the page less than 3s count as new for the purposes of new messages
         isOldPage = isOldPage && (Date.now() - page.lastProcessed > 3000);
-        //console.debug(`processing ${JSON.stringify(filtered)}`);
+        console.debug(`processing ${JSON.stringify(filtered)} and is old page ${isOldPage}`);
         filtered.forEach((message) => {
           const {
             level,

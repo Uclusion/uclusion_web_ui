@@ -10,13 +10,18 @@ import config from '../config';
 import { sendInfoPersistent, toastErrorAndThrow } from '../utils/userMessage';
 import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext/NotificationsContext';
 import { registerListener, pushMessage, removeListener } from '../utils/MessageBusUtils';
-import { refreshNotifications, refreshVersions } from './VersionsContext/versionsContextHelper'
+import {
+  NOTIFICATIONS_HUB_CHANNEL,
+  refreshNotifications,
+  refreshVersions
+} from './VersionsContext/versionsContextHelper'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
 export const MARKET_MESSAGE_EVENT = 'market_web_push';
 export const NOTIFICATION_MESSAGE_EVENT = 'notification_web_push';
 export const SOCKET_OPEN_EVENT = 'web_socket_opened';
+export const REMOVE_EVENT = 'remove_push';
 
 const WebSocketContext = React.createContext([
   {}, () => {
@@ -97,15 +102,27 @@ function WebSocketProvider(props) {
     });
 
     newSocket.registerHandler('notification', (message) => {
-      // Try to be up to date before we push the notification out (which might need new data)
-      refreshVersions();
-      pushMessage(
-        VERSIONS_HUB_CHANNEL,
-        {
-          event: NOTIFICATION_MESSAGE_EVENT,
-          message,
-        },
-      );
+      const { hkey, rkey } = message;
+      if (hkey && rkey) {
+        pushMessage(
+          NOTIFICATIONS_HUB_CHANNEL,
+          {
+            event: REMOVE_EVENT,
+            hkey,
+            rkey,
+          },
+        );
+      } else {
+        // Try to be up to date before we push the notification out (which might need new data)
+        refreshVersions();
+        pushMessage(
+          VERSIONS_HUB_CHANNEL,
+          {
+            event: NOTIFICATION_MESSAGE_EVENT,
+            message,
+          },
+        );
+      }
     });
 
     // Go ahead and get the latest when bring up a new socket since you may not have been listening

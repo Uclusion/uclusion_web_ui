@@ -1,12 +1,13 @@
 import { getMessages } from '../../api/sso';
-import { updateMessages, updatePage } from './notificationsContextReducer';
+import { updateMessages, updatePage, remove } from './notificationsContextReducer';
 import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext';
-import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper';
+import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
 import { registerListener } from '../../utils/MessageBusUtils';
+import { REMOVE_EVENT } from '../WebSocketContext';
 
 function beginListening(dispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
-    const { payload: { event } } = data;
+    const { payload: { event, hkey, rkey } } = data;
     // // console.debug(`Notifications context responding to push event ${event}`);
 
     switch (event) {
@@ -14,6 +15,9 @@ function beginListening(dispatch) {
         getMessages().then((messages) => {
           return dispatch(updateMessages(messages));
         });
+        break;
+      case REMOVE_EVENT:
+        dispatch(remove(hkey, rkey));
         break;
       default:
         // console.debug(`Ignoring push event ${event}`);

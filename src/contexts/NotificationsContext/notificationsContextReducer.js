@@ -6,6 +6,7 @@ const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const UPDATE_PAGE = 'UPDATE_PAGE';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const PROCESSED_PAGE = 'PROCESSED_PAGE';
+const REMOVE = 'REMOVE';
 
 /** Messages you can send the reducer */
 
@@ -13,6 +14,14 @@ export function updateMessages(messages) {
   return {
     type: UPDATE_MESSAGES,
     messages,
+  };
+}
+
+export function remove(hkey, rkey) {
+  return {
+    type: REMOVE,
+    hkey,
+    rkey,
   };
 }
 
@@ -50,7 +59,7 @@ function scroller(target, newPage, retry=true) {
       } else if (retry) {
         setTimeout(() => {
           scroller(target, newPage, false);
-        }, 1000);
+        }, 1500);
       } else {
         console.warn(`Processing scroll failed for ${target}`)
       }
@@ -180,6 +189,7 @@ function markPageProcessed(state, action) {
     scroller(scrollTarget, newPage);
     return {
       ...state,
+      page: {...page, beingProcessed: []},
       lastPage: page,
     };
   }
@@ -208,6 +218,7 @@ function markPageProcessed(state, action) {
     let keep = true;
     removedMessages.forEach((removedMessage) => {
       if (isMessageEqual(aMessage, removedMessage)) {
+        console.debug(`processing remove for ${JSON.stringify(aMessage)}`)
         keep = false;
       }
     });
@@ -216,6 +227,7 @@ function markPageProcessed(state, action) {
   return {
     ...state,
     messages: filteredMessages,
+    page: {...page, beingProcessed: []},
     lastPage: page,
     toastId
   };
@@ -236,6 +248,17 @@ function doUpdateMessages(state, action) {
   };
 }
 
+function doRemove(state, action) {
+  const { hkey, rkey } = action;
+  const { messages } = state;
+  const filteredMessages = messages.filter((message) => message.type_object_id === rkey
+    && message.market_id_user_id === hkey);
+  return {
+    ...state,
+    messages: filteredMessages,
+  };
+}
+
 function computeNewState(state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
@@ -246,6 +269,8 @@ function computeNewState(state, action) {
       return action.newState;
     case PROCESSED_PAGE:
       return markPageProcessed(state, action);
+    case REMOVE:
+      return doRemove(state, action);
     default:
       return state;
   }

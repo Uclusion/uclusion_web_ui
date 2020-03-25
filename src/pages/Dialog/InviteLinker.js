@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/styles';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import { useIntl } from 'react-intl';
 import { formInviteLink } from '../../utils/marketIdPathFunctions';
-import { Typography } from '@material-ui/core';
+import { Typography, InputBase, Divider } from '@material-ui/core';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
 
@@ -12,7 +12,24 @@ const useStyles = makeStyles((theme) => ({
   hidden: {
     display: 'none',
   },
-  linker: {},
+  linkContainer: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  input: {
+    width: '100%',
+  },
+  inputField: {
+    width: '100%',
+    border: '1px solid #ccc',
+    paddingLeft: 15,
+    borderRadius: 5,
+  },
+  divider: {
+    height: 36,
+    margin: 4,
+  },
 }));
 
 function InviteLinker(props) {
@@ -37,34 +54,33 @@ function InviteLinker(props) {
         return 'inviteLinkerDirectionsDecision';
     }
   }
-
+  const message = intl.formatMessage({ id: getDirectionsId() });
   const link = formInviteLink(marketId);
+  const icon = (
+    <>
+    <Divider className={classes.divider} orientation="vertical" />
+    <TooltipIconButton
+      translationId="inviteLinkerCopyToClipboard"
+      icon={<AssignmentIcon/>}
+      onClick={() => navigator.clipboard.writeText(`${link}#is_obs=true`)}
+    />
+    </>
+  );
   return (
     <div
       id="inviteLinker"
-      className={hidden ? classes.hidden : classes.linker}
+      className={hidden ? classes.hidden : classes.linkContainer}
     >
-      <Typography>
-        {intl.formatMessage({ id: getDirectionsId() })}
-      </Typography>
-      <Typography>
-        {`${link}#is_obs=false`}
-      </Typography>
-      <TooltipIconButton
-        translationId="inviteLinkerCopyToClipboard"
-        icon={<AssignmentIcon/>}
-        onClick={() => navigator.clipboard.writeText(`${link}#is_obs=false`)}
+      <Typography className={classes.input}>{ message }</Typography>
+      <InputBase
+        className={classes.inputField}
+        fullWidth={true}
+        placeholder={link}
+        inputProps={{ ariaLabel: link, border: '1px solid #ccc' }}
+        value={link}
+        endAdornment={icon}
+        color={"primary"}
       />
-      <div>
-        <Typography>
-          {`${observerLabel} ${link}#is_obs=true`}
-        </Typography>
-        <TooltipIconButton
-          translationId="inviteLinkerCopyToClipboard"
-          icon={<AssignmentIcon/>}
-          onClick={() => navigator.clipboard.writeText(`${link}#is_obs=true`)}
-        />
-      </div>
     </div>
   );
 }

@@ -3,17 +3,18 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
-  Button, CardActions,
+  Button,
+  CardActions,
   Checkbox,
+  InputAdornment,
+  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   Typography,
+  TextField,
 } from '@material-ui/core'
-import TextField from '@material-ui/core/TextField';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
@@ -197,15 +198,6 @@ function AddressList(props) {
 
   return (
     <>
-      <Typography>
-        {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
-      </Typography>
-      <InviteLinker
-        marketType={marketType}
-        showObserverLink={showObservers}
-        marketId={addToMarketId}
-        observerLabel={intl.formatMessage({ id: 'isObserver' })}
-      />
       <form
         className={classes.form}
         autoComplete="off"
@@ -214,18 +206,9 @@ function AddressList(props) {
         <List
           dense
         >
-          <ListItem key="participantEmailAdd" divider>
-            <ListItemText className={classes.name}>
-              {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
-            </ListItemText>
-            {showObservers && (
-              <ListItemIcon>
-                <ListItemText>
-                  {intl.formatMessage({ id: 'isObserver' })}
-                </ListItemText>
-              </ListItemIcon>
-            )}
-          </ListItem>
+          <Typography class={classes.sectionHeader}>
+            {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+          </Typography>
           <ListItem
             id="emailInput"
             key="emailInput"
@@ -248,6 +231,27 @@ function AddressList(props) {
                 onClick={handleIsObserver1}
                 checked={isObserver1}
               />
+            </ListItemIcon>
+          </ListItem>
+          <ListItem key="search" divider>
+            <ListItemText className={classes.name}>
+              <TextField
+                onChange={onSearchChange}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position={'end'}>
+                      <IconButton>
+                        <SearchIcon/>
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </ListItemText>
+            <ListItemIcon>
+              <ListItemText>
+                {intl.formatMessage({ id: 'isObserver' })}
+              </ListItemText>
             </ListItemIcon>
           </ListItem>
         </List>
@@ -274,31 +278,21 @@ function AddressList(props) {
           </ApiBlockingButton>
         </CardActions>
       </form>
+      <Typography class={classes.sectionHeader}>
+        {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
+      </Typography>
+      <ListItem>
+        <InviteLinker
+          marketType={marketType}
+          showObserverLink={showObservers}
+          marketId={addToMarketId}
+          observerLabel={intl.formatMessage({ id: 'isObserver' })}
+        />
+      </ListItem>
       <List
         dense
         id="addressBook"
       >
-        <ListItem key="search" divider>
-          <ListItemText className={classes.name}>
-            <TextField
-              onChange={onSearchChange}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position={'end'}>
-                    <IconButton>
-                      <SearchIcon/>
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </ListItemText>
-          <ListItemIcon>
-            <ListItemText>
-              {intl.formatMessage({ id: 'isObserver' })}
-            </ListItemText>
-          </ListItemIcon>
-        </ListItem>
         {displayNames.map((entry) => renderParticipantEntry(entry))}
       </List>
       <CardActions className={classes.actions}>

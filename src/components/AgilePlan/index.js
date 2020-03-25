@@ -17,6 +17,7 @@ export const usePlanFormStyles = makeStyles(
       display: "flex",
       flexWrap: "wrap",
       padding: theme.spacing(6),
+      paddingTop: theme.spacing(3),
       "& > *": {
         "flex-grow": 1,
         margin: theme.spacing(1, 0),
@@ -73,6 +74,9 @@ export const usePlanFormStyles = makeStyles(
       width: '100%',
       marginTop: theme.spacing(3),
     },
+    sectionHeader: {
+      fontWeight: 700,
+    }
   }),
   { name: "PlanningAdd" }
 );

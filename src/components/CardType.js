@@ -78,6 +78,7 @@ const useCardTypeStyles = makeStyles(
     },
     label: {
       fontSize: 14,
+      fontWeight: 500,
       lineHeight: 1,
       textTransform: "capitalize"
     }

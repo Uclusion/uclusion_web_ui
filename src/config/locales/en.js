@@ -205,7 +205,7 @@ const messages = defineMessages({
   certainty75: 'Certain',
   certainty50: 'Somewhat Certain',
   certainty25: 'Somewhat Uncertain',
-  certainty0: 'Uncertain',
+  certainty5: 'Uncertain',
   maxBudgetLabel: 'effort value',
   maxBudgetValue: '{x} days',
   certaintyQuestion: 'Rate Your Certainty',

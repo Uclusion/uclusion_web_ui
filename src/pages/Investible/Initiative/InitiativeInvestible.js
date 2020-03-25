@@ -8,7 +8,7 @@ import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
-  ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
+  JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
 } from '../../../constants/comments';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import Screen from '../../../containers/Screen/Screen';

@@ -3,6 +3,12 @@ import beginListening from './marketsContextMessages';
 import reducer, { initializeState } from './marketsContextReducer';
 import LocalForageHelper from '../LocalForageHelper';
 import { DiffContext } from '../DiffContext/DiffContext';
+import {
+  INDEX_MARKET_TYPE,
+  INDEX_UPDATE,
+  SEARCH_INDEX_CHANNEL
+} from '../SearchIndexContext/searchIndexContextMessages';
+import { pushMessage } from '../../utils/MessageBusUtils';
 
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
 const EMPTY_STATE = {
@@ -22,6 +28,9 @@ function MarketsProvider(props) {
       lfg.getState()
         .then((diskState) => {
           if (diskState) {
+            const { marketDetails } = diskState;
+            const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: marketDetails};
+            pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
             dispatch(initializeState(diskState));
           }
         });

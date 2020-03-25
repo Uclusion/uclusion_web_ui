@@ -2,6 +2,12 @@ import _ from 'lodash';
 import { updateStorableInvestibles } from './investiblesContextReducer'
 import { fixupItemForStorage } from '../ContextUtils';
 import { addContents } from '../DiffContext/diffContextReducer'
+import { pushMessage } from '../../utils/MessageBusUtils';
+import {
+  INDEX_INVESTIBLE_TYPE,
+  INDEX_UPDATE,
+  SEARCH_INDEX_CHANNEL
+} from '../SearchIndexContext/searchIndexContextMessages';
 
 export function getMarketInvestibles(state, marketId) {
   const values = Object.values(state);
@@ -46,6 +52,7 @@ export function refreshInvestibles(dispatch, diffDispatch, investibles) {
     return { investible: fixedInvestible, market_infos };
   });
   const diffInvestibles = fixed.map((inv) => inv.investible);
+  pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: diffInvestibles});
   diffDispatch(addContents(diffInvestibles));
   const investibleHash = _.keyBy(fixed, (item) => item.investible.id);
   // // console.debug(investibleHash);

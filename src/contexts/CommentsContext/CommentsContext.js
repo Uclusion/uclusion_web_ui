@@ -1,7 +1,14 @@
 import React, { useEffect, useState, useReducer } from 'react';
+import _ from 'lodash';
 import reducer, { initializeState } from './commentsContextReducer';
 import LocalForageHelper from '../LocalForageHelper';
 import beginListening from './commentsContextMessages';
+import { pushMessage } from '../../utils/MessageBusUtils';
+import {
+  INDEX_COMMENT_TYPE,
+  INDEX_UPDATE,
+  SEARCH_INDEX_CHANNEL
+} from '../SearchIndexContext/searchIndexContextMessages';
 
 const COMMENTS_CONTEXT_NAMESPACE = 'comments_context';
 const EMPTY_STATE = {};
@@ -21,6 +28,9 @@ function CommentsProvider(props) {
         .then((state) => {
           // // console.debug(`Found comments ${state}`);
           // // console.debug(state);
+          const indexItems = _.flatten(Object.values(state));
+          const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems};
+          pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
           if (state) {
             dispatch(initializeState(state));
           }

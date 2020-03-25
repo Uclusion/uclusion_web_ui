@@ -3,6 +3,12 @@ import reducer, { initializeState } from './investiblesContextReducer';
 import LocalForageHelper from '../LocalForageHelper';
 import beginListening from './investiblesContextMessages';
 import { DiffContext } from '../DiffContext/DiffContext';
+import { pushMessage } from '../../utils/MessageBusUtils';
+import {
+  INDEX_INVESTIBLE_TYPE,
+  INDEX_UPDATE,
+  SEARCH_INDEX_CHANNEL
+} from '../SearchIndexContext/searchIndexContextMessages';
 
 const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
 const EMPTY_STATE = {};
@@ -21,6 +27,9 @@ function InvestiblesProvider(props) {
       lfg.getState()
         .then((state) => {
           if (state) {
+            const indexItems = Object.values(state).map((item) => item.investible);
+            const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: indexItems};
+            pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
             dispatch(initializeState(state));
           }
         });

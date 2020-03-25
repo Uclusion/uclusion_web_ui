@@ -28,10 +28,10 @@ function CommentsProvider(props) {
         .then((state) => {
           // // console.debug(`Found comments ${state}`);
           // // console.debug(state);
-          const indexItems = _.flatten(Object.values(state));
-          const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems};
-          pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
           if (state) {
+            const indexItems = _.flatten(Object.values(state));
+            const indexMessage = {event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: indexItems};
+            pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
             dispatch(initializeState(state));
           }
         });

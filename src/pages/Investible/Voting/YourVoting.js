@@ -46,40 +46,42 @@ function YourVoting(props) {
   return (
     <>
       <h2>{yourVote ? intl.formatMessage({ id: 'changeVote' }) : intl.formatMessage({ id: 'addAVote' })}</h2>
-      <Card>
-        <CardContent>
-          <FormControl component="fieldset" className={classes.commentType}>
-            <RadioGroup
-              aria-labelledby="comment-type-choice"
-              className={classes.commentTypeGroup}
-              onChange={onTypeChange}
-              value={type}
-              row
-            >
-              <FormControlLabel
-                key="for"
-                className={`${classes.chipItem} ${classes.chipItemFor}`}
-                /* prevent clicking the label stealing focus */
-                onMouseDown={e => e.preventDefault()}
-                control={<Radio />}
-                label={<FormattedMessage id="voteFor" />}
-                labelPlacement="end"
-                value={FOR}
-              />
-              <FormControlLabel
-                key="against"
-                className={`${classes.chipItem} ${classes.chipItemAgainst}`}
-                /* prevent clicking the label stealing focus */
-                onMouseDown={e => e.preventDefault()}
-                control={<Radio color="primary" />}
-                label={<FormattedMessage id="voteAgainst" />}
-                labelPlacement="end"
-                value={AGAINST}
-              />
-            </RadioGroup>
-          </FormControl>
-        </CardContent>
-      </Card>
+      {isInitiative && (
+        <Card>
+          <CardContent>
+            <FormControl component="fieldset" className={classes.commentType}>
+              <RadioGroup
+                aria-labelledby="comment-type-choice"
+                className={classes.commentTypeGroup}
+                onChange={onTypeChange}
+                value={type}
+                row
+              >
+                <FormControlLabel
+                  key="for"
+                  className={`${classes.chipItem} ${classes.chipItemFor}`}
+                  /* prevent clicking the label stealing focus */
+                  onMouseDown={e => e.preventDefault()}
+                  control={<Radio />}
+                  label={<FormattedMessage id="voteFor" />}
+                  labelPlacement="end"
+                  value={FOR}
+                />
+                <FormControlLabel
+                  key="against"
+                  className={`${classes.chipItem} ${classes.chipItemAgainst}`}
+                  /* prevent clicking the label stealing focus */
+                  onMouseDown={e => e.preventDefault()}
+                  control={<Radio color="primary" />}
+                  label={<FormattedMessage id="voteAgainst" />}
+                  labelPlacement="end"
+                  value={AGAINST}
+                />
+              </RadioGroup>
+            </FormControl>
+          </CardContent>
+        </Card>
+      )}
       <AddEditVote
         marketId={marketId}
         investibleId={investibleId}

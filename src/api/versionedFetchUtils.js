@@ -72,7 +72,8 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   if (globalLockEnabled) {
     pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
   }
-  return getVersions(currentHeldVersion)
+  const callWithVersion = currentHeldVersion === 'INITIALIZATION' ? null : currentHeldVersion;
+  return getVersions(callWithVersion)
     .then((versions) => {
       // console.log(versions);
       const { global_version, signatures: marketSignatures } = versions;

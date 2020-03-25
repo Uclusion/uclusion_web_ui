@@ -113,7 +113,7 @@ function AddEditVote(props) {
   const addMode = _.isEmpty(investment);
   const { quantity, max_budget: initialMaxBudget } = investment;
   const [validForm, setValidForm] = useState(false);
-  const initialInvestment = addMode ? 50 : quantity;
+  const initialInvestment = addMode ? 50 : Math.abs(quantity);
   const [newQuantity, setNewQuantity] = useState(initialInvestment);
   const [maxBudget, setMaxBudget] = useState(initialMaxBudget);
   const { body, id: reasonId } = reason;
@@ -136,7 +136,7 @@ function AddEditVote(props) {
       max_budget: investmentBudget
     } = investment;
 
-    const initialInvestment = addMode ? 50 : investmentQuantity;
+    const initialInvestment = addMode ? 50 : Math.abs(investmentQuantity);
     setNewQuantity(initialInvestment);
     setMaxBudget(investmentBudget);
   }, [investment, setNewQuantity, setMaxBudget]);

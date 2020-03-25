@@ -112,6 +112,14 @@ function InitiativeInvestible(props) {
     });
     return !_.isEmpty(negInvestment);
   })
+  const positiveVoters = marketPresences.filter((presence) => {
+    const { investments } = presence;
+    const negInvestment = investments.find((investment) => {
+      const { quantity } = investment;
+      return quantity > 0;
+    });
+    return !_.isEmpty(negInvestment);
+  })
   function getSidebarActions() {
     if (!activeMarket) {
       return [];
@@ -244,7 +252,7 @@ function InitiativeInvestible(props) {
       </h2>
       <Voting
         investibleId={investibleId}
-        marketPresences={marketPresences}
+        marketPresences={positiveVoters}
         investmentReasons={investmentReasons}
       />
       <h2>

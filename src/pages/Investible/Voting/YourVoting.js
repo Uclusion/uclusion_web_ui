@@ -27,8 +27,10 @@ function YourVoting(props) {
   const isInitiative = marketType === INITIATIVE_TYPE;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
+  const { quantity } = yourVote || {};
+  const myQuantity = quantity ? quantity : 0;
   const yourReason = comments.find((comment) => comment.created_by === userId);
-  const [type, setType] = useState(FOR);
+  const [type, setType] = useState(myQuantity < 0 ? AGAINST : FOR);
 
   function onTypeChange(event) {
     const { value } = event.target;

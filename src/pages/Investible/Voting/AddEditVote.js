@@ -105,7 +105,8 @@ function AddEditVote(props) {
     showBudget,
     storyMaxBudget,
     hasVoted,
-    allowMultiVote
+    allowMultiVote,
+    multiplier
   } = props;
   const intl = useIntl();
   const classes = useStyles();
@@ -168,7 +169,7 @@ function AddEditVote(props) {
     const updateInfo = {
       marketId,
       investibleId,
-      newQuantity,
+      newQuantity: newQuantity*multiplier,
       currentQuantity: oldQuantity,
       newReasonText: reasonText,
       currentReasonId: reasonId,
@@ -238,7 +239,7 @@ function AddEditVote(props) {
               onChange={onChange}
               value={newQuantity}
             >
-              {[0, 25, 50, 75, 100].map(certainty => {
+              {[5, 25, 50, 75, 100].map(certainty => {
                 return (
                   <FormControlLabel
                     key={certainty}
@@ -387,7 +388,7 @@ ClearVotesDialog.propTypes = {
   actions: PropTypes.node.isRequired,
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  issueWarningId: PropTypes.string.isRequired
+  issueWarningId: PropTypes.string.isRequired,
 };
 
 AddEditVote.propTypes = {
@@ -401,7 +402,8 @@ AddEditVote.propTypes = {
   investment: PropTypes.object,
   onSave: PropTypes.func,
   hasVoted: PropTypes.bool,
-  allowMultiVote: PropTypes.bool
+  allowMultiVote: PropTypes.bool,
+  multiplier: PropTypes.number,
 };
 
 AddEditVote.defaultProps = {
@@ -411,7 +413,8 @@ AddEditVote.defaultProps = {
   investment: {},
   storyMaxBudget: 0,
   onSave: () => {},
-  reason: {}
+  reason: {},
+  multipler: 1,
 };
 
 export default AddEditVote;

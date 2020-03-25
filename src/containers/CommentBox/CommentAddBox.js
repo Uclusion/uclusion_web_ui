@@ -5,7 +5,7 @@ import CommentAdd from '../../components/Comments/CommentAdd';
 import { FormattedMessage } from 'react-intl';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../constants/comments';
 
-const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles((theme) => ({
   hidden: {
     display: 'none',
   },
@@ -38,6 +38,12 @@ const useStyles = makeStyles((theme) => ({
   },
   chipItemSuggestion: {
     background: '#F29100',
+  },
+  chipItemFor: {
+    background: '#73B76C',
+  },
+  chipItemAgainst: {
+    background: '#D54F22',
   },
 }));
 

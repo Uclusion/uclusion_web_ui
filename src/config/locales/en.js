@@ -455,6 +455,8 @@ const messages = defineMessages({
   dialogExtend: 'Dialog - Delay expiration',
   initiativeExtend: 'Initiative - Delay expiration',
   initiativeInvestibleDiscussion: 'Discussion',
+  initiativeVotingFor: 'Votes For',
+  initiativeVotingAgainst: 'Votes Against',
 
   // About
   sidebarNavAbout: 'About',
@@ -577,6 +579,8 @@ const messages = defineMessages({
   yourVotingVoteForThisPlanning: 'Vote for this story',
   yourVotingVoteForThisDecision: 'Vote for this option',
   yourVotingVoteForThisInitiative: 'Vote for this',
+  voteFor: 'Vote For',
+  voteAgainst: 'Vote Against',
   clearVotes: 'Your other vote will be cleared',
   addAVote: 'Add a vote',
   changeVote: 'Change vote',

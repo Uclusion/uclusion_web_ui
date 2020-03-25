@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
-import { FormattedMessage, useIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl';
+import _ from 'lodash';
 import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core';
 import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
@@ -102,8 +103,15 @@ function InitiativeInvestible(props) {
   const { children } = thisMarketInfo || {};
   const breadCrumbs = inArchives ? makeArchiveBreadCrumbs(history) : makeBreadCrumbs(history);
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
-
+  const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
+  const negativeVoters = marketPresences.filter((presence) => {
+    const { investments } = presence;
+    const negInvestment = investments.find((investment) => {
+      const { quantity } = investment;
+      return quantity < 0;
+    });
+    return !_.isEmpty(negInvestment);
+  })
   function getSidebarActions() {
     if (!activeMarket) {
       return [];
@@ -232,11 +240,19 @@ function InitiativeInvestible(props) {
         />
       )}
       <h2>
-        <FormattedMessage id="decisionInvestibleOthersVoting" />
+        <FormattedMessage id="initiativeVotingFor" />
       </h2>
       <Voting
         investibleId={investibleId}
         marketPresences={marketPresences}
+        investmentReasons={investmentReasons}
+      />
+      <h2>
+        <FormattedMessage id="initiativeVotingAgainst" />
+      </h2>
+      <Voting
+        investibleId={investibleId}
+        marketPresences={negativeVoters}
         investmentReasons={investmentReasons}
       />
       <Grid container spacing={2}>

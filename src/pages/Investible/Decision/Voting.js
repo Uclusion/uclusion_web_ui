@@ -123,7 +123,7 @@ function Voting(props) {
           >
             <CardType
               className={classes.cardType}
-              type={`certainty${quantity}`}
+              type={`certainty${Math.abs(quantity)}`}
             />
             {maxBudget > 0 && (
               <Typography className={classes.maxBudget} component="div">

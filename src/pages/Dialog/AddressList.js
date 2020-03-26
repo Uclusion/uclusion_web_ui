@@ -230,65 +230,71 @@ function AddressList(props) {
             disabled={_.isEmpty(anySelected)}
           >
             <FormattedMessage
-              id="agilePlanFormSaveLabel"
+              id="addExistingCollaborator"
             />
           </SpinBlockingButton>
         </CardActions>
-      <Typography class={classes.sectionHeader}>
-        {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
-      </Typography>
+      <List
+        dense
+      >
+      <ListItem>
+        <Typography class={classes.sectionHeader}>
+          {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
+        </Typography>
+      </ListItem>
       <ListItem>
         <InviteLinker
           marketType={marketType}
           marketId={addToMarketId}
         />
       </ListItem>
-    <form
-      autoComplete="off"
-      onSubmit={onInvite}
-    >
-      <ListItem
-        id="emailInput"
-        key="emailInput"
+      <form
+        autoComplete="off"
+        onSubmit={onInvite}
       >
-        <ListItemText>
-          <Typography style={{ marginBottom: 15 }}>
-            {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
-          </Typography>
-          <TextField
-            variant="outlined"
-            id="email1"
-            name="email1"
-            fullWidth
-            label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
-            value={email1}
-            onChange={handleEmail1}
-          />
-        </ListItemText>
-      </ListItem>
-        <CardActions className={classes.actions}>
-          <Button
-            onClick={myOnCancel}
-            className={classes.actionSecondary}
-            color="secondary"
-            variant="contained"
-          >
-            <FormattedMessage
-              id="marketAddCancelLabel"
+        <ListItem
+          id="emailInput"
+          key="emailInput"
+        >
+          <ListItemText>
+            <Typography style={{ marginBottom: 15 }}>
+              {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+            </Typography>
+            <TextField
+              variant="outlined"
+              id="email1"
+              name="email1"
+              fullWidth
+              label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
+              value={email1}
+              onChange={handleEmail1}
             />
-          </Button>
-          <ApiBlockingButton
-            variant="contained"
-            className={classes.actionPrimary}
-            type="submit"
-            disabled={_.isEmpty(email1)}
-          >
-            <FormattedMessage
-              id="inviteParticipantsLabel"
-            />
-          </ApiBlockingButton>
-        </CardActions>
-      </form>
+          </ListItemText>
+        </ListItem>
+          <CardActions className={classes.actions}>
+            <Button
+              onClick={myOnCancel}
+              className={classes.actionSecondary}
+              color="secondary"
+              variant="contained"
+            >
+              <FormattedMessage
+                id="marketAddCancelLabel"
+              />
+            </Button>
+            <ApiBlockingButton
+              variant="contained"
+              className={classes.actionPrimary}
+              type="submit"
+              disabled={_.isEmpty(email1)}
+            >
+              <FormattedMessage
+                id="inviteParticipantsLabel"
+              />
+            </ApiBlockingButton>
+          </CardActions>
+        </form>
+      </List>
     </>
   );
 }

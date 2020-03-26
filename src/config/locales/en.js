@@ -224,7 +224,8 @@ const messages = defineMessages({
   addressAddCancelLabel: 'Close',
   addressAddClearLabel: 'Close',
   addressAddSaveLabel: 'Add collaborators',
-  inviteParticipantsLabel: 'Invite collaborators',
+  inviteParticipantsLabel: 'Invite by email',
+  addExistingCollaborator: 'Add',
 
   // InvestibleAdd
   investibleAddTitleDefault: 'Add a name...',

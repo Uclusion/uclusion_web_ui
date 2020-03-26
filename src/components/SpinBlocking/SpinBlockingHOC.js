@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { toastErrorAndThrow } from '../../utils/userMessage';
+import { toastError } from '../../utils/userMessage';
 import { CircularProgress, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
@@ -24,6 +24,7 @@ export function withSpinLock(Component) {
       onSpinStart,
       onSpinStop,
       onClick,
+      onError,
       children,
       disabled,
       hasSpinChecker,
@@ -36,8 +37,10 @@ export function withSpinLock(Component) {
     const [versionsState] = useContext(VersionsContext);
     const [spinning, setSpinning] = useState(false);
     const listenerName = 'SPINNER';
-    let operationCheckStopper = () => {
-    };
+
+    function operationCheckStopper() {
+      removeListener(VERSIONS_HUB_CHANNEL, listenerName);
+    }
 
     function endSpinning(result) {
       setSpinning(false);
@@ -47,13 +50,19 @@ export function withSpinLock(Component) {
     }
 
     function myOnSpinStop() {
-      removeListener(VERSIONS_HUB_CHANNEL, listenerName);
       operationCheckStopper();
       setTimeout(() => {
         endSpinning();
       }, FETCH_DELAY);
     }
 
+    function myOnError(error) {
+      toastError('spinVersionCheckError');
+      operationCheckStopper();
+      setSpinning(false);
+      setOperationRunning(false);
+      onError(error);
+    }
 
     /**
      * Starts a timer for the overall operation. If it goes
@@ -74,9 +83,7 @@ export function withSpinLock(Component) {
           })
           .catch((error) => {
             if (!(error instanceof MatchError)) {
-              operationCheckStopper();
-              endSpinning();
-              toastErrorAndThrow(error, 'spinVersionCheckError');
+              myOnError();
             } else {
               return false;
             }
@@ -134,19 +141,15 @@ export function withSpinLock(Component) {
                     }
                   })
                   .catch((error) => {
-                    console.error(error);
-                    operationCheckStopper();
+                    myOnError(error);
                   });
               }
-
               setTimeout(spinCheck, SPIN_CHECKER_POLL_DELAY);
             }
           }
         })
         .catch((error) => {
-          operationCheckStopper();
-          myOnSpinStop();
-          throw error;
+          myOnError(error);
         });
     }
 
@@ -174,6 +177,7 @@ export function withSpinLock(Component) {
     onSpinStart: PropTypes.func,
     onSpinStop: PropTypes.func,
     onClick: PropTypes.func,
+    onError: PropTypes.func,
     // eslint-disable-next-line react/forbid-prop-types
     marketId: PropTypes.string.isRequired,
     disabled: PropTypes.bool,
@@ -187,6 +191,8 @@ export function withSpinLock(Component) {
     onSpinStop: () => {
     },
     onClick: () => {
+    },
+    onError: () => {
     },
     disabled: false,
     hasSpinChecker: false,

@@ -594,7 +594,7 @@ const messages = defineMessages({
   addParticipantsNewPerson: 'Need to add someone not on this list?',
 
   // Spinning
-  spinVersionCheckError: 'There was an error checking if the operation was successful. Please reload the page',
+  spinVersionCheckError: 'There was an error. Please retry your operation.',
 
   //upgradeMenu
   billingMenuItem: 'Manage Subscription',

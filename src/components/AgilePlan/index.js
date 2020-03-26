@@ -293,9 +293,10 @@ export function DaysEstimate(props) {
   const intl = useIntl();
 
   const classes = useSuffixedInput();
-
+  // TODO input props are not working to restrict number value
   return (
     <TextField
+      type="number"
       InputLabelProps={{
         shrink: true
       }}
@@ -305,9 +306,8 @@ export function DaysEstimate(props) {
       }}
       inputProps={{
         className: classes.input,
-        inputMode: "numeric",
-        size: 4,
-        pattern: "[0-9]*"
+        min: 0,
+        max: 365,
       }}
       id="agile-plan-days-estimate"
       label={intl.formatMessage({

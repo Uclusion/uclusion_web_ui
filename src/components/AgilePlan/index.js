@@ -76,6 +76,13 @@ export const usePlanFormStyles = makeStyles(
     },
     sectionHeader: {
       fontWeight: 700,
+    },
+    scrollableList: {
+      height: 200,
+      overflowY: 'scroll',
+      border: '1px solid #cfcfcf',
+      borderRadius: 5,
+      marginBottom: 15 ,
     }
   }),
   { name: "PlanningAdd" }

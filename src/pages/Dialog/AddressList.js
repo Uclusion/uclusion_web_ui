@@ -41,16 +41,15 @@ function AddressList(props) {
     setEmail1(value);
   }
 
-  const inviteFormInvalid = _.isEmpty(email1);
-
   function onInvite(form) {
     form.preventDefault();
     const participants = [];
     if (email1) {
-      participants.push({ email: email1 });
+      const emails = email1.split(',');
+      emails.forEach((email) => participants.push({ email }));
     }
     return inviteParticipants(addToMarketId, participants).then(() => {
-      setEmail1(undefined);
+      setEmail1('');
     });
   }
 
@@ -172,11 +171,6 @@ function AddressList(props) {
 
   return (
     <>
-      <form
-        className={classes.form}
-        autoComplete="off"
-        onSubmit={onInvite}
-      >
         <List
           dense
         >
@@ -240,35 +234,37 @@ function AddressList(props) {
             />
           </SpinBlockingButton>
         </CardActions>
-      </form>
       <Typography class={classes.sectionHeader}>
         {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
       </Typography>
+      <ListItem>
+        <InviteLinker
+          marketType={marketType}
+          marketId={addToMarketId}
+        />
+      </ListItem>
+    <form
+      autoComplete="off"
+      onSubmit={onInvite}
+    >
       <ListItem
         id="emailInput"
         key="emailInput"
       >
-        <ListItemText className={classes.name}>
-          <Typography clasName={classes.input} style={{ marginBottom: 15 }}>
+        <ListItemText>
+          <Typography style={{ marginBottom: 15 }}>
             {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
           </Typography>
           <TextField
             variant="outlined"
             id="email1"
             name="email1"
-            type="email"
             fullWidth
             label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
             value={email1}
             onChange={handleEmail1}
           />
         </ListItemText>
-      </ListItem>
-      <ListItem>
-        <InviteLinker
-          marketType={marketType}
-          marketId={addToMarketId}
-        />
       </ListItem>
         <CardActions className={classes.actions}>
           <Button
@@ -285,13 +281,14 @@ function AddressList(props) {
             variant="contained"
             className={classes.actionPrimary}
             type="submit"
-            disabled={inviteFormInvalid}
+            disabled={_.isEmpty(email1)}
           >
             <FormattedMessage
               id="inviteParticipantsLabel"
             />
           </ApiBlockingButton>
         </CardActions>
+      </form>
     </>
   );
 }

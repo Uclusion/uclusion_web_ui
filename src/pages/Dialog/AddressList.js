@@ -234,13 +234,7 @@ function AddressList(props) {
         <List
           dense
           id="addressBook"
-          style={{
-            height: 200,
-            overflowY: 'scroll',
-            border: '1px solid #cfcfcf',
-            borderRadius: 5,
-            marginBottom: 15 ,
-          }}
+          className={classes.scrollableList}
         >
           {displayNames.length > 0 &&
             displayNames.map((entry) => renderParticipantEntry(entry))

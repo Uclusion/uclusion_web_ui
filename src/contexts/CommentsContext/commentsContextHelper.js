@@ -3,6 +3,12 @@ import {
 } from '../ContextUtils';
 import _ from 'lodash';
 import { removeCommentsFromMarket, updateMarketComments } from './commentsContextReducer';
+import { pushMessage } from '../../utils/MessageBusUtils';
+import {
+  INDEX_COMMENT_TYPE,
+  INDEX_UPDATE,
+  SEARCH_INDEX_CHANNEL
+} from '../SearchIndexContext/searchIndexContextMessages';
 
 
 export function getComment(state, marketId, commentId) {
@@ -56,6 +62,7 @@ export function addCommentToMarket(comment, state, dispatch) {
       updates.push(newParent)
     }
   }
+  pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: updates});
   const merged = _.unionBy(updates, comments, 'id');
   refreshMarketComments(dispatch, marketId, merged);
 }

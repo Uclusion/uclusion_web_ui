@@ -429,7 +429,10 @@ const messages = defineMessages({
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
   dialogAddParticipantsLabel: 'Add Collaborators',
   dialogEditExpiresLabel: 'Add Time',
-  inviteParticipantsEmailLabel: 'Email address for Uclusion to send to',
+  searchParticipantsLabel: 'Select existing Uclusion collaborators to send to:',
+  noCollaboratorsLabel: 'There are no existing collaborators to choose from. Invite some below.',
+  searchParticipantsPlaceholder: 'Use commas to separate multiple email addresses',
+  inviteParticipantsEmailLabel: 'Email addresses to send Uclusion invitations to:',
 
   // DecisionIvestibleSave
   decisionInvestibleSaveAddAnother: 'Save & add another',

@@ -170,12 +170,12 @@ function AddressList(props) {
         >
           {domain}
         </ListItemText>
-        <ListItemIcon>
+        {/* <ListItemIcon>
           <Checkbox
             onClick={getObserverToggle(id)}
             checked={isObserver}
           />
-        </ListItemIcon>
+        </ListItemIcon> */}
       </ListItem>
     );
   }
@@ -207,7 +207,7 @@ function AddressList(props) {
           dense
         >
           <Typography class={classes.sectionHeader}>
-            {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+            {intl.formatMessage({ id: 'searchParticipantsLabel' })}
           </Typography>
            <ListItem key="search" divider>
             <ListItemText className={classes.name}>
@@ -224,19 +224,71 @@ function AddressList(props) {
                 }}
               />
             </ListItemText>
-            <ListItemIcon>
+            {/* <ListItemIcon>
               <ListItemText>
                 {intl.formatMessage({ id: 'isObserver' })}
               </ListItemText>
-            </ListItemIcon>
+            </ListItemIcon> */}
           </ListItem>
         </List>
         <List
           dense
           id="addressBook"
+          style={{
+            height: 200,
+            overflowY: 'scroll',
+            border: '1px solid #cfcfcf',
+            borderRadius: 5,
+            marginBottom: 15 ,
+          }}
         >
-          {displayNames.map((entry) => renderParticipantEntry(entry))}
+          {displayNames.length > 0 &&
+            displayNames.map((entry) => renderParticipantEntry(entry))
+          }
+          {displayNames.length < 1 &&
+            <ListItemText style={{ textAlign: 'center' }}>
+            {intl.formatMessage({ id: 'noCollaboratorsLabel' })}
+            </ListItemText>
+          }
         </List>
+        <Typography class={classes.sectionHeader}>
+        {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
+      </Typography>
+      <ListItem
+        id="emailInput"
+        key="emailInput"
+      >
+        <ListItemText className={classes.name}>
+          <Typography clasName={classes.input} style={{ marginBottom: 15 }}>
+            {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+          </Typography>
+          <TextField
+            variant="outlined"
+            id="email1"
+            name="email1"
+            type="email"
+            fullWidth
+            label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
+            value={email1}
+            onChange={handleEmail1}
+          />
+        </ListItemText>
+        {/* <ListItemIcon>
+          <Checkbox
+            id="isObserver1"
+            onClick={handleIsObserver1}
+            checked={isObserver1}
+          />
+        </ListItemIcon> */}
+      </ListItem>
+      <ListItem>
+        <InviteLinker
+          marketType={marketType}
+          showObserverLink={showObservers}
+          marketId={addToMarketId}
+          observerLabel={intl.formatMessage({ id: 'isObserver' })}
+        />
+      </ListItem>
         <CardActions className={classes.actions}>
           <Button
             onClick={myOnCancel}
@@ -260,41 +312,6 @@ function AddressList(props) {
           </ApiBlockingButton>
         </CardActions>
       </form>
-      <Typography class={classes.sectionHeader}>
-        {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
-      </Typography>
-      <ListItem>
-        <InviteLinker
-          marketType={marketType}
-          showObserverLink={showObservers}
-          marketId={addToMarketId}
-          observerLabel={intl.formatMessage({ id: 'isObserver' })}
-        />
-      </ListItem>
-      <ListItem
-        id="emailInput"
-        key="emailInput"
-      >
-        <ListItemText className={classes.name}>
-          <TextField
-            variant="outlined"
-            id="email1"
-            name="email1"
-            type="email"
-            fullWidth
-            label={intl.formatMessage({ id: 'email' })}
-            value={email1}
-            onChange={handleEmail1}
-          />
-        </ListItemText>
-        <ListItemIcon>
-          <Checkbox
-            id="isObserver1"
-            onClick={handleIsObserver1}
-            checked={isObserver1}
-          />
-        </ListItemIcon>
-      </ListItem>
       <CardActions className={classes.actions}>
         <Button
           onClick={myOnCancel}

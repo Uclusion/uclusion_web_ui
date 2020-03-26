@@ -55,7 +55,6 @@ function InviteLinker(props) {
         return 'inviteLinkerDirectionsDecision';
     }
   }
-  const message = intl.formatMessage({ id: getDirectionsId() });
   const link = formInviteLink(marketId);
   const icon = (
     <>
@@ -72,7 +71,9 @@ function InviteLinker(props) {
       id="inviteLinker"
       className={hidden ? classes.hidden : classes.linkContainer}
     >
-      <Typography className={classes.input}>{ message }</Typography>
+      <Typography className={classes.input}>
+        { intl.formatMessage({ id: getDirectionsId() }) }
+      </Typography>
       <InputBase
         className={classes.inputField}
         fullWidth={true}

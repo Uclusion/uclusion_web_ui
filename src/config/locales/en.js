@@ -288,6 +288,7 @@ const messages = defineMessages({
   newStory: 'New Story',
   newOption: 'New Option',
   noVoters: 'No Voters',
+  storyHelp: 'Need something assigned and voted on now that takes a day or longer? Use the plus icon in the left sidepanel.',
   // Issues
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',
@@ -399,7 +400,7 @@ const messages = defineMessages({
   planningDialogPeopleLabel: 'collaborator\'s stories',
   planningDialogDiscussionLabel: 'Discussion',
   planningDialogAddInvestibleLabel: 'Create Story',
-  planningDialogAddInvestibleExplanation: 'Create a story and collaborated on what to do',
+  planningDialogAddInvestibleExplanation: 'Create a story and collaborate on what to do',
   planningDialogManageParticipantsExplanation: 'Add collaborators to this workspace',
   planningDialogViewArchivesExplanation: 'See stories in Verified and Not Doing',
   planningDialogViewArchivesLabel: 'View Archive',

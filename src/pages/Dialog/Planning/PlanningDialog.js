@@ -1,9 +1,9 @@
 /**
  * A component that renders a _planning_ dialog
  */
-import React, { useContext } from "react";
+import React, { useContext, useState } from 'react'
 import { useHistory } from "react-router";
-import { useIntl } from "react-intl";
+import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from "prop-types";
 import _ from "lodash";
 import { Typography } from "@material-ui/core";
@@ -11,7 +11,7 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardHeader from "@material-ui/core/CardHeader";
 import { makeStyles } from "@material-ui/core/styles";
-import Summary from "./Summary";
+import Summary, { UnassignedDisplay } from './Summary'
 import PlanningIdeas from "./PlanningIdeas";
 import Screen from "../../../containers/Screen/Screen";
 import {
@@ -37,6 +37,10 @@ import ExpandableSidebarAction from "../../../components/SidebarActions/Expandab
 import InsertLinkIcon from "@material-ui/icons/InsertLink";
 import { getMarketPresences } from "../../../contexts/MarketPresencesContext/marketPresencesHelper";
 import InvestibleAddActionButton from "./InvestibleAddActionButton";
+import CloseIcon from '@material-ui/icons/Close';
+import IconButton from '@material-ui/core/IconButton';
+import clsx from 'clsx';
+import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -139,7 +143,12 @@ function PlanningDialog(props) {
       />
     ];
   }
-
+  // Temporary solution till hooked up with preferences
+  const [storyHelpOpen, setStoryHelpOpen] = useState(true);
+  function dismiss() {
+    setStoryHelpOpen(false);
+  }
+  const metaClasses = useMetaDataStyles();
   const sidebarActions = getSidebarActions();
   return (
     <Screen
@@ -168,6 +177,16 @@ function PlanningDialog(props) {
           inBlockingStage={inBlockingStage}
           inReviewStage={inReviewStage}
         />
+      )}
+      {isChannel && storyHelpOpen && (
+        <dl className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.root)} >
+          <dd>
+            <FormattedMessage id="storyHelp" />
+            <IconButton onClick={dismiss}>
+              <CloseIcon />
+            </IconButton>
+          </dd>
+        </dl>
       )}
       {activeMarket && (
         <CommentAddBox

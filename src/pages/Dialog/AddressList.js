@@ -29,7 +29,6 @@ function AddressList(props) {
     market,
     onSave,
     onCancel,
-    showObservers,
   } = props;
   const { id: addToMarketId, market_type: marketType } = market;
   const classes = usePlanFormStyles();
@@ -42,23 +41,16 @@ function AddressList(props) {
     setEmail1(value);
   }
 
-  const [isObserver1, setIsObserver1] = useState(false);
-
-  function handleIsObserver1() {
-    setIsObserver1(!isObserver1);
-  }
-
   const inviteFormInvalid = _.isEmpty(email1);
 
   function onInvite(form) {
     form.preventDefault();
     const participants = [];
     if (email1) {
-      participants.push({ email: email1, is_observer: isObserver1 });
+      participants.push({ email: email1 });
     }
     return inviteParticipants(addToMarketId, participants).then(() => {
       setEmail1(undefined);
-      setIsObserver1(false);
     });
   }
 
@@ -79,7 +71,7 @@ function AddressList(props) {
           const emailSplit = email ? email.split('@') : ['', ''];
           addToMarketPresencesHash[external_id] = true;
           macc[user_id] = {
-            user_id, name, account_id, domain: emailSplit[1], isChecked: false, isObserver: false,
+            user_id, name, account_id, domain: emailSplit[1], isChecked: false
           };
         }
       });
@@ -134,21 +126,9 @@ function AddressList(props) {
     };
   }
 
-  function getObserverToggle(id) {
-    return () => {
-      const userDetail = checked[id];
-      const { isObserver } = userDetail;
-      const newChecked = {
-        ...checked,
-        [id]: { ...userDetail, isObserver: !isObserver },
-      };
-      setChecked(newChecked);
-    };
-  }
-
   function renderParticipantEntry(presenceEntry) {
     const {
-      user_id: id, name, isChecked, isObserver, domain,
+      user_id: id, name, isChecked, domain,
     } = presenceEntry[1];
     return (
       <ListItem
@@ -170,12 +150,6 @@ function AddressList(props) {
         >
           {domain}
         </ListItemText>
-        <ListItemIcon>
-          <Checkbox
-            onClick={getObserverToggle(id)}
-            checked={isObserver}
-          />
-        </ListItemIcon>
       </ListItem>
     );
   }
@@ -183,8 +157,8 @@ function AddressList(props) {
   function handleSave() {
     const toAdd = participants.filter((participant) => participant.isChecked);
     const toAddClean = toAdd.map((participant) => {
-      const { user_id, account_id, isObserver } = participant;
-      return { user_id, account_id, is_observer: isObserver };
+      const { user_id, account_id } = participant;
+      return { user_id, account_id };
     });
     return addParticipants(addToMarketId, toAddClean); //.then((added) => // console.debug(added));
   }
@@ -224,11 +198,6 @@ function AddressList(props) {
                 }}
               />
             </ListItemText>
-            <ListItemIcon>
-              <ListItemText>
-                {intl.formatMessage({ id: 'isObserver' })}
-              </ListItemText>
-            </ListItemIcon>
           </ListItem>
         </List>
         <List
@@ -248,16 +217,20 @@ function AddressList(props) {
               id="marketAddCancelLabel"
             />
           </Button>
-          <ApiBlockingButton
+          <SpinBlockingButton
+            id="save"
             variant="contained"
+            color="primary"
             className={classes.actionPrimary}
-            type="submit"
-            disabled={inviteFormInvalid}
+            onClick={handleSave}
+            marketId={addToMarketId}
+            onSpinStop={onSave}
+            disabled={_.isEmpty(anySelected)}
           >
             <FormattedMessage
-              id="inviteParticipantsLabel"
+              id="agilePlanFormSaveLabel"
             />
-          </ApiBlockingButton>
+          </SpinBlockingButton>
         </CardActions>
       </form>
       <Typography class={classes.sectionHeader}>
@@ -266,11 +239,10 @@ function AddressList(props) {
       <ListItem>
         <InviteLinker
           marketType={marketType}
-          showObserverLink={showObservers}
           marketId={addToMarketId}
-          observerLabel={intl.formatMessage({ id: 'isObserver' })}
         />
       </ListItem>
+      <Typography>{intl.formatMessage({ id: 'addParticipantsEmail' })}</Typography>
       <ListItem
         id="emailInput"
         key="emailInput"
@@ -287,13 +259,6 @@ function AddressList(props) {
             onChange={handleEmail1}
           />
         </ListItemText>
-        <ListItemIcon>
-          <Checkbox
-            id="isObserver1"
-            onClick={handleIsObserver1}
-            checked={isObserver1}
-          />
-        </ListItemIcon>
       </ListItem>
       <CardActions className={classes.actions}>
         <Button
@@ -306,20 +271,16 @@ function AddressList(props) {
             id="marketAddCancelLabel"
           />
         </Button>
-        <SpinBlockingButton
-          id="save"
+        <ApiBlockingButton
           variant="contained"
-          color="primary"
           className={classes.actionPrimary}
-          onClick={handleSave}
-          marketId={addToMarketId}
-          onSpinStop={onSave}
-          disabled={_.isEmpty(anySelected)}
+          type="submit"
+          disabled={inviteFormInvalid}
         >
           <FormattedMessage
-            id="agilePlanFormSaveLabel"
+            id="inviteParticipantsLabel"
           />
-        </SpinBlockingButton>
+        </ApiBlockingButton>
       </CardActions>
     </>
   );
@@ -328,7 +289,6 @@ function AddressList(props) {
 AddressList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
-  showObservers: PropTypes.bool,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
   isOwnScreen: PropTypes.bool,
@@ -337,7 +297,6 @@ AddressList.propTypes = {
 };
 
 AddressList.defaultProps = {
-  showObservers: true,
   onSave: () => {
   },
   onCancel: () => {

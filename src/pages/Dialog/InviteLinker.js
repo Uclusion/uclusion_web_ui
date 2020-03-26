@@ -8,7 +8,7 @@ import { Typography, InputBase, Divider } from '@material-ui/core';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   hidden: {
     display: 'none',
   },
@@ -62,7 +62,7 @@ function InviteLinker(props) {
     <TooltipIconButton
       translationId="inviteLinkerCopyToClipboard"
       icon={<AssignmentIcon/>}
-      onClick={() => navigator.clipboard.writeText(`${link}#is_obs=true`)}
+      onClick={() => navigator.clipboard.writeText(`${link}#is_obs=false`)}
     />
     </>
   );

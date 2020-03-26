@@ -590,7 +590,6 @@ const messages = defineMessages({
 
   // add participants
   addParticipantsNewPerson: 'Need to add someone not on this list?',
-  addParticipantsEmail: 'Let Uclusion send the email for you',
 
   // Spinning
   spinVersionCheckError: 'There was an error checking if the operation was successful. Please reload the page',

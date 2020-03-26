@@ -47,7 +47,7 @@ function DialogManage(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const myRealPresence = myPresence || {};
-  const { is_admin: isAdmin, following, id: myUserId } = myRealPresence;
+  const { is_admin: isAdmin, id: myUserId } = myRealPresence;
   const [investiblesState] = useContext(InvestiblesContext);
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const loading = !marketType || (marketType !== PLANNING_TYPE && !myPresence)
@@ -102,7 +102,6 @@ function DialogManage(props) {
             <AddressList
               market={renderableMarket}
               isAdmin={isAdmin}
-              following={following}
               myUserId={myUserId}
               onCancel={onDone}
               onSave={onDone}
@@ -158,7 +157,6 @@ function DialogManage(props) {
             <AddressList
               market={renderableMarket}
               isAdmin={isAdmin}
-              showObservers={false}
               onCancel={onDone}
               onSave={onDone}
               intl={intl}

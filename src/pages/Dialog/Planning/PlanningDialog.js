@@ -1,7 +1,7 @@
 /**
  * A component that renders a _planning_ dialog
  */
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import { useHistory } from "react-router";
 import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from "prop-types";
@@ -11,7 +11,7 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardHeader from "@material-ui/core/CardHeader";
 import { makeStyles } from "@material-ui/core/styles";
-import Summary, { UnassignedDisplay } from './Summary'
+import Summary from './Summary'
 import PlanningIdeas from "./PlanningIdeas";
 import Screen from "../../../containers/Screen/Screen";
 import {
@@ -40,7 +40,8 @@ import InvestibleAddActionButton from "./InvestibleAddActionButton";
 import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 import clsx from 'clsx';
-import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
+import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible';
+import { DISMISS, DismissTextContext } from '../../../contexts/DismissTextContext';
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -65,6 +66,7 @@ function PlanningDialog(props) {
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [dismissState, dispatchDismissState] = useContext(DismissTextContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(
     stage => !stage.allows_investment && stage.singular_only
@@ -143,10 +145,9 @@ function PlanningDialog(props) {
       />
     ];
   }
-  // Temporary solution till hooked up with preferences
-  const [storyHelpOpen, setStoryHelpOpen] = useState(true);
+  const storyHelpOpen = !('storyCreate' in dismissState);
   function dismiss() {
-    setStoryHelpOpen(false);
+    dispatchDismissState({ type: DISMISS, id: 'storyCreate' });
   }
   const metaClasses = useMetaDataStyles();
   const sidebarActions = getSidebarActions();

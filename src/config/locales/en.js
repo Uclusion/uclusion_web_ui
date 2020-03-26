@@ -412,6 +412,7 @@ const messages = defineMessages({
   reviewingInvestiblesUpdatedAt: 'In review from ',
   inDialogInvestiblesUpdatedAt: 'Assigned for voting on ',
   blockedInvestiblesUpdatedAt: 'Blocked since ',
+  planningAddHelp: 'A workspace is your one place for all stories, questions, issues, requirements and decisions about a project or topic.',
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',

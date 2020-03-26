@@ -9,6 +9,7 @@ import { useHistory } from "react-router";
 import queryString from "query-string";
 import { Form } from "../../components/AgilePlan";
 import { formMarketLink, formMarketManageLink } from '../../utils/marketIdPathFunctions';
+import DismissableText from '../../components/Notifications/DismissableText'
 
 function PlanningAdd(props) {
   const history = useHistory();
@@ -154,27 +155,30 @@ function PlanningAdd(props) {
   }
 
   return (
-    <Form
-      marketId=""
-      daysEstimate={daysEstimate}
-      onDaysEstimateChange={onDaysEstimateChange}
-      description={description}
-      onDescriptionChange={onEditorChange}
-      investmentExpiration={investmentExpiration}
-      onInvestmentExpirationChange={onInvestmentExpirationChange}
-      maxBudget={maxBudget}
-      onMaxBudgetChange={onMaxBudgetChange}
-      name={name}
-      onNameChange={handleChange("name")}
-      onCancel={handleCancel}
-      onSave={handleSave}
-      onS3Upload={onS3Upload}
-      onSpinStop={onSpinStop}
-      onStorageChange={onStorageChange}
-      setOperationRunning={setOperationRunning}
-      votesRequired={votesRequired}
-      onVotesRequiredChange={onVotesRequiredEstimateChange}
-    />
+    <>
+      <DismissableText textId='planningAddHelp' />
+      <Form
+        marketId=""
+        daysEstimate={daysEstimate}
+        onDaysEstimateChange={onDaysEstimateChange}
+        description={description}
+        onDescriptionChange={onEditorChange}
+        investmentExpiration={investmentExpiration}
+        onInvestmentExpirationChange={onInvestmentExpirationChange}
+        maxBudget={maxBudget}
+        onMaxBudgetChange={onMaxBudgetChange}
+        name={name}
+        onNameChange={handleChange("name")}
+        onCancel={handleCancel}
+        onSave={handleSave}
+        onS3Upload={onS3Upload}
+        onSpinStop={onSpinStop}
+        onStorageChange={onStorageChange}
+        setOperationRunning={setOperationRunning}
+        votesRequired={votesRequired}
+        onVotesRequiredChange={onVotesRequiredEstimateChange}
+      />
+    </>
   );
 }
 

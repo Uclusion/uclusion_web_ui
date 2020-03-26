@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { Chip } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import { getCommentTypeIcon } from '../Comments/commentFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../constants/comments'
+import { getCommentTypeIcon } from '../../utils/iconFunctions';
 
 const useStyles = makeStyles({
   chipItem: {

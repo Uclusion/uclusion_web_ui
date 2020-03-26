@@ -663,6 +663,12 @@ const messages = defineMessages({
   issuePresent: 'Issue',
   questionPresent: 'Question',
   suggestPresent: 'Suggestion',
+
+  // Search
+  commentSearchResultIssue: 'Issue in {name}',
+  commentSearchResultJustify: 'Vote reason in {name}',
+  commentSearchResultSuggestion: 'Suggestion in {name}',
+  commentSearchResultQuestion: 'Question in {name}',
 });
 
 export default messages;

@@ -1,7 +1,7 @@
 import { VIEW_EVENT, VISIT_CHANNEL } from '../contexts/NotificationsContext/NotificationsContext';
 import { intl } from '../components/ContextHacks/IntlGlobalProvider';
 import { pushMessage } from './MessageBusUtils';
-
+import _ from 'lodash';
 
 /** Given the pathpart _without the hash or query params
  * will extract the action, the marketId and the investibleId
@@ -114,6 +114,16 @@ export function formInviteLink(marketId) {
   url.hash = '';
   return url.toString();
 }
+
+
+export function formCommentLink(marketId, investibleId, commentId){
+  const commentPart = `#c${commentId}`;
+  if (!_.isEmpty(investibleId)) {
+    return formInvestibleLink(marketId, investibleId) + commentPart;
+  }
+  return formMarketLink(marketId) + commentPart;
+}
+
 
 export function formInvestibleEditLink(marketId, investibleId){
   return formInvestibleLinkWithPrefix('investibleEdit', marketId, investibleId)

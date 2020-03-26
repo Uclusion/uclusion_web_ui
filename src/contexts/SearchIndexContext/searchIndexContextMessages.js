@@ -22,11 +22,12 @@ function getBody(itemType, item) {
 
 function transformItemsToIndexable(itemType, items){
   return items.map((item) => {
-    const { id } = item;
+    const { id, market_id: marketId } = item;
     return {
       type: itemType,
       body: getBody(itemType, item),
       id,
+      marketId,
     }
   });
 }

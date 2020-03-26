@@ -177,7 +177,7 @@ function AddressList(props) {
           <Typography class={classes.sectionHeader}>
             {intl.formatMessage({ id: 'searchParticipantsLabel' })}
           </Typography>
-           <ListItem key="search" divider>
+           <ListItem key="search">
             <ListItemText className={classes.name}>
               <TextField
                 onChange={onSearchChange}

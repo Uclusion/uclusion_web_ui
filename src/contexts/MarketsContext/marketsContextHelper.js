@@ -4,6 +4,12 @@ import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext';
 import { addContents } from '../DiffContext/diffContextReducer';
 import { updateMarketDetails } from './marketsContextReducer';
 import { fixupItemForStorage } from '../ContextUtils';
+import { pushMessage } from '../../utils/MessageBusUtils';
+import {
+  INDEX_MARKET_TYPE,
+  INDEX_UPDATE,
+  SEARCH_INDEX_CHANNEL
+} from '../SearchIndexContext/searchIndexContextMessages';
 
 export function getMarket(state, marketId) {
   const { marketDetails } = state;
@@ -49,6 +55,7 @@ export function addMarketToStorage(dispatch, diffDispatch, marketDetails){
   if (diffDispatch) {
     diffDispatch(addContents([fixed]));
   }
+  pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: [fixed]});
   dispatch(updateMarketDetails([fixed]));
 }
 

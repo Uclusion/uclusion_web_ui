@@ -7,7 +7,7 @@ import useFitText from 'use-fit-text';
 import CustomChip from '../CustomChip';
 import Chart from './Chart';
 import { ISSUE_TYPE } from '../../constants/comments';
-import { getCommentTypeIcon } from '../Comments/commentFunctions';
+import { getCommentTypeIcon } from '../../utils/iconFunctions';
 
 const useStyles = makeStyles(() => ({
   container: {

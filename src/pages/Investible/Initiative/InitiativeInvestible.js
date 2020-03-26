@@ -111,7 +111,7 @@ function InitiativeInvestible(props) {
       return quantity < 0;
     });
     return !_.isEmpty(negInvestment);
-  })
+  });
   const positiveVoters = marketPresences.filter((presence) => {
     const { investments } = presence;
     const negInvestment = investments.find((investment) => {
@@ -119,7 +119,7 @@ function InitiativeInvestible(props) {
       return quantity > 0;
     });
     return !_.isEmpty(negInvestment);
-  })
+  });
   function getSidebarActions() {
     if (!activeMarket) {
       return [];
@@ -132,7 +132,7 @@ function InitiativeInvestible(props) {
       label={intl.formatMessage({ id: 'childPlanExplanation' })}
       openLabel={intl.formatMessage({ id: 'initiativePlanningParent' })}
       onClick={() => navigate(history, `/dialogAdd#type=${PLANNING_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
-    />)
+    />);
     return sidebarActions;
   }
   const metaClasses = useMetaDataStyles();

@@ -29,6 +29,7 @@ function AddressList(props) {
     market,
     onSave,
     onCancel,
+    showObservers,
   } = props;
   const { id: addToMarketId, market_type: marketType } = market;
   const classes = usePlanFormStyles();
@@ -41,16 +42,23 @@ function AddressList(props) {
     setEmail1(value);
   }
 
+  const [isObserver1, setIsObserver1] = useState(false);
+
+  function handleIsObserver1() {
+    setIsObserver1(!isObserver1);
+  }
+
   const inviteFormInvalid = _.isEmpty(email1);
 
   function onInvite(form) {
     form.preventDefault();
     const participants = [];
     if (email1) {
-      participants.push({ email: email1 });
+      participants.push({ email: email1, is_observer: isObserver1 });
     }
     return inviteParticipants(addToMarketId, participants).then(() => {
       setEmail1(undefined);
+      setIsObserver1(false);
     });
   }
 
@@ -71,7 +79,7 @@ function AddressList(props) {
           const emailSplit = email ? email.split('@') : ['', ''];
           addToMarketPresencesHash[external_id] = true;
           macc[user_id] = {
-            user_id, name, account_id, domain: emailSplit[1], isChecked: false
+            user_id, name, account_id, domain: emailSplit[1], isChecked: false, isObserver: false,
           };
         }
       });
@@ -126,9 +134,21 @@ function AddressList(props) {
     };
   }
 
+  function getObserverToggle(id) {
+    return () => {
+      const userDetail = checked[id];
+      const { isObserver } = userDetail;
+      const newChecked = {
+        ...checked,
+        [id]: { ...userDetail, isObserver: !isObserver },
+      };
+      setChecked(newChecked);
+    };
+  }
+
   function renderParticipantEntry(presenceEntry) {
     const {
-      user_id: id, name, isChecked, domain,
+      user_id: id, name, isChecked, isObserver, domain,
     } = presenceEntry[1];
     return (
       <ListItem
@@ -150,6 +170,12 @@ function AddressList(props) {
         >
           {domain}
         </ListItemText>
+        {/* <ListItemIcon>
+          <Checkbox
+            onClick={getObserverToggle(id)}
+            checked={isObserver}
+          />
+        </ListItemIcon> */}
       </ListItem>
     );
   }
@@ -157,8 +183,8 @@ function AddressList(props) {
   function handleSave() {
     const toAdd = participants.filter((participant) => participant.isChecked);
     const toAddClean = toAdd.map((participant) => {
-      const { user_id, account_id } = participant;
-      return { user_id, account_id };
+      const { user_id, account_id, isObserver } = participant;
+      return { user_id, account_id, is_observer: isObserver };
     });
     return addParticipants(addToMarketId, toAddClean); //.then((added) => // console.debug(added));
   }
@@ -181,7 +207,7 @@ function AddressList(props) {
           dense
         >
           <Typography class={classes.sectionHeader}>
-            {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+            {intl.formatMessage({ id: 'searchParticipantsLabel' })}
           </Typography>
            <ListItem key="search" divider>
             <ListItemText className={classes.name}>
@@ -198,14 +224,65 @@ function AddressList(props) {
                 }}
               />
             </ListItemText>
+            {/* <ListItemIcon>
+              <ListItemText>
+                {intl.formatMessage({ id: 'isObserver' })}
+              </ListItemText>
+            </ListItemIcon> */}
           </ListItem>
         </List>
         <List
           dense
           id="addressBook"
+          className={classes.scrollableList}
         >
-          {displayNames.map((entry) => renderParticipantEntry(entry))}
+          {displayNames.length > 0 &&
+            displayNames.map((entry) => renderParticipantEntry(entry))
+          }
+          {displayNames.length < 1 &&
+            <ListItemText style={{ textAlign: 'center' }}>
+            {intl.formatMessage({ id: 'noCollaboratorsLabel' })}
+            </ListItemText>
+          }
         </List>
+        <Typography class={classes.sectionHeader}>
+        {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
+      </Typography>
+      <ListItem
+        id="emailInput"
+        key="emailInput"
+      >
+        <ListItemText className={classes.name}>
+          <Typography clasName={classes.input} style={{ marginBottom: 15 }}>
+            {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+          </Typography>
+          <TextField
+            variant="outlined"
+            id="email1"
+            name="email1"
+            type="email"
+            fullWidth
+            label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
+            value={email1}
+            onChange={handleEmail1}
+          />
+        </ListItemText>
+        {/* <ListItemIcon>
+          <Checkbox
+            id="isObserver1"
+            onClick={handleIsObserver1}
+            checked={isObserver1}
+          />
+        </ListItemIcon> */}
+      </ListItem>
+      <ListItem>
+        <InviteLinker
+          marketType={marketType}
+          showObserverLink={showObservers}
+          marketId={addToMarketId}
+          observerLabel={intl.formatMessage({ id: 'isObserver' })}
+        />
+      </ListItem>
         <CardActions className={classes.actions}>
           <Button
             onClick={myOnCancel}
@@ -217,49 +294,18 @@ function AddressList(props) {
               id="marketAddCancelLabel"
             />
           </Button>
-          <SpinBlockingButton
-            id="save"
+          <ApiBlockingButton
             variant="contained"
-            color="primary"
             className={classes.actionPrimary}
-            onClick={handleSave}
-            marketId={addToMarketId}
-            onSpinStop={onSave}
-            disabled={_.isEmpty(anySelected)}
+            type="submit"
+            disabled={inviteFormInvalid}
           >
             <FormattedMessage
-              id="agilePlanFormSaveLabel"
+              id="inviteParticipantsLabel"
             />
-          </SpinBlockingButton>
+          </ApiBlockingButton>
         </CardActions>
       </form>
-      <Typography class={classes.sectionHeader}>
-        {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
-      </Typography>
-      <ListItem>
-        <InviteLinker
-          marketType={marketType}
-          marketId={addToMarketId}
-        />
-      </ListItem>
-      <Typography>{intl.formatMessage({ id: 'addParticipantsEmail' })}</Typography>
-      <ListItem
-        id="emailInput"
-        key="emailInput"
-      >
-        <ListItemText className={classes.name}>
-          <TextField
-            variant="outlined"
-            id="email1"
-            name="email1"
-            type="email"
-            fullWidth
-            label={intl.formatMessage({ id: 'email' })}
-            value={email1}
-            onChange={handleEmail1}
-          />
-        </ListItemText>
-      </ListItem>
       <CardActions className={classes.actions}>
         <Button
           onClick={myOnCancel}
@@ -271,16 +317,20 @@ function AddressList(props) {
             id="marketAddCancelLabel"
           />
         </Button>
-        <ApiBlockingButton
+        <SpinBlockingButton
+          id="save"
           variant="contained"
+          color="primary"
           className={classes.actionPrimary}
-          type="submit"
-          disabled={inviteFormInvalid}
+          onClick={handleSave}
+          marketId={addToMarketId}
+          onSpinStop={onSave}
+          disabled={_.isEmpty(anySelected)}
         >
           <FormattedMessage
-            id="inviteParticipantsLabel"
+            id="agilePlanFormSaveLabel"
           />
-        </ApiBlockingButton>
+        </SpinBlockingButton>
       </CardActions>
     </>
   );
@@ -289,6 +339,7 @@ function AddressList(props) {
 AddressList.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
+  showObservers: PropTypes.bool,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
   isOwnScreen: PropTypes.bool,
@@ -297,6 +348,7 @@ AddressList.propTypes = {
 };
 
 AddressList.defaultProps = {
+  showObservers: true,
   onSave: () => {
   },
   onCancel: () => {

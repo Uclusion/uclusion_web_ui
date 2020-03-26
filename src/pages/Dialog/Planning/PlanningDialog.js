@@ -42,6 +42,7 @@ import IconButton from '@material-ui/core/IconButton';
 import clsx from 'clsx';
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible';
 import { DISMISS, DismissTextContext } from '../../../contexts/DismissTextContext';
+import DismissableText from '../../../components/Notifications/DismissableText'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -66,7 +67,6 @@ function PlanningDialog(props) {
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [dismissState, dispatchDismissState] = useContext(DismissTextContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(
     stage => !stage.allows_investment && stage.singular_only
@@ -145,11 +145,7 @@ function PlanningDialog(props) {
       />
     ];
   }
-  const storyHelpOpen = !('storyCreate' in dismissState);
-  function dismiss() {
-    dispatchDismissState({ type: DISMISS, id: 'storyCreate' });
-  }
-  const metaClasses = useMetaDataStyles();
+
   const sidebarActions = getSidebarActions();
   return (
     <Screen
@@ -179,15 +175,8 @@ function PlanningDialog(props) {
           inReviewStage={inReviewStage}
         />
       )}
-      {isChannel && storyHelpOpen && (
-        <dl className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.root)} >
-          <dd>
-            <FormattedMessage id="storyHelp" />
-            <IconButton onClick={dismiss}>
-              <CloseIcon />
-            </IconButton>
-          </dd>
-        </dl>
+      {isChannel && (
+        <DismissableText textId='storyHelp' />
       )}
       {activeMarket && (
         <CommentAddBox

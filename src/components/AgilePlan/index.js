@@ -74,11 +74,18 @@ export const usePlanFormStyles = makeStyles(
       width: '100%',
       marginTop: theme.spacing(3),
     },
+    name: {
+      width: '50%',
+    },
+    sharedForm: {
+      width: '20%',
+      marginRight: 10,
+    },
     sectionHeader: {
       fontWeight: 700,
     },
     scrollableList: {
-      height: 200,
+      height: 350,
       overflowY: 'scroll',
       border: '1px solid #cfcfcf',
       borderRadius: 5,

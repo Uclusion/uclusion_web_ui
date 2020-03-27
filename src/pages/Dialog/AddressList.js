@@ -173,6 +173,7 @@ function AddressList(props) {
     <>
         <List
           dense
+          className={classes.sharedForm}
         >
           <Typography class={classes.sectionHeader}>
             {intl.formatMessage({ id: 'searchParticipantsLabel' })}
@@ -193,47 +194,47 @@ function AddressList(props) {
               />
             </ListItemText>
           </ListItem>
-        </List>
-        <List
-          dense
-          id="addressBook"
-          className={classes.scrollableList}
-        >
-          {displayNames.length > 0 &&
+          <List
+            dense
+            id="addressBook"
+            className={classes.scrollableList}
+          >
+            {displayNames.length > 0 &&
             displayNames.map((entry) => renderParticipantEntry(entry))
-          }
-          {displayNames.length < 1 &&
+            }
+            {displayNames.length < 1 &&
             <ListItemText style={{ textAlign: 'center' }}>
-            {intl.formatMessage({ id: 'noCollaboratorsLabel' })}
+              {intl.formatMessage({ id: 'noCollaboratorsLabel' })}
             </ListItemText>
-          }
+            }
+          </List>
+          <CardActions className={classes.actions}>
+            <Button
+              onClick={myOnCancel}
+              className={classes.actionSecondary}
+              color="secondary"
+              variant="contained"
+            >
+              <FormattedMessage
+                id="marketAddCancelLabel"
+              />
+            </Button>
+            <SpinBlockingButton
+              id="save"
+              variant="contained"
+              color="primary"
+              className={classes.actionPrimary}
+              onClick={handleSave}
+              marketId={addToMarketId}
+              onSpinStop={onSave}
+              disabled={_.isEmpty(anySelected)}
+            >
+              <FormattedMessage
+                id="addExistingCollaborator"
+              />
+            </SpinBlockingButton>
+          </CardActions>
         </List>
-        <CardActions className={classes.actions}>
-          <Button
-            onClick={myOnCancel}
-            className={classes.actionSecondary}
-            color="secondary"
-            variant="contained"
-          >
-            <FormattedMessage
-              id="marketAddCancelLabel"
-            />
-          </Button>
-          <SpinBlockingButton
-            id="save"
-            variant="contained"
-            color="primary"
-            className={classes.actionPrimary}
-            onClick={handleSave}
-            marketId={addToMarketId}
-            onSpinStop={onSave}
-            disabled={_.isEmpty(anySelected)}
-          >
-            <FormattedMessage
-              id="addExistingCollaborator"
-            />
-          </SpinBlockingButton>
-        </CardActions>
       <List
         dense
       >
@@ -271,6 +272,7 @@ function AddressList(props) {
             />
           </ListItemText>
         </ListItem>
+        <ListItem id="emailButtons" key="emailButtons">
           <CardActions className={classes.actions}>
             <Button
               onClick={myOnCancel}
@@ -293,6 +295,7 @@ function AddressList(props) {
               />
             </ApiBlockingButton>
           </CardActions>
+        </ListItem>
         </form>
       </List>
     </>

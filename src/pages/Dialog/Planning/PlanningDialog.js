@@ -3,7 +3,7 @@
  */
 import React, { useContext } from 'react'
 import { useHistory } from "react-router";
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import PropTypes from "prop-types";
 import _ from "lodash";
 import { Typography } from "@material-ui/core";
@@ -37,11 +37,6 @@ import ExpandableSidebarAction from "../../../components/SidebarActions/Expandab
 import InsertLinkIcon from "@material-ui/icons/InsertLink";
 import { getMarketPresences } from "../../../contexts/MarketPresencesContext/marketPresencesHelper";
 import InvestibleAddActionButton from "./InvestibleAddActionButton";
-import CloseIcon from '@material-ui/icons/Close';
-import IconButton from '@material-ui/core/IconButton';
-import clsx from 'clsx';
-import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible';
-import { DISMISS, DismissTextContext } from '../../../contexts/DismissTextContext';
 import DismissableText from '../../../components/Notifications/DismissableText'
 
 function PlanningDialog(props) {

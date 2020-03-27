@@ -82,6 +82,9 @@ const useStyles = makeStyles((theme) => {
       paddingBottom: '25px',
       background: '#DFE5E7',
     },
+    searchBox: {
+      marginRight: '5px',
+    }
   };
 });
 
@@ -173,7 +176,9 @@ function Header(props) {
           {generateTitle()}
           {toolbarButtons}
           <div className={classes.grow} />
-          <SearchBox/>
+          <div className={classes.searchBox}>
+            <SearchBox/>
+          </div>
           <SearchResults/>
           <Identity/>
         </Toolbar>

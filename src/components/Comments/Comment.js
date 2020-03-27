@@ -29,7 +29,7 @@ import CommentEdit from "./CommentEdit";
 import { MarketsContext } from "../../contexts/MarketsContext/MarketsContext";
 import { getMyUserForMarket } from "../../contexts/MarketsContext/marketsContextHelper";
 import {
-  EXPANDED,
+  EXPANDED, HIGHLIGHT_REMOVE,
   HighlightedCommentContext
 } from '../../contexts/HighlightedCommentContext'
 import CardType from '../CardType';
@@ -193,7 +193,10 @@ function Comment(props) {
     }
     myReplies.forEach(reply => {
       if (reply.id in highlightedCommentState) {
-        highLighted.push(reply.id);
+        const { level } = highlightedCommentState[reply.id];
+        if (level) {
+          highLighted.push(reply.id);
+        }
       }
     });
     myReplies.forEach((reply) => {
@@ -204,20 +207,16 @@ function Comment(props) {
     });
     return highLighted;
   }
-  const [myHighLightId, setMyHighLightId] = useState(getHilightedIds(replies, highlightedCommentState));
+  const highlightIds = getHilightedIds(replies, highlightedCommentState);
   const myHighlightedExpandedState = highlightedCommentState[id] || {};
   const { level: myHighlightedLevel, repliesExpanded: myRepliesExpanded } = myHighlightedExpandedState;
-  const myRepliesExpandedCalc = myRepliesExpanded === undefined ? _.isEmpty(myHighLightId) ? undefined : true : myRepliesExpanded;
+  const myRepliesExpandedCalc = myRepliesExpanded === undefined ? _.isEmpty(highlightIds) ? undefined : true : myRepliesExpanded;
   const repliesExpanded = myRepliesExpandedCalc === undefined ? !comment.resolved || comment.reply_id : myRepliesExpandedCalc;
 
   useEffect(() => {
-    const highlightIds = getHilightedIds(replies, highlightedCommentState);
     if (!_.isEmpty(highlightIds) && !myRepliesExpanded) {
       // Open if need to highlight inside - user can close again
       highlightedCommentDispatch({ type: EXPANDED, commentId: id, newRepliesExpanded: true });
-    }
-    if (!_.isEqual(highlightIds, myHighLightId)) {
-      setMyHighLightId(highlightIds);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, highlightedCommentState, myRepliesExpanded, replies, comments, highlightedCommentDispatch]);
@@ -306,8 +305,8 @@ function Comment(props) {
                 onClick={() => {
                   const newRepliesExpanded = !repliesExpanded;
                   highlightedCommentDispatch({ type: EXPANDED, commentId: id, newRepliesExpanded });
-                  if (!newRepliesExpanded && !_.isEmpty(myHighLightId)) {
-                    setMyHighLightId([]);
+                  if (!newRepliesExpanded && !_.isEmpty(highlightIds)) {
+                    highlightIds.forEach((commentId) => highlightedCommentDispatch({ type: HIGHLIGHT_REMOVE, commentId }));
                   }
                 }}
               >
@@ -365,7 +364,7 @@ function Comment(props) {
                   key={childId}
                   comment={child}
                   marketId={marketId}
-                  highLightId={myHighLightId}
+                  highLightId={highlightIds}
                 />
               );
             })}

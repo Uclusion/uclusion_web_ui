@@ -25,6 +25,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { DECISION_TYPE } from '../constants/markets';
 import AgilePlanIcon from "@material-ui/icons/PlaylistAdd";
+import AssignmentIcon from '@material-ui/icons/Assignment';
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, DECISION_TYPE };
 export const VOTING_TYPE = "VOTING";
@@ -38,6 +39,7 @@ export const IN_VERIFIED = "VERIFIED";
 export const OPTION = "OPTION";
 export const IN_VOTING= "DELIBERATION";
 export const ASSIGN_TYPE = "ASSIGN";
+export const GENERIC_STORY_TYPE = "GENERIC_STORY"; /// used in search results only
 
 function NoIcon() {
   return null;
@@ -53,6 +55,7 @@ const useCardTypeStyles = makeStyles(
           [SUGGEST_CHANGE_TYPE]: resolved ? "#BDC3C7" : "#F29100",
           [VOTING_TYPE]: "#9B51E0",
           [STORY_TYPE]: "#506999",
+          [GENERIC_STORY_TYPE]: "#506999",
           [DECISION_TYPE]: "#0B51E0",
           certainty5: "#D54F22",
           certainty25: "#F4AB3B",
@@ -129,7 +132,8 @@ export default function CardType(props) {
     certainty50: NoIcon,
     certainty75: NoIcon,
     certainty100: NoIcon,
-    [AGILE_PLAN_TYPE]: AgilePlanIcon
+    [AGILE_PLAN_TYPE]: AgilePlanIcon,
+    [GENERIC_STORY_TYPE]: AssignmentIcon,
   }[subtype || type];
 
   return (
@@ -164,6 +168,7 @@ CardType.propTypes = {
     VOTING_TYPE,
     STORY_TYPE,
     DECISION_TYPE,
+    GENERIC_STORY_TYPE,
     AGILE_PLAN_TYPE
   ])
 };

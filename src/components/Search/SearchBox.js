@@ -1,57 +1,44 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { SearchIndexContext } from '../../contexts/SearchIndexContext/SearchIndexContext';
-import { TextField, Card, Typography } from '@material-ui/core';
-import {
-  INDEX_COMMENT_TYPE,
-  INDEX_INVESTIBLE_TYPE, INDEX_MARKET_TYPE
-} from '../../contexts/SearchIndexContext/searchIndexContextMessages';
+import { TextField, InputAdornment } from '@material-ui/core';
 import _ from 'lodash';
-import CommentSearchResult from './CommentSearchResult';
-import InvestibleSearchResult from './InvestibleSearchResult';
-import MarketSearchResult from './MarketSearchResult';
+import SearchIcon from '@material-ui/icons/Search';
+import { useIntl } from 'react-intl';
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 
 function SearchBox (props) {
   const MAX_RESULTS = 15;
+  const intl = useIntl();
   const [index] = useContext(SearchIndexContext);
-  const [currentSearch, setCurrentSearch] = useState('');
-  const [currentResults, setCurrentResults] = useState([]);
+  const [searchResults, setSearchResults] = useContext(SearchResultsContext);
+
 
   function onSearchChange (event) {
     const { value } = event.target;
-    setCurrentSearch(value);
     // return the first 15 results
     const results = _.take(index.search(value), MAX_RESULTS);
-    setCurrentResults(results);
-  }
-
-  function getResults () {
-    return currentResults.map((item) => {
-      const { id, type, marketId } = item;
-      if (type === INDEX_COMMENT_TYPE) {
-        return (<CommentSearchResult key={id} marketId={marketId} commentId={id}/>)
-      }
-      if (type === INDEX_INVESTIBLE_TYPE) {
-        return (<InvestibleSearchResult key={id} investibleId={id}/>);
-      }
-      if (type === INDEX_MARKET_TYPE) {
-        return (<MarketSearchResult key={id} marketId={id}/>)
-      }
-      return (
-        <Card key={id}>
-          <Typography>{id}</Typography>
-          <Typography>{type}</Typography>
-        </Card>
-      );
+    setSearchResults({
+      search: value,
+      results
     });
   }
 
   return (
-    <div>
+    <div id='search-box'>
       <TextField
         onChange={onSearchChange}
-        value={currentSearch}
+        value={searchResults.search}
+        placeholder={intl.formatMessage({ id: 'searchBoxPlaceholder' })}
+        variant="outlined"
+        size="small"
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+        }}
       />
-      {getResults()}
     </div>
   );
 }

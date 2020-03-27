@@ -29,7 +29,6 @@ import { PURE_SIGNUP_FAMILY_NAME, PURE_SIGNUP_HOME, pureSignupHomeSteps } from '
 import { CognitoUserContext } from '../../contexts/CongitoUserContext';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
-import SearchBox from '../../components/Search/SearchBox';
 
 function Home(props) {
   const { hidden } = props;
@@ -143,7 +142,6 @@ function Home(props) {
       )}
       {!noMarkets && (
         <React.Fragment>
-          <SearchBox/>
           <PlanningDialogs markets={planningDetails}/>
           <DecisionDialogs markets={decisionDetails}/>
           <InitiativeDialogs markets={initiativeDetails}/>

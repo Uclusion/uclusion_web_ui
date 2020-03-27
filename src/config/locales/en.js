@@ -672,6 +672,7 @@ const messages = defineMessages({
   suggestPresent: 'Suggestion',
 
   // Search
+  searchBoxPlaceholder: 'Search',
   commentSearchResultIssue: 'Issue in {name}',
   commentSearchResultJustify: 'Vote reason in {name}',
   commentSearchResultSuggestion: 'Suggestion in {name}',

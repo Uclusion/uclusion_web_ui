@@ -21,6 +21,7 @@ import { useHistory } from 'react-router';
 import queryString from 'query-string';
 import CardType, { STORY_TYPE } from '../../../components/CardType'
 import { DaysEstimate } from '../../../components/AgilePlan';
+import DismissableText from '../../../components/Notifications/DismissableText'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -141,72 +142,74 @@ function PlanningInvestibleAdd(props) {
   }
 
   return (
-    <Card>
-      <CardType
-        className={classes.cardType}
-        label={`${intl.formatMessage({
-          id: "investibleDescription"
-        })}`}
-        type={STORY_TYPE}
-      />
-      <CardContent className={classes.cardContent}>
-        <AssignmentList
-          marketId={marketId}
-          onChange={onAssignmentsChange}
-          previouslyAssigned={storedAssignments || getUrlAssignee()}
+    <>
+      <DismissableText textId='planningInvestibleAddHelp' />
+      <Card>
+        <CardType
+          className={classes.cardType}
+          label={`${intl.formatMessage({
+            id: "investibleDescription"
+          })}`}
+          type={STORY_TYPE}
         />
-        <fieldset className={classes.fieldset}>
-          <legend>optional</legend>
-          <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} />
-        </fieldset>
-        <TextField
-          fullWidth
-          id="plan-investible-name"
-          label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
-          onChange={handleChange('name')}
-          placeholder={intl.formatMessage({
-            id: "storyTitlePlaceholder"
-          })}
-          value={name}
-          variant="filled"
-        />
-        <QuillEditor
-          marketId={marketId}
-          onChange={onEditorChange}
-          onStoreChange={onStorageChange}
-          placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
-          onS3Upload={onS3Upload}
-          defaultValue={description}
-          setOperationInProgress={setOperationRunning}
-        />
-      </CardContent>
-      <CardActions className={classes.actions}>
-          <Button
-            className={classes.actionSecondary}
-            color="secondary"
-            variant="contained"
-            onClick={handleCancel}
-          >
-            <FormattedMessage
-              id={"marketAddCancelLabel"}
-            />
-          </Button>
-          <SpinBlockingButton
-            onClick={handleSave}
-            onSpinStop={onSpinComplete}
-            className={classes.actionPrimary}
-            color="primary"
-            disabled={!validForm}
+        <CardContent className={classes.cardContent}>
+          <AssignmentList
             marketId={marketId}
-            variant="contained"
-          >
-            <FormattedMessage
-              id={"agilePlanFormSaveLabel"}
-            />
-          </SpinBlockingButton>
-      </CardActions>
-    </Card>
-
+            onChange={onAssignmentsChange}
+            previouslyAssigned={storedAssignments || getUrlAssignee()}
+          />
+          <fieldset className={classes.fieldset}>
+            <legend>optional</legend>
+            <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} />
+          </fieldset>
+          <TextField
+            fullWidth
+            id="plan-investible-name"
+            label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
+            onChange={handleChange('name')}
+            placeholder={intl.formatMessage({
+              id: "storyTitlePlaceholder"
+            })}
+            value={name}
+            variant="filled"
+          />
+          <QuillEditor
+            marketId={marketId}
+            onChange={onEditorChange}
+            onStoreChange={onStorageChange}
+            placeholder={intl.formatMessage({ id: 'investibleAddDescriptionDefault' })}
+            onS3Upload={onS3Upload}
+            defaultValue={description}
+            setOperationInProgress={setOperationRunning}
+          />
+        </CardContent>
+        <CardActions className={classes.actions}>
+            <Button
+              className={classes.actionSecondary}
+              color="secondary"
+              variant="contained"
+              onClick={handleCancel}
+            >
+              <FormattedMessage
+                id={"marketAddCancelLabel"}
+              />
+            </Button>
+            <SpinBlockingButton
+              onClick={handleSave}
+              onSpinStop={onSpinComplete}
+              className={classes.actionPrimary}
+              color="primary"
+              disabled={!validForm}
+              marketId={marketId}
+              variant="contained"
+            >
+              <FormattedMessage
+                id={"agilePlanFormSaveLabel"}
+              />
+            </SpinBlockingButton>
+        </CardActions>
+      </Card>
+    </>
   );
 }
 

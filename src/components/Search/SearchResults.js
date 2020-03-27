@@ -8,13 +8,22 @@ import {
 import CommentSearchResult from './CommentSearchResult';
 import InvestibleSearchResult from './InvestibleSearchResult';
 import MarketSearchResult from './MarketSearchResult';
-import { List, ListItem, Popper, ListItemText } from '@material-ui/core';
+import { List, ListItem, Popper, Paper } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
+
+const useStyles = makeStyles((theme) => {
+  return {
+    popper: {
+      zIndex: 1500,
+    }
+  };
+});
 
 function SearchResults () {
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
   const [open, setOpen] = useState(false);
   const { results } = searchResults;
-
+  const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
@@ -53,11 +62,10 @@ function SearchResults () {
       return (
         <ListItem
           key={id}
+          button
           onClick={zeroResults}
         >
-          <ListItemText>
             {getSearchResult(item)}
-          </ListItemText>
         </ListItem>
       );
     });
@@ -71,12 +79,15 @@ function SearchResults () {
       id="search-results"
       anchorEl={anchorEl}
       placement={placement}
+      className={classes.popper}
     >
-      <div>
-        <List>
+      <Paper>
+        <List
+          dense
+        >
           {getResults()}
         </List>
-      </div>
+      </Paper>
     </Popper>
   );
 }

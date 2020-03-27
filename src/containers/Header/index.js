@@ -30,6 +30,9 @@ const useStyles = makeStyles((theme) => {
   const BREADCRUMBS_HEIGHT = 67;
   const TOPBAR_HEIGHT = 25;
   return {
+    elevated: {
+      zIndex: 1900,
+    },
     grow: {
       flexGrow: 1,
     },

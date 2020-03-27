@@ -415,6 +415,7 @@ const messages = defineMessages({
   planningAddHelp: 'A workspace is your place for all stories, questions, issues, requirements and decisions about a project or topic.',
   planningInvestibleAddHelp: 'Stories allow collaboration on what should be done, who should do it, how and status at a glance without a meeting.',
   planningInvestibleEnoughVotesHelp: 'This story has enough votes so consider using the up arrow in the sidebar menu to move \'In Progress\'',
+  planningInvestibleAcceptedFullHelp: 'You can only have one story at a time \'In Progress\' so the up arrow is not visible yet.',
   planningEditHelp: 'Workspace descriptions communicate requirements well with notifications and a difference display for your change.',
   planningInvestibleAcceptedHelp: 'If you need help brainstorming how to do this story choose the link icon from the sidebar menu to create a child dialog.',
   // Decision Dialog

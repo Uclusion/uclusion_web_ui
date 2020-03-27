@@ -196,7 +196,10 @@ function PlanningInvestible(props) {
     ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
     : makeBreadCrumbs(history, breadCrumbTemplates);
 
-  const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
+  const allowedCommentTypes = [QUESTION_TYPE];
+  if (!isAssigned) {
+    allowedCommentTypes.push(SUGGEST_CHANGE_TYPE);
+  }
   if (!isInNotDoing) {
     allowedCommentTypes.unshift(ISSUE_TYPE);
   }
@@ -402,8 +405,12 @@ function PlanningInvestible(props) {
       hidden={hidden}
       sidebarActions={getSidebarActions()}
     >
-      {isInVoting && assigned && assigned.includes(userId) && enoughVotes && (
+      {isInVoting && isAssigned && enoughVotes
+      && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
         <DismissableText textId='planningInvestibleEnoughVotesHelp' />
+      )}
+      {isInVoting && isAssigned && enoughVotes && !_.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
+        <DismissableText textId='planningInvestibleAcceptedFullHelp' />
       )}
       {isInAccepted && assigned && assigned.includes(userId) && (
         <DismissableText textId='planningInvestibleAcceptedHelp' />

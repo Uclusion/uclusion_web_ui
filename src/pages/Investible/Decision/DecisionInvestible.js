@@ -24,6 +24,7 @@ import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import EditMarketButton from '../../Dialog/EditMarketButton';
 import CardType, { OPTION, VOTING_TYPE } from '../../../components/CardType'
+import DismissableText from '../../../components/Notifications/DismissableText'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -87,7 +88,7 @@ function DecisionInvestible(props) {
   const history = useHistory();
   const classes = useStyles();
 
-  const { name: marketName, id: marketId, market_stage: marketStage } = market;
+  const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote } = market;
   const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
   const breadCrumbs = inArchives
     ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
@@ -114,7 +115,6 @@ function DecisionInvestible(props) {
   const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const inProposed = inProposedStage && marketInfo.stage === inProposedStage.id;
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const myPresence = marketPresences.find((presence) => presence.current_user);
 
   const {
     description, name, created_by: createdBy, locked_by: lockedBy,
@@ -159,8 +159,6 @@ function DecisionInvestible(props) {
     return <></>;
   }
 
-  const canVote = myPresence && myPresence.following;
-
   return (
     <Screen
       title={name}
@@ -169,6 +167,12 @@ function DecisionInvestible(props) {
       hidden={hidden}
       sidebarActions={getSidebarActions()}
     >
+      {activeMarket && !inProposed && !allowMultiVote && (
+        <DismissableText textId='decisionInvestibleVotingSingleHelp' />
+      )}
+      {activeMarket && !inProposed && allowMultiVote && (
+        <DismissableText textId='decisionInvestibleVotingMultiHelp' />
+      )}
       <Card elevation={0}>
         <CardType
           className={classes.cardType}
@@ -206,7 +210,7 @@ function DecisionInvestible(props) {
           {intl.formatMessage({ id: votingBlockedMessage })}
         </Typography>
       )}
-      {!inProposed && canVote && !hasIssueOrMarketIssue && (
+      {!inProposed && !hasIssueOrMarketIssue && (
         <YourVoting
           investibleId={investibleId}
           marketPresences={marketPresences}

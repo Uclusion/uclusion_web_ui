@@ -45,7 +45,8 @@ function YourVoting(props) {
 
   return (
     <>
-      <h2>{yourVote ? intl.formatMessage({ id: 'changeVote' }) : intl.formatMessage({ id: 'addAVote' })}</h2>
+      <h2>{yourVote ? intl.formatMessage({ id: 'changeVote' }) : allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
+        : intl.formatMessage({ id: 'addAVote' })}</h2>
       {isInitiative && (
         <Card>
           <CardContent>

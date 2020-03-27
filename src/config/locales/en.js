@@ -418,6 +418,7 @@ const messages = defineMessages({
   planningInvestibleAcceptedFullHelp: 'You can only have one story at a time \'In Progress\' so the up arrow is not visible yet.',
   planningEditHelp: 'Workspace descriptions communicate requirements well with notifications and a difference display for your change.',
   planningInvestibleAcceptedHelp: 'If you need help brainstorming how to do this story choose the link icon from the sidebar menu to create a child dialog.',
+  planningInvestibleVotingHelp: 'Vote how certain you are this story should be done or open an issue. Effort value is the number of days this story is worth.',
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
   decisionDialogCurrentVotingLabel: 'Current Voting',
@@ -593,8 +594,12 @@ const messages = defineMessages({
   voteFor: 'Vote For',
   voteAgainst: 'Vote Against',
   clearVotes: 'Your other vote will be cleared',
-  addAVote: 'Add a vote',
+  addAVote: 'Add a vote for your favorite option',
+  addMultiVote: 'Add a vote for all options you like',
   changeVote: 'Change vote',
+  decisionInvestibleVotingSingleHelp: 'Help decide by voting for the best option or adding your own option.',
+  decisionInvestibleVotingMultiHelp: 'Help decide by voting for options you like and adding any that are missing.',
+  initiativeVotingHelp: 'Vote for or against this initiative and choose how certain you are of that vote.',
 
   // add participants
   addParticipantsNewPerson: 'Need to add someone not on this list?',

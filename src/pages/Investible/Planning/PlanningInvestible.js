@@ -390,7 +390,7 @@ function PlanningInvestible(props) {
     return sidebarActions;
   }
 
-  const canVote = (!assigned || !assigned.includes(userId)) && isInVoting;
+  const canVote = !isAssigned && isInVoting;
 
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
@@ -405,15 +405,17 @@ function PlanningInvestible(props) {
       hidden={hidden}
       sidebarActions={getSidebarActions()}
     >
-      {isInVoting && isAssigned && enoughVotes
-      && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
+      {activeMarket && isInVoting && isAssigned && enoughVotes && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
         <DismissableText textId='planningInvestibleEnoughVotesHelp' />
       )}
-      {isInVoting && isAssigned && enoughVotes && !_.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
+      {activeMarket && isInVoting && isAssigned && enoughVotes && !_.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
         <DismissableText textId='planningInvestibleAcceptedFullHelp' />
       )}
-      {isInAccepted && assigned && assigned.includes(userId) && (
+      {activeMarket && isInAccepted && isAssigned && (
         <DismissableText textId='planningInvestibleAcceptedHelp' />
+      )}
+      {activeMarket && canVote && (
+        <DismissableText textId='planningInvestibleVotingHelp' />
       )}
       <Card elevation={0}>
         <CardType

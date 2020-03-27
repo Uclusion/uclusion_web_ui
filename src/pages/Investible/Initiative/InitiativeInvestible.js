@@ -31,6 +31,7 @@ import { useMetaDataStyles } from '../Planning/PlanningInvestible';
 import DialogActions from '../../Home/DialogActions'
 import Box from '@material-ui/core/Box';
 import CardActions from '@material-ui/core/CardActions'
+import DismissableText from '../../../components/Notifications/DismissableText'
 
 const useStyles = makeStyles(
   theme => ({
@@ -149,6 +150,9 @@ function InitiativeInvestible(props) {
       sidebarActions={getSidebarActions()}
       hidden={hidden}
     >
+      {!isAdmin && activeMarket && (
+        <DismissableText textId='initiativeVotingHelp' />
+      )}
       <Card className={classes.root}>
         <CardType
           className={classes.cardType}

@@ -173,6 +173,9 @@ function DecisionInvestible(props) {
       {activeMarket && !inProposed && allowMultiVote && (
         <DismissableText textId='decisionInvestibleVotingMultiHelp' />
       )}
+      {activeMarket && inProposed && isAdmin && (
+        <DismissableText textId='decisionInvestibleProposedHelp' />
+      )}
       <Card elevation={0}>
         <CardType
           className={classes.cardType}

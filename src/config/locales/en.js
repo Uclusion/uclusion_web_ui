@@ -453,6 +453,7 @@ const messages = defineMessages({
   decisionInvestibleDiscussion: 'Discussion',
   decisionInvestibleVotingBlockedMarket: 'Voting is blocked because there is an open issue on the decision',
   decisionInvestibleVotingBlockedInvestible: 'Voting is blocked because there is an open issue',
+  decisionInvestibleProposedHelp: 'You can move this option to be voted on by using the up arrow on the sidebar.',
 
   // InitiativeInvestible
   initiativeInvestibleVotingBlocked: 'Voting is blocked because there is an open issue',

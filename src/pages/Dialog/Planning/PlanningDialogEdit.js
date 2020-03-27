@@ -6,6 +6,7 @@ import { lockPlanningMarketForEdit, updateMarket } from "../../../api/markets";
 import { processTextAndFilesForSave } from "../../../api/files";
 import { OperationInProgressContext } from "../../../contexts/OperationInProgressContext/OperationInProgressContext";
 import { Form } from "../../../components/AgilePlan";
+import DismissableText from '../../../components/Notifications/DismissableText'
 
 function PlanningDialogEdit(props) {
   const { onSpinStop, onCancel, market, storedState } = props;
@@ -109,30 +110,33 @@ function PlanningDialogEdit(props) {
   }
 
   return (
-    <Form
-      marketId={id}
-      daysEstimate={days_estimate}
-      onDaysEstimate={handleChange("days_estimate")}
-      description={description}
-      onDescriptionChange={onEditorChange}
-      investmentExpiration={investment_expiration}
-      onInvestmentExpirationChange={handleChange("investment_expiration")}
-      maxBudget={max_budget}
-      onMaxBudgetChange={handleChange("max_budget")}
-      name={name}
-      onNameChange={handleChange("name")}
-      onS3Upload={onS3Upload}
-      onSpinStop={onSpinStop}
-      onStorageChange={onStorageChange}
-      setOperationRunning={setOperationRunning}
-      votesRequired={votes_required}
-      onVotesRequiredChange={handleChange("votes_required")}
-      /* actions */
-      cancelLabel={intl.formatMessage({ id: "marketEditCancelLabel" })}
-      saveLab
-      onCancel={onCancel}
-      onSave={handleSave}
-    />
+    <>
+      <DismissableText textId='planningEditHelp' />
+      <Form
+        marketId={id}
+        daysEstimate={days_estimate}
+        onDaysEstimate={handleChange("days_estimate")}
+        description={description}
+        onDescriptionChange={onEditorChange}
+        investmentExpiration={investment_expiration}
+        onInvestmentExpirationChange={handleChange("investment_expiration")}
+        maxBudget={max_budget}
+        onMaxBudgetChange={handleChange("max_budget")}
+        name={name}
+        onNameChange={handleChange("name")}
+        onS3Upload={onS3Upload}
+        onSpinStop={onSpinStop}
+        onStorageChange={onStorageChange}
+        setOperationRunning={setOperationRunning}
+        votesRequired={votes_required}
+        onVotesRequiredChange={handleChange("votes_required")}
+        /* actions */
+        cancelLabel={intl.formatMessage({ id: "marketEditCancelLabel" })}
+        saveLab
+        onCancel={onCancel}
+        onSave={handleSave}
+      />
+    </>
   );
 }
 

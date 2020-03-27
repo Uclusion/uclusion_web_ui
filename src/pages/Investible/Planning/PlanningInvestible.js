@@ -405,6 +405,9 @@ function PlanningInvestible(props) {
       {isInVoting && assigned && assigned.includes(userId) && enoughVotes && (
         <DismissableText textId='planningInvestibleEnoughVotesHelp' />
       )}
+      {isInAccepted && assigned && assigned.includes(userId) && (
+        <DismissableText textId='planningInvestibleAcceptedHelp' />
+      )}
       <Card elevation={0}>
         <CardType
           className={classes.cardType}

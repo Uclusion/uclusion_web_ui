@@ -288,7 +288,7 @@ const messages = defineMessages({
   newStory: 'New Story',
   newOption: 'New Option',
   noVoters: 'No Voters',
-  storyHelp: 'Need something assigned and voted on now that takes a day or longer? Use the plus icon in the left sidepanel.',
+  storyHelp: 'Need something assigned and voted on now that takes a day or longer? Use the plus icon in the sidebar menu.',
   // Issues
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',
@@ -414,8 +414,9 @@ const messages = defineMessages({
   blockedInvestiblesUpdatedAt: 'Blocked since ',
   planningAddHelp: 'A workspace is your place for all stories, questions, issues, requirements and decisions about a project or topic.',
   planningInvestibleAddHelp: 'Stories allow collaboration on what should be done, who should do it, how and status at a glance without a meeting.',
-  planningInvestibleEnoughVotesHelp: 'This story has enough votes so consider using the up arrow in the left sidebar to move \'In Progress\'',
-
+  planningInvestibleEnoughVotesHelp: 'This story has enough votes so consider using the up arrow in the sidebar menu to move \'In Progress\'',
+  planningEditHelp: 'Workspace descriptions communicate requirements well with notifications and a difference display for your change.',
+  planningInvestibleAcceptedHelp: 'If you need help brainstorming how to do this story choose the link icon from the sidebar menu to create a child dialog.',
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
   decisionDialogCurrentVotingLabel: 'Current Voting',

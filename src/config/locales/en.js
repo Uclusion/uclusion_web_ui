@@ -467,6 +467,7 @@ const messages = defineMessages({
   initiativeInvestibleDiscussion: 'Discussion',
   initiativeVotingFor: 'Votes For',
   initiativeVotingAgainst: 'Votes Against',
+  initiativeAddHelp: 'Create an initiative to quickly gather opinions on your next project.',
 
   // About
   sidebarNavAbout: 'About',

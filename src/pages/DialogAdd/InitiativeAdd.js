@@ -19,6 +19,7 @@ import { addInvestible } from '../../contexts/InvestibesContext/investiblesConte
 import { usePlanFormStyles } from '../../components/AgilePlan';
 import CardType, { VOTING_TYPE } from '../../components/CardType'
 import { formMarketManageLink } from '../../utils/marketIdPathFunctions'
+import DismissableText from '../../components/Notifications/DismissableText'
 
 function InitiativeAdd(props) {
   const intl = useIntl();
@@ -116,72 +117,75 @@ function InitiativeAdd(props) {
   }
 
   return (
-    <Card>
-      <CardType
-        className={classes.cardType}
-        label={`${intl.formatMessage({
-          id: "initiativeInvestibleDescription"
-        })}`}
-        type={VOTING_TYPE}
-      />
-      <CardContent className={classes.cardContent}>
-        <Typography
-          className={classes.row}
-        >
-          {intl.formatMessage({ id: 'initiativeAddExpirationLabel' }, { x: expirationMinutes / 1440 })}
-        </Typography>
-        <ExpirationSelector
-          value={expirationMinutes}
-          className={classes.row}
-          onChange={handleChange('expiration_minutes')}
+    <>
+      <DismissableText textId='initiativeAddHelp' />
+      <Card>
+        <CardType
+          className={classes.cardType}
+          label={`${intl.formatMessage({
+            id: "initiativeInvestibleDescription"
+          })}`}
+          type={VOTING_TYPE}
         />
-        <TextField
-          fullWidth
-          id="initiative-name"
-          label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
-          onChange={handleChange('name')}
-          placeholder={intl.formatMessage({
-            id: "initiativeTitlePlaceholder"
-          })}
-          value={name}
-          variant="filled"
-        />
-        <QuillEditor
-          onS3Upload={onS3Upload}
-          onChange={onEditorChange}
-          onStoreChange={onStorageChange}
-          placeholder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
-          defaultValue={description}
-          setOperationInProgress={setOperationRunning}
-        />
-      </CardContent>
-      <CardActions className={classes.actions}>
-        <Button
-          onClick={handleCancel}
-          className={classes.actionSecondary}
-          color="secondary"
-          variant="contained">
-          <FormattedMessage
-            id="marketAddCancelLabel"
+        <CardContent className={classes.cardContent}>
+          <Typography
+            className={classes.row}
+          >
+            {intl.formatMessage({ id: 'initiativeAddExpirationLabel' }, { x: expirationMinutes / 1440 })}
+          </Typography>
+          <ExpirationSelector
+            value={expirationMinutes}
+            className={classes.row}
+            onChange={handleChange('expiration_minutes')}
           />
-        </Button>
-        <SpinBlockingButton
-          marketId=""
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          disabled={!validForm}
-          onSpinStop={onSpinStop}
-          hasSpinChecker
-          id="save"
-          className={classes.actionPrimary}
-        >
-          <FormattedMessage
-            id="agilePlanFormSaveLabel"
+          <TextField
+            fullWidth
+            id="initiative-name"
+            label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
+            onChange={handleChange('name')}
+            placeholder={intl.formatMessage({
+              id: "initiativeTitlePlaceholder"
+            })}
+            value={name}
+            variant="filled"
           />
-        </SpinBlockingButton>
-      </CardActions>
-    </Card>
+          <QuillEditor
+            onS3Upload={onS3Upload}
+            onChange={onEditorChange}
+            onStoreChange={onStorageChange}
+            placeholder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
+            defaultValue={description}
+            setOperationInProgress={setOperationRunning}
+          />
+        </CardContent>
+        <CardActions className={classes.actions}>
+          <Button
+            onClick={handleCancel}
+            className={classes.actionSecondary}
+            color="secondary"
+            variant="contained">
+            <FormattedMessage
+              id="marketAddCancelLabel"
+            />
+          </Button>
+          <SpinBlockingButton
+            marketId=""
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={!validForm}
+            onSpinStop={onSpinStop}
+            hasSpinChecker
+            id="save"
+            className={classes.actionPrimary}
+          >
+            <FormattedMessage
+              id="agilePlanFormSaveLabel"
+            />
+          </SpinBlockingButton>
+        </CardActions>
+      </Card>
+    </>
   );
 }
 

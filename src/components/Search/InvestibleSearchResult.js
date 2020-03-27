@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
-import CardType, { STORY_TYPE, VOTING_TYPE } from '../CardType';
+import CardType, { GENERIC_STORY_TYPE, VOTING_TYPE } from '../CardType';
 import { Link } from '@material-ui/core';
 import { formInvestibleLink } from '../../utils/marketIdPathFunctions';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
@@ -12,7 +12,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 function getCardType(marketType) {
   switch (marketType){
     case PLANNING_TYPE:
-      return STORY_TYPE;
+      return GENERIC_STORY_TYPE;
     case INITIATIVE_TYPE:
       return VOTING_TYPE;
       //default to decision because it prevents a name conflict with card type and market type as import

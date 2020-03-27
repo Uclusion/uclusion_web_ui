@@ -22,7 +22,22 @@ import { AccountProvider } from '../../contexts/AccountContext/AccountContext';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { SearchIndexProvider } from '../../contexts/SearchIndexContext/SearchIndexContext';
+
+<
+< << <
+< < HEAD;
 import { DismissTextProvider } from '../../contexts/DismissTextContext';
+
+======
+=
+import { SearchResultsProvider } from '../../contexts/SearchResultsContext/SearchResultsContext';
+
+>>>>>>>
+Feat: Working;
+on;
+the;
+menu;
+for search results
 
 function Main (props) {
   const stripePromise = loadStripe(config.payments.stripeKey);
@@ -33,34 +48,36 @@ function Main (props) {
           <HighlightedVotingProvider>
             <HighlightedCommentProvider>
               <SearchIndexProvider>
-                <DiffProvider>
-                  <OperationInProgressProvider>
-                    <OperationInProgressGlobalProvider>
-                      <VersionsProvider>
-                        <NotificationsProvider>
-                          <MarketsProvider>
-                            <MarketStagesProvider>
-                              <CommentsProvider>
-                                <InvestiblesProvider>
-                                  <MarketPresencesProvider>
-                                    <LocaleProvider>
-                                      <SidebarProvider>
-                                        <ToastContainer/>
-                                        <Elements stripe={stripePromise}>
-                                          <AppWithAuth/>
-                                        </Elements>
-                                      </SidebarProvider>
-                                    </LocaleProvider>
-                                  </MarketPresencesProvider>
-                                </InvestiblesProvider>
-                              </CommentsProvider>
-                            </MarketStagesProvider>
-                          </MarketsProvider>
-                        </NotificationsProvider>
-                      </VersionsProvider>
-                    </OperationInProgressGlobalProvider>
-                  </OperationInProgressProvider>
-                </DiffProvider>
+                <SearchResultsProvider>
+                  <DiffProvider>
+                    <OperationInProgressProvider>
+                      <OperationInProgressGlobalProvider>
+                        <VersionsProvider>
+                          <NotificationsProvider>
+                            <MarketsProvider>
+                              <MarketStagesProvider>
+                                <CommentsProvider>
+                                  <InvestiblesProvider>
+                                    <MarketPresencesProvider>
+                                      <LocaleProvider>
+                                        <SidebarProvider>
+                                          <ToastContainer/>
+                                          <Elements stripe={stripePromise}>
+                                            <AppWithAuth/>
+                                          </Elements>
+                                        </SidebarProvider>
+                                      </LocaleProvider>
+                                    </MarketPresencesProvider>
+                                  </InvestiblesProvider>
+                                </CommentsProvider>
+                              </MarketStagesProvider>
+                            </MarketsProvider>
+                          </NotificationsProvider>
+                        </VersionsProvider>
+                      </OperationInProgressGlobalProvider>
+                    </OperationInProgressProvider>
+                  </DiffProvider>
+                </SearchResultsProvider>
               </SearchIndexProvider>
             </HighlightedCommentProvider>
           </HighlightedVotingProvider>

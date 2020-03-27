@@ -23,6 +23,8 @@ import {
 } from '../../constants/global';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import Identity from '../Screen/Identity';
+import SearchBox from '../../components/Search/SearchBox';
+import SearchResults from '../../components/Search/SearchResults';
 
 const useStyles = makeStyles((theme) => {
   const BREADCRUMBS_HEIGHT = 67;
@@ -168,6 +170,8 @@ function Header(props) {
           {generateTitle()}
           {toolbarButtons}
           <div className={classes.grow} />
+          <SearchBox/>
+          <SearchResults/>
           <Identity/>
         </Toolbar>
       </AppBar>

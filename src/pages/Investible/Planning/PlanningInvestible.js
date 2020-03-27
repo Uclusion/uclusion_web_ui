@@ -63,6 +63,7 @@ import CardType, {
 } from '../../../components/CardType'
 import clsx from "clsx";
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets';
+import DismissableText from '../../../components/Notifications/DismissableText'
 
 const useStyles = makeStyles(
   theme => ({
@@ -252,6 +253,8 @@ function PlanningInvestible(props) {
     return _.size(myInvested) >= required;
   }
 
+  const enoughVotes = hasEnoughVotes(invested, votesRequired);
+
   function getSidebarActions() {
     if (!activeMarket) {
       return [];
@@ -266,8 +269,7 @@ function PlanningInvestible(props) {
           userId,
           nextStageId
         );
-        if (isInAccepted ||
-          (hasEnoughVotes(invested, votesRequired) && _.isEmpty(assignedInNextStage))
+        if (isInAccepted || (enoughVotes && _.isEmpty(assignedInNextStage))
         ) {
           sidebarActions.push(
             <MoveToNextVisibleStageActionButton
@@ -305,7 +307,6 @@ function PlanningInvestible(props) {
           />
         );
       }
-
       if (isInBlocked) {
         // eslint-disable-next-line max-len
         const blockingComments = investibleComments.filter(
@@ -328,7 +329,7 @@ function PlanningInvestible(props) {
               />
             );
           }
-          if (hasEnoughVotes(invested, votesRequired)) {
+          if (enoughVotes) {
             // eslint-disable-next-line max-len
             const assignedInAcceptedStage = assignedInStage(
               investibles,
@@ -401,6 +402,9 @@ function PlanningInvestible(props) {
       hidden={hidden}
       sidebarActions={getSidebarActions()}
     >
+      {isInVoting && assigned && assigned.includes(userId) && enoughVotes && (
+        <DismissableText textId='planningInvestibleEnoughVotesHelp' />
+      )}
       <Card elevation={0}>
         <CardType
           className={classes.cardType}

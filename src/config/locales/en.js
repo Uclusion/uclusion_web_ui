@@ -412,8 +412,9 @@ const messages = defineMessages({
   reviewingInvestiblesUpdatedAt: 'In review from ',
   inDialogInvestiblesUpdatedAt: 'Assigned for voting on ',
   blockedInvestiblesUpdatedAt: 'Blocked since ',
-  planningAddHelp: 'A workspace is your one place for all stories, questions, issues, requirements and decisions about a project or topic.',
+  planningAddHelp: 'A workspace is your place for all stories, questions, issues, requirements and decisions about a project or topic.',
   planningInvestibleAddHelp: 'Stories allow collaboration on what should be done, who should do it, how and status at a glance without a meeting.',
+  planningInvestibleEnoughVotesHelp: 'This story has enough votes so consider using the up arrow in the left sidebar to move \'In Progress\'',
 
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',

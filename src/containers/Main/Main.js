@@ -22,23 +22,8 @@ import { AccountProvider } from '../../contexts/AccountContext/AccountContext';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { SearchIndexProvider } from '../../contexts/SearchIndexContext/SearchIndexContext';
-
-<
-< << <
-< < HEAD;
 import { DismissTextProvider } from '../../contexts/DismissTextContext';
-
-======
-=
 import { SearchResultsProvider } from '../../contexts/SearchResultsContext/SearchResultsContext';
-
->>>>>>>
-Feat: Working;
-on;
-the;
-menu;
-for search results
-
 function Main (props) {
   const stripePromise = loadStripe(config.payments.stripeKey);
   return (

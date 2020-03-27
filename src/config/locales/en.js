@@ -430,6 +430,7 @@ const messages = defineMessages({
   decisionDialogNoInvestiblesWarning: 'No votable options',
   childDialogExplanation: 'Click here to create and link in a child dialog deciding something relevant to this parent.',
   childPlanExplanation: 'Click here to create and link in a child workspace relevant to this initiative.',
+  decisionAddHelp: 'A dialog gives you a timed box way to decide with others between options that you control.',
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
@@ -493,7 +494,7 @@ const messages = defineMessages({
   // decision sidebar
   addOptionLabel: 'Add Option',
 
-  // diff display
+  // diff displaydeci
   diffDisplayDismissLabel: 'Hide Changes',
   diffDisplayShowLabel: 'Show Changes',
 

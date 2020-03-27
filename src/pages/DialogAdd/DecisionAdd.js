@@ -31,6 +31,7 @@ import { addParticipants } from '../../api/users';
 import CardType from '../../components/CardType';
 import { usePlanFormStyles } from '../../components/AgilePlan';
 import { formMarketAddInvestibleLink } from '../../utils/marketIdPathFunctions'
+import DismissableText from '../../components/Notifications/DismissableText'
 
 function DecisionAdd(props) {
   const intl = useIntl();
@@ -159,80 +160,83 @@ function DecisionAdd(props) {
   }
 
   return (
-    <Card id="tourRoot">
-      <UclusionTour
-        name={PURE_SIGNUP_ADD_DIALOG}
-        family={PURE_SIGNUP_FAMILY_NAME}
-        steps={PURE_SIGNUP_ADD_DIALOG_STEPS}
-        hideBackButton
-      />
-      <CardType className={classes.cardType} type={DECISION_TYPE} />
-      <CardContent className={classes.cardContent}>
-        <Typography>
-          {intl.formatMessage({ id: 'decisionAddExpirationLabel' }, { x: expiration_minutes / 1440 })}
-        </Typography>
-        <ExpirationSelector
-          id="expires"
-          value={expiration_minutes}
-          className={classes.row}
-          onChange={handleChange('expiration_minutes')}
+    <>
+      <DismissableText textId='decisionAddHelp' />
+      <Card id="tourRoot">
+        <UclusionTour
+          name={PURE_SIGNUP_ADD_DIALOG}
+          family={PURE_SIGNUP_FAMILY_NAME}
+          steps={PURE_SIGNUP_ADD_DIALOG_STEPS}
+          hideBackButton
         />
-        <Typography>
-          {intl.formatMessage({ id: 'allowMultiVote' })}
-          <Checkbox
-            id="multiVote"
-            name="multiVote"
-            checked={multiVote}
-            onChange={toggleMultiVote}
+        <CardType className={classes.cardType} type={DECISION_TYPE} />
+        <CardContent className={classes.cardContent}>
+          <Typography>
+            {intl.formatMessage({ id: 'decisionAddExpirationLabel' }, { x: expiration_minutes / 1440 })}
+          </Typography>
+          <ExpirationSelector
+            id="expires"
+            value={expiration_minutes}
+            className={classes.row}
+            onChange={handleChange('expiration_minutes')}
           />
-        </Typography>
-        <TextField
-          fullWidth
-          id="decision-name"
-          label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
-          onChange={handleChange('name')}
-          placeholder={intl.formatMessage({
-            id: "decisionTitlePlaceholder"
-          })}
-          value={name}
-          variant="filled"
-        />
-        <QuillEditor
-          id="description"
-          onS3Upload={onS3Upload}
-          onChange={onEditorChange}
-          onStoreChange={onStorageChange}
-          placeholder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
-          defaultValue={description}
-          setOperationInProgress={setOperationRunning}
-        />
-      </CardContent>
-      <CardActions className={classes.actions}>
-        <Button
-          onClick={handleCancel}
-          className={classes.actionSecondary}
-          color="secondary"
-          variant="contained">
-          <FormattedMessage
-            id="marketAddCancelLabel"
+          <Typography>
+            {intl.formatMessage({ id: 'allowMultiVote' })}
+            <Checkbox
+              id="multiVote"
+              name="multiVote"
+              checked={multiVote}
+              onChange={toggleMultiVote}
+            />
+          </Typography>
+          <TextField
+            fullWidth
+            id="decision-name"
+            label={intl.formatMessage({ id: "agilePlanFormTitleLabel" })}
+            onChange={handleChange('name')}
+            placeholder={intl.formatMessage({
+              id: "decisionTitlePlaceholder"
+            })}
+            value={name}
+            variant="filled"
           />
-        </Button>
-        <SpinBlockingButton
-          marketId=""
-          id="save"
-          variant="contained"
-          color="primary"
-          onClick={handleSave}
-          disabled={!validForm}
-          onSpinStop={onSpinStop}
-          className={classes.actionPrimary}
-        >
-          <FormattedMessage
-            id="agilePlanFormSaveLabel"
+          <QuillEditor
+            id="description"
+            onS3Upload={onS3Upload}
+            onChange={onEditorChange}
+            onStoreChange={onStorageChange}
+            placeholder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
+            defaultValue={description}
+            setOperationInProgress={setOperationRunning}
           />
-        </SpinBlockingButton>
-      </CardActions>
-    </Card>
+        </CardContent>
+        <CardActions className={classes.actions}>
+          <Button
+            onClick={handleCancel}
+            className={classes.actionSecondary}
+            color="secondary"
+            variant="contained">
+            <FormattedMessage
+              id="marketAddCancelLabel"
+            />
+          </Button>
+          <SpinBlockingButton
+            marketId=""
+            id="save"
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={!validForm}
+            onSpinStop={onSpinStop}
+            className={classes.actionPrimary}
+          >
+            <FormattedMessage
+              id="agilePlanFormSaveLabel"
+            />
+          </SpinBlockingButton>
+        </CardActions>
+      </Card>
+    </>
   );
 }
 

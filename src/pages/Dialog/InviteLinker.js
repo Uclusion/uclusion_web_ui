@@ -61,7 +61,7 @@ function InviteLinker(props) {
     <TooltipIconButton
       translationId="inviteLinkerCopyToClipboard"
       icon={<AssignmentIcon/>}
-      onClick={() => navigator.clipboard.writeText(`${link}#is_obs=false`)}
+      onClick={() => navigator.clipboard.writeText(link)}
     />
     </>
   );

@@ -1,10 +1,13 @@
 import jwt_decode from 'jwt-decode';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
 import _ from 'lodash';
+import { getTokenSecondsRemaining } from './tokenUtils';
+
 const TOKEN_STORAGE_KEY = 'TOKEN_STORAGE_MANAGER';
 export const TOKEN_TYPE_MARKET = 'MARKET';
 export const TOKEN_TYPE_ACCOUNT = 'ACCOUNT';
 export const TOKEN_TYPE_FILE = 'FILE';
+
 
 class TokenStorageManager {
 
@@ -76,6 +79,15 @@ class TokenStorageManager {
   }
 
   /**
+   * Returns an object containing all tokens of the given type
+   * @param tokenType the token type to get
+   */
+  getTokens(tokenType) {
+    const tokenStorage = this.getTokenStorage();
+    return tokenStorage[tokenType];
+  }
+
+  /**
    * Stores a token into the token storage, unless a token for that
    * type and item exists, and the existing token has a later expiry
    * @param tokenType the type of token we're storing
@@ -129,11 +141,8 @@ class TokenStorageManager {
     if (_.isEmpty(tokenString)) {
       return false;
     }
-    const decoded = jwt_decode(tokenString);
-    const { exp } = decoded; // exp is seconds since the epoch (1/1/1970 00:00:00)
-    const currentTimeMillis = new Date().getTime();
-    const currentTimeSeconds = currentTimeMillis / 1000;
-    return (exp - currentTimeSeconds) >= 60;
+    const secondsRemaining = getTokenSecondsRemaining(tokenString);
+    return secondsRemaining >= 60;
   }
 }
 

@@ -99,7 +99,7 @@ function removeUploadedFileTokens(text) {
  * NOT refresh the file tokens, so you might get broken images
  * @param uploadedFiles
  * @param text
- * @return {Promise<unknown>|Promise<string>}
+ * @return <String>
  */
 export function fixUploadedFileLinks(text) {
   const ourBaseURL = config.file_download_configuration.baseURL;

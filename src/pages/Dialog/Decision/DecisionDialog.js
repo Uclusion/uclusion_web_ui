@@ -204,7 +204,6 @@ function DecisionDialog(props) {
             {marketName}
           </Typography>
           <DescriptionOrDiff
-            hidden={hidden}
             id={marketId}
             description={description}
           />

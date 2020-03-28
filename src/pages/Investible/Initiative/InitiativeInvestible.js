@@ -179,7 +179,6 @@ function InitiativeInvestible(props) {
             {name}
           </Typography>
           <DescriptionOrDiff
-            hidden={hidden}
             id={investibleId}
             description={description}
           />

@@ -128,7 +128,7 @@ function Summary(props) {
         <Typography className={classes.title} variant="h3" component="h1">
           {name}
         </Typography>
-        <DescriptionOrDiff hidden={hidden} id={id} description={description} />
+        <DescriptionOrDiff id={id} description={description} />
         <Divider className={classes.divider} />
         {!isChannel && (
           <>

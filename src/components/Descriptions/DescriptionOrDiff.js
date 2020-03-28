@@ -2,11 +2,9 @@ import React, { useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import {
-  getLastSeenContent,
   hasDiff,
-  hasUnViewedDiff,
-  markContentViewed
-} from '../../contexts/DiffContext/diffContextHelper';
+  hasUnViewedDiff, markContentViewed,
+} from '../../contexts/DiffContext/diffContextHelper'
 import DiffDisplay from '../TextEditors/DiffDisplay';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import { useIntl } from 'react-intl';
@@ -17,7 +15,6 @@ function DescriptionOrDiff(props) {
   const {
     id,
     description,
-    hidden, // need this to make sure we don't declare something as read that's not visible
   } = props;
 
   const intl = useIntl();
@@ -25,25 +22,20 @@ function DescriptionOrDiff(props) {
   const [diffState, diffDispatch] = useContext(DiffContext);
   const hasNewDiff = hasUnViewedDiff(diffState, id);
   const [showDiff, setShowDiff] = useState(false);
-
-  const lastSeenContent = getLastSeenContent(diffState, id);
   const diffAvailable = hasDiff(diffState, id);
 
   function toggleDiffShow() {
+    markContentViewed(diffDispatch, id, description);
     setShowDiff(!showDiff);
   }
 
   useEffect(() => {
-    const shouldEmitContent = !hidden && !(showDiff && diffAvailable) && lastSeenContent !== description;
-    if (shouldEmitContent) {
-      markContentViewed(diffDispatch, id, description);
-    }
     if (hasNewDiff) {
       setShowDiff(true);
     }
     return () => {
     };
-  }, [id, description, hidden, showDiff, lastSeenContent, diffAvailable, diffDispatch, hasNewDiff]);
+  }, [hasNewDiff]);
 
 
   if (showDiff && diffAvailable) {
@@ -71,7 +63,6 @@ function DescriptionOrDiff(props) {
 }
 
 DescriptionOrDiff.propTypes = {
-  hidden: PropTypes.bool.isRequired,
   id: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
 };

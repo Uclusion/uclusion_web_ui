@@ -456,7 +456,6 @@ function PlanningInvestible(props) {
             </Typography>
           )}
           <DescriptionOrDiff
-            hidden={hidden}
             id={investibleId}
             description={description}
           />

@@ -150,17 +150,20 @@ function InvestibleEdit (props) {
   function onSave (result) {
     // the edit ony contains the investible data and assignments, not the full market infos
     if (result) {
-      const { investible, assignments } = result;
-      const newInfos = getNewMarketInfo(assignments);
-      const withMarketInfo = {
-        market_infos: newInfos,
-        investible: {
-          ...investible,
-          updated_by: userId,
-          updated_by_you: true,
-        },
-      };
-      refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);
+      localforage.removeItem(lockedInvestibleId)
+        .then(() => {
+          const { investible, assignments } = result;
+          const newInfos = getNewMarketInfo(assignments);
+          const withMarketInfo = {
+            market_infos: newInfos,
+            investible: {
+              ...investible,
+              updated_by: userId,
+              updated_by_you: true,
+            },
+          };
+          refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);
+        });
     }
     navigate(history, formInvestibleLink(marketId, investibleId));
   }

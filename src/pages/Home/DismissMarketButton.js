@@ -112,7 +112,6 @@ function DismissDialog(props) {
 DismissDialog.propTypes = {
   actions: PropTypes.node.isRequired,
   onClose: PropTypes.func.isRequired,
-  onClick: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   issueWarningId: PropTypes.string.isRequired,
 };

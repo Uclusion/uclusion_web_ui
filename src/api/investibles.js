@@ -70,6 +70,10 @@ export function moveInvestibleToCurrentVoting (moveInfo) {
   return stageChangeInvestible(moveInfo, 'errorInvestibleMoveToCurrentVotingFailed');
 }
 
+export function moveInvestibleBackToOptionPool(moveInfo) {
+  return stageChangeInvestible(moveInfo, 'errorInvestibleMoveToOptionPoolFailed');
+}
+
 export function deleteInvestible (marketId, investibleId) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.delete(investibleId))

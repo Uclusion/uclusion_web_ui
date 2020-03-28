@@ -25,6 +25,7 @@ import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDif
 import EditMarketButton from '../../Dialog/EditMarketButton';
 import CardType, { OPTION, VOTING_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
+import MoveBackToPoolActionButton from './MoveBackToPoolActionButton'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -139,6 +140,13 @@ function DecisionInvestible(props) {
       if (inProposed) {
         sidebarActions.push(<MoveToCurrentVotingActionButton
           key="moveToCurrent"
+          investibleId={investibleId}
+          marketId={marketId}
+        />);
+      }
+      if (!inProposed) {
+        sidebarActions.push(<MoveBackToPoolActionButton
+          key="moveBack"
           investibleId={investibleId}
           marketId={marketId}
         />);

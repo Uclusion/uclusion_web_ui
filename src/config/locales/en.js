@@ -254,7 +254,7 @@ const messages = defineMessages({
   investibleEditStageHelper: 'Select to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
   investibleAddToVotingLabel: 'Move to Current Voting',
-  investibleBackToOptionPoolLabel: 'Move back to Option Pool',
+  investibleBackToOptionPoolLabel: 'Back to Option Pool',
   investibleAddToVotingExplanation: 'Once in voting you will still be able to remove this option',
   investibleRemoveFromVotingExplanation: 'Remove current votes and move back to Option Pool',
   investibleDeleteLabel: 'Permanently Delete',

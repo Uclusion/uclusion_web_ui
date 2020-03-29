@@ -422,7 +422,7 @@ const messages = defineMessages({
   planningInvestibleAcceptedFullHelp: 'You can only have one story at a time \'In Progress\' so the up arrow is not visible yet.',
   planningEditHelp: 'Workspace descriptions communicate requirements well with notifications and a difference display for your change.',
   planningInvestibleAcceptedHelp: 'If you need help brainstorming how to do this story choose the link icon from the sidebar menu to create a child dialog.',
-  planningInvestibleVotingHelp: 'Vote how certain you are this story should be done or open an issue. Effort value is the number of days this story is worth.',
+  planningInvestibleVotingHelp: 'Vote how certain you are this story should be done or open an issue.',
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
   decisionDialogCurrentVotingLabel: 'Candidates',

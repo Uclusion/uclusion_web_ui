@@ -1,18 +1,33 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
-import clsx from 'clsx';
 import { DISMISS, DismissTextContext } from '../../contexts/DismissTextContext';
 import IconButton from '@material-ui/core/IconButton';
 import LiveHelpIcon from '@material-ui/icons/LiveHelp';
 import CloseIcon from '@material-ui/icons/Close';
-import { useMetaDataStyles } from '../../pages/Investible/Planning/PlanningInvestible';
+import { makeStyles } from '@material-ui/styles';
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    display: "flex",
+    backgroundColor: theme.palette.grey["300"],
+    borderRadius: 6,
+    padding: 0,
+  },
+  leftMost: {
+    marginLeft: theme.spacing(1),
+    fontSize: 20,
+  },
+  dismissText: {
+    transform: 'scale(0.7)',
+  },
+}));
 
 function DismissableText(props) {
   const {
     textId,
   } = props;
-  const metaClasses = useMetaDataStyles();
+  const classes = useStyles();
   const [dismissState, dispatchDismissState] = useContext(DismissTextContext);
 
   function dismiss() {
@@ -24,14 +39,19 @@ function DismissableText(props) {
   }
 
   return (
-    <dl className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.root)} >
-      <dd>
-        <LiveHelpIcon color='primary' className={metaClasses.expirationProgress} />
+    <dl className={classes.root} >
+      <dl className={classes.leftMost}>
+        <LiveHelpIcon color='primary' />
         <FormattedMessage id={textId} />
-        <IconButton onClick={dismiss}>
-          <CloseIcon />
-        </IconButton>
-      </dd>
+      </dl>
+      <dl>
+        <dd className={classes.dismissText}>
+          <FormattedMessage id="decisionDialogsDismissDialog" />
+          <IconButton onClick={dismiss}>
+            <CloseIcon />
+          </IconButton>
+        </dd>
+      </dl>
     </dl>
   );
 }

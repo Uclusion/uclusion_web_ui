@@ -279,6 +279,7 @@ const messages = defineMessages({
   planningInvestibleDecision: 'Create Child Dialog',
   planningInvestibleCantVote: 'You can\'t vote if you\'re assigned',
   planningInvestibleDescription: '- Description',
+  daysEstimateHelp: 'How many days is this story worth? That is if the assigned worked on it longer than that it might not be useful.',
   reassignToMove: 'Re-assigning will move into voting.',
   initiativePlanningParent: 'Create Child Workspace',
   marketLinksSection: 'children',

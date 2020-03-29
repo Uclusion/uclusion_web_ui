@@ -36,11 +36,16 @@ import clsx from "clsx";
 import { Dialog } from "../../../components/Dialogs";
 import WarningIcon from "@material-ui/icons/Warning";
 import { useLockedDialogStyles } from "../../Dialog/DialogEdit";
+import InfoText from '../../../components/Descriptions/InfoText'
 
 const useStyles = makeStyles(
   theme => {
     return {
       certainty: {},
+      sideByside: {
+        alignItems: "flex-start",
+        display: "flex"
+      },
       certaintyGroup: {
         display: "flex",
         flexDirection: "row"
@@ -259,22 +264,24 @@ function AddEditVote(props) {
             </RadioGroup>
           </FormControl>
           {showBudget && (
-            <TextField
-              className={classes.maxBudget}
-              id="vote-max-budget"
-              label={intl.formatMessage({ id: "maxBudgetInputLabel" })}
-              type="number"
-              variant="filled"
-              onChange={onBudgetChange}
-              value={maxBudget}
-              error={maxBudget > storyMaxBudget}
-              helperText={intl.formatMessage(
-                {
-                  id: "maxBudgetInputHelperText"
-                },
-                { x: storyMaxBudget + 1 }
-              )}
-            />
+            <InfoText textId="daysEstimateHelp">
+              <TextField
+                className={classes.maxBudget}
+                id="vote-max-budget"
+                label={intl.formatMessage({ id: "maxBudgetInputLabel" })}
+                type="number"
+                variant="filled"
+                onChange={onBudgetChange}
+                value={maxBudget}
+                error={maxBudget > storyMaxBudget}
+                helperText={intl.formatMessage(
+                  {
+                    id: "maxBudgetInputHelperText"
+                  },
+                  { x: storyMaxBudget + 1 }
+                )}
+              />
+            </InfoText>
           )}
           <Divider className={classes.divider} />
           <QuillEditor

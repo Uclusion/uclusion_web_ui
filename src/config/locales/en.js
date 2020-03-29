@@ -253,7 +253,7 @@ const messages = defineMessages({
   investibleAddHeader: 'Add Investible',
   investibleEditStageHelper: 'Select to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
-  investibleAddToVotingLabel: 'Move to Current Voting',
+  investibleAddToVotingLabel: 'Move to Candidates',
   investibleBackToOptionPoolLabel: 'Back to Option Pool',
   investibleAddToVotingExplanation: 'Once in voting you will still be able to remove this option',
   investibleRemoveFromVotingExplanation: 'Remove current votes and move back to Option Pool',
@@ -423,7 +423,7 @@ const messages = defineMessages({
   planningInvestibleVotingHelp: 'Vote how certain you are this story should be done or open an issue. Effort value is the number of days this story is worth.',
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
-  decisionDialogCurrentVotingLabel: 'Current Voting',
+  decisionDialogCurrentVotingLabel: 'Candidates',
   decisionDialogProposedOptionsLabel: 'Option Pool',
   decisionDialogDiscussionLabel: 'Discussion',
   decisionDialogAddInvestibleLabel: 'Add Option',

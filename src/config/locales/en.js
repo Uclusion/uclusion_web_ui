@@ -259,6 +259,7 @@ const messages = defineMessages({
   investibleRemoveFromVotingExplanation: 'Remove current votes and move back to Option Pool',
   investibleDeleteLabel: 'Permanently Delete',
   investibleDeleteExplanationLabel: 'Permanently remove this option from the dialog',
+  planningInvestibleToVotingLabel: 'Move to Voting',
   planningInvestibleNextStageAcceptedLabel: 'Move to In Progress',
   planningInvestibleNextStageInReviewLabel: 'Move to In Review',
   planningInvestibleMoveToVerifiedLabel: 'Move to Verified',

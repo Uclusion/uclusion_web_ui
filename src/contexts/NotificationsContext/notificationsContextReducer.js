@@ -1,6 +1,8 @@
 import LocalForageHelper from '../LocalForageHelper';
 import { toast } from 'react-toastify';
 import _ from 'lodash';
+import { deleteMessage } from '../../api/users';
+
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const UPDATE_PAGE = 'UPDATE_PAGE';
@@ -212,13 +214,14 @@ function markPageProcessed(state, action) {
         break;
     }
   }
+  deleteMessage(messages[0]);
   // Done toasting so hopefully is safe to scroll without concern for re-render
   scroller(scrollTarget, newPage);
   const filteredMessages = messages.filter((aMessage) => {
     let keep = true;
     removedMessages.forEach((removedMessage) => {
       if (isMessageEqual(aMessage, removedMessage)) {
-        console.debug(`processing remove for ${JSON.stringify(aMessage)}`)
+        console.debug(`processing remove for ${JSON.stringify(aMessage)}`);
         keep = false;
       }
     });
@@ -251,8 +254,8 @@ function doUpdateMessages(state, action) {
 function doRemove(state, action) {
   const { hkey, rkey } = action;
   const { messages } = state;
-  const filteredMessages = messages.filter((message) => message.type_object_id === rkey
-    && message.market_id_user_id === hkey);
+  const filteredMessages = messages.filter((message) => !(message.type_object_id === rkey
+    && message.market_id_user_id === hkey));
   return {
     ...state,
     messages: filteredMessages,

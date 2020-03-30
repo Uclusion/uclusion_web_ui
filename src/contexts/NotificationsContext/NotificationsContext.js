@@ -6,7 +6,6 @@ import reducer, {
   initializeState, isMessageEqual,
   NOTIFICATIONS_CONTEXT_NAMESPACE, processedPage,
 } from './notificationsContextReducer'
-import { deleteMessage } from '../../api/users';
 import beginListening from './notificationsContextMessages';
 import LocalForageHelper from '../LocalForageHelper';
 import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext';
@@ -94,7 +93,6 @@ function NotificationsProvider(props) {
               removeNewUserNotification = true;
             }
             if (removeNewUserNotification) {
-              deleteMessage(newUserMessage);
               dispatch(processedPage(page, [newUserMessage], {}));
               return;
             }
@@ -164,7 +162,6 @@ function NotificationsProvider(props) {
           return 1;
         });
         const message = filtered[0];
-        deleteMessage(message);
         let toastInfo = {};
         const {
           marketId,

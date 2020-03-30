@@ -1,11 +1,10 @@
 import React from 'react';
-import PropTypes, { func } from 'prop-types'
-import { useIntl } from 'react-intl'
+import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
 import InfoIcon from '@material-ui/icons/Info';
 import { useMetaDataStyles } from '../../pages/Investible/Planning/PlanningInvestible';
 import { Tooltip } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles'
-import Summary from '../../pages/Dialog/Planning/Summary'
+import { makeStyles } from '@material-ui/styles';
 
 const useStyles = makeStyles(theme => ({
   fieldset: {

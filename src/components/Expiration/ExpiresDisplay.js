@@ -139,25 +139,29 @@ function ExpiresDisplay(props) {
   return (
     <div className={classes.countdownWrapper}>
       {shouldDisplay && (
-        <div
-          className={classes.countdownItem}
+        <Tooltip
+          title={intl.formatMessage({ id: 'dialogExpiresLabel' })}
         >
-          <svg className={classes.countdownSvg}>
-            <path
-              fill="none"
-              stroke="#3F6B72"
-              strokeWidth="4"
-              d={describeArc(50, 50, 48, 0, 359.9)}
-            />
-            <path
-              fill="none"
-              stroke="#ca2828"
-              strokeWidth="4"
-              d={describeArc(50, 50, 48, 0, consumedDegrees)}
-            />
-          </svg>
-            {getDisplayText()}
-        </div>
+          <div
+            className={classes.countdownItem}
+          >
+            <svg className={classes.countdownSvg}>
+              <path
+                fill="none"
+                stroke="#3F6B72"
+                strokeWidth="4"
+                d={describeArc(50, 50, 48, 0, 359.9)}
+              />
+              <path
+                fill="none"
+                stroke="#ca2828"
+                strokeWidth="4"
+                d={describeArc(50, 50, 48, 0, consumedDegrees)}
+              />
+            </svg>
+              {getDisplayText()}
+          </div>
+        </Tooltip>
       )}
       {showEdit && (
         <Tooltip

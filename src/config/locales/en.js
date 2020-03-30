@@ -447,6 +447,7 @@ const messages = defineMessages({
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
   dialogAddParticipantsLabel: 'Add Collaborators',
   dialogEditExpiresLabel: 'Add Time',
+  dialogExpiresLabel: 'Once the Dialog expires it is frozen for changes and cannot be re-activated.',
   searchParticipantsLabel: 'Select existing Uclusion collaborators to send to:',
   noCollaboratorsLabel: 'There are no existing collaborators to choose from. Invite some below.',
   searchParticipantsPlaceholder: 'Use commas to separate multiple email addresses',

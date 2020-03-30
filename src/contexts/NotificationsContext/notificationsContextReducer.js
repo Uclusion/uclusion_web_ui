@@ -167,6 +167,17 @@ function getMassagedMessages(messages) {
   return rawMessages;
 }
 
+export function pageIsEqual(page1, page2) {
+  if (!page1 && !page2) {
+    return true;
+  }
+  if (!page1 || !page2) {
+    return false;
+  }
+  return page1.marketId === page2.marketId && page1.investibleId === page2.investibleId
+    && page1.action === page2.action;
+}
+
 export function isMessageEqual(aMessage, message) {
   if (!message && !aMessage) {
     return true;
@@ -179,6 +190,11 @@ export function isMessageEqual(aMessage, message) {
 
 function doUpdatePage(state, action) {
   const { page } = action;
+  const { page: onPage } = state;
+  if (pageIsEqual(page, onPage)) {
+    // Do not mutate if already on that page
+    return state;
+  }
   return {
     ...state,
     page,

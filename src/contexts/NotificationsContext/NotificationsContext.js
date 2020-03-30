@@ -4,7 +4,7 @@ import { useHistory } from 'react-router';
 import _ from 'lodash';
 import reducer, {
   initializeState, isMessageEqual,
-  NOTIFICATIONS_CONTEXT_NAMESPACE, processedPage,
+  NOTIFICATIONS_CONTEXT_NAMESPACE, pageIsEqual, processedPage,
 } from './notificationsContextReducer'
 import beginListening from './notificationsContextMessages';
 import LocalForageHelper from '../LocalForageHelper';
@@ -54,11 +54,6 @@ function NotificationsProvider(props) {
     return () => {
     };
   }, [isInitialization]);
-
-  function pageIsEqual(page1, page2) {
-    return page1.marketId === page2.marketId && page1.investibleId === page2.investibleId
-      && page1.action === page2.action;
-  }
 
   useLayoutEffect(() => {
     if (page) {

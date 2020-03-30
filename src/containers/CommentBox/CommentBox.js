@@ -4,11 +4,33 @@ import _ from 'lodash';
 import { Grid } from '@material-ui/core';
 import Comment from '../../components/Comments/Comment';
 
+function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
+  let myRootUpdatedAt = rootUpdatedAt;
+  if (_.isEmpty(roots)) {
+    return rootUpdatedAt;
+  }
+  roots.forEach(reply => {
+    if (!rootUpdatedAt || (rootUpdatedAt < reply.updated_at)) {
+      myRootUpdatedAt = reply.updated_at;
+    }
+  });
+  roots.forEach((reply) => {
+    const replyReplies = comments.filter(
+      comment => comment.reply_id === reply.id
+    );
+    myRootUpdatedAt = findGreatestUpdatedAt(replyReplies, comments, myRootUpdatedAt);
+  });
+  return myRootUpdatedAt;
+}
+
 function CommentBox(props) {
   const { comments, marketId } = props;
 
   const threadRoots = comments.filter(comment => !comment.reply_id);
-  const sortedRoots = _.orderBy(threadRoots, ['resolved', 'updated_at'], ['asc', 'desc']);
+  const withRootUpdatedAt = threadRoots.map((root) => {
+    return { ...root, rootUpdatedAt: findGreatestUpdatedAt([root], comments) };
+  });
+  const sortedRoots = _.orderBy(withRootUpdatedAt, ['resolved', 'rootUpdatedAt'], ['asc', 'desc']);
 
   function getCommentCards() {
     return sortedRoots.map(comment => {

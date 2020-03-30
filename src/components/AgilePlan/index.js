@@ -10,6 +10,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import SpinBlockingButton from "../../components/SpinBlocking/SpinBlockingButton";
 import CardType, { AGILE_PLAN_TYPE } from "../../components/CardType";
 import QuillEditor from "../../components/TextEditors/QuillEditor";
+import InfoText from '../Descriptions/InfoText'
 
 export const usePlanFormStyles = makeStyles(
   theme => ({
@@ -219,25 +220,27 @@ export function MaxBudget(props) {
   const classes = useSuffixedInput();
 
   return (
-    <TextField
-      id="agile-plan-max-budget"
-      InputProps={{
-        endAdornment: <InputSuffix>days</InputSuffix>,
-        readOnly
-      }}
-      inputProps={{
-        className: classes.input,
-        inputMode: "numeric",
-        size: 4,
-        pattern: "[0-9]*"
-      }}
-      label={intl.formatMessage({
-        id: "agilePlanFormMaxMaxBudgetInputLabel"
-      })}
-      placeholder="14"
-      variant="filled"
-      {...other}
-    />
+    <InfoText textId="maxBudgetHelp" useDl={false}>
+      <TextField
+        id="agile-plan-max-budget"
+        InputProps={{
+          endAdornment: <InputSuffix>days</InputSuffix>,
+          readOnly
+        }}
+        inputProps={{
+          className: classes.input,
+          inputMode: "numeric",
+          size: 4,
+          pattern: "[0-9]*"
+        }}
+        label={intl.formatMessage({
+          id: "agilePlanFormMaxMaxBudgetInputLabel"
+        })}
+        placeholder="14"
+        variant="filled"
+        {...other}
+      />
+    </InfoText>
   );
 }
 export function VoteExpiration(props) {
@@ -247,24 +250,26 @@ export function VoteExpiration(props) {
   const classes = useSuffixedInput();
 
   return (
-    <TextField
-      InputProps={{
-        endAdornment: <InputSuffix>days</InputSuffix>,
-        readOnly
-      }}
-      id="agile-plan-expiration"
-      inputProps={{
-        className: classes.input,
-        inputMode: "numeric",
-        size: 4,
-        pattern: "[0-9]*"
-      }}
-      label={intl.formatMessage({
-        id: "agilePlanFormInvestmentExpirationLabel"
-      })}
-      variant="filled"
-      {...other}
-    />
+    <InfoText textId="voteExpirationHelp" useDl={false}>
+      <TextField
+        InputProps={{
+          endAdornment: <InputSuffix>days</InputSuffix>,
+          readOnly
+        }}
+        id="agile-plan-expiration"
+        inputProps={{
+          className: classes.input,
+          inputMode: "numeric",
+          size: 4,
+          pattern: "[0-9]*"
+        }}
+        label={intl.formatMessage({
+          id: "agilePlanFormInvestmentExpirationLabel"
+        })}
+        variant="filled"
+        {...other}
+      />
+    </InfoText>
   );
 }
 
@@ -273,63 +278,67 @@ export function Votes(props) {
   const intl = useIntl();
 
   return (
-    <TextField
-      helperText={
-        !readOnly &&
-        intl.formatMessage({
-          id: "votesRequiredInputHelperText"
-        })
-      }
-      id="agile-plan-votes-required"
-      InputProps={{ readOnly }}
-      inputProps={{
-        inputMode: "numeric",
-        size: 8,
-        pattern: "[0-9]*",
-        style: {textAlign: 'center'}
-      }}
-      label={intl.formatMessage({ id: "votesRequiredInputLabelShort" })}
-      variant="filled"
-      {...other}
-    />
+    <InfoText textId="votesRequiredHelp" useDl={false}>
+      <TextField
+        helperText={
+          !readOnly &&
+          intl.formatMessage({
+            id: "votesRequiredInputHelperText"
+          })
+        }
+        id="agile-plan-votes-required"
+        InputProps={{ readOnly }}
+        inputProps={{
+          inputMode: "numeric",
+          size: 8,
+          pattern: "[0-9]*",
+          style: {textAlign: 'center'}
+        }}
+        label={intl.formatMessage({ id: "votesRequiredInputLabelShort" })}
+        variant="filled"
+        {...other}
+      />
+    </InfoText>
   );
 }
 
 export function DaysEstimate(props) {
-  const { readOnly, value, ...other } = props;
+  const { readOnly, value, isInvestible, ...other } = props;
   const intl = useIntl();
-
+  const textId = isInvestible ? "daysEstimateHelp" : "workspaceDaysEstimateHelp";
   const classes = useSuffixedInput();
   // TODO input props are not working to restrict number value
   return (
-    <TextField
-      type="number"
-      InputLabelProps={{
-        shrink: true
-      }}
-      InputProps={{
-        endAdornment: <InputSuffix>days</InputSuffix>,
-        readOnly
-      }}
-      inputProps={{
-        className: classes.input,
-        min: 0,
-        max: 365,
-      }}
-      id="agile-plan-days-estimate"
-      label={intl.formatMessage({
-        id: "agilePlanFormDaysEstimateLabel"
-      })}
-      helperText={
-        !readOnly &&
-        intl.formatMessage({
-        id: "agilePlanFormDaysEstimatePlaceholder"
-      })}
-      /* owner considers `null` as not set */
-      value={value == null ? "" : value}
-      variant="filled"
-      {...other}
-    />
+    <InfoText textId={textId} useDl={false}>
+      <TextField
+        type="number"
+        InputLabelProps={{
+          shrink: true
+        }}
+        InputProps={{
+          endAdornment: <InputSuffix>days</InputSuffix>,
+          readOnly
+        }}
+        inputProps={{
+          className: classes.input,
+          min: 0,
+          max: 365,
+        }}
+        id="agile-plan-days-estimate"
+        label={intl.formatMessage({
+          id: "agilePlanFormDaysEstimateLabel"
+        })}
+        helperText={
+          !readOnly &&
+          intl.formatMessage({
+          id: "agilePlanFormDaysEstimatePlaceholder"
+        })}
+        /* owner considers `null` as not set */
+        value={value == null ? "" : value}
+        variant="filled"
+        {...other}
+      />
+    </InfoText>
   );
 }
 

@@ -280,6 +280,10 @@ const messages = defineMessages({
   planningInvestibleCantVote: 'You can\'t vote if you\'re assigned',
   planningInvestibleDescription: '- Description',
   daysEstimateHelp: 'How many days is this story worth? That is if the assigned worked on it longer than that it might not be useful.',
+  votesRequiredHelp: 'How many votes are required before a story can be moved to \'In Progress\'',
+  workspaceDaysEstimateHelp: 'If this workspace is a project and a very rough estimate is required then can enter here.',
+  maxBudgetHelp: 'Maximum days effort value allowed for a story. Used to prevent stories from being too large.',
+  voteExpirationHelp: 'How many days can a story remain in voting before its votes expire. Prevents very old voting from being used to move a story in progress.',
   reassignToMove: 'Re-assigning will move into voting.',
   initiativePlanningParent: 'Create Child Workspace',
   marketLinksSection: 'children',
@@ -420,7 +424,7 @@ const messages = defineMessages({
   planningInvestibleAddHelp: 'Stories allow collaboration on what should be done, who should do it, how and status at a glance without a meeting.',
   planningInvestibleEnoughVotesHelp: 'This story has enough votes so consider using the up arrow in the sidebar menu to move \'In Progress\'',
   planningInvestibleAcceptedFullHelp: 'You can only have one story at a time \'In Progress\' so the up arrow is not visible yet.',
-  planningEditHelp: 'Workspace descriptions communicate requirements well with notifications and a difference display for your change.',
+  planningEditHelp: 'Workspace descriptions communicate requirements well with notifications and a difference display of the change.',
   planningInvestibleAcceptedHelp: 'If you need help brainstorming how to do this story choose the link icon from the sidebar menu to create a child dialog.',
   planningInvestibleVotingHelp: 'Vote how certain you are this story should be done or open an issue.',
   // Decision Dialog
@@ -436,7 +440,7 @@ const messages = defineMessages({
   decisionDialogNoInvestiblesWarning: 'No votable options',
   childDialogExplanation: 'Click here to create and link in a child dialog deciding something relevant to this parent.',
   childPlanExplanation: 'Click here to create and link in a child workspace relevant to this initiative.',
-  decisionAddHelp: 'A dialog gives you a timed box way to decide with others between options that you control.',
+  decisionAddHelp: 'A Dialog gives you a timed box way to decide with others between options that you control.',
   backToOptionPoolWarning: 'Moving this option back to the Option Pool deletes all votes.',
 
   // Investibles in decision dialog display

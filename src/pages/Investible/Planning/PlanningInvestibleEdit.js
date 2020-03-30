@@ -147,7 +147,7 @@ function PlanningInvestibleEdit(props) {
           <>
             <fieldset className={classes.fieldset}>
               <legend>optional</legend>
-              <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} />
+              <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} isInvestible />
             </fieldset>
             <TextField
               fullWidth

@@ -49,10 +49,9 @@ const useStyles = makeStyles(theme => ({
     display: "inline-block",
     padding: theme.spacing(0),
     "& > *": {
-      margin: theme.spacing(2),
-      "&:first-child, &:last-child": {
+      marginLeft: theme.spacing(3),
+      "&:first-child": {
         marginLeft: 0,
-        marginRight: 0
       }
     }
   },

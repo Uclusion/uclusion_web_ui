@@ -446,6 +446,7 @@ const messages = defineMessages({
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
   dialogAddParticipantsLabel: 'Add Collaborators',
+  storyAddParticipantsLabel: 'Change Assigned',
   dialogEditExpiresLabel: 'Add Time',
   dialogExpiresLabel: 'Once the Dialog expires it is frozen for changes and cannot be re-activated.',
   searchParticipantsLabel: 'Select existing Uclusion collaborators to send to:',

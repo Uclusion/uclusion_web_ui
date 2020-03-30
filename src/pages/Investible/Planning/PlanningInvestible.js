@@ -7,8 +7,8 @@ import {
   Grid,
   makeStyles,
   Typography,
-  Divider
-} from "@material-ui/core";
+  Divider, IconButton, Tooltip
+} from '@material-ui/core'
 import InsertLinkIcon from "@material-ui/icons/InsertLink";
 import { useHistory } from "react-router";
 import { useIntl, FormattedMessage } from "react-intl";
@@ -24,7 +24,7 @@ import {
 import {
   formInvestibleEditLink,
   formMarketArchivesLink,
-  formMarketLink,
+  formMarketLink, formMarketManageLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate
@@ -64,6 +64,7 @@ import CardType, {
 import clsx from "clsx";
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets';
 import DismissableText from '../../../components/Notifications/DismissableText'
+import PersonAddIcon from '@material-ui/icons/PersonAdd'
 
 const useStyles = makeStyles(
   theme => ({
@@ -710,11 +711,15 @@ function Assignments(props) {
       </ul>
       <ul>
         {isAdmin && (
-          <EditMarketButton
-            labelId="edit"
-            marketId={marketId}
-            onClick={toggleAssign}
-          />
+          <Tooltip
+            title={intl.formatMessage({ id: 'storyAddParticipantsLabel' })}
+          >
+            <IconButton
+              onClick={toggleAssign}
+            >
+              <PersonAddIcon />
+            </IconButton>
+          </Tooltip>
         )}
       </ul>
     </>

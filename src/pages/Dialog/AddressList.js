@@ -209,16 +209,6 @@ function AddressList(props) {
             }
           </List>
           <CardActions className={classes.actions}>
-            <Button
-              onClick={myOnCancel}
-              className={classes.actionSecondary}
-              color="secondary"
-              variant="contained"
-            >
-              <FormattedMessage
-                id="marketAddCancelLabel"
-              />
-            </Button>
             <SpinBlockingButton
               id="save"
               variant="contained"
@@ -238,6 +228,24 @@ function AddressList(props) {
       <List
         dense
       >
+        <List
+          dense
+          id="doneList"
+          className={classes.doneButton}
+        >
+      <ListItem id="done" key="done" className={classes.menuItem}>
+        <Button
+          onClick={myOnCancel}
+          className={classes.actionSecondary}
+          color="secondary"
+          variant="contained"
+        >
+          <FormattedMessage
+            id="done"
+          />
+        </Button>
+      </ListItem>
+        </List>
       <ListItem>
         <Typography class={classes.sectionHeader}>
           {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
@@ -274,16 +282,6 @@ function AddressList(props) {
         </ListItem>
         <ListItem id="emailButtons" key="emailButtons">
           <CardActions className={classes.actions}>
-            <Button
-              onClick={myOnCancel}
-              className={classes.actionSecondary}
-              color="secondary"
-              variant="contained"
-            >
-              <FormattedMessage
-                id="marketAddCancelLabel"
-              />
-            </Button>
             <ApiBlockingButton
               variant="contained"
               className={classes.actionPrimary}

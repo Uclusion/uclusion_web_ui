@@ -91,7 +91,11 @@ export const usePlanFormStyles = makeStyles(
       border: '1px solid #cfcfcf',
       borderRadius: 5,
       marginBottom: 15 ,
-    }
+    },
+    doneButton: {
+      marginLeft: 50,
+      marginBottom: 50,
+    },
   }),
   { name: "PlanningAdd" }
 );

@@ -4,10 +4,10 @@ import clsx from "clsx";
 import { FormattedMessage } from "react-intl";
 import { makeStyles } from "@material-ui/styles";
 import {
-  ISSUE_TYPE,
+  ISSUE_TYPE, JUSTIFY_TYPE,
   QUESTION_TYPE,
   SUGGEST_CHANGE_TYPE
-} from "../constants/comments";
+} from '../constants/comments';
 // TODO create centralized icons repository
 import IssueIcon from "@material-ui/icons/ReportProblem";
 import QuestionIcon from "@material-ui/icons/ContactSupport";
@@ -26,6 +26,7 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { DECISION_TYPE } from '../constants/markets';
 import AgilePlanIcon from "@material-ui/icons/PlaylistAdd";
 import AssignmentIcon from '@material-ui/icons/Assignment';
+import HowToVoteIcon from '@material-ui/icons/HowToVote';
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, DECISION_TYPE };
 export const VOTING_TYPE = "VOTING";
@@ -54,6 +55,7 @@ const useCardTypeStyles = makeStyles(
           [QUESTION_TYPE]: resolved ? "#BDC3C7" : "#2F80ED",
           [SUGGEST_CHANGE_TYPE]: resolved ? "#BDC3C7" : "#F29100",
           [VOTING_TYPE]: "#9B51E0",
+          [JUSTIFY_TYPE]: "#9B51E0",
           [STORY_TYPE]: "#506999",
           [GENERIC_STORY_TYPE]: "#506999",
           [DECISION_TYPE]: "#0B51E0",
@@ -118,6 +120,7 @@ export default function CardType(props) {
     [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon,
     [VOTING_TYPE]: VotingIcon,
     [STORY_TYPE]: EditIcon,
+    [JUSTIFY_TYPE]: HowToVoteIcon,
     [IN_VOTING]: ThumbsUpDownIcon,
     [IN_PROGRESS]: PlayForWorkIcon,
     [IN_REVIEW]: RateReviewIcon,

@@ -24,7 +24,7 @@ import {
 import {
   formInvestibleEditLink,
   formMarketArchivesLink,
-  formMarketLink, formMarketManageLink,
+  formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate

@@ -195,6 +195,14 @@ function doUpdatePage(state, action) {
     // Do not mutate if already on that page
     return state;
   }
+  if (!page) {
+    // Remove last page also
+    return {
+      ...state,
+      page,
+      lastPage: page,
+    };
+  }
   return {
     ...state,
     page,

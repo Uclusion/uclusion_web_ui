@@ -508,6 +508,7 @@ function PlanningInvestible(props) {
           <CommentBox
             comments={investmentReasonsRemoved}
             marketId={marketId}
+            allowedTypes={allowedCommentTypes}
           />
         </Grid>
       </Grid>

@@ -24,7 +24,7 @@ function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
 }
 
 function CommentBox(props) {
-  const { comments, marketId } = props;
+  const { comments, marketId, allowedTypes } = props;
 
   const threadRoots = comments.filter(comment => !comment.reply_id);
   const withRootUpdatedAt = threadRoots.map((root) => {
@@ -43,6 +43,7 @@ function CommentBox(props) {
               marketId={marketId}
               comment={comment}
               comments={comments}
+              allowedTypes={allowedTypes}
             />
           </div>
         </Grid>
@@ -58,11 +59,9 @@ function CommentBox(props) {
 }
 
 CommentBox.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   marketId: PropTypes.string.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
+  allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 export default CommentBox;

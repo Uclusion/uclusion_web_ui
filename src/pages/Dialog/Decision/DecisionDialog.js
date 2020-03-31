@@ -306,6 +306,7 @@ function DecisionDialog(props) {
           <CommentBox
             comments={marketComments}
             marketId={marketId}
+            allowedTypes={allowedCommentTypes}
           />
         </Grid>
       </Grid>

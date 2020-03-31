@@ -179,7 +179,7 @@ function PlanningDialog(props) {
           marketId={marketId}
         />
       )}
-      <CommentBox comments={marketComments} marketId={marketId} />
+      <CommentBox comments={marketComments} marketId={marketId} allowedTypes={allowedCommentTypes} />
     </Screen>
   );
 }

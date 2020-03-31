@@ -145,7 +145,7 @@ function useMarketId() {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments } = props;
+  const { comment, marketId, comments, allowedTypes } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
@@ -294,6 +294,7 @@ function Comment(props) {
                 comment={comment}
                 onSave={toggleEdit}
                 onCancel={toggleEdit}
+                allowedTypes={allowedTypes}
               />
             )}
           </Box>
@@ -377,7 +378,7 @@ function Comment(props) {
 }
 
 Comment.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
+  allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   comment: PropTypes.object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,

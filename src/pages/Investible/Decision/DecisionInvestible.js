@@ -251,7 +251,7 @@ function DecisionInvestible(props) {
               issueWarningId="issueWarningInvestible"
             />
           )}
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} />
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes} />
         </Grid>
       </Grid>
     </Screen>

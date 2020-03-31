@@ -45,7 +45,7 @@ function CommentEdit(props) {
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const classes = useStyles();
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [, commentDispatch] = useContext(CommentsContext);
+  const [commentState, commentDispatch] = useContext(CommentsContext);
 
   function onEditorChange(content) {
     setBody(content);
@@ -58,7 +58,7 @@ function CommentEdit(props) {
     } = processTextAndFilesForSave(uploadedFiles, body);
     return updateComment(marketId, id, tokensRemoved, filteredUploads)
       .then((comment) => {
-        addCommentToMarket(comment, marketId, commentDispatch);
+        addCommentToMarket(comment, commentState, commentDispatch);
         return EMPTY_SPIN_RESULT;
       })
   }

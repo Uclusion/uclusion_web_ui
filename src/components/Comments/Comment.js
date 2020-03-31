@@ -603,7 +603,7 @@ function ThreadedReplies(props) {
 
   const classes = useThreadedReplyStyles();
 
-  const replies = replyIds.map(replyId => {
+  const replies = (replyIds || []).map(replyId => {
     return comments.find(comment => comment.id === replyId);
   });
 

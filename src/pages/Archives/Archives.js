@@ -25,7 +25,7 @@ function Archives(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const hiddenMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = hiddenMarkets.filter((market) => market.market_type === PLANNING_TYPE);
-  const decisionDetails = hiddenMarkets.filter((market) => market.market_type === DECISION_TYPE);
+  const decisionDetails = hiddenMarkets.filter((market) => market.market_type === DECISION_TYPE && market.is_inline !== true);
   const initiativeDetails = hiddenMarkets.filter((market) => market.market_type === INITIATIVE_TYPE);
   const emptyArchives = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
 

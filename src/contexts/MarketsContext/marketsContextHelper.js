@@ -29,7 +29,7 @@ export function getMyUserForMarket(state, marketId) {
 export function getMarketDetailsForType(state, marketType = 'DECISION') {
   if (state.marketDetails) {
     // eslint-disable-next-line max-len
-    return state.marketDetails.filter((market) => market.market_type === marketType);
+    return state.marketDetails.filter((market) => market.market_type === marketType && market.is_inline !== true);
   }
   return null;
 }

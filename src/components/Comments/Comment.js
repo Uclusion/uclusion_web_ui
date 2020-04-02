@@ -36,7 +36,7 @@ import CardType from '../CardType';
 import { EMPTY_SPIN_RESULT } from '../../constants/global';
 import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { fixUploadedFileLinks } from '../../api/files';
+
 
 const enableEditing = true;
 
@@ -237,7 +237,6 @@ function Comment(props) {
   }
 
   const isEditable = user !== undefined && comment.created_by === user.id;
-  const renderableBody = fixUploadedFileLinks(comment.body);
 
   return (
     <React.Fragment>
@@ -287,7 +286,7 @@ function Comment(props) {
             {createdBy.name}
           </Typography>
           <Box marginTop={1}>
-            <ReadOnlyQuillEditor value={renderableBody} />
+            <ReadOnlyQuillEditor value={comment.body} />
             {editOpen && (
               <CommentEdit
                 marketId={marketId}
@@ -504,7 +503,6 @@ function Reply(props) {
   const [replyOpen, setReplyOpen] = React.useState(false);
 
   const intl = useIntl();
-  const renderableBody = fixUploadedFileLinks(comment.body);
   return (
     <Card
       className={
@@ -532,7 +530,7 @@ function Reply(props) {
         ) : (
           <ReadOnlyQuillEditor
             className={classes.editor}
-            value={renderableBody}
+            value={comment.body}
           />
         )}
       </CardContent>

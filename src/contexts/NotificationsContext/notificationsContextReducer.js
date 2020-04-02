@@ -1,4 +1,4 @@
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 import { toast } from 'react-toastify';
 import _ from 'lodash';
 import { deleteMessage } from '../../api/users';

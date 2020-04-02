@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useReducer } from 'react';
 import reducer, { initializeState } from './diffContextReducer';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 
 const DIFF_CONTEXT_NAMESPACE = 'diff_context';
 const EMPTY_STATE = {};

@@ -1,42 +1,46 @@
 import jwt_decode from 'jwt-decode';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../components/utils';
+import LocalForageHelper from '../utils/LocalForageHelper';
 import _ from 'lodash';
 import { getTokenSecondsRemaining } from './tokenUtils';
 
-const TOKEN_STORAGE_KEY = 'TOKEN_STORAGE_MANAGER';
+const TOKEN_STORAGE_NAMESPACE = 'TOKEN_STORAGE_MANAGER';
 export const TOKEN_TYPE_MARKET = 'MARKET';
 export const TOKEN_TYPE_ACCOUNT = 'ACCOUNT';
-export const TOKEN_TYPE_FILE = 'FILE';
-
 
 class TokenStorageManager {
 
-  getEmptyStorage() {
+  getEmptyStorage () {
     return {
       [TOKEN_TYPE_MARKET]: {},
       [TOKEN_TYPE_ACCOUNT]: {},
-      [TOKEN_TYPE_FILE]: {},
     };
   }
 
-  getTokenStorage() {
-    const tokenStorage = getUclusionLocalStorageItem(TOKEN_STORAGE_KEY) || this.getEmptyStorage();
-    return tokenStorage;
+  getTokenStorage () {
+    return new LocalForageHelper(TOKEN_STORAGE_NAMESPACE)
+      .getState()
+      .then((state) => {
+        if (!state) {
+          return this.getEmptyStorage();
+        }
+        return state;
+      });
   }
 
   /**
    * Loads the provided storage into the token storage system
    * @param newStorage
    */
-  putTokenStorage(newStorage) {
-    setUclusionLocalStorageItem(TOKEN_STORAGE_KEY, newStorage);
+  putTokenStorage (newStorage) {
+    return new LocalForageHelper(TOKEN_STORAGE_NAMESPACE)
+      .setState(newStorage);
   }
 
   /**
    * Clears the entirety of token storage
    */
-  clearTokenStorage() {
-    setUclusionLocalStorageItem(TOKEN_STORAGE_KEY, this.getEmptyStorage());
+  clearTokenStorage () {
+    return this.putTokenStorage(this.getEmptyStorage());
   }
 
   /**
@@ -44,10 +48,12 @@ class TokenStorageManager {
    * @param tokenType the type of token we are removing
    * @param itemId the id of the item we're removing
    */
-  removeToken(tokenType, itemId) {
-    const tokenStorage = this.getTokenStorage();
-    delete tokenStorage[tokenType][itemId];
-    this.putTokenStorage(tokenStorage);
+  removeToken (tokenType, itemId) {
+    return this.getTokenStorage()
+      .then((state) => {
+        delete state[tokenType][itemId];
+        return this.putTokenStorage(state);
+      });
   }
 
   /**
@@ -56,10 +62,11 @@ class TokenStorageManager {
    * @param tokenType the type of token we want
    * @param itemId the id of the item we want
    */
-  getToken(tokenType, itemId) {
-    const tokenStorage = this.getTokenStorage();
-    const token = tokenStorage[tokenType][itemId];
-    return token;
+  getToken (tokenType, itemId) {
+    return this.getTokenStorage()
+      .then((state) => {
+        return state[tokenType][itemId];
+      });
   }
 
   /**
@@ -69,23 +76,16 @@ class TokenStorageManager {
    * @param itemId the id of the item we want the token for
    * @returns the string form of the token, or null if a valid one doesn't exist
    */
-  getValidToken(tokenType, itemId) {
-    const tokenStorage = this.getTokenStorage();
-    const token = tokenStorage[tokenType][itemId];
-    if (token && this.isTokenValid(token)) {
-      return token;
-    }
-    return null;
+  getValidToken (tokenType, itemId) {
+    return this.getToken(tokenType, itemId)
+      .then((token) => {
+        if (token && this.isTokenValid(token)) {
+          return token;
+        }
+        return null;
+      });
   }
 
-  /**
-   * Returns an object containing all tokens of the given type
-   * @param tokenType the token type to get
-   */
-  getTokens(tokenType) {
-    const tokenStorage = this.getTokenStorage();
-    return tokenStorage[tokenType];
-  }
 
   /**
    * Stores a token into the token storage, unless a token for that
@@ -94,20 +94,23 @@ class TokenStorageManager {
    * @param itemId the item id we're storing a token for
    * @param token the token we want to store.
    */
-  storeToken(tokenType, itemId, token) {
-    const tokenStorage = this.getTokenStorage();
-    const existingToken = tokenStorage[tokenType][itemId];
-    // // console.debug(existingToken);
-    // // console.debug(token);
-    // bail out if our existing token is newer
-    if (!_.isEmpty(existingToken)) {
-      const longestLife = this.getLongestLivingToken(token, existingToken);
-      if (longestLife === existingToken) {
-        return;
-      }
-    }
-    tokenStorage[tokenType][itemId] = token;
-    this.putTokenStorage(tokenStorage);
+  storeToken (tokenType, itemId, token) {
+    return this.getTokenStorage()
+      .then((state) => {
+        const existingToken = state[tokenType][itemId];
+
+        // // console.debug(existingToken);
+        // // console.debug(token);
+        // bail out if our existing token is newer
+        if (!_.isEmpty(existingToken)) {
+          const longestLife = this.getLongestLivingToken(token, existingToken);
+          if (longestLife === existingToken) {
+            return Promise.resolve(existingToken);
+          }
+        }
+        state[tokenType][itemId] = token;
+        return this.putTokenStorage(state);
+      });
   }
 
   /**
@@ -116,7 +119,7 @@ class TokenStorageManager {
    * @param token2 a token
    * @returns the token with the most life remaining on it
    */
-  getLongestLivingToken(token1, token2) {
+  getLongestLivingToken (token1, token2) {
     if (_.isEmpty(token1) || _.isEmpty(token2)) {
       console.error('Token is empty');
       return undefined;
@@ -137,7 +140,7 @@ class TokenStorageManager {
    * @param tokenString the string form of the token
    * @returns if the token is valid and not expiring in the next minute
    */
-  isTokenValid(tokenString) {
+  isTokenValid (tokenString) {
     if (_.isEmpty(tokenString)) {
       return false;
     }

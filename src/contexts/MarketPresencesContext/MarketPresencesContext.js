@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import beginListening from './marketPresencesMessages';
 import reducer, { initializeState } from './marketPresencesContextReducer';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 
 const MARKET_PRESENCES_CONTEXT_NAMESPACE = 'market_presences';
 const EMPTY_STATE = {};

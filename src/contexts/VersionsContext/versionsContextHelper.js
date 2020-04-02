@@ -1,6 +1,6 @@
 import { pushMessage } from '../../utils/MessageBusUtils';
 import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 import { VERSIONS_CONTEXT_NAMESPACE } from './versionsContextReducer';
 import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../WebSocketContext'
 

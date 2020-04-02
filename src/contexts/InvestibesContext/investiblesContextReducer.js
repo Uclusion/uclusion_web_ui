@@ -1,4 +1,4 @@
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 import { INVESTIBLES_CONTEXT_NAMESPACE } from './InvestiblesContext';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';

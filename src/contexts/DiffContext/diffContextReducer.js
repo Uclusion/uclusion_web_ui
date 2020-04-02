@@ -1,6 +1,6 @@
 import HtmlDiff from 'htmldiff-js';
 import { DIFF_CONTEXT_NAMESPACE } from './DiffContext';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_CONTENTS = 'REMOVE_CONTENTS';

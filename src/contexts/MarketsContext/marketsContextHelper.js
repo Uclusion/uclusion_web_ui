@@ -1,5 +1,5 @@
 import { getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext';
 import { addContents } from '../DiffContext/diffContextReducer';
 import { updateMarketDetails } from './marketsContextReducer';

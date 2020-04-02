@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useReducer, useState } from 'react';
 import beginListening from './marketsContextMessages';
 import reducer, { initializeState } from './marketsContextReducer';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 import { DiffContext } from '../DiffContext/DiffContext';
 import {
   INDEX_MARKET_TYPE,

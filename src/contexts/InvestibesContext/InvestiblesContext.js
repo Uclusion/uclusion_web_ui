@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useReducer, useContext } from 'react';
 import reducer, { initializeState } from './investiblesContextReducer';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 import beginListening from './investiblesContextMessages';
 import { DiffContext } from '../DiffContext/DiffContext';
 import { pushMessage } from '../../utils/MessageBusUtils';

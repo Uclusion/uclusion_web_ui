@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useState } from 'react'
-import LocalForageHelper from './LocalForageHelper'
+import LocalForageHelper from '../utils/LocalForageHelper'
 import _ from 'lodash'
 
 const HighlightedCommentContext = React.createContext({});

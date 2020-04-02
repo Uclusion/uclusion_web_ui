@@ -6,7 +6,7 @@ import reducer, {
   VERSIONS_CONTEXT_NAMESPACE
 } from './versionsContextReducer'
 import beginListening from './versionsContextMessages';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
 
 const VersionsContext = React.createContext(EMPTY_STATE);

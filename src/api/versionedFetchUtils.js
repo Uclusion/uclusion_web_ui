@@ -19,7 +19,7 @@ import {
   START_OPERATION, STOP_OPERATION
 } from '../contexts/OperationInProgressContext/operationInProgressMessages';
 import config from '../config';
-import LocalForageHelper from '../contexts/LocalForageHelper';
+import LocalForageHelper from '../utils/LocalForageHelper';
 import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext';
 import { getMyUserForMarket } from '../contexts/MarketsContext/marketsContextHelper'
 

@@ -377,6 +377,19 @@ function PlanningInvestible(props) {
           }
         }
       }
+    } else if (isInVoting || isInAccepted) {
+      if (inlineMarketId) {
+        sidebarActions.push(
+          <ExpandableSidebarAction
+            id="newOption"
+            key="newOption"
+            label={intl.formatMessage({ id: 'inlineAddExplanation' })}
+            onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentInvestibleId=${investibleId}`)}
+            icon={<AddIcon/>}
+            openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
+          />
+        );
+      }
     }
     if (!isInVerified) {
       sidebarActions.push(

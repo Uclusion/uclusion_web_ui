@@ -613,6 +613,8 @@ const messages = defineMessages({
   clearVotes: 'Your other vote will be cleared',
   addAVote: 'Add a vote for your favorite option',
   addMultiVote: 'Add a vote for all options you like',
+  pleaseVote: 'Please vote',
+  pleaseVoteStory: 'Vote certainty on this assignment and effort',
   changeVote: 'Change vote',
   decisionInvestibleVotingSingleHelp: 'Help decide by voting for the best option or adding your own option.',
   decisionInvestibleVotingMultiHelp: 'Help decide by voting for options you like and adding any that are missing.',

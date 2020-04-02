@@ -4,7 +4,7 @@ import AddEditVote from './AddEditVote';
 import { useHistory } from 'react-router';
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { INITIATIVE_TYPE } from '../../../constants/markets';
+import { DECISION_TYPE, INITIATIVE_TYPE } from '../../../constants/markets'
 import { Card, CardContent, FormControl, FormControlLabel, Radio, RadioGroup } from '@material-ui/core'
 import { useStyles } from '../../../containers/CommentBox/CommentAddBox';
 
@@ -25,6 +25,7 @@ function YourVoting(props) {
   const classes = useStyles();
   const { id: marketId, max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote, market_type: marketType } = market;
   const isInitiative = marketType === INITIATIVE_TYPE;
+  const isDecision = marketType === DECISION_TYPE;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const { quantity } = yourVote || {};
@@ -45,8 +46,9 @@ function YourVoting(props) {
 
   return (
     <>
-      <h2>{yourVote ? intl.formatMessage({ id: 'changeVote' }) : allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
-        : intl.formatMessage({ id: 'addAVote' })}</h2>
+      <h2>{yourVote ? intl.formatMessage({ id: 'changeVote' }) : isDecision ? allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
+        : intl.formatMessage({ id: 'addAVote' }) : isInitiative ? intl.formatMessage({ id: 'pleaseVote' })
+        : intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
       {isInitiative && (
         <Card>
           <CardContent>

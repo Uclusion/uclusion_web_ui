@@ -408,14 +408,16 @@ function PlanningInvestible(props) {
         currentStageId={stage}
         key="notdoing"
       />);
-      sidebarActions.push(<ExpandableSidebarAction
-        id="link"
-        key="link"
-        icon={<InsertLinkIcon />}
-        label={intl.formatMessage({ id: "childDialogExplanation" })}
-        openLabel={intl.formatMessage({ id: 'planningInvestibleDecision' })}
-        onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
-      />)
+      if (isAssigned) {
+        sidebarActions.push(<ExpandableSidebarAction
+          id="link"
+          key="link"
+          icon={<InsertLinkIcon/>}
+          label={intl.formatMessage({ id: "childDialogExplanation" })}
+          openLabel={intl.formatMessage({ id: 'planningInvestibleDecision' })}
+          onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
+        />)
+      }
     }
     return sidebarActions;
   }

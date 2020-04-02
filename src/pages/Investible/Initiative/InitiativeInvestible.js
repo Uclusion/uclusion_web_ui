@@ -1,35 +1,34 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useHistory } from 'react-router';
-import { FormattedMessage, useIntl } from 'react-intl';
-import _ from 'lodash';
-import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core';
-import YourVoting from '../Voting/YourVoting';
-import Voting from '../Decision/Voting';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { useHistory } from 'react-router'
+import { FormattedMessage, useIntl } from 'react-intl'
+import _ from 'lodash'
+import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
+import YourVoting from '../Voting/YourVoting'
+import Voting from '../Decision/Voting'
+import CommentBox from '../../../containers/CommentBox/CommentBox'
+import { JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments'
+import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
+import Screen from '../../../containers/Screen/Screen'
 import {
-  JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
-} from '../../../constants/comments';
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
-import Screen from '../../../containers/Screen/Screen';
-import {
-  formMarketManageLink, makeArchiveBreadCrumbs,
+  formMarketManageLink,
+  makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate,
-} from '../../../utils/marketIdPathFunctions';
-import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
-import InsertLinkIcon from '@material-ui/icons/InsertLink';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import MarketLinks from '../../Dialog/MarketLinks';
-import CardType, { VOTING_TYPE } from '../../../components/CardType';
-import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
-import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay';
-import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
-import clsx from 'clsx';
-import { useMetaDataStyles } from '../Planning/PlanningInvestible';
+} from '../../../utils/marketIdPathFunctions'
+import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets'
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
+import InsertLinkIcon from '@material-ui/icons/InsertLink'
+import PersonAddIcon from '@material-ui/icons/PersonAdd'
+import MarketLinks from '../../Dialog/MarketLinks'
+import CardType, { VOTING_TYPE } from '../../../components/CardType'
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
+import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay'
+import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
+import clsx from 'clsx'
+import { useMetaDataStyles } from '../Planning/PlanningInvestible'
 import DialogActions from '../../Home/DialogActions'
-import Box from '@material-ui/core/Box';
+import Box from '@material-ui/core/Box'
 import CardActions from '@material-ui/core/CardActions'
 import DismissableText from '../../../components/Notifications/DismissableText'
 
@@ -241,7 +240,7 @@ function InitiativeInvestible(props) {
           </dl>
         </CardContent>
       </Card>
-      {!isAdmin && (
+      {!isAdmin && activeMarket && (
         <YourVoting
           investibleId={investibleId}
           marketPresences={marketPresences}

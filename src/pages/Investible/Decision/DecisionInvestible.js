@@ -1,33 +1,29 @@
-import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import { useHistory } from 'react-router';
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Card, CardContent, Grid, Typography } from '@material-ui/core'
-import { makeStyles } from '@material-ui/styles';
-import YourVoting from '../Voting/YourVoting';
-import Voting from './Voting';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
-import {
-  ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE,
-} from '../../../constants/comments';
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
-import Screen from '../../../containers/Screen/Screen';
+import { makeStyles } from '@material-ui/styles'
+import YourVoting from '../Voting/YourVoting'
+import Voting from './Voting'
+import CommentBox from '../../../containers/CommentBox/CommentBox'
+import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments'
+import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
+import Screen from '../../../containers/Screen/Screen'
 import {
   formInvestibleLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs
 } from '../../../utils/marketIdPathFunctions'
-import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import {
-  getProposedOptionsStage,
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { ACTIVE_STAGE } from '../../../constants/markets';
-import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
-import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
-import EditMarketButton from '../../Dialog/EditMarketButton';
+import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { ACTIVE_STAGE } from '../../../constants/markets'
+import DeleteInvestibleActionButton from './DeleteInvestibleActionButton'
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
+import EditMarketButton from '../../Dialog/EditMarketButton'
 import CardType, { OPTION, VOTING_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import MoveBackToPoolActionButton from './MoveBackToPoolActionButton'
@@ -239,12 +235,12 @@ function DecisionInvestible(props) {
           />
         </CardContent>
       </Card>
-      {!inProposed && hasIssueOrMarketIssue && (
+      {!inProposed && activeMarket && hasIssueOrMarketIssue && (
         <Typography>
           {intl.formatMessage({ id: votingBlockedMessage })}
         </Typography>
       )}
-      {!inProposed && !hasIssueOrMarketIssue && (
+      {!inProposed && activeMarket && !hasIssueOrMarketIssue && (
         <YourVoting
           investibleId={investibleId}
           marketPresences={marketPresences}

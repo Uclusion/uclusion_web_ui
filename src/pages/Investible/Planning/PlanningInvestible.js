@@ -1,81 +1,72 @@
-import React, { useContext } from "react";
-import PropTypes from "prop-types";
-import _ from "lodash";
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
+import InsertLinkIcon from '@material-ui/icons/InsertLink'
+import { useHistory } from 'react-router'
+import { FormattedMessage, useIntl } from 'react-intl'
+import YourVoting from '../Voting/YourVoting'
+import Voting from '../Decision/Voting'
+import CommentBox from '../../../containers/CommentBox/CommentBox'
+import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import {
-  Card,
-  CardContent,
-  Grid,
-  makeStyles,
-  Typography,
-  Divider, IconButton, Tooltip
-} from '@material-ui/core'
-import InsertLinkIcon from "@material-ui/icons/InsertLink";
-import { useHistory } from "react-router";
-import { useIntl, FormattedMessage } from "react-intl";
-import YourVoting from "../Voting/YourVoting";
-import Voting from "../Decision/Voting";
-import CommentBox from "../../../containers/CommentBox/CommentBox";
-import {
-  ISSUE_TYPE,
-  JUSTIFY_TYPE,
-  QUESTION_TYPE,
-  SUGGEST_CHANGE_TYPE
-} from "../../../constants/comments";
-import {
-  formInvestibleEditLink, formMarketAddInvestibleLink,
+  formInvestibleEditLink,
+  formMarketAddInvestibleLink,
   formMarketArchivesLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate
 } from '../../../utils/marketIdPathFunctions'
-import Screen from "../../../containers/Screen/Screen";
-import CommentAddBox from "../../../containers/CommentBox/CommentAddBox";
-import MoveToNextVisibleStageActionButton from "./MoveToNextVisibleStageActionButton";
-import { getMarketInfo } from "../../../utils/userFunctions";
+import Screen from '../../../containers/Screen/Screen'
+import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
+import MoveToNextVisibleStageActionButton from './MoveToNextVisibleStageActionButton'
+import { getMarketInfo } from '../../../utils/userFunctions'
 import {
   getAcceptedStage,
   getBlockedStage,
   getInCurrentVotingStage,
   getInReviewStage,
-  getNotDoingStage, getProposedOptionsStage,
+  getNotDoingStage,
+  getProposedOptionsStage,
   getVerifiedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from "../../../contexts/MarketStagesContext/MarketStagesContext";
-import MoveToVerifiedActionButton from "./MoveToVerifiedActionButton";
-import MoveToVotingActionButton from "./MoveToVotingActionButton";
-import MoveToNotDoingActionButton from "./MoveToNotDoingActionButton";
-import MoveToAcceptedActionButton from "./MoveToAcceptedActionButton";
-import MoveToInReviewActionButton from "./MoveToInReviewActionButton";
-import ExpiresDisplay from "../../../components/Expiration/ExpiresDisplay";
-import { convertDates } from "../../../contexts/ContextUtils";
-import DescriptionOrDiff from "../../../components/Descriptions/DescriptionOrDiff";
-import EditMarketButton from "../../Dialog/EditMarketButton";
-import ExpandableSidebarAction from "../../../components/SidebarActions/ExpandableSidebarAction";
-import MarketLinks from "../../Dialog/MarketLinks";
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import MoveToVerifiedActionButton from './MoveToVerifiedActionButton'
+import MoveToVotingActionButton from './MoveToVotingActionButton'
+import MoveToNotDoingActionButton from './MoveToNotDoingActionButton'
+import MoveToAcceptedActionButton from './MoveToAcceptedActionButton'
+import MoveToInReviewActionButton from './MoveToInReviewActionButton'
+import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
+import { convertDates } from '../../../contexts/ContextUtils'
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
+import EditMarketButton from '../../Dialog/EditMarketButton'
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
+import MarketLinks from '../../Dialog/MarketLinks'
 import CardType, {
   IN_BLOCKED,
   IN_PROGRESS,
   IN_REVIEW,
-  IN_VERIFIED, IN_VOTING,
+  IN_VERIFIED,
+  IN_VOTING,
   NOT_DOING,
   STORY_TYPE
-} from '../../../components/CardType';
-import clsx from "clsx";
-import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets';
-import DismissableText from '../../../components/Notifications/DismissableText';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import SubSection from '../../../containers/SubSection/SubSection';
-import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import CurrentVoting from '../../Dialog/Decision/CurrentVoting';
-import ProposedIdeas from '../../Dialog/Decision/ProposedIdeas';
-import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import AddIcon from '@material-ui/icons/Add';
+} from '../../../components/CardType'
+import clsx from 'clsx'
+import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
+import DismissableText from '../../../components/Notifications/DismissableText'
+import PersonAddIcon from '@material-ui/icons/PersonAdd'
+import SubSection from '../../../containers/SubSection/SubSection'
+import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
+import CurrentVoting from '../../Dialog/Decision/CurrentVoting'
+import ProposedIdeas from '../../Dialog/Decision/ProposedIdeas'
+import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import AddIcon from '@material-ui/icons/Add'
 
 const useStyles = makeStyles(
   theme => ({
@@ -528,7 +519,7 @@ function PlanningInvestible(props) {
           />
         </CardContent>
       </Card>
-      {isInVoting && (canVote ? (
+      {isInVoting && activeMarket && (canVote ? (
             <YourVoting
               investibleId={investibleId}
               marketPresences={marketPresences}

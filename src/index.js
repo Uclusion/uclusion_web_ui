@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import A2HSProvider from 'a2hs';
 import Main from './containers/Main';
+import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
   <A2HSProvider>
@@ -14,3 +15,5 @@ ReactDOM.render(
   </A2HSProvider>,
   document.getElementById('root')
 );
+
+serviceWorker.register()

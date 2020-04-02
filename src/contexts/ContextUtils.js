@@ -1,6 +1,4 @@
 import _ from 'lodash';
-import { fixUploadedFileLinks } from '../api/files';
-import { updateFileToken } from '../authorization/tokenStorageUtils';
 
 function getOutdatedObjectIds(currentList, oldList) {
   // if we don't have market details we're starting from empty, so everything is needed
@@ -40,22 +38,6 @@ function convertDates(item) {
   return newItem;
 }
 
-function fixFileLinks(item) {
-  const { body, description } = item;
-  // contexts either have a body or a description
-  const text = body || description;
-  const newText = fixUploadedFileLinks(text);
-  if (body) {
-    return {
-      ...item,
-      body: newText,
-    };
-  }
-  return {
-    ...item,
-    description: newText,
-  };
-}
 
 /**
  * Items from the backend are not quite ready to be displayed on the front end
@@ -65,16 +47,6 @@ function fixFileLinks(item) {
  */
 function fixupItemForStorage(item) {
   const dateConverted = convertDates(item);
-  if (item.uploaded_files) {
-    // console.debug(`Updating file tokens for id ${item.id} with ${item.uploaded_files}`);
-    item.uploaded_files.forEach((uploadedFile) => {
-      const { uclusion_token, path } = uploadedFile;
-      // console.debug(`Installing token [${uclusion_token}] for path ${path}`);
-      updateFileToken(path, uclusion_token);
-    });
-    const fixed = fixFileLinks(dateConverted);
-    return fixed;
-  }
   return dateConverted;
 }
 

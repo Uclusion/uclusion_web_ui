@@ -1,4 +1,4 @@
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from './MarketPresencesContext';
 import _ from 'lodash';
 

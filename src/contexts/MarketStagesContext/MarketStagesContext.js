@@ -1,6 +1,6 @@
 import React, { useState, useReducer } from 'react';
 import reducer, { initializeState } from './marketStagesContextReducer';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 import beginListening from './marketStagesContextMessages';
 const MARKET_STAGES_CONTEXT_NAMESPACE = 'market_stages';
 const EMPTY_STATE = {};

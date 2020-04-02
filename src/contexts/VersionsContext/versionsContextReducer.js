@@ -1,7 +1,7 @@
 import {
   refreshNotificationVersion,
 } from './versionsContextHelper';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 
 export const VERSIONS_CONTEXT_NAMESPACE = 'versions_context';
 export const EMPTY_STATE = {

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 import { MARKET_STAGES_CONTEXT_NAMESPACE } from './MarketStagesContext';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';

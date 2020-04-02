@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useReducer } from 'react';
 import _ from 'lodash';
 import reducer, { initializeState } from './commentsContextReducer';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 import beginListening from './commentsContextMessages';
 import { pushMessage } from '../../utils/MessageBusUtils';
 import {

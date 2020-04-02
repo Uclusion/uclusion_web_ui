@@ -7,7 +7,7 @@ import reducer, {
   NOTIFICATIONS_CONTEXT_NAMESPACE, pageIsEqual, processedPage,
 } from './notificationsContextReducer'
 import beginListening from './notificationsContextMessages';
-import LocalForageHelper from '../LocalForageHelper';
+import LocalForageHelper from '../../utils/LocalForageHelper';
 import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext';
 import { DiffContext } from '../DiffContext/DiffContext';
 import { HighlightedVotingContext } from '../HighlightedVotingContext';

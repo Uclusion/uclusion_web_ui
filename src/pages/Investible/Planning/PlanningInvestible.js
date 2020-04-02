@@ -532,7 +532,7 @@ function PlanningInvestible(props) {
       />
       {/* unstyled from here on out because no FIGMA */}
       <Grid container spacing={2}>
-        {!_.isEmpty(proposed) && (
+        {!_.isEmpty(underConsideration) && (
           <Grid item xs={12} style={{ marginTop: '30px' }}>
             <SubSection
               id="currentVoting"

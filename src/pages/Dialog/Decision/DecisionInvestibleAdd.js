@@ -125,6 +125,8 @@ function DecisionInvestibleAdd(props) {
       market_type: DECISION_TYPE,
       description: 'NA',
       is_inline: true,
+      parent_investible_id: parentInvestibleId,
+      parent_market_id: marketId,
       expiration_minutes: expirationMinutes,
     };
     return createDecision(addDialogInfo).then((result) => {

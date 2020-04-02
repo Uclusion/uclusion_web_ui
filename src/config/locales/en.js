@@ -290,6 +290,7 @@ const messages = defineMessages({
   marketLinksSection: 'children',
   parentLinkSection: 'parent',
   marketParticipationLink: 'Participate in - {x}',
+  inlineMarketName: 'Decision {x}',
   marketObservationLink: 'Observe - {x}',
   lockedBy: 'Locked by {x}',
   lockFailedWarning: 'Failed to acquire lock. Retry?',

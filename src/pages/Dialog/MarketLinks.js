@@ -46,8 +46,8 @@ function MarketLinks (props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [loaded, setLoaded] = useState(false);
   const [marketNameState, marketNamesDispatch] = useReducer((state, action) => {
-    const { marketId, name, marketType, marketStage } = action
-    return { ...state, [marketId]: { name, marketType, marketStage } }
+    const { marketId, name, marketType, marketStage, isInline } = action
+    return { ...state, [marketId]: { name, marketType, marketStage, isInline } }
   }, {})
 
   useEffect(() => {
@@ -56,16 +56,16 @@ function MarketLinks (props) {
       const missingLinks = links.filter((marketId) => {
         const marketDetails = getMarket(marketState, marketId);
         if (marketDetails) {
-          const { name, market_type: marketType, market_stage: marketStage } = marketDetails;
-          marketNamesDispatch({ marketId, name, marketType, marketStage });
+          const { name, market_type: marketType, market_stage: marketStage, is_inline: isInline } = marketDetails;
+          marketNamesDispatch({ marketId, name, marketType, marketStage, isInline });
           return false;
         }
         return true;
       })
       AllSequentialMap(missingLinks, (marketId) => {
         return getMarketInfo(marketId).then((market) => {
-          const { name, market_type: marketType, market_stage: marketStage } = market;
-          marketNamesDispatch({ marketId, name, marketType, marketStage });
+          const { name, market_type: marketType, market_stage: marketStage, is_inline: isInline } = market;
+          marketNamesDispatch({ marketId, name, marketType, marketStage, isInline });
           return market;
         })
       })
@@ -75,7 +75,7 @@ function MarketLinks (props) {
   }, [links, hidden, loaded, marketState])
   const metaClasses = useMetaDataStyles();
   function displayLinksList (linksList) {
-    return linksList.map((marketId) => {
+    return linksList.map((marketId, index) => {
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user);
       const baseLink = formMarketLink(marketId);
@@ -95,7 +95,8 @@ function MarketLinks (props) {
                     navigate(history, baseLink)
                   }}
                 >
-                  {marketNameState[marketId].name}
+                  {marketNameState[marketId].isInline ? intl.formatMessage({ id: 'inlineMarketName' }, { x: index + 1})
+                    : marketNameState[marketId].name}
                 </Link>
               </Typography>
             )}

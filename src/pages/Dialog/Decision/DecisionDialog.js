@@ -107,6 +107,7 @@ function DecisionDialog(props) {
     created_by: createdBy,
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId,
+    is_inline: isInline,
   } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const participantTourSteps = [
@@ -200,14 +201,18 @@ function DecisionDialog(props) {
           />
         </CardActions>
         <CardContent className={classes.content}>
-          <Typography className={classes.title} variant="h3" component="h1">
-            {marketName}
-          </Typography>
-          <DescriptionOrDiff
-            id={marketId}
-            description={description}
-          />
-          <Divider />
+          {!isInline && (
+            <>
+              <Typography className={classes.title} variant="h3" component="h1">
+                {marketName}
+              </Typography>
+              <DescriptionOrDiff
+              id={marketId}
+              description={description}
+              />
+              <Divider />
+            </>
+          )}
           <dl className={metaClasses.root}>
             <div className={clsx(metaClasses.group, metaClasses.expiration)}>
               {activeMarket && (

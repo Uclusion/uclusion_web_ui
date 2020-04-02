@@ -20,7 +20,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import queryString from 'query-string'
 
 const styles = (theme) => ({
@@ -80,12 +80,13 @@ function Dialog(props) {
   const loadedMarket = getMarket(marketsState, marketId);
   const renderableMarket = loadedMarket || {};
   const { market_type: marketType, parent_investible_id: parentInvestibleId,
-    parent_market_id: parentMarketId, is_inline: isInline } = renderableMarket || '';
+    parent_market_id: parentMarketId, is_inline: isInline, market_stage: marketStage } = renderableMarket || '';
+  const activeMarket = marketStage === ACTIVE_STAGE;
   const [isInitialization, setIsInitialization] = useState(false);
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const loading = !myPresence || !marketType || marketType === INITIATIVE_TYPE || isInline;
+  const loading = !myPresence || !marketType || marketType === INITIATIVE_TYPE || (isInline && activeMarket);
 
   useEffect(() => {
     function getInitiativeInvestible(baseInvestible) {
@@ -102,8 +103,10 @@ function Dialog(props) {
     }
     if (!hidden) {
       if (isInline) {
-        const link = formInvestibleLink(parentMarketId, parentInvestibleId);
-        navigate(history, link);
+        if (activeMarket) {
+          const link = formInvestibleLink(parentMarketId, parentInvestibleId);
+          navigate(history, link);
+        }
       }
       else if (marketType === INITIATIVE_TYPE && Array.isArray(investibles) && investibles.length > 0) {
         getInitiativeInvestible(investibles[0]);
@@ -127,7 +130,7 @@ function Dialog(props) {
     return () => {
     };
   }, [hidden, marketType, investibles, marketId, history, isInitialization, loadedMarket, marketStages,
-  marketPresences, isFromInvite]);
+    marketPresences, isFromInvite, isInline, activeMarket, parentMarketId, parentInvestibleId]);
 
   if (loading) {
     return (

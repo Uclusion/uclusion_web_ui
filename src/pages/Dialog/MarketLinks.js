@@ -19,6 +19,7 @@ import { useMetaDataStyles } from '../Investible/Planning/PlanningInvestible';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { ACTIVE_STAGE } from '../../constants/markets';
+import { convertDates } from '../../contexts/ContextUtils'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -46,8 +47,8 @@ function MarketLinks (props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [loaded, setLoaded] = useState(false);
   const [marketNameState, marketNamesDispatch] = useReducer((state, action) => {
-    const { marketId, name, marketType, marketStage, isInline } = action
-    return { ...state, [marketId]: { name, marketType, marketStage, isInline } }
+    const { marketId, name, marketType, marketStage, isInline, createdAt } = action
+    return { ...state, [marketId]: { name, marketType, marketStage, isInline, createdAt } }
   }, {})
 
   useEffect(() => {
@@ -56,16 +57,18 @@ function MarketLinks (props) {
       const missingLinks = links.filter((marketId) => {
         const marketDetails = getMarket(marketState, marketId);
         if (marketDetails) {
-          const { name, market_type: marketType, market_stage: marketStage, is_inline: isInline } = marketDetails;
-          marketNamesDispatch({ marketId, name, marketType, marketStage, isInline });
+          const { name, market_type: marketType, market_stage: marketStage, is_inline: isInline,
+          created_at: createdAt } = marketDetails;
+          marketNamesDispatch({ marketId, name, marketType, marketStage, isInline, createdAt });
           return false;
         }
         return true;
       })
       AllSequentialMap(missingLinks, (marketId) => {
         return getMarketInfo(marketId).then((market) => {
-          const { name, market_type: marketType, market_stage: marketStage, is_inline: isInline } = market;
-          marketNamesDispatch({ marketId, name, marketType, marketStage, isInline });
+          const { name, market_type: marketType, market_stage: marketStage, is_inline: isInline,
+            created_at: createdAt } = convertDates(market);
+          marketNamesDispatch({ marketId, name, marketType, marketStage, isInline, createdAt });
           return market;
         })
       })
@@ -75,45 +78,52 @@ function MarketLinks (props) {
   }, [links, hidden, loaded, marketState])
   const metaClasses = useMetaDataStyles();
   function displayLinksList (linksList) {
-    return linksList.map((marketId, index) => {
+    const resolvedLinks = linksList.map((marketId) => {
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user);
       const baseLink = formMarketLink(marketId);
       const baseInviteLink = `/invite/${marketId}`;
+      const marketInfo = [marketId] in marketNameState ? marketNameState[marketId] : undefined;
+      const createdAt = marketInfo ? marketInfo.createdAt : undefined;
+      return {marketId, myPresence, baseLink, baseInviteLink, marketInfo, createdAt};
+    });
+    const sortedLinks = _.orderBy(resolvedLinks, ['createdAt'], ['asc']);
+    return sortedLinks.map((info, index) => {
+      const {marketId, myPresence, baseLink, baseInviteLink, marketInfo} = info;
       return (
         <ul key={marketId}>
-            {marketId in marketNameState && myPresence && (
+            {marketInfo && myPresence && (
               <Typography key={marketId} component="li">
                 <Link
                   href={baseLink}
                   variant="inherit"
                   underline="always"
                   color="primary"
-                  className={marketNameState[marketId].marketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
+                  className={marketInfo.marketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
                   onClick={(event) => {
                     event.preventDefault()
                     navigate(history, baseLink)
                   }}
                 >
-                  {marketNameState[marketId].isInline ? intl.formatMessage({ id: 'inlineMarketName' }, { x: index + 1})
-                    : marketNameState[marketId].name}
+                  {marketInfo.isInline ? intl.formatMessage({ id: 'inlineMarketName' }, { x: index + 1})
+                    : marketInfo.name}
                 </Link>
               </Typography>
             )}
-            {!myPresence && marketId in marketNameState && (
+            {!myPresence && marketInfo && (
               <Typography key={marketId} component="li">
                 <Link
                   href={`${baseInviteLink}#is_obs=false`}
                   variant="inherit"
                   underline="always"
                   color="primary"
-                  className={marketNameState[marketId].marketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
+                  className={marketInfo.marketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
                   onClick={(event) => {
                     event.preventDefault()
                     navigate(history, `${baseInviteLink}#is_obs=false`)
                   }}
                 >
-                  {intl.formatMessage({ id: 'marketParticipationLink' }, { x: marketNameState[marketId].name })}
+                  {intl.formatMessage({ id: 'marketParticipationLink' }, { x: marketInfo.name })}
                 </Link>
               </Typography>
             )}

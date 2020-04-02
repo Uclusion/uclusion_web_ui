@@ -16,8 +16,9 @@ import { processTextAndFilesForSave } from '../../../api/files';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import {
+  formInvestibleLink,
   formMarketLink,
-} from '../../../utils/marketIdPathFunctions';
+} from '../../../utils/marketIdPathFunctions'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import UclusionTour from '../../../components/Tours/UclusionTour';
@@ -25,8 +26,12 @@ import {
   PURE_SIGNUP_ADD_FIRST_OPTION,
   PURE_SIGNUP_ADD_FIRST_OPTION_STEPS, PURE_SIGNUP_FAMILY_NAME
 } from '../../../components/Tours/pureSignupTours';
-import CardType, { OPTION, VOTING_TYPE } from '../../../components/CardType'
+import CardType, { DECISION_TYPE, OPTION, VOTING_TYPE } from '../../../components/CardType'
 import { FormattedMessage, useIntl } from 'react-intl'
+import { createDecision } from '../../../api/markets'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { addParticipants } from '../../../api/users'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -38,6 +43,8 @@ function DecisionInvestibleAdd(props) {
     storedState,
     hidden,
     onSpinComplete,
+    parentInvestibleId,
+    expirationMinutes,
   } = props;
   const intl = useIntl();
   const { description: storedDescription, name: storedName } = storedState;
@@ -61,6 +68,7 @@ function DecisionInvestibleAdd(props) {
   const [validForm, setValidForm] = useState(false);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
+  const [marketPresencesState] = useContext(MarketPresencesContext);
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -103,10 +111,64 @@ function DecisionInvestibleAdd(props) {
   }
 
   function handleCancel() {
-    onCancel(formMarketLink(marketId));
+    const link = parentInvestibleId ? formInvestibleLink(marketId, parentInvestibleId) : formMarketLink(marketId);
+    onCancel(link);
+  }
+
+  function handleNewInlineSave() {
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(uploadedFiles, description);
+    const addDialogInfo = {
+      name: 'NA',
+      market_type: DECISION_TYPE,
+      description: 'NA',
+      is_inline: true,
+      expiration_minutes: expirationMinutes,
+    };
+    return createDecision(addDialogInfo).then((result) => {
+        const { market, stages } = result;
+        const allowsInvestment = stages.find((stage) => stage.allows_investment);
+        const notAllowsInvestment = stages.find((stage) => !stage.allows_investment);
+        const stageInfo = {
+          stage_id: allowsInvestment.id,
+          current_stage_id: notAllowsInvestment.id,
+        };
+        const addInfo = {
+          marketId: market.id,
+          uploadedFiles: filteredUploads,
+          description: tokensRemoved,
+          name,
+          stageInfo: stageInfo,
+        };
+        const marketPresences = getMarketPresences(marketPresencesState, marketId);
+        const others = marketPresences.filter((presence) => !presence.current_user)
+        if (others) {
+          const participants = others.map((presence) => {
+              return {
+                user_id: presence.id,
+                account_id: presence.account_id,
+                is_observer: !presence.following
+              };
+          });
+          return addParticipants(marketId, participants).then(() => addInvestibleToStage(addInfo));
+        }
+        return addInvestibleToStage(addInfo);
+      }).then((investible) => {
+        onSave(investible);
+        const link = formInvestibleLink(marketId, parentInvestibleId);
+        return {
+          result: link,
+          spinChecker: () => Promise.resolve(true),
+        };
+    });
   }
 
   function handleSave() {
+    if (parentInvestibleId) {
+      return handleNewInlineSave();
+    }
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -237,6 +299,8 @@ DecisionInvestibleAdd.propTypes = {
   storedState: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
   onSpinComplete: PropTypes.func,
+  parentInvestibleId: PropTypes.string,
+  expirationMinutes: PropTypes.number,
 };
 
 DecisionInvestibleAdd.defaultProps = {

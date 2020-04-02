@@ -79,12 +79,13 @@ function Dialog(props) {
   const comments = getMarketComments(commentsState, marketId);
   const loadedMarket = getMarket(marketsState, marketId);
   const renderableMarket = loadedMarket || {};
-  const { market_type: marketType } = renderableMarket || '';
+  const { market_type: marketType, parent_investible_id: parentInvestibleId,
+    parent_market_id: parentMarketId, is_inline: isInline } = renderableMarket || '';
   const [isInitialization, setIsInitialization] = useState(false);
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const loading = !myPresence || !marketType || marketType === INITIATIVE_TYPE;
+  const loading = !myPresence || !marketType || marketType === INITIATIVE_TYPE || isInline;
 
   useEffect(() => {
     function getInitiativeInvestible(baseInvestible) {
@@ -99,9 +100,14 @@ function Dialog(props) {
       const link = formInvestibleLink(marketId, id);
       navigate(history, link);
     }
-    if (!hidden && marketType === INITIATIVE_TYPE && Array.isArray(investibles)
-      && investibles.length > 0) {
-      getInitiativeInvestible(investibles[0]);
+    if (!hidden) {
+      if (isInline) {
+        const link = formInvestibleLink(parentMarketId, parentInvestibleId);
+        navigate(history, link);
+      }
+      else if (marketType === INITIATIVE_TYPE && Array.isArray(investibles) && investibles.length > 0) {
+        getInitiativeInvestible(investibles[0]);
+      }
     }
     const loadedMarketAtAll = !(_.isEmpty(loadedMarket) && _.isEmpty(marketStages) && _.isEmpty(marketPresences));
     if (!hidden && !loadedMarketAtAll && !isFromInvite) {

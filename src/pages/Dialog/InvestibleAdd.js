@@ -18,13 +18,16 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { usePlanFormStyles } from '../../components/AgilePlan'
+import queryString from 'query-string'
 
 function InvestibleAdd(props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
   const { location } = history;
-  const { pathname } = location;
+  const { pathname, hash } = location;
+  const values = queryString.parse(hash || '') || {};
+  const { parentInvestibleId } = values;
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -33,7 +36,7 @@ function InvestibleAdd(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const classes = usePlanFormStyles();
   const renderableMarket = getMarket(marketsState, marketId) || {};
-  const { market_type: marketType } = renderableMarket;
+  const { market_type: marketType, investment_expiration: investmentExpiration } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
@@ -41,7 +44,9 @@ function InvestibleAdd(props) {
   const { is_admin: isAdmin } = myTruePresence;
   const breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
-  const titleKey = marketType === PLANNING_TYPE? 'newStory' : 'newOption';
+  const isPlanning = marketType === PLANNING_TYPE && !parentInvestibleId;
+  const isDecision = marketType === DECISION_TYPE || parentInvestibleId;
+  const titleKey = isPlanning ? 'newStory' : 'newOption';
   const title = intl.formatMessage({ id: titleKey});
   const [storedState, setStoredState] = useState(undefined);
   const [idLoaded, setIdLoaded] = useState(undefined);
@@ -73,8 +78,7 @@ function InvestibleAdd(props) {
     }
   }, [hidden, marketId, itemKey]);
 
-  const loading = idLoaded !== marketId || !marketType
-    || (marketType === DECISION_TYPE && !myPresence);
+  const loading = idLoaded !== marketId || !marketType || (isDecision && !myPresence);
   return (
     <Screen
       title={title}
@@ -83,7 +87,7 @@ function InvestibleAdd(props) {
       breadCrumbs={myBreadCrumbs}
       loading={loading}
     >
-      {marketType === DECISION_TYPE && myPresence && idLoaded === marketId && (
+      {isDecision && myPresence && idLoaded === marketId && (
         <DecisionInvestibleAdd
           marketId={marketId}
           onSave={onInvestibleSave}
@@ -92,9 +96,11 @@ function InvestibleAdd(props) {
           isAdmin={isAdmin}
           storedState={storedState}
           classes={classes}
+          expirationMinutes={investmentExpiration}
+          parentInvestibleId={parentInvestibleId}
         />
       )}
-      {marketType === PLANNING_TYPE && idLoaded === marketId && (
+      {isPlanning && idLoaded === marketId && (
         <PlanningInvestibleAdd
           marketId={marketId}
           onCancel={onDone}

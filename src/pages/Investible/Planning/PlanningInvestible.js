@@ -22,7 +22,7 @@ import {
   SUGGEST_CHANGE_TYPE
 } from "../../../constants/comments";
 import {
-  formInvestibleEditLink,
+  formInvestibleEditLink, formMarketAddInvestibleLink,
   formMarketArchivesLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
@@ -38,9 +38,9 @@ import {
   getBlockedStage,
   getInCurrentVotingStage,
   getInReviewStage,
-  getNotDoingStage,
+  getNotDoingStage, getProposedOptionsStage,
   getVerifiedStage
-} from "../../../contexts/MarketStagesContext/marketStagesContextHelper";
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from "../../../contexts/MarketStagesContext/MarketStagesContext";
 import MoveToVerifiedActionButton from "./MoveToVerifiedActionButton";
 import MoveToVotingActionButton from "./MoveToVotingActionButton";
@@ -60,11 +60,22 @@ import CardType, {
   IN_VERIFIED, IN_VOTING,
   NOT_DOING,
   STORY_TYPE
-} from '../../../components/CardType'
+} from '../../../components/CardType';
 import clsx from "clsx";
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets';
-import DismissableText from '../../../components/Notifications/DismissableText'
-import PersonAddIcon from '@material-ui/icons/PersonAdd'
+import DismissableText from '../../../components/Notifications/DismissableText';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import SubSection from '../../../containers/SubSection/SubSection';
+import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
+import CurrentVoting from '../../Dialog/Decision/CurrentVoting';
+import ProposedIdeas from '../../Dialog/Decision/ProposedIdeas';
+import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import AddIcon from '@material-ui/icons/Add';
 
 const useStyles = makeStyles(
   theme => ({
@@ -153,7 +164,7 @@ function PlanningInvestible(props) {
     comment => comment.comment_type === JUSTIFY_TYPE
   );
   const marketInfo = getMarketInfo(marketInvestible, marketId);
-  const { stage, assigned, children, days_estimate: daysEstimate } = marketInfo;
+  const { stage, assigned, children, days_estimate: daysEstimate, inline_market_id: inlineMarketId } = marketInfo;
   const { investible } = marketInvestible;
   const { description, name, locked_by: lockedBy } = investible;
   let lockedByName;
@@ -218,7 +229,9 @@ function PlanningInvestible(props) {
     : isInVerified
     ? intl.formatMessage({ id: "planningVerifiedStageLabel" })
     : intl.formatMessage({ id: "planningNotDoingStageLabel" });
-
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [commentsState] = useContext(CommentsContext);
   if (!investibleId) {
     // we have no usable data;
     return <></>;
@@ -267,14 +280,23 @@ function PlanningInvestible(props) {
     // you can only move stages besides not doing or verfied if you're assigned to it
     if (isAssigned) {
       if (isInVoting || isInAccepted) {
+        sidebarActions.push(
+          <ExpandableSidebarAction
+            id="newOption"
+            key="newOption"
+            label={intl.formatMessage({ id: 'inlineAddExplanation' })}
+            onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentInvestibleId=${investibleId}`)}
+            icon={<AddIcon/>}
+            openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
+          />
+        );
         const nextStageId = isInVoting ? inAcceptedStage.id : inReviewStage.id;
         const assignedInNextStage = assignedInStage(
           investibles,
           userId,
           nextStageId
         );
-        if (isInAccepted || (enoughVotes && _.isEmpty(assignedInNextStage))
-        ) {
+        if (isInAccepted || (enoughVotes && _.isEmpty(assignedInNextStage))) {
           sidebarActions.push(
             <MoveToNextVisibleStageActionButton
               key="visible"
@@ -285,10 +307,7 @@ function PlanningInvestible(props) {
           );
         }
       }
-      if (
-        isInAccepted &&
-        _.isEmpty(assignedInStage(investibles, userId, inCurrentVotingStage.id))
-      ) {
+      if (isInAccepted && _.isEmpty(assignedInStage(investibles, userId, inCurrentVotingStage.id))) {
         sidebarActions.push(
           <MoveToVotingActionButton
             investibleId={investibleId}
@@ -298,10 +317,7 @@ function PlanningInvestible(props) {
           />
         );
       }
-      if (
-        isInReview &&
-        _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id))
-      ) {
+      if (isInReview && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id))) {
         sidebarActions.push(
           <MoveToAcceptedActionButton
             investibleId={investibleId}
@@ -391,8 +407,28 @@ function PlanningInvestible(props) {
     return sidebarActions;
   }
 
+  const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || [];
+  function getInlineInvestiblesForStage(stage) {
+    if (stage) {
+      return inlineInvestibles.reduce((acc, inv) => {
+        const { market_infos: marketInfos } = inv;
+        for (let x = 0; x < marketInfos.length; x += 1) {
+          if (marketInfos[x].stage === stage.id) {
+            return [...acc, inv];
+          }
+        }
+        return acc;
+      }, []);
+    }
+    return [];
+  }
   const canVote = !isAssigned && isInVoting;
-
+  const inlineMarketPresences = getMarketPresences(marketPresencesState, inlineMarketId);
+  const underConsiderationStage = getInCurrentVotingStage(marketStagesState, inlineMarketId);
+  const underConsideration = getInlineInvestiblesForStage(underConsiderationStage);
+  const proposedStage = getProposedOptionsStage(marketStagesState, inlineMarketId);
+  const proposed = getInlineInvestiblesForStage(proposedStage);
+  const inlineInvestibleComments = getMarketComments(commentsState, inlineMarketId);
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
   }
@@ -496,6 +532,36 @@ function PlanningInvestible(props) {
       />
       {/* unstyled from here on out because no FIGMA */}
       <Grid container spacing={2}>
+        {!_.isEmpty(proposed) && (
+          <Grid item xs={12} style={{ marginTop: '30px' }}>
+            <SubSection
+              id="currentVoting"
+              type={SECTION_TYPE_SECONDARY}
+              title={intl.formatMessage({ id: 'storyCurrentVotingLabel' })}
+            >
+              <CurrentVoting
+                marketPresences={inlineMarketPresences}
+                investibles={underConsideration}
+                marketId={inlineMarketId}
+                comments={inlineInvestibleComments}
+              />
+            </SubSection>
+          </Grid>
+        )}
+        {!_.isEmpty(proposed) && (
+          <Grid item xs={12} style={{ marginTop: '56px' }}>
+            <SubSection
+              type={SECTION_TYPE_SECONDARY}
+              title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
+            >
+              <ProposedIdeas
+                investibles={proposed}
+                marketId={inlineMarketId}
+                comments={inlineInvestibleComments}
+              />
+            </SubSection>
+          </Grid>
+        )}
         <Grid item xs={12} style={{ marginTop: '71px' }}>
           {activeMarket && (
             <CommentAddBox

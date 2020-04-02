@@ -152,7 +152,7 @@ function DecisionInvestibleAdd(props) {
                 is_observer: !presence.following
               };
           });
-          return addParticipants(marketId, participants).then(() => addInvestibleToStage(addInfo));
+          return addParticipants(market.id, participants).then(() => addInvestibleToStage(addInfo));
         }
         return addInvestibleToStage(addInfo);
       }).then((investible) => {

@@ -13,7 +13,13 @@ function beginListening(dispatch) {
     switch (event) {
       case VERSIONS_EVENT:
         getMessages().then((messages) => {
-          return dispatch(updateMessages(messages));
+          const stale = messages.find((message) => (message.type_object_id === rkey
+            && message.market_id_user_id === hkey));
+          if (!stale) {
+            // Messages are reading from an index so can't consistent read and nothing like versions
+            // to say exactly what looking for. So if retrieved stale then just ignore and hope to get updated later.
+            return dispatch(updateMessages(messages));
+          }
         });
         break;
       case REMOVE_EVENT:

@@ -47,10 +47,10 @@ export function refreshNotificationVersion (state, version) {
 
 function processNewNotification (newNotificationVersion, notificationVersion) {
   const { version: notificationVersionNumber } = notificationVersion;
-  const { version: newNotificationVersionNumber } = newNotificationVersion;
+  const { version: newNotificationVersionNumber, hkey, rkey } = newNotificationVersion;
   // console.debug(`Refreshing notifications from ${notificationVersionNumber} to ${newNotificationVersionNumber}`);
   if (notificationVersionNumber !== newNotificationVersionNumber) {
-    pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT });
+    pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT, hkey, rkey });
   }
 }
 

@@ -280,16 +280,18 @@ function PlanningInvestible(props) {
     // you can only move stages besides not doing or verfied if you're assigned to it
     if (isAssigned) {
       if (isInVoting || isInAccepted) {
-        sidebarActions.push(
-          <ExpandableSidebarAction
-            id="newOption"
-            key="newOption"
-            label={intl.formatMessage({ id: 'inlineAddExplanation' })}
-            onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentInvestibleId=${investibleId}`)}
-            icon={<AddIcon/>}
-            openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
-          />
-        );
+        if (!inlineMarketId) {
+          sidebarActions.push(
+            <ExpandableSidebarAction
+              id="newOption"
+              key="newOption"
+              label={intl.formatMessage({ id: 'inlineAddExplanation' })}
+              onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentInvestibleId=${investibleId}`)}
+              icon={<AddIcon/>}
+              openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
+            />
+          );
+        }
         const nextStageId = isInVoting ? inAcceptedStage.id : inReviewStage.id;
         const assignedInNextStage = assignedInStage(
           investibles,
@@ -377,14 +379,15 @@ function PlanningInvestible(props) {
           }
         }
       }
-    } else if (isInVoting || isInAccepted) {
+    }
+    if (isInVoting || isInAccepted) {
       if (inlineMarketId) {
         sidebarActions.push(
           <ExpandableSidebarAction
             id="newOption"
             key="newOption"
             label={intl.formatMessage({ id: 'inlineAddExplanation' })}
-            onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentInvestibleId=${investibleId}`)}
+            onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
             icon={<AddIcon/>}
             openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
           />

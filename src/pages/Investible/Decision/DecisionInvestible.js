@@ -13,7 +13,12 @@ import {
 } from '../../../constants/comments';
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import Screen from '../../../containers/Screen/Screen';
-import { formMarketLink, makeArchiveBreadCrumbs, makeBreadCrumbs } from '../../../utils/marketIdPathFunctions';
+import {
+  formInvestibleLink,
+  formMarketLink,
+  makeArchiveBreadCrumbs,
+  makeBreadCrumbs
+} from '../../../utils/marketIdPathFunctions'
 import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
@@ -26,6 +31,10 @@ import EditMarketButton from '../../Dialog/EditMarketButton';
 import CardType, { OPTION, VOTING_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import MoveBackToPoolActionButton from './MoveBackToPoolActionButton'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -89,20 +98,35 @@ function DecisionInvestible(props) {
   const history = useHistory();
   const classes = useStyles();
 
-  const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote } = market;
-  const breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
+  const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
+  is_inline: isInline, parent_investible_id: parentInvestibleId, parent_market_id: parentMarketId } = market;
+  let breadCrumbTemplates = [{ name: marketName, link: formMarketLink(marketId), id: 'marketCrumb'}];
+  const [marketState] = useContext(MarketsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
+  if (isInline) {
+    const inlineParentMarket = getMarket(marketState, parentMarketId);
+    if (inlineParentMarket) {
+      // Better would be to peg loading a level up since above can resolve with wrong
+      const { name: inlineParentMarketName } = inlineParentMarket;
+      breadCrumbTemplates = [{ name: inlineParentMarketName, link: formMarketLink(parentMarketId), id: 'marketCrumb' }];
+    }
+    if (parentInvestibleId) {
+      const inlineParentInvestible = getInvestible(investiblesState, parentInvestibleId);
+      if (inlineParentInvestible) {
+        const { investible } = inlineParentInvestible;
+        const { name: parentInvestibleName } = investible;
+        breadCrumbTemplates.push({ name: parentInvestibleName,
+          link: formInvestibleLink(parentMarketId, parentInvestibleId), id: 'marketCrumb' });
+      }
+    }
+  }
   const breadCrumbs = inArchives
     ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
     : makeBreadCrumbs(history, breadCrumbTemplates);
-  // eslint-disable-next-line max-len
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE);
-  // eslint-disable-next-line max-len
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
-  // eslint-disable-next-line max-len
   const myIssues = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
-  // eslint-disable-next-line max-len
   const marketIssues = comments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved && !comment.investible_id);
-  // eslint-disable-next-line max-len
   const hasMarketIssue = !_.isEmpty(marketIssues);
   const hasIssue = !_.isEmpty(myIssues);
   const hasIssueOrMarketIssue = hasMarketIssue || hasIssue;

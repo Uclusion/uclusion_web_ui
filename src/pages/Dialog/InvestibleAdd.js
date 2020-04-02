@@ -96,7 +96,7 @@ function InvestibleAdd(props) {
           isAdmin={isAdmin}
           storedState={storedState}
           classes={classes}
-          expirationMinutes={investmentExpiration}
+          expirationMinutes={investmentExpiration*1440}
           parentInvestibleId={parentInvestibleId}
         />
       )}

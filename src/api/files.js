@@ -1,11 +1,11 @@
-import { getMarketClient } from './uclusionClient';
-import config from '../config';
-import { toastErrorAndThrow } from '../utils/userMessage';
+import { getMarketClient } from './uclusionClient'
+import config from '../config'
+import { toastErrorAndThrow } from '../utils/userMessage'
 
 /**
- *
- * @param contentType the content type of the uploaded file
- * @param reader the file reader of the file to be uploaded
+ * Upload file to S3
+ * @param file the uploaded file
+ * @param marketId ID for path to upload to
  */
 export function uploadFileToS3 (marketId, file) {
   const { type, size } = file;
@@ -25,8 +25,8 @@ export function uploadFileToS3 (marketId, file) {
       return fetch(url, fetchParams)
         .then(() => metadata); // just want to give back the successful metadata
     })
-    .catch(() => {
-      toastErrorAndThrow('errorFileUploadFailed');
+    .catch((error) => {
+      toastErrorAndThrow(error,'errorFileUploadFailed');
     });
 }
 

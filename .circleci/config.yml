@@ -71,8 +71,8 @@ jobs:
             cd ~/utils_repo
             pip install --user boto3
             pip install --user pynamodb
-            # -c true to require local forage clear on this release
-            python -m utils.record_release -a ${MY_RELEASE_VAR}
+            # -c true to require signout on this release
+            python -m utils.record_release -a ${MY_RELEASE_VAR} -c true
 
 workflows:
   deploy-stage:

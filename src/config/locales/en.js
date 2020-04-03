@@ -1,4 +1,4 @@
-import { defineMessages } from 'react-intl';
+import { defineMessages } from 'react-intl'
 
 const messages = defineMessages({
   app_name: 'Uclusion',
@@ -345,6 +345,7 @@ const messages = defineMessages({
 
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
+  noticeVersionForceLogout: 'This version of the application requires signout which will happen when you close this message.',
 
   // stages
   marketStageFollowTooltip: 'Subscribe',

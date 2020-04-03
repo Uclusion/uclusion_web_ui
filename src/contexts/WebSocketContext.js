@@ -2,19 +2,20 @@
  * Web socket context provider must appear within the markets context, since it needs to
  * properly update it
  */
-import React, { useReducer, useState } from 'react';
-import localforage from 'localforage';
-import PropTypes from 'prop-types';
-import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner';
-import config from '../config';
-import { sendInfoPersistent, toastErrorAndThrow } from '../utils/userMessage';
-import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext/NotificationsContext';
-import { registerListener, pushMessage, removeListener } from '../utils/MessageBusUtils';
+import React, { useReducer, useState } from 'react'
+import PropTypes from 'prop-types'
+import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner'
+import config from '../config'
+import { sendInfoPersistent, toastError } from '../utils/userMessage'
+import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext/NotificationsContext'
+import { pushMessage, registerListener, removeListener } from '../utils/MessageBusUtils'
 import {
   NOTIFICATIONS_HUB_CHANNEL,
   refreshNotifications,
   refreshVersions
 } from './VersionsContext/versionsContextHelper'
+import { getLoginPersistentItem, setLoginPersistentItem } from '../components/utils'
+import { Auth } from 'aws-amplify'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -28,23 +29,29 @@ const WebSocketContext = React.createContext([
   },
 ]);
 
+export const LAST_LOGIN_APP_VERSION = 'login_version';
+
 export function notifyNewApplicationVersion(currentVersion, cacheClear) {
   const { version } = config;
-  // if we don't have any version stored, we're either in dev, or we've dumped our data
-  if (currentVersion !== version && !currentVersion.includes('fake')) {
-    // console.debug(`Current version: ${version}. Upgrading to version: ${currentVersion}`);
+  // if we don't have any version stored, we're either in dev, or we've dumped our data;
+  if (cacheClear) {
+    const loginVersion = getLoginPersistentItem(LAST_LOGIN_APP_VERSION);
+    if (loginVersion !== version && !currentVersion.includes('fake')) {
+      const reloader = () => {
+        Auth.signOut().then(() => setLoginPersistentItem(LAST_LOGIN_APP_VERSION, loginVersion))
+          .catch((error) => {
+            console.error(error);
+            toastError('errorSignOutFailed');
+          });
+      }
+      sendInfoPersistent({ id: 'noticeVersionForceLogout' }, {}, reloader);
+    }
+  } else if (currentVersion !== version && !currentVersion.includes('fake')) {
+    // deprecated, but the simplest way to ignore cache
     const reloader = () => {
       window.location.reload(true);
     };
-    if (cacheClear) {
-      localforage.clear().then(() => {
-        console.info('Clearing cache');
-        sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
-      }).catch((error) => toastErrorAndThrow(error, 'noticeNewApplicationVersion'));
-    } else {
-      // deprecated, but the simplest way to ignore cache
-      sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
-    }
+    sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
   }
 }
 

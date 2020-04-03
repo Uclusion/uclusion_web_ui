@@ -124,7 +124,8 @@ class QuillEditor extends React.PureComponent {
       placeholder,
       readOnly: false,
       theme: 'snow',
-    };
+      bounds: '#editorbox'
+    }
   }
 
   addLinkFixer() {
@@ -216,12 +217,13 @@ class QuillEditor extends React.PureComponent {
 
     return (
       <div ref={this.editorContainer} id={id}>
+
         <LoadingOverlay
           active={uploadInProgress}
           spinner
           text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
         >
-          <div ref={this.editorBox} style={editorStyle} />
+          <div ref={this.editorBox} id='editorbox' style={editorStyle} />
         </LoadingOverlay>
         {children}
       </div>

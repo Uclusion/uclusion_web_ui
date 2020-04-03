@@ -1,41 +1,38 @@
-import React, { useContext, useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import _ from "lodash";
-import { FormattedMessage, useIntl } from "react-intl";
+import React, { useContext, useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+import { FormattedMessage, useIntl } from 'react-intl'
 import {
+  Button,
   Card,
   CardActions,
   CardContent,
-  RadioGroup,
+  darken,
+  Divider,
   FormControl,
   FormControlLabel,
   FormLabel,
-  Radio,
-  Button,
-  TextField,
   makeStyles,
-  darken,
-  Divider
-} from "@material-ui/core";
-import {
-  removeInvestment,
-  updateInvestment
-} from "../../../api/marketInvestibles";
-import QuillEditor from "../../../components/TextEditors/QuillEditor";
-import SpinBlockingButton from "../../../components/SpinBlocking/SpinBlockingButton";
-import { OperationInProgressContext } from "../../../contexts/OperationInProgressContext/OperationInProgressContext";
-import { CommentsContext } from "../../../contexts/CommentsContext/CommentsContext";
+  Radio,
+  RadioGroup,
+  TextField
+} from '@material-ui/core'
+import { removeInvestment, updateInvestment } from '../../../api/marketInvestibles'
+import QuillEditor from '../../../components/TextEditors/QuillEditor'
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import {
   getMarketComments,
   refreshMarketComments,
   removeComments
 } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { MarketPresencesContext } from "../../../contexts/MarketPresencesContext/MarketPresencesContext";
-import { partialUpdateInvestment } from "../../../contexts/MarketPresencesContext/marketPresencesHelper";
-import clsx from "clsx";
-import { Dialog } from "../../../components/Dialogs";
-import WarningIcon from "@material-ui/icons/Warning";
-import { useLockedDialogStyles } from "../../Dialog/DialogEdit";
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import clsx from 'clsx'
+import { Dialog } from '../../../components/Dialogs'
+import WarningIcon from '@material-ui/icons/Warning'
+import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
 import InfoText from '../../../components/Descriptions/InfoText'
 
 const useStyles = makeStyles(
@@ -285,6 +282,7 @@ function AddEditVote(props) {
           )}
           <Divider className={classes.divider} />
           <QuillEditor
+            marketId={marketId}
             placeholder={intl.formatMessage({ id: "yourReason" })}
             defaultValue={body}
             onChange={onEditorChange}

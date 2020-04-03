@@ -1,15 +1,15 @@
-import * as React from "react";
-import Button from "@material-ui/core/Button";
-import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
-import CardContent from "@material-ui/core/CardContent";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import { darken, makeStyles } from "@material-ui/core/styles";
-import TextField from "@material-ui/core/TextField";
-import { FormattedMessage, useIntl } from "react-intl";
-import SpinBlockingButton from "../../components/SpinBlocking/SpinBlockingButton";
-import CardType, { AGILE_PLAN_TYPE } from "../../components/CardType";
-import QuillEditor from "../../components/TextEditors/QuillEditor";
+import * as React from 'react'
+import Button from '@material-ui/core/Button'
+import Card from '@material-ui/core/Card'
+import CardActions from '@material-ui/core/CardActions'
+import CardContent from '@material-ui/core/CardContent'
+import InputAdornment from '@material-ui/core/InputAdornment'
+import { darken, makeStyles } from '@material-ui/core/styles'
+import TextField from '@material-ui/core/TextField'
+import { FormattedMessage, useIntl } from 'react-intl'
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
+import CardType, { AGILE_PLAN_TYPE } from '../../components/CardType'
+import QuillEditor from '../../components/TextEditors/QuillEditor'
 import InfoText from '../Descriptions/InfoText'
 
 export const usePlanFormStyles = makeStyles(
@@ -163,6 +163,7 @@ export function Form(props) {
         />
         <QuillEditor
           onS3Upload={onS3Upload}
+          marketId={marketId}
           onChange={onDescriptionChange}
           onStoreChange={onStorageChange}
           placeholder={intl.formatMessage({

@@ -1,16 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
-import {
-  Card, CardActions, CardContent, TextField,
-} from '@material-ui/core'
-import localforage from 'localforage';
-import PropTypes from 'prop-types';
-import { updateInvestible } from '../../../api/investibles';
-import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import { processTextAndFilesForSave } from '../../../api/files';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { usePlanFormStyles } from '../../../components/AgilePlan';
+import { Card, CardActions, CardContent, TextField, } from '@material-ui/core'
+import localforage from 'localforage'
+import PropTypes from 'prop-types'
+import { updateInvestible } from '../../../api/investibles'
+import QuillEditor from '../../../components/TextEditors/QuillEditor'
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
+import { processTextAndFilesForSave } from '../../../api/files'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { usePlanFormStyles } from '../../../components/AgilePlan'
 import CardType, { VOTING_TYPE } from '../../../components/CardType'
 
 function InitiativeInvestibleEdit(props) {
@@ -117,6 +115,7 @@ function InitiativeInvestibleEdit(props) {
         />
         <QuillEditor
           onS3Upload={handleFileUpload}
+          marketId={marketId}
           onChange={onEditorChange}
           onStoreChange={onStorageChange}
           defaultValue={description}

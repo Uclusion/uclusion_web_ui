@@ -1,26 +1,22 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react'
 import { FormattedMessage, injectIntl } from 'react-intl'
-import classNames from 'clsx';
-import _ from 'lodash';
-import {
-  Button, makeStyles, Paper, darken
-} from '@material-ui/core';
-import clsx from 'clsx';
-import PropTypes from 'prop-types';
-import QuillEditor from '../TextEditors/QuillEditor';
-import { saveComment } from '../../api/comments';
-import {
-  QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPLY_TYPE,
-} from '../../constants/comments';
-import { processTextAndFilesForSave } from '../../api/files';
-import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
-import { Dialog } from '../Dialogs';
-import WarningIcon from '@material-ui/icons/Warning';
-import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit';
-import { EMPTY_SPIN_RESULT } from '../../constants/global';
+import classNames from 'clsx'
+import clsx from 'clsx'
+import _ from 'lodash'
+import { Button, darken, makeStyles, Paper } from '@material-ui/core'
+import PropTypes from 'prop-types'
+import QuillEditor from '../TextEditors/QuillEditor'
+import { saveComment } from '../../api/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, SUGGEST_CHANGE_TYPE, } from '../../constants/comments'
+import { processTextAndFilesForSave } from '../../api/files'
+import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'
+import { Dialog } from '../Dialogs'
+import WarningIcon from '@material-ui/icons/Warning'
+import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit'
+import { EMPTY_SPIN_RESULT } from '../../constants/global'
 
 function getPlaceHolderLabelId (type) {
   switch (type) {
@@ -173,6 +169,7 @@ function CommentAdd (props) {
     >
       <div className={classes.editor}>
         <QuillEditor
+          marketId={marketId}
           placeholder={placeHolder}
           defaultValue={body}
           onChange={onEditorChange}

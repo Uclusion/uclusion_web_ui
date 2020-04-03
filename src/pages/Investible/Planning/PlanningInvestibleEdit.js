@@ -1,18 +1,15 @@
-import React, { useContext, useEffect, useState } from 'react';
-import {
-  Button,
-  Card, CardActions, CardContent, TextField,
-} from '@material-ui/core'
-import _ from 'lodash';
-import localforage from 'localforage';
-import PropTypes from 'prop-types';
-import { updateInvestible } from '../../../api/investibles';
-import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import { processTextAndFilesForSave } from '../../../api/files';
-import { getMarketInfo } from '../../../utils/userFunctions';
-import AssignmentList from '../../Dialog/Planning/AssignmentList';
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import React, { useContext, useEffect, useState } from 'react'
+import { Button, Card, CardActions, CardContent, TextField, } from '@material-ui/core'
+import _ from 'lodash'
+import localforage from 'localforage'
+import PropTypes from 'prop-types'
+import { updateInvestible } from '../../../api/investibles'
+import QuillEditor from '../../../components/TextEditors/QuillEditor'
+import { processTextAndFilesForSave } from '../../../api/files'
+import { getMarketInfo } from '../../../utils/userFunctions'
+import AssignmentList from '../../Dialog/Planning/AssignmentList'
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import CardType, { ASSIGN_TYPE, STORY_TYPE } from '../../../components/CardType'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { DaysEstimate, usePlanFormStyles } from '../../../components/AgilePlan'
@@ -162,6 +159,7 @@ function PlanningInvestibleEdit(props) {
             />
           <QuillEditor
             onS3Upload={handleFileUpload}
+            marketId={marketId}
             onChange={onEditorChange}
             onStoreChange={onStorageChange}
             defaultValue={description}

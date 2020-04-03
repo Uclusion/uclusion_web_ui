@@ -1,17 +1,26 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react'
 import { FormattedMessage, injectIntl } from 'react-intl'
 import {
-  Card, Button, CardContent, CardActions, makeStyles, darken, RadioGroup, FormControlLabel, Radio, FormControl
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  darken,
+  FormControl,
+  FormControlLabel,
+  makeStyles,
+  Radio,
+  RadioGroup
 } from '@material-ui/core'
-import PropTypes from 'prop-types';
-import QuillEditor from '../TextEditors/QuillEditor';
-import { updateComment } from '../../api/comments';
-import { processTextAndFilesForSave } from '../../api/files';
-import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
-import { EMPTY_SPIN_RESULT } from '../../constants/global';
+import PropTypes from 'prop-types'
+import QuillEditor from '../TextEditors/QuillEditor'
+import { updateComment } from '../../api/comments'
+import { processTextAndFilesForSave } from '../../api/files'
+import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'
+import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../constants/comments'
 
 const useStyles = makeStyles(() => ({
@@ -116,6 +125,7 @@ function CommentEdit(props) {
           </FormControl>
           <QuillEditor
             defaultValue={initialBody}
+            marketId={marketId}
             onChange={onEditorChange}
             onS3Upload={onS3Upload}
             setOperationInProgress={setOperationRunning}

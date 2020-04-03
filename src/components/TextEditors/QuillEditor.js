@@ -133,7 +133,6 @@ class QuillEditor extends React.PureComponent {
     Link.sanitize = function (linkValue) {
       // do nothing, since this implies user's already using a custom protocol
       if (/^\w+:/.test(linkValue)) {
-        console.log(linkValue)
         return builtinSanitizer.call(this, linkValue);
       }
       return builtinSanitizer.call(this, 'https://' + linkValue);

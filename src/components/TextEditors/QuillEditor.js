@@ -131,6 +131,17 @@ class QuillEditor extends React.PureComponent {
     const { defaultValue, onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc } = this.props;
     this.editorBox.current.innerHTML = defaultValue;
     this.editor = new Quill(this.editorBox.current, this.options);
+    const toolbar = this.editor.getModule('toolbar');
+    toolbar.addHandler('link', function(value) {
+      if (value) {
+        let href = prompt('Enter the URL');
+        if (!href.includes('://')) {
+          href = 'https://' + href;
+        }
+        this.quill.format('link', href);
+      } else {
+        this.quill.format('link', false);
+      }});
     const debouncedOnChange = _.debounce((delta) => {
       const contents = this.editor.root.innerHTML;
       if (editorEmpty(contents)) {

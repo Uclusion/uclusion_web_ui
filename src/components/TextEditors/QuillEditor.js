@@ -127,21 +127,24 @@ class QuillEditor extends React.PureComponent {
     };
   }
 
+  addLinkFixer() {
+    const Link = Quill.import('formats/link');
+    var builtinSanitizer = Link.sanitize;
+    Link.sanitize = function (linkValue) {
+      // do nothing, since this implies user's already using a custom protocol
+      if (/^\w+:/.test(linkValue)) {
+        console.log(linkValue)
+        return builtinSanitizer.call(this, linkValue);
+      }
+      return builtinSanitizer.call(this, 'https://' + linkValue);
+    }
+  }
+
   componentDidMount() {
     const { defaultValue, onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc } = this.props;
     this.editorBox.current.innerHTML = defaultValue;
     this.editor = new Quill(this.editorBox.current, this.options);
-    const toolbar = this.editor.getModule('toolbar');
-    toolbar.addHandler('link', function(value) {
-      if (value) {
-        let href = prompt('Enter the URL');
-        if (!href.includes('://')) {
-          href = 'https://' + href;
-        }
-        this.quill.format('link', href);
-      } else {
-        this.quill.format('link', false);
-      }});
+    this.addLinkFixer();
     const debouncedOnChange = _.debounce((delta) => {
       const contents = this.editor.root.innerHTML;
       if (editorEmpty(contents)) {

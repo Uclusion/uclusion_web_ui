@@ -38,7 +38,7 @@ export function notifyNewApplicationVersion(currentVersion, cacheClear) {
     const loginVersion = getLoginPersistentItem(LAST_LOGIN_APP_VERSION);
     if (loginVersion !== version && !currentVersion.includes('fake')) {
       const reloader = () => {
-        Auth.signOut().then(() => setLoginPersistentItem(LAST_LOGIN_APP_VERSION, loginVersion))
+        Auth.signOut().then(() => setLoginPersistentItem(LAST_LOGIN_APP_VERSION, version))
           .catch((error) => {
             console.error(error);
             toastError('errorSignOutFailed');

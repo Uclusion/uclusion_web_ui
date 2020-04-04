@@ -1,7 +1,7 @@
-import LocalForageHelper from '../../utils/LocalForageHelper';
-import { toast } from 'react-toastify';
-import _ from 'lodash';
-import { deleteMessage } from '../../api/users';
+import LocalForageHelper from '../../utils/LocalForageHelper'
+import { toast } from 'react-toastify'
+import _ from 'lodash'
+import { deleteMessage } from '../../api/users'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -194,14 +194,6 @@ function doUpdatePage(state, action) {
   if (pageIsEqual(page, onPage)) {
     // Do not mutate if already on that page
     return state;
-  }
-  if (!page) {
-    // Remove last page also
-    return {
-      ...state,
-      page,
-      lastPage: page,
-    };
   }
   return {
     ...state,

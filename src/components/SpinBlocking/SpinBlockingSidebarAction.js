@@ -43,7 +43,7 @@ function SpinBlockingSidebarAction(props) {
           {icon}
         </ListItemIcon>
       </Tooltip>
-      {amOpen && (
+      {(customClasses || amOpen) && (
         <ListItemText className={classes.menuTitle}>
           {openLabel}
         </ListItemText>

@@ -4,7 +4,7 @@ import {
   Checkbox, ListItem,
   ListItemIcon,
   ListItemText, makeStyles, TextField,
-  Typography,
+  Typography, Grid, InputLabel, FormControl
 } from '@material-ui/core'
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -98,78 +98,103 @@ function ChangeNotificationPreferences(props) {
           />
         </a>
       )}
-      <Typography>
-        {intl.formatMessage({ id: 'changePreferencesHeader' })}
-      </Typography>
+      <Grid container spacing={3} style={{padding: '1rem'} }>
+      <Grid item xs={5}>
+        <Typography>
+          {intl.formatMessage({ id: 'changePreferencesHeader' })}
+        </Typography>
       {user && (
         <form
           noValidate
           autoComplete="off"
-        >
-          <ListItem
-            key="email"
-            button
-            onClick={handleToggleEmail}
-          >
-            <ListItemIcon>
-              <Checkbox
-                value={emailEnabled}
-                checked={emailEnabled}
-              />
-            </ListItemIcon>
-            <ListItemText
-              className={classes.name}
             >
-              {intl.formatMessage({ id: 'emailEnabledLabel' })}
-            </ListItemText>
-          </ListItem>
-          <ListItem
-            key="slack"
-            button
-            onClick={handleToggleSlack}
-          >
-            <ListItemIcon>
-              <Checkbox
-                value={slackEnabled}
-                checked={slackEnabled}
-                disabled={!user || !user.is_slack_addressable}
-              />
-            </ListItemIcon>
-            <ListItemText
-              className={user && user.is_slack_addressable ? classes.name : classes.disabled}
+            <Grid
+              container
+              direction="row"
+              justify="center"
+              alignItems="baseline"
+              style={{padding: '1rem', paddingBottom: '0'} }
             >
-              {intl.formatMessage({ id: 'slackEnabledLabel' })}
-            </ListItemText>
-          </ListItem>
-          <TextField
-            id="emailDelay"
-            label={intl.formatMessage({ id: 'emailDelayInputLabel' })}
-            type="number"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            variant="outlined"
-            onChange={handleChangeEmailDelay}
-            value={emailDelay}
-          />
-          <TextField
-            id="slackDelay"
-            label={intl.formatMessage({ id: 'slackDelayInputLabel' })}
-            type="number"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            variant="outlined"
-            onChange={handleChangeSlackDelay}
-            value={slackDelay}
-          />
-        </form>
-      )}
+            <ListItem
+              key="email"
+              button
+              onClick={handleToggleEmail}
+            >
+              <ListItemIcon>
+                <Checkbox
+                  value={emailEnabled}
+                  checked={emailEnabled}
+                />
+              </ListItemIcon>
+              <ListItemText
+                className={classes.name}
+              >
+                {intl.formatMessage({ id: 'emailEnabledLabel' })}
+              </ListItemText>
+            </ListItem>
+            <ListItem
+              key="slack"
+              button
+              onClick={handleToggleSlack}
+            >
+              <ListItemIcon>
+                <Checkbox
+                  value={slackEnabled}
+                  checked={slackEnabled}
+                  disabled={!user || !user.is_slack_addressable}
+                />
+              </ListItemIcon>
+              <ListItemText
+                className={user && user.is_slack_addressable ? classes.name : classes.disabled}
+              >
+                {intl.formatMessage({ id: 'slackEnabledLabel' })}
+              </ListItemText>
+            </ListItem>
+            </Grid>
+            <Grid
+              container
+              direction="row"
+              justify="space-evenly"
+              alignItems="stretch"
+              style={{padding: '1rem', paddingTop: '0'} }
+            >
+              <FormControl fullWidth="true" margin="normal">
+                <InputLabel htmlFor="emailDelay" shrink="true" style={{top: '2px', left: '5px'}}>
+                  {intl.formatMessage({ id: 'emailDelayInputLabel' })}
+                </InputLabel>
+                <TextField
+                  id="emailDelay"
+                  type="number"
+                  variant="outlined"
+                  onChange={handleChangeEmailDelay}
+                  value={emailDelay}
+                />
+              </FormControl>
+              <FormControl fullWidth="true" margin="normal">
+                <InputLabel htmlFor="slackDelay" shrink="true" style={{top: '2px', left: '5px'}}>
+                  {intl.formatMessage({ id: 'slackDelayInputLabel' })}
+                </InputLabel>
+                <TextField
+                  id="slackDelay"
+                  type="number"
+                  variant="outlined"
+                  onChange={handleChangeSlackDelay}
+                  value={slackDelay}
+                />
+              </FormControl>
+            </Grid>
+          </form>
+        )}
       <Button
+        variant="outlined"
+        fullWidth={true}
+        color="primary"
         onClick={onSetPreferences}
       >
         {intl.formatMessage({ id: 'changePreferencesButton' })}
       </Button>
+        </Grid>
+      </Grid>
     </Screen>
   );
 }

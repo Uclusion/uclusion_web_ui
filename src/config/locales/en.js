@@ -350,6 +350,7 @@ const messages = defineMessages({
   // stages
   marketStageFollowTooltip: 'Subscribe',
   marketStageUnFollowTooltip: 'Unsubscribe',
+  changeStage: 'Change stage',
 
   // markets
   marketSelectDefault: 'Your Dialogs',

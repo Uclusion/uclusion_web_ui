@@ -61,7 +61,7 @@ function scroller(target, newPage, retry=true) {
       } else if (retry) {
         setTimeout(() => {
           scroller(target, newPage, false);
-        }, 1500);
+        }, 2000);
       } else {
         console.warn(`Processing scroll failed for ${target}`)
       }

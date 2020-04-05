@@ -158,8 +158,8 @@ function ChangeNotificationPreferences(props) {
               alignItems="stretch"
               style={{padding: '1rem', paddingTop: '0'} }
             >
-              <FormControl fullWidth="true" margin="normal">
-                <InputLabel htmlFor="emailDelay" shrink="true" style={{top: '2px', left: '5px'}}>
+              <FormControl fullWidth={true} margin="normal">
+                <InputLabel htmlFor="emailDelay" shrink={true} style={{top: '2px', left: '5px'}}>
                   {intl.formatMessage({ id: 'emailDelayInputLabel' })}
                 </InputLabel>
                 <TextField
@@ -170,8 +170,8 @@ function ChangeNotificationPreferences(props) {
                   value={emailDelay}
                 />
               </FormControl>
-              <FormControl fullWidth="true" margin="normal">
-                <InputLabel htmlFor="slackDelay" shrink="true" style={{top: '2px', left: '5px'}}>
+              <FormControl fullWidth={true} margin="normal">
+                <InputLabel htmlFor="slackDelay" shrink={true} style={{top: '2px', left: '5px'}}>
                   {intl.formatMessage({ id: 'slackDelayInputLabel' })}
                 </InputLabel>
                 <TextField

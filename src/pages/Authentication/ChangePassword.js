@@ -10,13 +10,6 @@ import { toastError } from '../../utils/userMessage';
 import Screen from '../../containers/Screen/Screen';
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
 
-const useStyles = makeStyles((theme) => ({
-  name: {},
-  disabled: {
-    color: theme.palette.text.disabled,
-  },
-}));
-
 function ChangePassword(props) {
   const { hidden } = props;
   const [oldPassword, setOldPassword] = useState(undefined);

@@ -17,6 +17,7 @@ function SpinBlockingSidebarAction(props) {
     onSpinStop,
     hasSpinChecker,
     customClasses,
+    isOpen,
   } = props;
   const myClasses = useStyles();
   const classes = customClasses || myClasses;
@@ -43,7 +44,7 @@ function SpinBlockingSidebarAction(props) {
           {icon}
         </ListItemIcon>
       </Tooltip>
-      {(customClasses || amOpen) && (
+      {(isOpen !== undefined ? isOpen : amOpen) && (
         <ListItemText className={classes.menuTitle}>
           {openLabel}
         </ListItemText>
@@ -63,6 +64,7 @@ SpinBlockingSidebarAction.propTypes = {
   onSpinStop: PropTypes.func,
   id: PropTypes.string,
   customClasses: PropTypes.object,
+  isOpen: PropTypes.bool,
 };
 
 SpinBlockingSidebarAction.defaultProps = {
@@ -70,6 +72,7 @@ SpinBlockingSidebarAction.defaultProps = {
   onSpinStop: () => {},
   hasSpinChecker: false,
   id: undefined,
+  isOpen: undefined,
 };
 
 export default SpinBlockingSidebarAction;

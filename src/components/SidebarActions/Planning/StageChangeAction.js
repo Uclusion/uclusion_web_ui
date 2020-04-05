@@ -50,6 +50,7 @@ function StageChangeAction(props) {
     translationId,
     explanationId,
     onSpinStop,
+    isOpen,
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -96,6 +97,7 @@ function StageChangeAction(props) {
       openLabel={intl.formatMessage({ id: translationId })}
       onClick={moveToTarget}
       customClasses={classes}
+      isOpen={isOpen}
     />
   );
 }
@@ -109,6 +111,7 @@ StageChangeAction.propTypes = {
   marketId: PropTypes.string.isRequired,
   currentStageId: PropTypes.string.isRequired,
   targetStageId: PropTypes.string.isRequired,
+  isOpen: PropTypes.bool.isRequired,
 };
 
 StageChangeAction.defaultProps = {

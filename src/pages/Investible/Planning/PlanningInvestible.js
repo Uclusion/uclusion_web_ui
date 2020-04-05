@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
@@ -227,7 +227,7 @@ function PlanningInvestible(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
-
+  const [changeStagesExpanded, setChangeStagesExpanded] = useState(false);
   if (!investibleId) {
     // we have no usable data;
     return <></>;
@@ -265,7 +265,6 @@ function PlanningInvestible(props) {
     const required = myRequired !== undefined ? myRequired : 1;
     return _.size(myInvested) >= required;
   }
-
   const enoughVotes = hasEnoughVotes(invested, votesRequired);
 
   function getSidebarActions() {
@@ -335,6 +334,7 @@ function PlanningInvestible(props) {
               investibleId={investibleId}
               marketId={marketId}
               currentStageId={stage}
+              isOpen={changeStagesExpanded}
             />
           );
         }
@@ -345,6 +345,7 @@ function PlanningInvestible(props) {
             investibleId={investibleId}
             marketId={marketId}
             currentStageId={stage}
+            isOpen={changeStagesExpanded}
             key="voting"
           />
         );
@@ -355,6 +356,7 @@ function PlanningInvestible(props) {
             investibleId={investibleId}
             marketId={marketId}
             currentStageId={stage}
+            isOpen={changeStagesExpanded}
             key="acceptedFromReview"
           />
         );
@@ -377,6 +379,7 @@ function PlanningInvestible(props) {
                 investibleId={investibleId}
                 marketId={marketId}
                 currentStageId={stage}
+                isOpen={changeStagesExpanded}
                 key="voting"
               />
             );
@@ -394,6 +397,7 @@ function PlanningInvestible(props) {
                   investibleId={investibleId}
                   marketId={marketId}
                   currentStageId={stage}
+                  isOpen={changeStagesExpanded}
                   key="accepted"
                 />
               );
@@ -403,6 +407,7 @@ function PlanningInvestible(props) {
                 investibleId={investibleId}
                 marketId={marketId}
                 currentStageId={stage}
+                isOpen={changeStagesExpanded}
                 key="inreview"
               />
             );
@@ -416,6 +421,7 @@ function PlanningInvestible(props) {
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
+          isOpen={changeStagesExpanded}
           key="verified"
         />
       );
@@ -425,6 +431,7 @@ function PlanningInvestible(props) {
         investibleId={investibleId}
         marketId={marketId}
         currentStageId={stage}
+        isOpen={changeStagesExpanded}
         key="notdoing"
       />);
     }
@@ -458,6 +465,9 @@ function PlanningInvestible(props) {
   }
   const subtype = isInVoting ? IN_VOTING : isInAccepted ? IN_PROGRESS : isInReview ? IN_REVIEW :
     isInBlocked ? IN_BLOCKED : isInNotDoing ? NOT_DOING : IN_VERIFIED;
+  function expansionChanged(event, expanded) {
+    setChangeStagesExpanded(expanded);
+  }
   return (
     <Screen
       title={name}
@@ -532,6 +542,7 @@ function PlanningInvestible(props) {
             hidden={hidden}
             children={children || []}
             stageActions={getStageActions()}
+            expansionChanged={expansionChanged}
           />
         </CardContent>
       </Card>
@@ -716,6 +727,7 @@ function MarketMetaData(props) {
     children,
     hidden,
     stageActions,
+    expansionChanged,
   } = props;
 
   const classes = useMetaDataStyles();
@@ -767,7 +779,7 @@ function MarketMetaData(props) {
           </dd>
         </div>
       )}
-      <ExpansionPanel className={classes.expansionControl}>
+      <ExpansionPanel className={classes.expansionControl} onChange={expansionChanged}>
         <ExpansionPanelSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="stages-content"
@@ -799,6 +811,7 @@ MarketMetaData.propTypes = {
   children: PropTypes.arrayOf(PropTypes.string).isRequired,
   hidden: PropTypes.bool.isRequired,
   stageActions: PropTypes.object,
+  expansionChanged: PropTypes.func.isRequired,
 }
 
 function Assignments(props) {

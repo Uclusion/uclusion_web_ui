@@ -4,7 +4,7 @@ import { Auth } from 'aws-amplify';
 import Grid from '@material-ui/core/Grid';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
-import { Button, TextField, Typography, makeStyles } from '@material-ui/core';
+import { Button, TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { toastError } from '../../utils/userMessage';
 import Screen from '../../containers/Screen/Screen';

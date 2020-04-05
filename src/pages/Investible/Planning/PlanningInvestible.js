@@ -25,6 +25,7 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import {
   getAcceptedStage,
   getBlockedStage,
+  getFurtherWorkStage,
   getInCurrentVotingStage,
   getInReviewStage,
   getNotDoingStage,
@@ -71,6 +72,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
+import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
 
 const useStyles = makeStyles(
   theme => ({
@@ -181,6 +183,8 @@ function PlanningInvestible(props) {
   const isInBlocked = inBlockedStage && stage === inBlockedStage.id;
   const inVerifiedStage = getVerifiedStage(marketStagesState, marketId);
   const isInVerified = inVerifiedStage && stage === inVerifiedStage.id;
+  const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId)
+  const isReadyFurtherWork = furtherWorkStage && stage === furtherWorkStage.id;
   const inCurrentVotingStage = getInCurrentVotingStage(
     marketStagesState,
     marketId
@@ -414,6 +418,17 @@ function PlanningInvestible(props) {
           }
         }
       }
+    }
+    if (!isReadyFurtherWork && isAssigned && !isInVoting) {
+      stageActions.push(
+        <MoveToFurtherWorkActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+          currentStageId={stage}
+          isOpen={changeStagesExpanded}
+          key="furtherwork"
+        />
+      );
     }
     if (!isInVerified) {
       stageActions.push(

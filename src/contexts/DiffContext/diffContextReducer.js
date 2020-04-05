@@ -1,6 +1,6 @@
-import HtmlDiff from 'htmldiff-js';
-import { DIFF_CONTEXT_NAMESPACE } from './DiffContext';
-import LocalForageHelper from '../../utils/LocalForageHelper';
+import HtmlDiff from 'htmldiff-js'
+import { DIFF_CONTEXT_NAMESPACE } from './DiffContext'
+import LocalForageHelper from '../../utils/LocalForageHelper'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_CONTENTS = 'REMOVE_CONTENTS';
@@ -58,7 +58,7 @@ function getNotSeenContent(state, content) {
   const { id, description, updated_by: updatedBy } = content;
   const firstReceived = {
     id,
-    currentContent: description,
+    lastSeenContent: description,
     updatedBy,
   };
   return {

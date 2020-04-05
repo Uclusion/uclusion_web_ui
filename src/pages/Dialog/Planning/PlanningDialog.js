@@ -2,42 +2,42 @@
  * A component that renders a _planning_ dialog
  */
 import React, { useContext } from 'react'
-import { useHistory } from "react-router";
+import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
-import PropTypes from "prop-types";
-import _ from "lodash";
-import { Typography } from "@material-ui/core";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import CardHeader from "@material-ui/core/CardHeader";
-import { makeStyles } from "@material-ui/core/styles";
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+import { Grid, Typography } from '@material-ui/core'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import CardHeader from '@material-ui/core/CardHeader'
+import { makeStyles } from '@material-ui/core/styles'
 import Summary from './Summary'
-import PlanningIdeas from "./PlanningIdeas";
-import Screen from "../../../containers/Screen/Screen";
+import PlanningIdeas from './PlanningIdeas'
+import Screen from '../../../containers/Screen/Screen'
 import {
   formMarketAddInvestibleLink,
   formMarketManageLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate
-} from "../../../utils/marketIdPathFunctions";
-import {
-  ISSUE_TYPE,
-  QUESTION_TYPE,
-  SUGGEST_CHANGE_TYPE
-} from "../../../constants/comments";
-import CommentAddBox from "../../../containers/CommentBox/CommentAddBox";
-import CommentBox from "../../../containers/CommentBox/CommentBox";
-import ViewArchiveActionButton from "./ViewArchivesActionButton";
-import { ACTIVE_STAGE, DECISION_TYPE } from "../../../constants/markets";
-import ManageParticipantsActionButton from "./ManageParticipantsActionButton";
-import { getUserInvestibles } from "./userUtils";
-import { MarketPresencesContext } from "../../../contexts/MarketPresencesContext/MarketPresencesContext";
-import ExpandableSidebarAction from "../../../components/SidebarActions/ExpandableSidebarAction";
-import InsertLinkIcon from "@material-ui/icons/InsertLink";
-import { getMarketPresences } from "../../../contexts/MarketPresencesContext/marketPresencesHelper";
-import InvestibleAddActionButton from "./InvestibleAddActionButton";
+} from '../../../utils/marketIdPathFunctions'
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
+import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
+import CommentBox from '../../../containers/CommentBox/CommentBox'
+import ViewArchiveActionButton from './ViewArchivesActionButton'
+import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
+import ManageParticipantsActionButton from './ManageParticipantsActionButton'
+import { getUserInvestibles } from './userUtils'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
+import InsertLinkIcon from '@material-ui/icons/InsertLink'
+import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import InvestibleAddActionButton from './InvestibleAddActionButton'
 import DismissableText from '../../../components/Notifications/DismissableText'
+import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
+import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
+import SubSection from '../../../containers/SubSection/SubSection'
+import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -140,7 +140,10 @@ function PlanningDialog(props) {
       />
     ];
   }
-
+  const furtherWorkStage = marketStages.find((stage) => (!stage.appears_in_context && !stage.allows_issues
+    && !stage.appears_in_market_summary)) || {};
+  const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
+  const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const sidebarActions = getSidebarActions();
   return (
     <Screen
@@ -170,16 +173,32 @@ function PlanningDialog(props) {
           inReviewStage={inReviewStage}
         />
       )}
+      {!_.isEmpty(furtherWorkInvestibles) && (
+        <SubSection
+          type={SECTION_TYPE_SECONDARY}
+          title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
+        >
+          <ArchiveInvestbiles
+            marketId={marketId}
+            presenceMap={presenceMap}
+            investibles={furtherWorkInvestibles}
+          />
+        </SubSection>
+      )}
       {isChannel && (
         <DismissableText textId='storyHelp' />
       )}
-      {activeMarket && (
-        <CommentAddBox
-          allowedTypes={allowedCommentTypes}
-          marketId={marketId}
-        />
-      )}
-      <CommentBox comments={marketComments} marketId={marketId} allowedTypes={allowedCommentTypes} />
+      <Grid container spacing={2}>
+          <Grid item xs={12} style={{ marginTop: '30px' }}>
+            {activeMarket && (
+              <CommentAddBox
+                allowedTypes={allowedCommentTypes}
+                marketId={marketId}
+              />
+            )}
+            <CommentBox comments={marketComments} marketId={marketId} allowedTypes={allowedCommentTypes} />
+          </Grid>
+      </Grid>
     </Screen>
   );
 }

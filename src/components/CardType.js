@@ -1,32 +1,29 @@
-import React from "react";
-import PropTypes from "prop-types";
-import clsx from "clsx";
-import { FormattedMessage } from "react-intl";
-import { makeStyles } from "@material-ui/styles";
-import {
-  ISSUE_TYPE, JUSTIFY_TYPE,
-  QUESTION_TYPE,
-  SUGGEST_CHANGE_TYPE
-} from '../constants/comments';
+import React from 'react'
+import PropTypes from 'prop-types'
+import clsx from 'clsx'
+import { FormattedMessage } from 'react-intl'
+import { makeStyles } from '@material-ui/styles'
+import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../constants/comments'
 // TODO create centralized icons repository
-import IssueIcon from "@material-ui/icons/ReportProblem";
-import QuestionIcon from "@material-ui/icons/ContactSupport";
-import ChangeSuggstionIcon from "@material-ui/icons/ChangeHistory";
-import VotingIcon from "@material-ui/icons/Assessment";
-import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
-import GavelIcon from '@material-ui/icons/Gavel';
-import PlayForWorkIcon from '@material-ui/icons/PlayForWork';
-import RateReviewIcon from '@material-ui/icons/RateReview';
-import BlockIcon from '@material-ui/icons/Block';
-import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
-import NotInterestedIcon from '@material-ui/icons/NotInterested';
-import StarRateIcon from '@material-ui/icons/StarRate';
-import EditIcon from '@material-ui/icons/Edit';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import { DECISION_TYPE } from '../constants/markets';
-import AgilePlanIcon from "@material-ui/icons/PlaylistAdd";
-import AssignmentIcon from '@material-ui/icons/Assignment';
-import HowToVoteIcon from '@material-ui/icons/HowToVote';
+import IssueIcon from '@material-ui/icons/ReportProblem'
+import QuestionIcon from '@material-ui/icons/ContactSupport'
+import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
+import VotingIcon from '@material-ui/icons/Assessment'
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
+import GavelIcon from '@material-ui/icons/Gavel'
+import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
+import RateReviewIcon from '@material-ui/icons/RateReview'
+import BlockIcon from '@material-ui/icons/Block'
+import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
+import WorkIcon from '@material-ui/icons/Work'
+import NotInterestedIcon from '@material-ui/icons/NotInterested'
+import StarRateIcon from '@material-ui/icons/StarRate'
+import EditIcon from '@material-ui/icons/Edit'
+import PersonAddIcon from '@material-ui/icons/PersonAdd'
+import { DECISION_TYPE } from '../constants/markets'
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
+import AssignmentIcon from '@material-ui/icons/Assignment'
+import HowToVoteIcon from '@material-ui/icons/HowToVote'
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, DECISION_TYPE };
 export const VOTING_TYPE = "VOTING";
@@ -36,6 +33,7 @@ export const IN_PROGRESS = "PROGRESS";
 export const IN_REVIEW = "REVIEW";
 export const IN_BLOCKED = "BLOCKED";
 export const NOT_DOING = "STOPPED";
+export const FURTHER_WORK = "FURTHER_WORK";
 export const IN_VERIFIED = "VERIFIED";
 export const OPTION = "OPTION";
 export const IN_VOTING= "DELIBERATION";
@@ -127,6 +125,7 @@ export default function CardType(props) {
     [IN_BLOCKED]: BlockIcon,
     [NOT_DOING]: NotInterestedIcon,
     [IN_VERIFIED]: VerifiedUserIcon,
+    [FURTHER_WORK]: WorkIcon,
     [OPTION]: StarRateIcon,
     [ASSIGN_TYPE]: PersonAddIcon,
     [DECISION_TYPE]: GavelIcon,
@@ -155,6 +154,7 @@ CardType.propTypes = {
     IN_REVIEW,
     STORY_TYPE,
     IN_PROGRESS,
+    FURTHER_WORK,
     NOT_DOING,
     ASSIGN_TYPE,
     OPTION

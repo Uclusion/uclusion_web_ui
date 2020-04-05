@@ -277,6 +277,7 @@ const messages = defineMessages({
   planningBlockedStageLabel: 'Blocked',
   planningReviewStageLabel: 'In Review',
   planningVerifiedStageLabel: 'Verified',
+  planningFurtherWorkStageLabel: 'Ready for Further Work',
   planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'assigned',
   planningInvestibleDecision: 'Create Child Dialog',
@@ -547,6 +548,7 @@ const messages = defineMessages({
   dialogArchivesNotDoingHeader: 'Not Doing',
   dialogArchivesVerifiedHeader: 'Verified',
   dialogArchivesLabel: 'Workspace Archive',
+  readyFurtherWorkHeader: 'Ready for Further Work',
 
   // SignIn
   signInEmailLabel: 'Email',

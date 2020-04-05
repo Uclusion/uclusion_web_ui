@@ -45,6 +45,7 @@ import EditMarketButton from '../../Dialog/EditMarketButton'
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
 import MarketLinks from '../../Dialog/MarketLinks'
 import CardType, {
+  FURTHER_WORK,
   IN_BLOCKED,
   IN_PROGRESS,
   IN_REVIEW,
@@ -222,12 +223,13 @@ function PlanningInvestible(props) {
     : // eslint-disable-next-line no-nested-ternary
     isInAccepted
     ? intl.formatMessage({ id: "planningAcceptedStageLabel" })
-    : // eslint-disable-next-line no-nested-ternary
-    isInBlocked
+    : isInBlocked
     ? intl.formatMessage({ id: "planningBlockedStageLabel" })
     : isInVerified
     ? intl.formatMessage({ id: "planningVerifiedStageLabel" })
-    : intl.formatMessage({ id: "planningNotDoingStageLabel" });
+    : isReadyFurtherWork
+    ? intl.formatMessage({ id: "planningFurtherWorkStageLabel" }) :
+          intl.formatMessage({ id: "planningNotDoingStageLabel" });
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -478,8 +480,13 @@ function PlanningInvestible(props) {
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
   }
-  const subtype = isInVoting ? IN_VOTING : isInAccepted ? IN_PROGRESS : isInReview ? IN_REVIEW :
-    isInBlocked ? IN_BLOCKED : isInNotDoing ? NOT_DOING : IN_VERIFIED;
+  const subtype = isInVoting ? IN_VOTING :
+    isInAccepted ? IN_PROGRESS :
+      isInReview ? IN_REVIEW :
+        isInBlocked ? IN_BLOCKED :
+          isInNotDoing ? NOT_DOING :
+            isReadyFurtherWork ? FURTHER_WORK :
+              IN_VERIFIED;
   function expansionChanged(event, expanded) {
     setChangeStagesExpanded(expanded);
   }

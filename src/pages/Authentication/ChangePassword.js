@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
 import { Auth } from 'aws-amplify';
+import Grid from '@material-ui/core/Grid';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
-import { Button, TextField, Typography } from '@material-ui/core';
+import { Button, TextField, Typography, makeStyles } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { toastError } from '../../utils/userMessage';
 import Screen from '../../containers/Screen/Screen';
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
+
+const useStyles = makeStyles((theme) => ({
+  name: {},
+  disabled: {
+    color: theme.palette.text.disabled,
+  },
+}));
 
 function ChangePassword(props) {
   const { hidden } = props;
@@ -55,42 +63,65 @@ function ChangePassword(props) {
       <Typography>
         {intl.formatMessage({ id: 'changePasswordHeader' })}
       </Typography>
-      <form
-        noValidate
-        autoComplete="off"
-      >
+      <Grid container spacing={3}>
+        <Grid item xs={4}>
+        <form
+          noValidate
+          autoComplete="off"
+        >
         <TextField
-          id="old"
+          variant="outlined"
+          margin="normal"
+          required
+          fullWidth
+          name="password"
           label={intl.formatMessage({ id: 'changePasswordOldLabel' })}
+          key="passwordold"
+          type="password"
+          id="old"
           onChange={handleChangeOld}
-          type="password"
-          margin="normal"
-        />
-        <br />
+          autoComplete="current-password"
+            />
         <TextField
-          id="new"
+          variant="outlined"
+          margin="normal"
+          required
+          fullWidth
+          name="password"
           label={intl.formatMessage({ id: 'changePasswordNewLabel' })}
+          key="passwordnew"
+          type="password"
+          id="new"
           onChange={handleChangeNew}
-          type="password"
-          margin="normal"
-        />
-        <br />
+          autoComplete="current-password"
+            />
         <TextField
-          id="repeat"
-          label={intl.formatMessage({ id: 'changePasswordRepeatLabel' })}
-          onChange={handleChangeRepeat}
-          error={repeatPassword && newPassword !== repeatPassword}
-          type="password"
+          variant="outlined"
           margin="normal"
-        />
-      </form>
+          required
+          fullWidth
+          name="password"
+          label={intl.formatMessage({ id: 'changePasswordRepeatLabel' })}
+          key="passwordrepeat"
+          type="password"
+          error={repeatPassword && newPassword !== repeatPassword}
+          id="repeat"
+          onChange={handleChangeRepeat}
+          autoComplete="current-password"
+            />
+        </form>
       <Button
+        variant="outlined"
+        fullWidth={true}
+        color="primary"
         onClick={onSetNewPassword}
         disabled={_.isEmpty(oldPassword) || _.isEmpty(newPassword)
         || newPassword === repeatPassword}
       >
         {intl.formatMessage({ id: 'changePasswordButton' })}
       </Button>
+        </Grid>
+      </Grid>
     </Screen>
   );
 }

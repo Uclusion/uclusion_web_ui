@@ -1,12 +1,11 @@
 import React, { useState, useContext } from 'react';
 import _ from 'lodash';
 import {
-  Avatar, makeStyles, Typography,
+  Avatar, makeStyles, Typography, Menu
 } from '@material-ui/core';
 import { useHistory } from 'react-router';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useIntl } from 'react-intl';
-import Popover from '@material-ui/core/Popover';
 import Chip from '@material-ui/core/Chip';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import SignOut from '../../pages/Authentication/SignOut';
@@ -50,49 +49,54 @@ function Identity () {
         label={chipLabel}
         onClick={recordPositionToggle}
       />
-      <Popover
+      <Menu
         id="profile-menu"
         open={!!anchorEl}
         onClose={() => setAnchorEl(null)}
+        getContentAnchorEl={null}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
         }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
         anchorEl={anchorEl}
         disableRestoreFocus
       >
-        <MenuItem
-          onClick={goTo('/support')}
-        >
-          <Typography className={classes.name}>
-            {intl.formatMessage({ id: 'support' })}
-          </Typography>
-        </MenuItem>
-        <MenuItem
-          onClick={goTo('/notificationPreferences')}
-        >
-          <Typography className={classes.name}>
-            {intl.formatMessage({ id: 'changePreferencesHeader' })}
-          </Typography>
-        </MenuItem>
-        <MenuItem
-          onClick={goTo('/changePassword')}
-        >
-          <Typography className={classes.name}>
-            {intl.formatMessage({ id: 'changePasswordHeader' })}
-          </Typography>
-        </MenuItem>
-        <MenuItem
-          onClick={goTo('/billing')}
-        >
-          <Typography className={classes.name}>
-            {intl.formatMessage({ id: 'billingMenuItem' })}
-          </Typography>
-        </MenuItem>
-        <MenuItem>
-          <SignOut/>
-        </MenuItem>
-      </Popover>
+          <MenuItem
+            onClick={goTo('/support')}
+          >
+            <Typography className={classes.name}>
+              {intl.formatMessage({ id: 'support' })}
+            </Typography>
+          </MenuItem>
+          <MenuItem
+            onClick={goTo('/notificationPreferences')}
+          >
+            <Typography className={classes.name}>
+              {intl.formatMessage({ id: 'changePreferencesHeader' })}
+            </Typography>
+          </MenuItem>
+          <MenuItem
+            onClick={goTo('/changePassword')}
+          >
+            <Typography className={classes.name}>
+              {intl.formatMessage({ id: 'changePasswordHeader' })}
+            </Typography>
+          </MenuItem>
+          <MenuItem
+            onClick={goTo('/billing')}
+          >
+            <Typography className={classes.name}>
+              {intl.formatMessage({ id: 'billingMenuItem' })}
+            </Typography>
+          </MenuItem>
+          <MenuItem>
+            <SignOut/>
+          </MenuItem>
+      </Menu>
     </div>
   );
 }

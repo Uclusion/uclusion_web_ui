@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import {
-  Paper, Typography, Button, makeStyles, Link,
+  Paper, Typography, Button, makeStyles, Link, Grid
 } from '@material-ui/core';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Screen from '../../containers/Screen/Screen';
@@ -37,8 +37,7 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 140,
   },
   embed: {
-    marginRight: 3,
-    whiteSpace: 'nowrap',
+    marginRight: 3
   },
   value: {
     //
@@ -76,38 +75,54 @@ function Support(props) {
       breadCrumbs={breadCrumbs}
       loading={!externalId}
     >
-      <div className={classes.root}>
-        <Paper className={classes.section}>
-          <Typography className={classes.row}>
-            <span className={classes.label}>{intl.formatMessage({ id: 'aboutApplicationVersionLabel' })}</span>
-            <span className={classes.value}>{version}</span>
-          </Typography>
-        </Paper>
-        <Paper className={classes.section}>
-          <Typography className={classes.row}>
-            <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserIdLabel' })}</span>
-            <span className={classes.value}>{externalId}</span>
-          </Typography>
-        </Paper>
-        <Paper className={classes.section}>
-          <Typography className={classes.embed}>
-            <FormattedMessage
-              id="supportInfoText"
-              values={{
-                a: (...chunks) => (
-                  <Link className={classes.embed} target="_blank" href="https://github.com/Uclusion/uclusion_customer_issues/issues">{chunks}</Link>
-                ),
-                b: (...chunks) => (
-                  <Link className={classes.embed} target="_blank" href="mailto:support@uclusion.com">{chunks}</Link>
-                ),
-              }}
-            />
-          </Typography>
-        </Paper>
-        <FeatureRequest />
+      <Grid container className={classes.root} direction="column" spacing={3}>
+        <Grid item xs={5}>
+          <Paper className={classes.section}>
+            <Typography className={classes.row}>
+              <span className={classes.label}>{intl.formatMessage({ id: 'aboutApplicationVersionLabel' })}</span>
+              <span className={classes.value}>{version}</span>
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={5}>
+          <Paper className={classes.section}>
+            <Typography className={classes.row}>
+              <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserIdLabel' })}</span>
+              <span className={classes.value}>{externalId}</span>
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={5}>
+          <Paper className={classes.section}>
+            <Typography className={classes.embed}>
+              <FormattedMessage
+                id="supportInfoText"
+                values={{
+                  a: (...chunks) => (
+                    <Link className={classes.embed} target="_blank" href="https://github.com/Uclusion/uclusion_customer_issues/issues">{chunks}</Link>
+                  ),
+                  b: (...chunks) => (
+                    <Link className={classes.embed} target="_blank" href="mailto:support@uclusion.com">{chunks}</Link>
+                  ),
+                }}
+              />
+            </Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={5}>
+          <FeatureRequest />
+        </Grid>
         <br />
-        <Button onClick={clearUclusionLocalStorage}>{intl.formatMessage({ id: 'aboutClearStorageButton' })}</Button>
-      </div>
+        <Grid item xs={5}>
+          <Button 
+            variant="outlined"
+            fullWidth={true}
+            onClick={clearUclusionLocalStorage}
+          >
+            {intl.formatMessage({ id: 'aboutClearStorageButton' })}
+          </Button>
+        </Grid>
+      </Grid>
     </Screen>
   );
 }

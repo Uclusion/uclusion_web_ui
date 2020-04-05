@@ -48,6 +48,7 @@ function FeatureRequest() {
         color="primary"
         onClick={handleSave}
         onSpinStop={onDone}
+        fullWidth={true}
       >
         {intl.formatMessage({ id: 'createFeatureRequest' })}
       </SpinBlockingButton>

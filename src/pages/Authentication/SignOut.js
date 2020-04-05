@@ -18,6 +18,8 @@ function SignOut() {
 
   return (
     <Button
+      variant="text"
+      fullWidth={true}
       onClick={onSignOut}
     >
       {intl.formatMessage({ id: 'signOutButton' })}

@@ -404,8 +404,8 @@ const messages = defineMessages({
   decisionDialogsExtendDeadline: 'Extend Deadline',
   decisionDialogsDismissDialog: 'Dismiss',
   decisionDialogsRestoreDialog: 'Restore',
-  decisionDialogsBecomeObserver: 'Silence notifications',
-  decisionDialogsBecomeParticipant: 'Activate notifications',
+  decisionDialogsBecomeObserver: 'Silence notifications and move to archive',
+  decisionDialogsBecomeParticipant: 'Activate notifications and move from archive',
   decisionDialogsInviteParticipant: 'Invite Participant',
   decisionDialogsArchiveDialog: 'Deactivate',
 

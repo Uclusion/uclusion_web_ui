@@ -1,29 +1,18 @@
-import React, { useContext } from "react";
-import PropTypes from "prop-types";
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
-import {
-  Typography,
-  CardActions,
-  Card,
-  CardContent,
-  Divider,
-} from '@material-ui/core'
-import _ from "lodash";
-import { makeStyles } from "@material-ui/styles";
-import { MarketPresencesContext } from "../../../contexts/MarketPresencesContext/MarketPresencesContext";
+import { Card, CardActions, CardContent, Divider, Typography, } from '@material-ui/core'
+import _ from 'lodash'
+import { makeStyles } from '@material-ui/styles'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   getMarketPresences,
   marketHasOnlyCurrentUser
-} from "../../../contexts/MarketPresencesContext/marketPresencesHelper";
-import DialogActions from "../../Home/DialogActions";
-import DescriptionOrDiff from "../../../components/Descriptions/DescriptionOrDiff";
-import CardType, { AGILE_PLAN_TYPE } from "../../../components/CardType";
-import {
-  DaysEstimate,
-  MaxBudget,
-  VoteExpiration,
-  Votes
-} from "../../../components/AgilePlan";
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import DialogActions from '../../Home/DialogActions'
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
+import CardType, { AGILE_PLAN_TYPE } from '../../../components/CardType'
+import { DaysEstimate, MaxBudget, VoteExpiration, Votes } from '../../../components/AgilePlan'
 import ParentSummary from '../ParentSummary'
 import MarketLinks from '../MarketLinks'
 import clsx from 'clsx'
@@ -108,7 +97,6 @@ function Summary(props) {
           marketType={marketType}
           parentMarketId={parentMarketId}
           parentInvestibleId={parentInvestibleId}
-          inArchives={myPresence.market_hidden}
           marketId={id}
           initiativeId={investibleId}
         />

@@ -1,4 +1,4 @@
-import { addMarketPresence, patchInvestment } from './marketPresencesContextReducer';
+import { addMarketPresence, patchInvestment } from './marketPresencesContextReducer'
 
 export function addPresenceToMarket(dispatch, marketId, presence) {
   dispatch(addMarketPresence(marketId, presence));
@@ -33,13 +33,6 @@ function changeMyPresence(state, dispatch, marketId, newValues) {
     ...newValues
   };
   dispatch(addMarketPresence(marketId, newPresence));
-}
-
-export function changeMarketHidden(state, dispatch, marketId, hidden) {
-  const newValues = {
-    market_hidden: hidden
-  };
-  changeMyPresence(state, dispatch, marketId, newValues);
 }
 
 export function changeObserverStatus(state, dispatch, marketId, isObserver) {

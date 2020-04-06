@@ -51,7 +51,7 @@ function PlanningDialog(props) {
     myPresence
   } = props;
   const breadCrumbs =
-    myPresence && myPresence.market_hidden
+    myPresence && !myPresence.following
       ? makeArchiveBreadCrumbs(history)
       : makeBreadCrumbs(history);
 

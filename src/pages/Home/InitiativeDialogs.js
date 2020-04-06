@@ -1,27 +1,25 @@
-import React, { useContext } from 'react';
-import {
-  Grid, Typography, CardContent, CardActions, Link,
-} from '@material-ui/core';
-import _ from 'lodash';
-import { useHistory } from 'react-router';
-import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/styles';
-import { useIntl } from 'react-intl';
+import React, { useContext } from 'react'
+import { CardActions, CardContent, Grid, Link, Typography, } from '@material-ui/core'
+import _ from 'lodash'
+import { useHistory } from 'react-router'
+import PropTypes from 'prop-types'
+import { makeStyles } from '@material-ui/styles'
+import { useIntl } from 'react-intl'
 import {
   getMarketPresences,
   marketHasOnlyCurrentUser
-} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import RaisedCard from '../../components/Cards/RaisedCard';
-import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay';
-import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { getParticipantInfo } from '../../utils/userFunctions';
-import { ACTIVE_STAGE, INITIATIVE_TYPE } from '../../constants/markets';
-import DialogActions from './DialogActions';
-import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay';
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
+import RaisedCard from '../../components/Cards/RaisedCard'
+import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay'
+import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { getParticipantInfo } from '../../utils/userFunctions'
+import { ACTIVE_STAGE, INITIATIVE_TYPE } from '../../constants/markets'
+import DialogActions from './DialogActions'
+import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay'
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -147,7 +145,6 @@ function InitiativeDialogs(props) {
                 parentMarketId={parentMarketId}
                 parentInvestibleId={parentInvestibleId}
                 isAdmin
-                inArchives={myPresence.market_hidden}
                 isFollowing={myPresence.following}
                 initiativeId={baseInvestibleId}
               />

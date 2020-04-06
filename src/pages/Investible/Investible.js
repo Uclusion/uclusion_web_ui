@@ -1,25 +1,28 @@
-import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
-import { useHistory } from 'react-router';
-import _ from 'lodash';
-import Screen from '../../containers/Screen/Screen';
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import { useHistory } from 'react-router'
+import _ from 'lodash'
+import Screen from '../../containers/Screen/Screen'
 import {
-  makeBreadCrumbs,
+  decomposeMarketPath,
+  formInvestibleEditLink,
   formMarketLink,
-  decomposeMarketPath, navigate, makeArchiveBreadCrumbs, formInvestibleEditLink,
-} from '../../utils/marketIdPathFunctions';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import DecisionInvestible from './Decision/DecisionInvestible';
-import PlanningInvestible from './Planning/PlanningInvestible';
-import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
-import InitiativeInvestible from './Initiative/InitiativeInvestible';
+  makeArchiveBreadCrumbs,
+  makeBreadCrumbs,
+  navigate,
+} from '../../utils/marketIdPathFunctions'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import DecisionInvestible from './Decision/DecisionInvestible'
+import PlanningInvestible from './Planning/PlanningInvestible'
+import { ACTIVE_STAGE, DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import InitiativeInvestible from './Initiative/InitiativeInvestible'
 
 const emptyInvestible = { investible: { name: '', description: '' } };
 const emptyMarket = { name: '' };
@@ -55,9 +58,9 @@ function Investible(props) {
   const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || _.isEmpty(user));
   const isDecision = market && market.market_type === DECISION_TYPE;
   const isPlanning = market && market.market_type === PLANNING_TYPE;
-
+  const { market_stage: marketStage } = market;
   const isAdmin = myPresence && myPresence.is_admin;
-  const inArchives = myPresence && myPresence.market_hidden;
+  const inArchives = marketStage !== ACTIVE_STAGE || (myPresence && !myPresence.following);
   const breadCrumbs = inArchives ?
     makeArchiveBreadCrumbs(history, breadCrumbTemplates) :
     makeBreadCrumbs(history, breadCrumbTemplates);

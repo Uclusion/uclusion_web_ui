@@ -1,18 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import DismissMarketButton from './DismissMarketButton';
-import HideMarketButton from './HideMarketButton';
-import ShowMarketButton from './ShowMarketButton';
-import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
-import { makeStyles } from '@material-ui/core';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import { makeStyles } from '@material-ui/core'
 import {
   decomposeMarketPath,
-  formInvestibleEditLink, formInvestibleLink,
-  formMarketEditLink, formMarketLink,
+  formInvestibleEditLink,
+  formInvestibleLink,
+  formMarketEditLink,
+  formMarketLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router';
-import EditMarketButton from '../Dialog/EditMarketButton';
+import { useHistory } from 'react-router'
+import EditMarketButton from '../Dialog/EditMarketButton'
 import ChangeToObserverButton from '../Dialog/ChangeToObserverButton'
 import ChangeToParticipantButton from '../Dialog/ChangeToParticipantButton'
 
@@ -38,7 +37,6 @@ function DialogActions(props) {
     parentInvestibleId,
     isAdmin,
     isFollowing,
-    inArchives,
     initiativeId,
   } = props;
 
@@ -84,34 +82,14 @@ function DialogActions(props) {
     if (isAdmin) {
       if (marketStage === 'Active') {
         actions.push(
-          <DismissMarketButton key="archive" marketId={marketId} onClick={goHome}/>,
-        );
-        actions.push(
           <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction} />
         );
       }
-      if (!inArchives && (marketType === PLANNING_TYPE || marketStage !== 'Active')) {
-        actions.push(
-          <HideMarketButton key="leave" marketId={marketId} onClick={goHome}/>,
-        );
-      } else if (inArchives) {
-        actions.push(
-          <ShowMarketButton key="enter" marketId={marketId} onClick={goHome}/>,
-        );
-      }
-    } else if (!inArchives) {
-      actions.push(
-        <HideMarketButton key="leave" marketId={marketId} onClick={goHome}/>,
-      );
-    } else {
-      actions.push(
-        <ShowMarketButton key="enter" marketId={marketId} onClick={goHome}/>
-      );
     }
     if (marketStage === 'Active') {
       if (isFollowing) {
         actions.push(
-          <ChangeToObserverButton key="change-to-observer" marketId={marketId}/>,
+          <ChangeToObserverButton key="change-to-observer" marketId={marketId} onClick={goHome}/>,
         );
       } else {
         actions.push(
@@ -138,13 +116,11 @@ DialogActions.propTypes = {
   initiativeId: PropTypes.string,
   isAdmin: PropTypes.bool,
   isFollowing: PropTypes.bool,
-  inArchives: PropTypes.bool,
 };
 
 DialogActions.defaultProps = {
   isAdmin: false,
   isFollowing: true,
-  inArchives: false,
   initiativeId: '',
 };
 

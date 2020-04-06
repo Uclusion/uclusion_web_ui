@@ -101,7 +101,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
             }
             if (!existingMarkets || !existingMarkets.includes(marketId)) {
               pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
-              promise = promise.then(getMarketStages(marketId))
+              promise = promise.then(() => getMarketStages(marketId))
                 .then((stages) => {
                   return pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
                 });

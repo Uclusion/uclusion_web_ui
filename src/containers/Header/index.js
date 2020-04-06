@@ -1,30 +1,19 @@
-import React, { useContext, useRef } from 'react';
-import { useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import _ from 'lodash';
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Link,
-  Breadcrumbs,
-  IconButton,
-  Popper,
-  Paper, Tooltip,
-} from '@material-ui/core'
-import MenuOpenIcon from '@material-ui/icons/MenuOpen';
-import { makeStyles } from '@material-ui/styles';
-import { SidebarContext } from '../../contexts/SidebarContext';
-import { createTitle } from '../../utils/marketIdPathFunctions';
-import {
-  DRAWER_WIDTH_CLOSED,
-  DRAWER_WIDTH_OPENED,
-} from '../../constants/global';
-import { OnlineStateContext } from '../../contexts/OnlineStateContext';
-import Identity from '../Screen/Identity';
-import SearchBox from '../../components/Search/SearchBox';
-import SearchResults from '../../components/Search/SearchResults';
+import React, { useContext, useRef } from 'react'
+import { useIntl } from 'react-intl'
+import PropTypes from 'prop-types'
+import clsx from 'clsx'
+import _ from 'lodash'
+import { AppBar, Breadcrumbs, IconButton, Link, Paper, Popper, Toolbar, Tooltip, Typography, } from '@material-ui/core'
+import MenuOpenIcon from '@material-ui/icons/MenuOpen'
+import { makeStyles } from '@material-ui/styles'
+import { SidebarContext } from '../../contexts/SidebarContext'
+import { createTitle } from '../../utils/marketIdPathFunctions'
+import { DRAWER_WIDTH_CLOSED, DRAWER_WIDTH_OPENED, } from '../../constants/global'
+import { OnlineStateContext } from '../../contexts/OnlineStateContext'
+import Identity from '../Screen/Identity'
+import SearchBox from '../../components/Search/SearchBox'
+import SearchResults from '../../components/Search/SearchResults'
+import Notifications from '../../components/Notifications/Notifications'
 
 const useStyles = makeStyles((theme) => {
   const BREADCRUMBS_HEIGHT = 67;
@@ -83,8 +72,18 @@ const useStyles = makeStyles((theme) => {
       background: '#DFE5E7',
     },
     searchBox: {
-      marginRight: '5px',
-    }
+      marginRight: '15px',
+    },
+    notification: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '54px',
+      height: '54px',
+      borderRadius: '50%',
+      background: '#fff',
+      boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+    },
   };
 });
 
@@ -176,6 +175,11 @@ function Header(props) {
           {generateTitle()}
           {toolbarButtons}
           <div className={classes.grow} />
+          <div id="notifications" className={classes.searchBox}>
+            <div  className={classes.notification}>
+              <Notifications />
+            </div>
+          </div>
           <div className={classes.searchBox}>
             <SearchBox/>
           </div>

@@ -31,21 +31,23 @@ const WebSocketContext = React.createContext([
 
 export const LAST_LOGIN_APP_VERSION = 'login_version';
 
-export function notifyNewApplicationVersion(currentVersion, cacheClear) {
+export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
   const { version } = config;
-  // if we don't have any version stored, we're either in dev, or we've dumped our data;
-  if (cacheClear) {
-    const loginVersion = getLoginPersistentItem(LAST_LOGIN_APP_VERSION);
-    if (loginVersion !== version && !currentVersion.includes('fake')) {
-      const reloader = () => {
-        Auth.signOut().then(() => setLoginPersistentItem(LAST_LOGIN_APP_VERSION, version))
-          .catch((error) => {
-            console.error(error);
-            toastError('errorSignOutFailed');
-          });
-      }
-      sendInfoPersistent({ id: 'noticeVersionForceLogout' }, {}, reloader);
+  let loginVersion = getLoginPersistentItem(LAST_LOGIN_APP_VERSION);
+  if (!loginVersion) {
+    // if we don't have any login version stored then initialize for fresh install
+    setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion);
+    loginVersion = cacheClearVersion;
+  }
+  if (loginVersion < cacheClearVersion) {
+    const reloader = () => {
+      Auth.signOut().then(() => setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion))
+        .catch((error) => {
+          console.error(error);
+          toastError('errorSignOutFailed');
+        });
     }
+    sendInfoPersistent({ id: 'noticeVersionForceLogout' }, {}, reloader);
   } else if (currentVersion !== version && !currentVersion.includes('fake')) {
     // deprecated, but the simplest way to ignore cache
     const reloader = () => {
@@ -81,8 +83,8 @@ function WebSocketProvider(props) {
     newSocket.connect();
     // we also want to always be subscribed to new app versions
     newSocket.registerHandler('UI_UPDATE_REQUIRED', (message) => {
-      const { app_version: appVersion, requires_cache_clear: cacheClear } = message;
-      notifyNewApplicationVersion(appVersion, cacheClear);
+      const { app_version: appVersion, cache_clear_version: cacheClearVersion } = message;
+      notifyNewApplicationVersion(appVersion, cacheClearVersion);
     });
 
     newSocket.registerHandler('pong', () => {

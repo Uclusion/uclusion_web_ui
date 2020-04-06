@@ -1,7 +1,7 @@
-import uclusion from 'uclusion_sdk';
-import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher';
-import config from '../config';
-import { notifyNewApplicationVersion } from '../contexts/WebSocketContext';
+import uclusion from 'uclusion_sdk'
+import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher'
+import config from '../config'
+import { notifyNewApplicationVersion } from '../contexts/WebSocketContext'
 
 function getSummaryInfo() {
   return new AmpifyIdentitySource().getIdentity()
@@ -27,8 +27,8 @@ export function getNotifications() {
           // For now notify here, and just pass it all along unmodified
           const appAuditVersion = notifications.find((versionRow) => versionRow.type_object_id === 'app_version');
           if (appAuditVersion) {
-            const { app_version: appVersion, requires_cache_clear: cacheClear } = appAuditVersion;
-            notifyNewApplicationVersion(appVersion, cacheClear);
+            const { app_version: appVersion, cache_clear_version: cacheClearVersion } = appAuditVersion;
+            notifyNewApplicationVersion(appVersion, cacheClearVersion);
           }
           return notifications;
         });

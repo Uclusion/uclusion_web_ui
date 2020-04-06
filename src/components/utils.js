@@ -26,7 +26,7 @@ export function getUclusionLocalStorageItem(key) {
 
 export function clearUclusionLocalStorage() {
   localStorage.setItem(ROOT, '');
-  localforage.clear().then(() => {
+  return localforage.clear().then(() => {
     console.info('Reloading after clearing cache');
     window.location.reload(true);
   }).catch((error) => toastErrorAndThrow(error, 'errorClearFailed'));

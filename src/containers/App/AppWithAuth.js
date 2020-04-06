@@ -88,10 +88,8 @@ function AppWithAuth(props) {
         setUclusionLocalStorageItem('userName', username);
         break;
       case 'signOut':
-        clearUclusionLocalStorage();
-        new TokenStorageManager().clearTokenStorage();
-        // If we don't dump the in memory data it will just get written to the disk again
-        window.location.reload(true);
+        return new TokenStorageManager().clearTokenStorage()
+          .then(clearUclusionLocalStorage);
         break;
       default:
         // ignore

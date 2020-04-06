@@ -101,7 +101,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
             }
             if (!existingMarkets || !existingMarkets.includes(marketId)) {
               pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
-              promise = promise.then(() => getMarketStages(marketId))
+              promise = promise.then(getMarketStages(marketId))
                 .then((stages) => {
                   return pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
                 });
@@ -129,23 +129,20 @@ function doRefreshMarket (marketId, componentSignatures, marketUser) {
   }
   // So far only three kinds of deletion supported by UI so handle them below as special cases
   if (!_.isEmpty(comments)) {
-    const newPromise = fetchMarketComments(marketId, comments);
-    chain = chain? chain.then(newPromise) : newPromise;
+    chain = chain? chain.then(() => fetchMarketComments(marketId, comments)) : fetchMarketComments(marketId, comments);
   } else if (componentSignatures.find((signature) => signature.type === 'comment')) {
     // We are not keeping zero version around anymore so handle the rare case of last comment deleted
     pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId, comments: [] });
   }
   if (!_.isEmpty(investibles)) {
-    const newPromise =  fetchMarketInvestibles(marketId, investibles);
-    chain = chain? chain.then(newPromise) : newPromise;
+    chain = chain? chain.then(() => fetchMarketInvestibles(marketId, investibles)) : fetchMarketInvestibles(marketId, investibles);
   } else if (componentSignatures.find((signature) => signature.type === 'market_investible')) {
     // We are not keeping zero version around anymore so handle the rare case of last investible deleted
     pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId, investibles: [] });
   }
   if (!_.isEmpty(marketPresences) || componentSignatures.find((signature) => signature.type === 'investment')) {
-    const newPromise = fetchMarketPresences(marketId, marketPresences || [], marketUser);
     // Handle the case of the last investment being deleted by just refreshing users
-    chain = chain? chain.then(newPromise): chain;
+    chain = chain? chain.then(() => fetchMarketPresences(marketId, marketPresences || [], marketUser)): fetchMarketPresences(marketId, marketPresences || [], marketUser);
   }
   return chain;
 }

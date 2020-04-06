@@ -1,26 +1,30 @@
-import _ from 'lodash';
-import { pushMessage } from '../utils/MessageBusUtils';
-import { getVersions } from './summaries';
-import { getMarketDetails, getMarketStages, getMarketUsers } from './markets';
-import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils';
+import _ from 'lodash'
+import { pushMessage } from '../utils/MessageBusUtils'
+import { getVersions } from './summaries'
+import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
+import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils'
 import {
   PUSH_COMMENTS_CHANNEL,
-  PUSH_CONTEXT_CHANNEL, PUSH_INVESTIBLES_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
+  PUSH_CONTEXT_CHANNEL,
+  PUSH_INVESTIBLES_CHANNEL,
+  PUSH_PRESENCE_CHANNEL,
+  PUSH_STAGE_CHANNEL,
   VERSIONS_EVENT
-} from '../contexts/VersionsContext/versionsContextHelper';
-import { fetchComments } from './comments';
-import { fetchInvestibles } from './marketInvestibles';
-import { AllSequentialMap } from '../utils/PromiseUtils';
-import { startTimerChain } from '../utils/timerUtils';
-import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext';
-import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages';
+} from '../contexts/VersionsContext/versionsContextHelper'
+import { fetchComments } from './comments'
+import { fetchInvestibles } from './marketInvestibles'
+import { AllSequentialMap } from '../utils/PromiseUtils'
+import { startTimerChain } from '../utils/timerUtils'
+import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext'
+import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages'
 import {
   OPERATION_HUB_CHANNEL,
-  START_OPERATION, STOP_OPERATION
-} from '../contexts/OperationInProgressContext/operationInProgressMessages';
-import config from '../config';
-import LocalForageHelper from '../utils/LocalForageHelper';
-import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext';
+  START_OPERATION,
+  STOP_OPERATION
+} from '../contexts/OperationInProgressContext/operationInProgressMessages'
+import config from '../config'
+import LocalForageHelper from '../utils/LocalForageHelper'
+import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext'
 import { getMyUserForMarket } from '../contexts/MarketsContext/marketsContextHelper'
 
 const MAX_RETRIES = 10;
@@ -68,7 +72,8 @@ export function refreshGlobalVersion (currentHeldVersion, existingMarkets) {
  */
 export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   let newGlobalVersion = currentHeldVersion;
-  const globalLockEnabled = config.globalLockEnabled === 'true' || currentHeldVersion === 'INITIALIZATION';
+  const globalLockEnabled = config.globalLockEnabled === 'true' || !currentHeldVersion
+    || currentHeldVersion === 'INITIALIZATION';
   if (globalLockEnabled) {
     pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
   }
@@ -114,6 +119,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
 }
 
 function doRefreshMarket (marketId, componentSignatures, marketUser) {
+  console.debug(`Refreshing market ${marketId}`);
   const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   // console.log(fetchSignatures);
   const { markets, comments, marketPresences, investibles } = fetchSignatures;

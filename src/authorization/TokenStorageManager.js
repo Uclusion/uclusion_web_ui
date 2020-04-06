@@ -2,45 +2,22 @@ import jwt_decode from 'jwt-decode';
 import LocalForageHelper from '../utils/LocalForageHelper';
 import _ from 'lodash';
 import { getTokenSecondsRemaining } from './tokenUtils';
-
-const TOKEN_STORAGE_NAMESPACE = 'TOKEN_STORAGE_MANAGER';
+import localforage from 'localforage';
+const TOKEN_STORAGE_KEYSPACE = 'TOKEN_STORAGE_MANAGER';
 export const TOKEN_TYPE_MARKET = 'MARKET';
 export const TOKEN_TYPE_ACCOUNT = 'ACCOUNT';
 
 class TokenStorageManager {
 
-  getEmptyStorage () {
-    return {
-      [TOKEN_TYPE_MARKET]: {},
-      [TOKEN_TYPE_ACCOUNT]: {},
-    };
-  }
-
-  getTokenStorage () {
-    return new LocalForageHelper(TOKEN_STORAGE_NAMESPACE)
-      .getState()
-      .then((state) => {
-        if (!state) {
-          return this.getEmptyStorage();
-        }
-        return state;
-      });
-  }
-
-  /**
-   * Loads the provided storage into the token storage system
-   * @param newStorage
-   */
-  putTokenStorage (newStorage) {
-    return new LocalForageHelper(TOKEN_STORAGE_NAMESPACE)
-      .setState(newStorage);
+  getKeyNamespace(tokenType, tokenId) {
+    return `${tokenType}_${tokenId}`
   }
 
   /**
    * Clears the entirety of token storage
    */
   clearTokenStorage () {
-    return this.putTokenStorage(this.getEmptyStorage());
+    return localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE}).clear();
   }
 
   /**
@@ -49,11 +26,8 @@ class TokenStorageManager {
    * @param itemId the id of the item we're removing
    */
   removeToken (tokenType, itemId) {
-    return this.getTokenStorage()
-      .then((state) => {
-        delete state[tokenType][itemId];
-        return this.putTokenStorage(state);
-      });
+    return new LocalForageHelper(this.getKeyNamespace(tokenType, itemId), TOKEN_STORAGE_KEYSPACE)
+      .setState(undefined);
   }
 
   /**
@@ -63,9 +37,11 @@ class TokenStorageManager {
    * @param itemId the id of the item we want
    */
   getToken (tokenType, itemId) {
-    return this.getTokenStorage()
-      .then((state) => {
-        return state[tokenType][itemId];
+    return new LocalForageHelper(this.getKeyNamespace(tokenType, itemId), TOKEN_STORAGE_KEYSPACE)
+      .getState()
+      .catch((error) => {
+        console.error("Got error getting token");
+        console.error(error);
       });
   }
 
@@ -95,22 +71,8 @@ class TokenStorageManager {
    * @param token the token we want to store.
    */
   storeToken (tokenType, itemId, token) {
-    return this.getTokenStorage()
-      .then((state) => {
-        const existingToken = state[tokenType][itemId];
-
-        // // console.debug(existingToken);
-        // // console.debug(token);
-        // bail out if our existing token is newer
-        if (!_.isEmpty(existingToken)) {
-          const longestLife = this.getLongestLivingToken(token, existingToken);
-          if (longestLife === existingToken) {
-            return Promise.resolve(existingToken);
-          }
-        }
-        state[tokenType][itemId] = token;
-        return this.putTokenStorage(state);
-      });
+    return new LocalForageHelper(this.getKeyNamespace(tokenType, itemId), TOKEN_STORAGE_KEYSPACE)
+      .setState(token);
   }
 
   /**

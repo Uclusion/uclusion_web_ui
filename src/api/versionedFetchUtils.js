@@ -93,20 +93,20 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
           return AllSequentialMap(marketSignatures, (marketSignature) => {
             const { market_id: marketId, signatures: componentSignatures } = marketSignature;
             const marketUser = getMyUserForMarket(state || {}, marketId);
-            const promises = doRefreshMarket(marketId, componentSignatures, marketUser);
-            if (!_.isEmpty(promises)) {
+            let promise = doRefreshMarket(marketId, componentSignatures, marketUser);
+            if (!_.isEmpty(promise)) {
               // send a notification to the versions channel saying we have incoming stuff
               // for this market
               pushMessage(VERSIONS_HUB_CHANNEL, { event: MARKET_MESSAGE_EVENT, marketId });
             }
             if (!existingMarkets || !existingMarkets.includes(marketId)) {
               pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
-              promises.push(getMarketStages(marketId)
+              promise = promise.then(() => getMarketStages(marketId))
                 .then((stages) => {
                   return pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
-                }));
+                });
             }
-            return Promise.all(promises);
+            return promise;
           });
         });
     })
@@ -123,30 +123,31 @@ function doRefreshMarket (marketId, componentSignatures, marketUser) {
   const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   // console.log(fetchSignatures);
   const { markets, comments, marketPresences, investibles } = fetchSignatures;
-  const promises = [];
+  let chain = null;
   if (!_.isEmpty(markets)) {
-    promises.push(fetchMarketVersion(marketId, markets[0], marketUser)); // can only be one market object per market:)
+    chain = fetchMarketVersion(marketId, markets[0], marketUser); // can only be one market object per market:)
   }
   // So far only three kinds of deletion supported by UI so handle them below as special cases
   if (!_.isEmpty(comments)) {
-    promises.push(fetchMarketComments(marketId, comments));
+    const newPromise = fetchMarketComments(marketId, comments);
+    chain = chain? chain.then(newPromise) : newPromise;
   } else if (componentSignatures.find((signature) => signature.type === 'comment')) {
-    promises.push(Promise.resolve(true));
     // We are not keeping zero version around anymore so handle the rare case of last comment deleted
     pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId, comments: [] });
   }
   if (!_.isEmpty(investibles)) {
-    promises.push(fetchMarketInvestibles(marketId, investibles));
+    const newPromise =  fetchMarketInvestibles(marketId, investibles);
+    chain = chain? chain.then(newPromise) : newPromise;
   } else if (componentSignatures.find((signature) => signature.type === 'market_investible')) {
-    promises.push(Promise.resolve(true));
     // We are not keeping zero version around anymore so handle the rare case of last investible deleted
     pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId, investibles: [] });
   }
   if (!_.isEmpty(marketPresences) || componentSignatures.find((signature) => signature.type === 'investment')) {
+    const newPromise = fetchMarketPresences(marketId, marketPresences || [], marketUser);
     // Handle the case of the last investment being deleted by just refreshing users
-    promises.push(fetchMarketPresences(marketId, marketPresences || [], marketUser));
+    chain = chain? chain.then(newPromise): chain;
   }
-  return promises;
+  return chain;
 }
 
 function fetchMarketVersion (marketId, marketSignature, marketUser) {

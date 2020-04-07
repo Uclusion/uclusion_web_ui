@@ -154,7 +154,7 @@ function Header(props) {
         </Popper>
       )}
       <AppBar
-        position="relative"
+        position="fixed"
         className={clsx(classes.appBar, {
           [classes.appBarShift]: sidebarOpen,
           [classes.appBarUnShift]: !sidebarOpen,

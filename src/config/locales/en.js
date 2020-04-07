@@ -387,7 +387,7 @@ const messages = defineMessages({
   homeViewArchives: 'View Archive',
   homeViewAbout: 'About',
   homeCreatedAt: 'Created on {dateString}',
-  archiveWarning: 'Deactivating cannot be undone.',
+  archiveWarning: 'Archiving will unassign any active story and prevent further assignment.',
   new: 'New',
   information: 'Information',
   message: 'Message',

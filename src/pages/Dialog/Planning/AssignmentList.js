@@ -138,7 +138,7 @@ function AssignmentList(props) {
         && presenceAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
       return {
         ...presence,
-        assignable: !assigned,
+        assignable: !assigned && presence.following,
       };
     });
   }

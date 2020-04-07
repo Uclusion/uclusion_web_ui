@@ -1,23 +1,20 @@
-import React, { useContext } from 'react';
-import _ from 'lodash';
-import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
-import clsx from 'clsx';
-import { Container, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles';
-import { useHistory } from 'react-router';
-import { useIntl } from 'react-intl';
-import Header from '../Header';
-import Sidebar from '../Sidebar';
-import { SidebarContext } from '../../contexts/SidebarContext';
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import {
-  DRAWER_WIDTH_CLOSED,
-  DRAWER_WIDTH_OPENED,
-} from '../../constants/global';
-import { createTitle, makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
+import React, { useContext } from 'react'
+import _ from 'lodash'
+import PropTypes from 'prop-types'
+import { Helmet } from 'react-helmet'
+import clsx from 'clsx'
+import { Container, Typography } from '@material-ui/core'
+import { makeStyles } from '@material-ui/styles'
+import { useHistory } from 'react-router'
+import { useIntl } from 'react-intl'
+import Header from '../Header'
+import Sidebar from '../Sidebar'
+import { SidebarContext } from '../../contexts/SidebarContext'
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
+import { DRAWER_WIDTH_CLOSED, DRAWER_WIDTH_OPENED, } from '../../constants/global'
+import { createTitle, makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -29,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   },
   container: {
     background: '#efefef',
-    padding: '41px 20px 156px',
+    padding: '95px 20px 156px',
   },
   contentShift: {
     marginLeft: DRAWER_WIDTH_OPENED,

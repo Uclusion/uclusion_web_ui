@@ -25,7 +25,7 @@ import {
 import config from '../config'
 
 const MAX_RETRIES = 10;
-const MAX_CONCURRENT_API_CALLS = 3;
+const MAX_CONCURRENT_API_CALLS = 5;
 
 export class MatchError extends Error {
 

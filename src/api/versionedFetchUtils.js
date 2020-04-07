@@ -13,7 +13,7 @@ import {
 } from '../contexts/VersionsContext/versionsContextHelper'
 import { fetchComments } from './comments'
 import { fetchInvestibles } from './marketInvestibles'
-import { AllSequentialMap } from '../utils/PromiseUtils'
+import { LimitedParallelMap } from '../utils/PromiseUtils';
 import { startTimerChain } from '../utils/timerUtils'
 import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext'
 import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages'
@@ -25,6 +25,7 @@ import {
 import config from '../config'
 
 const MAX_RETRIES = 10;
+const MAX_CONCURRENT_API_CALLS = 3;
 
 export class MatchError extends Error {
 
@@ -83,7 +84,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
         return currentHeldVersion;
       }
       newGlobalVersion = global_version;
-      return AllSequentialMap(marketSignatures, (marketSignature) => {
+      return LimitedParallelMap(marketSignatures, (marketSignature) => {
         const { market_id: marketId, signatures: componentSignatures } = marketSignature;
         let promise = doRefreshMarket(marketId, componentSignatures);
         if (!_.isEmpty(promise)) {
@@ -99,7 +100,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
             });
         }
         return promise;
-      });
+      }, MAX_CONCURRENT_API_CALLS);
     })
     .then(() => {
       if (globalLockEnabled) {

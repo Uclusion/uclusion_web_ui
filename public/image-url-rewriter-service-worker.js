@@ -7,26 +7,21 @@ self.addEventListener('fetch', (event) => {
     const match = url.match(OUR_FILE_PATTERN);
     if (match) {
       const pathId = match[1]; // it's the first capturing group
-      const promise = self.localforage.getItem('TOKEN_STORAGE_MANAGER')
-        .then((tokens) => {
-          const marketTokens = tokens['MARKET'];
-          const accountTokens = tokens['ACCOUNT'];
-          let myToken = marketTokens[pathId];
-          // if we don't have a market token, fall back to an account
-          // as market creation uses account tokens for image uploads
-          if (!myToken) {
-            myToken = accountTokens['home_account']; // we'll try our home account
+      const marketKey = `MARKET_${pathId}`;
+      const homeAccountKey = 'ACCOUNT_home_account';
+      const promise = self.localforage.createInstance({ storeName: 'TOKEN_STORAGE_MANAGER' }).getItem(marketKey)
+        .then((token) => {
+          if (token) {
+            return token;
+          } else {
+            return self.localforage.createInstance({ storeName: 'TOKEN_STORAGE_MANAGER' }).getItem(homeAccountKey);
           }
-          // if we still don't have a token, bail
-          if (!myToken) {
-            throw "No authorization for image" + url;
-          }
+        }).then((token) => {
           const newUrl = new URL(url);
-          newUrl.searchParams.set('authorization', myToken);
+          newUrl.searchParams.set('authorization', token);
           return fetch(newUrl);
         });
       event.respondWith(promise);
     }
   }
-
 });

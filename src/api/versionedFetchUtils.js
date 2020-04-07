@@ -23,6 +23,8 @@ import {
   STOP_OPERATION
 } from '../contexts/OperationInProgressContext/operationInProgressMessages'
 import config from '../config'
+import LocalForageHelper from '../utils/LocalForageHelper';
+import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -39,20 +41,26 @@ export class MatchError extends Error {
 
 }
 
-/**
- *  Refreshes the global version switch retry. Does _not_ return a promise.
- *  Use if you want to fire and forget.
- * @param currentHeldVersion
- * @param existingMarkets
- */
-export function refreshGlobalVersion (currentHeldVersion, existingMarkets) {
+export function refreshGlobalVersion () {
   return addToVersionsPromiseChain(() => {
     // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
-    if (currentHeldVersion === 'FAKE') return Promise.resolve(false);
+
     return new Promise((resolve, reject) => {
       const execFunction = () => {
-        return doVersionRefresh(currentHeldVersion, existingMarkets)
-          .then((globalVersion) => {
+        const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
+        let currentHeldVersion;
+        return disk.getState()
+          .then((state) => {
+            const {
+              existingMarkets,
+              globalVersion,
+            } = state || {};
+            currentHeldVersion = globalVersion;
+            if (globalVersion === 'FAKE') {
+              return Promise.resolve(false);
+            }
+            return doVersionRefresh(currentHeldVersion, existingMarkets)
+          }).then((globalVersion) => {
             if (globalVersion !== currentHeldVersion) {
               // console.log('Got new version');
               pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });

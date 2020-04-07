@@ -49,26 +49,27 @@ export function refreshGlobalVersion (currentHeldVersion, existingMarkets) {
   return addToVersionsPromiseChain(() => {
     // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
     if (currentHeldVersion === 'FAKE') return Promise.resolve(false);
-    const execFunction = () => {
-      return doVersionRefresh(currentHeldVersion, existingMarkets)
-        .then((globalVersion) => {
-          if (globalVersion !== currentHeldVersion) {
-            // console.log('Got new version');
-            pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
-          }
-          return true;
-        }).catch((error) => {
-          // we'll log match problems, but raise the rest
-          if (error instanceof MatchError) {
-            console.error(error.message);
-            return false;
-          } else {
-            throw error;
-          }
-        });
-    };
-    startTimerChain(6000, MAX_RETRIES, execFunction);
-    return Promise.resolve((true));
+    return new Promise((resolve, reject) => {
+      const execFunction = () => {
+        return doVersionRefresh(currentHeldVersion, existingMarkets)
+          .then((globalVersion) => {
+            if (globalVersion !== currentHeldVersion) {
+              // console.log('Got new version');
+              pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
+            }
+            resolve(true);
+          }).catch((error) => {
+            // we'll log match problems, but raise the rest
+            if (error instanceof MatchError) {
+              console.error(error.message);
+              return false;
+            } else {
+              reject(error);
+            }
+          });
+      };
+      startTimerChain(6000, MAX_RETRIES, execFunction);
+    });
   });
 }
 

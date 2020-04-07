@@ -1,13 +1,11 @@
-import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import {
-  getAcceptedStage, getInReviewStage,
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { getAcceptedStage, getInReviewStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction';
+import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToNextVisibleStageActionButton(props) {
   const { marketId, currentStageId } = props;
@@ -23,6 +21,9 @@ function MoveToNextVisibleStageActionButton(props) {
     destinationExplanation = 'planningInvestibleInReviewExplanation';
   }
 
+  if (!destinationStage) {
+    return React.Fragment;
+  }
 
   return (
     <StageChangeAction

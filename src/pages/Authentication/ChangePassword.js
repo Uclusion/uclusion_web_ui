@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import _ from 'lodash';
-import { Auth } from 'aws-amplify';
-import Grid from '@material-ui/core/Grid';
-import PropTypes from 'prop-types';
-import { useHistory } from 'react-router';
-import { Button, TextField, Typography } from '@material-ui/core';
-import { useIntl } from 'react-intl';
-import { toastError } from '../../utils/userMessage';
-import Screen from '../../containers/Screen/Screen';
-import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
+import React, { useState } from 'react'
+import _ from 'lodash'
+import { Auth } from 'aws-amplify'
+import Grid from '@material-ui/core/Grid'
+import PropTypes from 'prop-types'
+import { useHistory } from 'react-router'
+import { Button, TextField, Typography } from '@material-ui/core'
+import { useIntl } from 'react-intl'
+import { toastError } from '../../utils/userMessage'
+import Screen from '../../containers/Screen/Screen'
+import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 
 function ChangePassword(props) {
   const { hidden } = props;

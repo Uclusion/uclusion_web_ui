@@ -1,14 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import { Drawer, Link, List } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles';
-import Notifications from '../../components/Notifications/Notifications';
-import { SidebarContext } from '../../contexts/SidebarContext';
-import { DRAWER_WIDTH_CLOSED, DRAWER_WIDTH_OPENED } from '../../constants/global';
-import { navigate } from '../../utils/marketIdPathFunctions';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import React, { useContext, useEffect, useState } from 'react'
+import { useHistory } from 'react-router'
+import PropTypes from 'prop-types'
+import clsx from 'clsx'
+import { Drawer, Link, List } from '@material-ui/core'
+import { makeStyles } from '@material-ui/styles'
+import { SidebarContext } from '../../contexts/SidebarContext'
+import { DRAWER_WIDTH_CLOSED, DRAWER_WIDTH_OPENED } from '../../constants/global'
+import { navigate } from '../../utils/marketIdPathFunctions'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles((theme) => ({
   sidebarOpen: {
@@ -49,23 +48,6 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: '0',
     paddingBottom: '0',
     backgroundColor: 'rgba(0,0,0,0.19)',
-  },
-  sidebarNotification: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    height: '100%',
-  },
-  notification: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '54px',
-    height: '54px',
-    borderRadius: '50%',
-    background: '#fff',
-    boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
   },
 }));
 
@@ -128,11 +110,6 @@ function Sidebar(props) {
           <List className={classes.sidebarContent}>
             {sidebarActions}
           </List>
-        </div>
-        <div id="notifications" className={classes.sidebarNotification}>
-          <div  className={classes.notification}>
-            <Notifications />
-          </div>
         </div>
       </div>
     );

@@ -1,10 +1,8 @@
 const OUR_FILE_PATTERN = /https\:\/\/\w+.cloudfront.net\/(\w{8}(-\w{4}){3}-\w{12})\/\w{8}(-\w{4}){3}-\w{12}.*/i;
 self.importScripts('localforage.min.js');
 self.addEventListener('fetch', (event) => {
-  console.log('Got new fetch');
   const { request } = event;
   const { method, url } = request;
-  console.log(method);
   if (method === 'GET') {
     const match = url.match(OUR_FILE_PATTERN);
     if (match) {

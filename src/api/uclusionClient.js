@@ -1,9 +1,8 @@
-import client from 'uclusion_sdk';
-import config from '../config/config';
-import TokenFetcher from '../authorization/TokenFetcher';
-import { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET } from '../authorization/TokenStorageManager';
-import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityTokenRefresher';
-
+import client from 'uclusion_sdk'
+import config from '../config/config'
+import TokenFetcher from '../authorization/TokenFetcher'
+import { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET } from '../authorization/TokenStorageManager'
+import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityTokenRefresher'
 
 export const getMarketClient = (marketId, isObserver) => {
   const ssoClient = client.constructSSOClient(config.api_configuration);

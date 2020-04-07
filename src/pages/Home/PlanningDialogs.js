@@ -1,29 +1,29 @@
-import React, { useContext } from 'react';
-import {
-  Grid, Typography, Card, CardContent, CardActions, Link,
-} from '@material-ui/core';
-import _ from 'lodash';
-import { useHistory } from 'react-router';
-import { makeStyles } from '@material-ui/styles';
-import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
+import React, { useContext } from 'react'
+import { Card, CardActions, CardContent, Grid, Link, Typography, } from '@material-ui/core'
+import _ from 'lodash'
+import { useHistory } from 'react-router'
+import { makeStyles } from '@material-ui/styles'
+import PropTypes from 'prop-types'
+import { useIntl } from 'react-intl'
 import {
   getMarketPresences,
   marketHasOnlyCurrentUser
-} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import RaisedCard from '../../components/Cards/RaisedCard';
-import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
+import RaisedCard from '../../components/Cards/RaisedCard'
+import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import {
-  getAcceptedStage, getBlockedStage, getInCurrentVotingStage,
+  getAcceptedStage,
+  getBlockedStage,
+  getInCurrentVotingStage,
   getInReviewStage,
-} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { getBudgetTotalsForUser } from '../../utils/userFunctions';
-import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import DialogActions from './DialogActions';
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getBudgetTotalsForUser } from '../../utils/userFunctions'
+import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import DialogActions from './DialogActions'
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -218,7 +218,6 @@ function PlanningDialogs(props) {
                 parentInvestibleId={parentInvestibleId}
                 isAdmin
                 isFollowing={myPresence.following}
-                inArchives={myPresence.market_hidden}
               />
             </CardActions>
           </RaisedCard>

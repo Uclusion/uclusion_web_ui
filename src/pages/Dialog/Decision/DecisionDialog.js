@@ -1,45 +1,46 @@
 /**
  * A component that renders a _decision_ dialog
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router'
 import { Card, CardContent, Divider, Grid, makeStyles, Typography } from '@material-ui/core'
-import _ from 'lodash';
-import AddIcon from '@material-ui/icons/Add';
+import _ from 'lodash'
+import AddIcon from '@material-ui/icons/Add'
 import {
   formMarketAddInvestibleLink,
+  makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate,
-  makeArchiveBreadCrumbs,
 } from '../../../utils/marketIdPathFunctions'
-import ProposedIdeas from './ProposedIdeas';
-import SubSection from '../../../containers/SubSection/SubSection';
-import CurrentVoting from './CurrentVoting';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
-import Screen from '../../../containers/Screen/Screen';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
-import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
-import { SECTION_TYPE_SECONDARY } from '../../../constants/global';
-import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
+import ProposedIdeas from './ProposedIdeas'
+import SubSection from '../../../containers/SubSection/SubSection'
+import CurrentVoting from './CurrentVoting'
+import CommentBox from '../../../containers/CommentBox/CommentBox'
+import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
+import Screen from '../../../containers/Screen/Screen'
+import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
+import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments'
+import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
+import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction'
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
-import UclusionTour from '../../../components/Tours/UclusionTour';
+import UclusionTour from '../../../components/Tours/UclusionTour'
 import {
   PURE_SIGNUP_ADD_DIALOG_OPTIONS,
-  PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS, PURE_SIGNUP_FAMILY_NAME
-} from '../../../components/Tours/pureSignupTours';
-import CardType from '../../../components/CardType';
-import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
-import clsx from 'clsx';
-import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
-import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay';
-import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible';
-import { Collaborators } from '../../Investible/Initiative/InitiativeInvestible';
-import DialogActions from '../../Home/DialogActions';
-import ParentSummary from '../ParentSummary';
-import CardActions from '@material-ui/core/CardActions';
+  PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS,
+  PURE_SIGNUP_FAMILY_NAME
+} from '../../../components/Tours/pureSignupTours'
+import CardType from '../../../components/CardType'
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
+import clsx from 'clsx'
+import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
+import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay'
+import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
+import { Collaborators } from '../../Investible/Initiative/InitiativeInvestible'
+import DialogActions from '../../Home/DialogActions'
+import ParentSummary from '../ParentSummary'
+import CardActions from '@material-ui/core/CardActions'
 
 const useStyles = makeStyles(
   theme => ({
@@ -89,7 +90,7 @@ function DecisionDialog(props) {
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
   const history = useHistory();
-  const breadCrumbs = (myPresence && myPresence.market_hidden)?
+  const breadCrumbs = (myPresence && !myPresence.following) ?
     makeArchiveBreadCrumbs(history) :
     makeBreadCrumbs(history);
   const investibleComments = comments.filter((comment) => comment.investible_id);
@@ -196,7 +197,6 @@ function DecisionDialog(props) {
             marketType={marketType}
             parentMarketId={parentMarketId}
             parentInvestibleId={parentInvestibleId}
-            inArchives={myPresence.market_hidden}
             marketId={marketId}
           />
         </CardActions>

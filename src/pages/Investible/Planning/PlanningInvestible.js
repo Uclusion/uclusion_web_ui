@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
@@ -25,6 +25,7 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import {
   getAcceptedStage,
   getBlockedStage,
+  getFurtherWorkStage,
   getInCurrentVotingStage,
   getInReviewStage,
   getNotDoingStage,
@@ -44,6 +45,7 @@ import EditMarketButton from '../../Dialog/EditMarketButton'
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
 import MarketLinks from '../../Dialog/MarketLinks'
 import CardType, {
+  FURTHER_WORK,
   IN_BLOCKED,
   IN_PROGRESS,
   IN_REVIEW,
@@ -67,6 +69,11 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import AddIcon from '@material-ui/icons/Add'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
+import ExpansionPanel from '@material-ui/core/ExpansionPanel'
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
+import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
 
 const useStyles = makeStyles(
   theme => ({
@@ -177,6 +184,8 @@ function PlanningInvestible(props) {
   const isInBlocked = inBlockedStage && stage === inBlockedStage.id;
   const inVerifiedStage = getVerifiedStage(marketStagesState, marketId);
   const isInVerified = inVerifiedStage && stage === inVerifiedStage.id;
+  const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId)
+  const isReadyFurtherWork = furtherWorkStage && stage === furtherWorkStage.id;
   const inCurrentVotingStage = getInCurrentVotingStage(
     marketStagesState,
     marketId
@@ -214,15 +223,17 @@ function PlanningInvestible(props) {
     : // eslint-disable-next-line no-nested-ternary
     isInAccepted
     ? intl.formatMessage({ id: "planningAcceptedStageLabel" })
-    : // eslint-disable-next-line no-nested-ternary
-    isInBlocked
+    : isInBlocked
     ? intl.formatMessage({ id: "planningBlockedStageLabel" })
     : isInVerified
     ? intl.formatMessage({ id: "planningVerifiedStageLabel" })
-    : intl.formatMessage({ id: "planningNotDoingStageLabel" });
+    : isReadyFurtherWork
+    ? intl.formatMessage({ id: "planningFurtherWorkStageLabel" }) :
+          intl.formatMessage({ id: "planningNotDoingStageLabel" });
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
+  const [changeStagesExpanded, setChangeStagesExpanded] = useState(false);
   if (!investibleId) {
     // we have no usable data;
     return <></>;
@@ -260,7 +271,6 @@ function PlanningInvestible(props) {
     const required = myRequired !== undefined ? myRequired : 1;
     return _.size(myInvested) >= required;
   }
-
   const enoughVotes = hasEnoughVotes(invested, votesRequired);
 
   function getSidebarActions() {
@@ -268,21 +278,55 @@ function PlanningInvestible(props) {
       return [];
     }
     const sidebarActions = [];
+    if (isInVoting || isInAccepted) {
+      if (!inlineMarketId && isAssigned ) {
+        sidebarActions.push(
+          <ExpandableSidebarAction
+            id="newOption"
+            key="newOption"
+            label={intl.formatMessage({ id: 'inlineAddExplanation' })}
+            onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentInvestibleId=${investibleId}`)}
+            icon={<AddIcon/>}
+            openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
+          />
+        );
+      }
+      else if (inlineMarketId) {
+        sidebarActions.push(
+          <ExpandableSidebarAction
+            id="newOption"
+            key="newOption"
+            label={intl.formatMessage({ id: 'inlineAddExplanation' })}
+            onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
+            icon={<AddIcon/>}
+            openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
+          />
+        );
+      }
+    }
+    if (!isInNotDoing) {
+      if (isAssigned) {
+        sidebarActions.push(<ExpandableSidebarAction
+          id="link"
+          key="link"
+          icon={<InsertLinkIcon/>}
+          label={intl.formatMessage({ id: "childDialogExplanation" })}
+          openLabel={intl.formatMessage({ id: 'planningInvestibleDecision' })}
+          onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
+        />)
+      }
+    }
+    return sidebarActions;
+  }
+
+  function getStageActions() {
+    if (!activeMarket) {
+      return [];
+    }
+    const stageActions = [];
     // you can only move stages besides not doing or verfied if you're assigned to it
     if (isAssigned) {
       if (isInVoting || isInAccepted) {
-        if (!inlineMarketId) {
-          sidebarActions.push(
-            <ExpandableSidebarAction
-              id="newOption"
-              key="newOption"
-              label={intl.formatMessage({ id: 'inlineAddExplanation' })}
-              onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentInvestibleId=${investibleId}`)}
-              icon={<AddIcon/>}
-              openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
-            />
-          );
-        }
         const nextStageId = isInVoting ? inAcceptedStage.id : inReviewStage.id;
         const assignedInNextStage = assignedInStage(
           investibles,
@@ -290,32 +334,35 @@ function PlanningInvestible(props) {
           nextStageId
         );
         if (isInAccepted || (enoughVotes && _.isEmpty(assignedInNextStage))) {
-          sidebarActions.push(
+          stageActions.push(
             <MoveToNextVisibleStageActionButton
               key="visible"
               investibleId={investibleId}
               marketId={marketId}
               currentStageId={stage}
+              isOpen={changeStagesExpanded}
             />
           );
         }
       }
       if (isInAccepted && _.isEmpty(assignedInStage(investibles, userId, inCurrentVotingStage.id))) {
-        sidebarActions.push(
+        stageActions.push(
           <MoveToVotingActionButton
             investibleId={investibleId}
             marketId={marketId}
             currentStageId={stage}
+            isOpen={changeStagesExpanded}
             key="voting"
           />
         );
       }
       if (isInReview && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id))) {
-        sidebarActions.push(
+        stageActions.push(
           <MoveToAcceptedActionButton
             investibleId={investibleId}
             marketId={marketId}
             currentStageId={stage}
+            isOpen={changeStagesExpanded}
             key="acceptedFromReview"
           />
         );
@@ -333,11 +380,12 @@ function PlanningInvestible(props) {
             inCurrentVotingStage.id
           );
           if (_.isEmpty(assignedInVotingStage)) {
-            sidebarActions.push(
+            stageActions.push(
               <MoveToVotingActionButton
                 investibleId={investibleId}
                 marketId={marketId}
                 currentStageId={stage}
+                isOpen={changeStagesExpanded}
                 key="voting"
               />
             );
@@ -350,20 +398,22 @@ function PlanningInvestible(props) {
               inAcceptedStage.id
             );
             if (_.isEmpty(assignedInAcceptedStage)) {
-              sidebarActions.push(
+              stageActions.push(
                 <MoveToAcceptedActionButton
                   investibleId={investibleId}
                   marketId={marketId}
                   currentStageId={stage}
+                  isOpen={changeStagesExpanded}
                   key="accepted"
                 />
               );
             }
-            sidebarActions.push(
+            stageActions.push(
               <MoveToInReviewActionButton
                 investibleId={investibleId}
                 marketId={marketId}
                 currentStageId={stage}
+                isOpen={changeStagesExpanded}
                 key="inreview"
               />
             );
@@ -371,49 +421,38 @@ function PlanningInvestible(props) {
         }
       }
     }
-    if (isInVoting || isInAccepted) {
-      if (inlineMarketId) {
-        sidebarActions.push(
-          <ExpandableSidebarAction
-            id="newOption"
-            key="newOption"
-            label={intl.formatMessage({ id: 'inlineAddExplanation' })}
-            onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
-            icon={<AddIcon/>}
-            openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
-          />
-        );
-      }
+    if (!isReadyFurtherWork && isAssigned && !isInVoting) {
+      stageActions.push(
+        <MoveToFurtherWorkActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+          currentStageId={stage}
+          isOpen={changeStagesExpanded}
+          key="furtherwork"
+        />
+      );
     }
     if (!isInVerified) {
-      sidebarActions.push(
+      stageActions.push(
         <MoveToVerifiedActionButton
           investibleId={investibleId}
           marketId={marketId}
           currentStageId={stage}
+          isOpen={changeStagesExpanded}
           key="verified"
         />
       );
     }
     if (!isInNotDoing) {
-      sidebarActions.push(<MoveToNotDoingActionButton
+      stageActions.push(<MoveToNotDoingActionButton
         investibleId={investibleId}
         marketId={marketId}
         currentStageId={stage}
+        isOpen={changeStagesExpanded}
         key="notdoing"
       />);
-      if (isAssigned) {
-        sidebarActions.push(<ExpandableSidebarAction
-          id="link"
-          key="link"
-          icon={<InsertLinkIcon/>}
-          label={intl.formatMessage({ id: "childDialogExplanation" })}
-          openLabel={intl.formatMessage({ id: 'planningInvestibleDecision' })}
-          onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
-        />)
-      }
     }
-    return sidebarActions;
+    return stageActions;
   }
 
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || [];
@@ -441,8 +480,16 @@ function PlanningInvestible(props) {
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
   }
-  const subtype = isInVoting ? IN_VOTING : isInAccepted ? IN_PROGRESS : isInReview ? IN_REVIEW :
-    isInBlocked ? IN_BLOCKED : isInNotDoing ? NOT_DOING : IN_VERIFIED;
+  const subtype = isInVoting ? IN_VOTING :
+    isInAccepted ? IN_PROGRESS :
+      isInReview ? IN_REVIEW :
+        isInBlocked ? IN_BLOCKED :
+          isInNotDoing ? NOT_DOING :
+            isReadyFurtherWork ? FURTHER_WORK :
+              IN_VERIFIED;
+  function expansionChanged(event, expanded) {
+    setChangeStagesExpanded(expanded);
+  }
   return (
     <Screen
       title={name}
@@ -516,6 +563,8 @@ function PlanningInvestible(props) {
             toggleAssign={toggleAssign}
             hidden={hidden}
             children={children || []}
+            stageActions={getStageActions()}
+            expansionChanged={expansionChanged}
           />
         </CardContent>
       </Card>
@@ -627,6 +676,7 @@ export const useMetaDataStyles = makeStyles(
         alignItems: "flex-start",
         display: "flex"
       },
+
       group: {
         backgroundColor: theme.palette.grey["300"],
         borderRadius: 6,
@@ -657,6 +707,13 @@ export const useMetaDataStyles = makeStyles(
           flexDirection: "row",
           fontWeight: "bold"
         }
+      },
+      expansionControl: {
+        backgroundColor: theme.palette.grey["300"],
+      },
+      fontControl: {
+        alignItems: "center",
+        fontWeight: "bold",
       },
       expirationProgress: {
         marginRight: theme.spacing(1)
@@ -691,6 +748,8 @@ function MarketMetaData(props) {
     toggleAssign,
     children,
     hidden,
+    stageActions,
+    expansionChanged,
   } = props;
 
   const classes = useMetaDataStyles();
@@ -742,6 +801,22 @@ function MarketMetaData(props) {
           </dd>
         </div>
       )}
+      <ExpansionPanel className={classes.expansionControl} onChange={expansionChanged}>
+        <ExpansionPanelSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="stages-content"
+          id="stages-header"
+        >
+          <div className={classes.fontControl}>
+            <FormattedMessage id="changeStage" />
+          </div>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails>
+          <div>
+            {stageActions}
+          </div>
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
       <MarketLinks links={children} hidden={hidden} />
     </dl>
   );
@@ -757,6 +832,8 @@ MarketMetaData.propTypes = {
   toggleAssign: PropTypes.func.isRequired,
   children: PropTypes.arrayOf(PropTypes.string).isRequired,
   hidden: PropTypes.bool.isRequired,
+  stageActions: PropTypes.object,
+  expansionChanged: PropTypes.func.isRequired,
 }
 
 function Assignments(props) {

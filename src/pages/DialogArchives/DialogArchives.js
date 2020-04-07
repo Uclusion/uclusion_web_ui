@@ -1,32 +1,28 @@
-import React, { useContext, useState } from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import Screen from '../../containers/Screen/Screen';
-import { useHistory } from 'react-router';
+import React, { useContext, useState } from 'react'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+import Screen from '../../containers/Screen/Screen'
+import { useHistory } from 'react-router'
 import {
   decomposeMarketPath,
   formMarketLink,
-  makeArchiveBreadCrumbs, makeBreadCrumbs,
-} from '../../utils/marketIdPathFunctions';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
-import {
-  getNotDoingStage,
-  getVerifiedStage
-} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import {
-  getMarketInvestibles,
-  getInvestiblesInStage
-} from '../../contexts/InvestibesContext/investiblesContextHelper';
-import SubSection from '../../containers/SubSection/SubSection';
-import { useIntl } from 'react-intl';
-import ArchiveInvestbiles from './ArchiveInvestibles';
-import { SECTION_TYPE_SECONDARY } from '../../constants/global';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences, getPresenceMap } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import AssigneeFilterDropdown from './AssigneeFilterDropdown';
+  makeArchiveBreadCrumbs,
+  makeBreadCrumbs,
+} from '../../utils/marketIdPathFunctions'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { getNotDoingStage, getVerifiedStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { getInvestiblesInStage, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import SubSection from '../../containers/SubSection/SubSection'
+import { useIntl } from 'react-intl'
+import ArchiveInvestbiles from './ArchiveInvestibles'
+import { SECTION_TYPE_SECONDARY } from '../../constants/global'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getMarketPresences, getPresenceMap } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import AssigneeFilterDropdown from './AssigneeFilterDropdown'
+import { ACTIVE_STAGE } from '../../constants/markets'
 
 function DialogArchives(props) {
   const { hidden } = props;
@@ -42,7 +38,6 @@ function DialogArchives(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || []
   const myPresence = marketPresences.find((presence) => presence.current_user);
-  const inArchives = myPresence && myPresence.market_hidden;
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
@@ -62,7 +57,8 @@ function DialogArchives(props) {
     return myInfo && myInfo.assigned.includes(assigneeFilter);
   });
 
-  const { name } = renderableMarket;
+  const { name, market_stage: marketStage } = renderableMarket;
+  const inArchives = marketStage !== ACTIVE_STAGE || (myPresence && !myPresence.following);
   const breadCrumbTemplates = [{ name, link: formMarketLink(marketId) }];
   const breadCrumbs = inArchives? makeArchiveBreadCrumbs(history, breadCrumbTemplates)
     : makeBreadCrumbs(history, breadCrumbTemplates);

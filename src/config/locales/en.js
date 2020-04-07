@@ -264,17 +264,20 @@ const messages = defineMessages({
   planningInvestibleNextStageAcceptedLabel: 'Move to In Progress',
   planningInvestibleNextStageInReviewLabel: 'Move to In Review',
   planningInvestibleMoveToVerifiedLabel: 'Move to Verified',
+  planningInvestibleMoveToFurtherWorkLabel: 'Move to Ready for Further Work',
   planningInvestibleMoveToNotDoingLabel: 'Move to Not Doing',
   planningInvestibleAcceptedExplanation: 'Move to in progress when you have enough votes and are ready to start',
   planningInvestibleInReviewExplanation: 'Move to in review when a story is done but you want feedback',
   planningInvestibleNotDoingExplanation: 'Move to not doing will unassign and archive the story',
   planningInvestibleVerifiedExplanation: 'Move to verified when you no longer anticipate further work on the story',
+  planningInvestibleFurtherWorkExplanation: 'Move to this stage when a handoff to another assignee is expected for this story',
   planningInvestibleVotingExplanation: 'Move to voting allows certainty and estimates to be re-collected',
   planningVotingStageLabel: 'Voting',
   planningAcceptedStageLabel: 'In Progress',
   planningBlockedStageLabel: 'Blocked',
   planningReviewStageLabel: 'In Review',
   planningVerifiedStageLabel: 'Verified',
+  planningFurtherWorkStageLabel: 'Ready for Further Work',
   planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'assigned',
   planningInvestibleDecision: 'Create Child Dialog',
@@ -350,6 +353,7 @@ const messages = defineMessages({
   // stages
   marketStageFollowTooltip: 'Subscribe',
   marketStageUnFollowTooltip: 'Unsubscribe',
+  changeStage: 'Change stage',
 
   // markets
   marketSelectDefault: 'Your Dialogs',
@@ -400,8 +404,8 @@ const messages = defineMessages({
   decisionDialogsExtendDeadline: 'Extend Deadline',
   decisionDialogsDismissDialog: 'Dismiss',
   decisionDialogsRestoreDialog: 'Restore',
-  decisionDialogsBecomeObserver: 'Silence notifications',
-  decisionDialogsBecomeParticipant: 'Activate notifications',
+  decisionDialogsBecomeObserver: 'Archive',
+  decisionDialogsBecomeParticipant: 'Activate notifications and move from archive',
   decisionDialogsInviteParticipant: 'Invite Participant',
   decisionDialogsArchiveDialog: 'Deactivate',
 
@@ -544,6 +548,7 @@ const messages = defineMessages({
   dialogArchivesNotDoingHeader: 'Not Doing',
   dialogArchivesVerifiedHeader: 'Verified',
   dialogArchivesLabel: 'Workspace Archive',
+  readyFurtherWorkHeader: 'Ready for Further Work',
 
   // SignIn
   signInEmailLabel: 'Email',

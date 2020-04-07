@@ -1,13 +1,12 @@
-import React, { useEffect, useState, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react'
 import reducer, {
   EMPTY_STATE,
   initializeVersionsAction,
   MY_STORED_EMPTY_STATE,
   VERSIONS_CONTEXT_NAMESPACE
 } from './versionsContextReducer'
-import beginListening from './versionsContextMessages';
-import LocalForageHelper from '../../utils/LocalForageHelper';
-import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
+import beginListening from './versionsContextMessages'
+import LocalForageHelper from '../../utils/LocalForageHelper'
 
 const VersionsContext = React.createContext(EMPTY_STATE);
 
@@ -29,8 +28,6 @@ function VersionsProvider(props) {
           // which lets the global version refresh know to turn on the global spin lock
           const myDiskState = diskState || MY_STORED_EMPTY_STATE;
           dispatch(initializeVersionsAction(myDiskState));
-          const { globalVersion, existingMarkets } = myDiskState;
-          refreshGlobalVersion(globalVersion, existingMarkets);
           setIsInitialization(false);
         });
     }

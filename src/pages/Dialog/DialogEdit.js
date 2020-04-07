@@ -1,27 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
-import PropTypes from 'prop-types';
-import { FormattedMessage, useIntl } from 'react-intl';
-import localforage from 'localforage';
-import Button from '@material-ui/core/Button';
-import { darken, makeStyles } from '@material-ui/core/styles';
-import LockedDialogTitleIcon from '@material-ui/icons/Lock';
-import clsx from 'clsx';
-import _ from 'lodash';
-import {
-  makeBreadCrumbs, decomposeMarketPath, formMarketLink, navigate,
-} from '../../utils/marketIdPathFunctions';
-import Screen from '../../containers/Screen/Screen';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { addMarketToStorage, getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
-import PlanningDialogEdit from './Planning/PlanningDialogEdit';
-import DecisionDialogEdit from './Decision/DecisionDialogEdit';
-import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../api/markets';
+import React, { useContext, useEffect, useState } from 'react'
+import { useHistory } from 'react-router'
+import PropTypes from 'prop-types'
+import { FormattedMessage, useIntl } from 'react-intl'
+import localforage from 'localforage'
+import Button from '@material-ui/core/Button'
+import { darken, makeStyles } from '@material-ui/core/styles'
+import LockedDialogTitleIcon from '@material-ui/icons/Lock'
+import clsx from 'clsx'
+import _ from 'lodash'
+import { decomposeMarketPath, formMarketLink, makeBreadCrumbs, navigate, } from '../../utils/marketIdPathFunctions'
+import Screen from '../../containers/Screen/Screen'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { addMarketToStorage, getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import PlanningDialogEdit from './Planning/PlanningDialogEdit'
+import DecisionDialogEdit from './Decision/DecisionDialogEdit'
+import { lockPlanningMarketForEdit, unlockPlanningMarketForEdit } from '../../api/markets'
 import { Dialog } from '../../components/Dialogs'
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { DiffContext } from '../../contexts/DiffContext/DiffContext';
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 
 export const useLockedDialogStyles = makeStyles(
   theme => {
@@ -104,10 +102,9 @@ function DialogEdit(props) {
   const [idLoaded, setIdLoaded] = useState(undefined);
   const [storedState, setStoredState] = useState(undefined);
   const [lockedMarketId, setLockedMarketId] = useState(undefined);
-  const user = getMyUserForMarket(marketsState, marketId) || {};
+  const userId = getMyUserForMarket(marketsState, marketId) || {};
   const locked = renderableMarket && renderableMarket.locked_by;
-  const userId = user.id;
-  const loading = !user.id || !marketType || idLoaded !== marketId;
+  const loading = !userId || !marketType || idLoaded !== marketId;
   const [lockFailed, setLockFailed] = useState(false);
   const someoneElseEditing = lockedBy && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);

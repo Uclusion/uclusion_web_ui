@@ -167,7 +167,6 @@ function InitiativeInvestible(props) {
             marketType={marketType}
             parentMarketId={parentMarketId}
             parentInvestibleId={parentInvestibleId}
-            inArchives={myPresence.market_hidden}
             isFollowing={myPresence.following}
             marketId={marketId}
             initiativeId={investibleId}

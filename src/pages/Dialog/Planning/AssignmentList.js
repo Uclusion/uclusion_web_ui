@@ -1,27 +1,20 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
+import React, { useContext, useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+import { Checkbox, List, ListItem, ListItemIcon, ListItemText, ListSubheader, makeStyles, } from '@material-ui/core'
+import { useIntl } from 'react-intl'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import {
-  Checkbox,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ListSubheader,
-  makeStyles,
-} from '@material-ui/core';
-import { useIntl } from 'react-intl';
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import {
-  getAcceptedStage, getBlockedStage,
+  getAcceptedStage,
+  getBlockedStage,
   getInCurrentVotingStage,
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 
 const BLOCKED_STATE = 'BLOCKED';
 const ACCEPTED_STATE = 'ACCEPTED';
@@ -57,7 +50,7 @@ function AssignmentList(props) {
   const assignedStage = getInCurrentVotingStage(marketStagesState, marketId);
   const blockedStage = getBlockedStage(marketStagesState, marketId);
   const [marketsState] = useContext(MarketsContext);
-  const user = getMyUserForMarket(marketsState, marketId) || {};
+  const userId = getMyUserForMarket(marketsState, marketId) || {};
 
   function getInvestibleState(investibleId, stageId) {
     if (stageId === blockedStage.id) {
@@ -112,10 +105,10 @@ function AssignmentList(props) {
       }), {});
     }
     const assignments = computeAssignments();
-    const userAssignments = assignments[user.id] || [];
+    const userAssignments = assignments[userId] || [];
     const assigned = userAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
     if (!assigned) {
-      return { [user.id]: true };
+      return { [userId]: true };
     }
     return {};
   }

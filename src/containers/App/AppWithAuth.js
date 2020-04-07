@@ -1,31 +1,28 @@
-import React, { useContext } from 'react';
-import Amplify from 'aws-amplify';
-import {
-  Authenticator, SignIn, SignUp, ForgotPassword, SignOut, Greetings,
-} from 'aws-amplify-react';
-import { IntlProvider } from 'react-intl';
-import { makeStyles } from '@material-ui/styles';
-import { useHistory } from 'react-router';
-import config from '../../config/config';
-import LogRocket from 'logrocket';
-import App from './App';
-import awsconfig from '../../config/amplify';
-import CustomSignIn from '../../authorization/CustomSignIn';
-import UclusionSignup from '../../pages/Authentication/Signup';
-import { LocaleContext } from '../../contexts/LocaleContext';
-import { getLocaleMessages } from '../../config/locales';
-import VerifyEmail from '../../pages/Authentication/VerifyEmail';
-import IntlGlobalProvider from '../../components/ContextHacks/IntlGlobalProvider';
-import UclusionForgotPassword from '../../pages/Authentication/ForgotPassword';
-import { registerListener } from '../../utils/MessageBusUtils';
-import { AUTH_HUB_CHANNEL } from '../../contexts/WebSocketContext';
-import TokenStorageManager from '../../authorization/TokenStorageManager';
+import React, { useContext } from 'react'
+import Amplify from 'aws-amplify'
+import { Authenticator, ForgotPassword, Greetings, SignIn, SignOut, SignUp, } from 'aws-amplify-react'
+import { IntlProvider } from 'react-intl'
+import { makeStyles } from '@material-ui/styles'
+import { useHistory } from 'react-router'
+import config from '../../config/config'
+import LogRocket from 'logrocket'
+import App from './App'
+import awsconfig from '../../config/amplify'
+import CustomSignIn from '../../authorization/CustomSignIn'
+import UclusionSignup from '../../pages/Authentication/Signup'
+import { LocaleContext } from '../../contexts/LocaleContext'
+import { getLocaleMessages } from '../../config/locales'
+import VerifyEmail from '../../pages/Authentication/VerifyEmail'
+import IntlGlobalProvider from '../../components/ContextHacks/IntlGlobalProvider'
+import UclusionForgotPassword from '../../pages/Authentication/ForgotPassword'
+import { registerListener } from '../../utils/MessageBusUtils'
+import { AUTH_HUB_CHANNEL } from '../../contexts/WebSocketContext'
+import TokenStorageManager from '../../authorization/TokenStorageManager'
 import {
   clearUclusionLocalStorage,
   getUclusionLocalStorageItem,
   setUclusionLocalStorageItem
-} from '../../components/utils';
-
+} from '../../components/utils'
 
 LogRocket.init(config.logRocketInstance)
 
@@ -88,11 +85,8 @@ function AppWithAuth(props) {
         setUclusionLocalStorageItem('userName', username);
         break;
       case 'signOut':
-        clearUclusionLocalStorage();
-        new TokenStorageManager().clearTokenStorage();
-        // If we don't dump the in memory data it will just get written to the disk again
-        window.location.reload(true);
-        break;
+        return new TokenStorageManager().clearTokenStorage()
+          .then(clearUclusionLocalStorage);
       default:
         // ignore
     }

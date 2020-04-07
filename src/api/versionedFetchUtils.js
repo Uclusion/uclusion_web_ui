@@ -25,7 +25,6 @@ import {
 import config from '../config'
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext'
-import { getMyUserForMarket } from '../contexts/MarketsContext/marketsContextHelper'
 
 const MAX_RETRIES = 10;
 
@@ -92,8 +91,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
           newGlobalVersion = global_version;
           return AllSequentialMap(marketSignatures, (marketSignature) => {
             const { market_id: marketId, signatures: componentSignatures } = marketSignature;
-            const marketUser = getMyUserForMarket(state || {}, marketId);
-            let promise = doRefreshMarket(marketId, componentSignatures, marketUser);
+            let promise = doRefreshMarket(marketId, componentSignatures);
             if (!_.isEmpty(promise)) {
               // send a notification to the versions channel saying we have incoming stuff
               // for this market
@@ -118,14 +116,14 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
     });
 }
 
-function doRefreshMarket (marketId, componentSignatures, marketUser) {
+function doRefreshMarket (marketId, componentSignatures) {
   console.debug(`Refreshing market ${marketId}`);
   const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   // console.log(fetchSignatures);
   const { markets, comments, marketPresences, investibles } = fetchSignatures;
   let chain = null;
   if (!_.isEmpty(markets)) {
-    chain = fetchMarketVersion(marketId, markets[0], marketUser); // can only be one market object per market:)
+    chain = fetchMarketVersion(marketId, markets[0]); // can only be one market object per market:)
   }
   // So far only three kinds of deletion supported by UI so handle them below as special cases
   if (!_.isEmpty(comments)) {
@@ -142,13 +140,13 @@ function doRefreshMarket (marketId, componentSignatures, marketUser) {
   }
   if (!_.isEmpty(marketPresences) || componentSignatures.find((signature) => signature.type === 'investment')) {
     // Handle the case of the last investment being deleted by just refreshing users
-    chain = chain? chain.then(() => fetchMarketPresences(marketId, marketPresences || [], marketUser)): fetchMarketPresences(marketId, marketPresences || [], marketUser);
+    chain = chain? chain.then(() => fetchMarketPresences(marketId, marketPresences || [])): fetchMarketPresences(marketId, marketPresences || []);
   }
   return chain;
 }
 
-function fetchMarketVersion (marketId, marketSignature, marketUser) {
-  return getMarketDetails(marketId, marketUser)
+function fetchMarketVersion (marketId, marketSignature) {
+  return getMarketDetails(marketId)
     .then((marketDetails) => {
       // console.log(marketDetails);
       const match = signatureMatcher([marketDetails], [marketSignature]);
@@ -184,8 +182,8 @@ function fetchMarketInvestibles (marketId, investiblesSignatures) {
     });
 }
 
-function fetchMarketPresences (marketId, mpSignatures, marketUser) {
-  return getMarketUsers(marketId, marketUser)
+function fetchMarketPresences (marketId, mpSignatures) {
+  return getMarketUsers(marketId)
     .then((users) => {
       const match = signatureMatcher(users, mpSignatures);
       pushMessage(PUSH_PRESENCE_CHANNEL, { event: VERSIONS_EVENT, marketId, users });

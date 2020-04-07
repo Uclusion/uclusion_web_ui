@@ -41,8 +41,7 @@ function Investible(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const [marketsState] = useContext(MarketsContext);
   const market = getMarket(marketsState, marketId) || emptyMarket;
-  const user = getMyUserForMarket(marketsState, marketId) || {};
-  const userId = user.id;
+  const userId = getMyUserForMarket(marketsState, marketId) || {};
   const [commentsState] = useContext(CommentsContext);
   const comments = getMarketComments(commentsState, marketId);
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
@@ -55,7 +54,7 @@ function Investible(props) {
   const { name } = investible;
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId), id: 'marketCrumb' }];
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || _.isEmpty(user));
+  const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || !userId);
   const isDecision = market && market.market_type === DECISION_TYPE;
   const isPlanning = market && market.market_type === PLANNING_TYPE;
   const { market_stage: marketStage } = market;

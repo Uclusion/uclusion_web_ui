@@ -1,42 +1,26 @@
-import React, { useContext, useEffect, useState } from "react";
-import {
-  FormattedDate,
-  FormattedMessage,
-  FormattedRelativeTime,
-  useIntl
-} from "react-intl";
-import PropTypes from "prop-types";
-import {
-  Button,
-  Box,
-  Card,
-  CardContent,
-  CardActions,
-  Typography
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/styles";
-import clsx from "clsx";
-import _ from "lodash";
-import ReadOnlyQuillEditor from "../TextEditors/ReadOnlyQuillEditor";
-import CommentAdd from "./CommentAdd";
-import { REPLY_TYPE } from "../../constants/comments";
-import { reopenComment, resolveComment } from '../../api/comments';
-import SpinBlockingButton from "../SpinBlocking/SpinBlockingButton";
-import { OperationInProgressContext } from "../../contexts/OperationInProgressContext/OperationInProgressContext";
-import { MarketPresencesContext } from "../../contexts/MarketPresencesContext/MarketPresencesContext";
-import { getMarketPresences } from "../../contexts/MarketPresencesContext/marketPresencesHelper";
-import CommentEdit from "./CommentEdit";
-import { MarketsContext } from "../../contexts/MarketsContext/MarketsContext";
-import { getMyUserForMarket } from "../../contexts/MarketsContext/marketsContextHelper";
-import {
-  EXPANDED, HIGHLIGHT_REMOVE,
-  HighlightedCommentContext
-} from '../../contexts/HighlightedCommentContext'
-import CardType from '../CardType';
-import { EMPTY_SPIN_RESULT } from '../../constants/global';
-import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-
+import React, { useContext, useEffect, useState } from 'react'
+import { FormattedDate, FormattedMessage, FormattedRelativeTime, useIntl } from 'react-intl'
+import PropTypes from 'prop-types'
+import { Box, Button, Card, CardActions, CardContent, Typography } from '@material-ui/core'
+import { makeStyles } from '@material-ui/styles'
+import clsx from 'clsx'
+import _ from 'lodash'
+import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
+import CommentAdd from './CommentAdd'
+import { REPLY_TYPE } from '../../constants/comments'
+import { reopenComment, resolveComment } from '../../api/comments'
+import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import CommentEdit from './CommentEdit'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { EXPANDED, HIGHLIGHT_REMOVE, HighlightedCommentContext } from '../../contexts/HighlightedCommentContext'
+import CardType from '../CardType'
+import { EMPTY_SPIN_RESULT } from '../../constants/global'
+import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 
 const enableEditing = true;
 
@@ -154,7 +138,7 @@ function Comment(props) {
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
   const [marketsState] = useContext(MarketsContext);
-  const user = getMyUserForMarket(marketsState, marketId) || {};
+  const userId = getMyUserForMarket(marketsState, marketId) || {};
   const replies = comments.filter(comment => comment.reply_id === id);
   const sortedReplies = _.sortBy(replies, "created_at");
   const [highlightedCommentState, highlightedCommentDispatch] = useContext(
@@ -236,7 +220,7 @@ function Comment(props) {
     return classes.container;
   }
 
-  const isEditable = user !== undefined && comment.created_by === user.id;
+  const isEditable = comment.created_by === userId;
 
   return (
     <React.Fragment>
@@ -332,7 +316,7 @@ function Comment(props) {
                 >
                   {intl.formatMessage({ id: "commentReplyLabel" })}
                 </Button>
-                {createdBy === user.id && (
+                {createdBy === userId && (
                   <Button
                     className={clsx(classes.action, classes.actionSecondary)}
                     color="primary"
@@ -490,8 +474,8 @@ function Reply(props) {
   const commenter = useCommenter(comment, presences) || unknownPresence;
 
   const [marketsState] = useContext(MarketsContext);
-  const user = getMyUserForMarket(marketsState, marketId) || {};
-  const isEditable = user !== undefined && comment.created_by === user.id;
+  const userId = getMyUserForMarket(marketsState, marketId) || {};
+  const isEditable = comment.created_by === userId;
 
   const classes = useReplyStyles();
 

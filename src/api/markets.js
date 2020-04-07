@@ -1,6 +1,6 @@
-import { getAccountClient, getMarketClient } from './uclusionClient';
-import { fixupItemForStorage } from '../contexts/ContextUtils';
-import { toastErrorAndThrow } from '../utils/userMessage';
+import { getAccountClient, getMarketClient } from './uclusionClient'
+import { fixupItemForStorage } from '../contexts/ContextUtils'
+import { toastErrorAndThrow } from '../utils/userMessage'
 
 function fixupMarketForStorage(market) {
   const itemFixed = fixupItemForStorage(market);
@@ -9,21 +9,15 @@ function fixupMarketForStorage(market) {
   };
 }
 
-export function getMarketDetails(marketId, marketUser) {
+export function getMarketDetails(marketId) {
   return getMarketClient(marketId)
     .then((client) => client.markets.get()
       .then((market) => fixupMarketForStorage(market))
       .then((market) => {
-        if (marketUser) {
-          return {
-            ...market,
-            currentUser: marketUser,
-          };
-        }
-        return client.users.get().then((user) => ({
+        return {
           ...market,
-          currentUser: user,
-        }));
+          currentUserId: market.current_user_id,
+        };
       }));
 }
 
@@ -131,24 +125,10 @@ export function unlockPlanningMarketForEdit(marketId) {
     .then((client) => client.markets.unlock())
 }
 
-export function getMarketUsers(marketId, marketUser) {
+export function getMarketUsers(marketId) {
   if (!marketId) {
     console.error('No marketId');
     throw new Error('NO MARKET ID');
   }
-  let globalClient;
-  return getMarketClient(marketId)
-    .then((client) => {
-      globalClient = client;
-      if (marketUser) {
-        return marketUser;
-      }
-      return client.users.get();
-    }).then((user) => globalClient.markets.listUsers()
-        .then((presences) => presences.map((presence) => {
-          if (presence.id === user.id) {
-            return { ...presence, current_user: true };
-          }
-          return presence;
-        })));
+  return getMarketClient(marketId).then((client) => client.markets.listUsers());
 }

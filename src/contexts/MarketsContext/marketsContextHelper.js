@@ -17,8 +17,8 @@ export function getMarket(state, marketId) {
 export function getMyUserForMarket(state, marketId) {
   const market = getMarket(state, marketId);
   if (market) {
-    const { currentUser } = market;
-    return currentUser;
+    const { currentUserId } = market;
+    return currentUserId;
   }
   return undefined;
 }

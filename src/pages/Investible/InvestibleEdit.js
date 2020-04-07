@@ -1,41 +1,35 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react'
 import { FormattedMessage, useIntl } from 'react-intl'
-import PropTypes from 'prop-types';
-import { useHistory } from 'react-router';
-import localforage from 'localforage';
-import _ from 'lodash';
+import PropTypes from 'prop-types'
+import { useHistory } from 'react-router'
+import localforage from 'localforage'
+import _ from 'lodash'
+import { lockInvestibleForEdit, realeaseInvestibleEditLock, } from '../../api/investibles'
 import {
-  lockInvestibleForEdit,
-  realeaseInvestibleEditLock,
-} from '../../api/investibles';
-import {
-  decomposeMarketPath, formInvestibleLink,
+  decomposeMarketPath,
+  formInvestibleLink,
   formMarketLink,
-  makeBreadCrumbs, navigate,
-} from '../../utils/marketIdPathFunctions';
-import {
-  getInvestible, refreshInvestibles,
-} from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import {
-  getMarket,
-  getMyUserForMarket,
-} from '../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import Screen from '../../containers/Screen/Screen';
-import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
-import DecisionInvestibleEdit from './Decision/DecisionInvestibleEdit';
-import PlanningInvestibleEdit from './Planning/PlanningInvestibleEdit';
-import InitiativeInvestibleEdit from './Initiative/InitiativeInvestibleEdit';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { DiffContext } from '../../contexts/DiffContext/DiffContext';
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import clsx from 'clsx';
-import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogEdit';
+  makeBreadCrumbs,
+  navigate,
+} from '../../utils/marketIdPathFunctions'
+import { getInvestible, refreshInvestibles, } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { getMarket, getMyUserForMarket, } from '../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import Screen from '../../containers/Screen/Screen'
+import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import DecisionInvestibleEdit from './Decision/DecisionInvestibleEdit'
+import PlanningInvestibleEdit from './Planning/PlanningInvestibleEdit'
+import InitiativeInvestibleEdit from './Initiative/InitiativeInvestibleEdit'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { DiffContext } from '../../contexts/DiffContext/DiffContext'
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
+import clsx from 'clsx'
+import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogEdit'
 import queryString from 'query-string'
-import { EMPTY_SPIN_RESULT } from '../../constants/global';
+import { EMPTY_SPIN_RESULT } from '../../constants/global'
 
 function InvestibleEdit (props) {
   const { hidden } = props;
@@ -52,8 +46,7 @@ function InvestibleEdit (props) {
   const inv = getInvestible(investiblesState, investibleId);
   const fullInvestible = inv || { investible: { name: '' } };
   const [marketsState] = useContext(MarketsContext);
-  const user = getMyUserForMarket(marketsState, marketId) || {};
-  const userId = user.id;
+  const userId = getMyUserForMarket(marketsState, marketId) || {};
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);

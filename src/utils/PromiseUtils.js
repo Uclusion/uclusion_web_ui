@@ -17,7 +17,7 @@ export function AllSequentialMap(sources, promiseGenerator) {
 }
 
 /**
- * Splits the sources into parallellThreads buckets,
+ * Splits the sources into parallelThreads buckets,
  * and executes each bucket sequentially, but all buckets in parallel
  * @param sources
  * @param parallelThreads

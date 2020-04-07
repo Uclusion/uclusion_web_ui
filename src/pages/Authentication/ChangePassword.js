@@ -4,17 +4,23 @@ import { Auth } from 'aws-amplify'
 import Grid from '@material-ui/core/Grid'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
-import { Button, TextField, Typography } from '@material-ui/core'
+import { Button, TextField, Typography, Card } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import { toastError } from '../../utils/userMessage'
 import Screen from '../../containers/Screen/Screen'
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
+import { Visibility, VisibilityOff } from '@material-ui/icons';
 
 function ChangePassword(props) {
   const { hidden } = props;
   const [oldPassword, setOldPassword] = useState(undefined);
   const [newPassword, setNewPassword] = useState(undefined);
   const [repeatPassword, setRepeatPassword] = useState(undefined);
+  const [oldOpen, setOldOpen] = useState(false)
+  const [newOpen, setNewOpen] = useState(false)
+  const [repeatOpen, setRepeatOpen] = useState(false)
   const intl = useIntl();
 
   function onSetNewPassword() {
@@ -53,66 +59,105 @@ function ChangePassword(props) {
       breadCrumbs={breadCrumbs}
       loading={!breadCrumbs}
     >
-      <Typography>
-        {intl.formatMessage({ id: 'changePasswordHeader' })}
-      </Typography>
       <Grid container spacing={3}>
         <Grid item xs={4}>
-        <form
-          noValidate
-          autoComplete="off"
-        >
-        <TextField
-          variant="outlined"
-          margin="normal"
-          required
-          fullWidth
-          name="password"
-          label={intl.formatMessage({ id: 'changePasswordOldLabel' })}
-          key="passwordold"
-          type="password"
-          id="old"
-          onChange={handleChangeOld}
-          autoComplete="current-password"
-            />
-        <TextField
-          variant="outlined"
-          margin="normal"
-          required
-          fullWidth
-          name="password"
-          label={intl.formatMessage({ id: 'changePasswordNewLabel' })}
-          key="passwordnew"
-          type="password"
-          id="new"
-          onChange={handleChangeNew}
-          autoComplete="current-password"
-            />
-        <TextField
-          variant="outlined"
-          margin="normal"
-          required
-          fullWidth
-          name="password"
-          label={intl.formatMessage({ id: 'changePasswordRepeatLabel' })}
-          key="passwordrepeat"
-          type="password"
-          error={repeatPassword && newPassword !== repeatPassword}
-          id="repeat"
-          onChange={handleChangeRepeat}
-          autoComplete="current-password"
-            />
-        </form>
-      <Button
-        variant="outlined"
-        fullWidth={true}
-        color="primary"
-        onClick={onSetNewPassword}
-        disabled={_.isEmpty(oldPassword) || _.isEmpty(newPassword)
-        || newPassword === repeatPassword}
-      >
-        {intl.formatMessage({ id: 'changePasswordButton' })}
-      </Button>
+          <Card style={{padding: '2rem'}}>
+            <Typography>
+              {intl.formatMessage({ id: 'changePasswordHeader' })}
+            </Typography>
+            <form
+              noValidate
+              autoComplete="off"
+            >
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label={intl.formatMessage({ id: 'changePasswordOldLabel' })}
+              key="passwordold"
+              type={oldOpen? 'text': 'password'}
+              id="old"
+              onChange={handleChangeOld}
+              autoComplete="current-password"
+              InputProps={{
+                endAdornment:
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setOldOpen(!oldOpen)}
+                    onMouseDown={(event) => event.preventDefault()}
+                    >
+                    {oldOpen ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>,
+              }}
+                />
+                {oldOpen}
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label={intl.formatMessage({ id: 'changePasswordNewLabel' })}
+              key="passwordnew"
+              type={newOpen? 'text': 'password'}
+              id="new"
+              onChange={handleChangeNew}
+              autoComplete="current-password"
+              InputProps={{
+                endAdornment:
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setNewOpen(!newOpen)}
+                    onMouseDown={(event) => event.preventDefault()}
+                    >
+                    {newOpen ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>,
+              }}
+                />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label={intl.formatMessage({ id: 'changePasswordRepeatLabel' })}
+              key="passwordrepeat"
+              type={repeatOpen? 'text': 'password'}
+              error={repeatPassword && newPassword !== repeatPassword}
+              id="repeat"
+              onChange={handleChangeRepeat}
+              autoComplete="current-password"
+              InputProps={{
+                endAdornment:
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setRepeatOpen(!repeatOpen)}
+                    onMouseDown={(event) => event.preventDefault()}
+                    >
+                    {repeatOpen ? <Visibility /> : <VisibilityOff />}
+                  </IconButton>
+                </InputAdornment>,
+              }}
+                />
+            </form>
+            <Button
+              variant="outlined"
+              fullWidth={true}
+              color="primary"
+              onClick={onSetNewPassword}
+              disabled={_.isEmpty(oldPassword) || _.isEmpty(newPassword)
+              || newPassword === repeatPassword}
+            >
+              {intl.formatMessage({ id: 'changePasswordButton' })}
+            </Button>
+          </Card>
         </Grid>
       </Grid>
     </Screen>

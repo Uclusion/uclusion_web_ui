@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import { pushMessage } from '../utils/MessageBusUtils';
-import { getVersions } from './summaries';
-import { getMarketDetails, getMarketStages, getMarketUsers } from './markets';
-import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils';
+import _ from 'lodash'
+import { pushMessage } from '../utils/MessageBusUtils'
+import { getVersions } from './summaries'
+import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
+import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils'
 import {
   PUSH_COMMENTS_CHANNEL,
   PUSH_CONTEXT_CHANNEL,
@@ -10,19 +10,19 @@ import {
   PUSH_PRESENCE_CHANNEL,
   PUSH_STAGE_CHANNEL,
   VERSIONS_EVENT
-} from '../contexts/VersionsContext/versionsContextHelper';
-import { fetchComments } from './comments';
-import { fetchInvestibles } from './marketInvestibles';
-import { addToGlobalPromiseChain, LimitedParallelMap } from '../utils/PromiseUtils';
-import { startTimerChain } from '../utils/timerUtils';
-import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext';
-import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages';
+} from '../contexts/VersionsContext/versionsContextHelper'
+import { fetchComments } from './comments'
+import { fetchInvestibles } from './marketInvestibles'
+import { LimitedParallelMap } from '../utils/PromiseUtils'
+import { startTimerChain } from '../utils/timerUtils'
+import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext'
+import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages'
 import {
   OPERATION_HUB_CHANNEL,
   START_OPERATION,
   STOP_OPERATION
-} from '../contexts/OperationInProgressContext/operationInProgressMessages';
-import config from '../config';
+} from '../contexts/OperationInProgressContext/operationInProgressMessages'
+import config from '../config'
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;

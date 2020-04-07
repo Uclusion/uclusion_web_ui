@@ -23,8 +23,6 @@ import {
   STOP_OPERATION
 } from '../contexts/OperationInProgressContext/operationInProgressMessages'
 import config from '../config'
-import LocalForageHelper from '../utils/LocalForageHelper'
-import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext'
 
 const MAX_RETRIES = 10;
 
@@ -84,29 +82,24 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
       if (_.isEmpty(marketSignatures) || _.isEmpty(global_version)) {
         return currentHeldVersion;
       }
-      // Pull from disk access of markets context and pass user down in refresh market
-      const disk = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
-      return disk.getState()
-        .then((state) => {
-          newGlobalVersion = global_version;
-          return AllSequentialMap(marketSignatures, (marketSignature) => {
-            const { market_id: marketId, signatures: componentSignatures } = marketSignature;
-            let promise = doRefreshMarket(marketId, componentSignatures);
-            if (!_.isEmpty(promise)) {
-              // send a notification to the versions channel saying we have incoming stuff
-              // for this market
-              pushMessage(VERSIONS_HUB_CHANNEL, { event: MARKET_MESSAGE_EVENT, marketId });
-            }
-            if (!existingMarkets || !existingMarkets.includes(marketId)) {
-              pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
-              promise = promise.then(() => getMarketStages(marketId))
-                .then((stages) => {
-                  return pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
-                });
-            }
-            return promise;
-          });
-        });
+      newGlobalVersion = global_version;
+      return AllSequentialMap(marketSignatures, (marketSignature) => {
+        const { market_id: marketId, signatures: componentSignatures } = marketSignature;
+        let promise = doRefreshMarket(marketId, componentSignatures);
+        if (!_.isEmpty(promise)) {
+          // send a notification to the versions channel saying we have incoming stuff
+          // for this market
+          pushMessage(VERSIONS_HUB_CHANNEL, { event: MARKET_MESSAGE_EVENT, marketId });
+        }
+        if (!existingMarkets || !existingMarkets.includes(marketId)) {
+          pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
+          promise = promise.then(() => getMarketStages(marketId))
+            .then((stages) => {
+              return pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
+            });
+        }
+        return promise;
+      });
     })
     .then(() => {
       if (globalLockEnabled) {

@@ -1,8 +1,8 @@
-import _ from 'lodash'
-import { pushMessage } from '../utils/MessageBusUtils'
-import { getVersions } from './summaries'
-import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
-import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils'
+import _ from 'lodash';
+import { pushMessage } from '../utils/MessageBusUtils';
+import { getVersions } from './summaries';
+import { getMarketDetails, getMarketStages, getMarketUsers } from './markets';
+import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils';
 import {
   PUSH_COMMENTS_CHANNEL,
   PUSH_CONTEXT_CHANNEL,
@@ -10,55 +10,66 @@ import {
   PUSH_PRESENCE_CHANNEL,
   PUSH_STAGE_CHANNEL,
   VERSIONS_EVENT
-} from '../contexts/VersionsContext/versionsContextHelper'
-import { fetchComments } from './comments'
-import { fetchInvestibles } from './marketInvestibles'
-import { LimitedParallelMap } from '../utils/PromiseUtils';
-import { startTimerChain } from '../utils/timerUtils'
-import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext'
-import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages'
+} from '../contexts/VersionsContext/versionsContextHelper';
+import { fetchComments } from './comments';
+import { fetchInvestibles } from './marketInvestibles';
+import { addToGlobalPromiseChain, LimitedParallelMap } from '../utils/PromiseUtils';
+import { startTimerChain } from '../utils/timerUtils';
+import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext';
+import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages';
 import {
   OPERATION_HUB_CHANNEL,
   START_OPERATION,
   STOP_OPERATION
-} from '../contexts/OperationInProgressContext/operationInProgressMessages'
-import config from '../config'
+} from '../contexts/OperationInProgressContext/operationInProgressMessages';
+import config from '../config';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
+
+let versionsPromiseChain = Promise.resolve(true);
+
+function addToVersionsPromiseChain (promiseGenerator) {
+  versionsPromiseChain = versionsPromiseChain
+    .then(() => promiseGenerator());
+  return versionsPromiseChain;
+}
 
 export class MatchError extends Error {
 
 }
 
 /**
- *  Refreshes the global version swith retry. Does _not_ return a promise.
+ *  Refreshes the global version switch retry. Does _not_ return a promise.
  *  Use if you want to fire and forget.
  * @param currentHeldVersion
  * @param existingMarkets
  */
 export function refreshGlobalVersion (currentHeldVersion, existingMarkets) {
-  // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
-  if (currentHeldVersion === 'FAKE') return;
-  const execFunction = () => {
-    return doVersionRefresh(currentHeldVersion, existingMarkets)
-      .then((globalVersion) => {
-        if (globalVersion !== currentHeldVersion) {
-          // console.log('Got new version');
-          pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
-        }
-        return true;
-      }).catch((error) => {
-        // we'll log match problems, but raise the rest
-        if (error instanceof MatchError) {
-          console.error(error.message);
-          return false;
-        } else {
-          throw error;
-        }
-      });
-  };
-  startTimerChain(6000, MAX_RETRIES, execFunction);
+  return addToVersionsPromiseChain(() => {
+    // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
+    if (currentHeldVersion === 'FAKE') return Promise.resolve(false);
+    const execFunction = () => {
+      return doVersionRefresh(currentHeldVersion, existingMarkets)
+        .then((globalVersion) => {
+          if (globalVersion !== currentHeldVersion) {
+            // console.log('Got new version');
+            pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
+          }
+          return true;
+        }).catch((error) => {
+          // we'll log match problems, but raise the rest
+          if (error instanceof MatchError) {
+            console.error(error.message);
+            return false;
+          } else {
+            throw error;
+          }
+        });
+    };
+    startTimerChain(6000, MAX_RETRIES, execFunction);
+    return Promise.resolve((true));
+  });
 }
 
 /**
@@ -121,20 +132,20 @@ function doRefreshMarket (marketId, componentSignatures) {
   }
   // So far only three kinds of deletion supported by UI so handle them below as special cases
   if (!_.isEmpty(comments)) {
-    chain = chain? chain.then(() => fetchMarketComments(marketId, comments)) : fetchMarketComments(marketId, comments);
+    chain = chain ? chain.then(() => fetchMarketComments(marketId, comments)) : fetchMarketComments(marketId, comments);
   } else if (componentSignatures.find((signature) => signature.type === 'comment')) {
     // We are not keeping zero version around anymore so handle the rare case of last comment deleted
     pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId, comments: [] });
   }
   if (!_.isEmpty(investibles)) {
-    chain = chain? chain.then(() => fetchMarketInvestibles(marketId, investibles)) : fetchMarketInvestibles(marketId, investibles);
+    chain = chain ? chain.then(() => fetchMarketInvestibles(marketId, investibles)) : fetchMarketInvestibles(marketId, investibles);
   } else if (componentSignatures.find((signature) => signature.type === 'market_investible')) {
     // We are not keeping zero version around anymore so handle the rare case of last investible deleted
     pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId, investibles: [] });
   }
   if (!_.isEmpty(marketPresences) || componentSignatures.find((signature) => signature.type === 'investment')) {
     // Handle the case of the last investment being deleted by just refreshing users
-    chain = chain? chain.then(() => fetchMarketPresences(marketId, marketPresences || [])): fetchMarketPresences(marketId, marketPresences || []);
+    chain = chain ? chain.then(() => fetchMarketPresences(marketId, marketPresences || [])) : fetchMarketPresences(marketId, marketPresences || []);
   }
   return chain;
 }

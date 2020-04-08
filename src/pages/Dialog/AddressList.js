@@ -1,28 +1,29 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
+import React, { useContext, useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
 import {
   Button,
   CardActions,
   Checkbox,
-  InputAdornment,
   IconButton,
+  InputAdornment,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Typography,
   TextField,
+  Typography,
 } from '@material-ui/core'
-import SearchIcon from '@material-ui/icons/Search';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import { addParticipants, inviteParticipants } from '../../api/users';
-import InviteLinker from './InviteLinker';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
-import { usePlanFormStyles } from '../../components/AgilePlan';
+import SearchIcon from '@material-ui/icons/Search'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
+import { addParticipants, inviteParticipants } from '../../api/users'
+import InviteLinker from './InviteLinker'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton'
+import { usePlanFormStyles } from '../../components/AgilePlan'
+import { addMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesContextReducer'
 
 function AddressList(props) {
   const {
@@ -33,7 +34,7 @@ function AddressList(props) {
   const { id: addToMarketId, market_type: marketType } = market;
   const classes = usePlanFormStyles();
   const intl = useIntl();
-  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [email1, setEmail1] = useState(undefined);
 
   function handleEmail1(event) {
@@ -159,12 +160,25 @@ function AddressList(props) {
       const { user_id, account_id } = participant;
       return { user_id, account_id };
     });
-    return addParticipants(addToMarketId, toAddClean); //.then((added) => // console.debug(added));
+    return addParticipants(addToMarketId, toAddClean).then((result) => {
+      return {
+        result,
+        spinChecker: () => Promise.resolve(true),
+      };
+    });
   }
 
   function onSearchChange(event) {
     const { value } = event.target;
     setSearchValue(value);
+  }
+
+  function onSaveSpinStop(result) {
+    if (!result) {
+      return;
+    }
+    marketPresencesDispatch(addMarketPresences(addToMarketId, result));
+    onSave();
   }
 
   const displayNames = filteredNames || Object.entries(checked) || [];
@@ -216,7 +230,8 @@ function AddressList(props) {
               className={classes.actionPrimary}
               onClick={handleSave}
               marketId={addToMarketId}
-              onSpinStop={onSave}
+              onSpinStop={onSaveSpinStop}
+              hasSpinChecker
               disabled={_.isEmpty(anySelected)}
             >
               <FormattedMessage

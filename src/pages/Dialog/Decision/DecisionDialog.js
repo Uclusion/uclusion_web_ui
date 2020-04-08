@@ -90,9 +90,6 @@ function DecisionDialog(props) {
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
   const history = useHistory();
-  const breadCrumbs = (myPresence && !myPresence.following) ?
-    makeArchiveBreadCrumbs(history) :
-    makeBreadCrumbs(history);
   const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
@@ -111,6 +108,9 @@ function DecisionDialog(props) {
     is_inline: isInline,
   } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
+  const breadCrumbs = (!activeMarket || (myPresence && !myPresence.following)) ?
+    makeArchiveBreadCrumbs(history) :
+    makeBreadCrumbs(history);
   const participantTourSteps = [
   ];
   const tourSteps = isAdmin? PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS : participantTourSteps;

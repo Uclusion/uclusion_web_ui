@@ -50,14 +50,13 @@ function PlanningDialog(props) {
     hidden,
     myPresence
   } = props;
-  const breadCrumbs =
-    myPresence && !myPresence.following
-      ? makeArchiveBreadCrumbs(history)
-      : makeBreadCrumbs(history);
-
   const intl = useIntl();
   const { id: marketId, market_stage: marketStage } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
+  const breadCrumbs =
+    (!activeMarket || (myPresence && !myPresence.following))
+      ? makeArchiveBreadCrumbs(history)
+      : makeBreadCrumbs(history);
   const marketComments = comments.filter(comment => !comment.investible_id);
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;

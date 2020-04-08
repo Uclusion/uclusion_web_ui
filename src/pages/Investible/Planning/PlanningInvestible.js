@@ -320,7 +320,7 @@ function PlanningInvestible(props) {
   }
 
   function getStageActions() {
-    if (!activeMarket) {
+    if (inArchives) {
       return [];
     }
     const stageActions = [];
@@ -535,7 +535,7 @@ function PlanningInvestible(props) {
         <CardContent className={classes.votingCardContent}>
           <h1>
             {name}
-            {(isAssigned || isInNotDoing || isInVoting) && (
+            {!inArchives && (isAssigned || isInNotDoing || isInVoting) && (
               <EditMarketButton
                 labelId="edit"
                 marketId={marketId}
@@ -602,6 +602,7 @@ function PlanningInvestible(props) {
                 investibles={underConsideration}
                 marketId={inlineMarketId}
                 comments={inlineInvestibleComments}
+                inArchives={inArchives}
               />
             </SubSection>
           </Grid>
@@ -621,7 +622,7 @@ function PlanningInvestible(props) {
           </Grid>
         )}
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          {activeMarket && (
+          {!inArchives && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}

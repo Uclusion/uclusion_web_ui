@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { makeStyles } from '@material-ui/core'
 import {
   decomposeMarketPath,
@@ -39,7 +39,8 @@ function DialogActions(props) {
     isFollowing,
     initiativeId,
   } = props;
-
+  const activeMarket = marketStage === ACTIVE_STAGE;
+  const inArchives = !activeMarket || !isFollowing;
   const classes = useStyles();
 
   function goHome() {
@@ -80,13 +81,13 @@ function DialogActions(props) {
       : formMarketEditLink(marketId);
     const editAction = () => navigate(history, editLink);
     if (isAdmin) {
-      if (marketStage === 'Active') {
+      if (!inArchives) {
         actions.push(
           <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction} />
         );
       }
     }
-    if (marketStage === 'Active') {
+    if (activeMarket) {
       if (isFollowing) {
         actions.push(
           <ChangeToObserverButton key="change-to-observer" marketId={marketId} onClick={goHome}/>,

@@ -216,7 +216,7 @@ function DecisionInvestible(props) {
         <CardContent className={classes.votingCardContent}>
           <h1>
             {name}
-            {(isAdmin || (inProposed && createdBy === userId)) && (
+            {!inArchives && (isAdmin || (inProposed && createdBy === userId)) && (
               <EditMarketButton
                 labelId="edit"
                 marketId={marketId}
@@ -263,7 +263,7 @@ function DecisionInvestible(props) {
       )}
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          {activeMarket && (
+          {!inArchives && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}

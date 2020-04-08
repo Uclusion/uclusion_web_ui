@@ -266,7 +266,7 @@ function InitiativeInvestible(props) {
       />
       <Grid container spacing={2}>
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          {activeMarket && !isAdmin && (
+          {!inArchives && !isAdmin && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}

@@ -108,9 +108,8 @@ function DecisionDialog(props) {
     is_inline: isInline,
   } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const breadCrumbs = (!activeMarket || (myPresence && !myPresence.following)) ?
-    makeArchiveBreadCrumbs(history) :
-    makeBreadCrumbs(history);
+  const inArchives = !activeMarket || (myPresence && !myPresence.following);
+  const breadCrumbs = inArchives ? makeArchiveBreadCrumbs(history) : makeBreadCrumbs(history);
   const participantTourSteps = [
   ];
   const tourSteps = isAdmin? PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS : participantTourSteps;
@@ -283,6 +282,7 @@ function DecisionDialog(props) {
               investibles={underConsideration}
               marketId={marketId}
               comments={investibleComments}
+              inArchives={inArchives}
             />
           </SubSection>
         </Grid>
@@ -301,7 +301,7 @@ function DecisionDialog(props) {
           </Grid>
         )}
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          {activeMarket && (
+          {!inArchives && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               marketId={marketId}

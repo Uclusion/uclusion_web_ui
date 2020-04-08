@@ -53,8 +53,8 @@ function PlanningDialog(props) {
   const intl = useIntl();
   const { id: marketId, market_stage: marketStage } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const breadCrumbs =
-    (!activeMarket || (myPresence && !myPresence.following))
+  const inArchives = !activeMarket || (myPresence && !myPresence.following);
+  const breadCrumbs = inArchives
       ? makeArchiveBreadCrumbs(history)
       : makeBreadCrumbs(history);
   const marketComments = comments.filter(comment => !comment.investible_id);
@@ -189,7 +189,7 @@ function PlanningDialog(props) {
       )}
       <Grid container spacing={2}>
           <Grid item xs={12} style={{ marginTop: '30px' }}>
-            {activeMarket && (
+            {!inArchives && (
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 marketId={marketId}

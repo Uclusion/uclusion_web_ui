@@ -28,6 +28,7 @@ import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versions
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
+const MAX_CONCURRENT_ARCHIVE_API_CALLS = 1;
 
 let versionsPromiseChain = Promise.resolve(true);
 
@@ -82,6 +83,51 @@ export function refreshGlobalVersion () {
 }
 
 /**
+ * Splits the market signatures into foreground and background lists
+ * @param marketSignatures
+ * @param foregroundList
+ * @returns {{background: *, foreground: []}|{background: *, foreground: *}}
+ */
+function splitIntoForegroundBackground(marketSignatures, foregroundList) {
+  if (_.isEmpty(foregroundList)) {
+    return { foreground: [], background: marketSignatures};
+  }
+  const foreground = marketSignatures.filter((ms) => foregroundList.includes(ms.market_id));
+  const background = marketSignatures.filter((ms) => !foregroundList.includes(ms.market_id));
+  return {
+    foreground,
+    background,
+  };
+}
+
+/**
+ * Updates all our markets from the passed in signatures
+ * @param marketSignatures the market signatures to drive the update
+ * @param existingMarkets the list of markets we currently know about
+ * @param maxConcurrentCount the maximum number of api calls to make at once
+ * @returns {Promise<*>}
+ */
+function updateMarketsFromSignatures(marketSignatures, existingMarkets, maxConcurrentCount) {
+  return LimitedParallelMap(marketSignatures, (marketSignature) => {
+    const { market_id: marketId, signatures: componentSignatures } = marketSignature;
+    let promise = doRefreshMarket(marketId, componentSignatures);
+    if (!_.isEmpty(promise)) {
+      // send a notification to the versions channel saying we have incoming stuff
+      // for this market
+      pushMessage(VERSIONS_HUB_CHANNEL, { event: MARKET_MESSAGE_EVENT, marketId });
+    }
+    if (!existingMarkets || !existingMarkets.includes(marketId)) {
+      pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
+      promise = promise.then(() => getMarketStages(marketId))
+        .then((stages) => {
+          return pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
+        });
+    }
+    return promise;
+  }, maxConcurrentCount);
+}
+
+/**
  * Function that will make exactly one attempt to update the global versions
  * USed if you have some other control and want access to the promise chain
  * @param currentHeldVersion
@@ -98,29 +144,18 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   const callWithVersion = currentHeldVersion === 'INITIALIZATION' ? null : currentHeldVersion;
   return getVersions(callWithVersion)
     .then((versions) => {
-      // console.log(versions);
-      const { global_version, signatures: marketSignatures } = versions;
+      const { global_version, signatures: marketSignatures, foreground: foregroundList } = versions;
       if (_.isEmpty(marketSignatures) || _.isEmpty(global_version)) {
         return currentHeldVersion;
       }
+      // now we sort the global versions by foreground
       newGlobalVersion = global_version;
-      return LimitedParallelMap(marketSignatures, (marketSignature) => {
-        const { market_id: marketId, signatures: componentSignatures } = marketSignature;
-        let promise = doRefreshMarket(marketId, componentSignatures);
-        if (!_.isEmpty(promise)) {
-          // send a notification to the versions channel saying we have incoming stuff
-          // for this market
-          pushMessage(VERSIONS_HUB_CHANNEL, { event: MARKET_MESSAGE_EVENT, marketId });
-        }
-        if (!existingMarkets || !existingMarkets.includes(marketId)) {
-          pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
-          promise = promise.then(() => getMarketStages(marketId))
-            .then((stages) => {
-              return pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
-            });
-        }
-        return promise;
-      }, MAX_CONCURRENT_API_CALLS);
+      const splitMS = splitIntoForegroundBackground(marketSignatures, foregroundList);
+      const { foreground, background } = splitMS;
+      return updateMarketsFromSignatures(foreground, existingMarkets, MAX_CONCURRENT_API_CALLS)
+        .then(() => {
+          return updateMarketsFromSignatures(background, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS);
+        });
     })
     .then(() => {
       if (globalLockEnabled) {

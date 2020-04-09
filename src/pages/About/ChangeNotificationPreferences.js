@@ -4,11 +4,12 @@ import {
   Checkbox, ListItem,
   ListItemIcon,
   ListItemText, makeStyles, TextField,
-  Typography, Grid, InputLabel, FormControl
+  Typography, Grid, InputLabel, FormControl, Card
 } from '@material-ui/core'
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { updateUser } from '../../api/users';
+import clsx from 'clsx'
 import config from '../../config';
 import { getSSOInfo } from '../../api/sso';
 import { toastErrorAndThrow } from '../../utils/userMessage';
@@ -21,6 +22,21 @@ const useStyles = makeStyles((theme) => ({
   disabled: {
     color: theme.palette.text.disabled,
   },
+  action: {
+    boxShadow: "none",
+    padding: "4px 16px",
+    textTransform: "none",
+    "&:hover": {
+      boxShadow: "none"
+    }
+  },
+  actionPrimary: {
+    backgroundColor: "#2D9CDB",
+    color: "white",
+    "&:hover": {
+      backgroundColor: "#2D9CDB"
+    }
+  }
 }));
 
 function ChangeNotificationPreferences(props) {
@@ -83,9 +99,13 @@ function ChangeNotificationPreferences(props) {
       breadCrumbs={breadCrumbs}
       loading={!user}
     >
-      <Grid container spacing={3} style={{padding: '1rem'} }>
-        <Grid item xs={5}>
-          {user && !user.is_slack_addressable && (
+      <Grid container spacing={3} >
+        <Grid item xs={6}>
+          <Card style={{padding: '2rem'}}>
+          <Typography style={{paddingBottom: '1rem'}}>
+            {intl.formatMessage({ id: 'changePreferencesHeader' })}
+          </Typography>
+            {user && !user.is_slack_addressable && (
             <a
               href={config.add_to_slack_url}
               target="_blank"
@@ -100,13 +120,7 @@ function ChangeNotificationPreferences(props) {
               />
             </a>
           )}
-        </Grid>
-      </Grid>
-      <Grid container spacing={3} style={{padding: '1rem'} }>
-      <Grid item xs={5}>
-        <Typography>
-          {intl.formatMessage({ id: 'changePreferencesHeader' })}
-        </Typography>
+        
       {user && (
         <form
           noValidate
@@ -186,17 +200,22 @@ function ChangeNotificationPreferences(props) {
                   value={slackDelay}
                 />
               </FormControl>
+            <Button
+              variant="outlined"
+              fullWidth={true}
+              color="primary"
+              className={ clsx(
+                classes.action,
+                classes.actionPrimary
+              )}
+              onClick={onSetPreferences}
+            >
+              {intl.formatMessage({ id: 'changePreferencesButton' })}
+            </Button>
             </Grid>
           </form>
         )}
-      <Button
-        variant="outlined"
-        fullWidth={true}
-        color="primary"
-        onClick={onSetPreferences}
-      >
-        {intl.formatMessage({ id: 'changePreferencesButton' })}
-      </Button>
+      </Card>
         </Grid>
       </Grid>
     </Screen>

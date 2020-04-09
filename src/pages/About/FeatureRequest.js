@@ -6,12 +6,36 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import { createDecision } from '../../api/markets';
 import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper';
 import { addParticipants } from '../../api/users';
+import clsx from 'clsx'
 import config from '../../config';
+import { makeStyles } from '@material-ui/core';
+
+const useStyles = makeStyles((theme) => ({
+  name: {},
+  disabled: {
+    color: theme.palette.text.disabled,
+  },
+  action: {
+    boxShadow: "none",
+    padding: "4px 16px",
+    textTransform: "none",
+    "&:hover": {
+      boxShadow: "none"
+    }
+  },
+  actionPrimary: {
+    backgroundColor: "#2D9CDB",
+    color: "white",
+    "&:hover": {
+      backgroundColor: "#2D9CDB"
+    }
+  }
+}));
 
 function FeatureRequest() {
   const history = useHistory();
   const intl = useIntl();
-
+  const classes = useStyles();
   function onDone(marketLink) {
     navigate(history, marketLink);
   }
@@ -49,6 +73,10 @@ function FeatureRequest() {
         onClick={handleSave}
         onSpinStop={onDone}
         fullWidth={true}
+        className={ clsx(
+          classes.action,
+          classes.actionPrimary
+        )}
       >
         {intl.formatMessage({ id: 'createFeatureRequest' })}
       </SpinBlockingButton>

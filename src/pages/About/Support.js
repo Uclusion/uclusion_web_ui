@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import PropTypes from 'prop-types';
 import {
-  Paper, Typography, Button, makeStyles, Link, Grid
+  Paper, Typography, Button, makeStyles, Link, Grid, Card
 } from '@material-ui/core';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Screen from '../../containers/Screen/Screen';
+import clsx from 'clsx'
 import config from '../../config';
 import { toastErrorAndThrow } from '../../utils/userMessage';
 import { getSSOInfo } from '../../api/sso';
@@ -37,11 +38,36 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 140,
   },
   embed: {
-    marginRight: 3
+    marginRight: 3,
   },
   value: {
     //
   },
+  action: {
+    boxShadow: "none",
+    padding: "4px 16px",
+    textTransform: "none",
+    "&:hover": {
+      boxShadow: "none"
+    }
+  },
+  actionPrimary: {
+    backgroundColor: "#2D9CDB",
+    color: "white",
+    "&:hover": {
+      backgroundColor: "#2D9CDB"
+    }
+  },
+  actionSecondary: {
+    backgroundColor: "#BDBDBD",
+    color: "black",
+    "&:hover": {
+      backgroundColor: "#BDBDBD"
+    }
+  },
+  topMargin: {
+    marginTop: '1rem'
+  }
 }));
 
 function Support(props) {
@@ -75,24 +101,24 @@ function Support(props) {
       breadCrumbs={breadCrumbs}
       loading={!externalId}
     >
-      <Grid container className={classes.root} direction="column" spacing={3}>
+      <Grid container direction="column" spacing={3}>
         <Grid item xs={5}>
+          <Card style={{padding: '2rem'}}>
+          <Typography style={{paddingBottom: '1rem'}}>
+            {intl.formatMessage({ id: 'support' })}
+          </Typography>
           <Paper className={classes.section}>
             <Typography className={classes.row}>
               <span className={classes.label}>{intl.formatMessage({ id: 'aboutApplicationVersionLabel' })}</span>
               <span className={classes.value}>{version}</span>
             </Typography>
           </Paper>
-        </Grid>
-        <Grid item xs={5}>
           <Paper className={classes.section}>
             <Typography className={classes.row}>
               <span className={classes.label}>{intl.formatMessage({ id: 'aboutUserIdLabel' })}</span>
               <span className={classes.value}>{externalId}</span>
             </Typography>
           </Paper>
-        </Grid>
-        <Grid item xs={5}>
           <Paper className={classes.section}>
             <Typography className={classes.embed}>
               <FormattedMessage
@@ -108,19 +134,20 @@ function Support(props) {
               />
             </Typography>
           </Paper>
-        </Grid>
-        <Grid item xs={5}>
           <FeatureRequest />
-        </Grid>
-        <br />
-        <Grid item xs={5}>
           <Button 
-            variant="outlined"
+            variant="contained"
             fullWidth={true}
+            className={ clsx(
+              classes.action,
+              classes.actionSecondary,
+              classes.topMargin
+            )}
             onClick={clearUclusionLocalStorage}
           >
             {intl.formatMessage({ id: 'aboutClearStorageButton' })}
           </Button>
+          </Card>
         </Grid>
       </Grid>
     </Screen>

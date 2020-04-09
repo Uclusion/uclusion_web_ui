@@ -154,15 +154,13 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
       const { foreground, background } = splitMS;
       return updateMarketsFromSignatures(foreground, existingMarkets, MAX_CONCURRENT_API_CALLS)
         .then(() => {
-          return updateMarketsFromSignatures(background, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS);
+          pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+          return updateMarketsFromSignatures(background, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS)
+            .then(() => {
+              return newGlobalVersion;
+            })
         });
     })
-    .then(() => {
-      if (globalLockEnabled) {
-        pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
-      }
-      return newGlobalVersion;
-    });
 }
 
 function doRefreshMarket (marketId, componentSignatures) {

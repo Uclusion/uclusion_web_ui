@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import _ from 'lodash'
 import { Auth } from 'aws-amplify'
+import clsx from 'clsx'
 import Grid from '@material-ui/core/Grid'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import { Button, TextField, Typography, Card } from '@material-ui/core'
+import { makeStyles } from '@material-ui/styles'
 import { useIntl } from 'react-intl'
 import { toastError } from '../../utils/userMessage'
 import Screen from '../../containers/Screen/Screen'
@@ -13,6 +15,25 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 
+const styleClasses = makeStyles(
+  {
+    action: {
+      boxShadow: "none",
+      padding: "4px 16px",
+      textTransform: "none",
+      "&:hover": {
+        boxShadow: "none"
+      }
+    },
+    actionPrimary: {
+      backgroundColor: "#2D9CDB",
+      color: "white",
+      "&:hover": {
+        backgroundColor: "#2D9CDB"
+      }
+    }
+  }, {name: 'change'}
+)
 function ChangePassword(props) {
   const { hidden } = props;
   const [oldPassword, setOldPassword] = useState(undefined);
@@ -22,6 +43,7 @@ function ChangePassword(props) {
   const [newOpen, setNewOpen] = useState(false)
   const [repeatOpen, setRepeatOpen] = useState(false)
   const intl = useIntl();
+  const classes = styleClasses();
 
   function onSetNewPassword() {
     // See https://aws-amplify.github.io/docs/js/authentication#change-password
@@ -148,9 +170,13 @@ function ChangePassword(props) {
                 />
             </form>
             <Button
-              variant="outlined"
+              variant="contained"
               fullWidth={true}
               color="primary"
+              className={ clsx(
+                classes.action,
+                classes.actionPrimary
+              )}
               onClick={onSetNewPassword}
               disabled={_.isEmpty(oldPassword) || _.isEmpty(newPassword)
               || newPassword === repeatPassword}

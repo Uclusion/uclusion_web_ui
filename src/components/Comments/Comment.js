@@ -137,7 +137,7 @@ function Comment(props) {
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
   const [marketsState] = useContext(MarketsContext);
-  const market = getMarket(marketsState, marketId);
+  const market = getMarket(marketsState, marketId) || {};
   const { market_stage: marketStage } = market;
   const userId = getMyUserForMarket(marketsState, marketId) || {};
   const activeMarket = marketStage === ACTIVE_STAGE;

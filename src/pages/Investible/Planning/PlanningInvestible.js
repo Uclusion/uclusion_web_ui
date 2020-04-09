@@ -384,7 +384,7 @@ function PlanningInvestible(props) {
         currentStageId={stage}
         isOpen={changeStagesExpanded}
         key="verified"
-        disabled={isInVerified}
+        disabled={isInVerified || !_.isEmpty(blockingComments)}
       />,
       <MoveToNotDoingActionButton
         investibleId={investibleId}

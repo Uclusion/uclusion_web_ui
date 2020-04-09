@@ -6,7 +6,7 @@ import { getFurtherWorkStage, } from '../../../contexts/MarketStagesContext/mark
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToFurtherWorkActionButton(props) {
-  const { marketId } = props;
+  const { marketId, disabled } = props;
 
   const [marketStagesState] = useContext(MarketStagesContext);
   const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
@@ -22,12 +22,14 @@ function MoveToFurtherWorkActionButton(props) {
       targetStageId={furtherWorkStage.id}
       translationId="planningInvestibleMoveToFurtherWorkLabel"
       explanationId="planningInvestibleFurtherWorkExplanation"
+      disabled={disabled}
     />
   );
 }
 
 MoveToFurtherWorkActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
+  disabled: PropTypes.bool.isRequired,
 };
 
 export default MoveToFurtherWorkActionButton;

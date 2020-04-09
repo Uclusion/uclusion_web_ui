@@ -6,7 +6,7 @@ import { getVerifiedStage, } from '../../../contexts/MarketStagesContext/marketS
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToVerfiedActionButton(props) {
-  const { marketId } = props;
+  const { marketId, disabled } = props;
 
   const [marketStagesState] = useContext(MarketStagesContext);
   const verifiedStage = getVerifiedStage(marketStagesState, marketId);
@@ -22,12 +22,14 @@ function MoveToVerfiedActionButton(props) {
       targetStageId={verifiedStage.id}
       translationId="planningInvestibleMoveToVerifiedLabel"
       explanationId="planningInvestibleVerifiedExplanation"
+      disabled={disabled}
     />
   );
 }
 
 MoveToVerfiedActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
+  disabled: PropTypes.bool.isRequired,
 };
 
 export default MoveToVerfiedActionButton;

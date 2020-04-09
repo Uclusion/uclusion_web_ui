@@ -6,7 +6,7 @@ import { getNotDoingStage, } from '../../../contexts/MarketStagesContext/marketS
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToNotDoingActionButton(props) {
-  const { marketId } = props;
+  const { marketId, disabled } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
 
@@ -21,12 +21,14 @@ function MoveToNotDoingActionButton(props) {
       targetStageId={notDoingStage.id}
       translationId="planningInvestibleMoveToNotDoingLabel"
       explanationId="planningInvestibleNotDoingExplanation"
+      disabled={disabled}
     />
   );
 }
 
 MoveToNotDoingActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
+  disabled: PropTypes.bool.isRequired,
 };
 
 export default MoveToNotDoingActionButton;

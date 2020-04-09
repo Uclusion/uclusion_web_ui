@@ -6,7 +6,7 @@ import { getInReviewStage, } from '../../../contexts/MarketStagesContext/marketS
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToInReviewActionButton(props) {
-  const { marketId } = props;
+  const { marketId, disabled } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const inReviewStage = getInReviewStage(marketStagesState, marketId);
 
@@ -21,12 +21,14 @@ function MoveToInReviewActionButton(props) {
       targetStageId={inReviewStage.id}
       translationId="planningInvestibleNextStageInReviewLabel"
       explanationId="planningInvestibleInReviewExplanation"
+      disabled={disabled}
     />
   );
 }
 
 MoveToInReviewActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
+  disabled: PropTypes.bool.isRequired,
 };
 
 export default MoveToInReviewActionButton;

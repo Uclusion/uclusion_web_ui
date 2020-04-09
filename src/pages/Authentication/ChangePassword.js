@@ -61,18 +61,25 @@ function ChangePassword(props) {
   }
 
   function handleChangeNew(password) {
-    setNewPassword(password);
+    if(password && password.currentTarget){
+      setNewPassword(password.currentTarget.value);
+    }
   }
 
   function handleChangeOld(password) {
-    setOldPassword(password);
+    if(password && password.currentTarget){
+      setOldPassword(password.currentTarget.value);
+    }
   }
 
   function handleChangeRepeat(password) {
-    setRepeatPassword(password);
+    if(password && password.currentTarget){
+      setRepeatPassword(password.currentTarget.value);
+    }
   }
   const history = useHistory();
   const breadCrumbs = makeBreadCrumbs(history, [], true);
+
   return (
     <Screen
       title={intl.formatMessage({ id: 'changePasswordHeader' })}
@@ -101,6 +108,7 @@ function ChangePassword(props) {
               key="passwordold"
               type={oldOpen? 'text': 'password'}
               id="old"
+              value={oldPassword || ''}
               onChange={handleChangeOld}
               autoComplete="current-password"
               InputProps={{
@@ -127,6 +135,7 @@ function ChangePassword(props) {
               key="passwordnew"
               type={newOpen? 'text': 'password'}
               id="new"
+              value={newPassword || ''}
               onChange={handleChangeNew}
               autoComplete="current-password"
               InputProps={{
@@ -151,8 +160,9 @@ function ChangePassword(props) {
               label={intl.formatMessage({ id: 'changePasswordRepeatLabel' })}
               key="passwordrepeat"
               type={repeatOpen? 'text': 'password'}
-              error={repeatPassword && newPassword !== repeatPassword}
+              error={!!repeatPassword && newPassword !== repeatPassword}
               id="repeat"
+              value={repeatPassword || ''}
               onChange={handleChangeRepeat}
               autoComplete="current-password"
               InputProps={{
@@ -179,7 +189,7 @@ function ChangePassword(props) {
               )}
               onClick={onSetNewPassword}
               disabled={_.isEmpty(oldPassword) || _.isEmpty(newPassword)
-              || newPassword === repeatPassword}
+              || (newPassword !== repeatPassword)}
             >
               {intl.formatMessage({ id: 'changePasswordButton' })}
             </Button>

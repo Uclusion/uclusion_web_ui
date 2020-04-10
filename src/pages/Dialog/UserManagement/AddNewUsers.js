@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
-import _ from 'lodash'
-import { FormattedMessage, useIntl } from 'react-intl'
+import React, { useContext, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
-  Button,
   CardActions,
   Checkbox,
   IconButton,
@@ -14,22 +13,21 @@ import {
   ListItemText,
   TextField,
   Typography,
-} from '@material-ui/core'
-import SearchIcon from '@material-ui/icons/Search'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
-import { addParticipants, inviteParticipants } from '../../../api/users'
-import InviteLinker from '../InviteLinker'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import ApiBlockingButton from '../../../components/SpinBlocking/ApiBlockingButton'
-import { usePlanFormStyles } from '../../../components/AgilePlan'
-import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
+} from '@material-ui/core';
+import SearchIcon from '@material-ui/icons/Search';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
+import { addParticipants, inviteParticipants } from '../../../api/users';
+import InviteLinker from '../InviteLinker';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import ApiBlockingButton from '../../../components/SpinBlocking/ApiBlockingButton';
+import { usePlanFormStyles } from '../../../components/AgilePlan';
+import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer';
 
-function AddNewUsers(props) {
+function AddNewUsers (props) {
   const {
     market,
     onSave,
-    onCancel,
   } = props;
   const { id: addToMarketId, market_type: marketType } = market;
   const classes = usePlanFormStyles();
@@ -37,12 +35,12 @@ function AddNewUsers(props) {
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [email1, setEmail1] = useState(undefined);
 
-  function handleEmail1(event) {
+  function handleEmail1 (event) {
     const { value } = event.target;
     setEmail1(value);
   }
 
-  function onInvite(form) {
+  function onInvite (form) {
     form.preventDefault();
     const participants = [];
     if (email1) {
@@ -54,7 +52,7 @@ function AddNewUsers(props) {
     });
   }
 
-  function extractUsersList() {
+  function extractUsersList () {
     const addToMarketPresences = getMarketPresences(marketPresencesState, addToMarketId) || [];
     const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
       const { external_id } = presence;
@@ -86,11 +84,6 @@ function AddNewUsers(props) {
   const participants = Object.keys(checked).map((key) => checked[key]);
   const anySelected = participants.find((participant) => participant.isChecked);
 
-  function myOnCancel() {
-    setChecked(defaultChecked);
-    onCancel();
-  }
-
   useEffect(() => {
     if (!searchValue) {
       setFilteredNames(undefined);
@@ -114,7 +107,7 @@ function AddNewUsers(props) {
     }
   }, [searchValue, checked]);
 
-  function getCheckToggle(id) {
+  function getCheckToggle (id) {
     return () => {
       const userDetail = checked[id];
       const { isChecked } = userDetail;
@@ -126,7 +119,7 @@ function AddNewUsers(props) {
     };
   }
 
-  function renderParticipantEntry(presenceEntry) {
+  function renderParticipantEntry (presenceEntry) {
     const {
       user_id: id, name, isChecked, domain,
     } = presenceEntry[1];
@@ -154,7 +147,7 @@ function AddNewUsers(props) {
     );
   }
 
-  function handleSave() {
+  function handleSave () {
     const toAdd = participants.filter((participant) => participant.isChecked);
     const toAddClean = toAdd.map((participant) => {
       const { user_id, account_id } = participant;
@@ -168,12 +161,12 @@ function AddNewUsers(props) {
     });
   }
 
-  function onSearchChange(event) {
+  function onSearchChange (event) {
     const { value } = event.target;
     setSearchValue(value);
   }
 
-  function onSaveSpinStop(result) {
+  function onSaveSpinStop (result) {
     if (!result) {
       return;
     }
@@ -185,130 +178,112 @@ function AddNewUsers(props) {
 
   return (
     <>
-        <List
-          dense
-          className={classes.sharedForm}
-        >
-          <Typography className={classes.sectionHeader}>
-            {intl.formatMessage({ id: 'searchParticipantsLabel' })}
-          </Typography>
-           <ListItem key="search">
-            <ListItemText className={classes.name}>
-              <TextField
-                onChange={onSearchChange}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position={'end'}>
-                      <IconButton>
-                        <SearchIcon/>
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </ListItemText>
-          </ListItem>
-          <List
-            dense
-            id="addressBook"
-            className={classes.scrollableList}
-          >
-            {displayNames.length > 0 &&
-            displayNames.map((entry) => renderParticipantEntry(entry))
-            }
-            {displayNames.length < 1 &&
-            <ListItemText style={{ textAlign: 'center' }}>
-              {intl.formatMessage({ id: 'noCollaboratorsLabel' })}
-            </ListItemText>
-            }
-          </List>
-          <CardActions className={classes.actions}>
-            <SpinBlockingButton
-              id="save"
-              variant="contained"
-              color="primary"
-              className={classes.actionPrimary}
-              onClick={handleSave}
-              marketId={addToMarketId}
-              onSpinStop={onSaveSpinStop}
-              hasSpinChecker
-              disabled={_.isEmpty(anySelected)}
-            >
-              <FormattedMessage
-                id="addExistingCollaborator"
-              />
-            </SpinBlockingButton>
-          </CardActions>
-        </List>
       <List
         dense
+        className={classes.sharedForm}
       >
-        <List
-          dense
-          id="doneList"
-          className={classes.doneButton}
-        >
-      <ListItem id="done" key="done" className={classes.menuItem}>
-        <Button
-          onClick={myOnCancel}
-          className={classes.actionSecondary}
-          color="secondary"
-          variant="contained"
-        >
-          <FormattedMessage
-            id="done"
-          />
-        </Button>
-      </ListItem>
-        </List>
-      <ListItem>
         <Typography className={classes.sectionHeader}>
-          {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
+          {intl.formatMessage({ id: 'searchParticipantsLabel' })}
         </Typography>
-      </ListItem>
-      <ListItem>
-        <InviteLinker
-          marketType={marketType}
-          marketId={addToMarketId}
-        />
-      </ListItem>
-      <form
-        autoComplete="off"
-        onSubmit={onInvite}
-      >
-        <ListItem
-          id="emailInput"
-          key="emailInput"
-        >
-          <ListItemText>
-            <Typography style={{ marginBottom: 15 }}>
-              {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
-            </Typography>
+        <ListItem key="search">
+          <ListItemText className={classes.name}>
             <TextField
-              variant="outlined"
-              id="email1"
-              name="email1"
-              fullWidth
-              label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
-              value={email1}
-              onChange={handleEmail1}
+              onChange={onSearchChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position={'end'}>
+                    <IconButton>
+                      <SearchIcon/>
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
           </ListItemText>
         </ListItem>
-        <ListItem id="emailButtons" key="emailButtons">
-          <CardActions className={classes.actions}>
-            <ApiBlockingButton
-              variant="contained"
-              className={classes.actionPrimary}
-              type="submit"
-              disabled={_.isEmpty(email1)}
-            >
-              <FormattedMessage
-                id="inviteParticipantsLabel"
-              />
-            </ApiBlockingButton>
-          </CardActions>
+        <List
+          dense
+          id="addressBook"
+          className={classes.scrollableList}
+        >
+          {displayNames.length > 0 &&
+          displayNames.map((entry) => renderParticipantEntry(entry))
+          }
+          {displayNames.length < 1 &&
+          <ListItemText style={{ textAlign: 'center' }}>
+            {intl.formatMessage({ id: 'noCollaboratorsLabel' })}
+          </ListItemText>
+          }
+        </List>
+        <CardActions className={classes.actions}>
+          <SpinBlockingButton
+            id="save"
+            variant="contained"
+            color="primary"
+            className={classes.actionPrimary}
+            onClick={handleSave}
+            marketId={addToMarketId}
+            onSpinStop={onSaveSpinStop}
+            hasSpinChecker
+            disabled={_.isEmpty(anySelected)}
+          >
+            <FormattedMessage
+              id="addExistingCollaborator"
+            />
+          </SpinBlockingButton>
+        </CardActions>
+      </List>
+      <List
+        dense
+      >
+        <ListItem>
+          <Typography className={classes.sectionHeader}>
+            {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
+          </Typography>
         </ListItem>
+        <ListItem>
+          <InviteLinker
+            marketType={marketType}
+            marketId={addToMarketId}
+          />
+        </ListItem>
+        <form
+          autoComplete="off"
+          onSubmit={onInvite}
+        >
+          <ListItem
+            id="emailInput"
+            key="emailInput"
+          >
+            <ListItemText>
+              <Typography style={{ marginBottom: 15 }}>
+                {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
+              </Typography>
+              <TextField
+                variant="outlined"
+                id="email1"
+                name="email1"
+                fullWidth
+                label={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}
+                value={email1}
+                onChange={handleEmail1}
+              />
+            </ListItemText>
+          </ListItem>
+          <ListItem id="emailButtons" key="emailButtons">
+            <CardActions className={classes.actions}>
+              <ApiBlockingButton
+                variant="contained"
+                className={classes.actionPrimary}
+                type="submit"
+                disabled={_.isEmpty(email1)}
+              >
+                <FormattedMessage
+                  id="inviteParticipantsLabel"
+                />
+              </ApiBlockingButton>
+            </CardActions>
+          </ListItem>
         </form>
       </List>
     </>
@@ -318,15 +293,11 @@ function AddNewUsers(props) {
 AddNewUsers.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
-  onCancel: PropTypes.func,
   onSave: PropTypes.func,
-
 };
 
 AddNewUsers.defaultProps = {
   onSave: () => {
-  },
-  onCancel: () => {
   },
 };
 

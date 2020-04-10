@@ -89,7 +89,8 @@ function PlanningDialog(props) {
     return !_.isEmpty(assignedInvestibles);
   });
   const isChannel = _.isEmpty(assignedPresences);
-  const unassigned = _.difference(presences, assignedPresences);
+  const unassignedFull = _.difference(presences, assignedPresences);
+  const unassigned = unassignedFull.filter((presence) => !presence.market_banned);
 
   let lockedByName;
   if (lockedBy) {

@@ -40,7 +40,8 @@ function AssignmentList(props) {
   const intl = useIntl();
 
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId) || {};
+  const fullMarketPresences = getMarketPresences(marketPresencesState, marketId) || {};
+  const marketPresences = fullMarketPresences.filter((presence) => !presence.market_banned);
   const [investiblesState] = useContext(InvestiblesContext);
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
 

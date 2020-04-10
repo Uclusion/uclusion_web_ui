@@ -36,6 +36,7 @@ function NotificationsProvider(props) {
   const [diffState] = useContext(DiffContext);
   const [isInitialization, setIsInitialization] = useState(true);
   const [isProcessingPage, setIsProcessingPage] = useState(undefined);
+  const [isProcessingPageInitial, setIsProcessingPageInitial] = useState(true);
   const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const [, highlightedVotingDispatch] = useContext(HighlightedVotingContext);
   const history = useHistory();
@@ -61,9 +62,14 @@ function NotificationsProvider(props) {
 
   useLayoutEffect(() => {
     if (page && !pageIsEqual(page, isProcessingPage)) {
-      setIsProcessingPage(page);
-      // Too confusing for the user if multiple processing happening at once so ignore everything for 5s
-      setTimeout(() => setIsProcessingPage(undefined), 5000);
+      if (isProcessingPageInitial) {
+        setIsProcessingPage(page);
+        // Too confusing for the user if multiple processing happening at once so ignore everything for 5s
+        setTimeout(() => {
+          setIsProcessingPageInitial(false);
+          setIsProcessingPage(undefined);
+        }, 5000);
+      }
       let isOldPage = lastPage !== undefined && pageIsEqual(page, lastPage);
       console.debug(`processing old page ${isOldPage}`);
       page.lastProcessed = Date.now();
@@ -128,6 +134,14 @@ function NotificationsProvider(props) {
             dispatch(processedPage(page, undefined, undefined, true, scrollTarget));
           }
           return;
+        }
+        if (!isProcessingPageInitial) {
+          setIsProcessingPage(page);
+          // More came in on this page so put the guard back up
+          setTimeout(() => {
+            setIsProcessingPageInitial(true);
+            setIsProcessingPage(undefined);
+          }, 5000);
         }
         //If you've been on the page less than 3s count as new for the purposes of new messages
         isOldPage = isOldPage && (Date.now() - page.lastProcessed > 3000);
@@ -198,7 +212,7 @@ function NotificationsProvider(props) {
     return () => {
     };
   }, [page, messages, diffState, history, lastPage, highlightedCommentDispatch, highlightedVotingDispatch,
-    pathname, hash, isProcessingPage]);
+    pathname, hash, isProcessingPage, isProcessingPageInitial]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

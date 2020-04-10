@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
 import _ from 'lodash'
-import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
+import { Card, CardContent, Divider, Grid, makeStyles, Typography } from '@material-ui/core'
 import YourVoting from '../Voting/YourVoting'
 import Voting from '../Decision/Voting'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
@@ -11,7 +11,7 @@ import { JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../cons
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import Screen from '../../../containers/Screen/Screen'
 import {
-  formMarketManageLink,
+
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate,
@@ -19,7 +19,6 @@ import {
 import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets'
 import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
-import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import MarketLinks from '../../Dialog/MarketLinks'
 import CardType, { VOTING_TYPE } from '../../../components/CardType'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
@@ -28,7 +27,7 @@ import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import clsx from 'clsx'
 import { useMetaDataStyles } from '../Planning/PlanningInvestible'
 import DialogActions from '../../Home/DialogActions'
-import Box from '@material-ui/core/Box'
+import Collaborators from '../../Dialog/Collaborators';
 import CardActions from '@material-ui/core/CardActions'
 import DismissableText from '../../../components/Notifications/DismissableText'
 
@@ -280,51 +279,7 @@ function InitiativeInvestible(props) {
   );
 }
 
-export function Collaborators(props) {
-  const { marketPresences, authorId, intl, authorDisplay, history, marketId } = props;
-  marketPresences.sort(function(a, b) {
-    if (a.id === authorId) return -1;
-    return 0;
-  });
-  return (
-    <ul>
-      {authorDisplay && (
-        <Typography key={marketPresences[0].id} component="li">
-          {marketPresences[0].name}
-        </Typography>
-      )}
-      {!authorDisplay && marketPresences.map(presence => {
-        const { id: presenceId, name } = presence;
-        if (presenceId === authorId ) {
-          return <React.Fragment key={presenceId}/>;
-        }
-        return (
-          <Typography key={presenceId} component="li">
-            {name}
-          </Typography>
-        );
-      })}
-      {!authorDisplay && marketPresences.length === 1 && (
-        <Typography component="div">
-          <Box color="#E85757" m={1}>
-            {intl.formatMessage({ id: 'draft' })}
-          </Box>
-        </Typography>
-      )}
-      {!authorDisplay && (
-        <Tooltip
-          title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
-        >
-          <IconButton
-            onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
-          >
-            <PersonAddIcon />
-          </IconButton>
-        </Tooltip>
-      )}
-    </ul>
-  );
-}
+
 
 InitiativeInvestible.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types

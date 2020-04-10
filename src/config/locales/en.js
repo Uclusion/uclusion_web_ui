@@ -69,7 +69,7 @@ const messages = defineMessages({
   check_email_code: 'Please check your email for a verification code',
   investibles: 'Investibles',
   users: 'Users',
-  manage: 'Add Collaborators',
+  manage: 'Manage Collaborators',
   edit: 'Edit',
   edit_lock: 'Someone else is editing!',
   online: 'Online',
@@ -413,7 +413,7 @@ const messages = defineMessages({
   decisionDialogsArchiveDialog: 'Deactivate',
 
   // Planning Dialog
-  planningDialogManageParticipantsLabel: 'Add Collaborators',
+  planningDialogManageParticipantsLabel: 'Manage Collaborators',
   planningDialogSummaryLabel: 'Workspace Detail',
   planningDialogPeopleLabel: 'collaborator\'s stories',
   planningDialogDiscussionLabel: 'Discussion',
@@ -458,7 +458,7 @@ const messages = defineMessages({
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
-  dialogAddParticipantsLabel: 'Add Collaborators',
+  dialogAddParticipantsLabel: 'Manage Collaborators',
   storyAddParticipantsLabel: 'Change Assigned',
   dialogEditExpiresLabel: 'Add Time',
   dialogExpiresLabel: 'Once the Dialog expires it is frozen for changes and cannot be re-activated.',
@@ -486,9 +486,9 @@ const messages = defineMessages({
   initiativeInvestibleDescription: 'Initiative - Description',
   investibleDescription: 'Story - Description',
   dialogDescription: 'Dialog - Description',
-  dialogAddress: 'Dialog - Add collaborators',
-  planAddress: 'Workspace - Add collaborators',
-  initiativeAddress: 'Initiative - Add collaborators',
+  dialogAddress: 'Dialog - Manage collaborators',
+  planAddress: 'Workspace - Manage collaborators',
+  initiativeAddress: 'Initiative - Manage collaborators',
   dialogExtend: 'Dialog - Delay expiration',
   initiativeExtend: 'Initiative - Delay expiration',
   initiativeInvestibleDiscussion: 'Discussion',
@@ -717,6 +717,12 @@ const messages = defineMessages({
   commentSearchResultJustify: 'Vote reason in {name}',
   commentSearchResultSuggestion: 'Suggestion in {name}',
   commentSearchResultQuestion: 'Question in {name}',
+
+  // existing users
+  existingUsersBanUser: 'Remove collaborator',
+  existingUsersUnBanUser: 'Readmit collaborator',
+  banUserWarning: 'Removing a collaborator will prevent them from seeing any future updates',
+  unbanUserWarning: 'Readmitting a collaborator will allow them to see any future updates',
 });
 
 export default messages;

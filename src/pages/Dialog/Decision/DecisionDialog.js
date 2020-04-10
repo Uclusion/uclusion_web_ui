@@ -37,7 +37,7 @@ import clsx from 'clsx'
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
-import { Collaborators } from '../../Investible/Initiative/InitiativeInvestible'
+import Collaborators from '../Collaborators';
 import DialogActions from '../../Home/DialogActions'
 import ParentSummary from '../ParentSummary'
 import CardActions from '@material-ui/core/CardActions'

@@ -16,16 +16,16 @@ import {
   Typography,
 } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
-import { addParticipants, inviteParticipants } from '../../api/users'
-import InviteLinker from './InviteLinker'
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton'
-import { usePlanFormStyles } from '../../components/AgilePlan'
-import { addMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesContextReducer'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
+import { addParticipants, inviteParticipants } from '../../../api/users'
+import InviteLinker from '../InviteLinker'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import ApiBlockingButton from '../../../components/SpinBlocking/ApiBlockingButton'
+import { usePlanFormStyles } from '../../../components/AgilePlan'
+import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
 
-function AddressList(props) {
+function AddNewUsers(props) {
   const {
     market,
     onSave,
@@ -65,9 +65,9 @@ function AddressList(props) {
       const macc = {};
       marketPresences.forEach((presence) => {
         const {
-          id: user_id, name, account_id, external_id, email,
+          id: user_id, name, account_id, external_id, email, market_banned: banned
         } = presence;
-        if (!addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
+        if (!banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
           const emailSplit = email ? email.split('@') : ['', ''];
           addToMarketPresencesHash[external_id] = true;
           macc[user_id] = {
@@ -189,7 +189,7 @@ function AddressList(props) {
           dense
           className={classes.sharedForm}
         >
-          <Typography class={classes.sectionHeader}>
+          <Typography className={classes.sectionHeader}>
             {intl.formatMessage({ id: 'searchParticipantsLabel' })}
           </Typography>
            <ListItem key="search">
@@ -262,7 +262,7 @@ function AddressList(props) {
       </ListItem>
         </List>
       <ListItem>
-        <Typography class={classes.sectionHeader}>
+        <Typography className={classes.sectionHeader}>
           {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
         </Typography>
       </ListItem>
@@ -315,22 +315,19 @@ function AddressList(props) {
   );
 }
 
-AddressList.propTypes = {
+AddNewUsers.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   market: PropTypes.object.isRequired,
   onCancel: PropTypes.func,
   onSave: PropTypes.func,
-  isOwnScreen: PropTypes.bool,
-  isAdmin: PropTypes.bool,
+
 };
 
-AddressList.defaultProps = {
+AddNewUsers.defaultProps = {
   onSave: () => {
   },
   onCancel: () => {
   },
-  isOwnScreen: true,
-  isAdmin: false,
 };
 
-export default AddressList;
+export default AddNewUsers;

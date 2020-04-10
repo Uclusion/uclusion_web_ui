@@ -2,6 +2,16 @@ import { getAccountClient, getMarketClient } from './uclusionClient';
 import { toastErrorAndThrow } from '../utils/userMessage';
 import { USER_POKED_TYPE } from '../constants/notifications'
 
+export function unbanUser(marketId, userId) {
+  return getMarketClient(marketId)
+    .then((client) => client.users.banUser(userId, false));
+}
+
+export function banUser(marketId, userId) {
+  return getMarketClient(marketId)
+    .then((client) => client.users.banUser(userId, true));
+}
+
 export function deleteMessage(message) {
   const { marketId, type_object_id: typeObjectId, aType, pokeType, investibleId } = message;
   const objectId = typeObjectId.split('_').pop();

@@ -337,7 +337,7 @@ const messages = defineMessages({
   commentReplyCancelLabel: 'Cancel',
   commentReopenLabel: 'Reopen',
   commentResolveLabel: 'Resolve',
-  commentRemoveLabel: 'Remove',
+  commentRemoveLabel: 'Delete',
   commentViewThreadLabel: 'View Thread',
   commentCloseThreadLabel: 'Close Thread',
   lastUpdatedBy: 'Last Updated By',

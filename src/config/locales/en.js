@@ -317,6 +317,7 @@ const messages = defineMessages({
   commentAddQuestionDefault: 'Your question...',
   commentAddSuggestDefault: 'Your suggestion...',
   commentAddReplyDefault: 'Your reply...',
+  commentAddReportDefault: 'Your progress report...',
   commentAddSaveLabel: 'Save',
   commentAddCancelLabel: 'Clear',
   issueWarning: 'Opening an issue will halt voting on this dialog.',
@@ -336,14 +337,16 @@ const messages = defineMessages({
   commentReplyCancelLabel: 'Cancel',
   commentReopenLabel: 'Reopen',
   commentResolveLabel: 'Resolve',
+  commentRemoveLabel: 'Remove',
   commentViewThreadLabel: 'View Thread',
   commentCloseThreadLabel: 'Close Thread',
   lastUpdatedBy: 'Last Updated By',
 
   // card types
-  cardTypeLabelIssue: 'issue',
+  cardTypeLabelIssue: 'blocking issue',
   cardTypeLabelQuestion: 'question',
   cardTypeLabelSuggestedChange: 'suggestion',
+  cardTypeLabelProgressReport: 'progress report',
   cardTypeAgilePlan: 'workspace - description',
 
   // Notices
@@ -670,6 +673,7 @@ const messages = defineMessages({
   errorMarketShowFailed: 'There was a problem restoring the dialog',
   errorMarketHideFailed: 'There was a problem dismissing the dialog',
   errorCommentResolveFailed: 'There was a problem resolving',
+  errorCommentDeleteFailed: 'There was a problem removing',
   errorCommentReopenFailed: 'There was a problem reopening',
   errorMarketArchiveFailed: 'There was a problem deactivating the dialog',
   errorInvestibleMoveToCurrentVotingFailed: 'There was a problem moving the option to Candidates. Please try again.',
@@ -702,9 +706,10 @@ const messages = defineMessages({
   optionalEdit: 'These fields are optional and can be changed at any time',
 
   // Issue Present
-  issuePresent: 'Issue',
+  issuePresent: 'Blocking Issue',
   questionPresent: 'Question',
   suggestPresent: 'Suggestion',
+  reportPresent: 'Progress Report',
 
   // Search
   searchBoxPlaceholder: 'Search',

@@ -21,7 +21,7 @@ import {
   makeBreadCrumbs,
   navigate
 } from '../../../utils/marketIdPathFunctions'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import ViewArchiveActionButton from './ViewArchivesActionButton'
@@ -58,7 +58,7 @@ function PlanningDialog(props) {
       ? makeArchiveBreadCrumbs(history)
       : makeBreadCrumbs(history);
   const marketComments = comments.filter(comment => !comment.investible_id);
-  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
+  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);

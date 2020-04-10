@@ -1,7 +1,7 @@
-import _ from 'lodash';
-import { getMarketClient } from './uclusionClient';
-import { toastErrorAndThrow } from '../utils/userMessage';
-import { AllSequentialMap } from '../utils/PromiseUtils';
+import _ from 'lodash'
+import { getMarketClient } from './uclusionClient'
+import { toastErrorAndThrow } from '../utils/userMessage'
+import { AllSequentialMap } from '../utils/PromiseUtils'
 
 // import { commentCreated, commentDeleted, commentsReceived } from '../store/Comments/actions';
 
@@ -35,6 +35,12 @@ export function resolveComment(marketId, commentId) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.updateComment(commentId, undefined, true, []))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentResolveFailed'));
+}
+
+export function removeComment(marketId, commentId) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.deleteComment(commentId))
+    .catch((error) => toastErrorAndThrow(error, 'errorCommentDeleteFailed'));
 }
 
 export function reopenComment(marketId, commentId) {

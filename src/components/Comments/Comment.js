@@ -7,8 +7,8 @@ import clsx from 'clsx'
 import _ from 'lodash'
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
 import CommentAdd from './CommentAdd'
-import { REPLY_TYPE } from '../../constants/comments'
-import { reopenComment, resolveComment } from '../../api/comments'
+import { REPLY_TYPE, REPORT_TYPE } from '../../constants/comments'
+import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -19,7 +19,7 @@ import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/mar
 import { EXPANDED, HIGHLIGHT_REMOVE, HighlightedCommentContext } from '../../contexts/HighlightedCommentContext'
 import CardType from '../CardType'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
-import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'
+import { addCommentToMarket, removeComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE } from '../../constants/markets'
 
@@ -168,7 +168,13 @@ function Comment(props) {
         return EMPTY_SPIN_RESULT;
       });
   }
-
+  function remove() {
+    return removeComment(marketId, id)
+      .then(() => {
+        removeComments(commentsDispatch, marketId, [id]);
+        return EMPTY_SPIN_RESULT;
+      });
+  }
   function resolve() {
     return resolveComment(marketId, id)
       .then((comment) => {
@@ -238,6 +244,13 @@ function Comment(props) {
                 updatedBy.name
               }`}
           </Typography>
+          {commentType === REPORT_TYPE && (
+            <Typography className={classes.timeElapsed} variant="body2">
+              <UsefulRelativeTime
+                value={Date.parse(comment.updated_at) - Date.now()}
+              />
+            </Typography>
+          )}
           {enableEditing && isEditable && (
             <Button
               className={clsx(
@@ -260,13 +273,12 @@ function Comment(props) {
               )}
               color="primary"
               marketId={marketId}
-              onClick={comment.resolved ? reopen : resolve}
+              onClick={commentType === REPORT_TYPE ? remove : comment.resolved ? reopen : resolve}
               variant="contained"
               hasSpinChecker
             >
               {intl.formatMessage({
-                id: comment.resolved
-                  ? "commentReopenLabel"
+                id: commentType === REPORT_TYPE ? "commentRemoveLabel" : comment.resolved ? "commentReopenLabel"
                   : "commentResolveLabel"
               })}
             </SpinBlockingButton>

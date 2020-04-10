@@ -5,8 +5,8 @@ import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunction
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
 export function Collaborators(props) {
-  const { marketPresences, authorId, intl, authorDisplay, history, marketId } = props;
-
+  const { marketPresences: unfilteredPresences, authorId, intl, authorDisplay, history, marketId } = props;
+  const marketPresences = unfilteredPresences.filter((presence) => !presence.market_banned);
   marketPresences.sort(function(a, b) {
     if (a.id === authorId) return -1;
     return 0;

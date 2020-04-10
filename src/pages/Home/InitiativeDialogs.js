@@ -57,7 +57,7 @@ function InitiativeDialogs(props) {
       const { name, id: baseInvestibleId } = investible;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
-      const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
+      const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const isAdmin = myPresence && myPresence.is_admin;
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');

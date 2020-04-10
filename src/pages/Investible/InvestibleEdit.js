@@ -67,10 +67,11 @@ function InvestibleEdit (props) {
   const someoneElseEditing = lockedBy && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);
 
-  function onLock () {
+  function onLock (result) {
     setLockedInvestibleId(investibleId);
     setLockedInvestibleIdMarketId(marketId);
     setLockFailed(false);
+    onSave(result);
   }
 
   useEffect(() => {
@@ -182,10 +183,21 @@ function InvestibleEdit (props) {
     );
   }
 
-  function myOnClick () {
+  function takeoutLock () {
     const breakLock = true;
     return lockInvestibleForEdit(marketId, investibleId, breakLock)
-      .catch(() => setLockFailed(true));
+      .then((result) => {
+        return {
+          result,
+          spinChecker: () => Promise.resolve(true),
+        }
+      }).catch(() => {
+        setLockFailed(true);
+        return {
+          result: false,
+          spinChecker: () => Promise.resolve(true),
+        };
+      });
   }
   return (
     <Screen
@@ -197,15 +209,15 @@ function InvestibleEdit (props) {
       <LockedDialog
         classes={lockedDialogClasses}
         open={!hidden && (someoneElseEditing || lockFailed)}
-        onClose={onSave}
         /* slots */
         actions={
           <SpinBlockingButton
             className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionEdit)}
             disableFocusRipple
             marketId={marketId}
-            onClick={myOnClick}
+            onClick={takeoutLock}
             onSpinStop={onLock}
+            hasSpinChecker
             disabled={operationRunning}
           >
             <FormattedMessage id="pageLockEditPage" />

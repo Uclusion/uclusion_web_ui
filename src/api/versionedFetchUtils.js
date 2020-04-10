@@ -68,6 +68,7 @@ export function refreshGlobalVersion () {
               // console.log('Got new version');
               pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
             }
+            resolve(true);
             return Promise.resolve(true);
           }).catch((error) => {
             // we'll log match problems, but raise the rest

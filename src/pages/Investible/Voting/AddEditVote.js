@@ -167,7 +167,7 @@ function AddEditVote(props) {
     // console.debug("saving now");
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
-    const reasonNeedsUpdate = reasonText !== body;
+    const reasonNeedsUpdate = reasonText !== body && !(_.isEmpty(reasonText) && _.isEmpty(body));
     const updateInfo = {
       marketId,
       investibleId,

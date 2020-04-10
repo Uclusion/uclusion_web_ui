@@ -82,7 +82,10 @@ function computeNewState(state, action) {
     case REMOVE_MARKET_DETAILS:
       return removeStoredMarkets(state, action);
     case INITIALIZE_STATE:
-      return action.newState;
+      return {
+        ...action.newState,
+        initializing: false,
+      };
     default:
       return state;
   }

@@ -35,18 +35,20 @@ function doAccountRefresh(state, action) {
   const { account } = action;
   return {
     ...state,
+    initializing: false,
     account,
   };
 }
 
 function doAccountClear(state, action) {
-  return {};
+  return {initializing: false};
 }
 
 function doBillingInfoRefresh(state, action) {
   const { billingInfo } = action;
   return {
     ...state,
+    initializing: false,
     billingInfo,
   };
 }
@@ -55,6 +57,7 @@ function doInvoicesRefresh(state, action) {
   const { invoices } = action;
   return {
     ...state,
+    intializing: false,
     invoices,
   };
 }

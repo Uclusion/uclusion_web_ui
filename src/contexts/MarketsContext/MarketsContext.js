@@ -12,6 +12,7 @@ import { pushMessage } from '../../utils/MessageBusUtils';
 
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
 const EMPTY_STATE = {
+  initializing: true,
   marketDetails: [],
 };
 

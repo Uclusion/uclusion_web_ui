@@ -34,7 +34,10 @@ function computeNewState(state, action) {
     case UPDATE_INVESTIBLES:
       return doUpdateInvestibles(state, action);
     case INITIALIZE_STATE:
-      return action.newState;
+      return {
+        ...action.newState,
+        initializing: false,
+      };
     default:
       return state;
   }

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import _ from 'lodash'
@@ -47,6 +47,7 @@ function Investible(props) {
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
   const [investiblesState] = useContext(InvestiblesContext);
+  const isInitialization = investiblesState.initializing || marketsState.initializing || marketPresencesState.initializing || commentsState.initializing;
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const inv = getInvestible(investiblesState, investibleId);
   const usedInv = inv || emptyInvestible;
@@ -63,6 +64,14 @@ function Investible(props) {
   const breadCrumbs = inArchives ?
     makeArchiveBreadCrumbs(history, breadCrumbTemplates) :
     makeBreadCrumbs(history, breadCrumbTemplates);
+
+
+  useEffect(() => {
+    if (!isInitialization && loading) {
+      navigate(history, formMarketLink(marketId));
+    }
+  }, [isInitialization, loading, history, marketId]);
+
 
   function toggleEdit() {
     navigate(history, formInvestibleEditLink(marketId, investibleId));

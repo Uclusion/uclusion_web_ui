@@ -7,7 +7,7 @@ import { updateAccount, updateBilling, updateInvoices } from './accountContextHe
 import { getInvoices, getPaymentInfo } from '../../api/users';
 import _ from 'lodash';
 
-const EMPTY_STATE = { account: {}, billingInfo: {} };
+const EMPTY_STATE = { account: {}, billingInfo: {}, initializing: true };
 const AccountContext = React.createContext(EMPTY_STATE);
 
 const ACCOUNT_CONTEXT_KEY = 'account_context';

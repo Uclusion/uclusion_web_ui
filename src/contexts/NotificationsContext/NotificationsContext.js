@@ -20,6 +20,7 @@ import { getFullLink } from '../../components/Notifications/Notifications'
 import { ISSUE_TYPE } from '../../constants/notifications'
 
 export const EMPTY_STATE = {
+  initializing: true,
   messages: [],
 };
 

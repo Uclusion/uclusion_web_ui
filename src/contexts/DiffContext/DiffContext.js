@@ -3,7 +3,7 @@ import reducer, { initializeState } from './diffContextReducer';
 import LocalForageHelper from '../../utils/LocalForageHelper';
 
 const DIFF_CONTEXT_NAMESPACE = 'diff_context';
-const EMPTY_STATE = {};
+const EMPTY_STATE = {initializing: true};
 
 const DiffContext = React.createContext(EMPTY_STATE);
 

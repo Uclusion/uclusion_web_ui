@@ -59,7 +59,7 @@ function AddNewUsers (props) {
       return { ...acc, [external_id]: true };
     }, {});
     return Object.keys(marketPresencesState).reduce((acc, marketId) => {
-      const marketPresences = marketPresencesState[marketId];
+      const marketPresences = marketPresencesState[marketId] || [];
       const macc = {};
       marketPresences.forEach((presence) => {
         const {

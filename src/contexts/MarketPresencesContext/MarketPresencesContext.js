@@ -4,7 +4,7 @@ import reducer, { initializeState } from './marketPresencesContextReducer';
 import LocalForageHelper from '../../utils/LocalForageHelper';
 
 const MARKET_PRESENCES_CONTEXT_NAMESPACE = 'market_presences';
-const EMPTY_STATE = {};
+const EMPTY_STATE = {initializing: true};
 const MarketPresencesContext = React.createContext(EMPTY_STATE);
 
 function MarketPresencesProvider(props) {

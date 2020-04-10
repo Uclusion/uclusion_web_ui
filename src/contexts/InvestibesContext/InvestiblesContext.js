@@ -11,7 +11,7 @@ import {
 } from '../SearchIndexContext/searchIndexContextMessages';
 
 const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
-const EMPTY_STATE = {};
+const EMPTY_STATE = {initializing: true};
 
 const InvestiblesContext = React.createContext(EMPTY_STATE);
 

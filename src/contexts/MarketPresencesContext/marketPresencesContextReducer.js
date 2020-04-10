@@ -140,7 +140,7 @@ function doProcessBanned(state, action) {
   let newState = state;
   bannedList.forEach((marketId) => {
     const oldMarketUsers = state[marketId] || [];
-    const myUser = oldMarketUsers.find((user) => user.current_user);
+    const myUser = oldMarketUsers.find((user) => user.current_user) || {};
     if (!myUser.market_banned) {
       const newPresence = {
         ...myUser,
@@ -149,7 +149,7 @@ function doProcessBanned(state, action) {
       const newMarketUsers = _.unionBy([newPresence], oldMarketUsers, 'id');
       newState = doUpdateMarketPresences(newState, {marketId, users: newMarketUsers})
     }
-  })
+  });
   return newState;
 }
 
@@ -161,7 +161,10 @@ function doRemoveMarketsPresence(state, action) {
 function computeNewState(state, action) {
   switch (action.type) {
     case INITIALIZE_STATE:
-      return action.newState;
+      return {
+        ...action.newState,
+        initializing: false,
+      };
     case ADD_MARKET_PRESENCE:
       return doAddMarketPresence(state, action);
     case ADD_MARKET_PRESENCES:

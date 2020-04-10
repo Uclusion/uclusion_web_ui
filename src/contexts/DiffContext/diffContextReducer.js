@@ -170,7 +170,10 @@ function computeNewState(state, action) {
   const { type } = action;
   switch (type) {
     case INITIALIZE_STATE:
-      return action.newState;
+      return {
+        ...action.newState,
+        initializing: false,
+      };
     case REMOVE_CONTENTS:
       return removeContentsState(state, action);
     case ADD_CONTENTS:

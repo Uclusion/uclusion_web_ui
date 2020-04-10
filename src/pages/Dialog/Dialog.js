@@ -82,7 +82,7 @@ function Dialog(props) {
   const { market_type: marketType, parent_investible_id: parentInvestibleId,
     parent_market_id: parentMarketId, is_inline: isInline, market_stage: marketStage } = renderableMarket || '';
   const activeMarket = marketStage === ACTIVE_STAGE;
-  const [isInitialization, setIsInitialization] = useState(false);
+  const isInitialization = marketsState.initializing || investiblesState.initializing || marketPresencesState.initializing || marketStagesState.initializing;
   const marketStages = getStages(marketStagesState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
@@ -113,19 +113,10 @@ function Dialog(props) {
       }
     }
     const loadedMarketAtAll = !(_.isEmpty(loadedMarket) && _.isEmpty(marketStages) && _.isEmpty(marketPresences));
-    if (!hidden && !loadedMarketAtAll && !isFromInvite) {
-      // console.log('Setting load timer.');
-      setTimeout(() => {
-        console.warn('Failed to load market after allotted time.');
-        setIsInitialization(true);
-      }, 3500);
-    }
-    if (isInitialization && !isFromInvite) {
-      setIsInitialization(false);
-      if (!loadedMarketAtAll && !hidden) {
+    const redirectToInvite = !isInitialization && !isFromInvite && !loadedMarketAtAll && !hidden;
+    if (redirectToInvite) {
         const inviteLink = formatMarketLinkWithPrefix('invite', marketId);
         navigate(history, inviteLink);
-      }
     }
     return () => {
     };

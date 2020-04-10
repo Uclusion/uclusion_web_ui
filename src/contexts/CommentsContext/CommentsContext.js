@@ -11,7 +11,7 @@ import {
 } from '../SearchIndexContext/searchIndexContextMessages';
 
 const COMMENTS_CONTEXT_NAMESPACE = 'comments_context';
-const EMPTY_STATE = {};
+const EMPTY_STATE = {initializing: true};
 
 const CommentsContext = React.createContext(EMPTY_STATE);
 

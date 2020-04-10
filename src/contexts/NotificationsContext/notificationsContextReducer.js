@@ -163,7 +163,7 @@ function getMassagedMessages(messages) {
       return -1;
     }
     return 1;
-  })
+  });
   return rawMessages;
 }
 
@@ -285,7 +285,10 @@ function computeNewState(state, action) {
     case UPDATE_PAGE:
       return doUpdatePage(state, action);
     case INITIALIZE_STATE:
-      return action.newState;
+      return {
+        ...action.newState,
+        initializing: false,
+      };
     case PROCESSED_PAGE:
       return markPageProcessed(state, action);
     case REMOVE:

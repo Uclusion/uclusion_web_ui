@@ -23,10 +23,18 @@ export function getMyUserForMarket(state, marketId) {
   return undefined;
 }
 
-export function getMarketDetailsForType(state, marketType = 'DECISION') {
+export function getMarketDetailsForType(state, marketPresencesState, marketType = 'DECISION') {
   if (state.marketDetails) {
     // eslint-disable-next-line max-len
-    return state.marketDetails.filter((market) => market.market_type === marketType && market.is_inline !== true);
+    return state.marketDetails.filter((market) => {
+      const { id } = market;
+      const marketPresences = getMarketPresences(marketPresencesState, id) || [];
+      const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+      if (myPresence.market_banned) {
+        return false;
+      }
+      return market.market_type === marketType && market.is_inline !== true;
+    });
   }
   return null;
 }
@@ -39,11 +47,12 @@ export function getHiddenMarketDetailsForUser(state, marketPresenceState) {
       if (marketStage !== ACTIVE_STAGE) {
         return true;
       }
-      const marketPresences = getMarketPresences(marketPresenceState, id);
-      if (!marketPresences) {
-        return false;
-      }
+      const marketPresences = getMarketPresences(marketPresenceState, id) || [];
+
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+      if (myPresence.market_banned) {
+        return false; // banned markets don't show up in the archives
+      }
       return !myPresence.following;
     });
   }

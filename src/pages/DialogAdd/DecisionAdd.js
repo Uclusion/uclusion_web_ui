@@ -138,7 +138,7 @@ function DecisionAdd(props) {
         const { id: marketId } = market;
         turnOffSpin.result = formMarketAddInvestibleLink(marketId);
         if (parentMarketId) {
-          const planningMarkets = getMarketDetailsForType(marketState, PLANNING_TYPE);
+          const planningMarkets = getMarketDetailsForType(marketState, marketPresencesState, PLANNING_TYPE);
           const marketDetails = planningMarkets.find((planningMarket) => planningMarket.id === parentMarketId);
           if (marketDetails) {
             const marketPresences = getMarketPresences(marketPresencesState, parentMarketId);

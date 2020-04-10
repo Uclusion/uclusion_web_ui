@@ -1,19 +1,22 @@
-import React, { useEffect, useState, useReducer, useContext, useLayoutEffect } from 'react'
-import { toast } from 'react-toastify';
-import { useHistory } from 'react-router';
-import _ from 'lodash';
+import React, { useContext, useEffect, useLayoutEffect, useReducer, useState } from 'react'
+import { toast } from 'react-toastify'
+import { useHistory } from 'react-router'
+import _ from 'lodash'
 import reducer, {
-  initializeState, isMessageEqual,
-  NOTIFICATIONS_CONTEXT_NAMESPACE, pageIsEqual, processedPage,
+  initializeState,
+  isMessageEqual,
+  NOTIFICATIONS_CONTEXT_NAMESPACE,
+  pageIsEqual,
+  processedPage,
 } from './notificationsContextReducer'
-import beginListening from './notificationsContextMessages';
-import LocalForageHelper from '../../utils/LocalForageHelper';
-import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext';
-import { DiffContext } from '../DiffContext/DiffContext';
-import { HighlightedVotingContext } from '../HighlightedVotingContext';
-import { hasUnViewedDiff } from '../DiffContext/diffContextHelper';
-import { navigate } from '../../utils/marketIdPathFunctions';
-import { getFullLink } from '../../components/Notifications/Notifications';
+import beginListening from './notificationsContextMessages'
+import LocalForageHelper from '../../utils/LocalForageHelper'
+import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext'
+import { DiffContext } from '../DiffContext/DiffContext'
+import { HighlightedVotingContext } from '../HighlightedVotingContext'
+import { hasUnViewedDiff } from '../DiffContext/diffContextHelper'
+import { navigate } from '../../utils/marketIdPathFunctions'
+import { getFullLink } from '../../components/Notifications/Notifications'
 import { ISSUE_TYPE } from '../../constants/notifications'
 
 export const EMPTY_STATE = {
@@ -32,6 +35,7 @@ function NotificationsProvider(props) {
   const { page, messages, lastPage } = state;
   const [diffState] = useContext(DiffContext);
   const [isInitialization, setIsInitialization] = useState(true);
+  const [isProcessingPage, setIsProcessingPage] = useState(undefined);
   const [, highlightedCommentDispatch] = useContext(HighlightedCommentContext);
   const [, highlightedVotingDispatch] = useContext(HighlightedVotingContext);
   const history = useHistory();
@@ -56,7 +60,10 @@ function NotificationsProvider(props) {
   }, [isInitialization]);
 
   useLayoutEffect(() => {
-    if (page) {
+    if (page && !pageIsEqual(page, isProcessingPage)) {
+      setIsProcessingPage(page);
+      // Too confusing for the user if multiple processing happening at once so ignore everything for 5s
+      setTimeout(() => setIsProcessingPage(undefined), 5000);
       let isOldPage = lastPage !== undefined && pageIsEqual(page, lastPage);
       console.debug(`processing old page ${isOldPage}`);
       page.lastProcessed = Date.now();
@@ -191,7 +198,7 @@ function NotificationsProvider(props) {
     return () => {
     };
   }, [page, messages, diffState, history, lastPage, highlightedCommentDispatch, highlightedVotingDispatch,
-    pathname, hash]);
+    pathname, hash, isProcessingPage]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

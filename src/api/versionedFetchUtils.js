@@ -23,8 +23,8 @@ import {
   STOP_OPERATION
 } from '../contexts/OperationInProgressContext/operationInProgressMessages'
 import config from '../config'
-import LocalForageHelper from '../utils/LocalForageHelper';
-import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer';
+import LocalForageHelper from '../utils/LocalForageHelper'
+import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -66,7 +66,7 @@ export function refreshGlobalVersion () {
               // console.log('Got new version');
               pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
             }
-            resolve(true);
+            return Promise.resolve(true);
           }).catch((error) => {
             // we'll log match problems, but raise the rest
             if (error instanceof MatchError) {
@@ -146,6 +146,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
     .then((versions) => {
       const { global_version, signatures: marketSignatures, foreground: foregroundList } = versions;
       if (_.isEmpty(marketSignatures) || _.isEmpty(global_version)) {
+        pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
         return currentHeldVersion;
       }
       // now we sort the global versions by foreground

@@ -69,7 +69,7 @@ const messages = defineMessages({
   check_email_code: 'Please check your email for a verification code',
   investibles: 'Investibles',
   users: 'Users',
-  manage: 'Add Collaborators',
+  manage: 'Manage Collaborators',
   edit: 'Edit',
   edit_lock: 'Someone else is editing!',
   online: 'Online',
@@ -317,6 +317,7 @@ const messages = defineMessages({
   commentAddQuestionDefault: 'Your question...',
   commentAddSuggestDefault: 'Your suggestion...',
   commentAddReplyDefault: 'Your reply...',
+  commentAddReportDefault: 'Your progress report...',
   commentAddSaveLabel: 'Save',
   commentAddCancelLabel: 'Clear',
   issueWarning: 'Opening an issue will halt voting on this dialog.',
@@ -336,14 +337,16 @@ const messages = defineMessages({
   commentReplyCancelLabel: 'Cancel',
   commentReopenLabel: 'Reopen',
   commentResolveLabel: 'Resolve',
+  commentRemoveLabel: 'Remove',
   commentViewThreadLabel: 'View Thread',
   commentCloseThreadLabel: 'Close Thread',
   lastUpdatedBy: 'Last Updated By',
 
   // card types
-  cardTypeLabelIssue: 'issue',
+  cardTypeLabelIssue: 'blocking issue',
   cardTypeLabelQuestion: 'question',
   cardTypeLabelSuggestedChange: 'suggestion',
+  cardTypeLabelProgressReport: 'progress report',
   cardTypeAgilePlan: 'workspace - description',
 
   // Notices
@@ -410,7 +413,7 @@ const messages = defineMessages({
   decisionDialogsArchiveDialog: 'Deactivate',
 
   // Planning Dialog
-  planningDialogManageParticipantsLabel: 'Add Collaborators',
+  planningDialogManageParticipantsLabel: 'Manage Collaborators',
   planningDialogSummaryLabel: 'Workspace Detail',
   planningDialogPeopleLabel: 'collaborator\'s stories',
   planningDialogDiscussionLabel: 'Discussion',
@@ -455,7 +458,7 @@ const messages = defineMessages({
 
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
-  dialogAddParticipantsLabel: 'Add Collaborators',
+  dialogAddParticipantsLabel: 'Manage Collaborators',
   storyAddParticipantsLabel: 'Change Assigned',
   dialogEditExpiresLabel: 'Add Time',
   dialogExpiresLabel: 'Once the Dialog expires it is frozen for changes and cannot be re-activated.',
@@ -483,9 +486,9 @@ const messages = defineMessages({
   initiativeInvestibleDescription: 'Initiative - Description',
   investibleDescription: 'Story - Description',
   dialogDescription: 'Dialog - Description',
-  dialogAddress: 'Dialog - Add collaborators',
-  planAddress: 'Workspace - Add collaborators',
-  initiativeAddress: 'Initiative - Add collaborators',
+  dialogAddress: 'Dialog - Manage collaborators',
+  planAddress: 'Workspace - Manage collaborators',
+  initiativeAddress: 'Initiative - Manage collaborators',
   dialogExtend: 'Dialog - Delay expiration',
   initiativeExtend: 'Initiative - Delay expiration',
   initiativeInvestibleDiscussion: 'Discussion',
@@ -670,6 +673,7 @@ const messages = defineMessages({
   errorMarketShowFailed: 'There was a problem restoring the dialog',
   errorMarketHideFailed: 'There was a problem dismissing the dialog',
   errorCommentResolveFailed: 'There was a problem resolving',
+  errorCommentDeleteFailed: 'There was a problem removing',
   errorCommentReopenFailed: 'There was a problem reopening',
   errorMarketArchiveFailed: 'There was a problem deactivating the dialog',
   errorInvestibleMoveToCurrentVotingFailed: 'There was a problem moving the option to Candidates. Please try again.',
@@ -702,9 +706,10 @@ const messages = defineMessages({
   optionalEdit: 'These fields are optional and can be changed at any time',
 
   // Issue Present
-  issuePresent: 'Issue',
+  issuePresent: 'Blocking Issue',
   questionPresent: 'Question',
   suggestPresent: 'Suggestion',
+  reportPresent: 'Progress Report',
 
   // Search
   searchBoxPlaceholder: 'Search',
@@ -712,6 +717,12 @@ const messages = defineMessages({
   commentSearchResultJustify: 'Vote reason in {name}',
   commentSearchResultSuggestion: 'Suggestion in {name}',
   commentSearchResultQuestion: 'Question in {name}',
+
+  // existing users
+  existingUsersBanUser: 'Remove collaborator',
+  existingUsersUnBanUser: 'Readmit collaborator',
+  banUserWarning: 'Removing a collaborator will prevent them from seeing any future updates',
+  unbanUserWarning: 'Readmitting a collaborator will allow them to see any future updates',
 });
 
 export default messages;

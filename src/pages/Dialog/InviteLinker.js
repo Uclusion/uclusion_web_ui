@@ -77,7 +77,7 @@ function InviteLinker(props) {
         className={classes.inputField}
         fullWidth={true}
         placeholder={link}
-        inputProps={{ ariaLabel: link, border: '1px solid #ccc' }}
+        inputProps={{ 'aria-label': link, border: '1px solid #ccc' }}
         value={link}
         endAdornment={icon}
         color={"primary"}

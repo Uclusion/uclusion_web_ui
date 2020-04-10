@@ -1,9 +1,10 @@
-import LocalForageHelper from '../../utils/LocalForageHelper';
-import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from './MarketPresencesContext';
-import _ from 'lodash';
+import LocalForageHelper from '../../utils/LocalForageHelper'
+import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from './MarketPresencesContext'
+import _ from 'lodash'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_MARKET_PRESENCE = 'ADD_MARKET_PRESENCE';
+const ADD_MARKET_PRESENCES = 'ADD_MARKET_PRESENCES';
 const UPDATE_MARKET_PRESENCES = 'UPDATE_MARKET_PRESENCES';
 const REMOVE_MARKETS_PRESENCE = 'REMOVE_MARKETS_PRESENCE';
 const PATCH_INVESTMENT = 'PATCH_INVESTMENT';
@@ -30,6 +31,14 @@ export function addMarketPresence(marketId, user) {
     type: ADD_MARKET_PRESENCE,
     marketId,
     user,
+  };
+}
+
+export function addMarketPresences(marketId, users) {
+  return {
+    type: ADD_MARKET_PRESENCES,
+    marketId,
+    users,
   };
 }
 
@@ -97,6 +106,16 @@ function doAddMarketPresence(state, action) {
   };
 }
 
+function doAddMarketPresences(state, action) {
+  const { marketId, users } = action;
+  const oldUsers = state[marketId] || [];
+  const newUsers = _.unionBy(users, oldUsers, 'id');
+  return {
+    ...state,
+    [marketId]: newUsers,
+  };
+}
+
 function doUpdateMarketPresences(state, action) {
   const { marketId, users } = action;
   return {
@@ -116,6 +135,8 @@ function computeNewState(state, action) {
       return action.newState;
     case ADD_MARKET_PRESENCE:
       return doAddMarketPresence(state, action);
+    case ADD_MARKET_PRESENCES:
+      return doAddMarketPresences(state, action);
     case UPDATE_MARKET_PRESENCES:
       return doUpdateMarketPresences(state, action);
     case REMOVE_MARKETS_PRESENCE:

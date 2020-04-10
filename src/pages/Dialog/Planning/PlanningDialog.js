@@ -21,7 +21,7 @@ import {
   makeBreadCrumbs,
   navigate
 } from '../../../utils/marketIdPathFunctions'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import ViewArchiveActionButton from './ViewArchivesActionButton'
@@ -50,16 +50,15 @@ function PlanningDialog(props) {
     hidden,
     myPresence
   } = props;
-  const breadCrumbs =
-    myPresence && !myPresence.following
-      ? makeArchiveBreadCrumbs(history)
-      : makeBreadCrumbs(history);
-
   const intl = useIntl();
   const { id: marketId, market_stage: marketStage } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
+  const inArchives = !activeMarket || (myPresence && !myPresence.following);
+  const breadCrumbs = inArchives
+      ? makeArchiveBreadCrumbs(history)
+      : makeBreadCrumbs(history);
   const marketComments = comments.filter(comment => !comment.investible_id);
-  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
+  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
@@ -90,7 +89,8 @@ function PlanningDialog(props) {
     return !_.isEmpty(assignedInvestibles);
   });
   const isChannel = _.isEmpty(assignedPresences);
-  const unassigned = _.difference(presences, assignedPresences);
+  const unassignedFull = _.difference(presences, assignedPresences);
+  const unassigned = unassignedFull.filter((presence) => !presence.market_banned);
 
   let lockedByName;
   if (lockedBy) {
@@ -190,7 +190,7 @@ function PlanningDialog(props) {
       )}
       <Grid container spacing={2}>
           <Grid item xs={12} style={{ marginTop: '30px' }}>
-            {activeMarket && (
+            {!inArchives && (
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}
                 marketId={marketId}

@@ -7,7 +7,7 @@ import { Button, darken, makeStyles, Paper } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import QuillEditor from '../TextEditors/QuillEditor'
 import { saveComment } from '../../api/comments'
-import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, SUGGEST_CHANGE_TYPE, } from '../../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, } from '../../constants/comments'
 import { processTextAndFilesForSave } from '../../api/files'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -28,6 +28,8 @@ function getPlaceHolderLabelId (type) {
       return 'commentAddIssueDefault';
     case REPLY_TYPE:
       return 'commentAddReplyDefault';
+    case REPORT_TYPE:
+      return 'commentAddReportDefault';
     default:
       throw new Error(`Unknown comment type:${type}`);
   }

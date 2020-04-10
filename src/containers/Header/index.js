@@ -1,9 +1,9 @@
-import React, { useContext, useRef } from 'react'
+import React, { useContext } from 'react'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 import _ from 'lodash'
-import { AppBar, Breadcrumbs, IconButton, Link, Paper, Popper, Toolbar, Tooltip, Typography, } from '@material-ui/core'
+import { AppBar, Breadcrumbs, IconButton, Link, Paper, Toolbar, Tooltip, Typography, } from '@material-ui/core'
 import MenuOpenIcon from '@material-ui/icons/MenuOpen'
 import { makeStyles } from '@material-ui/styles'
 import { SidebarContext } from '../../contexts/SidebarContext'
@@ -58,6 +58,12 @@ const useStyles = makeStyles((theme) => {
     breadCrumbImage: {
       height: 40,
     },
+    centerMe: {
+      marginLeft: '20%',
+    },
+    offlineStyle: {
+      padding: '15px',
+    },
     menuButton: {
       marginLeft: '-3px',
       marginRight: theme.spacing(2),
@@ -89,7 +95,6 @@ const useStyles = makeStyles((theme) => {
 
 function Header(props) {
   const classes = useStyles();
-  const screenRef = useRef(null);
   const intl = useIntl();
   const [online] = useContext(OnlineStateContext);
 
@@ -130,29 +135,6 @@ function Header(props) {
 
   return (
     <>
-      {!hidden && screenRef.current && (
-        <Popper
-          className={classes.elevated}
-          open={!online}
-          anchorEl={screenRef.current}
-          placement="top"
-          modifiers={{
-            flip: {
-              enabled: true,
-            },
-            preventOverflow: {
-              enabled: true,
-              boundariesElement: 'window',
-            },
-          }}
-        >
-          <Paper>
-            <Typography>
-              {intl.formatMessage({ id: 'warningOffline' })}
-            </Typography>
-          </Paper>
-        </Popper>
-      )}
       <AppBar
         position="fixed"
         className={clsx(classes.appBar, {
@@ -174,6 +156,15 @@ function Header(props) {
           </Tooltip>
           {generateTitle()}
           {toolbarButtons}
+          {!online && (
+            <div className={classes.centerMe}>
+              <Paper className={classes.offlineStyle}>
+                <Typography variant="h5">
+                  {intl.formatMessage({ id: 'warningOffline' })}
+                </Typography>
+              </Paper>
+            </div>
+          )}
           <div className={classes.grow} />
           <div id="notifications" className={classes.searchBox}>
             <div  className={classes.notification}>

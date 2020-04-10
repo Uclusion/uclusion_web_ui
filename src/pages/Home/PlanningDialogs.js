@@ -122,7 +122,7 @@ function PlanningDialogs(props) {
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
+      const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
       return (
         <Grid

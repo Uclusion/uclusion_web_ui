@@ -8,7 +8,7 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import YourVoting from '../Voting/YourVoting'
 import Voting from '../Decision/Voting'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
-import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
+import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import {
   formInvestibleEditLink,
   formMarketAddInvestibleLink,
@@ -212,6 +212,9 @@ function PlanningInvestible(props) {
   if (!isAssigned) {
     allowedCommentTypes.push(SUGGEST_CHANGE_TYPE);
   }
+  if (isAssigned) {
+    allowedCommentTypes.push(REPORT_TYPE);
+  }
   if (!isInNotDoing) {
     allowedCommentTypes.unshift(ISSUE_TYPE);
   }
@@ -271,7 +274,6 @@ function PlanningInvestible(props) {
     const required = myRequired !== undefined ? myRequired : 1;
     return _.size(myInvested) >= required;
   }
-  const enoughVotes = hasEnoughVotes(invested, votesRequired);
 
   function getSidebarActions() {
     if (!activeMarket) {
@@ -319,140 +321,83 @@ function PlanningInvestible(props) {
     return sidebarActions;
   }
 
+  const enoughVotes = hasEnoughVotes(invested, votesRequired);
+
   function getStageActions() {
-    if (!activeMarket) {
+    if (inArchives) {
       return [];
     }
-    const stageActions = [];
-    // you can only move stages besides not doing or verfied if you're assigned to it
-    if (isAssigned) {
-      if (isInVoting || isInAccepted) {
-        const nextStageId = isInVoting ? inAcceptedStage.id : inReviewStage.id;
-        const assignedInNextStage = assignedInStage(
-          investibles,
-          userId,
-          nextStageId
-        );
-        if (isInAccepted || (enoughVotes && _.isEmpty(assignedInNextStage))) {
-          stageActions.push(
-            <MoveToNextVisibleStageActionButton
-              key="visible"
-              investibleId={investibleId}
-              marketId={marketId}
-              currentStageId={stage}
-              isOpen={changeStagesExpanded}
-            />
-          );
-        }
-      }
-      if (isInAccepted && _.isEmpty(assignedInStage(investibles, userId, inCurrentVotingStage.id))) {
-        stageActions.push(
-          <MoveToVotingActionButton
-            investibleId={investibleId}
-            marketId={marketId}
-            currentStageId={stage}
-            isOpen={changeStagesExpanded}
-            key="voting"
-          />
-        );
-      }
-      if (isInReview && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id))) {
-        stageActions.push(
-          <MoveToAcceptedActionButton
-            investibleId={investibleId}
-            marketId={marketId}
-            currentStageId={stage}
-            isOpen={changeStagesExpanded}
-            key="acceptedFromReview"
-          />
-        );
-      }
-      if (isInBlocked) {
-        // eslint-disable-next-line max-len
-        const blockingComments = investibleComments.filter(
-          comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
-        );
-        if (_.isEmpty(blockingComments)) {
-          // eslint-disable-next-line max-len
-          const assignedInVotingStage = assignedInStage(
-            investibles,
-            userId,
-            inCurrentVotingStage.id
-          );
-          if (_.isEmpty(assignedInVotingStage)) {
-            stageActions.push(
-              <MoveToVotingActionButton
-                investibleId={investibleId}
-                marketId={marketId}
-                currentStageId={stage}
-                isOpen={changeStagesExpanded}
-                key="voting"
-              />
-            );
-          }
-          if (enoughVotes) {
-            // eslint-disable-next-line max-len
-            const assignedInAcceptedStage = assignedInStage(
-              investibles,
-              userId,
-              inAcceptedStage.id
-            );
-            if (_.isEmpty(assignedInAcceptedStage)) {
-              stageActions.push(
-                <MoveToAcceptedActionButton
-                  investibleId={investibleId}
-                  marketId={marketId}
-                  currentStageId={stage}
-                  isOpen={changeStagesExpanded}
-                  key="accepted"
-                />
-              );
-            }
-            stageActions.push(
-              <MoveToInReviewActionButton
-                investibleId={investibleId}
-                marketId={marketId}
-                currentStageId={stage}
-                isOpen={changeStagesExpanded}
-                key="inreview"
-              />
-            );
-          }
-        }
-      }
-    }
-    if (!isReadyFurtherWork && isAssigned && !isInVoting) {
-      stageActions.push(
-        <MoveToFurtherWorkActionButton
-          investibleId={investibleId}
-          marketId={marketId}
-          currentStageId={stage}
-          isOpen={changeStagesExpanded}
-          key="furtherwork"
-        />
-      );
-    }
-    if (!isInVerified) {
-      stageActions.push(
-        <MoveToVerifiedActionButton
-          investibleId={investibleId}
-          marketId={marketId}
-          currentStageId={stage}
-          isOpen={changeStagesExpanded}
-          key="verified"
-        />
-      );
-    }
-    if (!isInNotDoing) {
-      stageActions.push(<MoveToNotDoingActionButton
+    const blockingComments = investibleComments.filter(
+      comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
+    );
+    const assignedInVotingStage = assignedInStage(
+      investibles,
+      userId,
+      inCurrentVotingStage.id
+    );
+    const assignedInAcceptedStage = assignedInStage(
+      investibles,
+      userId,
+      inAcceptedStage.id
+    );
+    return [
+      <MoveToNextVisibleStageActionButton
+        key="visible"
+        investibleId={investibleId}
+        marketId={marketId}
+        currentStageId={stage}
+        disabled={!isAssigned || !((isInVoting && enoughVotes && _.isEmpty(assignedInAcceptedStage)) || isInAccepted)}
+        isOpen={changeStagesExpanded}
+      />,
+      <MoveToVotingActionButton
+        investibleId={investibleId}
+        marketId={marketId}
+        currentStageId={stage}
+        isOpen={changeStagesExpanded}
+        key="voting"
+        disabled={!_.isEmpty(assignedInVotingStage) || !isAssigned || !_.isEmpty(blockingComments)}
+      />,
+      <MoveToAcceptedActionButton
+        investibleId={investibleId}
+        marketId={marketId}
+        currentStageId={stage}
+        isOpen={changeStagesExpanded}
+        key="accepted"
+        disabled={!isAssigned || !_.isEmpty(blockingComments) || !_.isEmpty(assignedInAcceptedStage) || (isInVoting && !enoughVotes)}
+      />,
+      <MoveToInReviewActionButton
+        investibleId={investibleId}
+        marketId={marketId}
+        currentStageId={stage}
+        isOpen={changeStagesExpanded}
+        key="inreview"
+        disabled={!isAssigned || !_.isEmpty(blockingComments) || (isInVoting && !enoughVotes)}
+      />,
+      <MoveToFurtherWorkActionButton
+        investibleId={investibleId}
+        marketId={marketId}
+        currentStageId={stage}
+        isOpen={changeStagesExpanded}
+        key="furtherwork"
+        disabled={isReadyFurtherWork || (isInVoting && !enoughVotes)}
+      />,
+      <MoveToVerifiedActionButton
+        investibleId={investibleId}
+        marketId={marketId}
+        currentStageId={stage}
+        isOpen={changeStagesExpanded}
+        key="verified"
+        disabled={isInVerified || !_.isEmpty(blockingComments)}
+      />,
+      <MoveToNotDoingActionButton
         investibleId={investibleId}
         marketId={marketId}
         currentStageId={stage}
         isOpen={changeStagesExpanded}
         key="notdoing"
-      />);
-    }
-    return stageActions;
+        disabled={isInNotDoing}
+      />
+    ];
   }
 
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || [];
@@ -535,7 +480,7 @@ function PlanningInvestible(props) {
         <CardContent className={classes.votingCardContent}>
           <h1>
             {name}
-            {(isAssigned || isInNotDoing || isInVoting) && (
+            {!inArchives && (isAssigned || isInNotDoing || isInVoting) && (
               <EditMarketButton
                 labelId="edit"
                 marketId={marketId}
@@ -602,6 +547,7 @@ function PlanningInvestible(props) {
                 investibles={underConsideration}
                 marketId={inlineMarketId}
                 comments={inlineInvestibleComments}
+                inArchives={inArchives}
               />
             </SubSection>
           </Grid>
@@ -621,7 +567,7 @@ function PlanningInvestible(props) {
           </Grid>
         )}
         <Grid item xs={12} style={{ marginTop: '71px' }}>
-          {activeMarket && (
+          {!inArchives && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}
               investible={investible}

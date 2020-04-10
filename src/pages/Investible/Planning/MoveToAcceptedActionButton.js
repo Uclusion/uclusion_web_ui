@@ -6,7 +6,7 @@ import { getAcceptedStage, } from '../../../contexts/MarketStagesContext/marketS
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToAcceptedActionButton(props) {
-  const { marketId } = props;
+  const { marketId, disabled } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId);
 
@@ -21,12 +21,14 @@ function MoveToAcceptedActionButton(props) {
       targetStageId={acceptedStage.id}
       translationId="planningInvestibleNextStageAcceptedLabel"
       explanationId="planningInvestibleAcceptedExplanation"
+      disabled={disabled}
     />
   );
 }
 
 MoveToAcceptedActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
+  disabled: PropTypes.bool.isRequired,
 };
 
 export default MoveToAcceptedActionButton;

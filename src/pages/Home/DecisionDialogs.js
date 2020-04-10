@@ -57,7 +57,7 @@ function DecisionDialogs(props) {
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const isAdmin = myPresence && myPresence.is_admin;
-      const marketPresencesFollowing = marketPresences.filter((presence) => presence.following);
+      const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
       const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
       const active = marketStage === ACTIVE_STAGE;

@@ -51,6 +51,7 @@ function StageChangeAction(props) {
     explanationId,
     onSpinStop,
     isOpen,
+    disabled,
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -98,6 +99,7 @@ function StageChangeAction(props) {
       onClick={moveToTarget}
       customClasses={classes}
       isOpen={isOpen}
+      disabled={disabled}
     />
   );
 }
@@ -112,6 +114,7 @@ StageChangeAction.propTypes = {
   currentStageId: PropTypes.string.isRequired,
   targetStageId: PropTypes.string.isRequired,
   isOpen: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool.isRequired,
 };
 
 StageChangeAction.defaultProps = {

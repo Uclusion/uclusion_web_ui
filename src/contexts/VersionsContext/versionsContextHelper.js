@@ -1,7 +1,5 @@
 import { pushMessage } from '../../utils/MessageBusUtils';
 import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
-import LocalForageHelper from '../../utils/LocalForageHelper';
-import { VERSIONS_CONTEXT_NAMESPACE } from './versionsContextReducer';
 import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../WebSocketContext'
 
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
@@ -22,16 +20,7 @@ export function getExistingMarkets (state) {
 }
 
 export function refreshVersions () {
-  // console.debug('Refreshing versions');
-  const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
-  return disk.getState()
-    .then((state) => {
-      const {
-        existingMarkets,
-        globalVersion,
-      } = state || {};
-      return refreshGlobalVersion(globalVersion, existingMarkets);
-    });
+  return refreshGlobalVersion();
 }
 
 export function refreshNotifications () {

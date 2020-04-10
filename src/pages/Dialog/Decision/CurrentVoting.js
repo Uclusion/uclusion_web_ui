@@ -45,7 +45,7 @@ function CurrentVoting(props) {
   const history = useHistory();
   const classes = useStyles();
   const intl = useIntl();
-  const { marketPresences, investibles, marketId, comments } = props;
+  const { marketPresences, investibles, marketId, comments, inArchives } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
 
   function getInvestibleVotes() {
@@ -105,8 +105,10 @@ function CurrentVoting(props) {
   }
 
   function goToAddOption() {
-    const link = formMarketAddInvestibleLink(marketId);
-    navigate(history, link);
+    if (!inArchives) {
+      const link = formMarketAddInvestibleLink(marketId);
+      navigate(history, link);
+    }
   }
 
   const tallies = getInvestibleVotes();
@@ -156,7 +158,8 @@ CurrentVoting.propTypes = {
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
-  comments: PropTypes.arrayOf(PropTypes.object)
+  comments: PropTypes.arrayOf(PropTypes.object),
+  inArchives: PropTypes.bool.isRequired,
 };
 
 CurrentVoting.defaultProps = {

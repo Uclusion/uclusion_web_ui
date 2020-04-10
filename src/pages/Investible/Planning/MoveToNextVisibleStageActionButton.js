@@ -8,7 +8,7 @@ import { useHistory } from 'react-router'
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToNextVisibleStageActionButton(props) {
-  const { marketId, currentStageId } = props;
+  const { marketId, currentStageId, disabled } = props;
   const history = useHistory();
   const [marketStagesState] = useContext(MarketStagesContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId);
@@ -32,6 +32,7 @@ function MoveToNextVisibleStageActionButton(props) {
       translationId={destinationLabel}
       explanationId={destinationExplanation}
       targetStageId={destinationStage.id}
+      disabled={disabled}
       onSpinStop={() => navigate(history, formMarketLink(marketId))}
     />
   );
@@ -40,6 +41,7 @@ function MoveToNextVisibleStageActionButton(props) {
 MoveToNextVisibleStageActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
   currentStageId: PropTypes.string.isRequired,
+  disabled: PropTypes.bool.isRequired,
 };
 
 export default MoveToNextVisibleStageActionButton;

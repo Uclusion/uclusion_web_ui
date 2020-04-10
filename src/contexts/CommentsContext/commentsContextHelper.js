@@ -1,15 +1,12 @@
-import {
-  fixupItemsForStorage,
-} from '../ContextUtils';
-import _ from 'lodash';
-import { removeCommentsFromMarket, updateMarketComments } from './commentsContextReducer';
-import { pushMessage } from '../../utils/MessageBusUtils';
+import { fixupItemsForStorage, } from '../ContextUtils'
+import _ from 'lodash'
+import { removeCommentsFromMarket, updateMarketComments } from './commentsContextReducer'
+import { pushMessage } from '../../utils/MessageBusUtils'
 import {
   INDEX_COMMENT_TYPE,
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
-} from '../SearchIndexContext/searchIndexContextMessages';
-
+} from '../SearchIndexContext/searchIndexContextMessages'
 
 export function getComment(state, marketId, commentId) {
   const marketComments = getMarketComments(state, marketId);
@@ -35,10 +32,7 @@ export function getMarketComments(state, marketId) {
 }
 
 /**
- * Comment removal is really an investment comment thing,
- * so we're not going to handle the case of comment threads etc.
- * That will probably have to be modelled by an overwrite of contents.
- * Or we will plain not support it
+ * Comment removal is top level. The replies won't show once orphaned and will be cleaned up by async.
  * @param dispatch
  */
 export function removeComments(dispatch, marketId, comments) {

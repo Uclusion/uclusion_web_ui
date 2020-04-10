@@ -5,12 +5,12 @@ import { useIntl } from 'react-intl';
 import _ from 'lodash';
 import {
   makeBreadCrumbs, decomposeMarketPath, formMarketLink, navigate, formInvestibleLink,
-} from '../../utils/marketIdPathFunctions'
+} from '../../utils/marketIdPathFunctions';
 import Screen from '../../containers/Screen/Screen';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import AddressList from './AddressList';
+import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
+
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
@@ -21,14 +21,15 @@ import {
   PURE_SIGNUP_ADD_PEOPLE_STEPS,
   PURE_SIGNUP_FAMILY_NAME
 } from '../../components/Tours/pureSignupTours';
-import queryString from 'query-string'
-import { Card, CardContent, Typography } from '@material-ui/core'
-import DeadlineExtender from './Decision/DeadlineExtender'
-import CardType, { AGILE_PLAN_TYPE, VOTING_TYPE } from '../../components/CardType'
+import queryString from 'query-string';
+import { Card, CardContent, Typography } from '@material-ui/core';
+import DeadlineExtender from './Decision/DeadlineExtender';
+import CardType, { AGILE_PLAN_TYPE, VOTING_TYPE } from '../../components/CardType';
 import { usePlanFormStyles } from '../../components/AgilePlan';
 import DismissableText from '../../components/Notifications/DismissableText';
+import ManageUsers from './UserManagement/ManageUsers';
 
-function DialogManage(props) {
+function DialogManage (props) {
   const { hidden } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -48,33 +49,32 @@ function DialogManage(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const myRealPresence = myPresence || {};
-  const { is_admin: isAdmin, id: myUserId } = myRealPresence;
+  const { is_admin: isAdmin} = myRealPresence;
   const [investiblesState] = useContext(InvestiblesContext);
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const loading = !marketType || (marketType !== PLANNING_TYPE && !myPresence)
     || (marketType === INITIATIVE_TYPE && _.isEmpty(investibles));
 
-  function onDone() {
-    if (marketType === INITIATIVE_TYPE) {
-      const { investible } = investibles[0];
-      const { id } = investible;
-      navigate(history, formInvestibleLink(marketId, id));
-    }
-    else {
-      navigate(history, formMarketLink(marketId));
-    }
-  }
-
-  function getInitiativeLinkName(baseInvestible) {
+  function getInitiativeLinkName (baseInvestible) {
     const { investible } = baseInvestible;
     const { name } = investible;
     return name;
   }
 
+  function onActionDone () {
+    if (marketType === INITIATIVE_TYPE) {
+      const { investible } = investibles[0];
+      const { id } = investible;
+      navigate(history, formInvestibleLink(marketId, id));
+    } else {
+      navigate(history, formMarketLink(marketId));
+    }
+  }
+
   const linkName = marketType === INITIATIVE_TYPE && !_.isEmpty(investibles)
     ? getInitiativeLinkName(investibles[0])
     : currentMarketName;
-  const breadCrumbTemplates = [{ name: linkName, link: formMarketLink(marketId), id: 'marketCrumb'}];
+  const breadCrumbTemplates = [{ name: linkName, link: formMarketLink(marketId), id: 'marketCrumb' }];
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   return (
     <Screen
@@ -85,89 +85,85 @@ function DialogManage(props) {
       loading={loading}
     >
       {(participation || marketType === PLANNING_TYPE) && (
-        <DismissableText textId='participationHelp' />
+        <DismissableText textId="participationHelp"/>
       )}
       <Card>
-      {participation && marketType === DECISION_TYPE && myPresence && (
-        <div id="decisionAddressList">
-          <UclusionTour
-            name={PURE_SIGNUP_ADD_PEOPLE}
-            family={PURE_SIGNUP_FAMILY_NAME}
-            steps={PURE_SIGNUP_ADD_PEOPLE_STEPS}
-            shouldRun={isAdmin}
-            hidden={hidden}
-          />
-          <CardType
-            className={classes.cardType}
-            type={DECISION_TYPE}
-            label={intl.formatMessage({ id: "dialogAddress" })}
-          />
-          <CardContent className={classes.cardContent}>
-            <AddressList
-              market={renderableMarket}
-              isAdmin={isAdmin}
-              myUserId={myUserId}
-              onCancel={onDone}
-              onSave={onDone}
+        {participation && marketType === DECISION_TYPE && myPresence && (
+          <div id="decisionAddressList">
+            <UclusionTour
+              name={PURE_SIGNUP_ADD_PEOPLE}
+              family={PURE_SIGNUP_FAMILY_NAME}
+              steps={PURE_SIGNUP_ADD_PEOPLE_STEPS}
+              shouldRun={isAdmin}
+              hidden={hidden}
             />
-          </CardContent>
-        </div>
-      )}
-      {marketType !== PLANNING_TYPE && expires && isAdmin && active && (
-        <>
-          <CardType
-            className={classes.cardType}
-            type={marketType === INITIATIVE_TYPE ? VOTING_TYPE : DECISION_TYPE}
-            label={
-              intl.formatMessage({ id: marketType === INITIATIVE_TYPE ? 'initiativeExtend' : 'dialogExtend' })
-            }
-          />
-          <CardContent className={classes.cardContent}>
-            <Typography>
-              {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
-            </Typography>
-            <DeadlineExtender
-              market={renderableMarket}
-              onCancel={onDone}
+            <CardType
+              className={classes.cardType}
+              type={DECISION_TYPE}
+              label={intl.formatMessage({ id: 'dialogAddress' })}
             />
-          </CardContent>
-        </>
-      )}
-      {marketType === PLANNING_TYPE && (
-        <>
-          <CardType
-            className={classes.cardType}
-            type={AGILE_PLAN_TYPE}
-            label={intl.formatMessage({ id: "planAddress"})}
-          />
-          <CardContent className={classes.cardContent}>
-            <AddressList
-              market={renderableMarket}
-              isOwnScreen={false}
-              onCancel={onDone}
-              onSave={onDone}
+              <ManageUsers
+                market={renderableMarket}
+                onAddNewUsers={onActionDone}
+              />
+
+          </div>
+        )}
+        {marketType !== PLANNING_TYPE && expires && isAdmin && active && (
+          <>
+            <CardType
+              className={classes.cardType}
+              type={marketType === INITIATIVE_TYPE ? VOTING_TYPE : DECISION_TYPE}
+              label={
+                intl.formatMessage({ id: marketType === INITIATIVE_TYPE ? 'initiativeExtend' : 'dialogExtend' })
+              }
             />
-          </CardContent>
-        </>
-      )}
-      {participation && marketType === INITIATIVE_TYPE && myPresence && (
-        <>
-          <CardType
-            className={classes.cardType}
-            type={VOTING_TYPE}
-            label={intl.formatMessage({ id: "initiativeAddress" })}
-          />
-          <CardContent className={classes.cardContent}>
-            <AddressList
-              market={renderableMarket}
-              isAdmin={isAdmin}
-              onCancel={onDone}
-              onSave={onDone}
-              intl={intl}
+            <CardContent className={classes.cardContent}>
+              <Typography>
+                {intl.formatMessage({ id: 'decisionDialogExtendDaysLabel' })}
+              </Typography>
+              <DeadlineExtender
+                market={renderableMarket}
+                onCancel={onActionDone}
+              />
+              <ManageUsers
+                market={renderableMarket}
+                onAddNewUsers={onActionDone}
+              />
+            </CardContent>
+          </>
+        )}
+        {marketType === PLANNING_TYPE && (
+          <>
+            <CardType
+              className={classes.cardType}
+              type={AGILE_PLAN_TYPE}
+              label={intl.formatMessage({ id: 'planAddress' })}
             />
-          </CardContent>
-        </>
-      )}
+            <ManageUsers
+              market={renderableMarket}
+              onAddNewUsers={onActionDone}
+            />
+
+          </>
+        )}
+        {participation && marketType === INITIATIVE_TYPE && myPresence && (
+          <>
+            <CardType
+              className={classes.cardType}
+              type={VOTING_TYPE}
+              label={intl.formatMessage({ id: 'initiativeAddress' })}
+            />
+            <CardContent className={classes.cardContent}>
+              {isAdmin && (
+                <ManageUsers
+                  market={renderableMarket}
+                  onAddNewUsers={onActionDone}
+                />
+              )}
+            </CardContent>
+          </>
+        )}
       </Card>
     </Screen>
   );

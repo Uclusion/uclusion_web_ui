@@ -2,9 +2,8 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 import { changeUserToObserver } from '../../api/markets'
-import { Dialog } from '../../components/Dialogs'
 import ArchiveIcon from '@material-ui/icons/Archive'
-import { Button } from '@material-ui/core'
+
 import SpinningTooltipIconButton from '../../components/SpinBlocking/SpinningTooltipIconButton'
 import { changeObserverStatus } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -17,6 +16,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
 import { FormattedMessage } from 'react-intl'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
+import WarningDialog from '../../components/Warnings/WarningDialog';
 
 function ChangeToObserverButton(props) {
   const { marketId, onClick } = props;
@@ -60,10 +60,11 @@ function ChangeToObserverButton(props) {
     <div>
       <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon />} onClick={handleOpen}
                          translationId="decisionDialogsBecomeObserver" />
-      <ArchiveDialog
+      <WarningDialog
         classes={lockedDialogClasses}
         open={open}
         onClose={handleClose}
+        icon={<ArchiveIcon/>}
         issueWarningId="archiveWarning"
         /* slots */
         actions={
@@ -82,54 +83,6 @@ function ChangeToObserverButton(props) {
     </div>
   );
 }
-
-function ArchiveDialog(props) {
-  const { actions, classes, open, onClose, issueWarningId } = props;
-
-  const autoFocusRef = React.useRef(null);
-
-  return (
-    <Dialog
-      autoFocusRef={autoFocusRef}
-      classes={{
-        root: classes.root,
-        actions: classes.actions,
-        content: classes.issueWarningContent,
-        title: classes.title
-      }}
-      open={open}
-      onClose={onClose}
-      /* slots */
-      actions={
-        <React.Fragment>
-          {actions}
-          <Button
-            className={clsx(classes.action, classes.actionCancel)}
-            disableFocusRipple
-            onClick={onClose}
-            ref={autoFocusRef}
-          >
-            <FormattedMessage id="lockDialogCancel" />
-          </Button>
-        </React.Fragment>
-      }
-      content={<FormattedMessage id={issueWarningId} />}
-      title={
-        <React.Fragment>
-          <ArchiveIcon className={classes.warningTitleIcon} />
-          <FormattedMessage id="warning" />
-        </React.Fragment>
-      }
-    />
-  );
-}
-
-ArchiveDialog.propTypes = {
-  actions: PropTypes.node.isRequired,
-  onClose: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired,
-  issueWarningId: PropTypes.string.isRequired,
-};
 
 ChangeToObserverButton.propTypes = {
   marketId: PropTypes.string.isRequired,

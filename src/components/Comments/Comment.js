@@ -7,22 +7,21 @@ import clsx from 'clsx'
 import _ from 'lodash'
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
 import CommentAdd from './CommentAdd'
-import { REPLY_TYPE } from '../../constants/comments'
-import { reopenComment, resolveComment } from '../../api/comments'
+import { REPLY_TYPE, REPORT_TYPE } from '../../constants/comments'
+import { removeComment, reopenComment, resolveComment } from '../../api/comments'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import CommentEdit from './CommentEdit'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { EXPANDED, HIGHLIGHT_REMOVE, HighlightedCommentContext } from '../../contexts/HighlightedCommentContext'
 import CardType from '../CardType'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
-import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'
+import { addCommentToMarket, removeComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-
-const enableEditing = true;
+import { ACTIVE_STAGE } from '../../constants/markets'
 
 const useCommentStyles = makeStyles(
   {
@@ -138,7 +137,12 @@ function Comment(props) {
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
   const [marketsState] = useContext(MarketsContext);
+  const market = getMarket(marketsState, marketId) || {};
+  const { market_stage: marketStage } = market;
   const userId = getMyUserForMarket(marketsState, marketId) || {};
+  const activeMarket = marketStage === ACTIVE_STAGE;
+  const myPresence = presences.find((presence) => presence.current_user) || {};
+  const inArchives = !activeMarket || !myPresence.following;
   const replies = comments.filter(comment => comment.reply_id === id);
   const sortedReplies = _.sortBy(replies, "created_at");
   const [highlightedCommentState, highlightedCommentDispatch] = useContext(
@@ -147,6 +151,7 @@ function Comment(props) {
   const [replyOpen, setReplyOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
+  const enableEditing = !inArchives;
 
   function toggleReply() {
     setReplyOpen(!replyOpen);
@@ -163,7 +168,13 @@ function Comment(props) {
         return EMPTY_SPIN_RESULT;
       });
   }
-
+  function remove() {
+    return removeComment(marketId, id)
+      .then(() => {
+        removeComments(commentsDispatch, marketId, [id]);
+        return EMPTY_SPIN_RESULT;
+      });
+  }
   function resolve() {
     return resolveComment(marketId, id)
       .then((comment) => {
@@ -233,6 +244,13 @@ function Comment(props) {
                 updatedBy.name
               }`}
           </Typography>
+          {commentType === REPORT_TYPE && (
+            <Typography className={classes.timeElapsed} variant="body2">
+              <UsefulRelativeTime
+                value={Date.parse(comment.updated_at) - Date.now()}
+              />
+            </Typography>
+          )}
           {enableEditing && isEditable && (
             <Button
               className={clsx(
@@ -246,24 +264,25 @@ function Comment(props) {
               <FormattedMessage id="edit" />
             </Button>
           )}
-          <SpinBlockingButton
-            className={clsx(
-              classes.action,
-              classes.actionSecondary,
-              classes.actionResolveToggle
-            )}
-            color="primary"
-            marketId={marketId}
-            onClick={comment.resolved ? reopen : resolve}
-            variant="contained"
-            hasSpinChecker
-          >
-            {intl.formatMessage({
-              id: comment.resolved
-                ? "commentReopenLabel"
-                : "commentResolveLabel"
-            })}
-          </SpinBlockingButton>
+          {enableEditing && (
+            <SpinBlockingButton
+              className={clsx(
+                classes.action,
+                classes.actionSecondary,
+                classes.actionResolveToggle
+              )}
+              color="primary"
+              marketId={marketId}
+              onClick={commentType === REPORT_TYPE ? remove : comment.resolved ? reopen : resolve}
+              variant="contained"
+              hasSpinChecker
+            >
+              {intl.formatMessage({
+                id: commentType === REPORT_TYPE ? "commentRemoveLabel" : comment.resolved ? "commentReopenLabel"
+                  : "commentResolveLabel"
+              })}
+            </SpinBlockingButton>
+          )}
         </Box>
         <CardContent className={classes.cardContent}>
           <Typography className={classes.createdBy} variant="caption">
@@ -305,7 +324,7 @@ function Comment(props) {
                 />
               </Button>
             )}
-            {!comment.resolved && (
+            {!comment.resolved && enableEditing && (
               <React.Fragment>
                 <Button
                   className={clsx(classes.action, classes.actionPrimary)}
@@ -351,6 +370,7 @@ function Comment(props) {
                   comment={child}
                   marketId={marketId}
                   highLightId={highlightIds}
+                  enableEditing={enableEditing}
                 />
               );
             })}
@@ -374,9 +394,9 @@ Comment.propTypes = {
 };
 
 function InitialReply(props) {
-  const { comment, highLightId } = props;
+  const { comment, highLightId, enableEditing } = props;
 
-  return <Reply id={`c${comment.id}`} comment={comment} highLightId={highLightId} />;
+  return <Reply id={`c${comment.id}`} comment={comment} highLightId={highLightId} enableEditing={enableEditing}/>;
 }
 
 const useReplyStyles = makeStyles(
@@ -466,7 +486,7 @@ const unknownPresence = {
  * @param {{comment: Comment}} props
  */
 function Reply(props) {
-  const { comment, highLightId, ...other } = props;
+  const { comment, highLightId, enableEditing, ...other } = props;
 
   const marketId = useMarketId();
   const presences = usePresences(marketId);
@@ -522,13 +542,15 @@ function Reply(props) {
         <Typography className={classes.timePosted} variant="body2">
           <FormattedDate value={comment.created_at} />
         </Typography>
-        <Button
-          className={classes.action}
-          onClick={() => setReplyOpen(true)}
-          variant="text"
-        >
-          Reply
-        </Button>
+        {enableEditing && (
+          <Button
+            className={classes.action}
+            onClick={() => setReplyOpen(true)}
+            variant="text"
+          >
+            {intl.formatMessage({ id: "issueReplyLabel" })}
+          </Button>
+        )}
         {enableEditing && isEditable && (
           <Button
             className={classes.action}
@@ -554,6 +576,7 @@ function Reply(props) {
           <ThreadedReplies
             replies={comment.children}
             highLightId={highLightId}
+            enableEditing={enableEditing}
           />
         </CardContent>
       )}
@@ -581,7 +604,7 @@ const useThreadedReplyStyles = makeStyles(
  * @param {{comments: Comment[], replies: string[]}} props
  */
 function ThreadedReplies(props) {
-  const { replies: replyIds, highLightId } = props;
+  const { replies: replyIds, highLightId, enableEditing } = props;
   const comments = useComments();
 
   const classes = useThreadedReplyStyles();
@@ -600,6 +623,7 @@ function ThreadedReplies(props) {
             <ThreadedReply
               comment={reply}
               highLightId={highLightId}
+              enableEditing={enableEditing}
             />
           );
         }
@@ -610,8 +634,9 @@ function ThreadedReplies(props) {
 }
 
 function ThreadedReply(props) {
-  const { comment, highLightId } = props;
-  return <Reply id={`c${comment.id}`} comment={comment} elevation={0} highLightId={highLightId} />;
+  const { comment, highLightId, enableEditing } = props;
+  return <Reply id={`c${comment.id}`} comment={comment} elevation={0} highLightId={highLightId}
+                enableEditing={enableEditing} />;
 }
 
 /**

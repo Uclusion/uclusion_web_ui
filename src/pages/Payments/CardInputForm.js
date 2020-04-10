@@ -16,6 +16,7 @@ import {
   updateAccount,
   getCurrentBillingInfo
 } from '../../contexts/AccountContext/accountContextHelper';
+import clsx from 'clsx';
 // this is used to style the Elements Card component
 const CARD_OPTIONS = {
   iconStyle: 'solid',
@@ -33,6 +34,21 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(3, 0, 2),
     backgroundColor: '#3f6b72',
     color: '#fff',
+  },
+  action: {
+    boxShadow: "none",
+    padding: "4px 16px",
+    textTransform: "none",
+    "&:hover": {
+      boxShadow: "none"
+    }
+  },
+  actionPrimary: {
+    backgroundColor: "#2D9CDB",
+    color: "white",
+    "&:hover": {
+      backgroundColor: "#2D9CDB"
+    }
   },
 }));
 
@@ -211,7 +227,11 @@ function CardInputForm (props) {
             spinning={processing}
             fullWidth
             variant="contained"
-            className={classes.submit}
+            className={clsx(
+              classes.submit,
+              classes.action,
+              classes.actionPrimary
+              )}
             type="submit"
             disabled={!validForm}
           >

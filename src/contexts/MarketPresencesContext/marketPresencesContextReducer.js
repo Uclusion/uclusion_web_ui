@@ -8,7 +8,7 @@ const ADD_MARKET_PRESENCES = 'ADD_MARKET_PRESENCES';
 const UPDATE_MARKET_PRESENCES = 'UPDATE_MARKET_PRESENCES';
 const REMOVE_MARKETS_PRESENCE = 'REMOVE_MARKETS_PRESENCE';
 const PATCH_INVESTMENT = 'PATCH_INVESTMENT';
-
+const BANNED_MARKETS = 'BANNED_MARKETS';
 
 /** Messages you can send the reducer **/
 
@@ -24,6 +24,13 @@ export function patchInvestment(investmentPatch) {
     type: PATCH_INVESTMENT,
     investmentPatch,
   };
+}
+
+export function processBannedList(bannedList) {
+  return {
+    type: BANNED_MARKETS,
+    bannedList
+  }
 }
 
 export function addMarketPresence(marketId, user) {
@@ -124,6 +131,28 @@ function doUpdateMarketPresences(state, action) {
   };
 }
 
+function doProcessBanned(state, action) {
+  const { bannedList } = action;
+  if (_.isEmpty(bannedList)) {
+    // If he has been unbanned then this is a no op because normal market syncing will change his presence
+    return state;
+  }
+  let newState = state;
+  bannedList.forEach((marketId) => {
+    const oldMarketUsers = state[marketId] || [];
+    const myUser = oldMarketUsers.find((user) => user.current_user);
+    if (!myUser.market_banned) {
+      const newPresence = {
+        ...myUser,
+        market_banned: true,
+      };
+      const newMarketUsers = _.unionBy([newPresence], oldMarketUsers, 'id');
+      newState = doUpdateMarketPresences(newState, {marketId, users: newMarketUsers})
+    }
+  })
+  return newState;
+}
+
 function doRemoveMarketsPresence(state, action) {
   const { marketIds } = action;
   return _.omit(state, marketIds);
@@ -143,6 +172,8 @@ function computeNewState(state, action) {
       return doRemoveMarketsPresence(state, action);
     case PATCH_INVESTMENT:
       return doPatchInvestment(state, action);
+    case BANNED_MARKETS:
+      return doProcessBanned(state, action);
     default:
       return state;
   }

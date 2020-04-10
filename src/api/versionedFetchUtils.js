@@ -4,11 +4,13 @@ import { getVersions } from './summaries'
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
 import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils'
 import {
+  BANNED_LIST,
   PUSH_COMMENTS_CHANNEL,
   PUSH_CONTEXT_CHANNEL,
   PUSH_INVESTIBLES_CHANNEL,
   PUSH_PRESENCE_CHANNEL,
   PUSH_STAGE_CHANNEL,
+  REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
 } from '../contexts/VersionsContext/versionsContextHelper'
 import { fetchComments } from './comments'
@@ -144,7 +146,11 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   const callWithVersion = currentHeldVersion === 'INITIALIZATION' ? null : currentHeldVersion;
   return getVersions(callWithVersion)
     .then((versions) => {
-      const { global_version, signatures: marketSignatures, foreground: foregroundList } = versions;
+      const { global_version, signatures: marketSignatures, foreground: foregroundList,
+      banned: bannedList } = versions;
+      if (!_.isEmpty(bannedList)) {
+        pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
+      }
       if (_.isEmpty(marketSignatures) || _.isEmpty(global_version)) {
         pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
         return currentHeldVersion;

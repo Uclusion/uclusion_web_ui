@@ -1,5 +1,5 @@
-import { pushMessage } from '../../utils/MessageBusUtils';
-import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
+import { pushMessage } from '../../utils/MessageBusUtils'
+import { refreshGlobalVersion } from '../../api/versionedFetchUtils'
 import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../WebSocketContext'
 
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
@@ -10,6 +10,7 @@ export const PUSH_PRESENCE_CHANNEL = 'PresenceChannel';
 export const REMOVED_MARKETS_CHANNEL = 'RemovedMarketsChannel';
 export const PUSH_STAGE_CHANNEL = 'MarketsStagesChannel';
 export const VERSIONS_EVENT = 'version_push';
+export const BANNED_LIST = 'banned_list';
 
 export function getGlobalVersion (state) {
   return state.globalVersion;

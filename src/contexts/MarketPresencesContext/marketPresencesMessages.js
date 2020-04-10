@@ -1,16 +1,21 @@
 import {
-  PUSH_PRESENCE_CHANNEL, REMOVED_MARKETS_CHANNEL,
+  BANNED_LIST,
+  PUSH_PRESENCE_CHANNEL,
+  REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
-} from '../VersionsContext/versionsContextHelper';
-import { removeMarketsPresence, updateMarketPresences } from './marketPresencesContextReducer';
-import { registerListener } from '../../utils/MessageBusUtils';
+} from '../VersionsContext/versionsContextHelper'
+import { processBannedList, removeMarketsPresence, updateMarketPresences } from './marketPresencesContextReducer'
+import { registerListener } from '../../utils/MessageBusUtils'
 
 function beginListening(dispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketPresenceRemovedMarketStart', (data) => {
-    const { payload: { event, message } } = data;
+    const { payload: { event, message, bannedList } } = data;
     switch (event) {
       case VERSIONS_EVENT:
         dispatch(removeMarketsPresence(message));
+        break;
+      case BANNED_LIST:
+        dispatch(processBannedList(bannedList));
         break;
       default:
         // console.debug(`Ignoring identity event ${event}`);

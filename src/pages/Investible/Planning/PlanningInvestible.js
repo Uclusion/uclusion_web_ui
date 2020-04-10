@@ -176,20 +176,20 @@ function PlanningInvestible(props) {
     }
   }
   const [marketStagesState] = useContext(MarketStagesContext);
-  const inReviewStage = getInReviewStage(marketStagesState, marketId);
+  const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const isInReview = inReviewStage && stage === inReviewStage.id;
-  const inAcceptedStage = getAcceptedStage(marketStagesState, marketId);
+  const inAcceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
   const isInAccepted = inAcceptedStage && stage === inAcceptedStage.id;
-  const inBlockedStage = getBlockedStage(marketStagesState, marketId);
+  const inBlockedStage = getBlockedStage(marketStagesState, marketId) || {};
   const isInBlocked = inBlockedStage && stage === inBlockedStage.id;
-  const inVerifiedStage = getVerifiedStage(marketStagesState, marketId);
+  const inVerifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   const isInVerified = inVerifiedStage && stage === inVerifiedStage.id;
-  const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId)
+  const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId) || {};
   const isReadyFurtherWork = furtherWorkStage && stage === furtherWorkStage.id;
   const inCurrentVotingStage = getInCurrentVotingStage(
     marketStagesState,
     marketId
-  );
+  ) || {};
   const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
   const isInNotDoing = notDoingStage && stage === notDoingStage.id;

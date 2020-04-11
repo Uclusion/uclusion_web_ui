@@ -71,7 +71,7 @@ function InvestibleEdit (props) {
     setLockedInvestibleId(investibleId);
     setLockedInvestibleIdMarketId(marketId);
     setLockFailed(false);
-    onSave(result);
+    onSave(result, true);
   }
 
   useEffect(() => {
@@ -141,7 +141,7 @@ function InvestibleEdit (props) {
       .finally(() => navigate(history, formInvestibleLink(marketId, investibleId)));
   }
 
-  function onSave (result) {
+  function onSave (result, stillEditing) {
     // the edit ony contains the investible data and assignments, not the full market infos
     if (result) {
       localforage.removeItem(lockedInvestibleId)
@@ -159,7 +159,9 @@ function InvestibleEdit (props) {
           refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);
         });
     }
-    navigate(history, formInvestibleLink(marketId, investibleId));
+    if (!stillEditing) {
+      navigate(history, formInvestibleLink(marketId, investibleId));
+    }
   }
 
   const { name: marketName } = market;

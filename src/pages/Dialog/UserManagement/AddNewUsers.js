@@ -60,6 +60,9 @@ function AddNewUsers (props) {
     }, {});
     return Object.keys(marketPresencesState).reduce((acc, marketId) => {
       const marketPresences = marketPresencesState[marketId] || [];
+      if(_.isEmpty(marketPresences)) {
+        return {};
+      }
       const macc = {};
       marketPresences.forEach((presence) => {
         const {

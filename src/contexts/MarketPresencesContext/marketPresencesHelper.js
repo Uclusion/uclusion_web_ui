@@ -8,6 +8,11 @@ export function getMarketPresences(state, marketId) {
   return state[marketId];
 }
 
+export function getMarketPresence(state, marketId, userId) {
+  const presences = getMarketPresences(state, marketId) || [];
+  return presences.find((presence) => presence.id === userId);
+}
+
 export function getPresenceMap(state, marketId) {
   const presences = getMarketPresences(state, marketId) || [];
   return presences.reduce((acc, element) => {
@@ -31,6 +36,15 @@ function changeMyPresence(state, dispatch, marketId, newValues) {
   const newPresence = {
     ...myPresence,
     ...newValues
+  };
+  dispatch(addMarketPresence(marketId, newPresence));
+}
+
+export function changeBanStatus(state, dispatch, marketId, userId, isBanned) {
+  const presence = getMarketPresence(state, marketId, userId);
+  const newPresence = {
+    ...presence,
+    market_banned: isBanned,
   };
   dispatch(addMarketPresence(marketId, newPresence));
 }

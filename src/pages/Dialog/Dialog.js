@@ -113,7 +113,7 @@ function Dialog(props) {
       }
     }
     const loadedMarketAtAll = !(_.isEmpty(loadedMarket) && _.isEmpty(marketStages) && _.isEmpty(marketPresences));
-    const redirectToInvite = !isInitialization && !isFromInvite && !loadedMarketAtAll && !hidden;
+    const redirectToInvite = !isInitialization && !isFromInvite && !loadedMarketAtAll && !hidden && marketId;
     if (redirectToInvite) {
         const inviteLink = formatMarketLinkWithPrefix('invite', marketId);
         navigate(history, inviteLink);

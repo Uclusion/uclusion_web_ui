@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import SyncIcon from '@material-ui/icons/Sync';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
@@ -8,6 +8,8 @@ import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingBut
 import clsx from 'clsx';
 import { FormattedMessage } from 'react-intl';
 import { useLockedDialogStyles } from '../DialogEdit';
+import { changeBanStatus } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function UnBanUserButton(props){
   const {
@@ -17,7 +19,7 @@ function UnBanUserButton(props){
 
   const [open, setOpen] = useState(false);
   const lockedDialogClasses = useLockedDialogStyles();
-
+  const [state, dispatch] = useContext(MarketPresencesContext);
   const handleOpen = () => {
     setOpen(true);
   };
@@ -26,8 +28,18 @@ function UnBanUserButton(props){
     setOpen(false);
   };
 
+  function onSpinStop(result) {
+    changeBanStatus(state, dispatch, marketId, userId, false);
+  }
+
   function onProceed() {
-    return unbanUser(marketId, userId);
+    return unbanUser(marketId, userId)
+      .then((result) => {
+        return {
+          result: false,
+          spinChecker: () => Promise.resolve(true),
+        }
+      });
   }
 
   return (
@@ -50,6 +62,7 @@ function UnBanUserButton(props){
             disableFocusRipple
             marketId={marketId}
             onClick={onProceed}
+            onSpinStop={onSpinStop}
           >
             <FormattedMessage id="issueProceed" />
           </SpinBlockingButton>

@@ -4,12 +4,14 @@ import { USER_POKED_TYPE } from '../constants/notifications'
 
 export function unbanUser(marketId, userId) {
   return getMarketClient(marketId)
-    .then((client) => client.users.banUser(userId, false));
+    .then((client) => client.users.banUser(userId, false))
+    .catch((error) => toastErrorAndThrow(error, 'errorUnbanUserFailed'));
 }
 
 export function banUser(marketId, userId) {
   return getMarketClient(marketId)
-    .then((client) => client.users.banUser(userId, true));
+    .then((client) => client.users.banUser(userId, true))
+    .catch((error) => toastErrorAndThrow(error, 'errorBanUserFailed'));
 }
 
 export function deleteMessage(message) {
@@ -25,22 +27,26 @@ export function deleteMessage(message) {
 
 export function startSubscription(paymentId, tier) {
   return getAccountClient()
-    .then((client) => client.users.startSubscription(paymentId, tier));
+    .then((client) => client.users.startSubscription(paymentId, tier))
+    .catch((error) => toastErrorAndThrow(error, 'errorStartSubFailed'));
 }
 
 export function endSubscription() {
   return getAccountClient()
-    .then((client) => client.users.cancelSubscription());
+    .then((client) => client.users.cancelSubscription())
+    .catch((error) => toastErrorAndThrow(error, 'errorCancelSubFailed'));
 }
 
 export function restartSubscription(paymentId) {
   return getAccountClient()
-    .then((client) => client.users.restartSubscription(paymentId));
+    .then((client) => client.users.restartSubscription(paymentId))
+    .catch((error) => toastErrorAndThrow(error, 'errorRestartSubFailed'));
 }
 
 export function updatePaymentInfo(paymentId) {
   return getAccountClient()
-    .then((client) => client.users.updatePaymentInfo(paymentId));
+    .then((client) => client.users.updatePaymentInfo(paymentId))
+    .catch((error) => toastErrorAndThrow(error, 'errorUpdatePaymentFailed'));
 }
 
 export function getInvoices() {

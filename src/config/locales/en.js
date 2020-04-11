@@ -689,6 +689,12 @@ const messages = defineMessages({
   errorGetIdFailed: 'There was a problem displaying your identification.',
   errorUpdateUserFailed: 'There was a problem updating your profile. Please try again.',
   errorMarketFetchFailed: 'There was an error processing your invite. Please try again.',
+  errorBanUserFailed: 'There was a problem removing the collaborator. Please try again.',
+  errorCancelSubFailed: 'There was a problem cancelling your subscription. Please try again.',
+  errorStartSubFailed: 'There was a problem starting your subscription. Please try again.',
+  errorRestartSubFailed: 'There was a problem restarting your subscription. Please try again.',
+  errorUnbanUserFailed: 'There was a problem readmitting the collaborator. Please try again.',
+  errorUpdatePaymentFailed: 'There was a problem updating your payment card. Please try again.',
   warningAlreadyInMarket: 'You are already a part of this market.',
 
   // home cheat sheet

@@ -11,7 +11,7 @@ function MoveToNextVisibleStageActionButton(props) {
   const { marketId, currentStageId, disabled } = props;
   const history = useHistory();
   const [marketStagesState] = useContext(MarketStagesContext);
-  const acceptedStage = getAcceptedStage(marketStagesState, marketId);
+  const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
   let destinationStage = acceptedStage;
   let destinationExplanation = 'planningInvestibleAcceptedExplanation';
   let destinationLabel = 'planningInvestibleNextStageAcceptedLabel';

@@ -67,10 +67,10 @@ function Investible(props) {
 
 
   useEffect(() => {
-    if (!isInitialization && loading) {
+    if (!isInitialization && loading && !hidden) {
       navigate(history, formMarketLink(marketId));
     }
-  }, [isInitialization, loading, history, marketId]);
+  }, [isInitialization, loading, history, hidden, marketId]);
 
 
   function toggleEdit() {

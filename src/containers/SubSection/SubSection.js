@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme) => {
       minHeight: 32,
       borderRadius: '2px',
       marginBottom: '6px',
+      marginTop: '16px'
     },
     grow: {
       flexGrow: 1,

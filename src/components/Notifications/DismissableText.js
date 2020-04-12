@@ -73,7 +73,7 @@ function DismissableText(props) {
       </dl>
       <dl className={classes.rightMost}>
         <dd className={classes.dismissText}>
-          <span onClick={dismiss} className={classes.pointer}>
+          <span role="button" onClick={dismiss} className={classes.pointer}>
             <FormattedMessage id="decisionDialogsDismissDialog" />
             <IconButton className={classes.hoverState} disableRipple>
               <CancelRoundedIcon />

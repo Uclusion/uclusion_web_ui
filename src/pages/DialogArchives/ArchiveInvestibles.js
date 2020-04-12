@@ -14,7 +14,8 @@ function getInvestibleOnClick(id, marketId, history) {
   };
 }
 
-export function getInvestibles(investibles, presenceMap, marketId, history, intl) {
+export function getInvestibles(investibles, presenceMap, marketId, history, intl, elevation) {
+  console.log(elevation);
   const investibleData = investibles.map((inv) => inv.investible);
   const sortedData = _.sortBy(investibleData, 'updated_at', 'name').reverse();
   const infoMap = investibles.reduce((acc, inv) => {
@@ -43,10 +44,11 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
       >
         <RaisedCard
           onClick={getInvestibleOnClick(id, marketId, history)}
+          elevation={elevation}
         >
-          <Typography>{intl.formatDate(updated_at)}</Typography>
-          <Typography>{name}</Typography>
-          {assignedNames.map((name) => (<Typography key={name}>{name}</Typography>))}
+          <Typography style={{fontSize: '.75rem', flex: 1}}>Updated at: {intl.formatDate(updated_at)}</Typography>
+          <Typography style={{fontWeight: 700, flex: 2}}>{name}</Typography>
+          {assignedNames.map((name) => (<Typography style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}} key={name}>Assignee: {name}</Typography>))}
         </RaisedCard>
       </Grid>
     );
@@ -58,16 +60,16 @@ function ArchiveInvestbiles(props) {
     investibles,
     marketId,
     presenceMap,
+    elevation
   } = props;
   const intl = useIntl();
   const history = useHistory();
-
   return (
     <Grid
       container
       spacing={2}
     >
-      {getInvestibles(investibles, presenceMap, marketId, history, intl)}
+      {getInvestibles(investibles, presenceMap, marketId, history, intl, elevation)}
     </Grid>
   );
 }

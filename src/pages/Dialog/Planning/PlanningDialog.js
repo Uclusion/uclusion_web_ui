@@ -179,6 +179,7 @@ function PlanningDialog(props) {
           title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
         >
           <ArchiveInvestbiles
+            elevation={1}
             marketId={marketId}
             presenceMap={presenceMap}
             investibles={furtherWorkInvestibles}

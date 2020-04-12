@@ -100,16 +100,19 @@ function DialogArchives(props) {
           marketId={marketId}
           investibles={filteredVerifiedInvestibles}
           presenceMap={presenceMap}
+          elevation={1}
         />
       </SubSection>
       <SubSection
         type={SECTION_TYPE_SECONDARY}
         title={intl.formatMessage({ id: 'dialogArchivesNotDoingHeader' })}
+        style={{marginTop: '16px'}}
       >
         <ArchiveInvestbiles
           marketId={marketId}
           presenceMap={presenceMap}
           investibles={notDoingInvestibles}
+          elevation={1}
         />
       </SubSection>
     </Screen>

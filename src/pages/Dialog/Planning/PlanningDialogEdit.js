@@ -1,11 +1,11 @@
-import React, { useContext, useState } from "react";
-import PropTypes from "prop-types";
-import { useIntl } from "react-intl";
-import localforage from "localforage";
-import { lockPlanningMarketForEdit, updateMarket } from "../../../api/markets";
-import { processTextAndFilesForSave } from "../../../api/files";
-import { OperationInProgressContext } from "../../../contexts/OperationInProgressContext/OperationInProgressContext";
-import { Form } from "../../../components/AgilePlan";
+import React, { useContext, useState } from 'react'
+import PropTypes from 'prop-types'
+import { useIntl } from 'react-intl'
+import localforage from 'localforage'
+import { lockPlanningMarketForEdit, updateMarket } from '../../../api/markets'
+import { processTextAndFilesForSave } from '../../../api/files'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { Form } from '../../../components/AgilePlan'
 import DismissableText from '../../../components/Notifications/DismissableText'
 
 function PlanningDialogEdit(props) {
@@ -43,6 +43,7 @@ function PlanningDialogEdit(props) {
     max_budget,
     investment_expiration,
     days_estimate,
+    created_at: createdAt,
     votes_required
   } = mutableMarket;
   const [description, setDescription] = useState(
@@ -115,6 +116,7 @@ function PlanningDialogEdit(props) {
       <Form
         marketId={id}
         daysEstimate={days_estimate}
+        createdAt={createdAt}
         onDaysEstimate={handleChange("days_estimate")}
         description={description}
         onDescriptionChange={onEditorChange}

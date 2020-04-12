@@ -1,31 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react';
-import _ from 'lodash';
+import React, { useContext, useEffect, useState } from 'react'
+import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
-import PropTypes from 'prop-types';
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  TextField,
-} from '@material-ui/core';
-import localforage from 'localforage';
-import { addPlanningInvestible } from '../../../api/investibles';
-import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import { processTextAndFilesForSave } from '../../../api/files';
-import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions';
-import AssignmentList from './AssignmentList';
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { useHistory } from 'react-router';
-import queryString from 'query-string';
+import PropTypes from 'prop-types'
+import { Button, Card, CardActions, CardContent, TextField, } from '@material-ui/core'
+import localforage from 'localforage'
+import { addPlanningInvestible } from '../../../api/investibles'
+import QuillEditor from '../../../components/TextEditors/QuillEditor'
+import { processTextAndFilesForSave } from '../../../api/files'
+import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions'
+import AssignmentList from './AssignmentList'
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { useHistory } from 'react-router'
+import queryString from 'query-string'
 import CardType, { STORY_TYPE } from '../../../components/CardType'
-import { DaysEstimate } from '../../../components/AgilePlan';
+import { DaysEstimate } from '../../../components/AgilePlan'
 import DismissableText from '../../../components/Notifications/DismissableText'
 
 function PlanningInvestibleAdd(props) {
   const {
-    marketId, classes, onCancel, onSave, storedState, onSpinComplete,
+    marketId, classes, onCancel, onSave, storedState, onSpinComplete, createdAt,
   } = props;
   const intl = useIntl();
   const { description: storedDescription, name: storedName, assignments: storedAssignments,
@@ -160,7 +154,7 @@ function PlanningInvestibleAdd(props) {
           />
           <fieldset className={classes.fieldset}>
             <legend>optional</legend>
-            <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} />
+            <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} createdAt={createdAt} />
           </fieldset>
           <TextField
             fullWidth

@@ -44,6 +44,7 @@
     "react-router-dom": "^5.1.2",
     "react-toastify": "^5.4.1",
     "react-vis": "^1.11.7",
+    "react-datepicker": "^2.14.1",
     "reconnecting-websocket": "^4.2.0",
     "reselect": "^4.0.0",
     "@stripe/react-stripe-js": "^1.0.3",

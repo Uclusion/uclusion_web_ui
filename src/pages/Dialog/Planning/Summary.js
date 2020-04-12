@@ -77,6 +77,7 @@ function Summary(props) {
     votes_required: votesRequired,
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId,
+    created_at: createdAt,
     children,
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -125,7 +126,7 @@ function Summary(props) {
               <Votes readOnly value={votesRequired} />
             </fieldset>
             <fieldset className={classes.fieldset}>
-              {daysEstimate && <DaysEstimate readOnly value={daysEstimate} />}
+              {daysEstimate && <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />}
             </fieldset>
           </>
         )}

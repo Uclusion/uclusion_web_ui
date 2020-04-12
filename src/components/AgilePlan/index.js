@@ -11,6 +11,10 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import CardType, { AGILE_PLAN_TYPE } from '../../components/CardType'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
 import InfoText from '../Descriptions/InfoText'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import moment from 'moment'
+import { Typography } from '@material-ui/core'
 
 export const usePlanFormStyles = makeStyles(
   theme => ({
@@ -106,6 +110,7 @@ export function Form(props) {
 
   const {
     daysEstimate,
+    createdAt,
     onDaysEstimate,
     description,
     onDescriptionChange,
@@ -180,7 +185,7 @@ export function Form(props) {
             value={investmentExpiration}
           />
           <Votes onChange={onVotesRequiredChange} value={votesRequired} />
-          <DaysEstimate onChange={onDaysEstimate} value={daysEstimate} />
+          <DaysEstimate onChange={onDaysEstimate} value={daysEstimate} createdAt={createdAt} />
         </fieldset>
       </CardContent>
       <CardActions className={classes.actions}>
@@ -308,41 +313,33 @@ export function Votes(props) {
 }
 
 export function DaysEstimate(props) {
-  const { readOnly, value, isInvestible, ...other } = props;
+  const { readOnly, value, onChange, createdAt } = props;
   const intl = useIntl();
-  const textId = isInvestible ? "daysEstimateHelp" : "workspaceDaysEstimateHelp";
-  const classes = useSuffixedInput();
-  // TODO input props are not working to restrict number value
+  function getStartDate() {
+    if (value && createdAt) {
+      return new Date(moment(createdAt).add(value, 'days'));
+    }
+    return new Date();
+  }
+  
+  function handleDateChange(date) {
+    const usedDate = createdAt ? createdAt : new Date();
+    const myValue = moment(date).diff(moment(usedDate), 'days');
+    onChange({target: {value: `${myValue}`}});
+  }
+
   return (
-    <InfoText textId={textId} useDl={false}>
-      <TextField
-        type="number"
-        InputLabelProps={{
-          shrink: true
-        }}
-        InputProps={{
-          endAdornment: <InputSuffix>days</InputSuffix>,
-          readOnly
-        }}
-        inputProps={{
-          className: classes.input,
-          min: 0,
-          max: 365,
-        }}
-        id="agile-plan-days-estimate"
-        label={intl.formatMessage({
-          id: "agilePlanFormDaysEstimateLabel"
-        })}
-        helperText={
-          !readOnly &&
-          intl.formatMessage({
-          id: "agilePlanFormDaysEstimatePlaceholder"
-        })}
-        /* owner considers `null` as not set */
-        value={value == null ? "" : value}
-        variant="filled"
-        {...other}
-      />
+    <InfoText textId="daysEstimateHelp" useDl={false}>
+      {readOnly ? (
+        <Typography>
+          {intl.formatDate(getStartDate())}
+        </Typography>
+      ) : (
+        <DatePicker
+          selected={getStartDate()}
+          onChange={handleDateChange}
+        />
+      )}
     </InfoText>
   );
 }

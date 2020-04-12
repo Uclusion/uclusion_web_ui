@@ -25,7 +25,7 @@ function PlanningInvestibleEdit(props) {
   const [draftState, setDraftState] = useState(storedState);
   const myInvestible = fullInvestible.investible;
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
-  const { assigned: marketAssigned, days_estimate: marketDaysEstimate } = marketInfo;
+  const { assigned: marketAssigned, days_estimate: marketDaysEstimate, created_at: createdAt } = marketInfo;
   const assigned = storedAssignments || marketAssigned;
   const daysEstimatePersisted = storedDaysEstimate || marketDaysEstimate;
   const { id, description: initialDescription, name: initialName } = myInvestible;
@@ -144,7 +144,7 @@ function PlanningInvestibleEdit(props) {
           <>
             <fieldset className={classes.fieldset}>
               <legend>optional</legend>
-              <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} isInvestible />
+              <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} createdAt={createdAt} />
             </fieldset>
             <TextField
               fullWidth

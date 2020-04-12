@@ -1,22 +1,20 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
-import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
-import localforage from 'localforage';
-import {
-  makeBreadCrumbs, decomposeMarketPath, formMarketLink, navigate,
-} from '../../utils/marketIdPathFunctions';
-import Screen from '../../containers/Screen/Screen';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
-import DecisionInvestibleAdd from './Decision/DecisionInvestibleAdd';
-import PlanningInvestibleAdd from './Planning/PlanningInvestibleAdd';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { DiffContext } from '../../contexts/DiffContext/DiffContext';
-import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import React, { useContext, useEffect, useState } from 'react'
+import { useHistory } from 'react-router'
+import PropTypes from 'prop-types'
+import { useIntl } from 'react-intl'
+import localforage from 'localforage'
+import { decomposeMarketPath, formMarketLink, makeBreadCrumbs, navigate, } from '../../utils/marketIdPathFunctions'
+import Screen from '../../containers/Screen/Screen'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import DecisionInvestibleAdd from './Decision/DecisionInvestibleAdd'
+import PlanningInvestibleAdd from './Planning/PlanningInvestibleAdd'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { DiffContext } from '../../contexts/DiffContext/DiffContext'
+import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import queryString from 'query-string'
 
@@ -36,7 +34,8 @@ function InvestibleAdd(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const classes = usePlanFormStyles();
   const renderableMarket = getMarket(marketsState, marketId) || {};
-  const { market_type: marketType, investment_expiration: investmentExpiration } = renderableMarket;
+  const { market_type: marketType, investment_expiration: investmentExpiration,
+  created_at: createdAt} = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
@@ -107,6 +106,7 @@ function InvestibleAdd(props) {
           onSave={onInvestibleSave}
           onSpinComplete={onDone}
           marketPresences={marketPresences}
+          createdAt={createdAt}
           storedState={storedState}
           classes={classes}
         />

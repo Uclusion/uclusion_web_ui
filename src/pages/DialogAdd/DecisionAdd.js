@@ -1,35 +1,30 @@
-import React, {
-  useContext,
-  useEffect, useState,
-} from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext, useEffect, useState, } from 'react'
+import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
-import {
-  Button, Card, CardActions, CardContent, Checkbox, TextField, Typography,
-} from '@material-ui/core'
-import localforage from 'localforage';
-import QuillEditor from '../../components/TextEditors/QuillEditor';
-import ExpirationSelector from '../../components/Expiration/ExpirationSelector';
-import { createDecision } from '../../api/markets';
-import { processTextAndFilesForSave } from '../../api/files';
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
+import { Button, Card, CardActions, CardContent, Checkbox, TextField, Typography, } from '@material-ui/core'
+import localforage from 'localforage'
+import QuillEditor from '../../components/TextEditors/QuillEditor'
+import ExpirationSelector from '../../components/Expiration/ExpirationSelector'
+import { createDecision } from '../../api/markets'
+import { processTextAndFilesForSave } from '../../api/files'
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import UclusionTour from '../../components/Tours/UclusionTour';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import UclusionTour from '../../components/Tours/UclusionTour'
 import {
   PURE_SIGNUP_ADD_DIALOG,
   PURE_SIGNUP_ADD_DIALOG_STEPS,
   PURE_SIGNUP_FAMILY_NAME
-} from '../../components/Tours/pureSignupTours';
-import { useHistory } from 'react-router';
-import queryString from 'query-string';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketDetailsForType } from '../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { addParticipants } from '../../api/users';
-import CardType from '../../components/CardType';
-import { usePlanFormStyles } from '../../components/AgilePlan';
+} from '../../components/Tours/pureSignupTours'
+import { useHistory } from 'react-router'
+import queryString from 'query-string'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getMarketDetailsForType } from '../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { addParticipants } from '../../api/users'
+import CardType from '../../components/CardType'
+import { usePlanFormStyles } from '../../components/AgilePlan'
 import { formMarketAddInvestibleLink } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 
@@ -142,7 +137,7 @@ function DecisionAdd(props) {
           const marketDetails = planningMarkets.find((planningMarket) => planningMarket.id === parentMarketId);
           if (marketDetails) {
             const marketPresences = getMarketPresences(marketPresencesState, parentMarketId);
-            const others = marketPresences.filter((presence) => !presence.current_user)
+            const others = marketPresences.filter((presence) => !presence.current_user && !presence.market_banned)
             if (others) {
               const participants = others.map((presence) => {
                 return {

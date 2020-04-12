@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, Fragment } from 'react';
 import _ from 'lodash';
 import { Card, Link, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
@@ -15,7 +15,7 @@ function Invoices (props) {
     if (_.isEmpty(invoices)) {
       return (
         <Typography>
-          No Invoices
+          <strong>No Invoices</strong>
         </Typography>
       );
     }
@@ -26,17 +26,19 @@ function Invoices (props) {
       const milliCreated = created * 1000;
       const createdDate = new Date(milliCreated);
       const formattedDate = intl.formatDate(createdDate);
-      return (<Card>
-        <Typography>
-          Invoice Date: {formattedDate}, Amount: {totalDollars}
-        </Typography>
-        <Link href={invoice_pdf} target="_blank">PDF</Link>
-      </Card>);
+      return (
+        <Fragment>
+          <Typography>
+            Invoice Date: {formattedDate}, Amount: {totalDollars}
+          </Typography>
+          <Link href={invoice_pdf} target="_blank">PDF</Link>
+        </Fragment>
+      );
     });
   }
 
   return (
-    <Card>
+    <Card style={{padding: '1rem'}}>
       {getInvoiceData()}
     </Card>
   );

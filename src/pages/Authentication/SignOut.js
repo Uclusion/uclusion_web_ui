@@ -1,10 +1,20 @@
 import React from 'react';
 import { Auth } from 'aws-amplify';
-import { Button } from '@material-ui/core';
+import { Button, makeStyles } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { toastError } from '../../utils/userMessage';
 
+const useStyles = makeStyles( {
+  action: {
+    "&:hover": {
+      color: "#ca2828",
+      backgroundColor: "transparent",
+      boxShadow: "none"
+    }
+  }
+})
 function SignOut() {
+  const classes = useStyles();
   const intl = useIntl();
 
   function onSignOut() {
@@ -21,6 +31,8 @@ function SignOut() {
       variant="text"
       fullWidth={true}
       onClick={onSignOut}
+      className={classes.action}
+      disableRipple
     >
       {intl.formatMessage({ id: 'signOutButton' })}
     </Button>

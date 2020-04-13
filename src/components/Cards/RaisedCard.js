@@ -22,7 +22,7 @@ function RaisedCard(props) {
   const { onClick, elevation } = props;
   const elevated = elevation ? elevation : 0;
   const classes = useStyles(onClick);
-  const isClickable = typeof onClick === 'function' ? true : false;
+  const isClickable = typeof onClick === 'function' && onClick.toString() !== '() => {}' ? true : false;
   return (
     <Box
       borderRadius="borderRadius"

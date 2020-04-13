@@ -161,7 +161,7 @@ function PlanningInvestible(props) {
   const investmentReasons = investibleComments.filter(
     comment => comment.comment_type === JUSTIFY_TYPE
   );
-  const marketInfo = getMarketInfo(marketInvestible, marketId);
+  const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned, children, days_estimate: daysEstimate, inline_market_id: inlineMarketId } = marketInfo;
   const { investible } = marketInvestible;
   const { description, name, locked_by: lockedBy } = investible;
@@ -785,7 +785,7 @@ MarketMetaData.propTypes = {
 function Assignments(props) {
   const { investible, marketId, marketPresences, isAdmin, toggleAssign } = props;
   const intl = useIntl();
-  const marketInfo = getMarketInfo(investible, marketId);
+  const marketInfo = getMarketInfo(investible, marketId) || {};
   const { assigned = [] } = marketInfo;
 
   return (

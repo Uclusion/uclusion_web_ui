@@ -189,9 +189,6 @@ function doRefreshMarket (marketId, componentSignatures) {
   }
   if (!_.isEmpty(investibles)) {
     chain = chain ? chain.then(() => fetchMarketInvestibles(marketId, investibles)) : fetchMarketInvestibles(marketId, investibles);
-  } else if (componentSignatures.find((signature) => signature.type === 'market_investible')) {
-    // We are not keeping zero version around anymore so handle the rare case of last investible deleted
-    pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId, investibles: [] });
   }
   if (!_.isEmpty(marketPresences) || componentSignatures.find((signature) => signature.type === 'investment')) {
     // Handle the case of the last investment being deleted by just refreshing users

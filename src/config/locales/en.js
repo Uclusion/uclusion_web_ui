@@ -636,7 +636,17 @@ const messages = defineMessages({
 
   //upgradeMenu
   billingMenuItem: 'Manage Subscription',
-
+  billingFreeTier: 'You are currently on the Free plan.',
+  billingStandardTier: 'You are currently on the Standard plan.',
+  billingUnknownTier: 'You are on a custom plan.',
+  billingSubCanceled: 'Your subscription is cancelled.',
+  billingSubUnsubscribed: 'You have no subscription.',
+  billingSubTrial: 'You are in a free trial.',
+  billingSubActive: 'Your subscription is active.',
+  billingSubUnknown: 'You have a custom subscription.',
+  billingSubEnd: 'Subscription End:',
+  billingSubBegin: 'Begin Subscription',
+  billingSubCancel: 'Cancel Subscription',
 
   // upgrade form
   upgradeFormCardName: 'Cardholder Name',

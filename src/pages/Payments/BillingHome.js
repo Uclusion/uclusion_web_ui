@@ -4,9 +4,9 @@ import clsx from 'clsx'
 import PropTypes from 'prop-types';
 import Screen from '../../containers/Screen/Screen';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { PRODUCT_TIER_FREE, PRODUCT_TIER_STANDARD } from '../../constants/billing';
+import { PRODUCT_TIER_FREE, PRODUCT_TIER_STANDARD, SUBSCRIPTION_STATUS_TRIAL, SUBSCRIPTION_STATUS_ACTIVE,
+SUBSCRIPTION_STATUS_CANCELED, SUBSCRIPTION_STATUS_UNSUBSCRIBED} from '../../constants/billing';
 import {
-  canCreate,
   getAccount,
   subscriptionCancellable,
   updateAccount
@@ -16,6 +16,7 @@ import CardInputForm from './CardInputForm';
 import { useIntl } from 'react-intl';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import Invoices from './Invoices';
+
 
 
 const styleClasses = makeStyles(
@@ -39,7 +40,7 @@ const styleClasses = makeStyles(
       margin: '16px 0'
     }
   }, {name: 'change'}
-)
+);
 
 function BillingHome (props) {
   const { hidden } = props;
@@ -91,6 +92,36 @@ function BillingHome (props) {
 
   const billingSubmit = restartable? resumeSubscription : undefined;
 
+  function getTierMessageId() {
+    switch (tier) {
+      case PRODUCT_TIER_FREE:
+        return 'billingFreeTier';
+      case PRODUCT_TIER_STANDARD:
+        return 'billingStandardTier';
+      default:
+        return 'billingUnknownTier';
+    }
+  }
+
+
+  function getSubscriptionMessage() {
+    switch (subStatus) {
+      case SUBSCRIPTION_STATUS_TRIAL:
+        return 'billingSubTrial';
+      case SUBSCRIPTION_STATUS_ACTIVE:
+        return 'billingSubActive';
+      case SUBSCRIPTION_STATUS_CANCELED:
+        return 'billingSubCanceled';
+      case SUBSCRIPTION_STATUS_UNSUBSCRIBED:
+        return 'billingSubUnsubscribed';
+      default:
+        return 'billingSubUnknown';
+    }
+  }
+
+  const tierMessage = intl.formatMessage({ id: getTierMessageId()});
+  const subMessage = intl.formatMessage({ id: getSubscriptionMessage()});
+
   return (
     <Screen
       hidden={hidden}
@@ -101,21 +132,17 @@ function BillingHome (props) {
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Typography style={{marginBottom: '16px'}}>
-              Manage Subscription
+              {intl.formatMessage({id: 'billingMenuItem'})}
             </Typography>
             <Typography>
-              {tier}
+              {tierMessage}
             </Typography>
             <Typography>
-              <strong>Subscription Type:</strong> {subStatus}
+              <strong>{subMessage}</strong>
             </Typography>
             <Typography>
-            <strong>Subscription End:</strong> {intl.formatDate(subEnd)}
+            <strong>{intl.formatMessage({ id: 'billingSubEnd'})}</strong> {intl.formatDate(subEnd)}
             </Typography>
-            <Typography>
-              {`Can create ${canCreate(accountState)}`}
-            </Typography>
-              Need more copy here for billing
             <Invoices/>
             {upgradable && (
               <SpinBlockingButton
@@ -129,7 +156,7 @@ function BillingHome (props) {
                   classes.subscriptionButton
                 )}
               >
-                Begin Subscription
+                {intl.formatMessage({ id: 'billingSubBegin'})}
               </SpinBlockingButton>
             )}
             {cancellable && (
@@ -139,7 +166,7 @@ function BillingHome (props) {
                 marketId="unused"
                 hasSpinChecker
               >
-                Cancel Subscription
+                {intl.formatMessage({ id: 'billingSubCancel'})}
               </SpinBlockingButton>
             )}
           </Grid>

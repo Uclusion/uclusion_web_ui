@@ -371,7 +371,7 @@ function PlanningInvestible(props) {
         currentStageId={stage}
         isOpen={changeStagesExpanded}
         key="inreview"
-        disabled={!isAssigned || !_.isEmpty(blockingComments) || (isInVoting && !enoughVotes)}
+        disabled={isInReview || !isAssigned || !_.isEmpty(blockingComments) || (isInVoting && !enoughVotes)}
       />,
       <MoveToFurtherWorkActionButton
         investibleId={investibleId}

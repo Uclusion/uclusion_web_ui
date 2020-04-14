@@ -480,7 +480,7 @@ function PlanningInvestible(props) {
         <CardContent className={classes.votingCardContent}>
           <h1>
             {name}
-            {!inArchives && (isAssigned || isInNotDoing || isInVoting) && (
+            {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork) && (
               <EditMarketButton
                 labelId="edit"
                 marketId={marketId}

@@ -87,27 +87,33 @@ function PlanningInvestibleEdit(props) {
   }
 
   function handleSave() {
-    // uploaded files on edit is the union of the new uploaded files and the old uploaded files
-    const oldInvestibleUploadedFiles = myInvestible.uploaded_files || [];
-    const newUploadedFiles = [...uploadedFiles, ...oldInvestibleUploadedFiles];
-    const {
-      uploadedFiles: filteredUploads,
-      text: tokensRemoved,
-    } = processTextAndFilesForSave(newUploadedFiles, description);
-    const updateInfo = {
-      uploadedFiles: filteredUploads,
-      name,
-      description: tokensRemoved,
-      marketId,
-      investibleId: id,
-    };
-    // changes to assignments should only be sent if they actually changed
-    // otherwise we'll generate a spurious version bump due to market info changes
-    if (!_.isEqual(daysEstimate, marketDaysEstimate)) {
-      updateInfo.daysEstimate = daysEstimate;
-    }
+    let updateInfo;
     if (!_.isEqual(assignments, assigned)) {
-      updateInfo.assignments = assignments;
+      updateInfo = {
+        marketId,
+        investibleId: id,
+        assignments,
+      };
+    } else {
+      // uploaded files on edit is the union of the new uploaded files and the old uploaded files
+      const oldInvestibleUploadedFiles = myInvestible.uploaded_files || [];
+      const newUploadedFiles = [...uploadedFiles, ...oldInvestibleUploadedFiles];
+      const {
+        uploadedFiles: filteredUploads,
+        text: tokensRemoved,
+      } = processTextAndFilesForSave(newUploadedFiles, description);
+      updateInfo = {
+        uploadedFiles: filteredUploads,
+        name,
+        description: tokensRemoved,
+        marketId,
+        investibleId: id,
+      };
+      // changes to assignments should only be sent if they actually changed
+      // otherwise we'll generate a spurious version bump due to market info changes
+      if (!_.isEqual(daysEstimate, marketDaysEstimate)) {
+        updateInfo.daysEstimate = daysEstimate;
+      }
     }
     return updateInvestible(updateInfo)
       .then((investible) => {

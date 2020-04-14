@@ -76,7 +76,7 @@ function InvestibleEdit (props) {
 
   useEffect(() => {
     if (!hidden) {
-      if (investibleId !== lockedInvestibleId && !loading && !someoneElseEditing && !lockFailed) {
+      if (!isAssign && investibleId !== lockedInvestibleId && !loading && !someoneElseEditing && !lockFailed) {
         // Immediately set locked investible id to avoid multiple calls
         setLockedInvestibleId(investibleId);
         setLockedInvestibleIdMarketId(marketId);
@@ -99,8 +99,7 @@ function InvestibleEdit (props) {
         setLockFailed(false);
       }
     };
-  }, [
-    hidden, lockedInvestibleId, investibleId, marketId, lockedInvestibleIdMarketId,
+  }, [hidden, lockedInvestibleId, investibleId, marketId, lockedInvestibleIdMarketId, isAssign,
     lockedBy, someoneElseEditing, loading, lockFailed, idLoaded
   ]);
 

@@ -122,7 +122,12 @@ function InvestibleEdit (props) {
   function onCancel() {
     const originalLockedId = lockedInvestibleId;
     return localforage.removeItem(originalLockedId)
-      .then(() => realeaseInvestibleEditLock(lockedInvestibleIdMarketId, lockedInvestibleId))
+      .then(() => {
+        if (lockedInvestibleId) {
+          return realeaseInvestibleEditLock(lockedInvestibleIdMarketId, lockedInvestibleId);
+        }
+        return true;
+      })
       .then(() => {
         const newInvestible = {
           ...myInvestible,

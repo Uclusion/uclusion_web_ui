@@ -3,6 +3,9 @@ import PropTypes from "prop-types";
 import Quill from "quill";
 import { makeStyles } from "@material-ui/core";
 import clsx from "clsx";
+import 'quill/dist/quill.snow.css';
+import 'quill-table-ui/dist/index.css';
+import './editorStyles.css';
 
 const useStyles = makeStyles(
   theme => {

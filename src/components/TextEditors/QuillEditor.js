@@ -13,6 +13,7 @@ import CustomCodeBlock from './CustomCodeBlock';
 import QuillTableUI from 'quill-table-ui';
 import 'quill/dist/quill.snow.css';
 import 'quill-table-ui/dist/index.css';
+import './editorStyles.css';
 
 import { injectIntl } from 'react-intl';
 import { withTheme } from '@material-ui/core';

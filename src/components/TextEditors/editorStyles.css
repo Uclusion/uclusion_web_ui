@@ -1,0 +1,12 @@
+.ql-snow .ql-editor .ql-code-block-container{
+    background-color: #efefef;
+    padding-top: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    padding-left: 2px;
+    overflow: visible;
+}
+.ql-code-block {
+    background-color: #efefef; /* <== change this color */
+    color: #1d1c1d;
+}

@@ -9,6 +9,7 @@ import ImageResize from 'quill-image-resize-module-withfix';
 import QuillS3ImageUploader from './QuillS3ImageUploader';
 import NoOpUploader from './NoOpUploader';
 import CustomQuillClipboard from './CustomQuillClipboard';
+import CustomCodeBlock from './CustomCodeBlock';
 import QuillTableUI from 'quill-table-ui';
 import 'quill/dist/quill.snow.css';
 import 'quill-table-ui/dist/index.css';
@@ -24,6 +25,7 @@ Quill.register('modules/uploader', NoOpUploader, true);
 Quill.register('modules/tableUI', QuillTableUI);
 Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
+Quill.register(CustomCodeBlock, true);
 
 function editorEmpty(contents) {
   if (contents.length === 0) {

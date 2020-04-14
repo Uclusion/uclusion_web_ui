@@ -22,6 +22,7 @@ import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { addCommentToMarket, removeComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE } from '../../constants/markets'
+import { red } from '@material-ui/core/colors'
 
 const useCommentStyles = makeStyles(
   {
@@ -67,6 +68,13 @@ const useCommentStyles = makeStyles(
       color: "black",
       "&:hover": {
         backgroundColor: "#BDBDBD"
+      }
+    },
+    actionWarned: {
+      backgroundColor: "#BDBDBD",
+      color: "black",
+      "&:hover": {
+        backgroundColor: red["400"],
       }
     },
     updatedBy: {
@@ -268,10 +276,9 @@ function Comment(props) {
             <SpinBlockingButton
               className={clsx(
                 classes.action,
-                classes.actionSecondary,
+                commentType === REPORT_TYPE ? classes.actionWarned : classes.actionSecondary,
                 classes.actionResolveToggle
               )}
-              color="primary"
               marketId={marketId}
               onClick={commentType === REPORT_TYPE ? remove : comment.resolved ? reopen : resolve}
               variant="contained"
@@ -280,6 +287,23 @@ function Comment(props) {
               {intl.formatMessage({
                 id: commentType === REPORT_TYPE ? "commentRemoveLabel" : comment.resolved ? "commentReopenLabel"
                   : "commentResolveLabel"
+              })}
+            </SpinBlockingButton>
+          )}
+          {enableEditing && commentType !== REPORT_TYPE && comment.resolved && (
+            <SpinBlockingButton
+              className={clsx(
+                classes.action,
+                classes.actionWarned,
+                classes.actionResolveToggle
+              )}
+              marketId={marketId}
+              onClick={remove}
+              variant="contained"
+              hasSpinChecker
+            >
+              {intl.formatMessage({
+                id: "commentRemoveLabel"
               })}
             </SpinBlockingButton>
           )}

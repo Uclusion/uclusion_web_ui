@@ -1,5 +1,5 @@
-import { getMarketClient } from './uclusionClient';
-import { toastErrorAndThrow } from '../utils/userMessage';
+import { getMarketClient } from './uclusionClient'
+import { toastErrorAndThrow } from '../utils/userMessage'
 
 export function updateInvestible (updateInfo) {
   const {
@@ -11,9 +11,13 @@ export function updateInvestible (updateInfo) {
     assignments,
     daysEstimate,
   } = updateInfo;
+  if (assignments) {
+    return getMarketClient(marketId)
+      .then((client) => client.investibles.updateAssignments(investibleId, assignments))
+      .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
+  }
   return getMarketClient(marketId)
-    .then((client) => client.investibles.update(investibleId, name,
-      description, undefined, uploadedFiles, assignments, daysEstimate))
+    .then((client) => client.investibles.update(investibleId, name, description, undefined, uploadedFiles, daysEstimate))
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
 }
 

@@ -523,7 +523,7 @@ const messages = defineMessages({
 
   // diff displaydeci
   diffDisplayDismissLabel: 'Hide Changes',
-  diffDisplayShowLabel: 'Show Changes',
+  diffDisplayShowLabel: 'Show Recent Changes',
 
   // expiration extender
   deadlineExtenderSave: 'Modify',

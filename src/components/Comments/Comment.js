@@ -290,7 +290,7 @@ function Comment(props) {
               })}
             </SpinBlockingButton>
           )}
-          {enableEditing && commentType !== REPORT_TYPE && comment.resolved && (
+          {(myPresence.is_admin || isEditable) && enableEditing && commentType !== REPORT_TYPE && comment.resolved && (
             <SpinBlockingButton
               className={clsx(
                 classes.action,

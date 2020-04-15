@@ -136,7 +136,7 @@ function DialogEdit(props) {
   }, [hidden, marketId, lockedMarketId, marketType, locked, loading, idLoaded,
     lockFailed, someoneElseEditing]);
 
-  function onDone() {
+  function onCancel() {
     if (marketType === PLANNING_TYPE) {
       setLockedMarketId(undefined);
       unlockPlanningMarketForEdit(marketId)
@@ -146,13 +146,17 @@ function DialogEdit(props) {
       .finally(() => navigate(history, formMarketLink(marketId)));
   }
 
-  function onSpinStop(market) {
+  function updateMarketInStorage(market) {
     const diffSafe = {
       ...market,
       updated_by: userId,
       updated_by_you: true,
     };
     addMarketToStorage(marketsDispatch, diffDispatch, diffSafe);
+  }
+
+  function onSave(market) {
+    updateMarketInStorage(market);
     return localforage.removeItem(marketId)
       .finally(() => {
         navigate(history, formMarketLink(marketId))
@@ -161,11 +165,25 @@ function DialogEdit(props) {
   function myOnClick() {
     const breakLock = true;
     return lockPlanningMarketForEdit(marketId, breakLock)
-      .catch(() => setLockFailed(true));
+      .then((result) => {
+        return {
+          result,
+          spinChecker: () => Promise.resolve(true),
+        };
+      })
+      .catch(() => {
+        return {
+          result: false,
+          spinChecker: () => Promise.resolve(true),
+        };
+      });
   }
-  function onLock() {
-    setLockedMarketId(marketId);
-    setLockFailed(false);
+  function onLock(result) {
+    if (result) {
+      setLockedMarketId(marketId);
+      updateMarketInStorage(result);
+    }
+    setLockFailed(!result);
   }
 
   const lockedDialogClasses = useLockedDialogStyles();
@@ -185,7 +203,7 @@ function DialogEdit(props) {
       <LockedDialog
         classes={lockedDialogClasses}
         open={!hidden && (someoneElseEditing || lockFailed)}
-        onClose={onDone}
+        onClose={onCancel}
         /* slots */
         actions={
           <SpinBlockingButton
@@ -194,6 +212,7 @@ function DialogEdit(props) {
             marketId={marketId}
             onClick={myOnClick}
             onSpinStop={onLock}
+            hasSpinChecker
             disabled={operationRunning}
           >
             <FormattedMessage id="pageLockEditPage" />
@@ -202,17 +221,17 @@ function DialogEdit(props) {
       />
       {!hidden && marketType === DECISION_TYPE && idLoaded === marketId && (
         <DecisionDialogEdit
-          onSpinStop={onSpinStop}
+          onSpinStop={onSave}
           market={renderableMarket}
-          onCancel={onDone}
+          onCancel={onCancel}
           storedState={storedState}
         />
       )}
       {!hidden && marketType === PLANNING_TYPE && idLoaded === marketId && (
         <PlanningDialogEdit
-          onSpinStop={onSpinStop}
+          onSpinStop={onSave}
           market={renderableMarket}
-          onCancel={onDone}
+          onCancel={onCancel}
           storedState={storedState}
         />
       )}

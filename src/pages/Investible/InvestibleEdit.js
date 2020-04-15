@@ -68,10 +68,14 @@ function InvestibleEdit (props) {
   const [operationRunning] = useContext(OperationInProgressContext);
 
   function onLock (result) {
+    if (result) {
     setLockedInvestibleId(investibleId);
     setLockedInvestibleIdMarketId(marketId);
     setLockFailed(false);
-    onSave(result, true);
+    onSave({ investible: result } , true);
+    } else {
+      setLockFailed(true);
+    }
   }
 
   useEffect(() => {
@@ -198,7 +202,6 @@ function InvestibleEdit (props) {
           spinChecker: () => Promise.resolve(true),
         }
       }).catch(() => {
-        setLockFailed(true);
         return {
           result: false,
           spinChecker: () => Promise.resolve(true),

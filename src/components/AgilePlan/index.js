@@ -329,18 +329,18 @@ export function DaysEstimate(props) {
   }
 
   return (
-    <InfoText textId="daysEstimateHelp" useDl={false}>
-      {readOnly ? (
+      readOnly ? (
         <Typography>
-          {intl.formatDate(getStartDate())}
+          {intl.formatMessage({ id: 'planningEstimatedCompletion' })} {intl.formatDate(getStartDate())}
         </Typography>
       ) : (
-        <DatePicker
-          selected={getStartDate()}
-          onChange={handleDateChange}
-        />
-      )}
-    </InfoText>
+        <InfoText textId="daysEstimateHelp" useDl={false}>
+          <DatePicker
+            selected={getStartDate()}
+            onChange={handleDateChange}
+          />
+        </InfoText>
+      )
   );
 }
 

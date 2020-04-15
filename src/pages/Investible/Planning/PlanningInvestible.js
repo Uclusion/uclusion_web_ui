@@ -1,7 +1,17 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Divider,
+  Grid,
+  IconButton,
+  makeStyles,
+  Tooltip,
+  Typography
+} from '@material-ui/core'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -74,9 +84,14 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
+import { DaysEstimate } from '../../../components/AgilePlan'
 
 const useStyles = makeStyles(
   theme => ({
+    root: {
+      alignItems: "flex-start",
+      display: "flex"
+    },
     container: {
       padding: "3px 89px 21px 21px",
       marginTop: "-6px",
@@ -112,20 +127,10 @@ const useStyles = makeStyles(
       margin: theme.spacing(2, 6),
       padding: 0
     },
-    maxBudget: {
-      alignItems: "flex-end",
-      display: "flex",
-      flexDirection: "column",
-      margin: theme.spacing(2),
-      textTransform: "capitalize"
-    },
-    maxBudgetLabel: {
-      color: "#757575",
-      fontSize: 14
-    },
-    maxBudgetValue: {
-      fontSize: 16,
-      fontWeight: "bold"
+    actions: {},
+    upperRightCard: {
+      display: 'flex',
+      flexDirection: 'row',
     },
   }),
   { name: "PlanningInvestible" }
@@ -164,7 +169,7 @@ function PlanningInvestible(props) {
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned, children, days_estimate: daysEstimate, inline_market_id: inlineMarketId } = marketInfo;
   const { investible } = marketInvestible;
-  const { description, name, locked_by: lockedBy } = investible;
+  const { description, name, locked_by: lockedBy, created_at: createdAt } = investible;
   let lockedByName;
   if (lockedBy) {
     const lockedByPresence = marketPresences.find(
@@ -435,6 +440,22 @@ function PlanningInvestible(props) {
   function expansionChanged(event, expanded) {
     setChangeStagesExpanded(expanded);
   }
+  function getActions() {
+    return (
+      <dl className={classes.root}>
+        {daysEstimate > 0 && (
+          <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
+        )}
+        {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork) && (
+          <EditMarketButton
+            labelId="edit"
+            marketId={marketId}
+            onClick={toggleEdit}
+          />
+        )}
+      </dl>
+    )
+  }
   return (
     <Screen
       title={name}
@@ -464,29 +485,14 @@ function PlanningInvestible(props) {
           type={STORY_TYPE}
           subtype={subtype}
         />
-        {daysEstimate > 0 && (
-          <Typography className={classes.maxBudget} component="div">
-            <div className={classes.maxBudgetLabel}>
-              <FormattedMessage id="daysEstimateLabel" />
-            </div>
-            <div className={classes.maxBudgetValue}>
-              <FormattedMessage
-                id="maxBudgetValue"
-                values={{ x: daysEstimate }}
-              />
-            </div>
-          </Typography>
-        )}
+        <CardHeader
+          action={
+            getActions()
+          }
+        />
         <CardContent className={classes.votingCardContent}>
           <h1>
             {name}
-            {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork) && (
-              <EditMarketButton
-                labelId="edit"
-                marketId={marketId}
-                onClick={toggleEdit}
-              />
-            )}
           </h1>
           {lockedBy && (
             <Typography>

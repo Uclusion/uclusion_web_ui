@@ -282,6 +282,7 @@ const messages = defineMessages({
   planningInvestibleAssignments: 'assigned',
   planningInvestibleDecision: 'Create Child Dialog',
   planningInvestibleCantVote: 'You can\'t vote if you\'re assigned',
+  planningEstimatedCompletion: 'Estimated completion',
   planningInvestibleDescription: '- Description',
   daysEstimateHelp: 'Optional very rough expected date of completion.',
   votesRequiredHelp: 'How many votes are required before a story can be moved to \'In Progress\'',

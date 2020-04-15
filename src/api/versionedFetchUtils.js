@@ -1,8 +1,8 @@
-import _ from 'lodash'
-import { pushMessage } from '../utils/MessageBusUtils'
-import { getVersions } from './summaries'
-import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
-import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils'
+import _ from 'lodash';
+import { pushMessage } from '../utils/MessageBusUtils';
+import { getVersions } from './summaries';
+import { getMarketDetails, getMarketStages, getMarketUsers } from './markets';
+import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils';
 import {
   BANNED_LIST,
   PUSH_COMMENTS_CHANNEL,
@@ -12,21 +12,21 @@ import {
   PUSH_STAGE_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
-} from '../contexts/VersionsContext/versionsContextHelper'
-import { fetchComments } from './comments'
-import { fetchInvestibles } from './marketInvestibles'
-import { LimitedParallelMap } from '../utils/PromiseUtils'
-import { startTimerChain } from '../utils/timerUtils'
-import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext'
-import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages'
+} from '../contexts/VersionsContext/versionsContextHelper';
+import { fetchComments } from './comments';
+import { fetchInvestibles } from './marketInvestibles';
+import { LimitedParallelMap } from '../utils/PromiseUtils';
+import { startTimerChain } from '../utils/timerUtils';
+import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext';
+import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages';
 import {
   OPERATION_HUB_CHANNEL,
   START_OPERATION,
   STOP_OPERATION
-} from '../contexts/OperationInProgressContext/operationInProgressMessages'
-import config from '../config'
-import LocalForageHelper from '../utils/LocalForageHelper'
-import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
+} from '../contexts/OperationInProgressContext/operationInProgressMessages';
+import config from '../config';
+import LocalForageHelper from '../utils/LocalForageHelper';
+import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -62,7 +62,7 @@ export function refreshGlobalVersion () {
             if (globalVersion === 'FAKE') {
               return Promise.resolve(false);
             }
-            return doVersionRefresh(currentHeldVersion, existingMarkets)
+            return doVersionRefresh(currentHeldVersion, existingMarkets);
           }).then((globalVersion) => {
             if (globalVersion !== currentHeldVersion) {
               // console.log('Got new version');
@@ -91,9 +91,9 @@ export function refreshGlobalVersion () {
  * @param foregroundList
  * @returns {{background: *, foreground: []}|{background: *, foreground: *}}
  */
-function splitIntoForegroundBackground(marketSignatures, foregroundList) {
+function splitIntoForegroundBackground (marketSignatures, foregroundList) {
   if (_.isEmpty(foregroundList)) {
-    return { foreground: [], background: marketSignatures};
+    return { foreground: [], background: marketSignatures };
   }
   const foreground = marketSignatures.filter((ms) => foregroundList.includes(ms.market_id));
   const background = marketSignatures.filter((ms) => !foregroundList.includes(ms.market_id));
@@ -110,7 +110,7 @@ function splitIntoForegroundBackground(marketSignatures, foregroundList) {
  * @param maxConcurrentCount the maximum number of api calls to make at once
  * @returns {Promise<*>}
  */
-function updateMarketsFromSignatures(marketSignatures, existingMarkets, maxConcurrentCount) {
+function updateMarketsFromSignatures (marketSignatures, existingMarkets, maxConcurrentCount) {
   return LimitedParallelMap(marketSignatures, (marketSignature) => {
     const { market_id: marketId, signatures: componentSignatures } = marketSignature;
     let promise = doRefreshMarket(marketId, componentSignatures);
@@ -121,10 +121,13 @@ function updateMarketsFromSignatures(marketSignatures, existingMarkets, maxConcu
     }
     if (!existingMarkets || !existingMarkets.includes(marketId)) {
       pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
+      // TODO, remove this promise alteration when david's code with versions goes it.
+      // It's just bridge code
       promise = promise.then(() => getMarketStages(marketId))
         .then((stages) => {
           return pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
         });
+
     }
     return promise;
   }, maxConcurrentCount);
@@ -147,8 +150,10 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   const callWithVersion = currentHeldVersion === 'INITIALIZATION' ? null : currentHeldVersion;
   return getVersions(callWithVersion)
     .then((versions) => {
-      const { global_version, signatures: marketSignatures, foreground: foregroundList,
-      banned: bannedList } = versions;
+      const {
+        global_version, signatures: marketSignatures, foreground: foregroundList,
+        banned: bannedList
+      } = versions;
       if (!_.isEmpty(bannedList)) {
         pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
       }
@@ -166,16 +171,16 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
           return updateMarketsFromSignatures(background, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS)
             .then(() => {
               return newGlobalVersion;
-            })
+            });
         });
-    })
+    });
 }
 
 function doRefreshMarket (marketId, componentSignatures) {
   console.debug(`Refreshing market ${marketId}`);
   const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   // console.log(fetchSignatures);
-  const { markets, comments, marketPresences, investibles } = fetchSignatures;
+  const { markets, comments, marketPresences, marketStages, investibles } = fetchSignatures;
   let chain = null;
   if (!_.isEmpty(markets)) {
     chain = fetchMarketVersion(marketId, markets[0]); // can only be one market object per market:)
@@ -193,6 +198,9 @@ function doRefreshMarket (marketId, componentSignatures) {
   if (!_.isEmpty(marketPresences) || componentSignatures.find((signature) => signature.type === 'investment')) {
     // Handle the case of the last investment being deleted by just refreshing users
     chain = chain ? chain.then(() => fetchMarketPresences(marketId, marketPresences || [])) : fetchMarketPresences(marketId, marketPresences || []);
+  }
+  if (!_.isEmpty(marketStages)) {
+    chain = chain ? chain.then(() => fetchMarketStages(marketId, marketStages)) : fetchMarketStages(marketId, marketStages);
   }
   return chain;
 }
@@ -241,6 +249,17 @@ function fetchMarketPresences (marketId, mpSignatures) {
       pushMessage(PUSH_PRESENCE_CHANNEL, { event: VERSIONS_EVENT, marketId, users });
       if (!match.allMatched) {
         throw new MatchError('Presences didn\'t match');
+      }
+    });
+}
+
+function fetchMarketStages (marketId, msSignatures) {
+  return getMarketStages(marketId)
+    .then((stages) => {
+      const match = signatureMatcher(stages, msSignatures);
+      pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
+      if (!match.allMatched) {
+        throw new MatchError('Stages didn\'t match');
       }
     });
 }

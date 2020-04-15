@@ -84,14 +84,23 @@ export function getFetchSignaturesForMarket (marketVersionSignatures) {
   const markets = marketSignatureGenerator(marketVersionSignatures);
   const marketPresences = usersSignatureGenerator(marketVersionSignatures);
   const investibles = investiblesSignatureGenerator(marketVersionSignatures);
+  const marketStages = stagesSignatureGenerator(marketVersionSignatures);
   return {
     comments,
     markets,
     marketPresences,
     investibles,
+    marketStages,
   };
 }
 
+/**
+ * Generates a signature for object updates that simply consists of
+ * the object id and the new version.
+ * @param versionsSignatures the complete version sisgnatues object
+ * @param type the signature type we're looking for
+ * @returns {*[]|*}
+ */
 function generateSimpleObjectSignature (versionsSignatures, type) {
   const mySignature = versionsSignatures.find((signature) => signature.type === type);
   if (!mySignature) {
@@ -110,6 +119,12 @@ function generateSimpleObjectSignature (versionsSignatures, type) {
   }, []);
 }
 
+/**
+ * Users are an amalgamation of several different versions. This generates
+ * an update signature that will update from the component parts.
+ * @param versionsSignatures the unified market signature update
+ * @returns {unknown[]}
+ */
 function usersSignatureGenerator (versionsSignatures) {
   const userSignatures = versionsSignatures.find((signature) => signature.type === 'market_capability') || { object_versions: [] };
   const investmentsSignatures = versionsSignatures.find((signature) => signature.type === 'investment') || { object_versions: [] };
@@ -152,6 +167,12 @@ function usersSignatureGenerator (versionsSignatures) {
   return Object.values(fetchSigs);
 }
 
+/**
+ * Investibles are an amalagmation of the investible and investible info objects.
+ * This generates a signature that can match if either part updates
+ * @param versionsSignatures the version signature array
+ * @returns {unknown[]}
+ */
 function investiblesSignatureGenerator (versionsSignatures) {
   const invSignature = versionsSignatures.find((signature) => signature.type === 'investible') || { object_versions: [] };
   const infoSignature = versionsSignatures.find((signature) => signature.type === 'market_investible') || { object_versions: [] };
@@ -196,6 +217,16 @@ function investiblesSignatureGenerator (versionsSignatures) {
     }
   });
   return Object.values(fetchSigs);
+}
+
+/**
+ * Converts the market signature out of the versions call into something
+ * we can match a fetched object against
+ * @param versionsSignatures
+ * @returns {*[]|*}
+ */
+function stagesSignatureGenerator (versionsSignatures) {
+  return generateSimpleObjectSignature(versionsSignatures, 'stage');
 }
 
 /**

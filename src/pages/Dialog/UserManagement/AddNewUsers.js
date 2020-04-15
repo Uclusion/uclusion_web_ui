@@ -23,6 +23,7 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import ApiBlockingButton from '../../../components/SpinBlocking/ApiBlockingButton';
 import { usePlanFormStyles } from '../../../components/AgilePlan';
 import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer';
+import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 
 function AddNewUsers (props) {
   const {
@@ -41,6 +42,7 @@ function AddNewUsers (props) {
   }
 
   function onInvite (form) {
+    setAddByEmailSpinning(true);
     form.preventDefault();
     const participants = [];
     if (email1) {
@@ -49,7 +51,8 @@ function AddNewUsers (props) {
     }
     return inviteParticipants(addToMarketId, participants).then(() => {
       setEmail1('');
-    });
+      setAddByEmailSpinning(false);
+    }).catch(() => setAddByEmailSpinning(false));
   }
 
   function extractUsersList () {
@@ -83,6 +86,7 @@ function AddNewUsers (props) {
   const defaultChecked = extractUsersList();
   const [checked, setChecked] = useState(defaultChecked);
   const [searchValue, setSearchValue] = useState(undefined);
+  const [addByEmailSpinning, setAddByEmailSpinning] = useState(false);
   const [filteredNames, setFilteredNames] = useState(undefined);
   const participants = Object.keys(checked).map((key) => checked[key]);
   const anySelected = participants.find((participant) => participant.isChecked);
@@ -275,16 +279,17 @@ function AddNewUsers (props) {
           </ListItem>
           <ListItem id="emailButtons" key="emailButtons">
             <CardActions className={classes.actions}>
-              <ApiBlockingButton
+              <SpinningButton
                 variant="contained"
                 className={classes.actionPrimary}
                 type="submit"
+                spinning={addByEmailSpinning}
                 disabled={_.isEmpty(email1)}
               >
                 <FormattedMessage
                   id="inviteParticipantsLabel"
                 />
-              </ApiBlockingButton>
+              </SpinningButton>
             </CardActions>
           </ListItem>
         </form>

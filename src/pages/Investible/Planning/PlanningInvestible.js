@@ -523,7 +523,7 @@ function PlanningInvestible(props) {
               showBudget
             />
           ) : (
-            <Typography>{intl.formatMessage({ id: 'planningInvestibleCantVote' })}</Typography>
+            <DismissableText textId="planningInvestibleCantVote" />
         ))}
       <h2>
         <FormattedMessage id="decisionInvestibleOthersVoting" />

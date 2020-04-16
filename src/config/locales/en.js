@@ -302,6 +302,7 @@ const messages = defineMessages({
   newOption: 'New Option',
   noVoters: 'No Voters',
   storyHelp: 'Need something assigned and voted on now that takes a day or longer? Use the plus icon in the sidebar menu.',
+  reassignWarning: 'Re-assigning will remove all votes.',
   // Issues
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',

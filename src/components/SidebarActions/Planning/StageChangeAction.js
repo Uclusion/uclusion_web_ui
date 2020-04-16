@@ -52,6 +52,7 @@ function StageChangeAction(props) {
     onSpinStop,
     isOpen,
     disabled,
+    removeAssignments,
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -77,6 +78,9 @@ function StageChangeAction(props) {
           ...thisMarketInfo,
           stage: targetStageId
         };
+        if (removeAssignments) {
+          delete newInfo.assigned;
+        }
         const newMarketInfos = _.unionBy([newInfo], marketInfos, 'id');
         const newInv = {
           ...inv,
@@ -115,9 +119,11 @@ StageChangeAction.propTypes = {
   targetStageId: PropTypes.string.isRequired,
   isOpen: PropTypes.bool.isRequired,
   disabled: PropTypes.bool.isRequired,
+  removeAssignments: PropTypes.bool,
 };
 
 StageChangeAction.defaultProps = {
   onSpinStop: () => {},
+  removeAssignments: false,
 };
 export default StageChangeAction;

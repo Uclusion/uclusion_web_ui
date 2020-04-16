@@ -88,7 +88,7 @@ function PlanningInvestibleEdit(props) {
 
   function handleSave() {
     let updateInfo;
-    if (!_.isEqual(assignments, assigned)) {
+    if (!_.isEqual(assignments, marketAssigned)) {
       updateInfo = {
         marketId,
         investibleId: id,

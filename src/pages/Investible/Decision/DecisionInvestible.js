@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, Grid, Typography } from '@material-ui/core'
+import { Card, CardContent, CardHeader, Grid, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import YourVoting from '../Voting/YourVoting'
 import Voting from './Voting'
@@ -33,6 +33,10 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    alignItems: "flex-start",
+    display: "flex"
+  },
   container: {
     padding: "3px 89px 21px 21px",
     marginTop: "-6px",
@@ -151,35 +155,39 @@ function DecisionInvestible(props) {
 
   const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
 
-  function getSidebarActions() {
-    if (!activeMarket) {
-      return [];
-    }
-    const sidebarActions = [];
-    if (isAdmin) {
-      if (inProposed) {
-        sidebarActions.push(<MoveToCurrentVotingActionButton
-          key="moveToCurrent"
-          investibleId={investibleId}
-          marketId={marketId}
-        />);
-      }
-      if (!inProposed) {
-        sidebarActions.push(<MoveBackToPoolActionButton
+  function getActions() {
+    return (
+    <dl className={classes.root}>
+      {isAdmin && inProposed && (
+          <MoveToCurrentVotingActionButton
+            key="moveToCurrent"
+            investibleId={investibleId}
+            marketId={marketId}
+          />
+      )}
+      {isAdmin && !inProposed && (
+        <MoveBackToPoolActionButton
           key="moveBack"
           investibleId={investibleId}
           marketId={marketId}
-        />);
-      }
-      if (allowDelete) {
-        sidebarActions.push(<DeleteInvestibleActionButton
+        />
+      )}
+      {allowDelete && (
+        <DeleteInvestibleActionButton
           key="delete"
           investibleId={investibleId}
           marketId={marketId}
-        />);
-      }
-    }
-    return sidebarActions;
+        />
+      )}
+      {!inArchives && (isAdmin || (inProposed && createdBy === userId)) && (
+        <EditMarketButton
+          labelId="edit"
+          marketId={marketId}
+          onClick={toggleEdit}
+        />
+      )}
+    </dl>
+    );
   }
 
   if (!investibleId) {
@@ -193,7 +201,7 @@ function DecisionInvestible(props) {
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
-      sidebarActions={getSidebarActions()}
+      sidebarActions={[]}
     >
       {activeMarket && !inProposed && !allowMultiVote && (
         <DismissableText textId='decisionInvestibleVotingSingleHelp' />
@@ -213,16 +221,14 @@ function DecisionInvestible(props) {
           type={VOTING_TYPE}
           subtype={OPTION}
         />
+        {activeMarket && (
+          <CardHeader
+            action={getActions()}
+          />
+        )}
         <CardContent className={classes.votingCardContent}>
           <h1>
             {name}
-            {!inArchives && (isAdmin || (inProposed && createdBy === userId)) && (
-              <EditMarketButton
-                labelId="edit"
-                marketId={marketId}
-                onClick={toggleEdit}
-              />
-            )}
           </h1>
           {lockedBy && (
             <Typography>

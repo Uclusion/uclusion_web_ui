@@ -2,7 +2,6 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { ListItem, ListItemIcon, ListItemText, Tooltip, } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { SidebarContext } from '../../../contexts/SidebarContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 export const useStyles = makeStyles((theme) => {
@@ -37,7 +36,6 @@ function ExpandableSidebarAction(props) {
   } = props;
 
   const classes = useStyles();
-  const [amOpen] = useContext(SidebarContext);
   const [operationRunning] = useContext(OperationInProgressContext);
 
   function myOnClick() {
@@ -58,9 +56,9 @@ function ExpandableSidebarAction(props) {
           {icon}
         </ListItemIcon>
       </Tooltip>
-      {amOpen && (
+      {openLabel && (
         <ListItemText className={classes.menuTitle}>
-          {openLabel || label}
+          {openLabel}
         </ListItemText>
       )}
     </ListItem>

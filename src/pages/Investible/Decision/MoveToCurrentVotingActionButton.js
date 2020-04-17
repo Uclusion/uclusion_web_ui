@@ -1,14 +1,14 @@
-import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import { useIntl } from 'react-intl'
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import {
   getInCurrentVotingStage,
   getProposedOptionsStage,
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { moveInvestibleToCurrentVoting } from '../../../api/investibles';
-import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { moveInvestibleToCurrentVoting } from '../../../api/investibles'
+import SpinningTooltipIconButton from '../../../components/SpinBlocking/SpinningTooltipIconButton'
 
 function MoveToCurrentVotingActionButton(props) {
   const { onClick, investibleId, marketId } = props;
@@ -32,11 +32,10 @@ function MoveToCurrentVotingActionButton(props) {
   }
 
   return (
-    <SpinBlockingSidebarAction
+    <SpinningTooltipIconButton
       marketId={marketId}
       icon={<ArrowUpwardIcon />}
-      label={intl.formatMessage({ id: 'investibleAddToVotingExplanation' })}
-      openLabel={intl.formatMessage({ id: 'investibleAddToVotingLabel' })}
+      translationId="investibleAddToVotingExplanation"
       onClick={moveToProposed}
     />
   );

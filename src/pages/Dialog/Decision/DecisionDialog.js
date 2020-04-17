@@ -235,16 +235,18 @@ function DecisionDialog(props) {
           </dl>
         </CardContent>
       </Card>
-      <dl className={metaClasses.root}>
-        <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-          <ExpandableAction
-            onClick={() => navigate(history, formMarketAddInvestibleLink(marketId))}
-            icon={<AddIcon />}
-            label={intl.formatMessage({ id: addLabelExplanation })}
-            openLabel={intl.formatMessage({ id: addLabel })}
-          />
-        </div>
-      </dl>
+      {activeMarket && (
+        <dl className={metaClasses.root}>
+          <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+            <ExpandableAction
+              onClick={() => navigate(history, formMarketAddInvestibleLink(marketId))}
+              icon={<AddIcon />}
+              label={intl.formatMessage({ id: addLabelExplanation })}
+              openLabel={intl.formatMessage({ id: addLabel })}
+            />
+          </div>
+        </dl>
+      )}
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <SubSection

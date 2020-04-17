@@ -16,7 +16,6 @@ import PlanningIdeas from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
   formMarketAddInvestibleLink,
-  formMarketManageLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate
@@ -24,13 +23,9 @@ import {
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
-import ViewArchiveActionButton from './ViewArchivesActionButton'
-import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
-import ManageParticipantsActionButton from './ManageParticipantsActionButton'
+import { ACTIVE_STAGE } from '../../../constants/markets'
 import { getUserInvestibles } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
-import InsertLinkIcon from '@material-ui/icons/InsertLink'
 import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import InvestibleAddActionButton from './InvestibleAddActionButton'
 import DismissableText from '../../../components/Notifications/DismissableText'
@@ -38,6 +33,8 @@ import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import clsx from 'clsx'
+import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -51,6 +48,7 @@ function PlanningDialog(props) {
     myPresence
   } = props;
   const intl = useIntl();
+  const metaClasses = useMetaDataStyles();
   const { id: marketId, market_stage: marketStage } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
@@ -103,41 +101,13 @@ function PlanningDialog(props) {
     }
   }
 
-  function toggleManageUsersMode() {
-    navigate(history, formMarketManageLink(marketId));
+  function onClick() {
+    const link = formMarketAddInvestibleLink(marketId);
+    navigate(history, link);
   }
 
   function getSidebarActions() {
-    if (!activeMarket) {
-      return [
-        <ManageParticipantsActionButton
-          key="addParticipants"
-          onClick={toggleManageUsersMode}
-        />,
-        <ViewArchiveActionButton key="archives" marketId={marketId} />
-      ];
-    }
-    function onClick() {
-      const link = formMarketAddInvestibleLink(marketId);
-      navigate(history, link);
-    }
     return [
-      <InvestibleAddActionButton key="investibleadd" onClick={onClick} />,
-      <ManageParticipantsActionButton
-        key="addParticipants"
-        onClick={toggleManageUsersMode}
-      />,
-      <ViewArchiveActionButton key="archives" marketId={marketId} />,
-      <ExpandableSidebarAction
-        id="link"
-        key="link"
-        icon={<InsertLinkIcon />}
-        openLabel={intl.formatMessage({ id: "planningInvestibleDecision" })}
-        label={intl.formatMessage({ id: "childDialogExplanation" })}
-        onClick={() =>
-          navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${marketId}`)
-        }
-      />
     ];
   }
   const furtherWorkStage = marketStages.find((stage) => (!stage.appears_in_context && !stage.allows_issues
@@ -160,6 +130,11 @@ function PlanningDialog(props) {
           {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
         </Typography>
       )}
+      <dl className={metaClasses.root}>
+        <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+          <InvestibleAddActionButton key="investibleadd" onClick={onClick} />
+        </div>
+      </dl>
       {!isChannel && (
         <InvestiblesByPerson
           comments={comments}

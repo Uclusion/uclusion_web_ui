@@ -734,6 +734,7 @@ const messages = defineMessages({
   commentSearchResultJustify: 'Vote reason in {name}',
   commentSearchResultSuggestion: 'Suggestion in {name}',
   commentSearchResultQuestion: 'Question in {name}',
+  commentSearchResultReport: 'Report in {name}',
 
   // existing users
   existingUsersBanUser: 'Remove collaborator',

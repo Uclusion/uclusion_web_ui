@@ -28,6 +28,12 @@ const useStyles = makeStyles((theme) => ({
     background: '#efefef',
     padding: '95px 20px 156px',
   },
+  containerAll: {
+    background: '#efefef',
+    padding: '95px 20px 156px',
+    width: `calc(100% - ${DRAWER_WIDTH_OPENED}px)`,
+    marginLeft: DRAWER_WIDTH_OPENED/2,
+  },
   contentShift: {
     marginLeft: DRAWER_WIDTH_OPENED,
     width: `calc(100% - ${DRAWER_WIDTH_OPENED}px)`,
@@ -96,7 +102,11 @@ function Screen(props) {
   if (_.isEmpty(breadCrumbs) && !isHome) {
     usedBreadCrumbs = makeBreadCrumbs(history);
   }
-
+  const myDivClass = _.isEmpty(sidebarActions) ? classes.content : clsx(classes.content, {
+    [classes.contentShift]: sidebarOpen,
+    [classes.contentUnShift]: !sidebarOpen,
+  })
+  const myContainerClass = _.isEmpty(sidebarActions) ? classes.containerAll : classes.container;
   return (
     <div className={classes.root}>
       <Helmet>
@@ -112,16 +122,18 @@ function Screen(props) {
         breadCrumbs={usedBreadCrumbs}
         toolbarButtons={toolbarButtons}
         hidden={reallyAmLoading}
+        hasSidebar={!_.isEmpty(sidebarActions)}
+        appEnabled={appEnabled}
       />
-      <Sidebar sidebarActions={sidebarActions} appEnabled={appEnabled} />
-      <div
-        className={clsx(classes.content, {
-          [classes.contentShift]: sidebarOpen,
-          [classes.contentUnShift]: !sidebarOpen,
-        })}
-      >
-        {!reallyAmLoading && (
-          <Container className={classes.container}>{children}</Container>
+      {!_.isEmpty(sidebarActions) && (
+        <Sidebar sidebarActions={sidebarActions} appEnabled={appEnabled} />
+      )}
+      <div className={myDivClass}>
+        {!reallyAmLoading && !_.isEmpty(sidebarActions) && (
+          <Container className={myContainerClass}>{children}</Container>
+        )}
+        {!reallyAmLoading && _.isEmpty(sidebarActions) && (
+          <div className={myContainerClass}>{children}</div>
         )}
         {reallyAmLoading && (
           <Card>

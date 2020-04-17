@@ -452,8 +452,8 @@ const messages = defineMessages({
   decisionDialogProposeExplanationLabel: 'Propose an option for consideration of being added to voting',
   decisionDialogExtendDaysLabel: 'Number of days to extend deadline?',
   decisionDialogNoInvestiblesWarning: 'No votable options',
-  childDialogExplanation: 'Click here to create and link in a child dialog deciding something relevant to this parent.',
-  childPlanExplanation: 'Click here to create and link in a child workspace relevant to this initiative.',
+  childDialogExplanation: 'Click to create and link in a second dialog.',
+  childPlanExplanation: 'Click to create and link in a child workspace relevant to this initiative.',
   decisionAddHelp: 'A Dialog gives you a timed box way to decide with others between options that you control.',
   backToOptionPoolWarning: 'Moving this option back to the Option Pool deletes all votes.',
 

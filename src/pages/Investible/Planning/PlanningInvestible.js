@@ -52,7 +52,6 @@ import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import { convertDates } from '../../../contexts/ContextUtils'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import EditMarketButton from '../../Dialog/EditMarketButton'
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
 import MarketLinks from '../../Dialog/MarketLinks'
 import CardType, {
   FURTHER_WORK,
@@ -85,6 +84,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
 import { DaysEstimate } from '../../../components/AgilePlan'
+import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 
 const useStyles = makeStyles(
   theme => ({
@@ -288,7 +288,7 @@ function PlanningInvestible(props) {
     if (isInVoting || isInAccepted) {
       if (!inlineMarketId && isAssigned ) {
         sidebarActions.push(
-          <ExpandableSidebarAction
+          <ExpandableAction
             id="newOption"
             key="newOption"
             label={intl.formatMessage({ id: 'inlineAddExplanation' })}
@@ -300,7 +300,7 @@ function PlanningInvestible(props) {
       }
       else if (inlineMarketId) {
         sidebarActions.push(
-          <ExpandableSidebarAction
+          <ExpandableAction
             id="newOption"
             key="newOption"
             label={intl.formatMessage({ id: 'inlineAddExplanation' })}
@@ -312,8 +312,8 @@ function PlanningInvestible(props) {
       }
     }
     if (!isInNotDoing) {
-      if (isAssigned) {
-        sidebarActions.push(<ExpandableSidebarAction
+      if (isAssigned && inlineMarketId) {
+        sidebarActions.push(<ExpandableAction
           id="link"
           key="link"
           icon={<InsertLinkIcon/>}
@@ -462,7 +462,7 @@ function PlanningInvestible(props) {
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
-      sidebarActions={getSidebarActions()}
+      sidebarActions={[]}
     >
       {activeMarket && isInVoting && isAssigned && enoughVotes && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
         <DismissableText textId='planningInvestibleEnoughVotesHelp' />
@@ -516,6 +516,7 @@ function PlanningInvestible(props) {
             children={children || []}
             stageActions={getStageActions()}
             expansionChanged={expansionChanged}
+            actions={getSidebarActions()}
           />
         </CardContent>
       </Card>
@@ -702,6 +703,7 @@ function MarketMetaData(props) {
     hidden,
     stageActions,
     expansionChanged,
+    actions,
   } = props;
 
   const classes = useMetaDataStyles();
@@ -769,7 +771,7 @@ function MarketMetaData(props) {
           </div>
         </ExpansionPanelDetails>
       </ExpansionPanel>
-      <MarketLinks links={children} hidden={hidden} />
+      <MarketLinks links={children} hidden={hidden} actions={actions} />
     </dl>
   );
 }
@@ -786,6 +788,7 @@ MarketMetaData.propTypes = {
   hidden: PropTypes.bool.isRequired,
   stageActions: PropTypes.object,
   expansionChanged: PropTypes.func.isRequired,
+  actions: PropTypes.arrayOf(PropTypes.element).isRequired,
 }
 
 function Assignments(props) {

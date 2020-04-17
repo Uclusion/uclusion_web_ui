@@ -20,10 +20,8 @@ import CurrentVoting from './CurrentVoting'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import Screen from '../../../containers/Screen/Screen'
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments'
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
-import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction'
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import {
@@ -37,10 +35,11 @@ import clsx from 'clsx'
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import ExpiredDisplay from '../../../components/Expiration/ExpiredDisplay'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
-import Collaborators from '../Collaborators';
+import Collaborators from '../Collaborators'
 import DialogActions from '../../Home/DialogActions'
 import ParentSummary from '../ParentSummary'
 import CardActions from '@material-ui/core/CardActions'
+import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 
 const useStyles = makeStyles(
   theme => ({
@@ -133,47 +132,13 @@ function DecisionDialog(props) {
   }
   const underConsideration = getInvestiblesForStage(underConsiderationStage);
   const proposed = getInvestiblesForStage(proposedStage);
-
-  const sidebarMenuList = [];
-  if (activeMarket) {
-    sidebarMenuList.unshift({
-      label: intl.formatMessage({ id: addLabelExplanation }),
-      openLabel: intl.formatMessage({ id: addLabel }),
-      icon: <AddIcon/>,
-      id: 'newOption',
-      onClick: () => navigate(history, formMarketAddInvestibleLink(marketId)),
-    });
-  }
-
-  function getSidebarActions() {
-    return sidebarMenuList.map((item, index) => {
-      const { onClick, label, icon, id, openLabel } = item;
-      if (item.spinBlocking) {
-        return (
-          <SpinBlockingSidebarAction
-            id={id}
-            key={index}
-            label={label}
-            onClick={onClick}
-            icon={icon}
-            marketId={marketId}
-            openLabel={openLabel}
-          />
-        );
-      }
-      return <ExpandableSidebarAction id={id} key={index} label={label} icon={icon} onClick={onClick}
-      openLabel={openLabel}/>;
-    });
-  }
-
-  const sidebarActions = getSidebarActions();
   return (
     <Screen
       title={marketName}
       tabTitle={marketName}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
-      sidebarActions={sidebarActions}
+      sidebarActions={[]}
     >
       <UclusionTour
         hidden={hidden}
@@ -270,8 +235,18 @@ function DecisionDialog(props) {
           </dl>
         </CardContent>
       </Card>
+      <dl className={metaClasses.root}>
+        <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+          <ExpandableAction
+            onClick={() => navigate(history, formMarketAddInvestibleLink(marketId))}
+            icon={<AddIcon />}
+            label={intl.formatMessage({ id: addLabelExplanation })}
+            openLabel={intl.formatMessage({ id: addLabel })}
+          />
+        </div>
+      </dl>
       <Grid container spacing={2}>
-        <Grid item xs={12} style={{ marginTop: '30px' }}>
+        <Grid item xs={12}>
           <SubSection
             id="currentVoting"
             type={SECTION_TYPE_SECONDARY}

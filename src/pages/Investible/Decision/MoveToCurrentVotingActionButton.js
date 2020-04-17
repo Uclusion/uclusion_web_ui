@@ -1,6 +1,5 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import { useIntl } from 'react-intl'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import {
@@ -12,7 +11,6 @@ import SpinningTooltipIconButton from '../../../components/SpinBlocking/Spinning
 
 function MoveToCurrentVotingActionButton(props) {
   const { onClick, investibleId, marketId } = props;
-  const intl = useIntl();
 
   const [marketStagesState] = useContext(MarketStagesContext);
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);

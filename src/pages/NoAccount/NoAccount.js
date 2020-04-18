@@ -107,8 +107,8 @@ function NoAccount(props) {
           </Typography>
           <Typography>
             Your email ({email}) has not been verified yet. In order to use Uclusion you must verify your email address via
-            the link we sent to your email, then logout and log back in. If you do not have that link, you may get a new one
-            by clicking Resend Link
+            the link we sent to your email. If you do not have that link, you may get a new one
+            by clicking Resend Link. After getting the link, you should close this tab.
           </Typography>
           <CardActions className={classes.actions}>
             {getResendButton()}

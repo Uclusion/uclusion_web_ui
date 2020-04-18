@@ -1,19 +1,19 @@
-import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import {
   getInCurrentVotingStage,
   getProposedOptionsStage,
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { moveInvestibleBackToOptionPool } from '../../../api/investibles';
-import { Dialog } from '../../../components/Dialogs';
-import { Button } from '@material-ui/core';
-import clsx from 'clsx';
-import { useLockedDialogStyles } from '../../Dialog/DialogEdit';
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { moveInvestibleBackToOptionPool } from '../../../api/investibles'
+import { Dialog } from '../../../components/Dialogs'
+import { Button } from '@material-ui/core'
+import clsx from 'clsx'
+import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
+import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 
 function MoveBackToPoolActionButton(props) {
   const { onClick, investibleId, marketId } = props;
@@ -47,10 +47,9 @@ function MoveBackToPoolActionButton(props) {
   const lockedDialogClasses = useLockedDialogStyles();
   return (
     <div>
-      <ExpandableSidebarAction
+      <ExpandableAction
         icon={<ArrowDownwardIcon />}
         label={intl.formatMessage({ id: 'investibleRemoveFromVotingExplanation' })}
-        openLabel={intl.formatMessage({ id: 'investibleBackToOptionPoolLabel' })}
         onClick={handleOpen}
       />
       <RemoveOption

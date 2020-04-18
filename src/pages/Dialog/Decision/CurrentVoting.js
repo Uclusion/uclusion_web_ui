@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { CardContent, Grid, Link } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { pink } from '@material-ui/core/colors'
+import { red } from '@material-ui/core/colors'
 import { useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
 import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
     }
   },
   warnNoOptions: {
-    backgroundColor: pink[500],
+    backgroundColor: red["400"],
     display: 'grid',
     gridTemplateColumns: 'calc(100% - 130px) 130px',
     width: '100%',

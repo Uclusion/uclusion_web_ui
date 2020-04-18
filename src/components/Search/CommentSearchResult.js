@@ -1,17 +1,17 @@
-import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
-import { Link, } from '@material-ui/core';
-import _ from 'lodash';
-import { formCommentLink } from '../../utils/marketIdPathFunctions';
-import { useIntl } from 'react-intl';
-import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import CardType from '../CardType';
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper'
+import { Link, } from '@material-ui/core'
+import _ from 'lodash'
+import { formCommentLink } from '../../utils/marketIdPathFunctions'
+import { useIntl } from 'react-intl'
+import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import CardType from '../CardType'
 
 function getIntlMessage (commentType) {
   switch (commentType) {
@@ -23,6 +23,8 @@ function getIntlMessage (commentType) {
       return 'commentSearchResultQuestion';
     case SUGGEST_CHANGE_TYPE:
       return 'commentSearchResultSuggestion';
+    case REPORT_TYPE:
+      return 'commentSearchResultReport';
     default:
       console.error('Unknown comment type ' + commentType);
       return '';

@@ -52,7 +52,6 @@ import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import { convertDates } from '../../../contexts/ContextUtils'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import EditMarketButton from '../../Dialog/EditMarketButton'
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
 import MarketLinks from '../../Dialog/MarketLinks'
 import CardType, {
   FURTHER_WORK,
@@ -85,6 +84,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
 import { DaysEstimate } from '../../../components/AgilePlan'
+import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 
 const useStyles = makeStyles(
   theme => ({
@@ -167,7 +167,9 @@ function PlanningInvestible(props) {
     comment => comment.comment_type === JUSTIFY_TYPE
   );
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
-  const { stage, assigned, children, days_estimate: daysEstimate, inline_market_id: inlineMarketId } = marketInfo;
+  const { stage, assigned: invAssigned, children, days_estimate: daysEstimate, inline_market_id: inlineMarketId } = marketInfo;
+  const assigned = invAssigned || []; // handle the empty case to make subsequent code easier
+  const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === marketPresences.length;
   const { investible } = marketInvestible;
   const { description, name, locked_by: lockedBy, created_at: createdAt } = investible;
   let lockedByName;
@@ -199,7 +201,7 @@ function PlanningInvestible(props) {
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
   const isInNotDoing = notDoingStage && stage === notDoingStage.id;
   const inMarketArchives = isInNotDoing || isInVerified;
-  const isAssigned = assigned && assigned.includes(userId);
+  const isAssigned = assigned.includes(userId);
   const breadCrumbTemplates = [
     { name: marketName, link: formMarketLink(marketId) }
   ];
@@ -276,7 +278,8 @@ function PlanningInvestible(props) {
   }
 
   function hasEnoughVotes (myInvested, myRequired) {
-    const required = myRequired !== undefined ? myRequired : 1;
+    // if everyone is assigned, then we can't require any votes as nobody can vote
+    const required = everyoneAssigned? 0 : myRequired !== undefined ? myRequired : 1;
     return _.size(myInvested) >= required;
   }
 
@@ -288,7 +291,7 @@ function PlanningInvestible(props) {
     if (isInVoting || isInAccepted) {
       if (!inlineMarketId && isAssigned ) {
         sidebarActions.push(
-          <ExpandableSidebarAction
+          <ExpandableAction
             id="newOption"
             key="newOption"
             label={intl.formatMessage({ id: 'inlineAddExplanation' })}
@@ -300,7 +303,7 @@ function PlanningInvestible(props) {
       }
       else if (inlineMarketId) {
         sidebarActions.push(
-          <ExpandableSidebarAction
+          <ExpandableAction
             id="newOption"
             key="newOption"
             label={intl.formatMessage({ id: 'inlineAddExplanation' })}
@@ -312,8 +315,8 @@ function PlanningInvestible(props) {
       }
     }
     if (!isInNotDoing) {
-      if (isAssigned) {
-        sidebarActions.push(<ExpandableSidebarAction
+      if (isAssigned && inlineMarketId) {
+        sidebarActions.push(<ExpandableAction
           id="link"
           key="link"
           icon={<InsertLinkIcon/>}
@@ -335,16 +338,20 @@ function PlanningInvestible(props) {
     const blockingComments = investibleComments.filter(
       comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
     );
-    const assignedInVotingStage = assignedInStage(
-      investibles,
-      userId,
-      inCurrentVotingStage.id
-    );
-    const assignedInAcceptedStage = assignedInStage(
-      investibles,
-      userId,
-      inAcceptedStage.id
-    );
+    const assignedInVotingStage = assigned.reduce((acc, userId) => {
+      return acc.concat(assignedInStage(
+        investibles,
+        userId,
+        inCurrentVotingStage.id
+      ));
+    }, []);
+    const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
+      return acc.concat(assignedInStage(
+        investibles,
+        userId,
+        inAcceptedStage.id
+      ));
+    }, []);
     return [
       <MoveToNextVisibleStageActionButton
         key="visible"
@@ -368,7 +375,7 @@ function PlanningInvestible(props) {
         currentStageId={stage}
         isOpen={changeStagesExpanded}
         key="accepted"
-        disabled={!isAssigned || !_.isEmpty(blockingComments) || !_.isEmpty(assignedInAcceptedStage) || (isInVoting && !enoughVotes)}
+        disabled={!isAssigned || !_.isEmpty(blockingComments) || !_.isEmpty(assignedInAcceptedStage) || !enoughVotes}
       />,
       <MoveToInReviewActionButton
         investibleId={investibleId}
@@ -376,7 +383,7 @@ function PlanningInvestible(props) {
         currentStageId={stage}
         isOpen={changeStagesExpanded}
         key="inreview"
-        disabled={isInReview || !isAssigned || !_.isEmpty(blockingComments) || (isInVoting && !enoughVotes)}
+        disabled={isInReview || !isAssigned || !_.isEmpty(blockingComments)}
       />,
       <MoveToFurtherWorkActionButton
         investibleId={investibleId}
@@ -384,7 +391,7 @@ function PlanningInvestible(props) {
         currentStageId={stage}
         isOpen={changeStagesExpanded}
         key="furtherwork"
-        disabled={isReadyFurtherWork || (isInVoting && !enoughVotes)}
+        disabled={isReadyFurtherWork}
       />,
       <MoveToVerifiedActionButton
         investibleId={investibleId}
@@ -462,7 +469,7 @@ function PlanningInvestible(props) {
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
-      sidebarActions={getSidebarActions()}
+      sidebarActions={[]}
     >
       {activeMarket && isInVoting && isAssigned && enoughVotes && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
         <DismissableText textId='planningInvestibleEnoughVotesHelp' />
@@ -516,6 +523,7 @@ function PlanningInvestible(props) {
             children={children || []}
             stageActions={getStageActions()}
             expansionChanged={expansionChanged}
+            actions={getSidebarActions()}
           />
         </CardContent>
       </Card>
@@ -702,6 +710,7 @@ function MarketMetaData(props) {
     hidden,
     stageActions,
     expansionChanged,
+    actions,
   } = props;
 
   const classes = useMetaDataStyles();
@@ -769,7 +778,7 @@ function MarketMetaData(props) {
           </div>
         </ExpansionPanelDetails>
       </ExpansionPanel>
-      <MarketLinks links={children} hidden={hidden} />
+      <MarketLinks links={children} hidden={hidden} actions={actions} />
     </dl>
   );
 }
@@ -786,6 +795,7 @@ MarketMetaData.propTypes = {
   hidden: PropTypes.bool.isRequired,
   stageActions: PropTypes.object,
   expansionChanged: PropTypes.func.isRequired,
+  actions: PropTypes.arrayOf(PropTypes.element).isRequired,
 }
 
 function Assignments(props) {

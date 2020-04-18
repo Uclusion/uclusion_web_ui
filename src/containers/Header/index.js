@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
@@ -7,13 +7,15 @@ import { AppBar, Breadcrumbs, IconButton, Link, Paper, Toolbar, Tooltip, Typogra
 import MenuOpenIcon from '@material-ui/icons/MenuOpen'
 import { makeStyles } from '@material-ui/styles'
 import { SidebarContext } from '../../contexts/SidebarContext'
-import { createTitle } from '../../utils/marketIdPathFunctions'
+import { createTitle, navigate } from '../../utils/marketIdPathFunctions'
 import { DRAWER_WIDTH_CLOSED, DRAWER_WIDTH_OPENED, } from '../../constants/global'
 import { OnlineStateContext } from '../../contexts/OnlineStateContext'
 import Identity from '../Screen/Identity'
 import SearchBox from '../../components/Search/SearchBox'
 import SearchResults from '../../components/Search/SearchResults'
 import Notifications from '../../components/Notifications/Notifications'
+import { useHistory } from 'react-router'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 const useStyles = makeStyles((theme) => {
   const BREADCRUMBS_HEIGHT = 67;
@@ -28,6 +30,11 @@ const useStyles = makeStyles((theme) => {
     appBar: {
       background: '#efefef',
       zIndex: theme.zIndex.drawer + 1,
+      boxShadow: 'none',
+      height: `${BREADCRUMBS_HEIGHT + TOPBAR_HEIGHT}px`,
+    },
+    appBarNoSidebar: {
+      background: '#efefef',
       boxShadow: 'none',
       height: `${BREADCRUMBS_HEIGHT + TOPBAR_HEIGHT}px`,
     },
@@ -59,7 +66,7 @@ const useStyles = makeStyles((theme) => {
       height: 40,
     },
     centerMe: {
-      marginLeft: '20%',
+      width: `calc(100% - ${DRAWER_WIDTH_OPENED}px)`,
     },
     offlineStyle: {
       padding: '15px',
@@ -90,19 +97,69 @@ const useStyles = makeStyles((theme) => {
       background: '#fff',
       boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
     },
+    sidebarLogo: {
+      padding: '10px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+      backgroundColor: '#3F6B72',
+    },
   };
 });
+
+const DEFAULT_SIDEBAR_LOGO = 'logo.svg';
+const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
 
 function Header(props) {
   const classes = useStyles();
   const intl = useIntl();
   const [online] = useContext(OnlineStateContext);
-
+  const history = useHistory();
   const {
-    breadCrumbs, title, hidden, toolbarButtons,
+    breadCrumbs, title, hidden, toolbarButtons, hasSidebar, appEnabled,
   } = props;
 
   const [sidebarOpen, setSidebarOpen] = useContext(SidebarContext);
+  const myAppClass = hasSidebar ? clsx(classes.appBar, {
+    [classes.appBarShift]: sidebarOpen,
+    [classes.appBarUnShift]: !sidebarOpen,
+  }) : classes.appBarNoSidebar;
+
+  const [operationRunning] = useContext(OperationInProgressContext);
+  const [logoTimer, setLogoTimer] = useState(undefined);
+  const [logoImage, setLogoImage] = useState(DEFAULT_SIDEBAR_LOGO);
+  const [pegLogo, setPegLogo] = useState(false);
+
+  useEffect(() => {
+    if (appEnabled) {
+      if (operationRunning && !logoTimer) {
+        setLogoTimer(setInterval(() => {
+          setPegLogo(true);
+        }, 250));
+      }
+      if (!operationRunning && logoTimer) {
+        setLogoTimer(undefined);
+        clearInterval(logoTimer);
+        setPegLogo(false);
+        setLogoImage(DEFAULT_SIDEBAR_LOGO);
+      }
+      if (pegLogo) {
+        setPegLogo(false);
+        if (logoImage === DEFAULT_SIDEBAR_LOGO) {
+          setLogoImage(ALTERNATE_SIDEBAR_LOGO);
+        } else {
+          setLogoImage(DEFAULT_SIDEBAR_LOGO);
+        }
+      }
+    }
+    return () => {
+      if (logoTimer) {
+        setLogoTimer(undefined);
+        clearInterval(logoTimer);
+        setPegLogo(false);
+      }
+    };
+  }, [operationRunning, logoTimer, pegLogo, logoImage, appEnabled]);
 
   function generateTitle() {
     if (breadCrumbs && !hidden) {
@@ -137,23 +194,32 @@ function Header(props) {
     <>
       <AppBar
         position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: sidebarOpen,
-          [classes.appBarUnShift]: !sidebarOpen,
-        })}
+        className={myAppClass}
       >
         <div className={classes.topBar} />
         <Toolbar>
-          <Tooltip title={intl.formatMessage({ id: 'openDrawer' })}>
-            <IconButton
-              aria-label="open drawer"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              edge="start"
-              className={classes.menuButton}
-            >
-              <MenuOpenIcon className={classes.menuIcon} />
-            </IconButton>
-          </Tooltip>
+          {hasSidebar && (
+            <Tooltip title={intl.formatMessage({ id: 'openDrawer' })}>
+              <IconButton
+                aria-label="open drawer"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                edge="start"
+                className={classes.menuButton}
+              >
+                <MenuOpenIcon className={classes.menuIcon} />
+              </IconButton>
+            </Tooltip>
+          )}
+          {!hasSidebar && (
+            <div className={classes.sidebarLogo}>
+              <Link href="/" onClick={(event) => {
+                event.preventDefault();
+                navigate(history, '/');
+              }} color="inherit">
+                <img width="40" height="52" src={`/images/${logoImage}`} alt="Uclusion" />
+              </Link>
+            </div>
+          )}
           {generateTitle()}
           {toolbarButtons}
           {!online && (
@@ -188,6 +254,8 @@ Header.propTypes = {
   toolbarButtons: PropTypes.arrayOf(PropTypes.any),
   title: PropTypes.any,
   hidden: PropTypes.bool,
+  hasSidebar: PropTypes.bool.isRequired,
+  appEnabled: PropTypes.bool.isRequired,
 };
 
 Header.defaultProps = {

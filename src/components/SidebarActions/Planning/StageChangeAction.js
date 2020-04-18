@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useIntl } from 'react-intl'
-import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction'
+import SpinBlockingListAction from '../../../components/SpinBlocking/SpinBlockingListAction'
 import { stageChangeInvestible } from '../../../api/investibles'
 import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
@@ -52,6 +52,7 @@ function StageChangeAction(props) {
     onSpinStop,
     isOpen,
     disabled,
+    removeAssignments,
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -77,6 +78,9 @@ function StageChangeAction(props) {
           ...thisMarketInfo,
           stage: targetStageId
         };
+        if (removeAssignments) {
+          delete newInfo.assigned;
+        }
         const newMarketInfos = _.unionBy([newInfo], marketInfos, 'id');
         const newInv = {
           ...inv,
@@ -89,7 +93,7 @@ function StageChangeAction(props) {
   }
 
   return (
-    <SpinBlockingSidebarAction
+    <SpinBlockingListAction
       marketId={marketId}
       icon={icon}
       hasSpinChecker
@@ -115,9 +119,11 @@ StageChangeAction.propTypes = {
   targetStageId: PropTypes.string.isRequired,
   isOpen: PropTypes.bool.isRequired,
   disabled: PropTypes.bool.isRequired,
+  removeAssignments: PropTypes.bool,
 };
 
 StageChangeAction.defaultProps = {
   onSpinStop: () => {},
+  removeAssignments: false,
 };
 export default StageChangeAction;

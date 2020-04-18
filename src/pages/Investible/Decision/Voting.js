@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import _ from "lodash";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from 'react-intl';
 import clsx from "clsx";
 import { Card, CardContent, Typography } from "@material-ui/core";
 import ReadOnlyQuillEditor from "../../../components/TextEditors/ReadOnlyQuillEditor";
@@ -19,24 +19,6 @@ const useVoteStyles = makeStyles(
       },
       card: {
         position: "relative"
-      },
-      maxBudget: {
-        alignItems: "flex-end",
-        display: "flex",
-        flexDirection: "column",
-        margin: theme.spacing(2),
-        position: "absolute",
-        top: 0,
-        right: 0,
-        textTransform: "capitalize"
-      },
-      maxBudgetLabel: {
-        color: "#757575",
-        fontSize: 14
-      },
-      maxBudgetValue: {
-        fontSize: 16,
-        fontWeight: "bold"
       },
       cardContent: {
         flex: "0 1 100%",
@@ -70,6 +52,7 @@ function Voting(props) {
   const { marketPresences, investibleId, investmentReasons } = props;
   const [highlightedVoteState] = useContext(HighlightedVotingContext);
   const classes = useVoteStyles();
+  const intl = useIntl();
   function getInvestibleVoters() {
     const acc = [];
     marketPresences.forEach(presence => {
@@ -125,22 +108,10 @@ function Voting(props) {
               className={classes.cardType}
               type={`certainty${Math.abs(quantity)}`}
             />
-            {maxBudget > 0 && (
-              <Typography className={classes.maxBudget} component="div">
-                <div className={classes.maxBudgetLabel}>
-                  <FormattedMessage id="maxBudgetLabel" />
-                </div>
-                <div className={classes.maxBudgetValue}>
-                  <FormattedMessage
-                    id="maxBudgetValue"
-                    values={{ x: maxBudget }}
-                  />
-                </div>
-              </Typography>
-            )}
             <CardContent className={classes.cardContent}>
               <Typography className={classes.voter} component="strong">
-                {name}
+                {maxBudget > 0 && intl.formatMessage({id: 'maxBudgetValue'}, { x: maxBudget, name})}
+                {(!maxBudget > 0) && name}
               </Typography>
               {reason && <ReadOnlyQuillEditor value={reason.body} />}
             </CardContent>

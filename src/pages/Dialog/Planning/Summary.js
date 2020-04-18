@@ -11,12 +11,18 @@ import {
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import DialogActions from '../../Home/DialogActions'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
-import CardType, { AGILE_PLAN_TYPE } from '../../../components/CardType'
-import { DaysEstimate, MaxBudget, VoteExpiration, Votes } from '../../../components/AgilePlan'
+import CardType, { AGILE_PLAN_TYPE, DECISION_TYPE } from '../../../components/CardType'
+import { DaysEstimate } from '../../../components/AgilePlan'
 import ParentSummary from '../ParentSummary'
 import MarketLinks from '../MarketLinks'
 import clsx from 'clsx'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
+import InsertLinkIcon from '@material-ui/icons/InsertLink'
+import { navigate } from '../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
+import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
+import Collaborators from '../Collaborators'
+import ViewArchiveActionButton from './ViewArchivesActionButton'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -63,6 +69,7 @@ const useStyles = makeStyles(theme => ({
 
 function Summary(props) {
   const { market, investibleId, hidden, unassigned, isChannel, activeMarket } = props;
+  const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
   const {
@@ -71,10 +78,7 @@ function Summary(props) {
     description,
     market_stage: marketStage,
     market_type: marketType,
-    max_budget: maxBudget,
-    investment_expiration: investmentExpiration,
     days_estimate: daysEstimate,
-    votes_required: votesRequired,
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId,
     created_at: createdAt,
@@ -119,53 +123,49 @@ function Summary(props) {
         <DescriptionOrDiff id={id} description={description} />
         <Divider className={classes.divider} />
         {!isChannel && (
-          <>
-            <fieldset className={classes.fieldset}>
-              <MaxBudget readOnly value={maxBudget} />
-              <VoteExpiration readOnly value={investmentExpiration} />
-              <Votes readOnly value={votesRequired} />
-            </fieldset>
-            <fieldset className={classes.fieldset}>
-              {daysEstimate && <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />}
-            </fieldset>
-          </>
+          <dl className={metaClasses.root}>
+            <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+              <ViewArchiveActionButton key="archives" marketId={id} />
+            </div>
+            {daysEstimate && (
+              <fieldset className={classes.fieldset}>
+                <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
+              </fieldset>
+            )}
+          </dl>
         )}
         {!(_.isEmpty(unassigned) && _.isEmpty(children) && !market.parent_market_id) && (
           <dl className={metaClasses.root}>
             {!_.isEmpty(unassigned) && (
               <div className={clsx(metaClasses.group, metaClasses.assignments)}>
                 <dt>
-                  <FormattedMessage id="unassigned" />
+                  <FormattedMessage id="dialogParticipants" />
                 </dt>
                 <dd>
-                  <UnassignedDisplay
-                    marketPresences={unassigned}
+                  <Collaborators
+                    marketPresences={marketPresences}
+                    intl={intl}
+                    marketId={id}
+                    history={history}
                   />
                 </dd>
               </div>
             )}
             <ParentSummary market={market} hidden={hidden}/>
-            <MarketLinks links={children || []} hidden={hidden} />
+            <MarketLinks links={children || []} hidden={hidden} actions={[<ExpandableAction
+              id="link"
+              key="link"
+              icon={<InsertLinkIcon />}
+              openLabel={intl.formatMessage({ id: "planningInvestibleDecision" })}
+              label={intl.formatMessage({ id: "childDialogExplanation" })}
+              onClick={() =>
+                navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${id}`)
+              }
+            />]} />
           </dl>
         )}
       </CardContent>
     </Card>
-  );
-}
-
-export function UnassignedDisplay(props) {
-  const { marketPresences} = props;
-  return (
-    <ul>
-      {marketPresences.map(presence => {
-        const { id: presenceId, name } = presence;
-        return (
-          <Typography key={presenceId} component="li">
-            {name}
-          </Typography>
-        );
-      })}
-    </ul>
   );
 }
 

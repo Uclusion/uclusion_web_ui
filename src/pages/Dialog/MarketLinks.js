@@ -1,24 +1,20 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
+import React, { useContext, useEffect, useReducer, useState } from 'react'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
-import {
-  Typography, Paper, Link,
-} from '@material-ui/core'
-import { makeStyles } from '@material-ui/styles';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import {
-  getMarketPresences,
-} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
-import { AllSequentialMap } from '../../utils/PromiseUtils';
-import { getMarketInfo } from '../../api/sso';
-import clsx from 'clsx';
-import { useMetaDataStyles } from '../Investible/Planning/PlanningInvestible';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { ACTIVE_STAGE } from '../../constants/markets';
+import { Link, List, Paper, Typography, } from '@material-ui/core'
+import { makeStyles } from '@material-ui/styles'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getMarketPresences, } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
+import { AllSequentialMap } from '../../utils/PromiseUtils'
+import { getMarketInfo } from '../../api/sso'
+import clsx from 'clsx'
+import { useMetaDataStyles } from '../Investible/Planning/PlanningInvestible'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { ACTIVE_STAGE } from '../../constants/markets'
 import { convertDates } from '../../contexts/ContextUtils'
 
 const useStyles = makeStyles((theme) => ({
@@ -34,11 +30,18 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: 'line-through',
   },
   activeMarket: {},
+  sidebarContent: {
+    display: 'flex',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    paddingTop: '0',
+    paddingBottom: '0',
+  },
 }))
 
 function MarketLinks (props) {
   const {
-    links, hidden
+    links, hidden, actions
   } = props
   const intl = useIntl();
   const history = useHistory();
@@ -132,7 +135,7 @@ function MarketLinks (props) {
     })
   }
 
-  if (_.isEmpty(links)) {
+  if (_.isEmpty(links) && _.isEmpty(actions)) {
     return React.Fragment;
   }
 
@@ -145,6 +148,11 @@ function MarketLinks (props) {
         <dd>
           {displayLinksList(links)}
         </dd>
+        <dd>
+          <List className={classes.sidebarContent}>
+            {actions}
+          </List>
+        </dd>
       </div>
     </Paper>
   )
@@ -153,6 +161,11 @@ function MarketLinks (props) {
 MarketLinks.propTypes = {
   links: PropTypes.arrayOf(PropTypes.string).isRequired,
   hidden: PropTypes.bool.isRequired,
+  actions: PropTypes.arrayOf(PropTypes.element),
 }
+
+MarketLinks.defaultProps = {
+  actions: [],
+};
 
 export default MarketLinks

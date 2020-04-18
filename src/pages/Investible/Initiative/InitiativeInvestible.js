@@ -10,14 +10,8 @@ import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import Screen from '../../../containers/Screen/Screen'
-import {
-
-  makeArchiveBreadCrumbs,
-  makeBreadCrumbs,
-  navigate,
-} from '../../../utils/marketIdPathFunctions'
+import { makeArchiveBreadCrumbs, makeBreadCrumbs, navigate, } from '../../../utils/marketIdPathFunctions'
 import { ACTIVE_STAGE, PLANNING_TYPE } from '../../../constants/markets'
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
 import MarketLinks from '../../Dialog/MarketLinks'
 import CardType, { VOTING_TYPE } from '../../../components/CardType'
@@ -27,9 +21,10 @@ import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import clsx from 'clsx'
 import { useMetaDataStyles } from '../Planning/PlanningInvestible'
 import DialogActions from '../../Home/DialogActions'
-import Collaborators from '../../Dialog/Collaborators';
+import Collaborators from '../../Dialog/Collaborators'
 import CardActions from '@material-ui/core/CardActions'
 import DismissableText from '../../../components/Notifications/DismissableText'
+import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 
 const useStyles = makeStyles(
   theme => ({
@@ -119,21 +114,6 @@ function InitiativeInvestible(props) {
     });
     return !_.isEmpty(negInvestment);
   });
-  function getSidebarActions() {
-    if (!activeMarket) {
-      return [];
-    }
-    const sidebarActions = [];
-    sidebarActions.push(<ExpandableSidebarAction
-      id="link"
-      key="link"
-      icon={<InsertLinkIcon />}
-      label={intl.formatMessage({ id: 'childPlanExplanation' })}
-      openLabel={intl.formatMessage({ id: 'initiativePlanningParent' })}
-      onClick={() => navigate(history, `/dialogAdd#type=${PLANNING_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
-    />);
-    return sidebarActions;
-  }
   const metaClasses = useMetaDataStyles();
   if (!investibleId) {
     // we have no usable data;
@@ -145,7 +125,7 @@ function InitiativeInvestible(props) {
       title={name}
       tabTitle={name}
       breadCrumbs={breadCrumbs}
-      sidebarActions={getSidebarActions()}
+      sidebarActions={[]}
       hidden={hidden}
     >
       {!isAdmin && activeMarket && (
@@ -234,7 +214,14 @@ function InitiativeInvestible(props) {
               </div>
               </>
             )}
-            <MarketLinks links={children || []} hidden={hidden} />
+            <MarketLinks links={children || []} hidden={hidden} actions={activeMarket ? [<ExpandableAction
+              id="link"
+              key="link"
+              icon={<InsertLinkIcon />}
+              label={intl.formatMessage({ id: 'childPlanExplanation' })}
+              openLabel={intl.formatMessage({ id: 'initiativePlanningParent' })}
+              onClick={() => navigate(history, `/dialogAdd#type=${PLANNING_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
+            />] : []} />
           </dl>
         </CardContent>
       </Card>

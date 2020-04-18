@@ -1,6 +1,7 @@
-import { getMarketClient } from './uclusionClient'
-import config from '../config'
-import { toastErrorAndThrow } from '../utils/userMessage'
+import { getAccountClient, getMarketClient } from './uclusionClient';
+import _ from 'lodash';
+import config from '../config';
+import { toastErrorAndThrow } from '../utils/userMessage';
 
 /**
  * Upload file to S3
@@ -8,8 +9,10 @@ import { toastErrorAndThrow } from '../utils/userMessage'
  * @param marketId ID for path to upload to
  */
 export function uploadFileToS3 (marketId, file) {
+  const clientPromise = _.isEmpty(marketId) ? getAccountClient() : getMarketClient(marketId);
   const { type, size } = file;
-  return getMarketClient(marketId)
+
+  return clientPromise
     .then((client) => client.investibles.getFileUploadData(type, size))
     .then((data) => {
       const { metadata, presigned_post } = data;
@@ -26,7 +29,7 @@ export function uploadFileToS3 (marketId, file) {
         .then(() => metadata); // just want to give back the successful metadata
     })
     .catch((error) => {
-      toastErrorAndThrow(error,'errorFileUploadFailed');
+      toastErrorAndThrow(error, 'errorFileUploadFailed');
     });
 }
 

@@ -23,6 +23,7 @@ function MoveToFurtherWorkActionButton(props) {
       translationId="planningInvestibleMoveToFurtherWorkLabel"
       explanationId="planningInvestibleFurtherWorkExplanation"
       disabled={disabled}
+      removeAssignments
     />
   );
 }

@@ -1,11 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
-import { useHistory } from 'react-router';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-import { deleteInvestible } from '../../../api/investibles';
-import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction';
-import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { useIntl } from 'react-intl'
+import { useHistory } from 'react-router'
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever'
+import { deleteInvestible } from '../../../api/investibles'
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
+import SpinningTooltipIconButton from '../../../components/SpinBlocking/SpinningTooltipIconButton'
 
 function DeleteInvestibleActionButton(props) {
   const { investibleId, marketId } = props;
@@ -18,11 +18,10 @@ function DeleteInvestibleActionButton(props) {
   }
 
   return (
-    <SpinBlockingSidebarAction
+    <SpinningTooltipIconButton
       marketId={marketId}
       icon={<DeleteForeverIcon />}
-      openLabel={intl.formatMessage({ id: 'investibleDeleteLabel' })}
-      label={intl.formatMessage({ id: 'investibleDeleteExplanationLabel' })}
+      translationId={intl.formatMessage({ id: 'investibleDeleteExplanationLabel' })}
       onClick={deleteInvestibleAction}
     />
   );

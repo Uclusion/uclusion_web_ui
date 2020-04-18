@@ -1,15 +1,15 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import ExpandableSidebarAction from '../../../components/SidebarActions/ExpandableSidebarAction';
-import { useIntl } from 'react-intl';
-import AddIcon from '@material-ui/icons/Add';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { useIntl } from 'react-intl'
+import AddIcon from '@material-ui/icons/Add'
+import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 
 function InvestibleAddActionButton(props) {
   const { onClick } = props;
   const intl = useIntl();
 
   return (
-    <ExpandableSidebarAction
+    <ExpandableAction
       icon={<AddIcon />}
       label={intl.formatMessage({ id: 'planningDialogAddInvestibleExplanation' })}
       openLabel={intl.formatMessage({ id: 'planningDialogAddInvestibleLabel' })}

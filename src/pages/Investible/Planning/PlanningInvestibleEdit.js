@@ -13,6 +13,9 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import CardType, { ASSIGN_TYPE, STORY_TYPE } from '../../../components/CardType'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { DaysEstimate, usePlanFormStyles } from '../../../components/AgilePlan'
+import BlockIcon from '@material-ui/icons/Block'
+import WarningDialog from '../../../components/Warnings/WarningDialog'
+import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
 
 function PlanningInvestibleEdit(props) {
   const {
@@ -20,6 +23,7 @@ function PlanningInvestibleEdit(props) {
   } = props;
   const intl = useIntl();
   const classes = usePlanFormStyles();
+  const lockedDialogClasses = useLockedDialogStyles();
   const { description: storedDescription, name: storedName, assignments: storedAssignments,
     days_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
@@ -38,6 +42,13 @@ function PlanningInvestibleEdit(props) {
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const [description, setDescription] = useState(storedDescription || initialDescription);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -88,7 +99,7 @@ function PlanningInvestibleEdit(props) {
 
   function handleSave() {
     let updateInfo;
-    if (!_.isEqual(assignments, assigned)) {
+    if (!_.isEqual(assignments, marketAssigned)) {
       updateInfo = {
         marketId,
         investibleId: id,
@@ -201,20 +212,58 @@ function PlanningInvestibleEdit(props) {
             />
           </SpinBlockingButton>
         )}
-        <SpinBlockingButton
-          marketId={marketId}
-          variant="contained"
-          color="primary"
-          className={classes.actionPrimary}
-          onClick={handleSave}
-          disabled={!validForm}
-          onSpinStop={onSave}
-          hasSpinChecker
-        >
-          <FormattedMessage
-            id={"agilePlanFormSaveLabel"}
+        {isAssign && (
+          <Button
+            className={classes.actionPrimary}
+            color="primary"
+            variant="contained"
+            onClick={handleOpen}
+          >
+            <FormattedMessage
+              id={"agilePlanFormSaveLabel"}
+            />
+          </Button>
+        )}
+        {isAssign && (
+          <WarningDialog
+            classes={lockedDialogClasses}
+            open={open}
+            onClose={handleClose}
+            icon={<BlockIcon/>}
+            issueWarningId="reassignWarning"
+            /* slots */
+            actions={
+              <SpinBlockingButton
+                marketId={marketId}
+                variant="contained"
+                color="primary"
+                className={classes.actionPrimary}
+                onClick={handleSave}
+                disabled={!validForm}
+                onSpinStop={onSave}
+                hasSpinChecker
+              >
+                <FormattedMessage id="issueProceed" />
+              </SpinBlockingButton>
+            }
           />
-        </SpinBlockingButton>
+        )}
+        {!isAssign && (
+          <SpinBlockingButton
+            marketId={marketId}
+            variant="contained"
+            color="primary"
+            className={classes.actionPrimary}
+            onClick={handleSave}
+            disabled={!validForm}
+            onSpinStop={onSave}
+            hasSpinChecker
+          >
+            <FormattedMessage
+              id={"agilePlanFormSaveLabel"}
+            />
+          </SpinBlockingButton>
+        )}
       </CardActions>
     </Card>
 

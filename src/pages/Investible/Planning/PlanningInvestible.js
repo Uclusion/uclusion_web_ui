@@ -167,7 +167,8 @@ function PlanningInvestible(props) {
     comment => comment.comment_type === JUSTIFY_TYPE
   );
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
-  const { stage, assigned, children, days_estimate: daysEstimate, inline_market_id: inlineMarketId } = marketInfo;
+  const { stage, assigned: invAssigned, children, days_estimate: daysEstimate, inline_market_id: inlineMarketId } = marketInfo;
+  const assigned = invAssigned || []; // handle the empty case to make subsequent code easier
   const { investible } = marketInvestible;
   const { description, name, locked_by: lockedBy, created_at: createdAt } = investible;
   let lockedByName;
@@ -199,7 +200,7 @@ function PlanningInvestible(props) {
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
   const isInNotDoing = notDoingStage && stage === notDoingStage.id;
   const inMarketArchives = isInNotDoing || isInVerified;
-  const isAssigned = assigned && assigned.includes(userId);
+  const isAssigned = assigned.includes(userId);
   const breadCrumbTemplates = [
     { name: marketName, link: formMarketLink(marketId) }
   ];
@@ -335,16 +336,20 @@ function PlanningInvestible(props) {
     const blockingComments = investibleComments.filter(
       comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
     );
-    const assignedInVotingStage = assignedInStage(
-      investibles,
-      userId,
-      inCurrentVotingStage.id
-    );
-    const assignedInAcceptedStage = assignedInStage(
-      investibles,
-      userId,
-      inAcceptedStage.id
-    );
+    const assignedInVotingStage = assigned.reduce((acc, userId) => {
+      return acc.concat(assignedInStage(
+        investibles,
+        userId,
+        inCurrentVotingStage.id
+      ));
+    }, []);
+    const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
+      return acc.concat(assignedInStage(
+        investibles,
+        userId,
+        inAcceptedStage.id
+      ));
+    }, []);
     return [
       <MoveToNextVisibleStageActionButton
         key="visible"
@@ -368,7 +373,7 @@ function PlanningInvestible(props) {
         currentStageId={stage}
         isOpen={changeStagesExpanded}
         key="accepted"
-        disabled={!isAssigned || !_.isEmpty(blockingComments) || !_.isEmpty(assignedInAcceptedStage) || (isInVoting && !enoughVotes)}
+        disabled={!isAssigned || !_.isEmpty(blockingComments) || !_.isEmpty(assignedInAcceptedStage) || !enoughVotes}
       />,
       <MoveToInReviewActionButton
         investibleId={investibleId}
@@ -376,7 +381,7 @@ function PlanningInvestible(props) {
         currentStageId={stage}
         isOpen={changeStagesExpanded}
         key="inreview"
-        disabled={isInReview || !isAssigned || !_.isEmpty(blockingComments) || (isInVoting && !enoughVotes)}
+        disabled={isInReview || !isAssigned || !_.isEmpty(blockingComments)}
       />,
       <MoveToFurtherWorkActionButton
         investibleId={investibleId}
@@ -384,7 +389,7 @@ function PlanningInvestible(props) {
         currentStageId={stage}
         isOpen={changeStagesExpanded}
         key="furtherwork"
-        disabled={isReadyFurtherWork || (isInVoting && !enoughVotes)}
+        disabled={isReadyFurtherWork}
       />,
       <MoveToVerifiedActionButton
         investibleId={investibleId}

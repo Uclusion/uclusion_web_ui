@@ -19,7 +19,7 @@ const useStyles = makeStyles(() => {
   return {
     buttonHolder: {
       display: 'flex',
-      flexDirection: 'row',
+      flexDirection: 'row-reverse',
     },
   };
 });
@@ -38,6 +38,7 @@ function DialogActions(props) {
     isAdmin,
     isFollowing,
     initiativeId,
+    hideEdit
   } = props;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || !isFollowing;
@@ -81,7 +82,7 @@ function DialogActions(props) {
       : formMarketEditLink(marketId);
     const editAction = () => navigate(history, editLink);
     if (isAdmin) {
-      if (!inArchives) {
+      if (!inArchives && !hideEdit) {
         actions.push(
           <EditMarketButton key="edit" labelId={editLabel} marketId={marketId} onClick={editAction} />
         );

@@ -19,7 +19,7 @@ const useStyles = makeStyles({
 })
 
 function RaisedCard(props) {
-  const { onClick, elevation } = props;
+  const { onClick, elevation, className } = props;
   const elevated = elevation ? elevation : 0;
   const classes = useStyles(onClick);
   let isClickable = typeof onClick === 'function' ? true : false;
@@ -31,6 +31,7 @@ function RaisedCard(props) {
       borderRadius="borderRadius"
       p={0}
       style={{height: '100%'}}
+      className={className}
     >
       <Card
         onClick={onClick}

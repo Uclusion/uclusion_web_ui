@@ -41,7 +41,8 @@ const useStyles = makeStyles(() => ({
     border: '1px solid #E85757',
     borderRadius: '32px',
     fontSize: '.825rem',
-    lineHeight: 2
+    lineHeight: 2,
+    marginTop: '20px'
   },
 }));
 
@@ -139,12 +140,14 @@ function PlanningDialogs(props) {
               </div>
               <div style={{display: 'flex', flex: 1}}>
                 {isDraft && (
-                  <Typography className={classes.draft}>
-                    {intl.formatMessage({ id: 'draft' })}
-                  </Typography>
+                  <div style={{minHeight: '70px'}}>
+                    <Typography className={classes.draft}>
+                      {intl.formatMessage({ id: 'draft' })}
+                    </Typography>
+                  </div>
                 )}
                 {!isDraft &&
-                  <Fragment>
+                  <Fragment style={{minHeight: '70px'}}>
                     {getParticipantInfo(sortedPresences, marketId)}
                     <CardActions style={{display: 'inline-block', flex: 5}}>
                       <DialogActions

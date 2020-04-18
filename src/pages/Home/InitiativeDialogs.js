@@ -147,6 +147,7 @@ function InitiativeDialogs(props) {
                 isAdmin
                 isFollowing={myPresence.following}
                 initiativeId={baseInvestibleId}
+                hideEdit={true}
               />
             </CardActions>
           </RaisedCard>

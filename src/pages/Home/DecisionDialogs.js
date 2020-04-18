@@ -152,6 +152,7 @@ function DecisionDialogs(props) {
                 parentMarketId={parentMarketId}
                 parentInvestibleId={parentInvestibleId}
                 marketId={marketId}
+                hideEdit={true}
               />
             </CardActions>
           </RaisedCard>

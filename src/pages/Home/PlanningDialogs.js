@@ -42,8 +42,40 @@ const useStyles = makeStyles(() => ({
     borderRadius: '32px',
     fontSize: '.825rem',
     lineHeight: 2,
-    marginTop: '20px'
+    marginTop: '12px'
   },
+  cardContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    height: '100%'
+  },
+  innerContainer: {
+    borderBottom: '1px solid #f2f2f2',
+    paddingTop: '2rem',
+    paddingBottom: '2rem',
+    marginBottom: '1rem',
+    cursor: 'pointer',
+    flex: 2
+  },
+  bottomContainer: {
+    display: 'flex',
+    flex: 1,
+    height: '50px'
+  },
+  draftContainer: {
+    height: '50px'
+  },
+  participantContainer: {
+    height: '50px',
+    display: 'flex'
+  },
+  participantText: {
+    fontSize: '.75rem'
+  },
+  childText: {
+    fontSize: '.825rem'
+  }
 }));
 
 function PlanningDialogs(props) {
@@ -68,7 +100,7 @@ function PlanningDialogs(props) {
 
       return (
         <div style={{flex: 7}}>
-          <Typography style={{fontSize: '.75rem'}}>Participants</Typography>
+          <Typography className={classes.participantText}>Participants</Typography>
           <Grid
             container
             style={{width: 'auto', display: 'inline-block'}}
@@ -95,6 +127,7 @@ function PlanningDialogs(props) {
 
   function getMarketItems() {
     return markets.map((market) => {
+      
       const {
         id: marketId, name, market_type: marketType, market_stage: marketStage,
         created_at: createdAt, parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId,
@@ -104,7 +137,7 @@ function PlanningDialogs(props) {
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
-      console.log(classes.paper);
+      
       return (
         <Grid
           item
@@ -116,20 +149,14 @@ function PlanningDialogs(props) {
             className={classes.paper}
             border={1}
           >
-            <CardContent 
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                height: '100%'
-              }}>
+            <CardContent className={classes.cardContent}>
               <div 
-              style={{borderBottom: '1px solid #f2f2f2', paddingTop: '2rem', paddingBottom: '2rem', marginBottom: '1rem', cursor: 'pointer', flex: 2}}
+              className={classes.innerContainer}
               onClick={(event) => {
                 event.preventDefault();
                 navigate(history, formMarketLink(marketId));}}>
                   {parentMarketId &&
-                    <Typography style={{fontSize: '.875rem'}}>
+                    <Typography className={classes.childText}>
                       Child of {parentMarketId}
                     </Typography>
                   }
@@ -138,29 +165,31 @@ function PlanningDialogs(props) {
                     {name}
                 </Typography>
               </div>
-              <div style={{display: 'flex', flex: 1}}>
+              <div className={classes.bottomContainer}>
                 {isDraft && (
-                  <div style={{minHeight: '70px'}}>
+                  <div className={classes.draftContainer}>
                     <Typography className={classes.draft}>
                       {intl.formatMessage({ id: 'draft' })}
                     </Typography>
                   </div>
                 )}
                 {!isDraft &&
-                  <Fragment style={{minHeight: '70px'}}>
-                    {getParticipantInfo(sortedPresences, marketId)}
-                    <CardActions style={{display: 'inline-block', flex: 5}}>
-                      <DialogActions
-                        marketStage={marketStage}
-                        marketId={marketId}
-                        marketType={marketType}
-                        parentMarketId={parentMarketId}
-                        parentInvestibleId={parentInvestibleId}
-                        isAdmin
-                        isFollowing={myPresence.following}
-                        hideEdit={true}
-                      />
-                    </CardActions>
+                  <Fragment>
+                    <span className={classes.participantContainer}>
+                      {getParticipantInfo(sortedPresences, marketId)}
+                      <CardActions style={{display: 'inline-block', flex: 5}}>
+                        <DialogActions
+                          marketStage={marketStage}
+                          marketId={marketId}
+                          marketType={marketType}
+                          parentMarketId={parentMarketId}
+                          parentInvestibleId={parentInvestibleId}
+                          isAdmin
+                          isFollowing={myPresence.following}
+                          hideEdit={true}
+                        />
+                      </CardActions>
+                    </span>
                   </Fragment>
                 }
               </div>

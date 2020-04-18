@@ -169,6 +169,7 @@ function PlanningInvestible(props) {
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, children, days_estimate: daysEstimate, inline_market_id: inlineMarketId } = marketInfo;
   const assigned = invAssigned || []; // handle the empty case to make subsequent code easier
+  const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === marketPresences.length;
   const { investible } = marketInvestible;
   const { description, name, locked_by: lockedBy, created_at: createdAt } = investible;
   let lockedByName;
@@ -277,7 +278,8 @@ function PlanningInvestible(props) {
   }
 
   function hasEnoughVotes (myInvested, myRequired) {
-    const required = myRequired !== undefined ? myRequired : 1;
+    // if everyone is assigned, then we can't require any votes as nobody can vote
+    const required = everyoneAssigned? 0 : myRequired !== undefined ? myRequired : 1;
     return _.size(myInvested) >= required;
   }
 

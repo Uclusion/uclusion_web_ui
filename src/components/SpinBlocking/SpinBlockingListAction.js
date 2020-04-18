@@ -5,7 +5,7 @@ import { ListItem, ListItemIcon, ListItemText, Tooltip, } from '@material-ui/cor
 import { SidebarContext } from '../../contexts/SidebarContext'
 import { useStyles } from '../SidebarActions/ExpandableSidebarAction'
 
-function SpinBlockingSidebarAction(props) {
+function SpinBlockingListAction(props) {
   const {
     marketId,
     id,
@@ -55,7 +55,7 @@ function SpinBlockingSidebarAction(props) {
   );
 }
 
-SpinBlockingSidebarAction.propTypes = {
+SpinBlockingListAction.propTypes = {
   marketId: PropTypes.string.isRequired,
   icon: PropTypes.element.isRequired,
   label: PropTypes.string.isRequired,
@@ -70,7 +70,7 @@ SpinBlockingSidebarAction.propTypes = {
   disabled: PropTypes.bool,
 };
 
-SpinBlockingSidebarAction.defaultProps = {
+SpinBlockingListAction.defaultProps = {
   onSpinStart: () => {},
   onSpinStop: () => {},
   hasSpinChecker: false,
@@ -79,4 +79,4 @@ SpinBlockingSidebarAction.defaultProps = {
   disabled: false,
 };
 
-export default SpinBlockingSidebarAction;
+export default SpinBlockingListAction;

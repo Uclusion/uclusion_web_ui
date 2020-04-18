@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useIntl } from 'react-intl'
-import SpinBlockingSidebarAction from '../../../components/SpinBlocking/SpinBlockingSidebarAction'
+import SpinBlockingListAction from '../../../components/SpinBlocking/SpinBlockingListAction'
 import { stageChangeInvestible } from '../../../api/investibles'
 import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
@@ -93,7 +93,7 @@ function StageChangeAction(props) {
   }
 
   return (
-    <SpinBlockingSidebarAction
+    <SpinBlockingListAction
       marketId={marketId}
       icon={icon}
       hasSpinChecker

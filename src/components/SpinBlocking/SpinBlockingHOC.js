@@ -121,7 +121,7 @@ export function withSpinLock(Component) {
       myOnSpinStart();
       // the promise.resolve will nicely wrap non promises into a promise so we can use catch
       // to stop spinning on error
-      Promise.resolve(onClick())
+      return Promise.resolve(onClick())
         .then((result) => {
           if (result !== undefined) {
             const { spinChecker, result: operationResult } = result;
@@ -133,7 +133,7 @@ export function withSpinLock(Component) {
                 spinChecker()
                   .then((checkResult) => {
                     if (checkResult) {
-                      // console.debug('Ending Spinning By Checker');
+                //      console.error('Ending Spinning By Checker');
                       operationCheckStopper();
                       endSpinning(operationResult);
                     } else {
@@ -152,7 +152,6 @@ export function withSpinLock(Component) {
           myOnError(error);
         });
     }
-
     return (
       <Component
         disabled={disabled || operationRunning || spinning}

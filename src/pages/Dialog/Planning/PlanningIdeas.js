@@ -1,16 +1,12 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { useHistory } from "react-router";
-import { Typography, Link } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { red } from "@material-ui/core/colors";
-import { FormattedDate, FormattedMessage, useIntl } from "react-intl";
-import {
-  formInvestibleLink,
-  formMarketAddInvestibleLink,
-  navigate
-} from "../../../utils/marketIdPathFunctions";
-import clsx from "clsx";
+import React from 'react'
+import PropTypes from 'prop-types'
+import { useHistory } from 'react-router'
+import { Link, Typography } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
+import { red, yellow } from '@material-ui/core/colors'
+import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
+import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
+import clsx from 'clsx'
 
 const warningColor = red["400"];
 
@@ -46,7 +42,8 @@ function PlanningIdeas(props) {
     inDialogStageId,
     inReviewStageId,
     inBlockingStageId,
-    presenceId
+    presenceId,
+    warnAccepted,
   } = props;
 
   const classes = usePlanningIdStyles();
@@ -74,6 +71,7 @@ function PlanningIdeas(props) {
           id={acceptedStageId}
           investibles={investibles}
           marketId={marketId}
+          warnAccepted={warnAccepted}
         />
       </div>
       <div>
@@ -128,6 +126,14 @@ const useStageClasses = makeStyles(
         margin: theme.spacing(1, 0),
         padding: theme.spacing(1, 2)
       },
+      rootWarnAccepted: {
+        border: `1px solid ${theme.palette.grey["400"]}`,
+        borderRadius: theme.spacing(1),
+        fontSize: ".8em",
+        margin: theme.spacing(1, 0),
+        padding: theme.spacing(1, 2),
+        backgroundColor: yellow["400"],
+      },
       fallback: {
         backgroundColor: theme.palette.grey["400"]
       },
@@ -148,7 +154,8 @@ function Stage(props) {
     id,
     investibles,
     marketId,
-    updatedText
+    updatedText,
+    warnAccepted,
   } = props;
 
   // // console.log(comments);
@@ -175,7 +182,7 @@ function Stage(props) {
   }
 
   return (
-    <dd className={classes.root}>
+    <dd className={warnAccepted ? classes.rootWarnAccepted : classes.root}>
       <ul className={classes.list}>
         {stageInvestibles.map(inv => {
           const { investible, market_infos: marketInfos } = inv;

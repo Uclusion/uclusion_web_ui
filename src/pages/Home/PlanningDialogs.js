@@ -15,6 +15,8 @@ import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import RaisedCard from '../../components/Cards/RaisedCard'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import {
   getAcceptedStage,
   getBlockedStage,
@@ -33,6 +35,9 @@ const useStyles = makeStyles(() => ({
   },
   textData: {
     fontSize: 12,
+  },
+  clickable: {
+    cursor: 'pointer'
   },
   draft: {
     color: '#E85757',
@@ -55,7 +60,6 @@ const useStyles = makeStyles(() => ({
     paddingTop: '2rem',
     paddingBottom: '2rem',
     marginBottom: '1rem',
-    cursor: 'pointer',
     flex: 2
   },
   bottomContainer: {
@@ -68,7 +72,8 @@ const useStyles = makeStyles(() => ({
   },
   participantContainer: {
     height: '50px',
-    display: 'flex'
+    display: 'flex',
+    width: '100%'
   },
   participantText: {
     fontSize: '.75rem'
@@ -86,7 +91,8 @@ function PlanningDialogs(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-
+  const [marketsState] = useContext(MarketsContext);
+  
   function getParticipantInfo(presences, marketId) {
     const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
     const votingStage = getInCurrentVotingStage(marketStagesState, marketId);
@@ -127,7 +133,6 @@ function PlanningDialogs(props) {
 
   function getMarketItems() {
     return markets.map((market) => {
-      
       const {
         id: marketId, name, market_type: marketType, market_stage: marketStage,
         created_at: createdAt, parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId,
@@ -137,7 +142,11 @@ function PlanningDialogs(props) {
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
-      
+      let parentName;
+      if(parentMarketId){
+        const parentMarketDetails = getMarket(marketsState, parentMarketId);
+        parentName = parentMarketDetails.name;
+      }
       return (
         <Grid
           item
@@ -150,18 +159,33 @@ function PlanningDialogs(props) {
             border={1}
           >
             <CardContent className={classes.cardContent}>
-              <div 
-              className={classes.innerContainer}
-              onClick={(event) => {
-                event.preventDefault();
-                navigate(history, formMarketLink(marketId));}}>
-                  {parentMarketId &&
-                    <Typography className={classes.childText}>
-                      Child of {parentMarketId}
-                    </Typography>
+            {parentMarketId &&
+              <Link
+                href={formMarketLink(parentMarketId)}
+                variant="inherit"
+                underline="always"
+                color="primary"
+                onClick={
+                  (event) => {
+                    event.preventDefault();
+                    navigate(history, formMarketLink(parentMarketId));
                   }
-                
-                <Typography variant="h5">
+                }
+              >
+                <Typography className={classes.childText}>
+                  Child of {parentName}
+                </Typography>
+            </Link>
+              }
+              <div className={classes.innerContainer}>
+                <Typography 
+                  variant="h5"
+                  className={classes.clickable}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    navigate(history, formMarketLink(marketId));}
+                  }
+                >
                     {name}
                 </Typography>
               </div>

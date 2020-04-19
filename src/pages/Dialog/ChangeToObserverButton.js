@@ -51,20 +51,20 @@ function ChangeToObserverButton(props) {
         onSpinStop={onClick}
         key="subscribe"
         translationId="decisionDialogsBecomeObserver"
-        icon={<ArchiveIcon/>}
+        icon={<ArchiveIcon htmlColor="#bdbdbd" />}
       />
     );
   }
 
   return (
     <div>
-      <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon />} onClick={handleOpen}
+      <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon htmlColor="#bdbdbd" />} onClick={handleOpen}
                          translationId="decisionDialogsBecomeObserver" />
       <WarningDialog
         classes={lockedDialogClasses}
         open={open}
         onClose={handleClose}
-        icon={<ArchiveIcon/>}
+        icon={<ArchiveIcon htmlColor="#bdbdbd" />}
         issueWarningId="archiveWarning"
         /* slots */
         actions={

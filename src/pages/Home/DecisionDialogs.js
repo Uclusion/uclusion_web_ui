@@ -10,9 +10,11 @@ import {
   marketHasOnlyCurrentUser
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import RaisedCard from '../../components/Cards/RaisedCard'
-import ExpiresDisplay from '../../components/Expiration/ExpiresDisplay'
+import ProgressBar from '../../components/Expiration/ProgressBarExpiration'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import { getParticipantInfo } from '../../utils/userFunctions'
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
@@ -35,6 +37,32 @@ const useStyles = makeStyles(() => ({
   draft: {
     color: '#E85757',
   },
+  countdownContainer: {
+    width: 'auto',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+  },
+  gridSliver: {
+    maxWidth: '3.3%',
+    flexBasis: '3.3%'
+  },
+  contentContainer: {
+    flexGrow: 0,
+    maxWidth: '90%',
+    flexBasis: '90%',
+    cursor: 'pointer'
+  },
+  byline: {
+    display: 'inline-block',
+    width: 'auto',
+    verticalAlign: 'text-bottom',
+    marginLeft: '5px'
+  },
+  childText: {
+    fontSize: '.825rem'
+  }
 }));
 
 function DecisionDialogs(props) {
@@ -45,11 +73,12 @@ function DecisionDialogs(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
+  const [marketsState] = useContext(MarketsContext);
 
   function getMarketItems() {
     return markets.map((market) => {
       const {
-        id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes,
+        id: marketId, name, created_at: createdAt, expiration_minutes: expirationMinutes, created_by: createdBy,
         market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,
         parent_investible_id: parentInvestibleId,
       } = market;
@@ -64,6 +93,13 @@ function DecisionDialogs(props) {
       const comments = getMarketComments(commentsState, marketId);
       const marketIssues = comments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved && !comment.investible_id);
       const hasMarketIssue = !_.isEmpty(marketIssues);
+      const creator = sortedPresences.filter(presence => {return presence.id === createdBy})[0];
+      let parentName;
+      if(parentMarketId){
+        const parentMarketDetails = getMarket(marketsState, parentMarketId);
+        parentName = parentMarketDetails.name;
+      }
+      
       return (
         <Grid
           item
@@ -75,55 +111,14 @@ function DecisionDialogs(props) {
             className={classes.paper}
             border={1}
           >
-            <CardContent>
-              <Grid
-                container
-              >
-                <Grid
-                  item
-                  xs={3}
-                >
-                  {getDialogTypeIcon(marketType)}
-                </Grid>
-              </Grid>
-              <div>
-                {isDraft && (
-                  <Typography
-                    className={classes.draft}
-                  >
-                    {intl.formatMessage({ id: 'draft' })}
-                  </Typography>
-                )}
-                <Typography>
-                  <Link
-                    href={formMarketLink(marketId)}
-                    variant="inherit"
-                    underline="always"
-                    color="primary"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      navigate(history, formMarketLink(marketId));
-                    }}
-                  >
-                    {name}
-                  </Link>
-                </Typography>
-              </div>
-              <Typography>
-                {intl.formatMessage({ id: 'homeCreatedAt' }, { dateString: intl.formatDate(createdAt) })}
-              </Typography>
-              <Grid
-                container
-              >
-                <Grid
-                  item
-                  xs={3}
-                >
+            <Grid container >
+              <div className={classes.gridSliver}>
+                <div className={classes.countdownContainer}>
                   {!active && (
                     <ExpiredDisplay expiresDate={updatedAt}/>
                   )}
                   {active && (
-                    <ExpiresDisplay
+                    <ProgressBar
                       createdAt={createdAt}
                       expirationMinutes={expirationMinutes}
                       showEdit={isAdmin}
@@ -131,18 +126,53 @@ function DecisionDialogs(props) {
                       marketId={marketId}
                     />
                   )}
-                </Grid>
-                <Grid
-                  item
-                  xs={9}
-                >
-                  {getParticipantInfo(sortedPresences, marketInvestibles)}
-                </Grid>
-              </Grid>
-              {hasMarketIssue && (
-                <CardType className={classes.commentType} type={ISSUE_TYPE}/>
-              )}
-            </CardContent>
+                </div>
+              </div>
+
+              <div className={classes.contentContainer}>
+                <CardContent>
+                  {parentMarketId &&
+                    <Link
+                      href={formMarketLink(parentMarketId)}
+                      variant="inherit"
+                      underline="always"
+                      color="primary"
+                      onClick={
+                        (event) => {
+                          event.preventDefault();
+                          navigate(history, formMarketLink(parentMarketId));
+                        }
+                      }
+                    >
+                      <Typography className={classes.childText}>
+                        Child of {parentName}
+                      </Typography>
+                    </Link>
+                  }
+                  <div
+                    onClick={(event) => {
+                    event.preventDefault();
+                    navigate(history, formMarketLink(marketId));}}>
+                      {isDraft && (
+                        <Typography
+                          className={classes.draft}
+                        >
+                          {intl.formatMessage({ id: 'draft' })}
+                        </Typography>
+                      )}
+                      <Typography variant="h6">
+                          {name}
+                      </Typography>
+                  </div>
+                  {getDialogTypeIcon(marketType)}
+                  <Typography className={classes.byline}>
+                    Dialog by {creator.name} on {intl.formatDate(createdAt)}
+                  </Typography>
+                  {hasMarketIssue && (
+                    <CardType className={classes.commentType} type={ISSUE_TYPE}/>
+                  )}
+                </CardContent>
+              </div>
             <CardActions>
               <DialogActions
                 isAdmin={myPresence.is_admin}
@@ -155,6 +185,7 @@ function DecisionDialogs(props) {
                 hideEdit={true}
               />
             </CardActions>
+            </Grid>
           </RaisedCard>
         </Grid>
       )

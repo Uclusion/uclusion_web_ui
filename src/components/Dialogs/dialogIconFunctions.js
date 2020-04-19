@@ -9,9 +9,9 @@ export function getDialogTypeIcon(type) {
     case PLANNING_TYPE:
       return <ListAltIcon />;
     case DECISION_TYPE:
-      return <GavelIcon />;
+      return <GavelIcon htmlColor="#828282" />;
     case INITIATIVE_TYPE:
-      return <PollIcon />;
+      return <PollIcon htmlColor="#828282" />;
     default:
       return null;
   }

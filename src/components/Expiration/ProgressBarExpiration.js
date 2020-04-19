@@ -69,7 +69,7 @@ function ExpiresDisplayBar(props) {
       return (
         <React.Fragment>
           {daysRemaining}{((hoursRemaining > 0) || (minutesRemaining > 0) ) && '+'}
-          <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'daysLeft' })}</span>
+          <span className={classes.countdownItemSpan}> {intl.formatMessage({ id: 'daysLeft' })}</span>
         </React.Fragment>
       );
     }
@@ -77,7 +77,7 @@ function ExpiresDisplayBar(props) {
       return (
       <React.Fragment>
         {hoursRemaining}{minutesRemaining > 0 && '+'}
-        <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'hoursLeft' })}</span>
+        <span className={classes.countdownItemSpan}> {intl.formatMessage({ id: 'hoursLeft' })}</span>
       </React.Fragment>
       );
     }
@@ -85,7 +85,7 @@ function ExpiresDisplayBar(props) {
       return (
         <React.Fragment>
           {minutesRemaining}
-          <span className={classes.countdownItemSpan}>{intl.formatMessage({ id: 'minutesLeft' })}</span>
+          <span className={classes.countdownItemSpan}> {intl.formatMessage({ id: 'minutesLeft' })}</span>
         </React.Fragment>
       );
     }
@@ -97,7 +97,7 @@ function ExpiresDisplayBar(props) {
     <div className={classes.countdownWrapper}>
       {shouldDisplay &&
         <Tooltip
-        title={intl.formatMessage({ id: 'dialogExpiresLabel' })}
+        title={getDisplayText()}
         >
           <LinearProgress variant="determinate" value={barValue} className={barValue > 50 ? classes.stillTime : classes.runningOut}></LinearProgress>
         </Tooltip>

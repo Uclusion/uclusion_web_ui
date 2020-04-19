@@ -65,7 +65,7 @@ const useStyles = makeStyles(() => ({
   byline: {
     display: 'inline-block',
     width: 'auto',
-    verticalAlign: 'text-bottom',
+    verticalAlign: 'top',
     marginLeft: '5px'
   },
   childText: {
@@ -137,6 +137,7 @@ function DecisionDialogs(props) {
       const marketIssues = comments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved && !comment.investible_id);
       const hasMarketIssue = !_.isEmpty(marketIssues);
       const creator = sortedPresences.filter(presence => {return presence.id === createdBy})[0];
+      const isSmall = true;
       let parentName;
       if(parentMarketId){
         const parentMarketDetails = getMarket(marketsState, parentMarketId);
@@ -209,7 +210,7 @@ function DecisionDialogs(props) {
                               {name}
                           </Typography>
                       </div>
-                      {getDialogTypeIcon(marketType)}
+                      {getDialogTypeIcon(marketType, isSmall)}
                       <Typography className={classes.byline}>
                         Dialog by {creator.name} on {intl.formatDate(createdAt)}
                       </Typography>

@@ -13,14 +13,6 @@ import {
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import RaisedCard from '../../components/Cards/RaisedCard'
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import {
-  getAcceptedStage,
-  getBlockedStage,
-  getInCurrentVotingStage,
-  getInReviewStage,
-} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import DialogActions from './DialogActions'
@@ -86,19 +78,9 @@ function PlanningDialogs(props) {
   const classes = useStyles();
   const { markets } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [investiblesState] = useContext(InvestiblesContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const [marketsState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
   
-  function getParticipantInfo(presences, marketId) {
-    const votingStage = getInCurrentVotingStage(marketStagesState, marketId);
-    const acceptedStage = getAcceptedStage(marketStagesState, marketId);
-    const reviewStage = getInReviewStage(marketStagesState, marketId);
-    const loaded = votingStage && acceptedStage && reviewStage;
-    if (!loaded) {
-      return <></>; // TODO; this should render a better stub
-    }
+  function getParticipantInfo(presences) {
 
       return (
         <div style={{flex: 7}}>
@@ -141,8 +123,8 @@ function PlanningDialogs(props) {
     return markets.map((market) => {
       const {
         id: marketId, name, market_type: marketType, market_stage: marketStage,
-        created_at: createdAt, parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId,
-      } = market;    const blockedStage = getBlockedStage(marketStagesState, marketId);
+        parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId,
+      } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};

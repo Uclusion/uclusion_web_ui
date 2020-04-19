@@ -224,6 +224,34 @@ const useInvestiblesByPersonStyles = makeStyles(
   { name: "InvestiblesByPerson" }
 );
 
+function checkInProgressWarning(investibles, comments, inProgressStageId, userId, marketId) {
+  const inProgressInvestible = investibles.find((investible) => {
+    const { market_infos: marketInfos } = investible;
+    const marketInfo = marketInfos.find(info => info.market_id === marketId);
+    return marketInfo !== undefined && marketInfo.stage === inProgressStageId;
+  });
+  if (!inProgressInvestible) {
+    return false;
+  }
+  const { investible, market_infos: marketInfos } = inProgressInvestible;
+  const { id, created_at: createdAt } = investible;
+  const marketInfo = marketInfos.find(info => info.market_id === marketId);
+  const { days_estimate: daysEstimate } = marketInfo;
+  const useDaysEstimate = daysEstimate || 1;
+  if (Date.now() - Date.parse(createdAt) < 86400000*useDaysEstimate) {
+    return false;
+  }
+  if (!comments) {
+    return true;
+  }
+  console.debug(`Checking comments again ${id}`);
+  const progressReportCommentIn24 = comments.find((comment) => {
+    const { investible_id: investibleId, comment_type: commentType, created_at: createdAtComment } = comment;
+    return id === investibleId && commentType === REPORT_TYPE && (Date.now() - Date.parse(createdAtComment) < 86400000);
+  });
+  return _.isEmpty(progressReportCommentIn24);
+}
+
 function InvestiblesByPerson(props) {
   const {
     comments,
@@ -271,6 +299,7 @@ function InvestiblesByPerson(props) {
                 inBlockingStageId={inBlockingStage.id}
                 comments={comments}
                 presenceId={presence.id}
+                warnAccepted={checkInProgressWarning(myInvestibles, comments, acceptedStage.id, presence.id, marketId)}
               />
             )}
         </CardContent>

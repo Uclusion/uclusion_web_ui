@@ -238,7 +238,7 @@ function checkInProgressWarning(investibles, comments, inProgressStageId, userId
   const marketInfo = marketInfos.find(info => info.market_id === marketId);
   const { days_estimate: daysEstimate } = marketInfo;
   const useDaysEstimate = daysEstimate || 1;
-  if (Date.now() - Date.parse(createdAt) < 8640000*useDaysEstimate) {
+  if (Date.now() - Date.parse(createdAt) < 86400000*useDaysEstimate) {
     return false;
   }
   if (!comments) {
@@ -247,7 +247,7 @@ function checkInProgressWarning(investibles, comments, inProgressStageId, userId
   console.debug(`Checking comments again ${id}`);
   const progressReportCommentIn24 = comments.find((comment) => {
     const { investible_id: investibleId, comment_type: commentType, created_at: createdAtComment } = comment;
-    return id === investibleId && commentType === REPORT_TYPE && (Date.now() - Date.parse(createdAtComment) < 8640000);
+    return id === investibleId && commentType === REPORT_TYPE && (Date.now() - Date.parse(createdAtComment) < 86400000);
   });
   return _.isEmpty(progressReportCommentIn24);
 }

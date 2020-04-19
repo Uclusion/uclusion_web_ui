@@ -1,5 +1,5 @@
-import React, { useContext, Fragment } from 'react'
-import { Card, CardActions, CardContent, Grid, Link, Typography, Avatar } from '@material-ui/core'
+import React, { Fragment, useContext } from 'react'
+import { Avatar, CardActions, CardContent, Grid, Link, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/styles'
@@ -11,20 +11,17 @@ import {
   marketHasOnlyCurrentUser
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
+import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import RaisedCard from '../../components/Cards/RaisedCard'
-import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import {
   getAcceptedStage,
   getBlockedStage,
   getInCurrentVotingStage,
   getInReviewStage,
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { getBudgetTotalsForUser } from '../../utils/userFunctions'
-import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import DialogActions from './DialogActions'
 
@@ -92,13 +89,12 @@ function PlanningDialogs(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
   
   function getParticipantInfo(presences, marketId) {
-    const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
     const votingStage = getInCurrentVotingStage(marketStagesState, marketId);
     const acceptedStage = getAcceptedStage(marketStagesState, marketId);
     const reviewStage = getInReviewStage(marketStagesState, marketId);
-    const blockedStage = getBlockedStage(marketStagesState, marketId);
     const loaded = votingStage && acceptedStage && reviewStage;
     if (!loaded) {
       return <></>; // TODO; this should render a better stub
@@ -131,21 +127,30 @@ function PlanningDialogs(props) {
       );
   }
 
+  function getInvestibleName(investibleId) {
+    const inv = getInvestible(investibleState, investibleId);
+    if (!inv) {
+      return '';
+    }
+    const { investible } = inv;
+    const { name } = investible;
+    return name;
+  }
+
   function getMarketItems() {
     return markets.map((market) => {
       const {
         id: marketId, name, market_type: marketType, market_stage: marketStage,
         created_at: createdAt, parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId,
-      } = market;
+      } = market;    const blockedStage = getBlockedStage(marketStagesState, marketId);
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
       let parentName;
-      if(parentMarketId){
-        const parentMarketDetails = getMarket(marketsState, parentMarketId);
-        parentName = parentMarketDetails.name;
+      if(parentInvestibleId){
+        parentName = getInvestibleName(parentInvestibleId);
       }
       return (
         <Grid
@@ -161,19 +166,19 @@ function PlanningDialogs(props) {
             <CardContent className={classes.cardContent}>
             {parentMarketId &&
               <Link
-                href={formMarketLink(parentMarketId)}
+                href={formInvestibleLink(parentMarketId, parentInvestibleId)}
                 variant="inherit"
                 underline="always"
                 color="primary"
                 onClick={
                   (event) => {
                     event.preventDefault();
-                    navigate(history, formMarketLink(parentMarketId));
+                    navigate(history, formInvestibleLink(parentMarketId, parentInvestibleId));
                   }
                 }
               >
                 <Typography className={classes.childText}>
-                  Child of {parentName}
+                  {intl.formatMessage({ id: 'homeChildLinkName' }, { x: parentName })}
                 </Typography>
             </Link>
               }

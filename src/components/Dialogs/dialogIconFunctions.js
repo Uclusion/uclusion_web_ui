@@ -4,14 +4,14 @@ import GavelIcon from '@material-ui/icons/Gavel';
 import PollIcon from '@material-ui/icons/Poll';
 import React from 'react';
 
-export function getDialogTypeIcon(type) {
+export function getDialogTypeIcon(type, isSmall = false) {
   switch (type) {
     case PLANNING_TYPE:
-      return <ListAltIcon />;
+      return <ListAltIcon fontSize={isSmall? 'small' : 'default'} />;
     case DECISION_TYPE:
-      return <GavelIcon />;
+      return <GavelIcon htmlColor="#828282" fontSize={isSmall? 'small' : 'default'} />;
     case INITIATIVE_TYPE:
-      return <PollIcon />;
+      return <PollIcon htmlColor="#828282" fontSize={isSmall? 'small' : 'default'} />;
     default:
       return null;
   }

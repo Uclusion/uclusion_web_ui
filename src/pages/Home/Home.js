@@ -4,6 +4,7 @@ import config from '../../config';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
+import { Typography, makeStyles} from '@material-ui/core'
 import { useIntl } from 'react-intl';
 import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
 import Screen from '../../containers/Screen/Screen';
@@ -30,6 +31,23 @@ import { CognitoUserContext } from '../../contexts/CongitoUserContext';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
 
+const useStyles = makeStyles(() => ({
+    spacer: {
+      borderColor: '#ccc',
+      borderStyle: 'solid',
+      margin: '2rem 0'
+    },
+    titleContainer: {
+      width: 'auto',
+      display: 'flex',
+      alignItems: 'center',
+      marginBottom: '2rem'
+    },
+    title: {
+      marginLeft: '1rem'
+    }
+  })
+)
 function Home(props) {
   const { hidden } = props;
   const history = useHistory();
@@ -39,7 +57,7 @@ function Home(props) {
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-
+  const classes = useStyles();
   const createEnabled = !config.payments.enabled || accountCanCreate;
 
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
@@ -145,7 +163,12 @@ function Home(props) {
       )}
       {!noMarkets && (
         <React.Fragment>
+          <div className={classes.titleContainer}>
+            { getDialogTypeIcon(PLANNING_TYPE) }
+            <Typography className={classes.title} variant="h6">Workspaces</Typography>
+          </div>
           <PlanningDialogs markets={planningDetails}/>
+          <hr className={classes.spacer}/>
           <DecisionDialogs markets={decisionDetails}/>
           <InitiativeDialogs markets={initiativeDetails}/>
         </React.Fragment>

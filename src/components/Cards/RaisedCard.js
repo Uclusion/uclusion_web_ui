@@ -19,15 +19,19 @@ const useStyles = makeStyles({
 })
 
 function RaisedCard(props) {
-  const { onClick, elevation } = props;
+  const { onClick, elevation, className } = props;
   const elevated = elevation ? elevation : 0;
   const classes = useStyles(onClick);
-  const isClickable = typeof onClick === 'function' && onClick.toString() !== '() => {}' ? true : false;
+  let isClickable = typeof onClick === 'function' ? true : false;
+  if( onClick.toString() === '() => {}' || onClick.toString() === '()=>{}'){ //preminification has spaces - minified does not, check for both
+    isClickable = false;
+  }
   return (
     <Box
       borderRadius="borderRadius"
       p={0}
       style={{height: '100%'}}
+      className={className}
     >
       <Card
         onClick={onClick}

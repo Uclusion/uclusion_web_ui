@@ -237,7 +237,8 @@ function checkInProgressWarning(investibles, comments, inProgressStageId, userId
   const { id, created_at: createdAt } = investible;
   const marketInfo = marketInfos.find(info => info.market_id === marketId);
   const { days_estimate: daysEstimate } = marketInfo;
-  if (daysEstimate && (Date.now() - Date.parse(createdAt) < 8640000*daysEstimate)) {
+  const useDaysEstimate = daysEstimate || 1;
+  if (Date.now() - Date.parse(createdAt) < 8640000*useDaysEstimate) {
     return false;
   }
   if (!comments) {

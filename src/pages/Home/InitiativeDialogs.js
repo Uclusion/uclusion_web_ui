@@ -195,7 +195,8 @@ function InitiativeDialogs(props) {
                       </div>
                       {getDialogTypeIcon(marketType, isSmall)}
                       <Typography className={classes.byline}>
-                        Initiative by {creator.name} on {intl.formatDate(createdAt)}
+                        {intl.formatMessage({id: 'homeInitiativeLabel'},
+                          {x: creator.name, y: intl.formatDate(createdAt)})}
                       </Typography>
                   </CardContent>
                 </Grid>

@@ -193,7 +193,8 @@ function DecisionDialogs(props) {
                       </div>
                       {getDialogTypeIcon(marketType, isSmall)}
                       <Typography className={classes.byline}>
-                        Dialog by {creator.name} on {intl.formatDate(createdAt)}
+                        {intl.formatMessage({id: 'homeDialogLabel'},
+                          {x: creator.name, y: intl.formatDate(createdAt)})}
                       </Typography>
                       {hasMarketIssue && (
                         <CardType className={classes.commentType} type={ISSUE_TYPE}/>

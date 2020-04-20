@@ -1,17 +1,7 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Divider,
-  Grid,
-  IconButton,
-  makeStyles,
-  Tooltip,
-  Typography
-} from '@material-ui/core'
+import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -129,8 +119,10 @@ const useStyles = makeStyles(
     },
     actions: {},
     upperRightCard: {
-      display: 'flex',
-      flexDirection: 'row',
+      display: "inline-flex",
+      float: "right",
+      padding: 0,
+      margin: 0,
     },
   }),
   { name: "PlanningInvestible" }
@@ -447,22 +439,6 @@ function PlanningInvestible(props) {
   function expansionChanged(event, expanded) {
     setChangeStagesExpanded(expanded);
   }
-  function getActions() {
-    return (
-      <dl className={classes.root}>
-        {daysEstimate > 0 && (
-          <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
-        )}
-        {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork) && (
-          <EditMarketButton
-            labelId="edit"
-            marketId={marketId}
-            onClick={toggleEdit}
-          />
-        )}
-      </dl>
-    )
-  }
   return (
     <Screen
       title={name}
@@ -492,11 +468,18 @@ function PlanningInvestible(props) {
           type={STORY_TYPE}
           subtype={subtype}
         />
-        <CardHeader
-          action={
-            getActions()
-          }
-        />
+        <dl className={classes.upperRightCard}>
+          {daysEstimate > 0 && (
+            <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
+          )}
+          {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork) && (
+            <EditMarketButton
+              labelId="edit"
+              marketId={marketId}
+              onClick={toggleEdit}
+            />
+          )}
+        </dl>
         <CardContent className={classes.votingCardContent}>
           <h1>
             {name}

@@ -13,9 +13,12 @@ import {
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import RaisedCard from '../../components/Cards/RaisedCard'
-import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import DialogActions from './DialogActions'
+import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { getMarketInfo } from '../../utils/userFunctions'
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -40,6 +43,10 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'column',
     justifyContent: 'space-between',
     height: '100%'
+  },
+  upperRight: {
+    textAlign: 'right',
+    fontSize: '.825rem'
   },
   innerContainer: {
     borderBottom: '1px solid #f2f2f2',
@@ -77,6 +84,7 @@ function PlanningDialogs(props) {
   const { markets } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investibleState] = useContext(InvestiblesContext);
+  const [commentsState] = useContext(CommentsContext);
   
   function getParticipantInfo(presences) {
 
@@ -117,13 +125,54 @@ function PlanningDialogs(props) {
     return name;
   }
 
+  function getMarketUpdatedAt(updatedAt, marketPresences, investibles, comments, marketId) {
+    let mostRecentUpdate = updatedAt;
+    marketPresences.forEach((presence) => {
+      const { investments } = presence;
+      if (investments) {
+        investments.forEach((investment) => {
+          const { updated_at: investmentUpdatedAt } = investment;
+          const fixed = new Date(investmentUpdatedAt);
+          if (fixed > mostRecentUpdate) {
+            mostRecentUpdate = fixed;
+          }
+        });
+      }
+    });
+    investibles.forEach((fullInvestible) => {
+      const { investible } = fullInvestible;
+      const { updated_at: investibleUpdatedAt } = investible;
+      let fixed = new Date(investibleUpdatedAt);
+      if (fixed > mostRecentUpdate) {
+        mostRecentUpdate = fixed;
+      }
+      const marketInfo = getMarketInfo(fullInvestible, marketId);
+      const { updated_at: infoUpdatedAt } = marketInfo;
+      fixed = new Date(infoUpdatedAt);
+      if (fixed > mostRecentUpdate) {
+        mostRecentUpdate = fixed;
+      }
+    });
+    comments.forEach((comment) => {
+      const { updated_at: commentUpdatedAt } = comment;
+      const fixed = new Date(commentUpdatedAt);
+      if (fixed > mostRecentUpdate) {
+        mostRecentUpdate = fixed;
+      }
+    });
+    return mostRecentUpdate;
+  }
+
   function getMarketItems() {
     return markets.map((market) => {
       const {
         id: marketId, name, market_type: marketType, market_stage: marketStage,
-        parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId,
+        parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId, updated_at: updatedAt
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+      const investibles = getMarketInvestibles(investibleState, marketId) || [];
+      const comments = getMarketComments(commentsState, marketId) || [];
+      const marketUpdatedAt = getMarketUpdatedAt(updatedAt, marketPresences, investibles, comments, marketId);
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
@@ -143,6 +192,9 @@ function PlanningDialogs(props) {
             className={classes.paper}
             border={1}
           >
+            <Typography className={classes.upperRight}>
+              {intl.formatMessage({ id: 'homeUpdated' }, { x: intl.formatDate(marketUpdatedAt) })}
+            </Typography>
             <CardContent className={classes.cardContent}>
             {parentMarketId &&
               <Link

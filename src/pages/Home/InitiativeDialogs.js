@@ -120,7 +120,7 @@ function InitiativeDialogs(props) {
       const isAdmin = myPresence && myPresence.is_admin;
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
       const active = marketStage === ACTIVE_STAGE;
-      const creator = sortedPresences.filter(presence => {return presence.id === createdBy})[0];
+      const creator = marketPresences.find(presence => {return presence.id === createdBy}) || {name: ''};
       const isSmall = true;
       let parentName;
       if(parentMarketId){
@@ -195,7 +195,8 @@ function InitiativeDialogs(props) {
                       </div>
                       {getDialogTypeIcon(marketType, isSmall)}
                       <Typography className={classes.byline}>
-                        Initiative by {creator.name} on {intl.formatDate(createdAt)}
+                        {intl.formatMessage({id: 'homeInitiativeLabel'},
+                          {x: creator.name, y: intl.formatDate(createdAt)})}
                       </Typography>
                   </CardContent>
                 </Grid>

@@ -169,6 +169,7 @@ CardType.propTypes = {
     "certainty50",
     "certainty75",
     "certainty100",
+    JUSTIFY_TYPE,
     ISSUE_TYPE,
     QUESTION_TYPE,
     SUGGEST_CHANGE_TYPE,

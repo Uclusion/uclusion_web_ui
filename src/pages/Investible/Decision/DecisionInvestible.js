@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, CardHeader, Grid, Typography } from '@material-ui/core'
+import { Card, CardContent, Grid, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import YourVoting from '../Voting/YourVoting'
 import Voting from './Voting'
@@ -67,6 +67,12 @@ const useStyles = makeStyles((theme) => ({
   },
   cardType: {
     display: "inline-flex"
+  },
+  upperRightCard: {
+    display: "inline-flex",
+    float: "right",
+    padding: 0,
+    margin: 0,
   },
   votingCardContent: {
     margin: theme.spacing(2, 6),
@@ -157,7 +163,7 @@ function DecisionInvestible(props) {
 
   function getActions() {
     return (
-    <dl className={classes.root}>
+    <dl className={classes.upperRightCard}>
       {isAdmin && inProposed && (
           <MoveToCurrentVotingActionButton
             key="moveToCurrent"
@@ -222,9 +228,7 @@ function DecisionInvestible(props) {
           subtype={OPTION}
         />
         {activeMarket && (
-          <CardHeader
-            action={getActions()}
-          />
+          getActions()
         )}
         <CardContent className={classes.votingCardContent}>
           <h1>

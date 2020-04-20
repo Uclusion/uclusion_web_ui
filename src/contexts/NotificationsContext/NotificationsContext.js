@@ -72,16 +72,16 @@ function NotificationsProvider(props) {
         }, 5000);
       }
       let isOldPage = lastPage !== undefined && pageIsEqual(page, lastPage);
-      console.debug(`processing old page ${isOldPage}`);
+      // If last page and page are equal then we last processed this page and consider the user as already reading it
       page.lastProcessed = Date.now();
       const scrollTarget = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
       if (!isOldPage && !hash) {
-        //console.debug('processing scroll to top');
+        //Scroll to the top if its a new page and there is no anchor to scroll to
         window.scrollTo(0, 0);
       }
       if (_.isEmpty(messages)) {
-        console.debug(`processed empty messages and ${JSON.stringify(page)}`);
         if (!isOldPage) {
+          // If there are no new messages on a new page then just scroll and mark old
           dispatch(processedPage(page, undefined, undefined, true, scrollTarget));
         }
       } else {
@@ -118,7 +118,7 @@ function NotificationsProvider(props) {
             && marketId === messageMarketId && investibleId === messageInvestibleId;
           const processedMessage = (beingProcessed || []).find((processing) => isMessageEqual(message, processing));
           const isBeingProcessed = !_.isEmpty(processedMessage);
-          console.debug(`being processed ${JSON.stringify(beingProcessed)} and ${JSON.stringify(page)}`);
+          // We would like to guarantee that we don't process the same messages twice but it is difficult
           const doRemove = !isBeingProcessed && (marketMatch ||
             (pokeType === 'slack_reminder' && action === 'notificationPreferences')
             || (pokeType === 'upgrade_reminder' && action === 'upgrade'));
@@ -146,7 +146,7 @@ function NotificationsProvider(props) {
         }
         //If you've been on the page less than 3s count as new for the purposes of new messages
         isOldPage = isOldPage && (Date.now() - page.lastProcessed > 3000);
-        console.debug(`processing ${JSON.stringify(filtered)} and is old page ${isOldPage}`);
+        // Process the messages that match this page
         filtered.forEach((message) => {
           const {
             level,
@@ -178,6 +178,8 @@ function NotificationsProvider(props) {
           }
           return 1;
         });
+        // We only link to one message and we only need one message to tell the delete API what page we are on
+        // so it can delete all messages associated with that page.
         const message = filtered[0];
         let toastInfo = {};
         const {
@@ -200,7 +202,7 @@ function NotificationsProvider(props) {
           || (level === 'RED') || (!commentId && (aType !== 'UNREAD' || hasUnViewedDiff(diffState, diffId)));
         const myCustomToastId = myText + '_' + diffId;
         if (shouldToast && !toast.isActive(myCustomToastId)) {
-          //console.debug('Toasting on page from NotificationsContext');
+          //Tell the notifications reducer what to do but only do it inside the dispatch for fear of processing twice
           const options = {
             onClick: () => navigate(history, getFullLink(message)),
             toastId: myCustomToastId

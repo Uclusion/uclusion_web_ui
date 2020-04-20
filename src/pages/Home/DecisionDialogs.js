@@ -120,7 +120,7 @@ function DecisionDialogs(props) {
       const comments = getMarketComments(commentsState, marketId);
       const marketIssues = comments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved && !comment.investible_id);
       const hasMarketIssue = !_.isEmpty(marketIssues);
-      const creator = sortedPresences.filter(presence => {return presence.id === createdBy})[0];
+      const creator = marketPresences.find(presence => {return presence.id === createdBy})|| {name: ''};
       const isSmall = true;
 
       function getInvestibleName(investibleId) {

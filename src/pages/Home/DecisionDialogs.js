@@ -24,6 +24,8 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { ISSUE_TYPE } from '../../constants/comments'
 import CardType from '../../components/CardType'
+import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -71,6 +73,7 @@ function DecisionDialogs(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
   
   function getParticipantInfo(presences) {
 
@@ -119,9 +122,22 @@ function DecisionDialogs(props) {
       const hasMarketIssue = !_.isEmpty(marketIssues);
       const creator = sortedPresences.filter(presence => {return presence.id === createdBy})[0];
       const isSmall = true;
+
+      function getInvestibleName(investibleId) {
+        const inv = getInvestible(investibleState, investibleId);
+        if (!inv) {
+          return '';
+        }
+        const { investible } = inv;
+        const { name } = investible;
+        return name;
+      }
+
       let parentName;
-      if(parentMarketId){
-        const parentMarketDetails = getMarket(marketsState, parentMarketId);
+      if (parentInvestibleId) {
+        parentName = getInvestibleName(parentInvestibleId);
+      } else if (parentMarketId) {
+        const parentMarketDetails = getMarket(marketsState, parentMarketId) || {};
         parentName = parentMarketDetails.name;
       }
       

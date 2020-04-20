@@ -120,7 +120,7 @@ function InitiativeDialogs(props) {
       const isAdmin = myPresence && myPresence.is_admin;
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
       const active = marketStage === ACTIVE_STAGE;
-      const creator = sortedPresences.filter(presence => {return presence.id === createdBy})[0];
+      const creator = marketPresences.find(presence => {return presence.id === createdBy}) || {name: ''};
       const isSmall = true;
       let parentName;
       if(parentMarketId){

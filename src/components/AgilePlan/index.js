@@ -317,15 +317,15 @@ export function DaysEstimate(props) {
   const intl = useIntl();
   function getStartDate() {
     if (value && createdAt) {
-      return new Date(moment(createdAt).add(value, 'days'));
+      return moment(createdAt).add(value, 'days').toDate();
     }
     return new Date();
   }
   
   function handleDateChange(date) {
     const usedDate = createdAt ? createdAt : new Date();
-    const myValue = moment(date).diff(moment(usedDate), 'days');
-    onChange({target: {value: `${myValue}`}});
+    const myValue = moment(date).diff(moment(usedDate), 'days', true);
+    onChange({target: {value: `${Math.ceil(myValue)}`}});
   }
 
   return (

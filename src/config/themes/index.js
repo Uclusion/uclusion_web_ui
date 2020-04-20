@@ -18,6 +18,9 @@ const defaultThemeDefinition = {
       dark: '#104047',
       contrastText: '#ffffff',
     },
+    background: {
+      default: '#efefef'
+    }
   },
 };
 
@@ -29,7 +32,7 @@ const sidebarTheme = responsiveFontSizes(createMuiTheme({
     type: 'dark',
     ...defaultThemeDefinition.palette,
     background: {
-      paper: '#3f6b72',
+      paper: '#3f6b72'
     },
 
   },

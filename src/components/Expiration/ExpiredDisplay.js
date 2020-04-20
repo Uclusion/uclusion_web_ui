@@ -8,6 +8,7 @@ const useStyles = makeStyles(() => {
     expiresWarning: {
       color: '#ca2828',
       fontWeight: 'bold',
+      fontSize: '.7rem'
     },
   };
 });

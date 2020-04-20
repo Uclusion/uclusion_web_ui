@@ -25,9 +25,6 @@ const useStyles = makeStyles(() => ({
   textData: {
     fontSize: 12,
   },
-  clickable: {
-    cursor: 'pointer'
-  },
   draft: {
     color: '#E85757',
     backgroundColor: '#ffc4c4',
@@ -49,7 +46,8 @@ const useStyles = makeStyles(() => ({
     paddingTop: '2rem',
     paddingBottom: '2rem',
     marginBottom: '1rem',
-    flex: 2
+    flex: 2,
+    cursor: 'pointer'
   },
   bottomContainer: {
     display: 'flex',
@@ -164,14 +162,14 @@ function PlanningDialogs(props) {
                 </Typography>
             </Link>
               }
-              <div className={classes.innerContainer}>
+              <div className={classes.innerContainer}
+                onClick={(event) => {
+                event.preventDefault();
+                navigate(history, formMarketLink(marketId));}
+                }
+              >
                 <Typography 
                   variant="h5"
-                  className={classes.clickable}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    navigate(history, formMarketLink(marketId));}
-                  }
                 >
                     {name}
                 </Typography>

@@ -45,8 +45,8 @@ const useStyles = makeStyles(() => ({
     justifyContent: 'space-evenly',
   },
   gridSliver: {
-    maxWidth: '3.3%',
-    flexBasis: '3.3%'
+    maxWidth: '4%',
+    flexBasis: '4%'
   },
   contentContainer: {
     flexGrow: 0,

@@ -256,7 +256,7 @@ function VotingStage(props) {
       }
       marketId={marketId}
       updatedText={intl.formatMessage({
-        id: "acceptedInvestiblesUpdatedAt"
+        id: "inDialogInvestiblesUpdatedAt"
       })}
       {...other}
    />

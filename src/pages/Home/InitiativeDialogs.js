@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { CardActions, CardContent, Grid, Link, Typography, Avatar } from '@material-ui/core'
+import { Avatar, CardActions, CardContent, Grid, Link, Typography } from '@material-ui/core'
 import { AvatarGroup } from '@material-ui/lab'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
@@ -10,12 +10,6 @@ import {
   getMarketPresences,
   marketHasOnlyCurrentUser
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import {
-  getAcceptedStage,
-  getBlockedStage,
-  getInCurrentVotingStage,
-  getInReviewStage,
-} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import RaisedCard from '../../components/Cards/RaisedCard'
@@ -23,13 +17,11 @@ import ProgressBar from '../../components/Expiration/ProgressBarExpiration'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
-import { getParticipantInfo } from '../../utils/userFunctions'
-import { ACTIVE_STAGE, INITIATIVE_TYPE } from '../../constants/markets'
+import { ACTIVE_STAGE } from '../../constants/markets'
 import DialogActions from './DialogActions'
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -77,15 +69,8 @@ function InitiativeDialogs(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
 
   function getParticipantInfo(presences, marketId) {
-    const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
-    const votingStage = getInCurrentVotingStage(marketStagesState, marketId);
-    const acceptedStage = getAcceptedStage(marketStagesState, marketId);
-    const reviewStage = getInReviewStage(marketStagesState, marketId);
-    const blockedStage = getBlockedStage(marketStagesState, marketId);
-    const loaded = votingStage && acceptedStage && reviewStage;
 
       return (
         <div style={{flex: 3, display: 'inline-block', height: '100%', borderRight: '1px solid #f2f2f2'}}>
@@ -127,14 +112,13 @@ function InitiativeDialogs(props) {
       }
       const baseInvestible = investibles[0];
       const { investible } = baseInvestible;
-      const { name, id: baseInvestibleId } = investible;
+      const { name } = investible;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const isAdmin = myPresence && myPresence.is_admin;
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
-      const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
       const active = marketStage === ACTIVE_STAGE;
       const creator = sortedPresences.filter(presence => {return presence.id === createdBy})[0];
       const isSmall = true;

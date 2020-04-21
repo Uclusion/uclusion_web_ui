@@ -395,6 +395,7 @@ const messages = defineMessages({
   homeViewAbout: 'About',
   homeCreatedAt: 'Created on {dateString}',
   archiveWarning: 'Archiving will unassign any active story and prevent further assignment.',
+  deactivateWarning: 'You are the last active; proceeding permanently de-activates the workspace.',
   new: 'New',
   information: 'Information',
   message: 'Message',

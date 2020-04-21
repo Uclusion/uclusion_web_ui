@@ -1,11 +1,11 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
-import { changeUserToObserver } from '../../api/markets'
+import { archiveMarket, changeUserToObserver } from '../../api/markets'
 import ArchiveIcon from '@material-ui/icons/Archive'
 
 import SpinningTooltipIconButton from '../../components/SpinBlocking/SpinningTooltipIconButton'
-import { changeObserverStatus } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { changeObserverStatus, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
@@ -16,7 +16,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
 import { FormattedMessage } from 'react-intl'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
-import WarningDialog from '../../components/Warnings/WarningDialog';
+import WarningDialog from '../../components/Warnings/WarningDialog'
 
 function ChangeToObserverButton(props) {
   const { marketId, onClick } = props;
@@ -27,6 +27,10 @@ function ChangeToObserverButton(props) {
   const market = getMarket(marketState, marketId);
   const { market_type: marketType } = market;
   const lockedDialogClasses = useLockedDialogStyles();
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const presences = getMarketPresences(marketPresencesState, marketId);
+  const presencesFollowing = presences.filter((presence) => presence.following && !presence.market_banned);
+  const isDeactivate = marketType === PLANNING_TYPE && presencesFollowing && presencesFollowing.length === 1;
 
   const handleOpen = () => {
     setOpen(true);
@@ -37,8 +41,8 @@ function ChangeToObserverButton(props) {
   };
 
   function myOnClick() {
-    return changeUserToObserver(marketId)
-      .then(() => {
+    const actionPromise = isDeactivate ? archiveMarket(marketId) : changeUserToObserver(marketId);
+    return actionPromise.then(() => {
         changeObserverStatus(mpState, mpDispatch, marketId, true);
         return EMPTY_SPIN_RESULT;
       });
@@ -65,7 +69,7 @@ function ChangeToObserverButton(props) {
         open={open}
         onClose={handleClose}
         icon={<ArchiveIcon htmlColor="#bdbdbd" />}
-        issueWarningId="archiveWarning"
+        issueWarningId={isDeactivate ? 'deactivateWarning' : 'archiveWarning'}
         /* slots */
         actions={
           <SpinBlockingButton

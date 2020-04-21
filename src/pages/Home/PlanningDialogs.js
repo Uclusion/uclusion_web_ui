@@ -234,25 +234,23 @@ function PlanningDialogs(props) {
                     </Typography>
                   </div>
                 )}
-                {!isDraft &&
-                  <Fragment>
-                    <span className={classes.participantContainer}>
-                      {getParticipantInfo(sortedPresences, marketId)}
-                      <CardActions style={{display: 'inline-block', flex: 5}}>
-                        <DialogActions
-                          marketStage={marketStage}
-                          marketId={marketId}
-                          marketType={marketType}
-                          parentMarketId={parentMarketId}
-                          parentInvestibleId={parentInvestibleId}
-                          isAdmin
-                          isFollowing={myPresence.following}
-                          hideEdit={true}
-                        />
-                      </CardActions>
-                    </span>
-                  </Fragment>
-                }
+                <Fragment>
+                  <span className={classes.participantContainer}>
+                    {!isDraft && getParticipantInfo(sortedPresences, marketId)}
+                    <CardActions style={{display: 'inline-block', flex: 5}}>
+                      <DialogActions
+                        marketStage={marketStage}
+                        marketId={marketId}
+                        marketType={marketType}
+                        parentMarketId={parentMarketId}
+                        parentInvestibleId={parentInvestibleId}
+                        isAdmin
+                        isFollowing={myPresence.following}
+                        hideEdit={true}
+                      />
+                    </CardActions>
+                  </span>
+                </Fragment>
               </div>
             </CardContent>
           </RaisedCard>

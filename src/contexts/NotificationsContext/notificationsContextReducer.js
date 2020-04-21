@@ -213,7 +213,7 @@ function markPageProcessed(state, action) {
   }
   const { messages, toastId: currentToastId } = state;
   if (currentToastId && toast.isActive(currentToastId)) {
-    toast.dismiss(currentToastId);
+    return; //dont re toast for somthing that's on the screen
   }
   const { level, myText, options } = toastInfo;
   let toastId;

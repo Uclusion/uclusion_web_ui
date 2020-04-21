@@ -9,6 +9,7 @@ import reducer, {
   pageIsEqual,
   processedPage,
 } from './notificationsContextReducer'
+
 import beginListening from './notificationsContextMessages'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext'
@@ -17,7 +18,7 @@ import { HighlightedVotingContext } from '../HighlightedVotingContext'
 import { hasUnViewedDiff } from '../DiffContext/diffContextHelper'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import { getFullLink } from '../../components/Notifications/Notifications'
-import { ISSUE_TYPE } from '../../constants/notifications'
+import { messageComparator } from '../../utils/messageUtils'
 
 export const EMPTY_STATE = {
   initializing: true,
@@ -193,7 +194,7 @@ function NotificationsProvider(props) {
           // if we have any messages for this page, and we're not an old page
           // tell the store that we've processed them
           if (!isOldPage) {
-            dispatch(processedPage(page, undefined, undefined, true, scrollTarget));
+            setHashFragment(scrollTarget);
           }
           return;
         }
@@ -251,7 +252,7 @@ function NotificationsProvider(props) {
           const options = {
             onClick: () => navigate(history, getFullLink(message)),
             toastId: myCustomToastId
-          }
+          };
           toastInfo = { myText, level, options };
         }
         dispatch(processedPage(page, pageMessages, toastInfo));
@@ -262,8 +263,7 @@ function NotificationsProvider(props) {
     }
     return () => {
     };
-  }, [
-    page, messages, diffState, history, lastPage, highlightedCommentDispatch, highlightedVotingDispatch,
+  }, [page, messages, diffState, history, lastPage, highlightedCommentDispatch, highlightedVotingDispatch,
     pathname, hash, isProcessingPage, isProcessingPageInitial
   ]);
 

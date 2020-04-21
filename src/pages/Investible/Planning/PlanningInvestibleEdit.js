@@ -24,17 +24,15 @@ function PlanningInvestibleEdit(props) {
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const lockedDialogClasses = useLockedDialogStyles();
-  const { description: storedDescription, name: storedName, assignments: storedAssignments,
-    days_estimate: storedDaysEstimate } = storedState;
+  const { description: storedDescription, name: storedName, days_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const myInvestible = fullInvestible.investible;
   const marketInfo = getMarketInfo(fullInvestible, marketId) || {};
   const { assigned: marketAssigned, days_estimate: marketDaysEstimate, created_at: createdAt } = marketInfo;
-  const assigned = storedAssignments || marketAssigned;
   const daysEstimatePersisted = storedDaysEstimate || marketDaysEstimate;
   const { id, description: initialDescription, name: initialName } = myInvestible;
   const [currentValues, setCurrentValues] = useState({ ...myInvestible, name: storedName || initialName });
-  const [assignments, setAssignments] = useState(assigned);
+  const [assignments, setAssignments] = useState(marketAssigned);
   const [daysEstimate, setDaysEstimate] = useState(daysEstimatePersisted);
   const [validForm, setValidForm] = useState(true);
   const { name } = currentValues;
@@ -137,7 +135,6 @@ function PlanningInvestibleEdit(props) {
 
   function handleAssignmentChange(newAssignments) {
     setAssignments(newAssignments);
-    handleDraftState({ ...draftState, assignments: newAssignments });
   }
   const subtype = isAssign ? ASSIGN_TYPE : STORY_TYPE;
   const operationLabel = isAssign ? "investibleAssign" : "investibleDescription";
@@ -153,7 +150,7 @@ function PlanningInvestibleEdit(props) {
         {isAssign && (
           <AssignmentList
             marketId={marketId}
-            previouslyAssigned={assigned}
+            previouslyAssigned={marketAssigned}
             onChange={handleAssignmentChange}
           />
         )}

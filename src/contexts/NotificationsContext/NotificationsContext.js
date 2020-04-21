@@ -117,7 +117,7 @@ function NotificationsProvider(props) {
     }
   }, [asyncTimerId, hashFragment, observer, scrollTarget]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     function getMessagesForPage () {
       return messages.filter((message) => {
         const { marketId, investibleId, action, beingProcessed } = page;

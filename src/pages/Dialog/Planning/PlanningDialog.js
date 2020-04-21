@@ -234,11 +234,11 @@ function checkInProgressWarning(investibles, comments, inProgressStageId, userId
     return false;
   }
   const { investible, market_infos: marketInfos } = inProgressInvestible;
-  const { id, created_at: createdAt } = investible;
+  const { id } = investible;
   const marketInfo = marketInfos.find(info => info.market_id === marketId);
-  const { days_estimate: daysEstimate } = marketInfo;
+  const { days_estimate: daysEstimate, updated_at: updatedAt } = marketInfo;
   const useDaysEstimate = daysEstimate || 1;
-  if (Date.now() - Date.parse(createdAt) < 86400000*useDaysEstimate) {
+  if (Date.now() - Date.parse(updatedAt) < 86400000*useDaysEstimate) {
     return false;
   }
   if (!comments) {

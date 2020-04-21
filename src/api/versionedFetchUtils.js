@@ -121,13 +121,6 @@ function updateMarketsFromSignatures (marketSignatures, existingMarkets, maxConc
     }
     if (!existingMarkets || !existingMarkets.includes(marketId)) {
       pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
-      // TODO, remove this promise alteration when david's code with versions goes it.
-      // It's just bridge code
-      promise = promise.then(() => getMarketStages(marketId))
-        .then((stages) => {
-          return pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
-        });
-
     }
     return promise;
   }, maxConcurrentCount);

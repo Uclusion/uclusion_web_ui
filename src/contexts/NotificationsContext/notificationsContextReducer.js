@@ -27,14 +27,12 @@ export function remove(hkey, rkey) {
   };
 }
 
-export function processedPage(page, messages, toastInfo, newPage, scrollTarget) {
+export function processedPage(page, messages, toastInfo) {
   return {
     type: PROCESSED_PAGE,
     page,
     messages,
     toastInfo,
-    newPage,
-    scrollTarget
   };
 }
 
@@ -50,23 +48,6 @@ export function initializeState(newState) {
     type: INITIALIZE_STATE,
     newState,
   };
-}
-
-function scroller(target, newPage, retry=true) {
-  if (newPage !== undefined && newPage) {
-    if (target) {
-      const element = document.getElementById(target);
-      if (element) {
-        element.scrollIntoView();
-      } else if (retry) {
-        setTimeout(() => {
-          scroller(target, newPage, false);
-        }, 2000);
-      } else {
-        console.warn(`Processing scroll failed for ${target}`)
-      }
-    }
-  }
 }
 
 /** Helper functions * */
@@ -202,9 +183,8 @@ function doUpdatePage(state, action) {
 }
 
 function markPageProcessed(state, action) {
-  const { page, messages: removedMessages, toastInfo, newPage, scrollTarget } = action;
+  const { page, messages: removedMessages, toastInfo } = action;
   if (_.isEmpty(removedMessages)) {
-    scroller(scrollTarget, newPage);
     return {
       ...state,
       page: {...page, beingProcessed: []},
@@ -231,8 +211,6 @@ function markPageProcessed(state, action) {
     }
   }
   deleteMessage(messages[0]);
-  // Done toasting so hopefully is safe to scroll without concern for re-render
-  scroller(scrollTarget, newPage);
   const filteredMessages = messages.filter((aMessage) => {
     let keep = true;
     removedMessages.forEach((removedMessage) => {

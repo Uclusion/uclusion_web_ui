@@ -61,6 +61,12 @@ function getNotSeenContent(state, content) {
     lastSeenContent: description,
     updatedBy,
   };
+  const { initializing } = state;
+  if (initializing) {
+    return {
+      [id]: firstReceived,
+    };
+  }
   return {
     ...state,
     [id]: firstReceived,
@@ -170,10 +176,7 @@ function computeNewState(state, action) {
   const { type } = action;
   switch (type) {
     case INITIALIZE_STATE:
-      return {
-        ...action.newState,
-        initializing: false,
-      };
+      return action.newState;
     case REMOVE_CONTENTS:
       return removeContentsState(state, action);
     case ADD_CONTENTS:

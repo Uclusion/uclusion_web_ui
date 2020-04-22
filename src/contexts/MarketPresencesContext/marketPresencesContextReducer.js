@@ -125,6 +125,12 @@ function doAddMarketPresences(state, action) {
 
 function doUpdateMarketPresences(state, action) {
   const { marketId, users } = action;
+  const { initializing } = state;
+  if (initializing) {
+    return {
+      [marketId]: users,
+    };
+  }
   return {
     ...state,
     [marketId]: users,
@@ -161,10 +167,7 @@ function doRemoveMarketsPresence(state, action) {
 function computeNewState(state, action) {
   switch (action.type) {
     case INITIALIZE_STATE:
-      return {
-        ...action.newState,
-        initializing: false,
-      };
+      return action.newState;
     case ADD_MARKET_PRESENCE:
       return doAddMarketPresence(state, action);
     case ADD_MARKET_PRESENCES:

@@ -1,5 +1,5 @@
-import LocalForageHelper from '../../utils/LocalForageHelper';
-import { INVESTIBLES_CONTEXT_NAMESPACE } from './InvestiblesContext';
+import LocalForageHelper from '../../utils/LocalForageHelper'
+import { INVESTIBLES_CONTEXT_NAMESPACE } from './InvestiblesContext'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
@@ -26,6 +26,10 @@ export function updateStorableInvestibles(investibles) {
 // expects that the investibles are already in a storable state
 function doUpdateInvestibles(state, action) {
   const { investibles: updateHash } = action;
+  const { initializing } = state;
+  if (initializing) {
+    return updateHash;
+  }
   return { ...state, ...updateHash };
 }
 
@@ -34,10 +38,7 @@ function computeNewState(state, action) {
     case UPDATE_INVESTIBLES:
       return doUpdateInvestibles(state, action);
     case INITIALIZE_STATE:
-      return {
-        ...action.newState,
-        initializing: false,
-      };
+      return action.newState;
     default:
       return state;
   }

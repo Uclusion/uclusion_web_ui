@@ -1,10 +1,8 @@
-import _ from 'lodash';
-import LocalForageHelper from '../../utils/LocalForageHelper';
-import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext';
-
+import _ from 'lodash'
+import LocalForageHelper from '../../utils/LocalForageHelper'
+import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
-const ADD_MARKET = 'ADD_MARKET';
 const UPDATE_MARKET_DETAILS = 'UPDATE_MARKET_DETAILS';
 const REMOVE_MARKET_DETAILS = 'REMOVE_MARKET_DETAILS';
 
@@ -13,13 +11,6 @@ export function initializeState(newState) {
   return {
     type: INITIALIZE_STATE,
     newState,
-  };
-}
-
-export function addMarket(market) {
-  return {
-    type: ADD_MARKET,
-    market,
   };
 }
 
@@ -56,6 +47,12 @@ function doUpdateMarketDetails(state, action) {
   const { marketDetails } = action;
   const { marketDetails: oldMarketDetails } = state;
   const newDetails = _.unionBy(marketDetails, oldMarketDetails, 'id');
+  const { initializing } = state;
+  if (initializing) {
+    return {
+      marketDetails: newDetails,
+    };
+  }
   return {
     ...state,
     marketDetails: newDetails,
@@ -75,17 +72,12 @@ function removeStoredMarkets(state, action) {
 function computeNewState(state, action) {
   // console.debug(`Computing state with type ${action.type}`);
   switch (action.type) {
-    case ADD_MARKET:
-      return storeMarket(state, action);
     case UPDATE_MARKET_DETAILS:
       return doUpdateMarketDetails(state, action);
     case REMOVE_MARKET_DETAILS:
       return removeStoredMarkets(state, action);
     case INITIALIZE_STATE:
-      return {
-        ...action.newState,
-        initializing: false,
-      };
+      return action.newState;
     default:
       return state;
   }

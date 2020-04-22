@@ -1,6 +1,6 @@
-import _ from 'lodash';
-import LocalForageHelper from '../../utils/LocalForageHelper';
-import { MARKET_STAGES_CONTEXT_NAMESPACE } from './MarketStagesContext';
+import _ from 'lodash'
+import LocalForageHelper from '../../utils/LocalForageHelper'
+import { MARKET_STAGES_CONTEXT_NAMESPACE } from './MarketStagesContext'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_STAGES = 'UPDATE_MARKET_STAGES';
@@ -33,6 +33,12 @@ export function removeMarketsStageDetails(marketIds) {
 
 function doUpdateMarketStages(state, action) {
   const { marketId, stagesList } = action;
+  const { initializing } = state;
+  if (initializing) {
+    return {
+      [marketId]: stagesList,
+    };
+  }
   return {
     ...state,
     [marketId]: stagesList,
@@ -47,10 +53,7 @@ function removeMarketStages(state, action) {
 function computeNewState(state, action) {
   switch (action.type) {
     case INITIALIZE_STATE:
-      return {
-        ...action.newState,
-        initializing: false,
-      };
+      return action.newState;
     case UPDATE_MARKET_STAGES:
       return doUpdateMarketStages(state, action);
     case REMOVE_MARKET_STAGES:

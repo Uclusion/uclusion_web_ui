@@ -66,6 +66,12 @@ function doUpdateMarketComments(state, action) {
   const { marketId, comments } = action;
   const oldMarketComments = state[marketId] || [];
   const oldMarketSame = _.intersectionWith(oldMarketComments, comments, commentsVersionEqual);
+  const { initializing } = state;
+  if (initializing) {
+    return {
+      [marketId]: _.unionWith(oldMarketSame, comments, commentsVersionEqual),
+    };
+  }
   return {
     ...state,
     [marketId]: _.unionWith(oldMarketSame, comments, commentsVersionEqual),
@@ -98,10 +104,7 @@ function computeNewState(state, action) {
     case OVERWRITE_MARKET_COMMENTS:
       return doOverwriteMarketComments(state, action);
     case INITIALIZE_STATE:
-      return {
-        ...action.newState,
-        initializing: false,
-      };
+      return action.newState;
     default:
       return state;
   }

@@ -1,10 +1,9 @@
-import LocalForageHelper from '../../utils/LocalForageHelper';
-import _ from 'lodash';
-import { getMassagedMessages, splitIntoLevels } from '../../utils/messageUtils';
-import { intl } from '../../components/ContextHacks/IntlGlobalProvider';
-import { pushMessage } from '../../utils/MessageBusUtils';
-import { TOAST_CHANNEL } from './NotificationsContext';
-
+import LocalForageHelper from '../../utils/LocalForageHelper'
+import _ from 'lodash'
+import { getMassagedMessages, splitIntoLevels } from '../../utils/messageUtils'
+import { intl } from '../../components/ContextHacks/IntlGlobalProvider'
+import { pushMessage } from '../../utils/MessageBusUtils'
+import { TOAST_CHANNEL } from './NotificationsContext'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -217,6 +216,12 @@ function processPageChange (state, action) {
 function storeMessagesInState(state, messagesToStore) {
   const oldMessages = state.messages || emptyMessagesState;
   const newMessages = [...oldMessages, ...messagesToStore];
+  const { initializing } = state;
+  if (initializing) {
+    return {
+      messages: newMessages,
+    };
+  }
   return {
     ...state,
     messages: newMessages,
@@ -266,10 +271,7 @@ function computeNewState (state, action) {
     case PAGE_CHANGED:
       return processPageChange(state, action);
     case INITIALIZE_STATE:
-      return {
-        ...action.newState,
-        initializing: false,
-      };
+      return action.newState;
     case REMOVE:
       return doRemove(state, action);
     default:

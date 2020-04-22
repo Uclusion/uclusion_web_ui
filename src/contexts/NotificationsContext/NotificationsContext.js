@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useLayoutEffect, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useReducer, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useHistory } from 'react-router'
 import _ from 'lodash'
@@ -44,10 +44,6 @@ function NotificationsProvider(props) {
   const history = useHistory();
   const { location } = history;
   const { pathname, hash } = location;
-  const [hashFragment, setHashFragment] = useState(undefined);
-  const [asyncTimerId, setAsyncTimerId] = useState(undefined);
-  const [observer, setObserver] = useState(undefined);
-  const [scrollTarget, setScrollTarget] = useState(undefined);
 
   useEffect(() => {
     if (isInitialization) {
@@ -66,56 +62,6 @@ function NotificationsProvider(props) {
     return () => {
     };
   }, [isInitialization]);
-
-  useLayoutEffect(() => {
-    // See https://github.com/rafrex/react-router-hash-link/blob/master/src/index.js
-    function reset(full) {
-      if (observer) observer.disconnect();
-      if (asyncTimerId) {
-        window.clearTimeout(asyncTimerId);
-        setAsyncTimerId(undefined);
-      }
-      if (full) {
-        setHashFragment(undefined);
-        setScrollTarget(undefined);
-      }
-    }
-
-    function getElAndScroll() {
-      const element = document.getElementById(hashFragment);
-      if (element !== null) {
-        element.scrollIntoView({block: 'center'});
-        reset(true);
-        return true;
-      }
-      return false;
-    }
-
-    function hashLinkScroll() {
-      // Push onto callback queue so it runs after the DOM is updated
-      window.setTimeout(() => {
-        if (getElAndScroll() === false) {
-          const myObserver = new MutationObserver(getElAndScroll);
-          myObserver.observe(document, {
-            attributes: true,
-            childList: true,
-            subtree: true,
-          });
-          setObserver(myObserver);
-          // if the element doesn't show up in 10 seconds, stop checking
-          const myAsyncTimerId = window.setTimeout(() => {
-            reset(true);
-          }, 10000);
-          setAsyncTimerId(myAsyncTimerId);
-        }
-      }, 0);
-    }
-    if (hashFragment && hashFragment !== scrollTarget) {
-      setScrollTarget(hashFragment);
-      reset(false);
-      hashLinkScroll();
-    }
-  }, [asyncTimerId, hashFragment, observer, scrollTarget]);
 
   useEffect(() => {
     function getMessagesForPage () {
@@ -156,17 +102,7 @@ function NotificationsProvider(props) {
       let isOldPage = lastPage !== undefined && pageIsEqual(page, lastPage);
       // If last page and page are equal then we last processed this page and consider the user as already reading it
       page.lastProcessed = Date.now();
-      const scrollTarget = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
-      if (!isOldPage && !hash) {
-        //Scroll to the top if its a new page and there is no anchor to scroll to
-        window.scrollTo(0, 0);
-      }
-      if (_.isEmpty(messages)) {
-        if (!isOldPage) {
-          // If there are no new messages on a new page then just scroll and mark old
-          setHashFragment(scrollTarget);
-        }
-      } else {
+      if (!_.isEmpty(messages)) {
         const newUserMessage = messages.find((massagedMessage) => massagedMessage.pokeType === 'new_user');
         if (newUserMessage) {
           if (pathname === '/') {
@@ -191,10 +127,8 @@ function NotificationsProvider(props) {
         }
         const pageMessages = getMessagesForPage();
         if (_.isEmpty(pageMessages)) {
-          // if we have any messages for this page, and we're not an old page
-          // tell the store that we've processed them
           if (!isOldPage) {
-            setHashFragment(scrollTarget);
+            dispatch(processedPage(page, [], {}));
           }
           return;
         }
@@ -256,9 +190,6 @@ function NotificationsProvider(props) {
           toastInfo = { myText, level, options };
         }
         dispatch(processedPage(page, pageMessages, toastInfo));
-        if (!isOldPage) {
-          setHashFragment(scrollTarget);
-        }
       }
     }
     return () => {

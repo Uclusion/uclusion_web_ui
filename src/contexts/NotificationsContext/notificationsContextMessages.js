@@ -11,12 +11,19 @@ import { toast } from 'react-toastify';
 
 function beginListening(dispatch, history) {
   registerListener(TOAST_CHANNEL, 'toastListener', (data) => {
-    console.error(data);
     const { payload: message } = data;
-    const { text, level } = message
-    console.error(message);
+    const { text, level, commentId, investibleId, marketId } = message
     const link = getFullLink(message);
-    const toastOptions = { onClick: () => navigate(history, link)}
+    const objectId = commentId || investibleId || marketId;
+    const toastId = `${objectId}_${text}`;
+    const toastOptions = {
+      onClick: () => navigate(history, link),
+      toastId,
+    };
+    // don't pop an identical toast up for the same object
+    if (toast.isActive(toastId)) {
+      return;
+    }
     switch(level) {
       case RED_LEVEL:
         return toast.error(text, toastOptions);

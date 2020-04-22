@@ -5,7 +5,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import clsx from "clsx";
 import { Card, CardContent, Typography } from "@material-ui/core";
 import ReadOnlyQuillEditor from "../../../components/TextEditors/ReadOnlyQuillEditor";
-import { HighlightedVotingContext } from "../../../contexts/HighlightedVotingContext";
+import { HighlightedVotingContext } from "../../../contexts/HighlightingContexts/HighlightedVotingContext";
 import { makeStyles } from "@material-ui/styles";
 import CardType from "../../../components/CardType";
 

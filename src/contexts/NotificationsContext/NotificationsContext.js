@@ -1,27 +1,16 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react'
-import { toast } from 'react-toastify'
+import React, { useEffect, useReducer, useState } from 'react'
 import { useHistory } from 'react-router'
-import _ from 'lodash'
 import reducer, {
   initializeState,
-  isMessageEqual,
   NOTIFICATIONS_CONTEXT_NAMESPACE,
-  pageIsEqual,
-  processedPage,
 } from './notificationsContextReducer'
 
 import beginListening from './notificationsContextMessages'
 import LocalForageHelper from '../../utils/LocalForageHelper'
-import { HighlightedCommentContext, HIGHTLIGHT_ADD } from '../HighlightedCommentContext'
-import { DiffContext } from '../DiffContext/DiffContext'
-import { HighlightedVotingContext } from '../HighlightedVotingContext'
-import { hasUnViewedDiff } from '../DiffContext/diffContextHelper'
-import { navigate } from '../../utils/marketIdPathFunctions'
-import { getFullLink } from '../../components/Notifications/Notifications'
-import { messageComparator } from '../../utils/messageUtils'
 
 export const EMPTY_STATE = {
   initializing: true,
+  page: undefined,
   messages: [],
 };
 
@@ -54,7 +43,7 @@ function NotificationsProvider(props) {
     }
     return () => {
     };
-  }, [isInitialization]);
+  }, [isInitialization, history]);
 
   return (
     <NotificationsContext.Provider value={[state, dispatch]}>

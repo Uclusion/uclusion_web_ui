@@ -1,5 +1,5 @@
 import { getMessages } from '../../api/sso';
-import { updateMessages, remove, pageChanged } from './notificationsContextReducer';
+import { updateMessages, pageChanged, removeStoredMessages } from './notificationsContextReducer';
 import { TOAST_CHANNEL, VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext';
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
 import { registerListener } from '../../utils/MessageBusUtils';
@@ -11,8 +11,10 @@ import { toast } from 'react-toastify';
 
 function beginListening(dispatch, history) {
   registerListener(TOAST_CHANNEL, 'toastListener', (data) => {
-    const { payload: { message }} = data;
+    console.error(data);
+    const { payload: message } = data;
     const { text, level } = message
+    console.error(message);
     const link = getFullLink(message);
     const toastOptions = { onClick: () => navigate(history, link)}
     switch(level) {
@@ -43,7 +45,7 @@ function beginListening(dispatch, history) {
         });
         break;
       case REMOVE_EVENT:
-        dispatch(remove(hkey, rkey));
+        dispatch(removeStoredMessages(hkey, rkey));
         break;
       default:
         // console.debug(`Ignoring push event ${event}`);
@@ -55,9 +57,8 @@ function beginListening(dispatch, history) {
     // console.debug(message);
     switch (event) {
       case VIEW_EVENT: {
-        const { marketId, investibleId, isEntry, action } = message;
-        // we've navigated, check the store for any messages that we can service
-        dispatch(pageChanged({ marketId, investibleId, action}));
+        // we've navigated, the page is the message, so notify the store that the page changed
+        dispatch(pageChanged(message));
         break;
       }
       default:

@@ -172,7 +172,10 @@ function DecisionDialogs(props) {
 
               <div className={classes.contentContainer}>
                 <Grid container>
-                  <Grid xs={10}>
+                  <Grid
+                    item
+                    xs={10}
+                  >
                     <CardContent>
                       {parentMarketId &&
                         <Link
@@ -217,7 +220,11 @@ function DecisionDialogs(props) {
                       )}
                     </CardContent>
                   </Grid>
-                  <Grid xs={2} style={{display: 'flex'}}>
+                  <Grid
+                    item
+                    xs={2}
+                    style={{display: 'flex'}}
+                  >
                     {getParticipantInfo(sortedPresences, marketId)}
                     <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
                       <DialogActions

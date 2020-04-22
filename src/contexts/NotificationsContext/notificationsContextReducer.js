@@ -13,9 +13,7 @@ const PAGE_CHANGED = 'PAGE_CHANGED';
 const REMOVE = 'REMOVE';
 
 // Empty state of the various subkeys of the state, useful for avoiding errors
-const emptyMarketMessagesState = {}
-const emptyMarketState = { market: [], investible: {}};
-const emptyUserMessageState = [];
+const emptyMessagesState = [];
 /** Messages you can send the reducer */
 
 export function updateMessages (messages) {
@@ -55,19 +53,11 @@ export function initializeState (newState) {
 
 
 /**
- * Data structure for messages is
+ * Data structure for storing messages is
  * state : {
  *   page: pageInfo // used to know what to toast on incoming messages
- *   userMessages: [],
- *   marketMessages: {
- *   [marketId]: {
- *     market: []
- *     investible: {
- *       [investibleId]: []
- *     }
+ *   messages: [] // array containing all messages
  *   }
- *   }
- * }
  */
 
 /**
@@ -77,15 +67,28 @@ export function initializeState (newState) {
  * @param action
  * @returns {*[]|*}
  */
-function getStoredMessagesForActionPage(userMessages, action) {
+function getStoredMessagesForActionPage(messages, action) {
   switch(action){
     case 'notificationPreferences':
-      return userMessages.filter((message) => message.pokeType === 'slack_reminder');
+      return messages.filter((message) => message.pokeType === 'slack_reminder');
     case 'upgrade':
-      return userMessages.filter((message) => message.pokeType === 'upgrade_reminder');
+      return messages.filter((message) => message.pokeType === 'upgrade_reminder');
     default:
       return [];
   }
+}
+
+/**
+ * Gets all messages for that pertain to a particular market page
+ * @param state
+ * @param page
+ * @returns {*|*[]}
+ */
+function getStoredMessagesForMarketPage(messages, page) {
+  const { marketId, investibleId } = page;
+  // it is assumed a page for a market will have an undefined investible id
+  // and that a store message for the market will also
+  return messages.filter((message) => message.marketId === marketId && message.investibleId === investibleId);
 }
 
 /**
@@ -96,33 +99,11 @@ function getStoredMessagesForActionPage(userMessages, action) {
  */
 function getStoredMessagesForPage(state, page) {
   const { action } = page;
+  const messages = state.messages || emptyMessagesState;
   if (action === 'dialog') {
-    return getStoredMessagesForMarketPage(state, page);
+    return getStoredMessagesForMarketPage(messages, page);
   }
-  const userMessages = state.userMessages || emptyUserMessageState;
-  return getStoredMessagesForActionPage(userMessages, action);
-}
-
-
-/**
- * Gets all messages for pages that pertain to markets
- * @param state
- * @param page
- * @returns {*|*[]}
- */
-function getStoredMessagesForMarketPage(state, page) {
-  const { marketId, investibleId } = page;
-  const marketMessages = state.marketMessages || emptyMarketMessagesState;
-  const myMessages = marketMessages[marketId];
-  if (_.isEmpty(myMessages)) {
-    return [];
-  }
-  const { market, investible } = myMessages;
-  if (_.isEmpty(investibleId)) {
-    return market || [];
-  }
-  const thisInvestibleMessages = investible[investibleId] || [];
-  return thisInvestibleMessages;
+  return getStoredMessagesForActionPage(messages, action);
 }
 
 /**
@@ -132,15 +113,26 @@ function getStoredMessagesForMarketPage(state, page) {
  * @param action
  * @returns {*}
  */
-function removeUserMessagesForAction(userMessages, action) {
+function removeStoredMessagesForAction(messages, action) {
   switch (action){
     case 'notificationPreferences':
-      return userMessages.filter((message) => message.pokeType !== 'slack_reminder');
+      return messages.filter((message) => message.pokeType !== 'slack_reminder');
     case 'upgrade':
-      return userMessages.filter((message) => message.pokeType != 'upgrade_reminder');
+      return messages.filter((message) => message.pokeType !== 'upgrade_reminder');
     default:
-      return userMessages;
+      return messages;
   }
+}
+
+/** Removes messages from the state that are for a
+ * page pertaining to a market, or a subpage of a market
+ * @param state
+ * @param page
+ * @returns {{marketMessages: *}|*}
+ */
+function removeStoredMessagesForMarketPage (messages, page) {
+  const { marketId, investibleId } = page;
+  return messages.filter((message) => message.marketId !== marketId || message.investibleId !== investibleId);
 }
 
 /**
@@ -152,62 +144,21 @@ function removeUserMessagesForAction(userMessages, action) {
  */
 function removeStoredMessagesForPage(state, page) {
   const { action } = page;
+  const messages = state.messages || emptyMessagesState;
   // all market pages are under /dialog
   if (action === 'dialog') {
-    return removeStoredMessagesForMarketPage(state, page);
+    return removeStoredMessagesForMarketPage(messages, page);
   }
-  const userMessages = state.userMessages || emptyUserMessageState;
-  const newUserMessages = removeUserMessagesForAction(userMessages, action)
-  return {
-    ...state,
-    userMessages: newUserMessages
-  }
+  return removeStoredMessagesForAction(messages, page);
 }
 
-/** Removes messages from the state that are for a
- * page pertaining to a market, or a subpage of a market
- * @param state
- * @param page
- * @returns {{marketMessages: *}|*}
- */
-function removeStoredMessagesForMarketPage (state, page) {
-  const marketMessages = state.marketMessages || emptyM;
-  const { marketId, investibleId } = page;
-  const myMessages = marketMessages[marketId];
-  if (_.isEmpty(myMessages)) {
-    return state;
-  }
-  const { market, investible } = marketMessages;
-  if (_.isEmpty(investibleId)) {
-    return {
-      ...state,
-      marketMessages: {
-        ...marketMessages,
-        [marketId]: {
-          ...myMessages,
-          market: []
-        }
-      }
-    };
-  }
-  return {
-    ...state,
-    marketMessages: {
-      ...market,
-      [marketId]: {
-        ...myMessages,
-        investible: []
-      }
-    }
-  };
-}
-
-/**
- * Generates the toasts for the messages on this page
+/* Generates the toasts for the messages on this page
  * @param messagesForPage
  */
 function processToasts(messagesForPage) {
   const { redMessages, yellowMessages } = splitIntoLevels(messagesForPage);
+  console.error(redMessages);
+  console.error(yellowMessages);
   // all red messages get displayed immediately
   redMessages.forEach((message) => pushMessage(TOAST_CHANNEL, message));
   // for not bombarding the users sake, if we have more than one yellow message, we're
@@ -216,6 +167,10 @@ function processToasts(messagesForPage) {
     const firstYellow = yellowMessages[0]
     if (yellowMessages.length > 1){
       const text = intl.formatMessage({id: 'notificationMulitpleUpdates'}, { n: yellowMessages.length})
+      pushMessage(TOAST_CHANNEL, {
+        ...firstYellow,
+        text,
+      });
     }else {
       pushMessage(TOAST_CHANNEL, firstYellow);
     }
@@ -224,40 +179,31 @@ function processToasts(messagesForPage) {
 
 /** Functions that mutate the state */
 
-
+/**
+ * When we get a page event, we want to
+ * process all messages for that page and remove
+ * them from the store
+ * @param state
+ * @param action
+ * @returns {{marketMessages?: *, page: *}}
+ */
 function processPageChange (state, action) {
   const { page } = action;
+  console.error(page);
+  console.error(state);
   const messagesForPage = getStoredMessagesForPage(state, page);
   // first compute what the new messages will look like
+  console.error(messagesForPage);
   const newMessageState = removeStoredMessagesForPage(state, page);
+  console.error(newMessageState);
   // then update the page to the current page
   const newState = {
-    ...newMessageState,
+    ...state,
+    messages: newMessageState,
     page
   };
   processToasts(messagesForPage);
   return newState;
-}
-
-/**
- * Takes a message and page, and
- * returns whether the message is for the given page
- * @param message
- * @param page
- * @returns {boolean}
- */
-function pageMessageFilter(message, page) {
-    const { marketId: mmId, investibleId: miId } = message;
-    const { marketId: pmId, investibleId: piId } = page;
-    // messages for a different market aren't mine
-    if (mmId !== pmId) {
-      return false;
-    }
-    // if we're for the same market, and the same investible value
-    // we're fine: - note it's expected that a page with no investible
-    // and a message with no Investible both have the investibleId set
-    // to undefined
-    return miId === piId;
 }
 
 /**
@@ -269,120 +215,48 @@ function pageMessageFilter(message, page) {
  * @returns {*}
  */
 function storeMessagesInState(state, messagesToStore) {
-  const newState = messagesToStore.reduce((acc, message) => {
-    const { marketId, investibleId, pokeType } = message;
-    const { messages } = acc;
-    const messagesForMarket = messages[marketId] || emptyMarketState;
-    const { marketMessages } = messagesForMarket;
-    const { investibleMessages } = messagesForMarket;
-    // we'll handle poke stuff (userMessages) first
-    if (!_.isEmpty(pokeType)) {
-      const userMessages = acc.userMessages || emptyUserMessageState;
-      return {
-        ...acc,
-        userMessages: [...userMessages, message],
-      };
-    }
-    // market stuff is below here
-    // if we don't have an investible id, this is a new message for the market itself
-    if (_.isEmpty(investibleId)) {
-      const newMarketMessages = [...messagesForMarket, message];
-      return {
-        ...acc,
-        messages: {
-          [marketId]: {
-            ...messagesForMarket,
-            marketMessages: newMarketMessages
-          }
-        }
-      };
-    } else {
-      // this update is bound for an individual investible in the market
-      const newInvestibleMessages = {
-        ...investibleMessages,
-        [investibleId]: message,
-      };
-      return {
-        ...acc,
-        [marketId]: {
-          ...messagesForMarket,
-          investibleMessages: newInvestibleMessages,
-        }
-      };
-    }
-    return acc;
-  }, state);
-  return newState;
+  const oldMessages = state.messages || emptyMessagesState;
+  const newMessages = [...oldMessages, ...messagesToStore];
+  return {
+    ...state,
+    messages: newMessages,
+  };
 }
 
+/**
+ * Updates the message store with the new messages
+ * @param state
+ * @param action
+ * @returns {*}
+ */
 function doUpdateMessages (state, action) {
   const { messages } = action;
   const massagedMessages = getMassagedMessages(messages);
   // extract any messages for this page right now
   const { page } = state;
-  // messages for this page, we should just toast, ever other should be stored in the state
-  const pageMessages = massagedMessages.filter((message) => pageMessageFilter(message, page));
-  const messagesToStore = massagedMessages.filter((message) => !pageMessageFilter(message, page));
+  // we can reuse the code for finding and removing page messages in the store, if we make the new
+  // incoming messages look like they came from the store
+  const pageMessages = getStoredMessagesForPage({messages: massagedMessages}, page);
+  // the messages to store are the ones we can't immediately handle on the current page
+  const messagesToStore = removeStoredMessagesForPage({ messages: massagedMessages}, page);
   // toast the page messages
   processToasts(pageMessages);
   // and compute the new state
-}
-const messageRemovalFilter = (message) => !(message.type_object_id === rangeKey && message.market_id_user_id === hashKey);
-
-/**
- * Removes all messages from the state that are for users
- * and match the range and hash key filter
- * @param state
- * @param hashKey
- * @param rangeKey
- * @returns {{userMessage: T[]}}
- */
-function removeStoredUserMessages(state, hashKey, rangeKey) {
-  const userMessages = state.userMessages || emptyUserMessageState;
-  const newUserMessages = userMessages.filter(messageRemovalFilter);
-  return {
-    ...state,
-    userMessage: newUserMessages,
-  };
+  return storeMessagesInState(state, messagesToStore);
 }
 
-/**
- * Removes all messages from the state that are for markets and
- * match against the hash and range key filter
- * @param state
- * @param hashKey
- * @param rangeKey
- * @returns {{marketMessages: {}}}
- */
-function removeStoredMarketMessages(state, hashKey, rangeKey) {
-  const marketMessages = state.marketMessages || emptyMarketMessagesState;
-  const newMessages = {...marketMessages};
-  Object.keys(marketMessages).forEach((marketId) => {
-    const { market, investible} = marketMessages[marketId];
-    const newMarket = market.filter(messageRemovalFilter)
-    const newInvestible = {...investible};
-    Object.keys(investible).forEach((investibleId) => {
-      const filtered = investible[investibleId].filter(messageRemovalFilter)
-      newInvestible[investibleId] = filtered;
-    });
-    newMessages[marketId] = {
-      market: newMarket,
-      investible: newInvestible,
-    };
-  });
-  return {
-    ...state,
-    marketMessages: newMessages,
-  }
-}
 
 function doRemove (state, action) {
   const { hashKey, rangeKey } = action;
   // the market_id_user_id of the message is the backends hash key
   // the type_object_id is the backends range key
-  const marketRemoved = removeStoredMarketMessages(state, hashKey, rangeKey);
-  const userRemoved = removeStoredMarketMessages(marketRemoved, hashKey, rangeKey);
-  return userRemoved;
+  const messages = state.messages || emptyMessagesState;
+  const messageRemovalFilter = (message) => !(message.type_object_id === rangeKey && message.market_id_user_id === hashKey);
+  const newMessages = messages.filter(messageRemovalFilter);
+  return {
+    ...state,
+    messages: newMessages,
+  };
 }
 
 function computeNewState (state, action) {

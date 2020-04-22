@@ -30,19 +30,6 @@ export function removeMarketDetails(marketIds) {
 
 /* Functions that mutate state */
 
-function storeMarket(state, action) {
-  const { market } = action;
-  // console.debug(market);
-
-  const { marketDetails: oldDetails } = state;
-  const newDetails = _.unionBy([market], oldDetails, 'id');
-
-  return {
-    ...state,
-    marketDetails: newDetails,
-  };
-}
-
 function doUpdateMarketDetails(state, action) {
   const { marketDetails } = action;
   const { marketDetails: oldMarketDetails } = state;

@@ -745,6 +745,9 @@ const messages = defineMessages({
   existingUsersUnBanUser: 'Readmit collaborator',
   banUserWarning: 'Removing a collaborator will prevent them from seeing any future updates',
   unbanUserWarning: 'Readmitting a collaborator will allow them to see any future updates',
+
+  // Notifications
+  notificationMulitpleUpdates: '{n} Updates',
 });
 
 export default messages;

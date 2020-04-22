@@ -1,5 +1,5 @@
 import { getMessages } from '../../api/sso';
-import { updateMessages, remove } from './notificationsContextReducer';
+import { updateMessages, remove, pageChanged } from './notificationsContextReducer';
 import { TOAST_CHANNEL, VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext';
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
 import { registerListener } from '../../utils/MessageBusUtils';
@@ -57,7 +57,7 @@ function beginListening(dispatch, history) {
       case VIEW_EVENT: {
         const { marketId, investibleId, isEntry, action } = message;
         // we've navigated, check the store for any messages that we can service
-        dispatch(pageC)
+        dispatch(pageChanged({ marketId, investibleId, action}));
         break;
       }
       default:

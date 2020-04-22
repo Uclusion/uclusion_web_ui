@@ -1,11 +1,33 @@
 import { getMessages } from '../../api/sso';
-import { updateMessages, updatePage, remove } from './notificationsContextReducer';
-import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext';
+import { updateMessages, pageChanged, removeStoredMessages } from './notificationsContextReducer';
+import { TOAST_CHANNEL, VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext';
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
 import { registerListener } from '../../utils/MessageBusUtils';
 import { REMOVE_EVENT } from '../WebSocketContext';
+import { getFullLink } from '../../components/Notifications/Notifications';
+import { navigate } from '../../utils/marketIdPathFunctions';
+import { RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
+import { toast } from 'react-toastify';
 
-function beginListening(dispatch) {
+function beginListening(dispatch, history) {
+  registerListener(TOAST_CHANNEL, 'toastListener', (data) => {
+    console.error(data);
+    const { payload: message } = data;
+    const { text, level } = message
+    console.error(message);
+    const link = getFullLink(message);
+    const toastOptions = { onClick: () => navigate(history, link)}
+    switch(level) {
+      case RED_LEVEL:
+        return toast.error(text, toastOptions);
+      case YELLOW_LEVEL:
+        return toast.warn(text, toastOptions);
+      default:
+        /// should never happen, but just in case we don't want to lose a message
+        return toast.info(text, toastOptions);
+    }
+  })
+
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
     const { payload: { event, hkey, rkey } } = data;
     // // console.debug(`Notifications context responding to push event ${event}`);
@@ -23,7 +45,7 @@ function beginListening(dispatch) {
         });
         break;
       case REMOVE_EVENT:
-        dispatch(remove(hkey, rkey));
+        dispatch(removeStoredMessages(hkey, rkey));
         break;
       default:
         // console.debug(`Ignoring push event ${event}`);
@@ -35,16 +57,8 @@ function beginListening(dispatch) {
     // console.debug(message);
     switch (event) {
       case VIEW_EVENT: {
-        const { marketId, investibleId, isEntry, action } = message;
-        if (isEntry) {
-          if (!investibleId) {
-            dispatch(updatePage({ marketId, action }));
-          } else {
-            dispatch(updatePage({ marketId, investibleId, action }));
-          }
-        } else {
-          dispatch(updatePage(undefined));
-        }
+        // we've navigated, the page is the message, so notify the store that the page changed
+        dispatch(pageChanged(message));
         break;
       }
       default:

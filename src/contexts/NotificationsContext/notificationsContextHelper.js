@@ -1,7 +1,8 @@
+import _ from 'lodash';
 
 export function nextMessage(state) {
   const { messages } = state;
-  if (messages.length === 0) {
+  if (_.isEmpty(messages)) {
     return undefined;
   }
   return messages[0];

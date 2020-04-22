@@ -81,17 +81,19 @@ function Screen(props) {
     isHome
   } = props;
   let prePendWarning = '';
-  if (messagesState) {
+  if (!_.isEmpty(messagesState)) {
     const { messages } = messagesState;
     let hasYellow = false;
-    messages.forEach((message) => {
-      const { level } = message;
-      if (level === 'RED') {
-        prePendWarning += '!';
-      } else {
-        hasYellow = true;
-      }
-    });
+    if (!_.isEmpty(messages)) {
+      messages.forEach((message) => {
+        const { level } = message;
+        if (level === 'RED') {
+          prePendWarning += '!';
+        } else {
+          hasYellow = true;
+        }
+      });
+    }
     if (prePendWarning.length === 0 && hasYellow) {
       prePendWarning = '*';
     }

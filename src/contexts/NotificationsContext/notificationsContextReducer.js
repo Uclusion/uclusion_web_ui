@@ -1,274 +1,275 @@
-import LocalForageHelper from '../../utils/LocalForageHelper'
-import { toast } from 'react-toastify'
-import _ from 'lodash'
-import { deleteMessage } from '../../api/users'
+import LocalForageHelper from '../../utils/LocalForageHelper';
+import _ from 'lodash';
+import { getMassagedMessages, splitIntoLevels } from '../../utils/messageUtils';
+import { intl } from '../../components/ContextHacks/IntlGlobalProvider';
+import { pushMessage } from '../../utils/MessageBusUtils';
+import { TOAST_CHANNEL } from './NotificationsContext';
+
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
-const UPDATE_PAGE = 'UPDATE_PAGE';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
-const PROCESSED_PAGE = 'PROCESSED_PAGE';
+const PAGE_CHANGED = 'PAGE_CHANGED';
 const REMOVE = 'REMOVE';
 
+// Empty state of the various subkeys of the state, useful for avoiding errors
+const emptyMessagesState = [];
 /** Messages you can send the reducer */
 
-export function updateMessages(messages) {
+export function updateMessages (messages) {
   return {
     type: UPDATE_MESSAGES,
     messages,
   };
 }
 
-export function remove(hkey, rkey) {
+/**
+ * Removes messages according to the backend's hash and range keys
+ * @param hashKey
+ * @param rangeKey
+ * @returns {{rangeKey: *, hashKey: *, type: string}}
+ */
+export function removeStoredMessages(hashKey, rangeKey) {
   return {
     type: REMOVE,
-    hkey,
-    rkey,
+    hashKey,
+    rangeKey,
   };
 }
 
-export function processedPage(page, messages, toastInfo) {
+export function pageChanged (page) {
   return {
-    type: PROCESSED_PAGE,
-    page,
-    messages,
-    toastInfo,
-  };
-}
-
-export function updatePage(page) {
-  return {
-    type: UPDATE_PAGE,
+    type: PAGE_CHANGED,
     page,
   };
 }
 
-export function initializeState(newState) {
+export function initializeState (newState) {
   return {
     type: INITIALIZE_STATE,
     newState,
   };
 }
 
-/** Helper functions * */
-function getMassagedMessages(messages) {
-  const rawMessages = messages.map((message) => {
-    const {
-      type_object_id: typeObjectId,
-      market_id_user_id: marketIdUserId,
-      level,
-      associated_object_id: associatedObjectId,
-    } = message;
-    const objectId = typeObjectId.substring(typeObjectId.lastIndexOf('_') + 1);
-    const aType = typeObjectId.substring(0, typeObjectId.lastIndexOf('_'));
-    const marketId = marketIdUserId.substring(0, marketIdUserId.lastIndexOf('_'));
-    const userId = marketIdUserId.substring(marketIdUserId.lastIndexOf('_') + 1);
-    if (aType === 'USER_POKED') {
-      return {
-        ...message, pokeType: marketId, aType, level, userId,
-      };
-    }
-    if (marketId === objectId || userId === objectId) {
-      return {
-        ...message, marketId, aType, level, userId,
-      };
-    }
-    if (associatedObjectId) {
-      if (aType === 'NEW_VOTES') {
-        return {
-          ...message,
-          marketId,
-          aType,
-          level,
-          investibleId: objectId,
-          associatedUserId: associatedObjectId,
-          userId,
-        };
-      }
-      return {
-        ...message,
-        marketId,
-        aType,
-        level,
-        investibleId: associatedObjectId,
-        commentId: objectId,
-        userId,
-      };
-    }
-    if (aType.startsWith('ISSUE')) {
-      // Comment thread on context
-      return {
-        ...message,
-        marketId,
-        aType,
-        level,
-        commentId: objectId,
-        userId,
-      };
-    }
-    return {
-      ...message, marketId, aType, level, investibleId: objectId, userId,
-    };
-  });
-  //market level must come before investibles in the market
-  rawMessages.sort(function(a, b) {
-    const {
-      marketId: aMarketId,
-      investibleId: aInvestibleId,
-      level: aLevel,
-    } = a;
-    const {
-      marketId: bMarketId,
-      investibleId: bInvestibleId,
-      level: bLevel,
-    } = b;
-    if (aLevel === bLevel) {
-      if (aMarketId === bMarketId) {
-        if (aInvestibleId === bInvestibleId) {
-          return 0;
-        }
-        if (!aInvestibleId) {
-          return -1;
-        }
-        if (!bInvestibleId) {
-          return 1;
-        }
-        return 0;
-      }
-      if (!aMarketId) {
-        return -1;
-      }
-      return aMarketId.localeCompare(bMarketId);
-    }
-    if (aLevel === 'RED') {
-      return -1;
-    }
-    return 1;
-  });
-  return rawMessages;
+
+/**
+ * Data structure for storing messages is
+ * state : {
+ *   page: pageInfo // used to know what to toast on incoming messages
+ *   messages: [] // array containing all messages
+ *   }
+ */
+
+/**
+ * Returns stored messages for a page which
+ * is just a user action (not pertianing to a market)
+ * @param userMessages
+ * @param action
+ * @returns {*[]|*}
+ */
+function getStoredMessagesForActionPage(messages, action) {
+  switch(action){
+    case 'notificationPreferences':
+      return messages.filter((message) => message.pokeType === 'slack_reminder');
+    case 'upgrade':
+      return messages.filter((message) => message.pokeType === 'upgrade_reminder');
+    default:
+      return [];
+  }
 }
 
-export function pageIsEqual(page1, page2) {
-  if (!page1 && !page2) {
-    return true;
-  }
-  if (!page1 || !page2) {
-    return false;
-  }
-  return page1.marketId === page2.marketId && page1.investibleId === page2.investibleId
-    && page1.action === page2.action;
+/**
+ * Gets all messages for that pertain to a particular market page
+ * @param state
+ * @param page
+ * @returns {*|*[]}
+ */
+function getStoredMessagesForMarketPage(messages, page) {
+  const { marketId, investibleId } = page;
+  // it is assumed a page for a market will have an undefined investible id
+  // and that a store message for the market will also
+  return messages.filter((message) => message.marketId === marketId && message.investibleId === investibleId);
 }
 
-export function isMessageEqual(aMessage, message) {
-  if (!message && !aMessage) {
-    return true;
+/**
+ * Returns the stored message for the given page
+ * @param state
+ * @param page
+ * @returns {*|*[]|[]}
+ */
+function getStoredMessagesForPage(state, page) {
+  const { action } = page;
+  const messages = state.messages || emptyMessagesState;
+  if (action === 'dialog') {
+    return getStoredMessagesForMarketPage(messages, page);
   }
-  return message && aMessage && aMessage.type_object_id === message.type_object_id
-    && aMessage.market_id_user_id === message.market_id_user_id;
+  return getStoredMessagesForActionPage(messages, action);
+}
+
+/**
+ * Removes user messages from list that pertain to a particular
+ * action
+ * @param userMessages
+ * @param action
+ * @returns {*}
+ */
+function removeStoredMessagesForAction(messages, action) {
+  switch (action){
+    case 'notificationPreferences':
+      return messages.filter((message) => message.pokeType !== 'slack_reminder');
+    case 'upgrade':
+      return messages.filter((message) => message.pokeType !== 'upgrade_reminder');
+    default:
+      return messages;
+  }
+}
+
+/** Removes messages from the state that are for a
+ * page pertaining to a market, or a subpage of a market
+ * @param state
+ * @param page
+ * @returns {{marketMessages: *}|*}
+ */
+function removeStoredMessagesForMarketPage (messages, page) {
+  const { marketId, investibleId } = page;
+  return messages.filter((message) => message.marketId !== marketId || message.investibleId !== investibleId);
+}
+
+/**
+ * Removes messages from the state for any page in the system
+ * even those that don't pertain to markets (e.g. Direct Messages,
+ * or upgrade notifications etc)
+ * @param state
+ * @param page
+ */
+function removeStoredMessagesForPage(state, page) {
+  const { action } = page;
+  const messages = state.messages || emptyMessagesState;
+  // all market pages are under /dialog
+  if (action === 'dialog') {
+    return removeStoredMessagesForMarketPage(messages, page);
+  }
+  return removeStoredMessagesForAction(messages, page);
+}
+
+/* Generates the toasts for the messages on this page
+ * @param messagesForPage
+ */
+function processToasts(messagesForPage) {
+  const { redMessages, yellowMessages } = splitIntoLevels(messagesForPage);
+  console.error(redMessages);
+  console.error(yellowMessages);
+  // all red messages get displayed immediately
+  redMessages.forEach((message) => pushMessage(TOAST_CHANNEL, message));
+  // for not bombarding the users sake, if we have more than one yellow message, we're
+  // just going to display a summary message saying you have a bunch of updates
+  if (!_.isEmpty(yellowMessages)) {
+    const firstYellow = yellowMessages[0]
+    if (yellowMessages.length > 1){
+      const text = intl.formatMessage({id: 'notificationMulitpleUpdates'}, { n: yellowMessages.length})
+      pushMessage(TOAST_CHANNEL, {
+        ...firstYellow,
+        text,
+      });
+    }else {
+      pushMessage(TOAST_CHANNEL, firstYellow);
+    }
+  }
 }
 
 /** Functions that mutate the state */
 
-function doUpdatePage(state, action) {
+/**
+ * When we get a page event, we want to
+ * process all messages for that page and remove
+ * them from the store
+ * @param state
+ * @param action
+ * @returns {{marketMessages?: *, page: *}}
+ */
+function processPageChange (state, action) {
   const { page } = action;
-  const { page: onPage } = state;
-  if (pageIsEqual(page, onPage)) {
-    // Do not mutate if already on that page
-    return state;
-  }
+  console.error(page);
+  console.error(state);
+  const messagesForPage = getStoredMessagesForPage(state, page);
+  // first compute what the new messages will look like
+  console.error(messagesForPage);
+  const newMessageState = removeStoredMessagesForPage(state, page);
+  console.error(newMessageState);
+  // then update the page to the current page
+  const newState = {
+    ...state,
+    messages: newMessageState,
+    page
+  };
+  processToasts(messagesForPage);
+  return newState;
+}
+
+/**
+ * Stores messages in the state. Note, we only store
+ * messages for markets or investibles. Everything else is
+ * immediately displayed
+ * @param state
+ * @param messagesToStore
+ * @returns {*}
+ */
+function storeMessagesInState(state, messagesToStore) {
+  const oldMessages = state.messages || emptyMessagesState;
+  const newMessages = [...oldMessages, ...messagesToStore];
   return {
     ...state,
-    page,
+    messages: newMessages,
   };
 }
 
-function markPageProcessed(state, action) {
-  const { page, messages: removedMessages, toastInfo } = action;
-  if (_.isEmpty(removedMessages)) {
-    return {
-      ...state,
-      page: {...page, beingProcessed: []},
-      lastPage: page,
-    };
-  }
-  const { messages, toastId: currentToastId } = state;
-  if (currentToastId && toast.isActive(currentToastId)) {
-    toast.dismiss(currentToastId);
-  }
-  const { level, myText, options } = toastInfo;
-  let toastId;
-  if (level) {
-    switch (level) {
-      case 'RED':
-        toastId = toast.error(myText, options);
-        break;
-      case 'YELLOW':
-        toastId = toast.warn(myText, options);
-        break;
-      default:
-        toastId = toast.info(myText, options);
-        break;
-    }
-  }
-  deleteMessage(messages[0]);
-  const filteredMessages = messages.filter((aMessage) => {
-    let keep = true;
-    removedMessages.forEach((removedMessage) => {
-      if (isMessageEqual(aMessage, removedMessage)) {
-        console.debug(`processing remove for ${JSON.stringify(aMessage)}`);
-        keep = false;
-      }
-    });
-    return keep;
-  });
-  return {
-    ...state,
-    messages: filteredMessages,
-    page: {...page, beingProcessed: []},
-    lastPage: page,
-    toastId
-  };
-}
-
-function doUpdateMessages(state, action) {
+/**
+ * Updates the message store with the new messages
+ * @param state
+ * @param action
+ * @returns {*}
+ */
+function doUpdateMessages (state, action) {
   const { messages } = action;
-  if (!Array.isArray(messages) || !messages.length) {
-    return {
-      ...state,
-      messages: [],
-    };
-  }
   const massagedMessages = getMassagedMessages(messages);
+  // extract any messages for this page right now
+  const { page } = state;
+  // we can reuse the code for finding and removing page messages in the store, if we make the new
+  // incoming messages look like they came from the store
+  const pageMessages = getStoredMessagesForPage({messages: massagedMessages}, page);
+  // the messages to store are the ones we can't immediately handle on the current page
+  const messagesToStore = removeStoredMessagesForPage({ messages: massagedMessages}, page);
+  // toast the page messages
+  processToasts(pageMessages);
+  // and compute the new state
+  return storeMessagesInState(state, messagesToStore);
+}
+
+
+function doRemove (state, action) {
+  const { hashKey, rangeKey } = action;
+  // the market_id_user_id of the message is the backends hash key
+  // the type_object_id is the backends range key
+  const messages = state.messages || emptyMessagesState;
+  const messageRemovalFilter = (message) => !(message.type_object_id === rangeKey && message.market_id_user_id === hashKey);
+  const newMessages = messages.filter(messageRemovalFilter);
   return {
     ...state,
-    messages: massagedMessages,
+    messages: newMessages,
   };
 }
 
-function doRemove(state, action) {
-  const { hkey, rkey } = action;
-  const { messages } = state;
-  const filteredMessages = messages.filter((message) => !(message.type_object_id === rkey
-    && message.market_id_user_id === hkey));
-  return {
-    ...state,
-    messages: filteredMessages,
-  };
-}
-
-function computeNewState(state, action) {
+function computeNewState (state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
       return doUpdateMessages(state, action);
-    case UPDATE_PAGE:
-      return doUpdatePage(state, action);
+    case PAGE_CHANGED:
+      return processPageChange(state, action);
     case INITIALIZE_STATE:
       return {
         ...action.newState,
         initializing: false,
       };
-    case PROCESSED_PAGE:
-      return markPageProcessed(state, action);
     case REMOVE:
       return doRemove(state, action);
     default:
@@ -276,7 +277,7 @@ function computeNewState(state, action) {
   }
 }
 
-function reducer(state, action) {
+function reducer (state, action) {
   const newState = computeNewState(state, action);
   //// console.log(`Processed ${JSON.stringify(action)} to produce ${JSON.stringify(newState)}`);
   const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);

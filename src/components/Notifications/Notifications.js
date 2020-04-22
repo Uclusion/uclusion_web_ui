@@ -75,7 +75,7 @@ export function getFullLink(current) {
 
 function Notifications(props) {
   const [messagesState] = useContext(NotificationsContext);
-  const current  = nextMessage(messagesState);
+  const current = nextMessage(messagesState);
   const history = useHistory();
   const classes = useStyles();
 

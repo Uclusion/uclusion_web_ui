@@ -1,6 +1,6 @@
 import { fixupItemsForStorage, } from '../ContextUtils'
 import _ from 'lodash'
-import { removeCommentsFromMarket, updateMarketComments } from './commentsContextReducer'
+import { overwriteMarketComments, removeCommentsFromMarket, updateMarketComments } from './commentsContextReducer'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import {
   INDEX_COMMENT_TYPE,
@@ -58,7 +58,7 @@ export function addCommentToMarket(comment, state, dispatch) {
   }
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: updates});
   const merged = _.unionBy(updates, comments, 'id');
-  refreshMarketComments(dispatch, marketId, merged);
+  dispatch(overwriteMarketComments(marketId, fixupItemsForStorage(merged)));
 }
 
 export function refreshMarketComments(dispatch, marketId, comments) {

@@ -244,7 +244,6 @@ function checkInProgressWarning(investibles, comments, inProgressStageId, userId
   if (!comments) {
     return true;
   }
-  console.debug(`Checking comments again ${id}`);
   const progressReportCommentIn24 = comments.find((comment) => {
     const { investible_id: investibleId, comment_type: commentType, created_at: createdAtComment } = comment;
     return id === investibleId && commentType === REPORT_TYPE && (Date.now() - Date.parse(createdAtComment) < 86400000);

@@ -30,7 +30,7 @@ function ChangeToObserverButton(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const presencesFollowing = presences.filter((presence) => presence.following && !presence.market_banned);
-  const isDeactivate = marketType === PLANNING_TYPE && presencesFollowing && presencesFollowing.length === 1;
+  const isDeactivate = marketType === PLANNING_TYPE && presencesFollowing && presencesFollowing.length < 3;
 
   const handleOpen = () => {
     setOpen(true);

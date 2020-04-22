@@ -52,6 +52,11 @@ const useStyles = makeStyles((theme) => ({
   elevated: {
     zIndex: 99,
   },
+  loadingDisplay: {
+    padding: '95px 20px 156px',
+    width: `calc(100% - ${DRAWER_WIDTH_OPENED}px)`,
+    marginLeft: DRAWER_WIDTH_OPENED/2,
+  },
 }));
 
 //const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
@@ -137,7 +142,7 @@ function Screen(props) {
         )}
         {reallyAmLoading && (
           <Card>
-            <CardContent>
+            <CardContent className={classes.loadingDisplay}>
               <Typography variant="h3" align="center">
                 {intl.formatMessage({ id: 'loadingMessage' })}
               </Typography>

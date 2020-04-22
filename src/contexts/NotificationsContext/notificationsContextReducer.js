@@ -1,9 +1,11 @@
-import LocalForageHelper from '../../utils/LocalForageHelper'
-import _ from 'lodash'
-import { getMassagedMessages, splitIntoLevels } from '../../utils/messageUtils'
-import { intl } from '../../components/ContextHacks/IntlGlobalProvider'
-import { pushMessage } from '../../utils/MessageBusUtils'
-import { TOAST_CHANNEL } from './NotificationsContext'
+import LocalForageHelper from '../../utils/LocalForageHelper';
+import _ from 'lodash';
+import { getMassagedMessages, splitIntoLevels } from '../../utils/messageUtils';
+import { intl } from '../../components/ContextHacks/IntlGlobalProvider';
+import { pushMessage } from '../../utils/MessageBusUtils';
+import { TOAST_CHANNEL } from './NotificationsContext';
+import { HIGHLIGHTED_COMMENT_CHANNEL } from '../HighlightingContexts/highligtedCommentContextMessages';
+import { HIGHLIGHTED_VOTING_CHANNEL } from '../HighlightingContexts/highligtedVotingContextMessages';
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -151,14 +153,32 @@ function removeStoredMessagesForPage(state, page) {
   return removeStoredMessagesForAction(messages, page);
 }
 
+/**
+ * Sends messages to the highlighting system
+ * to tell it to highlight sections of the page
+ * pertaining to the messages
+ * @param messagesForPage
+ */
+function processHighlighting(messagesForPage) {
+  messagesForPage.forEach((message) => {
+    const {
+      commentId,
+      associatedUserId,
+    } = message;
+    if (!_.isEmpty(commentId)) {
+      pushMessage(HIGHLIGHTED_COMMENT_CHANNEL, message);
+    }
+    if (!_.isEmpty(associatedUserId)) {
+      pushMessage(HIGHLIGHTED_VOTING_CHANNEL, message);
+    }
+  });
+}
+
 /* Generates the toasts for the messages on this page
  * @param messagesForPage
  */
 function processToasts(messagesForPage) {
   const { redMessages, yellowMessages } = splitIntoLevels(messagesForPage);
-  console.error(redMessages);
-  console.error(yellowMessages);
-  // all red messages get displayed immediately
   redMessages.forEach((message) => pushMessage(TOAST_CHANNEL, message));
   // for not bombarding the users sake, if we have more than one yellow message, we're
   // just going to display a summary message saying you have a bunch of updates
@@ -188,19 +208,16 @@ function processToasts(messagesForPage) {
  */
 function processPageChange (state, action) {
   const { page } = action;
-  console.error(page);
-  console.error(state);
   const messagesForPage = getStoredMessagesForPage(state, page);
   // first compute what the new messages will look like
-  console.error(messagesForPage);
   const newMessageState = removeStoredMessagesForPage(state, page);
-  console.error(newMessageState);
   // then update the page to the current page
   const newState = {
     ...state,
     messages: newMessageState,
     page
   };
+  processHighlighting(messagesForPage);
   processToasts(messagesForPage);
   return newState;
 }

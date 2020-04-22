@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react'
-import LocalForageHelper from '../utils/LocalForageHelper'
+import LocalForageHelper from '../../utils/LocalForageHelper'
 import _ from 'lodash'
-
+import beginListening from './highligtedCommentContextMessages';
 const HighlightedCommentContext = React.createContext({});
 const THREAD_CONTEXT_NAMESPACE = 'thread_context';
 const HIGHLIGHT_DELAY = 300000;
@@ -44,6 +44,7 @@ function HighlightedCommentProvider(props) {
   const [isInitialization, setIsInitialization] = useState(true);
   useEffect(() => {
     if (isInitialization) {
+      beginListening(dispatch);
       const lfg = new LocalForageHelper(THREAD_CONTEXT_NAMESPACE);
       lfg.getState()
         .then((state) => {

@@ -217,6 +217,7 @@ function processPageChange (state, action) {
     messages: newMessageState,
     page
   };
+  // now push out the toasts and highlights
   processHighlighting(messagesForPage);
   processToasts(messagesForPage);
   return newState;

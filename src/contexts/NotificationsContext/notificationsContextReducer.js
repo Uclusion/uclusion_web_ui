@@ -198,6 +198,25 @@ function processToasts(messagesForPage) {
 }
 
 /** Functions that mutate the state */
+/**
+ * The messages for the current page need to
+ * be toasted, highlighted, reported to the server, etc.
+ * @param pageMessages
+ */
+function handleMessagesForPage(pageMessages) {
+  if (!_.isEmpty(pageMessages)) {
+    // process highlighting
+    processHighlighting(pageMessages);
+    // toast the page messages
+    processToasts(pageMessages);
+    // and tell the backend we've processed them immediately
+    // the backend only needs the first message to figure out all of them
+    // have been viewed
+    const firstMessage = pageMessages[0];
+    deleteMessage(firstMessage)
+      .catch((error) => console.error(error)); // not much to do other than log it.
+  }
+}
 
 /**
  * When we get a page event, we want to
@@ -218,9 +237,8 @@ function processPageChange (state, action) {
     messages: newMessageState,
     page
   };
-  // now push out the toasts and highlights
-  processHighlighting(messagesForPage);
-  processToasts(messagesForPage);
+  // now do all the magic for the messages we want to display
+  handleMessagesForPage(messagesForPage);
   return newState;
 }
 
@@ -248,7 +266,9 @@ function storeMessagesInState(state, messagesToStore) {
 }
 
 /**
- * Updates the message store with the new messages
+ * Updates the message store with the new messages. Does
+ * similar things to a page change, we should probably
+ * combine these two at some point.
  * @param state
  * @param action
  * @returns {*}
@@ -263,16 +283,8 @@ function doUpdateMessages (state, action) {
   const pageMessages = getStoredMessagesForPage({messages: massagedMessages}, page);
   // the messages to store are the ones we can't immediately handle on the current page
   const messagesToStore = removeStoredMessagesForPage({ messages: massagedMessages}, page);
-  if (!_.isEmpty(pageMessages)) {
-    // toast the page messages
-    processToasts(pageMessages);
-    // and tell the backend we've processed them immediately
-    // the backend only needs the first message to figure out all of them
-    // have been viewed
-    const firstMessage = pageMessages[0];
-    deleteMessage(firstMessage)
-      .catch((error) => console.error(error)); // not much to do other than log it.
-  }
+  // now do all the magic for the messages we want to display
+  handleMessagesForPage(pageMessages);
   // last compute the new state
   return storeMessagesInState(state, messagesToStore);
 }

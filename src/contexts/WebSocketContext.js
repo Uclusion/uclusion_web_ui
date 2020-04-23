@@ -35,12 +35,12 @@ export const LAST_LOGIN_APP_VERSION = 'login_version';
 export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
   const { version } = config;
   let loginVersion = getLoginPersistentItem(LAST_LOGIN_APP_VERSION);
-  if (!loginVersion || ! Number.isInteger(loginVersion)) {
+  if (!loginVersion) {
     // if we don't have any login version stored then initialize for fresh install
     setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion);
     loginVersion = cacheClearVersion;
   }
-  if (loginVersion < cacheClearVersion) {
+  if (!Number.isInteger(loginVersion) || loginVersion < cacheClearVersion) {
     const reloader = () => {
       Auth.signOut().then(() => setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion))
         .catch((error) => {

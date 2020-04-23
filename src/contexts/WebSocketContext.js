@@ -16,6 +16,7 @@ import {
 } from './VersionsContext/versionsContextHelper'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/utils'
 import { Auth } from 'aws-amplify'
+import { getNotifications } from '../api/summaries'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -34,7 +35,7 @@ export const LAST_LOGIN_APP_VERSION = 'login_version';
 export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
   const { version } = config;
   let loginVersion = getLoginPersistentItem(LAST_LOGIN_APP_VERSION);
-  if (!loginVersion) {
+  if (!loginVersion || ! Number.isInteger(loginVersion)) {
     // if we don't have any login version stored then initialize for fresh install
     setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion);
     loginVersion = cacheClearVersion;
@@ -83,8 +84,7 @@ function WebSocketProvider(props) {
     newSocket.connect();
     // we also want to always be subscribed to new app versions
     newSocket.registerHandler('UI_UPDATE_REQUIRED', (message) => {
-      const { app_version: appVersion, cache_clear_version: cacheClearVersion } = message;
-      notifyNewApplicationVersion(appVersion, cacheClearVersion);
+      getNotifications();
     });
 
     newSocket.registerHandler('pong', () => {

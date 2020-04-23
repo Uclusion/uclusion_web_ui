@@ -6,6 +6,7 @@ import { pushMessage } from '../../utils/MessageBusUtils';
 import { TOAST_CHANNEL } from './NotificationsContext';
 import { HIGHLIGHTED_COMMENT_CHANNEL } from '../HighlightingContexts/highligtedCommentContextMessages';
 import { HIGHLIGHTED_VOTING_CHANNEL } from '../HighlightingContexts/highligtedVotingContextMessages';
+import { deleteMessage } from '../../api/users';
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -262,9 +263,17 @@ function doUpdateMessages (state, action) {
   const pageMessages = getStoredMessagesForPage({messages: massagedMessages}, page);
   // the messages to store are the ones we can't immediately handle on the current page
   const messagesToStore = removeStoredMessagesForPage({ messages: massagedMessages}, page);
-  // toast the page messages
-  processToasts(pageMessages);
-  // and compute the new state
+  if (!_.isEmpty(pageMessages)) {
+    // toast the page messages
+    processToasts(pageMessages);
+    // and tell the backend we've processed them immediately
+    // the backend only needs the first message to figure out all of them
+    // have been viewed
+    const firstMessage = pageMessages[0];
+    deleteMessage(firstMessage)
+      .catch((error) => console.error(error)); // not much to do other than log it.
+  }
+  // last compute the new state
   return storeMessagesInState(state, messagesToStore);
 }
 

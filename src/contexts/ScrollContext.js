@@ -73,11 +73,13 @@ function ScrollProvider(props) {
         window.scrollTo(0, 0);
       } else {
         setHashFragment(myHashFragment);
+        // Remove the hash from the URL so we don't end up scrolling again
+        history.push(pathname);
       } 
     }
     return () => {
     };
-  }, [pathname, hash, processedPath]);
+  }, [pathname, hash, processedPath, history]);
 
   return (
     <ScrollContext.Provider value={hashFragment}>

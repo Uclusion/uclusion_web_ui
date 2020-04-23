@@ -243,9 +243,9 @@ function processPageChange (state, action) {
 }
 
 /**
- * Stores messages in the state. Note, we only store
- * messages for markets or investibles. Everything else is
- * immediately displayed
+ * Stores messages in the state. Note,
+ * we do not store messages for the page you are
+ * on, but immediately display them
  * @param state
  * @param messagesToStore
  * @returns {*}

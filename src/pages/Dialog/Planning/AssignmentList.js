@@ -5,22 +5,8 @@ import { Checkbox, List, ListItem, ListItemIcon, ListItemText, ListSubheader, ma
 import { useIntl } from 'react-intl'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import {
-  getAcceptedStage,
-  getBlockedStage,
-  getInCurrentVotingStage,
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-
-const BLOCKED_STATE = 'BLOCKED';
-const ACCEPTED_STATE = 'ACCEPTED';
-const ASSIGNED_STATE = 'ASSIGNED';
-const UNKNOWN_STATE = 'UNKNOWN';
-
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -42,61 +28,8 @@ function AssignmentList(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const fullMarketPresences = getMarketPresences(marketPresencesState, marketId) || {};
   const marketPresences = fullMarketPresences.filter((presence) => !presence.market_banned);
-  const [investiblesState] = useContext(InvestiblesContext);
-  const marketInvestibles = getMarketInvestibles(investiblesState, marketId);
-
-  const [marketStagesState] = useContext(MarketStagesContext);
-
-  const acceptedStage = getAcceptedStage(marketStagesState, marketId);
-  const assignedStage = getInCurrentVotingStage(marketStagesState, marketId);
-  const blockedStage = getBlockedStage(marketStagesState, marketId);
   const [marketsState] = useContext(MarketsContext);
   const userId = getMyUserForMarket(marketsState, marketId) || {};
-
-  function getInvestibleState(investibleId, stageId) {
-    if (stageId === blockedStage.id) {
-      return BLOCKED_STATE;
-    }
-    if (stageId === acceptedStage.id) {
-      return ACCEPTED_STATE;
-    }
-    if (stageId === assignedStage.id) {
-      return ASSIGNED_STATE;
-    }
-    return UNKNOWN_STATE;
-  }
-
-  /**
-   * For each participant presences computes an array of assignments to the person.
-   * Assignments array will contain entries of the form
-   * { investibleId, state: [BLOCKED | ACCEPTED | ASSIGNED]}
-   * Returns an object keyed by the market presence id, containing the above computed array.
-   */
-  function computeAssignments() {
-    return marketPresences.reduce((acc, presence) => {
-      const { id: presenceId } = presence;
-      const assignments = marketInvestibles.filter((inv) => {
-        const info = inv.market_infos.find((info) => info.market_id === marketId);
-        const { assigned } = info;
-        return assigned && assigned.includes(presenceId);
-      });
-      const filledAssignments = assignments.map((inv) => {
-        const { investible, market_infos: marketInfos } = inv;
-        const info = marketInfos.find((info) => info.market_id === marketId);
-        const { stage } = info;
-        const { id: investibleId } = investible;
-        const state = getInvestibleState(investibleId, stage);
-        return {
-          investibleId,
-          state,
-        };
-      });
-      return {
-        ...acc,
-        [presenceId]: filledAssignments,
-      };
-    }, {});
-  }
 
   function getDefaultChecked() {
     if (!_.isEmpty(previouslyAssigned)) {
@@ -105,13 +38,7 @@ function AssignmentList(props) {
         [id]: true,
       }), {});
     }
-    const assignments = computeAssignments();
-    const userAssignments = assignments[userId] || [];
-    const assigned = userAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
-    if (!assigned) {
-      return { [userId]: true };
-    }
-    return {};
+    return { [userId]: true };
   }
 
   const [checked, setChecked] = useState(getDefaultChecked());
@@ -127,19 +54,10 @@ function AssignmentList(props) {
 
   function getSortedPresenceWithAssignable() {
     const sortedParticipants = _.sortBy(marketPresences, 'name');
-    const assignments = computeAssignments();
-    // // console.log(assignments);
     return sortedParticipants.map((presence) => {
-      const { id: presenceId } = presence;
-      // // console.log(presenceId);
-      // // console.log(name);
-      const presenceAssignments = assignments[presenceId];
-      // // console.log(presenceAssignments);
-      const assigned = presenceAssignments
-        && presenceAssignments.find((assignment) => assignment.state === ASSIGNED_STATE);
       return {
         ...presence,
-        assignable: !assigned && presence.following,
+        assignable: presence.following,
       };
     });
   }

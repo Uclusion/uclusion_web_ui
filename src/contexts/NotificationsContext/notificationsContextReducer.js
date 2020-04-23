@@ -1,12 +1,12 @@
-import LocalForageHelper from '../../utils/LocalForageHelper';
-import _ from 'lodash';
-import { getMassagedMessages, splitIntoLevels } from '../../utils/messageUtils';
-import { intl } from '../../components/ContextHacks/IntlGlobalProvider';
-import { pushMessage } from '../../utils/MessageBusUtils';
-import { TOAST_CHANNEL } from './NotificationsContext';
-import { HIGHLIGHTED_COMMENT_CHANNEL } from '../HighlightingContexts/highligtedCommentContextMessages';
-import { HIGHLIGHTED_VOTING_CHANNEL } from '../HighlightingContexts/highligtedVotingContextMessages';
-import { deleteMessage } from '../../api/users';
+import LocalForageHelper from '../../utils/LocalForageHelper'
+import _ from 'lodash'
+import { getMassagedMessages, splitIntoLevels } from '../../utils/messageUtils'
+import { intl } from '../../components/ContextHacks/IntlGlobalProvider'
+import { pushMessage } from '../../utils/MessageBusUtils'
+import { TOAST_CHANNEL } from './NotificationsContext'
+import { HIGHLIGHTED_COMMENT_CHANNEL } from '../HighlightingContexts/highligtedCommentContextMessages'
+import { HIGHLIGHTED_VOTING_CHANNEL } from '../HighlightingContexts/highligtedVotingContextMessages'
+import { deleteMessage } from '../../api/users'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -251,17 +251,15 @@ function processPageChange (state, action) {
  * @returns {*}
  */
 function storeMessagesInState(state, messagesToStore) {
-  const oldMessages = state.messages || emptyMessagesState;
-  const newMessages = [...oldMessages, ...messagesToStore];
   const { initializing } = state;
   if (initializing) {
     return {
-      messages: newMessages,
+      messages: messagesToStore,
     };
   }
   return {
     ...state,
-    messages: newMessages,
+    messages: messagesToStore,
   };
 }
 

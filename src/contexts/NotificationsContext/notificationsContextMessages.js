@@ -11,7 +11,8 @@ import { toast } from 'react-toastify';
 
 function beginListening(dispatch, history) {
   registerListener(NAVIGATION_CHANNEL, 'systemMessagesListener', (data) => {
-    const { payload: link } = data;
+    const { payload: { link } } = data;
+    console.debug(data);
     console.debug("Redirecting to " + link);
     navigate(history, link);
   });

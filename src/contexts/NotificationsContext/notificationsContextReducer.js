@@ -178,7 +178,7 @@ function processSystemMessages(messagesForPage) {
     // the new user system message sends them to dialogAdd for a new planning market
     if (pokeType === 'new_user') {
       const link = '/dialogAdd#type=PLANNING'
-   //   pushMessage(NAVIGATION_CHANNEL, link);
+      pushMessage(NAVIGATION_CHANNEL, { link });
     }
   });
 }

@@ -208,7 +208,9 @@ function processHighlighting(messagesForPage) {
  * @param messagesForPage
  */
 function processToasts(messagesForPage) {
-  const { redMessages, yellowMessages } = splitIntoLevels(messagesForPage);
+  // remove system messages because they don't pop (there's only new user now)
+  const messages = messagesForPage.filter((message) => message.pokeType !== 'new_user');
+  const { redMessages, yellowMessages } = splitIntoLevels(messages);
   redMessages.forEach((message) => pushMessage(TOAST_CHANNEL, message));
   // for not bombarding the users sake, if we have more than one yellow message, we're
   // just going to display a summary message saying you have a bunch of updates

@@ -15,6 +15,7 @@ import { resendVerification, signUp } from '../../api/sso'
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton'
 import config from '../../config'
 import SpinningButton from '../../components/SpinBlocking/SpinningButton'
+import PhoneField from '../../components/TextFields/PhoneField';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -232,6 +233,7 @@ function Signup(props) {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
+                value={userState.name}
                 autoComplete="name"
                 name="name"
                 variant="outlined"
@@ -245,6 +247,7 @@ function Signup(props) {
             </Grid>
             <Grid item xs={12}>
               <TextField
+                value={userState.email}
                 variant="outlined"
                 required
                 fullWidth
@@ -257,18 +260,20 @@ function Signup(props) {
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
+              <PhoneField
                 variant="outlined"
-                fullWidth
-                id="phone"
-                name="phone"
-                type="number"
+                value={userState.phone}
                 label={intl.formatMessage({ id: 'signupPhoneLabel' })}
                 onChange={handleChange('phone')}
+                name="phone"
+                type="tel"
+                id="phone"
+                fullWidth
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
+                value={userState.password}
                 variant="outlined"
                 required
                 fullWidth
@@ -286,6 +291,7 @@ function Signup(props) {
             </Grid>
             <Grid item xs={12}>
               <TextField
+                value={userState.repeat}
                 id="repeat"
                 name="repeat"
                 type="password"

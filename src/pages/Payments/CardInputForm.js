@@ -11,6 +11,7 @@ import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 import { makeStyles } from '@material-ui/core/styles';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { getPaymentInfo, updatePaymentInfo } from '../../api/users';
+import PhoneField from '../../components/TextFields/PhoneField';
 import {
   updateBilling,
   updateAccount,
@@ -209,7 +210,7 @@ function CardInputForm (props) {
             />
           </Grid>
           <Grid item xs={12}>
-            <TextField
+            <PhoneField
               variant="outlined"
               required
               fullWidth
@@ -217,7 +218,6 @@ function CardInputForm (props) {
               name="phone"
               type="tel"
               value={billingDetails.phone}
-              autoComplete="tel"
               label={intl.formatMessage({ id: 'upgradeFormCardPhone' })}
               onChange={onBillingDetailsChange('phone')}
             />

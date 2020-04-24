@@ -1,17 +1,17 @@
-import React, { useContext } from 'react';
-import { NotificationImportant, Notifications as NotificationsIcon } from '@material-ui/icons';
+import React, { useContext } from 'react'
+import { NotificationImportant, Notifications as NotificationsIcon } from '@material-ui/icons'
 import { Fab, makeStyles, Tooltip } from '@material-ui/core'
-import { useHistory } from 'react-router';
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router'
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
+import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import {
   ISSUE_RESOLVED_TYPE,
   ISSUE_TYPE,
   NEW_VOTES_TYPE,
   NO_PIPELINE_TYPE,
   USER_POKED_TYPE
-} from '../../constants/notifications';
-import { nextMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
+} from '../../constants/notifications'
+import { nextMessage } from '../../contexts/NotificationsContext/notificationsContextHelper'
 
 const useStyles = makeStyles({
   red: {
@@ -75,7 +75,7 @@ export function getFullLink(current) {
 
 function Notifications(props) {
   const [messagesState] = useContext(NotificationsContext);
-  const current = nextMessage(messagesState);
+  const current = nextMessage(messagesState || {});
   const history = useHistory();
   const classes = useStyles();
 

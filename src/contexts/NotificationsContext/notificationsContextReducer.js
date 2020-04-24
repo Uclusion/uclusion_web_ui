@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { getMassagedMessages, splitIntoLevels } from '../../utils/messageUtils'
 import { intl } from '../../components/ContextHacks/IntlGlobalProvider'
 import { pushMessage } from '../../utils/MessageBusUtils'
-import { TOAST_CHANNEL } from './NotificationsContext'
+import { NAVIGATION_CHANNEL, TOAST_CHANNEL } from './NotificationsContext';
 import { HIGHLIGHTED_COMMENT_CHANNEL } from '../HighlightingContexts/highligtedCommentContextMessages'
 import { HIGHLIGHTED_VOTING_CHANNEL } from '../HighlightingContexts/highligtedVotingContextMessages'
 import { deleteMessage } from '../../api/users'
@@ -70,6 +70,10 @@ export function initializeState (newState) {
  * @returns {*[]|*}
  */
 function getStoredMessagesForActionPage(messages, action) {
+  // home page view
+  if (_.isEmpty(action) || action === '/') {
+    return messages.filter((message) => message.pokeType === 'new_user');
+  }
   switch(action){
     case 'notificationPreferences':
       return messages.filter((message) => message.pokeType === 'slack_reminder');
@@ -116,6 +120,10 @@ function getStoredMessagesForPage(state, page) {
  * @returns {*}
  */
 function removeStoredMessagesForAction(messages, action) {
+  // home page view
+  if (_.isEmpty(action) || action === '/') {
+    return messages.filter((message) => message.pokeType !== 'new_user')
+  }
   switch (action){
     case 'notificationPreferences':
       return messages.filter((message) => message.pokeType !== 'slack_reminder');
@@ -152,6 +160,27 @@ function removeStoredMessagesForPage(state, page) {
     return removeStoredMessagesForMarketPage(messages, page);
   }
   return removeStoredMessagesForAction(messages, page);
+}
+
+/**
+ * System messages are those that don't require a toast
+ * or highlight, but direct the system to do something.
+ * For instance the new user notification directs the system
+ * to redirect the user to the create market page
+ * @param messagesForPage
+ */
+function processSystemMessages(messagesForPage) {
+  // we're not going to consider the case of system actions
+  // conflicting with each other, until it actually happens
+  messagesForPage.forEach((message) => {
+    // system messages all use the pokeType
+    const { pokeType } = message;
+    // the new user system message sends them to dialogAdd for a new planning market
+    if (pokeType === 'new_user') {
+      const link = '/dialogAdd#type=PLANNING'
+   //   pushMessage(NAVIGATION_CHANNEL, link);
+    }
+  });
 }
 
 /**
@@ -204,6 +233,7 @@ function processToasts(messagesForPage) {
  * @param pageMessages
  */
 function handleMessagesForPage(pageMessages) {
+  console.log(pageMessages);
   if (!_.isEmpty(pageMessages)) {
     // process highlighting
     processHighlighting(pageMessages);
@@ -215,6 +245,8 @@ function handleMessagesForPage(pageMessages) {
     const firstMessage = pageMessages[0];
     deleteMessage(firstMessage)
       .catch((error) => console.error(error)); // not much to do other than log it.
+    // lastly process any system messages
+    processSystemMessages(pageMessages);
   }
 }
 
@@ -228,6 +260,9 @@ function handleMessagesForPage(pageMessages) {
  */
 function processPageChange (state, action) {
   const { page } = action;
+  if (_.isEmpty(page)) {
+    return; // send me a bad page I ingore you
+  }
   const messagesForPage = getStoredMessagesForPage(state, page);
   // first compute what the new messages will look like
   const newMessageState = removeStoredMessagesForPage(state, page);
@@ -276,6 +311,10 @@ function doUpdateMessages (state, action) {
   const massagedMessages = getMassagedMessages(messages);
   // extract any messages for this page right now
   const { page } = state;
+  if (_.isEmpty(page)) {
+    storeMessagesInState(state, messages);
+    return;
+  }
   // we can reuse the code for finding and removing page messages in the store, if we make the new
   // incoming messages look like they came from the store
   const pageMessages = getStoredMessagesForPage({messages: massagedMessages}, page);

@@ -19,6 +19,7 @@ const NotificationsContext = React.createContext(EMPTY_STATE);
 export const VISIT_CHANNEL = 'VisitChannel';
 export const TOAST_CHANNEL = 'ToastChannel';
 export const VIEW_EVENT = 'pageView';
+export const NAVIGATION_CHANNEL = 'VisitChannel'
 
 function NotificationsProvider(props) {
   // eslint-disable-next-line react/prop-types

@@ -65,6 +65,7 @@ function Signup(props) {
     name: '',
     email: '',
     password: '',
+    phone: '',
     repeat: '',
     terms: false,
   };
@@ -122,10 +123,11 @@ function Signup(props) {
   function onSignUp(form) {
     form.preventDefault();
     setCallActive(true);
-    const { name, email, password } = userState;
+    // the backend will fail unless only the keys it's need are passed, so extract them
+    const { name, email, password, phone } = userState;
+    const signupData = { name, email, password, phone};
     const redirect = getRedirect();
-
-    return signUp(name, email, password, redirect).then((result) => {
+    return signUp(signupData, redirect).then((result) => {
       const { response } = result;
       setPostSignUp(response);
       setCallActive(false);
@@ -248,6 +250,18 @@ function Signup(props) {
                 autoComplete="email"
                 label={intl.formatMessage({ id: 'signupEmailLabel' })}
                 onChange={handleChange('email')}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                fullWidth
+                id="phone"
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                label={intl.formatMessage({ id: 'signupPhoneLabel' })}
+                onChange={handleChange('phone')}
               />
             </Grid>
             <Grid item xs={12}>

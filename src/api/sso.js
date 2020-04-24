@@ -45,9 +45,14 @@ export function resendVerification(email, redirect) {
     .catch((error) => toastErrorAndThrow(error, 'errorResendFailed'));
 }
 
-export function signUp(name, email, password, redirect) {
+/**
+ * Signs the user up to the system
+ * @param signupData an object contain { name, email, password, phone} where phone is optional
+ * @param redirect
+ */
+export function signUp(signupData, redirect) {
   return uclusion.constructSSOClient(config.api_configuration)
-    .then((ssoClient) => ssoClient.userSignup(name, email, password, redirect))
+    .then((ssoClient) => ssoClient.userSignup(signupData, redirect))
     .catch((error) => toastErrorAndThrow(error, 'errorSignupFailed'));
 }
 

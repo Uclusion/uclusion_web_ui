@@ -24,12 +24,12 @@ import InitiativeDialogs from './InitiativeDialogs';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
-import HomeCheatSheet from './HomeCheatSheet';
 import UclusionTour from '../../components/Tours/UclusionTour';
 import { PURE_SIGNUP_FAMILY_NAME, PURE_SIGNUP_HOME, pureSignupHomeSteps } from '../../components/Tours/pureSignupTours';
 import { CognitoUserContext } from '../../contexts/CongitoUserContext';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
+import DismissableText from '../../components/Notifications/DismissableText';
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -159,7 +159,7 @@ function Home(props) {
         hideBackButton
       />
       {noMarkets && (
-        <HomeCheatSheet/>
+          <DismissableText textId="homeNoMarkets"/>
       )}
       {!noMarkets && (
         <React.Fragment>

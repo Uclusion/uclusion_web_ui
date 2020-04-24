@@ -1,21 +1,20 @@
-import React, { useReducer, useState } from 'react';
-import PropTypes from 'prop-types';
-import { useHistory } from 'react-router';
-import { useIntl } from 'react-intl';
-import { withStyles } from '@material-ui/core/styles';
-import { makeStyles } from '@material-ui/core/styles';
-import _ from 'lodash';
-import { Checkbox, TextField } from '@material-ui/core';
-import Container from '@material-ui/core/Container';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Avatar from '@material-ui/core/Avatar';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
-import Link from '@material-ui/core/Link';
-import { resendVerification, signUp } from '../../api/sso';
-import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
-import config from '../../config';
-import SpinningButton from '../../components/SpinBlocking/SpinningButton';
+import React, { useReducer, useState } from 'react'
+import PropTypes from 'prop-types'
+import { useHistory } from 'react-router'
+import { useIntl } from 'react-intl'
+import { makeStyles, withStyles } from '@material-ui/core/styles'
+import _ from 'lodash'
+import { Checkbox, TextField } from '@material-ui/core'
+import Container from '@material-ui/core/Container'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import Avatar from '@material-ui/core/Avatar'
+import Typography from '@material-ui/core/Typography'
+import Grid from '@material-ui/core/Grid'
+import Link from '@material-ui/core/Link'
+import { resendVerification, signUp } from '../../api/sso'
+import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton'
+import config from '../../config'
+import SpinningButton from '../../components/SpinBlocking/SpinningButton'
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -124,8 +123,13 @@ function Signup(props) {
     form.preventDefault();
     setCallActive(true);
     // the backend will fail unless only the keys it's need are passed, so extract them
-    const { name, email, password, phone } = userState;
-    const signupData = { name, email, password, phone};
+    const { name, email, password, phone: rawPhoneNumber } = userState;
+    let phone = rawPhoneNumber && !rawPhoneNumber.startsWith('+') && rawPhoneNumber.toString().length === 10 ?
+      '+01' + rawPhoneNumber : rawPhoneNumber;
+    if (phone && !phone.startsWith('+')) {
+      phone = '+' + phone;
+    }
+    const signupData = { name, email, password, phone };
     const redirect = getRedirect();
     return signUp(signupData, redirect).then((result) => {
       const { response } = result;
@@ -258,8 +262,7 @@ function Signup(props) {
                 fullWidth
                 id="phone"
                 name="phone"
-                type="tel"
-                autoComplete="tel"
+                type="number"
                 label={intl.formatMessage({ id: 'signupPhoneLabel' })}
                 onChange={handleChange('phone')}
               />

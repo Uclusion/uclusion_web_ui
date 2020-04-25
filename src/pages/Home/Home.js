@@ -5,7 +5,6 @@ import _ from 'lodash'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
 import { makeStyles, Typography } from '@material-ui/core'
 import { useIntl } from 'react-intl'
-import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import {
@@ -115,28 +114,12 @@ function Home(props) {
     }
   ];
 
-  const sidebarActions = [];
-
-  SIDEBAR_ACTIONS.forEach((action, index) => {
-    sidebarActions.push(
-      <ExpandableSidebarAction
-        id={action.id}
-        key={index}
-        icon={action.icon}
-        label={action.label}
-        openLabel={action.openLabel}
-        onClick={action.onClick}
-      />,
-    );
-  });
-
   return (
     <Screen
       title={intl.formatMessage({ 'id': 'homeBreadCrumb' })}
       tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       isHome
-      sidebarActions={SIDEBAR_ACTIONS}
     >
       <UclusionTour
         hidden={hidden}

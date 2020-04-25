@@ -2,19 +2,16 @@ import React, { useContext } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
-import clsx from 'clsx'
 import { Container, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useIntl } from 'react-intl'
 import Header from '../Header'
-import ActionBar from '../ActionBar';
-import { SidebarContext } from '../../contexts/SidebarContext'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { createTitle } from '../../utils/marketIdPathFunctions'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   hidden: {
     display: 'none',
   },
@@ -60,7 +57,6 @@ function Screen(props) {
     loading,
     title,
     children,
-    sidebarActions,
     tabTitle,
     toolbarButtons,
     appEnabled
@@ -85,15 +81,10 @@ function Screen(props) {
   }
 
   const reallyAmLoading = !hidden && appEnabled && loading;
-  const [sidebarOpen] = useContext(SidebarContext);
 
   if (hidden) {
     return <React.Fragment/>
   }
-  const myDivClass = _.isEmpty(sidebarActions) ? classes.content : clsx(classes.content, {
-    [classes.contentShift]: sidebarOpen,
-    [classes.contentUnShift]: !sidebarOpen,
-  })
   const myContainerClass = classes.containerAll;
   return (
     <div className={classes.root}>
@@ -113,14 +104,8 @@ function Screen(props) {
         hasSidebar={false}
         appEnabled={appEnabled}
       />
-      {!_.isEmpty(sidebarActions) && (
-        <Container className={classes.actionContainer}><ActionBar actionBarActions={sidebarActions} appEnabled={appEnabled} /></Container>
-      )}
-      <div className={myDivClass}>
-        {!reallyAmLoading && !_.isEmpty(sidebarActions) && (
-          <Container className={myContainerClass}>{children}</Container>
-        )}
-        {!reallyAmLoading && _.isEmpty(sidebarActions) && (
+      <div className={classes.content}>
+        {!reallyAmLoading && (
           <Container className={myContainerClass}>{children}</Container>
         )}
         {reallyAmLoading && (

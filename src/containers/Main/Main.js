@@ -11,7 +11,6 @@ import { NotificationsProvider } from '../../contexts/NotificationsContext/Notif
 import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketStagesProvider } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { VersionsProvider } from '../../contexts/VersionsContext/VersionsContext'
-import { SidebarProvider } from '../../contexts/SidebarContext'
 import AppWithAuth from '../App/AppWithAuth'
 import { OperationInProgressProvider } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import OperationInProgressGlobalProvider from '../../components/ContextHacks/OperationInProgressGlobalProvider'
@@ -48,12 +47,10 @@ function Main (props) {
                                     <InvestiblesProvider>
                                       <MarketPresencesProvider>
                                         <LocaleProvider>
-                                          <SidebarProvider>
-                                            <ToastContainer/>
-                                            <Elements stripe={stripePromise}>
-                                              <AppWithAuth/>
-                                            </Elements>
-                                          </SidebarProvider>
+                                          <ToastContainer position="top-center" />
+                                          <Elements stripe={stripePromise}>
+                                            <AppWithAuth/>
+                                          </Elements>
                                         </LocaleProvider>
                                       </MarketPresencesProvider>
                                     </InvestiblesProvider>

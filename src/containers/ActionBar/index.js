@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function Sidebar(props) {
+function ActionBar(props) {
   const classes = useStyles();
   const { actionBarActions } = props;
   const [anchorEl, setAnchorEl] = useState(null);
@@ -121,14 +121,14 @@ function Sidebar(props) {
   );
 }
 
-Sidebar.propTypes = {
+ActionBar.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   sidebarActions: PropTypes.arrayOf(PropTypes.element),
   appEnabled: PropTypes.bool.isRequired,
 };
 
-Sidebar.defaultProps = {
+ActionBar.defaultProps = {
   sidebarActions: [],
 };
 
-export default Sidebar;
+export default ActionBar;

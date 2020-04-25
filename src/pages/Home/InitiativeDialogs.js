@@ -41,8 +41,8 @@ const useStyles = makeStyles(() => ({
     justifyContent: 'space-evenly',
   },
   gridSliver: {
-    maxWidth: '4%',
-    flexBasis: '4%'
+    maxWidth: '3.3%',
+    flexBasis: '3.3%'
   },
   contentContainer: {
     flexGrow: 0,
@@ -58,6 +58,25 @@ const useStyles = makeStyles(() => ({
   },
   childText: {
     fontSize: '.825rem'
+  },
+  chartContainer: {
+    justifyContent: 'flex-end',
+    paddingRight: '2rem'
+  },
+  chartContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: '-75%',
+  },
+  chartValue: {
+    backgroundColor: '#3f6b72',
+    color: '#ffffff',
+    padding: '3px 10px',
+    borderRadius: '12px',
+    fontWeight: '900',
+    marginTop: '5px',
   }
 }));
 
@@ -72,31 +91,31 @@ function InitiativeDialogs(props) {
 
   function getParticipantInfo(presences, marketId) {
 
-      return (
-        <div style={{flex: 3, display: 'inline-block', height: '100%', borderRight: '1px solid #f2f2f2'}}>
+    return (
+      <div style={{flex: 2, display: 'inline-block', height: '100%', borderRight: '1px solid #f2f2f2', minWidth: '70%'}}>
+        <Grid
+          container
+          style={{height: '100%' }}
+        >
           <Grid
-            container
-            style={{height: '100%'}}
+            item
+            xs={12}
+            style={{alignSelf: 'center', display: 'flex', justifyContent: 'flex-end', paddingRight: '1rem'}}
           >
-            <Grid
-              item
-              xs={12}
-              style={{alignSelf: 'center'}}
-            >
-              <AvatarGroup
-                max={4}
-                spacing="medium">
-                {presences.map((presence) => {
-                  const { id: userId, name } = presence;
-                  const splitName = name.split(' ');
-                  return <Avatar key={userId}>{`${splitName[0].charAt(0)}${splitName[1]?splitName[1].charAt(0):''}`}</Avatar>
-                  })
-                }
-              </AvatarGroup>
-              </Grid> 
-          </Grid>
-        </div>
-      );
+            <AvatarGroup
+              max={4}
+              spacing="small">
+              {presences.map((presence) => {
+                const { id: userId, name } = presence;
+                const splitName = name.split(' ');
+                return <Avatar key={userId}>{`${splitName[0].charAt(0)}${splitName[1]?splitName[1].charAt(0):''}`}</Avatar>
+                })
+              }
+            </AvatarGroup>
+            </Grid> 
+        </Grid>
+      </div>
+    );
   }
 
   function getMarketItems() {
@@ -156,9 +175,14 @@ function InitiativeDialogs(props) {
                 </div>
               </div>
 
-              <div className={classes.contentContainer}>
+              <div
+                className={classes.contentContainer}
+                onClick={(event) => {
+                  event.preventDefault();
+                  navigate(history, formMarketLink(marketId));}}
+              >
                 <Grid container>
-                  <Grid xs={10}>
+                  <Grid xs={6}>
                     <CardContent>
                       {parentMarketId &&
                         <Link
@@ -169,6 +193,7 @@ function InitiativeDialogs(props) {
                           onClick={
                             (event) => {
                               event.preventDefault();
+                              event.stopPropagation();
                               navigate(history, formMarketLink(parentMarketId));
                             }
                           }
@@ -178,10 +203,7 @@ function InitiativeDialogs(props) {
                           </Typography>
                         </Link>
                       }
-                      <div
-                        onClick={(event) => {
-                        event.preventDefault();
-                        navigate(history, formMarketLink(marketId));}}>
+                      <div>
                           {isDraft && (
                             <Typography
                               className={classes.draft}
@@ -200,7 +222,9 @@ function InitiativeDialogs(props) {
                       </Typography>
                   </CardContent>
                 </Grid>
-                <Grid xs={2} style={{display: 'flex'}}>
+                <Grid xs={2} container className={classes.chartContainer}>
+                </Grid>
+                <Grid xs={4} style={{display: 'flex'}}>
                   {getParticipantInfo(sortedPresences, marketId)}
                   <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
                     <DialogActions

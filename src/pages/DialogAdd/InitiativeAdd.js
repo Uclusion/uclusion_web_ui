@@ -1,22 +1,20 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext, useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
-import {
-  Button, Card, CardActions, CardContent, TextField, Typography,
-} from '@material-ui/core';
-import localforage from 'localforage';
-import QuillEditor from '../../components/TextEditors/QuillEditor';
-import ExpirationSelector from '../../components/Expiration/ExpirationSelector';
-import { createDecision } from '../../api/markets';
-import { processTextAndFilesForSave } from '../../api/files';
+import { Button, Card, CardActions, CardContent, TextField, Typography, } from '@material-ui/core'
+import localforage from 'localforage'
+import QuillEditor from '../../components/TextEditors/QuillEditor'
+import ExpirationSelector from '../../components/Expiration/ExpirationSelector'
+import { createDecision } from '../../api/markets'
+import { processTextAndFilesForSave } from '../../api/files'
 import { INITIATIVE_TYPE } from '../../constants/markets'
-import { addDecisionInvestible } from '../../api/investibles';
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { DiffContext } from '../../contexts/DiffContext/DiffContext';
-import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { usePlanFormStyles } from '../../components/AgilePlan';
+import { addDecisionInvestible } from '../../api/investibles'
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { DiffContext } from '../../contexts/DiffContext/DiffContext'
+import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { usePlanFormStyles } from '../../components/AgilePlan'
 import CardType, { VOTING_TYPE } from '../../components/CardType'
 import { formMarketManageLink } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
@@ -24,7 +22,7 @@ import DismissableText from '../../components/Notifications/DismissableText'
 function InitiativeAdd(props) {
   const intl = useIntl();
   const {
-    onSpinStop, onSave, storedState,
+    onSpinStop, onSave, storedState, createEnabled, billingDismissText
   } = props;
   const { description: storedDescription, name: storedName, expiration_minutes: storedExpirationMinutes } = storedState;
   const [draftState, setDraftState] = useState(storedState);
@@ -118,7 +116,7 @@ function InitiativeAdd(props) {
 
   return (
     <>
-      <DismissableText textId='initiativeAddHelp' />
+      <DismissableText textId={createEnabled ? 'initiativeAddHelp' : billingDismissText} />
       <Card>
         <CardType
           className={classes.cardType}
@@ -173,7 +171,7 @@ function InitiativeAdd(props) {
             variant="contained"
             color="primary"
             onClick={handleSave}
-            disabled={!validForm}
+            disabled={!createEnabled || !validForm}
             onSpinStop={onSpinStop}
             hasSpinChecker
             id="save"

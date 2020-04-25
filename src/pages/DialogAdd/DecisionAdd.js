@@ -36,7 +36,7 @@ function DecisionAdd(props) {
   const values = queryString.parse(hash);
   const { investibleId: parentInvestibleId, id: parentMarketId } = values;
   const {
-    onSpinStop, storedState, onSave
+    onSpinStop, storedState, onSave, createEnabled, billingDismissText
   } = props;
   const { description: storedDescription, name: storedName, expiration_minutes: storedExpirationMinutes } = storedState;
   const [draftState, setDraftState] = useState(storedState);
@@ -156,7 +156,7 @@ function DecisionAdd(props) {
 
   return (
     <>
-      <DismissableText textId='decisionAddHelp' />
+      <DismissableText textId={createEnabled ? 'decisionAddHelp' : billingDismissText} />
       <Card id="tourRoot">
         <UclusionTour
           name={PURE_SIGNUP_ADD_DIALOG}
@@ -221,7 +221,7 @@ function DecisionAdd(props) {
             variant="contained"
             color="primary"
             onClick={handleSave}
-            disabled={!validForm}
+            disabled={!createEnabled || !validForm}
             onSpinStop={onSpinStop}
             className={classes.actionPrimary}
           >

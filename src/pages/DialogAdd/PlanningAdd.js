@@ -1,14 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import localforage from "localforage";
-import { createPlanning } from "../../api/markets";
-import { processTextAndFilesForSave } from "../../api/files";
-import { PLANNING_TYPE } from "../../constants/markets";
-import { OperationInProgressContext } from "../../contexts/OperationInProgressContext/OperationInProgressContext";
-import { useHistory } from "react-router";
-import queryString from "query-string";
-import { Form } from "../../components/AgilePlan";
-import { formMarketLink, formMarketManageLink } from '../../utils/marketIdPathFunctions';
+import React, { useContext, useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import localforage from 'localforage'
+import { createPlanning } from '../../api/markets'
+import { processTextAndFilesForSave } from '../../api/files'
+import { PLANNING_TYPE } from '../../constants/markets'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { useHistory } from 'react-router'
+import queryString from 'query-string'
+import { Form } from '../../components/AgilePlan'
+import { formMarketLink, formMarketManageLink } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 
 function PlanningAdd(props) {
@@ -17,7 +17,7 @@ function PlanningAdd(props) {
   const { hash } = location;
   const values = queryString.parse(hash);
   const { investibleId: parentInvestibleId, id: parentMarketId } = values;
-  const { onSpinStop, storedState, onSave } = props;
+  const { onSpinStop, storedState, onSave, createEnabled, billingDismissText } = props;
   const {
     description: storedDescription,
     name: storedName,
@@ -153,10 +153,9 @@ function PlanningAdd(props) {
       };
     });
   }
-
   return (
     <>
-      <DismissableText textId='planningAddHelp' />
+      <DismissableText textId={createEnabled ? 'planningAddHelp' : billingDismissText} />
       <Form
         marketId=""
         daysEstimate={daysEstimate}
@@ -177,6 +176,7 @@ function PlanningAdd(props) {
         setOperationRunning={setOperationRunning}
         votesRequired={votesRequired}
         onVotesRequiredChange={onVotesRequiredEstimateChange}
+        createEnabled={createEnabled}
       />
     </>
   );

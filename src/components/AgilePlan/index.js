@@ -128,7 +128,8 @@ export function Form(props) {
     onStorageChange,
     setOperationRunning,
     votesRequired,
-    onVotesRequiredChange
+    onVotesRequiredChange,
+    createEnabled
   } = props;
 
   const [validForm, setValidForm] = React.useState(true);
@@ -202,7 +203,7 @@ export function Form(props) {
         <SpinBlockingButton
           className={classes.actionPrimary}
           color="primary"
-          disabled={!validForm}
+          disabled={(isCreateForm && !createEnabled) || !validForm}
           marketId={marketId}
           onClick={onSave}
           hasSpinChecker

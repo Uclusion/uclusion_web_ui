@@ -1,35 +1,28 @@
-import React, { useContext } from 'react';
-import { useHistory } from 'react-router';
-import config from '../../config';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import MenuBookIcon from '@material-ui/icons/MenuBook';
-import { Typography, makeStyles} from '@material-ui/core'
-import { useIntl } from 'react-intl';
-import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction';
-import Screen from '../../containers/Screen/Screen';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import React, { useContext } from 'react'
+import { useHistory } from 'react-router'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+import MenuBookIcon from '@material-ui/icons/MenuBook'
+import { makeStyles, Typography } from '@material-ui/core'
+import { useIntl } from 'react-intl'
+import ExpandableSidebarAction from '../../components/SidebarActions/ExpandableSidebarAction'
+import Screen from '../../containers/Screen/Screen'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import {
   getMarketDetailsForType,
   getNotHiddenMarketDetailsForUser,
-} from '../../contexts/MarketsContext/marketsContextHelper';
-import PlanningDialogs from './PlanningDialogs';
-import DecisionDialogs from './DecisionDialogs';
-import {
-  INITIATIVE_TYPE,
-  DECISION_TYPE,
-  PLANNING_TYPE,
-} from '../../constants/markets';
-import InitiativeDialogs from './InitiativeDialogs';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { navigate } from '../../utils/marketIdPathFunctions';
-import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions';
-import UclusionTour from '../../components/Tours/UclusionTour';
-import { PURE_SIGNUP_FAMILY_NAME, PURE_SIGNUP_HOME, pureSignupHomeSteps } from '../../components/Tours/pureSignupTours';
-import { CognitoUserContext } from '../../contexts/CongitoUserContext';
-import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { canCreate } from '../../contexts/AccountContext/accountContextHelper';
-import DismissableText from '../../components/Notifications/DismissableText';
+} from '../../contexts/MarketsContext/marketsContextHelper'
+import PlanningDialogs from './PlanningDialogs'
+import DecisionDialogs from './DecisionDialogs'
+import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets'
+import InitiativeDialogs from './InitiativeDialogs'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { navigate } from '../../utils/marketIdPathFunctions'
+import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
+import UclusionTour from '../../components/Tours/UclusionTour'
+import { PURE_SIGNUP_FAMILY_NAME, PURE_SIGNUP_HOME, pureSignupHomeSteps } from '../../components/Tours/pureSignupTours'
+import { CognitoUserContext } from '../../contexts/CongitoUserContext'
+import DismissableText from '../../components/Notifications/DismissableText'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -52,13 +45,10 @@ function Home(props) {
   const { hidden } = props;
   const history = useHistory();
   const cognitoUser = useContext(CognitoUserContext);
-  const [accountState] = useContext(AccountContext);
-  const accountCanCreate = canCreate(accountState);
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const classes = useStyles();
-  const createEnabled = !config.payments.enabled || accountCanCreate;
 
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
     marketsState,
@@ -94,7 +84,7 @@ function Home(props) {
   const noMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
   const tourSteps = pureSignupHomeSteps({ name: cognitoUser.name });
 
-  const CREATE_ACTIONS = [
+  const SIDEBAR_ACTIONS = [
     {
     label: intl.formatMessage({ id: 'homeAddPlanningExplanation' }),
     openLabel: intl.formatMessage({ id: 'homeAddPlanning' }),
@@ -114,9 +104,6 @@ function Home(props) {
       icon: getDialogTypeIcon(INITIATIVE_TYPE),
       onClick: () => addInitiative(),
     },
-  ];
-
-  const VIEW_ACTIONS = [
     {
       label: intl.formatMessage({ id: 'homeViewArchivesExplanation' }),
       openLabel: intl.formatMessage({ id: 'homeViewArchives' }),
@@ -124,8 +111,6 @@ function Home(props) {
       onClick: () => navigate(history, '/archives'),
     }
   ];
-
-  const SIDEBAR_ACTIONS = createEnabled? CREATE_ACTIONS.concat(VIEW_ACTIONS) : VIEW_ACTIONS;
 
   const sidebarActions = [];
 

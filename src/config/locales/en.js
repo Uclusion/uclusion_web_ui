@@ -654,6 +654,8 @@ const messages = defineMessages({
   billingSubEnd: 'Subscription End:',
   billingSubBegin: 'Begin Subscription',
   billingSubCancel: 'Cancel Subscription',
+  billingMustPay: 'Create not available because trial period is over. Please go to manage subscription.',
+  billingStartSubscription: 'Please go to manage subscription and start a free trial to enable create.',
 
   // upgrade form
   upgradeFormCardName: 'Cardholder Name',
@@ -713,8 +715,7 @@ const messages = defineMessages({
   errorUpdatePaymentFailed: 'There was a problem updating your payment card. Please try again.',
   warningAlreadyInMarket: 'You are already a part of this market.',
 
-  // home cheat sheet
-  homeCheatWelcome: 'Welcome to Uclusion!',
+  homeNoMarkets: "You don't have anything here, so you'll have to create a new Workspace, Dialog or Initiative to get going again.",
   homeStartTour: 'Start Tour',
   //summary
   summaryExpiredAt: 'Expired on {expireDate}',
@@ -749,6 +750,9 @@ const messages = defineMessages({
 
   // Notifications
   notificationMulitpleUpdates: '{n} Updates',
+
+  // phone field
+  phoneFieldErrorText: 'Phone should begin with plus or just be the digits',
 });
 
 export default messages;

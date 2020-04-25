@@ -7,6 +7,11 @@ import {
 } from '../../constants/billing';
 import { accountRefresh, billingInfoRefresh, invoicesRefresh } from './accountContextReducer';
 
+/**
+ * Returns whether or not the user can create new markets
+ * @param state
+ * @returns {boolean}
+ */
 export function canCreate(state) {
   if (_.isEmpty(state.account)) {
     return false;

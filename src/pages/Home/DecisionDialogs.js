@@ -22,10 +22,12 @@ import DialogActions from './DialogActions'
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { getVoteTotalsForUser } from '../../utils/userFunctions';
 import { ISSUE_TYPE } from '../../constants/comments'
 import CardType from '../../components/CardType'
-import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import Chart from '../../components/Cards/Chart'
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -45,8 +47,8 @@ const useStyles = makeStyles(() => ({
     justifyContent: 'space-evenly',
   },
   gridSliver: {
-    maxWidth: '4%',
-    flexBasis: '4%'
+    maxWidth: '3.3%',
+    flexBasis: '3.3%'
   },
   contentContainer: {
     flexGrow: 0,
@@ -62,6 +64,25 @@ const useStyles = makeStyles(() => ({
   },
   childText: {
     fontSize: '.825rem'
+  },
+  chartContainer: {
+    justifyContent: 'flex-end',
+    paddingRight: '2rem'
+  },
+  chartContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: '-75%',
+  },
+  chartValue: {
+    backgroundColor: '#3f6b72',
+    color: '#ffffff',
+    padding: '3px 10px',
+    borderRadius: '12px',
+    fontWeight: '900',
+    marginTop: '5px',
   }
 }));
 
@@ -74,34 +95,35 @@ function DecisionDialogs(props) {
   const [commentsState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   
   function getParticipantInfo(presences) {
 
-      return (
-        <div style={{flex: 3, display: 'inline-block', height: '100%', borderRight: '1px solid #f2f2f2'}}>
+    return (
+      <div style={{flex: 2, display: 'inline-block', height: '100%', borderRight: '1px solid #f2f2f2', minWidth: '70%'}}>
+        <Grid
+          container
+          style={{height: '100%' }}
+        >
           <Grid
-            container
-            style={{height: '100%'}}
+            item
+            xs={12}
+            style={{alignSelf: 'center', display: 'flex', justifyContent: 'flex-end', paddingRight: '1rem'}}
           >
-            <Grid
-              item
-              xs={12}
-              style={{alignSelf: 'center'}}
-            >
-              <AvatarGroup
-                max={4}
-                spacing="medium">
-                {presences.map((presence) => {
-                  const { id: userId, name } = presence;
-                  const splitName = name.split(' ');
-                  return <Avatar key={userId}>{`${splitName[0].charAt(0)}${splitName[1]?splitName[1].charAt(0):''}`}</Avatar>
-                  })
-                }
-              </AvatarGroup>
-              </Grid> 
-          </Grid>
-        </div>
-      );
+            <AvatarGroup
+              max={4}
+              spacing="small">
+              {presences.map((presence) => {
+                const { id: userId, name } = presence;
+                const splitName = name.split(' ');
+                return <Avatar key={userId}>{`${splitName[0].charAt(0)}${splitName[1]?splitName[1].charAt(0):''}`}</Avatar>
+                })
+              }
+            </AvatarGroup>
+            </Grid> 
+        </Grid>
+      </div>
+    );
   }
   function getMarketItems() {
     return markets.map((market) => {
@@ -110,6 +132,7 @@ function DecisionDialogs(props) {
         market_type: marketType, market_stage: marketStage, updated_at: updatedAt, parent_market_id: parentMarketId,
         parent_investible_id: parentInvestibleId,
       } = market;
+      
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
@@ -120,8 +143,11 @@ function DecisionDialogs(props) {
       const comments = getMarketComments(commentsState, marketId);
       const marketIssues = comments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved && !comment.investible_id);
       const hasMarketIssue = !_.isEmpty(marketIssues);
-      const creator = marketPresences.find(presence => {return presence.id === createdBy})|| {name: ''};
+      const creator = sortedPresences.filter(presence => {return presence.id === createdBy})[0];
       const isSmall = true;
+
+      const investibles = getMarketInvestibles(investiblesState, marketId);
+      const strippedInvestibles = investibles.map(inv => inv.investible);
 
       function getInvestibleName(investibleId) {
         const inv = getInvestible(investibleState, investibleId);
@@ -132,7 +158,53 @@ function DecisionDialogs(props) {
         const { name } = investible;
         return name;
       }
+      function getInvestibleVotes() {
+        // first set every investibles support and investments to 0
+        const tallies = strippedInvestibles.reduce((acc, inv) => {
+          const { id } = inv;
+          acc[id] = {
+            ...inv,
+            investments: [],
+            numSupporters: 0
+          };
+          return acc;
+        }, {});
+        // now we fill in votes from market presences
+        marketPresences.forEach(presence => {
+          const userInvestments = getVoteTotalsForUser(presence);
+          Object.keys(userInvestments).forEach((investible_id) => {
+            const oldValue = tallies[investible_id];
+            if (oldValue) {
+              const newInvestments = [
+                ...oldValue.investments,
+                userInvestments[investible_id],
+              ];
+              tallies[investible_id] = {
+                ...oldValue,
+                investments: newInvestments,
+                numSupporters: newInvestments.length,
+              };
+            }
+          });
+        });
+        return tallies;
+      }
+      const votes = getInvestibleVotes();
+      const votesArray = Object.values(votes);
+      // descending order of support
+      const sortedVotesArray = _.sortBy(
+        votesArray,
+        'numSupporters',
+        'name'
+      ).reverse();
+      const chartData = [];
+      sortedVotesArray.map(sortedVote => {
+        sortedVote.investments.map(investment => {
+          chartData.push(investment);
+        })
 
+      })
+      
       let parentName;
       if (parentInvestibleId) {
         parentName = getInvestibleName(parentInvestibleId);
@@ -170,12 +242,15 @@ function DecisionDialogs(props) {
                 </div>
               </div>
 
-              <div className={classes.contentContainer}>
+              <div 
+                className={classes.contentContainer} 
+                  onClick={(event) => {
+                    event.preventDefault();
+                    navigate(history, formMarketLink(marketId));
+                  }}
+                >
                 <Grid container>
-                  <Grid
-                    item
-                    xs={10}
-                  >
+                  <Grid xs={6}>
                     <CardContent>
                       {parentMarketId &&
                         <Link
@@ -185,6 +260,7 @@ function DecisionDialogs(props) {
                           color="primary"
                           onClick={
                             (event) => {
+                              event.stopPropagation();
                               event.preventDefault();
                               navigate(history, formMarketLink(parentMarketId));
                             }
@@ -195,10 +271,7 @@ function DecisionDialogs(props) {
                           </Typography>
                         </Link>
                       }
-                      <div
-                        onClick={(event) => {
-                        event.preventDefault();
-                        navigate(history, formMarketLink(marketId));}}>
+                      <div>
                           {isDraft && (
                             <Typography
                               className={classes.draft}
@@ -220,11 +293,17 @@ function DecisionDialogs(props) {
                       )}
                     </CardContent>
                   </Grid>
-                  <Grid
-                    item
-                    xs={2}
-                    style={{display: 'flex'}}
-                  >
+                  <Grid xs={2} container className={classes.chartContainer}>
+                    {sortedVotesArray && sortedVotesArray.length > 0 &&
+                      <div className={classes.chartContent}>
+                        <Chart data={chartData} />
+                        <span className={classes.chartValue}>
+                          {intl.formatMessage({ id: 'numVoting' }, { x: chartData.length })}
+                        </span>
+                      </div>
+                    }
+                  </Grid>
+                  <Grid xs={4} style={{display: 'flex'}}>
                     {getParticipantInfo(sortedPresences, marketId)}
                     <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
                       <DialogActions

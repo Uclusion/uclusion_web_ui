@@ -445,7 +445,6 @@ function PlanningInvestible(props) {
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
-      sidebarActions={[]}
     >
       {activeMarket && isInVoting && isAssigned && enoughVotes && _.isEmpty(assignedInStage(investibles, userId, inAcceptedStage.id)) && (
         <DismissableText textId='planningInvestibleEnoughVotesHelp' />

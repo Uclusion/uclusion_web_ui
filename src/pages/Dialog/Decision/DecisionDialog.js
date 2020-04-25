@@ -138,7 +138,6 @@ function DecisionDialog(props) {
       tabTitle={marketName}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
-      sidebarActions={[]}
     >
       <UclusionTour
         hidden={hidden}

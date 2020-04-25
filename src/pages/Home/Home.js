@@ -120,6 +120,7 @@ function Home(props) {
       tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       isHome
+      sidebarActions={SIDEBAR_ACTIONS}
     >
       <UclusionTour
         hidden={hidden}

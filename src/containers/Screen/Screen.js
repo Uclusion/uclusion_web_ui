@@ -6,6 +6,7 @@ import { Container, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useIntl } from 'react-intl'
 import Header from '../Header'
+import ActionBar from '../ActionBar'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { createTitle } from '../../utils/marketIdPathFunctions'
 import Card from '@material-ui/core/Card'
@@ -57,6 +58,7 @@ function Screen(props) {
     loading,
     title,
     children,
+    sidebarActions,
     tabTitle,
     toolbarButtons,
     appEnabled
@@ -101,9 +103,11 @@ function Screen(props) {
         breadCrumbs={false}
         toolbarButtons={toolbarButtons}
         hidden={reallyAmLoading}
-        hasSidebar={false}
         appEnabled={appEnabled}
       />
+      {!_.isEmpty(sidebarActions) && (
+        <Container className={classes.actionContainer}><ActionBar actionBarActions={sidebarActions} appEnabled={appEnabled} /></Container>
+      )}
       <div className={classes.content}>
         {!reallyAmLoading && (
           <Container className={myContainerClass}>{children}</Container>
@@ -129,11 +133,8 @@ Screen.propTypes = {
   toolbarButtons: PropTypes.arrayOf(PropTypes.any),
   hidden: PropTypes.bool,
   loading: PropTypes.bool,
-  // eslint-disable-next-line react/forbid-prop-types
   title: PropTypes.any,
-  // eslint-disable-next-line react/forbid-prop-types
   children: PropTypes.any.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
   sidebarActions: PropTypes.arrayOf(PropTypes.element),
   tabTitle: PropTypes.string.isRequired,
   appEnabled: PropTypes.bool,

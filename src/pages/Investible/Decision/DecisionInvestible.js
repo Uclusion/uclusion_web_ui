@@ -207,7 +207,6 @@ function DecisionInvestible(props) {
       tabTitle={name}
       breadCrumbs={breadCrumbs}
       hidden={hidden}
-      sidebarActions={[]}
     >
       {activeMarket && !inProposed && !allowMultiVote && (
         <DismissableText textId='decisionInvestibleVotingSingleHelp' />

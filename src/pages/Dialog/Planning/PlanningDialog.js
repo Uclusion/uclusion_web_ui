@@ -106,22 +106,17 @@ function PlanningDialog(props) {
     navigate(history, link);
   }
 
-  function getSidebarActions() {
-    return [
-    ];
-  }
   const furtherWorkStage = marketStages.find((stage) => (!stage.appears_in_context && !stage.allows_issues
     && !stage.appears_in_market_summary)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
-  const sidebarActions = getSidebarActions();
+
   return (
     <Screen
       title={marketName}
       hidden={hidden}
       tabTitle={marketName}
       breadCrumbs={breadCrumbs}
-      sidebarActions={sidebarActions}
     >
       <Summary market={market} hidden={hidden} unassigned={unassigned} isChannel={isChannel}
                activeMarket={activeMarket} />

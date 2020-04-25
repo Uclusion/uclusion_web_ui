@@ -26,7 +26,7 @@ export const useStyles = makeStyles((theme) => {
   };
 });
 
-function ExpandableSidebarAction(props) {
+function ExpandableAction(props) {
   const {
     icon,
     id,
@@ -65,11 +65,11 @@ function ExpandableSidebarAction(props) {
   );
 }
 
-ExpandableSidebarAction.propTypes = {
+ExpandableAction.propTypes = {
   icon: PropTypes.element.isRequired,
   label: PropTypes.string.isRequired,
   openLabel: PropTypes.string,
   onClick: PropTypes.func.isRequired,
 };
 
-export default ExpandableSidebarAction;
+export default ExpandableAction;

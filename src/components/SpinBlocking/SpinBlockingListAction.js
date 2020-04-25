@@ -1,9 +1,35 @@
 import { withSpinLock } from './SpinBlockingHOC'
-import React, { useContext } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { ListItem, ListItemIcon, ListItemText, Tooltip, } from '@material-ui/core'
-import { SidebarContext } from '../../contexts/SidebarContext'
-import { useStyles } from '../SidebarActions/ExpandableSidebarAction'
+import { makeStyles } from '@material-ui/styles'
+
+const useStyles = makeStyles(() => {
+  return {
+    menuItem: {
+      paddingTop: '19px',
+      paddingBottom: '19px',
+      '&:first-child': {
+        paddingTop: '40px',
+      },
+      '&:last-child': {
+        paddingBottom: '52px',
+      },
+    },
+    menuIcon: {
+      display: 'flex',
+      justifyContent: 'center',
+      color: 'white',
+      '& > .MuiSvgIcon-root': {
+        width: '30px',
+        height: '30px',
+      },
+    },
+    menuTitle: {
+      color: 'white',
+    },
+  };
+});
 
 function SpinBlockingListAction(props) {
   const {
@@ -22,9 +48,6 @@ function SpinBlockingListAction(props) {
   } = props;
   const myClasses = useStyles();
   const classes = customClasses || myClasses;
-  const [amOpen] = useContext(SidebarContext);
-
-
   const SpinningListItem = withSpinLock(ListItem);
 
   return (
@@ -46,7 +69,7 @@ function SpinBlockingListAction(props) {
           {icon}
         </ListItemIcon>
       </Tooltip>
-      {(isOpen !== undefined ? isOpen : amOpen) && (
+      {(isOpen !== undefined ? isOpen : true) && (
         <ListItemText className={classes.menuTitle}>
           {openLabel}
         </ListItemText>

@@ -125,7 +125,6 @@ function InitiativeInvestible(props) {
       title={name}
       tabTitle={name}
       breadCrumbs={breadCrumbs}
-      sidebarActions={[]}
       hidden={hidden}
     >
       {!isAdmin && activeMarket && (

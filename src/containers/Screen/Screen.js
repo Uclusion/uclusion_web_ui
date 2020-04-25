@@ -4,11 +4,12 @@ import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
 import { Container, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
+import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import Header from '../Header'
 import ActionBar from '../ActionBar'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { createTitle } from '../../utils/marketIdPathFunctions'
+import { createTitle, makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 
@@ -50,10 +51,12 @@ const useStyles = makeStyles(() => ({
 function Screen(props) {
   const classes = useStyles();
   // enable scrolling based on hash
+  const history = useHistory();
   const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
 
   const {
+    breadCrumbs,
     hidden,
     loading,
     title,
@@ -61,7 +64,8 @@ function Screen(props) {
     sidebarActions,
     tabTitle,
     toolbarButtons,
-    appEnabled
+    appEnabled,
+    isHome
   } = props;
   let prePendWarning = '';
   if (!_.isEmpty(messagesState)) {
@@ -87,6 +91,10 @@ function Screen(props) {
   if (hidden) {
     return <React.Fragment/>
   }
+  let usedBreadCrumbs = breadCrumbs;
+  if (_.isEmpty(breadCrumbs) && !isHome) {
+    usedBreadCrumbs = makeBreadCrumbs(history);
+  }
   const myContainerClass = classes.containerAll;
   return (
     <div className={classes.root}>
@@ -100,7 +108,7 @@ function Screen(props) {
       </Helmet>
       <Header
         title={title}
-        breadCrumbs={false}
+        breadCrumbs={usedBreadCrumbs}
         toolbarButtons={toolbarButtons}
         hidden={reallyAmLoading}
         appEnabled={appEnabled}

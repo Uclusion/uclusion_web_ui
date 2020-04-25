@@ -2,9 +2,10 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
-import { AppBar, Link, Paper, Toolbar, Typography, } from '@material-ui/core'
+import _ from 'lodash'
+import { AppBar, Breadcrumbs, Link, Paper, Toolbar, Typography, } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { navigate } from '../../utils/marketIdPathFunctions'
+import { createTitle, navigate } from '../../utils/marketIdPathFunctions'
 import { OnlineStateContext } from '../../contexts/OnlineStateContext'
 import Identity from '../Screen/Identity'
 import SearchBox from '../../components/Search/SearchBox'
@@ -94,7 +95,7 @@ function Header(props) {
   const [online] = useContext(OnlineStateContext);
   const history = useHistory();
   const {
-    toolbarButtons, appEnabled,
+    breadCrumbs, toolbarButtons, appEnabled, hidden, title
   } = props;
 
   const myAppClass = clsx(classes.appBar);
@@ -135,6 +136,35 @@ function Header(props) {
     };
   }, [operationRunning, logoTimer, pegLogo, logoImage, appEnabled]);
 
+  function generateTitle() {
+    if (breadCrumbs && !hidden) {
+      return (
+        <Breadcrumbs className={classes.breadcrumbs} separator="/">
+          {breadCrumbs.map((crumb, index) => {
+            const { id, onClick, link, image, title } = crumb;
+            const href = _.isEmpty(link)? '#' : link;
+            return (
+              <Link id={id} key={index} href={href} onClick={onClick} color="inherit">
+                {image && (
+                  <img
+                    src={image}
+                    alt={title}
+                    className={classes.breadCrumbImage}
+                  />
+                )}
+                {!crumb.image && createTitle(title, 25)}
+              </Link>
+            )
+          })}
+          <Typography color="textPrimary">{createTitle(title, 25)}</Typography>
+        </Breadcrumbs>
+      );
+    }
+    return (
+      <Typography color="textPrimary">{createTitle(title, 30)}</Typography>
+    );
+  }
+
   return (
     <>
       <AppBar
@@ -154,6 +184,7 @@ function Header(props) {
               </svg>
             </Link>
           </div>
+          {generateTitle()}
           {toolbarButtons}
           {!online && (
             <div className={classes.centerMe}>

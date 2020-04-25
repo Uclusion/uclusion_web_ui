@@ -1,12 +1,11 @@
 import React, { useState, useContext } from 'react';
-import _ from 'lodash';
 import {
-  Avatar, makeStyles, Typography, Menu
+  makeStyles, Typography, Menu, Button
 } from '@material-ui/core';
+import SettingsIcon from '@material-ui/icons/Settings';
 import { useHistory } from 'react-router';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useIntl } from 'react-intl';
-import Chip from '@material-ui/core/Chip';
 import { navigate } from '../../utils/marketIdPathFunctions';
 import SignOut from '../../pages/Authentication/SignOut';
 import { CognitoUserContext } from '../../contexts/CongitoUserContext';
@@ -18,6 +17,11 @@ const useStyles = makeStyles((theme) => ({
   menuStyle: {
     position: 'relative',
   },
+  buttonClass: {
+    backgroundColor: '#efefef',
+    textTransform: 'Capitalize',
+    borderRadius: '8px'
+  }
 }));
 
 function Identity () {
@@ -27,7 +31,6 @@ function Identity () {
   const history = useHistory();
   const intl = useIntl();
   const chipLabel = !user ? '' : user.name;
-  const chipAvatar = _.isEmpty(chipLabel) ? '' : chipLabel.substr(0, 1);
 
   const recordPositionToggle = (event) => {
     setAnchorEl(event.currentTarget);
@@ -44,11 +47,12 @@ function Identity () {
     <div
       id="profileLink"
     >
-      <Chip
-        avatar={<Avatar>{chipAvatar}</Avatar>}
-        label={chipLabel}
+      <Button
         onClick={recordPositionToggle}
-      />
+        endIcon={<SettingsIcon htmlColor="#bdbdbd" />}
+        className={classes.buttonClass}
+      >
+        {chipLabel}
       <Menu
         id="profile-menu"
         open={!!anchorEl}
@@ -97,6 +101,7 @@ function Identity () {
             <SignOut/>
           </MenuItem>
       </Menu>
+      </Button>
     </div>
   );
 }

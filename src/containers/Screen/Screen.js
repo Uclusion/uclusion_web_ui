@@ -5,14 +5,12 @@ import { Helmet } from 'react-helmet'
 import clsx from 'clsx'
 import { Container, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import Header from '../Header'
-import Sidebar from '../Sidebar'
+import ActionBar from '../ActionBar';
 import { SidebarContext } from '../../contexts/SidebarContext'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { DRAWER_WIDTH_CLOSED, DRAWER_WIDTH_OPENED, } from '../../constants/global'
-import { createTitle, makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
+import { createTitle } from '../../utils/marketIdPathFunctions'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 
@@ -26,25 +24,16 @@ const useStyles = makeStyles((theme) => ({
   },
   container: {
     background: '#efefef',
-    padding: '95px 20px 156px',
+    padding: '46px 20px 156px',
   },
   containerAll: {
     background: '#efefef',
-    padding: '95px 20px 156px',
-    width: `calc(100% - ${DRAWER_WIDTH_OPENED}px)`,
-    marginLeft: DRAWER_WIDTH_OPENED/2,
+    padding: '46px 20px 156px',
+    marginTop: '80px',
+    width: '100%'
   },
-  contentShift: {
-    marginLeft: DRAWER_WIDTH_OPENED,
-    width: `calc(100% - ${DRAWER_WIDTH_OPENED}px)`,
-    [theme.breakpoints.down('xs')]: {
-      marginLeft: DRAWER_WIDTH_CLOSED,
-      width: `calc(100% - ${DRAWER_WIDTH_CLOSED}px)`,
-    },
-  },
-  contentUnShift: {
-    marginLeft: DRAWER_WIDTH_CLOSED,
-    width: `calc(100% - ${DRAWER_WIDTH_CLOSED}px)`,
+  actionContainer: {
+    marginBottom: '-6rem'
   },
   content: {
     background: '#efefef',
@@ -54,8 +43,7 @@ const useStyles = makeStyles((theme) => ({
   },
   loadingDisplay: {
     padding: '95px 20px 156px',
-    width: `calc(100% - ${DRAWER_WIDTH_OPENED}px)`,
-    marginLeft: DRAWER_WIDTH_OPENED/2,
+    width: '100%'
   },
 }));
 
@@ -64,12 +52,10 @@ const useStyles = makeStyles((theme) => ({
 function Screen(props) {
   const classes = useStyles();
   // enable scrolling based on hash
-  const history = useHistory();
   const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
 
   const {
-    breadCrumbs,
     hidden,
     loading,
     title,
@@ -77,8 +63,7 @@ function Screen(props) {
     sidebarActions,
     tabTitle,
     toolbarButtons,
-    appEnabled,
-    isHome
+    appEnabled
   } = props;
   let prePendWarning = '';
   if (!_.isEmpty(messagesState)) {
@@ -105,15 +90,11 @@ function Screen(props) {
   if (hidden) {
     return <React.Fragment/>
   }
-  let usedBreadCrumbs = breadCrumbs;
-  if (_.isEmpty(breadCrumbs) && !isHome) {
-    usedBreadCrumbs = makeBreadCrumbs(history);
-  }
   const myDivClass = _.isEmpty(sidebarActions) ? classes.content : clsx(classes.content, {
     [classes.contentShift]: sidebarOpen,
     [classes.contentUnShift]: !sidebarOpen,
   })
-  const myContainerClass = _.isEmpty(sidebarActions) ? classes.containerAll : classes.container;
+  const myContainerClass = classes.containerAll;
   return (
     <div className={classes.root}>
       <Helmet>
@@ -126,21 +107,21 @@ function Screen(props) {
       </Helmet>
       <Header
         title={title}
-        breadCrumbs={usedBreadCrumbs}
+        breadCrumbs={false}
         toolbarButtons={toolbarButtons}
         hidden={reallyAmLoading}
-        hasSidebar={!_.isEmpty(sidebarActions)}
+        hasSidebar={false}
         appEnabled={appEnabled}
       />
       {!_.isEmpty(sidebarActions) && (
-        <Sidebar sidebarActions={sidebarActions} appEnabled={appEnabled} />
+        <Container className={classes.actionContainer}><ActionBar actionBarActions={sidebarActions} appEnabled={appEnabled} /></Container>
       )}
       <div className={myDivClass}>
         {!reallyAmLoading && !_.isEmpty(sidebarActions) && (
           <Container className={myContainerClass}>{children}</Container>
         )}
         {!reallyAmLoading && _.isEmpty(sidebarActions) && (
-          <div className={myContainerClass}>{children}</div>
+          <Container className={myContainerClass}>{children}</Container>
         )}
         {reallyAmLoading && (
           <Card>

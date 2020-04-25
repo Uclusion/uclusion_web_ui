@@ -96,11 +96,12 @@ function Home(props) {
 
   const CREATE_ACTIONS = [
     {
-    label: intl.formatMessage({ id: 'homeAddPlanningExplanation' }),
-    openLabel: intl.formatMessage({ id: 'homeAddPlanning' }),
-    icon: getDialogTypeIcon(PLANNING_TYPE),
-    onClick: () => addPlanning(),
-  },
+      label: intl.formatMessage({ id: 'homeAddPlanningExplanation' }),
+      openLabel: intl.formatMessage({ id: 'homeAddPlanning' }),
+      icon: getDialogTypeIcon(PLANNING_TYPE),
+      id: 'workspace',
+      onClick: () => addPlanning(),
+    },
     {
       label: intl.formatMessage({ id: 'homeAddDecisionExplanation' }),
       openLabel: intl.formatMessage({ id: 'homeAddDecision' }),
@@ -112,6 +113,7 @@ function Home(props) {
       label: intl.formatMessage({ id: 'homeAddInitiativeExplanation' }),
       openLabel: intl.formatMessage({ id: 'homeAddInitiative' }),
       icon: getDialogTypeIcon(INITIATIVE_TYPE),
+      id: 'initiative',
       onClick: () => addInitiative(),
     },
   ];
@@ -121,6 +123,7 @@ function Home(props) {
       label: intl.formatMessage({ id: 'homeViewArchivesExplanation' }),
       openLabel: intl.formatMessage({ id: 'homeViewArchives' }),
       icon: <MenuBookIcon/>,
+      id: 'archive',
       onClick: () => navigate(history, '/archives'),
     }
   ];
@@ -148,7 +151,7 @@ function Home(props) {
       tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       isHome
-      sidebarActions={sidebarActions}
+      sidebarActions={SIDEBAR_ACTIONS}
     >
       <UclusionTour
         hidden={hidden}
@@ -164,7 +167,7 @@ function Home(props) {
       {!noMarkets && (
         <React.Fragment>
           <div className={classes.titleContainer}>
-            { getDialogTypeIcon(PLANNING_TYPE) }
+            { getDialogTypeIcon(PLANNING_TYPE, false, "#333333") }
             <Typography className={classes.title} variant="h6">Workspaces</Typography>
           </div>
           <PlanningDialogs markets={planningDetails}/>

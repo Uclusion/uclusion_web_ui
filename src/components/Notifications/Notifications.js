@@ -1,9 +1,10 @@
 import React, { useContext } from 'react'
 import { NotificationImportant, Notifications as NotificationsIcon } from '@material-ui/icons'
 import { Fab, makeStyles, Tooltip } from '@material-ui/core'
-import { useHistory } from 'react-router'
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
+import clsx from 'clsx';
+import { useHistory } from 'react-router';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
+import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import {
   ISSUE_RESOLVED_TYPE,
   ISSUE_TYPE,
@@ -15,18 +16,21 @@ import { nextMessage } from '../../contexts/NotificationsContext/notificationsCo
 
 const useStyles = makeStyles({
   red: {
-    color: 'red',
-    fontSize: 36,
+    backgroundColor: 'red',
   },
   yellow: {
-    color: '#F29100',
-    fontSize: 36,
+    backgroundColor: '#F29100',
   },
   uncolored: {
-    fontSize: 36,
+    fontSize: 18,
+    color: '#efefef'
   },
   fab: {
-    backgroundColor: '#ffffff',
+    borderRadius: '50%',
+    width: '32px',
+    height: '32px',
+    boxShadow: 'none',
+    minHeight: '32px'
   }
 });
 
@@ -79,7 +83,7 @@ function Notifications(props) {
   const history = useHistory();
   const classes = useStyles();
 
-  function getIconClass() {
+  function getBackgroundClass() {
     if (!current) {
       return classes.uncolored;
     }
@@ -104,14 +108,16 @@ function Notifications(props) {
     <Fab
       disabled={!current}
       onClick={nextOnClick}
-      className={classes.fab}
+      className={clsx(
+        classes.fab,
+        getBackgroundClass())}
     >
       {current && (
         <Tooltip title={current.text}>
-          <NotificationImportant className={getIconClass()} />
+          <NotificationImportant className={classes.uncolored} />
         </Tooltip>
       )}
-      {!current && <NotificationsIcon className={getIconClass()} />}
+      {!current && <NotificationsIcon className={classes.uncolored} />}
     </Fab>
   );
 }

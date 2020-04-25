@@ -1,10 +1,10 @@
 import React, { useContext } from 'react'
 import { NotificationImportant, Notifications as NotificationsIcon } from '@material-ui/icons'
 import { Fab, makeStyles, Tooltip } from '@material-ui/core'
-import clsx from 'clsx';
-import { useHistory } from 'react-router';
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
+import clsx from 'clsx'
+import { useHistory } from 'react-router'
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
+import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import {
   ISSUE_RESOLVED_TYPE,
   ISSUE_TYPE,
@@ -17,9 +17,15 @@ import { nextMessage } from '../../contexts/NotificationsContext/notificationsCo
 const useStyles = makeStyles({
   red: {
     backgroundColor: 'red',
+    '&:hover': {
+      backgroundColor: 'red',
+    }
   },
   yellow: {
     backgroundColor: '#F29100',
+    '&:hover': {
+      backgroundColor: '#F29100',
+    }
   },
   uncolored: {
     fontSize: 18,

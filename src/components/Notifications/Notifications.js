@@ -28,8 +28,8 @@ const useStyles = makeStyles({
     }
   },
   uncolored: {
-    fontSize: 18,
-    color: '#efefef'
+    fontSize: 22,
+    color: '#fff'
   },
   fab: {
     borderRadius: '50%',

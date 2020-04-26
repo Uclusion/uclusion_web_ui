@@ -22,9 +22,9 @@ import DialogActions from './DialogActions'
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
-import { getVoteTotalsForUser } from '../../utils/userFunctions';
+import { getVoteTotalsForUser } from '../../utils/userFunctions'
 import { ISSUE_TYPE } from '../../constants/comments'
 import CardType from '../../components/CardType'
 import Chart from '../../components/Cards/Chart'
@@ -198,14 +198,7 @@ function DecisionDialogs(props) {
         'name'
       ).reverse();
       const chartData = [];
-      sortedVotesArray.map(sortedVote => {
-        sortedVote.investments.map(investment => {
-          chartData.push(investment);
-          return investment;
-        })
-        return sortedVote;
-      })
-      
+      sortedVotesArray.map((sortedVote) => sortedVote.investments.map((investment) => chartData.push(investment)));
       let parentName;
       if (parentInvestibleId) {
         parentName = getInvestibleName(parentInvestibleId);

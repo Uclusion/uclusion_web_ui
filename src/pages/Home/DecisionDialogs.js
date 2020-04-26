@@ -85,6 +85,9 @@ const useStyles = makeStyles(() => ({
     marginTop: '5px',
   },
   lastChild: {
+    '&.MuiGrid-item': {
+      padding: '10px',
+    },
     '&:last-child': {
       marginBottom: '16px'
     }

@@ -84,6 +84,14 @@ const useStyles = makeStyles(() => ({
   },
   spacer: {
     marginRight: '.5rem;'
+  },
+  lastChild: {
+    '&.MuiGrid-item': {
+      padding: '10px',
+    },
+    '&:last-child': {
+      marginBottom: '16px'
+    }
   }
 }));
 
@@ -204,6 +212,7 @@ function InitiativeDialogs(props) {
           item
           key={marketId}
           xs={12}
+          className={classes.lastChild}
 
         >
           <RaisedCard

@@ -28,12 +28,19 @@ function Identity () {
   const classes = useStyles();
   const user = useContext(CognitoUserContext);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const history = useHistory();
   const intl = useIntl();
   const chipLabel = !user ? '' : user.name;
 
   const recordPositionToggle = (event) => {
-    setAnchorEl(event.currentTarget);
+    if(anchorEl === null){
+      setAnchorEl(event.currentTarget);
+      setMenuOpen(true)
+    } else {
+      setAnchorEl(null)
+      setMenuOpen(false)
+    }
   };
 
   function goTo (to) {
@@ -55,8 +62,8 @@ function Identity () {
         {chipLabel}
       <Menu
         id="profile-menu"
-        open={!!anchorEl}
-        onClose={() => setAnchorEl(null)}
+        open={menuOpen}
+        onClose={recordPositionToggle}
         getContentAnchorEl={null}
         anchorOrigin={{
           vertical: 'bottom',

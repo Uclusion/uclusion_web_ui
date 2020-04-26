@@ -201,8 +201,9 @@ function DecisionDialogs(props) {
       sortedVotesArray.map(sortedVote => {
         sortedVote.investments.map(investment => {
           chartData.push(investment);
+          return investment;
         })
-
+        return sortedVote;
       })
       
       let parentName;

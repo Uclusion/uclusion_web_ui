@@ -1,37 +1,33 @@
-import React, {
-  useState, useContext, useEffect,
-} from 'react';
-import PropTypes from 'prop-types';
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  TextField,
-} from '@material-ui/core';
-import localforage from 'localforage';
-import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles';
-import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import { processTextAndFilesForSave } from '../../../api/files';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import React, { useContext, useEffect, useState, } from 'react'
+import PropTypes from 'prop-types'
+import { Button, Card, CardActions, CardContent, TextField, } from '@material-ui/core'
+import localforage from 'localforage'
+import { addDecisionInvestible, addInvestibleToStage } from '../../../api/investibles'
+import QuillEditor from '../../../components/TextEditors/QuillEditor'
+import { processTextAndFilesForSave } from '../../../api/files'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import {
   formInvestibleLink,
+  formMarketAddInvestibleLink,
   formMarketLink,
+  navigate,
 } from '../../../utils/marketIdPathFunctions'
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import UclusionTour from '../../../components/Tours/UclusionTour';
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import UclusionTour from '../../../components/Tours/UclusionTour'
 import {
   PURE_SIGNUP_ADD_FIRST_OPTION,
-  PURE_SIGNUP_ADD_FIRST_OPTION_STEPS, PURE_SIGNUP_FAMILY_NAME
-} from '../../../components/Tours/pureSignupTours';
+  PURE_SIGNUP_ADD_FIRST_OPTION_STEPS,
+  PURE_SIGNUP_FAMILY_NAME
+} from '../../../components/Tours/pureSignupTours'
 import CardType, { DECISION_TYPE, OPTION, VOTING_TYPE } from '../../../components/CardType'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { createDecision } from '../../../api/markets'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { addParticipants } from '../../../api/users'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { useHistory } from 'react-router'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -47,6 +43,7 @@ function DecisionInvestibleAdd(props) {
     expirationMinutes,
   } = props;
   const intl = useIntl();
+  const history = useHistory();
   const { description: storedDescription, name: storedName } = storedState;
   const [draftState, setDraftState] = useState(storedState);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -115,7 +112,7 @@ function DecisionInvestibleAdd(props) {
     onCancel(link);
   }
 
-  function handleNewInlineSave() {
+  function handleNewInlineSave(isAddAnother) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -159,6 +156,13 @@ function DecisionInvestibleAdd(props) {
         return addInvestibleToStage(addInfo);
       }).then((investible) => {
         onSave(investible);
+        if (isAddAnother) {
+          const { market_infos } = investible;
+          return {
+            result: market_infos[0].market_id,
+            spinChecker: () => Promise.resolve(true),
+          };
+        }
         const link = formInvestibleLink(marketId, parentInvestibleId);
         return {
           result: link,
@@ -167,9 +171,16 @@ function DecisionInvestibleAdd(props) {
     });
   }
 
+  function handleSaveAddAnother() {
+    if (parentInvestibleId) {
+      return handleNewInlineSave(true);
+    }
+    return handleSave();
+  }
+
   function handleSave() {
     if (parentInvestibleId) {
-      return handleNewInlineSave();
+      return handleNewInlineSave(false);
     }
     const {
       uploadedFiles: filteredUploads,
@@ -195,12 +206,15 @@ function DecisionInvestibleAdd(props) {
     });
   }
 
-  function onSaveAddAnother() {
+  function onSaveAddAnother(inlineMarketId) {
     localforage.removeItem(itemKey)
       .finally(() => {
         setCurrentValues({ name: '' });
         editorClearFunc();
       });
+    if (parentInvestibleId) {
+      navigate(history, formMarketAddInvestibleLink(inlineMarketId));
+    }
   }
 
   return (
@@ -277,7 +291,7 @@ function DecisionInvestibleAdd(props) {
           color="primary"
           disabled={!validForm}
           id="saveAddAnother"
-          onClick={handleSave}
+          onClick={handleSaveAddAnother}
           hasSpinChecker
           marketId={marketId}
           onSpinStop={onSaveAddAnother}

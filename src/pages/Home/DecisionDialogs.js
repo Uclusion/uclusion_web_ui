@@ -83,6 +83,11 @@ const useStyles = makeStyles(() => ({
     borderRadius: '12px',
     fontWeight: '900',
     marginTop: '5px',
+  },
+  lastChild: {
+    '&:last-child': {
+      marginBottom: '16px'
+    }
   }
 }));
 
@@ -212,6 +217,7 @@ function DecisionDialogs(props) {
           item
           key={marketId}
           xs={12}
+          className={classes.lastChild}
 
         >
           <RaisedCard

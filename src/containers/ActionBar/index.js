@@ -68,7 +68,7 @@ function ActionBar(props) {
     return (
       
       <Grid container style={{marginTop:'8rem'}}>
-        <Grid xs={12} justify="flex-end" container>
+        <Grid item xs={12} justify="flex-end" container>
           <Grid item xs={3} container justify="flex-end">
             {archive && archive.length > 0 &&
               <Button onClick={archive[0].onClick} className={classes.button}>

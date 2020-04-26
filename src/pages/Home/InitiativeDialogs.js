@@ -1,11 +1,14 @@
 import React, { useContext } from 'react'
 import { Avatar, CardActions, CardContent, Grid, Link, Typography } from '@material-ui/core'
+import ThumbUpIcon from '@material-ui/icons/ThumbUp';
+import ThumbDownIcon from '@material-ui/icons/ThumbDown';
 import { AvatarGroup } from '@material-ui/lab'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/styles'
 import { useIntl } from 'react-intl'
+import clsx from 'clsx';
 import {
   getMarketPresences,
   marketHasOnlyCurrentUser
@@ -17,6 +20,7 @@ import ProgressBar from '../../components/Expiration/ProgressBarExpiration'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { getVoteTotalsForUser } from '../../utils/userFunctions'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import DialogActions from './DialogActions'
 import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay'
@@ -65,18 +69,21 @@ const useStyles = makeStyles(() => ({
   },
   chartContent: {
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
     marginRight: '-75%',
   },
-  chartValue: {
-    backgroundColor: '#3f6b72',
-    color: '#ffffff',
-    padding: '3px 10px',
-    borderRadius: '12px',
+  voteContainer: {
     fontWeight: '900',
-    marginTop: '5px',
+    margin: '.375rem',
+    fontSize: '1.2rem'
+  },
+  thumbs: {
+    fontSize: '1.25rem',
+    position: 'relative',
+    top: '-2px'
+  },
+  spacer: {
+    marginRight: '.5rem;'
   }
 }));
 
@@ -141,11 +148,57 @@ function InitiativeDialogs(props) {
       const active = marketStage === ACTIVE_STAGE;
       const creator = marketPresences.find(presence => {return presence.id === createdBy}) || {name: ''};
       const isSmall = true;
+      const strippedInvestibles = investibles.map(inv => inv.investible);
       let parentName;
       if(parentMarketId){
         const parentMarketDetails = getMarket(marketsState, parentMarketId);
         parentName = parentMarketDetails.name;
       }
+      function getInvestibleVotes() {
+        // first set every investibles support and investments to 0
+        const tallies = strippedInvestibles.reduce((acc, inv) => {
+          const { id } = inv;
+          acc[id] = {
+            ...inv,
+            investments: [],
+            numSupporters: 0
+          };
+          return acc;
+        }, {});
+        // now we fill in votes from market presences
+        marketPresences.forEach(presence => {
+          const userInvestments = getVoteTotalsForUser(presence);
+          Object.keys(userInvestments).forEach((investible_id) => {
+            const oldValue = tallies[investible_id];
+            if (oldValue) {
+              const newInvestments = [
+                ...oldValue.investments,
+                userInvestments[investible_id],
+              ];
+              tallies[investible_id] = {
+                ...oldValue,
+                investments: newInvestments,
+                numSupporters: newInvestments.length,
+              };
+            }
+          });
+        });
+        return tallies;
+      }
+      const votes = getInvestibleVotes();
+      const votesArray = Object.values(votes);
+      // descending order of support
+      const sortedVotesArray = _.sortBy(
+        votesArray,
+        'numSupporters',
+        'name'
+      ).reverse();
+      const voting = [];
+      sortedVotesArray.map((sortedVote) => sortedVote.investments.map((investment) => voting.push(investment)));
+      
+      const votesFor = voting.filter(vote => {return vote.y > 0 });
+      const votesAgainst = voting.filter(vote => { return vote.y < 0});
+      
       return (
         <Grid
           item
@@ -182,7 +235,7 @@ function InitiativeDialogs(props) {
                   navigate(history, formMarketLink(marketId));}}
               >
                 <Grid container>
-                  <Grid xs={6}>
+                  <Grid item xs={6}>
                     <CardContent>
                       {parentMarketId &&
                         <Link
@@ -222,9 +275,15 @@ function InitiativeDialogs(props) {
                       </Typography>
                   </CardContent>
                 </Grid>
-                <Grid xs={2} container className={classes.chartContainer}>
+                <Grid item xs={2} container className={classes.chartContainer}>
+                  <div className={classes.chartContent}>
+                      <span className={classes.voteContainer}>{votesFor && votesFor.length}</span>
+                      <ThumbUpIcon htmlColor="#828282" className={clsx(classes.thumbs, classes.spacer)}/>
+                      <ThumbDownIcon htmlColor="#828282" className={classes.thumbs}/>
+                      <span className={classes.voteContainer}>{votesAgainst && votesAgainst.length}</span>
+                  </div>
                 </Grid>
-                <Grid xs={4} style={{display: 'flex'}}>
+                <Grid item xs={4} style={{display: 'flex'}}>
                   {getParticipantInfo(sortedPresences, marketId)}
                   <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
                     <DialogActions

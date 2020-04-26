@@ -85,6 +85,9 @@ const useStyles = makeStyles(() => ({
     marginTop: '5px',
   },
   lastChild: {
+    '&.MuiGrid-item': {
+      padding: '10px',
+    },
     '&:last-child': {
       marginBottom: '16px'
     }
@@ -250,7 +253,7 @@ function DecisionDialogs(props) {
                   }}
                 >
                 <Grid container>
-                  <Grid xs={6}>
+                  <Grid item xs={6}>
                     <CardContent>
                       {parentMarketId &&
                         <Link
@@ -293,7 +296,7 @@ function DecisionDialogs(props) {
                       )}
                     </CardContent>
                   </Grid>
-                  <Grid xs={2} container className={classes.chartContainer}>
+                  <Grid item xs={2} container className={classes.chartContainer}>
                     {sortedVotesArray && sortedVotesArray.length > 0 &&
                       <div className={classes.chartContent}>
                         <Chart data={chartData} />
@@ -303,7 +306,7 @@ function DecisionDialogs(props) {
                       </div>
                     }
                   </Grid>
-                  <Grid xs={4} style={{display: 'flex'}}>
+                  <Grid item xs={4} style={{display: 'flex'}}>
                     {getParticipantInfo(sortedPresences, marketId)}
                     <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
                       <DialogActions

@@ -143,7 +143,7 @@ Screen.propTypes = {
   loading: PropTypes.bool,
   title: PropTypes.any,
   children: PropTypes.any.isRequired,
-  sidebarActions: PropTypes.arrayOf(PropTypes.element),
+  sidebarActions: PropTypes.arrayOf(PropTypes.object),
   tabTitle: PropTypes.string.isRequired,
   appEnabled: PropTypes.bool,
   isHome: PropTypes.bool,

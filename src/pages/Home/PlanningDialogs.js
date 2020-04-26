@@ -74,6 +74,11 @@ const useStyles = makeStyles(() => ({
   },
   childText: {
     fontSize: '.825rem'
+  },
+  lessPadding: {
+    '&.MuiGrid-item': {
+      padding: '10px'
+    }
   }
 }));
 
@@ -186,7 +191,7 @@ function PlanningDialogs(props) {
           item
           key={marketId}
           xs={4}
-
+          className={classes.lessPadding}
         >
           <RaisedCard
             className={classes.paper}

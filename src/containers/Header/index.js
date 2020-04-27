@@ -34,7 +34,6 @@ const useStyles = makeStyles((theme) => {
       height: `67px`,
     },
     breadcrumbs: {
-      marginLeft: '5px',
       '& > .MuiBreadcrumbs-ol': {
         flexWrap: 'nowrap',
       },

@@ -90,7 +90,7 @@ function ChangeNotificationPreferences(props) {
   }
 
   const history = useHistory();
-  const breadCrumbs = makeBreadCrumbs(history, [], true);
+  const breadCrumbs = makeBreadCrumbs(history, []);
   return (
     <Screen
       title={intl.formatMessage({ id: 'changePreferencesHeader' })}

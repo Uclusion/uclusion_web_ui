@@ -55,7 +55,7 @@ export function navigate(history, to) {
  * @param crumbs A list objects of the type { name, link }
  * @param includeHome if Home Should be prepended to the list
  */
-export function makeBreadCrumbs(history, crumbs = [], includeHome = true) {
+export function makeBreadCrumbs(history, crumbs = [], includeHome = false) {
   const homeName = intl.formatMessage({ id: 'homeBreadCrumb' });
   const homeCrumb = [];
   if (includeHome) {

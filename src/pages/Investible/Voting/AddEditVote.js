@@ -161,7 +161,7 @@ function AddEditVote(props) {
     addMode ||
     newQuantity !== initialInvestment ||
     maxBudget !== initialMaxBudget ||
-    reasonText !== body;
+    reasonText !== body || (quantity < 0 && multiplier > 0) || (quantity > 0 && multiplier < 0);
 
   function mySave() {
     // console.debug("saving now");

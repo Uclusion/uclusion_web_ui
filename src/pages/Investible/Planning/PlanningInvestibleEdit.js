@@ -227,22 +227,6 @@ function PlanningInvestibleEdit(props) {
             />
           </SpinBlockingButton>
         )}
-        {isAssign && !hasVotes && (
-          <SpinBlockingButton
-            marketId={marketId}
-            variant="contained"
-            color="primary"
-            className={classes.actionPrimary}
-            onClick={handleSave}
-            disabled={!validForm}
-            onSpinStop={onSave}
-            hasSpinChecker
-          >
-            <FormattedMessage
-              id={"agilePlanFormSaveLabel"}
-            />
-          </SpinBlockingButton>
-        )}
         {isAssign && hasVotes && (
           <Button
             className={classes.actionPrimary}
@@ -279,7 +263,7 @@ function PlanningInvestibleEdit(props) {
             }
           />
         )}
-        {!isAssign && (
+        {(!isAssign || !hasVotes) && (
           <SpinBlockingButton
             marketId={marketId}
             variant="contained"

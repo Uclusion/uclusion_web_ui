@@ -30,6 +30,12 @@ import clsx from 'clsx'
 import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogEdit'
 import queryString from 'query-string'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import {
+  getFurtherWorkStage,
+  getInCurrentVotingStage,
+  getNotDoingStage
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 
 function InvestibleEdit (props) {
   const { hidden } = props;
@@ -66,6 +72,7 @@ function InvestibleEdit (props) {
   const loading = idLoaded !== investibleId || !market || !inv;
   const someoneElseEditing = lockedBy && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
 
   function onLock (result) {
     if (result) {
@@ -116,9 +123,17 @@ function InvestibleEdit (props) {
     if (!thisMarketInfo) {
       return marketInfos;
     }
+    const { stage } = thisMarketInfo;
+    const movingToVoting = stage === getFurtherWorkStage(marketStagesState, marketId).id ||
+      stage === getNotDoingStage(marketStagesState, marketId).id;
+    let newStage = stage;
+    if (movingToVoting) {
+      newStage = getInCurrentVotingStage(marketStagesState, marketId).id;
+    }
     const replacementInfo = {
      ...thisMarketInfo,
-     assigned: assignments,
+      assigned: assignments,
+      stage: newStage,
     };
     return _.unionBy([replacementInfo], marketInfos, 'market_id');
   }

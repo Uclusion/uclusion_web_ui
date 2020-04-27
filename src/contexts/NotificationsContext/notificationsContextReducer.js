@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { getMassagedMessages, splitIntoLevels } from '../../utils/messageUtils'
 import { intl } from '../../components/ContextHacks/IntlGlobalProvider'
 import { pushMessage } from '../../utils/MessageBusUtils'
-import { NAVIGATION_CHANNEL, TOAST_CHANNEL } from './NotificationsContext';
+import { NAVIGATION_CHANNEL, TOAST_CHANNEL } from './NotificationsContext'
 import { HIGHLIGHTED_COMMENT_CHANNEL } from '../HighlightingContexts/highligtedCommentContextMessages'
 import { HIGHLIGHTED_VOTING_CHANNEL } from '../HighlightingContexts/highligtedVotingContextMessages'
 import { deleteMessage } from '../../api/users'
@@ -105,7 +105,7 @@ function getStoredMessagesForMarketPage(messages, page) {
  */
 function getStoredMessagesForPage(state, page) {
   const { action } = page;
-  const messages = state.messages || emptyMessagesState;
+  const messages = (state || {messages: []}).messages || emptyMessagesState;
   if (action === 'dialog') {
     return getStoredMessagesForMarketPage(messages, page);
   }

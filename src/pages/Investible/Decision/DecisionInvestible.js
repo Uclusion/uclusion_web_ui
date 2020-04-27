@@ -80,6 +80,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export function getInlineBreadCrumbs (marketState, parentMarketId, parentInvestibleId, investiblesState) {
+  const inlineParentMarket = getMarket(marketState, parentMarketId);
+  let breadCrumbTemplates = [];
+  if (inlineParentMarket) {
+    // Better would be to peg loading a level up since above can resolve with wrong
+    const { name: inlineParentMarketName } = inlineParentMarket
+    breadCrumbTemplates = [{ name: inlineParentMarketName, link: formMarketLink(parentMarketId), id: 'marketCrumb' }]
+  }
+  if (parentInvestibleId) {
+    const inlineParentInvestible = getInvestible(investiblesState, parentInvestibleId)
+    if (inlineParentInvestible) {
+      const { investible } = inlineParentInvestible
+      const { name: parentInvestibleName } = investible
+      breadCrumbTemplates.push({
+        name: parentInvestibleName,
+        link: formInvestibleLink(parentMarketId, parentInvestibleId), id: 'marketCrumb'
+      })
+    }
+  }
+  return breadCrumbTemplates
+}
+
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
  * @param props
@@ -110,21 +132,7 @@ function DecisionInvestible(props) {
   const [marketState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   if (isInline) {
-    const inlineParentMarket = getMarket(marketState, parentMarketId);
-    if (inlineParentMarket) {
-      // Better would be to peg loading a level up since above can resolve with wrong
-      const { name: inlineParentMarketName } = inlineParentMarket;
-      breadCrumbTemplates = [{ name: inlineParentMarketName, link: formMarketLink(parentMarketId), id: 'marketCrumb' }];
-    }
-    if (parentInvestibleId) {
-      const inlineParentInvestible = getInvestible(investiblesState, parentInvestibleId);
-      if (inlineParentInvestible) {
-        const { investible } = inlineParentInvestible;
-        const { name: parentInvestibleName } = investible;
-        breadCrumbTemplates.push({ name: parentInvestibleName,
-          link: formInvestibleLink(parentMarketId, parentInvestibleId), id: 'marketCrumb' });
-      }
-    }
+    breadCrumbTemplates = getInlineBreadCrumbs(marketState, parentMarketId, parentInvestibleId, investiblesState);
   }
   const breadCrumbs = inArchives
     ? makeArchiveBreadCrumbs(history, breadCrumbTemplates)

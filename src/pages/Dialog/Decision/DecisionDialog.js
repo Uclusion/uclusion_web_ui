@@ -1,7 +1,7 @@
 /**
  * A component that renders a _decision_ dialog
  */
-import React from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
@@ -40,6 +40,9 @@ import DialogActions from '../../Home/DialogActions'
 import ParentSummary from '../ParentSummary'
 import CardActions from '@material-ui/core/CardActions'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
+import { getInlineBreadCrumbs } from '../../Investible/Decision/DecisionInvestible'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -106,9 +109,16 @@ function DecisionDialog(props) {
     parent_investible_id: parentInvestibleId,
     is_inline: isInline,
   } = market;
+  const [marketState] = useContext(MarketsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
-  const breadCrumbs = inArchives ? makeArchiveBreadCrumbs(history) : makeBreadCrumbs(history);
+  let breadCrumbTemplates = [];
+  if (isInline) {
+    breadCrumbTemplates = getInlineBreadCrumbs(marketState, parentMarketId, parentInvestibleId, investiblesState);
+  }
+  const breadCrumbs = inArchives ? _.isEmpty(breadCrumbTemplates) ? makeArchiveBreadCrumbs(history)
+    : makeBreadCrumbs(history, breadCrumbTemplates) : makeBreadCrumbs(history);
   const participantTourSteps = [
   ];
   const tourSteps = isAdmin? PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS : participantTourSteps;
@@ -134,7 +144,7 @@ function DecisionDialog(props) {
   const proposed = getInvestiblesForStage(proposedStage);
   return (
     <Screen
-      title={marketName}
+      title={isInline ? intl.formatMessage({ id: 'archiveInlineTitle' }) : marketName}
       tabTitle={marketName}
       hidden={hidden}
       breadCrumbs={breadCrumbs}

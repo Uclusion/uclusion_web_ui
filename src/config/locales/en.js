@@ -136,13 +136,7 @@ const messages = defineMessages({
   // Loadable Image
   loadableImageAlt: 'User provided image',
 
-  // Sidebar Nav menu names
-  sidebarNavDialogs: 'Decision Dialogs',
-  sidebarNavActionItems: 'Action Items',
-  sidebarNavTemplates: 'Templates',
-  sidebarNavNotifications: 'Action Center',
-  sideBarNavTempSignout: 'Signout(Temp)',
-  sidebarNewPlanning: 'Create New Workspace',
+  archiveInlineTitle: 'Dialog',
 
   loadingMessage: 'Please wait while your page loads.',
   loadingMarket: 'Processing Invite',

@@ -16,6 +16,8 @@ import { DaysEstimate, usePlanFormStyles } from '../../../components/AgilePlan'
 import BlockIcon from '@material-ui/icons/Block'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 
 function PlanningInvestibleEdit(props) {
   const {
@@ -41,6 +43,22 @@ function PlanningInvestibleEdit(props) {
   const [description, setDescription] = useState(storedDescription || initialDescription);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [open, setOpen] = useState(false);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const hasVotes = marketPresences.find(presence => {
+    const { investments } = presence;
+    if (_.isEmpty(investments)) {
+      return false;
+    }
+    let found = false;
+    investments.forEach(investment => {
+      const { investible_id: invId } = investment;
+      if (invId === id) {
+        found = true;
+      }
+    });
+    return found;
+  });
   const handleOpen = () => {
     setOpen(true);
   };
@@ -209,7 +227,23 @@ function PlanningInvestibleEdit(props) {
             />
           </SpinBlockingButton>
         )}
-        {isAssign && (
+        {isAssign && !hasVotes && (
+          <SpinBlockingButton
+            marketId={marketId}
+            variant="contained"
+            color="primary"
+            className={classes.actionPrimary}
+            onClick={handleSave}
+            disabled={!validForm}
+            onSpinStop={onSave}
+            hasSpinChecker
+          >
+            <FormattedMessage
+              id={"agilePlanFormSaveLabel"}
+            />
+          </SpinBlockingButton>
+        )}
+        {isAssign && hasVotes && (
           <Button
             className={classes.actionPrimary}
             color="primary"
@@ -221,7 +255,7 @@ function PlanningInvestibleEdit(props) {
             />
           </Button>
         )}
-        {isAssign && (
+        {isAssign && hasVotes && (
           <WarningDialog
             classes={lockedDialogClasses}
             open={open}

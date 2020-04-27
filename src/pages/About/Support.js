@@ -92,7 +92,7 @@ function Support(props) {
       }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
     }
   }, [externalId, hidden]);
-  const breadCrumbs = makeBreadCrumbs(history, []);
+  const breadCrumbs = makeBreadCrumbs(history, [], true);
   return (
     <Screen
       title={intl.formatMessage({ id: 'support' })}

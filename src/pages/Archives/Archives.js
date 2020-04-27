@@ -29,7 +29,7 @@ function Archives(props) {
   const initiativeDetails = hiddenMarkets.filter((market) => market.market_type === INITIATIVE_TYPE);
   const emptyArchives = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
 
-  const breadCrumbs = makeBreadCrumbs(history, []);
+  const breadCrumbs = makeBreadCrumbs(history, [], true);
   return (
     <Screen
       title={intl.formatMessage({ id: 'archivesTitle' })}

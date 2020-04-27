@@ -78,7 +78,7 @@ function ChangePassword(props) {
     }
   }
   const history = useHistory();
-  const breadCrumbs = makeBreadCrumbs(history, []);
+  const breadCrumbs = makeBreadCrumbs(history, [], true);
 
   return (
     <Screen

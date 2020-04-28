@@ -5,15 +5,16 @@ import {
 import { getNotifications } from '../../api/summaries';
 import {
   addNewMarket,
-  refreshNotificationVersionAction,
+  refreshNotificationVersionAction, requiredVersionsSatisfied,
   updateGlobalVersion
-} from './versionsContextReducer'
+} from './versionsContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
 
 export const GLOBAL_VERSION_UPDATE = 'global_version_update';
 export const NEW_MARKET = 'new_market';
+export const VERSIONS_SATISFIED = 'required_versions_satisfied';
 
-function beginListening(dispatch) {
+function beginListening (dispatch) {
   registerListener(VERSIONS_HUB_CHANNEL, 'versionVersionStart', (data) => {
     const { payload: { event, globalVersion, marketId } } = data;
     // console.debug(`Versions context responding to push event ${event}`);
@@ -24,14 +25,17 @@ function beginListening(dispatch) {
       case NEW_MARKET:
         dispatch(addNewMarket(marketId));
         break;
+      case VERSIONS_SATISFIED:
+        dispatch(requiredVersionsSatisfied());
+        break;
       case NOTIFICATION_MESSAGE_EVENT:
         return getNotifications()
           .then((notifications) => {
-            const notification = notifications.find((item) => item.type_object_id.startsWith("notification"));
+            const notification = notifications.find((item) => item.type_object_id.startsWith('notification'));
             dispatch(refreshNotificationVersionAction(notification));
           });
       default:
-        // console.debug(`Ignoring push event ${event}`);
+      // console.debug(`Ignoring push event ${event}`);
     }
   });
 }

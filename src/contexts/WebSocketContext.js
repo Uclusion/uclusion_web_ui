@@ -25,6 +25,7 @@ export const NOTIFICATION_MESSAGE_EVENT = 'notification_web_push';
 export const SOCKET_OPEN_EVENT = 'web_socket_opened';
 export const REMOVE_EVENT = 'remove_push';
 
+
 const WebSocketContext = React.createContext([
   {}, () => {
   },

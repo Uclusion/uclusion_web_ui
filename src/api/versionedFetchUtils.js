@@ -1,8 +1,8 @@
-import _ from 'lodash'
-import { pushMessage } from '../utils/MessageBusUtils'
-import { getVersions } from './summaries'
-import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
-import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils'
+import _ from 'lodash';
+import { pushMessage } from '../utils/MessageBusUtils';
+import { getVersions } from './summaries';
+import { getMarketDetails, getMarketStages, getMarketUsers } from './markets';
+import { getFetchSignaturesForMarket, signatureMatcher, versionIsStale } from './versionSignatureUtils';
 import {
   BANNED_LIST,
   PUSH_COMMENTS_CHANNEL,
@@ -12,21 +12,25 @@ import {
   PUSH_STAGE_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
-} from '../contexts/VersionsContext/versionsContextHelper'
-import { fetchComments } from './comments'
-import { fetchInvestibles } from './marketInvestibles'
-import { LimitedParallelMap } from '../utils/PromiseUtils'
-import { startTimerChain } from '../utils/timerUtils'
-import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext'
-import { GLOBAL_VERSION_UPDATE, NEW_MARKET } from '../contexts/VersionsContext/versionsContextMessages'
+} from '../contexts/VersionsContext/versionsContextHelper';
+import { fetchComments } from './comments';
+import { fetchInvestibles } from './marketInvestibles';
+import { LimitedParallelMap } from '../utils/PromiseUtils';
+import { startTimerChain } from '../utils/timerUtils';
+import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext';
+import {
+  GLOBAL_VERSION_UPDATE,
+  NEW_MARKET,
+  VERSIONS_SATISFIED
+} from '../contexts/VersionsContext/versionsContextMessages';
 import {
   OPERATION_HUB_CHANNEL,
   START_OPERATION,
   STOP_OPERATION
-} from '../contexts/OperationInProgressContext/operationInProgressMessages'
-import config from '../config'
-import LocalForageHelper from '../utils/LocalForageHelper'
-import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
+} from '../contexts/OperationInProgressContext/operationInProgressMessages';
+import config from '../config';
+import LocalForageHelper from '../utils/LocalForageHelper';
+import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -47,7 +51,6 @@ export class MatchError extends Error {
 export function refreshGlobalVersion () {
   return addToVersionsPromiseChain(() => {
     // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
-
     return new Promise((resolve, reject) => {
       const execFunction = () => {
         const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
@@ -57,12 +60,13 @@ export function refreshGlobalVersion () {
             const {
               existingMarkets,
               globalVersion,
+              requiredSignatures,
             } = state || {};
             currentHeldVersion = globalVersion;
             if (globalVersion === 'FAKE') {
               return Promise.resolve(false);
             }
-            return doVersionRefresh(currentHeldVersion, existingMarkets);
+            return doVersionRefresh(currentHeldVersion, existingMarkets, requiredSignatures);
           }).then((globalVersion) => {
             if (globalVersion !== currentHeldVersion) {
               // console.log('Got new version');
@@ -131,9 +135,11 @@ function updateMarketsFromSignatures (marketSignatures, existingMarkets, maxConc
  * USed if you have some other control and want access to the promise chain
  * @param currentHeldVersion
  * @param existingMarkets
+ * @oaram requiredSignatures we will ignore any global version fetched from the server,
+ * that doesn't have signatures that match what we want
  * @returns {Promise<*>}
  */
-export function doVersionRefresh (currentHeldVersion, existingMarkets) {
+export function doVersionRefresh (currentHeldVersion, existingMarkets, requiredSignatures) {
   let newGlobalVersion = currentHeldVersion;
   const globalLockEnabled = config.globalLockEnabled === 'true' || !currentHeldVersion
     || currentHeldVersion === 'INITIALIZATION';
@@ -147,14 +153,21 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
         global_version, signatures: marketSignatures, foreground: foregroundList,
         banned: bannedList
       } = versions;
-      if (!_.isEmpty(bannedList)) {
-        pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
+      // if the market signatures don't have the required signatures, just abort, this version has stale data
+      if (versionIsStale(marketSignatures, requiredSignatures)) {
+        return currentHeldVersion;
       }
       if (_.isEmpty(marketSignatures) || _.isEmpty(global_version)) {
         pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
         return currentHeldVersion;
       }
-      // now we sort the global versions by foreground
+      // don't refresh market's we're banned from
+      if (!_.isEmpty(bannedList)) {
+        pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
+      }
+      //push a message telling the context all versions satisfied, and get the call chain started
+      pushMessage(VERSIONS_HUB_CHANNEL, { event: VERSIONS_SATISFIED});
+      // Kick off the fetch by sorting the global versions by foreground
       newGlobalVersion = global_version;
       const splitMS = splitIntoForegroundBackground(marketSignatures, foregroundList);
       const { foreground, background } = splitMS;

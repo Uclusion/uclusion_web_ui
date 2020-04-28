@@ -1,8 +1,7 @@
 import { pushMessage } from '../../utils/MessageBusUtils';
 import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
 import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../WebSocketContext';
-import LocalForageHelper from '../../utils/LocalForageHelper';
-import { addVersionRequirement, VERSIONS_CONTEXT_NAMESPACE } from './versionsContextReducer';
+import { addVersionRequirement } from './versionsContextReducer';
 
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
 export const PUSH_CONTEXT_CHANNEL = 'MarketsChannel';

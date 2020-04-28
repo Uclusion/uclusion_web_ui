@@ -15,7 +15,7 @@ export function versionIsStale (marketSignatures, requiredSignatures) {
     return false;
   }
   const fetchSignatures = marketSignatures.reduce((acc, marketSignature) => {
-    const { market_id: marketId, signatures: componentSignatures } = marketSignature;
+    const { signatures: componentSignatures } = marketSignature;
     const components = componentSignatures.reduce((acc, componentSignature) => {
       const { object_versions } = componentSignature;
       const converted = object_versions.map((objectVersion) => {
@@ -24,7 +24,7 @@ export function versionIsStale (marketSignatures, requiredSignatures) {
           id: objectVersion.object_id_one,
         };
       });
-      return acc.concat(acc, object_versions);
+      return acc.concat(acc, converted);
     }, []);
     return acc.concat(components);
   }, []);

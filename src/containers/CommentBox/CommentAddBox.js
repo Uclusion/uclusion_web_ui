@@ -28,7 +28,7 @@ export const useStyles = makeStyles((theme) => ({
     borderRadius: 16,
     paddingRight: theme.spacing(1),
     paddingLeft: theme.spacing(1),
-    margin: theme.spacing(0, 0, 0, 8)
+    margin: theme.spacing(0, 0, 0, 4)
   },
   chipItemQuestion: {
     background: '#2F80ED',

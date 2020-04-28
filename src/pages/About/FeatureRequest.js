@@ -1,14 +1,14 @@
-import React from 'react';
-import { useHistory } from 'react-router';
-import { useIntl } from 'react-intl';
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import { createDecision } from '../../api/markets';
-import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper';
-import { addParticipants } from '../../api/users';
+import React from 'react'
+import { useHistory } from 'react-router'
+import { useIntl } from 'react-intl'
+import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
+import { createDecision } from '../../api/markets'
+import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper'
+import { addParticipants } from '../../api/users'
 import clsx from 'clsx'
-import config from '../../config';
-import { makeStyles } from '@material-ui/core';
+import config from '../../config'
+import { makeStyles } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -71,6 +71,7 @@ function FeatureRequest() {
         variant="contained"
         color="primary"
         onClick={handleSave}
+        hasSpinChecker
         onSpinStop={onDone}
         fullWidth={true}
         className={ clsx(

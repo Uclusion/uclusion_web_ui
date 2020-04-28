@@ -1,15 +1,15 @@
-import React, { useContext, useState } from 'react';
-import PropTypes from 'prop-types';
-import SyncIcon from '@material-ui/icons/Sync';
-import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import { unbanUser } from '../../../api/users';
-import WarningDialog from '../../../components/Warnings/WarningDialog';
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import clsx from 'clsx';
-import { FormattedMessage } from 'react-intl';
-import { useLockedDialogStyles } from '../DialogEdit';
-import { changeBanStatus } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import React, { useContext, useState } from 'react'
+import PropTypes from 'prop-types'
+import SyncIcon from '@material-ui/icons/Sync'
+import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
+import { unbanUser } from '../../../api/users'
+import WarningDialog from '../../../components/Warnings/WarningDialog'
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
+import clsx from 'clsx'
+import { FormattedMessage } from 'react-intl'
+import { useLockedDialogStyles } from '../DialogEdit'
+import { changeBanStatus } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 function UnBanUserButton(props){
   const {
@@ -62,6 +62,7 @@ function UnBanUserButton(props){
             disableFocusRipple
             marketId={marketId}
             onClick={onProceed}
+            hasSpinChecker
             onSpinStop={onSpinStop}
           >
             <FormattedMessage id="issueProceed" />

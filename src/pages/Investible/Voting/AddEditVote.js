@@ -337,6 +337,7 @@ function AddEditVote(props) {
             disableFocusRipple
             marketId={marketId}
             onClick={mySave}
+            hasSpinChecker
             onSpinStop={onSaveSpinStop}
             disabled={!validForm}
           >

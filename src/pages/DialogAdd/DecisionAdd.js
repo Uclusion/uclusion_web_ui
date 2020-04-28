@@ -221,6 +221,7 @@ function DecisionAdd(props) {
             variant="contained"
             color="primary"
             onClick={handleSave}
+            hasSpinChecker
             disabled={!createEnabled || !validForm}
             onSpinStop={onSpinStop}
             className={classes.actionPrimary}

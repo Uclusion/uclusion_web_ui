@@ -1,15 +1,15 @@
-import React, { useContext, useState } from 'react';
-import { toastError } from '../../utils/userMessage';
-import { CircularProgress, useTheme } from '@material-ui/core';
-import PropTypes from 'prop-types';
-import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { pushMessage, registerListener, removeListener } from '../../utils/MessageBusUtils';
-import { getExistingMarkets, getGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper';
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
-import { startTimerChain } from '../../utils/timerUtils';
-import { doVersionRefresh, MatchError } from '../../api/versionedFetchUtils';
-import { GLOBAL_VERSION_UPDATE } from '../../contexts/VersionsContext/versionsContextMessages';
+import React, { useContext, useState } from 'react'
+import { toastError } from '../../utils/userMessage'
+import { CircularProgress, useTheme } from '@material-ui/core'
+import PropTypes from 'prop-types'
+import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { pushMessage, registerListener, removeListener } from '../../utils/MessageBusUtils'
+import { getExistingMarkets, getGlobalVersion } from '../../contexts/VersionsContext/versionsContextHelper'
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
+import { startTimerChain } from '../../utils/timerUtils'
+import { doVersionRefresh, MatchError } from '../../api/versionedFetchUtils'
+import { GLOBAL_VERSION_UPDATE } from '../../contexts/VersionsContext/versionsContextMessages'
 
 const FETCH_DELAY = 200; // give us 200 ms pull data from the hub event;
 const SPIN_CHECKER_POLL_DELAY = 75; // how often to run the spin checker
@@ -110,8 +110,8 @@ export function withSpinLock(Component) {
     function myOnSpinStart() {
       setOperationRunning(true);
       setSpinning(true);
-      startOperationCheckInterval();
       if (!hasSpinChecker) {
+        startOperationCheckInterval();
         registerListener(VERSIONS_HUB_CHANNEL, listenerName, hubListener);
       }
       onSpinStart();

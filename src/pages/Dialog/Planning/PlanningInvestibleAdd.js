@@ -190,6 +190,7 @@ function PlanningInvestibleAdd(props) {
             </Button>
             <SpinBlockingButton
               onClick={handleSave}
+              hasSpinChecker
               onSpinStop={onSpinComplete}
               className={classes.actionPrimary}
               color="primary"

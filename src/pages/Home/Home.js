@@ -53,11 +53,7 @@ function Home(props) {
     marketsState,
     marketPresencesState,
   );
-  const planningDetails = _.sortBy(getMarketDetailsForType(
-    myNotHiddenMarketsState,
-    marketPresencesState,
-    PLANNING_TYPE,
-  ), 'created_at').reverse();
+  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const decisionDetails = _.sortBy(getMarketDetailsForType(
     myNotHiddenMarketsState,
     marketPresencesState,

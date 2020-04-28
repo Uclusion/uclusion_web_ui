@@ -169,15 +169,21 @@ function PlanningDialogs(props) {
   }
 
   function getMarketItems() {
-    return markets.map((market) => {
+    const marketsWithUpdatedAt = markets.map((market) => {
+      const { id: marketId, updated_at: updatedAt } = market;
+      const comments = getMarketComments(commentsState, marketId) || [];
+      const investibles = getMarketInvestibles(investibleState, marketId) || [];
+      const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+      const marketUpdatedAt = getMarketUpdatedAt(updatedAt, marketPresences, investibles, comments, marketId);
+      return { ...market, marketUpdatedAt }
+    });
+    const sortedMarkets = _.sortBy(marketsWithUpdatedAt, 'marketUpdatedAt').reverse();
+    return sortedMarkets.map((market) => {
       const {
         id: marketId, name, market_type: marketType, market_stage: marketStage,
-        parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId, updated_at: updatedAt
+        parent_market_id: parentMarketId, parent_investible_id: parentInvestibleId, marketUpdatedAt
       } = market;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-      const investibles = getMarketInvestibles(investibleState, marketId) || [];
-      const comments = getMarketComments(commentsState, marketId) || [];
-      const marketUpdatedAt = getMarketUpdatedAt(updatedAt, marketPresences, investibles, comments, marketId);
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);

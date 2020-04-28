@@ -38,7 +38,7 @@ export function versionIsStale (marketSignatures, requiredSignatures) {
     return !satisfied;
   });
   // if there are any not satisfied, then we're stale
-  return _.isEmpty(notSatisfied);
+  return !_.isEmpty(notSatisfied);
 }
 
 /**

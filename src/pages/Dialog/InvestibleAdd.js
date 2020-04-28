@@ -17,6 +17,8 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import queryString from 'query-string'
+import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper';
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
 
 function InvestibleAdd(props) {
   const { hidden } = props;
@@ -28,6 +30,7 @@ function InvestibleAdd(props) {
   const { parentInvestibleId } = values;
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // we're going to talk directly to the contexts instead of pushing messages for speed reasons
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -51,6 +54,8 @@ function InvestibleAdd(props) {
   const [idLoaded, setIdLoaded] = useState(undefined);
 
   function onInvestibleSave(investible) {
+    const { id, version} = investible.investible;
+    addMinimumVersionRequirement(versionsDispatch, { id, version});
     addInvestible(investiblesDispatch, diffDispatch, investible);
   }
 

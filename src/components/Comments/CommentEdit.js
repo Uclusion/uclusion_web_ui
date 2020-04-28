@@ -22,6 +22,8 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../constants/comments'
+import { addVersionRequirement } from '../../contexts/VersionsContext/versionsContextReducer';
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -56,6 +58,7 @@ function CommentEdit(props) {
   const classes = useStyles();
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
   const [type, setType] = useState(commentType);
 
   function onEditorChange(content) {
@@ -70,6 +73,7 @@ function CommentEdit(props) {
     const updatedType = type !== commentType ? type : undefined;
     return updateComment(marketId, id, tokensRemoved, filteredUploads, updatedType)
       .then((comment) => {
+        addVersionRequirement(versionsDispatch, { id: comment.id, version: comment.version});
         addCommentToMarket(comment, commentState, commentDispatch);
         return EMPTY_SPIN_RESULT;
       })

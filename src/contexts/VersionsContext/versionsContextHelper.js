@@ -49,7 +49,6 @@ function processNewNotification (newNotificationVersion, notificationVersion) {
  * Adds a versions requirment to the global fetch system. That is,
  * we'll ingore any global version that does not satisfy this requirement
  * @param requirement
- * @returns {Promise<*>}
  */
 export function addMinimumVersionRequirement (dispatch, requirement) {
   dispatch(addVersionRequirement(requirement));

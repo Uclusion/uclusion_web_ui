@@ -36,6 +36,8 @@ import {
   getInCurrentVotingStage,
   getNotDoingStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper';
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
 
 function InvestibleEdit (props) {
   const { hidden } = props;
@@ -48,6 +50,7 @@ function InvestibleEdit (props) {
   const isAssign = assign === 'true';
   const { marketId, investibleId } = decomposeMarketPath(pathname);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const inv = getInvestible(investiblesState, investibleId);
   const fullInvestible = inv || { investible: { name: '' } };
@@ -167,9 +170,9 @@ function InvestibleEdit (props) {
   function onSave (result, stillEditing) {
     // the edit ony contains the investible data and assignments, not the full market infos
     if (result) {
+      const { investible, assignments } = result;
       localforage.removeItem(lockedInvestibleId)
         .then(() => {
-          const { investible, assignments } = result;
           const newInfos = getNewMarketInfo(assignments);
           const withMarketInfo = {
             market_infos: newInfos,
@@ -179,6 +182,8 @@ function InvestibleEdit (props) {
               updated_by_you: true,
             },
           };
+          const { id, version } = investible;
+          addMinimumVersionRequirement(versionsDispatch, { id, version});
           refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);
         });
     }

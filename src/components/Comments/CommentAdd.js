@@ -17,6 +17,8 @@ import { Dialog } from '../Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
+import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper';
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
 
 function getPlaceHolderLabelId (type) {
   switch (type) {
@@ -84,6 +86,7 @@ function CommentAdd (props) {
   } = props;
   const [body, setBody] = useState('');
   const [commentsState, commentDispatch] = useContext(CommentsContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [openIssue, setOpenIssue] = useState(false);
   const classes = useStyles();
@@ -138,6 +141,7 @@ function CommentAdd (props) {
     const investibleId = (investible) ? investible.id : parentInvestible;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((comment) => {
+        addMinimumVersionRequirement(versionsDispatch, { id: comment.id, version: comment.version})
         addCommentToMarket(comment, commentsState, commentDispatch);
         return EMPTY_SPIN_RESULT;
       });

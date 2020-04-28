@@ -1,6 +1,47 @@
 import _ from 'lodash';
 
 /**
+ * Returns if the version is stale. I.E. we have some required signatures
+ * that we know an up to date version must have, and this update doesn't contain
+ * them or a later version.
+ * @param marketSignatures
+ * @param requiredSignatures, a list of simple {id, version} pairs that we need. This
+ * works because our keyspace is vanishingly unlikely to collide.
+ * @returns {boolean}
+ */
+export function versionIsStale (marketSignatures, requiredSignatures) {
+  // we require nothing, so we can't be stale
+  if (_.isEmpty(requiredSignatures)) {
+    return false;
+  }
+  const fetchSignatures = marketSignatures.reduce((acc, marketSignature) => {
+    const { signatures: componentSignatures } = marketSignature;
+    const components = componentSignatures.reduce((acc, componentSignature) => {
+      const { object_versions } = componentSignature;
+      const converted = object_versions.map((objectVersion) => {
+        return {
+          version: objectVersion.version,
+          id: objectVersion.object_id_one,
+        };
+      });
+      return acc.concat(acc, converted);
+    }, []);
+    return acc.concat(components);
+  }, []);
+  // find all the non satisfied requirements
+  const notSatisfied = requiredSignatures.filter((requiredSignature) => {
+    // a required signature is satisfied if we find a fetch signature
+    // with the same id and a version greater than that of the required signature
+    const satisfied = fetchSignatures.find((fetchSignature) => {
+      return fetchSignature.id === requiredSignature.id && fetchSignature.version >= requiredSignature.version;
+    });
+    return !satisfied;
+  });
+  // if there are any not satisfied, then we're stale
+  return _.isEmpty(notSatisfied);
+}
+
+/**
  * A matcher that checks if the version is greater than or equal to the
  * value in the signature. However, If the signature contains an ID key (e..g market_id) then it
  * checks for exact match for the objects value with that key
@@ -11,9 +52,9 @@ import _ from 'lodash';
 function signatureMatches (signature, object) {
   for (const key of Object.keys(signature)) {
     const signatureVersion = signature[key];
-  //  // console.log(signatureVersion);
+    //  // console.log(signatureVersion);
     const objectVersion = object[key];
- //   // console.log(objectVersion);
+    //   // console.log(objectVersion);
     if (!objectVersion) {
       return false;
     }
@@ -30,17 +71,17 @@ function signatureMatches (signature, object) {
         return acc;
       }, true);
     } else if ('object' === typeof signatureVersion) {
-  //    // console.log('Checking object signature');
+      //    // console.log('Checking object signature');
       keySatisfied = signatureMatches(signatureVersion, objectVersion);
     } else if (key.endsWith('id')) {
-   //   // console.log('Checking exact id match');
+      //   // console.log('Checking exact id match');
       keySatisfied = objectVersion === signatureVersion;
     } else {
-  //    // console.log('Checking numeric version');
+      //    // console.log('Checking numeric version');
       keySatisfied = objectVersion >= signatureVersion;
     }
     if (!keySatisfied) {
-   //   // console.log('Key not satisifed');
+      //   // console.log('Key not satisifed');
       return false;
     }
   }

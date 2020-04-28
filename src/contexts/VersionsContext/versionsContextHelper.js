@@ -1,6 +1,7 @@
-import { pushMessage } from '../../utils/MessageBusUtils'
-import { refreshGlobalVersion } from '../../api/versionedFetchUtils'
-import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../WebSocketContext'
+import { pushMessage } from '../../utils/MessageBusUtils';
+import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
+import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../WebSocketContext';
+import { addVersionRequirement } from './versionsContextReducer';
 
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
 export const PUSH_CONTEXT_CHANNEL = 'MarketsChannel';
@@ -44,3 +45,12 @@ function processNewNotification (newNotificationVersion, notificationVersion) {
   }
 }
 
+/**
+ * Adds a versions requirment to the global fetch system. That is,
+ * we'll ingore any global version that does not satisfy this requirement
+ * @param requirement
+ * @returns {Promise<*>}
+ */
+export function addMinimumVersionRequirement (dispatch, requirement) {
+  dispatch(addVersionRequirement(requirement));
+}

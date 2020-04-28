@@ -154,7 +154,7 @@ function removeStoredMessagesForMarketPage (messages, page) {
  */
 function removeStoredMessagesForPage(state, page) {
   const { action } = page;
-  const messages = state.messages || emptyMessagesState;
+  const messages = (state || {}).messages || emptyMessagesState;
   // all market pages are under /dialog
   if (action === 'dialog') {
     return removeStoredMessagesForMarketPage(messages, page);

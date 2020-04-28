@@ -70,9 +70,11 @@ function SpinBlockingListAction(props) {
         </ListItemIcon>
       </Tooltip>
       {(isOpen !== undefined ? isOpen : true) && (
-        <ListItemText className={classes.menuTitle}>
-          {openLabel}
-        </ListItemText>
+        <Tooltip title={label}>
+          <ListItemText className={classes.menuTitle}>
+            {openLabel}
+          </ListItemText>
+        </Tooltip>
       )}
     </SpinningListItem>
   );

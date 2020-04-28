@@ -43,25 +43,25 @@ function ExpandableAction(props) {
   }
 
   return (
-    <ListItem
-      id={id}
-      className={classes.menuItem}
-      key={label}
-      button
-      disabled={operationRunning}
-      onClick={myOnClick}
-    >
-      <Tooltip title={label}>
+    <Tooltip title={label}>
+      <ListItem
+        id={id}
+        className={classes.menuItem}
+        key={label}
+        button
+        disabled={operationRunning}
+        onClick={myOnClick}
+      >
         <ListItemIcon className={classes.menuIcon}>
           {icon}
         </ListItemIcon>
-      </Tooltip>
-      {openLabel && (
-        <ListItemText className={classes.menuTitle}>
-          {openLabel}
-        </ListItemText>
-      )}
-    </ListItem>
+        {openLabel && (
+          <ListItemText className={classes.menuTitle}>
+            {openLabel}
+          </ListItemText>
+        )}
+      </ListItem>
+    </Tooltip>
   );
 }
 

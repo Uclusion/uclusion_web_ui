@@ -1,22 +1,18 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
-import { useHistory } from 'react-router';
-import _ from 'lodash';
-import {
-  decomposeMarketPath,
-  formMarketLink,
-  navigate,
-} from '../../utils/marketIdPathFunctions';
-import Screen from '../../containers/Screen/Screen';
-import { VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
-import { getMarketLogin } from '../../api/uclusionClient';
-import { registerListener, removeListener } from '../../utils/MessageBusUtils';
-import { toastError } from '../../utils/userMessage';
-import queryString from 'query-string';
-import { NEW_MARKET } from '../../contexts/VersionsContext/versionsContextMessages';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
+import React, { useContext, useEffect, useState } from 'react'
+import { useIntl } from 'react-intl'
+import PropTypes from 'prop-types'
+import { useHistory } from 'react-router'
+import _ from 'lodash'
+import { decomposeMarketPath, formMarketLink, navigate, } from '../../utils/marketIdPathFunctions'
+import Screen from '../../containers/Screen/Screen'
+import { VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext'
+import { getMarketLogin } from '../../api/uclusionClient'
+import { registerListener, removeListener } from '../../utils/MessageBusUtils'
+import { toastError } from '../../utils/userMessage'
+import queryString from 'query-string'
+import { NEW_MARKET } from '../../contexts/VersionsContext/versionsContextMessages'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 
 function MarketInvite(props) {
   const { hidden } = props;
@@ -26,10 +22,11 @@ function MarketInvite(props) {
   const { pathname } = location;
   const { hash } = location;
   const { marketId } = decomposeMarketPath(pathname);
-  const [myLoading, setMyLoading] = useState(true);
+  const [myLoading, setMyLoading] = useState(undefined);
   const [marketState] = useContext(MarketsContext);
   useEffect(() => {
-    if (!hidden) {
+    if (!hidden && myLoading !== marketId) {
+      setMyLoading(marketId);
       const marketDetails = getMarket(marketState, marketId);
       // Put a marker on this link to avoid looping back
       const marketLink = `${formMarketLink(marketId)}#fromInvite=true`;
@@ -43,7 +40,7 @@ function MarketInvite(props) {
           switch (event) {
             case  NEW_MARKET: {
               if (messageMarketId === marketId) {
-                // console.log(`Redirecting us to market ${marketId}`);
+                console.log(`Redirecting us to market ${marketId}`);
                 setTimeout(() => {
                   navigate(history, marketLink);
                 }, 500);
@@ -55,33 +52,31 @@ function MarketInvite(props) {
               break;
           }
         });
-        // console.debug(`Logging into market ${marketId}`);
+        console.debug(`Logging into market ${marketId}`);
         const values = queryString.parse(hash);
         const { is_obs: isObserver } = values;
         getMarketLogin(marketId, isObserver === 'true')
           .then((result) => {
             const { is_new_capability: loggedIntoNewMarket } = result;
             if (!loggedIntoNewMarket) {
-              setMyLoading(false);
               removeListener(VERSIONS_HUB_CHANNEL, 'inviteListener');
               navigate(history, marketLink);
             }
           })
           .catch((error) => {
-            setMyLoading(false);
             console.error(error);
             toastError('errorMarketFetchFailed');
           });
       }
     }
-  }, [hidden, marketId, history, hash, marketState]);
+  }, [hidden, marketId, history, hash, marketState, myLoading]);
 
   return (
     <Screen
       title={intl.formatMessage({ id: 'loadingMarket' })}
       tabTitle={intl.formatMessage({ id: 'loadingMarket' })}
       hidden={hidden}
-      loading={myLoading}
+      loading={true}
     >
       <div />
     </Screen>

@@ -16,7 +16,6 @@ function ScrollProvider(props) {
     // See https://github.com/rafrex/react-router-hash-link/blob/master/src/index.js
     function getElAndScroll(scrollTarget) {
       return (mutationsList, observer) => {
-        console.debug(`Got here ${scrollTarget}, ${observer}`);
         const element = document.getElementById(scrollTarget);
         if (element !== null) {
           if (observer) observer.disconnect();

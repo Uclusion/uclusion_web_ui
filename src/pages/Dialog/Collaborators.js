@@ -1,11 +1,20 @@
-import { IconButton, Tooltip, Typography } from '@material-ui/core';
-import React from 'react';
-import Box from '@material-ui/core/Box';
-import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import { IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
+import React from 'react'
+import Box from '@material-ui/core/Box'
+import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
+import PersonAddIcon from '@material-ui/icons/PersonAdd'
 
+const useStyles = makeStyles( () => ({
+    archived: {
+      color: '#ffc4c4',
+    },
+    normal: {},
+  }),
+  { name: "Collaborators" }
+);
 export function Collaborators(props) {
   const { marketPresences: unfilteredPresences, authorId, intl, authorDisplay, history, marketId } = props;
+  const classes = useStyles();
   const marketPresences = unfilteredPresences.filter((presence) => !presence.market_banned);
   marketPresences.sort(function(a, b) {
     if (a.id === authorId) return -1;
@@ -19,12 +28,13 @@ export function Collaborators(props) {
         </Typography>
       )}
       {!authorDisplay && marketPresences.map(presence => {
-        const { id: presenceId, name } = presence;
+        const { id: presenceId, name, following } = presence;
+        const myClassName = following ? classes.normal : classes.archived;
         if (presenceId === authorId ) {
           return <React.Fragment key={presenceId}/>;
         }
         return (
-          <Typography key={presenceId} component="li">
+          <Typography key={presenceId} component="li" className={myClassName}>
             {name}
           </Typography>
         );

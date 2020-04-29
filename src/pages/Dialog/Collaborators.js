@@ -6,9 +6,12 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd'
 
 const useStyles = makeStyles( () => ({
     archived: {
-      color: '#ffc4c4',
+      color: '#ffffc4',
+      fontSize: 14,
     },
-    normal: {},
+    normal: {
+      fontSize: 14,
+    }
   }),
   { name: "Collaborators" }
 );

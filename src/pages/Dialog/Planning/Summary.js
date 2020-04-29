@@ -15,16 +15,52 @@ import CardType, { AGILE_PLAN_TYPE, DECISION_TYPE } from '../../../components/Ca
 import { DaysEstimate } from '../../../components/AgilePlan'
 import ParentSummary from '../ParentSummary'
 import MarketLinks from '../MarketLinks'
-import clsx from 'clsx'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
 import { navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import Collaborators from '../Collaborators'
-import ViewArchiveActionButton from './ViewArchivesActionButton'
 
 const useStyles = makeStyles(theme => ({
+  section: {
+    alignItems: "flex-start",
+    display: "flex",
+    width: "50%"
+  },
+  collaborators: {
+    backgroundColor: theme.palette.grey["300"],
+    borderRadius: 6,
+    display: "flex",
+    flexDirection: "column",
+    padding: theme.spacing(1, 1),
+    "&:first-child": {
+      marginLeft: 0
+    },
+    "& dt": {
+      color: "#828282",
+      fontSize: 10,
+      fontWeight: "bold",
+      marginBottom: theme.spacing(0.5)
+    },
+    "& dd": {
+      fontSize: 20,
+      margin: 0,
+      lineHeight: "26px"
+    },
+    width: "60%",
+    "& ul": {
+      margin: 0,
+      padding: 0
+    },
+    "& li": {
+      display: "inline-flex",
+      marginLeft: theme.spacing(1),
+      "&:first-child": {
+        marginLeft: 0
+      }
+    }
+  },
   root: {
     alignItems: "flex-start",
     display: "flex",
@@ -124,9 +160,6 @@ function Summary(props) {
         <Divider className={classes.divider} />
         {!isChannel && (
           <dl className={metaClasses.root}>
-            <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-              <ViewArchiveActionButton key="archives" marketId={id} />
-            </div>
             {daysEstimate && (
               <fieldset className={classes.fieldset}>
                 <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
@@ -137,7 +170,7 @@ function Summary(props) {
         {!(_.isEmpty(unassigned) && _.isEmpty(children) && !market.parent_market_id) && (
           <dl className={metaClasses.root}>
             {!_.isEmpty(unassigned) && (
-              <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+              <div className={classes.collaborators}>
                 <dt>
                   <FormattedMessage id="dialogParticipants" />
                 </dt>

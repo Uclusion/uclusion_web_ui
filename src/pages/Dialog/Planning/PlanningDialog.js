@@ -35,6 +35,7 @@ import SubSection from '../../../containers/SubSection/SubSection'
 import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import clsx from 'clsx'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
+import ViewArchiveActionButton from './ViewArchivesActionButton'
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -128,6 +129,9 @@ function PlanningDialog(props) {
       <dl className={metaClasses.root}>
         <div className={clsx(metaClasses.group, metaClasses.assignments)}>
           <InvestibleAddActionButton key="investibleadd" onClick={onClick} />
+        </div>
+        <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+          <ViewArchiveActionButton key="archives" marketId={marketId} />
         </div>
       </dl>
       {!isChannel && (

@@ -48,7 +48,7 @@ const useStyles = makeStyles(theme => ({
       margin: 0,
       lineHeight: "26px"
     },
-    width: "60%",
+    maxWidth: "60%",
     "& ul": {
       margin: 0,
       padding: 0

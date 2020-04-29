@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import Amplify from 'aws-amplify'
+import Amplify, { Auth } from 'aws-amplify'
 import { Authenticator, ForgotPassword, Greetings, SignIn, SignOut, SignUp, } from 'aws-amplify-react'
 import { IntlProvider } from 'react-intl'
 import { makeStyles } from '@material-ui/styles'
@@ -27,18 +27,19 @@ import {
 LogRocket.init(config.logRocketInstance)
 
 Amplify.configure(awsconfig);
-/*
+
 const oauth = {
   domain: config.cognito_domain,
-  scope: ['email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],
+  scope: ['phone', 'email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],
   redirectSignIn: config.ui_base_url,
   redirectSignOut: config.ui_base_url,
   responseType: 'code', // or 'token', note that REFRESH token will only be generated when the responseType is code
 };
 
+console.error(oauth);
 
 Auth.configure({ oauth });
-*/
+
 const useStyles = makeStyles({
   root: {
     '& .Nav__navBar___xtCFA': {

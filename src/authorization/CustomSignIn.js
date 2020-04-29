@@ -2,6 +2,7 @@ import React from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -13,6 +14,7 @@ import SpinningButton from '../components/SpinBlocking/SpinningButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
+import { Auth } from 'aws-amplify';
 
 const useStyles = (theme) => ({
   paper: {
@@ -73,6 +75,7 @@ class CustomSignIn extends SignIn {
             {intl.formatMessage({ id: 'signInSignIn' })}
           </Typography>
         </div>
+        <Button onClick={() => Auth.federatedSignIn({provider: 'Google'})}>SignIn with Google (Replace This)</Button>
         <form className={classes.form} onSubmit={this.onSubmit}>
           <div className={classes.hiddenSubmit}><input type="submit" tabIndex="-1"/></div>
           <TextField

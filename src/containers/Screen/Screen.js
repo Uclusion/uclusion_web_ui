@@ -98,7 +98,7 @@ function Screen(props) {
   const myContainerClass = classes.containerAll;
   return (
     <div className={classes.root}>
-      <Helmet>
+      <Helmet defer={false}>
         <title>
           {`${prePendWarning}Uclusion | ${createTitle(
             tabTitle,

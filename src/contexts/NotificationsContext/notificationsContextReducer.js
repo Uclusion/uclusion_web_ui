@@ -159,7 +159,7 @@ function removeStoredMessagesForPage(state, page) {
   if (action === 'dialog') {
     return removeStoredMessagesForMarketPage(messages, page);
   }
-  return removeStoredMessagesForAction(messages, page);
+  return removeStoredMessagesForAction(messages, action);
 }
 
 /**
@@ -235,7 +235,6 @@ function processToasts(messagesForPage) {
  * @param pageMessages
  */
 function handleMessagesForPage(pageMessages) {
-  console.log(pageMessages);
   if (!_.isEmpty(pageMessages)) {
     // process highlighting
     processHighlighting(pageMessages);
@@ -263,7 +262,15 @@ function handleMessagesForPage(pageMessages) {
 function processPageChange (state, action) {
   const { page } = action;
   if (_.isEmpty(page)) {
-    return; // send me a bad page I ingore you
+    return state; // send me a bad page I ingore you
+  }
+  const { isEntry } = page;
+  if (!isEntry) {
+    // If they have left the page we don't want to process messages on it
+    return {
+      ...state,
+      page: undefined
+    };
   }
   const messagesForPage = getStoredMessagesForPage(state, page);
   // first compute what the new messages will look like
@@ -314,8 +321,7 @@ function doUpdateMessages (state, action) {
   // extract any messages for this page right now
   const { page } = state;
   if (_.isEmpty(page)) {
-    storeMessagesInState(state, messages);
-    return;
+    return storeMessagesInState(state, massagedMessages);
   }
   // we can reuse the code for finding and removing page messages in the store, if we make the new
   // incoming messages look like they came from the store

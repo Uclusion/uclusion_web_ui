@@ -132,7 +132,9 @@ const messages = defineMessages({
   // Support
   supportInfoText: 'Create bugs (but not feature requests) in <a>Uclusion issues</a> or send an email to <b>support</b> which includes the version and user ID above.',
   featureRequest: 'Feature Request',
+  onboardingWorkspace: 'Support help for {x}',
   createFeatureRequest: 'Create feature request',
+  createOnboardingWorkspace: 'Get support help',
   // Loadable Image
   loadableImageAlt: 'User provided image',
 

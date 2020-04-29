@@ -3,13 +3,14 @@ import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
-import { createDecision } from '../../api/markets'
+import { createPlanning } from '../../api/markets'
 import { checkMarketInStorage } from '../../contexts/MarketsContext/marketsContextHelper'
 import { addParticipants } from '../../api/users'
 import clsx from 'clsx'
 import config from '../../config'
 import { makeStyles } from '@material-ui/core'
-import { DECISION_TYPE } from '../../constants/markets'
+import { PLANNING_TYPE } from '../../constants/markets'
+import PropTypes from 'prop-types'
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -33,7 +34,9 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function FeatureRequest() {
+function OnboardingWorkspace(props) {
+  const { user } = props;
+  const { name } = user;
   const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
@@ -43,12 +46,11 @@ function FeatureRequest() {
 
   function handleSave() {
     const addInfo = {
-      name: intl.formatMessage({ id: 'featureRequest' }),
-      market_type: DECISION_TYPE,
-      description: '<h2>Problem</h2><p>Describe the problem you are facing without referring to a solution. Your ideas for solving this problem should be added as options of this Dialog.</p><p><br></p><h2>Impact</h2><p>How often is this problem occurring and for how many within your organization? How time consuming is the work around if any?</p><p><br></p><h2>Urgency</h2><p>Is there any timeline by which having this problem fixed would be especially important?</p>',
-      expiration_minutes: 10080,
+      name: intl.formatMessage({ id: 'onboardingWorkspace' }, { x: name }),
+      market_type: PLANNING_TYPE,
+      description: '<h2>Thanks for reaching out!</h2><p>If you have any questions, suggestions or issues please don\'t hesitate to open them below and we will get back to you as soon as possible.</p>',
     };
-    return createDecision(addInfo)
+    return createPlanning(addInfo)
       .then((result) => {
         const { market } = result;
         const { id: marketId } = market;
@@ -80,10 +82,14 @@ function FeatureRequest() {
           classes.actionPrimary
         )}
       >
-        {intl.formatMessage({ id: 'createFeatureRequest' })}
+        {intl.formatMessage({ id: 'createOnboardingWorkspace' })}
       </SpinBlockingButton>
     </div>
   );
 }
 
-export default FeatureRequest;
+OnboardingWorkspace.propTypes = {
+  user: PropTypes.object.isRequired,
+};
+
+export default OnboardingWorkspace;

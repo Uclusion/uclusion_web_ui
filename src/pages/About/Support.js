@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
-import PropTypes from 'prop-types';
-import {
-  Paper, Typography, Button, makeStyles, Link, Grid, Card
-} from '@material-ui/core';
-import { FormattedMessage, useIntl } from 'react-intl';
-import Screen from '../../containers/Screen/Screen';
+import React, { useEffect, useState } from 'react'
+import { useHistory } from 'react-router'
+import PropTypes from 'prop-types'
+import { Button, Card, Grid, Link, makeStyles, Paper, Typography } from '@material-ui/core'
+import { FormattedMessage, useIntl } from 'react-intl'
+import Screen from '../../containers/Screen/Screen'
 import clsx from 'clsx'
-import config from '../../config';
-import { toastErrorAndThrow } from '../../utils/userMessage';
-import { getSSOInfo } from '../../api/sso';
-import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
-import FeatureRequest from './FeatureRequest';
+import config from '../../config'
+import { toastErrorAndThrow } from '../../utils/userMessage'
+import { getSSOInfo } from '../../api/sso'
+import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
+import FeatureRequest from './FeatureRequest'
 import { clearUclusionLocalStorage } from '../../components/utils'
+import OnboardingWorkspace from './OnboardingWorkspace'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -79,6 +78,7 @@ function Support(props) {
   const classes = useStyles();
   const { version } = config;
   const [externalId, setExternalId] = useState(undefined);
+  const [user, setUser] = useState(undefined);
 
   useEffect(() => {
     if (!externalId && !hidden) {
@@ -88,6 +88,7 @@ function Support(props) {
           const { user: myUser } = loginInfo;
           const { external_id: myExternalId } = myUser;
           setExternalId(myExternalId);
+          setUser(myUser);
         });
       }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
     }
@@ -134,6 +135,10 @@ function Support(props) {
               />
             </Typography>
           </Paper>
+          {user && (
+            <OnboardingWorkspace user={user} />
+          )}
+          <br />
           <FeatureRequest />
           <Button 
             variant="contained"

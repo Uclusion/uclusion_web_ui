@@ -28,9 +28,6 @@ const useStyles = makeStyles((theme) => {
       boxShadow: 'none',
       height: `67px`
     },
-    topBar: {
-      display: 'flex'
-    },
     appBarNoSidebar: {
       background: '#fff',
       boxShadow: 'none',

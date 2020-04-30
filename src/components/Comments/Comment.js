@@ -16,7 +16,11 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import CommentEdit from './CommentEdit'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket, getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper'
-import { EXPANDED, HIGHLIGHT_REMOVE, HighlightedCommentContext } from '../../contexts/HighlightingContexts/HighlightedCommentContext'
+import {
+  EXPANDED,
+  HIGHLIGHT_REMOVE,
+  HighlightedCommentContext
+} from '../../contexts/HighlightingContexts/HighlightedCommentContext'
 import CardType from '../CardType'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { addCommentToMarket, removeComments } from '../../contexts/CommentsContext/commentsContextHelper'
@@ -646,6 +650,7 @@ function ThreadedReplies(props) {
           return (
             <ThreadedReply
               comment={reply}
+              key={`threadc${reply.id}`}
               highLightId={highLightId}
               enableEditing={enableEditing}
             />
@@ -659,7 +664,7 @@ function ThreadedReplies(props) {
 
 function ThreadedReply(props) {
   const { comment, highLightId, enableEditing } = props;
-  return <Reply id={`c${comment.id}`} comment={comment} elevation={0} highLightId={highLightId}
+  return <Reply key={`keyc${comment.id}`} id={`c${comment.id}`} comment={comment} elevation={0} highLightId={highLightId}
                 enableEditing={enableEditing} />;
 }
 

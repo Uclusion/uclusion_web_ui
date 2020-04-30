@@ -57,6 +57,7 @@ function MoveToNextVisibleStageActionButton(props) {
       explanationId={destinationExplanation}
       targetStageId={destinationStage.id}
       disabled={disabled}
+      isOpen={true}
     />
   );
 }

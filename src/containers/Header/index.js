@@ -84,7 +84,15 @@ const useStyles = makeStyles((theme) => {
       justifyContent: 'center',
       alignItems: 'flex-start',
       width: '100%',
-      flex: 3
+      flex: 3,
+      '& svg' : {
+        '& path': {
+          transition: 'fill 250ms ease'
+        },
+        '& rect': {
+          transition: 'fill 250ms ease'
+        }
+      }
     },
     notificationBox: {
       marginRight: '15px'
@@ -116,7 +124,7 @@ function Header(props) {
       if (operationRunning && !logoTimer) {
         setLogoTimer(setInterval(() => {
           setPegLogo(true);
-        }, 250));
+        }, 500));
       }
       if (!operationRunning && logoTimer) {
         setLogoTimer(undefined);
@@ -185,7 +193,7 @@ function Header(props) {
               event.preventDefault();
               navigate(history, '/');
             }} color="inherit">
-              <svg style={{width: '120px', verticalAlign: 'middle'}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
+              <svg style={{width: '120px', verticalAlign: 'middle', transition: 'all 125ms linear'}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
                 <path fill="#fff" d="M888.67,328.66a43,43,0,0,1-34.38,42.12v43.84l-43-43H174.05a62.72,62.72,0,0,1-62.72-62.72V228.36a43,43,0,0,1,43-43H845.69a43,43,0,0,1,43,43Z"/>
                 <path d="M139.92,284.31V214.08h29v69.47c0,21.45,10.72,32.55,28.4,32.55s28.41-10.73,28.41-31.61V214.08h29v69.29c0,39.87-22.39,59.44-57.75,59.44S139.92,323.06,139.92,284.31Z"/>
                 <path fill={logoImage} d="M265.85,290.81v-.38c0-28.78,22-52.48,52.86-52.48,19,0,30.85,6.4,40.25,16.93l-17.49,18.81c-6.39-6.77-12.79-11.1-23-11.1-14.29,0-24.45,12.61-24.45,27.47v.37c0,15.43,10,27.84,25.58,27.84,9.59,0,16.18-4.14,23.14-10.72l16.74,16.93c-9.78,10.72-21.07,18.43-41.2,18.43C288.05,342.91,265.85,319.59,265.85,290.81Z"/>

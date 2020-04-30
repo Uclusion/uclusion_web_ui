@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever'
 import { deleteInvestible } from '../../../api/investibles'
@@ -9,7 +8,6 @@ import SpinningTooltipIconButton from '../../../components/SpinBlocking/Spinning
 
 function DeleteInvestibleActionButton(props) {
   const { investibleId, marketId } = props;
-  const intl = useIntl();
   const history = useHistory();
 
   function deleteInvestibleAction() {
@@ -21,7 +19,7 @@ function DeleteInvestibleActionButton(props) {
     <SpinningTooltipIconButton
       marketId={marketId}
       icon={<DeleteForeverIcon />}
-      translationId={intl.formatMessage({ id: 'investibleDeleteExplanationLabel' })}
+      translationId="investibleDeleteExplanationLabel"
       onClick={deleteInvestibleAction}
     />
   );

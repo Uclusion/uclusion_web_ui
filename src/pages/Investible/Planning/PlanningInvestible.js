@@ -769,7 +769,7 @@ MarketMetaData.propTypes = {
   toggleAssign: PropTypes.func.isRequired,
   children: PropTypes.arrayOf(PropTypes.string).isRequired,
   hidden: PropTypes.bool.isRequired,
-  stageActions: PropTypes.object,
+  stageActions: PropTypes.array,
   expansionChanged: PropTypes.func.isRequired,
   actions: PropTypes.arrayOf(PropTypes.element).isRequired,
 }

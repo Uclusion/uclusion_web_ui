@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import _ from 'lodash'
@@ -41,7 +41,7 @@ function Investible(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const [marketsState] = useContext(MarketsContext);
   const market = getMarket(marketsState, marketId) || emptyMarket;
-  const userId = getMyUserForMarket(marketsState, marketId) || {};
+  const userId = getMyUserForMarket(marketsState, marketId) || '';
   const [commentsState] = useContext(CommentsContext);
   const comments = getMarketComments(commentsState, marketId);
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);

@@ -1,15 +1,15 @@
 import React, { useContext } from 'react'
-import { Avatar, CardActions, CardContent, Grid, Link, Typography, Tooltip } from '@material-ui/core'
-import ThumbUpIcon from '@material-ui/icons/ThumbUp';
-import ThumbDownIcon from '@material-ui/icons/ThumbDown';
+import { Avatar, CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@material-ui/core'
+import ThumbUpIcon from '@material-ui/icons/ThumbUp'
+import ThumbDownIcon from '@material-ui/icons/ThumbDown'
 import { AvatarGroup } from '@material-ui/lab'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/styles'
 import { useIntl } from 'react-intl'
-import { nameToAvatarText } from '../../utils/stringFunctions';
-import clsx from 'clsx';
+import { nameToAvatarText } from '../../utils/stringFunctions'
+import clsx from 'clsx'
 import {
   getMarketPresences,
   marketHasOnlyCurrentUser
@@ -123,7 +123,7 @@ function InitiativeDialogs(props) {
               spacing="small">
               {presences.map((presence) => {
                 const { id: userId, name } = presence;
-                return <Tooltip title={name}><Avatar key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
+                return <Tooltip key={`tip${userId}`} title={name}><Avatar key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
                 })
               }
             </AvatarGroup>

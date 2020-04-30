@@ -1,44 +1,55 @@
-import React, { useEffect, useState } from 'react'
-import _ from 'lodash'
-import NoAccount from '../../pages/NoAccount/NoAccount'
-import Root from '../Root'
-import AppConfigProvider from '../../components/AppConfigProvider'
-import config from '../../config'
-import { WebSocketProvider } from '../../contexts/WebSocketContext'
-import { OnlineStateProvider } from '../../contexts/OnlineStateContext'
-import { Auth } from 'aws-amplify'
-import LogRocket from 'logrocket'
-import { defaultTheme } from '../../config/themes'
-import { ThemeProvider } from '@material-ui/core/styles'
-import { TourProvider } from '../../contexts/TourContext/TourContext'
-import { CognitoUserProvider } from '../../contexts/CongitoUserContext'
+import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
+import NoAccount from '../../pages/NoAccount/NoAccount';
+import Root from '../Root';
+import AppConfigProvider from '../../components/AppConfigProvider';
+import config from '../../config';
+import { WebSocketProvider } from '../../contexts/WebSocketContext';
+import { OnlineStateProvider } from '../../contexts/OnlineStateContext';
+import { Auth } from 'aws-amplify';
+import LogRocket from 'logrocket';
+import { defaultTheme } from '../../config/themes';
+import { ThemeProvider } from '@material-ui/core/styles';
+import { TourProvider } from '../../contexts/TourContext/TourContext';
+import { CognitoUserProvider } from '../../contexts/CongitoUserContext';
 
-function App(props) {
+function App (props) {
 
   const { authState } = props;
   const configs = { ...config };
   const [userAttributes, setUserAttributes] = useState({});
   useEffect(() => {
+    function completeLogin (loginInfo) {
+      setUserAttributes(loginInfo);
+      LogRocket.identify(loginInfo.userId, loginInfo);
+    }
     if (authState === 'signedIn') {
       Auth.currentAuthenticatedUser()
         .then((user) => {
           const { attributes } = user;
-          const { sub, name, email } = attributes;
+          const { identities } = attributes;
+          console.error(attributes)
+          // only externally authenticated users have identities
           const cognitoUserId = attributes['custom:user_id'];
-          const userAttributes = {
-            sub,
-            name,
-            email,
-            userId: cognitoUserId,
+          if (_.isEmpty(cognitoUserId) && !_.isEmpty(identities)) {
+            // if you have no uclusion user id, and are external we'll refresh the current user
+            // from cognito directly
+            // because our login just didn't have them, even though they were created as a post
+            // authentication hook
+            return Auth.currentAuthenticatedUser({bypassCache: true});
+          }else {
+            return user
+          }
+        })
+        .then((user) => {
+          const { attributes } = user;
+          const userId = attributes['custom:user_id'];
+          const loginInfo = {
+            ...attributes,
+            userId,
           };
-          setUserAttributes(userAttributes);
-          LogRocket.identify((cognitoUserId), {
-            name,
-            sub,
-            email,
-            cognitoUserId,
-          });
-
+          console.error(loginInfo);
+          completeLogin(loginInfo);
         });
     } else {
       setUserAttributes({});
@@ -53,7 +64,8 @@ function App(props) {
 
   const { userId, email } = userAttributes;
   const hasAccount = !_.isEmpty(userId);
-
+  console.error({userId, email});
+  console.error(userAttributes);
   if (!hasAccount && email) {
     return (
       <CognitoUserProvider authState={authState}>

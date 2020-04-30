@@ -36,8 +36,8 @@ import {
   getInCurrentVotingStage,
   getNotDoingStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper';
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
+import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper'
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 
 function InvestibleEdit (props) {
   const { hidden } = props;
@@ -55,7 +55,7 @@ function InvestibleEdit (props) {
   const inv = getInvestible(investiblesState, investibleId);
   const fullInvestible = inv || { investible: { name: '' } };
   const [marketsState] = useContext(MarketsContext);
-  const userId = getMyUserForMarket(marketsState, marketId) || {};
+  const userId = getMyUserForMarket(marketsState, marketId);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
@@ -72,17 +72,17 @@ function InvestibleEdit (props) {
   const isPlanning = market && market.market_type === PLANNING_TYPE;
   const isInitiative = market && market.market_type === INITIATIVE_TYPE;
   const [lockFailed, setLockFailed] = useState(false);
-  const loading = idLoaded !== investibleId || !market || !inv;
+  const loading = idLoaded !== investibleId || !market || !inv || !userId;
   const someoneElseEditing = lockedBy && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
 
   function onLock (result) {
     if (result) {
-    setLockedInvestibleId(investibleId);
-    setLockedInvestibleIdMarketId(marketId);
-    setLockFailed(false);
-    onSave({ investible: result } , true);
+      setLockedInvestibleId(investibleId);
+      setLockedInvestibleIdMarketId(marketId);
+      setLockFailed(false);
+      onSave({ investible: result } , true);
     } else {
       setLockFailed(true);
     }
@@ -142,29 +142,33 @@ function InvestibleEdit (props) {
   }
 
   function onCancel() {
-    const originalLockedId = lockedInvestibleId;
-    return localforage.removeItem(originalLockedId)
-      .then(() => {
-        if (lockedInvestibleId) {
-          return realeaseInvestibleEditLock(lockedInvestibleIdMarketId, lockedInvestibleId);
-        }
-        return true;
-      })
-      .then(() => {
-        const newInvestible = {
-          ...myInvestible,
-          locked_by: undefined,
-          locked_at: undefined,
-        };
-        const newInv = {
-          ...inv,
-          investible: newInvestible
-        };
-        refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
-        return EMPTY_SPIN_RESULT;
-      })
-      .catch(() => setLockedInvestibleId(originalLockedId))
-      .finally(() => navigate(history, formInvestibleLink(marketId, investibleId)));
+    if (!lockedInvestibleId || lockedInvestibleId !== investibleId) {
+      navigate(history, formInvestibleLink(marketId, investibleId));
+    } else {
+      const originalLockedId = lockedInvestibleId;
+      return localforage.removeItem(originalLockedId)
+        .then(() => {
+          if (!lockFailed && lockedInvestibleId) {
+            return realeaseInvestibleEditLock(lockedInvestibleIdMarketId, lockedInvestibleId);
+          }
+          return true;
+        })
+        .then(() => {
+          const newInvestible = {
+            ...myInvestible,
+            locked_by: undefined,
+            locked_at: undefined,
+          };
+          const newInv = {
+            ...inv,
+            investible: newInvestible
+          };
+          refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
+          return EMPTY_SPIN_RESULT;
+        })
+        .catch(() => setLockedInvestibleId(originalLockedId))
+        .finally(() => navigate(history, formInvestibleLink(marketId, investibleId)));
+    }
   }
 
   function onSave (result, stillEditing) {
@@ -238,6 +242,7 @@ function InvestibleEdit (props) {
       <LockedDialog
         classes={lockedDialogClasses}
         open={!hidden && (someoneElseEditing || lockFailed)}
+        onClose={onCancel}
         /* slots */
         actions={
           <SpinBlockingButton
@@ -253,7 +258,7 @@ function InvestibleEdit (props) {
           </SpinBlockingButton>
         }
       />
-      {!hidden && isDecision && inv && idLoaded === investibleId && (
+      {!hidden && isDecision && inv && idLoaded === investibleId && userId && (
         <DecisionInvestibleEdit
           fullInvestible={inv}
           marketId={marketId}

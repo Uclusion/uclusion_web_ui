@@ -54,7 +54,7 @@ function DecisionInvestibleAdd(props) {
     stage_id: investmentAllowedStage.id,
     current_stage_id: createdStage.id,
   };
-  const emptyInvestible = { name: storedName, description: storedDescription };
+  const emptyInvestible = { name: storedName || '', description: storedDescription };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const defaultClearFunc = () => {};
   //see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react for why we have a func

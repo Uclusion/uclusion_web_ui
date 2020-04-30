@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Avatar, CardActions, CardContent, Grid, Link, Typography } from '@material-ui/core'
+import { Avatar, CardActions, CardContent, Grid, Link, Typography, Tooltip } from '@material-ui/core'
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import ThumbDownIcon from '@material-ui/icons/ThumbDown';
 import { AvatarGroup } from '@material-ui/lab'
@@ -8,6 +8,7 @@ import { useHistory } from 'react-router'
 import PropTypes from 'prop-types'
 import { makeStyles } from '@material-ui/styles'
 import { useIntl } from 'react-intl'
+import { nameToAvatarText } from '../../utils/stringFunctions';
 import clsx from 'clsx';
 import {
   getMarketPresences,
@@ -122,8 +123,7 @@ function InitiativeDialogs(props) {
               spacing="small">
               {presences.map((presence) => {
                 const { id: userId, name } = presence;
-                const splitName = name.split(' ');
-                return <Avatar key={userId}>{`${splitName[0].charAt(0)}${splitName[1]?splitName[1].charAt(0):''}`}</Avatar>
+                return <Tooltip title={name}><Avatar key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
                 })
               }
             </AvatarGroup>

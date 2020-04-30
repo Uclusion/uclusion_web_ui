@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { AvatarGroup } from '@material-ui/lab'
-import { Avatar, CardActions, CardContent, Grid, Link, Typography } from '@material-ui/core'
+import { Avatar, CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@material-ui/core';
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/styles'
@@ -28,6 +28,7 @@ import { getVoteTotalsForUser } from '../../utils/userFunctions'
 import { ISSUE_TYPE } from '../../constants/comments'
 import CardType from '../../components/CardType'
 import Chart from '../../components/Cards/Chart'
+import { nameToAvatarText } from '../../utils/stringFunctions';
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -123,8 +124,7 @@ function DecisionDialogs(props) {
               spacing="small">
               {presences.map((presence) => {
                 const { id: userId, name } = presence;
-                const splitName = name.split(' ');
-                return <Avatar key={userId}>{`${splitName[0].charAt(0)}${splitName[1]?splitName[1].charAt(0):''}`}</Avatar>
+                return <Tooltip title={name}><Avatar key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
                 })
               }
             </AvatarGroup>

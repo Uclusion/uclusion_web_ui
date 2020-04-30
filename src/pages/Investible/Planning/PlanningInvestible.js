@@ -455,6 +455,7 @@ function PlanningInvestible(props) {
           {daysEstimate > 0 && (
             <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
           )}
+          {!inArchives && isAssigned && (
           <MoveToNextVisibleStageActionButton
             key="visible"
             investibleId={investibleId}
@@ -463,6 +464,7 @@ function PlanningInvestible(props) {
             disabled={!_.isEmpty(blockingComments) || !isAssigned || (isInVoting && (!enoughVotes || !_.isEmpty(assignedInAcceptedStage)))}
             enoughVotes={enoughVotes}
           />
+          )}
           {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork) && (
             <EditMarketButton
               labelId="edit"

@@ -322,44 +322,28 @@ function PlanningInvestible(props) {
   }
 
   const enoughVotes = hasEnoughVotes(invested, votesRequired);
-
+  const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
+    return acc.concat(assignedInStage(
+      investibles,
+      userId,
+      inAcceptedStage.id
+    ));
+  }, []);
+  const blockingComments = investibleComments.filter(
+    comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
+  );
   function getStageActions() {
     if (inArchives) {
       return [];
     }
-    const blockingComments = investibleComments.filter(
-      comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
-    );
-    const assignedInVotingStage = assigned.reduce((acc, userId) => {
-      return acc.concat(assignedInStage(
-        investibles,
-        userId,
-        inCurrentVotingStage.id
-      ));
-    }, []);
-    const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
-      return acc.concat(assignedInStage(
-        investibles,
-        userId,
-        inAcceptedStage.id
-      ));
-    }, []);
     return [
-      <MoveToNextVisibleStageActionButton
-        key="visible"
-        investibleId={investibleId}
-        marketId={marketId}
-        currentStageId={stage}
-        disabled={!isAssigned || !((isInVoting && enoughVotes && _.isEmpty(assignedInAcceptedStage)) || isInAccepted)}
-        isOpen={changeStagesExpanded}
-      />,
       <MoveToVotingActionButton
         investibleId={investibleId}
         marketId={marketId}
         currentStageId={stage}
         isOpen={changeStagesExpanded}
         key="voting"
-        disabled={!_.isEmpty(assignedInVotingStage) || !isAssigned || !_.isEmpty(blockingComments)}
+        disabled={isInVoting || !isAssigned || !_.isEmpty(blockingComments)}
       />,
       <MoveToAcceptedActionButton
         investibleId={investibleId}
@@ -471,6 +455,14 @@ function PlanningInvestible(props) {
           {daysEstimate > 0 && (
             <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
           )}
+          <MoveToNextVisibleStageActionButton
+            key="visible"
+            investibleId={investibleId}
+            marketId={marketId}
+            currentStageId={stage}
+            disabled={!_.isEmpty(blockingComments) || !isAssigned || (isInVoting && (!enoughVotes || !_.isEmpty(assignedInAcceptedStage)))}
+            enoughVotes={enoughVotes}
+          />
           {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork) && (
             <EditMarketButton
               labelId="edit"

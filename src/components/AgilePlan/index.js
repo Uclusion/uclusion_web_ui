@@ -37,6 +37,10 @@ export const usePlanFormStyles = makeStyles(
     cardType: {
       display: "inline-flex"
     },
+    daysEstimation: {
+      fontWeight: 'bold',
+      fontSize: '.7rem'
+    },
     fieldset: {
       border: "none",
       display: "inline-block",
@@ -315,6 +319,7 @@ export function Votes(props) {
 
 export function DaysEstimate(props) {
   const { readOnly, value, onChange, createdAt } = props;
+  const classes = usePlanFormStyles();
   const intl = useIntl();
   function getStartDate() {
     if (value && createdAt) {
@@ -331,7 +336,7 @@ export function DaysEstimate(props) {
 
   return (
       readOnly ? (
-        <Typography>
+        <Typography className={classes.daysEstimation}>
           {intl.formatMessage({ id: 'planningEstimatedCompletion' })} {intl.formatDate(getStartDate())}
         </Typography>
       ) : (

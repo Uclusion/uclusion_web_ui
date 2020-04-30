@@ -28,15 +28,15 @@ const useStyles = makeStyles({
     }
   },
   uncolored: {
-    fontSize: 22,
+    fontSize: 28,
     color: '#fff'
   },
   fab: {
     borderRadius: '50%',
-    width: '32px',
-    height: '32px',
+    width: '48px',
+    height: '48px',
     boxShadow: 'none',
-    minHeight: '32px'
+    minHeight: '48px'
   }
 });
 

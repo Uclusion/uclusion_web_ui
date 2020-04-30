@@ -68,8 +68,8 @@ const useStyles = makeStyles((theme) => {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      width: '32px',
-      height: '32px',
+      width: '48px',
+      height: '48px',
       borderRadius: '50%',
       background: '#fff',
       boxShadow: 'none'
@@ -81,7 +81,7 @@ const useStyles = makeStyles((theme) => {
       alignItems: 'flex-start'
     },
     notificationBox: {
-      marginLeft: '15px'
+      marginRight: '15px'
     }
   };
 });
@@ -196,16 +196,16 @@ function Header(props) {
             </div>
           )}
           <div className={classes.grow} />
-          <div className={classes.searchBox}>
-            <SearchBox/>
-          </div>
-          <SearchResults/>
-          <Identity/>
           <div id="notifications" className={classes.notificationBox}>
             <div  className={classes.notification}>
               <Notifications />
             </div>
           </div>
+          <div className={classes.searchBox}>
+            <SearchBox/>
+          </div>
+          <SearchResults/>
+          <Identity/>
         </Toolbar>
       </AppBar>
     </>

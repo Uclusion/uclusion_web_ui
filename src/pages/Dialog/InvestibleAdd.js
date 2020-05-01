@@ -17,8 +17,8 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import queryString from 'query-string'
-import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper';
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
+import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper'
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 
 function InvestibleAdd(props) {
   const { hidden } = props;
@@ -37,8 +37,7 @@ function InvestibleAdd(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const classes = usePlanFormStyles();
   const renderableMarket = getMarket(marketsState, marketId) || {};
-  const { market_type: marketType, investment_expiration: investmentExpiration,
-  created_at: createdAt} = renderableMarket;
+  const { market_type: marketType, created_at: createdAt} = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
@@ -100,7 +99,6 @@ function InvestibleAdd(props) {
           isAdmin={isAdmin}
           storedState={storedState}
           classes={classes}
-          expirationMinutes={investmentExpiration*1440}
           parentInvestibleId={parentInvestibleId}
         />
       )}

@@ -236,7 +236,7 @@ function DecisionDialogs(props) {
                   {!active && (
                     <ExpiredDisplay expiresDate={updatedAt}/>
                   )}
-                  {active && (
+                  {active && expirationMinutes && (
                     <ProgressBar
                       createdAt={createdAt}
                       expirationMinutes={expirationMinutes}

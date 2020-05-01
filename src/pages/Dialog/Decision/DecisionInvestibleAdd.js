@@ -40,7 +40,6 @@ function DecisionInvestibleAdd(props) {
     hidden,
     onSpinComplete,
     parentInvestibleId,
-    expirationMinutes,
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -124,7 +123,6 @@ function DecisionInvestibleAdd(props) {
       is_inline: true,
       parent_investible_id: parentInvestibleId,
       parent_market_id: marketId,
-      expiration_minutes: expirationMinutes,
     };
     return createDecision(addDialogInfo).then((result) => {
         const { market, stages } = result;
@@ -316,7 +314,6 @@ DecisionInvestibleAdd.propTypes = {
   hidden: PropTypes.bool,
   onSpinComplete: PropTypes.func,
   parentInvestibleId: PropTypes.string,
-  expirationMinutes: PropTypes.number,
 };
 
 DecisionInvestibleAdd.defaultProps = {

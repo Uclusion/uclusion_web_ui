@@ -9,6 +9,7 @@ const messages = defineMessages({
   warning_404_description: 'We are sorry but the page you are looking for does not exist.',
   warning_404_categories: 'No categories configured for this market.',
   warning: 'Warning',
+  warningQuestion: 'Choice',
   slack_register_failed: 'Slack registration failure.',
   settings: 'Settings',
   language: 'Language',
@@ -440,6 +441,9 @@ const messages = defineMessages({
   planningInvestibleVotingHelp: 'Vote how certain you are this story should be done or open an issue.',
   inlineAddLabel: 'Add Option',
   inlineAddExplanation: 'Add a how to do this story option and collect votes on it.',
+  deactivateInlineQuestion: 'De-activate the dialog associated with this story?',
+  yesAndProceed: 'Change stage and de-activate',
+  noAndProceed: 'Change stage only',
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
   decisionDialogCurrentVotingLabel: 'Candidates',

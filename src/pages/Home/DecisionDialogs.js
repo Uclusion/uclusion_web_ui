@@ -58,7 +58,6 @@ const useStyles = makeStyles(() => ({
     flexGrow: 0,
     maxWidth: '96%',
     flexBasis: '96%',
-    cursor: 'pointer'
   },
   byline: {
     display: 'inline-block',
@@ -68,6 +67,9 @@ const useStyles = makeStyles(() => ({
   },
   childText: {
     fontSize: '.825rem'
+  },
+  isLinked: {
+    cursor: 'pointer',
   },
   chartContainer: {
     justifyContent: 'flex-end',
@@ -249,11 +251,7 @@ function DecisionDialogs(props) {
               </div>
 
               <div 
-                className={classes.contentContainer} 
-                  onClick={(event) => {
-                    event.preventDefault();
-                    navigate(history, formMarketLink(marketId));
-                  }}
+                className={classes.contentContainer}
                 >
                 <Grid container>
                   <Grid item xs={6}>
@@ -277,7 +275,12 @@ function DecisionDialogs(props) {
                           </Typography>
                         </Link>
                       }
-                      <div>
+                      <div
+                        className={classes.isLinked}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          navigate(history, formMarketLink(marketId));
+                        }}>
                           {isDraft && (
                             <Typography
                               className={classes.draft}

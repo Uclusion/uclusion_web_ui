@@ -442,6 +442,7 @@ const messages = defineMessages({
   inlineAddLabel: 'Add Option',
   inlineAddExplanation: 'Add a how to do this story option and collect votes on it.',
   deactivateInlineQuestion: 'De-activate the dialog associated with this story?',
+  deactivateDialogQuestion: 'Do you want to de-activate this collaboration?',
   yesAndProceed: 'Change stage and de-activate',
   noAndProceed: 'Change stage only',
   // Decision Dialog
@@ -460,7 +461,8 @@ const messages = defineMessages({
   childPlanExplanation: 'Click to create and link in a child workspace relevant to this initiative.',
   decisionAddHelp: 'A Dialog gives you a timed box way to decide with others between options that you control.',
   backToOptionPoolWarning: 'Moving this option back to the Option Pool deletes all votes.',
-
+  yesAndProceedDeactive: 'Archive and de-activate',
+  noAndProceedDeactivate: 'Archive only',
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
   dialogAddParticipantsLabel: 'Manage Collaborators',

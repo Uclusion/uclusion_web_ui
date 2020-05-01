@@ -301,7 +301,7 @@ const messages = defineMessages({
   newStory: 'New Story',
   newOption: 'New Option',
   noVoters: 'No Voters',
-  storyHelp: 'Need something assigned and voted on now that takes a day or longer? Use the plus icon in the sidebar menu.',
+  storyHelp: 'Need something assigned and voted on now that takes a day or longer? Use the Create Story button.',
   reassignWarning: 'Re-assigning will remove all votes.',
   // Issues
   issueResolveLabel: 'Resolve',
@@ -484,7 +484,7 @@ const messages = defineMessages({
   decisionInvestibleDiscussion: 'Discussion',
   decisionInvestibleVotingBlockedMarket: 'Voting is blocked because there is an open issue on the decision',
   decisionInvestibleVotingBlockedInvestible: 'Voting is blocked because there is an open issue',
-  decisionInvestibleProposedHelp: 'You can move this option to be voted on by using the up arrow on the sidebar.',
+  decisionInvestibleProposedHelp: 'You can move this option to be voted on by using the up arrow.',
 
   // InitiativeInvestible
   initiativeInvestibleVotingBlocked: 'Voting is blocked because there is an open issue',

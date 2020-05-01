@@ -155,11 +155,11 @@ function InvestibleEdit (props) {
             },
           };
           if (assignmentChanged) {
-            const { id, version } = investible;
-            addMinimumVersionRequirement(versionsDispatch, { id, version });
-          } else {
             const marketInfo = marketInfos.find((info) => info.market_id === marketId);
             const { id, version } = marketInfo;
+            addMinimumVersionRequirement(versionsDispatch, { id, version });
+          } else {
+            const { id, version } = investible;
             addMinimumVersionRequirement(versionsDispatch, { id, version });
           }
           refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);

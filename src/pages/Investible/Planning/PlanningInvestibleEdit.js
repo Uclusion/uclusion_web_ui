@@ -115,7 +115,8 @@ function PlanningInvestibleEdit(props) {
 
   function handleSave() {
     let updateInfo;
-    if (!_.isEqual(assignments, marketAssigned)) {
+    const assignmentChanged = !_.isEqual(assignments, marketAssigned);
+    if (assignmentChanged) {
       updateInfo = {
         marketId,
         investibleId: id,
@@ -143,9 +144,9 @@ function PlanningInvestibleEdit(props) {
       }
     }
     return updateInvestible(updateInfo)
-      .then((investible) => {
+      .then((fullInvestible) => {
         return {
-          result: { investible, assignments },
+          result: { fullInvestible, assignmentChanged },
           spinChecker: () => Promise.resolve(true),
         };
       });

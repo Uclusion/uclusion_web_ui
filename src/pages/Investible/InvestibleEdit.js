@@ -3,7 +3,6 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import localforage from 'localforage'
-import _ from 'lodash'
 import { lockInvestibleForEdit, realeaseInvestibleEditLock, } from '../../api/investibles'
 import {
   decomposeMarketPath,
@@ -30,12 +29,6 @@ import clsx from 'clsx'
 import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogEdit'
 import queryString from 'query-string'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import {
-  getFurtherWorkStage,
-  getInCurrentVotingStage,
-  getNotDoingStage
-} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 
@@ -75,7 +68,6 @@ function InvestibleEdit (props) {
   const loading = idLoaded !== investibleId || !market || !inv || !userId;
   const someoneElseEditing = lockedBy && (lockedBy !== userId);
   const [operationRunning] = useContext(OperationInProgressContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
 
   function onLock (result) {
     if (result) {
@@ -117,30 +109,6 @@ function InvestibleEdit (props) {
     lockedBy, someoneElseEditing, loading, lockFailed, idLoaded
   ]);
 
-  function getNewMarketInfo(assignments) {
-    const { market_infos: marketInfos } = fullInvestible;
-    if (!assignments) {
-      return marketInfos;
-    }
-    const thisMarketInfo = marketInfos.find((info) => info.market_id === marketId);
-    if (!thisMarketInfo) {
-      return marketInfos;
-    }
-    const { stage } = thisMarketInfo;
-    const movingToVoting = stage === getFurtherWorkStage(marketStagesState, marketId).id ||
-      stage === getNotDoingStage(marketStagesState, marketId).id;
-    let newStage = stage;
-    if (movingToVoting) {
-      newStage = getInCurrentVotingStage(marketStagesState, marketId).id;
-    }
-    const replacementInfo = {
-     ...thisMarketInfo,
-      assigned: assignments,
-      stage: newStage,
-    };
-    return _.unionBy([replacementInfo], marketInfos, 'market_id');
-  }
-
   function onCancel() {
     if (!lockedInvestibleId || lockedInvestibleId !== investibleId) {
       navigate(history, formInvestibleLink(marketId, investibleId));
@@ -174,20 +142,24 @@ function InvestibleEdit (props) {
   function onSave (result, stillEditing) {
     // the edit ony contains the investible data and assignments, not the full market infos
     if (result) {
-      const { investible, assignments } = result;
+      const { fullInvestible, assignmentChanged } = result;
+      const { investible, market_infos: marketInfos } = fullInvestible;
       localforage.removeItem(lockedInvestibleId)
         .then(() => {
-          const newInfos = getNewMarketInfo(assignments);
           const withMarketInfo = {
-            market_infos: newInfos,
+            market_infos: marketInfos,
             investible: {
               ...investible,
               updated_by: userId,
               updated_by_you: true,
             },
           };
-          if (_.isEmpty(assignments)) {
+          if (assignmentChanged) {
             const { id, version } = investible;
+            addMinimumVersionRequirement(versionsDispatch, { id, version });
+          } else {
+            const marketInfo = marketInfos.find((info) => info.market_id === marketId);
+            const { id, version } = marketInfo;
             addMinimumVersionRequirement(versionsDispatch, { id, version });
           }
           refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);

@@ -51,6 +51,9 @@ const useStyles = makeStyles(() => ({
     maxWidth: '3.3%',
     flexBasis: '3.3%'
   },
+  green: {
+    backgroundColor: '#3f6b72',
+  },
   contentContainer: {
     flexGrow: 0,
     maxWidth: '96%',
@@ -124,7 +127,7 @@ function DecisionDialogs(props) {
               spacing="small">
               {presences.map((presence) => {
                 const { id: userId, name } = presence;
-                return <Tooltip key={`tip${userId}`} title={name}><Avatar key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
+                return <Tooltip key={`tip${userId}`} title={name}><Avatar className={classes.green} key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
                 })
               }
             </AvatarGroup>

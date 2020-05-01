@@ -38,6 +38,9 @@ const useStyles = makeStyles(() => ({
   draft: {
     color: '#E85757',
   },
+  green: {
+    backgroundColor: '#3f6b72',
+  },
   countdownContainer: {
     width: 'auto',
     height: '100%',
@@ -123,7 +126,7 @@ function InitiativeDialogs(props) {
               spacing="small">
               {presences.map((presence) => {
                 const { id: userId, name } = presence;
-                return <Tooltip key={`tip${userId}`} title={name}><Avatar key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
+                return <Tooltip key={`tip${userId}`} title={name}><Avatar className={classes.green} key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
                 })
               }
             </AvatarGroup>

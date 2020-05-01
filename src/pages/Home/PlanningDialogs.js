@@ -29,6 +29,9 @@ const useStyles = makeStyles(() => ({
   textData: {
     fontSize: 12,
   },
+  green: {
+    backgroundColor: '#3f6b72',
+  },
   draft: {
     color: '#E85757',
     backgroundColor: '#ffc4c4',
@@ -110,7 +113,7 @@ function PlanningDialogs(props) {
                 spacing="medium">
                 {presences.map((presence) => {
                   const { id: userId, name } = presence;
-                  return <Tooltip key={`tip${userId}`} title={name}><Avatar key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
+                  return <Tooltip key={`tip${userId}`} title={name}><Avatar className={classes.green} key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
                   })
                 }
               </AvatarGroup>

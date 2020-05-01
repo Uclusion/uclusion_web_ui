@@ -186,8 +186,10 @@ function InvestibleEdit (props) {
               updated_by_you: true,
             },
           };
-          const { id, version } = investible;
-          addMinimumVersionRequirement(versionsDispatch, { id, version});
+          if (_.isEmpty(assignments)) {
+            const { id, version } = investible;
+            addMinimumVersionRequirement(versionsDispatch, { id, version });
+          }
           refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);
         });
     }

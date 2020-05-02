@@ -91,7 +91,7 @@ class QuillEditor extends React.PureComponent {
         ['clean'],
       ],
       imageResize: {
-        modules: ['Resize', 'DisplaySize', 'Toolbar'],
+        modules: ['Resize', 'DisplaySize'],
       },
       s3Upload: {
         marketId,

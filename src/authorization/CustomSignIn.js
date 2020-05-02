@@ -2,7 +2,6 @@ import React from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -15,7 +14,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 import { Auth } from 'aws-amplify';
-
+import { Helmet } from 'react-helmet';
 const useStyles = (theme) => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -44,6 +43,33 @@ const useStyles = (theme) => ({
     margin: 0,
     overflow: 'hidden',
   },
+  glogin: {
+    marginTop: '2rem',
+    '& > div': {
+      width: '100% !important'
+    }
+  },
+  spacerText: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: '26px'
+  },
+  inlineHr: {
+    width: '100%',
+    marginTop: '.6rem',
+    border: 'none',
+    height: '1px',
+    color: '#aaa',
+    backgroundColor: '#aaa'
+  },
+  hr: {
+    flex: 5
+  },
+  orText: {
+    color: '#aaa',
+    marginRight: '5px',
+    marginLeft: '5px'
+  }
 });
 
 class CustomSignIn extends SignIn {
@@ -60,12 +86,44 @@ class CustomSignIn extends SignIn {
     form.preventDefault();
     super.signIn();
   }
+  componentDidMount( ) {
+    this.renderButton();
+  }
+  onSuccess = (response) => {
+    console.log('response', response)
+  }
 
+  onFailure = (response) => {
+    console.log('failure', response);
+  }
+  renderButton = () => {
+    if(window.gapi){
+      window.gapi.signin2.render('my-signin2', {
+        'scope': 'profile email',
+        'width': 396,
+        'height': 50,
+        'longtitle': true,
+        'theme': 'dark',
+        'onsuccess': this.onSuccess(),
+        'onfailure': this.onFailure()
+      });
+    } else {
+      setTimeout (() => {
+        this.renderButton();
+      }, 100);
+    }
+  }
+  
   showComponent() {
     const { classes, intl } = this.props;
     const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
+
     return (
       <Container component="main" maxWidth="xs">
+        <Helmet>
+            <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com"></meta>
+            <script src="https://apis.google.com/js/platform.js"></script>
+          </Helmet>
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
@@ -75,7 +133,16 @@ class CustomSignIn extends SignIn {
             {intl.formatMessage({ id: 'signInSignIn' })}
           </Typography>
         </div>
-        <Button onClick={() => Auth.federatedSignIn({provider: 'Google'})}>SignIn with Google (Replace This)</Button>
+        <div id="my-signin2" className={classes.glogin}></div>
+        <div className={classes.spacerText}>
+          <span className={classes.hr}>
+            <hr className={classes.inlineHr} />
+          </span>
+          <span className={classes.orText}>or</span>
+          <span className={classes.hr}>
+            <hr className={classes.inlineHr}/>
+          </span>
+        </div>
         <form className={classes.form} onSubmit={this.onSubmit}>
           <div className={classes.hiddenSubmit}><input type="submit" tabIndex="-1"/></div>
           <TextField

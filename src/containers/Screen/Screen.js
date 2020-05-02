@@ -27,7 +27,7 @@ const useStyles = makeStyles(() => ({
   },
   containerAll: {
     background: '#efefef',
-    padding: '46px 20px 156px',
+    padding: '24px 20px 156px',
     marginTop: '80px',
     width: '100%'
   },

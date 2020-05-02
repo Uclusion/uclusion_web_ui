@@ -67,7 +67,7 @@ function ActionBar(props) {
     const actions = actionBarActions.filter(action => {return action.id !== 'archive'});
     return (
       
-      <Grid container style={{marginTop:'8rem'}}>
+      <Grid container style={{marginTop:'5rem'}}>
         <Grid item xs={12} justify="flex-end" container>
           <Grid item xs={3} container justify="flex-end">
             {archive && archive.length > 0 &&

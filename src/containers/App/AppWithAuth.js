@@ -28,16 +28,6 @@ LogRocket.init(config.logRocketInstance)
 
 Amplify.configure(awsconfig);
 
-const oauth = {
-  domain: config.cognito_domain,
-  scope: ['phone', 'email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],
-  redirectSignIn: config.ui_base_url,
-  redirectSignOut: config.ui_base_url,
-  responseType: 'code', // or 'token', note that REFRESH token will only be generated when the responseType is code
-};
-
-Auth.configure({ oauth });
-
 const useStyles = makeStyles({
   root: {
     '& .Nav__navBar___xtCFA': {
@@ -101,6 +91,18 @@ function AppWithAuth(props) {
       </div>
     );
   }
+
+
+  const oauth = {
+    domain: config.cognito_domain,
+    scope: ['phone', 'email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],
+    redirectSignIn: config.ui_base_url,
+    redirectSignOut: config.ui_base_url,
+    responseType: 'code', // or 'token', note that REFRESH token will only be generated when the responseType is code
+  };
+
+  Auth.configure({ oauth });
+
 
   const authenticatorTheme = {
     toast: {

@@ -30,7 +30,7 @@ const useStyles = makeStyles({
 });
 
 function OptionCard(props) {
-  const { title, comments, latestDate } = props;
+  const { title, latestDate } = props;
   const classes = useStyles();
   const intl = useIntl();
   const { fontSize, ref } = useFitText({ maxFontSize: 200 });

@@ -24,7 +24,7 @@ import { getMarketInfo } from '../../utils/userFunctions'
 const useStyles = makeStyles(() => ({
   paper: {
     textAlign: 'left',
-    minHeight: '275px'
+    minHeight: '200px'
   },
   textData: {
     fontSize: 12,
@@ -46,7 +46,7 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    height: '100%'
+    height: '100%',
   },
   upperRight: {
     textAlign: 'right',
@@ -54,7 +54,7 @@ const useStyles = makeStyles(() => ({
   },
   innerContainer: {
     borderBottom: '1px solid #f2f2f2',
-    paddingTop: '2rem',
+    paddingTop: '1rem',
     paddingBottom: '2rem',
     marginBottom: '1rem',
     flex: 2,
@@ -74,7 +74,7 @@ const useStyles = makeStyles(() => ({
     width: '100%'
   },
   participantText: {
-    fontSize: '.75rem'
+    fontSize: '.7rem'
   },
   childText: {
     fontSize: '.825rem'
@@ -99,7 +99,7 @@ function PlanningDialogs(props) {
 
       return (
         <div style={{flex: 7}}>
-          <Typography className={classes.participantText}>Participants</Typography>
+          <Typography className={classes.participantText}>{intl.formatMessage({ id: 'dialogParticipants' })}</Typography>
           <Grid
             container
             style={{width: 'auto', display: 'inline-block'}}

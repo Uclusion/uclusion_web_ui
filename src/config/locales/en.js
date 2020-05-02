@@ -291,6 +291,7 @@ const messages = defineMessages({
   marketParticipationLink: 'Participate in - {x}',
   homeChildLinkName: 'Child of {x}',
   homeUpdated: 'Updated {x}',
+  homeArchived: 'Archived {x}',
   homeInitiativeLabel: 'Initiative by {x} on {y}',
   homeDialogLabel: 'Dialog by {x} on {y}',
   inlineMarketName: 'Decision {x}',

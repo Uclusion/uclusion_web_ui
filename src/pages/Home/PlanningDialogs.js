@@ -20,6 +20,7 @@ import DialogActions from './DialogActions'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketInfo } from '../../utils/userFunctions'
+import { ACTIVE_STAGE } from '../../constants/markets'
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -192,9 +193,10 @@ function PlanningDialogs(props) {
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
       let parentName;
-      if(parentInvestibleId){
+      if (parentInvestibleId) {
         parentName = getInvestibleName(parentInvestibleId);
       }
+      const updatedMessageId = marketStage === ACTIVE_STAGE ? 'homeUpdated' : 'homeArchived';
       return (
         <Grid
           item
@@ -207,7 +209,7 @@ function PlanningDialogs(props) {
             border={1}
           >
             <Typography className={classes.upperRight}>
-              {intl.formatMessage({ id: 'homeUpdated' }, { x: intl.formatDate(marketUpdatedAt) })}
+              {intl.formatMessage({ id: updatedMessageId }, { x: intl.formatDate(marketUpdatedAt) })}
             </Typography>
             <CardContent className={classes.cardContent}>
             {parentMarketId &&

@@ -15,7 +15,7 @@ import { resendVerification, signUp } from '../../api/sso'
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton'
 import config from '../../config'
 import SpinningButton from '../../components/SpinBlocking/SpinningButton'
-import PhoneField from '../../components/TextFields/PhoneField';
+import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -213,8 +213,9 @@ function Signup(props) {
     );
   }
 
-  const { name, email, password, repeat, terms } = userState;
-  const formInvalid = !terms || _.isEmpty(name) || _.isEmpty(email) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
+  const { name, email, password, repeat, terms, phone } = userState;
+  const phoneValid = _.isEmpty(phone) || phoneChecker.test(phone);
+  const formInvalid = !phoneValid || !terms || _.isEmpty(name) || _.isEmpty(email) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline/>

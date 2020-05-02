@@ -4,6 +4,8 @@ import { TextField } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
 
+export const phoneChecker = new RegExp(/^\s*(?:\+?(\d{1,3}))?\s*\d{1,}$/);
+
 function PhoneField(props) {
   const intl = useIntl();
   const {
@@ -14,8 +16,7 @@ function PhoneField(props) {
   } = props;
 
   // stolen from https://stackoverflow.com/questions/16699007/regular-expression-to-match-standard-10-digit-phone-number
-  const phoneRegexp = new RegExp(/^\s*(?:\+?(\d{1,3}))?\s*\d{1,}$/);
-  const validPhone = _.isEmpty(value) || phoneRegexp.test(value);
+  const validPhone = _.isEmpty(value) || phoneChecker.test(value);
   const helperLabel = intl.formatMessage({ id: "phoneFieldErrorText" });
 
   return (

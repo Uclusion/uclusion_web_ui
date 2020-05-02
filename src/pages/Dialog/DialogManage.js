@@ -1,33 +1,37 @@
-import React, { useContext } from 'react';
-import { useHistory } from 'react-router';
-import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
-import _ from 'lodash';
+import React, { useContext } from 'react'
+import { useHistory } from 'react-router'
+import PropTypes from 'prop-types'
+import { useIntl } from 'react-intl'
+import _ from 'lodash'
 import {
-  makeBreadCrumbs, decomposeMarketPath, formMarketLink, navigate, formInvestibleLink,
-} from '../../utils/marketIdPathFunctions';
-import Screen from '../../containers/Screen/Screen';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
+  decomposeMarketPath,
+  formInvestibleLink,
+  formMarketLink,
+  makeBreadCrumbs,
+  navigate,
+} from '../../utils/marketIdPathFunctions'
+import Screen from '../../containers/Screen/Screen'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import UclusionTour from '../../components/Tours/UclusionTour';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import UclusionTour from '../../components/Tours/UclusionTour'
 import {
   PURE_SIGNUP_ADD_PEOPLE,
   PURE_SIGNUP_ADD_PEOPLE_STEPS,
   PURE_SIGNUP_FAMILY_NAME
-} from '../../components/Tours/pureSignupTours';
-import queryString from 'query-string';
-import { Card, CardContent, Typography } from '@material-ui/core';
-import DeadlineExtender from './Decision/DeadlineExtender';
-import CardType, { AGILE_PLAN_TYPE, VOTING_TYPE } from '../../components/CardType';
-import { usePlanFormStyles } from '../../components/AgilePlan';
-import DismissableText from '../../components/Notifications/DismissableText';
-import ManageUsers from './UserManagement/ManageUsers';
+} from '../../components/Tours/pureSignupTours'
+import queryString from 'query-string'
+import { Card, CardContent, Typography } from '@material-ui/core'
+import DeadlineExtender from './Decision/DeadlineExtender'
+import CardType, { AGILE_PLAN_TYPE, VOTING_TYPE } from '../../components/CardType'
+import { usePlanFormStyles } from '../../components/AgilePlan'
+import DismissableText from '../../components/Notifications/DismissableText'
+import ManageUsers from './UserManagement/ManageUsers'
 
 function DialogManage (props) {
   const { hidden } = props;
@@ -125,10 +129,6 @@ function DialogManage (props) {
               <DeadlineExtender
                 market={renderableMarket}
                 onCancel={onActionDone}
-              />
-              <ManageUsers
-                market={renderableMarket}
-                onAddNewUsers={onActionDone}
               />
             </CardContent>
           </>

@@ -1,10 +1,11 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
 import {
   decomposeMarketPath,
+  formatMarketLinkWithPrefix,
   formInvestibleEditLink,
   formMarketLink,
   makeArchiveBreadCrumbs,
@@ -40,8 +41,9 @@ function Investible(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const [marketsState] = useContext(MarketsContext);
-  const market = getMarket(marketsState, marketId) || emptyMarket;
-  const userId = getMyUserForMarket(marketsState, marketId) || {};
+  const realMarket = getMarket(marketsState, marketId);
+  const market = realMarket || emptyMarket;
+  const userId = getMyUserForMarket(marketsState, marketId) || '';
   const [commentsState] = useContext(CommentsContext);
   const comments = getMarketComments(commentsState, marketId);
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
@@ -55,7 +57,7 @@ function Investible(props) {
   const { name } = investible;
   const breadCrumbTemplates = [{ name: market.name, link: formMarketLink(marketId), id: 'marketCrumb' }];
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
-  const loading = (!investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || !userId);
+  const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(myPresence) || !userId || _.isEmpty(realMarket);
   const isDecision = market && market.market_type === DECISION_TYPE;
   const isPlanning = market && market.market_type === PLANNING_TYPE;
   const { market_stage: marketStage } = market;
@@ -67,10 +69,11 @@ function Investible(props) {
 
 
   useEffect(() => {
-    if (!isInitialization && loading && !hidden) {
-      navigate(history, formMarketLink(marketId));
+    const noMarketLoad = _.isEmpty(realMarket) && _.isEmpty(marketPresences);
+    if (!isInitialization && noMarketLoad && !hidden && marketId) {
+      navigate(history, formatMarketLinkWithPrefix('invite', marketId));
     }
-  }, [isInitialization, loading, history, hidden, marketId]);
+  }, [isInitialization, history, hidden, marketId, realMarket, marketPresences]);
 
 
   function toggleEdit() {

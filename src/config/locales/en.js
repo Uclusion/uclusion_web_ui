@@ -9,6 +9,7 @@ const messages = defineMessages({
   warning_404_description: 'We are sorry but the page you are looking for does not exist.',
   warning_404_categories: 'No categories configured for this market.',
   warning: 'Warning',
+  warningQuestion: 'Choice',
   slack_register_failed: 'Slack registration failure.',
   settings: 'Settings',
   language: 'Language',
@@ -290,6 +291,7 @@ const messages = defineMessages({
   marketParticipationLink: 'Participate in - {x}',
   homeChildLinkName: 'Child of {x}',
   homeUpdated: 'Updated {x}',
+  homeArchived: 'Archived {x}',
   homeInitiativeLabel: 'Initiative by {x} on {y}',
   homeDialogLabel: 'Dialog by {x} on {y}',
   inlineMarketName: 'Decision {x}',
@@ -300,7 +302,7 @@ const messages = defineMessages({
   newStory: 'New Story',
   newOption: 'New Option',
   noVoters: 'No Voters',
-  storyHelp: 'Need something assigned and voted on now that takes a day or longer? Use the plus icon in the sidebar menu.',
+  storyHelp: 'Need something assigned and voted on now that takes a day or longer? Use the Create Story button.',
   reassignWarning: 'Re-assigning will remove all votes.',
   // Issues
   issueResolveLabel: 'Resolve',
@@ -440,6 +442,10 @@ const messages = defineMessages({
   planningInvestibleVotingHelp: 'Vote how certain you are this story should be done or open an issue.',
   inlineAddLabel: 'Add Option',
   inlineAddExplanation: 'Add a how to do this story option and collect votes on it.',
+  deactivateInlineQuestion: 'De-activate the dialog associated with this story?',
+  deactivateDialogQuestion: 'Do you want to de-activate this collaboration?',
+  yesAndProceed: 'Change stage and de-activate',
+  noAndProceed: 'Change stage only',
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
   decisionDialogCurrentVotingLabel: 'Candidates',
@@ -456,7 +462,8 @@ const messages = defineMessages({
   childPlanExplanation: 'Click to create and link in a child workspace relevant to this initiative.',
   decisionAddHelp: 'A Dialog gives you a timed box way to decide with others between options that you control.',
   backToOptionPoolWarning: 'Moving this option back to the Option Pool deletes all votes.',
-
+  yesAndProceedDeactive: 'Archive and de-activate',
+  noAndProceedDeactivate: 'Archive only',
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
   dialogAddParticipantsLabel: 'Manage Collaborators',
@@ -478,7 +485,7 @@ const messages = defineMessages({
   decisionInvestibleDiscussion: 'Discussion',
   decisionInvestibleVotingBlockedMarket: 'Voting is blocked because there is an open issue on the decision',
   decisionInvestibleVotingBlockedInvestible: 'Voting is blocked because there is an open issue',
-  decisionInvestibleProposedHelp: 'You can move this option to be voted on by using the up arrow on the sidebar.',
+  decisionInvestibleProposedHelp: 'You can move this option to be voted on by using the up arrow.',
 
   // InitiativeInvestible
   initiativeInvestibleVotingBlocked: 'Voting is blocked because there is an open issue',

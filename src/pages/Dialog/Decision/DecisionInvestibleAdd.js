@@ -40,7 +40,6 @@ function DecisionInvestibleAdd(props) {
     hidden,
     onSpinComplete,
     parentInvestibleId,
-    expirationMinutes,
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -54,7 +53,7 @@ function DecisionInvestibleAdd(props) {
     stage_id: investmentAllowedStage.id,
     current_stage_id: createdStage.id,
   };
-  const emptyInvestible = { name: storedName, description: storedDescription };
+  const emptyInvestible = { name: storedName || '', description: storedDescription };
   const [currentValues, setCurrentValues] = useState(emptyInvestible);
   const defaultClearFunc = () => {};
   //see https://stackoverflow.com/questions/55621212/is-it-possible-to-react-usestate-in-react for why we have a func
@@ -124,7 +123,6 @@ function DecisionInvestibleAdd(props) {
       is_inline: true,
       parent_investible_id: parentInvestibleId,
       parent_market_id: marketId,
-      expiration_minutes: expirationMinutes,
     };
     return createDecision(addDialogInfo).then((result) => {
         const { market, stages } = result;
@@ -316,7 +314,6 @@ DecisionInvestibleAdd.propTypes = {
   hidden: PropTypes.bool,
   onSpinComplete: PropTypes.func,
   parentInvestibleId: PropTypes.string,
-  expirationMinutes: PropTypes.number,
 };
 
 DecisionInvestibleAdd.defaultProps = {

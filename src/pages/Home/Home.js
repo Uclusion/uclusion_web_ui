@@ -33,7 +33,7 @@ const useStyles = makeStyles(() => ({
       width: 'auto',
       display: 'flex',
       alignItems: 'center',
-      marginBottom: '2rem'
+      marginBottom: '1rem'
     },
     title: {
       marginLeft: '1rem'

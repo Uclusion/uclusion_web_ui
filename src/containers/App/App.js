@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import _ from 'lodash';
-import NoAccount from '../../pages/NoAccount/NoAccount';
-import Root from '../Root';
-import AppConfigProvider from '../../components/AppConfigProvider';
-import config from '../../config';
-import { WebSocketProvider } from '../../contexts/WebSocketContext';
-import { OnlineStateProvider } from '../../contexts/OnlineStateContext';
-import { Auth } from 'aws-amplify';
-import LogRocket from 'logrocket';
-import { defaultTheme } from '../../config/themes';
-import { ThemeProvider } from '@material-ui/core/styles';
-import { TourProvider } from '../../contexts/TourContext/TourContext';
-import { CognitoUserProvider } from '../../contexts/CongitoUserContext';
+import React, { useEffect, useState } from 'react'
+import _ from 'lodash'
+import NoAccount from '../../pages/NoAccount/NoAccount'
+import Root from '../Root'
+import AppConfigProvider from '../../components/AppConfigProvider'
+import config from '../../config'
+import { WebSocketProvider } from '../../contexts/WebSocketContext'
+import { OnlineStateProvider } from '../../contexts/OnlineStateContext'
+import { Auth } from 'aws-amplify'
+import LogRocket from 'logrocket'
+import { defaultTheme } from '../../config/themes'
+import { ThemeProvider } from '@material-ui/core/styles'
+import { TourProvider } from '../../contexts/TourContext/TourContext'
+import { CognitoUserProvider } from '../../contexts/CongitoUserContext'
 
 function App (props) {
 
@@ -28,7 +28,6 @@ function App (props) {
         .then((user) => {
           const { attributes } = user;
           const { identities } = attributes;
-          console.error(attributes)
           // only externally authenticated users have identities
           const cognitoUserId = attributes['custom:user_id'];
           if (_.isEmpty(cognitoUserId) && !_.isEmpty(identities)) {
@@ -48,7 +47,6 @@ function App (props) {
             ...attributes,
             userId,
           };
-          console.error(loginInfo);
           completeLogin(loginInfo);
         });
     } else {
@@ -64,8 +62,6 @@ function App (props) {
 
   const { userId, email } = userAttributes;
   const hasAccount = !_.isEmpty(userId);
-  console.error({userId, email});
-  console.error(userAttributes);
   if (!hasAccount && email) {
     return (
       <CognitoUserProvider authState={authState}>

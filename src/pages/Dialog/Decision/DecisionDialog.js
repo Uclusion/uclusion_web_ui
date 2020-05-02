@@ -281,7 +281,6 @@ function DecisionDialog(props) {
               <ProposedIdeas
                 investibles={proposed}
                 marketId={marketId}
-                comments={investibleComments}
               />
             </SubSection>
           </Grid>

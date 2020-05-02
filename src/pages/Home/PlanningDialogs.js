@@ -1,12 +1,12 @@
 import React, { Fragment, useContext } from 'react'
-import { Avatar, CardActions, CardContent, Grid, Link, Typography, Tooltip } from '@material-ui/core'
+import { Avatar, CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/styles'
 import { AvatarGroup } from '@material-ui/lab'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
-import { nameToAvatarText } from '../../utils/stringFunctions';
+import { nameToAvatarText } from '../../utils/stringFunctions'
 import {
   getMarketPresences,
   marketHasOnlyCurrentUser
@@ -20,14 +20,18 @@ import DialogActions from './DialogActions'
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketInfo } from '../../utils/userFunctions'
+import { ACTIVE_STAGE } from '../../constants/markets'
 
 const useStyles = makeStyles(() => ({
   paper: {
     textAlign: 'left',
-    minHeight: '275px'
+    minHeight: '200px'
   },
   textData: {
     fontSize: 12,
+  },
+  green: {
+    backgroundColor: '#3f6b72',
   },
   draft: {
     color: '#E85757',
@@ -43,7 +47,7 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    height: '100%'
+    height: '100%',
   },
   upperRight: {
     textAlign: 'right',
@@ -51,7 +55,7 @@ const useStyles = makeStyles(() => ({
   },
   innerContainer: {
     borderBottom: '1px solid #f2f2f2',
-    paddingTop: '2rem',
+    paddingTop: '1rem',
     paddingBottom: '2rem',
     marginBottom: '1rem',
     flex: 2,
@@ -71,7 +75,7 @@ const useStyles = makeStyles(() => ({
     width: '100%'
   },
   participantText: {
-    fontSize: '.75rem'
+    fontSize: '.7rem'
   },
   childText: {
     fontSize: '.825rem'
@@ -96,7 +100,7 @@ function PlanningDialogs(props) {
 
       return (
         <div style={{flex: 7}}>
-          <Typography className={classes.participantText}>Participants</Typography>
+          <Typography className={classes.participantText}>{intl.formatMessage({ id: 'dialogParticipants' })}</Typography>
           <Grid
             container
             style={{width: 'auto', display: 'inline-block'}}
@@ -110,7 +114,7 @@ function PlanningDialogs(props) {
                 spacing="medium">
                 {presences.map((presence) => {
                   const { id: userId, name } = presence;
-                  return <Tooltip title={name}><Avatar key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
+                  return <Tooltip key={`tip${userId}`} title={name}><Avatar className={classes.green} key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
                   })
                 }
               </AvatarGroup>
@@ -189,9 +193,10 @@ function PlanningDialogs(props) {
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
       const sortedPresences = _.sortBy(marketPresencesFollowing, 'name');
       let parentName;
-      if(parentInvestibleId){
+      if (parentInvestibleId) {
         parentName = getInvestibleName(parentInvestibleId);
       }
+      const updatedMessageId = marketStage === ACTIVE_STAGE ? 'homeUpdated' : 'homeArchived';
       return (
         <Grid
           item
@@ -204,7 +209,7 @@ function PlanningDialogs(props) {
             border={1}
           >
             <Typography className={classes.upperRight}>
-              {intl.formatMessage({ id: 'homeUpdated' }, { x: intl.formatDate(marketUpdatedAt) })}
+              {intl.formatMessage({ id: updatedMessageId }, { x: intl.formatDate(marketUpdatedAt) })}
             </Typography>
             <CardContent className={classes.cardContent}>
             {parentMarketId &&

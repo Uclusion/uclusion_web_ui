@@ -1,25 +1,28 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import { useIntl } from 'react-intl';
-import _ from 'lodash';
+import React, { useContext, useEffect, useState } from 'react'
+import { useHistory } from 'react-router'
+import PropTypes from 'prop-types'
+import { withStyles } from '@material-ui/core/styles'
+import { useIntl } from 'react-intl'
+import _ from 'lodash'
 import {
-  decomposeMarketPath, formatMarketLinkWithPrefix, formInvestibleLink, navigate,
-} from '../../utils/marketIdPathFunctions';
-import Screen from '../../containers/Screen/Screen';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import DecisionDialog from './Decision/DecisionDialog';
-import PlanningDialog from './Planning/PlanningDialog';
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
-import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+  decomposeMarketPath,
+  formatMarketLinkWithPrefix,
+  formInvestibleLink,
+  navigate,
+} from '../../utils/marketIdPathFunctions'
+import Screen from '../../containers/Screen/Screen'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import DecisionDialog from './Decision/DecisionDialog'
+import PlanningDialog from './Planning/PlanningDialog'
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import queryString from 'query-string'
 
@@ -112,8 +115,8 @@ function Dialog(props) {
         getInitiativeInvestible(investibles[0]);
       }
     }
-    const loadedMarketAtAll = !(_.isEmpty(loadedMarket) && _.isEmpty(marketStages) && _.isEmpty(marketPresences));
-    const redirectToInvite = !isInitialization && !isFromInvite && !loadedMarketAtAll && !hidden && marketId;
+    const noMarketLoad = _.isEmpty(loadedMarket) && _.isEmpty(marketStages) && _.isEmpty(marketPresences);
+    const redirectToInvite = !isInitialization && !isFromInvite && noMarketLoad && !hidden && marketId;
     if (redirectToInvite) {
         const inviteLink = formatMarketLinkWithPrefix('invite', marketId);
         navigate(history, inviteLink);

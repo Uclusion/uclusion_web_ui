@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { AvatarGroup } from '@material-ui/lab'
-import { Avatar, CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@material-ui/core';
+import { Avatar, CardActions, CardContent, Grid, Link, Tooltip, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { makeStyles } from '@material-ui/styles'
@@ -28,7 +28,7 @@ import { getVoteTotalsForUser } from '../../utils/userFunctions'
 import { ISSUE_TYPE } from '../../constants/comments'
 import CardType from '../../components/CardType'
 import Chart from '../../components/Cards/Chart'
-import { nameToAvatarText } from '../../utils/stringFunctions';
+import { nameToAvatarText } from '../../utils/stringFunctions'
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -51,11 +51,13 @@ const useStyles = makeStyles(() => ({
     maxWidth: '3.3%',
     flexBasis: '3.3%'
   },
+  green: {
+    backgroundColor: '#3f6b72',
+  },
   contentContainer: {
     flexGrow: 0,
     maxWidth: '96%',
     flexBasis: '96%',
-    cursor: 'pointer'
   },
   byline: {
     display: 'inline-block',
@@ -65,6 +67,9 @@ const useStyles = makeStyles(() => ({
   },
   childText: {
     fontSize: '.825rem'
+  },
+  isLinked: {
+    cursor: 'pointer',
   },
   chartContainer: {
     justifyContent: 'flex-end',
@@ -124,7 +129,7 @@ function DecisionDialogs(props) {
               spacing="small">
               {presences.map((presence) => {
                 const { id: userId, name } = presence;
-                return <Tooltip title={name}><Avatar key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
+                return <Tooltip key={`tip${userId}`} title={name}><Avatar className={classes.green} key={userId}>{nameToAvatarText(name)}</Avatar></Tooltip>
                 })
               }
             </AvatarGroup>
@@ -233,7 +238,7 @@ function DecisionDialogs(props) {
                   {!active && (
                     <ExpiredDisplay expiresDate={updatedAt}/>
                   )}
-                  {active && (
+                  {active && expirationMinutes && (
                     <ProgressBar
                       createdAt={createdAt}
                       expirationMinutes={expirationMinutes}
@@ -246,11 +251,7 @@ function DecisionDialogs(props) {
               </div>
 
               <div 
-                className={classes.contentContainer} 
-                  onClick={(event) => {
-                    event.preventDefault();
-                    navigate(history, formMarketLink(marketId));
-                  }}
+                className={classes.contentContainer}
                 >
                 <Grid container>
                   <Grid item xs={6}>
@@ -274,7 +275,12 @@ function DecisionDialogs(props) {
                           </Typography>
                         </Link>
                       }
-                      <div>
+                      <div
+                        className={classes.isLinked}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          navigate(history, formMarketLink(marketId));
+                        }}>
                           {isDraft && (
                             <Typography
                               className={classes.draft}

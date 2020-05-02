@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash'
 
 /**
  * Returns if the version is stale. I.E. we have some required signatures
@@ -114,7 +114,7 @@ export function signatureMatcher (fetched, signatures) {
   const unmatchedSignatures = _.difference(signatures, matchedSignatures);
   const allMatched = _.isEmpty(unmatchedSignatures);
   if (!allMatched) {
-    console.warn(unmatchedSignatures);
+    console.warn(`Unmatched signatures ${JSON.stringify(unmatchedSignatures)}`);
   }
   return { matched, unmatchedSignatures, allMatched };
 }

@@ -1,12 +1,12 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { IconButton, Tooltip } from '@material-ui/core';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { IconButton, Tooltip } from '@material-ui/core'
 
-import { useIntl } from 'react-intl';
+import { useIntl } from 'react-intl'
 
 function TooltipIconButton(props) {
   const {
-    onClick, size, icon, translationId, disabled,
+    onClick, size, icon, translationId, disabled, children
   } = props;
   const intl = useIntl();
   return (
@@ -19,6 +19,7 @@ function TooltipIconButton(props) {
           onClick={onClick}
         >
           {React.cloneElement(icon, { size })}
+          {children}
         </IconButton>
       </Tooltip>
       )}
@@ -28,6 +29,7 @@ function TooltipIconButton(props) {
         onClick={onClick}
       >
         {React.cloneElement(icon, { size })}
+        {children}
       </IconButton>
       )}
     </>

@@ -84,9 +84,9 @@ function DecisionInvestibleEdit(props) {
       investibleId: id,
     };
     return updateInvestible(updateInfo)
-      .then((investible) => {
+      .then((fullInvestible) => {
         return {
-          result: { investible },
+          result: { fullInvestible },
           spinChecker: () => Promise.resolve(true),
         };
       });

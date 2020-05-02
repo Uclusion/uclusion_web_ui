@@ -91,8 +91,9 @@ function AppWithAuth(props) {
       </div>
     );
   }
-
-
+  // Apparently you can't configure the Auth if you're not inside the authenticator
+  // wrapper. So we'll do it here when we know we're not in verify email, which doesn't have
+  // the wrapper (and doesn't use auth)
   const oauth = {
     domain: config.cognito_domain,
     scope: ['phone', 'email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],

@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import { FormattedMessage, useIntl } from 'react-intl';
+import React, { useContext, useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+import { FormattedMessage, useIntl } from 'react-intl'
 import {
   CardActions,
   Checkbox,
@@ -13,16 +13,15 @@ import {
   ListItemText,
   TextField,
   Typography,
-} from '@material-ui/core';
-import SearchIcon from '@material-ui/icons/Search';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import { addParticipants, inviteParticipants } from '../../../api/users';
-import InviteLinker from '../InviteLinker';
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { usePlanFormStyles } from '../../../components/AgilePlan';
-import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer';
-import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
+} from '@material-ui/core'
+import SearchIcon from '@material-ui/icons/Search'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
+import { addParticipants, inviteParticipants } from '../../../api/users'
+import InviteLinker from '../InviteLinker'
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { usePlanFormStyles } from '../../../components/AgilePlan'
+import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
 
 function AddNewUsers (props) {
   const {
@@ -38,20 +37,6 @@ function AddNewUsers (props) {
   function handleEmail1 (event) {
     const { value } = event.target;
     setEmail1(value);
-  }
-
-  function onInvite (form) {
-    setAddByEmailSpinning(true);
-    form.preventDefault();
-    const participants = [];
-    if (email1) {
-      const emails = email1.split(',');
-      emails.forEach((email) => participants.push({ email }));
-    }
-    return inviteParticipants(addToMarketId, participants).then(() => {
-      setEmail1('');
-      setAddByEmailSpinning(false);
-    }).catch(() => setAddByEmailSpinning(false));
   }
 
   function extractUsersList () {
@@ -85,7 +70,6 @@ function AddNewUsers (props) {
   const defaultChecked = extractUsersList();
   const [checked, setChecked] = useState(defaultChecked);
   const [searchValue, setSearchValue] = useState(undefined);
-  const [addByEmailSpinning, setAddByEmailSpinning] = useState(false);
   const [filteredNames, setFilteredNames] = useState(undefined);
   const participants = Object.keys(checked).map((key) => checked[key]);
   const anySelected = participants.find((participant) => participant.isChecked);
@@ -153,17 +137,40 @@ function AddNewUsers (props) {
     );
   }
 
+  function addInvitees() {
+    const participants = [];
+    if (email1) {
+      const emails = email1.split(',');
+      emails.forEach((email) => participants.push({ email }));
+    }
+    if (_.isEmpty(participants)) {
+      return Promise.resolve(true);
+    }
+    return inviteParticipants(addToMarketId, participants).then(() => {
+      setEmail1('');
+    });
+  }
+
   function handleSave () {
-    const toAdd = participants.filter((participant) => participant.isChecked);
+    const toAdd = participants.filter((participant) => participant.isChecked) || [];
     const toAddClean = toAdd.map((participant) => {
       const { user_id, account_id } = participant;
       return { user_id, account_id };
     });
-    return addParticipants(addToMarketId, toAddClean).then((result) => {
-      return {
-        result,
-        spinChecker: () => Promise.resolve(true),
-      };
+    return addInvitees().then(() => {
+      if (_.isEmpty(toAddClean)) {
+        return {
+          result: undefined,
+          spinChecker: () => Promise.resolve(true),
+        };
+      }
+      return addParticipants(addToMarketId, toAddClean)
+        .then((result) => {
+          return {
+            result,
+            spinChecker: () => Promise.resolve(true),
+          };
+        });
     });
   }
 
@@ -221,23 +228,6 @@ function AddNewUsers (props) {
           </ListItemText>
           }
         </List>
-        <CardActions className={classes.actions}>
-          <SpinBlockingButton
-            id="save"
-            variant="contained"
-            color="primary"
-            className={classes.actionPrimary}
-            onClick={handleSave}
-            marketId={addToMarketId}
-            onSpinStop={onSaveSpinStop}
-            hasSpinChecker
-            disabled={_.isEmpty(anySelected)}
-          >
-            <FormattedMessage
-              id="addExistingCollaborator"
-            />
-          </SpinBlockingButton>
-        </CardActions>
       </List>
       <List
         dense
@@ -255,7 +245,6 @@ function AddNewUsers (props) {
         </ListItem>
         <form
           autoComplete="off"
-          onSubmit={onInvite}
         >
           <ListItem
             id="emailInput"
@@ -278,17 +267,21 @@ function AddNewUsers (props) {
           </ListItem>
           <ListItem id="emailButtons" key="emailButtons">
             <CardActions className={classes.actions}>
-              <SpinningButton
+              <SpinBlockingButton
+                id="save"
                 variant="contained"
+                color="primary"
                 className={classes.actionPrimary}
-                type="submit"
-                spinning={addByEmailSpinning}
-                disabled={_.isEmpty(email1)}
+                onClick={handleSave}
+                marketId={addToMarketId}
+                onSpinStop={onSaveSpinStop}
+                hasSpinChecker
+                disabled={_.isEmpty(anySelected)&&_.isEmpty(email1)}
               >
                 <FormattedMessage
-                  id="inviteParticipantsLabel"
+                  id="addExistingCollaborator"
                 />
-              </SpinningButton>
+              </SpinBlockingButton>
             </CardActions>
           </ListItem>
         </form>

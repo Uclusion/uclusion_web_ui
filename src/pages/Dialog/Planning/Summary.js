@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardActions, CardContent, Divider, Typography, } from '@material-ui/core'
+import { Card, CardActions, CardContent, Divider, IconButton, Tooltip, Typography, } from '@material-ui/core'
 import _ from 'lodash'
 import { makeStyles } from '@material-ui/styles'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -17,10 +17,11 @@ import ParentSummary from '../ParentSummary'
 import MarketLinks from '../MarketLinks'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
-import { navigate } from '../../../utils/marketIdPathFunctions'
+import { formMarketManageLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import Collaborators from '../Collaborators'
+import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -131,6 +132,15 @@ function Summary(props) {
     <Card className={classes.root} id="summary">
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} />
       <CardActions className={classes.actions}>
+        <Tooltip
+          title={intl.formatMessage({ id: 'dialogRemoveParticipantsLabel' })}
+        >
+          <IconButton
+            onClick={() => navigate(history, `${formMarketManageLink(id)}#removal=true`)}
+          >
+            <PersonOutlineIcon />
+          </IconButton>
+        </Tooltip>
         <DialogActions
           isAdmin={myPresence.is_admin}
           isFollowing={myPresence.following}

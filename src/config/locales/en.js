@@ -467,13 +467,14 @@ const messages = defineMessages({
   // Investibles in decision dialog display
   decisionDialogInvestiblesUpdatedAt: 'Last Updated:',
   dialogAddParticipantsLabel: 'Manage Collaborators',
+  dialogRemoveParticipantsLabel: 'Remove Collaborators',
   storyAddParticipantsLabel: 'Change Assigned',
   dialogEditExpiresLabel: 'Add Time',
   dialogExpiresLabel: 'Once the Dialog expires it is frozen for changes and cannot be re-activated.',
-  searchParticipantsLabel: 'Select existing Uclusion collaborators to send to:',
+  searchParticipantsLabel: 'Search in Uclusion',
   noCollaboratorsLabel: 'There are no existing collaborators to choose from. Invite some below.',
   searchParticipantsPlaceholder: 'Use commas to separate multiple email addresses',
-  inviteParticipantsEmailLabel: 'Email addresses to send Uclusion invitations to:',
+  inviteParticipantsEmailLabel: 'Add by email addresses',
 
   // DecisionIvestibleSave
   decisionInvestibleSaveAddAnother: 'Save & add another',
@@ -494,9 +495,10 @@ const messages = defineMessages({
   initiativeInvestibleDescription: 'Initiative - Description',
   investibleDescription: 'Story - Description',
   dialogDescription: 'Dialog - Description',
-  dialogAddress: 'Dialog - Manage collaborators',
-  planAddress: 'Workspace - Manage collaborators',
-  initiativeAddress: 'Initiative - Manage collaborators',
+  dialogAddress: 'Add collaborators',
+  planAddress: 'Add collaborators',
+  planRemoveAddress: 'Remove collaborators',
+  initiativeAddress: 'Add collaborators',
   dialogExtend: 'Dialog - Delay expiration',
   initiativeExtend: 'Initiative - Delay expiration',
   initiativeInvestibleDiscussion: 'Discussion',
@@ -540,9 +542,9 @@ const messages = defineMessages({
   allowMultiVote: 'Can Dialog participants vote for more than one option?',
 
   // invite linker
-  inviteLinkerDirectionsDecision: 'Share this link to invite others to the dialog',
-  inviteLinkerDirectionsPlan: 'Share this link to invite others to the workspace',
-  inviteLinkerDirectionsInitiative: 'Share this link to invite others to the initiative',
+  inviteLinkerDirectionsDecision: 'Share this link',
+  inviteLinkerDirectionsPlan: 'Share this link',
+  inviteLinkerDirectionsInitiative: 'Share this link',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
   participationHelp: 'Select someone in the list and Add is immediate. Otherwise share the link or have Uclusion send email for you.',
   slackIntegrationSuccessful: 'Slack was successfully integrated.',
@@ -639,7 +641,7 @@ const messages = defineMessages({
   initiativeVotingHelp: 'Vote for or against this initiative and choose how certain you are of that vote.',
 
   // add participants
-  addParticipantsNewPerson: 'Need to add someone not on this list?',
+  addParticipantsNewPerson: 'Not on Uclusion? Send Invite',
 
   // Spinning
   spinVersionCheckError: 'There was an error. Please retry your operation.',

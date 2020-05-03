@@ -32,6 +32,7 @@ import CardType, { AGILE_PLAN_TYPE, VOTING_TYPE } from '../../components/CardTyp
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import DismissableText from '../../components/Notifications/DismissableText'
 import ManageUsers from './UserManagement/ManageUsers'
+import RemoveUsers from './UserManagement/RemoveUsers'
 
 function DialogManage (props) {
   const { hidden } = props;
@@ -41,7 +42,7 @@ function DialogManage (props) {
   const { location } = history;
   const { pathname, hash } = location;
   const values = queryString.parse(hash || '');
-  const { expires, participation } = values || {};
+  const { expires, participation, removal } = values || {};
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const renderableMarket = getMarket(marketsState, marketId) || {};
@@ -110,7 +111,6 @@ function DialogManage (props) {
                 market={renderableMarket}
                 onAddNewUsers={onActionDone}
               />
-
           </div>
         )}
         {marketType !== PLANNING_TYPE && expires && isAdmin && active && (
@@ -133,7 +133,7 @@ function DialogManage (props) {
             </CardContent>
           </>
         )}
-        {marketType === PLANNING_TYPE && (
+        {participation && marketType === PLANNING_TYPE && (
           <>
             <CardType
               className={classes.cardType}
@@ -144,7 +144,18 @@ function DialogManage (props) {
               market={renderableMarket}
               onAddNewUsers={onActionDone}
             />
-
+          </>
+        )}
+        {removal && marketType === PLANNING_TYPE && (
+          <>
+            <CardType
+              className={classes.cardType}
+              type={AGILE_PLAN_TYPE}
+              label={intl.formatMessage({ id: 'planRemoveAddress' })}
+            />
+            <RemoveUsers
+              market={renderableMarket}
+            />
           </>
         )}
         {participation && marketType === INITIATIVE_TYPE && myPresence && (

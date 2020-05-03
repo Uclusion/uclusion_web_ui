@@ -15,11 +15,18 @@ import { resendVerification, signUp } from '../../api/sso'
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton'
 import config from '../../config'
 import SpinningButton from '../../components/SpinBlocking/SpinningButton'
-import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField';
+import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField'
+import { Helmet } from 'react-helmet'
+import { Auth } from 'aws-amplify'
 
 const useStyles = makeStyles(theme => ({
   paper: {
     marginTop: theme.spacing(8),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  paperNoTop: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -37,6 +44,50 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: '#3f6b72',
     color: '#fff',
   },
+  googleButton: {
+    marginTop: '2rem',
+    width: '100%',
+    height: '46px',
+    backgroundColor: '#4285f4',
+    border: 'none',
+    color: '#fff',
+    lineHeight: '46px',
+    display: 'flex',
+    alignItems: 'end',
+    cursor: 'pointer'
+  },
+  googleText: {
+    lineHeight: '46px',
+    display: 'inline-block',
+    width: 'auto',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    fontSize: '1rem'
+  },
+  googleImg: {
+    transform: 'scale(1.15)'
+  },
+  spacerText: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: '26px'
+  },
+  inlineHr: {
+    width: '100%',
+    marginTop: '.6rem',
+    border: 'none',
+    height: '1px',
+    color: '#aaa',
+    backgroundColor: '#aaa'
+  },
+  hr: {
+    flex: 5
+  },
+  orText: {
+    color: '#aaa',
+    marginRight: '5px',
+    marginLeft: '5px'
+  }
 }));
 
 const GreenCheckbox = withStyles({
@@ -218,6 +269,10 @@ function Signup(props) {
   const formInvalid = !phoneValid || !terms || _.isEmpty(name) || _.isEmpty(email) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
     <Container component="main" maxWidth="xs">
+      <Helmet>
+        <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com"></meta>
+        <script src="https://apis.google.com/js/platform.js"></script>
+      </Helmet>
       <CssBaseline/>
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
@@ -226,6 +281,21 @@ function Signup(props) {
         <Typography component="h1" variant="h5">
           {intl.formatMessage({ id: 'signupTitle' })}
         </Typography>
+      </div>
+      <div className={classes.googleButton} onClick={() => Auth.federatedSignIn({provider: 'Google'})}>
+        <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
+        <div className={classes.googleText}>Sign in with Google</div>
+      </div>
+      <div className={classes.spacerText}>
+        <span className={classes.hr}>
+          <hr className={classes.inlineHr} />
+        </span>
+        <span className={classes.orText}>or</span>
+        <span className={classes.hr}>
+          <hr className={classes.inlineHr}/>
+        </span>
+      </div>
+      <div className={classes.paperNoTop}>
         <form
           className={classes.form}
           autoComplete="off"

@@ -4,6 +4,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
@@ -43,11 +44,28 @@ const useStyles = (theme) => ({
     margin: 0,
     overflow: 'hidden',
   },
-  glogin: {
+  googleButton: {
     marginTop: '2rem',
-    '& > div': {
-      width: '100% !important'
-    }
+    width: '100%',
+    height: '46px',
+    backgroundColor: '#4285f4',
+    border: 'none',
+    color: '#fff',
+    lineHeight: '46px',
+    display: 'flex',
+    alignItems: 'end',
+    cursor: 'pointer'
+  },
+  googleText: {
+    lineHeight: '46px',
+    display: 'inline-block',
+    width: 'auto',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    fontSize: '1rem'
+  },
+  googleImg: {
+    transform: 'scale(1.15)'
   },
   spacerText: {
     display: 'flex',
@@ -86,34 +104,7 @@ class CustomSignIn extends SignIn {
     form.preventDefault();
     super.signIn();
   }
-  componentDidMount( ) {
-    this.renderButton();
-  }
-  onSuccess = (response) => {
-    console.log('response', response)
-  }
 
-  onFailure = (response) => {
-    console.log('failure', response);
-  }
-  renderButton = () => {
-    if(window.gapi){
-      window.gapi.signin2.render('my-signin2', {
-        'scope': 'profile email',
-        'width': 396,
-        'height': 50,
-        'longtitle': true,
-        'theme': 'dark',
-        'onsuccess': this.onSuccess(),
-        'onfailure': this.onFailure()
-      });
-    } else {
-      setTimeout (() => {
-        this.renderButton();
-      }, 100);
-    }
-  }
-  
   showComponent() {
     const { classes, intl } = this.props;
     const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
@@ -133,7 +124,10 @@ class CustomSignIn extends SignIn {
             {intl.formatMessage({ id: 'signInSignIn' })}
           </Typography>
         </div>
-        <div id="my-signin2" className={classes.glogin}></div>
+        <div className={classes.googleButton} onClick={() => Auth.federatedSignIn({provider: 'Google'})}>
+          <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
+          <div className={classes.googleText}>Sign in with Google</div>
+        </div>
         <div className={classes.spacerText}>
           <span className={classes.hr}>
             <hr className={classes.inlineHr} />

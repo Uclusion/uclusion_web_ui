@@ -63,7 +63,9 @@ function AppWithAuth(props) {
   };
 
   registerListener(AUTH_HUB_CHANNEL, 'signinSignoutLocalClearingHandler', (data) => {
-    const { payload: { event, data: { username } } } = data;
+    const { payload } = (data || {});
+    const { event, data: payLoadData } = (payload || {});
+    const { username } = (payLoadData || {});
     switch (event) {
       case 'signIn':
         const oldUserName = getUclusionLocalStorageItem('userName');

@@ -1,21 +1,21 @@
-import React from 'react';
-import Avatar from '@material-ui/core/Avatar';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import { SignIn } from 'aws-amplify-react';
-import { injectIntl } from 'react-intl';
-import SpinningButton from '../components/SpinBlocking/SpinningButton';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import IconButton from '@material-ui/core/IconButton';
-import { Visibility, VisibilityOff } from '@material-ui/icons';
-import { Auth } from 'aws-amplify';
-import { Helmet } from 'react-helmet';
+import React from 'react'
+import Avatar from '@material-ui/core/Avatar'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import TextField from '@material-ui/core/TextField'
+import Link from '@material-ui/core/Link'
+import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
+import { withStyles } from '@material-ui/core/styles'
+import Container from '@material-ui/core/Container'
+import { SignIn } from 'aws-amplify-react'
+import { injectIntl } from 'react-intl'
+import SpinningButton from '../components/SpinBlocking/SpinningButton'
+import InputAdornment from '@material-ui/core/InputAdornment'
+import IconButton from '@material-ui/core/IconButton'
+import { Visibility, VisibilityOff } from '@material-ui/icons'
+import { Auth } from 'aws-amplify'
+import { Helmet } from 'react-helmet'
+
 const useStyles = (theme) => ({
   paper: {
     marginTop: theme.spacing(8),

@@ -24,6 +24,7 @@ import {
   setUclusionLocalStorageItem
 } from '../../components/utils'
 import { redirectToPath } from '../../utils/redirectUtils'
+import _ from 'lodash';
 
 LogRocket.init(config.logRocketInstance)
 
@@ -123,12 +124,14 @@ function AppWithAuth(props) {
     }
     return message;
   };
+  const authState = (!_.isEmpty(pathname) && (pathname.toUpperCase() === '/SIGNUP'))? 'signUp' : 'signIn';
   return (
     <div className={classes.root}>
       <IntlProvider locale={locale} key={locale} messages={messages}>
         <IntlGlobalProvider>
           <Authenticator
             errorMessage={authenticatorErrorMap}
+            authState={authState}
             theme={authenticatorTheme}
             hide={[Greetings, SignIn, SignUp, SignOut, ForgotPassword]}>
             <UclusionSignup />

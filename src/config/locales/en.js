@@ -316,6 +316,7 @@ const messages = defineMessages({
 
   // CommentAdd
   commentAddIssueDefault: 'Your issue...',
+  commentAddTODODefault: 'Your TODO...',
   commentAddQuestionDefault: 'Your question...',
   commentAddSuggestDefault: 'Your suggestion...',
   commentAddReplyDefault: 'Your reply...',
@@ -325,6 +326,7 @@ const messages = defineMessages({
   issueWarning: 'Opening an issue will halt voting on this dialog.',
   issueWarningInvestible: 'Opening an issue will halt voting on this option.',
   issueWarningPlanning: 'Opening an issue will move this story to blocked and stop execution or voting.',
+  todoWarningPlanning: 'Opening a TODO prevents this story from changing stages until resolved.',
 
   // CommentBox
   commentIconRaiseIssueLabel: 'Raise Issue',
@@ -348,6 +350,7 @@ const messages = defineMessages({
   cardTypeLabelIssue: 'blocking issue',
   cardTypeLabelQuestion: 'question',
   cardTypeLabelSuggestedChange: 'suggestion',
+  cardTypeLabelTodo: 'todo',
   cardTypeLabelProgressReport: 'progress report',
   cardTypeAgilePlan: 'workspace - description',
 
@@ -738,6 +741,7 @@ const messages = defineMessages({
   questionPresent: 'Question',
   suggestPresent: 'Suggestion',
   reportPresent: 'Progress Report',
+  todoPresent: 'TODO',
 
   // Search
   searchBoxPlaceholder: 'Search',

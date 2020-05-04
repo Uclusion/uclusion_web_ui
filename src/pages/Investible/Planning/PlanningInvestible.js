@@ -8,7 +8,14 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import YourVoting from '../Voting/YourVoting'
 import Voting from '../Decision/Voting'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
-import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
+import {
+  ISSUE_TYPE,
+  JUSTIFY_TYPE,
+  QUESTION_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE
+} from '../../../constants/comments'
 import {
   formInvestibleEditLink,
   formMarketAddInvestibleLink,
@@ -210,6 +217,7 @@ function PlanningInvestible(props) {
   const allowedCommentTypes = [QUESTION_TYPE];
   if (!isAssigned) {
     allowedCommentTypes.push(SUGGEST_CHANGE_TYPE);
+    allowedCommentTypes.push(TODO_TYPE);
   }
   if (isAssigned) {
     allowedCommentTypes.push(REPORT_TYPE);
@@ -330,7 +338,7 @@ function PlanningInvestible(props) {
     ));
   }, []);
   const blockingComments = investibleComments.filter(
-    comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
+    comment => (comment.comment_type === ISSUE_TYPE || (!isInBlocked && comment.comment_type === TODO_TYPE)) && !comment.resolved
   );
   function getStageActions() {
     if (inArchives) {

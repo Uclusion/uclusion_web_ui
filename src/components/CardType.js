@@ -3,11 +3,19 @@ import PropTypes from 'prop-types'
 import clsx from 'clsx'
 import { FormattedMessage } from 'react-intl'
 import { makeStyles } from '@material-ui/styles'
-import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../constants/comments'
+import {
+  ISSUE_TYPE,
+  JUSTIFY_TYPE,
+  QUESTION_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE
+} from '../constants/comments'
 // TODO create centralized icons repository
 import IssueIcon from '@material-ui/icons/ReportProblem'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
+import ListAltIcon from '@material-ui/icons/ListAlt'
 import VotingIcon from '@material-ui/icons/Assessment'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import GavelIcon from '@material-ui/icons/Gavel'
@@ -26,7 +34,7 @@ import AssignmentIcon from '@material-ui/icons/Assignment'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import UpdateIcon from '@material-ui/icons/Update'
 
-export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, DECISION_TYPE };
+export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE };
 export const VOTING_TYPE = "VOTING";
 export const STORY_TYPE = "STORY";
 export const AGILE_PLAN_TYPE = "AGILE_PLAN";
@@ -53,6 +61,7 @@ const useCardTypeStyles = makeStyles(
           [ISSUE_TYPE]: resolved ? "#BDC3C7" : "#E85757",
           [QUESTION_TYPE]: resolved ? "#BDC3C7" : "#2F80ED",
           [SUGGEST_CHANGE_TYPE]: resolved ? "#BDC3C7" : "#F29100",
+          [TODO_TYPE]: resolved ? "#BDC3C7" : "#e6e969",
           [REPORT_TYPE]: "#73B76C",
           [VOTING_TYPE]: "#9B51E0",
           [JUSTIFY_TYPE]: "#9B51E0",
@@ -95,6 +104,7 @@ const labelIntlIds = {
   [ISSUE_TYPE]: "cardTypeLabelIssue",
   [QUESTION_TYPE]: "cardTypeLabelQuestion",
   [SUGGEST_CHANGE_TYPE]: "cardTypeLabelSuggestedChange",
+  [TODO_TYPE]: "cardTypeLabelTodo",
   [REPORT_TYPE]: "cardTypeLabelProgressReport",
   certainty5: "certainty5",
   certainty25: "certainty25",
@@ -119,6 +129,7 @@ export default function CardType(props) {
     [ISSUE_TYPE]: IssueIcon,
     [QUESTION_TYPE]: QuestionIcon,
     [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon,
+    [TODO_TYPE]: ListAltIcon,
     [REPORT_TYPE]: UpdateIcon,
     [VOTING_TYPE]: VotingIcon,
     [STORY_TYPE]: EditIcon,
@@ -173,6 +184,7 @@ CardType.propTypes = {
     ISSUE_TYPE,
     QUESTION_TYPE,
     SUGGEST_CHANGE_TYPE,
+    TODO_TYPE,
     REPORT_TYPE,
     VOTING_TYPE,
     STORY_TYPE,

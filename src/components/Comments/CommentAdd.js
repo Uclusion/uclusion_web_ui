@@ -7,7 +7,14 @@ import { Button, darken, makeStyles, Paper } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import QuillEditor from '../TextEditors/QuillEditor'
 import { saveComment } from '../../api/comments'
-import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, } from '../../constants/comments'
+import {
+  ISSUE_TYPE,
+  QUESTION_TYPE,
+  REPLY_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE,
+} from '../../constants/comments'
 import { processTextAndFilesForSave } from '../../api/files'
 import SpinBlockingButton from '../SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -17,8 +24,8 @@ import { Dialog } from '../Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
-import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper';
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
+import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper'
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 
 function getPlaceHolderLabelId (type) {
   switch (type) {
@@ -32,6 +39,8 @@ function getPlaceHolderLabelId (type) {
       return 'commentAddReplyDefault';
     case REPORT_TYPE:
       return 'commentAddReportDefault';
+    case TODO_TYPE:
+      return 'commentAddTODODefault';
     default:
       throw new Error(`Unknown comment type:${type}`);
   }
@@ -165,7 +174,8 @@ function CommentAdd (props) {
 
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
-  const showIssueWarning = issueWarningId !== null && type === ISSUE_TYPE;
+  const showIssueWarning = (issueWarningId !== null && type === ISSUE_TYPE) || type === TODO_TYPE;
+  const myWarningId = type === TODO_TYPE ? 'todoWarningPlanning' : issueWarningId;
   const lockedDialogClasses = useLockedDialogStyles();
   return (
     <Paper
@@ -212,12 +222,12 @@ function CommentAdd (props) {
               {intl.formatMessage({ id: commentSaveLabel })}
             </Button>
           )}
-          {issueWarningId && (
+          {myWarningId && (
             <IssueDialog
               classes={lockedDialogClasses}
               open={!hidden && openIssue}
               onClose={toggleIssue}
-              issueWarningId={issueWarningId}
+              issueWarningId={myWarningId}
               /* slots */
               actions={
                 <SpinBlockingButton

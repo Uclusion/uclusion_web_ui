@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { Card, CardContent, FormControl, FormControlLabel, makeStyles, Radio, RadioGroup } from '@material-ui/core'
 import CommentAdd from '../../components/Comments/CommentAdd'
 import { FormattedMessage } from 'react-intl'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
 
 export const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -38,6 +38,9 @@ export const useStyles = makeStyles((theme) => ({
   },
   chipItemSuggestion: {
     background: '#F29100',
+  },
+  chipItemTodo: {
+    background: '#e6e969',
   },
   chipItemFor: {
     background: '#73B76C',
@@ -88,7 +91,8 @@ function CommentAddBox(props) {
                         ? `${classes.chipItem} ${classes.chipItemIssue}`
                         : commentType === QUESTION_TYPE ? `${classes.chipItem} ${classes.chipItemQuestion}`
                         : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItem} ${classes.chipItemSuggestion}`
-                          : `${classes.chipItem} ${classes.chipItemReport}`
+                          : commentType === TODO_TYPE ? `${classes.chipItem} ${classes.chipItemTodo}`
+                            : `${classes.chipItem} ${classes.chipItemReport}`
                     }
                     /* prevent clicking the label stealing focus */
                     onMouseDown={e => e.preventDefault()}

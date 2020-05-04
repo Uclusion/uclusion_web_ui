@@ -18,6 +18,7 @@ import SpinningButton from '../../components/SpinBlocking/SpinningButton'
 import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField'
 import { Helmet } from 'react-helmet'
 import { Auth } from 'aws-amplify'
+import { setRedirect } from '../../utils/redirectUtils'
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -157,6 +158,10 @@ function Signup(props) {
         redirect += hash;
       }
     }
+    if (!redirect) {
+      // If they did not come from a market link then we want them to create a workspace
+      redirect = '/dialogAdd#type=PLANNING';
+    }
     return redirect;
   }
 
@@ -182,7 +187,7 @@ function Signup(props) {
       phone = '+' + phone;
     }
     const signupData = { name, email, password, phone };
-    const redirect = getRedirect();
+    let redirect = getRedirect();
     return signUp(signupData, redirect).then((result) => {
       const { response } = result;
       setPostSignUp(response);
@@ -282,7 +287,11 @@ function Signup(props) {
           {intl.formatMessage({ id: 'signupTitle' })}
         </Typography>
       </div>
-      <div className={classes.googleButton} onClick={() => Auth.federatedSignIn({provider: 'Google'})}>
+      <div className={classes.googleButton} onClick={() => {
+        // Must come back to this device so go ahead and set in local storage
+        setRedirect(getRedirect());
+        Auth.federatedSignIn({provider: 'Google'})
+      }}>
         <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
         <div className={classes.googleText}>Sign in with Google</div>
       </div>

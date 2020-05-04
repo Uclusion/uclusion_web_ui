@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { useHistory } from 'react-router'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
@@ -22,6 +22,7 @@ import UclusionTour from '../../components/Tours/UclusionTour'
 import { PURE_SIGNUP_FAMILY_NAME, PURE_SIGNUP_HOME, pureSignupHomeSteps } from '../../components/Tours/pureSignupTours'
 import { CognitoUserContext } from '../../contexts/CongitoUserContext'
 import DismissableText from '../../components/Notifications/DismissableText'
+import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -48,6 +49,14 @@ function Home(props) {
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const classes = useStyles();
+
+  useEffect(() => {
+    const redirect = getAndClearRedirect();
+    if (!_.isEmpty(redirect)) {
+      console.log(`Redirecting you to ${redirect}`);
+      redirectToPath(history, redirect);
+    }
+  })
 
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(
     marketsState,

@@ -1,32 +1,28 @@
-import React, { useContext, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
-import { CssBaseline } from '@material-ui/core';
-import { useHistory } from 'react-router';
-import Market from '../../pages/Dialog/Dialog';
-import Support from '../../pages/About/Support';
-import PageNotFound from '../../pages/PageNotFound/PageNotFound';
-import _ from 'lodash';
-import {
-  broadcastView, decomposeMarketPath,
-} from '../../utils/marketIdPathFunctions';
-import Home from '../../pages/Home/Home';
-import Investible from '../../pages/Investible/Investible';
-import DialogArchives from '../../pages/DialogArchives/DialogArchives';
-import Archives from '../../pages/Archives/Archives';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { OnlineStateContext } from '../../contexts/OnlineStateContext';
-import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils';
-import InvestibleEdit from '../../pages/Investible/InvestibleEdit';
-import InvestibleAdd from '../../pages/Dialog/InvestibleAdd';
-import DialogAdd from '../../pages/DialogAdd/DialogAdd';
-import DialogEdit from '../../pages/Dialog/DialogEdit';
-import DialogManage from '../../pages/Dialog/DialogManage';
-import MarketInvite from '../../pages/Invites/MarketInvite';
-import SlackInvite from '../../pages/Invites/SlackInvite';
-import ChangePassword from '../../pages/Authentication/ChangePassword';
-import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences';
-import BillingHome from '../../pages/Payments/BillingHome';
+import React, { useContext, useEffect } from 'react'
+import PropTypes from 'prop-types'
+import { makeStyles } from '@material-ui/core/styles'
+import { CssBaseline } from '@material-ui/core'
+import { useHistory } from 'react-router'
+import Market from '../../pages/Dialog/Dialog'
+import Support from '../../pages/About/Support'
+import PageNotFound from '../../pages/PageNotFound/PageNotFound'
+import { broadcastView, decomposeMarketPath, } from '../../utils/marketIdPathFunctions'
+import Home from '../../pages/Home/Home'
+import Investible from '../../pages/Investible/Investible'
+import DialogArchives from '../../pages/DialogArchives/DialogArchives'
+import Archives from '../../pages/Archives/Archives'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { OnlineStateContext } from '../../contexts/OnlineStateContext'
+import InvestibleEdit from '../../pages/Investible/InvestibleEdit'
+import InvestibleAdd from '../../pages/Dialog/InvestibleAdd'
+import DialogAdd from '../../pages/DialogAdd/DialogAdd'
+import DialogEdit from '../../pages/Dialog/DialogEdit'
+import DialogManage from '../../pages/Dialog/DialogManage'
+import MarketInvite from '../../pages/Invites/MarketInvite'
+import SlackInvite from '../../pages/Invites/SlackInvite'
+import ChangePassword from '../../pages/Authentication/ChangePassword'
+import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences'
+import BillingHome from '../../pages/Payments/BillingHome'
 import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
 
 const useStyles = makeStyles({
@@ -133,12 +129,6 @@ function Root() {
     && hideBillingHome());
 
   useEffect(() => {
-    const redirect = getAndClearRedirect();
-    if (!_.isEmpty(redirect)) {
-      // console.log(`Root Redirecting you to ${redirect}`);
-      redirectToPath(history, redirect);
-    }
-
     function pegView(isEntry) {
       const currentPath = window.location.pathname;
       const { action, marketId, investibleId } = decomposeMarketPath(currentPath);

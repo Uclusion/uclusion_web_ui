@@ -23,6 +23,7 @@ import {
   getUclusionLocalStorageItem,
   setUclusionLocalStorageItem
 } from '../../components/utils'
+import { redirectToPath } from '../../utils/redirectUtils'
 
 LogRocket.init(config.logRocketInstance)
 
@@ -61,6 +62,7 @@ function AppWithAuth(props) {
   const messages = {
     ...getLocaleMessages(locale),
   };
+  const LOGIN = '/';
 
   registerListener(AUTH_HUB_CHANNEL, 'signinSignoutLocalClearingHandler', (data) => {
     const { payload } = (data || {});
@@ -76,6 +78,8 @@ function AppWithAuth(props) {
         setUclusionLocalStorageItem('userName', username);
         break;
       case 'signOut':
+        // First go to login so that url not exposed after logout
+        redirectToPath(history, LOGIN);
         return new TokenStorageManager().clearTokenStorage()
           .then(clearUclusionLocalStorage);
       default:

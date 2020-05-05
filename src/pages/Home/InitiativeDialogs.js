@@ -15,7 +15,7 @@ import {
   marketHasOnlyCurrentUser
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
+import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import RaisedCard from '../../components/Cards/RaisedCard'
 import ProgressBar from '../../components/Expiration/ProgressBarExpiration'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
@@ -110,7 +110,7 @@ function InitiativeDialogs(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
 
-  function getParticipantInfo(presences, marketId) {
+  function getParticipantInfo(presences) {
 
     return (
       <div style={{flex: 2, display: 'inline-block', height: '100%', borderRight: '1px solid #f2f2f2', minWidth: '70%'}}>
@@ -151,7 +151,7 @@ function InitiativeDialogs(props) {
       }
       const baseInvestible = investibles[0];
       const { investible } = baseInvestible;
-      const { name } = investible;
+      const { name, id: investibleId } = investible;
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const isDraft = marketHasOnlyCurrentUser(marketPresencesState, marketId);
       const marketPresencesFollowing = marketPresences.filter((presence) => presence.following && !presence.market_banned);
@@ -271,7 +271,7 @@ function InitiativeDialogs(props) {
                         className={classes.isLinked}
                         onClick={(event) => {
                           event.preventDefault();
-                          navigate(history, formMarketLink(marketId));}}
+                          navigate(history, formInvestibleLink(marketId, investibleId));}}
                       >
                           {isDraft && (
                             <Typography
@@ -300,7 +300,7 @@ function InitiativeDialogs(props) {
                   </div>
                 </Grid>
                 <Grid item xs={4} style={{display: 'flex'}}>
-                  {getParticipantInfo(sortedPresences, marketId)}
+                  {getParticipantInfo(sortedPresences)}
                   <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
                     <DialogActions
                       isAdmin={myPresence.is_admin}

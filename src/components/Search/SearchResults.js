@@ -1,15 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
-import _ from 'lodash';
+import React, { useContext, useEffect, useState } from 'react'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
+import _ from 'lodash'
 import {
   INDEX_COMMENT_TYPE,
-  INDEX_INVESTIBLE_TYPE, INDEX_MARKET_TYPE
-} from '../../contexts/SearchIndexContext/searchIndexContextMessages';
-import CommentSearchResult from './CommentSearchResult';
-import InvestibleSearchResult from './InvestibleSearchResult';
-import MarketSearchResult from './MarketSearchResult';
-import { List, ListItem, Popper, Paper } from '@material-ui/core';
-import { makeStyles } from '@material-ui/styles';
+  INDEX_INVESTIBLE_TYPE,
+  INDEX_MARKET_TYPE
+} from '../../contexts/SearchIndexContext/searchIndexContextMessages'
+import CommentSearchResult from './CommentSearchResult'
+import InvestibleSearchResult from './InvestibleSearchResult'
+import MarketSearchResult from './MarketSearchResult'
+import { List, ListItem, Paper, Popper } from '@material-ui/core'
+import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -31,7 +32,6 @@ function SearchResults () {
       setAnchorEl(document.getElementById('search-box'));
     }
     const shouldBeOpen = !_.isEmpty(results);
-    console.log(shouldBeOpen);
     setOpen(shouldBeOpen);
 
   }, [setAnchorEl, anchorEl, results]);

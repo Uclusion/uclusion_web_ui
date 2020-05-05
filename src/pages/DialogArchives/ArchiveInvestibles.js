@@ -15,7 +15,6 @@ function getInvestibleOnClick(id, marketId, history) {
 }
 
 export function getInvestibles(investibles, presenceMap, marketId, history, intl, elevation) {
-  console.log(elevation);
   const investibleData = investibles.map((inv) => inv.investible);
   const sortedData = _.sortBy(investibleData, 'updated_at', 'name').reverse();
   const infoMap = investibles.reduce((acc, inv) => {

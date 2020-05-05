@@ -1,21 +1,15 @@
-import { getMessages } from '../../api/sso';
-import { updateMessages, pageChanged, removeStoredMessages } from './notificationsContextReducer';
-import { NAVIGATION_CHANNEL, TOAST_CHANNEL, VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext';
+import { getMessages } from '../../api/sso'
+import { pageChanged, removeStoredMessages, updateMessages } from './notificationsContextReducer'
+import { TOAST_CHANNEL, VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext'
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
-import { registerListener } from '../../utils/MessageBusUtils';
-import { REMOVE_EVENT } from '../WebSocketContext';
-import { getFullLink } from '../../components/Notifications/Notifications';
-import { navigate } from '../../utils/marketIdPathFunctions';
-import { RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
-import { toast } from 'react-toastify';
+import { registerListener } from '../../utils/MessageBusUtils'
+import { REMOVE_EVENT } from '../WebSocketContext'
+import { getFullLink } from '../../components/Notifications/Notifications'
+import { navigate } from '../../utils/marketIdPathFunctions'
+import { RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications'
+import { toast } from 'react-toastify'
 
 function beginListening(dispatch, history) {
-  registerListener(NAVIGATION_CHANNEL, 'systemMessagesListener', (data) => {
-    const { payload: { link } } = data;
-    console.debug(data);
-    console.debug("Redirecting to " + link);
-    navigate(history, link);
-  });
   registerListener(TOAST_CHANNEL, 'toastListener', (data) => {
     const { payload: message } = data;
     const { text, level, commentId, investibleId, marketId } = message

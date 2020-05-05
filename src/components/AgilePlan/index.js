@@ -325,7 +325,7 @@ export function DaysEstimate(props) {
     if (value && createdAt) {
       return moment(createdAt).add(value, 'days').toDate();
     }
-    return new Date();
+    return undefined;
   }
   
   function handleDateChange(date) {
@@ -342,6 +342,7 @@ export function DaysEstimate(props) {
       ) : (
         <InfoText textId="daysEstimateHelp" useDl={false}>
           <DatePicker
+            placeholderText={intl.formatMessage({ id: "selectDate" })}
             selected={getStartDate()}
             onChange={handleDateChange}
           />

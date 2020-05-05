@@ -1,36 +1,23 @@
-import React, { useEffect, useReducer, useState } from 'react';
-import LocalForageHelper from '../utils/LocalForageHelper';
+import React, { useReducer } from 'react';
+import { getLoginPersistentItem, setLoginPersistentItem } from '../components/utils';
 
 const DismissTextContext = React.createContext({});
 export const DISMISS = 'DISMISS';
-const DISMISS_CONTEXT_NAMESPACE = 'dismiss_context';
+const DISMISS_CONTEXT_KEY = 'dismiss_text';
+
 
 function DismissTextProvider(props) {
   const { children } = props;
+  const stored = getLoginPersistentItem(DISMISS_CONTEXT_KEY) || {};
   const [state, dispatch] = useReducer((state, action) => {
     const { type, id, newState } = action;
     if (type === DISMISS) {
-      const lfh = new LocalForageHelper(DISMISS_CONTEXT_NAMESPACE);
       const newDismissedState = { ...state, [id]: { dismissed: true} };
-      lfh.setState(newDismissedState);
+      setLoginPersistentItem(DISMISS_CONTEXT_KEY, newDismissedState);
       return newDismissedState;
     }
     return newState;
-  }, {});
-  const [isInitialization, setIsInitialization] = useState(true);
-  useEffect(() => {
-    if (isInitialization) {
-      const lfg = new LocalForageHelper(DISMISS_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((state) => {
-          if (state) {
-            dispatch({ type: 'INIT', newState: state });
-          }
-        });
-      setIsInitialization(false);
-    }
-    return () => {};
-  }, [isInitialization, state]);
+  }, stored);
 
   return (
     <DismissTextContext.Provider value={[state, dispatch]}>

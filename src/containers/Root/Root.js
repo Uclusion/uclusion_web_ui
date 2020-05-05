@@ -154,11 +154,11 @@ function Root() {
       window.myListenerMarker = true;
       // console.debug('Adding listeners');
       window.addEventListener('load', () => {
-        console.debug('Load listener');
+        // console.debug('Load listener');
         pegView(true);
       });
       window.addEventListener('focus', () => {
-        console.debug('Focus listener');
+        // console.debug('Focus listener');
         pegView(true);
       });
       window.addEventListener('blur', () => {
@@ -181,7 +181,7 @@ function Root() {
         pegView(true);
       });
       document.addEventListener('visibilitychange', () => {
-        console.debug('Visibility change listener');
+        // console.debug('Visibility change listener');
         const isEntry = document.visibilityState === 'visible';
         pegView(isEntry);
       });

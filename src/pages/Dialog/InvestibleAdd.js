@@ -53,7 +53,9 @@ function InvestibleAdd(props) {
   const [idLoaded, setIdLoaded] = useState(undefined);
 
   function onInvestibleSave(investible) {
-    const { id, version} = investible.investible;
+    const { market_infos: marketInfos } = investible;
+    const first = marketInfos[0];
+    const { id, version} = first;
     addMinimumVersionRequirement(versionsDispatch, { id, version});
     addInvestible(investiblesDispatch, diffDispatch, investible);
   }

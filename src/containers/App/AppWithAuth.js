@@ -58,7 +58,7 @@ function AppWithAuth(props) {
   const classes = useStyles();
   const history = useHistory();
   const { location } = history;
-  const { pathname } = location;
+  const { pathname, hash } = location;
   // console.debug(location);
   const messages = {
     ...getLocaleMessages(locale),
@@ -124,7 +124,7 @@ function AppWithAuth(props) {
     }
     return message;
   };
-  const authState = (!_.isEmpty(pathname) && (pathname.toUpperCase() === '/SIGNUP'))? 'signUp' : 'signIn';
+  const authState = (!_.isEmpty(hash) && (hash.toUpperCase() === '#SIGNUP'))? 'signUp' : 'signIn';
   return (
     <div className={classes.root}>
       <IntlProvider locale={locale} key={locale} messages={messages}>

@@ -6,7 +6,14 @@ import { Link, } from '@material-ui/core'
 import _ from 'lodash'
 import { formCommentLink } from '../../utils/marketIdPathFunctions'
 import { useIntl } from 'react-intl'
-import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
+import {
+  ISSUE_TYPE,
+  JUSTIFY_TYPE,
+  QUESTION_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE
+} from '../../constants/comments'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
@@ -23,6 +30,8 @@ function getIntlMessage (commentType) {
       return 'commentSearchResultQuestion';
     case SUGGEST_CHANGE_TYPE:
       return 'commentSearchResultSuggestion';
+    case TODO_TYPE:
+      return 'commentSearchResultTodo';
     case REPORT_TYPE:
       return 'commentSearchResultReport';
     default:

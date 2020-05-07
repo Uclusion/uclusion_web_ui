@@ -19,6 +19,7 @@ import { usePlanFormStyles } from '../../components/AgilePlan'
 import queryString from 'query-string'
 import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
+import { getInlineBreadCrumbs } from '../Investible/Decision/DecisionInvestible'
 
 function InvestibleAdd(props) {
   const { hidden } = props;
@@ -33,17 +34,27 @@ function InvestibleAdd(props) {
   const [, versionsDispatch] = useContext(VersionsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // we're going to talk directly to the contexts instead of pushing messages for speed reasons
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const classes = usePlanFormStyles();
   const renderableMarket = getMarket(marketsState, marketId) || {};
-  const { market_type: marketType, created_at: createdAt} = renderableMarket;
+  const { market_type: marketType, created_at: createdAt, parent_market_id: parentMarketId,
+    parent_investible_id: inlineParentInvestibleId, is_inline: isInline, } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const myTruePresence = myPresence || {};
   const { is_admin: isAdmin } = myTruePresence;
-  const breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
+  let breadCrumbTemplates;
+  if (parentInvestibleId) {
+    // The inline market will be created along with the option
+    breadCrumbTemplates = getInlineBreadCrumbs(marketsState, marketId, parentInvestibleId, investiblesState);
+  } else if (isInline) {
+    breadCrumbTemplates = getInlineBreadCrumbs(marketsState, parentMarketId, inlineParentInvestibleId,
+      investiblesState);
+  } else {
+    breadCrumbTemplates = [{ name: currentMarketName, link: formMarketLink(marketId) }];
+  }
   const myBreadCrumbs = makeBreadCrumbs(history, breadCrumbTemplates, true);
   const isPlanning = marketType === PLANNING_TYPE && !parentInvestibleId;
   const isDecision = marketType === DECISION_TYPE || parentInvestibleId;

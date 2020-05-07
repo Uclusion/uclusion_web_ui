@@ -168,7 +168,8 @@ function PlanningInvestible(props) {
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, children, days_estimate: daysEstimate, inline_market_id: inlineMarketId } = marketInfo;
   const assigned = invAssigned || []; // handle the empty case to make subsequent code easier
-  const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === marketPresences.length;
+  const presencesFollowing = (marketPresences || []).filter((presence) => presence.following && !presence.market_banned) || [];
+  const everyoneAssigned = !_.isEmpty(marketPresences) && assigned.length === presencesFollowing.length;
   const { investible } = marketInvestible;
   const { description, name, locked_by: lockedBy, created_at: createdAt } = investible;
   let lockedByName;

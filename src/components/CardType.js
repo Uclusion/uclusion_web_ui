@@ -60,8 +60,8 @@ const useCardTypeStyles = makeStyles(
         backgroundColor: {
           [ISSUE_TYPE]: resolved ? "#BDC3C7" : "#E85757",
           [QUESTION_TYPE]: resolved ? "#BDC3C7" : "#2F80ED",
-          [SUGGEST_CHANGE_TYPE]: resolved ? "#BDC3C7" : "#F29100",
-          [TODO_TYPE]: resolved ? "#BDC3C7" : "#e6e969",
+          [SUGGEST_CHANGE_TYPE]: resolved ? "#BDC3C7" : "#e6e969",
+          [TODO_TYPE]: resolved ? "#BDC3C7" : "#F29100",
           [REPORT_TYPE]: "#73B76C",
           [VOTING_TYPE]: "#9B51E0",
           [JUSTIFY_TYPE]: "#9B51E0",

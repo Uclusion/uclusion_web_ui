@@ -94,7 +94,7 @@ function DecisionDialog(props) {
   const history = useHistory();
   const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketComments = comments.filter((comment) => !comment.investible_id);
-  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE];
+  const allowedCommentTypes = [QUESTION_TYPE, ISSUE_TYPE];
   const {
     id: marketId,
     name: marketName,

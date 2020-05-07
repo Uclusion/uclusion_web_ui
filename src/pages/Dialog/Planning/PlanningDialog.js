@@ -57,7 +57,7 @@ function PlanningDialog(props) {
       ? makeArchiveBreadCrumbs(history)
       : makeBreadCrumbs(history);
   const marketComments = comments.filter(comment => !comment.investible_id);
-  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE];
+  const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
   const { name: marketName, locked_by: lockedBy } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);

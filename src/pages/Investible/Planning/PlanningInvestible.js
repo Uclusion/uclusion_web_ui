@@ -215,15 +215,15 @@ function PlanningInvestible(props) {
     : makeBreadCrumbs(history, breadCrumbTemplates);
 
   const allowedCommentTypes = [QUESTION_TYPE];
+  if (isAssigned) {
+    allowedCommentTypes.push(REPORT_TYPE);
+  }
   if (!isAssigned) {
     allowedCommentTypes.push(SUGGEST_CHANGE_TYPE);
     allowedCommentTypes.push(TODO_TYPE);
   }
-  if (isAssigned) {
-    allowedCommentTypes.push(REPORT_TYPE);
-  }
   if (!isInNotDoing) {
-    allowedCommentTypes.unshift(ISSUE_TYPE);
+    allowedCommentTypes.push(ISSUE_TYPE);
   }
   const stageName = isInVoting
     ? intl.formatMessage({ id: "planningVotingStageLabel" })

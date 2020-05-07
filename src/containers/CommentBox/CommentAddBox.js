@@ -37,10 +37,10 @@ export const useStyles = makeStyles((theme) => ({
     background: '#E85757',
   },
   chipItemSuggestion: {
-    background: '#F29100',
+    background: '#e6e969',
   },
   chipItemTodo: {
-    background: '#e6e969',
+    background: '#F29100',
   },
   chipItemFor: {
     background: '#73B76C',
@@ -62,7 +62,7 @@ function CommentAddBox(props) {
     onSave,
     issueWarningId,
   } = props;
-  const [type, setType] = useState(ISSUE_TYPE);
+  const [type, setType] = useState(QUESTION_TYPE);
   const classes = useStyles();
 
   function onTypeChange(event) {

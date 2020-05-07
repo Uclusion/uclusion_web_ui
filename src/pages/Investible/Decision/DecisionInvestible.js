@@ -167,7 +167,7 @@ function DecisionInvestible(props) {
     }
   }
 
-  const allowedCommentTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
+  const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
 
   function getActions() {
     return (

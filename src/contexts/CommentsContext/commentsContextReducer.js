@@ -3,7 +3,6 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import { COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
-const UPDATE_MARKET_COMMENTS = 'UPDATE_MARKET_COMMENTS';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
 const REMOVE_COMMENTS_FROM_MARKET = 'REMOVE_COMMENTS_FROM_MARKET';
 const OVERWRITE_MARKET_COMMENTS = 'OVERWRITE_MARKET_COMMENTS';
@@ -14,13 +13,6 @@ export function initializeState(newState) {
   return {
     type: INITIALIZE_STATE,
     newState,
-  };
-}
-export function updateMarketComments(marketId, comments) {
-  return {
-    type: UPDATE_MARKET_COMMENTS,
-    marketId,
-    comments,
   };
 }
 
@@ -47,10 +39,6 @@ export function removeMarketsComments(marketIds) {
   };
 }
 
-function commentsVersionEqual(a, b) {
-  return a.id === b.id && a.version === b.version;
-}
-
 /** Functions that update the reducer state */
 
 // Required for quick add because version of parent comment has not changed
@@ -59,22 +47,6 @@ function doOverwriteMarketComments(state, action) {
   return {
     ...state,
     [marketId]: comments,
-  };
-}
-
-function doUpdateMarketComments(state, action) {
-  const { marketId, comments } = action;
-  const oldMarketComments = state[marketId] || [];
-  const oldMarketSame = _.intersectionWith(oldMarketComments, comments, commentsVersionEqual);
-  const { initializing } = state;
-  if (initializing) {
-    return {
-      [marketId]: _.unionWith(oldMarketSame, comments, commentsVersionEqual),
-    };
-  }
-  return {
-    ...state,
-    [marketId]: _.unionWith(oldMarketSame, comments, commentsVersionEqual),
   };
 }
 
@@ -95,8 +67,6 @@ function doRemoveMarketsComments(state, action) {
 
 function computeNewState(state, action) {
   switch (action.type) {
-    case UPDATE_MARKET_COMMENTS:
-      return doUpdateMarketComments(state, action);
     case REMOVE_MARKETS_COMMENT:
       return doRemoveMarketsComments(state, action);
     case REMOVE_COMMENTS_FROM_MARKET:

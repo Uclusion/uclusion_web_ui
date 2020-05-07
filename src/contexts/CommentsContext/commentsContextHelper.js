@@ -1,12 +1,13 @@
 import { fixupItemsForStorage, } from '../ContextUtils'
 import _ from 'lodash'
-import { overwriteMarketComments, removeCommentsFromMarket, updateMarketComments } from './commentsContextReducer'
+import { overwriteMarketComments, removeCommentsFromMarket } from './commentsContextReducer'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import {
   INDEX_COMMENT_TYPE,
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
+import { addVersionRequirement } from '../VersionsContext/versionsContextReducer'
 
 export function getComment(state, marketId, commentId) {
   const marketComments = getMarketComments(state, marketId);
@@ -34,12 +35,15 @@ export function getMarketComments(state, marketId) {
 /**
  * Comment removal is top level. The replies won't show once orphaned and will be cleaned up by async.
  * @param dispatch
+ * @param marketId
+ * @param comments
  */
 export function removeComments(dispatch, marketId, comments) {
   dispatch(removeCommentsFromMarket(marketId, comments));
 }
 
-export function addCommentToMarket(comment, state, dispatch) {
+export function addCommentToMarket(comment, state, dispatch, versionsDispatch) {
+  addVersionRequirement(versionsDispatch, { id: comment.id, version: comment.version});
   let updates = [comment];
   const { reply_id: replyId, id, market_id: marketId } = comment;
   const comments = getMarketComments(state, marketId);
@@ -63,5 +67,6 @@ export function addCommentToMarket(comment, state, dispatch) {
 
 export function refreshMarketComments(dispatch, marketId, comments) {
   const fixedUp = fixupItemsForStorage(comments);
-  dispatch(updateMarketComments(marketId, fixedUp));
+  // We are free to overwrite here because the required version is protecting quick add comments
+  dispatch(overwriteMarketComments(marketId, fixedUp));
 }

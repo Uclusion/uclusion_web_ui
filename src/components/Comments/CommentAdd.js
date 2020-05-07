@@ -24,7 +24,6 @@ import { Dialog } from '../Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
-import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 
 function getPlaceHolderLabelId (type) {
@@ -150,8 +149,7 @@ function CommentAdd (props) {
     const investibleId = (investible) ? investible.id : parentInvestible;
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((comment) => {
-        addMinimumVersionRequirement(versionsDispatch, { id: comment.id, version: comment.version})
-        addCommentToMarket(comment, commentsState, commentDispatch);
+        addCommentToMarket(comment, commentsState, commentDispatch, versionsDispatch);
         return EMPTY_SPIN_RESULT;
       });
   }

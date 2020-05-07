@@ -27,6 +27,7 @@ import { addCommentToMarket, removeComments } from '../../contexts/CommentsConte
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE } from '../../constants/markets'
 import { red } from '@material-ui/core/colors'
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 
 const useCommentStyles = makeStyles(
   {
@@ -163,6 +164,7 @@ function Comment(props) {
   const [replyOpen, setReplyOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [operationRunning] = useContext(OperationInProgressContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
   const enableEditing = !inArchives;
 
   function toggleReply() {
@@ -176,7 +178,7 @@ function Comment(props) {
   function reopen() {
     return reopenComment(marketId, id)
       .then((comment) => {
-        addCommentToMarket(comment, commentsState, commentsDispatch);
+        addCommentToMarket(comment, commentsState, commentsDispatch, versionsDispatch);
         return EMPTY_SPIN_RESULT;
       });
   }
@@ -190,7 +192,7 @@ function Comment(props) {
   function resolve() {
     return resolveComment(marketId, id)
       .then((comment) => {
-        addCommentToMarket(comment, commentsState, commentsDispatch);
+        addCommentToMarket(comment, commentsState, commentsDispatch, versionsDispatch);
         return EMPTY_SPIN_RESULT;
       });
   }

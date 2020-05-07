@@ -489,8 +489,8 @@ const messages = defineMessages({
   decisionInvestibleOthersVoting: 'Current Votes',
   decisionInvestibleDescription: 'Option - Description',
   decisionInvestibleDiscussion: 'Discussion',
-  decisionInvestibleVotingBlockedMarket: 'Voting is blocked because there is an open issue on the decision',
-  decisionInvestibleVotingBlockedInvestible: 'Voting is blocked because there is an open issue',
+  decisionInvestibleVotingBlockedMarket: 'Voting suspended until the open issue on this dialog is resolved',
+  decisionInvestibleVotingBlockedInvestible: 'Voting suspended until the open issue on this option is resolved',
   decisionInvestibleProposedHelp: 'You can move this option to be voted on by using the up arrow.',
 
   // InitiativeInvestible

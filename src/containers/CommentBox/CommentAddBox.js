@@ -1,6 +1,15 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { Card, CardContent, FormControl, FormControlLabel, makeStyles, Radio, RadioGroup } from '@material-ui/core'
+import {
+  Card,
+  CardContent,
+  FormControl,
+  FormControlLabel,
+  makeStyles,
+  Radio,
+  RadioGroup,
+  Tooltip
+} from '@material-ui/core'
 import CommentAdd from '../../components/Comments/CommentAdd'
 import { FormattedMessage } from 'react-intl'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
@@ -84,23 +93,26 @@ function CommentAddBox(props) {
             >
               {allowedTypes.map((commentType) => {
                 return (
-                  <FormControlLabel
-                    key={commentType}
-                    className={
-                      commentType === ISSUE_TYPE
-                        ? `${classes.chipItem} ${classes.chipItemIssue}`
-                        : commentType === QUESTION_TYPE ? `${classes.chipItem} ${classes.chipItemQuestion}`
-                        : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItem} ${classes.chipItemSuggestion}`
-                          : commentType === TODO_TYPE ? `${classes.chipItem} ${classes.chipItemTodo}`
-                            : `${classes.chipItem} ${classes.chipItemReport}`
-                    }
-                    /* prevent clicking the label stealing focus */
-                    onMouseDown={e => e.preventDefault()}
-                    control={<Radio color="primary" />}
-                    label={<FormattedMessage id={`${commentType.toLowerCase()}Present`} />}
-                    labelPlacement="end"
-                    value={commentType}
-                  />
+                  <Tooltip key={`tip${commentType}`}
+                           title={<FormattedMessage id={`${commentType.toLowerCase()}Tip`} />}>
+                    <FormControlLabel
+                      key={commentType}
+                      className={
+                        commentType === ISSUE_TYPE
+                          ? `${classes.chipItem} ${classes.chipItemIssue}`
+                          : commentType === QUESTION_TYPE ? `${classes.chipItem} ${classes.chipItemQuestion}`
+                          : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItem} ${classes.chipItemSuggestion}`
+                            : commentType === TODO_TYPE ? `${classes.chipItem} ${classes.chipItemTodo}`
+                              : `${classes.chipItem} ${classes.chipItemReport}`
+                      }
+                      /* prevent clicking the label stealing focus */
+                      onMouseDown={e => e.preventDefault()}
+                      control={<Radio color="primary" />}
+                      label={<FormattedMessage id={`${commentType.toLowerCase()}Present`} />}
+                      labelPlacement="end"
+                      value={commentType}
+                    />
+                  </Tooltip>
                 );
               })}
             </RadioGroup>

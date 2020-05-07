@@ -743,6 +743,11 @@ const messages = defineMessages({
   suggestPresent: 'Suggestion',
   reportPresent: 'Progress Report',
   todoPresent: 'TODO',
+  issueTip: 'Use to halt an option or story until resolved.',
+  questionTip: 'Question',
+  suggestTip: 'Suggestion',
+  reportTip: 'After estimated completion date use to report daily status.',
+  todoTip: 'Use to insure this item is done in this story.',
 
   // Search
   searchBoxPlaceholder: 'Search',

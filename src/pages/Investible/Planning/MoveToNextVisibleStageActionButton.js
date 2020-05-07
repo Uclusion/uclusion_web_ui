@@ -12,7 +12,7 @@ import {
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToNextVisibleStageActionButton(props) {
-  const { marketId, currentStageId, disabled, enoughVotes } = props;
+  const { marketId, currentStageId, disabled, enoughVotes, acceptedStageAvailable } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
@@ -34,7 +34,7 @@ function MoveToNextVisibleStageActionButton(props) {
     destinationLabel = 'planningInvestibleMoveToVerifiedLabel';
     destinationExplanation = 'planningInvestibleVerifiedExplanation';
   } else if (currentStageId === inBlockedStage.id) {
-    if (enoughVotes) {
+    if (enoughVotes && acceptedStageAvailable) {
       destinationStage = acceptedStage;
       destinationExplanation = 'planningInvestibleAcceptedExplanation';
       destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
@@ -67,6 +67,7 @@ MoveToNextVisibleStageActionButton.propTypes = {
   currentStageId: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
   enoughVotes: PropTypes.bool.isRequired,
+  acceptedStageAvailable: PropTypes.bool.isRequired,
 };
 
 export default MoveToNextVisibleStageActionButton;

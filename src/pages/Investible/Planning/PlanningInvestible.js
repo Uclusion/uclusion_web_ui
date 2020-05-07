@@ -472,6 +472,7 @@ function PlanningInvestible(props) {
             currentStageId={stage}
             disabled={!_.isEmpty(blockingComments) || !isAssigned || (isInVoting && (!enoughVotes || !_.isEmpty(assignedInAcceptedStage)))}
             enoughVotes={enoughVotes}
+            acceptedStageAvailable={_.isEmpty(assignedInAcceptedStage)}
           />
           )}
           {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork) && (

@@ -479,6 +479,7 @@ const messages = defineMessages({
   noCollaboratorsLabel: 'There are no existing collaborators to choose from. Invite some below.',
   searchParticipantsPlaceholder: 'Use commas to separate multiple email addresses',
   inviteParticipantsEmailLabel: 'Add by email addresses',
+  collaboratorNotFollowing: 'This user has archived and will not receive notifications.',
 
   // DecisionIvestibleSave
   decisionInvestibleSaveAddAnother: 'Save & add another',

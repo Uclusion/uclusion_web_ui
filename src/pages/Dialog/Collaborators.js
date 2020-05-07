@@ -3,6 +3,7 @@ import React from 'react'
 import Box from '@material-ui/core/Box'
 import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
+import { FormattedMessage } from 'react-intl'
 
 const useStyles = makeStyles( () => ({
     archived: {
@@ -35,6 +36,16 @@ export function Collaborators(props) {
         const myClassName = following ? classes.normal : classes.archived;
         if (presenceId === authorId ) {
           return <React.Fragment key={presenceId}/>;
+        }
+        if (!following) {
+          return (
+            <Tooltip key={`tip${presenceId}`}
+                     title={<FormattedMessage id="collaboratorNotFollowing" />}>
+              <Typography key={presenceId} component="li" className={myClassName}>
+                {name}
+              </Typography>
+            </Tooltip>
+          );
         }
         return (
           <Typography key={presenceId} component="li" className={myClassName}>

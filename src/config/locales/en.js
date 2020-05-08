@@ -525,15 +525,6 @@ const messages = defineMessages({
   // Quill Editor
   quillEditorUploadInProgress: 'Uploading image(s)',
 
-  //Planning Manage Users
-  manageParticipantsCurrentTitle: 'Current Participants',
-  manageParticipantsAddTitle: 'New Participants',
-  manageParticipantsMakeObserver: 'Make Approver',
-  manageParticipantsMakeParticipant: 'Make Collaborator',
-  manageParticipantsHasAsignments: 'Has stories',
-  manageParticipantsObserver: 'Approver',
-  manageParticipantsParticipant: 'collaborator',
-
   // decision sidebar
   addOptionLabel: 'Add Option',
 
@@ -544,7 +535,7 @@ const messages = defineMessages({
   // expiration extender
   deadlineExtenderSave: 'Modify',
   deadlineExtenderCancel: 'Close',
-  allowMultiVote: 'Can Dialog participants vote for more than one option?',
+  allowMultiVote: 'Can collaborator\'s vote for more than one option?',
 
   // invite linker
   inviteLinkerDirectionsDecision: 'Share this link',

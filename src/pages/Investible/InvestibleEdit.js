@@ -146,14 +146,6 @@ function InvestibleEdit (props) {
       const { investible, market_infos: marketInfos } = fullInvestible;
       localforage.removeItem(lockedInvestibleId)
         .then(() => {
-          const withMarketInfo = {
-            market_infos: marketInfos,
-            investible: {
-              ...investible,
-              updated_by: userId,
-              updated_by_you: true,
-            },
-          };
           if (assignmentChanged) {
             const marketInfo = marketInfos.find((info) => info.market_id === marketId);
             const { id, version } = marketInfo;
@@ -162,7 +154,7 @@ function InvestibleEdit (props) {
             const { id, version } = investible;
             addMinimumVersionRequirement(versionsDispatch, { id, version });
           }
-          refreshInvestibles(investiblesDispatch, diffDispatch, [withMarketInfo]);
+          refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
         });
     }
     if (!stillEditing) {

@@ -6,6 +6,7 @@ const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
 const REMOVE_COMMENTS_FROM_MARKET = 'REMOVE_COMMENTS_FROM_MARKET';
 const OVERWRITE_MARKET_COMMENTS = 'OVERWRITE_MARKET_COMMENTS';
+const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
 
 /** Messages we can send to the reducer */
 
@@ -13,6 +14,14 @@ export function initializeState(newState) {
   return {
     type: INITIALIZE_STATE,
     newState,
+  };
+}
+
+export function updateCommentsFromVersions(marketId, comments) {
+  return {
+    type: UPDATE_FROM_VERSIONS,
+    marketId,
+    comments,
   };
 }
 
@@ -72,6 +81,7 @@ function computeNewState(state, action) {
     case REMOVE_COMMENTS_FROM_MARKET:
       return doRemoveCommentsFromMarket(state, action);
     case OVERWRITE_MARKET_COMMENTS:
+    case UPDATE_FROM_VERSIONS:
       return doOverwriteMarketComments(state, action);
     case INITIALIZE_STATE:
       return action.newState;
@@ -82,8 +92,10 @@ function computeNewState(state, action) {
 
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
-  lfh.setState(newState);
+  if (action.type === UPDATE_FROM_VERSIONS) {
+    const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
+    lfh.setState(newState);
+  }
   return newState;
 }
 

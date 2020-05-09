@@ -1,11 +1,11 @@
-import { refreshMarketComments } from './commentsContextHelper';
 import {
   PUSH_COMMENTS_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
-} from '../VersionsContext/versionsContextHelper';
-import { removeMarketsComments } from './commentsContextReducer';
-import{ registerListener } from '../../utils/MessageBusUtils';
+} from '../VersionsContext/versionsContextHelper'
+import { overwriteMarketComments, removeMarketsComments } from './commentsContextReducer'
+import { registerListener } from '../../utils/MessageBusUtils'
+import { fixupItemsForStorage } from '../ContextUtils'
 
 function beginListening(dispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'commentsRemovedMarketStart', (data) => {
@@ -23,7 +23,8 @@ function beginListening(dispatch) {
 
     switch (event) {
       case VERSIONS_EVENT:
-        refreshMarketComments(dispatch, marketId, comments);
+        const fixedUp = fixupItemsForStorage(comments);
+        dispatch(overwriteMarketComments(marketId, fixedUp));
         break;
       default:
         // console.debug(`Ignoring push event ${event}`);

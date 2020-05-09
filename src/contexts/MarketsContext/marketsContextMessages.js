@@ -2,10 +2,10 @@ import {
   PUSH_CONTEXT_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT,
-} from '../VersionsContext/versionsContextHelper';
-import { removeMarketDetails } from './marketsContextReducer';
-import { registerListener } from '../../utils/MessageBusUtils';
-import { addMarketToStorage } from './marketsContextHelper';
+} from '../VersionsContext/versionsContextHelper'
+import { removeMarketDetails } from './marketsContextReducer'
+import { registerListener } from '../../utils/MessageBusUtils'
+import { addMarketToStorage } from './marketsContextHelper'
 
 function beginListening(dispatch, diffDispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketsRemovedMarketStart', (data) => {
@@ -24,7 +24,7 @@ function beginListening(dispatch, diffDispatch) {
     switch (event) {
       case VERSIONS_EVENT:
         // console.debug(`Markets context responding to updated market event ${event}`);
-        addMarketToStorage(dispatch, diffDispatch, marketDetails);
+        addMarketToStorage(dispatch, diffDispatch, marketDetails, true);
         break;
       default:
         // console.debug(`Ignoring identity event ${event}`);

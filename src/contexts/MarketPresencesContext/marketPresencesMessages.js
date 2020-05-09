@@ -4,7 +4,11 @@ import {
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
 } from '../VersionsContext/versionsContextHelper'
-import { processBannedList, removeMarketsPresence, updateMarketPresences } from './marketPresencesContextReducer'
+import {
+  processBannedList,
+  removeMarketsPresence,
+  versionsUpdateMarketPresences
+} from './marketPresencesContextReducer'
 import { registerListener } from '../../utils/MessageBusUtils'
 
 function beginListening(dispatch) {
@@ -26,7 +30,7 @@ function beginListening(dispatch) {
 
     switch (event) {
       case VERSIONS_EVENT:
-        dispatch(updateMarketPresences(marketId, users));
+        dispatch(versionsUpdateMarketPresences(marketId, users));
         break;
       default:
         // console.debug(`Ignoring push event ${event}`);

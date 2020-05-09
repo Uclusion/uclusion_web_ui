@@ -5,7 +5,7 @@ import _ from 'lodash'
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_MARKET_PRESENCE = 'ADD_MARKET_PRESENCE';
 const ADD_MARKET_PRESENCES = 'ADD_MARKET_PRESENCES';
-const UPDATE_MARKET_PRESENCES = 'UPDATE_MARKET_PRESENCES';
+const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
 const REMOVE_MARKETS_PRESENCE = 'REMOVE_MARKETS_PRESENCE';
 const PATCH_INVESTMENT = 'PATCH_INVESTMENT';
 const BANNED_MARKETS = 'BANNED_MARKETS';
@@ -49,9 +49,9 @@ export function addMarketPresences(marketId, users) {
   };
 }
 
-export function updateMarketPresences(marketId, users) {
+export function versionsUpdateMarketPresences(marketId, users) {
   return {
-    type: UPDATE_MARKET_PRESENCES,
+    type: UPDATE_FROM_VERSIONS,
     marketId,
     users,
   };
@@ -172,7 +172,7 @@ function computeNewState(state, action) {
       return doAddMarketPresence(state, action);
     case ADD_MARKET_PRESENCES:
       return doAddMarketPresences(state, action);
-    case UPDATE_MARKET_PRESENCES:
+    case UPDATE_FROM_VERSIONS:
       return doUpdateMarketPresences(state, action);
     case REMOVE_MARKETS_PRESENCE:
       return doRemoveMarketsPresence(state, action);

@@ -2,7 +2,7 @@ import { getMarketPresences } from '../MarketPresencesContext/marketPresencesHel
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext'
 import { addContents } from '../DiffContext/diffContextReducer'
-import { updateMarketDetails } from './marketsContextReducer'
+import { updateMarketDetails, versionsUpdateDetails } from './marketsContextReducer'
 import { fixupItemForStorage } from '../ContextUtils'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { INDEX_MARKET_TYPE, INDEX_UPDATE, SEARCH_INDEX_CHANNEL } from '../SearchIndexContext/searchIndexContextMessages'
@@ -59,13 +59,17 @@ export function getHiddenMarketDetailsForUser(state, marketPresenceState) {
   return [];
 }
 
-export function addMarketToStorage(dispatch, diffDispatch, marketDetails){
+export function addMarketToStorage(dispatch, diffDispatch, marketDetails, fromNetwork){
   const fixed = fixupItemForStorage(marketDetails);
   if (diffDispatch) {
     diffDispatch(addContents([fixed]));
   }
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_MARKET_TYPE, items: [fixed]});
-  dispatch(updateMarketDetails([fixed]));
+  if (fromNetwork) {
+    dispatch(versionsUpdateDetails([fixed]));
+  } else {
+    dispatch(updateMarketDetails([fixed]));
+  }
 }
 
 export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {

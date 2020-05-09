@@ -192,8 +192,10 @@ function computeNewState(state, action) {
 
 function reducer(state, action) {
   const newState = computeNewState(state, action);
-  const lfh = new LocalForageHelper(DIFF_CONTEXT_NAMESPACE);
-  lfh.setState(newState);
+  if (action.type !== INITIALIZE_STATE) {
+    const lfh = new LocalForageHelper(DIFF_CONTEXT_NAMESPACE);
+    lfh.setState(newState);
+  }
   return newState;
 }
 

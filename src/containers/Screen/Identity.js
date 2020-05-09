@@ -1,14 +1,13 @@
-import React, { useState, useContext } from 'react';
-import {
-  makeStyles, Typography, Menu, Button
-} from '@material-ui/core';
-import SettingsIcon from '@material-ui/icons/Settings';
-import { useHistory } from 'react-router';
-import MenuItem from '@material-ui/core/MenuItem';
-import { useIntl } from 'react-intl';
-import { navigate } from '../../utils/marketIdPathFunctions';
-import SignOut from '../../pages/Authentication/SignOut';
-import { CognitoUserContext } from '../../contexts/CongitoUserContext';
+import React, { useContext, useState } from 'react'
+import { Button, makeStyles, Menu, Typography } from '@material-ui/core'
+import SettingsIcon from '@material-ui/icons/Settings'
+import { useHistory } from 'react-router'
+import MenuItem from '@material-ui/core/MenuItem'
+import { useIntl } from 'react-intl'
+import { navigate } from '../../utils/marketIdPathFunctions'
+import SignOut from '../../pages/Authentication/SignOut'
+import { CognitoUserContext } from '../../contexts/CongitoUserContext'
+import config from '../../config'
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -100,6 +99,7 @@ function Identity () {
               {intl.formatMessage({ id: 'changePasswordHeader' })}
             </Typography>
           </MenuItem>
+        {config.payments.enabled && (
           <MenuItem
             onClick={goTo('/billing')}
           >
@@ -107,6 +107,7 @@ function Identity () {
               {intl.formatMessage({ id: 'billingMenuItem' })}
             </Typography>
           </MenuItem>
+        )}
           <MenuItem>
             <SignOut/>
           </MenuItem>

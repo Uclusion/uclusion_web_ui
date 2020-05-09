@@ -1,6 +1,7 @@
 import { getAccountClient, getMarketClient } from './uclusionClient'
 import { fixupItemForStorage } from '../contexts/ContextUtils'
 import { toastErrorAndThrow } from '../utils/userMessage'
+import { INITIATIVE_TYPE, PLANNING_TYPE, DECISION_TYPE } from '../constants/markets';
 
 function fixupMarketForStorage(market) {
   const itemFixed = fixupItemForStorage(market);
@@ -78,15 +79,34 @@ export function changeUserToObserver(marketId){
     .catch((error) => toastErrorAndThrow(error, 'errorChangeToObserverFailed'));
 }
 
-export function createDecision(marketInfo, messageKey = 'errorDecisionAddFailed') {
+
+export function createInitiative(marketInfo, messageKey = 'errorInitiativeAddFailed') {
+  const myInfo = {
+    ...marketInfo,
+    market_type: INITIATIVE_TYPE,
+  };
   return getAccountClient()
-    .then((client) => client.markets.createMarket(marketInfo))
+    .then((client) => client.markets.createMarket(myInfo))
+    .catch((error) => toastErrorAndThrow(error, messageKey));
+}
+
+export function createDecision(marketInfo, messageKey = 'errorDecisionAddFailed') {
+  const myInfo = {
+    ...marketInfo,
+    market_type: DECISION_TYPE,
+  };
+  return getAccountClient()
+    .then((client) => client.markets.createMarket(myInfo))
     .catch((error) => toastErrorAndThrow(error, messageKey));
 }
 
 export function createPlanning(marketInfo) {
+  const myInfo = {
+    ...marketInfo,
+    market_type: PLANNING_TYPE,
+  };
   return getAccountClient()
-    .then((client) => client.markets.createMarket(marketInfo))
+    .then((client) => client.markets.createMarket(myInfo))
     .catch((error) => toastErrorAndThrow(error, 'errorPlanningAddFailed'));
 }
 

@@ -249,6 +249,7 @@ QuillEditor.propTypes = {
   id: PropTypes.string,
   setEditorClearFunc: PropTypes.func,
   setEditorFocusFunc: PropTypes.func,
+  simple: PropTypes.bool,
 };
 
 QuillEditor.defaultProps = {
@@ -270,6 +271,7 @@ QuillEditor.defaultProps = {
   uploadDisabled: false,
   noToolbar: false,
   id: undefined,
+  simple: false,
 };
 
 

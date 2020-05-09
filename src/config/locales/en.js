@@ -761,6 +761,18 @@ const messages = defineMessages({
 
   // phone field
   phoneFieldErrorText: 'Phone should begin with plus or just be the digits',
+
+  // Onboarding
+  OnboardingWizardGoBack: 'Go Back',
+  OnboardingWizardContinue: 'Continue',
+  OnboardingWizardFinish: 'Finish',
+  OnboardingWizardSkip: 'Skip',
+  OnboardingWizardMeetingPlaceHolder: 'Your Meeting Name',
+  OnboardingWizardCurrentStoryNamePlaceHolder: 'Your current story\'s name',
+  OnboardingWizardCurrentStoryDescriptionPlaceHolder: 'Your current story\'s description',
+  OnboardingWizardCurrentStoryProgressPlaceHolder: 'Your progress so far',
+  OnboardingWizardTakeMeToWorkspace: 'Take me to my workspace',
+
 });
 
 export default messages;

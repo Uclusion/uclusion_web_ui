@@ -5,7 +5,7 @@ import { Button, Card, CardActions, CardContent, TextField, Typography, } from '
 import localforage from 'localforage'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
 import ExpirationSelector from '../../components/Expiration/ExpirationSelector'
-import { createDecision } from '../../api/markets'
+import { createInitiative } from '../../api/markets'
 import { processTextAndFilesForSave } from '../../api/files'
 import { INITIATIVE_TYPE } from '../../constants/markets'
 import { addDecisionInvestible } from '../../api/investibles'
@@ -94,7 +94,7 @@ function InitiativeAdd(props) {
       description: 'NA',
       expiration_minutes: expirationMinutes,
     };
-    return createDecision(addInfo, 'errorInitiativeAddFailed')
+    return createInitiative(addInfo)
       .then((result) => {
         onSave(result);
         const { market: { id: marketId }} = result;

@@ -24,6 +24,7 @@ import ChangePassword from '../../pages/Authentication/ChangePassword'
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences'
 import BillingHome from '../../pages/Payments/BillingHome'
 import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
+import OnboardingWizard from '../../pages/Onboarding/OnboardingWizard';
 
 const useStyles = makeStyles({
   body: {
@@ -60,6 +61,10 @@ function Root() {
 
   function hideHome() {
     return !pathname || pathname !== '/';
+  }
+
+  function hideOnboarding() {
+    return action !== 'onboarding';
   }
 
   function hideSupport() {
@@ -126,7 +131,7 @@ function Root() {
     && hideDialogArchives() && hideArchvies() && hideInvestibleEdit() && hideInvestibleAdd()
     && hideAddMarket() && hideDialogEdit() && hideDialogManage() && hideMarketInvite()
     && hideSlackInvite() && hideChangePassword() && hideChangeNotification()
-    && hideBillingHome());
+    && hideBillingHome() && hideOnboarding());
 
   useEffect(() => {
     function pegView(isEntry) {
@@ -195,6 +200,7 @@ function Root() {
       <div className={classes.body}>
         <div className={classes.root}>
           <div className={classes.content}>
+            <OnboardingWizard hidden={hideOnboarding()}/>
             <Home hidden={hideHome()}/>
             <Market hidden={hideMarket()}/>
             <Support hidden={hideSupport()}/>

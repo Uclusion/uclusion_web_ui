@@ -28,6 +28,7 @@ function AddNewUsers (props) {
   const {
     market,
     onSave,
+    onCancel
   } = props;
   const { id: addToMarketId, market_type: marketType } = market;
   const classes = usePlanFormStyles();
@@ -150,6 +151,7 @@ function AddNewUsers (props) {
   function handleCancel () {
     participants.map((participant) => {return participant.isChecked = false});
     setEmail1('');
+    onCancel();
   }
   function handleSave () {
     const toAdd = participants.filter((participant) => participant.isChecked) || [];
@@ -275,7 +277,6 @@ function AddNewUsers (props) {
                   className={classes.actionSecondary}
                   onClick={handleCancel}
                   marketId={addToMarketId}
-                  disabled={_.isEmpty(anySelected)&&_.isEmpty(email1)}
                 >
                   Cancel
               </SpinBlockingButton>

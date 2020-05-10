@@ -57,7 +57,7 @@ const useVoteStyles = makeStyles(
  * @constructor
  */
 function Voting(props) {
-  const { marketPresences, investibleId, investmentReasons, isInVoting, expirationMinutes } = props;
+  const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes } = props;
   const [highlightedVoteState] = useContext(HighlightedVotingContext);
   const classes = useVoteStyles();
   const intl = useIntl();
@@ -117,7 +117,7 @@ function Voting(props) {
               className={classes.cardType}
               type={`certainty${Math.abs(quantity)}`}
             />
-            {isInVoting && (
+            {showExpiration && (
               <div className={classes.expiresDisplay}>
                 <ProgressBar
                   createdAt={new Date(updatedAt)}

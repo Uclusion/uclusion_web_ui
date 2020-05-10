@@ -32,6 +32,7 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import {
   getAcceptedStage,
   getBlockedStage,
+  getFullStage,
   getFurtherWorkStage,
   getInCurrentVotingStage,
   getInReviewStage,
@@ -198,6 +199,7 @@ function PlanningInvestible(props) {
   const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
   const isInNotDoing = notDoingStage && stage === notDoingStage.id;
+  const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
   const isAssigned = assigned.includes(userId);
   const breadCrumbTemplates = [
@@ -530,7 +532,7 @@ function PlanningInvestible(props) {
         investibleId={investibleId}
         marketPresences={marketPresences}
         investmentReasons={investmentReasons}
-        isInVoting={isInVoting}
+        showExpiration={fullStage.has_expiration}
         expirationMinutes={market.investment_expiration * 1440}
       />
       {/* unstyled from here on out because no FIGMA */}

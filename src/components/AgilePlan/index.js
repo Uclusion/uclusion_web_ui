@@ -32,13 +32,24 @@ export const usePlanFormStyles = makeStyles(
         "&:last-child": {
           marginBottom: 0
         }
+      },
+      '& > ul': {
+        flex: 4
       }
     },
     cardType: {
       display: "inline-flex"
     },
+    cardTitle: {
+      fontWeight: '700',
+      fontSize: '1.2rem',
+      padding: '15px 48px 0 48px'
+    },
+    noPadding: {
+      padding: '0'
+    },
     daysEstimation: {
-      fontWeight: 'bold',
+      fontWeight:'700',
       fontSize: '.7rem'
     },
     fieldset: {
@@ -61,7 +72,9 @@ export const usePlanFormStyles = makeStyles(
     },
     actionPrimary: {
       backgroundColor: "#2D9CDB",
-      color: "black",
+      color: "white",
+      textTransform: 'none',
+      fontWeight: '700',
       "&:hover": {
         backgroundColor: darken("#2D9CDB", 0.04)
       },
@@ -72,6 +85,8 @@ export const usePlanFormStyles = makeStyles(
     actionSecondary: {
       backgroundColor: "#BDBDBD",
       color: "black",
+      textTransform: 'none',
+      fontWeight: '700',
       "&:hover": {
         backgroundColor: darken("#BDBDBD", 0.04)
       },
@@ -86,6 +101,24 @@ export const usePlanFormStyles = makeStyles(
     name: {
       width: '50%',
     },
+    spacer: {
+      flex: 1
+    },
+    search: {
+      width: '100%',
+      '& > div': {
+        padding: '10px',
+        '&:hover:not(.Mui-disabled):before': {
+          borderBottom: '2px solid rgba(0, 0, 0, 0.27)'
+        },
+        '&:before': {
+          borderBottom: '1px solid rgba(0, 0, 0, 0.2)'
+        }
+      }
+    },
+    searchContainer: {
+      position: 'sticky'
+    },
     sharedForm: {
       width: '20%',
       marginRight: 10,
@@ -93,17 +126,63 @@ export const usePlanFormStyles = makeStyles(
     sectionHeader: {
       fontWeight: 700,
     },
+    scrollContainer: {
+      overflowY: 'scroll',
+      height: 'calc(350px - (4rem + 20px))'
+    },
     scrollableList: {
       height: 350,
-      overflowY: 'scroll',
+      overflowY: 'hidden',
       border: '1px solid #cfcfcf',
-      borderRadius: 5,
-      marginBottom: 15 ,
+      borderRadius: 8,
+      marginBottom: 15 
+    },
+    emailInput: {
+      backgroundColor: '#ecf0f1',
+      border: 0,
+      borderRadius: 8,
+      padding: '4px',
+      '& > div': {
+        marginTop: 14
+      },
+      '& > div:before': {
+        borderBottom: 0
+      },
+      '& > div:after': {
+        borderBottom: 0
+      },
+      '& > label': {
+        marginLeft: 10,
+      },
+      '& > label.Mui-focused': {
+        color: 'black'
+      },
+      '& > label:not(.MuiInputLabel-shrink)': {
+        transform: 'translate(0, 18px) scale(1)'
+      },
+      '& > div:hover:not(.Mui-disabled):before': {
+        borderBottom: 0
+      },
+      '& > div:active:not(.Mui-disabled):before': {
+        borderBottom: 0
+      },
     },
     doneButton: {
       marginLeft: 50,
       marginBottom: 50,
     },
+    selected: {
+      backgroundColor: '#ecf0f1',
+    },
+    rightAlign: {
+      flexDirection:'row-reverse'
+    },
+    unselected: {
+      borderRadius: '6px',
+      margin: '0 10px 0 5px',
+      width: 'calc(100% - 15px)',
+      height: '4rem'
+    }
   }),
   { name: "PlanningAdd" }
 );

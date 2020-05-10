@@ -15,6 +15,7 @@ import {
   Typography,
 } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
+import clsx from "clsx";
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import { addParticipants, inviteParticipants } from '../../../api/users'
@@ -116,6 +117,7 @@ function AddNewUsers (props) {
     return (
       <ListItem
         key={id}
+        className={ isChecked ? clsx( classes.unselected, classes.selected ) : classes.unselected }
       >
         <ListItemIcon>
           <Checkbox
@@ -127,11 +129,6 @@ function AddNewUsers (props) {
           className={classes.name}
         >
           {name}
-        </ListItemText>
-        <ListItemText
-          className={classes.name}
-        >
-          {domain}
         </ListItemText>
       </ListItem>
     );
@@ -150,7 +147,10 @@ function AddNewUsers (props) {
       setEmail1('');
     });
   }
-
+  function handleCancel () {
+    participants.map((participant) => {return participant.isChecked = false});
+    setEmail1('');
+  }
   function handleSave () {
     const toAdd = participants.filter((participant) => participant.isChecked) || [];
     const toAddClean = toAdd.map((participant) => {
@@ -193,17 +193,16 @@ function AddNewUsers (props) {
     <>
       <List
         dense
-        className={classes.sharedForm}
+        className={clsx(classes.scrollableList, classes.sharedForm, classes.paddingRight)}
       >
-        <Typography className={classes.sectionHeader}>
-          {intl.formatMessage({ id: 'searchParticipantsLabel' })}
-        </Typography>
-        <ListItem key="search">
-          <ListItemText className={classes.name}>
+        <ListItem className={classes.searchContainer} key="search">
+          <ListItemText >
             <TextField
+              className={classes.search}
+              placeholder="Search in your organization"
               onChange={onSearchChange}
               InputProps={{
-                endAdornment: (
+                startAdornment: (
                   <InputAdornment position={'end'}>
                     <IconButton>
                       <SearchIcon/>
@@ -217,7 +216,7 @@ function AddNewUsers (props) {
         <List
           dense
           id="addressBook"
-          className={classes.scrollableList}
+          className={classes.scrollContainer}
         >
           {displayNames.length > 0 &&
           displayNames.map((entry) => renderParticipantEntry(entry))
@@ -229,11 +228,12 @@ function AddNewUsers (props) {
           }
         </List>
       </List>
+      <div className={classes.spacer}></div>
       <List
         dense
       >
         <ListItem>
-          <Typography className={classes.sectionHeader}>
+          <Typography className={clsx(classes.cardTitle, classes.noPadding)}>
             {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
           </Typography>
         </ListItem>
@@ -255,7 +255,8 @@ function AddNewUsers (props) {
                 {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
               </Typography>
               <TextField
-                variant="outlined"
+                className={classes.emailInput}
+                variant="standard"
                 id="email1"
                 name="email1"
                 fullWidth
@@ -265,8 +266,19 @@ function AddNewUsers (props) {
               />
             </ListItemText>
           </ListItem>
-          <ListItem id="emailButtons" key="emailButtons">
+          <ListItem id="emailButtons" key="emailButtons" className={classes.rightAlign}>
             <CardActions className={classes.actions}>
+              <SpinBlockingButton
+                  id="save"
+                  variant="contained"
+                  color="primary"
+                  className={classes.actionSecondary}
+                  onClick={handleCancel}
+                  marketId={addToMarketId}
+                  disabled={_.isEmpty(anySelected)&&_.isEmpty(email1)}
+                >
+                  Cancel
+              </SpinBlockingButton>
               <SpinBlockingButton
                 id="save"
                 variant="contained"
@@ -278,9 +290,7 @@ function AddNewUsers (props) {
                 hasSpinChecker
                 disabled={_.isEmpty(anySelected)&&_.isEmpty(email1)}
               >
-                <FormattedMessage
-                  id="addExistingCollaborator"
-                />
+                Add Collaborators
               </SpinBlockingButton>
             </CardActions>
           </ListItem>

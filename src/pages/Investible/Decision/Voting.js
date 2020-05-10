@@ -1,13 +1,14 @@
-import React, { useContext } from "react";
-import PropTypes from "prop-types";
-import _ from "lodash";
-import { FormattedMessage, useIntl } from 'react-intl';
-import clsx from "clsx";
-import { Card, CardContent, Typography } from "@material-ui/core";
-import ReadOnlyQuillEditor from "../../../components/TextEditors/ReadOnlyQuillEditor";
-import { HighlightedVotingContext } from "../../../contexts/HighlightingContexts/HighlightedVotingContext";
-import { makeStyles } from "@material-ui/styles";
-import CardType from "../../../components/CardType";
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+import { FormattedMessage, useIntl } from 'react-intl'
+import clsx from 'clsx'
+import { Card, CardContent, Typography } from '@material-ui/core'
+import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
+import { HighlightedVotingContext } from '../../../contexts/HighlightingContexts/HighlightedVotingContext'
+import { makeStyles } from '@material-ui/styles'
+import CardType from '../../../components/CardType'
+import ProgressBar from '../../../components/Expiration/ProgressBarExpiration'
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -37,7 +38,14 @@ const useVoteStyles = makeStyles(
       },
       highlighted: {
         boxShadow: "10px 5px 5px yellow"
-      }
+      },
+      expiresDisplay: {
+        alignItems: "flex-end",
+        display: "flex",
+        flexDirection: "column",
+        position: "absolute",
+        right: 0,
+      },
     };
   },
   { name: "Vote" }
@@ -49,7 +57,7 @@ const useVoteStyles = makeStyles(
  * @constructor
  */
 function Voting(props) {
-  const { marketPresences, investibleId, investmentReasons } = props;
+  const { marketPresences, investibleId, investmentReasons, isInVoting, expirationMinutes } = props;
   const [highlightedVoteState] = useContext(HighlightedVotingContext);
   const classes = useVoteStyles();
   const intl = useIntl();
@@ -61,11 +69,12 @@ function Voting(props) {
         const {
           quantity,
           investible_id: invId,
-          max_budget: maxBudget
+          max_budget: maxBudget,
+          updated_at: updatedAt,
         } = investment;
         // // console.debug(investment);
         if (investibleId === invId) {
-          acc.push({ name, userId: id, quantity, maxBudget });
+          acc.push({ name, userId: id, quantity, maxBudget, updatedAt });
         }
       });
     });
@@ -90,7 +99,7 @@ function Voting(props) {
   return (
     <ol className={classes.root}>
       {sortedVoters.map(voter => {
-        const { name, userId, quantity, maxBudget } = voter;
+        const { name, userId, quantity, maxBudget, updatedAt } = voter;
         const reason = getVoterReason(userId);
         const voteId = `cv${userId}`;
 
@@ -108,6 +117,14 @@ function Voting(props) {
               className={classes.cardType}
               type={`certainty${Math.abs(quantity)}`}
             />
+            {isInVoting && (
+              <div className={classes.expiresDisplay}>
+                <ProgressBar
+                  createdAt={new Date(updatedAt)}
+                  expirationMinutes={expirationMinutes}
+                />
+              </div>
+            )}
             <CardContent className={classes.cardContent}>
               <Typography className={classes.voter} component="strong">
                 {maxBudget > 0 && intl.formatMessage({id: 'maxBudgetValue'}, { x: maxBudget, name})}

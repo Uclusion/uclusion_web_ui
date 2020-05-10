@@ -262,10 +262,12 @@ function InvestiblesByPerson(props) {
     inBlockingStage,
     inReviewStage,
   } = props;
-
   const classes = useInvestiblesByPersonStyles();
-
-  return marketPresences.map(presence => {
+  const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
+  const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
+    return !presence.current_user;
+  });
+  return marketPresencesSorted.map(presence => {
     const myInvestibles = getUserInvestibles(
       presence.id,
       marketId,

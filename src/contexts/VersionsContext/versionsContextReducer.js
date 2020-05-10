@@ -24,13 +24,6 @@ const REMOVE_MARKET = 'REMOVE_MARKET';
 const REFRESH_NOTIFICATION = 'REFRESH_NOTIFICATION';
 const INITIALIZE_STATE_VERSIONS = 'INITIALIZE_STATE_VERSIONS';
 const ADD_VERSION_REQUIREMENT = 'ADD_VERSION_REQUIREMENT';
-const REQUIRED_VERSIONS_SATISFIED = 'REQUIRED_VERSIONS_SATISFIED';
-
-export function requiredVersionsSatisfied() {
-  return {
-    type: REQUIRED_VERSIONS_SATISFIED,
-  };
-}
 
 export function addVersionRequirement(requirement) {
   return {
@@ -137,6 +130,7 @@ function reducer(state, action) {
       newState = {
         ...state,
         globalVersion: action.globalVersion,
+        requiredSignatures: [],
       };
       break;
     case NEW_MARKET:
@@ -159,12 +153,6 @@ function reducer(state, action) {
       break;
     case ADD_VERSION_REQUIREMENT:
       newState = doAddVersionRequirement(state, action);
-      break;
-    case REQUIRED_VERSIONS_SATISFIED:
-      newState = {
-        ...state,
-        requiredSignatures: [],
-      };
       break;
     default:
       newState = state;

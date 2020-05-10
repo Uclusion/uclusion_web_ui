@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import { pushMessage } from '../utils/MessageBusUtils';
-import { getVersions } from './summaries';
-import { getMarketDetails, getMarketStages, getMarketUsers } from './markets';
-import { getFetchSignaturesForMarket, signatureMatcher, versionIsStale } from './versionSignatureUtils';
+import _ from 'lodash'
+import { pushMessage } from '../utils/MessageBusUtils'
+import { getVersions } from './summaries'
+import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
+import { getFetchSignaturesForMarket, signatureMatcher, versionIsStale } from './versionSignatureUtils'
 import {
   BANNED_LIST,
   PUSH_COMMENTS_CHANNEL,
@@ -12,25 +12,21 @@ import {
   PUSH_STAGE_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
-} from '../contexts/VersionsContext/versionsContextHelper';
-import { fetchComments } from './comments';
-import { fetchInvestibles } from './marketInvestibles';
-import { LimitedParallelMap } from '../utils/PromiseUtils';
-import { startTimerChain } from '../utils/timerUtils';
-import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext';
-import {
-  GLOBAL_VERSION_UPDATE,
-  NEW_MARKET,
-  VERSIONS_SATISFIED
-} from '../contexts/VersionsContext/versionsContextMessages';
+} from '../contexts/VersionsContext/versionsContextHelper'
+import { fetchComments } from './comments'
+import { fetchInvestibles } from './marketInvestibles'
+import { LimitedParallelMap } from '../utils/PromiseUtils'
+import { startTimerChain } from '../utils/timerUtils'
+import { MARKET_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../contexts/WebSocketContext'
+import { GLOBAL_VERSION_UPDATE, NEW_MARKET, } from '../contexts/VersionsContext/versionsContextMessages'
 import {
   OPERATION_HUB_CHANNEL,
   START_OPERATION,
   STOP_OPERATION
-} from '../contexts/OperationInProgressContext/operationInProgressMessages';
-import config from '../config';
-import LocalForageHelper from '../utils/LocalForageHelper';
-import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer';
+} from '../contexts/OperationInProgressContext/operationInProgressMessages'
+import config from '../config'
+import LocalForageHelper from '../utils/LocalForageHelper'
+import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -63,9 +59,6 @@ export function refreshGlobalVersion () {
               requiredSignatures,
             } = state || {};
             currentHeldVersion = globalVersion;
-            if (globalVersion === 'FAKE') {
-              return Promise.resolve(false);
-            }
             return doVersionRefresh(currentHeldVersion, existingMarkets, requiredSignatures);
           }).then((globalVersion) => {
             if (globalVersion !== currentHeldVersion) {
@@ -155,6 +148,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets, requiredS
       } = versions;
       // if the market signatures don't have the required signatures, just abort, this version has stale data
       if (versionIsStale(marketSignatures, requiredSignatures)) {
+        console.log('Skipping stale version');
         return currentHeldVersion;
       }
       if (_.isEmpty(marketSignatures) || _.isEmpty(global_version)) {
@@ -165,8 +159,6 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets, requiredS
       if (!_.isEmpty(bannedList)) {
         pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
       }
-      //push a message telling the context all versions satisfied, and get the call chain started
-      pushMessage(VERSIONS_HUB_CHANNEL, { event: VERSIONS_SATISFIED});
       // Kick off the fetch by sorting the global versions by foreground
       newGlobalVersion = global_version;
       const splitMS = splitIntoForegroundBackground(marketSignatures, foregroundList);

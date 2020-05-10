@@ -112,7 +112,7 @@ function DialogManage (props) {
               <ManageUsers
                 market={renderableMarket}
                 onAddNewUsers={onActionDone}
-                onNavCancel={onNavCancel}
+                onCancel={onNavCancel}
               />
           </div>
         )}
@@ -144,7 +144,7 @@ function DialogManage (props) {
             <ManageUsers
               market={renderableMarket}
               onAddNewUsers={onActionDone}
-              onNavCancel={onNavCancel}
+              onCancel={onNavCancel}
             />
           </>
         )}
@@ -172,7 +172,7 @@ function DialogManage (props) {
                 <ManageUsers
                   market={renderableMarket}
                   onAddNewUsers={onActionDone}
-                  onNavCancel={onNavCancel}
+                  onCancel={onNavCancel}
                 />
               )}
             </CardContent>

@@ -333,8 +333,10 @@ function computeNewState (state, action) {
 function reducer (state, action) {
   const newState = computeNewState(state, action);
   //// console.log(`Processed ${JSON.stringify(action)} to produce ${JSON.stringify(newState)}`);
-  const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
-  lfh.setState(newState);
+  if (action.type !== INITIALIZE_STATE) {
+    const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
+    lfh.setState(newState);
+  }
   return newState;
 }
 

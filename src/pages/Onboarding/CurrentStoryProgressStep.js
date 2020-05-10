@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { Typography } from '@material-ui/core';
-import { useIntl } from 'react-intl';
-import _ from 'lodash';
-import StepButtons from './StepButtons';
-import QuillEditor from '../../components/TextEditors/QuillEditor';
-import { DaysEstimate } from '../../components/AgilePlan';
-
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { Typography } from '@material-ui/core'
+import { useIntl } from 'react-intl'
+import _ from 'lodash'
+import StepButtons from './StepButtons'
+import QuillEditor from '../../components/TextEditors/QuillEditor'
+import { DaysEstimate } from '../../components/AgilePlan'
 
 function CurrentStoryProgressStep (props) {
   const { updateFormData, formData } = props;
@@ -50,7 +49,7 @@ function CurrentStoryProgressStep (props) {
         simple
         onChange={onEditorChange}
       />
-      <DaysEstimate onChange={onEstimateChange} />
+      <DaysEstimate onChange={onEstimateChange} value={currentStoryEstimate} createdAt={new Date()} />
       <StepButtons {...props} validForm={validForm} onNext={onNext} showSkip onSkip={onSkip}/>
     </div>
   );

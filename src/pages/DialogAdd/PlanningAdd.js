@@ -37,7 +37,7 @@ function PlanningAdd(props) {
   );
   const [maxBudget, setMaxBudget] = useState(storedBudget || 14);
   const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
-  const [votesRequired, setVotesRequired] = useState(storedVotesRequired || 1);
+  const [votesRequired, setVotesRequired] = useState(storedVotesRequired || 0);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name } = currentValues;
 

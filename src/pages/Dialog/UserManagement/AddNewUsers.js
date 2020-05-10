@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import {
   CardActions,
   Checkbox,
@@ -15,7 +15,7 @@ import {
   Typography,
 } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
-import clsx from "clsx";
+import clsx from 'clsx'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import { addParticipants, inviteParticipants } from '../../../api/users'
@@ -112,7 +112,7 @@ function AddNewUsers (props) {
 
   function renderParticipantEntry (presenceEntry) {
     const {
-      user_id: id, name, isChecked, domain,
+      user_id: id, name, isChecked,
     } = presenceEntry[1];
     return (
       <ListItem

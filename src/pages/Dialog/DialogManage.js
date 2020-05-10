@@ -135,11 +135,9 @@ function DialogManage (props) {
         )}
         {participation && marketType === PLANNING_TYPE && (
           <>
-            <CardType
-              className={classes.cardType}
-              type={AGILE_PLAN_TYPE}
-              label={intl.formatMessage({ id: 'planAddress' })}
-            />
+          <Typography className={classes.cardTitle}>
+            Add Collaborators
+          </Typography>
             <ManageUsers
               market={renderableMarket}
               onAddNewUsers={onActionDone}

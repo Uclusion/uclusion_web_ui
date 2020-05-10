@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import AssignmentIcon from '@material-ui/icons/Assignment';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 import { useIntl } from 'react-intl';
 import { formInviteLink } from '../../utils/marketIdPathFunctions';
 import { Typography, InputBase, Divider } from '@material-ui/core';
@@ -15,7 +16,7 @@ const useStyles = makeStyles(() => ({
   linkContainer: {
     width: '100%',
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column'
   },
   input: {
     width: '100%',
@@ -23,9 +24,9 @@ const useStyles = makeStyles(() => ({
   },
   inputField: {
     width: '100%',
-    border: '1px solid #ccc',
     paddingLeft: 15,
-    borderRadius: 5,
+    borderRadius: 8,
+    backgroundColor: '#ecf0f1',
   },
   divider: {
     height: 36,
@@ -60,7 +61,7 @@ function InviteLinker(props) {
     <Divider className={classes.divider} orientation="vertical" />
     <TooltipIconButton
       translationId="inviteLinkerCopyToClipboard"
-      icon={<AssignmentIcon/>}
+      icon={<FileCopyIcon htmlColor="#3f6b72"/>}
       onClick={() => navigator.clipboard.writeText(link)}
     />
     </>

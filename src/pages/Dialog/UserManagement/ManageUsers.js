@@ -7,7 +7,8 @@ import AddNewUsers from './AddNewUsers'
 function ManageUsers (props) {
   const {
     market,
-    onAddNewUsers
+    onAddNewUsers,
+    onCancel
   } = props;
   const classes = usePlanFormStyles();
 
@@ -18,6 +19,7 @@ function ManageUsers (props) {
         <AddNewUsers
           market={market}
           onSave={onAddNewUsers}
+          onCancel={onCancel}
         />
       </CardContent>
 

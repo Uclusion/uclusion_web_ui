@@ -65,7 +65,9 @@ function DialogManage (props) {
     const { name } = investible;
     return name;
   }
-
+  function onNavCancel (){
+    history.goBack();
+  }
   function onActionDone () {
     if (marketType === INITIATIVE_TYPE) {
       const { investible } = investibles[0];
@@ -110,6 +112,7 @@ function DialogManage (props) {
               <ManageUsers
                 market={renderableMarket}
                 onAddNewUsers={onActionDone}
+                onCancel={onNavCancel}
               />
           </div>
         )}
@@ -141,6 +144,7 @@ function DialogManage (props) {
             <ManageUsers
               market={renderableMarket}
               onAddNewUsers={onActionDone}
+              onCancel={onNavCancel}
             />
           </>
         )}
@@ -168,6 +172,7 @@ function DialogManage (props) {
                 <ManageUsers
                   market={renderableMarket}
                   onAddNewUsers={onActionDone}
+                  onCancel={onNavCancel}
                 />
               )}
             </CardContent>

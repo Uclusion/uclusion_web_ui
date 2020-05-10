@@ -150,8 +150,11 @@ function AddNewUsers (props) {
   }
   function handleCancel () {
     participants.map((participant) => {return participant.isChecked = false});
-    setEmail1('');
-    onCancel();
+    setEmail1(undefined);
+    
+    if(typeof onCancel === 'function' ){
+      onCancel();
+    }
   }
   function handleSave () {
     const toAdd = participants.filter((participant) => participant.isChecked) || [];

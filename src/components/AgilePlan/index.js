@@ -4,17 +4,15 @@ import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
 import Grid from '@material-ui/core/Grid'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel'
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import { darken, makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { FormattedMessage, useIntl } from 'react-intl'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import CardType, { AGILE_PLAN_TYPE } from '../../components/CardType'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
-import InfoText from '../Descriptions/InfoText'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import moment from 'moment'
@@ -546,14 +544,3 @@ const useInputSuffixStyles = makeStyles(
   },
   { name: "InputSuffix" }
 );
-
-function InputSuffix(props) {
-  const { children } = props;
-  const classes = useInputSuffixStyles();
-
-  return (
-    <InputAdornment className={classes.root} disableTypography position="end">
-      {children}
-    </InputAdornment>
-  );
-}

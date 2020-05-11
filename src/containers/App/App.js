@@ -27,21 +27,6 @@ function App (props) {
       Auth.currentAuthenticatedUser()
         .then((user) => {
           const { attributes } = user;
-          const { identities } = attributes;
-          // only externally authenticated users have identities
-          const cognitoUserId = attributes['custom:user_id'];
-          if (_.isEmpty(cognitoUserId) && !_.isEmpty(identities)) {
-            // if you have no uclusion user id, and are external we'll refresh the current user
-            // from cognito directly
-            // because our login just didn't have them, even though they were created as a post
-            // authentication hook
-            return Auth.currentAuthenticatedUser({bypassCache: true});
-          }else {
-            return user
-          }
-        })
-        .then((user) => {
-          const { attributes } = user;
           const userId = attributes['custom:user_id'];
           const loginInfo = {
             ...attributes,

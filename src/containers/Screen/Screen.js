@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
-import { Container, Typography } from '@material-ui/core'
+import { Container, Typography, CircularProgress, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
@@ -44,6 +44,15 @@ const useStyles = makeStyles(() => ({
     padding: '95px 20px 156px',
     width: '100%'
   },
+  loadingContainer: {
+    justifyContent: 'center',
+    display: 'flex',
+    overflow: 'hidden',
+    marginTop: 'calc(50vh - 60px)'
+  },
+  loadingColor: {
+    fill: '#3f6b72'
+  }
 }));
 
 //const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
@@ -121,13 +130,11 @@ function Screen(props) {
           <Container className={myContainerClass}>{children}</Container>
         )}
         {reallyAmLoading && (
-          <Card>
-            <CardContent className={classes.loadingDisplay}>
-              <Typography variant="h3" align="center">
-                {intl.formatMessage({ id: 'loadingMessage' })}
-              </Typography>
-            </CardContent>
-          </Card>
+          <Grid container>
+            <Grid item xs={12} className={classes.loadingContainer}>
+              <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"></CircularProgress>
+            </Grid>
+          </Grid>
         )}
       </div>
     </div>

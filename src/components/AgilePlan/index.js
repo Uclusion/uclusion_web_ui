@@ -524,6 +524,7 @@ export function DaysEstimate(props) {
               selected={getStartDate()}
               onChange={handleDateChange}
               value={value ? `${value}` : ''}
+              popperPlacement="bottom"
             />
           </span>
           <Typography>

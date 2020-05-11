@@ -4,17 +4,16 @@ import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
 import Grid from '@material-ui/core/Grid'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel'
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import { darken, makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
-import { FormattedMessage, useIntl } from 'react-intl'
+import TextField from '@material-ui/core/TextField';
+import { FormattedMessage, useIntl } from 'react-intl';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import CardType, { AGILE_PLAN_TYPE } from '../../components/CardType'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
-import InfoText from '../Descriptions/InfoText'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import moment from 'moment'
@@ -195,7 +194,7 @@ export const usePlanFormStyles = makeStyles(
     },
     advancedLink: {
       textDecoration: 'underline',
-      color: '#a8a8a8',
+      color: '#545454',
       margin: '5px',
       cursor: 'pointer',
       width: 'auto'
@@ -284,7 +283,6 @@ export function Form(props) {
     votesRequired,
     onVotesRequiredChange,
     createEnabled,
-    readOnly
   } = props;
   const [viewAdvanced, setViewAdvanced] = React.useState(false);
   const [validForm, setValidForm] = React.useState(true);
@@ -334,8 +332,11 @@ export function Form(props) {
           setOperationInProgress={setOperationRunning}
         />
         <ExpansionPanel expanded={viewAdvanced}>
-            <ExpansionPanelSummary onClick={() => {setViewAdvanced(!viewAdvanced)}}>
-              <span className={classes.advancedLink}>Advanced</span>        
+            <ExpansionPanelSummary
+              onClick={() => {setViewAdvanced(!viewAdvanced)}}
+              expandIcon={<ExpandMoreIcon />}
+            >
+              <span className={classes.advancedLink}>{intl.formatMessage({ id: "advanced" })}</span>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails className={classes.flexColumn}>
               <legend className={classes.optional}>*{intl.formatMessage({ id: "optionalEdit" })}</legend>
@@ -351,14 +352,6 @@ export function Form(props) {
                 </Grid>
                 <Grid item xs={5} className={classes.fieldsetContainer}>
                   <Votes onChange={onVotesRequiredChange} value={votesRequired} />
-                  <Typography className={classes.helperText}>
-                    {
-                      !readOnly &&
-                      intl.formatMessage({
-                        id: "votesRequiredInputHelperText"
-                      })
-                    }
-                  </Typography>
                 </Grid>
                 <Grid item xs={5} className={classes.fieldsetContainer}>
                   <DaysEstimate onChange={onDaysEstimate} value={daysEstimate} createdAt={createdAt} />
@@ -420,7 +413,7 @@ export function MaxBudget(props) {
           pattern: "[0-9]*"
         }}
         label={intl.formatMessage({
-          id: "agilePlanFormMaxMaxBudgetInputLabel"
+          id: "maxMaxBudgetInputLabel"
         })}
         placeholder="14"
         {...other}
@@ -517,13 +510,12 @@ export function DaysEstimate(props) {
       ) : (
         <React.Fragment>
           <span className={clsx("MuiFormControl-root","MuiTextField-root",classes.datePickerContainer, classes.input)}>
-            <label className={clsx("MuiInputLabel-shrink", "MuiInputLabel-FormControl", "MuiFormLabel-root")}>Time Estimate (in Days)</label>
+            <label className={clsx("MuiInputLabel-shrink", "MuiInputLabel-FormControl", "MuiFormLabel-root")}>{intl.formatMessage({ id: "daysEstimateMarketLabel" })}</label>
             <DatePicker
               className={clsx("MuiInputBase-root", classes.input, classes.datePicker)}
               placeholderText={intl.formatMessage({ id: "selectDate" })}
               selected={getStartDate()}
               onChange={handleDateChange}
-              value={value ? `${value}` : ''}
               popperPlacement="bottom"
             />
           </span>
@@ -546,14 +538,3 @@ const useInputSuffixStyles = makeStyles(
   },
   { name: "InputSuffix" }
 );
-
-function InputSuffix(props) {
-  const { children } = props;
-  const classes = useInputSuffixStyles();
-
-  return (
-    <InputAdornment className={classes.root} disableTypography position="end">
-      {children}
-    </InputAdornment>
-  );
-}

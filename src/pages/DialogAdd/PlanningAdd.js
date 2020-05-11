@@ -159,7 +159,7 @@ function PlanningAdd(props) {
       <Form
         marketId=""
         daysEstimate={daysEstimate}
-        onDaysEstimateChange={onDaysEstimateChange}
+        onDaysEstimate={onDaysEstimateChange}
         description={description}
         onDescriptionChange={onEditorChange}
         investmentExpiration={investmentExpiration}

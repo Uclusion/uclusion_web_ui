@@ -177,8 +177,8 @@ const messages = defineMessages({
   agilePlanFormFieldsetLabelRequired: 'Required',
   agilePlanFormDaysEstimateLabel: 'Days estimate',
   agilePlanFormDaysEstimatePlaceholder: 'Very rough number of days to complete',
-  agilePlanFormInvestmentExpirationLabel: 'vote expiration',
-  agilePlanFormMaxMaxBudgetInputLabel: 'story budget',
+  agilePlanFormInvestmentExpirationLabel: 'vote expiration (in days)',
+  agilePlanFormMaxMaxBudgetInputLabel: 'story budget (in days)',
   agilePlanFormSaveLabel: 'Save & Post',
 
   // Market Nav

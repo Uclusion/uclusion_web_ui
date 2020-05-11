@@ -151,7 +151,7 @@ function AddNewUsers (props) {
   function handleCancel () {
     participants.map((participant) => {return participant.isChecked = false});
     setEmail1(undefined);
-    
+
     if(typeof onCancel === 'function' ){
       onCancel();
     }
@@ -260,7 +260,7 @@ function AddNewUsers (props) {
                 {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
               </Typography>
               <TextField
-                className={classes.emailInput}
+                className={classes.input}
                 variant="standard"
                 id="email1"
                 name="email1"

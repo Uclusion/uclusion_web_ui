@@ -3,7 +3,11 @@ import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
+import Grid from '@material-ui/core/Grid'
 import InputAdornment from '@material-ui/core/InputAdornment'
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import { darken, makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -15,6 +19,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import moment from 'moment'
 import { Typography } from '@material-ui/core'
+import clsx from 'clsx'
 
 export const usePlanFormStyles = makeStyles(
   theme => ({
@@ -137,7 +142,7 @@ export const usePlanFormStyles = makeStyles(
       borderRadius: 8,
       marginBottom: 15 
     },
-    emailInput: {
+    input: {
       backgroundColor: '#ecf0f1',
       border: 0,
       borderRadius: 8,
@@ -182,6 +187,72 @@ export const usePlanFormStyles = makeStyles(
       margin: '0 10px 0 5px',
       width: 'calc(100% - 15px)',
       height: '4rem'
+    },
+    flex: {
+      display: 'flex',
+      margin: 0,
+      flexDirection: 'row'
+    },
+    advancedLink: {
+      textDecoration: 'underline',
+      color: '#a8a8a8',
+      margin: '5px',
+      cursor: 'pointer',
+      width: 'auto'
+    },
+    fullWidth: {
+      width: '100%'
+    },
+    requiredContainer: {
+      position: 'relative',
+      top: '16px'
+    },
+    helperText: {
+      fontSize: '12px',
+    },
+    fieldsetContainer: {
+      '& > div': {
+        display: 'flex'
+      }
+    },
+    justifySpace: {
+      justifyContent: 'space-between'
+    },
+    datePicker: {
+      font: 'inherit',
+      color: 'currentColor',
+      width: '100%',
+      border: 0,
+      height: '1.1876em',
+      margin: 0,
+      display: 'block',
+      padding: '6px 0 7px',
+      minWidth: 0,
+      boxSizing: 'content-box',
+      animationName: 'mui-auto-fill-cancel',
+      textAlign: 'center',
+      '&:focus' : {
+        outline: 'none'
+      }
+    },
+    datePickerContainer: {
+      width: '100%',
+      '& > label' : {
+        display: 'block'
+      },
+      '& > div': {
+        marginTop: 0
+      }
+    },
+    optional: {
+      fontWeight: 100,
+      marginBottom: '15px',
+    },
+    flexColumn: {
+      flexDirection: 'column'
+    },
+    overflowVisible: {
+      overflow: 'visible'
     }
   }),
   { name: "PlanningAdd" }
@@ -212,9 +283,10 @@ export function Form(props) {
     setOperationRunning,
     votesRequired,
     onVotesRequiredChange,
-    createEnabled
+    createEnabled,
+    readOnly
   } = props;
-
+  const [viewAdvanced, setViewAdvanced] = React.useState(false);
   const [validForm, setValidForm] = React.useState(true);
   React.useEffect(() => {
     // Long form to prevent flicker
@@ -234,9 +306,8 @@ export function Form(props) {
   }, [name, description, validForm, investmentExpiration, maxBudget]);
 
   const isCreateForm = marketId === "";
-
   return (
-    <Card>
+    <Card className={classes.overflowVisible}>
       <CardType className={classes.cardType} type={AGILE_PLAN_TYPE} />
       <CardContent className={classes.cardContent}>
         <TextField
@@ -259,18 +330,42 @@ export function Form(props) {
             id: "descriptionEdit"
           })}
           defaultValue={description}
+          className={classes.fullWidth}
           setOperationInProgress={setOperationRunning}
         />
-        <fieldset className={classes.fieldset}>
-          <legend>{intl.formatMessage({ id: "optionalEdit" })}</legend>
-          <MaxBudget onChange={onMaxBudgetChange} value={maxBudget} />
-          <VoteExpiration
-            onChange={onInvestmentExpirationChange}
-            value={investmentExpiration}
-          />
-          <Votes onChange={onVotesRequiredChange} value={votesRequired} />
-          <DaysEstimate onChange={onDaysEstimate} value={daysEstimate} createdAt={createdAt} />
-        </fieldset>
+        <ExpansionPanel expanded={viewAdvanced}>
+            <ExpansionPanelSummary onClick={() => {setViewAdvanced(!viewAdvanced)}}>
+              <span className={classes.advancedLink}>Advanced</span>        
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails className={classes.flexColumn}>
+              <legend className={classes.optional}>*{intl.formatMessage({ id: "optionalEdit" })}</legend>
+              <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
+                <Grid item xs={5} className={classes.fieldsetContainer}>
+                  <MaxBudget onChange={onMaxBudgetChange} value={maxBudget} />
+                </Grid>
+                <Grid item xs={5} className={classes.fieldsetContainer}>
+                  <VoteExpiration
+                    onChange={onInvestmentExpirationChange}
+                    value={investmentExpiration}
+                  />
+                </Grid>
+                <Grid item xs={5} className={classes.fieldsetContainer}>
+                  <Votes onChange={onVotesRequiredChange} value={votesRequired} />
+                  <Typography className={classes.helperText}>
+                    {
+                      !readOnly &&
+                      intl.formatMessage({
+                        id: "votesRequiredInputHelperText"
+                      })
+                    }
+                  </Typography>
+                </Grid>
+                <Grid item xs={5} className={classes.fieldsetContainer}>
+                  <DaysEstimate onChange={onDaysEstimate} value={daysEstimate} createdAt={createdAt} />
+                </Grid>
+              </Grid>
+            </ExpansionPanelDetails>
+        </ExpansionPanel>
       </CardContent>
       <CardActions className={classes.actions}>
         <Button
@@ -303,7 +398,7 @@ export function Form(props) {
 }
 
 const useSuffixedInput = makeStyles(
-  { input: { textAlign: "right" } },
+  { input: { textAlign: "center", padding: '10px' } },
   { name: "SuffixedInput" }
 );
 
@@ -312,29 +407,28 @@ export function MaxBudget(props) {
   const intl = useIntl();
 
   const classes = useSuffixedInput();
+  const formClasses = usePlanFormStyles();
 
   return (
-    <InfoText textId="maxBudgetHelp" useDl={false}>
+    <React.Fragment>
       <TextField
         id="agile-plan-max-budget"
-        InputProps={{
-          endAdornment: <InputSuffix>days</InputSuffix>,
-          readOnly
-        }}
+        className={formClasses.input}
         inputProps={{
           className: classes.input,
           inputMode: "numeric",
-          size: 4,
           pattern: "[0-9]*"
         }}
         label={intl.formatMessage({
           id: "agilePlanFormMaxMaxBudgetInputLabel"
         })}
         placeholder="14"
-        variant="filled"
         {...other}
       />
-    </InfoText>
+      <Typography>
+        {intl.formatMessage({ id: "maxBudgetHelp" })}
+      </Typography>
+    </React.Fragment>
   );
 }
 export function VoteExpiration(props) {
@@ -342,62 +436,62 @@ export function VoteExpiration(props) {
   const intl = useIntl();
 
   const classes = useSuffixedInput();
+  const formClasses = usePlanFormStyles();
 
   return (
-    <InfoText textId="voteExpirationHelp" useDl={false}>
+
+    <React.Fragment>
       <TextField
-        InputProps={{
-          endAdornment: <InputSuffix>days</InputSuffix>,
-          readOnly
-        }}
+        className={formClasses.input}
         id="agile-plan-expiration"
         inputProps={{
           className: classes.input,
           inputMode: "numeric",
-          size: 4,
           pattern: "[0-9]*"
         }}
         label={intl.formatMessage({
           id: "agilePlanFormInvestmentExpirationLabel"
         })}
-        variant="filled"
         {...other}
       />
-    </InfoText>
+      <Typography>
+        {intl.formatMessage({ id: "voteExpirationHelp" })}
+      </Typography>
+    </React.Fragment>
   );
 }
 
 export function Votes(props) {
   const { readOnly, ...other } = props;
   const intl = useIntl();
+  const classes = usePlanFormStyles();
+  const inputClasses = useInputSuffixStyles();
 
   return (
-    <InfoText textId="votesRequiredHelp" useDl={false}>
+    <React.Fragment>
       <TextField
-        helperText={
-          !readOnly &&
-          intl.formatMessage({
-            id: "votesRequiredInputHelperText"
-          })
-        }
+        className={classes.input}
         id="agile-plan-votes-required"
         InputProps={{ readOnly }}
         inputProps={{
+          className: inputClasses.input,
           inputMode: "numeric",
-          size: 8,
           pattern: "[0-9]*",
           style: {textAlign: 'center'}
         }}
         label={intl.formatMessage({ id: "votesRequiredInputLabelShort" })}
-        variant="filled"
         {...other}
       />
-    </InfoText>
+      <Typography>
+        {intl.formatMessage({ id: "votesRequiredHelp" })}
+      </Typography>
+    </React.Fragment>
   );
 }
 
 export function DaysEstimate(props) {
   const { readOnly, value, onChange, createdAt } = props;
+
   const classes = usePlanFormStyles();
   const intl = useIntl();
   function getStartDate() {
@@ -410,7 +504,9 @@ export function DaysEstimate(props) {
   function handleDateChange(date) {
     const usedDate = createdAt ? createdAt : new Date();
     const myValue = moment(date).diff(moment(usedDate), 'days', true);
-    onChange({target: {value: `${Math.ceil(myValue)}`}});
+    if(typeof onChange === 'function'){
+      onChange({target: {value: `${Math.ceil(myValue)}`}});
+    }
   }
 
   return (
@@ -419,13 +515,22 @@ export function DaysEstimate(props) {
           {intl.formatMessage({ id: 'planningEstimatedCompletion' })} {intl.formatDate(getStartDate())}
         </Typography>
       ) : (
-        <InfoText textId="daysEstimateHelp" useDl={false}>
-          <DatePicker
-            placeholderText={intl.formatMessage({ id: "selectDate" })}
-            selected={getStartDate()}
-            onChange={handleDateChange}
-          />
-        </InfoText>
+        <React.Fragment>
+          <span className={clsx("MuiFormControl-root","MuiTextField-root",classes.datePickerContainer, classes.input)}>
+            <label className={clsx("MuiInputLabel-shrink", "MuiInputLabel-FormControl", "MuiFormLabel-root")}>Time Estimate (in Days)</label>
+            <DatePicker
+              className={clsx("MuiInputBase-root", classes.input, classes.datePicker)}
+              placeholderText={intl.formatMessage({ id: "selectDate" })}
+              selected={getStartDate()}
+              onChange={handleDateChange}
+              value={value ? `${value}` : ''}
+              popperPlacement="bottom"
+            />
+          </span>
+          <Typography>
+            {intl.formatMessage({ id: "daysEstimateHelp" })}
+          </Typography>
+        </React.Fragment>
       )
   );
 }

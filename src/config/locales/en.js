@@ -130,6 +130,7 @@ const messages = defineMessages({
   author: 'author',
   done: 'Done',
   selectDate: 'Click to select a date',
+  advanced: 'Advanced',
 
   // Support
   supportInfoText: 'Create bugs (but not feature requests) in <a>Uclusion issues</a> or send an email to <b>support</b> which includes the version and user ID above.',
@@ -159,9 +160,8 @@ const messages = defineMessages({
   decisionAddExpirationLabel: 'Dialog ends after {x} day(s)',
   initiativeAddExpirationLabel: 'Initiative ends after {x} day(s)',
   investmentExpirationInputLabel: 'Number of days before a vote expires',
-  maxMaxBudgetInputLabel: 'Maximum number of days for story budget',
+  maxMaxBudgetInputLabel: 'maximum number of days for story budget',
   daysEstimateInputLabel: 'Very rough number of days to complete',
-  votesRequiredInputLabel: 'Votes required to move a story to in progress',
   votesRequiredInputLabelShort: 'votes required',
   votesRequiredInputHelperText: 'Votes required to move a story to in progress',
   investmentExpiration: 'before votes expire',
@@ -282,7 +282,8 @@ const messages = defineMessages({
   planningEstimatedCompletion: 'Estimated completion',
   planningInvestibleDescription: '- Description',
   daysEstimateHelp: 'Optional very rough expected date of completion.',
-  votesRequiredHelp: 'How many votes are required before a story can be moved to \'In Progress\'',
+  daysEstimateMarketLabel: 'date of completion',
+  votesRequiredHelp: 'Votes required before a story can be moved in progress',
   maxBudgetHelp: 'Maximum days effort value allowed for a story. Used to prevent stories from being too large.',
   voteExpirationHelp: 'How many days before votes expire. Prevents very old voting from being used to move a story in progress.',
   reassignToMove: 'Re-assigning will move into voting.',

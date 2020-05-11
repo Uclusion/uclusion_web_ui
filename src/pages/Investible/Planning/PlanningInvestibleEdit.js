@@ -18,6 +18,18 @@ import WarningDialog from '../../../components/Warnings/WarningDialog'
 import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { makeStyles } from '@material-ui/core/styles'
+
+export const usePlanInvestibleStyles = makeStyles(
+  theme => ({
+    fieldset: {
+      border: "none",
+      margin: theme.spacing(1),
+      maxWidth: "400px"
+    },
+  }),
+  { name: "PlanningInvestibleEdit" }
+);
 
 function PlanningInvestibleEdit(props) {
   const {
@@ -25,6 +37,7 @@ function PlanningInvestibleEdit(props) {
   } = props;
   const intl = useIntl();
   const classes = usePlanFormStyles();
+  const myClasses = usePlanInvestibleStyles();
   const lockedDialogClasses = useLockedDialogStyles();
   const { description: storedDescription, name: storedName, days_estimate: storedDaysEstimate } = storedState;
   const [draftState, setDraftState] = useState(storedState);
@@ -175,8 +188,7 @@ function PlanningInvestibleEdit(props) {
         )}
         {!isAssign && (
           <>
-            <fieldset className={classes.fieldset}>
-              <legend>optional</legend>
+            <fieldset className={myClasses.fieldset}>
               <DaysEstimate onChange={onDaysEstimateChange} value={daysEstimate} createdAt={createdAt} />
             </fieldset>
             <TextField

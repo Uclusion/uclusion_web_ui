@@ -265,7 +265,7 @@ function AddEditVote(props) {
             </RadioGroup>
           </FormControl>
           {showBudget && (
-            <InfoText textId="maxMaxBudgetInputLabel">
+            <InfoText textId="agilePlanFormMaxMaxBudgetInputLabel">
               <TextField
                 className={classes.maxBudget}
                 id="vote-max-budget"

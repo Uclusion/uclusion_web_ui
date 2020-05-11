@@ -193,7 +193,7 @@ export const usePlanFormStyles = makeStyles(
     },
     advancedLink: {
       textDecoration: 'underline',
-      color: '#a8a8a8',
+      color: '#545454',
       margin: '5px',
       cursor: 'pointer',
       width: 'auto'
@@ -333,7 +333,7 @@ export function Form(props) {
         />
         <ExpansionPanel expanded={viewAdvanced}>
             <ExpansionPanelSummary onClick={() => {setViewAdvanced(!viewAdvanced)}}>
-              <span className={classes.advancedLink}>Advanced</span>        
+              <span className={classes.advancedLink}>{intl.formatMessage({ id: "advanced" })}</span>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails className={classes.flexColumn}>
               <legend className={classes.optional}>*{intl.formatMessage({ id: "optionalEdit" })}</legend>
@@ -349,14 +349,6 @@ export function Form(props) {
                 </Grid>
                 <Grid item xs={5} className={classes.fieldsetContainer}>
                   <Votes onChange={onVotesRequiredChange} value={votesRequired} />
-                  <Typography className={classes.helperText}>
-                    {
-                      !readOnly &&
-                      intl.formatMessage({
-                        id: "votesRequiredInputHelperText"
-                      })
-                    }
-                  </Typography>
                 </Grid>
                 <Grid item xs={5} className={classes.fieldsetContainer}>
                   <DaysEstimate onChange={onDaysEstimate} value={daysEstimate} createdAt={createdAt} />
@@ -418,7 +410,7 @@ export function MaxBudget(props) {
           pattern: "[0-9]*"
         }}
         label={intl.formatMessage({
-          id: "agilePlanFormMaxMaxBudgetInputLabel"
+          id: "maxMaxBudgetInputLabel"
         })}
         placeholder="14"
         {...other}
@@ -515,13 +507,12 @@ export function DaysEstimate(props) {
       ) : (
         <React.Fragment>
           <span className={clsx("MuiFormControl-root","MuiTextField-root",classes.datePickerContainer, classes.input)}>
-            <label className={clsx("MuiInputLabel-shrink", "MuiInputLabel-FormControl", "MuiFormLabel-root")}>Time Estimate (in Days)</label>
+            <label className={clsx("MuiInputLabel-shrink", "MuiInputLabel-FormControl", "MuiFormLabel-root")}>{intl.formatMessage({ id: "daysEstimateMarketLabel" })}</label>
             <DatePicker
               className={clsx("MuiInputBase-root", classes.input, classes.datePicker)}
               placeholderText={intl.formatMessage({ id: "selectDate" })}
               selected={getStartDate()}
               onChange={handleDateChange}
-              value={value ? `${value}` : ''}
               popperPlacement="bottom"
             />
           </span>

@@ -34,8 +34,8 @@ import { Dialog } from '../../../components/Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
 import InfoText from '../../../components/Descriptions/InfoText'
-import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext';
-import { addVersionRequirement } from '../../../contexts/VersionsContext/versionsContextReducer';
+import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext'
+import { addVersionRequirement } from '../../../contexts/VersionsContext/versionsContextReducer'
 
 const useStyles = makeStyles(
   theme => {
@@ -265,7 +265,7 @@ function AddEditVote(props) {
             </RadioGroup>
           </FormControl>
           {showBudget && (
-            <InfoText textId="daysEstimateHelp">
+            <InfoText textId="maxMaxBudgetInputLabel">
               <TextField
                 className={classes.maxBudget}
                 id="vote-max-budget"

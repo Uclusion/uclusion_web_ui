@@ -32,6 +32,7 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import {
   getAcceptedStage,
   getBlockedStage,
+  getFullStage,
   getFurtherWorkStage,
   getInCurrentVotingStage,
   getInReviewStage,
@@ -45,8 +46,6 @@ import MoveToVotingActionButton from './MoveToVotingActionButton'
 import MoveToNotDoingActionButton from './MoveToNotDoingActionButton'
 import MoveToAcceptedActionButton from './MoveToAcceptedActionButton'
 import MoveToInReviewActionButton from './MoveToInReviewActionButton'
-import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
-import { convertDates } from '../../../contexts/ContextUtils'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import EditMarketButton from '../../Dialog/EditMarketButton'
 import MarketLinks from '../../Dialog/MarketLinks'
@@ -200,6 +199,7 @@ function PlanningInvestible(props) {
   const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
   const notDoingStage = getNotDoingStage(marketStagesState, marketId);
   const isInNotDoing = notDoingStage && stage === notDoingStage.id;
+  const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
   const isAssigned = assigned.includes(userId);
   const breadCrumbTemplates = [
@@ -532,6 +532,8 @@ function PlanningInvestible(props) {
         investibleId={investibleId}
         marketPresences={marketPresences}
         investmentReasons={investmentReasons}
+        showExpiration={fullStage.has_expiration}
+        expirationMinutes={market.investment_expiration * 1440}
       />
       {/* unstyled from here on out because no FIGMA */}
       <Grid container spacing={2}>
@@ -685,8 +687,6 @@ export const useMetaDataStyles = makeStyles(
 
 function MarketMetaData(props) {
   const {
-    investibleId,
-    isInVoting,
     market,
     marketPresences,
     marketInvestible,
@@ -701,37 +701,8 @@ function MarketMetaData(props) {
 
   const classes = useMetaDataStyles();
 
-  const newestVote = React.useMemo(() => {
-    let latest;
-    marketPresences.forEach(presence => {
-      const { investments } = presence;
-      investments.forEach(investment => {
-        const { updated_at: updatedAt, investible_id: invId } = convertDates(
-          investment
-        );
-        if (investibleId === invId && (!latest || updatedAt > latest)) {
-          latest = updatedAt;
-        }
-      });
-    });
-    return latest;
-  }, [investibleId, marketPresences]);
-
   return (
     <dl className={classes.root}>
-      {newestVote && isInVoting && (
-        <div className={clsx(classes.group, classes.expiration)}>
-          <dt>
-            <FormattedMessage id="investmentExpiration" />
-          </dt>
-          <dd>
-            <ExpiresDisplay
-              createdAt={newestVote}
-              expirationMinutes={market.investment_expiration * 1440}
-            />
-          </dd>
-        </div>
-      )}
       {market.id && marketInvestible.investible && (
         <div className={clsx(classes.group, classes.assignments)}>
           <dt>

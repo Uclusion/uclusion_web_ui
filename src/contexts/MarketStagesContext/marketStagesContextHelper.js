@@ -39,6 +39,11 @@ export function getFurtherWorkStage(state, marketId) {
     && !stage.appears_in_market_summary));
 }
 
+export function getFullStage(state, marketId, stageId) {
+  const marketStages = getStages(state, marketId);
+  return marketStages.find((stage) => stage.id === stageId);
+}
+
 export function getNotDoingStage(state, marketId) {
   const marketStages = getStages(state, marketId);
   return marketStages.find((stage) => (!stage.appears_in_context && !stage.appears_in_market_summary

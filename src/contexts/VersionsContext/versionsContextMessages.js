@@ -1,18 +1,10 @@
-import {
-  NOTIFICATION_MESSAGE_EVENT,
-  VERSIONS_HUB_CHANNEL,
-} from '../WebSocketContext';
-import { getNotifications } from '../../api/summaries';
-import {
-  addNewMarket,
-  refreshNotificationVersionAction, requiredVersionsSatisfied,
-  updateGlobalVersion
-} from './versionsContextReducer';
-import { registerListener } from '../../utils/MessageBusUtils';
+import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL, } from '../WebSocketContext'
+import { getNotifications } from '../../api/summaries'
+import { addNewMarket, refreshNotificationVersionAction, updateGlobalVersion } from './versionsContextReducer'
+import { registerListener } from '../../utils/MessageBusUtils'
 
 export const GLOBAL_VERSION_UPDATE = 'global_version_update';
 export const NEW_MARKET = 'new_market';
-export const VERSIONS_SATISFIED = 'required_versions_satisfied';
 
 function beginListening (dispatch) {
   registerListener(VERSIONS_HUB_CHANNEL, 'versionVersionStart', (data) => {
@@ -24,9 +16,6 @@ function beginListening (dispatch) {
         break;
       case NEW_MARKET:
         dispatch(addNewMarket(marketId));
-        break;
-      case VERSIONS_SATISFIED:
-        dispatch(requiredVersionsSatisfied());
         break;
       case NOTIFICATION_MESSAGE_EVENT:
         return getNotifications()

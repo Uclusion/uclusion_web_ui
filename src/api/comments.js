@@ -10,8 +10,8 @@ export function fetchComments(idList, marketId) {
   const chunks = _.chunk(idList, 50);
   // // console.debug(idList);
   return clientPromise.then((client) => {
-    return AllSequentialMap(chunks, (idList) => {
-      return client.investibles.getMarketComments(idList);
+    return AllSequentialMap(chunks, (chunk) => {
+      return client.investibles.getMarketComments(chunk);
     }).then((commentsLists) => _.flatten(commentsLists));
   }).catch((error) => toastErrorAndThrow(error, 'errorCommentFetchFailed'));
 }

@@ -1,13 +1,12 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/styles';
-import AssignmentIcon from '@material-ui/icons/Assignment';
-import FileCopyIcon from '@material-ui/icons/FileCopy';
-import { useIntl } from 'react-intl';
-import { formInviteLink } from '../../utils/marketIdPathFunctions';
-import { Typography, InputBase, Divider } from '@material-ui/core';
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
-import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { makeStyles } from '@material-ui/styles'
+import FileCopyIcon from '@material-ui/icons/FileCopy'
+import { useIntl } from 'react-intl'
+import { formInviteLink } from '../../utils/marketIdPathFunctions'
+import { Divider, InputBase, Typography } from '@material-ui/core'
+import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
+import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 
 const useStyles = makeStyles(() => ({
   hidden: {

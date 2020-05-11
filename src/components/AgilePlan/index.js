@@ -8,8 +8,9 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import { darken, makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
-import { FormattedMessage, useIntl } from 'react-intl'
+import TextField from '@material-ui/core/TextField';
+import { FormattedMessage, useIntl } from 'react-intl';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import CardType, { AGILE_PLAN_TYPE } from '../../components/CardType'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
@@ -331,7 +332,10 @@ export function Form(props) {
           setOperationInProgress={setOperationRunning}
         />
         <ExpansionPanel expanded={viewAdvanced}>
-            <ExpansionPanelSummary onClick={() => {setViewAdvanced(!viewAdvanced)}}>
+            <ExpansionPanelSummary
+              onClick={() => {setViewAdvanced(!viewAdvanced)}}
+              expandIcon={<ExpandMoreIcon />}
+            >
               <span className={classes.advancedLink}>{intl.formatMessage({ id: "advanced" })}</span>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails className={classes.flexColumn}>

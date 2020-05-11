@@ -282,7 +282,6 @@ export function Form(props) {
     votesRequired,
     onVotesRequiredChange,
     createEnabled,
-    readOnly
   } = props;
   const [viewAdvanced, setViewAdvanced] = React.useState(false);
   const [validForm, setValidForm] = React.useState(true);

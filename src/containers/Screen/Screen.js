@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
-import { Container, Typography, CircularProgress, Grid } from '@material-ui/core'
+import { CircularProgress, Container, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
@@ -10,8 +10,6 @@ import Header from '../Header'
 import ActionBar from '../ActionBar'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { createTitle, makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
 
 const useStyles = makeStyles(() => ({
   hidden: {

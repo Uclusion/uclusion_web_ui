@@ -143,7 +143,7 @@ const messages = defineMessages({
 
   archiveInlineTitle: 'Dialog',
 
-  loadingMessage: 'Please wait while your page loads.',
+  loadingMessage: 'Page Loading',
   loadingMarket: 'Processing Invite',
   loadingSlack: 'Slack Integration',
 

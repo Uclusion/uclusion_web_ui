@@ -131,6 +131,7 @@ function Dialog(props) {
       <Screen
         hidden={hidden}
         loading={loading}
+        title={intl.formatMessage({ id: 'loadingMessage' })}
         tabTitle={intl.formatMessage({ id: 'loadingMessage' })}
       >
         <div />

@@ -40,7 +40,6 @@ function CreatingWorkspaceStep (props) {
 
     const { workspaceCreated } = workspaceInfo;
     if (!workspaceCreated && active) {
-
       const marketInfo = {
         name: meetingName,
         description: `<p>${workspaceDescription}</p>`,
@@ -50,6 +49,7 @@ function CreatingWorkspaceStep (props) {
       let inProgressStage;
       let inVotingStage;
       let myUserId;
+      setWorkspaceInfo({ workspaceCreated: true, marketId });
       createPlanning(marketInfo)
         .then((marketDetails) => {
           const {
@@ -129,7 +129,7 @@ function CreatingWorkspaceStep (props) {
           if (addedStory) {
             addInvestible(investiblesDispatch, diffDispatch, addedStory);
           }
-          setWorkspaceInfo({ workspaceCreated: true, marketId });
+
         });
     }
   }, [

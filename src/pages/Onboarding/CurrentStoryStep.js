@@ -58,6 +58,7 @@ function CurrentStoryStep (props) {
       <QuillEditor
         placeholder={intl.formatMessage({ id: 'OnboardingWizardCurrentStoryDescriptionPlaceHolder'})}
         value={editorContents}
+        defaultValue={editorContents}
         onS3Upload={onS3Upload}
         onChange={onEditorChange}
         />

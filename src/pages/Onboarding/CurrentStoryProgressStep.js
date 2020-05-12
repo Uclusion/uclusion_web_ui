@@ -15,7 +15,7 @@ function CurrentStoryProgressStep (props) {
     currentStoryEstimate,
   } = formData;
   console.log(formData);
-  const [editorContents, setEditorContents] = useState('');
+  const [editorContents, setEditorContents] = useState(currentStoryProgress);
 
   const validForm = !_.isEmpty(editorContents) && _.isNumber(currentStoryEstimate);
 
@@ -29,13 +29,16 @@ function CurrentStoryProgressStep (props) {
     updateFormData('currentStoryEstimate', valueInt);
   }
 
-  function onStepChange() {
+  function onStepChange(skip) {
     updateFormData('currentStoryProgress', editorContents);
+    if (!skip) {
+      updateFormData(updateFormData('currentStoryProgressSkipped', false));
+    }
   }
 
   function onSkip() {
     updateFormData('currentStoryProgressSkipped', true);
-    onStepChange();
+    onStepChange(true);
   }
 
   if (!active) {
@@ -51,7 +54,8 @@ function CurrentStoryProgressStep (props) {
       </Typography>
       <QuillEditor
         placeholder={intl.formatMessage({ id: 'OnboardingWizardCurrentStoryProgressPlaceHolder'})}
-        value={currentStoryProgress}
+        defaultValue={editorContents}
+        value={editorContents}
         simple
         onChange={onEditorChange}
       />

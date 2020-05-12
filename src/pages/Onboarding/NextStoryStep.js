@@ -40,13 +40,16 @@ function NextStoryStep (props) {
     updateFormData('nextStoryUploadedFiles', newUploadedFiles);
   }
 
-  function onStepChange() {
+  function onStepChange(skip) {
     updateFormData('nextStoryDescription', editorContents);
+    if (!skip) {
+      updateFormData('nextStorySkipped', false);
+    }
   }
 
   function onSkip() {
     updateFormData('nextStorySkipped', true);
-    onStepChange();
+    onStepChange(true);
   }
 
   return (
@@ -65,6 +68,7 @@ function NextStoryStep (props) {
       <QuillEditor
         placeholder={intl.formatMessage({ id: 'OnboardingWizardNextStoryDescriptionPlaceHolder'})}
         value={editorContents}
+        defaultValue={editorContents}
         onS3Upload={onS3Upload}
         onChange={onEditorChange}
         />

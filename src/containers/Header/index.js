@@ -172,7 +172,9 @@ function Header(props) {
       );
     }
     return (
-      <Typography color="textPrimary">{createTitle(title, 30)}</Typography>
+      <div className={classes.breadcrumbs}>
+        <Typography color="textPrimary">{createTitle(title, 30)}</Typography>
+      </div>
     );
   }
 

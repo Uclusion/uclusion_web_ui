@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 import _ from 'lodash';
 import StepButtons from './StepButtons';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
+import { updateValues } from './onboardingReducer';
 
 
 function NextStoryStep (props) {
@@ -15,15 +16,15 @@ function NextStoryStep (props) {
     nextStoryDescription,
     nextStoryUploadedFiles,
   } = formData;
-  const [editorContents, setEditorContents] = useState(nextStoryDescription);
+  const [editorContents, setEditorContents] = useState(nextStoryDescription || '');
   const storyName = nextStoryName || '';
   const validForm = !_.isEmpty(nextStoryName) && !_.isEmpty(editorContents);
 
-  function onChange(name){
-    return (event) => {
-      const { value } = event.target;
-      updateFormData(name, value);
-    };
+  function onNameChange (event) {
+    const { value } = event.target;
+    updateFormData(updateValues({
+      nextStoryName: value
+    }));
   }
 
   if (!active) {
@@ -37,19 +38,22 @@ function NextStoryStep (props) {
   function onS3Upload(metadatas) {
     const oldUploadedFiles = nextStoryUploadedFiles || []
     const newUploadedFiles = _.uniqBy([...oldUploadedFiles, metadatas], 'path');
-    updateFormData('nextStoryUploadedFiles', newUploadedFiles);
+    updateFormData(updateValues({nextStoryUploadedFiles: newUploadedFiles}));
+
   }
 
   function onStepChange(skip) {
-    updateFormData('nextStoryDescription', editorContents);
-    if (!skip) {
-      updateFormData('nextStorySkipped', false);
-    }
+    updateFormData(updateValues({
+      nextStoryDescription: editorContents,
+      nextStorySkipped: false,
+    }));
   }
 
   function onSkip() {
-    updateFormData('nextStorySkipped', true);
-    onStepChange(true);
+    updateFormData(updateValues({
+      nextStoryDescription: editorContents,
+      nextStorySkipped: true,
+    }));
   }
 
   return (
@@ -63,7 +67,7 @@ function NextStoryStep (props) {
       <TextField
         placeholder={intl.formatMessage({ id: 'OnboardingWizardNextStoryNamePlaceHolder' })}
         value={storyName}
-        onChange={onChange('nextStoryName')}
+        onChange={onNameChange}
       />
       <QuillEditor
         placeholder={intl.formatMessage({ id: 'OnboardingWizardNextStoryDescriptionPlaceHolder'})}

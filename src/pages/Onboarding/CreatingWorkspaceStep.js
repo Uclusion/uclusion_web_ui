@@ -19,8 +19,10 @@ import { REPORT_TYPE } from '../../constants/comments';
 import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
+import { useIntl } from 'react-intl';
 
 function CreatingWorkspaceStep (props) {
+  const intl = useIntl();
   const { formData, active } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -31,14 +33,17 @@ function CreatingWorkspaceStep (props) {
 
   const [workspaceInfo, setWorkspaceInfo] = useState({});
   const history = useHistory();
+  const { meetingName } = formData;
+  const workspaceDescription = intl.formatMessage({ id: 'OnboardingWizardWorkspaceDescription' }, { meetingName });
 
   useEffect(() => {
 
     const { workspaceCreated } = workspaceInfo;
     if (!workspaceCreated && active) {
-      const { meetingName } = formData;
+
       const marketInfo = {
         name: meetingName,
+        description: `<p>${workspaceDescription}</p>`,
       };
       let marketId;
       let investibleId;
@@ -144,13 +149,13 @@ function CreatingWorkspaceStep (props) {
     <div>
       {!workspaceCreated && (
         <div>
-          We're creating your workspace now, please wait a moment.
+          We're creating your Uclusion Workspace now, please wait a moment.
         </div>
 
       )}
       {workspaceCreated && (
         <div>
-          We've created your workspace, please share this link {inviteLink} with your team to invite them
+          We've created your Workspace, please share this link {inviteLink} with your team to invite them
           <StepButtons
             showGoBack={false}
             finishLabel={'OnboardingWizardTakeMeToWorkspace'}

@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 import _ from 'lodash';
 import StepButtons from './StepButtons';
 import QuillEditor from '../../components/TextEditors/QuillEditor';
+import { updateValues } from './onboardingReducer';
 
 
 function CurrentStoryStep (props) {
@@ -19,11 +20,11 @@ function CurrentStoryStep (props) {
   const storyName = currentStoryName || '';
   const validForm = !_.isEmpty(currentStoryName) && !_.isEmpty(editorContents);
 
-  function onChange(name){
-    return (event) => {
-      const { value } = event.target;
-      updateFormData(name, value);
-    };
+  function onNameChange (event) {
+    const { value } = event.target;
+    updateFormData(updateValues({
+      currentStoryName: value
+    }));
   }
 
   if (!active) {
@@ -37,11 +38,15 @@ function CurrentStoryStep (props) {
   function onS3Upload(metadatas) {
     const oldUploadedFiles = currentStoryUploadedFiles || []
     const newUploadedFiles = _.uniqBy([...oldUploadedFiles, metadatas], 'path');
-    updateFormData('currentStoryUploadedFiles', newUploadedFiles);
+    updateFormData(updateValues({
+      currentStoryUploadedFiles: newUploadedFiles
+    }));
   }
 
   function onStepChange() {
-    updateFormData('currentStoryDescription', editorContents);
+    updateFormData(updateValues({
+      currentStoryDescription: editorContents,
+    }))
   }
 
   return (
@@ -53,7 +58,7 @@ function CurrentStoryStep (props) {
       <TextField
         placeholder={intl.formatMessage({ id: 'OnboardingWizardCurrentStoryNamePlaceHolder' })}
         value={storyName}
-        onChange={onChange('currentStoryName')}
+        onChange={onNameChange}
       />
       <QuillEditor
         placeholder={intl.formatMessage({ id: 'OnboardingWizardCurrentStoryDescriptionPlaceHolder'})}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import { Stepper, Step, StepLabel } from '@material-ui/core';
 import MeetingStep from './MeetingStep';
@@ -8,11 +8,12 @@ import CurrentStoryProgressStep from './CurrentStoryProgressStep';
 import CreatingWorkspaceStep from './CreatingWorkspaceStep';
 import { useIntl } from 'react-intl';
 import NextStoryStep from './NextStoryStep';
+import { reducer } from './onboardingReducer';
 
 function OnboardingWizard(props) {
   const { hidden } = props;
 
-  const [state, setState] = useState({ formData: {}});
+  const [formData, updateFormData] = useReducer(reducer, {});
   const intl = useIntl();
 
   const stepPrototypes = [
@@ -87,18 +88,6 @@ function OnboardingWizard(props) {
     return React.cloneElement(content, props);
   }
 
-  function updateFormData(key, value) {
-    const { formData } = state;
-    const newData = {
-      ...formData,
-      [key]: value,
-    }
-    setState({
-      ...state,
-      formData: newData,
-    });
-  }
-  const { formData } = state;
   return (
     <Screen
       tabTitle={'Onboarding'}

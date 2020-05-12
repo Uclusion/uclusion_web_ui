@@ -780,6 +780,7 @@ const messages = defineMessages({
   OnboardingWizardCurrentStoryProgressStepLabel: 'Current Story Progress (Optional)',
   OnboardingWizardNextStoryStepLabel: 'Next Story(Optional)',
   OnboardingWizardCreatingWorkspaceStepLabel: 'Workspace Creation',
+  OnboardingWizardWorkspaceDescription: 'Workspace for {meetingName}',
 
 });
 

@@ -4,6 +4,7 @@ import { TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
 import StepButtons from './StepButtons';
+import { updateValues } from './onboardingReducer';
 
 function MeetingStep (props) {
   const { updateFormData, formData, active } = props;
@@ -11,9 +12,11 @@ function MeetingStep (props) {
   const value = formData.meetingName || '';
   const validForm = !_.isEmpty(value);
 
-  function onChange (event) {
+  function onNameChange (event) {
     const { value } = event.target;
-    updateFormData('meetingName', value);
+    updateFormData(updateValues({
+      meetingName: value
+    }));
   }
 
   if (!active) {
@@ -30,7 +33,7 @@ function MeetingStep (props) {
       <TextField
         placeholder={intl.formatMessage({ id: 'OnboardingWizardMeetingPlaceHolder' })}
         value={value}
-        onChange={onChange}
+        onChange={onNameChange}
       />
       <StepButtons {...props} validForm={validForm}/>
     </div>

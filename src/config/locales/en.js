@@ -431,7 +431,7 @@ const messages = defineMessages({
   planningDialogViewArchivesExplanation: 'See stories in Verified and Not Doing',
   planningDialogViewArchivesLabel: 'View Archive',
   planningNoneAcceptedWarning: 'No in progress story',
-  planningNoneInDialogWarning: 'No votable story',
+  planningNoneInDialogWarning: 'No proposed story',
   planningNoneInReviewWarning: 'No in review story',
   planningNoneInBlockingWarning: 'No blockers',
   acceptedInvestiblesUpdatedAt: 'In progress from ',

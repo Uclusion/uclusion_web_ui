@@ -127,9 +127,11 @@ function PlanningDialog(props) {
         </Typography>
       )}
       <dl className={metaClasses.root}>
-        <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-          <InvestibleAddActionButton key="investibleadd" onClick={onClick} />
-        </div>
+        {activeMarket && (
+          <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+            <InvestibleAddActionButton key="investibleadd" onClick={onClick} />
+          </div>
+        )}
         <div className={clsx(metaClasses.group, metaClasses.assignments)}>
           <ViewArchiveActionButton key="archives" marketId={marketId} />
         </div>
@@ -145,6 +147,7 @@ function PlanningDialog(props) {
           inDialogStage={inDialogStage}
           inBlockingStage={inBlockingStage}
           inReviewStage={inReviewStage}
+          activeMarket={activeMarket}
         />
       )}
       {!_.isEmpty(furtherWorkInvestibles) && (
@@ -261,6 +264,7 @@ function InvestiblesByPerson(props) {
     inDialogStage,
     inBlockingStage,
     inReviewStage,
+    activeMarket,
   } = props;
   const classes = useInvestiblesByPersonStyles();
   const marketPresencesSortedAlmost = _.sortBy(marketPresences, 'name');
@@ -297,6 +301,7 @@ function InvestiblesByPerson(props) {
                 inDialogStageId={inDialogStage.id}
                 inReviewStageId={inReviewStage.id}
                 inBlockingStageId={inBlockingStage.id}
+                activeMarket={activeMarket}
                 comments={comments}
                 presenceId={presence.id}
                 warnAccepted={checkInProgressWarning(myInvestibles, comments, acceptedStage.id, presence.id, marketId)}

@@ -44,6 +44,7 @@ function PlanningIdeas(props) {
     inBlockingStageId,
     presenceId,
     warnAccepted,
+    activeMarket,
   } = props;
 
   const classes = usePlanningIdStyles();
@@ -60,6 +61,7 @@ function PlanningIdeas(props) {
           investibles={investibles}
           marketId={marketId}
           presenceId={presenceId}
+          activeMarket={activeMarket}
         />
       </div>
       <div>
@@ -227,7 +229,7 @@ const useVotingStageClasses = makeStyles(
 );
 
 function VotingStage(props) {
-  const { className, marketId, presenceId, ...other } = props;
+  const { className, marketId, presenceId, activeMarket, ...other } = props;
 
   const classes = useVotingStageClasses();
   const intl = useIntl();
@@ -245,6 +247,7 @@ function VotingStage(props) {
     <Stage
       classes={classes}
       fallbackWarning={
+        activeMarket ?
         <React.Fragment>
           <FormattedMessage id="planningNoneInDialogWarning" />
           <StageLink href={assignedLink} onClick={onClick}>
@@ -252,7 +255,9 @@ function VotingStage(props) {
               id: "createAssignment"
             })}
           </StageLink>
-        </React.Fragment>
+        </React.Fragment> : <React.Fragment>
+            <FormattedMessage id="planningNoneInDialogWarning" />
+          </React.Fragment>
       }
       marketId={marketId}
       updatedText={intl.formatMessage({

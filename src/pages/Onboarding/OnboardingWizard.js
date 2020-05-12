@@ -64,7 +64,7 @@ function OnboardingWizard(props) {
 
 
     return stepPrototypes.map((proto, index) => {
-      const { label, content } = proto;
+      const { label } = proto;
       return (
         <Step key={label}>
           <StepLabel>{intl.formatMessage({ id: label})}</StepLabel>
@@ -82,6 +82,7 @@ function OnboardingWizard(props) {
       previousStep,
       active: true
     };
+    console.error(formData);
     const { content } = stepPrototypes[stepState.currentStep];
     return React.cloneElement(content, props);
   }

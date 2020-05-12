@@ -74,4 +74,10 @@ CurrentStoryStep.propTypes = {
   formData: PropTypes.object.isRequired,
   active: PropTypes.bool.isRequired,
 };
+
+CurrentStoryStep.defaultProps = {
+  updateFormData: () => {},
+  formData: {},
+  active: false,
+};
 export default CurrentStoryStep;

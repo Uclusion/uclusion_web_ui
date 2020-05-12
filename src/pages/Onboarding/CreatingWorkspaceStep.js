@@ -162,8 +162,15 @@ function CreatingWorkspaceStep (props) {
 }
 
 CreatingWorkspaceStep.propTypes = {
-  formData: PropTypes.object.isRequired,
-  active: PropTypes.bool.isRequired,
+  formData: PropTypes.object,
+  active: PropTypes.bool,
 };
+
+CreatingWorkspaceStep.defaultProps = {
+  formData: {},
+  active: false,
+};
+
+
 
 export default CreatingWorkspaceStep;

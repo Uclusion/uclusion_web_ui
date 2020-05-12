@@ -64,9 +64,15 @@ function CurrentStoryProgressStep (props) {
 }
 
 CurrentStoryProgressStep.propTypes = {
-  updateFormData: PropTypes.func.isRequired,
-  formData: PropTypes.object.isRequired,
-  active: PropTypes.bool.isRequired
+  updateFormData: PropTypes.func,
+  formData: PropTypes.object,
+  active: PropTypes.bool,
+};
+
+CurrentStoryProgressStep.defaultProps = {
+  updateFormData: () => {},
+  formData: {},
+  active: false,
 };
 
 

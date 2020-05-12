@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet'
 import { CircularProgress, Container, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory } from 'react-router'
-import { useIntl } from 'react-intl'
+
 import Header from '../Header'
 import ActionBar from '../ActionBar'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
@@ -59,7 +59,7 @@ function Screen(props) {
   const classes = useStyles();
   // enable scrolling based on hash
   const history = useHistory();
-  const intl = useIntl();
+
   const [messagesState] = useContext(NotificationsContext);
 
   const {

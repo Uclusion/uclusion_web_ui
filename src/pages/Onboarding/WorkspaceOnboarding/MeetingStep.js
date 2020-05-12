@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
-import StepButtons from './StepButtons';
-import { updateValues } from './onboardingReducer';
+import StepButtons from '../StepButtons';
+import { updateValues } from '../onboardingReducer';
 
 function MeetingStep (props) {
   const { updateFormData, formData, active } = props;
@@ -31,7 +31,7 @@ function MeetingStep (props) {
         detailed description for the Workspace after it's been created by editing it later.
       </Typography>
       <TextField
-        placeholder={intl.formatMessage({ id: 'OnboardingWizardMeetingPlaceHolder' })}
+        placeholder={intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}
         value={value}
         onChange={onNameChange}
       />

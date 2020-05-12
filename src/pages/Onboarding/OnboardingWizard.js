@@ -1,43 +1,15 @@
 import React, { useState, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import { Stepper, Step, StepLabel } from '@material-ui/core';
-import MeetingStep from './MeetingStep';
 import Screen from '../../containers/Screen/Screen';
-import CurrentStoryStep from './CurrentStoryStep';
-import CurrentStoryProgressStep from './CurrentStoryProgressStep';
-import CreatingWorkspaceStep from './CreatingWorkspaceStep';
 import { useIntl } from 'react-intl';
-import NextStoryStep from './NextStoryStep';
 import { reducer } from './onboardingReducer';
 
 function OnboardingWizard(props) {
-  const { hidden } = props;
+  const { hidden, stepPrototypes, title } = props;
 
   const [formData, updateFormData] = useReducer(reducer, {});
   const intl = useIntl();
-
-  const stepPrototypes = [
-    {
-      label: 'OnboardingWizardMeetingStepLabel',
-      content: <MeetingStep />,
-    },
-    {
-      label: 'OnboardingWizardCurrentStoryStepLabel',
-      content: <CurrentStoryStep/>,
-    },
-    {
-      label: 'OnboardingWizardCurrentStoryProgressStepLabel',
-      content: <CurrentStoryProgressStep/>,
-    },
-    {
-      label: 'OnboardingWizardNextStoryStepLabel',
-      content: <NextStoryStep />,
-    },
-    {
-      label: 'OnboardingWizardCreatingWorkspaceStepLabel',
-      content: <CreatingWorkspaceStep/>,
-    },
-  ];
 
   const [stepState, setStepState] = useState({
     currentStep: 0,
@@ -62,8 +34,6 @@ function OnboardingWizard(props) {
   }
 
   function getStepHeaders(){
-
-
     return stepPrototypes.map((proto, index) => {
       const { label } = proto;
       return (
@@ -84,13 +54,17 @@ function OnboardingWizard(props) {
       active: true
     };
     console.error(formData);
-    const { content } = stepPrototypes[stepState.currentStep];
+    const currentStep = stepPrototypes[stepState.currentStep];
+    if (!currentStep) {
+      return React.Fragment;
+    }
+    const { content } = currentStep;
     return React.cloneElement(content, props);
   }
 
   return (
     <Screen
-      tabTitle={'Onboarding'}
+      tabTitle={title}
       hidden={hidden}
       >
       <Stepper activeStep={stepState.currentStep}>
@@ -105,6 +79,12 @@ function OnboardingWizard(props) {
 
 OnboardingWizard.propTypes = {
   hidden: PropTypes.bool.isRequired,
+  title: PropTypes.string.isRequired,
+  stepPrototypes: PropTypes.array,
+}
+
+OnboardingWizard.defaultProps = {
+  stepPrototypes: [],
 }
 
 export default OnboardingWizard;

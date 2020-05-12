@@ -1,25 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
-import _ from 'lodash'
-import StepButtons from './StepButtons'
-import { createPlanning } from '../../api/markets'
-import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper'
-import { processTextAndFilesForSave } from '../../api/files'
-import { addPlanningInvestible, stageChangeInvestible } from '../../api/investibles'
-import { DiffContext } from '../../contexts/DiffContext/DiffContext'
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
-import { formInviteLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
-import { addPresenceToMarket } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { saveComment } from '../../api/comments'
-import { REPORT_TYPE } from '../../constants/comments'
-import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
-import { useIntl } from 'react-intl'
+import React, { useState, useEffect, useContext } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import StepButtons from '../StepButtons';
+import { createPlanning } from '../../../api/markets';
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { processTextAndFilesForSave } from '../../../api/files';
+import { addPlanningInvestible, stageChangeInvestible } from '../../../api/investibles';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { formInviteLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { saveComment } from '../../../api/comments';
+import { REPORT_TYPE } from '../../../constants/comments';
+import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext';
+import { useIntl } from 'react-intl';
 
 function CreatingWorkspaceStep (props) {
   const intl = useIntl();
@@ -34,13 +34,12 @@ function CreatingWorkspaceStep (props) {
   const [workspaceInfo, setWorkspaceInfo] = useState({});
   const history = useHistory();
   const { meetingName } = formData;
-  const workspaceDescription = intl.formatMessage({ id: 'OnboardingWizardWorkspaceDescription' }, { meetingName });
+  const workspaceDescription = intl.formatMessage({ id: 'WorkspaceWizardWorkspaceDescription' }, { meetingName });
 
   useEffect(() => {
 
     const { workspaceCreated } = workspaceInfo;
     if (!workspaceCreated && active) {
-
       const marketInfo = {
         name: meetingName,
         description: `<p>${workspaceDescription}</p>`,
@@ -50,6 +49,7 @@ function CreatingWorkspaceStep (props) {
       let inProgressStage;
       let inVotingStage;
       let myUserId;
+      setWorkspaceInfo({ workspaceCreated: true, marketId });
       createPlanning(marketInfo)
         .then((marketDetails) => {
           const {
@@ -129,10 +129,14 @@ function CreatingWorkspaceStep (props) {
           if (addedStory) {
             addInvestible(investiblesDispatch, diffDispatch, addedStory);
           }
-          setWorkspaceInfo({ workspaceCreated: true, marketId });
+
         });
     }
-  }, [workspaceInfo, active, commentsDispatch, commentsState, diffDispatch, versionsDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, meetingName, workspaceDescription]);
+  }, [
+    workspaceInfo, active, commentsDispatch, commentsState,
+    diffDispatch, versionsDispatch, formData, investiblesDispatch,
+    marketsDispatch, presenceDispatch, meetingName, workspaceDescription,
+  ]);
   const { marketId, workspaceCreated } = workspaceInfo;
   const inviteLink = formInviteLink(marketId);
   const marketLink = formMarketLink(marketId);
@@ -154,7 +158,7 @@ function CreatingWorkspaceStep (props) {
           We've created your Workspace, please share this link {inviteLink} with your team to invite them
           <StepButtons
             showGoBack={false}
-            finishLabel={'OnboardingWizardTakeMeToWorkspace'}
+            finishLabel={'WorkspaceWizardTakeMeToWorkspace'}
             onNext={() => navigate(history, marketLink)}/>
         </div>
       )}

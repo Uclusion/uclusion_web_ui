@@ -6,6 +6,7 @@ import _ from 'lodash'
 import StepButtons from './StepButtons'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
 import { DaysEstimate } from '../../components/AgilePlan'
+import { updateValues } from './onboardingReducer';
 
 function CurrentStoryProgressStep (props) {
   const { updateFormData, formData, active } = props;
@@ -15,7 +16,7 @@ function CurrentStoryProgressStep (props) {
     currentStoryEstimate,
   } = formData;
   console.log(formData);
-  const [editorContents, setEditorContents] = useState(currentStoryProgress);
+  const [editorContents, setEditorContents] = useState(currentStoryProgress || '');
 
   const validForm = !_.isEmpty(editorContents) && _.isNumber(currentStoryEstimate);
 
@@ -26,19 +27,23 @@ function CurrentStoryProgressStep (props) {
   function onEstimateChange(event) {
     const { value } = event.target;
     const valueInt = value ? parseInt(value, 10) : null;
-    updateFormData('currentStoryEstimate', valueInt);
+    updateFormData(updateValues({
+      currentStoryEstimate: valueInt
+    }));
   }
 
-  function onStepChange(skip) {
-    updateFormData('currentStoryProgress', editorContents);
-    if (!skip) {
-      updateFormData(updateFormData('currentStoryProgressSkipped', false));
-    }
+  function onStepChange() {
+    updateFormData(updateValues({
+      currentStoryProgress: editorContents,
+      currentStoryProgressSkipped: false,
+    }));
   }
 
   function onSkip() {
-    updateFormData('currentStoryProgressSkipped', true);
-    onStepChange(true);
+    updateFormData(updateValues({
+      currentStoryProgress: editorContents,
+      currentStoryProgressSkipped: true,
+    }));
   }
 
   if (!active) {
@@ -62,7 +67,9 @@ function CurrentStoryProgressStep (props) {
       <DaysEstimate onChange={onEstimateChange} value={currentStoryEstimate} createdAt={new Date()} />
       <StepButtons {...props} validForm={validForm}
                    onPrevious={onStepChange}
-                   onNext={onStepChange} showSkip onSkip={onSkip}/>
+                   onNext={onStepChange}
+                   showSkip
+                   onSkip={onSkip}/>
     </div>
   );
 }

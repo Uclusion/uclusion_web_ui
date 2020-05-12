@@ -19,8 +19,21 @@ import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField
 import { Helmet } from 'react-helmet'
 import { Auth } from 'aws-amplify'
 import { setRedirect } from '../../utils/redirectUtils'
+import Iframe from 'react-iframe'
 
 const useStyles = makeStyles(theme => ({
+  outer: {
+    marginLeft: "5%",
+    width: "90%"
+  },
+  root: {
+    alignItems: "flex-start",
+    display: "flex",
+    width: "100%"
+  },
+  formRoot: {
+    width: "2000px"
+  },
   paper: {
     marginTop: theme.spacing(8),
     display: 'flex',
@@ -103,11 +116,10 @@ const GreenCheckbox = withStyles({
 
 function reducer(state, action) {
   const { name, value } = action;
-  const newState = {
+  return {
     ...state,
     [name]: value,
   };
-  return newState;
 }
 
 function Signup(props) {
@@ -273,163 +285,174 @@ function Signup(props) {
   const phoneValid = _.isEmpty(phone) || phoneChecker.test(phone);
   const formInvalid = !phoneValid || !terms || _.isEmpty(name) || _.isEmpty(email) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
-    <Container component="main" maxWidth="xs">
+    <div className={classes.outer}>
       <Helmet>
         <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com"></meta>
         <script src="https://apis.google.com/js/platform.js"></script>
       </Helmet>
       <CssBaseline/>
-      <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <img width="35" height="35" src={`/images/${SIGNUP_LOGO}`} alt="Uclusion"/>
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          {intl.formatMessage({ id: 'signupTitle' })}
-        </Typography>
-      </div>
-      <div className={classes.googleButton} onClick={() => {
-        // Must come back to this device so go ahead and set in local storage
-        setRedirect(getRedirect());
-        Auth.federatedSignIn({provider: 'Google'})
-      }}>
-        <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
-        <div className={classes.googleText}>Sign in with Google</div>
-      </div>
-      <div className={classes.spacerText}>
-        <span className={classes.hr}>
-          <hr className={classes.inlineHr} />
-        </span>
-        <span className={classes.orText}>or</span>
-        <span className={classes.hr}>
-          <hr className={classes.inlineHr}/>
-        </span>
-      </div>
-      <div className={classes.paperNoTop}>
-        <form
-          className={classes.form}
-          autoComplete="off"
-          onSubmit={onSignUp}
-        >
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                value={userState.name}
-                autoComplete="name"
-                name="name"
-                variant="outlined"
-                required
+      <dl className={classes.root}>
+        <Iframe url="https://www.uclusion.com"
+                id="myId"
+                width="4000px"
+                height="1200px"
+                scrolling="no"
+                display="initial"
+                position="relative"/>
+        <div className={classes.formRoot}>
+          <div className={classes.paper}>
+            <Avatar className={classes.avatar}>
+              <img width="35" height="35" src={`/images/${SIGNUP_LOGO}`} alt="Uclusion"/>
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              {intl.formatMessage({ id: 'signupTitle' })}
+            </Typography>
+          </div>
+          <div className={classes.googleButton} onClick={() => {
+            // Must come back to this device so go ahead and set in local storage
+            setRedirect(getRedirect());
+            Auth.federatedSignIn({provider: 'Google'})
+          }}>
+            <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
+            <div className={classes.googleText}>Sign in with Google</div>
+          </div>
+          <div className={classes.spacerText}>
+            <span className={classes.hr}>
+              <hr className={classes.inlineHr} />
+            </span>
+            <span className={classes.orText}>or</span>
+            <span className={classes.hr}>
+              <hr className={classes.inlineHr}/>
+            </span>
+          </div>
+          <div className={classes.paperNoTop}>
+            <form
+              className={classes.form}
+              autoComplete="off"
+              onSubmit={onSignUp}
+            >
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    value={userState.name}
+                    autoComplete="name"
+                    name="name"
+                    variant="outlined"
+                    required
+                    fullWidth
+                    id="name"
+                    autoFocus
+                    label={intl.formatMessage({ id: 'signupNameLabel' })}
+                    onChange={handleChange('name')}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    value={userState.email}
+                    variant="outlined"
+                    required
+                    fullWidth
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    label={intl.formatMessage({ id: 'signupEmailLabel' })}
+                    onChange={handleChange('email')}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <PhoneField
+                    variant="outlined"
+                    value={userState.phone}
+                    label={intl.formatMessage({ id: 'signupPhoneLabel' })}
+                    onChange={handleChange('phone')}
+                    name="phone"
+                    type="tel"
+                    id="phone"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    value={userState.password}
+                    variant="outlined"
+                    required
+                    fullWidth
+                    name="password"
+                    type="password"
+                    id="password"
+                    helperText={password.length < 6 ? intl.formatMessage({ id: 'signupPasswordHelper' }) : ''}
+                    InputProps={{
+                      minLength: 6,
+                    }}
+                    autoComplete="new-password"
+                    label={intl.formatMessage({ id: 'signupPasswordLabel' })}
+                    onChange={handleChange('password')}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    value={userState.repeat}
+                    id="repeat"
+                    name="repeat"
+                    type="password"
+                    variant="outlined"
+                    autoComplete="new-password"
+                    error={repeat && password !== repeat}
+                    helperText={repeat !== password ? intl.formatMessage({ id: 'signupPasswordRepeatHelper' }) : ''}
+                    InputProps={{
+                      minLength: 6,
+                    }}
+                    label={intl.formatMessage({
+                      id: 'signupPasswordRepeatLabel',
+                    })}
+                    onChange={handleChange('repeat')}
+                    fullWidth
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    <GreenCheckbox
+                      id="terms"
+                      name="terms"
+                      required
+                      checked={terms}
+                      onChange={handleCheckedChange('terms')}
+                    />
+                    <Typography>
+                      {intl.formatMessage({ id: 'signupAgreeTermsOfUse' })}
+                      <Link
+                        href={config.termsOfUseLink}
+                        target="_blank"
+                      >
+                        {intl.formatMessage({ id: 'signupTermsOfUse' })}</Link>
+                    </Typography>
+                  </div>
+                </Grid>
+              </Grid>
+              <SpinningButton
+                spinning={callActive}
                 fullWidth
-                id="name"
-                autoFocus
-                label={intl.formatMessage({ id: 'signupNameLabel' })}
-                onChange={handleChange('name')}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                value={userState.email}
-                variant="outlined"
-                required
-                fullWidth
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                label={intl.formatMessage({ id: 'signupEmailLabel' })}
-                onChange={handleChange('email')}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <PhoneField
-                variant="outlined"
-                value={userState.phone}
-                label={intl.formatMessage({ id: 'signupPhoneLabel' })}
-                onChange={handleChange('phone')}
-                name="phone"
-                type="tel"
-                id="phone"
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                value={userState.password}
-                variant="outlined"
-                required
-                fullWidth
-                name="password"
-                type="password"
-                id="password"
-                helperText={password.length < 6 ? intl.formatMessage({ id: 'signupPasswordHelper' }) : ''}
-                InputProps={{
-                  minLength: 6,
-                }}
-                autoComplete="new-password"
-                label={intl.formatMessage({ id: 'signupPasswordLabel' })}
-                onChange={handleChange('password')}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                value={userState.repeat}
-                id="repeat"
-                name="repeat"
-                type="password"
-                variant="outlined"
-                autoComplete="new-password"
-                error={repeat && password !== repeat}
-                helperText={repeat !== password ? intl.formatMessage({ id: 'signupPasswordRepeatHelper' }) : ''}
-                InputProps={{
-                  minLength: 6,
-                }}
-                label={intl.formatMessage({
-                  id: 'signupPasswordRepeatLabel',
-                })}
-                onChange={handleChange('repeat')}
-                fullWidth
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                <GreenCheckbox
-                  id="terms"
-                  name="terms"
-                  required
-                  checked={terms}
-                  onChange={handleCheckedChange('terms')}
-                />
-                <Typography>
-                  {intl.formatMessage({ id: 'signupAgreeTermsOfUse' })}
-                  <Link
-                    href={config.termsOfUseLink}
-                    target="_blank"
-                  >
-                    {intl.formatMessage({ id: 'signupTermsOfUse' })}</Link>
-                </Typography>
-              </div>
-            </Grid>
-          </Grid>
-          <SpinningButton
-            spinning={callActive}
-            fullWidth
-            variant="contained"
-            className={classes.submit}
-            type="submit"
-            disabled={formInvalid}
-          >
-            {intl.formatMessage({ id: 'signupSignupLabel' })}
-          </SpinningButton>
-          <Grid container justify="flex-end">
-            <Grid item>
-              <Link href="/" variant="body2">
-                {intl.formatMessage({ id: 'signupHaveAccount' })}
-              </Link>
-            </Grid>
-          </Grid>
-        </form>
-      </div>
-    </Container>
+                variant="contained"
+                className={classes.submit}
+                type="submit"
+                disabled={formInvalid}
+              >
+                {intl.formatMessage({ id: 'signupSignupLabel' })}
+              </SpinningButton>
+              <Grid container justify="flex-end">
+                <Grid item>
+                  <Link href="/" variant="body2">
+                    {intl.formatMessage({ id: 'signupHaveAccount' })}
+                  </Link>
+                </Grid>
+              </Grid>
+            </form>
+          </div>
+        </div>
+      </dl>
+    </div>
   );
 }
 

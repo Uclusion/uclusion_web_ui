@@ -21,7 +21,7 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
 
 function CreatingWorkspaceStep (props) {
-  const { formData, isActive } = props;
+  const { formData, active } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -33,8 +33,9 @@ function CreatingWorkspaceStep (props) {
   const history = useHistory();
 
   useEffect(() => {
+
     const { workspaceCreated } = workspaceInfo;
-    if (!workspaceCreated && isActive) {
+    if (!workspaceCreated && active) {
       const { meetingName } = formData;
       const marketInfo = {
         name: meetingName,
@@ -62,6 +63,7 @@ function CreatingWorkspaceStep (props) {
             currentStoryName,
             currentStoryDescription,
             currentStoryEstimate,
+            currentStoryProgressSkipped,
           } = formData;
           const realUploadedFiles = currentStoryUploadedFiles || [];
           const processed = processTextAndFilesForSave(realUploadedFiles, currentStoryDescription);
@@ -72,7 +74,7 @@ function CreatingWorkspaceStep (props) {
             uploadedFiles: processed.uploadedFiles,
             assignments: [myUserId],
           };
-          if (!_.isEmpty(currentStoryEstimate)) {
+          if (!_.isEmpty(currentStoryEstimate) && !currentStoryProgressSkipped) {
             addInfo.daysEstimate = currentStoryEstimate;
           }
           return addPlanningInvestible(addInfo);
@@ -91,25 +93,52 @@ function CreatingWorkspaceStep (props) {
           return stageChangeInvestible(updateInfo);
         })
         .then(() => {
-          const { currentStoryProgress } = formData;
-          if (!_.isEmpty(currentStoryProgress)) {
+          const { currentStoryProgress, currentStoryProgressSkipped } = formData;
+          if (!_.isEmpty(currentStoryProgress) && !currentStoryProgressSkipped) {
             return saveComment(marketId, investibleId, undefined, currentStoryProgress, REPORT_TYPE, []);
           } else {
             return Promise.resolve(false);
           }
         })
         .then((addedComment) => {
-          if(addedComment) {
+          if (addedComment) {
             addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
           }
-          setWorkspaceInfo({ workspaceCreated: true, marketId});
+          const { nextStoryName, nextStoryDescription, nextStoryUploadedFiles, nextStorySkipped } = formData;
+          if (!_.isEmpty(nextStoryName) && !nextStorySkipped) {
+            const usedUploads = nextStoryUploadedFiles || [];
+            const processed = processTextAndFilesForSave(usedUploads, nextStoryDescription);
+            // add the story
+            const addInfo = {
+              marketId,
+              name: nextStoryName,
+              description: processed.text,
+              uploadedFiles: processed.uploadedFiles,
+              assignments: [myUserId],
+            };
+            return addPlanningInvestible(addInfo);
+          }
+          return Promise.resolve(false);
+        })
+        .then((addedStory) => {
+          if (addedStory) {
+            addInvestible(investiblesDispatch, diffDispatch, addedStory);
+          }
+          setWorkspaceInfo({ workspaceCreated: true, marketId });
         });
-      }
-    }, [workspaceInfo, isActive, commentsDispatch, commentsState,
-    diffDispatch, versionsDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch]);
+    }
+  }, [
+    workspaceInfo, active, commentsDispatch, commentsState,
+    diffDispatch, versionsDispatch, formData, investiblesDispatch,
+    marketsDispatch, presenceDispatch
+  ]);
   const { marketId, workspaceCreated } = workspaceInfo;
   const inviteLink = formInviteLink(marketId);
   const marketLink = formMarketLink(marketId);
+
+  if (!active) {
+    return React.Fragment;
+  }
 
   return (
     <div>
@@ -131,9 +160,10 @@ function CreatingWorkspaceStep (props) {
     </div>
   );
 }
+
 CreatingWorkspaceStep.propTypes = {
   formData: PropTypes.object.isRequired,
-  isActive: PropTypes.bool.isRequired,
-}
+  active: PropTypes.bool.isRequired,
+};
 
 export default CreatingWorkspaceStep;

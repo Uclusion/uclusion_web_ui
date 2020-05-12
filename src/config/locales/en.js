@@ -771,8 +771,15 @@ const messages = defineMessages({
   OnboardingWizardMeetingPlaceHolder: 'Your Meeting Name',
   OnboardingWizardCurrentStoryNamePlaceHolder: 'Your current story\'s name',
   OnboardingWizardCurrentStoryDescriptionPlaceHolder: 'Your current story\'s description',
+  OnboardingWizardNextStoryNamePlaceHolder: 'Your next story\'s name',
+  OnboardingWizardNextStoryDescriptionPlaceHolder: 'Your next story\'s description',
   OnboardingWizardCurrentStoryProgressPlaceHolder: 'Your progress so far',
   OnboardingWizardTakeMeToWorkspace: 'Take me to my workspace',
+  OnboardingWizardMeetingStepLabel: 'Meeting Information',
+  OnboardingWizardCurrentStoryStepLabel: 'Current Story',
+  OnboardingWizardCurrentStoryProgressStepLabel: 'Current Story Progress (Optional)',
+  OnboardingWizardNextStoryStepLabel: 'Next Story(Optional)',
+  OnboardingWizardCreatingWorkspaceStepLabel: 'Workspace Creation',
 
 });
 

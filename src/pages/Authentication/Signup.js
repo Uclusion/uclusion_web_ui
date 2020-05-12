@@ -23,8 +23,8 @@ import Iframe from 'react-iframe'
 
 const useStyles = makeStyles(theme => ({
   outer: {
-    marginLeft: "5%",
-    width: "90%"
+    marginLeft: "10%",
+    width: "80%"
   },
   root: {
     alignItems: "flex-start",
@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
     width: "100%"
   },
   formRoot: {
-    width: "2000px"
+    width: "1500px"
   },
   paper: {
     marginTop: theme.spacing(8),
@@ -294,8 +294,8 @@ function Signup(props) {
       <dl className={classes.root}>
         <Iframe url="https://www.uclusion.com"
                 id="myId"
-                width="4000px"
-                height="1200px"
+                width="2700px"
+                height="1000px"
                 scrolling="no"
                 display="initial"
                 position="relative"/>

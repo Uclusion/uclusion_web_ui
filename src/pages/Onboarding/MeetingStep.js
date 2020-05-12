@@ -6,7 +6,7 @@ import _ from 'lodash';
 import StepButtons from './StepButtons';
 
 function MeetingStep (props) {
-  const { updateFormData, formData } = props;
+  const { updateFormData, formData, active } = props;
   const intl = useIntl();
   const value = formData.meetingName || '';
   const validForm = !_.isEmpty(value);
@@ -16,10 +16,16 @@ function MeetingStep (props) {
     updateFormData('meetingName', value);
   }
 
+  if (!active) {
+    return React.Fragment;
+  }
+
   return (
     <div>
       <Typography>
-        What is the name of the meeting where you discuss stories?
+        We're going to be creating a Uclusion Workspace that can replace your meeting that handles stories and story status.
+        To do this we'll need the name of that meeting, which will become the name of your Workspace. You can fill in any
+        detailed description for the Workspace after it's been created by editing it later.
       </Typography>
       <TextField
         placeholder={intl.formatMessage({ id: 'OnboardingWizardMeetingPlaceHolder' })}
@@ -34,6 +40,7 @@ function MeetingStep (props) {
 MeetingStep.propTypes = {
   updateFormData: PropTypes.func.isRequired,
   formData: PropTypes.object.isRequired,
+  active: PropTypes.bool.isRequired,
 };
 
 export default MeetingStep;

@@ -8,7 +8,7 @@ import QuillEditor from '../../components/TextEditors/QuillEditor'
 import { DaysEstimate } from '../../components/AgilePlan'
 
 function CurrentStoryProgressStep (props) {
-  const { updateFormData, formData } = props;
+  const { updateFormData, formData, active } = props;
   const intl = useIntl();
   const {
     currentStoryProgress,
@@ -29,19 +29,25 @@ function CurrentStoryProgressStep (props) {
     updateFormData('currentStoryEstimate', valueInt);
   }
 
-  function onNext() {
+  function onStepChange() {
     updateFormData('currentStoryProgress', editorContents);
   }
 
   function onSkip() {
-    updateFormData('currentStoryEstimate', undefined);
-    updateFormData('currentStoryProgress', undefined);
+    updateFormData('currentStoryProgressSkipped', true);
+    onStepChange();
   }
-  console.log(currentStoryEstimate);
+
+  if (!active) {
+    return React.Fragment;
+  }
+
   return (
     <div>
       <Typography>
-        What is your current progress on the story, and when do you think it will be done by?
+        Great, now that we have what you're currently working on, we can provide everyone a status update by
+        telling everyone when you expect to be done and what they current status is. If you don't know these things,
+        right now, we'll remind you to fill it in later, so you can simply hit 'Skip' for now.
       </Typography>
       <QuillEditor
         placeholder={intl.formatMessage({ id: 'OnboardingWizardCurrentStoryProgressPlaceHolder'})}
@@ -50,7 +56,9 @@ function CurrentStoryProgressStep (props) {
         onChange={onEditorChange}
       />
       <DaysEstimate onChange={onEstimateChange} value={currentStoryEstimate} createdAt={new Date()} />
-      <StepButtons {...props} validForm={validForm} onNext={onNext} showSkip onSkip={onSkip}/>
+      <StepButtons {...props} validForm={validForm}
+                   onPrevious={onStepChange}
+                   onNext={onStepChange} showSkip onSkip={onSkip}/>
     </div>
   );
 }
@@ -58,6 +66,8 @@ function CurrentStoryProgressStep (props) {
 CurrentStoryProgressStep.propTypes = {
   updateFormData: PropTypes.func.isRequired,
   formData: PropTypes.object.isRequired,
+  active: PropTypes.bool.isRequired
 };
+
 
 export default CurrentStoryProgressStep;

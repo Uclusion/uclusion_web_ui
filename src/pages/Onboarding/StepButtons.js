@@ -13,6 +13,7 @@ function StepButtons (props) {
     validForm,
     onNext,
     onSkip,
+    onPrevious,
     showSkip,
     showGoBack,
     finishLabel,
@@ -21,6 +22,11 @@ function StepButtons (props) {
   const lastStep = currentStep === totalSteps;
 
   const finishKey = _.isEmpty(finishLabel) ? 'OnboardingWizardFinish' : finishLabel;
+
+  function myOnPrevious () {
+    onPrevious();
+    previousStep();
+  }
 
   function myOnNext () {
     onNext();
@@ -34,8 +40,8 @@ function StepButtons (props) {
 
   return (
     <div>
-      {(currentStep > 1) && showGoBack && (
-        <Button onClick={previousStep}>{intl.formatMessage({ id: 'OnboardingWizardGoBack' })}</Button>
+      {(currentStep > 0) && showGoBack && (
+        <Button onClick={myOnPrevious}>{intl.formatMessage({ id: 'OnboardingWizardGoBack' })}</Button>
       )}
       {showSkip && (
         <Button onClick={myOnSkip}>{intl.formatMessage({ id: 'OnboardingWizardSkip' })}</Button>
@@ -66,6 +72,7 @@ StepButtons.propTypes = {
 StepButtons.defaultProps = {
   previousStep: () => {},
   nextStep: () => {},
+  onPrevious: () => {},
   onNext: () => {},
   onSkip: () => {},
   totalSteps: 0,

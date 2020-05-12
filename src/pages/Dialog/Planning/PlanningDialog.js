@@ -88,8 +88,6 @@ function PlanningDialog(props) {
     return !_.isEmpty(assignedInvestibles);
   });
   const isChannel = _.isEmpty(assignedPresences);
-  const unassignedFull = _.difference(presences, assignedPresences);
-  const unassigned = unassignedFull.filter((presence) => !presence.market_banned);
 
   let lockedByName;
   if (lockedBy) {
@@ -119,8 +117,7 @@ function PlanningDialog(props) {
       tabTitle={marketName}
       breadCrumbs={breadCrumbs}
     >
-      <Summary market={market} hidden={hidden} unassigned={unassigned} isChannel={isChannel}
-               activeMarket={activeMarket} />
+      <Summary market={market} hidden={hidden} isChannel={isChannel} activeMarket={activeMarket} />
       {lockedBy && (
         <Typography>
           {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}

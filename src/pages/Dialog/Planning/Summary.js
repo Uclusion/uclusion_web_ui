@@ -2,7 +2,6 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Card, CardActions, CardContent, Divider, IconButton, Tooltip, Typography, } from '@material-ui/core'
-import _ from 'lodash'
 import { makeStyles } from '@material-ui/styles'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
@@ -105,7 +104,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function Summary(props) {
-  const { market, investibleId, hidden, unassigned, isChannel, activeMarket } = props;
+  const { market, investibleId, hidden, isChannel, activeMarket } = props;
   const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
@@ -177,36 +176,32 @@ function Summary(props) {
             )}
           </dl>
         )}
-        {!(_.isEmpty(unassigned) && _.isEmpty(children) && !market.parent_market_id) && (
-          <dl className={metaClasses.root}>
-            {!_.isEmpty(unassigned) && (
-              <div className={classes.collaborators}>
-                <dt>
-                  <FormattedMessage id="dialogParticipants" />
-                </dt>
-                <dd>
-                  <Collaborators
-                    marketPresences={marketPresences}
-                    intl={intl}
-                    marketId={id}
-                    history={history}
-                  />
-                </dd>
-              </div>
-            )}
-            <ParentSummary market={market} hidden={hidden}/>
-            <MarketLinks links={children || []} hidden={hidden} actions={[<ExpandableAction
-              id="link"
-              key="link"
-              icon={<InsertLinkIcon />}
-              openLabel={intl.formatMessage({ id: "planningInvestibleDecision" })}
-              label={intl.formatMessage({ id: "childDialogExplanation" })}
-              onClick={() =>
-                navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${id}`)
-              }
-            />]} />
-          </dl>
-        )}
+        <dl className={metaClasses.root}>
+          <div className={classes.collaborators}>
+            <dt>
+              <FormattedMessage id="dialogParticipants" />
+            </dt>
+            <dd>
+              <Collaborators
+                marketPresences={marketPresences}
+                intl={intl}
+                marketId={id}
+                history={history}
+              />
+            </dd>
+          </div>
+          <ParentSummary market={market} hidden={hidden}/>
+          <MarketLinks links={children || []} hidden={hidden} actions={[<ExpandableAction
+            id="link"
+            key="link"
+            icon={<InsertLinkIcon />}
+            openLabel={intl.formatMessage({ id: "planningInvestibleDecision" })}
+            label={intl.formatMessage({ id: "childDialogExplanation" })}
+            onClick={() =>
+              navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${id}`)
+            }
+          />]} />
+        </dl>
       </CardContent>
     </Card>
   );

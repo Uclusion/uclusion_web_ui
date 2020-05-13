@@ -10,6 +10,7 @@ import Container from '@material-ui/core/Container'
 import { SignIn } from 'aws-amplify-react'
 import { injectIntl } from 'react-intl'
 import SpinningButton from '../components/SpinBlocking/SpinningButton'
+import Button from '@material-ui/core/Button';
 import InputAdornment from '@material-ui/core/InputAdornment'
 import IconButton from '@material-ui/core/IconButton'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
@@ -124,6 +125,7 @@ class CustomSignIn extends SignIn {
             {intl.formatMessage({ id: 'signInSignIn' })}
           </Typography>
         </div>
+        <Button onClick={() => Auth.federatedSignIn({provider: 'GithubLogin'})}>Github Login</Button>
         <div className={classes.googleButton} onClick={() => Auth.federatedSignIn({provider: 'Google'})}>
           <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
           <div className={classes.googleText}>Sign in with Google</div>

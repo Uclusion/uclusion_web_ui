@@ -298,6 +298,7 @@ function Signup(props) {
                 height="1000px"
                 scrolling="no"
                 display="initial"
+                frameBorder="0"
                 position="relative"/>
         <div className={classes.formRoot}>
           <div className={classes.paper}>

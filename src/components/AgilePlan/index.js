@@ -483,7 +483,7 @@ export function Votes(props) {
 }
 
 export function DaysEstimate(props) {
-  const { readOnly, value, onChange, createdAt } = props;
+  const { readOnly, value, onChange, createdAt, showLabel = true, showHelper = true } = props;
 
   const classes = usePlanFormStyles();
   const intl = useIntl();
@@ -510,7 +510,9 @@ export function DaysEstimate(props) {
       ) : (
         <React.Fragment>
           <span className={clsx("MuiFormControl-root","MuiTextField-root",classes.datePickerContainer, classes.input)}>
-            <label className={clsx("MuiInputLabel-shrink", "MuiInputLabel-FormControl", "MuiFormLabel-root")}>{intl.formatMessage({ id: "daysEstimateMarketLabel" })}</label>
+            {showLabel &&
+              <label className={clsx("MuiInputLabel-shrink", "MuiInputLabel-FormControl", "MuiFormLabel-root")}>{intl.formatMessage({ id: "daysEstimateMarketLabel" })}</label>
+            }
             <DatePicker
               className={clsx("MuiInputBase-root", classes.input, classes.datePicker)}
               placeholderText={intl.formatMessage({ id: "selectDate" })}
@@ -519,9 +521,11 @@ export function DaysEstimate(props) {
               popperPlacement="bottom"
             />
           </span>
-          <Typography>
-            {intl.formatMessage({ id: "daysEstimateHelp" })}
-          </Typography>
+          {showHelper &&
+            <Typography>
+              {intl.formatMessage({ id: "daysEstimateHelp" })}
+            </Typography>
+          }
         </React.Fragment>
       )
   );

@@ -32,20 +32,12 @@ const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
 const MAX_CONCURRENT_ARCHIVE_API_CALLS = 1;
 
-let versionsPromiseChain = Promise.resolve(true);
-
-function addToVersionsPromiseChain (promiseGenerator) {
-  versionsPromiseChain = versionsPromiseChain
-    .then(() => promiseGenerator());
-  return versionsPromiseChain;
-}
 
 export class MatchError extends Error {
 
 }
 
 export function refreshGlobalVersion () {
-  return addToVersionsPromiseChain(() => {
     // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
     return new Promise((resolve, reject) => {
       const execFunction = () => {
@@ -79,7 +71,6 @@ export function refreshGlobalVersion () {
       };
       startTimerChain(6000, MAX_RETRIES, execFunction);
     });
-  });
 }
 
 /**

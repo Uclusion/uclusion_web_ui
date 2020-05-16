@@ -1,10 +1,10 @@
-import React, { useState, useReducer } from 'react';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import { Card, Typography, makeStyles } from '@material-ui/core';
-import Screen from '../../containers/Screen/Screen';
-import { useIntl } from 'react-intl';
-import { reducer } from './onboardingReducer';
+import React, { useReducer, useState } from 'react'
+import PropTypes from 'prop-types'
+import clsx from 'clsx'
+import { Card, makeStyles, Typography } from '@material-ui/core'
+import Screen from '../../containers/Screen/Screen'
+import { useIntl } from 'react-intl'
+import { reducer } from './onboardingReducer'
 
 const useStyles = makeStyles(
   theme => {
@@ -188,7 +188,6 @@ function OnboardingWizard(props) {
       active: true,
       classes
     };
-    console.error(formData);
     const currentStep = stepPrototypes[stepState.currentStep];
     if (!currentStep) {
       return React.Fragment;

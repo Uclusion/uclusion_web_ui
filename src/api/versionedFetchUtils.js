@@ -38,39 +38,36 @@ export class MatchError extends Error {
 }
 
 export function refreshGlobalVersion () {
-    // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
-    return new Promise((resolve, reject) => {
-      const execFunction = () => {
-        const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
-        let currentHeldVersion;
-        return disk.getState()
-          .then((state) => {
-            const {
-              existingMarkets,
-              globalVersion,
-              requiredSignatures,
-            } = state || {};
-            currentHeldVersion = globalVersion;
-            return doVersionRefresh(currentHeldVersion, existingMarkets, requiredSignatures);
-          }).then((globalVersion) => {
-            if (globalVersion !== currentHeldVersion) {
-              // console.log('Got new version');
-              pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
-            }
-            resolve(true);
-            return Promise.resolve(true);
-          }).catch((error) => {
-            // we'll log match problems, but raise the rest
-            if (error instanceof MatchError) {
-              console.error(error.message);
-              return false;
-            } else {
-              reject(error);
-            }
-          });
-      };
-      startTimerChain(6000, MAX_RETRIES, execFunction);
-    });
+  // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
+  const execFunction = () => {
+    const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
+    let currentHeldVersion;
+    return disk.getState()
+      .then((state) => {
+        const {
+          existingMarkets,
+          globalVersion,
+          requiredSignatures,
+        } = state || {};
+        currentHeldVersion = globalVersion;
+        return doVersionRefresh(currentHeldVersion, existingMarkets, requiredSignatures);
+      }).then((globalVersion) => {
+        if (globalVersion !== currentHeldVersion) {
+          // console.log('Got new version');
+          pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
+        }
+        return Promise.resolve(true);
+      }).catch((error) => {
+        // we'll log match problems, but raise the rest
+        if (error instanceof MatchError) {
+          console.error(error.message);
+          return false;
+        } else {
+          throw error;
+        }
+      });
+  };
+  startTimerChain(6000, MAX_RETRIES, execFunction);
 }
 
 /**

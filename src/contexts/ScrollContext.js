@@ -54,7 +54,7 @@ function ScrollProvider(props) {
       setProcessedPath(pathname);
       const { action } = decomposeMarketPath(pathname);
       const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
-      if (!myHashFragment || action !== 'dialog' || myHashFragment.includes('fromInvite')) {
+      if (!myHashFragment || action !== 'dialog') {
         //Scroll to the top if its a new page and there is no anchor to scroll to
         window.scrollTo(0, 0);
       } else {

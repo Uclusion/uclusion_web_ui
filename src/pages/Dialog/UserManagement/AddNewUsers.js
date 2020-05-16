@@ -30,7 +30,7 @@ function AddNewUsers (props) {
     onSave,
     onCancel
   } = props;
-  const { id: addToMarketId, market_type: marketType } = market;
+  const { id: addToMarketId, market_type: marketType, invite_capability: marketToken } = market;
   const classes = usePlanFormStyles();
   const intl = useIntl();
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -245,7 +245,7 @@ function AddNewUsers (props) {
         <ListItem>
           <InviteLinker
             marketType={marketType}
-            marketId={addToMarketId}
+            marketToken={marketToken}
           />
         </ListItem>
         <form

@@ -1,25 +1,25 @@
-import React, { useState, useEffect, useContext } from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import StepButtons from '../StepButtons';
-import { createPlanning } from '../../../api/markets';
-import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { processTextAndFilesForSave } from '../../../api/files';
-import { addPlanningInvestible, stageChangeInvestible } from '../../../api/investibles';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { formInviteLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
-import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { saveComment } from '../../../api/comments';
-import { REPORT_TYPE } from '../../../constants/comments';
-import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext';
-import { useIntl } from 'react-intl';
+import React, { useContext, useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import _ from 'lodash'
+import StepButtons from '../StepButtons'
+import { createPlanning } from '../../../api/markets'
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { processTextAndFilesForSave } from '../../../api/files'
+import { addPlanningInvestible, stageChangeInvestible } from '../../../api/investibles'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { formInviteLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
+import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { saveComment } from '../../../api/comments'
+import { REPORT_TYPE } from '../../../constants/comments'
+import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext'
+import { useIntl } from 'react-intl'
 
 function CreatingWorkspaceStep (props) {
   const intl = useIntl();
@@ -49,15 +49,17 @@ function CreatingWorkspaceStep (props) {
       let inProgressStage;
       let inVotingStage;
       let myUserId;
-      setWorkspaceInfo({ workspaceCreated: true, marketId });
+      let marketToken;
+      setWorkspaceInfo({ workspaceCreated: true, marketId, marketToken });
       createPlanning(marketInfo)
         .then((marketDetails) => {
           const {
             market,
             presence,
-            stages
+            stages,
           } = marketDetails;
           marketId = market.id;
+          marketToken = market.invite_capability;
           myUserId = presence.id;
           addMarketToStorage(marketsDispatch, diffDispatch, market);
           addPresenceToMarket(presenceDispatch, marketId, presence);
@@ -137,8 +139,8 @@ function CreatingWorkspaceStep (props) {
     diffDispatch, versionsDispatch, formData, investiblesDispatch,
     marketsDispatch, presenceDispatch, meetingName, workspaceDescription,
   ]);
-  const { marketId, workspaceCreated } = workspaceInfo;
-  const inviteLink = formInviteLink(marketId);
+  const { marketId, workspaceCreated, marketToken } = workspaceInfo;
+  const inviteLink = formInviteLink(marketToken);
   const marketLink = formMarketLink(marketId);
 
   if (!active) {

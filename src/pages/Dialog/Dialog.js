@@ -3,13 +3,7 @@ import { useHistory } from 'react-router'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import { useIntl } from 'react-intl'
-import _ from 'lodash'
-import {
-  decomposeMarketPath,
-  formatMarketLinkWithPrefix,
-  formInvestibleLink,
-  navigate,
-} from '../../utils/marketIdPathFunctions'
+import { decomposeMarketPath, formInvestibleLink, navigate, } from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -24,7 +18,6 @@ import { getStages } from '../../contexts/MarketStagesContext/marketStagesContex
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import queryString from 'query-string'
 
 const styles = (theme) => ({
   root: {
@@ -68,10 +61,7 @@ function Dialog(props) {
   const history = useHistory();
   const intl = useIntl();
   const { location } = history;
-  const { pathname, hash } = location;
-  const values = queryString.parse(hash || '');
-  const { fromInvite } = values || {};
-  const isFromInvite = fromInvite === 'true';
+  const { pathname } = location;
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -115,16 +105,11 @@ function Dialog(props) {
         getInitiativeInvestible(investibles[0]);
       }
     }
-    const noMarketLoad = _.isEmpty(loadedMarket) && _.isEmpty(marketStages) && _.isEmpty(marketPresences);
-    const redirectToInvite = !isInitialization && !isFromInvite && noMarketLoad && !hidden && marketId;
-    if (redirectToInvite) {
-        const inviteLink = formatMarketLinkWithPrefix('invite', marketId);
-        navigate(history, inviteLink);
-    }
+
     return () => {
     };
   }, [hidden, marketType, investibles, marketId, history, isInitialization, loadedMarket, marketStages,
-    marketPresences, isFromInvite, isInline, activeMarket, parentMarketId, parentInvestibleId]);
+    marketPresences, isInline, activeMarket, parentMarketId, parentInvestibleId]);
 
   if (loading) {
     return (

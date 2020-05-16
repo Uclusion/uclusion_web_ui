@@ -50,8 +50,8 @@ function MarketLinks (props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [loaded, setLoaded] = useState(false);
   const [marketNameState, marketNamesDispatch] = useReducer((state, action) => {
-    const { marketId, name, marketType, marketStage, isInline, createdAt } = action
-    return { ...state, [marketId]: { name, marketType, marketStage, isInline, createdAt } }
+    const { marketId, marketToken, name, marketType, marketStage, isInline, createdAt } = action
+    return { ...state, [marketId]: { name, marketType, marketStage, isInline, createdAt, marketToken } }
   }, {})
 
   useEffect(() => {
@@ -70,8 +70,8 @@ function MarketLinks (props) {
       AllSequentialMap(missingLinks, (marketId) => {
         return getMarketInfo(marketId).then((market) => {
           const { name, market_type: marketType, market_stage: marketStage, is_inline: isInline,
-            created_at: createdAt } = convertDates(market);
-          marketNamesDispatch({ marketId, name, marketType, marketStage, isInline, createdAt });
+            created_at: createdAt, invite_capability: marketToken } = convertDates(market);
+          marketNamesDispatch({ marketId, marketToken, name, marketType, marketStage, isInline, createdAt });
           return market;
         })
       })
@@ -85,9 +85,9 @@ function MarketLinks (props) {
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user);
       const baseLink = formMarketLink(marketId);
-      const baseInviteLink = `/invite/${marketId}`;
       const marketInfo = [marketId] in marketNameState ? marketNameState[marketId] : undefined;
       const createdAt = marketInfo ? marketInfo.createdAt : undefined;
+      const baseInviteLink = marketInfo ? `/invite/${marketInfo.marketToken}` : undefined;
       return {marketId, myPresence, baseLink, baseInviteLink, marketInfo, createdAt};
     });
     const sortedLinks = _.orderBy(resolvedLinks, ['createdAt'], ['asc']);

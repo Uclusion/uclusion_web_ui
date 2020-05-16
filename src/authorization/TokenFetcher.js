@@ -3,7 +3,11 @@ Class that manages the tokens for a particular type and market.
 It _does not_ manage identity's, but does
 ask the identity source for new identities when needed
  */
-import TokenStorageManager, { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET } from './TokenStorageManager';
+import TokenStorageManager, {
+  TOKEN_TYPE_ACCOUNT,
+  TOKEN_TYPE_MARKET,
+  TOKEN_TYPE_MARKET_INVITE
+} from './TokenStorageManager'
 
 class TokenFetcher {
 
@@ -59,6 +63,8 @@ class TokenFetcher {
         switch (this.tokenType) {
           case TOKEN_TYPE_MARKET:
             return this.getMarketTokenAndLoginData(identity, this.itemId, isObserver);
+          case TOKEN_TYPE_MARKET_INVITE:
+            return this.getMarketTokenOnInvite(identity, this.itemId, isObserver);
           case TOKEN_TYPE_ACCOUNT:
             return this.getAccountToken(identity, this.itemId);
           default:
@@ -82,6 +88,17 @@ class TokenFetcher {
     return this.ssoClient.marketCognitoLogin(identity, marketId, isObserver)
       .then((loginData) => {
         const { uclusion_token } = loginData;
+        return this.tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, uclusion_token)
+          .then(() => loginData);
+      });
+
+  }
+
+  getMarketTokenOnInvite (identity, marketToken, isObserver) {
+    // console.debug(`invite into market ${marketId} with cognito identity ${identity} and isObserver ${isObserver}`);
+    return this.ssoClient.marketInviteLogin(identity, marketToken, isObserver)
+      .then((loginData) => {
+        const { uclusion_token, market_id: marketId } = loginData;
         return this.tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, marketId, uclusion_token)
           .then(() => loginData);
       });

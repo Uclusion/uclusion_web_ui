@@ -1,11 +1,12 @@
-import jwt_decode from 'jwt-decode';
-import LocalForageHelper from '../utils/LocalForageHelper';
-import _ from 'lodash';
-import { getTokenSecondsRemaining } from './tokenUtils';
-import localforage from 'localforage';
+import LocalForageHelper from '../utils/LocalForageHelper'
+import _ from 'lodash'
+import { getTokenSecondsRemaining } from './tokenUtils'
+import localforage from 'localforage'
+
 const TOKEN_STORAGE_KEYSPACE = 'TOKEN_STORAGE_MANAGER';
 export const TOKEN_TYPE_MARKET = 'MARKET';
 export const TOKEN_TYPE_ACCOUNT = 'ACCOUNT';
+export const TOKEN_TYPE_MARKET_INVITE = 'MARKET_INVITE';
 
 class TokenStorageManager {
 
@@ -18,16 +19,6 @@ class TokenStorageManager {
    */
   clearTokenStorage () {
     return localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE}).clear();
-  }
-
-  /**
-   * Removes the given token from the token storage system
-   * @param tokenType the type of token we are removing
-   * @param itemId the id of the item we're removing
-   */
-  removeToken (tokenType, itemId) {
-    return new LocalForageHelper(this.getKeyNamespace(tokenType, itemId), TOKEN_STORAGE_KEYSPACE)
-      .setState(undefined);
   }
 
   /**
@@ -73,27 +64,6 @@ class TokenStorageManager {
   storeToken (tokenType, itemId, token) {
     return new LocalForageHelper(this.getKeyNamespace(tokenType, itemId), TOKEN_STORAGE_KEYSPACE)
       .setState(token);
-  }
-
-  /**
-   * Given two tokens returns the token with the most life left on it
-   * @param token1 a token
-   * @param token2 a token
-   * @returns the token with the most life remaining on it
-   */
-  getLongestLivingToken (token1, token2) {
-    if (_.isEmpty(token1) || _.isEmpty(token2)) {
-      console.error('Token is empty');
-      return undefined;
-    }
-    const t1decode = jwt_decode(token1);
-    const { exp: t1exp } = t1decode; // exp is seconds since the epoch (1/1/1970 00:00:00)
-    const t2decode = jwt_decode(token2);
-    const { exp: t2exp } = t2decode; // exp is seconds since the epoch (1/1/1970 00:00:00)
-    if (t1exp > t2exp) {
-      return token1;
-    }
-    return token2;
   }
 
   /**

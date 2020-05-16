@@ -1,7 +1,7 @@
-import { VIEW_EVENT, VISIT_CHANNEL } from '../contexts/NotificationsContext/NotificationsContext';
-import { intl } from '../components/ContextHacks/IntlGlobalProvider';
-import { pushMessage } from './MessageBusUtils';
-import _ from 'lodash';
+import { VIEW_EVENT, VISIT_CHANNEL } from '../contexts/NotificationsContext/NotificationsContext'
+import { intl } from '../components/ContextHacks/IntlGlobalProvider'
+import { pushMessage } from './MessageBusUtils'
+import _ from 'lodash'
 
 /** Given the pathpart _without the hash or query params
  * will extract the action, the marketId and the investibleId
@@ -106,10 +106,10 @@ export function createTitle(fullTitle, titleSize) {
   return `${fullTitle.substring(0, titleSize)}...`;
 }
 
-export function formInviteLink(marketId) {
+export function formInviteLink(marketToken) {
   const current = window.location.href;
   const url = new URL(current);
-  url.pathname = `invite/${marketId}`;
+  url.pathname = `invite/${marketToken}`;
   url.search = '';
   url.hash = '';
   return url.toString();

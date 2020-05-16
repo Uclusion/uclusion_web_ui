@@ -36,7 +36,7 @@ const useStyles = makeStyles(() => ({
 function InviteLinker(props) {
   const intl = useIntl();
   const {
-    marketId,
+    marketToken,
     hidden,
     marketType,
   } = props;
@@ -54,7 +54,7 @@ function InviteLinker(props) {
         return 'inviteLinkerDirectionsDecision';
     }
   }
-  const link = formInviteLink(marketId);
+  const link = formInviteLink(marketToken);
   const icon = (
     <>
     <Divider className={classes.divider} orientation="vertical" />
@@ -87,7 +87,7 @@ function InviteLinker(props) {
 }
 
 InviteLinker.propTypes = {
-  marketId: PropTypes.string.isRequired,
+  marketToken: PropTypes.string.isRequired,
   hidden: PropTypes.bool,
   marketType: PropTypes.string.isRequired,
 };

@@ -42,6 +42,7 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
     loginVersion = cacheClearVersion;
   }
   if (cacheClearVersion && (!Number.isInteger(loginVersion) || loginVersion < cacheClearVersion)) {
+    console.log(`Sign out with cache clear version ${cacheClearVersion} and login version ${loginVersion}`);
     const reloader = () => {
       Auth.signOut().then(() => setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion))
         .catch((error) => {
@@ -51,6 +52,7 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
     }
     sendInfoPersistent({ id: 'noticeVersionForceLogout' }, {}, reloader);
   } else if (currentVersion !== version && !currentVersion.includes('fake')) {
+    console.log(`Refreshing with current version ${currentVersion} and version ${version}`);
     // deprecated, but the simplest way to ignore cache
     const reloader = () => {
       window.location.reload(true);

@@ -10,7 +10,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { formInviteLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -21,6 +21,8 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext'
 import { useIntl } from 'react-intl'
 import { Typography } from '@material-ui/core'
+import InviteLinker from '../../Dialog/InviteLinker'
+import { PLANNING_TYPE } from '../../../constants/markets'
 
 function CreatingWorkspaceStep (props) {
   const intl = useIntl();
@@ -51,7 +53,6 @@ function CreatingWorkspaceStep (props) {
       let inVotingStage;
       let myUserId;
       let marketToken;
-      setWorkspaceInfo({ workspaceCreated: true, marketId, marketToken });
       createPlanning(marketInfo)
         .then((marketDetails) => {
           const {
@@ -61,6 +62,7 @@ function CreatingWorkspaceStep (props) {
           } = marketDetails;
           marketId = market.id;
           marketToken = market.invite_capability;
+          setWorkspaceInfo({ workspaceCreated: true, marketId, marketToken });
           myUserId = presence.id;
           addMarketToStorage(marketsDispatch, diffDispatch, market);
           addPresenceToMarket(presenceDispatch, marketId, presence);
@@ -141,7 +143,6 @@ function CreatingWorkspaceStep (props) {
     marketsDispatch, presenceDispatch, meetingName, workspaceDescription,
   ]);
   const { marketId, workspaceCreated, marketToken } = workspaceInfo;
-  const inviteLink = formInviteLink(marketToken);
   const marketLink = formMarketLink(marketId);
 
   if (!active) {
@@ -162,7 +163,10 @@ function CreatingWorkspaceStep (props) {
             We've created your Workspace, please share this link with your team to invite them
           </Typography>
           <div className={classes.linkContainer}>
-            <a href={inviteLink}>{inviteLink}</a>
+            <InviteLinker
+              marketType={PLANNING_TYPE}
+              marketToken={marketToken}
+            />
           </div>
           <div className={classes.borderBottom}></div>
           <StepButtons

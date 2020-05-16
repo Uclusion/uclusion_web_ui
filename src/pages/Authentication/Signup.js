@@ -172,7 +172,7 @@ function Signup(props) {
     }
     if (!redirect) {
       // If they did not come from a market link then we want them to create a workspace
-      redirect = '/dialogAdd#type=PLANNING';
+      redirect = '/onboarding';
     }
     return redirect;
   }

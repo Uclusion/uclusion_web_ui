@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash'
 
 /**
  Like Promise.all, but each promise executes sequentially instead of in parallel
@@ -8,8 +8,12 @@ export function AllSequentialMap(sources, promiseGenerator) {
   return sources.reduce((acc, source) => {
     return acc.then((previous) => {
       // // console.debug(previous);
-      return promiseGenerator(source)
-        .then((result) => {
+      const aPromise = promiseGenerator(source);
+      if (!aPromise) {
+        console.error(JSON.stringify(source));
+        return [...previous];
+      }
+      return aPromise.then((result) => {
           // // console.debug(result);
           return [...previous, result];
         });

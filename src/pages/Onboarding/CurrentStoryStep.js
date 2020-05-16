@@ -9,7 +9,7 @@ import { updateValues } from './onboardingReducer';
 
 
 function CurrentStoryStep (props) {
-  const { updateFormData, formData, active } = props;
+  const { updateFormData, formData, active, classes } = props;
   const intl = useIntl();
   const {
     currentStoryName,
@@ -51,12 +51,14 @@ function CurrentStoryStep (props) {
 
   return (
     <div>
-      <Typography>
+      <Typography variant="body2">
         What story are you currently working on? This will become your "In Progress" story, and will let everyone see the
         story and make Suggestions, note Todos, ask Questions, and raise Blocking Issues.
       </Typography>
+      <label className={classes.inputLabel} htmlFor="story-name">{intl.formatMessage({ id: 'OnboardingWizardCurrentStoryNamePlaceHolder' })}</label>
       <TextField
-        placeholder={intl.formatMessage({ id: 'OnboardingWizardCurrentStoryNamePlaceHolder' })}
+        id="story-name"
+        className={classes.input}
         value={storyName}
         onChange={onNameChange}
       />
@@ -67,6 +69,7 @@ function CurrentStoryStep (props) {
         onS3Upload={onS3Upload}
         onChange={onEditorChange}
         />
+        <div className={classes.borderBottom}></div>
       <StepButtons {...props}
                    validForm={validForm}
                    onPrevious={onStepChange}

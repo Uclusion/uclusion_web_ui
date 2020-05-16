@@ -17,6 +17,7 @@ function StepButtons (props) {
     showSkip,
     showGoBack,
     finishLabel,
+    classes
   } = props;
   const intl = useIntl();
   const lastStep = currentStep === totalSteps;
@@ -39,20 +40,24 @@ function StepButtons (props) {
   }
 
   return (
-    <div>
-      {(currentStep > 0) && showGoBack && (
-        <Button onClick={myOnPrevious}>{intl.formatMessage({ id: 'OnboardingWizardGoBack' })}</Button>
-      )}
-      {showSkip && (
-        <Button onClick={myOnSkip}>{intl.formatMessage({ id: 'OnboardingWizardSkip' })}</Button>
-      )}
-      {lastStep && (
-        <Button disabled={!validForm} onClick={myOnNext}>{intl.formatMessage({ id: finishKey })}</Button>
-      )}
-      {!lastStep && (
-        <Button disabled={!validForm}
-                onClick={myOnNext}>{intl.formatMessage({ id: 'OnboardingWizardContinue' })}</Button>
-      )}
+    <div className={classes.buttonContainer}>
+      <div className={classes.backContainer}>
+        {(currentStep > 0) && showGoBack && (
+          <Button className={classes.actionSecondary} onClick={myOnPrevious}>{intl.formatMessage({ id: 'OnboardingWizardGoBack' })}</Button>
+        )}
+      </div>
+      <div className={classes.actionContainer}>
+        {showSkip && (
+          <Button className={classes.actionSkip} variant="outlined" onClick={myOnSkip}>{intl.formatMessage({ id: 'OnboardingWizardSkip' })}</Button>
+        )}
+        {lastStep && (
+          <Button className={classes.actionPrimary} disabled={!validForm} onClick={myOnNext}>{intl.formatMessage({ id: finishKey })}</Button>
+        )}
+        {!lastStep && (
+          <Button className={classes.actionPrimary} disabled={!validForm}
+                  onClick={myOnNext}>{intl.formatMessage({ id: 'OnboardingWizardContinue' })}</Button>
+        )}
+      </div>
     </div>
   );
 }

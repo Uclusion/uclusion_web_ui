@@ -1,13 +1,144 @@
 import React, { useState, useReducer } from 'react';
 import PropTypes from 'prop-types';
-import { Stepper, Step, StepLabel } from '@material-ui/core';
+import clsx from 'clsx';
+import { Card, Typography, makeStyles } from '@material-ui/core';
 import Screen from '../../containers/Screen/Screen';
 import { useIntl } from 'react-intl';
 import { reducer } from './onboardingReducer';
 
+const useStyles = makeStyles(
+  theme => {
+    return {
+      title: {
+        margin: '1rem 0'
+      },
+      stepCounter: {
+        fontWeight: 700
+      },
+      baseCard: {
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        marginTop: '100px',
+        padding: '32px',
+      },
+      introText: {
+        marginTop: '1rem'
+      },
+      inputLabel: {
+        display: 'block',
+        marginTop: '2rem',
+        fontWeight: 'bold',
+        textTransform: 'capitalize'
+      },
+      input: {
+        backgroundColor: '#ecf0f1',
+        border: 0,
+        borderRadius: 8,
+        padding: '4px',
+        width: '350px',
+        marginBottom: '30px',
+        '& > div:before': {
+          borderBottom: 0
+        },
+        '& > div:after': {
+          borderBottom: 0
+        },
+        '& > label': {
+          marginLeft: 10,
+        },
+        '& > label.Mui-focused': {
+          color: 'black'
+        },
+        '& > label:not(.MuiInputLabel-shrink)': {
+          transform: 'translate(0, 18px) scale(1)'
+        },
+        '& > div:hover:not(.Mui-disabled):before': {
+          borderBottom: 0
+        },
+        '& > div:active:not(.Mui-disabled):before': {
+          borderBottom: 0
+        },
+      },
+      buttonContainer: {
+        textAlign: 'right',
+        display: 'flex',
+        justifyContent: 'space-between',
+        '& button': {
+          fontWeight: 'bold'
+        }
+      },
+      actionContainer: {
+        flex: 3,
+        display: 'flex',
+        justifyContent: 'flex-end'
+      },
+      backContainer: {
+        flex: 1,
+        textAlign: 'left'
+      },
+      actionPrimary: {
+        backgroundColor: "#2D9CDB",
+        color: "white",
+        textTransform: 'unset',
+        "&:hover": {
+          backgroundColor: "#2D9CDB"
+        },
+        "&:disabled": {
+          color: "white",
+          backgroundColor: 'rgba(45, 156, 219, .6)'
+        }
+      },
+      actionSecondary: {
+        backgroundColor: '#e0e0e0',
+        textTransform: 'unset',
+        "&:hover": {
+          backgroundColor: "#e0e0e0"
+        }
+      },
+      actionSkip: {
+        backgroundColor: '#fff',
+        textTransform: 'unset',
+        marginRight: '20px',
+        "&:hover": {
+          backgroundColor: "#fff"
+        }
+      },
+      borderBottom: {
+        borderBottom: '1px solid #f2f2f2',
+        margin: '30px 0',
+        width: '100%'
+      },
+      dateContainer: {
+        width: '330px'
+      },
+      spacer: {
+        marginTop: '30px'
+      },
+      linkContainer: {
+        marginTop: '30px'
+      },
+      WorkspaceWizardMeetingStepLabel : {
+        maxWidth: '500px'
+      },
+      OnboardingWizardCurrentStoryStepLabel: {
+        maxWidth: '725px'
+      },
+      OnboardingWizardCurrentStoryProgressStepLabel: {
+        maxWidth: '725px',
+        overflow: 'visible'
+      },
+      OnboardingWizardNextStoryStepLabel: {
+        maxWidth: '725px'
+      },
+      WorkspaceWizardCreatingWorkspaceStepLabel: {
+        maxWidth: '500px'
+      }
+    }
+  }
+)
 function OnboardingWizard(props) {
   const { hidden, stepPrototypes, title } = props;
-
+  const classes = useStyles();
   const [formData, updateFormData] = useReducer(reducer, {});
   const intl = useIntl();
 
@@ -34,14 +165,17 @@ function OnboardingWizard(props) {
   }
 
   function getStepHeaders(){
-    return stepPrototypes.map((proto, index) => {
-      const { label } = proto;
-      return (
-        <Step key={label}>
-          <StepLabel>{intl.formatMessage({ id: label})}</StepLabel>
-        </Step>
-      );
-    });
+    const currentStep = stepPrototypes[stepState.currentStep];
+    const stepNumber = stepState.currentStep;
+    const stepCount = stepState.totalSteps;
+    const {label} = currentStep;
+    
+    return (
+      <div>
+        <Typography className={classes.stepCounter} variant="caption">Step {(stepNumber + 1)} of {stepCount}</Typography>
+        <Typography className={classes.title} variant="h4">{intl.formatMessage({ id: label})}</Typography>
+      </div>
+    )
   }
 
   function getCurrentStepContents() {
@@ -51,7 +185,8 @@ function OnboardingWizard(props) {
       updateFormData,
       nextStep,
       previousStep,
-      active: true
+      active: true,
+      classes
     };
     console.error(formData);
     const currentStep = stepPrototypes[stepState.currentStep];
@@ -61,18 +196,21 @@ function OnboardingWizard(props) {
     const { content } = currentStep;
     return React.cloneElement(content, props);
   }
-
+  const stepClass = stepPrototypes[stepState.currentStep].label;
+  
   return (
     <Screen
       tabTitle={title}
       hidden={hidden}
       >
-      <Stepper activeStep={stepState.currentStep}>
-        {getStepHeaders()}
-      </Stepper>
-      <div>
-        {getCurrentStepContents()}
-      </div>
+        <Card className={clsx(classes[stepClass], classes.baseCard)} elevation={0} raised={false}>
+          <div>
+            {getStepHeaders()}
+          </div>
+          <div>
+            {getCurrentStepContents()}
+          </div>
+        </Card>
     </Screen>
   );
 }

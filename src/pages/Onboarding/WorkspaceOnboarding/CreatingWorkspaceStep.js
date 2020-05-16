@@ -20,10 +20,11 @@ import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsCo
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext'
 import { useIntl } from 'react-intl'
+import { Typography } from '@material-ui/core'
 
 function CreatingWorkspaceStep (props) {
   const intl = useIntl();
-  const { formData, active } = props;
+  const { formData, active, classes } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -157,8 +158,15 @@ function CreatingWorkspaceStep (props) {
       )}
       {workspaceCreated && (
         <div>
-          We've created your Workspace, please share this link {inviteLink} with your team to invite them
+          <Typography variant="body1">
+            We've created your Workspace, please share this link with your team to invite them
+          </Typography>
+          <div className={classes.linkContainer}>
+            <a href={inviteLink}>{inviteLink}</a>
+          </div>
+          <div className={classes.borderBottom}></div>
           <StepButtons
+            {...props}
             showGoBack={false}
             finishLabel={'WorkspaceWizardTakeMeToWorkspace'}
             onNext={() => navigate(history, marketLink)}/>

@@ -7,7 +7,7 @@ import StepButtons from '../StepButtons';
 import { updateValues } from '../onboardingReducer';
 
 function MeetingStep (props) {
-  const { updateFormData, formData, active } = props;
+  const { updateFormData, formData, active, classes } = props;
   const intl = useIntl();
   const value = formData.meetingName || '';
   const validForm = !_.isEmpty(value);
@@ -25,16 +25,21 @@ function MeetingStep (props) {
 
   return (
     <div>
-      <Typography>
+      <Typography className={classes.introText} variant="body2">
         We're going to be creating a Uclusion Workspace that can replace your meeting that handles stories and story status.
+      </Typography>
+      <Typography className={classes.introText} variant="body2">
         To do this we'll need the name of that meeting, which will become the name of your Workspace. You can fill in any
         detailed description for the Workspace after it's been created by editing it later.
       </Typography>
+      <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}</label>
       <TextField
-        placeholder={intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}
+        id="name"
+        className={classes.input}
         value={value}
         onChange={onNameChange}
       />
+      <div className={classes.borderBottom}></div>
       <StepButtons {...props} validForm={validForm}/>
     </div>
   );

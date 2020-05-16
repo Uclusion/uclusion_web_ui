@@ -20,6 +20,7 @@ import { Helmet } from 'react-helmet'
 import { Auth } from 'aws-amplify'
 import { setRedirect } from '../../utils/redirectUtils'
 import Iframe from 'react-iframe'
+import { GithubLoginButton } from 'react-social-login-buttons'
 
 const useStyles = makeStyles(theme => ({
   outer: {
@@ -309,13 +310,14 @@ function Signup(props) {
               {intl.formatMessage({ id: 'signupTitle' })}
             </Typography>
           </div>
+          <GithubLoginButton onClick={() => Auth.federatedSignIn({provider: 'GithubLogin'})}>Sign up with Github</GithubLoginButton>
           <div className={classes.googleButton} onClick={() => {
             // Must come back to this device so go ahead and set in local storage
             setRedirect(getRedirect());
             Auth.federatedSignIn({provider: 'Google'})
           }}>
             <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
-            <div className={classes.googleText}>Sign in with Google</div>
+            <div className={classes.googleText}>Sign up with Google</div>
           </div>
           <div className={classes.spacerText}>
             <span className={classes.hr}>

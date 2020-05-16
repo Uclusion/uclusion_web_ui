@@ -10407,6 +10407,11 @@ react-side-effect@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/react-side-effect/-/react-side-effect-2.1.0.tgz#1ce4a8b4445168c487ed24dab886421f74d380d3"
 
+react-social-login-buttons@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/react-social-login-buttons/-/react-social-login-buttons-3.1.0.tgz#21fdb14063bed4adb325de5508db3e4318e452f2"
+  integrity sha512-3BU+MqWI6XibmSotZ1LFKUYSwBBzb/CYdnemizVsaFfMu6MXzfUCcbpekO1eMPQg/AI3ZUdg3zu4E3r62t80nw==
+
 react-toastify@^5.5.0:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/react-toastify/-/react-toastify-5.5.0.tgz#f55de44f6b5e3ce3b13b69e5bb4427f2c9404822"

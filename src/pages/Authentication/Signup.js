@@ -33,7 +33,8 @@ const useStyles = makeStyles(theme => ({
     width: "100%"
   },
   formRoot: {
-    width: "1500px"
+    width: "1500px",
+    marginLeft: '20px'
   },
   paper: {
     marginTop: theme.spacing(8),
@@ -310,7 +311,21 @@ function Signup(props) {
               {intl.formatMessage({ id: 'signupTitle' })}
             </Typography>
           </div>
-          <GithubLoginButton onClick={() => Auth.federatedSignIn({provider: 'GithubLogin'})}>Sign up with Github</GithubLoginButton>
+          <GithubLoginButton
+            style={{
+              lineHeight: '46px',
+              display: 'inline-block',
+              width: '100%',
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              fontSize: '1rem',
+              marginTop: '2rem',
+              paddingRight: '0px'
+            }}
+            align="center"
+            onClick={() => Auth.federatedSignIn({provider: 'GithubLogin'})}>
+              Sign up with Github
+          </GithubLoginButton>
           <div className={classes.googleButton} onClick={() => {
             // Must come back to this device so go ahead and set in local storage
             setRedirect(getRedirect());

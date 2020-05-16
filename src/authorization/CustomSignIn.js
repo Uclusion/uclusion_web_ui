@@ -68,6 +68,14 @@ const useStyles = (theme) => ({
   googleImg: {
     transform: 'scale(1.15)'
   },
+  githubText: {
+    lineHeight: '46px',
+    display: 'inline-block',
+    width: 'auto',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    fontSize: '1rem'
+  },
   spacerText: {
     display: 'flex',
     justifyContent: 'center',
@@ -125,7 +133,21 @@ class CustomSignIn extends SignIn {
             {intl.formatMessage({ id: 'signInSignIn' })}
           </Typography>
         </div>
-        <GithubLoginButton onClick={() => Auth.federatedSignIn({provider: 'GithubLogin'})}>Github Login</GithubLoginButton>
+        <GithubLoginButton 
+          style={{
+            lineHeight: '46px',
+            display: 'inline-block',
+            width: '100%',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            fontSize: '1rem',
+            marginTop: '2rem',
+            paddingRight: '0px'
+          }}
+          align="center"
+          onClick={() => Auth.federatedSignIn({provider: 'GithubLogin'})}>
+            Github Login
+        </GithubLoginButton>
         <div className={classes.googleButton} onClick={() => Auth.federatedSignIn({provider: 'Google'})}>
           <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
           <div className={classes.googleText}>Google Login</div>

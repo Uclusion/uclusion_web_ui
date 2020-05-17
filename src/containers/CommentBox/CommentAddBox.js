@@ -91,14 +91,15 @@ function CommentAddBox(props) {
     onSave,
     issueWarningId,
   } = props;
-  const [type, setType] = useState(undefined);
+  const [type, setType] = useState('');
   const classes = useStyles();
-
   function onTypeChange(event) {
     const { value } = event.target;
     setType(value);
   }
-
+  function clearType() {
+    setType('');
+  }
   return (
     <>
       <Card>
@@ -124,7 +125,7 @@ function CommentAddBox(props) {
                           : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItem} ${classes.chipItemSuggestion}`
                             : commentType === TODO_TYPE ? `${classes.chipItem} ${classes.chipItemTodo}`
                               : `${classes.chipItem} ${classes.chipItemReport}`,
-                        type === commentType || type === undefined ? classes.selected : classes.unselected
+                        type === commentType || type === '' ? classes.selected : classes.unselected
                       )
                       }
                       /* prevent clicking the label stealing focus */
@@ -145,6 +146,7 @@ function CommentAddBox(props) {
         <CommentAdd
           key="CommentAdd"
           type={type}
+          clearType={clearType}
           investible={investible}
           marketId={marketId}
           issueWarningId={issueWarningId}

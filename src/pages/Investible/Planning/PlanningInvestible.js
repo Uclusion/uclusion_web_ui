@@ -739,6 +739,11 @@ export const useMetaDataStyles = makeStyles(
       menuButton: {
         width: '100%',
         padding: '12px'
+      },
+      linkContainer: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column'
       }
     }
   },

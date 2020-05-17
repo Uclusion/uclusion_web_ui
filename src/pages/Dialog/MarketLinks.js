@@ -29,8 +29,11 @@ const useStyles = makeStyles((theme) => ({
   },
   inactiveMarket: {
     textDecoration: 'line-through',
+    padding: '10px'
   },
-  activeMarket: {},
+  activeMarket: {
+    padding: '10px'
+  },
   sidebarContent: {
     display: 'flex',
     justifyContent: 'center',
@@ -151,7 +154,7 @@ function MarketLinks (props) {
     <Paper className={classes.container} id="summary">
       <div className={classes.capitalize}>
         <FormattedMessage id="marketLinksSection" />
-        <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+        <div className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer)}>
           {displayLinksList(links)}
           <List className={classes.sidebarContent}>
             {actions}

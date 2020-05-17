@@ -19,9 +19,10 @@ import { convertDates } from '../../contexts/ContextUtils'
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    padding: '3px 89px 21px 21px',
+    padding: '3px',
     marginTop: '-6px',
     boxShadow: 'none',
+    width: '100%',
     [theme.breakpoints.down('sm')]: {
       padding: '3px 21px 42px 21px',
     },
@@ -36,7 +37,14 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     paddingTop: '0',
     paddingBottom: '0',
+    '& span': {
+      fontSize: '.9375rem',
+      fontWeight: 700
+    }
   },
+  capitalize: {
+    textTransform: 'capitalize'
+  }
 }))
 
 function MarketLinks (props) {
@@ -141,18 +149,14 @@ function MarketLinks (props) {
 
   return (
     <Paper className={classes.container} id="summary">
-      <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-        <dt>
-          <FormattedMessage id="marketLinksSection" />
-        </dt>
-        <dd>
+      <div className={classes.capitalize}>
+        <FormattedMessage id="marketLinksSection" />
+        <div className={clsx(metaClasses.group, metaClasses.assignments)}>
           {displayLinksList(links)}
-        </dd>
-        <dd>
           <List className={classes.sidebarContent}>
             {actions}
           </List>
-        </dd>
+        </div>
       </div>
     </Paper>
   )

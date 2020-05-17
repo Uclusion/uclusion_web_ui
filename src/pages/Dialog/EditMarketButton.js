@@ -20,7 +20,7 @@ function EditMarketButton(props) {
       disabled={operationRunning}
       key="exit"
       translationId={labelId}
-      icon={<EditIcon />}
+      icon={<EditIcon htmlColor="#bdbdbd"/>}
     />
   );
 }

@@ -123,7 +123,7 @@ function PlanningDialog(props) {
           {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
         </Typography>
       )}
-      <dl className={metaClasses.root}>
+      <dl className={clsx(metaClasses.root, metaClasses.flexRow)}>
         {activeMarket && (
           <div className={clsx(metaClasses.group, metaClasses.assignments)}>
             <InvestibleAddActionButton key="investibleadd" onClick={onClick} />

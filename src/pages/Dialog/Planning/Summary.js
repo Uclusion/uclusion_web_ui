@@ -1,8 +1,9 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardActions, CardContent, Divider, IconButton, Tooltip, Typography, } from '@material-ui/core'
+import { Card, CardActions, CardContent, Divider, IconButton, Tooltip, Typography, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
+import clsx from 'clsx';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   getMarketPresences,
@@ -67,10 +68,15 @@ const useStyles = makeStyles(theme => ({
     flexWrap: "wrap",
     justifyContent: "space-between"
   },
-  actions: {},
+  actions: {
+    justifyContent: 'flex-end',
+    '& > button': {
+      marginRight: '-8px'
+    }
+  },
   content: {
     flexBasis: "100%",
-    padding: theme.spacing(0, 4)
+    padding: theme.spacing(4)
   },
   divider: {
     marginBottom: theme.spacing(3)
@@ -100,7 +106,43 @@ const useStyles = makeStyles(theme => ({
   },
   draft: {
     color: "#E85757"
-  }
+  },
+  borderLeft: {
+    borderLeft: '1px solid #e0e0e0',
+    padding: '2rem',
+    marginBottom: '-42px',
+    marginTop: '-42px',
+  },
+  assignments: {
+    padding: 0,
+    "& ul": {
+      flex: 4,
+      margin: 0,
+      padding: 0,
+      alignItems: "flex-start",
+      display: "flex",
+      flexDirection: 'row',
+    },
+    "& li": {
+      display: "inline-flex",
+      fontWeight: "bold",
+      marginLeft: theme.spacing(1)
+    }
+  },
+  group: {
+    backgroundColor: '#ecf0f1',
+    borderRadius: 6,
+    display: "flex",
+    flexDirection: "row",
+    padding: theme.spacing(1, 1),
+    "&:first-child": {
+      marginLeft: 0
+    }
+  },
+  assignmentContainer: {
+    width: '100%',
+    textTransform: 'capitalize'
+  },
 }));
 
 function Summary(props) {
@@ -130,43 +172,47 @@ function Summary(props) {
   return (
     <Card className={classes.root} id="summary">
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} />
-      <CardActions className={classes.actions}>
-        <Tooltip
-          title={intl.formatMessage({ id: 'dialogRemoveParticipantsLabel' })}
-        >
-          <IconButton
-            onClick={() => navigate(history, `${formMarketManageLink(id)}#removal=true`)}
-          >
-            <PersonOutlineIcon />
-          </IconButton>
-        </Tooltip>
-        <DialogActions
-          isAdmin={myPresence.is_admin}
-          isFollowing={myPresence.following}
-          marketStage={marketStage}
-          marketType={marketType}
-          parentMarketId={parentMarketId}
-          parentInvestibleId={parentInvestibleId}
-          marketId={id}
-          initiativeId={investibleId}
-        />
-      </CardActions>
-      <CardContent className={classes.content}>
-        {isDraft && activeMarket && (
-          <Typography className={classes.draft}>
-            {intl.formatMessage({ id: "draft" })}
-          </Typography>
-        )}
-        {!activeMarket && (
-          <Typography className={classes.draft}>
-            {intl.formatMessage({ id: "inactive" })}
-          </Typography>
-        )}
-        <Typography className={classes.title} variant="h3" component="h1">
-          {name}
-        </Typography>
-        <DescriptionOrDiff id={id} description={description} />
-        <Divider className={classes.divider} />
+      <Grid container>
+        <Grid item xs={9}>
+          <CardContent className={classes.content}>
+            {isDraft && activeMarket && (
+              <Typography className={classes.draft}>
+                {intl.formatMessage({ id: "draft" })}
+              </Typography>
+            )}
+            {!activeMarket && (
+              <Typography className={classes.draft}>
+                {intl.formatMessage({ id: "inactive" })}
+              </Typography>
+            )}
+            <Typography className={classes.title} variant="h3" component="h1">
+              {name}
+            </Typography>
+            <DescriptionOrDiff id={id} description={description} />
+          </CardContent>
+        </Grid>
+        <Grid className={classes.borderLeft} item xs={3}>
+          <CardActions className={classes.actions}>
+            <Tooltip
+              title={intl.formatMessage({ id: 'dialogRemoveParticipantsLabel' })}
+            >
+              <IconButton
+                onClick={() => navigate(history, `${formMarketManageLink(id)}#removal=true`)}
+              >
+                <PersonOutlineIcon />
+              </IconButton>
+            </Tooltip>
+            <DialogActions
+              isAdmin={myPresence.is_admin}
+              isFollowing={myPresence.following}
+              marketStage={marketStage}
+              marketType={marketType}
+              parentMarketId={parentMarketId}
+              parentInvestibleId={parentInvestibleId}
+              marketId={id}
+              initiativeId={investibleId}
+            />
+          </CardActions>
         {!isChannel && (
           <dl className={metaClasses.root}>
             {daysEstimate && (
@@ -177,18 +223,16 @@ function Summary(props) {
           </dl>
         )}
         <dl className={metaClasses.root}>
-          <div className={classes.collaborators}>
-            <dt>
-              <FormattedMessage id="dialogParticipants" />
-            </dt>
-            <dd>
+          <div className={classes.assignmentContainer}>
+            <FormattedMessage id="dialogParticipants" />
+              <div className={clsx(classes.group, classes.assignments)}>
               <Collaborators
                 marketPresences={marketPresences}
                 intl={intl}
                 marketId={id}
                 history={history}
               />
-            </dd>
+            </div>
           </div>
           <ParentSummary market={market} hidden={hidden}/>
           <MarketLinks links={children || []} hidden={hidden} actions={[<ExpandableAction
@@ -202,7 +246,9 @@ function Summary(props) {
             }
           />]} />
         </dl>
-      </CardContent>
+        </Grid>
+      </Grid>
+
     </Card>
   );
 }

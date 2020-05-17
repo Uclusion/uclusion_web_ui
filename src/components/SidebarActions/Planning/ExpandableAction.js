@@ -7,21 +7,23 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 export const useStyles = makeStyles((theme) => {
   return {
     menuItem: {
-      paddingTop: '5px',
-      paddingBottom: '5px',
-      border: '1px solid #ccc',
+      display: 'flex',
+      flexDirection:'row'
     },
     menuIcon: {
+      flex: 1,
       display: 'flex',
-      justifyContent: 'center',
-      color: 'black',
+      justifyContent: 'flex-end',
+      color: '#bdbdbd',
       '& > .MuiSvgIcon-root': {
         width: '30px',
         height: '30px',
       },
     },
     menuTitle: {
+      flex: 3,
       color: 'black',
+      fontWeight: 700
     },
   };
 });
@@ -52,14 +54,14 @@ function ExpandableAction(props) {
         disabled={operationRunning}
         onClick={myOnClick}
       >
-        <ListItemIcon className={classes.menuIcon}>
-          {icon}
-        </ListItemIcon>
         {openLabel && (
           <ListItemText className={classes.menuTitle}>
             {openLabel}
           </ListItemText>
         )}
+        <ListItemIcon className={classes.menuIcon}>
+          {icon}
+        </ListItemIcon>
       </ListItem>
     </Tooltip>
   );

@@ -29,7 +29,6 @@ export const useStyles = makeStyles(() => {
     },
     menuItem: {
       paddingLeft: 0,
-      paddingRight: 0,
       marginRight: 0,
       paddingBottom: '10px',
     },

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { Card, CardContent, Divider, Grid, IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
+import { Card, CardContent, Grid, IconButton, makeStyles, Tooltip, Typography, Button, Menu, MenuItem } from '@material-ui/core'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -121,7 +121,10 @@ const useStyles = makeStyles(
     },
     votingCardContent: {
       margin: theme.spacing(2, 6),
-      padding: 0
+      padding: 0,
+      '& img': {
+        margin: '.75rem 0',
+      }
     },
     actions: {},
     upperRightCard: {
@@ -130,6 +133,15 @@ const useStyles = makeStyles(
       padding: 0,
       margin: 0,
     },
+    borderLeft: {
+      borderLeft: '1px solid #e0e0e0',
+      padding: '2rem 0 2rem 2rem',
+      marginBottom: '-42px',
+      marginTop: '-42px',
+    },
+    editRow: {
+      height: '4rem'
+    }
   }),
   { name: "PlanningInvestible" }
 );
@@ -346,54 +358,72 @@ function PlanningInvestible(props) {
       return [];
     }
     return [
-      <MoveToVotingActionButton
-        investibleId={investibleId}
-        marketId={marketId}
-        currentStageId={stage}
-        isOpen={changeStagesExpanded}
+      <MenuItem
         key="voting"
-        disabled={isInVoting || !isAssigned || !_.isEmpty(blockingComments)}
-      />,
-      <MoveToAcceptedActionButton
-        investibleId={investibleId}
-        marketId={marketId}
-        currentStageId={stage}
-        isOpen={changeStagesExpanded}
+        >
+        <MoveToVotingActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+          currentStageId={stage}
+          isOpen={changeStagesExpanded}
+          disabled={isInVoting || !isAssigned || !_.isEmpty(blockingComments)}
+        />
+      </MenuItem>,
+      <MenuItem
         key="accepted"
-        disabled={!isAssigned || !_.isEmpty(blockingComments) || !_.isEmpty(assignedInAcceptedStage) || !enoughVotes}
-      />,
-      <MoveToInReviewActionButton
-        investibleId={investibleId}
-        marketId={marketId}
-        currentStageId={stage}
-        isOpen={changeStagesExpanded}
+        >
+        <MoveToAcceptedActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+          currentStageId={stage}
+          isOpen={changeStagesExpanded}
+          disabled={!isAssigned || !_.isEmpty(blockingComments) || !_.isEmpty(assignedInAcceptedStage) || !enoughVotes}
+        />
+      </MenuItem>,
+      <MenuItem
         key="inreview"
-        disabled={isInReview || !isAssigned || !_.isEmpty(blockingComments)}
-      />,
-      <MoveToFurtherWorkActionButton
-        investibleId={investibleId}
-        marketId={marketId}
-        currentStageId={stage}
-        isOpen={changeStagesExpanded}
+        >
+        <MoveToInReviewActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+          currentStageId={stage}
+          isOpen={changeStagesExpanded}
+          disabled={isInReview || !isAssigned || !_.isEmpty(blockingComments)}
+        />
+      </MenuItem>,
+      <MenuItem
         key="furtherwork"
-        disabled={isReadyFurtherWork}
-      />,
-      <MoveToVerifiedActionButton
-        investibleId={investibleId}
-        marketId={marketId}
-        currentStageId={stage}
-        isOpen={changeStagesExpanded}
+        >
+        <MoveToFurtherWorkActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+          currentStageId={stage}
+          isOpen={changeStagesExpanded}
+          disabled={isReadyFurtherWork}
+        />
+      </MenuItem>,
+      <MenuItem
         key="verified"
-        disabled={isInVerified || !_.isEmpty(blockingComments)}
-      />,
-      <MoveToNotDoingActionButton
-        investibleId={investibleId}
-        marketId={marketId}
-        currentStageId={stage}
-        isOpen={changeStagesExpanded}
+        >
+        <MoveToVerifiedActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+          currentStageId={stage}
+          isOpen={changeStagesExpanded}
+          disabled={isInVerified || !_.isEmpty(blockingComments)}
+        />
+      </MenuItem>,
+      <MenuItem
         key="notdoing"
-        disabled={isInNotDoing}
-      />
+        >
+        <MoveToNotDoingActionButton
+          investibleId={investibleId}
+          marketId={marketId}
+          currentStageId={stage}
+          isOpen={changeStagesExpanded}
+          disabled={isInNotDoing}
+        />
+      </MenuItem>
     ];
   }
 
@@ -460,57 +490,66 @@ function PlanningInvestible(props) {
           type={STORY_TYPE}
           subtype={subtype}
         />
-        <dl className={classes.upperRightCard}>
-          {daysEstimate > 0 && (
-            <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
-          )}
-          {!inArchives && isAssigned && (
-          <MoveToNextVisibleStageActionButton
-            key="visible"
-            investibleId={investibleId}
-            marketId={marketId}
-            currentStageId={stage}
-            disabled={!_.isEmpty(blockingComments) || !isAssigned || (isInVoting && (!enoughVotes || !_.isEmpty(assignedInAcceptedStage)))}
-            enoughVotes={enoughVotes}
-            acceptedStageAvailable={_.isEmpty(assignedInAcceptedStage)}
-          />
-          )}
-          {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork) && (
-            <EditMarketButton
-              labelId="edit"
-              marketId={marketId}
-              onClick={toggleEdit}
-            />
-          )}
-        </dl>
+        
         <CardContent className={classes.votingCardContent}>
-          <h1>
-            {name}
-          </h1>
-          {lockedBy && (
-            <Typography>
-              {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
-            </Typography>
-          )}
-          <DescriptionOrDiff
-            id={investibleId}
-            description={description}
-          />
-          <Divider />
-          <MarketMetaData
-            investibleId={investibleId}
-            isInVoting={isInVoting}
-            market={market}
-            marketInvestible={marketInvestible}
-            marketPresences={marketPresences}
-            isAdmin={isAdmin}
-            toggleAssign={toggleAssign}
-            hidden={hidden}
-            children={children || []}
-            stageActions={getStageActions()}
-            expansionChanged={expansionChanged}
-            actions={getSidebarActions()}
-          />
+          <Grid container>
+            <Grid item xs={9}>
+              <h2>
+                {name}
+              </h2>
+              {lockedBy && (
+                <Typography>
+                  {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
+                </Typography>
+              )}
+              <DescriptionOrDiff
+                id={investibleId}
+                description={description}
+              />
+            </Grid>
+            <Grid className={classes.borderLeft} item xs={3}>
+              <div className={classes.editRow}>
+                <dl className={classes.upperRightCard}>
+                  {daysEstimate > 0 && (
+                    <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
+                  )}
+                  {!inArchives && isAssigned && (
+                    <MoveToNextVisibleStageActionButton
+                      key="visible"
+                      investibleId={investibleId}
+                      marketId={marketId}
+                      currentStageId={stage}
+                      disabled={!_.isEmpty(blockingComments) || !isAssigned || (isInVoting && (!enoughVotes || !_.isEmpty(assignedInAcceptedStage)))}
+                      enoughVotes={enoughVotes}
+                      acceptedStageAvailable={_.isEmpty(assignedInAcceptedStage)}
+                    />
+                  )}
+                  {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork) && (
+                    <EditMarketButton
+                      labelId="edit"
+                      marketId={marketId}
+                      onClick={toggleEdit}
+                    />
+                  )}
+                </dl>
+              </div>
+              <MarketMetaData
+                stage={marketInfo.stage_name}
+                investibleId={investibleId}
+                isInVoting={isInVoting}
+                market={market}
+                marketInvestible={marketInvestible}
+                marketPresences={marketPresences}
+                isAdmin={isAdmin}
+                toggleAssign={toggleAssign}
+                hidden={hidden}
+                children={children || []}
+                stageActions={getStageActions()}
+                expansionChanged={expansionChanged}
+                actions={getSidebarActions()}
+              />
+            </Grid>
+          </Grid>
         </CardContent>
       </Card>
       {isInVoting && activeMarket && (canVote ? (
@@ -622,29 +661,24 @@ export const useMetaDataStyles = makeStyles(
     return {
       root: {
         alignItems: "flex-start",
-        display: "flex"
+        display: "flex",
+        flexDirection: 'column',
+        '& > div': {
+          borderRadius: '6px',
+          marginBottom: '1rem'
+        }
       },
-
+      flexRow: {
+        flexDirection: 'row'
+      },
       group: {
-        backgroundColor: theme.palette.grey["300"],
+        backgroundColor: '#ecf0f1',
         borderRadius: 6,
         display: "flex",
-        flexDirection: "column",
-        margin: theme.spacing(0, 1),
+        flexDirection: "row",
         padding: theme.spacing(1, 1),
         "&:first-child": {
           marginLeft: 0
-        },
-        "& dt": {
-          color: "#828282",
-          fontSize: 10,
-          fontWeight: "bold",
-          marginBottom: theme.spacing(0.5)
-        },
-        "& dd": {
-          fontSize: 20,
-          margin: 0,
-          lineHeight: "26px"
         }
       },
       expiration: {
@@ -657,30 +691,56 @@ export const useMetaDataStyles = makeStyles(
         }
       },
       expansionControl: {
-        backgroundColor: theme.palette.grey["300"],
+        backgroundColor: '#ecf0f1',
+        width: '100%'
       },
       fontControl: {
         alignItems: "center",
-        fontWeight: "bold",
+        textTransform: 'capitalize',
+        marginRight: 'auto',
+        marginLeft: '5px',
+        fontWeight: 700
       },
       expirationProgress: {
         marginRight: theme.spacing(1)
       },
       assignments: {
+        padding: 0,
         "& ul": {
+          flex: 4,
           margin: 0,
           padding: 0
         },
         "& li": {
           display: "inline-flex",
           fontWeight: "bold",
-          marginLeft: theme.spacing(1),
-          "&:first-child": {
-            marginLeft: 0
-          }
+          marginLeft: theme.spacing(1)
         }
+      },
+      assignmentContainer: {
+        width: '100%',
+        textTransform: 'capitalize'
+      },
+      assignIconContainer: {
+        display: 'flex',
+        justifyContent: 'center'
+      },
+      assignmentFlexRow: {
+        width: '100%',
+        display: 'flex',
+        padding: '8px'
+      },
+      flex1: {
+        flex: 1
+      },
+      noPad: {
+        padding: 0
+      },
+      menuButton: {
+        width: '100%',
+        padding: '12px'
       }
-    };
+    }
   },
   { name: "MetaData" }
 );
@@ -697,44 +757,83 @@ function MarketMetaData(props) {
     stageActions,
     expansionChanged,
     actions,
+    stage
   } = props;
+  let stageLabel;
+  switch (stage) {
+    case 'In Dialog':
+      stageLabel = 'planningInvestibleToVotingLabel';
+      break;
+    case 'Verified':
+      stageLabel = 'planningInvestibleMoveToVerifiedLabel';
+      break;
+    case 'Not Doing':
+      stageLabel = 'planningInvestibleMoveToNotDoingLabel';
+      break;
+    case 'In Review':
+      stageLabel = 'planningInvestibleNextStageInReviewLabel';
+      break;
+    case 'Further Work':
+      stageLabel = 'planningInvestibleMoveToFurtherWorkLabel';
+      break;
+    case 'Accepted':
+      stageLabel = 'planningInvestibleNextStageAcceptedLabel';
+      break;
+    default:
+      stageLabel = 'changeStage'
+  }
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+    expansionChanged(true);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+    expansionChanged(false)
+  };
   const classes = useMetaDataStyles();
 
   return (
     <dl className={classes.root}>
       {market.id && marketInvestible.investible && (
+        <div className={classes.assignmentContainer}>
+          <FormattedMessage id="planningInvestibleAssignments" />
         <div className={clsx(classes.group, classes.assignments)}>
-          <dt>
-            <FormattedMessage id="planningInvestibleAssignments" />
-          </dt>
-          <dd>
-            <Assignments
-              marketId={market.id}
-              marketPresences={marketPresences}
-              investible={marketInvestible}
-              isAdmin={isAdmin}
-              toggleAssign={toggleAssign}
-            />
-          </dd>
+          <Assignments
+            classes={classes}
+            marketId={market.id}
+            marketPresences={marketPresences}
+            investible={marketInvestible}
+            isAdmin={isAdmin}
+            toggleAssign={toggleAssign}
+          />
+        </div>
         </div>
       )}
-      <ExpansionPanel className={classes.expansionControl} onChange={expansionChanged}>
-        <ExpansionPanelSummary
-          expandIcon={<ExpandMoreIcon />}
+      <span>
+        <FormattedMessage id="changeStage" />
+      </span>
+      <div className={classes.expansionControl} onChange={expansionChanged}>
+        <Button
+          className={classes.menuButton}
+          endIcon={<ExpandMoreIcon style={{marginRight: '16px'}} htmlColor="#bdbdbd" />}
           aria-controls="stages-content"
           id="stages-header"
+          onClick={handleClick}
         >
-          <div className={classes.fontControl}>
-            <FormattedMessage id="changeStage" />
-          </div>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
-          <div>
-            {stageActions}
-          </div>
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
+        <div className={classes.fontControl}>
+          <FormattedMessage id={stageLabel} />
+        </div>
+        </Button>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleClose}>
+          {stageActions}
+        </Menu>
+      </div>
       <MarketLinks links={children} hidden={hidden} actions={actions} />
     </dl>
   );
@@ -756,13 +855,13 @@ MarketMetaData.propTypes = {
 }
 
 function Assignments(props) {
-  const { investible, marketId, marketPresences, isAdmin, toggleAssign } = props;
+  const { investible, marketId, marketPresences, isAdmin, toggleAssign, classes } = props;
   const intl = useIntl();
   const marketInfo = getMarketInfo(investible, marketId) || {};
   const { assigned = [] } = marketInfo;
 
   return (
-    <>
+    <span className={classes.assignmentFlexRow}>
       <ul>
         {_.isEmpty(assigned) && (
           <Typography key="unassigned" component="li">
@@ -781,20 +880,23 @@ function Assignments(props) {
           );
         })}
       </ul>
-      <ul>
+      <div className={classes.flex1}>
         {isAdmin && (
-          <Tooltip
-            title={intl.formatMessage({ id: 'storyAddParticipantsLabel' })}
-          >
-            <IconButton
-              onClick={toggleAssign}
+          <div className={classes.assignIconContainer}>
+            <Tooltip
+              title={intl.formatMessage({ id: 'storyAddParticipantsLabel' })}
             >
-              <PersonAddIcon />
-            </IconButton>
-          </Tooltip>
+              <IconButton
+                className={classes.noPad}
+                onClick={toggleAssign}
+              >
+                <PersonAddIcon htmlColor="#bdbdbd"/>
+              </IconButton>
+            </Tooltip>
+          </div>
         )}
-      </ul>
-    </>
+      </div>
+    </span>
   );
 }
 

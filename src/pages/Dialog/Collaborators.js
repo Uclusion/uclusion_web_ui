@@ -12,6 +12,19 @@ const useStyles = makeStyles( () => ({
     },
     normal: {
       fontSize: 14,
+    },
+    assignmentFlexRow: {
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center'
+    },
+    flex1: {
+      flex: 1
+    },
+    draftContainer: {
+      flex: 1,
+      textAlign: 'right',
+      fontWeight: "bold"
     }
   }),
   { name: "Collaborators" }
@@ -25,53 +38,57 @@ export function Collaborators(props) {
     return 0;
   });
   return (
-    <ul>
-      {authorDisplay && (
-        <Typography key={marketPresences[0].id} component="li">
-          {marketPresences[0].name}
-        </Typography>
-      )}
-      {!authorDisplay && marketPresences.map(presence => {
-        const { id: presenceId, name, following } = presence;
-        const myClassName = following ? classes.normal : classes.archived;
-        if (presenceId === authorId ) {
-          return <React.Fragment key={presenceId}/>;
-        }
-        if (!following) {
-          return (
-            <Tooltip key={`tip${presenceId}`}
-                     title={<FormattedMessage id="collaboratorNotFollowing" />}>
-              <Typography key={presenceId} component="li" className={myClassName}>
-                {name}
-              </Typography>
-            </Tooltip>
-          );
-        }
-        return (
-          <Typography key={presenceId} component="li" className={myClassName}>
-            {name}
+    <span className={classes.assignmentFlexRow}>
+      <ul>
+        {authorDisplay && (
+          <Typography key={marketPresences[0].id} component="li">
+            {marketPresences[0].name}
           </Typography>
-        );
-      })}
-      {!authorDisplay && marketPresences.length === 1 && (
-        <Typography component="div">
-          <Box color="#E85757" m={1}>
-            {intl.formatMessage({ id: 'draft' })}
-          </Box>
-        </Typography>
-      )}
-      {!authorDisplay && (
-        <Tooltip
-          title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
-        >
-          <IconButton
-            onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
-          >
-            <PersonAddIcon />
-          </IconButton>
-        </Tooltip>
-      )}
-    </ul>
+        )}
+        {!authorDisplay && marketPresences.map(presence => {
+          const { id: presenceId, name, following } = presence;
+          const myClassName = following ? classes.normal : classes.archived;
+          if (presenceId === authorId ) {
+            return <React.Fragment key={presenceId}/>;
+          }
+          if (!following) {
+            return (
+              <Tooltip key={`tip${presenceId}`}
+                      title={<FormattedMessage id="collaboratorNotFollowing" />}>
+                <Typography key={presenceId} component="li" className={myClassName}>
+                  {name}
+                </Typography>
+              </Tooltip>
+            );
+          }
+          return (
+            <Typography key={presenceId} component="li" className={myClassName}>
+              {name}
+            </Typography>
+          );
+        })}
+        {!authorDisplay && marketPresences.length === 1 && (
+          <Typography component="div" className={classes.draftContainer}>
+            <Box color="#E85757">
+              {intl.formatMessage({ id: 'draft' })}
+            </Box>
+          </Typography>
+        )}
+        </ul>
+        <div className={classes.flex1}>
+          {!authorDisplay && (
+            <Tooltip
+              title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
+            >
+              <IconButton
+                onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
+              >
+                <PersonAddIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+        </div>
+    </span>
   );
 }
 

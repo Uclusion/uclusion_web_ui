@@ -18,11 +18,6 @@ const useStyles = makeStyles({
       height: '14px',
       color: '#fff',
     },
-    '& .MuiRadio-colorPrimary.Mui-checked':{
-      '&.Mui-checked': {
-        color: 'white'
-      }
-    }
   },
   chipItemQuestion: {
     background: '#2F80ED',

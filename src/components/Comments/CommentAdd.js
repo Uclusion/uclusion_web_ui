@@ -41,7 +41,7 @@ function getPlaceHolderLabelId (type) {
     case TODO_TYPE:
       return 'commentAddTODODefault';
     default:
-      return 'Please select an issue type';
+      return 'commentAddSelectIssueLabel';
   }
 }
 
@@ -90,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
 
 function CommentAdd (props) {
   const {
-    intl, marketId, onSave, onCancel, type, investible, parent, hidden, issueWarningId,
+    intl, marketId, onSave, onCancel, type, clearType, investible, parent, hidden, issueWarningId,
   } = props;
   const [body, setBody] = useState('');
   const [commentsState, commentDispatch] = useContext(CommentsContext);
@@ -147,6 +147,7 @@ function CommentAdd (props) {
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     const apiType = (type === REPLY_TYPE) ? undefined : type;
     const investibleId = (investible) ? investible.id : parentInvestible;
+
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentDispatch, versionsDispatch);
@@ -160,6 +161,7 @@ function CommentAdd (props) {
     setUploadedFiles([]);
     setOpenIssue(false);
     onCancel();
+    clearType();
   }
 
   function handleSpinStop () {
@@ -168,6 +170,7 @@ function CommentAdd (props) {
     setUploadedFiles([]);
     setOpenIssue(false);
     onSave();
+    clearType();
   }
 
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';

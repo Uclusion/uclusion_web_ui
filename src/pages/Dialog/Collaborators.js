@@ -1,6 +1,5 @@
 import { IconButton, makeStyles, Tooltip, Typography } from '@material-ui/core'
 import React from 'react'
-import Box from '@material-ui/core/Box'
 import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import { FormattedMessage } from 'react-intl'

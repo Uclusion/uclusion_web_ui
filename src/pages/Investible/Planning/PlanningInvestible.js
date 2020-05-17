@@ -510,9 +510,6 @@ function PlanningInvestible(props) {
             <Grid className={classes.borderLeft} item xs={3}>
               <div className={classes.editRow}>
                 <dl className={classes.upperRightCard}>
-                  {daysEstimate > 0 && (
-                    <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
-                  )}
                   {!inArchives && isAssigned && (
                     <MoveToNextVisibleStageActionButton
                       key="visible"
@@ -533,6 +530,9 @@ function PlanningInvestible(props) {
                   )}
                 </dl>
               </div>
+                {daysEstimate > 0 && (
+                  <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
+                )}
               <MarketMetaData
                 stage={marketInfo.stage_name}
                 investibleId={investibleId}

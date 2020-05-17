@@ -41,7 +41,7 @@ function getPlaceHolderLabelId (type) {
     case TODO_TYPE:
       return 'commentAddTODODefault';
     default:
-      throw new Error(`Unknown comment type:${type}`);
+      return 'Please select an issue type';
   }
 }
 

@@ -10,6 +10,7 @@ import {
   RadioGroup,
   Tooltip
 } from '@material-ui/core'
+import clsx from 'clsx';
 import CommentAdd from '../../components/Comments/CommentAdd'
 import { FormattedMessage } from 'react-intl'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
@@ -26,30 +27,49 @@ export const useStyles = makeStyles((theme) => ({
   },
   chipItem: {
     color: '#fff',
+    borderRadius: '8px',
     '& .MuiChip-label': {
       fontSize: 12,
+    },
+    '& .MuiFormControlLabel-label': {
+      paddingRight: '5px',
+      fontWeight: 'bold',
+      textTransform: 'capitalize'
     },
     '& .MuiChip-avatar': {
       width: '16px',
       height: '14px',
       color: '#fff',
     },
-    borderRadius: 16,
+    '& .MuiRadio-colorPrimary.Mui-checked':{
+      '&.Mui-checked': {
+        color: 'white'
+      }
+    },
     paddingRight: theme.spacing(1),
     paddingLeft: theme.spacing(1),
     margin: theme.spacing(0, 0, 0, 4)
+  },
+  selected: {
+    opacity: 1
+  },
+  unselected: {
+    opacity: '.6'
   },
   chipItemQuestion: {
     background: '#2F80ED',
   },
   chipItemIssue: {
     background: '#E85757',
+    color: 'black'
   },
   chipItemSuggestion: {
     background: '#e6e969',
+    color: 'black'
   },
   chipItemTodo: {
     background: '#F29100',
+    color: 'black'
   },
   chipItemFor: {
     background: '#73B76C',
@@ -71,7 +91,7 @@ function CommentAddBox(props) {
     onSave,
     issueWarningId,
   } = props;
-  const [type, setType] = useState(QUESTION_TYPE);
+  const [type, setType] = useState(undefined);
   const classes = useStyles();
 
   function onTypeChange(event) {
@@ -97,13 +117,15 @@ function CommentAddBox(props) {
                            title={<FormattedMessage id={`${commentType.toLowerCase()}Tip`} />}>
                     <FormControlLabel
                       key={commentType}
-                      className={
+                      className={clsx(
                         commentType === ISSUE_TYPE
                           ? `${classes.chipItem} ${classes.chipItemIssue}`
                           : commentType === QUESTION_TYPE ? `${classes.chipItem} ${classes.chipItemQuestion}`
                           : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItem} ${classes.chipItemSuggestion}`
                             : commentType === TODO_TYPE ? `${classes.chipItem} ${classes.chipItemTodo}`
-                              : `${classes.chipItem} ${classes.chipItemReport}`
+                              : `${classes.chipItem} ${classes.chipItemReport}`,
+                        type === commentType || type === undefined ? classes.selected : classes.unselected
+                      )
                       }
                       /* prevent clicking the label stealing focus */
                       onMouseDown={e => e.preventDefault()}

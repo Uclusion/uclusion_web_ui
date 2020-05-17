@@ -212,7 +212,7 @@ function CommentAdd (props) {
               marketId={marketId}
               onClick={handleSave}
               onSpinStop={handleSpinStop}
-              disabled={_.isEmpty(body)}
+              disabled={_.isEmpty(body) || _.isEmpty(type)}
               hasSpinChecker
             >
               {intl.formatMessage({ id: commentSaveLabel })}

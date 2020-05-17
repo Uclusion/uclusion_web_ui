@@ -329,15 +329,18 @@ function Signup(props) {
               paddingRight: '0px'
             }}
             align="center"
-            onClick={() => Auth.federatedSignIn({provider: 'GithubLogin'})}>
+            onClick={() => {
+              setRedirect(getRedirect());
+              Auth.federatedSignIn({provider: 'GithubLogin'});
+            }}>
               <div className={classes.textWrapper}>
-                Sign up with Github
+                  Sign up with Github
               </div>
           </GithubLoginButton>
           <div className={classes.googleButton} onClick={() => {
             // Must come back to this device so go ahead and set in local storage
             setRedirect(getRedirect());
-            Auth.federatedSignIn({provider: 'Google'})
+            Auth.federatedSignIn({provider: 'Google'});
           }}>
             <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
             <div className={classes.googleTextWrapper}>

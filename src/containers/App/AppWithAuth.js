@@ -24,7 +24,7 @@ import {
   setUclusionLocalStorageItem
 } from '../../components/utils'
 import { redirectToPath } from '../../utils/redirectUtils'
-import _ from 'lodash';
+import _ from 'lodash'
 
 LogRocket.init(config.logRocketInstance)
 
@@ -72,7 +72,8 @@ function AppWithAuth(props) {
     switch (event) {
       case 'signIn':
         const oldUserName = getUclusionLocalStorageItem('userName');
-        if (oldUserName !== username) {
+        if (oldUserName && oldUserName !== username) {
+          // Only clear if there was a userName there otherwise window refresh during signup
           clearUclusionLocalStorage();
           new TokenStorageManager().clearTokenStorage();
         }

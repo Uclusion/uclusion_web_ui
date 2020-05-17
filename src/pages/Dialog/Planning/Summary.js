@@ -119,12 +119,10 @@ const useStyles = makeStyles(theme => ({
       flex: 4,
       margin: 0,
       padding: 0,
-      alignItems: "flex-start",
-      display: "flex",
       flexDirection: 'row',
     },
     "& li": {
-      display: "inline-flex",
+      display: "inline-block",
       fontWeight: "bold",
       marginLeft: theme.spacing(1)
     }

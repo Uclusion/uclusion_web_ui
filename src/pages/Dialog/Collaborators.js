@@ -67,13 +67,6 @@ export function Collaborators(props) {
             </Typography>
           );
         })}
-        {!authorDisplay && marketPresences.length === 1 && (
-          <Typography component="div" className={classes.draftContainer}>
-            <Box color="#E85757">
-              {intl.formatMessage({ id: 'draft' })}
-            </Box>
-          </Typography>
-        )}
         </ul>
         <div className={classes.flex1}>
           {!authorDisplay && (

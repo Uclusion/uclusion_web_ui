@@ -76,8 +76,7 @@ const useStyles = makeStyles(theme => ({
     lineHeight: '46px',
     display: 'inline-block',
     width: 'auto',
-    marginLeft: 'auto',
-    marginRight: 'auto',
+    marginLeft: '-40px',
     fontSize: '1rem'
   },
   googleImg: {
@@ -103,6 +102,13 @@ const useStyles = makeStyles(theme => ({
     color: '#aaa',
     marginRight: '5px',
     marginLeft: '5px'
+  },
+  textWrapper: {
+    marginLeft: '-40px'
+  },
+  googleTextWrapper: {
+    marginLeft: 'auto',
+    marginRight: 'auto'
   }
 }));
 
@@ -324,7 +330,9 @@ function Signup(props) {
             }}
             align="center"
             onClick={() => Auth.federatedSignIn({provider: 'GithubLogin'})}>
-              Sign up with Github
+              <div className={classes.textWrapper}>
+                Sign up with Github
+              </div>
           </GithubLoginButton>
           <div className={classes.googleButton} onClick={() => {
             // Must come back to this device so go ahead and set in local storage
@@ -332,7 +340,9 @@ function Signup(props) {
             Auth.federatedSignIn({provider: 'Google'})
           }}>
             <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
-            <div className={classes.googleText}>Sign up with Google</div>
+            <div className={classes.googleTextWrapper}>
+              <div className={classes.googleText}>Sign up with Google</div>
+            </div>
           </div>
           <div className={classes.spacerText}>
             <span className={classes.hr}>

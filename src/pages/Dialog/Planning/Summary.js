@@ -1,9 +1,9 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardActions, CardContent, Divider, IconButton, Tooltip, Typography, Grid } from '@material-ui/core'
+import { Card, CardActions, CardContent, Grid, IconButton, Tooltip, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import clsx from 'clsx';
+import clsx from 'clsx'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
   getMarketPresences,

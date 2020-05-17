@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
 import _ from 'lodash'
-import { Card, CardContent, Divider, Grid, makeStyles, Typography } from '@material-ui/core'
+import { Card, CardContent, Grid, makeStyles, Typography } from '@material-ui/core'
 import YourVoting from '../Voting/YourVoting'
 import Voting from '../Decision/Voting'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
@@ -37,10 +37,49 @@ const useStyles = makeStyles(
     cardType: {
       display: "inline-flex"
     },
-    actions: {},
+    borderLeft: {
+      borderLeft: '1px solid #e0e0e0',
+      padding: '2rem',
+      marginBottom: '-42px',
+      marginTop: '-42px',
+    },
+    actions: {
+      justifyContent: 'flex-end',
+      '& > button': {
+        marginRight: '-8px'
+      }
+    },
     content: {
       flexBasis: "100%",
-      padding: theme.spacing(0, 4)
+      padding: theme.spacing(4)
+    },
+    assignments: {
+      padding: 0,
+      "& ul": {
+        flex: 4,
+        margin: 0,
+        padding: 0,
+        flexDirection: 'row',
+      },
+      "& li": {
+        display: "inline-block",
+        fontWeight: "bold",
+        marginLeft: theme.spacing(1)
+      }
+    },
+    group: {
+      backgroundColor: '#ecf0f1',
+      borderRadius: 6,
+      display: "flex",
+      flexDirection: "row",
+      padding: theme.spacing(1, 1),
+      "&:first-child": {
+        marginLeft: 0
+      }
+    },
+    assignmentContainer: {
+      width: '100%',
+      textTransform: 'capitalize'
     },
     title: {
       fontSize: 32,
@@ -138,91 +177,87 @@ function InitiativeInvestible(props) {
           })}`}
           type={VOTING_TYPE}
         />
-        <CardActions className={classes.actions}>
-          <DialogActions
-            isAdmin={isAdmin}
-            marketStage={marketStage}
-            marketType={marketType}
-            parentMarketId={parentMarketId}
-            parentInvestibleId={parentInvestibleId}
-            isFollowing={myPresence.following}
-            marketId={marketId}
-            initiativeId={investibleId}
-          />
-        </CardActions>
-        <CardContent className={classes.content}>
-          <Typography className={classes.title} variant="h3" component="h1">
-            {name}
-          </Typography>
-          <DescriptionOrDiff
-            id={investibleId}
-            description={description}
-          />
-          <Divider />
-          <dl className={metaClasses.root}>
-            <div className={clsx(metaClasses.group, metaClasses.expiration)}>
-              {activeMarket && (
-                <dt>
-                  <FormattedMessage id="initiativeExpiration" />
-                </dt>
+        <Grid container>
+          <Grid item xs={9}>
+            <CardContent className={classes.content}>
+              <Typography className={classes.title} variant="h3" component="h1">
+                {name}
+              </Typography>
+              <DescriptionOrDiff
+                id={investibleId}
+                description={description}
+              />
+            </CardContent>
+          </Grid>
+          <Grid className={classes.borderLeft} item xs={3}>
+            <CardActions className={classes.actions}>
+              <DialogActions
+                isAdmin={isAdmin}
+                marketStage={marketStage}
+                marketType={marketType}
+                parentMarketId={parentMarketId}
+                parentInvestibleId={parentInvestibleId}
+                isFollowing={myPresence.following}
+                marketId={marketId}
+                initiativeId={investibleId}
+              />
+            </CardActions>
+            <dl className={metaClasses.root}>
+              <div className={clsx(metaClasses.group, metaClasses.expiration)}>
+                <dd>
+                  {activeMarket ? (
+                    <ExpiresDisplay
+                      createdAt={createdAt}
+                      expirationMinutes={expirationMinutes}
+                      showEdit={isAdmin}
+                      history={history}
+                      marketId={marketId}
+                    />
+                  ) : (
+                    <ExpiredDisplay
+                      expiresDate={updatedAt}
+                    />
+                  )}
+                </dd>
+              </div>
+              {marketPresences && (
+                <>
+                  <div className={classes.assignmentContainer}>
+                    <FormattedMessage id="author" />
+                    <div className={clsx(classes.group, classes.assignments)}>
+                      <Collaborators
+                        marketPresences={marketPresences}
+                        authorId={createdBy}
+                        intl={intl}
+                        authorDisplay
+                      />
+                    </div>
+                  </div>
+                  <div className={classes.assignmentContainer}>
+                    <FormattedMessage id="dialogParticipants" />
+                    <div className={clsx(classes.group, classes.assignments)}>
+                      <Collaborators
+                        marketPresences={marketPresences}
+                        authorId={createdBy}
+                        intl={intl}
+                        marketId={marketId}
+                        history={history}
+                      />
+                    </div>
+                  </div>
+                </>
               )}
-              <dd>
-                {activeMarket ? (
-                  <ExpiresDisplay
-                    createdAt={createdAt}
-                    expirationMinutes={expirationMinutes}
-                    showEdit={isAdmin}
-                    history={history}
-                    marketId={marketId}
-                  />
-                ) : (
-                  <ExpiredDisplay
-                    expiresDate={updatedAt}
-                  />
-                )}
-              </dd>
-            </div>
-            {marketPresences && (
-              <>
-              <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-                <dt>
-                  <FormattedMessage id="author" />
-                </dt>
-                <dd>
-                  <Collaborators
-                    marketPresences={marketPresences}
-                    authorId={createdBy}
-                    intl={intl}
-                    authorDisplay
-                  />
-                </dd>
-              </div>
-              <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-                <dt>
-                  <FormattedMessage id="dialogParticipants" />
-                </dt>
-                <dd>
-                  <Collaborators
-                    marketPresences={marketPresences}
-                    authorId={createdBy}
-                    intl={intl}
-                    marketId={marketId}
-                    history={history}
-                  />
-                </dd>
-              </div>
-              </>
-            )}
-            <MarketLinks links={children || []} hidden={hidden} actions={activeMarket ? [<ExpandableAction
-              id="link"
-              key="link"
-              icon={<InsertLinkIcon />}
-              label={intl.formatMessage({ id: 'childPlanExplanation' })}
-              openLabel={intl.formatMessage({ id: 'initiativePlanningParent' })}
-              onClick={() => navigate(history, `/dialogAdd#type=${PLANNING_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
-            />] : []} />
-          </dl>
-        </CardContent>
+              <MarketLinks links={children || []} hidden={hidden} actions={activeMarket ? [<ExpandableAction
+                id="link"
+                key="link"
+                icon={<InsertLinkIcon />}
+                label={intl.formatMessage({ id: 'childPlanExplanation' })}
+                openLabel={intl.formatMessage({ id: 'initiativePlanningParent' })}
+                onClick={() => navigate(history, `/dialogAdd#type=${PLANNING_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
+              />] : []} />
+            </dl>
+          </Grid>
+        </Grid>
       </Card>
       {!isAdmin && activeMarket && (
         <YourVoting

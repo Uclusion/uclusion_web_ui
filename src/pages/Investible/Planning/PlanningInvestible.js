@@ -1,7 +1,18 @@
 import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { Card, CardContent, Grid, IconButton, makeStyles, Tooltip, Typography, Button, Menu, MenuItem } from '@material-ui/core'
+import {
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  IconButton,
+  makeStyles,
+  Menu,
+  MenuItem,
+  Tooltip,
+  Typography
+} from '@material-ui/core'
 import InsertLinkIcon from '@material-ui/icons/InsertLink'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -75,9 +86,6 @@ import { getMarketComments } from '../../../contexts/CommentsContext/commentsCon
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import AddIcon from '@material-ui/icons/Add'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
-import ExpansionPanel from '@material-ui/core/ExpansionPanel'
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'

@@ -120,8 +120,9 @@ class QuillEditor extends React.PureComponent {
       this.modules.imageResize = false;
     }
     if (noToolbar) {
-      this.modules.toolbar = null;
+      this.modules.toolbar = false;
     }
+
     this.options = {
       modules: this.modules,
       placeholder,
@@ -146,6 +147,10 @@ class QuillEditor extends React.PureComponent {
   componentDidMount() {
     const { defaultValue, onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc } = this.props;
     this.editorBox.current.innerHTML = defaultValue;
+    
+    if(window.outerWidth < 600){
+      this.options.modules.toolbar = false
+    }
     this.editor = new Quill(this.editorBox.current, this.options);
     this.addLinkFixer();
     const debouncedOnChange = _.debounce((delta) => {

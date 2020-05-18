@@ -14,29 +14,36 @@ import {
 } from '../../constants/notifications'
 import { nextMessage } from '../../contexts/NotificationsContext/notificationsContextHelper'
 
-const useStyles = makeStyles({
-  red: {
-    backgroundColor: 'red',
-    '&:hover': {
+const useStyles = makeStyles(
+  theme => {
+    return {red: {
       backgroundColor: 'red',
-    }
-  },
-  yellow: {
-    backgroundColor: '#F29100',
-    '&:hover': {
+      '&:hover': {
+        backgroundColor: 'red',
+      }
+    },
+    yellow: {
       backgroundColor: '#F29100',
+      '&:hover': {
+        backgroundColor: '#F29100',
+      }
+    },
+    uncolored: {
+      fontSize: 24,
+      color: '#fff'
+    },
+    fab: {
+      borderRadius: '50%',
+      width: '48px',
+      height: '48px',
+      boxShadow: 'none',
+      minHeight: '48px',
+      [theme.breakpoints.down('sm')]: {
+        width: '36px',
+        height: '36px',
+        minHeight: '36px'
+      },
     }
-  },
-  uncolored: {
-    fontSize: 28,
-    color: '#fff'
-  },
-  fab: {
-    borderRadius: '50%',
-    width: '48px',
-    height: '48px',
-    boxShadow: 'none',
-    minHeight: '48px'
   }
 });
 

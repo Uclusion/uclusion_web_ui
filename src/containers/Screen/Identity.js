@@ -22,7 +22,19 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '8px',
     '& .MuiButton-label': {
       lineHeight: '.7'
-    }
+    },    
+    [theme.breakpoints.down('sm')]: {
+      width: 'auto',
+      minWidth: 'auto',
+      '& .MuiButton-endIcon': {
+        margin: 0
+      }
+    },
+  },
+  user: {    
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    },
   }
 }));
 
@@ -61,7 +73,7 @@ function Identity () {
         endIcon={<SettingsIcon htmlColor="#bdbdbd" />}
         className={classes.buttonClass}
       >
-        {chipLabel}
+        <span className={classes.user}>{chipLabel}</span>
       <Menu
         id="profile-menu"
         open={menuOpen}

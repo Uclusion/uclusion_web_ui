@@ -20,10 +20,19 @@ export const useStyles = makeStyles((theme) => ({
     display: 'none',
   },
   addBox: {},
-  commentType: {},
+  commentType: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+      marginLeft: 'auto',
+      marginRight: 'auto'
+    }
+  },
   commentTypeGroup: {
     display: "flex",
-    flexDirection: "row"
+    flexDirection: "row",
+    [theme.breakpoints.down('sm')]: {
+      display: 'block'
+    }
   },
   chipItem: {
     color: '#fff',
@@ -48,7 +57,12 @@ export const useStyles = makeStyles((theme) => ({
     },
     paddingRight: theme.spacing(1),
     paddingLeft: theme.spacing(1),
-    margin: theme.spacing(0, 0, 0, 4)
+    margin: theme.spacing(0, 0, 0, 4),
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+      width: '100%',
+      margin: '5px 0'
+    },
   },
   selected: {
     opacity: 1

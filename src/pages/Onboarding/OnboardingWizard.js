@@ -1,10 +1,11 @@
-import React, { useReducer, useState } from 'react'
+import React, { useReducer, useState } from 'react';
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 import { Card, makeStyles, Typography } from '@material-ui/core'
 import Screen from '../../containers/Screen/Screen'
 import { useIntl } from 'react-intl'
 import { reducer } from './onboardingReducer'
+
 
 const useStyles = makeStyles(
   theme => {
@@ -67,6 +68,9 @@ const useStyles = makeStyles(
           fontWeight: 'bold'
         }
       },
+      startOverContainer: {
+
+      },
       actionContainer: {
         flex: 3,
         display: 'flex',
@@ -75,6 +79,9 @@ const useStyles = makeStyles(
       backContainer: {
         flex: 1,
         textAlign: 'left'
+      },
+      actionStartOver: {
+        backgroundColor: "#E85757",
       },
       actionPrimary: {
         backgroundColor: "#2D9CDB",
@@ -137,15 +144,26 @@ const useStyles = makeStyles(
   }
 )
 function OnboardingWizard(props) {
-  const { hidden, stepPrototypes, title } = props;
+  const { hidden, stepPrototypes, title, hideSteppers, onStartOver } = props;
   const classes = useStyles();
+
   const [formData, updateFormData] = useReducer(reducer, {});
   const intl = useIntl();
-
-  const [stepState, setStepState] = useState({
+  const initialStepState = {
     currentStep: 0,
     totalSteps: stepPrototypes.length,
-  });
+  };
+
+  const [stepState, setStepState] = useState(initialStepState);
+
+
+  function myOnStartOver() {
+    // zero all form data
+    updateFormData({});
+    // reset the step state
+    setStepState(initialStepState);
+    onStartOver();
+  }
 
   function nextStep() {
     setStepState({
@@ -172,7 +190,7 @@ function OnboardingWizard(props) {
     
     return (
       <div>
-        <Typography className={classes.stepCounter} variant="caption">Step {(stepNumber + 1)} of {stepCount}</Typography>
+        {!hideSteppers && <Typography className={classes.stepCounter} variant="caption">Step {(stepNumber + 1)} of {stepCount}</Typography>}
         <Typography className={classes.title} variant="h4">{intl.formatMessage({ id: label})}</Typography>
       </div>
     )
@@ -185,6 +203,7 @@ function OnboardingWizard(props) {
       updateFormData,
       nextStep,
       previousStep,
+      onStartOver: myOnStartOver,
       active: true,
       classes
     };
@@ -218,10 +237,14 @@ OnboardingWizard.propTypes = {
   hidden: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
   stepPrototypes: PropTypes.array,
+  hideSteppers: PropTypes.bool,
+  onStartOver: PropTypes.func,
 }
 
 OnboardingWizard.defaultProps = {
   stepPrototypes: [],
+  hideSteppers: false,
+  onStartOver: () => {},
 }
 
 export default OnboardingWizard;

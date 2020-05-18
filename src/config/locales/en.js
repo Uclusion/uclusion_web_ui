@@ -765,6 +765,7 @@ const messages = defineMessages({
   phoneFieldErrorText: 'Phone should begin with plus or just be the digits',
 
   // Onboarding
+  OnboardingWizardStartOver: 'Start over',
   OnboardingWizardGoBack: 'Go Back',
   OnboardingWizardContinue: 'Continue',
   OnboardingWizardFinish: 'Finish',
@@ -783,6 +784,13 @@ const messages = defineMessages({
   WorkspaceWizardCreatingWorkspaceStepLabel: 'Workspace Creation',
   WorkspaceWizardWorkspaceDescription: 'Workspace for {meetingName}',
   WorkspaceWizardTakeMeToWorkspace: 'Take me to my workspace',
+
+  //SignupWizard
+  SignupWizardTitle: 'What do you want to do?',
+  SignupWizardQuestion: 'What do you want to do?',
+  SignupWizardWorkspace: 'Get help deciding the next story and track story progress',
+  SignupWizardDialog: 'Make a group decision',
+  SignupWizardInitiative: 'Gauge support for an idea',
 
 });
 

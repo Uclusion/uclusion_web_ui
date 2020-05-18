@@ -312,12 +312,14 @@ CommentAdd.propTypes = {
   parent: PropTypes.object,
   onCancel: PropTypes.func,
   hidden: PropTypes.bool,
+  clearType: PropTypes.func,
 };
 
 CommentAdd.defaultProps = {
   parent: null,
   investible: null,
   onCancel: () => {},
+  clearType: () => {},
   hidden: false,
 };
 

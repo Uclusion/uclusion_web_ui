@@ -1,23 +1,23 @@
 /** A simple wrapper around the quill editor that passes props
  through, and sets up some of the options we'll always want
  **/
-import React from 'react';
-import PropTypes from 'prop-types';
-import Quill from 'quill';
-import LoadingOverlay from 'react-loading-overlay';
-import ImageResize from 'quill-image-resize-module-withfix';
-import QuillS3ImageUploader from './QuillS3ImageUploader';
-import NoOpUploader from './NoOpUploader';
-import CustomQuillClipboard from './CustomQuillClipboard';
-import CustomCodeBlock from './CustomCodeBlock';
-import QuillTableUI from 'quill-table-ui';
-import 'quill/dist/quill.snow.css';
-import 'quill-table-ui/dist/index.css';
-import './editorStyles.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import Quill from 'quill'
+import LoadingOverlay from 'react-loading-overlay'
+import ImageResize from 'quill-image-resize-module-withfix'
+import QuillS3ImageUploader from './QuillS3ImageUploader'
+import NoOpUploader from './NoOpUploader'
+import CustomQuillClipboard from './CustomQuillClipboard'
+import CustomCodeBlock from './CustomCodeBlock'
+import QuillTableUI from 'quill-table-ui'
+import 'quill/dist/quill.snow.css'
+import 'quill-table-ui/dist/index.css'
+import './editorStyles.css'
 
-import { injectIntl } from 'react-intl';
-import { withTheme } from '@material-ui/core';
-import _ from 'lodash';
+import { injectIntl } from 'react-intl'
+import { withTheme } from '@material-ui/core'
+import _ from 'lodash'
 
 // install our filtering paste module, and disable the uploader
 Quill.register('modules/clipboard', CustomQuillClipboard, true);
@@ -145,7 +145,7 @@ class QuillEditor extends React.PureComponent {
   }
 
   componentDidMount() {
-    const { defaultValue, onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc } = this.props;
+    const { defaultValue, onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc, setEditorDefaultFunc } = this.props;
     this.editorBox.current.innerHTML = defaultValue;
     
     if(window.outerWidth < 600){
@@ -186,6 +186,13 @@ class QuillEditor extends React.PureComponent {
       }
     };
     setEditorClearFunc(editorClearFunc);
+    const editorDefaultFunc = () => (newDefault) => {
+      this.editor.setContents([{ insert: '' }]);
+      if (newDefault) {
+        this.editor.clipboard.dangerouslyPasteHTML(newDefault);
+      }
+    };
+    setEditorDefaultFunc(editorDefaultFunc);
     const editorFocusFunc = () => () => {
       this.editor.focus();
     };
@@ -254,6 +261,7 @@ QuillEditor.propTypes = {
   id: PropTypes.string,
   setEditorClearFunc: PropTypes.func,
   setEditorFocusFunc: PropTypes.func,
+  setEditorDefaultFunc: PropTypes.func,
   simple: PropTypes.bool,
 };
 
@@ -269,6 +277,8 @@ QuillEditor.defaultProps = {
   setEditorClearFunc: () => {
   },
   setEditorFocusFunc: () => {
+  },
+  setEditorDefaultFunc: () => {
   },
   defaultValue: '',
   placeholder: '',

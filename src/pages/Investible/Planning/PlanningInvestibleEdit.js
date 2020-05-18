@@ -128,7 +128,7 @@ function PlanningInvestibleEdit(props) {
 
   function handleSave() {
     let updateInfo;
-    const assignmentChanged = !_.isEmpty(_.difference(assignments, marketAssigned));
+    const assignmentChanged = !_.isEmpty(_.xor(assignments, marketAssigned));
     if (assignmentChanged) {
       updateInfo = {
         marketId,

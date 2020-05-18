@@ -26,7 +26,7 @@ import {
 } from '../contexts/OperationInProgressContext/operationInProgressMessages'
 import config from '../config'
 import LocalForageHelper from '../utils/LocalForageHelper'
-import { VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
+import { EMPTY_GLOBAL_VERSION, VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -37,37 +37,63 @@ export class MatchError extends Error {
 
 }
 
+let globalFetchPromiseChain = Promise.resolve(true);
+
+function startGlobalRefreshTimerChain() {
+  return new Promise((resolve, reject) => {
+    const execFunction = () => {
+      const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
+      let currentHeldVersion;
+      return disk.getState()
+        .then((state) => {
+          const {
+            existingMarkets,
+            globalVersion,
+            requiredSignatures,
+          } = state || {};
+          currentHeldVersion = globalVersion;
+          return doVersionRefresh(currentHeldVersion, existingMarkets, requiredSignatures);
+        }).then((globalVersion) => {
+          if (globalVersion !== currentHeldVersion) {
+            // console.log('Got new version');
+            pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
+          }
+          resolve(true);
+          return Promise.resolve(true);
+        }).catch((error) => {
+          // we'll log match problems, but raise the rest
+          if (error instanceof MatchError) {
+            console.error(error.message);
+            return false;
+          } else {
+            reject(error);
+          }
+        });
+    };
+    startTimerChain(6000, MAX_RETRIES, execFunction);
+  });
+}
+
 export function refreshGlobalVersion () {
   // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
-  const execFunction = () => {
-    const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
-    let currentHeldVersion;
-    return disk.getState()
-      .then((state) => {
-        const {
-          existingMarkets,
-          globalVersion,
-          requiredSignatures,
-        } = state || {};
-        currentHeldVersion = globalVersion;
-        return doVersionRefresh(currentHeldVersion, existingMarkets, requiredSignatures);
-      }).then((globalVersion) => {
-        if (globalVersion !== currentHeldVersion) {
-          // console.log('Got new version');
-          pushMessage(VERSIONS_HUB_CHANNEL, { event: GLOBAL_VERSION_UPDATE, globalVersion });
-        }
-        return Promise.resolve(true);
-      }).catch((error) => {
-        // we'll log match problems, but raise the rest
-        if (error instanceof MatchError) {
-          console.error(error.message);
-          return false;
-        } else {
-          throw error;
-        }
-      });
-  };
-  startTimerChain(6000, MAX_RETRIES, execFunction);
+  const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
+  return disk.getState()
+    .then((state) => {
+      const { globalVersion } = state || {};
+      // if the global version is the empty global version or just empty
+      // then we're an initial login
+      // and we can't let that happen in parallel as it's too costly
+      // otherwise we can let things happen in parallel
+      if (globalVersion === EMPTY_GLOBAL_VERSION || _.isEmpty(globalVersion) ) {
+        globalFetchPromiseChain = globalFetchPromiseChain
+          .then(() => {
+            return startGlobalRefreshTimerChain();
+          });
+        return globalFetchPromiseChain;
+      }
+      // we're already initialized, so go ahead and let them happen in parallel
+      return startGlobalRefreshTimerChain();
+    });
 }
 
 /**

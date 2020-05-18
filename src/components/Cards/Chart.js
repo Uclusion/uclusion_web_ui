@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { CHART_WIDTH, CHART_HEIGHT } from '../../constants/global';
-import { getInvestmentBins } from '../../utils/userFunctions';
+import React, { useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import { CHART_HEIGHT, CHART_WIDTH } from '../../constants/global'
+import { getInvestmentBins } from '../../utils/userFunctions'
 
 function Chart(props) {
   const [canvas, setCanvas] = useState(null);
@@ -39,7 +39,7 @@ function Chart(props) {
     const yOffset = CHART_HEIGHT / (maxY - minY);
     const colors = {
       100: '#5ed635',
-      75: '#90ee90 ',
+      75: '#90ee90',
       50: '#E3C941',
       25: '#F3771D',
       0: '#F5270F'

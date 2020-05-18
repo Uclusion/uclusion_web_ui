@@ -8,7 +8,7 @@ import CreatingWorkspaceStep from './CreatingWorkspaceStep';
 import OnboardingWizard from '../OnboardingWizard';
 import { useIntl } from 'react-intl';
 function WorkspaceWizard(props) {
-  const { hidden } = props;
+  const { hidden, onStartOver } = props;
   const intl = useIntl();
 
   const stepPrototypes = [
@@ -38,6 +38,7 @@ function WorkspaceWizard(props) {
     <OnboardingWizard
       title={intl.formatMessage({ id: 'WorkspaceWizardTitle' })}
       hidden={hidden}
+      onStartOver={onStartOver}
       stepPrototypes={stepPrototypes}
     />
   );
@@ -45,7 +46,12 @@ function WorkspaceWizard(props) {
 
 WorkspaceWizard.propTypes = {
   hidden: PropTypes.bool.isRequired,
+  onStartOver: PropTypes.func,
 };
+
+WorkspaceWizard.defaultProps = {
+  onStartOver: () => {},
+}
 
 export default WorkspaceWizard;
 

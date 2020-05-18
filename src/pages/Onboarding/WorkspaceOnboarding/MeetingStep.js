@@ -26,7 +26,7 @@ function MeetingStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        We're going to be creating a Uclusion Workspace that can replace your meeting that handles stories and story status.
+        Great! We're going to be creating a Uclusion Workspace that can replace your meeting that handles stories and story status.
       </Typography>
       <Typography className={classes.introText} variant="body2">
         To do this we'll need the name of that meeting, which will become the name of your Workspace. You can fill in any

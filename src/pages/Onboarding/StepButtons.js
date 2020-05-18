@@ -6,6 +6,7 @@ import _ from 'lodash';
 
 function StepButtons (props) {
   const {
+    onStartOver,
     previousStep,
     nextStep,
     totalSteps,
@@ -39,14 +40,21 @@ function StepButtons (props) {
     nextStep();
   }
 
+  function myOnStartOver() {
+    // TODO Pop A modal saying are you sure?
+    onStartOver();
+  }
+
   return (
     <div className={classes.buttonContainer}>
-      <div className={classes.backContainer}>
+      <div className={classes.startOverContainer}>
+        <Button className={classes.actionStartOver} onClick={myOnStartOver}>{intl.formatMessage({ id: 'OnboardingWizardStartOver'})}</Button>
+      </div>
+
+      <div className={classes.actionContainer}>
         {(currentStep > 0) && showGoBack && (
           <Button className={classes.actionSecondary} onClick={myOnPrevious}>{intl.formatMessage({ id: 'OnboardingWizardGoBack' })}</Button>
         )}
-      </div>
-      <div className={classes.actionContainer}>
         {showSkip && (
           <Button className={classes.actionSkip} variant="outlined" onClick={myOnSkip}>{intl.formatMessage({ id: 'OnboardingWizardSkip' })}</Button>
         )}
@@ -68,6 +76,7 @@ StepButtons.propTypes = {
   totalSteps: PropTypes.number,
   currentStep: PropTypes.number,
   validForm: PropTypes.bool,
+  onStartOver: PropTypes.func,
   onNext: PropTypes.func,
   onSkip: PropTypes.func,
   showSkip: PropTypes.bool,
@@ -75,6 +84,7 @@ StepButtons.propTypes = {
   finishLabel: PropTypes.string,
 };
 StepButtons.defaultProps = {
+  onStartOver: () => {},
   previousStep: () => {},
   nextStep: () => {},
   onPrevious: () => {},

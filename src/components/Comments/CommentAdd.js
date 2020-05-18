@@ -175,7 +175,7 @@ function CommentAdd (props) {
 
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
-  const showIssueWarning = (issueWarningId !== null && type === ISSUE_TYPE) || type === TODO_TYPE;
+  const showIssueWarning = issueWarningId !== null && (type === ISSUE_TYPE || type === TODO_TYPE);
   const myWarningId = type === TODO_TYPE ? 'todoWarningPlanning' : issueWarningId;
   const lockedDialogClasses = useLockedDialogStyles();
   return (

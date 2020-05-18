@@ -40,6 +40,9 @@ const useStyles = makeStyles((theme) => {
       },
       '& .MuiBreadcrumbs-li': {
         whiteSpace: 'nowrap',
+      },    
+      [theme.breakpoints.down('sm')]: {
+        display: 'none'
       },
     },
     breadCrumbImage: {

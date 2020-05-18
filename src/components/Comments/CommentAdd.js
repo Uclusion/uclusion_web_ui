@@ -212,7 +212,7 @@ function CommentAdd (props) {
               marketId={marketId}
               onClick={handleSave}
               onSpinStop={handleSpinStop}
-              disabled={_.isEmpty(body)}
+              disabled={_.isEmpty(body) || _.isEmpty(type)}
               hasSpinChecker
             >
               {intl.formatMessage({ id: commentSaveLabel })}
@@ -312,12 +312,14 @@ CommentAdd.propTypes = {
   parent: PropTypes.object,
   onCancel: PropTypes.func,
   hidden: PropTypes.bool,
+  clearType: PropTypes.func,
 };
 
 CommentAdd.defaultProps = {
   parent: null,
   investible: null,
   onCancel: () => {},
+  clearType: () => {},
   hidden: false,
 };
 

@@ -2,8 +2,9 @@ import { refreshNotificationVersion, } from './versionsContextHelper'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 
 export const VERSIONS_CONTEXT_NAMESPACE = 'versions_context';
+export const EMPTY_GLOBAL_VERSION = 'FAKE';
 export const EMPTY_STATE = {
-  globalVersion: 'FAKE',
+  globalVersion: EMPTY_GLOBAL_VERSION,
   existingMarkets: '',
   requiredSignatures: [],
   notificationVersion: {version: -1 },

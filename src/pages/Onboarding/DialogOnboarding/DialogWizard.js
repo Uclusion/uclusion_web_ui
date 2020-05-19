@@ -4,6 +4,7 @@ import DialogNameStep from './DialogNameStep';
 import OnboardingWizard from '../OnboardingWizard';
 import { useIntl } from 'react-intl';
 import DialogReasonStep from './DialogReasonStep';
+import AddOptionsStep from './AddOptionsStep';
 
 function DialogWizard (props) {
 
@@ -19,6 +20,10 @@ function DialogWizard (props) {
     {
       label: 'DialogWizardDialogReasonStepLabel',
       content: <DialogReasonStep />,
+    },
+    {
+      label: 'DialogWizardAddOptionsStepLabel',
+      content: <AddOptionsStep />,
     }
   ];
 

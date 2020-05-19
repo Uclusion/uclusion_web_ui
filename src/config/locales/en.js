@@ -799,7 +799,12 @@ const messages = defineMessages({
   DialogWizardDialogReasonStepLabel: 'Why does this decision need to be made?',
   DialogWizardReasonPlaceHolder: 'Your reason for making this decision',
   DialogWizardDialogNamePlaceHolder: 'Your dialog\'s name',
-
+  DialogWizardAddOptionsStepLabel: 'What are the options?',
+  //AddOptionWizard
+  AddOptionWizardTitle: 'Your Option',
+  AddOptionWizardOptionNameStepLabel : 'Option Name',
+  AddOptionWizardOptionDescriptionLabel: 'Option Description',
+  AddOptionWizardOptionNamePlaceHolder: 'Your option\'s name',
 
 });
 

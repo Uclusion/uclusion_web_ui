@@ -152,6 +152,8 @@ function OnboardingWizard (props) {
   const classes = useStyles();
 
   const [formData, updateFormData] = useReducer(reducer, {});
+  // setter passed through to a step to allow it to completely take over the wizard UI
+  const [overrideUIContent, setOverrideUIContent] = useState(false);
   const intl = useIntl();
   const initialStepState = {
     currentStep: 0,
@@ -207,7 +209,6 @@ function OnboardingWizard (props) {
       </div>
     );
   }
-
   function getCurrentStepContents () {
     const props = {
       ...stepState,
@@ -218,6 +219,7 @@ function OnboardingWizard (props) {
       onStartOver: myOnStartOver,
       active: true,
       onFinish: myOnFinish,
+      setOverrideUIContent,
       classes
     };
     const currentStep = stepPrototypes[stepState.currentStep];
@@ -225,10 +227,14 @@ function OnboardingWizard (props) {
       return React.Fragment;
     }
     const { content } = currentStep;
+    // because of clone element, individual steps have a hard time storing their own state,
+    // so steps should use the form data if they need to store data between
+    // executions of the main wizard element
     return React.cloneElement(content, props);
   }
 
   const stepClass = stepPrototypes[stepState.currentStep].label;
+  const currentStep = getCurrentStepContents();
 
   function getContent () {
     return (
@@ -237,12 +243,17 @@ function OnboardingWizard (props) {
           {getStepHeaders()}
         </div>
         <div>
-          {getCurrentStepContents()}
+          {currentStep}
         </div>
       </Card>);
   }
 
   console.log(formData);
+
+ // if overrideUI content is step, turn the entirety of the ui over to the step
+  if (overrideUIContent) {
+    return currentStep;
+  }
 
   if (hideUI) {
     return (

@@ -23,9 +23,6 @@ const useStyles = makeStyles((theme) => ({
     marginTop: '-6px',
     boxShadow: 'none',
     width: '100%',
-    [theme.breakpoints.down('sm')]: {
-      padding: '3px 21px 42px 21px',
-    },
   },
   inactiveMarket: {
     textDecoration: 'line-through',

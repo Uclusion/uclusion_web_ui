@@ -10,3 +10,23 @@
     background-color: #efefef; /* <== change this color */
     color: #1d1c1d;
 }
+._loading_overlay_wrapper {
+    position: relative;
+    margin-bottom: 45px;
+}
+@media screen and (max-width: 925px) {
+    ._loading_overlay_wrapper {
+        margin-bottom: 70px;
+    }
+}
+@media screen and (max-width: 600px) {
+    ._loading_overlay_wrapper {
+        margin-bottom: 0;
+    }  
+}
+.ql-toolbar {
+    position: absolute;
+    transform: translateY(100%);
+    bottom: 0;
+    width: 100%;
+}

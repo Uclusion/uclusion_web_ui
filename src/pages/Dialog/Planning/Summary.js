@@ -70,6 +70,9 @@ const useStyles = makeStyles(theme => ({
   },
   actions: {
     justifyContent: 'flex-end',
+    [theme.breakpoints.down("xs")]: {
+      justifyContent: 'start'
+    },
     '& > button': {
       marginRight: '-8px'
     }
@@ -104,6 +107,11 @@ const useStyles = makeStyles(theme => ({
       fontSize: 25
     }
   },
+  mobileColumn: {
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: 'column'
+    }
+  },
   draft: {
     color: "#E85757"
   },
@@ -112,6 +120,15 @@ const useStyles = makeStyles(theme => ({
     padding: '2rem',
     marginBottom: '-42px',
     marginTop: '-42px',
+    [theme.breakpoints.down("xs")]: {
+      paddingTop: '1rem',
+      marginTop: '1rem',
+      borderLeft: 'none',
+      borderTop: '1px solid #e0e0e0',
+      flexGrow: 'unset',
+      maxWidth: 'unset',
+      flexBasis: 'auto'
+    }
   },
   assignments: {
     padding: 0,
@@ -170,7 +187,7 @@ function Summary(props) {
   return (
     <Card className={classes.root} id="summary">
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} />
-      <Grid container>
+      <Grid container className={classes.mobileColumn}>
         <Grid item xs={9}>
           <CardContent className={classes.content}>
             {isDraft && activeMarket && (

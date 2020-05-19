@@ -127,6 +127,11 @@ const useStyles = makeStyles(
     cardType: {
       display: "inline-flex"
     },
+    mobileColumn: {
+      [theme.breakpoints.down("xs")]: {
+        flexDirection: 'column'
+      }
+    },
     votingCardContent: {
       margin: theme.spacing(2, 6),
       padding: 0,
@@ -146,6 +151,15 @@ const useStyles = makeStyles(
       padding: '2rem 0 2rem 2rem',
       marginBottom: '-42px',
       marginTop: '-42px',
+      [theme.breakpoints.down("xs")]: {
+        padding: '1rem 0',
+        marginTop: '1rem',
+        borderLeft: 'none',
+        borderTop: '1px solid #e0e0e0',
+        flexGrow: 'unset',
+        maxWidth: 'unset',
+        flexBasis: 'auto'
+      }
     },
     editRow: {
       height: '4rem'
@@ -500,7 +514,7 @@ function PlanningInvestible(props) {
         />
         
         <CardContent className={classes.votingCardContent}>
-          <Grid container>
+          <Grid container className={classes.mobileColumn}>
             <Grid item xs={9}>
               <h2>
                 {name}

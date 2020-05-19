@@ -325,7 +325,7 @@ const messages = defineMessages({
   commentAddReportDefault: 'Your progress report...',
   commentAddSaveLabel: 'Save',
   commentAddCancelLabel: 'Clear',
-  commentAddSelectIssueLabel: 'Please select an issue type',
+  commentAddSelectIssueLabel: 'Please select a type',
   issueWarning: 'Opening an issue will halt voting on this dialog.',
   issueWarningInvestible: 'Opening an issue will halt voting on this option.',
   issueWarningPlanning: 'Opening an issue will move this story to blocked and stop execution or voting.',

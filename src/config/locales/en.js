@@ -178,7 +178,7 @@ const messages = defineMessages({
   agilePlanFormDaysEstimateLabel: 'Days estimate',
   agilePlanFormDaysEstimatePlaceholder: 'Very rough number of days to complete',
   agilePlanFormInvestmentExpirationLabel: 'vote expiration (in days)',
-  agilePlanFormMaxMaxBudgetInputLabel: 'story budget (in days)',
+  agilePlanFormMaxMaxBudgetInputLabel: 'An upper bound on the value of this story to avoid a blank check vote',
   agilePlanFormSaveLabel: 'Save & Post',
 
   // Market Nav
@@ -213,8 +213,8 @@ const messages = defineMessages({
   yourReason: 'Your reason...',
   cancelVote: 'Cancel',
   removeVote: 'Remove Vote',
-  maxBudgetInputLabel: 'effort value',
-  maxBudgetInputHelperText: 'value must be less than {x}',
+  maxBudgetInputLabel: 'worth in days',
+  maxBudgetInputHelperText: 'must be less than {x}',
   draft: 'Draft',
   inactive: 'Inactive',
 

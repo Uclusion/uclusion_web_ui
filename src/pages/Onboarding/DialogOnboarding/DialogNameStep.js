@@ -1,38 +1,40 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { TextField, Typography } from '@material-ui/core';
-import { useIntl } from 'react-intl';
-import _ from 'lodash';
 import StepButtons from '../StepButtons';
 import { updateValues } from '../onboardingReducer';
+import { useIntl } from 'react-intl';
 
-function MeetingStep (props) {
+function DialogNameStep (props) {
+
   const { updateFormData, formData, active, classes } = props;
   const intl = useIntl();
-  const value = formData.meetingName || '';
-  const validForm = !_.isEmpty(value);
 
-  function onNameChange (event) {
-    const { value } = event.target;
-    updateFormData(updateValues({
-      meetingName: value
-    }));
-  }
+  const value = formData.dialogName || '';
 
   if (!active) {
     return React.Fragment;
+  }
+  const validForm = !_.isEmpty(value);
+
+  function onNameChange(event) {
+    const { value } = event.target;
+    updateFormData(updateValues({
+      dialogName: value,
+    }));
   }
 
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        We're going to be creating a Uclusion Workspace that can replace your meeting that handles stories and story status.
+        Great! We'll be creating a Uclusion Dialog that will help your team manage the process of choosing between a few options.
       </Typography>
       <Typography className={classes.introText} variant="body2">
-        To do this we'll need the name of that meeting, which will become the name of your Workspace. You can fill in any
-        detailed description for the Workspace after it's been created by editing it later.
+        To do this we'll need a good name for the decision that tells people at a glance what they're deciding about.
+        A good name should be short, but descriptive.
       </Typography>
-      <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}</label>
+      <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'DialogWizardDialogNamePlaceHolder' })}</label>
       <TextField
         id="name"
         className={classes.input}
@@ -43,18 +45,19 @@ function MeetingStep (props) {
       <StepButtons {...props} validForm={validForm}/>
     </div>
   );
+
 }
 
-MeetingStep.propTypes = {
+DialogNameStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
   active: PropTypes.bool,
 };
 
-MeetingStep.defaultProps = {
+DialogNameStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
   active: false,
 };
 
-export default MeetingStep;
+export default DialogNameStep;

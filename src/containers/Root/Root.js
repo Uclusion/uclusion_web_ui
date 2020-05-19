@@ -24,7 +24,7 @@ import ChangePassword from '../../pages/Authentication/ChangePassword'
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences'
 import BillingHome from '../../pages/Payments/BillingHome'
 import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
-import WorkspaceWizard from '../../pages/Onboarding/WorkspaceOnboarding/WorkspaceWizard';
+import SignupWizard from '../../pages/Onboarding/SignupOnboarding/SignupWizard';
 
 const useStyles = makeStyles({
   body: {
@@ -200,7 +200,7 @@ function Root() {
       <div className={classes.body}>
         <div className={classes.root}>
           <div className={classes.content}>
-            <WorkspaceWizard hidden={hideOnboarding()}/>
+            <SignupWizard hidden={hideOnboarding()}/>
             <Home hidden={hideHome()}/>
             <Market hidden={hideMarket()}/>
             <Support hidden={hideSupport()}/>

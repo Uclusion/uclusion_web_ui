@@ -765,6 +765,7 @@ const messages = defineMessages({
   phoneFieldErrorText: 'Phone should begin with plus or just be the digits',
 
   // Onboarding
+  OnboardingWizardStartOver: 'Start over',
   OnboardingWizardGoBack: 'Go Back',
   OnboardingWizardContinue: 'Continue',
   OnboardingWizardFinish: 'Finish',
@@ -777,12 +778,28 @@ const messages = defineMessages({
   OnboardingWizardNextStoryNamePlaceHolder: 'Your next story\'s name',
   OnboardingWizardNextStoryDescriptionPlaceHolder: 'Your next story\'s description',
   OnboardingWizardCurrentStoryProgressPlaceHolder: 'Your progress so far',
-  WorkspaceWizardTitle: 'Your first workspace',
-  WorkspaceWizardMeetingPlaceHolder: 'Your Meeting Name',
-  WorkspaceWizardMeetingStepLabel: 'Meeting Information',
+  // workspace Wizard
+  WorkspaceWizardTitle: 'Your Workspace',
+  WorkspaceWizardMeetingPlaceHolder: 'Your Workspace Name',
+  WorkspaceWizardMeetingStepLabel: 'Workspace Name',
   WorkspaceWizardCreatingWorkspaceStepLabel: 'Workspace Creation',
   WorkspaceWizardWorkspaceDescription: 'Workspace for {meetingName}',
   WorkspaceWizardTakeMeToWorkspace: 'Take me to my workspace',
+
+  //SignupWizard
+  SignupWizardTitle: 'What do you want to do?',
+  SignupWizardQuestion: 'What do you want to do?',
+  SignupWizardWorkspace: 'Tracking story progress and deciding the next story to work on',
+  SignupWizardDialog: 'Making a group decision',
+  SignupWizardInitiative: 'Measuring support for an idea',
+
+  //DialogWizard
+  DialogWizardTitle: 'Your Dialog',
+  DialogWizardDecisionStepLabel: 'Your Dialog',
+  DialogWizardDialogReasonStepLabel: 'Why does this decision need to be made?',
+  DialogWizardReasonPlaceHolder: 'Your reason for making this decision',
+  DialogWizardDialogNamePlaceHolder: 'Your dialog\'s name',
+
 
 });
 

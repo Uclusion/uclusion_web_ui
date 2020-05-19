@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
-import StepButtons from './StepButtons';
-import QuillEditor from '../../components/TextEditors/QuillEditor';
-import { updateValues } from './onboardingReducer';
+import StepButtons from '../StepButtons';
+import QuillEditor from '../../../components/TextEditors/QuillEditor';
+import { updateValues } from '../onboardingReducer';
 
 
 function CurrentStoryStep (props) {
@@ -53,7 +53,7 @@ function CurrentStoryStep (props) {
     <div>
       <Typography variant="body2">
         What story are you currently working on? This will become your "In Progress" story, and will let everyone see the
-        story and make Suggestions, note Todos, ask Questions, and raise Blocking Issues.
+        story and make Suggestions, note TODOs, ask Questions, and raise Blocking Issues.
       </Typography>
       <label className={classes.inputLabel} htmlFor="story-name">{intl.formatMessage({ id: 'OnboardingWizardCurrentStoryNamePlaceHolder' })}</label>
       <TextField

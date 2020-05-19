@@ -196,7 +196,7 @@ function Comment(props) {
         return EMPTY_SPIN_RESULT;
       });
   }
-  function getHilightedIds(myReplies, highlightedCommentState, highLightedIds) {
+  function getHilightedIds(myReplies, highLightedIds) {
     const highLighted = highLightedIds || [];
     if (_.isEmpty(myReplies) || _.isEmpty(highlightedCommentState)) {
       return highLighted;
@@ -213,18 +213,18 @@ function Comment(props) {
       const replyReplies = comments.filter(
         comment => comment.reply_id === reply.id
       );
-      getHilightedIds(replyReplies, highlightedCommentState, highLighted);
+      getHilightedIds(replyReplies, highLighted);
     });
     return highLighted;
   }
-  const highlightIds = getHilightedIds(replies, highlightedCommentState);
+  const highlightIds = getHilightedIds(replies);
   const myHighlightedExpandedState = highlightedCommentState[id] || {};
   const { level: myHighlightedLevel, repliesExpanded: myRepliesExpanded } = myHighlightedExpandedState;
   const myRepliesExpandedCalc = myRepliesExpanded === undefined ? _.isEmpty(highlightIds) ? undefined : true : myRepliesExpanded;
   const repliesExpanded = myRepliesExpandedCalc === undefined ? !comment.resolved || comment.reply_id : myRepliesExpandedCalc;
 
   useEffect(() => {
-    if (!_.isEmpty(highlightIds) && !myRepliesExpanded) {
+    if (!_.isEmpty(highlightIds) && !myRepliesExpanded && commentType !== REPLY_TYPE) {
       // Open if need to highlight inside - user can close again
       highlightedCommentDispatch({ type: EXPANDED, commentId: id, newRepliesExpanded: true });
     }

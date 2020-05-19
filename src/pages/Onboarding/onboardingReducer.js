@@ -5,6 +5,12 @@ export function updateValues(newValues){
   };
 }
 
+export function resetValues() {
+  return {
+    type: 'RESET_VALUES',
+  };
+}
+
 export function reducer(state, action) {
   const { type } = action;
   switch (type) {
@@ -13,6 +19,8 @@ export function reducer(state, action) {
         ...state,
         ...action.newValues,
       };
+    case 'RESET_VALUES':
+      return {};
     default:
       return state;
   }

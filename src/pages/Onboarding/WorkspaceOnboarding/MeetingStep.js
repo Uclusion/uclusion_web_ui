@@ -31,7 +31,7 @@ function MeetingStep (props) {
         structured communication around stories.
       </Typography>
       <Typography className={classes.introText} variant="body2">
-        To do this we'll need a short, but description the name for your Workspace.
+        To do this we'll need a short, but descriptive name for your Workspace.
       </Typography>
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}</label>
       <TextField

@@ -1,9 +1,9 @@
 /**
  Helper class for notifying the user that takes care of all the i18n and message formatting for us
  * */
-import { toast } from 'react-toastify';
-import { intl } from '../components/ContextHacks/IntlGlobalProvider';
-import { setOperationInProgress } from '../components/ContextHacks/OperationInProgressGlobalProvider';
+import { toast } from 'react-toastify'
+import { intl } from '../components/ContextHacks/IntlGlobalProvider'
+import { setOperationInProgress } from '../components/ContextHacks/OperationInProgressGlobalProvider'
 import { Auth } from 'aws-amplify'
 
 export const INFO = 'info';
@@ -52,6 +52,7 @@ export function sendIntlMessageBase(intl, level, i18nMessageId, ii18nMessageValu
  */
 export function toastErrorAndThrow(error, messageKey) {
   sendIntlMessage(ERROR, messageKey);
+  console.error(error);
   if (setOperationInProgress) {
     setOperationInProgress(false);
   }

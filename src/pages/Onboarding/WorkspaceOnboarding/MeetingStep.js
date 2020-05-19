@@ -26,11 +26,12 @@ function MeetingStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Great! We're going to be creating a Uclusion Workspace that can replace your meeting that handles stories and story status.
+        Great! We're going to be creating a Uclusion Workspace that tracks stories, notifies people
+        when their input is needed, lets them weigh in on stories before they begin implementation, and provides
+        structured communication around stories.
       </Typography>
       <Typography className={classes.introText} variant="body2">
-        To do this we'll need the name of that meeting, which will become the name of your Workspace. You can fill in any
-        detailed description for the Workspace after it's been created by editing it later.
+        To do this we'll need a short, but description the name for your Workspace.
       </Typography>
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}</label>
       <TextField

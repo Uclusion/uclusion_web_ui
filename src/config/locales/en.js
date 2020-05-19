@@ -778,7 +778,8 @@ const messages = defineMessages({
   OnboardingWizardNextStoryNamePlaceHolder: 'Your next story\'s name',
   OnboardingWizardNextStoryDescriptionPlaceHolder: 'Your next story\'s description',
   OnboardingWizardCurrentStoryProgressPlaceHolder: 'Your progress so far',
-  WorkspaceWizardTitle: 'Your first workspace',
+  // workspace Wizard
+  WorkspaceWizardTitle: 'Your Workspace',
   WorkspaceWizardMeetingPlaceHolder: 'Your Workspace Name',
   WorkspaceWizardMeetingStepLabel: 'Workspace Name',
   WorkspaceWizardCreatingWorkspaceStepLabel: 'Workspace Creation',
@@ -791,6 +792,11 @@ const messages = defineMessages({
   SignupWizardWorkspace: 'Tracking story progress and deciding the next story to work on',
   SignupWizardDialog: 'Making a group decision',
   SignupWizardInitiative: 'Measuring support for an idea',
+
+  //DialogWizard
+  DialogWizardTitle: 'Your Dialog',
+  DialogWizardQuestion: 'Why does this decision need to be made?',
+
 
 });
 

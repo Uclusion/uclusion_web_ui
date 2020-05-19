@@ -1,15 +1,19 @@
 import React, { useReducer, useState } from 'react';
-import PropTypes from 'prop-types'
-import clsx from 'clsx'
-import { Card, makeStyles, Typography } from '@material-ui/core'
-import Screen from '../../containers/Screen/Screen'
-import { useIntl } from 'react-intl'
-import { reducer } from './onboardingReducer'
-
+import PropTypes from 'prop-types';
+import clsx from 'clsx';
+import { Card, makeStyles, Typography } from '@material-ui/core';
+import Screen from '../../containers/Screen/Screen';
+import { useIntl } from 'react-intl';
+import { reducer } from './onboardingReducer';
+import { Helmet } from 'react-helmet';
 
 const useStyles = makeStyles(
   theme => {
     return {
+      normal: {},
+      hidden: {
+        display: 'none',
+      },
       title: {
         margin: '1rem 0'
       },
@@ -68,9 +72,7 @@ const useStyles = makeStyles(
           fontWeight: 'bold'
         }
       },
-      startOverContainer: {
-
-      },
+      startOverContainer: {},
       actionContainer: {
         flex: 3,
         display: 'flex',
@@ -81,33 +83,33 @@ const useStyles = makeStyles(
         textAlign: 'left'
       },
       actionStartOver: {
-        backgroundColor: "#E85757",
+        backgroundColor: '#E85757',
       },
       actionPrimary: {
-        backgroundColor: "#2D9CDB",
-        color: "white",
+        backgroundColor: '#2D9CDB',
+        color: 'white',
         textTransform: 'unset',
-        "&:hover": {
-          backgroundColor: "#2D9CDB"
+        '&:hover': {
+          backgroundColor: '#2D9CDB'
         },
-        "&:disabled": {
-          color: "white",
+        '&:disabled': {
+          color: 'white',
           backgroundColor: 'rgba(45, 156, 219, .6)'
         }
       },
       actionSecondary: {
         backgroundColor: '#e0e0e0',
         textTransform: 'unset',
-        "&:hover": {
-          backgroundColor: "#e0e0e0"
+        '&:hover': {
+          backgroundColor: '#e0e0e0'
         }
       },
       actionSkip: {
         backgroundColor: '#fff',
         textTransform: 'unset',
         marginRight: '20px',
-        "&:hover": {
-          backgroundColor: "#fff"
+        '&:hover': {
+          backgroundColor: '#fff'
         }
       },
       borderBottom: {
@@ -124,7 +126,7 @@ const useStyles = makeStyles(
       linkContainer: {
         marginTop: '30px'
       },
-      WorkspaceWizardMeetingStepLabel : {
+      WorkspaceWizardMeetingStepLabel: {
         maxWidth: '500px'
       },
       OnboardingWizardCurrentStoryStepLabel: {
@@ -140,11 +142,12 @@ const useStyles = makeStyles(
       WorkspaceWizardCreatingWorkspaceStepLabel: {
         maxWidth: '500px'
       }
-    }
+    };
   }
-)
-function OnboardingWizard(props) {
-  const { hidden, stepPrototypes, title, hideSteppers, onStartOver } = props;
+);
+
+function OnboardingWizard (props) {
+  const { hidden, stepPrototypes, title, hideSteppers, onStartOver, hideUI } = props;
   const classes = useStyles();
 
   const [formData, updateFormData] = useReducer(reducer, {});
@@ -156,8 +159,7 @@ function OnboardingWizard(props) {
 
   const [stepState, setStepState] = useState(initialStepState);
 
-
-  function myOnStartOver() {
+  function myOnStartOver () {
     // zero all form data
     updateFormData({});
     // reset the step state
@@ -165,14 +167,14 @@ function OnboardingWizard(props) {
     onStartOver();
   }
 
-  function nextStep() {
+  function nextStep () {
     setStepState({
       ...stepState,
       currentStep: stepState.currentStep + 1,
     });
   }
 
-  function previousStep() {
+  function previousStep () {
     if (stepState.currentStep === 0) {
       return;
     }
@@ -182,21 +184,22 @@ function OnboardingWizard(props) {
     });
   }
 
-  function getStepHeaders(){
+  function getStepHeaders () {
     const currentStep = stepPrototypes[stepState.currentStep];
     const stepNumber = stepState.currentStep;
     const stepCount = stepState.totalSteps;
-    const {label} = currentStep;
-    
+    const { label } = currentStep;
+
     return (
       <div>
-        {!hideSteppers && <Typography className={classes.stepCounter} variant="caption">Step {(stepNumber + 1)} of {stepCount}</Typography>}
-        <Typography className={classes.title} variant="h4">{intl.formatMessage({ id: label})}</Typography>
+        {!hideSteppers && <Typography className={classes.stepCounter}
+                                      variant="caption">Step {(stepNumber + 1)} of {stepCount}</Typography>}
+        <Typography className={classes.title} variant="h4">{intl.formatMessage({ id: label })}</Typography>
       </div>
-    )
+    );
   }
 
-  function getCurrentStepContents() {
+  function getCurrentStepContents () {
     const props = {
       ...stepState,
       formData,
@@ -214,21 +217,39 @@ function OnboardingWizard(props) {
     const { content } = currentStep;
     return React.cloneElement(content, props);
   }
+
   const stepClass = stepPrototypes[stepState.currentStep].label;
+
+  function getContent () {
+    return (
+      <Card className={clsx(classes[stepClass], classes.baseCard)} elevation={0} raised={false}>
+        <div>
+          {getStepHeaders()}
+        </div>
+        <div>
+          {getCurrentStepContents()}
+        </div>
+      </Card>);
+  }
+
+  if (hideUI) {
+    return (
+      <div className={hidden ? classes.hidden : classes.normal}>
+        <Helmet
+          defer={false}
+        >
+          <title>{title}</title>
+        </Helmet>
+        {getContent()}
+      </div>);
+  }
   
   return (
     <Screen
       tabTitle={title}
       hidden={hidden}
-      >
-        <Card className={clsx(classes[stepClass], classes.baseCard)} elevation={0} raised={false}>
-          <div>
-            {getStepHeaders()}
-          </div>
-          <div>
-            {getCurrentStepContents()}
-          </div>
-        </Card>
+    >
+      {getContent()}
     </Screen>
   );
 }
@@ -239,12 +260,14 @@ OnboardingWizard.propTypes = {
   stepPrototypes: PropTypes.array,
   hideSteppers: PropTypes.bool,
   onStartOver: PropTypes.func,
-}
+  hideUI: PropTypes.bool,
+};
 
 OnboardingWizard.defaultProps = {
   stepPrototypes: [],
   hideSteppers: false,
   onStartOver: () => {},
-}
+  hideUI: true,
+};
 
 export default OnboardingWizard;

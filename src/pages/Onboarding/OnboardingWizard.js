@@ -243,7 +243,7 @@ function OnboardingWizard (props) {
         {getContent()}
       </div>);
   }
-  
+
   return (
     <Screen
       tabTitle={title}

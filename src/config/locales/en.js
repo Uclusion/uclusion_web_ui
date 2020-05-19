@@ -795,7 +795,10 @@ const messages = defineMessages({
 
   //DialogWizard
   DialogWizardTitle: 'Your Dialog',
-  DialogWizardQuestion: 'Why does this decision need to be made?',
+  DialogWizardDecisionStepLabel: 'Your Dialog',
+  DialogWizardDialogReasonStepLabel: 'Why does this decision need to be made?',
+  DialogWizardReasonPlaceHolder: 'Your reason for making this decision',
+  DialogWizardDialogNamePlaceHolder: 'Your dialog\'s name',
 
 
 });

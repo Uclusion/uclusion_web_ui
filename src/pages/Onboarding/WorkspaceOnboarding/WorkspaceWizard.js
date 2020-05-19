@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import MeetingStep from './MeetingStep';
+import WorkspaceNameStep from './WorkspaceNameStep';
 import CurrentStoryStep from './CurrentStoryStep';
 import CurrentStoryProgressStep from './CurrentStoryProgressStep';
 import NextStoryStep from './NextStoryStep';
@@ -14,7 +14,7 @@ function WorkspaceWizard(props) {
   const stepPrototypes = [
     {
       label: 'WorkspaceWizardMeetingStepLabel',
-      content: <MeetingStep />,
+      content: <WorkspaceNameStep />,
     },
     {
       label: 'OnboardingWizardCurrentStoryStepLabel',

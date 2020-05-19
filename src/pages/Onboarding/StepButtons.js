@@ -15,13 +15,14 @@ function StepButtons (props) {
     onNext,
     onSkip,
     onPrevious,
+    onFinish,
     showSkip,
     showGoBack,
     finishLabel,
     classes
   } = props;
   const intl = useIntl();
-  const lastStep = currentStep === totalSteps;
+  const lastStep = currentStep === totalSteps - 1; //zero indexed
 
   const finishKey = _.isEmpty(finishLabel) ? 'OnboardingWizardFinish' : finishLabel;
 
@@ -45,6 +46,10 @@ function StepButtons (props) {
     onStartOver();
   }
 
+  function myOnFinish() {
+    onFinish();
+  }
+
   return (
     <div className={classes.buttonContainer}>
       <div className={classes.startOverContainer}>
@@ -59,7 +64,7 @@ function StepButtons (props) {
           <Button className={classes.actionSkip} variant="outlined" onClick={myOnSkip}>{intl.formatMessage({ id: 'OnboardingWizardSkip' })}</Button>
         )}
         {lastStep && (
-          <Button className={classes.actionPrimary} disabled={!validForm} onClick={myOnNext}>{intl.formatMessage({ id: finishKey })}</Button>
+          <Button className={classes.actionPrimary} disabled={!validForm} onClick={myOnFinish}>{intl.formatMessage({ id: finishKey })}</Button>
         )}
         {!lastStep && (
           <Button className={classes.actionPrimary} disabled={!validForm}
@@ -82,6 +87,7 @@ StepButtons.propTypes = {
   showSkip: PropTypes.bool,
   showGoBack: PropTypes.bool,
   finishLabel: PropTypes.string,
+  onFinish: PropTypes.func,
 };
 StepButtons.defaultProps = {
   onStartOver: () => {},
@@ -90,6 +96,7 @@ StepButtons.defaultProps = {
   onPrevious: () => {},
   onNext: () => {},
   onSkip: () => {},
+  onFinish: () => {},
   totalSteps: 0,
   currentStep: 0,
   validForm: true,

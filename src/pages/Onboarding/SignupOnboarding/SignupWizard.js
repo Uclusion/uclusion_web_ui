@@ -4,6 +4,7 @@ import OnboardingWizard from '../OnboardingWizard';
 import { useIntl } from 'react-intl';
 import WhatDoYouWantToDoStep from './WhatDoYouWantToDoStep';
 import WorkspaceWizard from '../WorkspaceOnboarding/WorkspaceWizard';
+import DialogWizard from '../DialogOnboarding/DialogWizard';
 
 function SignupWizard(props) {
 
@@ -20,14 +21,14 @@ function SignupWizard(props) {
     {
       label: intl.formatMessage({ id: 'SignupWizardTitle' }),
       content: <WhatDoYouWantToDoStep setWizardToShow={setWizardToShow}/>
-    }
+    },
   ];
 
   switch (wizardToShow) {
     case 'workspace':
       return <WorkspaceWizard onStartOver={onStartOver} hidden={hidden} />
     case 'dialog':
-      return <div>Need dialog wizard</div>
+      return <DialogWizard onStartOver={onStartOver} hidden={hidden}/>
     case 'initiative':
       return <div>Need initiative wizard</div>
     default:

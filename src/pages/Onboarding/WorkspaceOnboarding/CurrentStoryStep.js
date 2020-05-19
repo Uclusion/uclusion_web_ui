@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
-import StepButtons from './StepButtons';
-import QuillEditor from '../../components/TextEditors/QuillEditor';
-import { updateValues } from './onboardingReducer';
+import StepButtons from '../StepButtons';
+import QuillEditor from '../../../components/TextEditors/QuillEditor';
+import { updateValues } from '../onboardingReducer';
 
 
 function CurrentStoryStep (props) {

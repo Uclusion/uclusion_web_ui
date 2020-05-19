@@ -788,9 +788,9 @@ const messages = defineMessages({
   //SignupWizard
   SignupWizardTitle: 'What do you want to do?',
   SignupWizardQuestion: 'What do you want to do?',
-  SignupWizardWorkspace: 'Get help deciding the next story and track story progress',
-  SignupWizardDialog: 'Make a group decision',
-  SignupWizardInitiative: 'Gauge support for an idea',
+  SignupWizardWorkspace: 'Tracking story progress and deciding the next story to work on',
+  SignupWizardDialog: 'Making a group decision',
+  SignupWizardInitiative: 'Measuring support for an idea',
 
 });
 

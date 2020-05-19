@@ -72,3 +72,5 @@ DialogReasonStep.defaultProps = {
   formData: {},
   active: false,
 };
+
+export default DialogReasonStep;

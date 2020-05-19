@@ -4,8 +4,9 @@ import clsx from 'clsx';
 import { Card, makeStyles, Typography } from '@material-ui/core';
 import Screen from '../../containers/Screen/Screen';
 import { useIntl } from 'react-intl';
-import { reducer } from './onboardingReducer';
+import { reducer, resetValues } from './onboardingReducer';
 import { Helmet } from 'react-helmet';
+
 
 const useStyles = makeStyles(
   theme => {
@@ -147,7 +148,7 @@ const useStyles = makeStyles(
 );
 
 function OnboardingWizard (props) {
-  const { hidden, stepPrototypes, title, hideSteppers, onStartOver, hideUI } = props;
+  const { hidden, stepPrototypes, title, hideSteppers, onStartOver, onFinish, hideUI } = props;
   const classes = useStyles();
 
   const [formData, updateFormData] = useReducer(reducer, {});
@@ -165,6 +166,14 @@ function OnboardingWizard (props) {
     // reset the step state
     setStepState(initialStepState);
     onStartOver();
+  }
+
+  function myOnFinish() {
+    onFinish(formData);
+    updateFormData(resetValues());
+    // reset the step state
+    setStepState(initialStepState);
+
   }
 
   function nextStep () {
@@ -208,6 +217,7 @@ function OnboardingWizard (props) {
       previousStep,
       onStartOver: myOnStartOver,
       active: true,
+      onFinish: myOnFinish,
       classes
     };
     const currentStep = stepPrototypes[stepState.currentStep];
@@ -231,6 +241,8 @@ function OnboardingWizard (props) {
         </div>
       </Card>);
   }
+
+  console.log(formData);
 
   if (hideUI) {
     return (
@@ -260,6 +272,7 @@ OnboardingWizard.propTypes = {
   stepPrototypes: PropTypes.array,
   hideSteppers: PropTypes.bool,
   onStartOver: PropTypes.func,
+  onFinish: PropTypes.func,
   hideUI: PropTypes.bool,
 };
 
@@ -267,6 +280,7 @@ OnboardingWizard.defaultProps = {
   stepPrototypes: [],
   hideSteppers: false,
   onStartOver: () => {},
+  onFinish: () => {},
   hideUI: true,
 };
 

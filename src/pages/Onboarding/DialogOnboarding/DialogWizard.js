@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import DialogNameStep from './DialogNameStep';
 import OnboardingWizard from '../OnboardingWizard';
 import { useIntl } from 'react-intl';
+import DialogReasonStep from './DialogReasonStep';
 
 function DialogWizard (props) {
 
@@ -12,8 +13,12 @@ function DialogWizard (props) {
 
   const stepProtoTypes = [
     {
-      label: intl.formatMessage({ id: 'DialogWizardDecisionStepLabel' }),
+      label: 'DialogWizardDecisionStepLabel',
       content: <DialogNameStep/>,
+    },
+    {
+      label: 'DialogWizardDialogReasonStepLabel',
+      content: <DialogReasonStep />,
     }
   ];
 

@@ -42,13 +42,13 @@ export function refreshNotificationVersion (state, version) {
 function processNewNotification (newNotificationVersion, notificationVersion) {
   const { version: notificationVersionNumber } = notificationVersion || {};
   const { version: newNotificationVersionNumber, hkey, rkey, is_remove: isRemove } = newNotificationVersion || {};
-  console.debug(`Refreshing notifications from ${notificationVersionNumber} to ${newNotificationVersionNumber} with ${hkey}, ${rkey}, ${isRemove}`);
+  //console.debug(`Refreshing notifications from ${notificationVersionNumber} to ${newNotificationVersionNumber} with ${hkey}, ${rkey}, ${isRemove}`);
   if (notificationVersionNumber !== newNotificationVersionNumber) {
     getMessages().then((messages) => {
       const latest = messages.find((message) => (message.type_object_id === rkey
         && message.market_id_user_id === hkey));
       if (isRemove === _.isEmpty(latest)) {
-        console.debug(`Updating with ${JSON.stringify(messages)}`);
+        //console.debug(`Updating with ${JSON.stringify(messages)}`);
         // Messages are reading from an index so can't consistent read.
         // So if retrieved stale then just ignore and hope to get updated later.
         pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT, messages });

@@ -178,7 +178,7 @@ const messages = defineMessages({
   agilePlanFormDaysEstimateLabel: 'Days estimate',
   agilePlanFormDaysEstimatePlaceholder: 'Very rough number of days to complete',
   agilePlanFormInvestmentExpirationLabel: 'vote expiration (in days)',
-  agilePlanFormMaxMaxBudgetInputLabel: 'story budget (in days)',
+  agilePlanFormMaxMaxBudgetInputLabel: 'An upper bound on the value of this story to avoid a blank check vote',
   agilePlanFormSaveLabel: 'Save & Post',
 
   // Market Nav
@@ -213,8 +213,8 @@ const messages = defineMessages({
   yourReason: 'Your reason...',
   cancelVote: 'Cancel',
   removeVote: 'Remove Vote',
-  maxBudgetInputLabel: 'effort value',
-  maxBudgetInputHelperText: 'value must be less than {x}',
+  maxBudgetInputLabel: 'worth in days',
+  maxBudgetInputHelperText: 'must be less than {x}',
   draft: 'Draft',
   inactive: 'Inactive',
 
@@ -325,7 +325,7 @@ const messages = defineMessages({
   commentAddReportDefault: 'Your progress report...',
   commentAddSaveLabel: 'Save',
   commentAddCancelLabel: 'Clear',
-  commentAddSelectIssueLabel: 'Please select an issue type',
+  commentAddSelectIssueLabel: 'Please select a type',
   issueWarning: 'Opening an issue will halt voting on this dialog.',
   issueWarningInvestible: 'Opening an issue will halt voting on this option.',
   issueWarningPlanning: 'Opening an issue will move this story to blocked and stop execution or voting.',
@@ -784,7 +784,7 @@ const messages = defineMessages({
   WorkspaceWizardMeetingStepLabel: 'Workspace Name',
   WorkspaceWizardCreatingWorkspaceStepLabel: 'Workspace Creation',
   WorkspaceWizardWorkspaceDescription: 'Workspace for {meetingName}',
-  WorkspaceWizardTakeMeToWorkspace: 'Take me to my workspace',
+  WorkspaceWizardTakeMeToWorkspace: 'I\'ve shared the link, take me to my Workspace',
 
   //SignupWizard
   SignupWizardTitle: 'What do you want to do?',
@@ -799,8 +799,18 @@ const messages = defineMessages({
   DialogWizardDialogReasonStepLabel: 'Why does this decision need to be made?',
   DialogWizardReasonPlaceHolder: 'Your reason for making this decision',
   DialogWizardDialogNamePlaceHolder: 'Your dialog\'s name',
+  DialogWizardDialogExpirationPlaceHolder: 'Days until Decision Expires',
+  DialogWizardDialogExpirationStepLabel: 'How many days until the deadline?',
+  DialogWizardAddOptionsStepLabel: 'What are the options?',
+  DialogWizardTakeMeToDialog: 'I\'ve shared the link, take me to my Dialog',
+  DialogWizardCreatingDialogStepLabel: 'Dialog Creation',
 
-
+  //AddOptionWizard
+  AddOptionWizardTitle: 'Your Option',
+  AddOptionWizardOptionNameStepLabel : 'Option Name',
+  AddOptionWizardOptionDescriptionStepLabel: 'Option Description',
+  AddOptionWizardOptionNamePlaceHolder: 'Your option\'s name',
+  AddOptionWizardOptionDescriptionPlaceHolder: 'Your option\'s description',
 });
 
 export default messages;

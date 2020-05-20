@@ -119,6 +119,9 @@ function CommentAdd (props) {
       setFirstOpen(true);
     }
     if (_.isEmpty(body) && type !== placeHolderType) {
+      if (_.isEmpty(placeHolderType)) {
+        editorFocusFunc();
+      }
       setPlaceHolderType(type);
       editorClearFunc(placeHolder);
     }

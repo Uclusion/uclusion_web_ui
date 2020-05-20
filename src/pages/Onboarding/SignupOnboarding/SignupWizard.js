@@ -19,7 +19,7 @@ function SignupWizard(props) {
 
   const stepPrototypes = [
     {
-      label: intl.formatMessage({ id: 'SignupWizardTitle' }),
+      label: 'SignupWizardTitle',
       content: <WhatDoYouWantToDoStep setWizardToShow={setWizardToShow}/>
     },
   ];

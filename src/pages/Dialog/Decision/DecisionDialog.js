@@ -55,11 +55,25 @@ const useStyles = makeStyles(
     cardType: {
       display: "inline-flex"
     },
+    mobileColumn: {
+      [theme.breakpoints.down("xs")]: {
+        flexDirection: 'column'
+      }
+    },
     borderLeft: {
       borderLeft: '1px solid #e0e0e0',
       padding: '2rem',
       marginBottom: '-42px',
       marginTop: '-42px',
+      [theme.breakpoints.down("xs")]: {
+        padding: '1rem 0',
+        marginTop: '1rem',
+        borderLeft: 'none',
+        borderTop: '1px solid #e0e0e0',
+        flexGrow: 'unset',
+        maxWidth: 'unset',
+        flexBasis: 'auto'
+      }
     },
     actions: {
       justifyContent: 'flex-end',
@@ -201,7 +215,7 @@ function DecisionDialog(props) {
           className={classes.cardType}
           type={DECISION_TYPE}
         />
-        <Grid container>
+        <Grid container className={classes.mobileColumn}>
           <Grid item xs={9}>
             <CardContent className={classes.content}>
           {!isInline && (

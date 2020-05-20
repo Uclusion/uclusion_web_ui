@@ -356,15 +356,17 @@ function Comment(props) {
             )}
             {!comment.resolved && enableEditing && (
               <React.Fragment>
-                <Button
-                  className={clsx(classes.action, classes.actionPrimary)}
-                  color="primary"
-                  disabled={operationRunning}
-                  onClick={toggleReply}
-                  variant="contained"
-                >
-                  {intl.formatMessage({ id: "commentReplyLabel" })}
-                </Button>
+                {commentType !== REPORT_TYPE && (
+                  <Button
+                    className={clsx(classes.action, classes.actionPrimary)}
+                    color="primary"
+                    disabled={operationRunning}
+                    onClick={toggleReply}
+                    variant="contained"
+                  >
+                    {intl.formatMessage({ id: "commentReplyLabel" })}
+                  </Button>
+                )}
                 {createdBy === userId && (
                   <Button
                     className={clsx(classes.action, classes.actionSecondary)}

@@ -79,7 +79,10 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     flexBasis: "100%",
-    padding: theme.spacing(4)
+    padding: theme.spacing(4),
+    [theme.breakpoints.down("xs")]: {
+      padding: '15px'
+    }
   },
   divider: {
     marginBottom: theme.spacing(3)
@@ -154,6 +157,12 @@ const useStyles = makeStyles(theme => ({
       marginLeft: 0
     }
   },
+  fullWidth: {
+    [theme.breakpoints.down("xs")]: {
+      maxWidth: '100%',
+      flexBasis: '100%'
+    }
+  },
   assignmentContainer: {
     width: '100%',
     textTransform: 'capitalize'
@@ -188,7 +197,7 @@ function Summary(props) {
     <Card className={classes.root} id="summary">
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} />
       <Grid container className={classes.mobileColumn}>
-        <Grid item xs={9}>
+        <Grid item xs={9} className={classes.fullWidth}>
           <CardContent className={classes.content}>
             {isDraft && activeMarket && (
               <Typography className={classes.draft}>

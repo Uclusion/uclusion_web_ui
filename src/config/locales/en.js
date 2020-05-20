@@ -251,10 +251,10 @@ const messages = defineMessages({
   investibleAddHeader: 'Add Investible',
   investibleEditStageHelper: 'Select to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
-  investibleAddToVotingLabel: 'Move to Candidates',
-  investibleBackToOptionPoolLabel: 'Back to Option Pool',
+  investibleAddToVotingLabel: 'Move to Options',
+  investibleBackToOptionPoolLabel: 'Back to Proposed Options',
   investibleAddToVotingExplanation: 'Once in voting you will still be able to remove this option',
-  investibleRemoveFromVotingExplanation: 'Remove current votes and move back to Option Pool',
+  investibleRemoveFromVotingExplanation: 'Remove current votes and move back to Proposed Option',
   investibleDeleteLabel: 'Permanently Delete',
   investibleDeleteExplanationLabel: 'Permanently remove this option from the dialog',
   planningInvestibleToVotingLabel: 'Proposed',
@@ -454,9 +454,9 @@ const messages = defineMessages({
   noAndProceed: 'Change stage only',
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
-  decisionDialogCurrentVotingLabel: 'Candidates',
+  decisionDialogCurrentVotingLabel: 'Options',
   storyCurrentVotingLabel: 'Options for doing this story',
-  decisionDialogProposedOptionsLabel: 'Option Pool',
+  decisionDialogProposedOptionsLabel: 'Proposed Options',
   decisionDialogDiscussionLabel: 'Discussion',
   decisionDialogAddInvestibleLabel: 'Add Option',
   decisionDialogAddExplanationLabel: 'Add a new option directly into voting',
@@ -467,7 +467,7 @@ const messages = defineMessages({
   childDialogExplanation: 'Click to create and link in an additional dialog.',
   childPlanExplanation: 'Click to create and link in a child workspace relevant to this initiative.',
   decisionAddHelp: 'A Dialog gives you a timed box way to decide with others between options that you control.',
-  backToOptionPoolWarning: 'Moving this option back to the Option Pool deletes all votes.',
+  backToOptionPoolWarning: 'Moving this option back to Proposed Options deletes all votes.',
   yesAndProceedDeactive: 'Archive and deactivate',
   noAndProceedDeactivate: 'Archive only',
   // Investibles in decision dialog display
@@ -498,7 +498,7 @@ const messages = defineMessages({
   // InitiativeInvestible
   initiativeInvestibleVotingBlocked: 'Voting is blocked because there is an open issue',
   initiativeInvestibleYourVoting: 'Your Vote',
-  initiativeInvestibleOthersVoting: 'Candidates',
+  initiativeInvestibleOthersVoting: 'Options',
   initiativeInvestibleDescription: 'Initiative - Description',
   investibleDescription: 'Story - Description',
   dialogDescription: 'Dialog - Description',
@@ -697,8 +697,8 @@ const messages = defineMessages({
   errorCommentDeleteFailed: 'There was a problem removing',
   errorCommentReopenFailed: 'There was a problem reopening',
   errorMarketArchiveFailed: 'There was a problem deactivating the dialog',
-  errorInvestibleMoveToCurrentVotingFailed: 'There was a problem moving the option to Candidates. Please try again.',
-  errorInvestibleMoveToOptionPoolFailed: 'There was a problem moving the option back to the Option Pool. Please try again.',
+  errorInvestibleMoveToCurrentVotingFailed: 'There was a problem moving the option to Options. Please try again.',
+  errorInvestibleMoveToOptionPoolFailed: 'There was a problem moving the option back to Proposed Options. Please try again.',
   errorInvestibleFetchFailed: 'There was a problem receiving the data',
   errorInvestibleListFetchFailed: 'There was a problem fetching the data list',
   errorSignupFailed: 'There was a problem signing up. Please try again',
@@ -811,6 +811,10 @@ const messages = defineMessages({
   AddOptionWizardOptionDescriptionStepLabel: 'Option Description',
   AddOptionWizardOptionNamePlaceHolder: 'Your option\'s name',
   AddOptionWizardOptionDescriptionPlaceHolder: 'Your option\'s description',
+
+  //InitiativeWizard
+  InitiativeWizardTitle: 'Your Initiative',
+
 });
 
 export default messages;

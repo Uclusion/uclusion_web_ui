@@ -28,9 +28,8 @@ function DialogExpirationStep(props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Since decisions have deadlines, Uclusion Dialogs require all activity to stop after a set number of days, and
-        expires the Dialog.
-        Select the number of days you can wait for the decision to be made below, but don't worry if it turns out everyone
+        Since decisions have deadlines, Uclusion Dialogs require all activity to stop after a set number of days.
+        Use the slider below to select the number of days until the Dialog expires, but don't worry if it turns out everyone
         needs more time. You can extend the expiration later.
       </Typography>
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'DialogWizardDialogExpirationPlaceHolder' })}</label>

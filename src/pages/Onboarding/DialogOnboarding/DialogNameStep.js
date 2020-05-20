@@ -28,7 +28,7 @@ function DialogNameStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Great! We'll be creating a Uclusion Dialog that will help your team manage the process of choosing between a few options.
+        Great! We'll be creating a Uclusion Dialog that will help your team manage the process of choosing among a few options.
       </Typography>
       <Typography className={classes.introText} variant="body2">
         To do this we'll need a good name for the decision that tells people at a glance what they're deciding about.

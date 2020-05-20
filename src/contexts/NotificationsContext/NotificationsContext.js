@@ -1,9 +1,6 @@
 import React, { useEffect, useReducer, useState } from 'react'
 import { useHistory } from 'react-router'
-import reducer, {
-  initializeState,
-  NOTIFICATIONS_CONTEXT_NAMESPACE,
-} from './notificationsContextReducer'
+import reducer, { initializeState, NOTIFICATIONS_CONTEXT_NAMESPACE, } from './notificationsContextReducer'
 
 import beginListening from './notificationsContextMessages'
 import LocalForageHelper from '../../utils/LocalForageHelper'
@@ -19,7 +16,6 @@ const NotificationsContext = React.createContext(EMPTY_STATE);
 export const VISIT_CHANNEL = 'VisitChannel';
 export const TOAST_CHANNEL = 'ToastChannel';
 export const VIEW_EVENT = 'pageView';
-export const NAVIGATION_CHANNEL = 'PageNavigationChannel';
 
 function NotificationsProvider(props) {
   // eslint-disable-next-line react/prop-types

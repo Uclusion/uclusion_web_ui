@@ -12,7 +12,8 @@ import {
   NO_PIPELINE_TYPE,
   USER_POKED_TYPE
 } from '../../constants/notifications'
-import { nextMessage } from '../../contexts/NotificationsContext/notificationsContextHelper'
+import { filterMessagesByMarket, nextMessage } from '../../contexts/NotificationsContext/notificationsContextHelper'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 
 const useStyles = makeStyles(
   theme => {
@@ -89,7 +90,9 @@ export function getFullLink(current) {
 
 function Notifications(props) {
   const [messagesState] = useContext(NotificationsContext);
-  const current = nextMessage(messagesState || {});
+  const [marketsState] = useContext(MarketsContext);
+  const filteredMessagesState = filterMessagesByMarket(messagesState, marketsState);
+  const current = nextMessage(filteredMessagesState || {});
   const history = useHistory();
   const classes = useStyles();
 

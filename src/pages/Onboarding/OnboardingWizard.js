@@ -170,12 +170,11 @@ function OnboardingWizard (props) {
     onStartOver();
   }
 
-  function myOnFinish() {
+  function myOnFinish(formData) {
     onFinish(formData);
     updateFormData(resetValues());
     // reset the step state
     setStepState(initialStepState);
-
   }
 
   function nextStep () {

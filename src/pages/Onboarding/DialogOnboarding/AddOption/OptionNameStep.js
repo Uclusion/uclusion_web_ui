@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { updateValues } from '../../onboardingReducer';
 import { TextField, Typography } from '@material-ui/core';
 import StepButtons from '../../StepButtons';
+import PropTypes from 'prop-types';
 
 function OptionNameStep(props) {
   const { updateFormData, formData, active, classes } = props;
@@ -41,5 +42,17 @@ function OptionNameStep(props) {
     </div>
   );
 }
+
+OptionNameStep.propTypes = {
+  updateFormData: PropTypes.func,
+  formData: PropTypes.object,
+  active: PropTypes.bool,
+};
+
+OptionNameStep.defaultProps = {
+  updateFormData: () => {},
+  formData: {},
+  active: false,
+};
 
 export default OptionNameStep;

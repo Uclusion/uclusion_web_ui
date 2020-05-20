@@ -49,6 +49,7 @@ function AddOptionsStep (props) {
   }
 
   function onSubWizardFinish (optionData) {
+    console.log(optionData);
     const newOptions = [...dialogOptions, optionData];
     updateFormData(updateValues({
       dialogOptions: newOptions,
@@ -65,6 +66,7 @@ function AddOptionsStep (props) {
 
   if (addShowSubWizard) {
    return (<AddOptionWizard
+      hidden={false}
       onStartOver={onSubWizardStartOver}
       onFinish={onSubWizardFinish}
     />);

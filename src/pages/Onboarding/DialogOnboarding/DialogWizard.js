@@ -5,6 +5,8 @@ import OnboardingWizard from '../OnboardingWizard';
 import { useIntl } from 'react-intl';
 import DialogReasonStep from './DialogReasonStep';
 import AddOptionsStep from './AddOptionsStep';
+import CreatingDialogStep from './CreatingDialogStep';
+import DialogExpirationStep from './DialogExpirationStep';
 
 function DialogWizard (props) {
 
@@ -22,8 +24,16 @@ function DialogWizard (props) {
       content: <DialogReasonStep />,
     },
     {
+      label: 'DialogWizardDialogExpirationStepLabel',
+      content: <DialogExpirationStep />,
+    },
+    {
       label: 'DialogWizardAddOptionsStepLabel',
       content: <AddOptionsStep />,
+    },
+    {
+      label: 'DialogWizardCreatingDialogStepLabel',
+      content: <CreatingDialogStep />,
     }
   ];
 

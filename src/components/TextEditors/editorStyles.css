@@ -31,9 +31,9 @@
     width: 100%;
 }
 @media screen and (max-width: 600px) {
-    .ql-editor {
+    .ql-disabled .ql-editor{
         padding: 0
-    }  
+    }
 }
 #editorbox {
     border-top: 1px solid #ccc;

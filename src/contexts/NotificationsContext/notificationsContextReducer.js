@@ -12,7 +12,6 @@ export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const PAGE_CHANGED = 'PAGE_CHANGED';
-const REMOVE = 'REMOVE';
 
 // Empty state of the various subkeys of the state, useful for avoiding errors
 const emptyMessagesState = [];
@@ -22,20 +21,6 @@ export function updateMessages (messages) {
   return {
     type: UPDATE_MESSAGES,
     messages,
-  };
-}
-
-/**
- * Removes messages according to the backend's hash and range keys
- * @param hashKey
- * @param rangeKey
- * @returns {{rangeKey: *, hashKey: *, type: string}}
- */
-export function removeStoredMessages(hashKey, rangeKey) {
-  return {
-    type: REMOVE,
-    hashKey,
-    rangeKey,
   };
 }
 
@@ -82,7 +67,7 @@ function getStoredMessagesForActionPage(messages, action) {
 
 /**
  * Gets all messages for that pertain to a particular market page
- * @param state
+ * @param messages
  * @param page
  * @returns {*|*[]}
  */
@@ -128,7 +113,7 @@ function removeStoredMessagesForAction(messages, action) {
 
 /** Removes messages from the state that are for a
  * page pertaining to a market, or a subpage of a market
- * @param state
+ * @param messages
  * @param page
  * @returns {{marketMessages: *}|*}
  */
@@ -301,20 +286,6 @@ function doUpdateMessages (state, action) {
   return storeMessagesInState(state, messagesToStore);
 }
 
-
-function doRemove (state, action) {
-  const { hashKey, rangeKey } = action;
-  // the market_id_user_id of the message is the backends hash key
-  // the type_object_id is the backends range key
-  const messages = state.messages || emptyMessagesState;
-  const messageRemovalFilter = (message) => !(message.type_object_id === rangeKey && message.market_id_user_id === hashKey);
-  const newMessages = messages.filter(messageRemovalFilter);
-  return {
-    ...state,
-    messages: newMessages,
-  };
-}
-
 function computeNewState (state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
@@ -323,8 +294,6 @@ function computeNewState (state, action) {
       return processPageChange(state, action);
     case INITIALIZE_STATE:
       return action.newState;
-    case REMOVE:
-      return doRemove(state, action);
     default:
       return state;
   }

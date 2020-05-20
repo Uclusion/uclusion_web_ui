@@ -1,9 +1,7 @@
-import { getMessages } from '../../api/sso'
-import { pageChanged, removeStoredMessages, updateMessages } from './notificationsContextReducer'
+import { pageChanged, updateMessages } from './notificationsContextReducer'
 import { TOAST_CHANNEL, VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext'
 import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../VersionsContext/versionsContextHelper'
 import { registerListener } from '../../utils/MessageBusUtils'
-import { REMOVE_EVENT } from '../WebSocketContext'
 import { getFullLink } from '../../components/Notifications/Notifications'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import { RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications'
@@ -36,23 +34,12 @@ function beginListening(dispatch, history) {
   });
 
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
-    const { payload: { event, hkey, rkey } } = data;
+    const { payload: { event, messages } } = data;
     // // console.debug(`Notifications context responding to push event ${event}`);
 
     switch (event) {
       case VERSIONS_EVENT:
-        getMessages().then((messages) => {
-          const stale = messages.find((message) => (message.type_object_id === rkey
-            && message.market_id_user_id === hkey));
-          if (!stale) {
-            // Messages are reading from an index so can't consistent read and nothing like versions
-            // to say exactly what looking for. So if retrieved stale then just ignore and hope to get updated later.
-            return dispatch(updateMessages(messages));
-          }
-        });
-        break;
-      case REMOVE_EVENT:
-        dispatch(removeStoredMessages(hkey, rkey));
+        dispatch(updateMessages(messages));
         break;
       default:
         // console.debug(`Ignoring push event ${event}`);

@@ -1,7 +1,10 @@
-import { pushMessage } from '../../utils/MessageBusUtils';
-import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
-import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../WebSocketContext';
-import { addVersionRequirement } from './versionsContextReducer';
+import { pushMessage } from '../../utils/MessageBusUtils'
+import { refreshGlobalVersion } from '../../api/versionedFetchUtils'
+import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../WebSocketContext'
+import { addVersionRequirement } from './versionsContextReducer'
+import { getMessages } from '../../api/sso'
+import _ from 'lodash'
+import { NOTIFICATION_VERSION_UPDATE } from './versionsContextMessages'
 
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
 export const PUSH_CONTEXT_CHANNEL = 'MarketsChannel';
@@ -38,10 +41,21 @@ export function refreshNotificationVersion (state, version) {
 
 function processNewNotification (newNotificationVersion, notificationVersion) {
   const { version: notificationVersionNumber } = notificationVersion || {};
-  const { version: newNotificationVersionNumber, hkey, rkey } = newNotificationVersion || {};
-  // console.debug(`Refreshing notifications from ${notificationVersionNumber} to ${newNotificationVersionNumber}`);
+  const { version: newNotificationVersionNumber, hkey, rkey, is_remove: isRemove } = newNotificationVersion || {};
+  console.debug(`Refreshing notifications from ${notificationVersionNumber} to ${newNotificationVersionNumber} with ${hkey}, ${rkey}, ${isRemove}`);
   if (notificationVersionNumber !== newNotificationVersionNumber) {
-    pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT, hkey, rkey });
+    getMessages().then((messages) => {
+      const latest = messages.find((message) => (message.type_object_id === rkey
+        && message.market_id_user_id === hkey));
+      if (isRemove === _.isEmpty(latest)) {
+        console.debug(`Updating with ${JSON.stringify(messages)}`);
+        // Messages are reading from an index so can't consistent read.
+        // So if retrieved stale then just ignore and hope to get updated later.
+        pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT, messages });
+        pushMessage(VERSIONS_HUB_CHANNEL, {event: NOTIFICATION_VERSION_UPDATE,
+          notificationVersion: newNotificationVersionNumber})
+      }
+    });
   }
 }
 

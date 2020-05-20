@@ -30,3 +30,11 @@
     bottom: 0;
     width: 100%;
 }
+@media screen and (max-width: 600px) {
+    .ql-disabled .ql-editor{
+        padding: 0
+    }
+}
+#editorbox {
+    border-top: 1px solid #ccc;
+}

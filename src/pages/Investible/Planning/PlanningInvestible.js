@@ -137,7 +137,12 @@ const useStyles = makeStyles(
       padding: 0,
       '& img': {
         margin: '.75rem 0',
+      },
+      [theme.breakpoints.down("xs")]: {
+        margin: 0,
+        padding: '15px'
       }
+
     },
     actions: {},
     upperRightCard: {
@@ -163,7 +168,13 @@ const useStyles = makeStyles(
     },
     editRow: {
       height: '4rem'
-    }
+    },
+    fullWidth: {
+      [theme.breakpoints.down("xs")]: {
+        maxWidth: '100%',
+        flexBasis: '100%'
+      }
+    },
   }),
   { name: "PlanningInvestible" }
 );
@@ -515,7 +526,7 @@ function PlanningInvestible(props) {
         
         <CardContent className={classes.votingCardContent}>
           <Grid container className={classes.mobileColumn}>
-            <Grid item xs={9}>
+            <Grid item xs={9} className={classes.fullWidth}>
               <h2>
                 {name}
               </h2>

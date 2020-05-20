@@ -10,6 +10,12 @@ import {
   RadioGroup,
   Tooltip
 } from '@material-ui/core'
+import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
+import DescriptionIcon from '@material-ui/icons/Description';
+import AssignmentIcon from '@material-ui/icons/Assignment';
+import HelpIcon from '@material-ui/icons/Help';
+import BlockIcon from '@material-ui/icons/Block';
+
 import clsx from 'clsx';
 import CommentAdd from '../../components/Comments/CommentAdd'
 import { FormattedMessage } from 'react-intl'
@@ -43,7 +49,15 @@ export const useStyles = makeStyles((theme) => ({
     '& .MuiFormControlLabel-label': {
       paddingRight: '5px',
       fontWeight: 'bold',
-      textTransform: 'capitalize'
+      textTransform: 'capitalize',
+      [theme.breakpoints.down('sm')]: {
+        height: '100%',
+        verticalAlign: 'middle',
+        display: 'inline-block',
+        '& .MuiSvgIcon-root': {
+          display: 'block'
+        }
+      },
     },
     '& .MuiChip-avatar': {
       width: '16px',
@@ -59,9 +73,7 @@ export const useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(1),
     margin: theme.spacing(0, 0, 0, 4),
     [theme.breakpoints.down('sm')]: {
-      display: 'block',
-      width: '100%',
-      margin: '5px 0'
+      margin: '10px'
     },
   },
   selected: {
@@ -114,6 +126,29 @@ function CommentAddBox(props) {
   function clearType() {
     setType('');
   }
+  function getIcon(commentType) {
+    
+    switch (commentType) {
+      case SUGGEST_CHANGE_TYPE: {
+        return <EmojiObjectsIcon />;
+      }
+      case ISSUE_TYPE: {
+        return <BlockIcon />;
+      }
+      case QUESTION_TYPE: {
+        return <HelpIcon />;
+      }
+      case TODO_TYPE: {
+        return <AssignmentIcon />;
+      }
+      case 'REPORT': {
+        return <DescriptionIcon />;
+      }
+      default: {
+        return null;
+      }
+    }
+  }
   return (
     <>
       <Card>
@@ -145,7 +180,7 @@ function CommentAddBox(props) {
                       /* prevent clicking the label stealing focus */
                       onMouseDown={e => e.preventDefault()}
                       control={<Radio color="primary" />}
-                      label={<FormattedMessage id={`${commentType.toLowerCase()}Present`} />}
+                      label={window.outerWidth < 600 ? getIcon(commentType) : <FormattedMessage id={`${commentType.toLowerCase()}Present`} />}
                       labelPlacement="end"
                       value={commentType}
                     />

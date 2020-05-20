@@ -227,8 +227,7 @@ class QuillEditor extends React.PureComponent {
     const { uploadInProgress } = this.state;
     const editorStyle = {
       fontFamily: theme.typography.fontFamily,
-      fontSize: theme.typography.fontSize,
-      height: '5rem'
+      fontSize: theme.typography.fontSize
     };
 
     return (

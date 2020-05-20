@@ -16,6 +16,7 @@ function StepButtons (props) {
     onSkip,
     onPrevious,
     onFinish,
+    formData,
     showSkip,
     showGoBack,
     finishLabel,
@@ -47,7 +48,7 @@ function StepButtons (props) {
   }
 
   function myOnFinish() {
-    onFinish();
+    onFinish(formData);
   }
 
   return (
@@ -88,6 +89,7 @@ StepButtons.propTypes = {
   showGoBack: PropTypes.bool,
   finishLabel: PropTypes.string,
   onFinish: PropTypes.func,
+  formData: PropTypes.object,
 };
 StepButtons.defaultProps = {
   onStartOver: () => {},
@@ -97,6 +99,7 @@ StepButtons.defaultProps = {
   onNext: () => {},
   onSkip: () => {},
   onFinish: () => {},
+  formData: {},
   totalSteps: 0,
   currentStep: 0,
   validForm: true,

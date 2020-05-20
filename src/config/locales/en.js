@@ -784,7 +784,7 @@ const messages = defineMessages({
   WorkspaceWizardMeetingStepLabel: 'Workspace Name',
   WorkspaceWizardCreatingWorkspaceStepLabel: 'Workspace Creation',
   WorkspaceWizardWorkspaceDescription: 'Workspace for {meetingName}',
-  WorkspaceWizardTakeMeToWorkspace: 'Take me to my workspace',
+  WorkspaceWizardTakeMeToWorkspace: 'I\'ve shared the link, take me to my Workspace',
 
   //SignupWizard
   SignupWizardTitle: 'What do you want to do?',
@@ -799,8 +799,18 @@ const messages = defineMessages({
   DialogWizardDialogReasonStepLabel: 'Why does this decision need to be made?',
   DialogWizardReasonPlaceHolder: 'Your reason for making this decision',
   DialogWizardDialogNamePlaceHolder: 'Your dialog\'s name',
+  DialogWizardDialogExpirationPlaceHolder: 'Days until Decision Expires',
+  DialogWizardDialogExpirationStepLabel: 'How many days until the deadline?',
+  DialogWizardAddOptionsStepLabel: 'What are the options?',
+  DialogWizardTakeMeToDialog: 'I\'ve shared the link, take me to my Dialog',
+  DialogWizardCreatingDialogStepLabel: 'Dialog Creation',
 
-
+  //AddOptionWizard
+  AddOptionWizardTitle: 'Your Option',
+  AddOptionWizardOptionNameStepLabel : 'Option Name',
+  AddOptionWizardOptionDescriptionStepLabel: 'Option Description',
+  AddOptionWizardOptionNamePlaceHolder: 'Your option\'s name',
+  AddOptionWizardOptionDescriptionPlaceHolder: 'Your option\'s description',
 });
 
 export default messages;

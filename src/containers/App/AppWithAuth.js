@@ -115,9 +115,24 @@ function AppWithAuth(props) {
 
   const authenticatorTheme = {
     toast: {
-      position: 'static',
-      backgroundColor: '#3f6b72',
+      maxWidth: '400px',
+      marginLeft: 'auto',
+      position: 'relative',
+      marginRight: 'auto',
+      textAlign: 'center',
+      top: '10px',
+      fontSize: '1rem',
+      minHeight: '45px',
+      padding: '8px',
+      lineHeight: '37px',
+      marginBottom: '-53px',
+      color: 'white',
+      background: '#e85756',
+      borderRadius: '8px'
     },
+    container: {
+      padding: '10px'
+    }
   };
   const authenticatorErrorMap = (message) => {
     if (/incorrect.*username.*password/i.test(message)) {

@@ -20,6 +20,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { archiveMarket } from '../../../api/markets'
+import { ACTION_BUTTON_COLOR } from '../../Buttons/ButtonConstants'
 
 export const useStyles = makeStyles(() => {
   return {
@@ -172,7 +173,7 @@ function StageChangeAction(props) {
           content={<FormattedMessage id="deactivateInlineQuestion" />}
           title={
             <React.Fragment>
-              <ArchiveIcon htmlColor="#bdbdbd" />
+              <ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />
               <FormattedMessage id="warningQuestion" />
             </React.Fragment>
           }

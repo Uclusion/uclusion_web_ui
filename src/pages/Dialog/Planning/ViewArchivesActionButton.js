@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl'
 import MenuBookIcon from '@material-ui/icons/MenuBook'
 import { formMarketArchivesLink, navigate } from '../../../utils/marketIdPathFunctions'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 
 function ViewArchiveActionButton(props) {
 
@@ -19,7 +20,7 @@ function ViewArchiveActionButton(props) {
 
   return (
     <ExpandableAction
-      icon={<MenuBookIcon />}
+      icon={<MenuBookIcon htmlColor={ACTION_BUTTON_COLOR} />}
       label={intl.formatMessage({ id: 'planningDialogViewArchivesExplanation'})}
       openLabel={intl.formatMessage({ id: 'planningDialogViewArchivesLabel'})}
       onClick={onClick}/>

@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
-
-import EditIcon from '@material-ui/icons/Edit';
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import EditIcon from '@material-ui/icons/Edit'
+import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
+import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 function EditMarketButton(props) {
   const [operationRunning] = useContext(OperationInProgressContext);
@@ -20,7 +20,7 @@ function EditMarketButton(props) {
       disabled={operationRunning}
       key="exit"
       translationId={labelId}
-      icon={<EditIcon htmlColor="#bdbdbd"/>}
+      icon={<EditIcon htmlColor={ACTION_BUTTON_COLOR} />}
     />
   );
 }

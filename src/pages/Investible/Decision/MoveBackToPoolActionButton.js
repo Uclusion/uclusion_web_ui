@@ -14,6 +14,7 @@ import clsx from 'clsx'
 import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 
 function MoveBackToPoolActionButton(props) {
   const { onClick, investibleId, marketId } = props;
@@ -48,7 +49,7 @@ function MoveBackToPoolActionButton(props) {
   return (
     <div>
       <ExpandableAction
-        icon={<ArrowDownwardIcon />}
+        icon={<ArrowDownwardIcon htmlColor={ACTION_BUTTON_COLOR} />}
         label={intl.formatMessage({ id: 'investibleRemoveFromVotingExplanation' })}
         onClick={handleOpen}
       />

@@ -22,6 +22,7 @@ import { useHistory } from 'react-router'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import Collaborators from '../Collaborators'
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -262,7 +263,7 @@ function Summary(props) {
           <MarketLinks links={children || []} hidden={hidden} actions={[<ExpandableAction
             id="link"
             key="link"
-            icon={<InsertLinkIcon />}
+            icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR} />}
             openLabel={intl.formatMessage({ id: "planningInvestibleDecision" })}
             label={intl.formatMessage({ id: "childDialogExplanation" })}
             onClick={() =>

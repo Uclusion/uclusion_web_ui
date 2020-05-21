@@ -89,6 +89,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 
 const useStyles = makeStyles(
   theme => ({
@@ -342,7 +343,7 @@ function PlanningInvestible(props) {
             key="newOption"
             label={intl.formatMessage({ id: 'inlineAddExplanation' })}
             onClick={() => navigate(history, `${formMarketAddInvestibleLink(marketId)}#parentInvestibleId=${investibleId}`)}
-            icon={<AddIcon/>}
+            icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR}/>}
             openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
           />
         );
@@ -354,7 +355,7 @@ function PlanningInvestible(props) {
             key="newOption"
             label={intl.formatMessage({ id: 'inlineAddExplanation' })}
             onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
-            icon={<AddIcon/>}
+            icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR}/>}
             openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
           />
         );
@@ -365,7 +366,7 @@ function PlanningInvestible(props) {
         sidebarActions.push(<ExpandableAction
           id="link"
           key="link"
-          icon={<InsertLinkIcon/>}
+          icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR}/>}
           label={intl.formatMessage({ id: "childDialogExplanation" })}
           openLabel={intl.formatMessage({ id: 'planningInvestibleDecision' })}
           onClick={() => navigate(history, `/dialogAdd#type=${DECISION_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
@@ -856,7 +857,7 @@ function MarketMetaData(props) {
       <div className={classes.expansionControl} onChange={expansionChanged}>
         <Button
           className={classes.menuButton}
-          endIcon={<ExpandMoreIcon style={{marginRight: '16px'}} htmlColor="#bdbdbd" />}
+          endIcon={<ExpandMoreIcon style={{marginRight: '16px'}} htmlColor={ACTION_BUTTON_COLOR} />}
           aria-controls="stages-content"
           id="stages-header"
           onClick={handleClick}
@@ -928,7 +929,7 @@ function Assignments(props) {
                 className={classes.noPad}
                 onClick={toggleAssign}
               >
-                <PersonAddIcon htmlColor="#bdbdbd"/>
+                <PersonAddIcon htmlColor={ACTION_BUTTON_COLOR}/>
               </IconButton>
             </Tooltip>
           </div>

@@ -18,6 +18,7 @@ import { FormattedMessage } from 'react-intl'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import WarningDialog from '../../components/Warnings/WarningDialog'
 import { Dialog } from '../../components/Dialogs'
+import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 
 function ChangeToObserverButton(props) {
   const { marketId, onClick } = props;
@@ -66,7 +67,7 @@ function ChangeToObserverButton(props) {
     if (myPresence && myPresence.is_admin) {
       return (
         <>
-          <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon htmlColor="#bdbdbd" />} onClick={handleOpen}
+          <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />} onClick={handleOpen}
                              translationId="decisionDialogsBecomeObserver" />
           <Dialog
             autoFocusRef={autoFocusRef}
@@ -106,7 +107,7 @@ function ChangeToObserverButton(props) {
             content={<FormattedMessage id="deactivateDialogQuestion" />}
             title={
               <React.Fragment>
-                <ArchiveIcon htmlColor="#bdbdbd" />
+                <ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />
                 <FormattedMessage id="warningQuestion" />
               </React.Fragment>
             }
@@ -121,20 +122,20 @@ function ChangeToObserverButton(props) {
         onSpinStop={onClick}
         key="subscribe"
         translationId="decisionDialogsBecomeObserver"
-        icon={<ArchiveIcon htmlColor="#bdbdbd" />}
+        icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
       />
     );
   }
 
   return (
     <div>
-      <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon htmlColor="#bdbdbd" />} onClick={handleOpen}
+      <TooltipIconButton disabled={operationRunning} icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />} onClick={handleOpen}
                          translationId="decisionDialogsBecomeObserver" />
       <WarningDialog
         classes={lockedDialogClasses}
         open={open}
         onClose={handleClose}
-        icon={<ArchiveIcon htmlColor="#bdbdbd" />}
+        icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
         issueWarningId={isDeactivate ? 'deactivateWarning' : 'archiveWarning'}
         /* slots */
         actions={

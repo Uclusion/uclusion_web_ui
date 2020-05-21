@@ -43,6 +43,7 @@ import ExpandableAction from '../../../components/SidebarActions/Planning/Expand
 import { getInlineBreadCrumbs } from '../../Investible/Decision/DecisionInvestible'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 
 const useStyles = makeStyles(
   theme => ({
@@ -292,7 +293,7 @@ function DecisionDialog(props) {
                 <div className={clsx(metaClasses.group, metaClasses.assignments)}>
                   <ExpandableAction
                     onClick={() => navigate(history, formMarketAddInvestibleLink(marketId))}
-                    icon={<AddIcon />}
+                    icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR} />}
                     label={intl.formatMessage({ id: addLabelExplanation })}
                     openLabel={intl.formatMessage({ id: addLabel })}
                   />

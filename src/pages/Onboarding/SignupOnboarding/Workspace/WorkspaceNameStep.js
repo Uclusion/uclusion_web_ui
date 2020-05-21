@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
-import StepButtons from '../StepButtons';
-import { updateValues } from '../onboardingReducer';
+import StepButtons from '../../StepButtons';
+import { updateValues } from '../../onboardingReducer';
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData, active, classes } = props;

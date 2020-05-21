@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
-import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import { updateValues } from '../onboardingReducer';
+import QuillEditor from '../../../../components/TextEditors/QuillEditor';
+import { updateValues } from '../../onboardingReducer';
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
-import StepButtons from '../StepButtons';
+import StepButtons from '../../StepButtons';
 
 function InitiativeDescriptionStep (props) {
   const { updateFormData, formData, active, classes } = props;

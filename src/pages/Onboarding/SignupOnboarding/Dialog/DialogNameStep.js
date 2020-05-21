@@ -2,8 +2,8 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { TextField, Typography } from '@material-ui/core';
-import StepButtons from '../StepButtons';
-import { updateValues } from '../onboardingReducer';
+import StepButtons from '../../StepButtons';
+import { updateValues } from '../../onboardingReducer';
 import { useIntl } from 'react-intl';
 
 function DialogNameStep (props) {

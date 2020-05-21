@@ -2,11 +2,11 @@ import React  from 'react';
 import PropTypes from 'prop-types';
 //import { useIntl } from 'react-intl';
 import { Typography, List, ListItem, ListItemText, ListItemSecondaryAction, Button } from '@material-ui/core';
-import StepButtons from '../StepButtons';
+import StepButtons from '../../StepButtons';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import { updateValues } from '../onboardingReducer';
-import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
+import { updateValues } from '../../onboardingReducer';
+import TooltipIconButton from '../../../../components/Buttons/TooltipIconButton';
 import AddOptionWizard from './AddOption/AddOptionWizard';
 
 function AddOptionsStep (props) {

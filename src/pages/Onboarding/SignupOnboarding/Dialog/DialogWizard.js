@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import OnboardingWizard from '../OnboardingWizard';
+import OnboardingWizard from '../../OnboardingWizard';
 import { useIntl } from 'react-intl';
 import DialogNameStep from './DialogNameStep';
 import DialogReasonStep from './DialogReasonStep';

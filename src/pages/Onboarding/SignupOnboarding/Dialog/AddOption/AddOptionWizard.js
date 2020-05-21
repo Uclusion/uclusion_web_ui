@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import OptionNameStep from './OptionNameStep';
-import OnboardingWizard from '../../OnboardingWizard';
+import OnboardingWizard from '../../../OnboardingWizard';
 import OptionDescriptionStep from './OptionDescriptionStep';
 import { useIntl } from 'react-intl';
 

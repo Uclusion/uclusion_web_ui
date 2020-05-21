@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import DialogNameStep from './DialogNameStep';
 import OnboardingWizard from '../OnboardingWizard';
 import { useIntl } from 'react-intl';
+import DialogNameStep from './DialogNameStep';
 import DialogReasonStep from './DialogReasonStep';
 import AddOptionsStep from './AddOptionsStep';
 import CreatingDialogStep from './CreatingDialogStep';
@@ -16,7 +16,7 @@ function DialogWizard (props) {
 
   const stepProtoTypes = [
     {
-      label: 'DialogWizardDecisionStepLabel',
+      label: 'DialogWizardDialogNameStepLabel',
       content: <DialogNameStep/>,
     },
     {

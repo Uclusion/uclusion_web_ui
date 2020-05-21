@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 import WhatDoYouWantToDoStep from './WhatDoYouWantToDoStep';
 import WorkspaceWizard from '../WorkspaceOnboarding/WorkspaceWizard';
 import DialogWizard from '../DialogOnboarding/DialogWizard';
+import InitiativeWizard from '../InitiativeOnboarding/InitiativeWizard';
 
 function SignupWizard(props) {
 
@@ -30,7 +31,7 @@ function SignupWizard(props) {
     case 'dialog':
       return <DialogWizard onStartOver={onStartOver} hidden={hidden}/>
     case 'initiative':
-      return <div>Need initiative wizard</div>
+      return <InitiativeWizard onStartOver={onStartOver} hidden={hidden}/>
     default:
       return (
         <OnboardingWizard

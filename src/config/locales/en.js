@@ -795,7 +795,7 @@ const messages = defineMessages({
 
   //DialogWizard
   DialogWizardTitle: 'Your Dialog',
-  DialogWizardDecisionStepLabel: 'Your Dialog',
+  DialogWizardDialogNameStepLabel: 'Your Dialog',
   DialogWizardDialogReasonStepLabel: 'Why does this decision need to be made?',
   DialogWizardReasonPlaceHolder: 'Your reason for making this decision',
   DialogWizardDialogNamePlaceHolder: 'Your dialog\'s name',
@@ -814,6 +814,13 @@ const messages = defineMessages({
 
   //InitiativeWizard
   InitiativeWizardTitle: 'Your Initiative',
+  InitiativeWizardInitiativeNameStepLabel: 'Your Initiative',
+  InitiativeWizardInitiativeNamePlaceholder: 'Your Initiative\'s Name',
+  InitiativeWizardInitiativeDescriptionStepLabel: 'Describe your idea',
+  InitiativeWizardInitiativeDescriptionPlaceholder: 'Your idea',
+  InitiativeWizardCreatingInitiativeStepLabel: 'Initiative Creation',
+  InitiativeWizardInitiativeExpirationStepLabel: 'How long can you wait?',
+  InitiativeWizardInitiativeExpirationPlaceHolder: 'Days you can wait',
 
 });
 

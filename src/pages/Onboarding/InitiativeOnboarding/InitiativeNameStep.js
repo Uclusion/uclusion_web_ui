@@ -6,12 +6,12 @@ import StepButtons from '../StepButtons';
 import { updateValues } from '../onboardingReducer';
 import { useIntl } from 'react-intl';
 
-function DialogNameStep (props) {
+function InitiativeNameStep (props) {
 
   const { updateFormData, formData, active, classes } = props;
   const intl = useIntl();
 
-  const value = formData.dialogName || '';
+  const value = formData.initiativeName || '';
 
   if (!active) {
     return React.Fragment;
@@ -21,20 +21,19 @@ function DialogNameStep (props) {
   function onNameChange(event) {
     const { value } = event.target;
     updateFormData(updateValues({
-      dialogName: value,
+      initiativeName: value,
     }));
   }
 
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Great! We'll be creating a Uclusion Dialog that will help your team manage the process of choosing among a few options.
+        Great! We'll be creating a Uclusion Initiative that allows people you invite to vote for or against your idea.
       </Typography>
       <Typography className={classes.introText} variant="body2">
-        To do this we'll need a good name for the decision that tells people at a glance what they're deciding about.
-        A good name should be short, but descriptive.
+        First, we'll need a short but descriptive name for the Initiative that tells people at a glance what they're voting for.
       </Typography>
-      <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'DialogWizardDialogNamePlaceHolder' })}</label>
+      <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'InitiativeWizardInitiativeNamePlaceholder' })}</label>
       <TextField
         id="name"
         className={classes.input}
@@ -48,16 +47,16 @@ function DialogNameStep (props) {
 
 }
 
-DialogNameStep.propTypes = {
+InitiativeNameStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
   active: PropTypes.bool,
 };
 
-DialogNameStep.defaultProps = {
+InitiativeNameStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
   active: false,
 };
 
-export default DialogNameStep;
+export default InitiativeNameStep;

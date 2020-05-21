@@ -7,11 +7,11 @@ import StepButtons from '../StepButtons';
 import ExpirationSelector from '../../../components/Expiration/ExpirationSelector';
 import PropTypes from 'prop-types';
 
-function DialogExpirationStep(props) {
+function InitiativeExpirationStep(props) {
   const { updateFormData, formData, active, classes } = props;
   const intl = useIntl();
 
-  const value = formData.dialogExpiration || 1440;
+  const value = formData.initiativeExpiration || 1440;
 
   if (!active) {
     return React.Fragment;
@@ -21,18 +21,18 @@ function DialogExpirationStep(props) {
   function onExpiresChange(event) {
     const { value } = event.target;
     updateFormData(updateValues({
-      dialogExpiration: value,
+      initiativeExpiration: value,
     }));
   }
 
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Since decisions have deadlines, Uclusion Dialogs require all activity to stop after a set number of days.
-        Use the slider below to select the number of days until the Dialog expires, but don't worry if it turns out everyone
-        needs more time. You can extend the expiration later.
+        Votes from a long time ago aren't very useful when determining support.
+        Therefore, Uclusion Initiatives give voters a set number of days to vote before the Initiative expires. Don't worry if you
+        find out later that you need more time, an expiration can be extended as long as it hasn't already passed.
       </Typography>
-      <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'DialogWizardDialogExpirationPlaceHolder' })}</label>
+      <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'InitiativeWizardInitiativeExpirationPlaceHolder' })}</label>
       <ExpirationSelector value={value} onChange={onExpiresChange}/>
       <div className={classes.borderBottom}></div>
       <StepButtons {...props} validForm={validForm}/>
@@ -40,16 +40,16 @@ function DialogExpirationStep(props) {
   );
 }
 
-DialogExpirationStep.propTypes = {
+InitiativeExpirationStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
   active: PropTypes.bool,
 };
 
-DialogExpirationStep.defaultProps = {
+InitiativeExpirationStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
   active: false,
 };
 
-export default DialogExpirationStep;
+export default InitiativeExpirationStep;

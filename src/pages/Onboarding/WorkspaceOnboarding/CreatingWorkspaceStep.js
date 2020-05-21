@@ -172,7 +172,9 @@ function CreatingWorkspaceStep (props) {
           <StepButtons
             {...props}
             showGoBack={false}
-            finishLabel={'WorkspaceWizardTakeMeToWorkspace'}
+            finishLabel="WorkspaceWizardTakeMeToWorkspace"
+            startOverLabel="OnboardingWizardTrySomethingElse"
+            startOverDestroysData={false}
             onFinish={() => navigate(history, marketLink)}/>
         </div>
       )}

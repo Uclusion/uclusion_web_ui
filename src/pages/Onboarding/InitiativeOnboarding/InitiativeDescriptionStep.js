@@ -7,11 +7,11 @@ import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import StepButtons from '../StepButtons';
 
-function DialogReasonStep (props) {
+function InitiativeDescriptionStep (props) {
   const { updateFormData, formData, active, classes } = props;
 
-  const { dialogReason, dialogReasonUploadedFiles } = formData;
-  const [editorContents, setEditorContents] = useState(dialogReason || '');
+  const { initiativeDescription, initiativeDescriptionUploadedFiles } = formData;
+  const [editorContents, setEditorContents] = useState(initiativeDescription || '');
   const intl = useIntl();
 
   function onEditorChange (content) {
@@ -20,15 +20,15 @@ function DialogReasonStep (props) {
 
   function onStepChange () {
     updateFormData(updateValues({
-      dialogReason: editorContents,
+      initiativeDescription: editorContents,
     }));
   }
 
   function onS3Upload (metadatas) {
-    const oldUploadedFiles = dialogReasonUploadedFiles || [];
+    const oldUploadedFiles = initiativeDescriptionUploadedFiles || [];
     const newUploadedFiles = _.uniqBy([...oldUploadedFiles, metadatas], 'path');
     updateFormData(updateValues({
-      dialogReasonUploadedFiles: newUploadedFiles
+      initiativeDescriptionUploadedFiles: newUploadedFiles
     }));
   }
 
@@ -41,15 +41,15 @@ function DialogReasonStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Uclusion Dialogs can provide context outside of the options to help guide the decision.
-        Why the decision has to be made is a great thing to put in the context, which can be entered
-        below.
+        Uclusion Initiatives will handle the process of gathering votes and making sure everyone can track what's going on,
+        but voters will want a detailed description of the idea. Enter the description below, but don't stress to much about
+        getting every detail right. Uclusion allows your voters to ask Questions if they don't understand something.
         <QuillEditor
           onChange={onEditorChange}
           defaultValue={editorContents}
           value={editorContents}
           onS3Upload={onS3Upload}
-          placeholder={intl.formatMessage({ id: 'DialogWizardReasonPlaceHolder' })}
+          placeholder={intl.formatMessage({ id: 'InitiativeWizardInitiativeDescriptionPlaceholder' })}
         />
       </Typography>
       <div className={classes.borderBottom}></div>
@@ -61,16 +61,16 @@ function DialogReasonStep (props) {
   );
 }
 
-DialogReasonStep.propTypes = {
+InitiativeDescriptionStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
   active: PropTypes.bool,
 };
 
-DialogReasonStep.defaultProps = {
+InitiativeDescriptionStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
   active: false,
 };
 
-export default DialogReasonStep;
+export default InitiativeDescriptionStep;

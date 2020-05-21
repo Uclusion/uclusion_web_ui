@@ -25,6 +25,7 @@ const REMOVE_MARKET = 'REMOVE_MARKET';
 const REFRESH_NOTIFICATION = 'REFRESH_NOTIFICATION';
 const INITIALIZE_STATE_VERSIONS = 'INITIALIZE_STATE_VERSIONS';
 const ADD_VERSION_REQUIREMENT = 'ADD_VERSION_REQUIREMENT';
+const UPDATE_NOTIFICATION = 'UPDATE_NOTIFICATION';
 
 export function addVersionRequirement(requirement) {
   return {
@@ -70,6 +71,13 @@ export function refreshNotificationVersionAction(message) {
   return {
     type: REFRESH_NOTIFICATION,
     message,
+  };
+}
+
+export function updateNotificationVersion(notificationVersion) {
+  return {
+    type: UPDATE_NOTIFICATION,
+    notificationVersion,
   };
 }
 
@@ -140,11 +148,14 @@ function reducer(state, action) {
     case REMOVE_MARKET:
       newState = removeStoredMarket(state, action);
       break;
+    case UPDATE_NOTIFICATION:
+      const { notificationVersion } = action;
+      newState = refreshStoredNotification(state, notificationVersion);
+      break;
     case REFRESH_NOTIFICATION:
       const { message } = action;
       refreshNotificationVersion(state, message);
-      newState = refreshStoredNotification(state, message);
-      break;
+      return state;
     case INITIALIZE_STATE_VERSIONS:
       const { diskState } = action;
       newState = diskState || EMPTY_STATE;

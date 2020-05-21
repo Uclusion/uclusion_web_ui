@@ -12,9 +12,10 @@ export function nextMessage(state) {
 export function filterMessagesByMarket(messagesState, marketsState) {
   const { messages } = messagesState;
   const filteredMessages = messages.filter((message) => {
-    const { marketId } = message;
+    const { marketId, level } = message;
     const market = getMarket(marketsState, marketId);
-    return !_.isEmpty(market);
+    // Eventually filtering blue or not is market personal preference
+    return !_.isEmpty(market) && level !== 'BLUE';
   })
   return { messages: filteredMessages };
 }

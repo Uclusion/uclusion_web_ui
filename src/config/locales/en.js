@@ -9,7 +9,7 @@ const messages = defineMessages({
   warning_404_description: 'We are sorry but the page you are looking for does not exist.',
   warning_404_categories: 'No categories configured for this market.',
   warning: 'Warning',
-  warningQuestion: 'Choice',
+  warningQuestion: 'Important Choice',
   slack_register_failed: 'Slack registration failure.',
   settings: 'Settings',
   language: 'Language',
@@ -399,7 +399,7 @@ const messages = defineMessages({
   homeViewAbout: 'About',
   homeCreatedAt: 'Created on {dateString}',
   archiveWarning: 'Archiving will unassign any active story and prevent further assignment.',
-  deactivateWarning: 'Your archiving will permanently deactivates this workspace.',
+  deactivateWarning: 'Archiving will permanently deactivate this workspace and stop further work',
   new: 'New',
   information: 'Information',
   message: 'Message',
@@ -449,7 +449,7 @@ const messages = defineMessages({
   inlineAddLabel: 'Add Option',
   inlineAddExplanation: 'Add a how to do this story option and collect votes on it.',
   deactivateInlineQuestion: 'Deactivate the dialog associated with this story?',
-  deactivateDialogQuestion: 'Do you want to deactivate this collaboration?',
+  deactivateDialogQuestion: 'Do you want to deactivate and stop any further work?',
   yesAndProceed: 'Change stage and deactivate',
   noAndProceed: 'Change stage only',
   // Decision Dialog
@@ -765,7 +765,10 @@ const messages = defineMessages({
   phoneFieldErrorText: 'Phone should begin with plus or just be the digits',
 
   // Onboarding
+  OnboardingWizardTitle: 'Welcome to Uclusion',
+  OnboardingWizardSkipOnboarding: 'I\'ve used Uclusion before and want to go right to the app',
   OnboardingWizardStartOver: 'Start over',
+  OnboardingWizardTrySomethingElse: 'I\'ve shared the link and want to try something else',
   OnboardingWizardGoBack: 'Go Back',
   OnboardingWizardContinue: 'Continue',
   OnboardingWizardFinish: 'Finish',

@@ -1,11 +1,12 @@
 import React, { useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { Card, makeStyles, Typography } from '@material-ui/core';
+import { Card, Container, makeStyles, Typography } from '@material-ui/core';
 import Screen from '../../containers/Screen/Screen';
 import { useIntl } from 'react-intl';
 import { reducer, resetValues } from './onboardingReducer';
 import { Helmet } from 'react-helmet';
+import Header from '../../containers/Header';
 
 
 const useStyles = makeStyles(
@@ -35,6 +36,12 @@ const useStyles = makeStyles(
         marginTop: '2rem',
         fontWeight: 'bold',
         textTransform: 'capitalize'
+      },
+      containerAll: {
+        background: '#efefef',
+        padding: '24px 20px 156px',
+        marginTop: '80px',
+        width: '100%'
       },
       input: {
         backgroundColor: '#ecf0f1',
@@ -254,15 +261,28 @@ function OnboardingWizard (props) {
     return currentStep;
   }
 
+  // If hide UI is on, then we need to renders something to replace the main app
+  // layout, with just our content inside it
   if (hideUI) {
     return (
+
       <div className={hidden ? classes.hidden : classes.normal}>
         <Helmet
           defer={false}
         >
           <title>{title}</title>
         </Helmet>
-        {getContent()}
+        <Header
+          title={intl.formatMessage({ id: 'OnboardingWizardTitle'})}
+          breadCrumbs={[]}
+          toolbarButtons={[]}
+          hidden={hidden}
+          appEnabled
+          logoLinkDisabled
+          hideTools
+        />
+        <Container className={classes.containerAll}>{getContent()}</Container>
+
       </div>);
   }
 

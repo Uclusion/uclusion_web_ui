@@ -106,7 +106,9 @@ function CreatingInitiativeStep (props) {
           <StepButtons
             {...props}
             showGoBack={false}
-            finishLabel={'InitiativeWizardTakeMeToInitiative'}
+            finishLabel="InitiativeWizardTakeMeToInitiative"
+            startOverLabel="OnboardingWizardTrySomethingElse"
+            startOverDestroysData={false}
             onFinish={() => navigate(history, marketLink)}/>
         </div>
       )}

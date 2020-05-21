@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@material-ui/core';
 import { useIntl } from 'react-intl';
-import _ from 'lodash';
 
 function StepButtons (props) {
   const {
@@ -20,12 +19,13 @@ function StepButtons (props) {
     showSkip,
     showGoBack,
     finishLabel,
+    startOverLabel,
+    showStartOver,
+    startOverDestroysData,
     classes
   } = props;
   const intl = useIntl();
   const lastStep = currentStep === totalSteps - 1; //zero indexed
-
-  const finishKey = _.isEmpty(finishLabel) ? 'OnboardingWizardFinish' : finishLabel;
 
   function myOnPrevious () {
     onPrevious();
@@ -51,11 +51,14 @@ function StepButtons (props) {
     onFinish(formData);
   }
 
+  const startOverClass = startOverDestroysData? classes.actionStartOver : classes.actionPrimary;
   return (
     <div className={classes.buttonContainer}>
-      <div className={classes.startOverContainer}>
-        <Button className={classes.actionStartOver} onClick={myOnStartOver}>{intl.formatMessage({ id: 'OnboardingWizardStartOver'})}</Button>
-      </div>
+      {showStartOver && (
+        <div className={classes.startOverContainer}>
+          <Button className={startOverClass} onClick={myOnStartOver}>{intl.formatMessage({ id: startOverLabel })}</Button>
+        </div>
+      )}
 
       <div className={classes.actionContainer}>
         {(currentStep > 0) && showGoBack && (
@@ -65,7 +68,7 @@ function StepButtons (props) {
           <Button className={classes.actionSkip} variant="outlined" onClick={myOnSkip}>{intl.formatMessage({ id: 'OnboardingWizardSkip' })}</Button>
         )}
         {lastStep && (
-          <Button className={classes.actionPrimary} disabled={!validForm} onClick={myOnFinish}>{intl.formatMessage({ id: finishKey })}</Button>
+          <Button className={classes.actionPrimary} disabled={!validForm} onClick={myOnFinish}>{intl.formatMessage({ id: finishLabel })}</Button>
         )}
         {!lastStep && (
           <Button className={classes.actionPrimary} disabled={!validForm}
@@ -90,6 +93,9 @@ StepButtons.propTypes = {
   finishLabel: PropTypes.string,
   onFinish: PropTypes.func,
   formData: PropTypes.object,
+  showStartOver: PropTypes.bool,
+  startOverLabel: PropTypes.string,
+  startOverDestroysData: PropTypes.bool
 };
 StepButtons.defaultProps = {
   onStartOver: () => {},
@@ -105,7 +111,10 @@ StepButtons.defaultProps = {
   validForm: true,
   showSkip: false,
   showGoBack: true,
-  finishLabel: '',
+  showStartOver: true,
+  startOverDestroysData: true,
+  finishLabel: 'OnboardingWizardFinish',
+  startOverLabel: 'OnboardingWizardStartOver',
 };
 
 export default StepButtons;

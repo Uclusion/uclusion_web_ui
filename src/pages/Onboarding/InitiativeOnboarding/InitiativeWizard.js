@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 import InitiativeNameStep from './InitiativeNameStep';
 import InitiativeDescriptionStep from './InitiativeDescriptionStep';
 import InitiativeExpirationStep from './InitiativeExpirationStep';
+import CreatingInitiativeStep from './CreatingInitiativeStep';
 
 
 function InitiativeWizard(props) {
@@ -24,6 +25,10 @@ function InitiativeWizard(props) {
     {
       label: 'InitiativeWizardInitiativeExpirationStepLabel',
       content: <InitiativeExpirationStep />,
+    },
+    {
+      label: 'InitiativeWizardCreatingInitiativeStepLabel',
+      content: <CreatingInitiativeStep />,
     }
   ];
 

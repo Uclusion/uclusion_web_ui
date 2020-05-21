@@ -789,9 +789,9 @@ const messages = defineMessages({
   //SignupWizard
   SignupWizardTitle: 'What do you want to do?',
   SignupWizardQuestion: 'What do you want to do?',
-  SignupWizardWorkspace: 'Tracking story progress and deciding the next story to work on',
-  SignupWizardDialog: 'Making a group decision',
-  SignupWizardInitiative: 'Measuring support for an idea',
+  SignupWizardWorkspace: 'Track story progress and decide the next story to work on',
+  SignupWizardDialog: 'Make a group decision',
+  SignupWizardInitiative: 'Measure support for an idea',
 
   //DialogWizard
   DialogWizardTitle: 'Your Dialog',
@@ -821,6 +821,7 @@ const messages = defineMessages({
   InitiativeWizardCreatingInitiativeStepLabel: 'Initiative Creation',
   InitiativeWizardInitiativeExpirationStepLabel: 'How long can you wait?',
   InitiativeWizardInitiativeExpirationPlaceHolder: 'Days you can wait',
+  InitiativeWizardTakeMeToInitiative: 'I\'ve shared the link, take me to my Initiative',
 
 });
 

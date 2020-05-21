@@ -29,7 +29,7 @@ function InitiativeExpirationStep(props) {
     <div>
       <Typography className={classes.introText} variant="body2">
         Votes from a long time ago aren't very useful when determining support.
-        Therefore, Uclusion Iniatives give voters a set number of days to vote before the Initiative expires. Don't worry if you
+        Therefore, Uclusion Initiatives give voters a set number of days to vote before the Initiative expires. Don't worry if you
         find out later that you need more time, an expiration can be extended as long as it hasn't already passed.
       </Typography>
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'InitiativeWizardInitiativeExpirationPlaceHolder' })}</label>

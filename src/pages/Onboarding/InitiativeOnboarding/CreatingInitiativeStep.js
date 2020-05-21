@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import StepButtons from '../StepButtons';
-import { createDecision} from '../../../api/markets';
+import { createInitiative } from '../../../api/markets';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { addInvestibleToStage } from '../../../api/investibles';
+import { addDecisionInvestible } from '../../../api/investibles';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
@@ -13,82 +13,70 @@ import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-//import { useIntl } from 'react-intl';
 import { Typography } from '@material-ui/core';
 import InviteLinker from '../../Dialog/InviteLinker';
-import { DECISION_TYPE } from '../../../constants/markets';
-import { AllSequentialMap } from '../../../utils/PromiseUtils';
+import { INITIATIVE_TYPE } from '../../../constants/markets';
 
-function CreatingDialogStep (props) {
- // const intl = useIntl();
+function CreatingInitiativeStep (props) {
   const { formData, active, classes } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
 
-  const [dialogInfo, setDialogInfo] = useState({});
+  const [initiativeInfo, setDialogInfo] = useState({});
   const history = useHistory();
 
   useEffect(() => {
-    const { dialogName, dialogReason, dialogOptions, dialogExpiration } = formData;
-
-    const { dialogCreated } = dialogInfo;
-    if (!dialogCreated && active) {
+    const {
+      initiativeName,
+      initiativeDescription,
+      initiativeDescriptionUploadedFiles,
+      initiativeExpiration
+    } = formData;
+    const realUploadedFiles = initiativeDescriptionUploadedFiles || [];
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(realUploadedFiles, initiativeDescription);
+    const { initiativeCreated } = initiativeInfo;
+    if (!initiativeCreated && active) {
       const marketInfo = {
-        name: dialogName,
-        description: dialogReason,
-        expiration_minutes: dialogExpiration,
+        name: 'NA',
+        description: 'NA',
+        expiration_minutes: initiativeExpiration,
       };
       let marketId;
       let marketToken;
-      let inVotingStage;
-      let createdStage;
-      createDecision(marketInfo)
-        .then((marketDetails) => {
+      createInitiative(marketInfo)
+        .then((result) => {
           const {
             market,
             presence,
-            stages,
-          } = marketDetails;
+          } = result;
           marketId = market.id;
           marketToken = market.invite_capability;
-          setDialogInfo({ dialogCreated: true, marketId, marketToken });
+          const investibleInfo = {
+            marketId,
+            uploadedFiles: filteredUploads,
+            description: tokensRemoved,
+            name: initiativeName,
+          };
           addMarketToStorage(marketsDispatch, diffDispatch, market);
           addPresenceToMarket(presenceDispatch, marketId, presence);
-          createdStage = stages.find((stage) => !stage.allows_investment);
-          inVotingStage = stages.find((stage) => stage.allows_investment);
-          return AllSequentialMap(dialogOptions, (option) => {
-            const {
-              optionUploadedFiles,
-              optionName,
-              optionDescription
-            } = option;
-            const realUploadedFiles = optionUploadedFiles || [];
-            const processed = processTextAndFilesForSave(realUploadedFiles, optionDescription);
-            const addInfo = {
-              marketId,
-              name: optionName,
-              description: processed.text,
-              uploadedFiles: processed.uploadedFiles,
-              stageInfo: {
-                current_stage_id: createdStage.id,
-                stage_id: inVotingStage.id,
-              },
-            };
-            return addInvestibleToStage(addInfo)
-              .then((investible) => {
-                addInvestible(investiblesDispatch, diffDispatch, investible);
-              });
+          return addDecisionInvestible(investibleInfo)
+            .then((investible) => {
+            addInvestible(investiblesDispatch, diffDispatch, investible);
+            setDialogInfo({ initiativeCreated: true, marketId, marketToken });
           });
         });
     }
   }, [
-    dialogInfo, active,
+    initiativeInfo, active,
     diffDispatch, formData, investiblesDispatch,
     marketsDispatch, presenceDispatch,
   ]);
-  const { marketId, dialogCreated, marketToken } = dialogInfo;
+  const { marketId, initiativeCreated, marketToken } = initiativeInfo;
   const marketLink = formMarketLink(marketId);
 
   if (!active) {
@@ -97,21 +85,20 @@ function CreatingDialogStep (props) {
 
   return (
     <div>
-      {!dialogCreated && (
+      {!initiativeCreated && (
         <div>
-          We're creating your Uclusion Dialog now, please wait a moment.
+          We're creating your Uclusion Initiative now, please wait a moment.
         </div>
 
       )}
-      {dialogCreated && (
+      {initiativeCreated && (
         <div>
           <Typography variant="body1">
-            We've created your Dialog, please share the link below.
-
+            We've created your Initiative, please share the link below.
           </Typography>
           <div className={classes.linkContainer}>
             <InviteLinker
-              marketType={DECISION_TYPE}
+              marketType={INITIATIVE_TYPE}
               marketToken={marketToken}
             />
           </div>
@@ -119,7 +106,7 @@ function CreatingDialogStep (props) {
           <StepButtons
             {...props}
             showGoBack={false}
-            finishLabel={'DialogWizardTakeMeToDialog'}
+            finishLabel={'InitiativeWizardTakeMeToInitiative'}
             onFinish={() => navigate(history, marketLink)}/>
         </div>
       )}
@@ -127,14 +114,14 @@ function CreatingDialogStep (props) {
   );
 }
 
-CreatingDialogStep.propTypes = {
+CreatingInitiativeStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
 };
 
-CreatingDialogStep.defaultProps = {
+CreatingInitiativeStep.defaultProps = {
   formData: {},
   active: false,
 };
 
-export default CreatingDialogStep;
+export default CreatingInitiativeStep;

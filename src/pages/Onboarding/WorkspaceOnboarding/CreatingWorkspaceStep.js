@@ -173,8 +173,7 @@ function CreatingWorkspaceStep (props) {
             {...props}
             showGoBack={false}
             finishLabel="WorkspaceWizardTakeMeToWorkspace"
-            startOverLabel="OnboardingWizardTrySomethingElse"
-            startOverDestroysData={false}
+            showStartOver={false}
             onFinish={() => navigate(history, marketLink)}/>
         </div>
       )}

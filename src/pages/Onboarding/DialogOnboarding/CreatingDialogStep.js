@@ -120,8 +120,7 @@ function CreatingDialogStep (props) {
             {...props}
             showGoBack={false}
             finishLabel="DialogWizardTakeMeToDialog"
-            startOverLabel="OnboardingWizardTrySomethingElse"
-            startOverDestroysData={false}
+            showStartOver={false}
             onFinish={() => navigate(history, marketLink)}/>
         </div>
       )}

@@ -107,8 +107,7 @@ function CreatingInitiativeStep (props) {
             {...props}
             showGoBack={false}
             finishLabel="InitiativeWizardTakeMeToInitiative"
-            startOverLabel="OnboardingWizardTrySomethingElse"
-            startOverDestroysData={false}
+            showStartOver={false}
             onFinish={() => navigate(history, marketLink)}/>
         </div>
       )}

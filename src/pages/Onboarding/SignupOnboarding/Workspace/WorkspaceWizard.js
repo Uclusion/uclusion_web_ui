@@ -5,7 +5,7 @@ import CurrentStoryStep from './CurrentStoryStep';
 import CurrentStoryProgressStep from './CurrentStoryProgressStep';
 import NextStoryStep from './NextStoryStep';
 import CreatingWorkspaceStep from './CreatingWorkspaceStep';
-import OnboardingWizard from '../OnboardingWizard';
+import OnboardingWizard from '../../OnboardingWizard';
 import { useIntl } from 'react-intl';
 function WorkspaceWizard(props) {
   const { hidden, onStartOver } = props;

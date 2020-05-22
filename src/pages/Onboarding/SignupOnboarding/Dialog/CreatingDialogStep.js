@@ -1,23 +1,23 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import StepButtons from '../StepButtons';
-import { createDecision} from '../../../api/markets';
-import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { processTextAndFilesForSave } from '../../../api/files';
-import { addInvestibleToStage } from '../../../api/investibles';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import StepButtons from '../../StepButtons';
+import { createDecision} from '../../../../api/markets';
+import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
+import { processTextAndFilesForSave } from '../../../../api/files';
+import { addInvestibleToStage } from '../../../../api/investibles';
+import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
+import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
+import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper';
+import { formMarketLink, navigate } from '../../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
 //import { useIntl } from 'react-intl';
 import { Typography } from '@material-ui/core';
-import InviteLinker from '../../Dialog/InviteLinker';
-import { DECISION_TYPE } from '../../../constants/markets';
-import { AllSequentialMap } from '../../../utils/PromiseUtils';
+import InviteLinker from '../../../Dialog/InviteLinker';
+import { DECISION_TYPE } from '../../../../constants/markets';
+import { AllSequentialMap } from '../../../../utils/PromiseUtils';
 
 function CreatingDialogStep (props) {
  // const intl = useIntl();
@@ -120,8 +120,7 @@ function CreatingDialogStep (props) {
             {...props}
             showGoBack={false}
             finishLabel="DialogWizardTakeMeToDialog"
-            startOverLabel="OnboardingWizardTrySomethingElse"
-            startOverDestroysData={false}
+            showStartOver={false}
             onFinish={() => navigate(history, marketLink)}/>
         </div>
       )}

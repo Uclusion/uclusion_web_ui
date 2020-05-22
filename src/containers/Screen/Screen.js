@@ -83,7 +83,7 @@ function Screen(props) {
         const { level } = message;
         if (level === 'RED') {
           prePendWarning += '!';
-        } else {
+        } else if (level === 'YELLOW') {
           hasYellow = true;
         }
       });

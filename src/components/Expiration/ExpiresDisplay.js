@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
-import * as moment from 'moment';
-import { useIntl } from 'react-intl';
+import React, { useEffect, useState } from 'react'
+import { makeStyles } from '@material-ui/core/styles'
+import PropTypes from 'prop-types'
+import * as moment from 'moment'
+import { useIntl } from 'react-intl'
 import { IconButton, Tooltip } from '@material-ui/core'
 import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
-import AlarmAddIcon from '@material-ui/icons/AlarmAdd';
+import AlarmAddIcon from '@material-ui/icons/AlarmAdd'
+import { ACTION_BUTTON_COLOR } from '../Buttons/ButtonConstants'
 
 const ONE_MINUTE = 60000;
 const THIRTY_MINUTES = 1800000;
@@ -170,7 +171,7 @@ function ExpiresDisplay(props) {
           <IconButton
             onClick={() => navigate(history, `${formMarketManageLink(marketId)}#expires=true`)}
           >
-            <AlarmAddIcon />
+            <AlarmAddIcon htmlColor={ACTION_BUTTON_COLOR} />
           </IconButton>
         </Tooltip>
       )}

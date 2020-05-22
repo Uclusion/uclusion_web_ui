@@ -6,6 +6,7 @@ import SpinningTooltipIconButton from '../../components/SpinBlocking/SpinningToo
 import { changeObserverStatus } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 
 function ChangeToParticipantButton(props) {
   const { marketId } = props;
@@ -25,7 +26,7 @@ function ChangeToParticipantButton(props) {
       onClick={myOnClick}
       key="subscribe"
       translationId="decisionDialogsBecomeParticipant"
-      icon={<UnarchiveIcon />}
+      icon={<UnarchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
     />
   );
 }

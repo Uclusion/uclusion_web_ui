@@ -3,6 +3,7 @@ import React from 'react'
 import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import { FormattedMessage } from 'react-intl'
+import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 
 const useStyles = makeStyles( () => ({
     archived: {
@@ -75,7 +76,7 @@ export function Collaborators(props) {
               <IconButton
                 onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
               >
-                <PersonAddIcon />
+                <PersonAddIcon htmlColor={ACTION_BUTTON_COLOR} />
               </IconButton>
             </Tooltip>
           )}

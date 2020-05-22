@@ -1,10 +1,10 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 
-import { updateValues } from '../onboardingReducer';
+import { updateValues } from '../../onboardingReducer';
 import { Typography } from '@material-ui/core';
-import StepButtons from '../StepButtons';
-import ExpirationSelector from '../../../components/Expiration/ExpirationSelector';
+import StepButtons from '../../StepButtons';
+import ExpirationSelector from '../../../../components/Expiration/ExpirationSelector';
 import PropTypes from 'prop-types';
 
 function DialogExpirationStep(props) {

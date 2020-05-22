@@ -1,9 +1,9 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import _ from 'lodash';
-import { updateValues } from '../../onboardingReducer';
+import { updateValues } from '../../../onboardingReducer';
 import { TextField, Typography } from '@material-ui/core';
-import StepButtons from '../../StepButtons';
+import StepButtons from '../../../StepButtons';
 import PropTypes from 'prop-types';
 
 function OptionNameStep(props) {

@@ -25,6 +25,7 @@ import Collaborators from '../../Dialog/Collaborators'
 import CardActions from '@material-ui/core/CardActions'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 
 const useStyles = makeStyles(
   theme => ({
@@ -264,7 +265,7 @@ function InitiativeInvestible(props) {
               <MarketLinks links={children || []} hidden={hidden} actions={activeMarket ? [<ExpandableAction
                 id="link"
                 key="link"
-                icon={<InsertLinkIcon />}
+                icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR} />}
                 label={intl.formatMessage({ id: 'childPlanExplanation' })}
                 openLabel={intl.formatMessage({ id: 'initiativePlanningParent' })}
                 onClick={() => navigate(history, `/dialogAdd#type=${PLANNING_TYPE}&investibleId=${investibleId}&id=${marketId}`)}

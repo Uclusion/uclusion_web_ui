@@ -8,6 +8,7 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { moveInvestibleToCurrentVoting } from '../../../api/investibles'
 import SpinningTooltipIconButton from '../../../components/SpinBlocking/SpinningTooltipIconButton'
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 
 function MoveToCurrentVotingActionButton(props) {
   const { onClick, investibleId, marketId } = props;
@@ -32,7 +33,7 @@ function MoveToCurrentVotingActionButton(props) {
   return (
     <SpinningTooltipIconButton
       marketId={marketId}
-      icon={<ArrowUpwardIcon />}
+      icon={<ArrowUpwardIcon htmlColor={ACTION_BUTTON_COLOR} />}
       translationId="investibleAddToVotingExplanation"
       onClick={moveToProposed}
     />

@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import OnboardingWizard from '../OnboardingWizard';
 import { useIntl } from 'react-intl';
 import WhatDoYouWantToDoStep from './WhatDoYouWantToDoStep';
-import WorkspaceWizard from '../WorkspaceOnboarding/WorkspaceWizard';
-import DialogWizard from '../DialogOnboarding/DialogWizard';
-import InitiativeWizard from '../InitiativeOnboarding/InitiativeWizard';
+import WorkspaceWizard from './Workspace/WorkspaceWizard';
+import DialogWizard from './Dialog/DialogWizard';
+import InitiativeWizard from './Initiative/InitiativeWizard';
 
 function SignupWizard(props) {
 

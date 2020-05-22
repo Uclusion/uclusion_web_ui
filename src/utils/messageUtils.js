@@ -1,4 +1,4 @@
-import { ISSUE_TYPE, RED_LEVEL, YELLOW_LEVEL } from '../constants/notifications';
+import { ISSUE_TYPE, RED_LEVEL, YELLOW_LEVEL } from '../constants/notifications'
 
 export function messageComparator (a, b) {
   if (a.level === b.level) {
@@ -63,6 +63,16 @@ export function getMassagedMessages (messages) {
     if (aType === 'USER_POKED') {
       return {
         ...message, pokeType: marketId, aType, level, userId,
+      };
+    }
+    if (aType === 'NEW_OPTION') {
+      return {
+        ...message,
+        marketId,
+        aType,
+        level,
+        associatedInvestibleId: objectId,
+        userId,
       };
     }
     if (marketId === objectId || userId === objectId) {

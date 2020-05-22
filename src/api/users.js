@@ -1,5 +1,5 @@
-import { getAccountClient, getMarketClient } from './uclusionClient';
-import { toastErrorAndThrow } from '../utils/userMessage';
+import { getAccountClient, getMarketClient } from './uclusionClient'
+import { toastErrorAndThrow } from '../utils/userMessage'
 import { USER_POKED_TYPE } from '../constants/notifications'
 
 export function unbanUser(marketId, userId) {
@@ -15,14 +15,14 @@ export function banUser(marketId, userId) {
 }
 
 export function deleteMessage(message) {
-  const { marketId, type_object_id: typeObjectId, aType, pokeType, investibleId } = message;
+  const { marketId, type_object_id: typeObjectId, aType, pokeType, investibleId, associatedInvestibleId } = message;
   const objectId = typeObjectId.split('_').pop();
   if (aType === USER_POKED_TYPE) {
     return getAccountClient()
       .then((client) => client.users.removeNotification(objectId, aType, pokeType));
   }
   return getMarketClient(marketId)
-    .then((client) => client.users.removePageNotifications(investibleId));
+    .then((client) => client.users.removePageNotifications(investibleId || associatedInvestibleId));
 }
 
 export function startSubscription(paymentId, tier) {

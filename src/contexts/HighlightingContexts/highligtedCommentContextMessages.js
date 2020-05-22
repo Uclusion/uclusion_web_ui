@@ -1,5 +1,5 @@
-import { registerListener } from '../../utils/MessageBusUtils';
-import { HIGHTLIGHT_ADD } from './HighlightedCommentContext';
+import { registerListener } from '../../utils/MessageBusUtils'
+import { HIGHTLIGHT_ADD } from './HighlightedCommentContext'
 
 export const HIGHLIGHTED_COMMENT_CHANNEL = 'HIGHLIGHTED_COMMENT';
 
@@ -9,8 +9,9 @@ function beginListening (dispatch) {
     const {
       level,
       commentId,
+      associatedInvestibleId
     } = message;
-    dispatch({ type: HIGHTLIGHT_ADD, commentId, level });
+    dispatch({ type: HIGHTLIGHT_ADD, commentId: commentId || associatedInvestibleId, level });
   });
 }
 

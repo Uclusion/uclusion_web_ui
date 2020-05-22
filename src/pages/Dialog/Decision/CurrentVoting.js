@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { CardContent, Grid, Link } from '@material-ui/core'
@@ -11,6 +11,7 @@ import RaisedCard from '../../../components/Cards/RaisedCard'
 import { getVoteTotalsForUser } from '../../../utils/userFunctions'
 import VoteCard from '../../../components/Cards/VoteCard'
 import useFitText from 'use-fit-text'
+import { HighlightedCommentContext } from '../../../contexts/HighlightingContexts/HighlightedCommentContext'
 
 const useStyles = makeStyles(theme => ({
   noPadding: {
@@ -18,6 +19,13 @@ const useStyles = makeStyles(theme => ({
     "&:last-child": {
       padding: 0
     }
+  },
+  noPaddingHighlighted: {
+    padding: theme.spacing(0),
+    "&:last-child": {
+      padding: 0
+    },
+    boxShadow: "10px 5px 5px red"
   },
   warnNoOptions: {
     backgroundColor: red["400"],
@@ -47,6 +55,7 @@ function CurrentVoting(props) {
   const intl = useIntl();
   const { marketPresences, investibles, marketId, comments, inArchives } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
+  const [highlightedCommentState] = useContext(HighlightedCommentContext);
 
   function getInvestibleVotes() {
     // first set every investibles support and investments to 0
@@ -92,7 +101,7 @@ function CurrentVoting(props) {
           className="raisedcard"
           onClick={() => navigate(history, formInvestibleLink(marketId, id))}
         >
-          <CardContent className={classes.noPadding}>
+          <CardContent className={id in highlightedCommentState ? classes.noPaddingHighlighted : classes.noPadding}>
             <VoteCard
               title={name}
               comments={investibleComments}

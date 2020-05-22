@@ -150,8 +150,9 @@ function processHighlighting(messagesForPage) {
     const {
       commentId,
       associatedUserId,
+      associatedInvestibleId
     } = message;
-    if (!_.isEmpty(commentId)) {
+    if (!_.isEmpty(commentId) || !_.isEmpty(associatedInvestibleId)) {
       pushMessage(HIGHLIGHTED_COMMENT_CHANNEL, message);
     }
     if (!_.isEmpty(associatedUserId)) {

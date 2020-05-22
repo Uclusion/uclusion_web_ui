@@ -90,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
 
 function CommentAdd (props) {
   const {
-    intl, marketId, onSave, onCancel, type, clearType, investible, parent, hidden, issueWarningId,
+    intl, marketId, onSave, onCancel, type, clearType, investible, parent, hidden, issueWarningId, todoWarningId,
   } = props;
   const [body, setBody] = useState('');
   const [commentsState, commentDispatch] = useContext(CommentsContext);
@@ -178,8 +178,9 @@ function CommentAdd (props) {
 
   const commentSaveLabel = parent ? 'commentAddSaveLabel' : 'commentReplySaveLabel';
   const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
-  const showIssueWarning = issueWarningId !== null && (type === ISSUE_TYPE || type === TODO_TYPE);
-  const myWarningId = type === TODO_TYPE ? 'todoWarningPlanning' : issueWarningId;
+  const showIssueWarning = (issueWarningId !== null && type === ISSUE_TYPE) ||
+    (todoWarningId !== null && type === TODO_TYPE);
+  const myWarningId = type === TODO_TYPE ? todoWarningId : issueWarningId;
   const lockedDialogClasses = useLockedDialogStyles();
   return (
     <Paper
@@ -306,6 +307,7 @@ CommentAdd.propTypes = {
   type: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
   issueWarningId: PropTypes.string,
+  todoWarningId: PropTypes.string,
   onSave: PropTypes.func.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   intl: PropTypes.object.isRequired,
@@ -321,6 +323,7 @@ CommentAdd.propTypes = {
 CommentAdd.defaultProps = {
   parent: null,
   investible: null,
+  todoWarningId: null,
   onCancel: () => {},
   clearType: () => {},
   hidden: false,

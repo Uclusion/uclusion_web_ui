@@ -330,6 +330,7 @@ const messages = defineMessages({
   issueWarningInvestible: 'Opening an issue will halt voting on this option.',
   issueWarningPlanning: 'Opening an issue will move this story to blocked and stop execution or voting.',
   todoWarningPlanning: 'Opening a TODO prevents this story from changing stages until resolved.',
+  todoWarningDone: 'Opening a TODO moves this story to proposed.',
 
   // CommentBox
   commentIconRaiseIssueLabel: 'Raise Issue',

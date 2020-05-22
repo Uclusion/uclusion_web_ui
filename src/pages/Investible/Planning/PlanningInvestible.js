@@ -651,6 +651,7 @@ function PlanningInvestible(props) {
               investible={investible}
               marketId={marketId}
               issueWarningId="issueWarningPlanning"
+              todoWarningId={fullStage.allows_todos ? 'todoWarningPlanning' : 'todoWarningDone'}
             />
           )}
           <CommentBox

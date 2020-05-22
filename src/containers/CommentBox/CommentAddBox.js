@@ -10,13 +10,13 @@ import {
   RadioGroup,
   Tooltip
 } from '@material-ui/core'
-import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
-import DescriptionIcon from '@material-ui/icons/Description';
-import AssignmentIcon from '@material-ui/icons/Assignment';
-import HelpIcon from '@material-ui/icons/Help';
-import BlockIcon from '@material-ui/icons/Block';
+import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects'
+import DescriptionIcon from '@material-ui/icons/Description'
+import AssignmentIcon from '@material-ui/icons/Assignment'
+import HelpIcon from '@material-ui/icons/Help'
+import BlockIcon from '@material-ui/icons/Block'
 
-import clsx from 'clsx';
+import clsx from 'clsx'
 import CommentAdd from '../../components/Comments/CommentAdd'
 import { FormattedMessage } from 'react-intl'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
@@ -116,6 +116,7 @@ function CommentAddBox(props) {
     allowedTypes,
     onSave,
     issueWarningId,
+    todoWarningId,
   } = props;
   const [type, setType] = useState('');
   const classes = useStyles();
@@ -200,6 +201,7 @@ function CommentAddBox(props) {
           marketId={marketId}
           issueWarningId={issueWarningId}
           onSave={onSave}
+          todoWarningId={todoWarningId}
         />
       </div>
     </>
@@ -209,6 +211,7 @@ function CommentAddBox(props) {
 CommentAddBox.propTypes = {
   marketId: PropTypes.string.isRequired,
   issueWarningId: PropTypes.string,
+  todoWarningId: PropTypes.string,
   // eslint-disable-next-line react/forbid-prop-types
   investible: PropTypes.any,
   allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
@@ -219,6 +222,7 @@ CommentAddBox.defaultProps = {
   investible: undefined,
   onSave: () => {},
   issueWarningId: null,
+  todoWarningId: null,
 };
 
 export default CommentAddBox;

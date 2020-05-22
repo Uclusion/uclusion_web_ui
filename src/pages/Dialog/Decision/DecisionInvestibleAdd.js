@@ -275,7 +275,7 @@ function DecisionInvestibleAdd(props) {
           onSpinStop={onSpinComplete}
           className={classes.actionPrimary}
           color="primary"
-          disabled={!validForm}
+          disabled={!validForm || !stageChangeInfo.current_stage_id}
           hasSpinChecker
           marketId={marketId}
           variant="contained"
@@ -287,7 +287,7 @@ function DecisionInvestibleAdd(props) {
         <SpinBlockingButton
           variant="contained"
           color="primary"
-          disabled={!validForm}
+          disabled={!validForm || !stageChangeInfo.current_stage_id}
           id="saveAddAnother"
           onClick={handleSaveAddAnother}
           hasSpinChecker

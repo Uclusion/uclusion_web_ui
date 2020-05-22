@@ -76,7 +76,7 @@ function ActionBar(props) {
               </Button>
             }
           </Grid>
-          <Grid item xs={1}>
+          <Grid item md={1} xs={3}>
             {actions && actions.length > 0 &&
               <Button onClick={recordPositionToggle} className={clsx(
                 classes.button,

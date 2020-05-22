@@ -29,7 +29,14 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: 'rgb(232, 232, 232);',
     '&>div': {
       backgroundColor: 'green'
-    }
+    },
+    [theme.breakpoints.down('sm')]: {
+      width: '10rem',
+      position: 'relative',
+      left: '-70px'
+
+    },
+
   }
 }));
 

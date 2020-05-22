@@ -30,7 +30,8 @@ import { red } from '@material-ui/core/colors'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 
 const useCommentStyles = makeStyles(
-  {
+  theme => {
+    return {
     chip: {
       margin: 0,
       marginBottom: 18
@@ -120,9 +121,17 @@ const useCommentStyles = makeStyles(
     },
     containerYellow: {
       boxShadow: "10px 5px 5px yellow"
+    },
+    timeElapsed: {
+      [theme.breakpoints.down('sm')]: {
+        fontSize: '.7rem',
+        lineHeight: 1,
+        paddingLeft: '5px'
+      },
     }
-  },
-  { name: "Comment" }
+  }
+},
+{ name: "Comment" }
 );
 
 /**

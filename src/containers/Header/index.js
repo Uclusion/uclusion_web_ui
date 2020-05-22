@@ -64,6 +64,9 @@ const useStyles = makeStyles((theme) => {
     },
     topBar: {
       width: '100%',
+      [theme.breakpoints.down('sm')]: {
+        paddingLeft: 0
+      },
     },
     searchBox: {
       marginRight: '15px',
@@ -92,7 +95,10 @@ const useStyles = makeStyles((theme) => {
         '& rect': {
           transition: 'fill 250ms ease'
         }
-      }
+      },
+      [theme.breakpoints.down('sm')]: {
+        padding: 0
+      },
     },
     notificationBox: {
       marginRight: '15px'

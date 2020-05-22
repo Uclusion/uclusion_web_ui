@@ -201,7 +201,8 @@ function PlanningDialogs(props) {
         <Grid
           item
           key={marketId}
-          xs={4}
+          md={4}
+          xs={12}
           className={classes.lessPadding}
         >
           <RaisedCard

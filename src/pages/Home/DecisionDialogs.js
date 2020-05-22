@@ -30,7 +30,7 @@ import CardType from '../../components/CardType'
 import Chart from '../../components/Cards/Chart'
 import { nameToAvatarText } from '../../utils/stringFunctions'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   paper: {
     textAlign: 'left',
   },
@@ -71,9 +71,20 @@ const useStyles = makeStyles(() => ({
   isLinked: {
     cursor: 'pointer',
   },
+  borderRight: {
+    borderRight: '1px solid #f2f2f2',
+    [theme.breakpoints.down('sm')]: {
+      borderRight: 'none'
+    },
+  },
   chartContainer: {
     justifyContent: 'flex-end',
-    paddingRight: '2rem'
+    paddingRight: '2rem',
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: 'flex-start',
+      paddingRight: 0,
+      paddingLeft: '1rem'
+    },
   },
   chartContent: {
     display: 'flex',
@@ -114,7 +125,7 @@ function DecisionDialogs(props) {
   function getParticipantInfo(presences) {
 
     return (
-      <div style={{flex: 2, display: 'inline-block', height: '100%', borderRight: '1px solid #f2f2f2', minWidth: '70%'}}>
+      <div className={classes.borderRight} style={{flex: 2, display: 'inline-block', height: '100%', minWidth: '70%'}}>
         <Grid
           container
           style={{height: '100%' }}
@@ -254,7 +265,7 @@ function DecisionDialogs(props) {
                 className={classes.contentContainer}
                 >
                 <Grid container>
-                  <Grid item xs={6}>
+                  <Grid item xs={12} md={6}>
                     <CardContent>
                       {parentMarketId &&
                         <Link
@@ -302,7 +313,7 @@ function DecisionDialogs(props) {
                       )}
                     </CardContent>
                   </Grid>
-                  <Grid item xs={2} container className={classes.chartContainer}>
+                  <Grid item xs={6} md={2} container className={classes.chartContainer}>
                     {sortedVotesArray && sortedVotesArray.length > 0 &&
                       <div className={classes.chartContent}>
                         <Chart data={chartData} />
@@ -312,7 +323,7 @@ function DecisionDialogs(props) {
                       </div>
                     }
                   </Grid>
-                  <Grid item xs={4} style={{display: 'flex'}}>
+                  <Grid item md={4} xs={5} style={{display: 'flex'}}>
                     {getParticipantInfo(sortedPresences, marketId)}
                     <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
                       <DialogActions

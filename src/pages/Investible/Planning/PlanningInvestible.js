@@ -385,7 +385,10 @@ function PlanningInvestible(props) {
     ));
   }, []);
   const blockingComments = investibleComments.filter(
-    comment => (comment.comment_type === ISSUE_TYPE || (!isInBlocked && comment.comment_type === TODO_TYPE)) && !comment.resolved
+    comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
+  );
+  const todoComments = investibleComments.filter(
+    comment => comment.comment_type === TODO_TYPE && !comment.resolved
   );
   function getStageActions() {
     if (inArchives) {
@@ -422,7 +425,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
-          disabled={isInReview || !isAssigned || !_.isEmpty(blockingComments)}
+          disabled={isInReview || !isAssigned || !_.isEmpty(blockingComments) || !_.isEmpty(todoComments)}
         />
       </MenuItem>,
       <MenuItem
@@ -444,7 +447,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
-          disabled={isInVerified || !_.isEmpty(blockingComments)}
+          disabled={isInVerified || !_.isEmpty(blockingComments) || !_.isEmpty(todoComments)}
         />
       </MenuItem>,
       <MenuItem

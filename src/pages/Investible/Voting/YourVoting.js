@@ -45,7 +45,7 @@ function YourVoting(props) {
   }
 
   return (
-    <>
+    <div  id="pleaseVote">
       <h2>{yourVote ? intl.formatMessage({ id: 'changeVote' }) : isDecision ? allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
         : intl.formatMessage({ id: 'addAVote' }) : isInitiative ? intl.formatMessage({ id: 'pleaseVote' })
         : intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
@@ -97,7 +97,7 @@ function YourVoting(props) {
         storyMaxBudget={storyMaxBudget}
         multiplier={type === FOR ? 1 : -1}
       />
-    </>
+    </div>
   );
 
 }

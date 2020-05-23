@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -26,6 +26,14 @@ import CardActions from '@material-ui/core/CardActions'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { TourContext } from '../../../contexts/TourContext/TourContext';
+import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer';
+import {
+  INVITE_INITIATIVE_FAMILY_NAME,
+  INVITE_INITIATIVE_FIRST_VIEW, inviteInitiativeSteps
+} from '../../../components/Tours/InviteTours/initiative';
+import UclusionTour from '../../../components/Tours/UclusionTour';
+import { CognitoUserContext } from '../../../contexts/CongitoUserContext';
 
 const useStyles = makeStyles(
   theme => ({
@@ -134,6 +142,8 @@ function InitiativeInvestible(props) {
   // eslint-disable-next-line max-len
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const { investible, market_infos: marketInfos } = fullInvestible;
+  const [, tourDispatch] = useContext(TourContext);
+  const cognitoUser = useContext(CognitoUserContext) || {};
   const { description, name } = investible;
   const {
     id: marketId,
@@ -169,6 +179,15 @@ function InitiativeInvestible(props) {
     return !_.isEmpty(negInvestment);
   });
   const metaClasses = useMetaDataStyles();
+
+  useEffect(() => {
+    if (!isAdmin) {
+      tourDispatch(startTourFamily(INVITE_INITIATIVE_FAMILY_NAME));
+    }
+  }, [isAdmin, tourDispatch]);
+
+
+
   if (!investibleId) {
     // we have no usable data;
     return <></>;
@@ -181,10 +200,20 @@ function InitiativeInvestible(props) {
       breadCrumbs={breadCrumbs}
       hidden={hidden}
     >
+      <UclusionTour
+        hidden={hidden}
+        name={INVITE_INITIATIVE_FIRST_VIEW}
+        family={INVITE_INITIATIVE_FAMILY_NAME}
+        steps={inviteInitiativeSteps(cognitoUser)}
+        continuous
+        hideBackButton
+      />
       {!isAdmin && activeMarket && (
         <DismissableText textId='initiativeVotingHelp' />
       )}
-      <Card className={classes.root}>
+      <Card className={classes.root}
+        id="initiativeMain"
+      >
         <CardType
           className={classes.cardType}
           label={`${intl.formatMessage({
@@ -300,7 +329,7 @@ function InitiativeInvestible(props) {
         investmentReasons={investmentReasons}
       />
       <Grid container spacing={2}>
-        <Grid item xs={12} style={{ marginTop: '71px' }}>
+        <Grid item xs={12} style={{ marginTop: '71px' }} id="commentAddArea">
           {!inArchives && !isAdmin && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}

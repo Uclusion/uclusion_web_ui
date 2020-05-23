@@ -1,13 +1,11 @@
-import {
-  PURE_SIGNUP_FAMILY_NAME,
-  PURE_SIGNUP_SEQUENCE
-} from './pureSignupTours';
+
+import { INVITE_DIALOG_FAMILY_NAME, INVITE_DIALOG_SEQUENCE } from './InviteTours/dialog';
 
 
 export function getTourSequence(familyName) {
   switch(familyName) {
-    case PURE_SIGNUP_FAMILY_NAME:
-      return PURE_SIGNUP_SEQUENCE;
+    case INVITE_DIALOG_FAMILY_NAME:
+      return INVITE_DIALOG_SEQUENCE;
     default:
       return [];
   }

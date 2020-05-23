@@ -10,12 +10,6 @@ import { processTextAndFilesForSave } from '../../api/files'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
-import UclusionTour from '../../components/Tours/UclusionTour'
-import {
-  PURE_SIGNUP_ADD_DIALOG,
-  PURE_SIGNUP_ADD_DIALOG_STEPS,
-  PURE_SIGNUP_FAMILY_NAME
-} from '../../components/Tours/pureSignupTours'
 import { useHistory } from 'react-router'
 import queryString from 'query-string'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -158,12 +152,6 @@ function DecisionAdd(props) {
     <>
       <DismissableText textId={createEnabled ? 'decisionAddHelp' : billingDismissText} />
       <Card id="tourRoot">
-        <UclusionTour
-          name={PURE_SIGNUP_ADD_DIALOG}
-          family={PURE_SIGNUP_FAMILY_NAME}
-          steps={PURE_SIGNUP_ADD_DIALOG_STEPS}
-          hideBackButton
-        />
         <CardType className={classes.cardType} type={DECISION_TYPE} />
         <CardContent className={classes.cardContent}>
           <Typography>

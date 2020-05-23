@@ -1,5 +1,8 @@
 import React, { useEffect, useReducer } from 'react';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
+import {
+  getLoginPersistentItem,
+  setLoginPersistentItem,
+} from '../../components/utils';
 import { reducer } from './tourContextReducer';
 
 const EMPTY_CONTEXT = {
@@ -13,10 +16,10 @@ const TourContext = React.createContext(EMPTY_CONTEXT);
 
 function TourProvider(props) {
   const { children } = props;
-  const defaultValue = getUclusionLocalStorageItem(TOUR_CONTEXT_KEY) || EMPTY_CONTEXT;
+  const defaultValue = getLoginPersistentItem(TOUR_CONTEXT_KEY) || EMPTY_CONTEXT;
   const [state, dispatch] = useReducer(reducer, defaultValue);
   useEffect(() => {
-    setUclusionLocalStorageItem(TOUR_CONTEXT_KEY, state);
+    setLoginPersistentItem(TOUR_CONTEXT_KEY, state);
   }, [state]);
 
   return (

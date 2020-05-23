@@ -19,12 +19,6 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import UclusionTour from '../../components/Tours/UclusionTour'
-import {
-  PURE_SIGNUP_ADD_PEOPLE,
-  PURE_SIGNUP_ADD_PEOPLE_STEPS,
-  PURE_SIGNUP_FAMILY_NAME
-} from '../../components/Tours/pureSignupTours'
 import queryString from 'query-string'
 import { Card, CardContent, Typography } from '@material-ui/core'
 import DeadlineExtender from './Decision/DeadlineExtender'
@@ -94,13 +88,6 @@ function DialogManage (props) {
       <Card>
         {participation && marketType === DECISION_TYPE && myPresence && (
           <div id="decisionAddressList">
-            <UclusionTour
-              name={PURE_SIGNUP_ADD_PEOPLE}
-              family={PURE_SIGNUP_FAMILY_NAME}
-              steps={PURE_SIGNUP_ADD_PEOPLE_STEPS}
-              shouldRun={isAdmin}
-              hidden={hidden}
-            />
             <CardType
               className={classes.cardType}
               type={DECISION_TYPE}

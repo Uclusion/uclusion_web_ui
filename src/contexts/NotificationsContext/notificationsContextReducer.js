@@ -195,12 +195,24 @@ function handleMessagesForPage(pageMessages) {
     processHighlighting(pageMessages);
     // toast the page messages
     processToasts(pageMessages);
-    // and tell the backend we've processed them immediately
-    // the backend only needs the first message to figure out all of them
-    // have been viewed
-    const firstMessage = pageMessages[0];
-    deleteMessage(firstMessage)
-      .catch((error) => console.error(error)); // not much to do other than log it.
+    const notAssociatedInvestible = pageMessages.filter((message) => {
+      const { associatedInvestibleId } = message;
+      if (associatedInvestibleId) {
+        // Each of these has to be deleted individually since we are not on that page
+        deleteMessage(message)
+          .catch((error) => console.error(error));
+        return false;
+      }
+      return true;
+    })
+    if (!_.isEmpty(notAssociatedInvestible)) {
+      // and tell the backend we've processed them immediately
+      // the backend only needs the first message to figure out all of them
+      // have been viewed
+      const firstMessage = notAssociatedInvestible[0];
+      deleteMessage(firstMessage)
+        .catch((error) => console.error(error)); // not much to do other than log it.
+    }
   }
 }
 

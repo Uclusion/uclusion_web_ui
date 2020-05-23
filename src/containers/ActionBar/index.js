@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'capitalize',
     backgroundColor: '#e0e0e0',
     [theme.breakpoints.down('sm')]: {
-      lineHeight: '1.5rem'
+      lineHeight: '1.2rem'
     },
   },
   buttonPrimary: {

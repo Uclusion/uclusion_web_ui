@@ -147,7 +147,7 @@ function DecisionDialogs(props) {
             style={{alignSelf: 'center', display: 'flex', justifyContent: 'flex-end', paddingRight: '1rem'}}
           >
             <AvatarGroup
-              max={4}
+              max={window.outerWidth > 600 ? 4 : 1}
               spacing="small">
               {presences.map((presence) => {
                 const { id: userId, name } = presence;

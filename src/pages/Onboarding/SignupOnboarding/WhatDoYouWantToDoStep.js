@@ -36,15 +36,16 @@ function WhatDoYouWantToDoStep(props) {
             {intl.formatMessage({ id: 'SignupWizardInitiative'})}
           </Button>
         </ButtonGroup>
-      <Button>
-
-      </Button>
     </div>
   )
 }
 
 WhatDoYouWantToDoStep.propTypes = {
-  active: PropTypes.bool.isRequired,
+  active: PropTypes.bool,
+}
+
+WhatDoYouWantToDoStep.defaultProps = {
+  active: false,
 }
 
 export default WhatDoYouWantToDoStep;

@@ -18,9 +18,6 @@ import InitiativeDialogs from './InitiativeDialogs'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
-import UclusionTour from '../../components/Tours/UclusionTour'
-import { PURE_SIGNUP_FAMILY_NAME, PURE_SIGNUP_HOME, pureSignupHomeSteps } from '../../components/Tours/pureSignupTours'
-import { CognitoUserContext } from '../../contexts/CongitoUserContext'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
 
@@ -44,7 +41,6 @@ const useStyles = makeStyles(() => ({
 function Home(props) {
   const { hidden } = props;
   const history = useHistory();
-  const cognitoUser = useContext(CognitoUserContext);
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -86,8 +82,7 @@ function Home(props) {
     navigate(history, '/dialogAdd#type=PLANNING');
   }
   const noMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
-  const tourSteps = pureSignupHomeSteps({ name: cognitoUser.name });
-
+  
   const SIDEBAR_ACTIONS = [
     {
       label: intl.formatMessage({ id: 'homeAddPlanningExplanation' }),
@@ -127,14 +122,6 @@ function Home(props) {
       isHome
       sidebarActions={SIDEBAR_ACTIONS}
     >
-      <UclusionTour
-        hidden={hidden}
-        family={PURE_SIGNUP_FAMILY_NAME}
-        name={PURE_SIGNUP_HOME}
-        steps={tourSteps}
-        continuous
-        hideBackButton
-      />
       {noMarkets && (
           <DismissableText textId="homeNoMarkets"/>
       )}

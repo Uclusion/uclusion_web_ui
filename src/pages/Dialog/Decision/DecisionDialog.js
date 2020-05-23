@@ -1,7 +1,7 @@
 /**
  * A component that renders a _decision_ dialog
  */
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
@@ -24,11 +24,6 @@ import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments'
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
 import UclusionTour from '../../../components/Tours/UclusionTour'
-import {
-  PURE_SIGNUP_ADD_DIALOG_OPTIONS,
-  PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS,
-  PURE_SIGNUP_FAMILY_NAME
-} from '../../../components/Tours/pureSignupTours'
 import CardType from '../../../components/CardType'
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff'
 import clsx from 'clsx'
@@ -44,6 +39,14 @@ import { getInlineBreadCrumbs } from '../../Investible/Decision/DecisionInvestib
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import {
+  INVITE_DIALOG_FAMILY_NAME,
+  INVITE_DIALOG_FIRST_VIEW,
+  inviteDialogSteps
+} from '../../../components/Tours/InviteTours/dialog';
+import { CognitoUserContext } from '../../../contexts/CongitoUserContext';
+import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer';
+import { TourContext } from '../../../contexts/TourContext/TourContext';
 
 const useStyles = makeStyles(
   theme => ({
@@ -143,12 +146,15 @@ function DecisionDialog(props) {
   const {
     is_admin: isAdmin,
   } = myPresence;
+  const [, tourDispatch] = useContext(TourContext);
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
   const history = useHistory();
   const investibleComments = comments.filter((comment) => comment.investible_id);
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const allowedCommentTypes = [QUESTION_TYPE, ISSUE_TYPE];
+  const user = useContext(CognitoUserContext) || {};
+  const { name } = user;
   const {
     id: marketId,
     name: marketName,
@@ -173,13 +179,19 @@ function DecisionDialog(props) {
   }
   const breadCrumbs = inArchives ? _.isEmpty(breadCrumbTemplates) ? makeArchiveBreadCrumbs(history)
     : makeBreadCrumbs(history, breadCrumbTemplates) : makeBreadCrumbs(history);
-  const participantTourSteps = [
-  ];
-  const tourSteps = isAdmin? PURE_SIGNUP_ADD_DIALOG_OPTIONS_STEPS : participantTourSteps;
-  const tourName = isAdmin? PURE_SIGNUP_ADD_DIALOG_OPTIONS : '';
-  const tourFamily = isAdmin? PURE_SIGNUP_FAMILY_NAME: '';
+  const tourSteps = isAdmin? [] : inviteDialogSteps({ name });
+  const tourName = isAdmin? '' : INVITE_DIALOG_FIRST_VIEW;
+  const tourFamily = isAdmin? '' : INVITE_DIALOG_FAMILY_NAME;
   const addLabel = isAdmin ? 'decisionDialogAddInvestibleLabel' : 'decisionDialogProposeInvestibleLabel';
   const addLabelExplanation = isAdmin ? 'decisionDialogAddExplanationLabel' : 'decisionDialogProposeExplanationLabel';
+
+  useEffect(() => {
+    if (!isAdmin) {
+      tourDispatch(startTourFamily(INVITE_DIALOG_FAMILY_NAME));
+    }
+  }, [isAdmin, tourDispatch])
+
+
   function getInvestiblesForStage(stage) {
     if (stage) {
       return investibles.reduce((acc, inv) => {
@@ -216,7 +228,7 @@ function DecisionDialog(props) {
           className={classes.cardType}
           type={DECISION_TYPE}
         />
-        <Grid container className={classes.mobileColumn}>
+        <Grid id="dialogMain" container className={classes.mobileColumn}>
           <Grid item xs={9}>
             <CardContent className={classes.content}>
           {!isInline && (
@@ -292,6 +304,7 @@ function DecisionDialog(props) {
               <dl className={metaClasses.root}>
                 <div className={clsx(metaClasses.group, metaClasses.assignments)}>
                   <ExpandableAction
+                    id="proposeOption"
                     onClick={() => navigate(history, formMarketAddInvestibleLink(marketId))}
                     icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR} />}
                     label={intl.formatMessage({ id: addLabelExplanation })}
@@ -332,7 +345,7 @@ function DecisionDialog(props) {
             </SubSection>
           </Grid>
         )}
-        <Grid item xs={12} style={{ marginTop: '71px' }}>
+        <Grid id="commentAddArea" item xs={12} style={{ marginTop: '71px' }}>
           {!inArchives && (
             <CommentAddBox
               allowedTypes={allowedCommentTypes}

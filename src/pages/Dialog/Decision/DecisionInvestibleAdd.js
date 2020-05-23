@@ -15,12 +15,6 @@ import {
 } from '../../../utils/marketIdPathFunctions'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import UclusionTour from '../../../components/Tours/UclusionTour'
-import {
-  PURE_SIGNUP_ADD_FIRST_OPTION,
-  PURE_SIGNUP_ADD_FIRST_OPTION_STEPS,
-  PURE_SIGNUP_FAMILY_NAME
-} from '../../../components/Tours/pureSignupTours'
 import CardType, { DECISION_TYPE, OPTION, VOTING_TYPE } from '../../../components/CardType'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { createDecision } from '../../../api/markets'
@@ -37,7 +31,6 @@ function DecisionInvestibleAdd(props) {
     isAdmin,
     onSave,
     storedState,
-    hidden,
     onSpinComplete,
     parentInvestibleId,
   } = props;
@@ -217,13 +210,6 @@ function DecisionInvestibleAdd(props) {
 
   return (
     <Card>
-      <UclusionTour
-        hidden={hidden}
-        shouldRun={isAdmin}
-        family={PURE_SIGNUP_FAMILY_NAME}
-        name={PURE_SIGNUP_ADD_FIRST_OPTION}
-        steps={PURE_SIGNUP_ADD_FIRST_OPTION_STEPS}
-      />
       <CardType
         className={classes.cardType}
         label={`${intl.formatMessage({

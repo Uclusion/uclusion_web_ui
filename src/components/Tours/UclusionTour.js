@@ -22,11 +22,11 @@ function UclusionTour(props) {
   } = props;
 
   const [tourState, tourDispatch] = useContext(TourContext);
-
+  console.error(props.steps);
   const isCompleted = isTourCompleted(tourState, name);
 
   function tourCallback(state) {
-    // console.log(state);
+    console.error(state);
     const {
       status,
       index,
@@ -39,7 +39,7 @@ function UclusionTour(props) {
         // console.log(`Tour ${name} is complete`);
         completeTour(tourDispatch, name);
       }
-      if (type === 'currentStep:after') {
+      if (type === 'step:after') {
         setCurrentStep(tourDispatch, name, index + 1);
         if (step && step.onClose) {
           step.onClose();
@@ -76,14 +76,15 @@ function UclusionTour(props) {
 
   useEffect(() => {
     const myTourFamlyActive = isTourFamilyRunning(tourState, family);
-    // console.log(`Tour family active ${myTourFamlyActive}`);
+    console.error(`Tour family active ${myTourFamlyActive}`);
     const iCanRun = !hidden && myTourFamlyActive && shouldRun && !isCompleted;
-    // console.log(`I can run ${iCanRun}`);
+    console.error(`I can run ${iCanRun}`);
     setRunTour(iCanRun);
     return () => {
     };
   }, [hidden, tourState, family, shouldRun, isCompleted]);
 
+  console.error(runTour);
   if (!runTour) {
     return <React.Fragment/>;
   }

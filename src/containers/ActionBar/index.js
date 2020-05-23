@@ -28,7 +28,10 @@ const useStyles = makeStyles((theme) => ({
     margin: 8,
     padding: '6px 10px',
     textTransform: 'capitalize',
-    backgroundColor: '#e0e0e0'
+    backgroundColor: '#e0e0e0',
+    [theme.breakpoints.down('sm')]: {
+      lineHeight: '1.2rem'
+    },
   },
   buttonPrimary: {
     backgroundColor: '#2d9cdb',

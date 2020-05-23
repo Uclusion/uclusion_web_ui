@@ -39,7 +39,11 @@ export const usePlanFormStyles = makeStyles(
       },
       '& > ul': {
         flex: 4
-      }
+      },
+      [theme.breakpoints.down('sm')]: {
+        padding: '16px'
+      },
+
     },
     cardType: {
       display: "inline-flex"
@@ -212,7 +216,12 @@ export const usePlanFormStyles = makeStyles(
     fieldsetContainer: {
       '& > div': {
         display: 'flex'
+      },
+    [theme.breakpoints.down('sm')]: {
+      '& label':{
+        display: 'none'
       }
+    },
     },
     justifySpace: {
       justifyContent: 'space-between'
@@ -341,20 +350,20 @@ export function Form(props) {
             <ExpansionPanelDetails className={classes.flexColumn}>
               <legend className={classes.optional}>*{intl.formatMessage({ id: "optionalEdit" })}</legend>
               <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-                <Grid item xs={5} className={classes.fieldsetContainer}>
+                <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
                   <MaxBudget onChange={onMaxBudgetChange} value={maxBudget} />
                 </Grid>
-                <Grid item xs={5} className={classes.fieldsetContainer}>
+                <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
                   <VoteExpiration
                     onChange={onInvestmentExpirationChange}
                     value={investmentExpiration}
                   />
                 </Grid>
-                <Grid item xs={5} className={classes.fieldsetContainer}>
+                <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
                   <Votes onChange={onVotesRequiredChange} value={votesRequired} />
                 </Grid>
-                <Grid item xs={5} className={classes.fieldsetContainer}>
-                  <DaysEstimate onChange={onDaysEstimate} value={daysEstimate} createdAt={createdAt} />
+                <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+                  <DaysEstimate showLabel={ window.outerWidth < 600 ? false : true  } onChange={onDaysEstimate} value={daysEstimate} createdAt={createdAt} />
                 </Grid>
               </Grid>
             </ExpansionPanelDetails>

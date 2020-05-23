@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { makeStyles, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 
-const useStyles = makeStyles(() => {
+const useStyles = makeStyles((theme) => {
   return {
     expiresWarning: {
       color: '#ca2828',

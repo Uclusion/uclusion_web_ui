@@ -120,6 +120,15 @@ const useStyles = makeStyles((theme) => ({
     '&:last-child': {
       marginBottom: '16px'
     }
+  },
+  mobileExpired: {
+    maxWidth: '100%',
+    flexBasis: '100%'
+  },
+  expiredContentContainer: {
+    flexGrow: 0,
+    maxWidth: '100%',
+    flexBasis: '100%',
   }
 }));
 
@@ -247,7 +256,7 @@ function InitiativeDialogs(props) {
             border={1}
           >
             <Grid container >
-              <div className={classes.gridSliver}>
+              <div className={active ? classes.gridSliver : classes.mobileExpired}>
                 <div className={classes.countdownContainer}>
                   {!active && (
                     <ExpiredDisplay expiresDate={updatedAt}/>
@@ -265,7 +274,7 @@ function InitiativeDialogs(props) {
               </div>
 
               <div
-                className={classes.contentContainer}
+                className={active ? classes.contentContainer : classes.expiredContentContainer}
               >
                 <Grid container>
                   <Grid item xs={12} md={6}>

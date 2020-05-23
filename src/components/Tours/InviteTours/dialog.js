@@ -11,7 +11,7 @@ export function inviteDialogSteps(variables) {
       disableBeacon: true,
       target: '#dialogMain',
       title: `Welcome ${name}!`,
-      content: 'Uclusion Dialogs let collaborators make a decision by voting for the options they prefer.',
+      content: 'Uclusion Dialogs let you and your collaborators make a decision by voting for the options you prefer.',
     },
     {
       disableBeacon: true,

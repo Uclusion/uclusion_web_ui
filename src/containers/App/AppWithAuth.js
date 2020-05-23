@@ -25,6 +25,7 @@ import {
 } from '../../components/utils'
 import { redirectToPath } from '../../utils/redirectUtils'
 import _ from 'lodash'
+import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
 
 LogRocket.init(config.logRocketInstance)
 
@@ -59,6 +60,7 @@ function AppWithAuth(props) {
   const history = useHistory();
   const { location } = history;
   const { pathname, hash } = location;
+  const { marketId: marketToken, action } = decomposeMarketPath(pathname);
   // console.debug(location);
   const messages = {
     ...getLocaleMessages(locale),
@@ -140,7 +142,7 @@ function AppWithAuth(props) {
     }
     return message;
   };
-  const authState = (!_.isEmpty(hash) && (hash.toUpperCase() === '#SIGNUP'))? 'signUp' : 'signIn';
+  const authState = (!_.isEmpty(hash) && (hash.toUpperCase() === '#SIGNUP'))||(action === 'invite')? 'signUp' : 'signIn';
   return (
     <div className={classes.root}>
       <IntlProvider locale={locale} key={locale} messages={messages}>
@@ -150,7 +152,7 @@ function AppWithAuth(props) {
             authState={authState}
             theme={authenticatorTheme}
             hide={[Greetings, SignIn, SignUp, SignOut, ForgotPassword]}>
-            <UclusionSignup />
+            <UclusionSignup action={action} marketToken={marketToken} />
             <CustomSignIn />
             <UclusionForgotPassword />
             <App />

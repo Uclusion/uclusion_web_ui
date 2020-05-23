@@ -16,7 +16,6 @@ export function getComment(state, marketId, commentId) {
 
 export function getCommentRoot(state, marketId, commentId) {
   const comment = getComment(state, marketId, commentId);
-  console.log(comment);
   if (_.isEmpty(comment)) {
     return undefined;
   }

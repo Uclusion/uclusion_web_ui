@@ -368,11 +368,7 @@ const messages = defineMessages({
   changeStage: 'Change stage',
 
   // markets
-  marketSelectDefault: 'Your Dialogs',
-  marketFollowTooltip: 'Subscrbe',
-  marketUnFollowTooltip: 'Unsubscribe',
-  marketUnspent: 'Total unspent uShares in this market',
-  marketActiveInvestments: 'Total actively invested uShares in this market',
+  signupInvite: '{x} invites you to collaborate on {y}',
 
   // Rich text editor
   RichTextEditorAddLinkTitle: 'Add Link',

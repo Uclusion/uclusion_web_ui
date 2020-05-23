@@ -1,8 +1,7 @@
-import uclusion from 'uclusion_sdk';
-import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher';
-import config from '../config';
-import { toastErrorAndThrow } from '../utils/userMessage';
-
+import uclusion from 'uclusion_sdk'
+import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher'
+import config from '../config'
+import { toastErrorAndThrow } from '../utils/userMessage'
 
 export function getSSOInfo() {
   return new AmpifyIdentitySource().getIdentity()
@@ -37,6 +36,11 @@ export function getMarketInfo(marketId) {
       return ssoClient.getMarketInfo(idToken, marketId)
         .then((market) => market);
     });
+}
+
+export function getMarketInfoForToken(marketToken) {
+  return uclusion.constructSSOClient(config.api_configuration)
+    .then((ssoClient) => ssoClient.getMarketInfoForToken(marketToken));
 }
 
 export function resendVerification(email, redirect) {

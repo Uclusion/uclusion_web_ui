@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
@@ -11,7 +11,7 @@ import Avatar from '@material-ui/core/Avatar'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Link from '@material-ui/core/Link'
-import { resendVerification, signUp } from '../../api/sso'
+import { getMarketInfoForToken, resendVerification, signUp } from '../../api/sso'
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton'
 import config from '../../config'
 import SpinningButton from '../../components/SpinBlocking/SpinningButton'
@@ -21,6 +21,7 @@ import { Auth } from 'aws-amplify'
 import { setRedirect } from '../../utils/redirectUtils'
 import Iframe from 'react-iframe'
 import { GithubLoginButton } from 'react-social-login-buttons'
+import { toastError } from '../../utils/userMessage'
 
 const useStyles = makeStyles(theme => ({
   outer: {
@@ -132,7 +133,7 @@ function reducer(state, action) {
 
 function Signup(props) {
   const classes = useStyles();
-  const { authState } = props;
+  const { authState, action, marketToken } = props;
   const empty = {
     name: '',
     email: '',
@@ -149,8 +150,24 @@ function Signup(props) {
   const history = useHistory();
   const { location } = history;
   const { pathname, hash } = location;
+  const [myLoading, setMyLoading] = useState(undefined);
+  const [myMarket, setMyMarket] = useState(undefined);
   const SIGNUP_LOGO = 'Uclusion_Logo_White_Micro.png';
 
+  useEffect(() => {
+    if (action === 'invite' && marketToken && myLoading !== marketToken) {
+      setMyLoading(marketToken);
+      console.info('Loading info');
+      getMarketInfoForToken(marketToken)
+        .then((market) => {
+          setMyMarket(market);
+        }).catch((error) => {
+          console.error(error);
+          toastError('errorMarketFetchFailed');
+        });
+    }
+  }, [marketToken, action, myLoading]);
+  
   function handleChange(name) {
     return (event) => {
       const {
@@ -300,14 +317,23 @@ function Signup(props) {
       </Helmet>
       <CssBaseline/>
       <dl className={classes.root}>
-        <Iframe url="https://www.uclusion.com"
-                id="myId"
-                width="2700px"
-                height="1000px"
-                scrolling="no"
-                display="initial"
-                frameBorder="0"
-                position="relative"/>
+        {action !== 'invite' && (
+          <Iframe url="https://www.uclusion.com"
+                  id="myId"
+                  width="2700px"
+                  height="1000px"
+                  scrolling="no"
+                  display="initial"
+                  frameBorder="0"
+                  position="relative"/>
+        )}
+        {action === 'invite' && myMarket && (
+          <div className={classes.paper}>
+            <Typography component="h1" variant="h2">
+              {intl.formatMessage({ id: 'signupInvite' }, { x: myMarket.created_by_name, y: myMarket.name })}
+            </Typography>
+          </div>
+        )}
         <div className={classes.formRoot}>
           <div className={classes.paper}>
             <Avatar className={classes.avatar}>
@@ -489,9 +515,13 @@ function Signup(props) {
 
 Signup.propTypes = {
   authState: PropTypes.string,
+  action: PropTypes.string,
+  marketToken: PropTypes.string
 };
 
 Signup.defaultProps = {
   authState: '',
+  action: '',
+  marketToken: ''
 };
 export default Signup;

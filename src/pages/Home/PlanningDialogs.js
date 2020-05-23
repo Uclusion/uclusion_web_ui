@@ -238,7 +238,7 @@ function PlanningDialogs(props) {
                 }
               >
                 <Typography 
-                  variant="h5"
+                  variant={window.outerWidth > 600 ? 'h5' : 'h6'}
                 >
                     {name}
                 </Typography>

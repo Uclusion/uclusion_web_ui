@@ -63,7 +63,11 @@ const useStyles = makeStyles((theme) => ({
     display: 'inline-block',
     width: 'auto',
     verticalAlign: 'top',
-    marginLeft: '5px'
+    marginLeft: '5px',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '.75rem',
+      marginLeft: 0
+    },
   },
   childText: {
     fontSize: '.825rem'
@@ -84,6 +88,13 @@ const useStyles = makeStyles((theme) => ({
       justifyContent: 'flex-start',
       paddingRight: 0,
       paddingLeft: '1rem'
+    },
+  },
+  cardContent: {
+    [theme.breakpoints.down('sm')]: {
+      '&:last-child':{
+        paddingBottom: 0
+      }
     },
   },
   chartContent: {
@@ -266,7 +277,7 @@ function DecisionDialogs(props) {
                 >
                 <Grid container>
                   <Grid item xs={12} md={6}>
-                    <CardContent>
+                    <CardContent className={classes.cardContent}>
                       {parentMarketId &&
                         <Link
                           href={formMarketLink(parentMarketId)}
@@ -299,11 +310,11 @@ function DecisionDialogs(props) {
                               {intl.formatMessage({ id: 'draft' })}
                             </Typography>
                           )}
-                          <Typography variant="h6">
+                          <Typography variant={window.outerWidth > 600 ? 'h6' : 'body1'}>
                               {name}
                           </Typography>
                       </div>
-                      {getDialogTypeIcon(marketType, isSmall)}
+                      {window.outerWidth > 600 ? getDialogTypeIcon(marketType, isSmall) : <span></span>}
                       <Typography className={classes.byline}>
                         {intl.formatMessage({id: 'homeDialogLabel'},
                           {x: creator.name, y: intl.formatDate(createdAt)})}

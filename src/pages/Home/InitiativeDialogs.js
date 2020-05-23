@@ -28,7 +28,7 @@ import ExpiredDisplay from '../../components/Expiration/ExpiredDisplay'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   paper: {
     textAlign: 'left',
   },
@@ -61,7 +61,17 @@ const useStyles = makeStyles(() => ({
     display: 'inline-block',
     width: 'auto',
     verticalAlign: 'top',
-    marginLeft: '5px'
+    marginLeft: '5px',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '.75rem',
+      marginLeft: 0
+    },
+  },
+  borderRight: {
+    borderRight: '1px solid #f2f2f2',
+    [theme.breakpoints.down('sm')]: {
+      borderRight: 'none'
+    },
   },
   childText: {
     fontSize: '.825rem'
@@ -71,7 +81,19 @@ const useStyles = makeStyles(() => ({
   },
   chartContainer: {
     justifyContent: 'flex-end',
-    paddingRight: '2rem'
+    paddingRight: '2rem',
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: 'flex-start',
+      paddingRight: 0,
+      paddingLeft: '1rem'
+    },
+  },
+  cardContent: {
+    [theme.breakpoints.down('sm')]: {
+      '&:last-child':{
+        paddingBottom: 0
+      }
+    },
   },
   chartContent: {
     display: 'flex',
@@ -113,7 +135,7 @@ function InitiativeDialogs(props) {
   function getParticipantInfo(presences) {
 
     return (
-      <div style={{flex: 2, display: 'inline-block', height: '100%', borderRight: '1px solid #f2f2f2', minWidth: '70%'}}>
+      <div className={classes.borderRight} style={{flex: 2, display: 'inline-block', height: '100%', minWidth: '70%'}}>
         <Grid
           container
           style={{height: '100%' }}
@@ -246,7 +268,7 @@ function InitiativeDialogs(props) {
                 className={classes.contentContainer}
               >
                 <Grid container>
-                  <Grid item xs={6}>
+                  <Grid item xs={12} md={6}>
                     <CardContent>
                       {parentMarketId &&
                         <Link
@@ -280,18 +302,18 @@ function InitiativeDialogs(props) {
                               {intl.formatMessage({ id: 'draft' })}
                             </Typography>
                           )}
-                          <Typography variant="h6">
+                          <Typography variant={window.outerWidth > 600 ? 'h6' : 'body1'}>
                               {name}
                           </Typography>
                       </div>
-                      {getDialogTypeIcon(marketType, isSmall)}
+                      {window.outerWidth > 600 ? getDialogTypeIcon(marketType, isSmall) : <span></span>}
                       <Typography className={classes.byline}>
                         {intl.formatMessage({id: 'homeInitiativeLabel'},
                           {x: creator.name, y: intl.formatDate(createdAt)})}
                       </Typography>
                   </CardContent>
                 </Grid>
-                <Grid item xs={2} container className={classes.chartContainer}>
+                <Grid item md={2} xs={6} container className={classes.chartContainer}>
                   <div className={classes.chartContent}>
                       <span className={classes.voteContainer}>{votesFor && votesFor.length}</span>
                       <ThumbUpIcon htmlColor="#828282" className={clsx(classes.thumbs, classes.spacer)}/>
@@ -299,7 +321,7 @@ function InitiativeDialogs(props) {
                       <span className={classes.voteContainer}>{votesAgainst && votesAgainst.length}</span>
                   </div>
                 </Grid>
-                <Grid item xs={4} style={{display: 'flex'}}>
+                <Grid item xs={5} md={4} style={{display: 'flex'}}>
                   {getParticipantInfo(sortedPresences)}
                   <CardActions style={{display: 'inline-block', flex: 5, alignSelf: 'center'}}>
                     <DialogActions

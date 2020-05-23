@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
+import { makeStyles } from '@material-ui/core'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getHiddenMarketDetailsForUser, } from '../../contexts/MarketsContext/marketsContextHelper'
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
@@ -14,11 +15,19 @@ import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import ArchivesCheatSheet from './ArchivesCheatSheet'
 
+const useStyles = makeStyles((theme) => ({
+  spacer: {
+    borderColor: '#ccc',
+    borderStyle: 'solid',
+    margin: '2rem 0'
+  }
+})
+)
 function Archives(props) {
   const { hidden } = props;
   const history = useHistory();
   const intl = useIntl();
-
+  const classes = useStyles()
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const hiddenMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState);
@@ -41,6 +50,7 @@ function Archives(props) {
       {!emptyArchives && (
         <>
             <PlanningDialogs markets={planningDetails}/>
+            <hr className={classes.spacer}/>
             <DecisionDialogs markets={decisionDetails}/>
             <InitiativeDialogs markets={initiativeDetails}/>
         </>

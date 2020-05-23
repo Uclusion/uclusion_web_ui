@@ -31,9 +31,9 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: 'green'
     },
     [theme.breakpoints.down('sm')]: {
-      width: '10rem',
+      width: '8rem',
       position: 'relative',
-      left: '-70px'
+      left: '-55px'
 
     },
 

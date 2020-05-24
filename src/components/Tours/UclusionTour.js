@@ -111,11 +111,15 @@ UclusionTour.propTypes = {
   family: PropTypes.string.isRequired,
   shouldRun: PropTypes.bool,
   hidden: PropTypes.bool,
+  continuous: PropTypes.bool,
+  hideBackButton: PropTypes.bool,
 };
 
 UclusionTour.defaultProps = {
   shouldRun: true,
   hidden: false,
+  hideBackButton: true,
+  continuous: true,
 };
 
 export default UclusionTour;

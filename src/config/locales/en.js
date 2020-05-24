@@ -778,7 +778,17 @@ const messages = defineMessages({
   OnboardingWizardNextStoryNamePlaceHolder: 'Your next story\'s name',
   OnboardingWizardNextStoryDescriptionPlaceHolder: 'Your next story\'s description',
   OnboardingWizardCurrentStoryProgressPlaceHolder: 'Your progress so far',
-  // workspace Wizard
+
+  //RequirementsWorkspaceWizard
+  ReqWorkspaceWizardTitle: 'Your workspace',
+  ReqWorkspaceWizardNamePlaceHolder: 'Your workspace Name',
+  ReqWorkspaceWizardNameStepLabel: 'Workspace Name',
+  ReqWorkspaceWizardRequirementsStepLabel: 'Initial Requirements',
+  ReqWorkspaceWizardInitialRequirementsPlaceHolder: 'Your initial requirements',
+
+
+
+  //StoryWorkspaceWizard
   WorkspaceWizardTitle: 'Your Workspace',
   WorkspaceWizardMeetingPlaceHolder: 'Your Workspace Name',
   WorkspaceWizardMeetingStepLabel: 'Workspace Name',
@@ -789,7 +799,8 @@ const messages = defineMessages({
   //SignupWizard
   SignupWizardTitle: 'What do you want to do?',
   SignupWizardQuestion: 'What do you want to do?',
-  SignupWizardWorkspace: 'Track story progress and decide the next story to work on',
+  SignupWizardRequirementsWorkspace: 'Create requirements for a project',
+  SignupWizardStoryWorkspace: 'Track story progress and decide the next story to work on',
   SignupWizardDialog: 'Make a group decision',
   SignupWizardInitiative: 'Measure support for an idea',
 

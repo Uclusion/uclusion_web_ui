@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import OnboardingWizard from '../OnboardingWizard';
 import { useIntl } from 'react-intl';
 import WhatDoYouWantToDoStep from './WhatDoYouWantToDoStep';
-import WorkspaceWizard from './Workspace/WorkspaceWizard';
+import StoryWorkspaceWizard from './Workspace/StoryWorkspace/StoryWorkspaceWizard';
+import RequirementsWorkspaceWizard from './Workspace/RequirementsWorkspace/RequirementsWorkspaceWizard';
 import DialogWizard from './Dialog/DialogWizard';
 import InitiativeWizard from './Initiative/InitiativeWizard';
 
@@ -26,8 +27,10 @@ function SignupWizard(props) {
   ];
 
   switch (wizardToShow) {
-    case 'workspace':
-      return <WorkspaceWizard onStartOver={onStartOver} hidden={hidden} />
+    case 'storyWorkspace':
+      return <StoryWorkspaceWizard onStartOver={onStartOver} hidden={hidden} />
+    case 'requirementsWorkspace':
+      return <RequirementsWorkspaceWizard onStartOver={onStartOver} hidden={hidden}/>
     case 'dialog':
       return <DialogWizard onStartOver={onStartOver} hidden={hidden}/>
     case 'initiative':

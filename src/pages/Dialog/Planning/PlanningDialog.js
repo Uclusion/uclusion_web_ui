@@ -1,7 +1,7 @@
 /**
  * A component that renders a _planning_ dialog
  */
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react';
 import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
@@ -36,6 +36,14 @@ import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/inves
 import clsx from 'clsx'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import ViewArchiveActionButton from './ViewArchivesActionButton'
+import { TourContext } from '../../../contexts/TourContext/TourContext';
+import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer';
+import {
+  INVITE_WORKSPACE_FAMILY_NAME,
+  INVITE_WORKSPACE_FIRST_VIEW, inviteWorkspaceSteps
+} from '../../../components/Tours/InviteTours/workspace';
+import { CognitoUserContext } from '../../../contexts/CongitoUserContext';
+import UclusionTour from '../../../components/Tours/UclusionTour';
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -48,6 +56,9 @@ function PlanningDialog(props) {
     hidden,
     myPresence
   } = props;
+
+  const cognitoUser = useContext(CognitoUserContext);
+  const [, tourDispatch] = useContext(TourContext);
   const intl = useIntl();
   const metaClasses = useMetaDataStyles();
   const { id: marketId, market_stage: marketStage } = market;
@@ -109,6 +120,13 @@ function PlanningDialog(props) {
     && !stage.appears_in_market_summary)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
+  const isCreator = market.created_by === myPresence.id;
+
+  useEffect(() => {
+    if (!isCreator) {
+      tourDispatch(startTourFamily(INVITE_WORKSPACE_FAMILY_NAME));
+    }
+  }, [isCreator, tourDispatch]);
 
   return (
     <Screen
@@ -117,7 +135,15 @@ function PlanningDialog(props) {
       tabTitle={marketName}
       breadCrumbs={breadCrumbs}
     >
-      <Summary market={market} hidden={hidden} isChannel={isChannel} activeMarket={activeMarket} />
+      <UclusionTour
+        name={INVITE_WORKSPACE_FIRST_VIEW}
+        family={INVITE_WORKSPACE_FAMILY_NAME}
+        hidden={hidden}
+        steps={inviteWorkspaceSteps(cognitoUser)}
+        />
+      <div id="workspaceMain">
+        <Summary market={market} hidden={hidden} isChannel={isChannel} activeMarket={activeMarket} />
+      </div>
       {lockedBy && (
         <Typography>
           {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
@@ -125,27 +151,29 @@ function PlanningDialog(props) {
       )}
       <dl className={clsx(metaClasses.root, metaClasses.flexRow)}>
         {activeMarket && (
-          <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+          <div id="addStory" className={clsx(metaClasses.group, metaClasses.assignments)}>
             <InvestibleAddActionButton key="investibleadd" onClick={onClick} />
           </div>
         )}
-        <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+        <div id="viewArchive" className={clsx(metaClasses.group, metaClasses.assignments)}>
           <ViewArchiveActionButton key="archives" marketId={marketId} />
         </div>
       </dl>
       {!isChannel && (
-        <InvestiblesByPerson
-          comments={comments}
-          investibles={investibles}
-          marketId={marketId}
-          marketPresences={assignedPresences}
-          visibleStages={visibleStages}
-          acceptedStage={acceptedStage}
-          inDialogStage={inDialogStage}
-          inBlockingStage={inBlockingStage}
-          inReviewStage={inReviewStage}
-          activeMarket={activeMarket}
-        />
+        <div id="swimLanes">
+          <InvestiblesByPerson
+            comments={comments}
+            investibles={investibles}
+            marketId={marketId}
+            marketPresences={assignedPresences}
+            visibleStages={visibleStages}
+            acceptedStage={acceptedStage}
+            inDialogStage={inDialogStage}
+            inBlockingStage={inBlockingStage}
+            inReviewStage={inReviewStage}
+            activeMarket={activeMarket}
+          />
+        </div>
       )}
       {!_.isEmpty(furtherWorkInvestibles) && (
         <SubSection

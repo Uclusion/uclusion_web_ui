@@ -21,9 +21,14 @@ function WhatDoYouWantToDoStep(props) {
           orientation="vertical"
         >
           <Button
-            onClick={() => setWizardToShow('workspace')}
+            onClick={() => setWizardToShow('requirementsWorkspace')}
           >
-            {intl.formatMessage({ id: 'SignupWizardWorkspace'})}
+            {intl.formatMessage({ id: 'SignupWizardRequirementsWorkspace'})}
+          </Button>
+          <Button
+            onClick={() => setWizardToShow('storyWorkspace')}
+          >
+            {intl.formatMessage({ id: 'SignupWizardStoryWorkspace'})}
           </Button>
           <Button
             onClick={() => setWizardToShow('dialog')}

@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import clsx from 'clsx';
 import { CardContent } from '@material-ui/core'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import AddNewUsers from './AddNewUsers'
@@ -15,7 +16,7 @@ function ManageUsers (props) {
 
 
   return (
-      <CardContent className={classes.cardContent}>
+      <CardContent className={clsx(classes.cardContent, classes.nestedCard)}>
         <AddNewUsers
           market={market}
           onSave={onAddNewUsers}

@@ -38,12 +38,20 @@ export const usePlanFormStyles = makeStyles(
         }
       },
       '& > ul': {
-        flex: 4
+        flex: 4,
+        [theme.breakpoints.down('sm')]: {
+          flex: 12,
+        },
       },
       [theme.breakpoints.down('sm')]: {
-        padding: '16px'
+        padding: '16px',
       },
-
+    },
+    nestedCard: {
+      [theme.breakpoints.down('sm')]: {
+        paddingLeft: 0,
+        paddingRight: 0
+      }
     },
     cardType: {
       display: "inline-flex"
@@ -143,7 +151,13 @@ export const usePlanFormStyles = makeStyles(
       overflowY: 'hidden',
       border: '1px solid #cfcfcf',
       borderRadius: 8,
-      marginBottom: 15 
+      marginBottom: 15,
+      [theme.breakpoints.down('sm')]: {
+        marginRight: 0
+      },
+    },
+    listItem: {
+      paddingLeft: 0,
     },
     input: {
       backgroundColor: '#ecf0f1',
@@ -363,7 +377,7 @@ export function Form(props) {
                   <Votes onChange={onVotesRequiredChange} value={votesRequired} />
                 </Grid>
                 <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-                  <DaysEstimate showLabel={ window.outerWidth < 600 ? false : true  } onChange={onDaysEstimate} value={daysEstimate} createdAt={createdAt} />
+                  <DaysEstimate showLabel={ window.outerWidth < 600 ? false : true } onChange={onDaysEstimate} value={daysEstimate} createdAt={createdAt} />
                 </Grid>
               </Grid>
             </ExpansionPanelDetails>

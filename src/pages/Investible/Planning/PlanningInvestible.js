@@ -717,6 +717,9 @@ export const useMetaDataStyles = makeStyles(
         padding: theme.spacing(1, 1),
         "&:first-child": {
           marginLeft: 0
+        },
+        [theme.breakpoints.down("xs")]: {
+          backgroundColor: '#fff',
         }
       },
       expiration: {
@@ -725,7 +728,11 @@ export const useMetaDataStyles = makeStyles(
           display: "flex",
           flex: "1 auto",
           flexDirection: "row",
-          fontWeight: "bold"
+          fontWeight: "bold",
+          [theme.breakpoints.down('sm')]: {
+            margin: 0,
+          },
+          
         }
       },
       expansionControl: {

@@ -5,9 +5,9 @@ import CurrentStoryStep from './CurrentStoryStep';
 import CurrentStoryProgressStep from './CurrentStoryProgressStep';
 import NextStoryStep from './NextStoryStep';
 import CreatingWorkspaceStep from './CreatingWorkspaceStep';
-import OnboardingWizard from '../../OnboardingWizard';
+import OnboardingWizard from '../../../OnboardingWizard';
 import { useIntl } from 'react-intl';
-function WorkspaceWizard(props) {
+function StoryWorkspaceWizard(props) {
   const { hidden, onStartOver } = props;
   const intl = useIntl();
 
@@ -44,14 +44,14 @@ function WorkspaceWizard(props) {
   );
 }
 
-WorkspaceWizard.propTypes = {
+StoryWorkspaceWizard.propTypes = {
   hidden: PropTypes.bool.isRequired,
   onStartOver: PropTypes.func,
 };
 
-WorkspaceWizard.defaultProps = {
+StoryWorkspaceWizard.defaultProps = {
   onStartOver: () => {},
 }
 
-export default WorkspaceWizard;
+export default StoryWorkspaceWizard;
 

@@ -163,7 +163,6 @@ function DecisionDialog(props) {
   const marketComments = comments.filter((comment) => !comment.investible_id);
   const allowedCommentTypes = [QUESTION_TYPE, ISSUE_TYPE];
   const user = useContext(CognitoUserContext) || {};
-  const { name } = user;
   const {
     id: marketId,
     name: marketName,
@@ -188,9 +187,6 @@ function DecisionDialog(props) {
   }
   const breadCrumbs = inArchives ? _.isEmpty(breadCrumbTemplates) ? makeArchiveBreadCrumbs(history)
     : makeBreadCrumbs(history, breadCrumbTemplates) : makeBreadCrumbs(history);
-  const tourSteps = isAdmin? [] : inviteDialogSteps({ name });
-  const tourName = isAdmin? '' : INVITE_DIALOG_FIRST_VIEW;
-  const tourFamily = isAdmin? '' : INVITE_DIALOG_FAMILY_NAME;
   const addLabel = isAdmin ? 'decisionDialogAddInvestibleLabel' : 'decisionDialogProposeInvestibleLabel';
   const addLabelExplanation = isAdmin ? 'decisionDialogAddExplanationLabel' : 'decisionDialogProposeExplanationLabel';
 
@@ -226,11 +222,9 @@ function DecisionDialog(props) {
     >
       <UclusionTour
         hidden={hidden}
-        name={tourName}
-        family={tourFamily}
-        steps={tourSteps}
-        continuous
-        hideBackButton
+        name={INVITE_DIALOG_FIRST_VIEW}
+        family={INVITE_DIALOG_FAMILY_NAME}
+        steps={inviteDialogSteps(user)}
       />
       <Card className={classes.root}>
         <CardType

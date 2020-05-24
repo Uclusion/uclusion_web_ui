@@ -89,7 +89,7 @@ function ChangePassword(props) {
       loading={!breadCrumbs}
     >
       <Grid container spacing={3}>
-        <Grid item xs={4}>
+        <Grid item md={4} xs={12}>
           <Card style={{padding: '2rem'}}>
             <Typography>
               {intl.formatMessage({ id: 'changePasswordHeader' })}

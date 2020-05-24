@@ -36,6 +36,19 @@ const useStyles = makeStyles((theme) => ({
     "&:hover": {
       backgroundColor: "#2D9CDB"
     }
+  },
+  label: {
+    top: 2,
+    left: 5,
+    [theme.breakpoints.down('sm')]: {
+      top: -50
+    },
+  },
+  formControl: {
+    '&:first-child': {
+      marginBottom: '50px',
+      marginTop: '50px'
+    }
   }
 }));
 
@@ -100,7 +113,7 @@ function ChangeNotificationPreferences(props) {
       loading={!user}
     >
       <Grid container spacing={3} >
-        <Grid item xs={6}>
+        <Grid item md={6} xs={12}>
           <Card style={{padding: '2rem'}}>
           <Typography style={{paddingBottom: '1rem'}}>
             {intl.formatMessage({ id: 'changePreferencesHeader' })}
@@ -176,8 +189,8 @@ function ChangeNotificationPreferences(props) {
               alignItems="stretch"
               style={{padding: '1rem', paddingTop: '0'} }
             >
-              <FormControl fullWidth={true} margin="normal">
-                <InputLabel htmlFor="emailDelay" shrink={true} style={{top: '2px', left: '5px'}}>
+              <FormControl fullWidth={true} margin="normal" className={classes.formControl}>
+                <InputLabel htmlFor="emailDelay" shrink={true} className={classes.label}>
                   {intl.formatMessage({ id: 'emailDelayInputLabel' })}
                 </InputLabel>
                 <TextField
@@ -188,8 +201,8 @@ function ChangeNotificationPreferences(props) {
                   value={emailDelay}
                 />
               </FormControl>
-              <FormControl fullWidth={true} margin="normal">
-                <InputLabel htmlFor="slackDelay" shrink={true} style={{top: '2px', left: '5px'}}>
+              <FormControl fullWidth={true} margin="normal" className={classes.formControl}>
+                <InputLabel htmlFor="slackDelay" shrink={true} className={classes.label}>
                   {intl.formatMessage({ id: 'slackDelayInputLabel' })}
                 </InputLabel>
                 <TextField

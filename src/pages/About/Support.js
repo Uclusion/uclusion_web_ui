@@ -35,12 +35,19 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 600,
     marginRight: theme.spacing(1),
     minWidth: 140,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '0.75rem',
+      marginRight: '10px',
+      minWidth: 50
+    },
   },
   embed: {
     marginRight: 3,
   },
   value: {
-    //
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '0.75rem'
+    },
   },
   action: {
     boxShadow: "none",
@@ -103,7 +110,7 @@ function Support(props) {
       loading={!externalId}
     >
       <Grid container direction="column" spacing={3}>
-        <Grid item xs={5}>
+        <Grid item md={5} xs={12}>
           <Card style={{padding: '2rem'}}>
           <Typography style={{paddingBottom: '1rem'}}>
             {intl.formatMessage({ id: 'support' })}

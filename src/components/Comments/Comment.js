@@ -93,11 +93,17 @@ const useCommentStyles = makeStyles(
     },
     actionResolveToggle: {
       alignSelf: "baseline",
-      margin: "11px 12px 11px 16px"
+      margin: "11px 12px 11px 16px",
+      [theme.breakpoints.down('sm')]: {
+        margin: "11px 0px 11px 3px",
+      },
     },
     actionEdit: {
       alignSelf: "baseline",
-      margin: "11px 0px 11px 16px"
+      margin: "11px 0px 11px 16px",
+      [theme.breakpoints.down('sm')]: {
+        margin: "11px 0px 11px 3px",
+      },
     },
     commentType: {
       alignSelf: "start",
@@ -693,15 +699,15 @@ function UsefulRelativeTime(props) {
   const days = Math.trunc(hours / 24);
 
   if (minutes === 0) {
-    return <FormattedRelativeTime {...other} unit="second" value={seconds} />;
+    return <FormattedRelativeTime {...other} unit="second" value={seconds} style={window.outerWidth < 600 ? "short" : "long"}/>;
   }
   if (hours === 0) {
-    return <FormattedRelativeTime {...other} unit="minute" value={minutes} />;
+    return <FormattedRelativeTime {...other} unit="minute" value={minutes} style={window.outerWidth < 600 ? "short" : "long"}/>;
   }
   if (days === 0) {
-    return <FormattedRelativeTime {...other} unit="hour" value={hours} />;
+    return <FormattedRelativeTime {...other} unit="hour" value={hours} style={window.outerWidth < 600 ? "short" : "long"}/>;
   }
-  return <FormattedRelativeTime {...other} unit="day" value={days} />;
+  return <FormattedRelativeTime {...other} unit="day" value={days} style={window.outerWidth < 600 ? "short" : "long"}/>;
 }
 
 /**

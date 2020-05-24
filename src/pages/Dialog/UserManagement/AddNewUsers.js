@@ -237,12 +237,12 @@ function AddNewUsers (props) {
       <List
         dense
       >
-        <ListItem>
+        <ListItem className={classes.listItem}>
           <Typography className={clsx(classes.cardTitle, classes.noPadding)}>
             {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
           </Typography>
         </ListItem>
-        <ListItem>
+        <ListItem className={classes.listItem}>
           <InviteLinker
             marketType={marketType}
             marketToken={marketToken}
@@ -252,6 +252,7 @@ function AddNewUsers (props) {
           autoComplete="off"
         >
           <ListItem
+            className={classes.listItem}
             id="emailInput"
             key="emailInput"
           >
@@ -271,7 +272,7 @@ function AddNewUsers (props) {
               />
             </ListItemText>
           </ListItem>
-          <ListItem id="emailButtons" key="emailButtons" className={classes.rightAlign}>
+          <ListItem id="emailButtons" key="emailButtons" className={clsx(classes.rightAlign, classes.listItem)}>
             <CardActions className={classes.actions}>
               <SpinBlockingButton
                   id="save"

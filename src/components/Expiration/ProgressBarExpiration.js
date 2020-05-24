@@ -19,7 +19,13 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: 'rgb(232, 232, 232);',
     '&>div': {
       backgroundColor: 'red'
-    }
+    },
+    [theme.breakpoints.down('sm')]: {
+      width: '8rem',
+      position: 'relative',
+      left: '-55px'
+
+    },
   },
   stillTime: {
     borderRadius: '8px',

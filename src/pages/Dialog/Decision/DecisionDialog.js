@@ -83,7 +83,10 @@ const useStyles = makeStyles(
       justifyContent: 'flex-end',
       '& > button': {
         marginRight: '-8px'
-      }
+      },
+      [theme.breakpoints.down('sm')]: {
+        justifyContent: 'center',
+      },
     },
     content: {
       flexBasis: "100%",
@@ -126,6 +129,12 @@ const useStyles = makeStyles(
       width: '100%',
       textTransform: 'capitalize'
     },
+    flexCenter: {
+      [theme.breakpoints.down("xs")]: {
+        alignItems: 'center',
+        padding: '20px'
+      }
+    }
   }),
   { name: "DecisionDialog" }
 );
@@ -247,7 +256,7 @@ function DecisionDialog(props) {
                 marketId={marketId}
               />
             </CardActions>
-            <dl className={metaClasses.root}>
+            <dl className={clsx(metaClasses.root, classes.flexCenter)}>
               <div className={clsx(metaClasses.group, metaClasses.expiration)}>
                 <dd>
                   {activeMarket ? (

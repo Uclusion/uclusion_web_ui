@@ -11,7 +11,7 @@ import ActionBar from '../ActionBar'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { createTitle, makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   hidden: {
     display: 'none',
   },
@@ -27,7 +27,10 @@ const useStyles = makeStyles(() => ({
     background: '#efefef',
     padding: '24px 20px 156px',
     marginTop: '80px',
-    width: '100%'
+    width: '100%',
+    [theme.breakpoints.down('sm')]: {
+      padding: '24px 12px 156px',
+    },
   },
   actionContainer: {
     marginBottom: '-6rem'

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import * as moment from 'moment';
 import { useIntl } from 'react-intl';
@@ -42,14 +43,22 @@ const useStyles = makeStyles((theme) => ({
       left: '-55px'
 
     },
+  },
+  mobileSmall: {
+    [theme.breakpoints.down('sm')]: {
+      width: '4rem',
+      position: 'relative',
+      left: 0,
+      top: 20
 
+    },
   }
 }));
 
 function ExpiresDisplayBar(props) {
   const classes = useStyles();
   const intl = useIntl();
-  const { createdAt, expirationMinutes } = props;
+  const { createdAt, expirationMinutes, smallForMobile = false} = props;
   const [now, setNow] = useState(new Date());
   const expiresDurationMillis = expirationMinutes * 60000;
   const createdAtMillis = createdAt.getTime();
@@ -112,7 +121,7 @@ function ExpiresDisplayBar(props) {
         <Tooltip
         title={getDisplayText()}
         >
-          <LinearProgress variant="determinate" value={barValue} className={barValue > 50 ? classes.stillTime : classes.runningOut}></LinearProgress>
+          <LinearProgress variant="determinate" value={barValue} className={barValue > 50 ? clsx(classes.stillTime, smallForMobile ? classes.mobileSmall : '' ) : clsx(classes.runningOut, smallForMobile ? classes.mobileSmall : '') }></LinearProgress>
         </Tooltip>
       }
     </div>

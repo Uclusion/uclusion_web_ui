@@ -11,7 +11,10 @@ import config from '../../config'
 
 const useStyles = makeStyles((theme) => ({
   name: {
-    color: theme.palette.text.primary,
+    color: theme.palette.text.primary,    
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '0.75rem'
+    },
   },
   menuStyle: {
     position: 'relative',

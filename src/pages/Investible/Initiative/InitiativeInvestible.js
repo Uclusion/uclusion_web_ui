@@ -70,6 +70,9 @@ const useStyles = makeStyles(
       justifyContent: 'flex-end',
       '& > button': {
         marginRight: '-8px'
+      },
+      [theme.breakpoints.down('sm')]: {
+        justifyContent: 'center',
       }
     },
     content: {
@@ -113,6 +116,12 @@ const useStyles = makeStyles(
         fontSize: 25
       }
     },
+    flexCenter: {
+      [theme.breakpoints.down("xs")]: {
+        alignItems: 'center',
+        padding: '20px'
+      }
+    }
   }),
   { name: "InitiativeInvestible" }
 );
@@ -222,7 +231,7 @@ function InitiativeInvestible(props) {
           type={VOTING_TYPE}
         />
         <Grid container className={classes.mobileColumn}>
-          <Grid item xs={9}>
+          <Grid item md={9} xs={12}>
             <CardContent className={classes.content}>
               <Typography className={classes.title} variant="h3" component="h1">
                 {name}
@@ -233,7 +242,7 @@ function InitiativeInvestible(props) {
               />
             </CardContent>
           </Grid>
-          <Grid className={classes.borderLeft} item xs={3}>
+          <Grid className={classes.borderLeft} item md={3} xs={12}>
             <CardActions className={classes.actions}>
               <DialogActions
                 isAdmin={isAdmin}
@@ -246,7 +255,7 @@ function InitiativeInvestible(props) {
                 initiativeId={investibleId}
               />
             </CardActions>
-            <dl className={metaClasses.root}>
+            <dl className={clsx(metaClasses.root, classes.flexCenter)}>
               <div className={clsx(metaClasses.group, metaClasses.expiration)}>
                 <dd>
                   {activeMarket ? (

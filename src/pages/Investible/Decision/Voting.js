@@ -122,6 +122,7 @@ function Voting(props) {
                 <ProgressBar
                   createdAt={new Date(updatedAt)}
                   expirationMinutes={expirationMinutes}
+                  smallForMobile={true}
                 />
               </div>
             )}

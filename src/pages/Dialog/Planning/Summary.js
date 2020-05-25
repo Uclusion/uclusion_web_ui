@@ -195,7 +195,7 @@ function Summary(props) {
   const metaClasses = useMetaDataStyles();
 
   return (
-    <Card className={classes.root} id="summary">
+    <Card elevation={0} className={classes.root} id="summary">
       <CardType className={classes.type} type={AGILE_PLAN_TYPE} />
       <Grid container className={classes.mobileColumn}>
         <Grid item xs={9} className={classes.fullWidth}>

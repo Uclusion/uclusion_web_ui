@@ -114,7 +114,7 @@ function ChangeNotificationPreferences(props) {
     >
       <Grid container spacing={3} >
         <Grid item md={6} xs={12}>
-          <Card style={{padding: '2rem'}}>
+          <Card elevation={0} style={{padding: '2rem'}}>
           <Typography style={{paddingBottom: '1rem'}}>
             {intl.formatMessage({ id: 'changePreferencesHeader' })}
           </Typography>

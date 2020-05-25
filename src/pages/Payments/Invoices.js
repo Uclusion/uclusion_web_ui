@@ -38,7 +38,7 @@ function Invoices (props) {
   }
 
   return (
-    <Card style={{padding: '1rem'}}>
+    <Card elevation={0} style={{padding: '1rem'}}>
       {getInvoiceData()}
     </Card>
   );

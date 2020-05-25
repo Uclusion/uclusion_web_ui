@@ -100,7 +100,7 @@ function DialogArchives(props) {
           marketId={marketId}
           investibles={filteredVerifiedInvestibles}
           presenceMap={presenceMap}
-          elevation={1}
+          elevation={0}
         />
       </SubSection>
       <SubSection
@@ -112,7 +112,7 @@ function DialogArchives(props) {
           marketId={marketId}
           presenceMap={presenceMap}
           investibles={notDoingInvestibles}
-          elevation={1}
+          elevation={0}
         />
       </SubSection>
     </Screen>

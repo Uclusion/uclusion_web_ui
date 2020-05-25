@@ -205,7 +205,7 @@ export function getParticipantInfo(presences, marketInvestibles, marketType) {
       investibleId in voteTotal ? [voteTotal[investibleId]] : null;
     const isInitiative = marketType === INITIATIVE_TYPE;
     return (
-      <Card key={userId}>
+      <Card elevation={0} key={userId}>
         <Grid container spacing={3}>
             <Grid item>
               <Typography>{name}</Typography>

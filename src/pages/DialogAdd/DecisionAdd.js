@@ -151,7 +151,7 @@ function DecisionAdd(props) {
   return (
     <>
       <DismissableText textId={createEnabled ? 'decisionAddHelp' : billingDismissText} />
-      <Card id="tourRoot">
+      <Card elevation={0} id="tourRoot">
         <CardType className={classes.cardType} type={DECISION_TYPE} />
         <CardContent className={classes.cardContent}>
           <Typography>

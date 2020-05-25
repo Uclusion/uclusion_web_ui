@@ -171,7 +171,7 @@ function PlanningInvestibleEdit(props) {
   const subtype = isAssign ? ASSIGN_TYPE : STORY_TYPE;
   const operationLabel = isAssign ? "investibleAssign" : "investibleDescription";
   return (
-    <Card>
+    <Card elevation={0}>
       <CardType
         className={classes.cardType}
         label={intl.formatMessage({ id: operationLabel })}

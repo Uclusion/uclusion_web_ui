@@ -128,7 +128,7 @@ function BillingHome (props) {
       title="Manage Subscription"
       tabTitle="Manage Subscription"
     >
-      <Card style={{padding: '2rem'}}>
+      <Card elevation={0} style={{padding: '2rem'}}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Typography style={{marginBottom: '16px'}}>
@@ -172,7 +172,7 @@ function BillingHome (props) {
           </Grid>
         </Grid>
       </Card>
-      <Card style={{padding: '2rem', marginTop:'3rem'}}>
+      <Card elevation={0} style={{padding: '2rem', marginTop:'3rem'}}>
         <Grid container spacing={3}>
           <Grid item xs={4}>
             {<CardInputForm

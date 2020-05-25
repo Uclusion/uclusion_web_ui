@@ -31,18 +31,20 @@
     width: 100%;
     
 }
-.ql-toolbar.ql-snow {
-    border-left: 0;
-    border-right: 0;
-}
 @media screen and (max-width: 600px) {
     .ql-disabled .ql-editor{
         padding: 0
     }
 }
+.ql-editor {
+    min-height: 6rem;
+}
 #editorbox {
     border-top: 1px solid #ccc;
-    border-left: 0;
-    border-right: 0;
     border-bottom: 0;
+}
+@media screen and (max-width: 600px) {
+    #editorbox {
+        border-bottom: 1px solid #ccc;
+    }
 }

@@ -27,7 +27,6 @@ export function inviteWorkspaceSteps(variables) {
     {
       disableBeacon: true,
       target: '#viewArchive',
-      title: `Welcome ${name}!`,
       content: 'View Archive shows you the stories that have already been completed, or are not going to be done.',
     },
     {

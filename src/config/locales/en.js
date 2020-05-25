@@ -785,7 +785,9 @@ const messages = defineMessages({
   ReqWorkspaceWizardNameStepLabel: 'Workspace Name',
   ReqWorkspaceWizardRequirementsStepLabel: 'Initial Requirements',
   ReqWorkspaceWizardInitialRequirementsPlaceHolder: 'Your initial requirements',
-
+  ReqWorkspaceWizardTodoStepLabel: 'What\'s still TODO?',
+  ReqWorkspaceWizardTodoPlaceholder: 'Things TODO',
+  ReqWorkspaceWizardCreatingworkspaceStepLabel: 'Creating Workspace',
 
 
   //StoryWorkspaceWizard

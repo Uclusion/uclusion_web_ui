@@ -321,7 +321,7 @@ function Signup(props) {
           <Iframe url="https://www.uclusion.com"
                   id="myId"
                   width="2700px"
-                  height="1000px"
+                  height="1300px"
                   scrolling="no"
                   display="initial"
                   frameBorder="0"

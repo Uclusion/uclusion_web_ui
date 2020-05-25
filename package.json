@@ -6,6 +6,7 @@
     "@date-io/core": "^1.3.6",
     "@emotion/core": "^10.0.22",
     "@emotion/styled": "^10.0.23",
+    "@formatjs/intl-relativetimeformat": "^5.1.0",
     "@material-ui/core": "^4.9.13",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.52",
@@ -39,6 +40,7 @@
     "react-datepicker": "^2.14.1",
     "react-dom": "^16.13.1",
     "react-helmet": "^6.0.0",
+    "react-iframe": "^1.8.0",
     "react-intl": "^4.5.3",
     "react-joyride": "^2.2.1",
     "react-loadable": "^5.5.0",
@@ -46,6 +48,7 @@
     "react-popper": "^1.3.7",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
+    "react-social-login-buttons": "^3.1.0",
     "react-toastify": "^5.5.0",
     "react-vis": "^1.11.7",
     "reconnecting-websocket": "^4.4.0",
@@ -53,9 +56,7 @@
     "uclusion_sdk": "file:../uclusion_sdk",
     "use-debounce": "^3.3.0",
     "use-fit-text": "^2.1.0",
-    "video-react": "^0.14.1",
-    "react-iframe": "^1.8.0",
-    "react-social-login-buttons": "^3.1.0"
+    "video-react": "^0.14.1"
   },
   "scripts": {
     "check": "npm-check -s -u",

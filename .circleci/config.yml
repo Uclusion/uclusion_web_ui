@@ -8,6 +8,7 @@ defaults: &defaults
   working_directory: ~/repo
   docker:
     - image: circleci/python:3.7.3-node
+  resource_class: xlarge
 
 jobs:
   build:

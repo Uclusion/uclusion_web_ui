@@ -121,7 +121,7 @@ const useStyles = makeStyles(
         }
       },
       borderBottom: {
-        borderBottom: '1px solid #f2f2f2',
+        borderBottom: '1px solid transparent',
         margin: '30px 0',
         width: '100%'
       },

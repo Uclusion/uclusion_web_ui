@@ -100,7 +100,7 @@ function NoAccount(props) {
       title="Email not verified"
       appEnabled={false}
     >
-      <Card>
+      <Card elevation={0}>
         <CardContent className={classes.loadingDisplay}>
           <Typography variant="h3">
             Email not verified

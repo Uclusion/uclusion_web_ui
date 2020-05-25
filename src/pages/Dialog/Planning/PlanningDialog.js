@@ -181,7 +181,7 @@ function PlanningDialog(props) {
           title={intl.formatMessage({ id: 'readyFurtherWorkHeader' })}
         >
           <ArchiveInvestbiles
-            elevation={1}
+            elevation={0}
             marketId={marketId}
             presenceMap={presenceMap}
             investibles={furtherWorkInvestibles}
@@ -305,7 +305,7 @@ function InvestiblesByPerson(props) {
     );
     const { id, name } = presence;
     return (
-      <Card key={id} className={classes.root}>
+      <Card key={id} elevation={0} className={classes.root}>
         {/* TODO avatar */}
         <CardHeader
           className={classes.header}

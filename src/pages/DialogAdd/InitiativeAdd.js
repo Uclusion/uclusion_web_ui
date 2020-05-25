@@ -117,7 +117,7 @@ function InitiativeAdd(props) {
   return (
     <>
       <DismissableText textId={createEnabled ? 'initiativeAddHelp' : billingDismissText} />
-      <Card>
+      <Card elevation={0}>
         <CardType
           className={classes.cardType}
           label={`${intl.formatMessage({

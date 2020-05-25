@@ -226,7 +226,7 @@ function DecisionDialog(props) {
         family={INVITE_DIALOG_FAMILY_NAME}
         steps={inviteDialogSteps(user)}
       />
-      <Card className={classes.root}>
+      <Card elevation={0} className={classes.root}>
         <CardType
           className={classes.cardType}
           type={DECISION_TYPE}

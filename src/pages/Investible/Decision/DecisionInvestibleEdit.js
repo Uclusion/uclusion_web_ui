@@ -93,7 +93,7 @@ function DecisionInvestibleEdit(props) {
   }
 
   return (
-    <Card>
+    <Card elevation={0}>
       <CardType
         className={classes.cardType}
         label={`${intl.formatMessage({

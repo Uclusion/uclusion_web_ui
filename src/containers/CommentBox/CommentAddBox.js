@@ -106,6 +106,9 @@ export const useStyles = makeStyles((theme) => ({
   chipItemReport: {
     background: '#73B76C',
   },
+  commentTypeContainer: {
+    borderRadius: '4px 4px 0 0'
+  }
 }));
 
 
@@ -152,7 +155,7 @@ function CommentAddBox(props) {
   }
   return (
     <>
-      <Card>
+      <Card elevation={0} className={classes.commentTypeContainer}>
         <CardContent>
           <FormControl component="fieldset" className={classes.commentType}>
             <RadioGroup

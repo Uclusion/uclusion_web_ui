@@ -50,7 +50,7 @@ function YourVoting(props) {
         : intl.formatMessage({ id: 'addAVote' }) : isInitiative ? intl.formatMessage({ id: 'pleaseVote' })
         : intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
       {isInitiative && (
-        <Card>
+        <Card elevation={0}>
           <CardContent>
             <FormControl component="fieldset" className={classes.commentType}>
               <RadioGroup

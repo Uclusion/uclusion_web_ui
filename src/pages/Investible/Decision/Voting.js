@@ -105,6 +105,7 @@ function Voting(props) {
 
         return (
           <Card
+            elevation={0}
             key={userId}
             className={clsx(
               classes.card,

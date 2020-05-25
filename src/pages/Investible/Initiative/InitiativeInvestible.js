@@ -222,6 +222,7 @@ function InitiativeInvestible(props) {
       )}
       <Card className={classes.root}
         id="initiativeMain"
+        elevation={0}
       >
         <CardType
           className={classes.cardType}

@@ -29,6 +29,11 @@
     transform: translateY(100%);
     bottom: 0;
     width: 100%;
+    
+}
+.ql-toolbar.ql-snow {
+    border-left: 0;
+    border-right: 0;
 }
 @media screen and (max-width: 600px) {
     .ql-disabled .ql-editor{
@@ -37,4 +42,7 @@
 }
 #editorbox {
     border-top: 1px solid #ccc;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
 }

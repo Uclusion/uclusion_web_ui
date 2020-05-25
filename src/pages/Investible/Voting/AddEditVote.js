@@ -233,7 +233,7 @@ function AddEditVote(props) {
   const lockedDialogClasses = useLockedDialogStyles();
   return (
     <React.Fragment>
-      <Card>
+      <Card elevation={0}>
         <CardContent>
           <FormControl className={classes.certainty}>
             <FormLabel

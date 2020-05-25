@@ -111,7 +111,7 @@ function Support(props) {
     >
       <Grid container direction="column" spacing={3}>
         <Grid item md={5} xs={12}>
-          <Card style={{padding: '2rem'}}>
+          <Card elevation={0} style={{padding: '2rem'}}>
           <Typography style={{paddingBottom: '1rem'}}>
             {intl.formatMessage({ id: 'support' })}
           </Typography>

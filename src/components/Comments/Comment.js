@@ -264,7 +264,7 @@ function Comment(props) {
 
   return (
     <React.Fragment>
-      <Card className={getCommentHighlightStyle()}>
+      <Card elevation={0} className={getCommentHighlightStyle()}>
         <Box display="flex">
           <CardType className={classes.commentType} type={commentType} resolved={resolved} />
           <Typography className={classes.updatedBy}>
@@ -556,6 +556,7 @@ function Reply(props) {
   const intl = useIntl();
   return (
     <Card
+      elevation={0}
       className={
         highLightId.includes(comment.id) ? classes.containerYellow : classes.container
       }

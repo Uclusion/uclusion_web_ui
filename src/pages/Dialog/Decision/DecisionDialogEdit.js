@@ -100,7 +100,7 @@ function DecisionDialogEdit(props) {
   }
 
   return (
-    <Card>
+    <Card elevation={0}>
       <CardType className={classes.cardType} type={DECISION_TYPE} />
       <CardContent className={classes.cardContent}>
         <Typography>

@@ -186,7 +186,7 @@ function CommentAdd (props) {
     <Paper
       id={hidden ? '' : 'cabox'}
       className={(hidden) ? classes.hidden : classes.add}
-      elevation={2}
+      elevation={0}
     >
       <div className={classes.editor}>
         <QuillEditor

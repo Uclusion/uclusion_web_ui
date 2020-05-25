@@ -1,5 +1,7 @@
 import React from 'react'
 import config from '../../config'
+import '@formatjs/intl-relativetimeformat/polyfill';
+import '@formatjs/intl-relativetimeformat/polyfill-locales';
 import { withA2HS } from 'a2hs'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'

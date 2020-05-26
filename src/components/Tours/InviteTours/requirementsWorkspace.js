@@ -17,12 +17,12 @@ export function inviteRequirementsWorkspaceSteps(variables) {
     {
       disableBeacon: true,
       target: '#workspaceMain',
-      content: 'The Workspace description will contain the requirements and can be edited by anyone',
+      content: 'The Workspace description will contain the requirements and can be edited by anyone.',
     },
     {
       disableBeacon: true,
       target: '#commentAddArea',
-      content: 'Structured discussion happens down here. We\'ll take care of notifying the appropriate people and make sure conversation moves forward',
+      content: 'Structured discussion happens down here. We\'ll take care of notifying the appropriate people and make sure conversation moves forward.',
     },
     {
       disableBeacon: true,

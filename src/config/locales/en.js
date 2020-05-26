@@ -564,6 +564,8 @@ const messages = defineMessages({
   signInNoAccount: 'Don\'t have an account? Sign up',
   signInForgotPassword: 'Forgot Password?',
   signInSignIn: 'Sign In',
+  signInGithubSignIn: 'Sign In with GitHub',
+  signInGoogleSignIn: 'Sign In with Google',
 
 
   // Signup
@@ -584,6 +586,8 @@ const messages = defineMessages({
   signupResendCodeButton: 'Resend Link',
   signupAgreeTermsOfUse: 'I agree to the Uclusion ',
   signupTermsOfUse: 'Beta Program Terms of Use',
+  signupGithubSignup: 'Sign Up with GitHub',
+  signupGoogleSignup: 'Sign Up with Google',
 
   // Forgot Password
   forgotPasswordHeader: 'Reset your password',

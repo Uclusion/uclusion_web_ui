@@ -360,7 +360,7 @@ function Signup(props) {
               Auth.federatedSignIn({provider: 'GithubLogin'});
             }}>
               <div className={classes.textWrapper}>
-                  Sign up with Github
+                {intl.formatMessage({ id: 'signupGithubSignup' })}
               </div>
           </GithubLoginButton>
           <div className={classes.googleButton} onClick={() => {
@@ -370,7 +370,7 @@ function Signup(props) {
           }}>
             <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
             <div className={classes.googleTextWrapper}>
-              <div className={classes.googleText}>Sign up with Google</div>
+              <div className={classes.googleText}> {intl.formatMessage({ id: 'signupGoogleSignup' })}</div>
             </div>
           </div>
           <div className={classes.spacerText}>

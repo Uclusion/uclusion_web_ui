@@ -152,12 +152,12 @@ class CustomSignIn extends SignIn {
           }}
           align="center"
           onClick={() => Auth.federatedSignIn({provider: 'GithubLogin'})}>
-            <div className={classes.textWrapper}>Github Login</div>
+            <div className={classes.textWrapper}>{intl.formatMessage({id: 'signInGithubSignIn'})}</div>
         </GithubLoginButton>
         <div className={classes.googleButton} onClick={() => Auth.federatedSignIn({provider: 'Google'})}>
           <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
           <div className={classes.googleTextWrapper}>
-            <div className={classes.googleText}>Google Login</div>
+            <div className={classes.googleText}>{intl.formatMessage({id: 'signInGoogleSignIn'})}</div>
           </div>
         </div>
         <div className={classes.spacerText}>

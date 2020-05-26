@@ -104,7 +104,7 @@ function AddOptionsStep (props) {
         to review (and edit) the new option before people can choose it.
       </Typography>
       {currentOptions()}
-      <Button onClick={startSubWizard}>Add New Option</Button>
+      <Button className={classes.buttonClass} onClick={startSubWizard}>Add New Option</Button>
       <div className={classes.borderBottom}></div>
       <StepButtons {...props} validForm={validForm}/>
     </div>

@@ -44,14 +44,14 @@ function DialogReasonStep (props) {
         Uclusion Dialogs can provide context outside of the options to help guide the decision.
         Why the decision has to be made is a great thing to put in the context, which can be entered
         below.
-        <QuillEditor
-          onChange={onEditorChange}
-          defaultValue={editorContents}
-          value={editorContents}
-          onS3Upload={onS3Upload}
-          placeholder={intl.formatMessage({ id: 'DialogWizardReasonPlaceHolder' })}
-        />
       </Typography>
+      <QuillEditor
+        onChange={onEditorChange}
+        defaultValue={editorContents}
+        value={editorContents}
+        onS3Upload={onS3Upload}
+        placeholder={intl.formatMessage({ id: 'DialogWizardReasonPlaceHolder' })}
+      />
       <div className={classes.borderBottom}></div>
       <StepButtons {...props}
                    validForm={validForm}

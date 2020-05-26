@@ -39,7 +39,8 @@ export function getInvestibles(investibles, presenceMap, marketId, history, intl
       <Grid
         key={id}
         item
-        xs={3}
+        md={3}
+        xs={12}
       >
         <RaisedCard
           onClick={getInvestibleOnClick(id, marketId, history)}

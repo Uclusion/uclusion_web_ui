@@ -44,6 +44,7 @@ function InitialRequirementsStep (props) {
         Uclusion Workspaces have a Description which contains contextual information about the project, and is usually where requirements live.
         For now put in any context or initial requirements you have. The Workspace description is editable by any
         member of the workspace, so everyone will be able to keep it up to date as the project evolves.
+      </Typography>
         <QuillEditor
           onChange={onEditorChange}
           defaultValue={editorContents}
@@ -51,7 +52,6 @@ function InitialRequirementsStep (props) {
           onS3Upload={onS3Upload}
           placeholder={intl.formatMessage({ id: 'ReqWorkspaceWizardInitialRequirementsPlaceHolder' })}
         />
-      </Typography>
       <div className={classes.borderBottom}></div>
       <StepButtons {...props}
                    validForm={validForm}

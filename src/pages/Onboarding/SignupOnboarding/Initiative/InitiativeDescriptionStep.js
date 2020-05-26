@@ -44,14 +44,14 @@ function InitiativeDescriptionStep (props) {
         Uclusion Initiatives will handle the process of gathering votes and making sure everyone can track what's going on,
         but voters will want a detailed description of the idea. Enter the description below, but don't stress to much about
         getting every detail right. Uclusion allows your voters to ask Questions if they don't understand something.
-        <QuillEditor
-          onChange={onEditorChange}
-          defaultValue={editorContents}
-          value={editorContents}
-          onS3Upload={onS3Upload}
-          placeholder={intl.formatMessage({ id: 'InitiativeWizardInitiativeDescriptionPlaceholder' })}
-        />
       </Typography>
+      <QuillEditor
+        onChange={onEditorChange}
+        defaultValue={editorContents}
+        value={editorContents}
+        onS3Upload={onS3Upload}
+        placeholder={intl.formatMessage({ id: 'InitiativeWizardInitiativeDescriptionPlaceholder' })}
+      />
       <div className={classes.borderBottom}></div>
       <StepButtons {...props}
                    validForm={validForm}

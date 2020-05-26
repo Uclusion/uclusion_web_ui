@@ -29,7 +29,8 @@ const useStyles = makeStyles(
         padding: '32px',
       },
       introText: {
-        marginTop: '1rem'
+        marginTop: '1rem',
+        marginBottom: '1rem'
       },
       inputLabel: {
         display: 'block',
@@ -92,6 +93,8 @@ const useStyles = makeStyles(
       },
       actionStartOver: {
         backgroundColor: '#E85757',
+        color: '#fff',
+        textTransform: 'capitalize'
       },
       actionPrimary: {
         backgroundColor: '#2D9CDB',
@@ -108,6 +111,7 @@ const useStyles = makeStyles(
       actionSecondary: {
         backgroundColor: '#e0e0e0',
         textTransform: 'unset',
+        marginRight: '10px',
         '&:hover': {
           backgroundColor: '#e0e0e0'
         }
@@ -134,6 +138,13 @@ const useStyles = makeStyles(
       linkContainer: {
         marginTop: '30px'
       },
+      buttonClass: {
+        marginBottom: '15px',
+        borderRadius: 4,
+        border: 'none',
+        textTransform: 'capitalize',
+        backgroundColor: '#ecf0f1'
+      },
       WorkspaceWizardMeetingStepLabel: {
         maxWidth: '500px'
       },
@@ -149,6 +160,48 @@ const useStyles = makeStyles(
       },
       WorkspaceWizardCreatingWorkspaceStepLabel: {
         maxWidth: '500px'
+      },
+      SignupWizardTitle: {
+        maxWidth: '725px'
+      },
+      ReqWorkspaceWizardNameStepLabel: {
+        maxWidth: '500px'
+      },
+      ReqWorkspaceWizardRequirementsStepLabel: {
+        maxWidth: '725px'
+      },
+      DialogWizardDialogNameStepLabel: {
+        maxWidth: '500px'
+      },
+      DialogWizardDialogReasonStepLabel: {
+        maxWidth: '725px'
+      },
+      DialogWizardDialogExpirationStepLabel: {
+        maxWidth: '725px'
+      },
+      DialogWizardAddOptionsStepLabel: {
+        maxWidth: '500px'
+      },
+      AddOptionWizardOptionNameStepLabel: {
+        maxWidth: '500px'
+      },
+      AddOptionWizardOptionDescriptionStepLabel: {
+        maxWidth: '725px'
+      },
+      DialogWizardCreatingDialogStepLabel: {
+        maxWidth: '500px'
+      },
+      InitiativeWizardInitiativeNameStepLabel: {
+        maxWidth: '500px'
+      },
+      InitiativeWizardInitiativeDescriptionStepLabel: {
+        maxWidth: '725px'
+      },
+      InitiativeWizardInitiativeExpirationStepLabel: {
+        maxWidth: '725px'
+      },
+      InitiativeWizardCreatingInitiativeStepLabel: {
+        maxWidth: '725px'
       }
     };
   }
@@ -241,7 +294,7 @@ function OnboardingWizard (props) {
 
   const stepClass = stepPrototypes[stepState.currentStep].label;
   const currentStep = getCurrentStepContents();
-
+  
   function getContent () {
     return (
       <Card className={clsx(classes[stepClass], classes.baseCard)} elevation={0} raised={false}>

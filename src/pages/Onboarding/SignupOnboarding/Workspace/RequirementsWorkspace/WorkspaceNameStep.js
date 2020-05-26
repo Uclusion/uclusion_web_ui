@@ -9,13 +9,13 @@ import { updateValues } from '../../../onboardingReducer';
 function WorkspaceNameStep (props) {
   const { updateFormData, formData, active, classes } = props;
   const intl = useIntl();
-  const value = formData.meetingName || '';
+  const value = formData.workspaceName || '';
   const validForm = !_.isEmpty(value);
 
   function onNameChange (event) {
     const { value } = event.target;
     updateFormData(updateValues({
-      meetingName: value
+      workspaceName: value
     }));
   }
 

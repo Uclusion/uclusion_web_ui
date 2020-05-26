@@ -55,7 +55,8 @@ export function getS3FileUrl (metadata) {
  * @return a filtered list of file uploads
  */
 function filterUploadsUsedInText (uploadedFiles, text) {
-  const used = uploadedFiles.filter((file) => {
+  const safeUF = uploadedFiles || [];
+  const used = safeUF.filter((file) => {
     const { path } = file;
     return text.includes(path);
   });

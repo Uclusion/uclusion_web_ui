@@ -19,7 +19,8 @@ export function inviteInitiativeSteps(variables) {
       target: '#initiativeMain',
       content: 'You can see what\'s proposed here in the description.',
     },
-    { disableBeacon: true,
+    {
+      disableBeacon: true,
       target: '#pleaseVote',
       content: 'This section is where you can vote for or against the proposal.',
     },

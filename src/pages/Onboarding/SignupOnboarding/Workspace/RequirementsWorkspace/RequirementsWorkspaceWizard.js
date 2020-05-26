@@ -4,6 +4,8 @@ import WorkspaceNameStep from './WorkspaceNameStep';
 import OnboardingWizard from '../../../OnboardingWizard';
 import { useIntl } from 'react-intl';
 import InitialRequirementsStep from './InitialRequirementsStep';
+import TodoStep from './TodoStep';
+import CreatingWorkspaceStep from './CreatingWorkspaceStep';
 
 function RequirementsWorkspaceWizard (props) {
   const { hidden, onStartOver } = props;
@@ -17,6 +19,14 @@ function RequirementsWorkspaceWizard (props) {
     {
       label: 'ReqWorkspaceWizardRequirementsStepLabel',
       content: <InitialRequirementsStep/>,
+    },
+    {
+      label: 'ReqWorkspaceWizardTodoStepLabel',
+      content: <TodoStep/>,
+    },
+    {
+      label: 'ReqWorkspaceWizardCreatingworkspaceStepLabel',
+      content: <CreatingWorkspaceStep/>,
     }
 
   ];

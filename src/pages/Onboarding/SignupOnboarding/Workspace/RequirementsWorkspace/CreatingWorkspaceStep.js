@@ -5,108 +5,64 @@ import StepButtons from '../../../StepButtons'
 import { createPlanning } from '../../../../../api/markets'
 import { addMarketToStorage } from '../../../../../contexts/MarketsContext/marketsContextHelper'
 import { processTextAndFilesForSave } from '../../../../../api/files'
-import { addPlanningInvestible, stageChangeInvestible } from '../../../../../api/investibles'
 import { DiffContext } from '../../../../../contexts/DiffContext/DiffContext'
-import { InvestiblesContext } from '../../../../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketsContext } from '../../../../../contexts/MarketsContext/MarketsContext'
-import { addInvestible } from '../../../../../contexts/InvestibesContext/investiblesContextHelper'
 import { formMarketLink, navigate } from '../../../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { addPresenceToMarket } from '../../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { saveComment } from '../../../../../api/comments'
-import { REPORT_TYPE } from '../../../../../constants/comments'
+import { TODO_TYPE } from '../../../../../constants/comments';
 import { addCommentToMarket } from '../../../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext'
 import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext'
-import { useIntl } from 'react-intl'
+//import { useIntl } from 'react-intl'
 import { Typography } from '@material-ui/core'
 import InviteLinker from '../../../../Dialog/InviteLinker'
-import { PLANNING_TYPE, STORIES_SUB_TYPE } from '../../../../../constants/markets';
+import { PLANNING_TYPE, REQUIREMENTS_SUB_TYPE } from '../../../../../constants/markets';
 
 function CreatingWorkspaceStep (props) {
-  const intl = useIntl();
+//  const intl = useIntl();
   const { formData, active, classes } = props;
   const [, diffDispatch] = useContext(DiffContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [, versionsDispatch] = useContext(VersionsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-
-  const [workspaceInfo, setWorkspaceInfo] = useState({});
+ const [workspaceInfo, setWorkspaceInfo] = useState({});
   const history = useHistory();
-  const { meetingName } = formData;
-  const workspaceDescription = intl.formatMessage({ id: 'WorkspaceWizardWorkspaceDescription' }, { meetingName });
-
   useEffect(() => {
-
     const { workspaceCreated } = workspaceInfo;
     if (!workspaceCreated && active) {
+      const {
+        workspaceName,
+        workspaceDescription,
+        workspaceDescriptionUploadedFiles
+      } = formData;
+      const processed = processTextAndFilesForSave(workspaceDescriptionUploadedFiles, workspaceDescription);
       const marketInfo = {
-        name: meetingName,
-        description: `<p>${workspaceDescription}</p>`,
-        market_sub_type: STORIES_SUB_TYPE,
+        name: workspaceName,
+        description: processed.text,
+        uploaded_files: processed.uploadedFiles,
+        market_sub_type: REQUIREMENTS_SUB_TYPE,
       };
       let marketId;
-      let investibleId;
-      let inProgressStage;
-      let inVotingStage;
-      let myUserId;
       let marketToken;
       createPlanning(marketInfo)
         .then((marketDetails) => {
           const {
             market,
             presence,
-            stages,
           } = marketDetails;
           marketId = market.id;
           marketToken = market.invite_capability;
           setWorkspaceInfo({ workspaceCreated: true, marketId, marketToken });
-          myUserId = presence.id;
           addMarketToStorage(marketsDispatch, diffDispatch, market);
           addPresenceToMarket(presenceDispatch, marketId, presence);
-          inVotingStage = stages.find((stage) => stage.allows_investment);
-          inProgressStage = stages.find((stage) => stage.singular_only);
-          const {
-            currentStoryUploadedFiles,
-            currentStoryName,
-            currentStoryDescription,
-            currentStoryEstimate,
-            currentStoryProgressSkipped,
-          } = formData;
-          const realUploadedFiles = currentStoryUploadedFiles || [];
-          const processed = processTextAndFilesForSave(realUploadedFiles, currentStoryDescription);
-          const addInfo = {
-            marketId,
-            name: currentStoryName,
-            description: processed.text,
-            uploadedFiles: processed.uploadedFiles,
-            assignments: [myUserId],
-          };
-          if (!_.isEmpty(currentStoryEstimate) && !currentStoryProgressSkipped) {
-            addInfo.daysEstimate = currentStoryEstimate;
-          }
-          return addPlanningInvestible(addInfo);
-        })
-        .then((investible) => {
-          addInvestible(investiblesDispatch, diffDispatch, investible);
-          investibleId = investible.investible.id;
-          const updateInfo = {
-            marketId,
-            investibleId,
-            stageInfo: {
-              current_stage_id: inVotingStage.id,
-              stage_id: inProgressStage.id,
-            }
-          };
-          return stageChangeInvestible(updateInfo);
-        })
-        .then(() => {
-          const { currentStoryProgress, currentStoryProgressSkipped } = formData;
-          if (!_.isEmpty(currentStoryProgress) && !currentStoryProgressSkipped) {
-            return saveComment(marketId, investibleId, undefined, currentStoryProgress, REPORT_TYPE, []);
+          const { todo, todoSkipped, todoUploadedFiles } = formData;
+          if (!_.isEmpty(todo) && !todoSkipped) {
+            const processed = processTextAndFilesForSave(todoUploadedFiles, todo);
+            return saveComment(marketId, undefined, undefined, processed.text, TODO_TYPE, processed.uploadedFiles);
           } else {
             return Promise.resolve(false);
           }
@@ -115,33 +71,12 @@ function CreatingWorkspaceStep (props) {
           if (addedComment) {
             addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
           }
-          const { nextStoryName, nextStoryDescription, nextStoryUploadedFiles, nextStorySkipped } = formData;
-          if (!_.isEmpty(nextStoryName) && !nextStorySkipped) {
-            const usedUploads = nextStoryUploadedFiles || [];
-            const processed = processTextAndFilesForSave(usedUploads, nextStoryDescription);
-            // add the story
-            const addInfo = {
-              marketId,
-              name: nextStoryName,
-              description: processed.text,
-              uploadedFiles: processed.uploadedFiles,
-              assignments: [myUserId],
-            };
-            return addPlanningInvestible(addInfo);
-          }
-          return Promise.resolve(false);
-        })
-        .then((addedStory) => {
-          if (addedStory) {
-            addInvestible(investiblesDispatch, diffDispatch, addedStory);
-          }
-
         });
     }
   }, [
     workspaceInfo, active, commentsDispatch, commentsState,
-    diffDispatch, versionsDispatch, formData, investiblesDispatch,
-    marketsDispatch, presenceDispatch, meetingName, workspaceDescription,
+    diffDispatch, versionsDispatch, formData,
+    marketsDispatch, presenceDispatch,
   ]);
   const { marketId, workspaceCreated, marketToken } = workspaceInfo;
   const marketLink = formMarketLink(marketId);

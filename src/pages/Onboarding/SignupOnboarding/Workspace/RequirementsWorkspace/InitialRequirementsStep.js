@@ -20,7 +20,7 @@ function InitialRequirementsStep (props) {
 
   function onStepChange () {
     updateFormData(updateValues({
-      dialogReason: editorContents,
+      workspaceDescription: editorContents,
     }));
   }
 

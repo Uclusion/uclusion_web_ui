@@ -23,7 +23,7 @@ import {
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
-import { ACTIVE_STAGE } from '../../../constants/markets'
+import { ACTIVE_STAGE, STORIES_SUB_TYPE } from '../../../constants/markets';
 import { getUserInvestibles } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -38,12 +38,17 @@ import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import ViewArchiveActionButton from './ViewArchivesActionButton'
 import { TourContext } from '../../../contexts/TourContext/TourContext';
 import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer';
-import {
-  INVITE_WORKSPACE_FAMILY_NAME,
-  INVITE_WORKSPACE_FIRST_VIEW, inviteWorkspaceSteps
-} from '../../../components/Tours/InviteTours/workspace';
+
 import { CognitoUserContext } from '../../../contexts/CongitoUserContext';
 import UclusionTour from '../../../components/Tours/UclusionTour';
+import {
+  INVITE_STORIES_WORKSPACE_FAMILY_NAME,
+  INVITE_STORIES_WORKSPACE_FIRST_VIEW, inviteStoriesWorkspaceSteps
+} from '../../../components/Tours/InviteTours/storyWorkspace';
+import {
+  INVITE_REQ_WORKSPACE_FAMILY_NAME,
+  INVITE_REQ_WORKSPACE_FIRST_VIEW, inviteRequirementsWorkspaceSteps
+} from '../../../components/Tours/InviteTours/requirementsWorkspace';
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -116,17 +121,28 @@ function PlanningDialog(props) {
     navigate(history, link);
   }
 
+  function isStoryWorkspace() {
+    const startedAsStory = market && (!market.market_sub_type || market.market_sub_type === STORIES_SUB_TYPE);
+    const hasStoriesNow = !_.isEmpty((investibles));
+    return startedAsStory || hasStoriesNow;
+  }
+
   const furtherWorkStage = marketStages.find((stage) => (!stage.appears_in_context && !stage.allows_issues
     && !stage.appears_in_market_summary)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const isCreator = market.created_by === myPresence.id;
 
+  const storyWorkspace = isStoryWorkspace();
+  const tourFamily = storyWorkspace ? INVITE_STORIES_WORKSPACE_FAMILY_NAME : INVITE_REQ_WORKSPACE_FAMILY_NAME;
+  const tourName = storyWorkspace ? INVITE_STORIES_WORKSPACE_FIRST_VIEW : INVITE_REQ_WORKSPACE_FIRST_VIEW;
+  const tourSteps = storyWorkspace ? inviteStoriesWorkspaceSteps(cognitoUser)
+    : inviteRequirementsWorkspaceSteps(cognitoUser);
   useEffect(() => {
     if (!isCreator) {
-      tourDispatch(startTourFamily(INVITE_WORKSPACE_FAMILY_NAME));
+      tourDispatch(startTourFamily(tourFamily));
     }
-  }, [isCreator, tourDispatch]);
+  }, [isCreator, tourDispatch, tourFamily]);
 
   return (
     <Screen
@@ -136,10 +152,10 @@ function PlanningDialog(props) {
       breadCrumbs={breadCrumbs}
     >
       <UclusionTour
-        name={INVITE_WORKSPACE_FIRST_VIEW}
-        family={INVITE_WORKSPACE_FAMILY_NAME}
+        name={tourName}
+        family={tourFamily}
         hidden={hidden}
-        steps={inviteWorkspaceSteps(cognitoUser)}
+        steps={tourSteps}
         />
       <div id="workspaceMain">
         <Summary market={market} hidden={hidden} isChannel={isChannel} activeMarket={activeMarket} />
@@ -192,7 +208,7 @@ function PlanningDialog(props) {
         <DismissableText textId='storyHelp' />
       )}
       <Grid container spacing={2}>
-          <Grid item xs={12} style={{ marginTop: '30px' }}>
+          <Grid item id="commentAddArea"  xs={12} style={{ marginTop: '30px' }}>
             {!inArchives && (
               <CommentAddBox
                 allowedTypes={allowedCommentTypes}

@@ -259,6 +259,7 @@ export const usePlanFormStyles = makeStyles(
     },
     datePickerContainer: {
       width: '100%',
+      display: 'block',
       '& > label' : {
         display: 'block'
       },

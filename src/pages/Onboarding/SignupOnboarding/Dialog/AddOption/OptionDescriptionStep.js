@@ -54,14 +54,14 @@ function OptionDescriptionStep (props) {
         should provide enough information such that a collaborator can make an informed, useful decision.
         Don't worry about getting the description perfect, however, since a collaborator can Ask a Question,
         make a Suggestion, or propose their own options if they don't like any of yours.
-        <QuillEditor
-          onChange={onEditorChange}
-          defaultValue={editorContents}
-          value={editorContents}
-          onS3Upload={onS3Upload}
-          placeholder={intl.formatMessage({ id: 'AddOptionWizardOptionDescriptionPlaceHolder' })}
-        />
       </Typography>
+      <QuillEditor
+        onChange={onEditorChange}
+        defaultValue={editorContents}
+        value={editorContents}
+        onS3Upload={onS3Upload}
+        placeholder={intl.formatMessage({ id: 'AddOptionWizardOptionDescriptionPlaceHolder' })}
+      />
       <div className={classes.borderBottom}/>
       <StepButtons {...props}
                    validForm={validForm}

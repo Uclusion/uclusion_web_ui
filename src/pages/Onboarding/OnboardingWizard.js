@@ -294,7 +294,7 @@ function OnboardingWizard (props) {
 
   const stepClass = stepPrototypes[stepState.currentStep].label;
   const currentStep = getCurrentStepContents();
-  console.log(stepClass);
+  
   function getContent () {
     return (
       <Card className={clsx(classes[stepClass], classes.baseCard)} elevation={0} raised={false}>

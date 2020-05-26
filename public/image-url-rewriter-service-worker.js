@@ -17,6 +17,10 @@ self.addEventListener('fetch', (event) => {
             return self.localforage.createInstance({ storeName: 'TOKEN_STORAGE_MANAGER' }).getItem(homeAccountKey);
           }
         }).then((token) => {
+          if (!token) {
+            console.error(`No token for ${url}, ${marketKey} and ${homeAccountKey}`);
+            return
+          }
           const newUrl = new URL(url);
           newUrl.searchParams.set('authorization', token);
           return fetch(newUrl);

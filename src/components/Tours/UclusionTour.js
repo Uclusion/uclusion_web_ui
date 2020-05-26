@@ -113,6 +113,7 @@ function UclusionTour(props) {
       {...rest}
       callback={tourCallback}
       continuous={continuous}
+      disableOverlayClose
       hideBackButton
     />
   );

@@ -782,7 +782,7 @@ const messages = defineMessages({
   //RequirementsWorkspaceWizard
   ReqWorkspaceWizardTitle: 'Your workspace',
   ReqWorkspaceWizardNamePlaceHolder: 'Your workspace Name',
-  ReqWorkspaceWizardNameStepLabel: 'Workspace Name',
+  ReqWorkspaceWizardNameStepLabel: 'Requirements Workspace',
   ReqWorkspaceWizardRequirementsStepLabel: 'Initial Requirements',
   ReqWorkspaceWizardInitialRequirementsPlaceHolder: 'Your initial requirements',
   ReqWorkspaceWizardTodoStepLabel: 'What\'s still TODO?',
@@ -801,8 +801,8 @@ const messages = defineMessages({
   //SignupWizard
   SignupWizardTitle: 'What do you want to do?',
   SignupWizardQuestion: 'What do you want to do?',
-  SignupWizardRequirementsWorkspace: 'Create requirements for a project',
-  SignupWizardStoryWorkspace: 'Track story progress and decide the next story to work on',
+  SignupWizardRequirementsWorkspace: 'Determine requirements for a project',
+  SignupWizardStoryWorkspace: 'Choose everyone\'s next story and track progress',
   SignupWizardDialog: 'Make a group decision',
   SignupWizardInitiative: 'Measure support for an idea',
 

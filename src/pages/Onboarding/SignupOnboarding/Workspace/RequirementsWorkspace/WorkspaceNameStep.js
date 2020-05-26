@@ -1,10 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { TextField, Typography } from '@material-ui/core';
-import { useIntl } from 'react-intl';
-import _ from 'lodash';
-import StepButtons from '../../../StepButtons';
-import { updateValues } from '../../../onboardingReducer';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { TextField, Typography } from '@material-ui/core'
+import { useIntl } from 'react-intl'
+import _ from 'lodash'
+import StepButtons from '../../../StepButtons'
+import { updateValues } from '../../../onboardingReducer'
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData, active, classes } = props;
@@ -26,8 +26,7 @@ function WorkspaceNameStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Great! We're going to be creating a Uclusion Workspace which will provide a structured environment
-        to create your requirements.
+        Great! We're creating a structured environment to work on requirements together.
       </Typography>
       <Typography className={classes.introText} variant="body2">
         First, we'll need a short, but descriptive name for your Workspace.

@@ -1,11 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import WorkspaceNameStep from './WorkspaceNameStep';
-import OnboardingWizard from '../../../OnboardingWizard';
-import { useIntl } from 'react-intl';
-import InitialRequirementsStep from './InitialRequirementsStep';
-import TodoStep from './TodoStep';
-import CreatingWorkspaceStep from './CreatingWorkspaceStep';
+import React from 'react'
+import PropTypes from 'prop-types'
+import WorkspaceNameStep from './WorkspaceNameStep'
+import OnboardingWizard from '../../../OnboardingWizard'
+import { useIntl } from 'react-intl'
+import InitialRequirementsStep from './InitialRequirementsStep'
+import TodoStep from './TodoStep'
+import CreatingWorkspaceStep from './CreatingWorkspaceStep'
 
 function RequirementsWorkspaceWizard (props) {
   const { hidden, onStartOver } = props;
@@ -14,7 +14,7 @@ function RequirementsWorkspaceWizard (props) {
   const stepPrototypes = [
     {
       label: 'ReqWorkspaceWizardNameStepLabel',
-      content: <WorkspaceNameStep/>,
+      content: <WorkspaceNameStep />,
     },
     {
       label: 'ReqWorkspaceWizardRequirementsStepLabel',

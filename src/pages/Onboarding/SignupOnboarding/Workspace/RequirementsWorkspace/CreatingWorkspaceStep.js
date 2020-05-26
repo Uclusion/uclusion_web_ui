@@ -19,7 +19,7 @@ import { VersionsContext } from '../../../../../contexts/VersionsContext/Version
 //import { useIntl } from 'react-intl'
 import { Typography } from '@material-ui/core'
 import InviteLinker from '../../../../Dialog/InviteLinker'
-import { PLANNING_TYPE } from '../../../../../constants/markets'
+import { PLANNING_TYPE, REQUIREMENTS_SUB_TYPE } from '../../../../../constants/markets';
 
 function CreatingWorkspaceStep (props) {
 //  const intl = useIntl();
@@ -43,7 +43,8 @@ function CreatingWorkspaceStep (props) {
       const marketInfo = {
         name: workspaceName,
         description: processed.text,
-        uploaded_files: processed.uploadedFiles
+        uploaded_files: processed.uploadedFiles,
+        market_sub_type: REQUIREMENTS_SUB_TYPE,
       };
       let marketId;
       let marketToken;

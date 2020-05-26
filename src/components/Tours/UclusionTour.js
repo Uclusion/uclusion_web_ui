@@ -65,8 +65,19 @@ function UclusionTour(props) {
 
   const ourStyles = {
     buttonNext: {
-      backgroundColor: '#3f6b72',
-      color: '#fff'
+      backgroundColor: '#2D9CDB',
+      color: 'white',
+      textTransform: 'unset',
+      fontWeight: 'bold',
+      lineHeight: 'normal',
+      outline: 'None',
+      '&:hover': {
+        backgroundColor: '#2D9CDB'
+      },
+      '&:disabled': {
+        color: 'white',
+        backgroundColor: 'rgba(45, 156, 219, .6)'
+      }
     },
   };
 

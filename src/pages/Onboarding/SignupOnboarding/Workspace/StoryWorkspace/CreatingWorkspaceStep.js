@@ -22,7 +22,7 @@ import { VersionsContext } from '../../../../../contexts/VersionsContext/Version
 import { useIntl } from 'react-intl'
 import { Typography } from '@material-ui/core'
 import InviteLinker from '../../../../Dialog/InviteLinker'
-import { PLANNING_TYPE } from '../../../../../constants/markets'
+import { PLANNING_TYPE, STORIES_SUB_TYPE } from '../../../../../constants/markets';
 
 function CreatingWorkspaceStep (props) {
   const intl = useIntl();
@@ -46,6 +46,7 @@ function CreatingWorkspaceStep (props) {
       const marketInfo = {
         name: meetingName,
         description: `<p>${workspaceDescription}</p>`,
+        market_sub_type: STORIES_SUB_TYPE,
       };
       let marketId;
       let investibleId;

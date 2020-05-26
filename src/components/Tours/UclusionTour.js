@@ -64,6 +64,9 @@ function UclusionTour(props) {
   }
 
   const ourStyles = {
+    buttonClose: {
+      display: 'none'
+    },
     buttonNext: {
       backgroundColor: '#2D9CDB',
       color: 'white',

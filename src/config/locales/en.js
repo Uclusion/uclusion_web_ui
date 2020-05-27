@@ -577,7 +577,7 @@ const messages = defineMessages({
   signupPasswordRepeatLabel: 'Repeat Password',
   signupPasswordRepeatHelper: 'Must match Password',
   signupSignupLabel: 'Create Account',
-  signupTitle: 'Sign Up',
+  signupTitle: 'Try for Free',
   signupHaveAccount: 'Already have an account? Sign in',
   signupAccountExists: 'An account with that email already exists, please log in.',
   signupAccountExistsLoginLink: 'Log In',

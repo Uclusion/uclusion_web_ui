@@ -25,7 +25,8 @@ import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationP
 import BillingHome from '../../pages/Payments/BillingHome'
 import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
 import SignupWizard from '../../pages/Onboarding/SignupOnboarding/SignupWizard'
-import { AccountUserContext, isNewUser } from '../../contexts/AccountUserContext'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import { isNewUser } from '../../contexts/AccountUserContext/accountUserContextHelper';
 
 const useStyles = makeStyles({
   body: {

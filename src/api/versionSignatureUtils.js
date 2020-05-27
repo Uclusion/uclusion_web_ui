@@ -123,7 +123,7 @@ export function signatureMatcher (fetched, signatures) {
 
 
 /**
- * Given a set of account version sisgnatures returns all the match functions
+ * Given a set of account version signatures returns all the match functions
  * for their constituent parts
  * @param accountVersionSignatures
  * @returns {{users: *}}
@@ -191,12 +191,24 @@ function generateSimpleObjectSignature (versionsSignatures, type) {
 }
 
 /**
- * Generates all user signatures for given account signature list
+ * Generates all user signatures for given account signature list.
+ * Since there's really only one user we care abot we're going to use
+ * the external id
  * @param versionsSignatures
  * @returns {*[]|*}
  */
 function accountUsersSignatureGenerator (versionsSignatures) {
-  return generateSimpleObjectSignature(versionsSignatures, 'user');
+  const userSignatures = getSpecificTypeSignatures(versionsSignatures, 'user');
+  const fetchSigs = userSignatures.object_versions.reduce((acc, sig) => {
+    const { version, object_id_one: external_id } = sig;
+    return [
+      ...acc,
+      {
+        external_id,
+        version,
+      },
+    ];
+  }, []);
 }
 
 

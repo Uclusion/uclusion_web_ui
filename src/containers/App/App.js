@@ -12,7 +12,7 @@ import { defaultTheme } from '../../config/themes'
 import { ThemeProvider } from '@material-ui/core/styles'
 import { TourProvider } from '../../contexts/TourContext/TourContext'
 import { CognitoUserProvider } from '../../contexts/CongitoUserContext'
-import { AccountUserProvider } from '../../contexts/AccountUserContext'
+import { AccountUserProvider } from '../../contexts/AccountUserContext/AccountUserContext'
 
 function App (props) {
 

@@ -11,10 +11,10 @@ import {
 } from '../../contexts/TourContext/tourContextHelper';
 import ReactJoyride from 'react-joyride';
 import { getTourSequence } from './tourSequences';
-import { UserPreferencesContext } from '../../contexts/UserPreferencesContext/UserPreferencesContext';
-import { getUiPreference } from '../../contexts/UserPreferencesContext/userPreferencesContextHelper';
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
 import { updateUiPreferences } from '../../api/account';
-import { homeUserRefresh } from '../../contexts/UserPreferencesContext/userPreferencesContextReducer';
+import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer';
+import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper';
 
 
 function UclusionTour(props) {
@@ -27,9 +27,10 @@ function UclusionTour(props) {
   } = props;
 
   const [tourState, tourDispatch] = useContext(TourContext);
-  const [userPrefsState, userPrefsDispatch] = useContext(UserPreferencesContext)
+  const [userPrefsState, userPrefsDispatch] = useContext(AccountUserContext)
   const isCompleted = isTourCompleted(tourState, name);
-  const tourPreferences = getUiPreference(userPrefsState, 'TOURS') || {};
+  const userPreferences = getUiPreferences(userPrefsState) || {};
+  const tourPreferences = userPreferences.tours || {};
   const { completedTours } = tourPreferences;
 
   function storeTourCompleteInBackend(tourName){
@@ -41,12 +42,12 @@ function UclusionTour(props) {
     };
     const newPrefs = {
       ...userPrefsState,
-      ...tourPreferences,
+      tours: newTourPreferences,
     };
     updateUiPreferences(newPrefs)
       .then((result) => {
         const { user } = result;
-        userPrefsDispatch(homeUserRefresh(user));
+        userPrefsDispatch(accountUserRefresh(user));
       });
   }
 

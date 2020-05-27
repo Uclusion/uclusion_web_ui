@@ -26,14 +26,12 @@ import { SearchIndexProvider } from '../../contexts/SearchIndexContext/SearchInd
 import { DismissTextProvider } from '../../contexts/DismissTextContext';
 import { SearchResultsProvider } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { ScrollProvider } from '../../contexts/ScrollContext';
-import { UserPreferencesProvider } from '../../contexts/UserPreferencesContext/UserPreferencesContext';
 
 function Main (props) {
   const stripePromise = loadStripe(config.payments.stripeKey);
   return (
     <div>
       <AccountProvider>
-        <UserPreferencesProvider>
           <DismissTextProvider>
             <HighlightedVotingProvider>
               <HighlightedCommentProvider>
@@ -72,7 +70,6 @@ function Main (props) {
               </HighlightedCommentProvider>
             </HighlightedVotingProvider>
           </DismissTextProvider>
-        </UserPreferencesProvider>
       </AccountProvider>
     </div>
   );

@@ -22,7 +22,7 @@ import config from '../../config'
 import Screen from '../../containers/Screen/Screen'
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { AccountUserContext } from '../../contexts/AccountUserContext'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
 
 const useStyles = makeStyles((theme) => ({
   name: {},

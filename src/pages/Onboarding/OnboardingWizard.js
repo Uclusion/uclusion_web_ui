@@ -202,6 +202,12 @@ const useStyles = makeStyles(
       },
       InitiativeWizardCreatingInitiativeStepLabel: {
         maxWidth: '725px'
+      },
+      ReqWorkspaceWizardTodoStepLabel: {
+        maxWidth: '725px'
+      },
+      ReqWorkspaceWizardCreatingworkspaceStepLabel: {
+        maxWidth: '500px'
       }
     };
   }
@@ -255,6 +261,7 @@ function OnboardingWizard (props) {
   }
 
   function getStepHeaders () {
+    console.log(stepPrototypes);
     const currentStep = stepPrototypes[stepState.currentStep];
     const stepNumber = stepState.currentStep;
     const stepCount = stepState.totalSteps;
@@ -294,7 +301,7 @@ function OnboardingWizard (props) {
 
   const stepClass = stepPrototypes[stepState.currentStep].label;
   const currentStep = getCurrentStepContents();
-  
+
   function getContent () {
     return (
       <Card className={clsx(classes[stepClass], classes.baseCard)} elevation={0} raised={false}>

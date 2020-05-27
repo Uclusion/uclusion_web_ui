@@ -1,13 +1,12 @@
-import React, { useReducer, useState } from 'react';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import { Card, Container, makeStyles, Typography } from '@material-ui/core';
-import Screen from '../../containers/Screen/Screen';
-import { useIntl } from 'react-intl';
-import { reducer, resetValues } from './onboardingReducer';
-import { Helmet } from 'react-helmet';
-import Header from '../../containers/Header';
-
+import React, { useReducer, useState } from 'react'
+import PropTypes from 'prop-types'
+import clsx from 'clsx'
+import { Card, Container, makeStyles, Typography } from '@material-ui/core'
+import Screen from '../../containers/Screen/Screen'
+import { useIntl } from 'react-intl'
+import { reducer, resetValues } from './onboardingReducer'
+import { Helmet } from 'react-helmet'
+import Header from '../../containers/Header'
 
 const useStyles = makeStyles(
   theme => {
@@ -350,6 +349,7 @@ function OnboardingWizard (props) {
     <Screen
       tabTitle={title}
       hidden={hidden}
+      isOnboarding
     >
       {getContent()}
     </Screen>

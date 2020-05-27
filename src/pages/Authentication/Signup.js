@@ -314,12 +314,6 @@ function Signup(props) {
       <Helmet>
         <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com"></meta>
         <script src="https://apis.google.com/js/platform.js"></script>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-135457176-1"></script>
-        <script>{`window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'UA-135457176-1');`}
-        </script>
       </Helmet>
       <CssBaseline/>
       <dl className={classes.root}>

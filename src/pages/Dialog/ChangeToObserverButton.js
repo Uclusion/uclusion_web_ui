@@ -30,7 +30,7 @@ function ChangeToObserverButton(props) {
   const { market_type: marketType } = market;
   const lockedDialogClasses = useLockedDialogStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const presences = getMarketPresences(marketPresencesState, marketId);
+  const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const presencesFollowing = presences.filter((presence) => presence.following && !presence.market_banned);
   const myPresence = presences.find((presence) => presence.current_user);
   const isDeactivate = marketType === PLANNING_TYPE && presencesFollowing && presencesFollowing.length < 3;

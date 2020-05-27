@@ -8,7 +8,6 @@ import {
   CardActions,
   CardContent,
   darken,
-  Divider,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -287,7 +286,6 @@ function AddEditVote(props) {
               />
             </InfoText>
           )}
-          <Divider className={classes.divider} />
           <QuillEditor
             marketId={marketId}
             placeholder={intl.formatMessage({ id: "yourReason" })}

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { Typography } from '@material-ui/core';
-import QuillEditor from '../../../../../components/TextEditors/QuillEditor';
-import { updateValues } from '../../../onboardingReducer';
-import _ from 'lodash';
-import { useIntl } from 'react-intl';
-import StepButtons from '../../../StepButtons';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { Typography } from '@material-ui/core'
+import QuillEditor from '../../../../../components/TextEditors/QuillEditor'
+import { updateValues } from '../../../onboardingReducer'
+import _ from 'lodash'
+import { useIntl } from 'react-intl'
+import StepButtons from '../../../StepButtons'
 
 function InitialRequirementsStep (props) {
   const { updateFormData, formData, active, classes } = props;
@@ -41,9 +41,9 @@ function InitialRequirementsStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Uclusion Workspaces have a Description which contains contextual information about the project, and is usually where requirements live.
-        For now put in any context or initial requirements you have. The Workspace description is editable by any
-        member of the workspace, so everyone will be able to keep it up to date as the project evolves.
+        Uclusion Workspaces have a description which contains contextual information about the project, and is usually where requirements live.
+        For now put in any context or initial requirements you have. Every member of the workspace can edit and changes
+        automatically notify and display differences to the team.
       </Typography>
         <QuillEditor
           onChange={onEditorChange}

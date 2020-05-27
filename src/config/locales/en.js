@@ -441,7 +441,7 @@ const messages = defineMessages({
   planningInvestibleEnoughVotesHelp: 'This story has enough votes so consider using the up arrow to move \'In Progress\'',
   planningInvestibleAcceptedFullHelp: 'You can only have one story at a time \'In Progress\' so the up arrow is not visible yet.',
   planningEditHelp: 'Workspace descriptions communicate requirements well with notifications and a difference display of the change.',
-  planningInvestibleAcceptedHelp: 'For help brainstorming how to do this story choose the link icon from the sidebar menu to create a child dialog.',
+  planningInvestibleAcceptedHelp: 'For help brainstorming how to do this story use Add Option to create a child dialog.',
   planningInvestibleVotingHelp: 'Vote how certain you are this story should be done or open an issue.',
   inlineAddLabel: 'Add Option',
   inlineAddExplanation: 'Add a how to do this story option and collect votes on it.',
@@ -564,6 +564,8 @@ const messages = defineMessages({
   signInNoAccount: 'Don\'t have an account? Sign up',
   signInForgotPassword: 'Forgot Password?',
   signInSignIn: 'Sign In',
+  signInGithubSignIn: 'Sign In with GitHub',
+  signInGoogleSignIn: 'Sign In with Google',
 
 
   // Signup
@@ -584,6 +586,8 @@ const messages = defineMessages({
   signupResendCodeButton: 'Resend Link',
   signupAgreeTermsOfUse: 'I agree to the Uclusion ',
   signupTermsOfUse: 'Beta Program Terms of Use',
+  signupGithubSignup: 'Sign Up with GitHub',
+  signupGoogleSignup: 'Sign Up with Google',
 
   // Forgot Password
   forgotPasswordHeader: 'Reset your password',
@@ -782,7 +786,7 @@ const messages = defineMessages({
   //RequirementsWorkspaceWizard
   ReqWorkspaceWizardTitle: 'Your workspace',
   ReqWorkspaceWizardNamePlaceHolder: 'Your workspace Name',
-  ReqWorkspaceWizardNameStepLabel: 'Workspace Name',
+  ReqWorkspaceWizardNameStepLabel: 'Requirements Workspace',
   ReqWorkspaceWizardRequirementsStepLabel: 'Initial Requirements',
   ReqWorkspaceWizardInitialRequirementsPlaceHolder: 'Your initial requirements',
   ReqWorkspaceWizardTodoStepLabel: 'What\'s still TODO?',
@@ -801,8 +805,8 @@ const messages = defineMessages({
   //SignupWizard
   SignupWizardTitle: 'What do you want to do?',
   SignupWizardQuestion: 'What do you want to do?',
-  SignupWizardRequirementsWorkspace: 'Create requirements for a project',
-  SignupWizardStoryWorkspace: 'Track story progress and decide the next story to work on',
+  SignupWizardRequirementsWorkspace: 'Determine requirements for a project',
+  SignupWizardStoryWorkspace: 'Choose everyone\'s next story and track progress',
   SignupWizardDialog: 'Make a group decision',
   SignupWizardInitiative: 'Measure support for an idea',
 

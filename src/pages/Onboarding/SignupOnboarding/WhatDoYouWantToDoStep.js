@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Typography, Button, ButtonGroup, makeStyles } from '@material-ui/core';
-import { useIntl } from 'react-intl';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { Button, ButtonGroup, makeStyles, Typography } from '@material-ui/core'
+import { useIntl } from 'react-intl'
 
 const useStyles = makeStyles(
   theme => {
@@ -41,8 +41,7 @@ function WhatDoYouWantToDoStep(props) {
   return (
     <div>
       <Typography>
-        Uclusion is a powerful tool that can help you collaborate better with your team.
-        To start off, we can help you with the following:
+        Uclusion is a powerful collaboration tool that can help with the following and more:
       </Typography>
         <ButtonGroup
           orientation="vertical"

@@ -314,6 +314,12 @@ function Signup(props) {
       <Helmet>
         <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com"></meta>
         <script src="https://apis.google.com/js/platform.js"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-135457176-1"></script>
+        <script>{`window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'UA-135457176-1');`}
+        </script>
       </Helmet>
       <CssBaseline/>
       <dl className={classes.root}>
@@ -360,7 +366,7 @@ function Signup(props) {
               Auth.federatedSignIn({provider: 'GithubLogin'});
             }}>
               <div className={classes.textWrapper}>
-                  Sign up with Github
+                {intl.formatMessage({ id: 'signupGithubSignup' })}
               </div>
           </GithubLoginButton>
           <div className={classes.googleButton} onClick={() => {
@@ -370,7 +376,7 @@ function Signup(props) {
           }}>
             <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
             <div className={classes.googleTextWrapper}>
-              <div className={classes.googleText}>Sign up with Google</div>
+              <div className={classes.googleText}> {intl.formatMessage({ id: 'signupGoogleSignup' })}</div>
             </div>
           </div>
           <div className={classes.spacerText}>

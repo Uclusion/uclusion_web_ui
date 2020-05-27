@@ -144,13 +144,8 @@ class QuillEditor extends React.PureComponent {
     }
   }
 
-  componentDidMount() {
-    const { defaultValue, onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc, setEditorDefaultFunc } = this.props;
-    this.editorBox.current.innerHTML = defaultValue;
-    
-    if(window.outerWidth < 600){
-      this.options.modules.toolbar = false
-    }
+  createEditor() {
+    const { onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc, setEditorDefaultFunc } = this.props;
     this.editor = new Quill(this.editorBox.current, this.options);
     this.addLinkFixer();
     const debouncedOnChange = _.debounce((delta) => {
@@ -197,6 +192,24 @@ class QuillEditor extends React.PureComponent {
       this.editor.focus();
     };
     setEditorFocusFunc(editorFocusFunc);
+
+  }
+
+  componentDidUpdate (prevProps, prevState, snapshot) {
+    if (prevProps.marketId !== this.props.marketId) {
+      console.error("Swapped the market out from under me. This shouldn't happen");
+      this.createEditor();
+    }
+  }
+
+  componentDidMount() {
+    const { defaultValue } = this.props;
+    this.editorBox.current.innerHTML = defaultValue;
+    
+    if(window.outerWidth < 600){
+      this.options.modules.toolbar = false
+    }
+    this.createEditor();
   }
 
   setUploadInProgress(value) {

@@ -6,8 +6,8 @@ export function isNewUser(user) {
   if (_.isEmpty(user)) {
     return undefined;
   }
-  const { ui_preferences: uiPreferences } = user;
-  return uiPreferences === 'new_signup';
+  const { is_new: isNew } = user;
+  return isNew !== undefined && isNew;
 }
 
 const AccountUserContext = React.createContext({});

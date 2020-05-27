@@ -1,5 +1,7 @@
 import _ from 'lodash'
 
+const EMPTY_VERSION = { object_versions: [] };
+
 /**
  * Returns if the version is stale. I.E. we have some required signatures
  * that we know an up to date version must have, and this update doesn't contain
@@ -119,6 +121,25 @@ export function signatureMatcher (fetched, signatures) {
   return { matched, unmatchedSignatures, allMatched };
 }
 
+
+/**
+ * Given a set of account version sisgnatures returns all the match functions
+ * for their constituent parts
+ * @param accountVersionSignatures
+ * @returns {{users: *}}
+ */
+export function getFetchSignaturesForAccount(accountVersionSignatures) {
+  const users = accountUsersSignatureGenerator(accountVersionSignatures);
+  return {
+    users,
+  };
+}
+
+/** Given a set of version signatures, returns all the match functions
+ * for their constituent parts
+ * @param marketVersionSignatures
+ * @returns {{markets: *, marketPresences: unknown[], comments: *, marketStages: (*[]|*), investibles: unknown[]}}
+ */
 export function getFetchSignaturesForMarket (marketVersionSignatures) {
   // I know how to fetch markets, marketPresences (users), investibles, and comments
   const comments = commentsSignatureGenerator(marketVersionSignatures);
@@ -136,6 +157,18 @@ export function getFetchSignaturesForMarket (marketVersionSignatures) {
 }
 
 /**
+ * Given a particular object type and a list of signatures
+ * returns all signatures of the given type, or an empty
+ * signature list in the form downstream will accept
+ * @param signatures
+ * @param objectType
+ * @returns {*|{object_versions: []}}
+ */
+function getSpecificTypeSignatures(signatures, objectType) {
+  return signatures.find((sig) => sig.type === objectType) || EMPTY_VERSION;
+}
+
+/**
  * Generates a signature for object updates that simply consists of
  * the object id and the new version.
  * @param versionsSignatures the complete version sisgnatues object
@@ -143,11 +176,8 @@ export function getFetchSignaturesForMarket (marketVersionSignatures) {
  * @returns {*[]|*}
  */
 function generateSimpleObjectSignature (versionsSignatures, type) {
-  const mySignature = versionsSignatures.find((signature) => signature.type === type);
-  if (!mySignature) {
-    return [];
-  }
-  const { object_versions: objectVersions } = mySignature;
+  const mySignatures = getSpecificTypeSignatures(versionsSignatures, type);
+  const { object_versions: objectVersions } = mySignatures;
   return objectVersions.reduce((acc, objVersion) => {
     const { version, object_id_one: id } = objVersion;
     return [
@@ -161,14 +191,25 @@ function generateSimpleObjectSignature (versionsSignatures, type) {
 }
 
 /**
+ * Generates all user signatures for given account signature list
+ * @param versionsSignatures
+ * @returns {*[]|*}
+ */
+function accountUsersSignatureGenerator (versionsSignatures) {
+  return generateSimpleObjectSignature(versionsSignatures, 'user');
+}
+
+
+
+/**
  * Users are an amalgamation of several different versions. This generates
  * an update signature that will update from the component parts.
  * @param versionsSignatures the unified market signature update
  * @returns {unknown[]}
  */
 function usersSignatureGenerator (versionsSignatures) {
-  const userSignatures = versionsSignatures.find((signature) => signature.type === 'market_capability') || { object_versions: [] };
-  const investmentsSignatures = versionsSignatures.find((signature) => signature.type === 'investment') || { object_versions: [] };
+  const userSignatures = getSpecificTypeSignatures(versionsSignatures,'market_capability');
+  const investmentsSignatures =  getSpecificTypeSignatures(versionsSignatures,'investment');
   const fetchSigs = userSignatures.object_versions.reduce((acc, sig) => {
     const { version } = sig;
     const userId = sig.object_id_one;
@@ -215,8 +256,8 @@ function usersSignatureGenerator (versionsSignatures) {
  * @returns {unknown[]}
  */
 function investiblesSignatureGenerator (versionsSignatures) {
-  const invSignature = versionsSignatures.find((signature) => signature.type === 'investible') || { object_versions: [] };
-  const infoSignature = versionsSignatures.find((signature) => signature.type === 'market_investible') || { object_versions: [] };
+  const invSignature = getSpecificTypeSignatures(versionsSignatures, 'investible');
+  const infoSignature = getSpecificTypeSignatures(versionsSignatures, 'market_investible');
   // an investible needs an update regardless of whether or not it's the market info or the
   // investible itself, so we need to join here
   const fetchSigs = invSignature.object_versions.reduce((acc, sig) => {

@@ -19,6 +19,22 @@ export function getMessages() {
         });
     });
 }
+/** Gets the home account user for the current logged in user
+ */
+export function getHomeAccountUser () {
+  // Note, because it's at the SSO level, we don't use the uclusionClientWrappers
+  return getSSOInfo().then((ssoInfo) => {
+    const { idToken, ssoClient } = ssoInfo;
+    return ssoClient.accountCognitoLogin(idToken)
+      .then((loginInfo) => {
+        const { user } = loginInfo;
+        return user;
+      })
+      .catch((error) => {
+        toastErrorAndThrow(error, 'errorHomeUserFetchFailed');
+      })
+  });
+}
 
 export const getAccount = () => {
   return getSSOInfo()

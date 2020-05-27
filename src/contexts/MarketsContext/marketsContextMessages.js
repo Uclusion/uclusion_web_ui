@@ -1,5 +1,5 @@
 import {
-  PUSH_CONTEXT_CHANNEL,
+  PUSH_MARKETS_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT,
 } from '../VersionsContext/versionsContextHelper'
@@ -19,7 +19,7 @@ function beginListening(dispatch, diffDispatch) {
         // console.debug(`Ignoring identity event ${event}`);
     }
   });
-  registerListener(PUSH_CONTEXT_CHANNEL, 'marketsPushStart', (data) => {
+  registerListener(PUSH_MARKETS_CHANNEL, 'marketsPushStart', (data) => {
     const { payload: { event, marketDetails } } = data;
     switch (event) {
       case VERSIONS_EVENT:

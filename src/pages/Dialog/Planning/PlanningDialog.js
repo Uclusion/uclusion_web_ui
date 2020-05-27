@@ -37,7 +37,7 @@ import clsx from 'clsx'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import ViewArchiveActionButton from './ViewArchivesActionButton'
 import { TourContext } from '../../../contexts/TourContext/TourContext';
-import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer';
+import { startTourFamily } from '../../../contexts/UserPreferencesContext/tourContextReducer';
 
 import { CognitoUserContext } from '../../../contexts/CongitoUserContext';
 import UclusionTour from '../../../components/Tours/UclusionTour';

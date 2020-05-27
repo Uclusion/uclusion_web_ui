@@ -27,7 +27,7 @@ import DismissableText from '../../../components/Notifications/DismissableText'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { TourContext } from '../../../contexts/TourContext/TourContext';
-import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer';
+import { startTourFamily } from '../../../contexts/UserPreferencesContext/tourContextReducer';
 import {
   INVITE_INITIATIVE_FAMILY_NAME,
   INVITE_INITIATIVE_FIRST_VIEW, inviteInitiativeSteps

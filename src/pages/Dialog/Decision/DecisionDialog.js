@@ -45,7 +45,7 @@ import {
   inviteDialogSteps
 } from '../../../components/Tours/InviteTours/dialog';
 import { CognitoUserContext } from '../../../contexts/CongitoUserContext';
-import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer';
+import { startTourFamily } from '../../../contexts/UserPreferencesContext/tourContextReducer';
 import { TourContext } from '../../../contexts/TourContext/TourContext';
 
 const useStyles = makeStyles(

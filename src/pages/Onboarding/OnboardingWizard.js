@@ -261,7 +261,7 @@ function OnboardingWizard (props) {
   }
 
   function getStepHeaders () {
-    console.log(stepPrototypes);
+  
     const currentStep = stepPrototypes[stepState.currentStep];
     const stepNumber = stepState.currentStep;
     const stepCount = stepState.totalSteps;

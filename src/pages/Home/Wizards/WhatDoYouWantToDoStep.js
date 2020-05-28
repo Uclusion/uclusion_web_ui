@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Button, ButtonGroup, makeStyles } from '@material-ui/core'
 import { useIntl } from 'react-intl'
-import StepButtons from '../../Onboarding/StepButtons';
+import StepButtons from '../../Onboarding/StepButtons'
 
 const useStyles = makeStyles(
   theme => {
@@ -78,13 +78,12 @@ function WhatDoYouWantToDoStep(props) {
       <div className={classes.borderBottom}></div>
       <StepButtons {...props}
                    validForm={false}
-                   showStartOver
+                   showStartOver={false}
                    showGoBack={false}
                    showSkip={false}
                    showNext={false}
                    showFinish={false}
-                   startOverLabel="cancel"
-                   onStartOver={onCancel}/>
+      />
     </div>
   )
 }

@@ -82,13 +82,23 @@ function Home(props) {
       id: 'archive',
       onClick: () => navigate(history, '/archives'),
     },
-    {
+  ];
+
+  if (wizardActive) {
+    ACTIONBAR_ACTIONS.push({
+      label: intl.formatMessage({ id: 'homeAddNewExplanation' }),
+      openLabel: intl.formatMessage({ id: 'cancel' }),
+      id: 'addNew',
+      onClick: () => setWizardActive(false),
+    });
+  } else {
+    ACTIONBAR_ACTIONS.push({
       label: intl.formatMessage({ id: 'homeAddNewExplanation' }),
       openLabel: intl.formatMessage({ id: 'homeAddNew' }),
       id: 'addNew',
       onClick: () => setWizardActive(true),
-    }
-  ];
+    });
+  }
   
   return (
     <Screen
@@ -98,7 +108,7 @@ function Home(props) {
       isHome
       sidebarActions={ACTIONBAR_ACTIONS}
     >
-      <AddNewWizard hidden={!wizardActive} onCancel={() => setWizardActive(false)} isHome />
+      <AddNewWizard hidden={!wizardActive} onCancel={() => setWizardActive(false)} />
 
       {noMarkets && (
           <DismissableText textId="homeNoMarkets"/>

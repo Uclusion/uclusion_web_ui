@@ -23,24 +23,24 @@ function AddNewWizard(props) {
   const stepPrototypes = [
     {
       label: 'SignupWizardTitle',
-      content: <WhatDoYouWantToDoStep setWizardToShow={setWizardToShow} onCancel={onCancel}/>
+      content: <WhatDoYouWantToDoStep setWizardToShow={setWizardToShow} />
     },
   ];
 
   switch (wizardToShow) {
     case 'storyWorkspace':
-      return <StoryWorkspaceWizard onStartOver={onStartOver} hidden={hidden} isHome={isHome} />
+      return <StoryWorkspaceWizard onStartOver={onStartOver} hidden={hidden} isHome />
     case 'requirementsWorkspace':
-      return <RequirementsWorkspaceWizard onStartOver={onStartOver} hidden={hidden} isHome={isHome} />
+      return <RequirementsWorkspaceWizard onStartOver={onStartOver} hidden={hidden} isHome />
     case 'dialog':
-      return <DialogWizard onStartOver={onStartOver} hidden={hidden} isHome={isHome} />
+      return <DialogWizard onStartOver={onStartOver} hidden={hidden} isHome />
     case 'initiative':
-      return <InitiativeWizard onStartOver={onStartOver} hidden={hidden} isHome={isHome} />
+      return <InitiativeWizard onStartOver={onStartOver} hidden={hidden} isHome />
     default:
       return (
         <OnboardingWizard
           hidden={hidden}
-          isHome={isHome}
+          isHome
           hideSteppers
           onStartOver={onStartOver}
           title={intl.formatMessage({ id: 'SignupWizardTitle'})}
@@ -53,11 +53,6 @@ function AddNewWizard(props) {
 AddNewWizard.propTypes = {
   hidden: PropTypes.bool.isRequired,
   onCancel: PropTypes.func.isRequired,
-  isHome: PropTypes.bool
-}
-
-AddNewWizard.defaultProps = {
-  isHome: false,
 }
 
 export default AddNewWizard;

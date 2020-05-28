@@ -51,7 +51,7 @@ function TodoStep (props) {
 
   return (
     <div>
-      <Typography variant="body2">
+      <Typography variant="body2" className={classes.marginBottom}>
         Workspaces allow collaborators to create TODOs that spell out what needs to be done before things can move forward.
         If you know of one, enter it below. Otherwise TODOs can be added to the Workspace later.
       </Typography>

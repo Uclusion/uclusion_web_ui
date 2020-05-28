@@ -1,13 +1,13 @@
-import React  from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 //import { useIntl } from 'react-intl';
-import { Typography, List, ListItem, ListItemText, ListItemSecondaryAction, Button } from '@material-ui/core';
-import StepButtons from '../../StepButtons';
-import DeleteIcon from '@material-ui/icons/Delete';
+import { Button, List, ListItem, ListItemSecondaryAction, ListItemText, Typography } from '@material-ui/core'
+import StepButtons from '../../StepButtons'
+import DeleteIcon from '@material-ui/icons/Delete'
 
-import { updateValues } from '../../onboardingReducer';
-import TooltipIconButton from '../../../../components/Buttons/TooltipIconButton';
-import AddOptionWizard from './AddOption/AddOptionWizard';
+import { updateValues } from '../../onboardingReducer'
+import TooltipIconButton from '../../../../components/Buttons/TooltipIconButton'
+import AddOptionWizard from './AddOption/AddOptionWizard'
 
 function AddOptionsStep (props) {
 
@@ -99,9 +99,8 @@ function AddOptionsStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Uclusion Decisions require there to be options to choose from, and even allow your team to propose new ones.
-        We'll be adding the options you know about here, and if your team does propose a new option you'll be able
-        to review (and edit) the new option before people can choose it.
+        We'll be adding the options you know about here and any option your team proposes must
+        be approved by you before people can choose it.
       </Typography>
       {currentOptions()}
       <Button className={classes.buttonClass} onClick={startSubWizard}>Add New Option</Button>

@@ -816,7 +816,7 @@ const messages = defineMessages({
   DialogWizardTitle: 'Your Dialog',
   DialogWizardDialogNameStepLabel: 'Your Dialog',
   DialogWizardDialogReasonStepLabel: 'Why does this decision need to be made?',
-  DialogWizardReasonPlaceHolder: 'Your reason for making this decision',
+  DialogWizardReasonPlaceHolder: 'Your information about this decision',
   DialogWizardDialogNamePlaceHolder: 'Your dialog\'s name',
   DialogWizardDialogExpirationPlaceHolder: 'Days until Decision Expires',
   DialogWizardDialogExpirationStepLabel: 'How many days until the deadline?',

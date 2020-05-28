@@ -62,7 +62,7 @@ function MarketInvite(props) {
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [hidden, marketToken, history, hash, marketState, myLoading]);
+  }, [hidden, marketToken, history, hash, marketState, myLoading, user]);
 
   return (
     <Screen

@@ -25,7 +25,9 @@ const useStyles = makeStyles(
         marginLeft: 'auto',
         marginRight: 'auto',
         marginTop: '100px',
-        padding: '32px',
+        padding: '32px', 
+        [theme.breakpoints.down("xs")]: {
+          marginTop: '15px',        }
       },
       introText: {
         marginTop: '1rem',
@@ -142,7 +144,10 @@ const useStyles = makeStyles(
         width: '100%',
       },
       dateContainer: {
-        width: 'auto'
+        width: '330px',
+        [theme.breakpoints.down("xs")]: {
+          width: 'auto'
+        }
       },
       spacer: {
         marginTop: '30px'

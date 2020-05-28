@@ -2,17 +2,22 @@ import _ from 'lodash'
 import { pushMessage } from '../utils/MessageBusUtils'
 import { getVersions } from './summaries'
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
-import { getFetchSignaturesForMarket, signatureMatcher, versionIsStale } from './versionSignatureUtils'
+import {
+  getFetchSignaturesForAccount,
+  getFetchSignaturesForMarket,
+  signatureMatcher,
+  versionIsStale
+} from './versionSignatureUtils';
 import {
   BANNED_LIST,
   PUSH_COMMENTS_CHANNEL,
-  PUSH_CONTEXT_CHANNEL,
+  PUSH_MARKETS_CHANNEL,
   PUSH_INVESTIBLES_CHANNEL,
   PUSH_PRESENCE_CHANNEL,
   PUSH_STAGE_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
-  VERSIONS_EVENT
-} from '../contexts/VersionsContext/versionsContextHelper'
+  VERSIONS_EVENT, PUSH_HOME_USER_CHANNEL
+} from '../contexts/VersionsContext/versionsContextHelper';
 import { fetchComments } from './comments'
 import { fetchInvestibles } from './marketInvestibles'
 import { LimitedParallelMap } from '../utils/PromiseUtils'
@@ -27,6 +32,7 @@ import {
 import config from '../config'
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { EMPTY_GLOBAL_VERSION, VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer';
+import { getHomeAccountUser } from './sso';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -115,6 +121,20 @@ function splitIntoForegroundBackground (marketSignatures, foregroundList) {
 }
 
 /**
+ * Updates all the accounts from the passed in signatures
+ * @param accountSignatures the signatures the account fetch has to match
+ * @param maxConcurrencyCount the maximum number of api calls to make at once
+ */
+function updateAccountFromSignatures (accountSignatures, maxConcurrencyCount=1) {
+  return LimitedParallelMap(accountSignatures, accountSignature => {
+    // we really only know how to update _our_ account
+    const { account_id: accountId, signatures: componentSignatures } = accountSignature;
+      return doRefreshAccount(componentSignatures);
+  }, maxConcurrencyCount)
+}
+
+
+/**
  * Updates all our markets from the passed in signatures
  * @param marketSignatures the market signatures to drive the update
  * @param existingMarkets the list of markets we currently know about
@@ -157,15 +177,17 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets, requiredS
   return getVersions(callWithVersion)
     .then((versions) => {
       const {
-        global_version, signatures: marketSignatures, foreground: foregroundList,
+        global_version, signatures: newSignatures, foreground: foregroundList,
         banned: bannedList
       } = versions;
+      const marketSignatures = newSignatures.filter((signature) => signature.market_id);
+      const accountSignatures = newSignatures.filter((signature) => signature.account_id);
       // if the market signatures don't have the required signatures, just abort, this version has stale data
       if (versionIsStale(marketSignatures, requiredSignatures)) {
         console.log('Skipping stale version');
         return currentHeldVersion;
       }
-      if (_.isEmpty(marketSignatures) || _.isEmpty(global_version)) {
+      if ((_.isEmpty(marketSignatures) && _.isEmpty(accountSignatures)) || _.isEmpty(global_version)) {
         pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
         return currentHeldVersion;
       }
@@ -173,11 +195,12 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets, requiredS
       if (!_.isEmpty(bannedList)) {
         pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
       }
-      // Kick off the fetch by sorting the global versions by foreground
+
+     // split the market stuff into forground and background
       newGlobalVersion = global_version;
       const splitMS = splitIntoForegroundBackground(marketSignatures, foregroundList);
       const { foreground, background } = splitMS;
-      return updateMarketsFromSignatures(foreground, existingMarkets, MAX_CONCURRENT_API_CALLS)
+      const marketPromises = updateMarketsFromSignatures(foreground, existingMarkets, MAX_CONCURRENT_API_CALLS)
         .then(() => {
           pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
           return updateMarketsFromSignatures(background, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS)
@@ -185,9 +208,43 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets, requiredS
               return newGlobalVersion;
             });
         });
+      // fetch the account before the market if we have to
+      if (!_.isEmpty(accountSignatures)){
+        return updateAccountFromSignatures(accountSignatures, MAX_CONCURRENT_API_CALLS)
+          .then(() => marketPromises);
+      }
+      return marketPromises;
     });
 }
 
+/** We really only know how to refresh the home account at this point,
+ * so we don't take the account or actual user ID into very much
+ * consideration, but eventually it will
+ * @param componentSignatures the signatures for the home account
+ */
+function doRefreshAccount (componentSignatures) {
+  const fetchSignatures = getFetchSignaturesForAccount(componentSignatures);
+  const { users: usersSignatures } = fetchSignatures;
+  if (!_.isEmpty(usersSignatures)) {
+    return getHomeAccountUser()
+      .then((user) => {
+        const match = signatureMatcher([user], usersSignatures);
+        // we bothered to fetch the data, so we should use it:)
+        pushMessage(PUSH_HOME_USER_CHANNEL, { event: VERSIONS_EVENT, user });
+        if (!match.allMatched) {
+          throw new MatchError('Users didn\'t match');
+        }
+      });
+  }
+  return null;
+}
+
+/**
+ * Refreshes a given market using the component signatures to map against
+ * @param marketId the market id to refresh
+ * @param componentSignatures the component signatures telling us what we're looking for
+ * @returns {null}
+ */
 function doRefreshMarket (marketId, componentSignatures) {
   console.debug(`Refreshing market ${marketId}`);
   const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
@@ -224,7 +281,7 @@ function fetchMarketVersion (marketId, marketSignature) {
       // console.log(marketDetails);
       const match = signatureMatcher([marketDetails], [marketSignature]);
       // we bothered to fetch the data, so we should use it:)
-      pushMessage(PUSH_CONTEXT_CHANNEL, { event: VERSIONS_EVENT, marketDetails });
+      pushMessage(PUSH_MARKETS_CHANNEL, { event: VERSIONS_EVENT, marketDetails });
       if (!match.allMatched) {
         throw new MatchError('Market didn\'t match');
       }

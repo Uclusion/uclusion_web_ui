@@ -25,8 +25,7 @@ function AccountUserProvider (props) {
   useEffect(() => {
     let isCanceled = false;
     setUclusionLocalStorageItem(ACCOUNT_USER_CONTEXT_KEY, state);
-    if (isInitialization && _.isEmpty(state) && authState === 'signedIn') {
-      beginListening(dispatch);
+    if (_.isEmpty(state) && authState === 'signedIn') {
       getHomeAccountUser()
         .then((user) => {
           if (isCanceled === false) {
@@ -34,10 +33,11 @@ function AccountUserProvider (props) {
           }
         });
     }
-    if (state && authState !== 'signedIn') {
+    if (!_.isEmpty(state) && authState !== 'signedIn') {
       dispatch(resetState());
     }
     if (isInitialization) {
+      beginListening(dispatch);
       setIsInitialization(false);
     }
     return () => {

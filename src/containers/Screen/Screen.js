@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
 
 function Screen(props) {
   const classes = useStyles();
-  const user = useContext(AccountUserContext) || {};
+  const [user] = useContext(AccountUserContext) || {};
   const history = useHistory();
 
   const [messagesState] = useContext(NotificationsContext);
@@ -96,7 +96,7 @@ function Screen(props) {
       prePendWarning = '*';
     }
   }
-
+  console.debug(`is on boarding is ${isOnboarding} and user is ${JSON.stringify(user)}`);
   const reallyAmLoading = !hidden && appEnabled && (loading || (!isOnboarding && _.isEmpty(user)));
 
   if (hidden) {
@@ -124,7 +124,7 @@ function Screen(props) {
         hidden={reallyAmLoading}
         appEnabled={appEnabled}
       />
-      {!_.isEmpty(sidebarActions) && (
+      {!_.isEmpty(sidebarActions) && !reallyAmLoading && (
         <Container className={classes.actionContainer}><ActionBar actionBarActions={sidebarActions} appEnabled={appEnabled} /></Container>
       )}
       <div className={classes.content}>

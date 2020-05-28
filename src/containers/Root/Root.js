@@ -24,7 +24,9 @@ import ChangePassword from '../../pages/Authentication/ChangePassword'
 import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences'
 import BillingHome from '../../pages/Payments/BillingHome'
 import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
-import SignupWizard from '../../pages/Onboarding/SignupOnboarding/SignupWizard';
+import SignupWizard from '../../pages/Onboarding/SignupOnboarding/SignupWizard'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import { isNewUser } from '../../contexts/AccountUserContext/accountUserContextHelper';
 
 const useStyles = makeStyles({
   body: {
@@ -49,82 +51,82 @@ const useStyles = makeStyles({
 
 
 function Root() {
-  // console.debug('Root being rerendered');
   const history = useHistory();
   const classes = useStyles();
   const { location } = history;
   const { pathname } = location;
-  // console.debug(`pathname is ${pathname}`);
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
+  const user = useContext(AccountUserContext) || {};
+  const myAction = isNewUser(user) && action !== 'invite' ? 'onboarding' : action;
 
   function hideHome() {
     return !pathname || pathname !== '/';
   }
 
   function hideOnboarding() {
-    return action !== 'onboarding';
+    return myAction !== 'onboarding';
   }
 
   function hideSupport() {
-    return action !== 'support';
+    return myAction !== 'support';
   }
 
   function hideChangePassword() {
-    return action !== 'changePassword';
+    return myAction !== 'changePassword';
   }
 
   function hideChangeNotification() {
-    return action !== 'notificationPreferences';
+    return myAction !== 'notificationPreferences';
   }
 
   function hideAddMarket() {
-    return action !== 'dialogAdd';
+    return myAction !== 'dialogAdd';
   }
 
   function hideMarket() {
-    return action !== 'dialog' || (!marketId) || (!!marketId && !!investibleId);
+    return myAction !== 'dialog' || (!marketId) || (!!marketId && !!investibleId);
   }
 
   function hideInvestible() {
-    return (action !== 'dialog') || !investibleId;
+    return (myAction !== 'dialog') || !investibleId;
   }
 
   function hideInvestibleEdit() {
-    return (action !== 'investibleEdit') || !investibleId;
+    return (myAction !== 'investibleEdit') || !investibleId;
   }
 
   function hideInvestibleAdd() {
-    return (action !== 'investibleAdd') || !marketId;
+    return (myAction !== 'investibleAdd') || !marketId;
   }
 
   function hideDialogEdit() {
-    return (action !== 'marketEdit') || !marketId;
+    return (myAction !== 'marketEdit') || !marketId;
   }
 
   function hideDialogManage() {
-    return (action !== 'marketManage') || !marketId;
+    return (myAction !== 'marketManage') || !marketId;
   }
 
   function hideDialogArchives() {
-    return (action !== 'dialogArchives');
+    return (myAction !== 'dialogArchives');
   }
 
   function hideArchvies() {
-    return (action !== 'archives');
+    return (myAction !== 'archives');
   }
 
   function hideSlackInvite() {
-    return action !== 'slack';
+    return myAction !== 'slack';
   }
 
   function hideMarketInvite() {
-    return action !== 'invite' || !marketId;
+    return myAction !== 'invite' || !marketId;
   }
 
   function hideBillingHome() {
-    return action !== 'billing';
+    return myAction !== 'billing';
   }
 
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible()

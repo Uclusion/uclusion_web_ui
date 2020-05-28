@@ -1,21 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react'
 import {
   Button,
-  Checkbox, ListItem,
+  Card,
+  Checkbox,
+  FormControl,
+  Grid,
+  InputLabel,
+  ListItem,
   ListItemIcon,
-  ListItemText, makeStyles, TextField,
-  Typography, Grid, InputLabel, FormControl, Card
+  ListItemText,
+  makeStyles,
+  TextField,
+  Typography
 } from '@material-ui/core'
-import { useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
-import { updateUser } from '../../api/users';
+import _ from 'lodash'
+import { useIntl } from 'react-intl'
+import PropTypes from 'prop-types'
+import { updateUser } from '../../api/users'
 import clsx from 'clsx'
-import config from '../../config';
-import { getSSOInfo } from '../../api/sso';
-import { toastErrorAndThrow } from '../../utils/userMessage';
+import config from '../../config'
 import Screen from '../../containers/Screen/Screen'
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -56,29 +63,22 @@ function ChangeNotificationPreferences(props) {
   const { hidden } = props;
   const [emailEnabled, setEmailEnabled] = useState(undefined);
   const [slackEnabled, setSlackEnabled] = useState(undefined);
-  const [user, setUser] = useState(undefined);
+  const user = useContext(AccountUserContext) || {};
   const [slackDelay, setSlackDelay] = useState(30);
   const [emailDelay, setEmailDelay] = useState(30);
   const intl = useIntl();
   const classes = useStyles();
 
   useEffect(() => {
-    if (!hidden && user === undefined) {
-      getSSOInfo().then((ssoInfo) => {
-        const { idToken, ssoClient } = ssoInfo;
-        return ssoClient.accountCognitoLogin(idToken).then((loginInfo) => {
-          const { user: myUser } = loginInfo;
-          setEmailEnabled(myUser.email_enabled);
-          setSlackEnabled(myUser.slack_enabled);
-          setEmailDelay(myUser.email_delay)
-          if (myUser.slack_delay) {
-            setSlackDelay(myUser.slack_delay);
-          }
-          setUser(myUser);
-        });
-      }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
+    if (!_.isEmpty(user) && emailEnabled === undefined) {
+        setEmailEnabled(user.email_enabled);
+        setSlackEnabled(user.slack_enabled);
+        setEmailDelay(user.email_delay)
+        if (user.slack_delay) {
+          setSlackDelay(user.slack_delay);
+        }
     }
-  }, [user, hidden]);
+  }, [user, emailEnabled]);
 
   function onSetPreferences() {
     updateUser({ emailEnabled, slackEnabled, slackDelay, emailDelay });

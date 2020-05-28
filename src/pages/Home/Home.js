@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
@@ -20,6 +20,7 @@ import { navigate } from '../../utils/marketIdPathFunctions'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
+import AddNewWizard from './Wizards/AddNewWizard';
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -45,6 +46,7 @@ function Home(props) {
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const classes = useStyles();
+  const [wizardActive, setWizardActive] = useState(false);
 
   useEffect(() => {
     const redirect = getAndClearRedirect();
@@ -70,58 +72,34 @@ function Home(props) {
     INITIATIVE_TYPE,
   ), 'created_at').reverse();
 
-  function addInitiative() {
-    navigate(history, '/dialogAdd#type=INITIATIVE');
-  }
-
-  function addDecision() {
-    navigate(history, '/dialogAdd#type=DECISION');
-  }
-
-  function addPlanning() {
-    navigate(history, '/dialogAdd#type=PLANNING');
-  }
   const noMarkets = _.isEmpty(planningDetails) && _.isEmpty(decisionDetails) && _.isEmpty(initiativeDetails);
   
-  const SIDEBAR_ACTIONS = [
-    {
-      label: intl.formatMessage({ id: 'homeAddPlanningExplanation' }),
-      openLabel: intl.formatMessage({ id: 'homeAddPlanning' }),
-      icon: getDialogTypeIcon(PLANNING_TYPE),
-      id: 'workspace',
-      onClick: () => addPlanning(),
-    },
-    {
-      label: intl.formatMessage({ id: 'homeAddDecisionExplanation' }),
-      openLabel: intl.formatMessage({ id: 'homeAddDecision' }),
-      icon: getDialogTypeIcon(DECISION_TYPE),
-      id: 'createDialog',
-      onClick: () => addDecision(),
-    },
-    {
-      label: intl.formatMessage({ id: 'homeAddInitiativeExplanation' }),
-      openLabel: intl.formatMessage({ id: 'homeAddInitiative' }),
-      icon: getDialogTypeIcon(INITIATIVE_TYPE),
-      id: 'initiative',
-      onClick: () => addInitiative(),
-    },
+  const ACTIONBAR_ACTIONS = [
     {
       label: intl.formatMessage({ id: 'homeViewArchivesExplanation' }),
       openLabel: intl.formatMessage({ id: 'homeViewArchives' }),
       icon: <MenuBookIcon/>,
       id: 'archive',
       onClick: () => navigate(history, '/archives'),
+    },
+    {
+      label: intl.formatMessage({ id: 'homeAddNewExplanation' }),
+      openLabel: intl.formatMessage({ id: 'homeAddNew' }),
+      id: 'addNew',
+      onClick: () => setWizardActive(true),
     }
   ];
-
+  
   return (
     <Screen
       title={intl.formatMessage({ 'id': 'homeBreadCrumb' })}
       tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       isHome
-      sidebarActions={SIDEBAR_ACTIONS}
+      sidebarActions={ACTIONBAR_ACTIONS}
     >
+      <AddNewWizard hidden={!wizardActive} onCancel={() => setWizardActive(false)}/>
+
       {noMarkets && (
           <DismissableText textId="homeNoMarkets"/>
       )}

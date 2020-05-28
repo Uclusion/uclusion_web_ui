@@ -1,4 +1,4 @@
-import { markTourPortionCompleted, setTourCurrentStep, startTourFamily, stopTourFamily } from './tourContextReducer';
+import { markTourPortionCompleted, setTourCurrentStep } from './tourContextReducer';
 
 export function completeTour(dispatch, name){
   dispatch(markTourPortionCompleted(name));
@@ -8,13 +8,6 @@ export function isTourFamilyRunning(state, familyName) {
   return state && state.runningFamily === familyName;
 }
 
-export function beginTourFamily(dispatch, familyName) {
-  dispatch(startTourFamily(familyName));
-}
-
-export function endTourFamily(dispatch, familyName) {
-  dispatch(stopTourFamily(familyName));
-}
 
 export function setCurrentStep(dispatch, name, currentStep){
   dispatch(setTourCurrentStep(name, currentStep));

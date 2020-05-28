@@ -1,10 +1,10 @@
-import React from 'react';
-import _ from 'lodash';
-import PropTypes from 'prop-types';
-import { TextField, Typography } from '@material-ui/core';
-import StepButtons from '../../StepButtons';
-import { updateValues } from '../../onboardingReducer';
-import { useIntl } from 'react-intl';
+import React from 'react'
+import _ from 'lodash'
+import PropTypes from 'prop-types'
+import { TextField, Typography } from '@material-ui/core'
+import StepButtons from '../../StepButtons'
+import { updateValues } from '../../onboardingReducer'
+import { useIntl } from 'react-intl'
 
 function InitiativeNameStep (props) {
 
@@ -29,9 +29,6 @@ function InitiativeNameStep (props) {
     <div>
       <Typography className={classes.introText} variant="body2">
         Great! We'll be creating a Uclusion Initiative that allows people you invite to vote for or against your idea.
-      </Typography>
-      <Typography className={classes.introText} variant="body2">
-        First, we'll need a short but descriptive name for the Initiative that tells people at a glance what they're voting for.
       </Typography>
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'InitiativeWizardInitiativeNamePlaceholder' })}</label>
       <TextField

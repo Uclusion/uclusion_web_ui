@@ -7,7 +7,8 @@ import _ from 'lodash'
 import { NOTIFICATION_VERSION_UPDATE } from './versionsContextMessages'
 
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
-export const PUSH_CONTEXT_CHANNEL = 'MarketsChannel';
+export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
+export const PUSH_MARKETS_CHANNEL = 'MarketsChannel';
 export const PUSH_COMMENTS_CHANNEL = 'CommentsChannel';
 export const PUSH_INVESTIBLES_CHANNEL = 'InvestiblesChannel';
 export const PUSH_PRESENCE_CHANNEL = 'PresenceChannel';

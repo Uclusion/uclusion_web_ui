@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet'
 import { CircularProgress, Container, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory } from 'react-router'
-
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import Header from '../Header'
 import ActionBar from '../ActionBar'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
 
 function Screen(props) {
   const classes = useStyles();
-  // enable scrolling based on hash
+  const user = useContext(AccountUserContext) || {};
   const history = useHistory();
 
   const [messagesState] = useContext(NotificationsContext);
@@ -75,7 +75,8 @@ function Screen(props) {
     tabTitle,
     toolbarButtons,
     appEnabled,
-    isHome
+    isHome,
+    isOnboarding
   } = props;
   let prePendWarning = '';
   if (!_.isEmpty(messagesState)) {
@@ -96,7 +97,7 @@ function Screen(props) {
     }
   }
 
-  const reallyAmLoading = !hidden && appEnabled && loading;
+  const reallyAmLoading = !hidden && appEnabled && (loading || (!isOnboarding && _.isEmpty(user)));
 
   if (hidden) {
     return <React.Fragment/>
@@ -155,6 +156,7 @@ Screen.propTypes = {
   tabTitle: PropTypes.string.isRequired,
   appEnabled: PropTypes.bool,
   isHome: PropTypes.bool,
+  isOnboarding: PropTypes.bool,
 };
 
 Screen.defaultProps = {
@@ -166,6 +168,7 @@ Screen.defaultProps = {
   sidebarActions: [],
   appEnabled: true,
   isHome: false,
+  isOnboarding: false,
 };
 
 export default Screen;

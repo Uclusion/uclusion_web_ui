@@ -3,13 +3,17 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { TourContext } from '../../contexts/TourContext/TourContext';
 import {
+  isTourFamilyRunning,
   getCurrentStep,
   isTourCompleted,
   setCurrentStep,
-  completeTour, isTourFamilyRunning
+  completeTour
 } from '../../contexts/TourContext/tourContextHelper';
 import ReactJoyride from 'react-joyride';
-import { getTourSequence } from './tourSequences';
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
+import { updateUiPreferences } from '../../api/account';
+import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer';
+import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper';
 
 
 function UclusionTour(props) {
@@ -22,11 +26,31 @@ function UclusionTour(props) {
   } = props;
 
   const [tourState, tourDispatch] = useContext(TourContext);
-  console.error(props.steps);
+  const [userState, userDispatch] = useContext(AccountUserContext)
   const isCompleted = isTourCompleted(tourState, name);
+  const hasUser = userIsLoaded(userState)
+  const userPreferences = getUiPreferences(userState) || {};
+  const tourPreferences = userPreferences.tours || {};
+  const { completedTours } = tourPreferences;
+  const safeCompletedTours = _.isArray(completedTours)? completedTours : [];
+  function storeTourCompleteInBackend(tourName){
+    const newCompleted = [...safeCompletedTours, tourName];
+    const newTourPreferences = {
+      ...tourPreferences,
+      completedTours: newCompleted,
+    };
+    const newPrefs = {
+      ...userPreferences,
+      tours: newTourPreferences,
+    };
+    updateUiPreferences(newPrefs)
+      .then((result) => {
+        const { user } = result;
+        userDispatch(accountUserRefresh(user));
+      });
+  }
 
   function tourCallback(state) {
-    console.error(state);
     const {
       status,
       index,
@@ -38,6 +62,7 @@ function UclusionTour(props) {
         // the've finished, register complete
         // console.log(`Tour ${name} is complete`);
         completeTour(tourDispatch, name);
+        storeTourCompleteInBackend(name);
       }
       if (type === 'step:after') {
         setCurrentStep(tourDispatch, name, index + 1);
@@ -49,19 +74,6 @@ function UclusionTour(props) {
   }
 
   const defaultLocale = { back: 'Back', close: 'Close', last: 'Close', next: 'Next', skip: 'Skip' };
-
-  // Override close to next if we're not the last in the sequence
-  function getLocale() {
-    const sequence = getTourSequence(family);
-    const last = _.last(sequence);
-    if (last !== name) {
-      return {
-        ...defaultLocale,
-        close: 'Next',
-      };
-    }
-    return defaultLocale;
-  }
 
   const ourStyles = {
     buttonClose: {
@@ -85,20 +97,17 @@ function UclusionTour(props) {
   };
 
   const currentStep = getCurrentStep(tourState, name);
-  const continuous = currentStep === 0;
   const [runTour, setRunTour] = useState(false);
 
   useEffect(() => {
+    const uiPrefCantRun = !hasUser || safeCompletedTours.includes(family);
     const myTourFamlyActive = isTourFamilyRunning(tourState, family);
-    console.error(`Tour family active ${myTourFamlyActive}`);
-    const iCanRun = !hidden && myTourFamlyActive && shouldRun && !isCompleted;
-    console.error(`I can run ${iCanRun}`);
+    const iCanRun = !hidden && myTourFamlyActive && shouldRun && !isCompleted && !uiPrefCantRun;
     setRunTour(iCanRun);
     return () => {
     };
-  }, [hidden, tourState, family, shouldRun, isCompleted]);
+  }, [hasUser, safeCompletedTours, hidden, tourState, family, shouldRun, isCompleted]);
 
-  console.error(runTour);
   if (!runTour) {
     return <React.Fragment/>;
   }
@@ -109,10 +118,9 @@ function UclusionTour(props) {
       styles={ourStyles}
       run={runTour}
       stepIndex={currentStep}
-      locale={getLocale()}
+      locale={defaultLocale}
       {...rest}
       callback={tourCallback}
-      continuous={continuous}
       disableOverlayClose
       hideBackButton
     />

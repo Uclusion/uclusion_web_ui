@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { Typography } from '@material-ui/core';
-import QuillEditor from '../../../../components/TextEditors/QuillEditor';
-import { updateValues } from '../../onboardingReducer';
-import _ from 'lodash';
-import { useIntl } from 'react-intl';
-import StepButtons from '../../StepButtons';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { Typography } from '@material-ui/core'
+import QuillEditor from '../../../../components/TextEditors/QuillEditor'
+import { updateValues } from '../../onboardingReducer'
+import _ from 'lodash'
+import { useIntl } from 'react-intl'
+import StepButtons from '../../StepButtons'
 
 function DialogReasonStep (props) {
   const { updateFormData, formData, active, classes } = props;
@@ -41,9 +41,7 @@ function DialogReasonStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Uclusion Dialogs can provide context outside of the options to help guide the decision.
-        Why the decision has to be made is a great thing to put in the context, which can be entered
-        below.
+        Provide a context for the Dialog by entering below.
       </Typography>
       <QuillEditor
         onChange={onEditorChange}

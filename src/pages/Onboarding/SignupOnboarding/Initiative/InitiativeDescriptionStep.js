@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { Typography } from '@material-ui/core';
-import QuillEditor from '../../../../components/TextEditors/QuillEditor';
-import { updateValues } from '../../onboardingReducer';
-import _ from 'lodash';
-import { useIntl } from 'react-intl';
-import StepButtons from '../../StepButtons';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { Typography } from '@material-ui/core'
+import QuillEditor from '../../../../components/TextEditors/QuillEditor'
+import { updateValues } from '../../onboardingReducer'
+import _ from 'lodash'
+import { useIntl } from 'react-intl'
+import StepButtons from '../../StepButtons'
 
 function InitiativeDescriptionStep (props) {
   const { updateFormData, formData, active, classes } = props;
@@ -41,9 +41,8 @@ function InitiativeDescriptionStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Uclusion Initiatives will handle the process of gathering votes and making sure everyone can track what's going on,
-        but voters will want a detailed description of the idea. Enter the description below, but don't stress to much about
-        getting every detail right. Uclusion allows your voters to ask Questions if they don't understand something.
+        Uclusion Initiatives handle the process of gathering votes but voters need a detailed description of the idea.
+        Enter the description below. If voters don't understand they can ask Questions or make Suggestions if the idea needs tweaking.
       </Typography>
       <QuillEditor
         onChange={onEditorChange}

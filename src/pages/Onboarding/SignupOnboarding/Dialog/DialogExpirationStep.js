@@ -1,11 +1,11 @@
-import React from 'react';
-import { useIntl } from 'react-intl';
+import React from 'react'
+import { useIntl } from 'react-intl'
 
-import { updateValues } from '../../onboardingReducer';
-import { Typography } from '@material-ui/core';
-import StepButtons from '../../StepButtons';
-import ExpirationSelector from '../../../../components/Expiration/ExpirationSelector';
-import PropTypes from 'prop-types';
+import { updateValues } from '../../onboardingReducer'
+import { Typography } from '@material-ui/core'
+import StepButtons from '../../StepButtons'
+import ExpirationSelector from '../../../../components/Expiration/ExpirationSelector'
+import PropTypes from 'prop-types'
 
 function DialogExpirationStep(props) {
   const { updateFormData, formData, active, classes } = props;
@@ -28,9 +28,8 @@ function DialogExpirationStep(props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Since decisions have deadlines, Uclusion Dialogs require all activity to stop after a set number of days.
-        Use the slider below to select the number of days until the Dialog expires, but don't worry if it turns out everyone
-        needs more time. You can extend the expiration later.
+        Uclusion Dialogs require all activity to stop after a set number of days.
+        Use the slider below to select the number of days until the Dialog expires, you can extend the expiration later.
       </Typography>
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'DialogWizardDialogExpirationPlaceHolder' })}</label>
       <ExpirationSelector value={value} onChange={onExpiresChange}/>

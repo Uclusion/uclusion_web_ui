@@ -393,6 +393,8 @@ const messages = defineMessages({
   homeAddInitiative: 'Create Initiative',
   homePlanningReport: 'Active Story Value Estimates (in days)',
   homeViewArchives: 'View Archive',
+  homeAddNew: 'Add New',
+  homeAddNewExplanation: 'Create a new Workspace, Dialog, or Initiative',
   homeViewAbout: 'About',
   homeCreatedAt: 'Created on {dateString}',
   archiveWarning: 'Archiving will unassign any active story and prevent further assignment.',
@@ -577,7 +579,7 @@ const messages = defineMessages({
   signupPasswordRepeatLabel: 'Repeat Password',
   signupPasswordRepeatHelper: 'Must match Password',
   signupSignupLabel: 'Create Account',
-  signupTitle: 'Sign Up',
+  signupTitle: 'Try for Free',
   signupHaveAccount: 'Already have an account? Sign in',
   signupAccountExists: 'An account with that email already exists, please log in.',
   signupAccountExistsLoginLink: 'Log In',
@@ -717,6 +719,8 @@ const messages = defineMessages({
   errorRestartSubFailed: 'There was a problem restarting your subscription. Please try again.',
   errorUnbanUserFailed: 'There was a problem readmitting the collaborator. Please try again.',
   errorUpdatePaymentFailed: 'There was a problem updating your payment card. Please try again.',
+  errorHomeUserFetchFailed: 'There was a problem fetching your user. Please try again.',
+  errorPreferenceUpdateFailed: 'There was a problem updating your preferences. Please try again.',
   warningAlreadyInMarket: 'You are already a part of this market.',
 
   homeNoMarkets: "You don't have anything here, so you'll have to create a new Workspace, Dialog or Initiative to get going again.",
@@ -764,6 +768,11 @@ const messages = defineMessages({
 
   // phone field
   phoneFieldErrorText: 'Phone should begin with plus or just be the digits',
+
+  // Add new Title
+  AddNewWizardTitle: 'Add Something New',
+  AddNewWizardWhatDoYouWantToDoStepLabel: 'What do you want Uclusion to help with?',
+
 
   // Onboarding
   OnboardingWizardTitle: 'Welcome to Uclusion',
@@ -814,7 +823,7 @@ const messages = defineMessages({
   DialogWizardTitle: 'Your Dialog',
   DialogWizardDialogNameStepLabel: 'Your Dialog',
   DialogWizardDialogReasonStepLabel: 'Why does this decision need to be made?',
-  DialogWizardReasonPlaceHolder: 'Your reason for making this decision',
+  DialogWizardReasonPlaceHolder: 'Your information about this decision',
   DialogWizardDialogNamePlaceHolder: 'Your dialog\'s name',
   DialogWizardDialogExpirationPlaceHolder: 'Days until Decision Expires',
   DialogWizardDialogExpirationStepLabel: 'How many days until the deadline?',

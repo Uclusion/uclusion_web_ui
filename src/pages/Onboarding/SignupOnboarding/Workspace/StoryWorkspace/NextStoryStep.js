@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { TextField, Typography } from '@material-ui/core';
-import { useIntl } from 'react-intl';
-import _ from 'lodash';
-import StepButtons from '../../../StepButtons';
-import QuillEditor from '../../../../../components/TextEditors/QuillEditor';
-import { updateValues } from '../../../onboardingReducer';
-
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { TextField, Typography } from '@material-ui/core'
+import { useIntl } from 'react-intl'
+import _ from 'lodash'
+import StepButtons from '../../../StepButtons'
+import QuillEditor from '../../../../../components/TextEditors/QuillEditor'
+import { updateValues } from '../../../onboardingReducer'
 
 function NextStoryStep (props) {
   const { updateFormData, formData, active, classes } = props;
@@ -61,8 +60,7 @@ function NextStoryStep (props) {
       <Typography variant="body1">
         Do you have a story you want to work on next? If so, enter it here and it will become a "Proposed" story
         in your workspace. Others can vote on whether or not you should be doing it, <strong>BEFORE</strong> you start work.
-        If you don't have one, that's OK, you can add it after the Workspace has been created. We'll also
-        periodically remind you to create one later.
+        If you don't have one, that's OK, you can add it after the Workspace has been created.
       </Typography>
       <label className={classes.inputLabel}>Name your next story</label>
       <TextField

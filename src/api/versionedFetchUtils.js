@@ -128,7 +128,7 @@ function splitIntoForegroundBackground (marketSignatures, foregroundList) {
 function updateAccountFromSignatures (accountSignatures, maxConcurrencyCount=1) {
   return LimitedParallelMap(accountSignatures, accountSignature => {
     // we really only know how to update _our_ account
-    const { account_id: accountId, signatures: componentSignatures } = accountSignature;
+    const { signatures: componentSignatures } = accountSignature;
       return doRefreshAccount(componentSignatures);
   }, maxConcurrencyCount)
 }

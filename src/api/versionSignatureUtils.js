@@ -209,6 +209,7 @@ function accountUsersSignatureGenerator (versionsSignatures) {
       },
     ];
   }, []);
+  return fetchSigs;
 }
 
 

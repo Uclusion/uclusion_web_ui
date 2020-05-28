@@ -1,3 +1,5 @@
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
+
 export function updateValues(newValues){
   return {
     type: 'UPDATE_VALUES',
@@ -11,7 +13,7 @@ export function resetValues() {
   };
 }
 
-export function reducer(state, action) {
+function computeNewState(state, action) {
   const { type } = action;
   switch (type) {
     case 'UPDATE_VALUES':
@@ -24,4 +26,16 @@ export function reducer(state, action) {
     default:
       return state;
   }
-};
+}
+
+export function getStoredData(wizardName) {
+  return getUclusionLocalStorageItem(`WizardStorage_${wizardName}`);
+}
+
+export function generateReducer(wizardName) {
+  return (state, action) => {
+    const newState = computeNewState(state, action);
+    setUclusionLocalStorageItem(`WizardStorage_${wizardName}`, newState);
+    return newState;
+  }
+}

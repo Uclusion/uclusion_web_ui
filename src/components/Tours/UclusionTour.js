@@ -10,11 +10,10 @@ import {
   completeTour
 } from '../../contexts/TourContext/tourContextHelper';
 import ReactJoyride from 'react-joyride';
-import { getTourSequence } from './tourSequences';
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
 import { updateUiPreferences } from '../../api/account';
 import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer';
-import { getUiPreferences } from '../../contexts/AccountUserContext/accountUserContextHelper';
+import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper';
 
 
 function UclusionTour(props) {
@@ -27,27 +26,27 @@ function UclusionTour(props) {
   } = props;
 
   const [tourState, tourDispatch] = useContext(TourContext);
-  const [userPrefsState, userPrefsDispatch] = useContext(AccountUserContext)
+  const [userState, userDispatch] = useContext(AccountUserContext)
   const isCompleted = isTourCompleted(tourState, name);
-  const userPreferences = getUiPreferences(userPrefsState) || {};
+  const hasUser = userIsLoaded(userState)
+  const userPreferences = getUiPreferences(userState) || {};
   const tourPreferences = userPreferences.tours || {};
   const { completedTours } = tourPreferences;
-
+  const safeCompletedTours = _.isArray(completedTours)? completedTours : [];
   function storeTourCompleteInBackend(tourName){
-    const safeCompletedTours = completedTours || [];
-    const newCompleted = [...completedTours, tourName];
+    const newCompleted = [...safeCompletedTours, tourName];
     const newTourPreferences = {
       ...tourPreferences,
       completedTours: newCompleted,
     };
     const newPrefs = {
-      ...userPrefsState,
+      ...userPreferences,
       tours: newTourPreferences,
     };
     updateUiPreferences(newPrefs)
       .then((result) => {
         const { user } = result;
-        userPrefsDispatch(accountUserRefresh(user));
+        userDispatch(accountUserRefresh(user));
       });
   }
 
@@ -76,19 +75,6 @@ function UclusionTour(props) {
 
   const defaultLocale = { back: 'Back', close: 'Close', last: 'Close', next: 'Next', skip: 'Skip' };
 
-  // Override close to next if we're not the last in the sequence
-  function getLocale() {
-    const sequence = getTourSequence(family);
-    const last = _.last(sequence);
-    if (last !== name) {
-      return {
-        ...defaultLocale,
-        close: 'Next',
-      };
-    }
-    return defaultLocale;
-  }
-
   const ourStyles = {
     buttonClose: {
       display: 'none'
@@ -111,19 +97,17 @@ function UclusionTour(props) {
   };
 
   const currentStep = getCurrentStep(tourState, name);
-  const continuous = currentStep === 0;
   const [runTour, setRunTour] = useState(false);
 
   useEffect(() => {
-    const uiPrefCantRun = !completedTours || completedTours.include(family);
+    const uiPrefCantRun = !hasUser || safeCompletedTours.includes(family);
     const myTourFamlyActive = isTourFamilyRunning(tourState, family);
     const iCanRun = !hidden && myTourFamlyActive && shouldRun && !isCompleted && !uiPrefCantRun;
     setRunTour(iCanRun);
     return () => {
     };
-  }, [hidden, tourState, family, shouldRun, isCompleted]);
+  }, [hasUser, safeCompletedTours, hidden, tourState, family, shouldRun, isCompleted]);
 
-  console.error(runTour);
   if (!runTour) {
     return <React.Fragment/>;
   }
@@ -134,10 +118,9 @@ function UclusionTour(props) {
       styles={ourStyles}
       run={runTour}
       stepIndex={currentStep}
-      locale={getLocale()}
+      locale={defaultLocale}
       {...rest}
       callback={tourCallback}
-      continuous={continuous}
       disableOverlayClose
       hideBackButton
     />

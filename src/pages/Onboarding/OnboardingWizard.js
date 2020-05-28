@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import { Card, Container, makeStyles, Typography } from '@material-ui/core'
 import Screen from '../../containers/Screen/Screen'
 import { useIntl } from 'react-intl'
-import { reducer, resetValues } from './onboardingReducer'
+import { generateReducer, getStoredData, resetValues } from './onboardingReducer';
 import { Helmet } from 'react-helmet'
 import Header from '../../containers/Header'
 
@@ -215,8 +215,9 @@ const useStyles = makeStyles(
 function OnboardingWizard (props) {
   const { hidden, stepPrototypes, title, hideSteppers, onStartOver, onFinish, hideUI } = props;
   const classes = useStyles();
-
-  const [formData, updateFormData] = useReducer(reducer, {});
+  const reducer = generateReducer(title);
+  const initialData = getStoredData(title) || {};
+  const [formData, updateFormData] = useReducer(reducer, initialData);
   // setter passed through to a step to allow it to completely take over the wizard UI
   const [overrideUIContent, setOverrideUIContent] = useState(false);
   const intl = useIntl();
@@ -229,7 +230,7 @@ function OnboardingWizard (props) {
 
   function myOnStartOver () {
     // zero all form data
-    updateFormData({});
+    updateFormData(resetValues());
     // reset the step state
     setStepState(initialStepState);
     onStartOver();

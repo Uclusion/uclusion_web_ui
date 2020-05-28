@@ -1,4 +1,4 @@
-import { markTourPortionCompleted, setTourCurrentStep, startTourFamily, stopTourFamily } from './tourContextReducer';
+import { markTourPortionCompleted, setTourCurrentStep } from './tourContextReducer';
 
 export function completeTour(dispatch, name){
   dispatch(markTourPortionCompleted(name));

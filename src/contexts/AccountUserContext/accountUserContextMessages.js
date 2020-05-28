@@ -9,6 +9,7 @@ export function beginListening (dispatch) {
     switch (event) {
       case VERSIONS_EVENT:
         dispatch(accountUserRefresh(user));
+        break;
       default:
         break;
     }

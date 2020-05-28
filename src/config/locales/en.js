@@ -393,6 +393,8 @@ const messages = defineMessages({
   homeAddInitiative: 'Create Initiative',
   homePlanningReport: 'Active Story Value Estimates (in days)',
   homeViewArchives: 'View Archive',
+  homeAddNew: 'Add New',
+  homeAddNewExplanation: 'Create a new Workspace, Dialog, or Initiative',
   homeViewAbout: 'About',
   homeCreatedAt: 'Created on {dateString}',
   archiveWarning: 'Archiving will unassign any active story and prevent further assignment.',
@@ -766,6 +768,11 @@ const messages = defineMessages({
 
   // phone field
   phoneFieldErrorText: 'Phone should begin with plus or just be the digits',
+
+  // Add new Title
+  AddNewWizardTitle: 'Add Something New',
+  AddNewWizardWhatDoYouWantToDoStepLabel: 'What do you want Uclusion to help with?',
+
 
   // Onboarding
   OnboardingWizardTitle: 'Welcome to Uclusion',

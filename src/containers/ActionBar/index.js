@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React  from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
-import { Button, Menu, MenuItem, Grid, darken } from '@material-ui/core'
+import { Button,  Grid, darken } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles((theme) => ({
@@ -55,65 +55,29 @@ const useStyles = makeStyles((theme) => ({
 function ActionBar(props) {
   const classes = useStyles();
   const { actionBarActions } = props;
-  const [anchorEl, setAnchorEl] = useState(null);
 
-  const recordPositionToggle = (event) => {
-    if(anchorEl === null){
-      setAnchorEl(event.currentTarget);
-    } else {
-      setAnchorEl(null)
-    }
-  };
+
+  const addNewClass = clsx(classes.button, classes.buttonPrimary, classes.fullWidth);
+
 
   function getActionBar() {
-    const archive = actionBarActions.filter(action => {return action.id === 'archive'});
-    const actions = actionBarActions.filter(action => {return action.id !== 'archive'});
     return (
-      
-      <Grid container style={{marginTop:'5rem'}}>
+      <Grid container style={{ marginTop: '5rem' }}>
         <Grid item xs={12} justify="flex-end" container>
-          <Grid item xs={3} container justify="flex-end">
-            {archive && archive.length > 0 &&
-              <Button onClick={archive[0].onClick} className={classes.button}>
-                {archive[0].openLabel}
-              </Button>
-            }
-          </Grid>
-          <Grid item md={1} xs={3}>
-            {actions && actions.length > 0 &&
-              <Button onClick={recordPositionToggle} className={clsx(
-                classes.button,
-                classes.buttonPrimary,
-                classes.fullWidth
-              )}>
-                Add New
-                <Menu 
-                  className={classes.actionContent}
-                  anchorEl={anchorEl}
-                  open={!!anchorEl}
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                  }}
-                  getContentAnchorEl={null}
-                  >
-                  {actions.map(action => {
-                    return <MenuItem key={action.id} onClick={action.onClick}>
-                      <div className={classes.icon}>
-                        {action.icon}
-                      </div>
-                        {action.openLabel}
-                    </MenuItem>
-                  })}
-                </Menu>
-              </Button>
-            }
-          </Grid>
+          {actionBarActions.map((action) => {
+            const isAddNew = action.id === 'addNew';
+            const className = !isAddNew? classes.button : addNewClass;
+            const gridProps = !isAddNew? { xs: 3, justify: 'flex-end'} : {md:1, xs:3};
+            return (
+              <Grid key={action.id} {...gridProps} container>
+                <Button key={action.id} onClick={action.onClick} className={className}>
+                  {action.openLabel}
+                </Button>
+              </Grid>
+            );
+          })}
         </Grid>
-
       </Grid>
-
-     
     );
   }
 

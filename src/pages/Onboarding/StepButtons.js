@@ -18,6 +18,7 @@ function StepButtons (props) {
     formData,
     showSkip,
     showGoBack,
+    showNext,
     finishLabel,
     startOverLabel,
     showStartOver,
@@ -67,10 +68,10 @@ function StepButtons (props) {
         {showSkip && (
           <Button className={classes.actionSkip} variant="outlined" onClick={myOnSkip}>{intl.formatMessage({ id: 'OnboardingWizardSkip' })}</Button>
         )}
-        {lastStep && (
+        {lastStep && showNext && (
           <Button className={classes.actionPrimary} disabled={!validForm} onClick={myOnFinish}>{intl.formatMessage({ id: finishLabel })}</Button>
         )}
-        {!lastStep && (
+        {!lastStep && showNext && (
           <Button className={classes.actionPrimary} disabled={!validForm}
                   onClick={myOnNext}>{intl.formatMessage({ id: 'OnboardingWizardContinue' })}</Button>
         )}
@@ -95,6 +96,7 @@ StepButtons.propTypes = {
   formData: PropTypes.object,
   showStartOver: PropTypes.bool,
   startOverLabel: PropTypes.string,
+  showNext: PropTypes.bool,
   startOverDestroysData: PropTypes.bool
 };
 StepButtons.defaultProps = {
@@ -111,6 +113,7 @@ StepButtons.defaultProps = {
   validForm: true,
   showSkip: false,
   showGoBack: true,
+  showNext: true,
   showStartOver: true,
   startOverDestroysData: true,
   finishLabel: 'OnboardingWizardFinish',

@@ -39,6 +39,9 @@
 .ql-editor {
     min-height: 6rem;
 }
+.ql-disabled .ql-editor {
+    min-height: auto
+}
 #editorbox {
     border-top: 1px solid #ccc;
     border-bottom: 0;

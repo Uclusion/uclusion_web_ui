@@ -3,11 +3,26 @@ import PropTypes from 'prop-types';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextHelper';
 import './DiffDisplay.css';
-import { Button } from '@material-ui/core';
+import { Button, makeStyles } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 
+const useStyles = makeStyles(
+  theme => {
+    return {
+      diffContainer: {
+        '& img' : {
+          width: '100%'
+        },
+        '& p': {
+          width: '100%'
+        }
+      }
+    }
+  }
+)
 
 function DiffDisplay(props) {
+  const classes = useStyles();
   const ref = useRef(null);
   const intl = useIntl();
   const { id, showToggle } = props;
@@ -32,7 +47,7 @@ function DiffDisplay(props) {
 
   return (
     <div>
-      <div ref={ref} />
+      <div ref={ref} className={classes.diffContainer}/>
       <Button
         variant="contained"
         size="small"

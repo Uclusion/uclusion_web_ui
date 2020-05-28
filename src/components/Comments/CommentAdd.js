@@ -68,6 +68,7 @@ const useStyles = makeStyles((theme) => ({
   },
   editor: {
     flex: 1,
+    maxWidth: '100%'
   },
   button: {
     borderRadius: '4px',

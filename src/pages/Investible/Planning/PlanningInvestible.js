@@ -425,7 +425,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
-          disabled={isInReview || !isAssigned || !_.isEmpty(blockingComments) || !_.isEmpty(todoComments)}
+          disabled={isInReview || !_.isEmpty(blockingComments) || !_.isEmpty(todoComments)}
         />
       </MenuItem>,
       <MenuItem

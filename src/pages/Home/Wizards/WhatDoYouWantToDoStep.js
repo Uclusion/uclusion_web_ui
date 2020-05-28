@@ -37,7 +37,7 @@ const useStyles = makeStyles(
   }
 );
 function WhatDoYouWantToDoStep(props) {
-  const { setWizardToShow, active, onCancel } = props;
+  const { setWizardToShow, active } = props;
   const intl = useIntl();
   const classes = useStyles();
   if (!active) {
@@ -90,12 +90,10 @@ function WhatDoYouWantToDoStep(props) {
 
 WhatDoYouWantToDoStep.propTypes = {
   active: PropTypes.bool,
-  onCancel: PropTypes.func,
 }
 
 WhatDoYouWantToDoStep.defaultProps = {
   active: false,
-  onCancel: () => {},
 }
 
 export default WhatDoYouWantToDoStep;

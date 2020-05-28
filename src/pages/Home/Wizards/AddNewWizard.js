@@ -11,7 +11,7 @@ import InitiativeWizard from '../../Onboarding/SignupOnboarding/Initiative/Initi
 
 function AddNewWizard(props) {
 
-  const { hidden, onCancel, isHome } = props;
+  const { hidden } = props;
   const intl = useIntl();
 
   const [wizardToShow, setWizardToShow] = useState(null);

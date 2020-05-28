@@ -72,6 +72,9 @@ const useStyles = makeStyles(
         '& > div:active:not(.Mui-disabled):before': {
           borderBottom: 0
         },
+        [theme.breakpoints.down("xs")]: {
+          width: 'auto'
+        }
       },
       buttonContainer: {
         textAlign: 'right',
@@ -79,13 +82,23 @@ const useStyles = makeStyles(
         justifyContent: 'space-between',
         '& button': {
           fontWeight: 'bold'
+        },
+        [theme.breakpoints.down("xs")]: {
+          flexDirection: 'column-reverse',
+          '& button': {
+            width: '100%',
+            marginBottom: '20px'
+          }
         }
       },
       startOverContainer: {},
       actionContainer: {
         flex: 3,
         display: 'flex',
-        justifyContent: 'flex-end'
+        justifyContent: 'flex-end',
+        [theme.breakpoints.down("xs")]: {
+          flexDirection: 'column-reverse'
+        }
       },
       backContainer: {
         flex: 1,
@@ -127,10 +140,10 @@ const useStyles = makeStyles(
       borderBottom: {
         borderBottom: '1px solid transparent',
         margin: '30px 0',
-        width: '100%'
+        width: '100%',
       },
       dateContainer: {
-        width: '330px'
+        width: 'auto'
       },
       spacer: {
         marginTop: '30px'
@@ -144,6 +157,9 @@ const useStyles = makeStyles(
         border: 'none',
         textTransform: 'capitalize',
         backgroundColor: '#ecf0f1'
+      },
+      marginBottom: {
+        marginBottom: '20px'
       },
       WorkspaceWizardMeetingStepLabel: {
         maxWidth: '500px'

@@ -403,7 +403,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
-          disabled={isInVoting || !isAssigned || !_.isEmpty(blockingComments)}
+          disabled={isInVoting || (!isAssigned && !isInBlocked) || !_.isEmpty(blockingComments)}
         />
       </MenuItem>,
       <MenuItem

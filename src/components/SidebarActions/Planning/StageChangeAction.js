@@ -126,7 +126,7 @@ function StageChangeAction(props) {
   if (inLineMarketId && targetStage && targetStage.appears_in_context) {
     return (
       <>
-        <TooltipIconButton disabled={operationRunning} icon={icon} onClick={handleOpen}
+        <TooltipIconButton disabled={operationRunning || disabled} icon={icon} onClick={handleOpen}
                            translationId={explanationId} >
         {(isOpen !== undefined ? isOpen : true) && (
           <ListItemText className={classes.menuTitle}>

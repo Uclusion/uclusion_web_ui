@@ -12,12 +12,13 @@ import {
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToNextVisibleStageActionButton(props) {
-  const { marketId, currentStageId, disabled, enoughVotes, acceptedStageAvailable } = props;
+  const { marketId, currentStageId, disabled, enoughVotes, acceptedStageAvailable, hasTodos } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inVotingStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
   const inBlockedStage = getBlockedStage(marketStagesState, marketId) || {};
+  const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   let destinationStage;
   let destinationExplanation;
   let destinationLabel;
@@ -30,7 +31,7 @@ function MoveToNextVisibleStageActionButton(props) {
     destinationLabel = 'planningInvestibleNextStageInReviewLabel';
     destinationExplanation = 'planningInvestibleInReviewExplanation';
   } else if (currentStageId === inReviewStage.id) {
-    destinationStage = getVerifiedStage(marketStagesState, marketId);
+    destinationStage = verifiedStage;
     destinationLabel = 'planningInvestibleMoveToVerifiedLabel';
     destinationExplanation = 'planningInvestibleVerifiedExplanation';
   } else if (currentStageId === inBlockedStage.id) {
@@ -56,6 +57,8 @@ function MoveToNextVisibleStageActionButton(props) {
       translationId={destinationLabel}
       explanationId={destinationExplanation}
       targetStageId={destinationStage.id}
+      operationBlocked={hasTodos && (destinationStage === inReviewStage || destinationStage === verifiedStage)}
+      blockedOperationTranslationId="mustRemoveTodosExplanation"
       disabled={disabled}
       isOpen={true}
     />
@@ -68,6 +71,7 @@ MoveToNextVisibleStageActionButton.propTypes = {
   disabled: PropTypes.bool.isRequired,
   enoughVotes: PropTypes.bool.isRequired,
   acceptedStageAvailable: PropTypes.bool.isRequired,
+  hasTodos: PropTypes.bool.isRequired,
 };
 
 export default MoveToNextVisibleStageActionButton;

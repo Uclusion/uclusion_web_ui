@@ -10,7 +10,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 import { makeStyles } from '@material-ui/styles'
 import { Dialog } from '../../Dialogs'
-import { ListItemText } from '@material-ui/core'
+import { Button, ListItemText } from '@material-ui/core'
 import clsx from 'clsx'
 import { useLockedDialogStyles } from '../../../pages/Dialog/DialogEdit'
 import SpinBlockingButton from '../../SpinBlocking/SpinBlockingButton'
@@ -68,6 +68,8 @@ function StageChangeAction(props) {
     isOpen,
     disabled,
     removeAssignments,
+    operationBlocked,
+    blockedOperationTranslationId,
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -121,6 +123,50 @@ function StageChangeAction(props) {
         refreshInvestibles(invDispatch, diffDispatch, [newInv]);
         return EMPTY_SPIN_RESULT;
       });
+  }
+
+  if (operationBlocked) {
+    return (
+      <>
+        <TooltipIconButton disabled={operationRunning || disabled} icon={icon} onClick={handleOpen}
+                           translationId={explanationId} >
+          {(isOpen !== undefined ? isOpen : true) && (
+            <ListItemText className={classes.menuTitle}>
+              {intl.formatMessage({ id: translationId })}
+            </ListItemText>
+          )}
+        </TooltipIconButton>
+        <br />
+        <Dialog
+          autoFocusRef={autoFocusRef}
+          classes={{
+            root: lockedDialogClasses.root,
+            actions: lockedDialogClasses.actions,
+            content: lockedDialogClasses.issueWarningContent,
+            title: lockedDialogClasses.title
+          }}
+          open={open}
+          onClose={() => setOpen(false)}
+          /* slots */
+          actions={
+            <Button
+              className={clsx(classes.action, classes.actionCancel)}
+              disableFocusRipple
+              onClick={() => setOpen(false)}
+              ref={autoFocusRef}
+            >
+              <FormattedMessage id="lockDialogCancel" />
+            </Button>
+          }
+          content={<FormattedMessage id={blockedOperationTranslationId} />}
+          title={
+            <React.Fragment>
+              <FormattedMessage id="blockedNotice" />
+            </React.Fragment>
+          }
+        />
+      </>
+    );
   }
 
   if (inLineMarketId && targetStage && targetStage.appears_in_context) {
@@ -210,10 +256,14 @@ StageChangeAction.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   disabled: PropTypes.bool.isRequired,
   removeAssignments: PropTypes.bool,
+  operationBlocked: PropTypes.bool,
+  blockedOperationTranslationId: PropTypes.string,
 };
 
 StageChangeAction.defaultProps = {
   onSpinStop: () => {},
   removeAssignments: false,
+  operationBlocked: false,
+  blockedOperationTranslationId: '',
 };
 export default StageChangeAction;

@@ -1,14 +1,15 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import WorkspaceNameStep from './WorkspaceNameStep';
-import CurrentStoryStep from './CurrentStoryStep';
-import CurrentStoryProgressStep from './CurrentStoryProgressStep';
-import NextStoryStep from './NextStoryStep';
-import CreatingWorkspaceStep from './CreatingWorkspaceStep';
-import OnboardingWizard from '../../../OnboardingWizard';
-import { useIntl } from 'react-intl';
+import React from 'react'
+import PropTypes from 'prop-types'
+import WorkspaceNameStep from './WorkspaceNameStep'
+import CurrentStoryStep from './CurrentStoryStep'
+import CurrentStoryProgressStep from './CurrentStoryProgressStep'
+import NextStoryStep from './NextStoryStep'
+import CreatingWorkspaceStep from './CreatingWorkspaceStep'
+import OnboardingWizard from '../../../OnboardingWizard'
+import { useIntl } from 'react-intl'
+
 function StoryWorkspaceWizard(props) {
-  const { hidden, onStartOver } = props;
+  const { hidden, onStartOver, isHome } = props;
   const intl = useIntl();
 
   const stepPrototypes = [
@@ -37,6 +38,7 @@ function StoryWorkspaceWizard(props) {
   return (
     <OnboardingWizard
       title={intl.formatMessage({ id: 'WorkspaceWizardTitle' })}
+      isHome={isHome}
       hidden={hidden}
       onStartOver={onStartOver}
       stepPrototypes={stepPrototypes}
@@ -47,10 +49,12 @@ function StoryWorkspaceWizard(props) {
 StoryWorkspaceWizard.propTypes = {
   hidden: PropTypes.bool.isRequired,
   onStartOver: PropTypes.func,
+  isHome: PropTypes.bool,
 };
 
 StoryWorkspaceWizard.defaultProps = {
   onStartOver: () => {},
+  isHome: false,
 }
 
 export default StoryWorkspaceWizard;

@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import { Card, Container, makeStyles, Typography } from '@material-ui/core'
 import Screen from '../../containers/Screen/Screen'
 import { useIntl } from 'react-intl'
-import { generateReducer, getStoredData, resetValues } from './onboardingReducer';
+import { generateReducer, getStoredData, resetValues } from './onboardingReducer'
 import { Helmet } from 'react-helmet'
 import Header from '../../containers/Header'
 
@@ -26,6 +26,13 @@ const useStyles = makeStyles(
         marginRight: 'auto',
         marginTop: '100px',
         padding: '32px', 
+        [theme.breakpoints.down("xs")]: {
+          marginTop: '15px',        }
+      },
+      baseCardNew: {
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        padding: '32px',
         [theme.breakpoints.down("xs")]: {
           marginTop: '15px',        }
       },
@@ -234,7 +241,7 @@ const useStyles = makeStyles(
 );
 
 function OnboardingWizard (props) {
-  const { hidden, stepPrototypes, title, hideSteppers, onStartOver, onFinish, hideUI } = props;
+  const { hidden, stepPrototypes, title, hideSteppers, onStartOver, onFinish, hideUI, isHome } = props;
   const classes = useStyles();
   const reducer = generateReducer(title);
   const initialData = getStoredData(title) || {};
@@ -322,10 +329,10 @@ function OnboardingWizard (props) {
 
   const stepClass = stepPrototypes[stepState.currentStep].label;
   const currentStep = getCurrentStepContents();
-
+  const baseStyle = isHome ? classes.baseCardNew : classes.baseCard;
   function getContent () {
     return (
-      <Card className={clsx(classes[stepClass], classes.baseCard)} elevation={0} raised={false}>
+      <Card className={clsx(classes[stepClass], baseStyle)} elevation={0} raised={false}>
         <div>
           {getStepHeaders()}
         </div>
@@ -334,8 +341,6 @@ function OnboardingWizard (props) {
         </div>
       </Card>);
   }
-
-  console.log(formData);
 
  // if overrideUI content is step, turn the entirety of the ui over to the step
   if (overrideUIContent) {
@@ -386,6 +391,7 @@ OnboardingWizard.propTypes = {
   onStartOver: PropTypes.func,
   onFinish: PropTypes.func,
   hideUI: PropTypes.bool,
+  isHome: PropTypes.bool,
 };
 
 OnboardingWizard.defaultProps = {
@@ -394,6 +400,7 @@ OnboardingWizard.defaultProps = {
   onStartOver: () => {},
   onFinish: () => {},
   hideUI: true,
+  isHome: false,
 };
 
 export default OnboardingWizard;

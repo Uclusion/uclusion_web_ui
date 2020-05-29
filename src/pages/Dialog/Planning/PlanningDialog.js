@@ -57,6 +57,16 @@ import InviteLinker from '../InviteLinker'
 import StepButtons from '../../Onboarding/StepButtons'
 import queryString from 'query-string'
 
+const useStyles = makeStyles(
+  theme => ({
+    wizardContainer: {
+      background: '#efefef',
+      padding: '24px 20px 156px',
+      marginTop: '80px',
+      width: '500px',
+    },
+  }));
+
 function PlanningDialog(props) {
   const history = useHistory();
   const {
@@ -69,6 +79,7 @@ function PlanningDialog(props) {
     myPresence,
     hash,
   } = props;
+  const classes = useStyles();
   const values = queryString.parse(hash || '');
   const { onboarded } = values || {};
   const cognitoUser = useContext(CognitoUserContext);
@@ -165,7 +176,7 @@ function PlanningDialog(props) {
           logoLinkDisabled
           hideTools
         />
-        <Container className={wizardStyle.containerAll}>
+        <Container className={classes.wizardContainer}>
           <Card className={wizardStyle.baseCard} elevation={0} raised={false}>
             <div>
               <div>

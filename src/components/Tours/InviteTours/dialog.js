@@ -21,7 +21,7 @@ export function inviteDialogSteps(variables) {
     {
       disableBeacon: true,
       target: '#proposeOption',
-      content: 'Or suggest something different with Propose Option.'
+      content: 'Or here you can suggest something different.'
     },
     {
       disableBeacon: true,

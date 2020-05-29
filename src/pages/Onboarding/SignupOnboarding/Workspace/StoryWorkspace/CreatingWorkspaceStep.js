@@ -105,7 +105,7 @@ function CreatingWorkspaceStep (props) {
             uploadedFiles: processed.uploadedFiles,
             assignments: [myUserId],
           };
-          if (!_.isEmpty(currentStoryEstimate) && !currentStoryProgressSkipped) {
+          if (_.isNumber(currentStoryEstimate) && currentStoryEstimate > 0 && !currentStoryProgressSkipped) {
             addInfo.daysEstimate = currentStoryEstimate;
           }
           return addPlanningInvestible(addInfo);

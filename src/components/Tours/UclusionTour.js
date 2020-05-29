@@ -62,7 +62,7 @@ function UclusionTour(props) {
         // the've finished, register complete
         // console.log(`Tour ${name} is complete`);
         completeTour(tourDispatch, name);
-        storeTourCompleteInBackend(name);
+        storeTourCompleteInBackend(family);
       }
       if (type === 'step:after') {
         setCurrentStep(tourDispatch, name, index + 1);

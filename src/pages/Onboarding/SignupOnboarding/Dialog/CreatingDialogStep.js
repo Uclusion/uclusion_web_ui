@@ -98,14 +98,12 @@ function CreatingDialogStep(props) {
 
   return (
     <div>
-      {!dialogCreated && (
         <div className={classes.creatingContainer}>
           <Typography variant="body1">
             We're creating your Uclusion Dialog now, please wait a moment.
           </Typography>
           <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
         </div>
-      )}
     </div>
   );
 }

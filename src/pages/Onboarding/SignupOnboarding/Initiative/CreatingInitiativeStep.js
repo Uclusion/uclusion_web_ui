@@ -16,9 +16,10 @@ import { MarketPresencesContext } from '../../../../contexts/MarketPresencesCont
 import { Typography } from '@material-ui/core';
 import InviteLinker from '../../../Dialog/InviteLinker';
 import { INITIATIVE_TYPE } from '../../../../constants/markets';
+import { resetValues } from '../../onboardingReducer';
 
 function CreatingInitiativeStep (props) {
-  const { formData, active, classes } = props;
+  const { formData, active, classes, updateFormData } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -69,6 +70,9 @@ function CreatingInitiativeStep (props) {
             addInvestible(investiblesDispatch, diffDispatch, investible);
             setDialogInfo({ initiativeCreated: true, marketId, marketToken });
           });
+        })
+        .then(() => {
+          updateFormData(resetValues());
         });
     }
   }, [
@@ -118,11 +122,13 @@ function CreatingInitiativeStep (props) {
 CreatingInitiativeStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
+  updateFormData: PropTypes.func,
 };
 
 CreatingInitiativeStep.defaultProps = {
   formData: {},
   active: false,
+  updateFormData: () => {},
 };
 
 export default CreatingInitiativeStep;

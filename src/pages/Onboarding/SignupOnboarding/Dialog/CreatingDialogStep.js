@@ -18,10 +18,11 @@ import { Typography } from '@material-ui/core';
 import InviteLinker from '../../../Dialog/InviteLinker';
 import { DECISION_TYPE } from '../../../../constants/markets';
 import { AllSequentialMap } from '../../../../utils/PromiseUtils';
+import { resetValues } from '../../onboardingReducer';
 
 function CreatingDialogStep (props) {
  // const intl = useIntl();
-  const { formData, active, classes } = props;
+  const { formData, active, classes, updateFormData } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -81,6 +82,9 @@ function CreatingDialogStep (props) {
                 addInvestible(investiblesDispatch, diffDispatch, investible);
               });
           });
+        })
+        .then(() => {
+          updateFormData(resetValues());
         });
     }
   }, [
@@ -131,11 +135,13 @@ function CreatingDialogStep (props) {
 CreatingDialogStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
+  updateFormData: PropTypes.func,
 };
 
 CreatingDialogStep.defaultProps = {
   formData: {},
   active: false,
+  updateFormData: () => {},
 };
 
 export default CreatingDialogStep;

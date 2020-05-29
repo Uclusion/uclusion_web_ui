@@ -23,10 +23,11 @@ import { useIntl } from 'react-intl'
 import { Typography } from '@material-ui/core'
 import InviteLinker from '../../../../Dialog/InviteLinker'
 import { PLANNING_TYPE, STORIES_SUB_TYPE } from '../../../../../constants/markets';
+import { resetValues } from '../../../onboardingReducer';
 
 function CreatingWorkspaceStep (props) {
   const intl = useIntl();
-  const { formData, active, classes } = props;
+  const { formData, active, classes, updateFormData } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -135,8 +136,10 @@ function CreatingWorkspaceStep (props) {
           if (addedStory) {
             addInvestible(investiblesDispatch, diffDispatch, addedStory);
           }
-
-        });
+        })
+        .then(() => {
+          updateFormData(resetValues());
+        });;
     }
   }, [
     workspaceInfo, active, commentsDispatch, commentsState,
@@ -185,11 +188,13 @@ function CreatingWorkspaceStep (props) {
 CreatingWorkspaceStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
+  updateFormData: PropTypes.func,
 };
 
 CreatingWorkspaceStep.defaultProps = {
   formData: {},
   active: false,
+  updateFormData: () => {},
 };
 
 

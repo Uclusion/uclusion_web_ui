@@ -797,7 +797,7 @@ const messages = defineMessages({
   //RequirementsWorkspaceWizard
   ReqWorkspaceWizardTitle: 'Your workspace',
   ReqWorkspaceWizardNamePlaceHolder: 'Your workspace Name',
-  ReqWorkspaceWizardNameStepLabel: 'Requirements Workspace',
+  ReqWorkspaceWizardNameStepLabel: 'Your Workspace',
   ReqWorkspaceWizardRequirementsStepLabel: 'Initial Requirements',
   ReqWorkspaceWizardInitialRequirementsPlaceHolder: 'Your initial requirements',
   ReqWorkspaceWizardTodoStepLabel: 'What\'s still TODO?',
@@ -808,7 +808,7 @@ const messages = defineMessages({
   //StoryWorkspaceWizard
   WorkspaceWizardTitle: 'Your Workspace',
   WorkspaceWizardMeetingPlaceHolder: 'Your Workspace Name',
-  WorkspaceWizardMeetingStepLabel: 'Workspace Name',
+  WorkspaceWizardMeetingStepLabel: 'Your Workspace',
   WorkspaceWizardCreatingWorkspaceStepLabel: 'Workspace Creation',
   WorkspaceWizardWorkspaceDescription: 'Workspace for {meetingName}',
   WorkspaceWizardTakeMeToWorkspace: 'I\'ve shared the link, take me to my Workspace',

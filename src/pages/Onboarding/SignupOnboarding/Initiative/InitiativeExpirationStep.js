@@ -24,6 +24,11 @@ function InitiativeExpirationStep(props) {
       initiativeExpiration: value,
     }));
   }
+  function onNext() {
+  //  updateFormData(updateValues({
+  //    initiativeExpiration: value,
+ //   }));
+  }
 
   return (
     <div>
@@ -35,7 +40,7 @@ function InitiativeExpirationStep(props) {
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'InitiativeWizardInitiativeExpirationPlaceHolder' })}</label>
       <ExpirationSelector value={value} onChange={onExpiresChange}/>
       <div className={classes.borderBottom}></div>
-      <StepButtons {...props} validForm={validForm}/>
+      <StepButtons {...props} validForm={validForm} onNext={onNext}/>
     </div>
   );
 }

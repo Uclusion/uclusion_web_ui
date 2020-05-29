@@ -13,7 +13,7 @@ import { formMarketLink, formMarketManageLink, navigate } from '../../../../util
 import { useHistory } from 'react-router'
 import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { CircularProgress, Typography } from '@material-ui/core'
+import { CircularProgress, Typography, Button } from '@material-ui/core'
 import InviteLinker from '../../../Dialog/InviteLinker'
 import { INITIATIVE_TYPE } from '../../../../constants/markets'
 import { resetValues } from '../../onboardingReducer'
@@ -40,8 +40,8 @@ function CreatingInitiativeStep (props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(realUploadedFiles, initiativeDescription);
-    const { initiativeCreated } = initiativeInfo;
-    if (!initiativeCreated && active) {
+    const { initiativeCreated, initiativeError } = initiativeInfo;
+    if (!initiativeCreated && !initiativeError && active) {
       const marketInfo = {
         name: 'NA',
         description: 'NA',
@@ -77,14 +77,31 @@ function CreatingInitiativeStep (props) {
             const link = formMarketManageLink(marketId) + '#participation=true';
             navigate(history, link);
           }
-        });
+        })
+        .catch(() => {
+          setDialogInfo({initiativeError: true});
+        })
+      ;
     }
   }, [initiativeInfo, active, diffDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, updateFormData, isHome, history]);
-  const { marketId, initiativeCreated, marketToken } = initiativeInfo;
+  const { marketId, initiativeCreated, marketToken, initiativeError } = initiativeInfo;
   const marketLink = formMarketLink(marketId);
 
   if (!active) {
     return React.Fragment;
+  }
+
+  if (initiativeError) {
+    return (
+      <div>
+        <Button
+          onClick={() => setDialogInfo({initiativeCreated: false, initiativeError: false})}
+        >
+          Retry Creating Initiative
+        </Button>
+
+      </div>
+    );
   }
 
   return (

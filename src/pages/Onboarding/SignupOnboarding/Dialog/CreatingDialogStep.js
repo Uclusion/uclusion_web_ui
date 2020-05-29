@@ -85,7 +85,7 @@ function CreatingDialogStep(props) {
             navigate(history, link);
           } else {
             const marketLink = formMarketLink(marketId);
-            navigate(history, `${marketLink}#onboarded=true`)
+            navigate(history, `${marketLink}#onboarded=true`);
           }
         });
     }

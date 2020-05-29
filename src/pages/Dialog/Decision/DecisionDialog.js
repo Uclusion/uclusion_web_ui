@@ -434,7 +434,7 @@ DecisionDialog.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   myPresence: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
-
+  hash: PropTypes.string.isRequired,
 };
 
 DecisionDialog.defaultProps = {

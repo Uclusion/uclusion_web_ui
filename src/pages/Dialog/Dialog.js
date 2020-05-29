@@ -151,6 +151,7 @@ function Dialog(props) {
           marketStages={marketStages}
           marketPresences={marketPresences}
           myPresence={myPresence}
+          hash={hash}
         />
       )}
     </>

@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import StepButtons from '../../../StepButtons'
 import { createPlanning } from '../../../../../api/markets'
 import { addMarketToStorage } from '../../../../../contexts/MarketsContext/marketsContextHelper'
 import { processTextAndFilesForSave } from '../../../../../api/files'
@@ -21,8 +20,7 @@ import { CommentsContext } from '../../../../../contexts/CommentsContext/Comment
 import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext'
 import { useIntl } from 'react-intl'
 import { CircularProgress, Typography } from '@material-ui/core'
-import InviteLinker from '../../../../Dialog/InviteLinker'
-import { PLANNING_TYPE, STORIES_SUB_TYPE } from '../../../../../constants/markets'
+import { STORIES_SUB_TYPE } from '../../../../../constants/markets'
 import { resetValues } from '../../../onboardingReducer'
 
 function CreatingWorkspaceStep (props) {
@@ -142,12 +140,14 @@ function CreatingWorkspaceStep (props) {
           if(isHome) {
             const link = formMarketManageLink(marketId) + '#participation=true';
             navigate(history, link);
+          } else {
+            const marketLink = formMarketLink(marketId);
+            navigate(history, `${marketLink}#onboarded=true`);
           }
         });
     }
   }, [workspaceInfo, active, commentsDispatch, commentsState, diffDispatch, versionsDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, meetingName, workspaceDescription, updateFormData, isHome, history]);
-  const { marketId, workspaceCreated, marketToken } = workspaceInfo;
-  const marketLink = formMarketLink(marketId);
+  const { workspaceCreated } = workspaceInfo;
 
   if (!active) {
     return React.Fragment;
@@ -161,26 +161,6 @@ function CreatingWorkspaceStep (props) {
             We're creating your Uclusion Workspace now, please wait a moment.
           </Typography>
           <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
-        </div>
-      )}
-      {!isHome && workspaceCreated && (
-        <div>
-          <Typography variant="body1">
-            We've created your Workspace, please share this link with your team to invite them
-          </Typography>
-          <div className={classes.linkContainer}>
-            <InviteLinker
-              marketType={PLANNING_TYPE}
-              marketToken={marketToken}
-            />
-          </div>
-          <div className={classes.borderBottom}></div>
-          <StepButtons
-            {...props}
-            showGoBack={false}
-            finishLabel="WorkspaceWizardTakeMeToWorkspace"
-            showStartOver={false}
-            onFinish={() => navigate(history, marketLink)}/>
         </div>
       )}
     </div>

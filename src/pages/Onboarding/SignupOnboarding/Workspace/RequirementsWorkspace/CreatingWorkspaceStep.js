@@ -7,20 +7,19 @@ import { addMarketToStorage } from '../../../../../contexts/MarketsContext/marke
 import { processTextAndFilesForSave } from '../../../../../api/files'
 import { DiffContext } from '../../../../../contexts/DiffContext/DiffContext'
 import { MarketsContext } from '../../../../../contexts/MarketsContext/MarketsContext'
-import { formMarketLink, formMarketManageLink, navigate } from '../../../../../utils/marketIdPathFunctions';
+import { formMarketLink, formMarketManageLink, navigate } from '../../../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { addPresenceToMarket } from '../../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { saveComment } from '../../../../../api/comments'
-import { TODO_TYPE } from '../../../../../constants/comments';
+import { TODO_TYPE } from '../../../../../constants/comments'
 import { addCommentToMarket } from '../../../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext'
 import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext'
-//import { useIntl } from 'react-intl'
-import { CircularProgress, Typography } from '@material-ui/core';
+import { CircularProgress, Typography } from '@material-ui/core'
 import InviteLinker from '../../../../Dialog/InviteLinker'
-import { PLANNING_TYPE, REQUIREMENTS_SUB_TYPE } from '../../../../../constants/markets';
-import { resetValues } from '../../../onboardingReducer';
+import { PLANNING_TYPE, REQUIREMENTS_SUB_TYPE } from '../../../../../constants/markets'
+import { resetValues } from '../../../onboardingReducer'
 
 function CreatingWorkspaceStep (props) {
 //  const intl = useIntl();
@@ -82,11 +81,7 @@ function CreatingWorkspaceStep (props) {
           }
         });
     }
-  }, [
-    workspaceInfo, active, commentsDispatch, commentsState,
-    diffDispatch, versionsDispatch, formData, updateFormData,
-    marketsDispatch, presenceDispatch,
-  ]);
+  }, [workspaceInfo, active, commentsDispatch, commentsState, diffDispatch, versionsDispatch, formData, updateFormData, marketsDispatch, presenceDispatch, isHome, history]);
   const { marketId, workspaceCreated, marketToken } = workspaceInfo;
   const marketLink = formMarketLink(marketId);
 

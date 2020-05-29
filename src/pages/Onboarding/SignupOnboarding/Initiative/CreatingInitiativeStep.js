@@ -1,22 +1,22 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import StepButtons from '../../StepButtons';
-import { createInitiative } from '../../../../api/markets';
-import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
-import { processTextAndFilesForSave } from '../../../../api/files';
-import { addDecisionInvestible } from '../../../../api/investibles';
-import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
-import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper';
-import { formMarketLink, formMarketManageLink, navigate } from '../../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
-import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { CircularProgress, Typography } from '@material-ui/core';
-import InviteLinker from '../../../Dialog/InviteLinker';
-import { INITIATIVE_TYPE } from '../../../../constants/markets';
-import { resetValues } from '../../onboardingReducer';
+import React, { useContext, useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import StepButtons from '../../StepButtons'
+import { createInitiative } from '../../../../api/markets'
+import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper'
+import { processTextAndFilesForSave } from '../../../../api/files'
+import { addDecisionInvestible } from '../../../../api/investibles'
+import { DiffContext } from '../../../../contexts/DiffContext/DiffContext'
+import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
+import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper'
+import { formMarketLink, formMarketManageLink, navigate } from '../../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
+import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { CircularProgress, Typography } from '@material-ui/core'
+import InviteLinker from '../../../Dialog/InviteLinker'
+import { INITIATIVE_TYPE } from '../../../../constants/markets'
+import { resetValues } from '../../onboardingReducer'
 
 function CreatingInitiativeStep (props) {
   const { formData, active, classes, updateFormData, isHome } = props;
@@ -79,11 +79,7 @@ function CreatingInitiativeStep (props) {
           }
         });
     }
-  }, [
-    initiativeInfo, active,
-    diffDispatch, formData, investiblesDispatch,
-    marketsDispatch, presenceDispatch,
-  ]);
+  }, [initiativeInfo, active, diffDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, updateFormData, isHome, history]);
   const { marketId, initiativeCreated, marketToken } = initiativeInfo;
   const marketLink = formMarketLink(marketId);
 

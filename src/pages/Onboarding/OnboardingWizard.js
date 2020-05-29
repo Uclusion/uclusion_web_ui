@@ -1,14 +1,14 @@
-import React, { useReducer, useState } from 'react';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import { Card, Container, makeStyles, Typography } from '@material-ui/core';
-import Screen from '../../containers/Screen/Screen';
-import { useIntl } from 'react-intl';
-import { generateReducer, getStoredData, resetValues } from './onboardingReducer';
-import { Helmet } from 'react-helmet';
-import Header from '../../containers/Header';
+import React, { useReducer, useState } from 'react'
+import PropTypes from 'prop-types'
+import clsx from 'clsx'
+import { Card, Container, makeStyles, Typography } from '@material-ui/core'
+import Screen from '../../containers/Screen/Screen'
+import { useIntl } from 'react-intl'
+import { generateReducer, getStoredData, resetValues } from './onboardingReducer'
+import { Helmet } from 'react-helmet'
+import Header from '../../containers/Header'
 
-const useStyles = makeStyles(
+export const wizardStyles = makeStyles(
   theme => {
     return {
       normal: {},
@@ -249,7 +249,7 @@ const useStyles = makeStyles(
 
 function OnboardingWizard (props) {
   const { hidden, stepPrototypes, title, hideSteppers, onStartOver, onFinish, hideUI, isHome } = props;
-  const classes = useStyles();
+  const classes = wizardStyles();
   const reducer = generateReducer(title);
   const initialData = getStoredData(title) || {};
   const [formData, updateFormData] = useReducer(reducer, initialData);

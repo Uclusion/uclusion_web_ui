@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import StepButtons from '../../StepButtons'
 import { createDecision } from '../../../../api/markets'
 import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper'
 import { processTextAndFilesForSave } from '../../../../api/files'
@@ -14,12 +13,10 @@ import { useHistory } from 'react-router'
 import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { CircularProgress, Typography } from '@material-ui/core'
-import InviteLinker from '../../../Dialog/InviteLinker'
-import { DECISION_TYPE } from '../../../../constants/markets'
 import { AllSequentialMap } from '../../../../utils/PromiseUtils'
 import { resetValues } from '../../onboardingReducer'
 
-function CreatingDialogStep (props) {
+function CreatingDialogStep(props) {
   const { formData, active, classes, updateFormData, isHome } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -86,12 +83,14 @@ function CreatingDialogStep (props) {
           if(isHome) {
             const link = formMarketManageLink(marketId) + '#participation=true';
             navigate(history, link);
+          } else {
+            const marketLink = formMarketLink(marketId);
+            navigate(history, `${marketLink}#onboarded=true`)
           }
         });
     }
   }, [dialogInfo, active, diffDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, updateFormData, isHome, history]);
-  const { marketId, dialogCreated, marketToken } = dialogInfo;
-  const marketLink = formMarketLink(marketId);
+  const { dialogCreated } = dialogInfo;
 
   if (!active) {
     return React.Fragment;
@@ -105,28 +104,6 @@ function CreatingDialogStep (props) {
             We're creating your Uclusion Dialog now, please wait a moment.
           </Typography>
           <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
-        </div>
-
-      )}
-      {!isHome && dialogCreated && (
-        <div>
-          <Typography variant="body1">
-            We've created your Dialog, please share the link below.
-
-          </Typography>
-          <div className={classes.linkContainer}>
-            <InviteLinker
-              marketType={DECISION_TYPE}
-              marketToken={marketToken}
-            />
-          </div>
-          <div className={classes.borderBottom}></div>
-          <StepButtons
-            {...props}
-            showGoBack={false}
-            finishLabel="DialogWizardTakeMeToDialog"
-            showStartOver={false}
-            onFinish={() => navigate(history, marketLink)}/>
         </div>
       )}
     </div>

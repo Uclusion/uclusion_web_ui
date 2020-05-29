@@ -92,7 +92,6 @@ function CreatingWorkspaceStep (props) {
           return addPlanningInvestible(addInfo);
         })
         .then((investible) => {
-          addInvestible(investiblesDispatch, diffDispatch, investible);
           investibleId = investible.investible.id;
           const updateInfo = {
             marketId,
@@ -104,7 +103,8 @@ function CreatingWorkspaceStep (props) {
           };
           return stageChangeInvestible(updateInfo);
         })
-        .then(() => {
+        .then((investible) => {
+          addInvestible(investiblesDispatch, diffDispatch, investible);
           const { currentStoryProgress, currentStoryProgressSkipped } = formData;
           if (!_.isEmpty(currentStoryProgress) && !currentStoryProgressSkipped) {
             return saveComment(marketId, investibleId, undefined, currentStoryProgress, REPORT_TYPE, []);

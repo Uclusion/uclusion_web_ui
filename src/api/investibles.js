@@ -84,7 +84,7 @@ export function deleteInvestible (marketId, investibleId) {
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleDeleteFailed'));
 }
 
-export function addInvestibleToStage (addInfo) {
+export function addInvestibleToStage(addInfo) {
   const {
     marketId,
     name,
@@ -97,19 +97,6 @@ export function addInvestibleToStage (addInfo) {
       .then((inv) => {
         const { investible } = inv;
         const { id } = investible;
-        return client.investibles.stateChange(id, stageInfo)
-          .then(() => {
-            const { market_infos } = inv;
-            const [info] = market_infos;
-            const newInfo = {
-              ...info,
-              stage: stageInfo.stage_id,
-            };
-            const newMarketInfos = [newInfo];
-            return {
-              ...inv,
-              market_infos: newMarketInfos,
-            };
-          });
+        return client.investibles.stateChange(id, stageInfo);
       })).catch((error) => toastErrorAndThrow(error, 'errorInvestibleAddFailed'));
 }

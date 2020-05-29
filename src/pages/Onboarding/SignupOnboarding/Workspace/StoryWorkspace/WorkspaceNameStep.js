@@ -1,10 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { TextField, Typography } from '@material-ui/core';
-import { useIntl } from 'react-intl';
-import _ from 'lodash';
-import StepButtons from '../../../StepButtons';
-import { updateValues } from '../../../onboardingReducer';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { TextField, Typography } from '@material-ui/core'
+import { useIntl } from 'react-intl'
+import _ from 'lodash'
+import StepButtons from '../../../StepButtons'
+import { updateValues } from '../../../onboardingReducer'
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData, active, classes } = props;
@@ -27,11 +27,8 @@ function WorkspaceNameStep (props) {
     <div>
       <Typography className={classes.introText} variant="body2">
         Great! We're going to be creating a Uclusion Workspace that tracks stories, notifies people
-        when their input is needed, lets them weigh in on stories before they begin implementation, and provides
-        structured communication around stories.
-      </Typography>
-      <Typography className={classes.introText} variant="body2">
-        To do this we'll need a short, but descriptive name for your Workspace.
+        when their input is needed, lets them weigh in on stories before implementation, and provides
+        structured communication.
       </Typography>
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}</label>
       <TextField

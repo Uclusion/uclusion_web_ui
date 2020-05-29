@@ -90,7 +90,6 @@ function CreatingDialogStep(props) {
         });
     }
   }, [dialogInfo, active, diffDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, updateFormData, isHome, history]);
-  const { dialogCreated } = dialogInfo;
 
   if (!active) {
     return React.Fragment;

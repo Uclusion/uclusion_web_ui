@@ -147,7 +147,6 @@ function CreatingWorkspaceStep (props) {
         });
     }
   }, [workspaceInfo, active, commentsDispatch, commentsState, diffDispatch, versionsDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, meetingName, workspaceDescription, updateFormData, isHome, history]);
-  const { workspaceCreated } = workspaceInfo;
 
   if (!active) {
     return React.Fragment;

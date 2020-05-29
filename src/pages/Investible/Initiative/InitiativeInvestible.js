@@ -190,10 +190,8 @@ function InitiativeInvestible(props) {
   const metaClasses = useMetaDataStyles();
 
   useEffect(() => {
-    if (!isAdmin) {
       tourDispatch(startTourFamily(INVITE_INITIATIVE_FAMILY_NAME));
-    }
-  }, [isAdmin, tourDispatch]);
+  }, [tourDispatch]);
 
 
 

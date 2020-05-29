@@ -27,7 +27,7 @@ function CreatingDialogStep(props) {
   const history = useHistory();
 
   useEffect(() => {
-    const { dialogName, dialogReason, dialogOptions, dialogExpiration } = formData;
+    const { dialogName, dialogReason, dialogOptions, dialogExpiration, addOptionsSkipped } = formData;
 
     const { dialogCreated } = dialogInfo;
     if (!dialogCreated && active) {
@@ -54,6 +54,9 @@ function CreatingDialogStep(props) {
           addPresenceToMarket(presenceDispatch, marketId, presence);
           createdStage = stages.find((stage) => !stage.allows_investment);
           inVotingStage = stages.find((stage) => stage.allows_investment);
+          if (addOptionsSkipped) {
+            return Promise.resolve(true);
+          }
           return AllSequentialMap(dialogOptions, (option) => {
             const {
               optionUploadedFiles,

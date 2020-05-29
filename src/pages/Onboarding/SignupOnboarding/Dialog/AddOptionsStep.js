@@ -16,7 +16,8 @@ function AddOptionsStep (props) {
     updateFormData,
     active,
     setOverrideUIContent,
-    classes
+    classes,
+    isHome,
   } = props;
   //const intl = useIntl();
   const { addShowSubWizard } = formData;
@@ -72,6 +73,14 @@ function AddOptionsStep (props) {
     />);
   }
 
+  function onSkip(){
+    updateFormData((updateValues({ addOptionsSkipped: true})));
+  }
+
+  function onStepChange() {
+    updateFormData((updateValues({ addOptionsSkipped: false})));
+  }
+
   function currentOptions () {
     return (
       <List>
@@ -105,7 +114,12 @@ function AddOptionsStep (props) {
       {currentOptions()}
       <Button className={classes.buttonClass} onClick={startSubWizard}>Add New Option</Button>
       <div className={classes.borderBottom}></div>
-      <StepButtons {...props} validForm={validForm}/>
+      <StepButtons {...props}
+                   validForm={validForm}
+                   onSkip={onSkip}
+                   onNext={onStepChange}
+                   onPrevious={onStepChange}
+                   showSkip={isHome}/>
     </div>
   );
 
@@ -116,6 +130,7 @@ AddOptionsStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
   setOverrideUIContent: PropTypes.func,
+  isHome: PropTypes.bool,
 };
 
 AddOptionsStep.defaultProps = {
@@ -123,6 +138,7 @@ AddOptionsStep.defaultProps = {
   setOverrideUIContent: () => {},
   formData: {},
   active: false,
+  isHome: false,
 };
 
 export default AddOptionsStep;

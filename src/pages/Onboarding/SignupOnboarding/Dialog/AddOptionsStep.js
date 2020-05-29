@@ -68,6 +68,7 @@ function AddOptionsStep (props) {
   if (addShowSubWizard) {
    return (<AddOptionWizard
       hidden={false}
+      isHome={isHome}
       onStartOver={onSubWizardStartOver}
       onFinish={onSubWizardFinish}
     />);

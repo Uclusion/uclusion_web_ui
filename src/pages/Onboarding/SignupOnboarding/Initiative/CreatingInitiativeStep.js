@@ -89,7 +89,7 @@ function CreatingInitiativeStep (props) {
 
   return (
     <div>
-      {!initiativeCreated && (
+      {(!initiativeCreated || isHome) && (
         <div className={classes.creatingContainer}>
           <Typography variant="body1">
             We're creating your Uclusion Initiative now, please wait a moment.

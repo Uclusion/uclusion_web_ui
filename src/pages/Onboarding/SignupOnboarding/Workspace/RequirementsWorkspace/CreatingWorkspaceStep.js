@@ -91,7 +91,7 @@ function CreatingWorkspaceStep (props) {
 
   return (
     <div>
-      {!workspaceCreated && (
+      {(!workspaceCreated || isHome) && (
         <div className={classes.creatingContainer}>
           <Typography variant="body1">
             We're creating your Uclusion Workspace now, please wait a moment.

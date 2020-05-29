@@ -11,7 +11,7 @@ import InitiativeWizard from '../../Onboarding/SignupOnboarding/Initiative/Initi
 
 function AddNewWizard(props) {
 
-  const { hidden } = props;
+  const { hidden, onFinish } = props;
   const intl = useIntl();
 
   const [wizardToShow, setWizardToShow] = useState(null);
@@ -42,6 +42,7 @@ function AddNewWizard(props) {
           hidden={hidden}
           isHome
           hideSteppers
+          onFinish={onFinish}
           onStartOver={onStartOver}
           title={intl.formatMessage({ id: 'SignupWizardTitle'})}
           stepPrototypes={stepPrototypes}
@@ -53,6 +54,10 @@ function AddNewWizard(props) {
 AddNewWizard.propTypes = {
   hidden: PropTypes.bool.isRequired,
   onCancel: PropTypes.func.isRequired,
+  onFinish: PropTypes.func,
 }
 
+AddNewWizard.defaultProps = {
+  onFinish: () => {},
+};
 export default AddNewWizard;

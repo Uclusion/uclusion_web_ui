@@ -108,7 +108,10 @@ function Home(props) {
       isHome
       sidebarActions={ACTIONBAR_ACTIONS}
     >
-      <AddNewWizard hidden={!wizardActive} onCancel={() => setWizardActive(false)} />
+      <AddNewWizard
+        hidden={!wizardActive}
+        onFinish={() => setWizardActive(false)}
+        onCancel={() => setWizardActive(false)} />
 
       {noMarkets && (
           <DismissableText textId="homeNoMarkets"/>

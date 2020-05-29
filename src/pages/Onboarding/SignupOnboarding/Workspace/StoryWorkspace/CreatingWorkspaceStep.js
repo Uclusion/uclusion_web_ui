@@ -68,6 +68,27 @@ function CreatingWorkspaceStep (props) {
           addPresenceToMarket(presenceDispatch, marketId, presence);
           inVotingStage = stages.find((stage) => stage.allows_investment);
           inProgressStage = stages.find((stage) => stage.singular_only);
+          // add the next story if you have it
+          const { nextStoryName, nextStoryDescription, nextStoryUploadedFiles, nextStorySkipped } = formData;
+          if (!_.isEmpty(nextStoryName) && !nextStorySkipped) {
+            const usedUploads = nextStoryUploadedFiles || [];
+            const processed = processTextAndFilesForSave(usedUploads, nextStoryDescription);
+            // add the story
+            const addInfo = {
+              marketId,
+              name: nextStoryName,
+              description: processed.text,
+              uploadedFiles: processed.uploadedFiles,
+              assignments: [myUserId],
+            };
+            return addPlanningInvestible(addInfo);
+          }
+          return Promise.resolve(false);
+        })
+        .then((addedStory) => {
+          if (addedStory) {
+            addInvestible(investiblesDispatch, diffDispatch, addedStory);
+          }
           const {
             currentStoryUploadedFiles,
             currentStoryName,
@@ -114,28 +135,6 @@ function CreatingWorkspaceStep (props) {
           if (addedComment) {
             addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
           }
-          const { nextStoryName, nextStoryDescription, nextStoryUploadedFiles, nextStorySkipped } = formData;
-          if (!_.isEmpty(nextStoryName) && !nextStorySkipped) {
-            const usedUploads = nextStoryUploadedFiles || [];
-            const processed = processTextAndFilesForSave(usedUploads, nextStoryDescription);
-            // add the story
-            const addInfo = {
-              marketId,
-              name: nextStoryName,
-              description: processed.text,
-              uploadedFiles: processed.uploadedFiles,
-              assignments: [myUserId],
-            };
-            return addPlanningInvestible(addInfo);
-          }
-          return Promise.resolve(false);
-        })
-        .then((addedStory) => {
-          if (addedStory) {
-            addInvestible(investiblesDispatch, diffDispatch, addedStory);
-          }
-        })
-        .then(() => {
           updateFormData(resetValues());
           if(isHome) {
             const link = formMarketManageLink(marketId) + '#participation=true';

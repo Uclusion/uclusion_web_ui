@@ -140,7 +140,13 @@ const useStyles = makeStyles(
         alignItems: 'center',
         padding: '20px'
       }
-    }
+    },
+    wizardContainer: {
+      background: '#efefef',
+      padding: '24px 20px 156px',
+      marginTop: '80px',
+      width: '500px'
+    },
   }),
   { name: "DecisionDialog" }
 );
@@ -236,7 +242,7 @@ function DecisionDialog(props) {
           logoLinkDisabled
           hideTools
         />
-        <Container className={wizardStyle.containerAll}>
+        <Container className={classes.wizardContainer}>
           <Card className={wizardStyle.baseCard} elevation={0} raised={false}>
             <div>
               <div>

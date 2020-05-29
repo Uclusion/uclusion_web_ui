@@ -60,7 +60,9 @@ const useStyles = makeStyles((theme) => ({
 
 function Screen(props) {
   const classes = useStyles();
-  const [user] = useContext(AccountUserContext) || {};
+  const [userState] = useContext(AccountUserContext);
+  const { user: unsafeUser } = userState;
+  const user = unsafeUser || {};
   const history = useHistory();
 
   const [messagesState] = useContext(NotificationsContext);
@@ -134,7 +136,7 @@ function Screen(props) {
         {reallyAmLoading && (
           <Grid container>
             <Grid item xs={12} className={classes.loadingContainer}>
-              <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"></CircularProgress>
+              <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
             </Grid>
           </Grid>
         )}

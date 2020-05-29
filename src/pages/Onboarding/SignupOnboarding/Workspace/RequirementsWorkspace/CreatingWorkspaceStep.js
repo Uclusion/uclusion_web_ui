@@ -17,13 +17,14 @@ import { addCommentToMarket } from '../../../../../contexts/CommentsContext/comm
 import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext'
 import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext'
 //import { useIntl } from 'react-intl'
-import { Typography } from '@material-ui/core'
+import { CircularProgress, Typography } from '@material-ui/core';
 import InviteLinker from '../../../../Dialog/InviteLinker'
 import { PLANNING_TYPE, REQUIREMENTS_SUB_TYPE } from '../../../../../constants/markets';
+import { resetValues } from '../../../onboardingReducer';
 
 function CreatingWorkspaceStep (props) {
 //  const intl = useIntl();
-  const { formData, active, classes } = props;
+  const { formData, active, classes, updateFormData } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
@@ -71,11 +72,14 @@ function CreatingWorkspaceStep (props) {
           if (addedComment) {
             addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
           }
+        })
+        .then(() => {
+          updateFormData(resetValues());
         });
     }
   }, [
     workspaceInfo, active, commentsDispatch, commentsState,
-    diffDispatch, versionsDispatch, formData,
+    diffDispatch, versionsDispatch, formData, updateFormData,
     marketsDispatch, presenceDispatch,
   ]);
   const { marketId, workspaceCreated, marketToken } = workspaceInfo;
@@ -89,9 +93,11 @@ function CreatingWorkspaceStep (props) {
     <div>
       {!workspaceCreated && (
         <div>
-          We're creating your Uclusion Workspace now, please wait a moment.
+          <div>
+            We're creating your Uclusion Workspace now, please wait a moment.
+          </div>
+          <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
         </div>
-
       )}
       {workspaceCreated && (
         <div>
@@ -120,10 +126,12 @@ function CreatingWorkspaceStep (props) {
 CreatingWorkspaceStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
+  updateFormData: PropTypes.func,
 };
 
 CreatingWorkspaceStep.defaultProps = {
   formData: {},
+  updateFormData: () => {},
   active: false,
 };
 

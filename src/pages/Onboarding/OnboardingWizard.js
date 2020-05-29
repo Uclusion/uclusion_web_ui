@@ -15,6 +15,10 @@ const useStyles = makeStyles(
       hidden: {
         display: 'none',
       },
+      creatingContainer: {
+        display: "flex",
+        alignItems: "center",
+      },
       title: {
         margin: '1rem 0'
       },

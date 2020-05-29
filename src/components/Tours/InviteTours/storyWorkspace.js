@@ -17,7 +17,7 @@ export function inviteStoriesWorkspaceSteps(variables) {
     {
       disableBeacon: true,
       target: '#swimLanes',
-      content: 'Swim lanes under each assignee\'s name let you see at a glance what stage a story is at. Stories in \'Proposed\' have to be voted for before they move to \'In Progress\'.',
+      content: 'Swim lanes under each assignee\'s name let you see at a glance what stage a story is at. Stories in \'Proposed\' should be voted for before they move to \'In Progress\'.',
     },
 
     {

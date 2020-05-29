@@ -322,7 +322,8 @@ function OnboardingWizard (props) {
       active: true,
       onFinish: myOnFinish,
       setOverrideUIContent,
-      classes
+      classes,
+      isHome
     };
     const currentStep = stepPrototypes[stepState.currentStep];
     if (!currentStep) {

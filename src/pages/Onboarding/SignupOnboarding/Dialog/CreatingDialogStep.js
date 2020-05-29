@@ -9,12 +9,12 @@ import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
 import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper';
-import { formMarketLink, navigate } from '../../../../utils/marketIdPathFunctions';
+import { formMarketLink, formMarketManageLink, navigate } from '../../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
 //import { useIntl } from 'react-intl';
-import { Typography } from '@material-ui/core';
+import { CircularProgress, Typography } from '@material-ui/core';
 import InviteLinker from '../../../Dialog/InviteLinker';
 import { DECISION_TYPE } from '../../../../constants/markets';
 import { AllSequentialMap } from '../../../../utils/PromiseUtils';
@@ -22,7 +22,7 @@ import { resetValues } from '../../onboardingReducer';
 
 function CreatingDialogStep (props) {
  // const intl = useIntl();
-  const { formData, active, classes, updateFormData } = props;
+  const { formData, active, classes, updateFormData, isHome } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -85,6 +85,10 @@ function CreatingDialogStep (props) {
         })
         .then(() => {
           updateFormData(resetValues());
+          if(isHome) {
+            const link = formMarketManageLink(marketId) + '#participation=true';
+            navigate(history, link);
+          }
         });
     }
   }, [
@@ -102,12 +106,15 @@ function CreatingDialogStep (props) {
   return (
     <div>
       {!dialogCreated && (
-        <div>
-          We're creating your Uclusion Dialog now, please wait a moment.
+        <div className={classes.creatingContainer}>
+          <Typography variant="body1">
+            We're creating your Uclusion Dialog now, please wait a moment.
+          </Typography>
+          <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
         </div>
 
       )}
-      {dialogCreated && (
+      {!isHome && dialogCreated && (
         <div>
           <Typography variant="body1">
             We've created your Dialog, please share the link below.
@@ -136,12 +143,14 @@ CreatingDialogStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
   updateFormData: PropTypes.func,
+  isHome: PropTypes.bool,
 };
 
 CreatingDialogStep.defaultProps = {
   formData: {},
   active: false,
   updateFormData: () => {},
+  isHome: false,
 };
 
 export default CreatingDialogStep;

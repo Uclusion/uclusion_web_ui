@@ -7,7 +7,7 @@ import { addMarketToStorage } from '../../../../../contexts/MarketsContext/marke
 import { processTextAndFilesForSave } from '../../../../../api/files'
 import { DiffContext } from '../../../../../contexts/DiffContext/DiffContext'
 import { MarketsContext } from '../../../../../contexts/MarketsContext/MarketsContext'
-import { formMarketLink, navigate } from '../../../../../utils/marketIdPathFunctions'
+import { formMarketLink, formMarketManageLink, navigate } from '../../../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router'
 import { addPresenceToMarket } from '../../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -24,7 +24,7 @@ import { resetValues } from '../../../onboardingReducer';
 
 function CreatingWorkspaceStep (props) {
 //  const intl = useIntl();
-  const { formData, active, classes, updateFormData } = props;
+  const { formData, active, classes, updateFormData, isHome } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
@@ -75,6 +75,11 @@ function CreatingWorkspaceStep (props) {
         })
         .then(() => {
           updateFormData(resetValues());
+          //send them directly to the market invite if home
+          if(isHome) {
+            const link = formMarketManageLink(marketId) + '#participation=true';
+            navigate(history, link);
+          }
         });
     }
   }, [
@@ -93,13 +98,13 @@ function CreatingWorkspaceStep (props) {
     <div>
       {!workspaceCreated && (
         <div className={classes.creatingContainer}>
-          <div>
+          <Typography variant="body1">
             We're creating your Uclusion Workspace now, please wait a moment.
-          </div>
+          </Typography>
           <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
         </div>
       )}
-      {workspaceCreated && (
+      {!isHome && workspaceCreated && (
         <div>
           <Typography variant="body1">
             We've created your Workspace, please share this link with your team to invite them
@@ -127,12 +132,14 @@ CreatingWorkspaceStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
   updateFormData: PropTypes.func,
+  isHome: PropTypes.bool,
 };
 
 CreatingWorkspaceStep.defaultProps = {
   formData: {},
   updateFormData: () => {},
   active: false,
+  isHome: false,
 };
 
 

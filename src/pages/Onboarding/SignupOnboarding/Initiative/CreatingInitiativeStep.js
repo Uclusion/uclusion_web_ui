@@ -9,17 +9,17 @@ import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
 import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper';
-import { formMarketLink, navigate } from '../../../../utils/marketIdPathFunctions';
+import { formMarketLink, formMarketManageLink, navigate } from '../../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { Typography } from '@material-ui/core';
+import { CircularProgress, Typography } from '@material-ui/core';
 import InviteLinker from '../../../Dialog/InviteLinker';
 import { INITIATIVE_TYPE } from '../../../../constants/markets';
 import { resetValues } from '../../onboardingReducer';
 
 function CreatingInitiativeStep (props) {
-  const { formData, active, classes, updateFormData } = props;
+  const { formData, active, classes, updateFormData, isHome } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -73,6 +73,10 @@ function CreatingInitiativeStep (props) {
         })
         .then(() => {
           updateFormData(resetValues());
+          if(isHome) {
+            const link = formMarketManageLink(marketId) + '#participation=true';
+            navigate(history, link);
+          }
         });
     }
   }, [
@@ -90,12 +94,14 @@ function CreatingInitiativeStep (props) {
   return (
     <div>
       {!initiativeCreated && (
-        <div>
-          We're creating your Uclusion Initiative now, please wait a moment.
+        <div className={classes.creatingContainer}>
+          <Typography variant="body1">
+            We're creating your Uclusion Initiative now, please wait a moment.
+          </Typography>
+          <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
         </div>
-
       )}
-      {initiativeCreated && (
+      {!isHome && initiativeCreated && (
         <div>
           <Typography variant="body1">
             We've created your Initiative, please share the link below.
@@ -123,12 +129,14 @@ CreatingInitiativeStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
   updateFormData: PropTypes.func,
+  isHome: PropTypes.bool,
 };
 
 CreatingInitiativeStep.defaultProps = {
   formData: {},
   active: false,
   updateFormData: () => {},
+  isHome: false,
 };
 
 export default CreatingInitiativeStep;

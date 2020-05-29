@@ -10,7 +10,7 @@ import { DiffContext } from '../../../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketsContext } from '../../../../../contexts/MarketsContext/MarketsContext'
 import { addInvestible } from '../../../../../contexts/InvestibesContext/investiblesContextHelper'
-import { formMarketLink, navigate } from '../../../../../utils/marketIdPathFunctions'
+import { formMarketLink, formMarketManageLink, navigate } from '../../../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router'
 import { addPresenceToMarket } from '../../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -20,14 +20,14 @@ import { addCommentToMarket } from '../../../../../contexts/CommentsContext/comm
 import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext'
 import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext'
 import { useIntl } from 'react-intl'
-import { Typography } from '@material-ui/core'
+import { CircularProgress, Typography } from '@material-ui/core';
 import InviteLinker from '../../../../Dialog/InviteLinker'
 import { PLANNING_TYPE, STORIES_SUB_TYPE } from '../../../../../constants/markets';
 import { resetValues } from '../../../onboardingReducer';
 
 function CreatingWorkspaceStep (props) {
   const intl = useIntl();
-  const { formData, active, classes, updateFormData } = props;
+  const { formData, active, classes, updateFormData, isHome } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -139,7 +139,11 @@ function CreatingWorkspaceStep (props) {
         })
         .then(() => {
           updateFormData(resetValues());
-        });;
+          if(isHome) {
+            const link = formMarketManageLink(marketId) + '#participation=true';
+            navigate(history, link);
+          }
+        });
     }
   }, [
     workspaceInfo, active, commentsDispatch, commentsState,
@@ -156,12 +160,14 @@ function CreatingWorkspaceStep (props) {
   return (
     <div>
       {!workspaceCreated && (
-        <div>
-          We're creating your Uclusion Workspace now, please wait a moment.
+        <div className={classes.creatingContainer}>
+          <Typography variant="body1">
+            We're creating your Uclusion Workspace now, please wait a moment.
+          </Typography>
+          <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
         </div>
-
       )}
-      {workspaceCreated && (
+      {!isHome && workspaceCreated && (
         <div>
           <Typography variant="body1">
             We've created your Workspace, please share this link with your team to invite them
@@ -189,12 +195,14 @@ CreatingWorkspaceStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
   updateFormData: PropTypes.func,
+  isHome: PropTypes.bool,
 };
 
 CreatingWorkspaceStep.defaultProps = {
   formData: {},
   active: false,
   updateFormData: () => {},
+  isHome: false,
 };
 
 

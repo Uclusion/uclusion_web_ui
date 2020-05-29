@@ -151,17 +151,16 @@ function PlanningDialog(props) {
     && !stage.appears_in_market_summary)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
-  const isCreator = market.created_by === myPresence.id;
   const storyWorkspace = isStoryWorkspace();
   const tourFamily = storyWorkspace ? INVITE_STORIES_WORKSPACE_FAMILY_NAME : INVITE_REQ_WORKSPACE_FAMILY_NAME;
   const tourName = storyWorkspace ? INVITE_STORIES_WORKSPACE_FIRST_VIEW : INVITE_REQ_WORKSPACE_FIRST_VIEW;
   const tourSteps = storyWorkspace ? inviteStoriesWorkspaceSteps(cognitoUser)
     : inviteRequirementsWorkspaceSteps(cognitoUser);
   useEffect(() => {
-    if (!isCreator) {
+    if (!onboarded) {
       tourDispatch(startTourFamily(tourFamily));
     }
-  }, [isCreator, tourDispatch, tourFamily]);
+  }, [onboarded, tourDispatch, tourFamily]);
 
   const wizardStyle = wizardStyles();
   if (onboarded) {

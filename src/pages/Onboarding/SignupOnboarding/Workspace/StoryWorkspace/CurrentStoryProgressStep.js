@@ -18,7 +18,7 @@ function CurrentStoryProgressStep (props) {
 
   const [editorContents, setEditorContents] = useState(currentStoryProgress || '');
 
-  const validForm = !_.isEmpty(editorContents) && _.isNumber(currentStoryEstimate);
+  const validForm = _.isNumber(currentStoryEstimate);
 
   function onEditorChange(content) {
     setEditorContents(content);

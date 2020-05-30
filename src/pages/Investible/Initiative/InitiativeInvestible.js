@@ -178,7 +178,7 @@ function InitiativeInvestible(props) {
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const negativeVoters = marketPresences.filter((presence) => {
     const { investments } = presence;
-    const negInvestment = investments.find((investment) => {
+    const negInvestment = (investments || []).find((investment) => {
       const { quantity } = investment;
       return quantity < 0;
     });

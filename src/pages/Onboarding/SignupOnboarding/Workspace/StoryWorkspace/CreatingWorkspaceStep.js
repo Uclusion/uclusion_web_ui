@@ -158,8 +158,8 @@ function CreatingWorkspaceStep (props) {
 
   if (workspaceError) {
     return (
-      <div>
-        <Button
+      <div className={classes.retryContainer}>
+        <Button className={classes.actionStartOver}
           onClick={() => setWorkspaceInfo({workspaceCreated: false, workspaceError: false})}
         >
           Retry Creating Workspace

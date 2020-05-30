@@ -98,7 +98,6 @@ function Screen(props) {
       prePendWarning = '*';
     }
   }
-  console.debug(`is on boarding is ${isOnboarding} and user is ${JSON.stringify(user)}`);
   const reallyAmLoading = !hidden && appEnabled && (loading || (!isOnboarding && _.isEmpty(user)));
 
   if (hidden) {

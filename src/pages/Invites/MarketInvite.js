@@ -27,7 +27,7 @@ function MarketInvite(props) {
   const [userState] = useContext(AccountUserContext) || {};
 
   useEffect(() => {
-    if (!hidden && myLoading !== marketToken && _.isEmpty(userState)) {
+    if (!hidden && myLoading !== marketToken && !_.isEmpty(userState)) {
       setMyLoading(marketToken);
       const values = queryString.parse(hash);
       const { is_obs: isObserver } = values;

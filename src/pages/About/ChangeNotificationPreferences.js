@@ -22,7 +22,7 @@ import config from '../../config'
 import Screen from '../../containers/Screen/Screen'
 import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -63,7 +63,8 @@ function ChangeNotificationPreferences(props) {
   const { hidden } = props;
   const [emailEnabled, setEmailEnabled] = useState(undefined);
   const [slackEnabled, setSlackEnabled] = useState(undefined);
-  const user = useContext(AccountUserContext) || {};
+  const [userState] = useContext(AccountUserContext) || {};
+  const { user } = userState;
   const [slackDelay, setSlackDelay] = useState(30);
   const [emailDelay, setEmailDelay] = useState(30);
   const intl = useIntl();

@@ -51,11 +51,13 @@ function App (props) {
   if (!hasAccount && email) {
     return (
       <CognitoUserProvider authState={authState}>
-        <OnlineStateProvider>
-          <ThemeProvider theme={defaultTheme}>
-            <NoAccount email={email}/>
-          </ThemeProvider>
-        </OnlineStateProvider>
+        <AccountUserProvider authState={authState}>
+          <OnlineStateProvider>
+            <ThemeProvider theme={defaultTheme}>
+              <NoAccount email={email}/>
+            </ThemeProvider>
+          </OnlineStateProvider>
+        </AccountUserProvider>
       </CognitoUserProvider>
     );
   }

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
+import _ from 'lodash'
 import { decomposeMarketPath, formMarketLink, navigate, } from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
 import { VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext'
@@ -11,6 +12,7 @@ import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
 import { NEW_MARKET } from '../../contexts/VersionsContext/versionsContextMessages'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 
 function MarketInvite(props) {
   const { hidden } = props;
@@ -22,8 +24,10 @@ function MarketInvite(props) {
   const { marketId: marketToken } = decomposeMarketPath(pathname);
   const [myLoading, setMyLoading] = useState(undefined);
   const [marketState] = useContext(MarketsContext);
+  const [userState] = useContext(AccountUserContext) || {};
+
   useEffect(() => {
-    if (!hidden && myLoading !== marketToken) {
+    if (!hidden && myLoading !== marketToken && _.isEmpty(userState)) {
       setMyLoading(marketToken);
       const values = queryString.parse(hash);
       const { is_obs: isObserver } = values;
@@ -58,7 +62,7 @@ function MarketInvite(props) {
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [hidden, marketToken, history, hash, marketState, myLoading]);
+  }, [hidden, marketToken, history, hash, marketState, myLoading, userState]);
 
   return (
     <Screen

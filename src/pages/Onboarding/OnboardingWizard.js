@@ -4,16 +4,21 @@ import clsx from 'clsx'
 import { Card, Container, makeStyles, Typography } from '@material-ui/core'
 import Screen from '../../containers/Screen/Screen'
 import { useIntl } from 'react-intl'
-import { generateReducer, getStoredData, resetValues } from './onboardingReducer';
+import { generateReducer, getStoredData, resetValues } from './onboardingReducer'
 import { Helmet } from 'react-helmet'
 import Header from '../../containers/Header'
 
-const useStyles = makeStyles(
+export const wizardStyles = makeStyles(
   theme => {
     return {
       normal: {},
       hidden: {
         display: 'none',
+      },
+      creatingContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       },
       title: {
         margin: '1rem 0'
@@ -25,9 +30,18 @@ const useStyles = makeStyles(
         marginLeft: 'auto',
         marginRight: 'auto',
         marginTop: '100px',
-        padding: '32px', 
-        [theme.breakpoints.down("xs")]: {
-          marginTop: '15px',        }
+        padding: '32px',
+        [theme.breakpoints.down('xs')]: {
+          marginTop: '15px',
+        }
+      },
+      baseCardNew: {
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        padding: '32px',
+        [theme.breakpoints.down('xs')]: {
+          marginTop: '15px',
+        }
       },
       introText: {
         marginTop: '1rem',
@@ -73,7 +87,7 @@ const useStyles = makeStyles(
         '& > div:active:not(.Mui-disabled):before': {
           borderBottom: 0
         },
-        [theme.breakpoints.down("xs")]: {
+        [theme.breakpoints.down('xs')]: {
           width: 'auto'
         }
       },
@@ -84,7 +98,7 @@ const useStyles = makeStyles(
         '& button': {
           fontWeight: 'bold'
         },
-        [theme.breakpoints.down("xs")]: {
+        [theme.breakpoints.down('xs')]: {
           flexDirection: 'column-reverse',
           '& button': {
             width: '100%',
@@ -97,7 +111,7 @@ const useStyles = makeStyles(
         flex: 3,
         display: 'flex',
         justifyContent: 'flex-end',
-        [theme.breakpoints.down("xs")]: {
+        [theme.breakpoints.down('xs')]: {
           flexDirection: 'column-reverse'
         }
       },
@@ -145,7 +159,7 @@ const useStyles = makeStyles(
       },
       dateContainer: {
         width: '330px',
-        [theme.breakpoints.down("xs")]: {
+        [theme.breakpoints.down('xs')]: {
           width: 'auto'
         }
       },
@@ -234,8 +248,8 @@ const useStyles = makeStyles(
 );
 
 function OnboardingWizard (props) {
-  const { hidden, stepPrototypes, title, hideSteppers, onStartOver, onFinish, hideUI } = props;
-  const classes = useStyles();
+  const { hidden, stepPrototypes, title, hideSteppers, onStartOver, onFinish, hideUI, isHome } = props;
+  const classes = wizardStyles();
   const reducer = generateReducer(title);
   const initialData = getStoredData(title) || {};
   const [formData, updateFormData] = useReducer(reducer, initialData);
@@ -257,7 +271,7 @@ function OnboardingWizard (props) {
     onStartOver();
   }
 
-  function myOnFinish(formData) {
+  function myOnFinish (formData) {
     onFinish(formData);
     updateFormData(resetValues());
     // reset the step state
@@ -282,7 +296,7 @@ function OnboardingWizard (props) {
   }
 
   function getStepHeaders () {
-  
+
     const currentStep = stepPrototypes[stepState.currentStep];
     const stepNumber = stepState.currentStep;
     const stepCount = stepState.totalSteps;
@@ -296,6 +310,7 @@ function OnboardingWizard (props) {
       </div>
     );
   }
+
   function getCurrentStepContents () {
     const props = {
       ...stepState,
@@ -307,7 +322,8 @@ function OnboardingWizard (props) {
       active: true,
       onFinish: myOnFinish,
       setOverrideUIContent,
-      classes
+      classes,
+      isHome
     };
     const currentStep = stepPrototypes[stepState.currentStep];
     if (!currentStep) {
@@ -322,10 +338,11 @@ function OnboardingWizard (props) {
 
   const stepClass = stepPrototypes[stepState.currentStep].label;
   const currentStep = getCurrentStepContents();
+  const baseStyle = isHome ? classes.baseCardNew : classes.baseCard;
 
   function getContent () {
     return (
-      <Card className={clsx(classes[stepClass], classes.baseCard)} elevation={0} raised={false}>
+      <Card className={clsx(classes[stepClass], baseStyle)} elevation={0} raised={false}>
         <div>
           {getStepHeaders()}
         </div>
@@ -335,9 +352,7 @@ function OnboardingWizard (props) {
       </Card>);
   }
 
-  console.log(formData);
-
- // if overrideUI content is step, turn the entirety of the ui over to the step
+  // if overrideUI content is step, turn the entirety of the ui over to the step
   if (overrideUIContent) {
     return currentStep;
   }
@@ -348,13 +363,13 @@ function OnboardingWizard (props) {
     return (
 
       <div className={hidden ? classes.hidden : classes.normal}>
-        <Helmet
+        {!isHome && (<Helmet
           defer={false}
         >
           <title>{title}</title>
-        </Helmet>
+        </Helmet>)}
         <Header
-          title={intl.formatMessage({ id: 'OnboardingWizardTitle'})}
+          title={intl.formatMessage({ id: 'OnboardingWizardTitle' })}
           breadCrumbs={[]}
           toolbarButtons={[]}
           hidden={hidden}
@@ -386,6 +401,7 @@ OnboardingWizard.propTypes = {
   onStartOver: PropTypes.func,
   onFinish: PropTypes.func,
   hideUI: PropTypes.bool,
+  isHome: PropTypes.bool,
 };
 
 OnboardingWizard.defaultProps = {
@@ -394,6 +410,7 @@ OnboardingWizard.defaultProps = {
   onStartOver: () => {},
   onFinish: () => {},
   hideUI: true,
+  isHome: false,
 };
 
 export default OnboardingWizard;

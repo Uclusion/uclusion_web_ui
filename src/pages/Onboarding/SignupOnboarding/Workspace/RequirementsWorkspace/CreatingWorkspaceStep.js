@@ -7,23 +7,23 @@ import { addMarketToStorage } from '../../../../../contexts/MarketsContext/marke
 import { processTextAndFilesForSave } from '../../../../../api/files'
 import { DiffContext } from '../../../../../contexts/DiffContext/DiffContext'
 import { MarketsContext } from '../../../../../contexts/MarketsContext/MarketsContext'
-import { formMarketLink, navigate } from '../../../../../utils/marketIdPathFunctions'
+import { formMarketLink, formMarketManageLink, navigate } from '../../../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { addPresenceToMarket } from '../../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { saveComment } from '../../../../../api/comments'
-import { TODO_TYPE } from '../../../../../constants/comments';
+import { TODO_TYPE } from '../../../../../constants/comments'
 import { addCommentToMarket } from '../../../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext'
 import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext'
-//import { useIntl } from 'react-intl'
-import { Typography } from '@material-ui/core'
+import { Button, CircularProgress, Typography } from '@material-ui/core';
 import InviteLinker from '../../../../Dialog/InviteLinker'
-import { PLANNING_TYPE, REQUIREMENTS_SUB_TYPE } from '../../../../../constants/markets';
+import { PLANNING_TYPE, REQUIREMENTS_SUB_TYPE } from '../../../../../constants/markets'
+import { resetValues } from '../../../onboardingReducer'
 
 function CreatingWorkspaceStep (props) {
 //  const intl = useIntl();
-  const { formData, active, classes } = props;
+  const { formData, active, classes, updateFormData, isHome } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
@@ -32,8 +32,8 @@ function CreatingWorkspaceStep (props) {
  const [workspaceInfo, setWorkspaceInfo] = useState({});
   const history = useHistory();
   useEffect(() => {
-    const { workspaceCreated } = workspaceInfo;
-    if (!workspaceCreated && active) {
+    const { workspaceCreated, workspaceError } = workspaceInfo;
+    if (!workspaceCreated && !workspaceError && active) {
       const {
         workspaceName,
         workspaceDescription,
@@ -71,29 +71,50 @@ function CreatingWorkspaceStep (props) {
           if (addedComment) {
             addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
           }
+        })
+        .then(() => {
+          updateFormData(resetValues());
+          //send them directly to the market invite if home
+          if(isHome) {
+            const link = formMarketManageLink(marketId) + '#participation=true';
+            navigate(history, link);
+          }
+        })
+        .catch(() => {
+          setWorkspaceInfo({workspaceError: true});
         });
     }
-  }, [
-    workspaceInfo, active, commentsDispatch, commentsState,
-    diffDispatch, versionsDispatch, formData,
-    marketsDispatch, presenceDispatch,
-  ]);
-  const { marketId, workspaceCreated, marketToken } = workspaceInfo;
+  }, [workspaceInfo, active, commentsDispatch, commentsState, diffDispatch, versionsDispatch, formData, updateFormData, marketsDispatch, presenceDispatch, isHome, history]);
+  const { marketId, workspaceCreated, marketToken, workspaceError } = workspaceInfo;
   const marketLink = formMarketLink(marketId);
 
   if (!active) {
     return React.Fragment;
   }
 
+  if (workspaceError) {
+    return (
+      <div>
+        <Button
+          onClick={() => setWorkspaceInfo({workspaceCreated: false, workspaceError: false})}
+        >
+          Retry Creating Workspace
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div>
-      {!workspaceCreated && (
-        <div>
-          We're creating your Uclusion Workspace now, please wait a moment.
+      {(!workspaceCreated || isHome) && (
+        <div className={classes.creatingContainer}>
+          <Typography variant="body1">
+            We're creating your Uclusion Workspace now, please wait a moment.
+          </Typography>
+          <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
         </div>
-
       )}
-      {workspaceCreated && (
+      {!isHome && workspaceCreated && (
         <div>
           <Typography variant="body1">
             We've created your Workspace, please share this link with your team to invite them
@@ -120,11 +141,15 @@ function CreatingWorkspaceStep (props) {
 CreatingWorkspaceStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
+  updateFormData: PropTypes.func,
+  isHome: PropTypes.bool,
 };
 
 CreatingWorkspaceStep.defaultProps = {
   formData: {},
+  updateFormData: () => {},
   active: false,
+  isHome: false,
 };
 
 

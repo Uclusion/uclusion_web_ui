@@ -1,12 +1,12 @@
 /**
  * A component that renders a _planning_ dialog
  */
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react'
 import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { Grid, Typography } from '@material-ui/core'
+import { Container, Grid, Typography } from '@material-ui/core'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
@@ -16,6 +16,7 @@ import PlanningIdeas from './PlanningIdeas'
 import Screen from '../../../containers/Screen/Screen'
 import {
   formMarketAddInvestibleLink,
+  formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate
@@ -23,7 +24,7 @@ import {
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
-import { ACTIVE_STAGE, STORIES_SUB_TYPE } from '../../../constants/markets';
+import { ACTIVE_STAGE, PLANNING_TYPE, STORIES_SUB_TYPE } from '../../../constants/markets'
 import { getUserInvestibles } from './userUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -36,19 +37,35 @@ import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/inves
 import clsx from 'clsx'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import ViewArchiveActionButton from './ViewArchivesActionButton'
-import { TourContext } from '../../../contexts/TourContext/TourContext';
-import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer';
-
-import { CognitoUserContext } from '../../../contexts/CongitoUserContext';
-import UclusionTour from '../../../components/Tours/UclusionTour';
+import { TourContext } from '../../../contexts/TourContext/TourContext'
+import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer'
+import { CognitoUserContext } from '../../../contexts/CongitoUserContext'
+import UclusionTour from '../../../components/Tours/UclusionTour'
 import {
   INVITE_STORIES_WORKSPACE_FAMILY_NAME,
-  INVITE_STORIES_WORKSPACE_FIRST_VIEW, inviteStoriesWorkspaceSteps
-} from '../../../components/Tours/InviteTours/storyWorkspace';
+  INVITE_STORIES_WORKSPACE_FIRST_VIEW,
+  inviteStoriesWorkspaceSteps
+} from '../../../components/Tours/InviteTours/storyWorkspace'
 import {
   INVITE_REQ_WORKSPACE_FAMILY_NAME,
-  INVITE_REQ_WORKSPACE_FIRST_VIEW, inviteRequirementsWorkspaceSteps
-} from '../../../components/Tours/InviteTours/requirementsWorkspace';
+  INVITE_REQ_WORKSPACE_FIRST_VIEW,
+  inviteRequirementsWorkspaceSteps
+} from '../../../components/Tours/InviteTours/requirementsWorkspace'
+import { wizardStyles } from '../../Onboarding/OnboardingWizard'
+import Header from '../../../containers/Header'
+import InviteLinker from '../InviteLinker'
+import StepButtons from '../../Onboarding/StepButtons'
+import queryString from 'query-string'
+
+const useStyles = makeStyles(
+  theme => ({
+    wizardContainer: {
+      background: '#efefef',
+      padding: '24px 20px 156px',
+      marginTop: '80px',
+      width: '500px',
+    },
+  }));
 
 function PlanningDialog(props) {
   const history = useHistory();
@@ -59,9 +76,12 @@ function PlanningDialog(props) {
     marketStages,
     comments,
     hidden,
-    myPresence
+    myPresence,
+    hash,
   } = props;
-
+  const classes = useStyles();
+  const values = queryString.parse(hash || '');
+  const { onboarded } = values || {};
   const cognitoUser = useContext(CognitoUserContext);
   const [, tourDispatch] = useContext(TourContext);
   const intl = useIntl();
@@ -74,7 +94,7 @@ function PlanningDialog(props) {
       : makeBreadCrumbs(history);
   const marketComments = comments.filter(comment => !comment.investible_id);
   const allowedCommentTypes = [QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, ISSUE_TYPE];
-  const { name: marketName, locked_by: lockedBy } = market;
+  const { name: marketName, locked_by: lockedBy, invite_capability: marketToken } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
   const acceptedStage = marketStages.find(
@@ -131,18 +151,59 @@ function PlanningDialog(props) {
     && !stage.appears_in_market_summary)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
-  const isCreator = market.created_by === myPresence.id;
-
   const storyWorkspace = isStoryWorkspace();
   const tourFamily = storyWorkspace ? INVITE_STORIES_WORKSPACE_FAMILY_NAME : INVITE_REQ_WORKSPACE_FAMILY_NAME;
   const tourName = storyWorkspace ? INVITE_STORIES_WORKSPACE_FIRST_VIEW : INVITE_REQ_WORKSPACE_FIRST_VIEW;
   const tourSteps = storyWorkspace ? inviteStoriesWorkspaceSteps(cognitoUser)
     : inviteRequirementsWorkspaceSteps(cognitoUser);
   useEffect(() => {
-    if (!isCreator) {
+    if (!onboarded) {
       tourDispatch(startTourFamily(tourFamily));
     }
-  }, [isCreator, tourDispatch, tourFamily]);
+  }, [onboarded, tourDispatch, tourFamily]);
+
+  const wizardStyle = wizardStyles();
+  if (onboarded) {
+    return (
+      <div className={hidden ? wizardStyle.hidden : wizardStyle.normal}>
+        <Header
+          title={intl.formatMessage({ id: 'OnboardingWizardTitle' })}
+          breadCrumbs={[]}
+          toolbarButtons={[]}
+          hidden={hidden}
+          appEnabled
+          logoLinkDisabled
+          hideTools
+        />
+        <Container className={classes.wizardContainer}>
+          <Card className={wizardStyle.baseCard} elevation={0} raised={false}>
+            <div>
+              <div>
+                <Typography variant="body1">
+                  We've created your Workspace, please share this link with your team to invite them.
+                </Typography>
+                <div className={wizardStyle.linkContainer}>
+                  <InviteLinker
+                    marketType={PLANNING_TYPE}
+                    marketToken={marketToken}
+                  />
+                </div>
+                <div className={wizardStyle.borderBottom}></div>
+                <StepButtons
+                  totalSteps={1}
+                  currentStep={0}
+                  classes={wizardStyle}
+                  showGoBack={false}
+                  finishLabel="WorkspaceWizardTakeMeToWorkspace"
+                  showStartOver={false}
+                  onFinish={() => history.push(formMarketLink(marketId))}/>
+              </div>
+            </div>
+          </Card>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <Screen
@@ -235,7 +296,8 @@ PlanningDialog.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   comments: PropTypes.arrayOf(PropTypes.object),
   // eslint-disable-next-line react/forbid-prop-types
-  myPresence: PropTypes.object.isRequired
+  myPresence: PropTypes.object.isRequired,
+  hash: PropTypes.string.isRequired,
 };
 
 PlanningDialog.defaultProps = {

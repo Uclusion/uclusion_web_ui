@@ -12,10 +12,10 @@ export function nextMessage(state) {
 export function filterMessagesByMarket(messagesState, marketsState) {
   const { messages } = messagesState;
   const filteredMessages = messages.filter((message) => {
-    const { marketId, level } = message;
+    const { marketId, level, pokeType } = message;
     const market = getMarket(marketsState, marketId);
     // Eventually filtering blue or not is market personal preference
-    return !_.isEmpty(market) && level !== 'BLUE';
+    return (!_.isEmpty(market) || !_.isEmpty(pokeType))  && level !== 'BLUE';
   })
   return { messages: filteredMessages };
 }

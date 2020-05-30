@@ -61,7 +61,7 @@ function Dialog(props) {
   const history = useHistory();
   const intl = useIntl();
   const { location } = history;
-  const { pathname } = location;
+  const { pathname, hash } = location;
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -137,7 +137,7 @@ function Dialog(props) {
           marketStages={marketStages}
           marketPresences={marketPresences}
           myPresence={myPresence}
-
+          hash={hash}
         />
       )}
       {marketType === PLANNING_TYPE && (
@@ -151,6 +151,7 @@ function Dialog(props) {
           marketStages={marketStages}
           marketPresences={marketPresences}
           myPresence={myPresence}
+          hash={hash}
         />
       )}
     </>

@@ -169,6 +169,7 @@ function ExpiresDisplay(props) {
           title={intl.formatMessage({ id: 'dialogEditExpiresLabel' })}
         >
           <IconButton
+            id="adminEditExpiration"
             onClick={() => navigate(history, `${formMarketManageLink(marketId)}#expires=true`)}
           >
             <AlarmAddIcon htmlColor={ACTION_BUTTON_COLOR} />

@@ -17,7 +17,7 @@ function ExpirationSelector(props) {
     return { value, numDays };
   }
 
-  const options = [1, 2, 3, 4, 5, 7, 10, 14].map((numDays) => createDaysOption(numDays));
+  const options = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((numDays) => createDaysOption(numDays));
 
   // Sliders don't handle values the same way as every other input components, so we're
   // going to make it look like they do, so we can just drop it in

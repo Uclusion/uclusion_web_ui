@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
@@ -20,7 +20,7 @@ import { navigate } from '../../utils/marketIdPathFunctions'
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
-import AddNewWizard from './Wizards/AddNewWizard';
+import AddNewWizard from './Wizards/AddNewWizard'
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -82,13 +82,23 @@ function Home(props) {
       id: 'archive',
       onClick: () => navigate(history, '/archives'),
     },
-    {
+  ];
+
+  if (wizardActive) {
+    ACTIONBAR_ACTIONS.push({
+      label: intl.formatMessage({ id: 'homeAddNewExplanation' }),
+      openLabel: intl.formatMessage({ id: 'cancel' }),
+      id: 'addNew',
+      onClick: () => setWizardActive(false),
+    });
+  } else {
+    ACTIONBAR_ACTIONS.push({
       label: intl.formatMessage({ id: 'homeAddNewExplanation' }),
       openLabel: intl.formatMessage({ id: 'homeAddNew' }),
       id: 'addNew',
       onClick: () => setWizardActive(true),
-    }
-  ];
+    });
+  }
   
   return (
     <Screen
@@ -98,7 +108,10 @@ function Home(props) {
       isHome
       sidebarActions={ACTIONBAR_ACTIONS}
     >
-      <AddNewWizard hidden={!wizardActive} onCancel={() => setWizardActive(false)}/>
+      <AddNewWizard
+        hidden={!wizardActive}
+        onFinish={() => setWizardActive(false)}
+        onCancel={() => setWizardActive(false)} />
 
       {noMarkets && (
           <DismissableText textId="homeNoMarkets"/>

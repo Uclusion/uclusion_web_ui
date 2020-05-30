@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { Typography } from '@material-ui/core';
-import QuillEditor from '../../../../../components/TextEditors/QuillEditor';
-import { updateValues } from '../../../onboardingReducer';
-import _ from 'lodash';
-import { useIntl } from 'react-intl';
-import StepButtons from '../../../StepButtons';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { Typography } from '@material-ui/core'
+import QuillEditor from '../../../../../components/TextEditors/QuillEditor'
+import { updateValues } from '../../../onboardingReducer'
+import _ from 'lodash'
+import { useIntl } from 'react-intl'
+import StepButtons from '../../../StepButtons'
 
 function OptionDescriptionStep (props) {
   const { updateFormData, formData, active, classes, onFinish } = props;
@@ -50,10 +50,8 @@ function OptionDescriptionStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        An Option in a Uclusion Dialog is what your collaborators can vote for or against. It's description
-        should provide enough information such that a collaborator can make an informed, useful decision.
-        Don't worry about getting the description perfect, however, since a collaborator can Ask a Question,
-        make a Suggestion, or propose their own options if they don't like any of yours.
+        An Option in a Uclusion Dialog is a choice your collaborators can vote for. Don't worry about getting the description perfect
+        since a collaborator can Ask a Question, make a Suggestion, or propose their own options.
       </Typography>
       <QuillEditor
         onChange={onEditorChange}

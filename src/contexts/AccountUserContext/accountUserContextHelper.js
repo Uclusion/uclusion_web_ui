@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash'
 
 export function userIsLoaded(state) {
   const { user } = state;
@@ -23,5 +23,8 @@ export function isNewUser(state) {
     return undefined;
   }
   const { is_new: isNew } = user;
-  return isNew !== undefined && isNew;
+  if (isNew === undefined) {
+    return undefined;
+  }
+  return isNew;
 }

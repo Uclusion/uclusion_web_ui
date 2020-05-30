@@ -18,7 +18,7 @@ function CurrentStoryProgressStep (props) {
 
   const [editorContents, setEditorContents] = useState(currentStoryProgress || '');
 
-  const validForm = !_.isEmpty(editorContents) && _.isNumber(currentStoryEstimate);
+  const validForm = _.isNumber(currentStoryEstimate);
 
   function onEditorChange(content) {
     setEditorContents(content);
@@ -58,6 +58,11 @@ function CurrentStoryProgressStep (props) {
         simply hit 'Skip'.
       </Typography>
       <div className={classes.spacer}></div>
+      <div className={classes.dateContainer}>
+        <label className={classes.inputLabel}>{intl.formatMessage({ id: "daysEstimateMarketLabel" })}</label>
+        <DaysEstimate showLabel={false} showHelper={false} onChange={onEstimateChange} value={currentStoryEstimate} createdAt={new Date()} />
+      </div>
+      <div className={classes.borderBottom}></div>
       <QuillEditor
         placeholder={intl.formatMessage({ id: 'OnboardingWizardCurrentStoryProgressPlaceHolder'})}
         defaultValue={editorContents}
@@ -65,11 +70,6 @@ function CurrentStoryProgressStep (props) {
         simple
         onChange={onEditorChange}
       />
-      <div className={classes.borderBottom}></div>
-      <div className={classes.dateContainer}>
-        <label className={classes.inputLabel}>{intl.formatMessage({ id: "daysEstimateMarketLabel" })}</label>
-        <DaysEstimate showLabel={false} showHelper={false} onChange={onEstimateChange} value={currentStoryEstimate} createdAt={new Date()} />
-      </div>
       <div className={classes.borderBottom}></div>
       <StepButtons {...props} validForm={validForm}
                    onPrevious={onStepChange}

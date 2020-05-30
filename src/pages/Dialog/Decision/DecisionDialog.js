@@ -5,11 +5,12 @@ import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { useHistory } from 'react-router'
-import { Card, CardContent, Grid, makeStyles, Typography } from '@material-ui/core'
+import { Card, CardContent, Container, Grid, makeStyles, Typography } from '@material-ui/core'
 import _ from 'lodash'
 import AddIcon from '@material-ui/icons/Add'
 import {
   formMarketAddInvestibleLink,
+  formMarketLink,
   makeArchiveBreadCrumbs,
   makeBreadCrumbs,
   navigate,
@@ -43,10 +44,15 @@ import {
   INVITE_DIALOG_FAMILY_NAME,
   INVITE_DIALOG_FIRST_VIEW,
   inviteDialogSteps
-} from '../../../components/Tours/InviteTours/dialog';
-import { CognitoUserContext } from '../../../contexts/CongitoUserContext';
-import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer';
-import { TourContext } from '../../../contexts/TourContext/TourContext';
+} from '../../../components/Tours/InviteTours/dialog'
+import { CognitoUserContext } from '../../../contexts/CongitoUserContext'
+import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer'
+import { TourContext } from '../../../contexts/TourContext/TourContext'
+import InviteLinker from '../InviteLinker'
+import StepButtons from '../../Onboarding/StepButtons'
+import queryString from 'query-string'
+import { wizardStyles } from '../../Onboarding/OnboardingWizard'
+import Header from '../../../containers/Header'
 
 const useStyles = makeStyles(
   theme => ({
@@ -134,7 +140,13 @@ const useStyles = makeStyles(
         alignItems: 'center',
         padding: '20px'
       }
-    }
+    },
+    wizardContainer: {
+      background: '#efefef',
+      padding: '24px 20px 156px',
+      marginTop: '80px',
+      width: '500px'
+    },
   }),
   { name: "DecisionDialog" }
 );
@@ -148,6 +160,7 @@ function DecisionDialog(props) {
     marketStages,
     marketPresences,
     myPresence,
+    hash,
   } = props;
   const classes = useStyles();
   const metaClasses = useMetaDataStyles();
@@ -176,11 +189,14 @@ function DecisionDialog(props) {
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId,
     is_inline: isInline,
+    invite_capability: marketToken,
   } = market;
   const [marketState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const activeMarket = marketStage === ACTIVE_STAGE;
   const inArchives = !activeMarket || (myPresence && !myPresence.following);
+  const values = queryString.parse(hash || '');
+  const { onboarded } = values || {};
   let breadCrumbTemplates = [];
   if (isInline) {
     breadCrumbTemplates = getInlineBreadCrumbs(marketState, parentMarketId, parentInvestibleId, investiblesState);
@@ -191,10 +207,10 @@ function DecisionDialog(props) {
   const addLabelExplanation = isAdmin ? 'decisionDialogAddExplanationLabel' : 'decisionDialogProposeExplanationLabel';
 
   useEffect(() => {
-    if (!isAdmin) {
+    if (!onboarded) {
       tourDispatch(startTourFamily(INVITE_DIALOG_FAMILY_NAME));
     }
-  }, [isAdmin, tourDispatch])
+  }, [onboarded, tourDispatch])
 
 
   function getInvestiblesForStage(stage) {
@@ -213,6 +229,49 @@ function DecisionDialog(props) {
   }
   const underConsideration = getInvestiblesForStage(underConsiderationStage);
   const proposed = getInvestiblesForStage(proposedStage);
+  const wizardStyle = wizardStyles();
+  if (onboarded) {
+    return (
+      <div className={hidden ? wizardStyle.hidden : wizardStyle.normal}>
+        <Header
+          title={intl.formatMessage({ id: 'OnboardingWizardTitle' })}
+          breadCrumbs={[]}
+          toolbarButtons={[]}
+          hidden={hidden}
+          appEnabled
+          logoLinkDisabled
+          hideTools
+        />
+        <Container className={classes.wizardContainer}>
+          <Card className={wizardStyle.baseCard} elevation={0} raised={false}>
+            <div>
+              <div>
+                <Typography variant="body1">
+                  We've created your Dialog, please share the link below.
+                </Typography>
+                <div className={wizardStyle.linkContainer}>
+                  <InviteLinker
+                    marketType={DECISION_TYPE}
+                    marketToken={marketToken}
+                  />
+                </div>
+                <div className={wizardStyle.borderBottom}></div>
+                <StepButtons
+                  totalSteps={1}
+                  currentStep={0}
+                  classes={wizardStyle}
+                  showGoBack={false}
+                  finishLabel="DialogWizardTakeMeToDialog"
+                  showStartOver={false}
+                  onFinish={() => history.push(formMarketLink(marketId))}/>
+              </div>
+            </div>
+          </Card>
+        </Container>
+      </div>
+    );
+  }
+
   return (
     <Screen
       title={isInline ? intl.formatMessage({ id: 'archiveInlineTitle' }) : marketName}
@@ -381,7 +440,7 @@ DecisionDialog.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   myPresence: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
-
+  hash: PropTypes.string.isRequired,
 };
 
 DecisionDialog.defaultProps = {

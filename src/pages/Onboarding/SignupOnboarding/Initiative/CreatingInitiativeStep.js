@@ -1,24 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import StepButtons from '../../StepButtons';
-import { createInitiative } from '../../../../api/markets';
-import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
-import { processTextAndFilesForSave } from '../../../../api/files';
-import { addDecisionInvestible } from '../../../../api/investibles';
-import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
-import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper';
-import { formMarketLink, navigate } from '../../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
-import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { Typography } from '@material-ui/core';
-import InviteLinker from '../../../Dialog/InviteLinker';
-import { INITIATIVE_TYPE } from '../../../../constants/markets';
+import React, { useContext, useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import StepButtons from '../../StepButtons'
+import { createInitiative } from '../../../../api/markets'
+import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper'
+import { processTextAndFilesForSave } from '../../../../api/files'
+import { addDecisionInvestible } from '../../../../api/investibles'
+import { DiffContext } from '../../../../contexts/DiffContext/DiffContext'
+import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
+import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper'
+import { formMarketLink, formMarketManageLink, navigate } from '../../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
+import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { CircularProgress, Typography, Button } from '@material-ui/core'
+import InviteLinker from '../../../Dialog/InviteLinker'
+import { INITIATIVE_TYPE } from '../../../../constants/markets'
+import { resetValues } from '../../onboardingReducer'
 
 function CreatingInitiativeStep (props) {
-  const { formData, active, classes } = props;
+  const { formData, active, classes, updateFormData, isHome } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -39,8 +40,8 @@ function CreatingInitiativeStep (props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(realUploadedFiles, initiativeDescription);
-    const { initiativeCreated } = initiativeInfo;
-    if (!initiativeCreated && active) {
+    const { initiativeCreated, initiativeError } = initiativeInfo;
+    if (!initiativeCreated && !initiativeError && active) {
       const marketInfo = {
         name: 'NA',
         description: 'NA',
@@ -69,29 +70,51 @@ function CreatingInitiativeStep (props) {
             addInvestible(investiblesDispatch, diffDispatch, investible);
             setDialogInfo({ initiativeCreated: true, marketId, marketToken });
           });
-        });
+        })
+        .then(() => {
+          updateFormData(resetValues());
+          if(isHome) {
+            const link = formMarketManageLink(marketId) + '#participation=true';
+            navigate(history, link);
+          }
+        })
+        .catch(() => {
+          setDialogInfo({initiativeError: true});
+        })
+      ;
     }
-  }, [
-    initiativeInfo, active,
-    diffDispatch, formData, investiblesDispatch,
-    marketsDispatch, presenceDispatch,
-  ]);
-  const { marketId, initiativeCreated, marketToken } = initiativeInfo;
+  }, [initiativeInfo, active, diffDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, updateFormData, isHome, history]);
+  const { marketId, initiativeCreated, marketToken, initiativeError } = initiativeInfo;
   const marketLink = formMarketLink(marketId);
 
   if (!active) {
     return React.Fragment;
   }
 
+  if (initiativeError) {
+    return (
+      <div>
+        <Button
+          onClick={() => setDialogInfo({initiativeCreated: false, initiativeError: false})}
+        >
+          Retry Creating Initiative
+        </Button>
+
+      </div>
+    );
+  }
+
   return (
     <div>
-      {!initiativeCreated && (
-        <div>
-          We're creating your Uclusion Initiative now, please wait a moment.
+      {(!initiativeCreated || isHome) && (
+        <div className={classes.creatingContainer}>
+          <Typography variant="body1">
+            We're creating your Uclusion Initiative now, please wait a moment.
+          </Typography>
+          <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
         </div>
-
       )}
-      {initiativeCreated && (
+      {!isHome && initiativeCreated && (
         <div>
           <Typography variant="body1">
             We've created your Initiative, please share the link below.
@@ -118,11 +141,15 @@ function CreatingInitiativeStep (props) {
 CreatingInitiativeStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
+  updateFormData: PropTypes.func,
+  isHome: PropTypes.bool,
 };
 
 CreatingInitiativeStep.defaultProps = {
   formData: {},
   active: false,
+  updateFormData: () => {},
+  isHome: false,
 };
 
 export default CreatingInitiativeStep;

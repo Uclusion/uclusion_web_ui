@@ -1,9 +1,6 @@
-export const INVITE_STORIES_WORKSPACE_FAMILY_NAME = 'INVITE_REQ_WORKSPACE';
-export const INVITE_STORIES_WORKSPACE_FIRST_VIEW = 'invite_req_workspace_first_view';
+export const INVITE_STORIES_WORKSPACE_FAMILY_NAME = 'INVITE_STORIES_WORKSPACE';
+export const INVITE_STORIES_WORKSPACE_FIRST_VIEW = 'invite_stories_workspace_first_view';
 
-export const INVITE_STORIES_WORKSPACE_SEQUENCE = [
-  INVITE_STORIES_WORKSPACE_FIRST_VIEW,
-];
 
 export function inviteStoriesWorkspaceSteps(variables) {
   const { name } = variables;
@@ -17,7 +14,7 @@ export function inviteStoriesWorkspaceSteps(variables) {
     {
       disableBeacon: true,
       target: '#swimLanes',
-      content: 'Swim lanes under each assignee\'s name let you see at a glance what stage a story is at. Stories in \'Proposed\' have to be voted for before they move to \'In Progress\'.',
+      content: 'Swim lanes under each assignee\'s name let you see at a glance what stage a story is at. Stories in \'Proposed\' should be voted for before they move to \'In Progress\'.',
     },
 
     {

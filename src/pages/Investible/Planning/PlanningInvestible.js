@@ -403,7 +403,7 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
-          disabled={isInVoting || !isAssigned || !_.isEmpty(blockingComments)}
+          disabled={isInVoting || (!isAssigned && !isInBlocked) || !_.isEmpty(blockingComments)}
         />
       </MenuItem>,
       <MenuItem
@@ -425,7 +425,8 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
-          disabled={isInReview || !isAssigned || !_.isEmpty(blockingComments) || !_.isEmpty(todoComments)}
+          disabled={isInReview || !_.isEmpty(blockingComments)}
+          hasTodos={!_.isEmpty(todoComments)}
         />
       </MenuItem>,
       <MenuItem
@@ -447,7 +448,8 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           isOpen={changeStagesExpanded}
-          disabled={isInVerified || !_.isEmpty(blockingComments) || !_.isEmpty(todoComments)}
+          disabled={isInVerified || !_.isEmpty(blockingComments)}
+          hasTodos={!_.isEmpty(todoComments)}
         />
       </MenuItem>,
       <MenuItem
@@ -556,6 +558,7 @@ function PlanningInvestible(props) {
                       disabled={!_.isEmpty(blockingComments) || !isAssigned || (isInVoting && (!enoughVotes || !_.isEmpty(assignedInAcceptedStage)))}
                       enoughVotes={enoughVotes}
                       acceptedStageAvailable={_.isEmpty(assignedInAcceptedStage)}
+                      hasTodos={!_.isEmpty(todoComments)}
                     />
                   )}
                   {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork) && (

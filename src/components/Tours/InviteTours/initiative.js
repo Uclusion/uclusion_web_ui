@@ -1,10 +1,6 @@
 export const INVITE_INITIATIVE_FAMILY_NAME = 'INITIATIVE_INVITE';
 export const INVITE_INITIATIVE_FIRST_VIEW = 'invite_initiative_first_view';
 
-export const INVITE_INITIATIVE_SEQUENCE = [
-  INVITE_INITIATIVE_FIRST_VIEW,
-];
-
 export function inviteInitiativeSteps(variables) {
   const { name } = variables;
   return [
@@ -12,7 +8,7 @@ export function inviteInitiativeSteps(variables) {
       disableBeacon: true,
       target: '#initiativeMain',
       title: `Welcome ${name}!`,
-      content: 'Uclusion Initiatives let you and your collaborators vote for a against a proposal.',
+      content: 'Uclusion Initiatives let you and your collaborators vote for or against a proposal.',
     },
     {
       disableBeacon: true,

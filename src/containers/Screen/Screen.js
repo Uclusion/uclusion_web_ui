@@ -60,7 +60,9 @@ const useStyles = makeStyles((theme) => ({
 
 function Screen(props) {
   const classes = useStyles();
-  const user = useContext(AccountUserContext) || {};
+  const [userState] = useContext(AccountUserContext);
+  const { user: unsafeUser } = userState;
+  const user = unsafeUser || {};
   const history = useHistory();
 
   const [messagesState] = useContext(NotificationsContext);
@@ -96,7 +98,6 @@ function Screen(props) {
       prePendWarning = '*';
     }
   }
-
   const reallyAmLoading = !hidden && appEnabled && (loading || (!isOnboarding && _.isEmpty(user)));
 
   if (hidden) {
@@ -124,7 +125,7 @@ function Screen(props) {
         hidden={reallyAmLoading}
         appEnabled={appEnabled}
       />
-      {!_.isEmpty(sidebarActions) && (
+      {!_.isEmpty(sidebarActions) && !reallyAmLoading && (
         <Container className={classes.actionContainer}><ActionBar actionBarActions={sidebarActions} appEnabled={appEnabled} /></Container>
       )}
       <div className={classes.content}>
@@ -134,7 +135,7 @@ function Screen(props) {
         {reallyAmLoading && (
           <Grid container>
             <Grid item xs={12} className={classes.loadingContainer}>
-              <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"></CircularProgress>
+              <CircularProgress className={classes.loadingColor} size={120} type="indeterminate"/>
             </Grid>
           </Grid>
         )}

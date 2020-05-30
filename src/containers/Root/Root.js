@@ -6,7 +6,7 @@ import { useHistory } from 'react-router'
 import Market from '../../pages/Dialog/Dialog'
 import Support from '../../pages/About/Support'
 import PageNotFound from '../../pages/PageNotFound/PageNotFound'
-import { broadcastView, decomposeMarketPath, } from '../../utils/marketIdPathFunctions'
+import { broadcastView, decomposeMarketPath, navigate, } from '../../utils/marketIdPathFunctions'
 import Home from '../../pages/Home/Home'
 import Investible from '../../pages/Investible/Investible'
 import DialogArchives from '../../pages/DialogArchives/DialogArchives'
@@ -26,7 +26,7 @@ import BillingHome from '../../pages/Payments/BillingHome'
 import { refreshNotifications, refreshVersions } from '../../contexts/VersionsContext/versionsContextHelper'
 import SignupWizard from '../../pages/Onboarding/SignupOnboarding/SignupWizard'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
-import { isNewUser } from '../../contexts/AccountUserContext/accountUserContextHelper';
+import { isNewUser } from '../../contexts/AccountUserContext/accountUserContextHelper'
 
 const useStyles = makeStyles({
   body: {
@@ -58,9 +58,12 @@ function Root() {
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
-  const user = useContext(AccountUserContext) || {};
-  const myAction = isNewUser(user) && action !== 'invite' ? 'onboarding' : action;
-
+  const [userState] = useContext(AccountUserContext) || {};
+  const myAction = isNewUser(userState) && action !== 'invite' ? 'onboarding' : action;
+  // Putting this in useEffect did not take effect and since not promise or state based why should it be there?
+  if (myAction === 'onboarding' && myAction !== action) {
+    navigate(history, '/onboarding');
+  }
   function hideHome() {
     return !pathname || pathname !== '/';
   }

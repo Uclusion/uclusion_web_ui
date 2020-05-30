@@ -74,6 +74,7 @@ export function Collaborators(props) {
               title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
             >
               <IconButton
+                id="adminManageCollaborators"
                 onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
               >
                 <PersonAddIcon htmlColor={ACTION_BUTTON_COLOR} />

@@ -1,10 +1,8 @@
-import React, { useEffect, useReducer, useState } from 'react';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils';
-import { reducer } from './accountUserContextReducer';
-import { beginListening } from './accountUserContextMessages';
-import _ from 'lodash';
-import { getHomeAccountUser } from '../../api/sso';
-import { accountUserRefresh, resetState } from './accountUserContextReducer';
+import React, { useEffect, useReducer, useState } from 'react'
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../components/utils'
+import { reducer, resetState } from './accountUserContextReducer'
+import { beginListening } from './accountUserContextMessages'
+import _ from 'lodash'
 
 export const EMPTY_STATE = {};
 const AccountUserContext = React.createContext(EMPTY_STATE);
@@ -23,16 +21,8 @@ function AccountUserProvider (props) {
   const [isInitialization, setIsInitialization] = useState(true);
 
   useEffect(() => {
-    let isCanceled = false;
     setUclusionLocalStorageItem(ACCOUNT_USER_CONTEXT_KEY, state);
-    if (_.isEmpty(state) && authState === 'signedIn') {
-      getHomeAccountUser()
-        .then((user) => {
-          if (isCanceled === false) {
-            dispatch(accountUserRefresh(user));
-          }
-        });
-    }
+    // We do not call the API here because the account might not be created yet (async)
     if (!_.isEmpty(state) && authState !== 'signedIn') {
       dispatch(resetState());
     }
@@ -41,7 +31,6 @@ function AccountUserProvider (props) {
       setIsInitialization(false);
     }
     return () => {
-      isCanceled = true;
     }
   }, [state, isInitialization, dispatch, setIsInitialization, authState]);
 

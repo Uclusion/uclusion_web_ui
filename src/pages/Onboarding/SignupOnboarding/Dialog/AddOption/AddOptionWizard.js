@@ -6,7 +6,7 @@ import OptionDescriptionStep from './OptionDescriptionStep';
 import { useIntl } from 'react-intl';
 
 function AddOptionWizard (props) {
-  const { hidden, onStartOver, onFinish, hideSteppers, titleKey } = props;
+  const { hidden, onStartOver, onFinish, hideSteppers, titleKey, isHome } = props;
   const intl = useIntl();
   const stepPrototypes = [
     {
@@ -25,6 +25,7 @@ function AddOptionWizard (props) {
       hidden={hidden}
       hideSteppers={hideSteppers}
       onFinish={onFinish}
+      isHome={isHome}
       onStartOver={onStartOver}
       stepPrototypes={stepPrototypes}
     />
@@ -38,6 +39,7 @@ AddOptionWizard.propTypes = {
   titleKey: PropTypes.string,
   onStartOver: PropTypes.func,
   onFinish: PropTypes.func,
+  isHome: PropTypes.bool,
 };
 
 AddOptionWizard.defaultProps = {
@@ -45,6 +47,7 @@ AddOptionWizard.defaultProps = {
   titleKey: 'AddOptionWizardTitle',
   onFinish: () => {},
   hideSteppers: false,
+  isHome: false,
 };
 
 export default AddOptionWizard;

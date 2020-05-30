@@ -58,9 +58,12 @@ function Root() {
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
-  const [user] = useContext(AccountUserContext) || {};
-  const myAction = isNewUser(user) && action !== 'invite' ? 'onboarding' : action;
-
+  const [userState] = useContext(AccountUserContext) || {};
+  const myAction = isNewUser(userState) && action !== 'invite' ? 'onboarding' : action;
+  // Putting this in useEffect did not take effect and since not promise or state based why should it be there?
+  if (myAction === 'onboarding' && myAction !== action) {
+    navigate(history, '/onboarding');
+  }
   function hideHome() {
     return !pathname || pathname !== '/';
   }
@@ -192,12 +195,9 @@ function Root() {
         const isEntry = document.visibilityState === 'visible';
         pegView(isEntry);
       });
-      if (myAction === 'onboarding' && myAction !== action) {
-        navigate(history, '/onboarding');
-      }
     //  window.onanimationiteration = console.debug;
     }
-  },  [history, setOnline, setOperationsLocked, location, myAction, action]);
+  },  [history, setOnline, setOperationsLocked, location]);
 
   return (
     <div>

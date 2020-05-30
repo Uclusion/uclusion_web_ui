@@ -24,10 +24,10 @@ function MarketInvite(props) {
   const { marketId: marketToken } = decomposeMarketPath(pathname);
   const [myLoading, setMyLoading] = useState(undefined);
   const [marketState] = useContext(MarketsContext);
-  const [user] = useContext(AccountUserContext) || {};
+  const [userState] = useContext(AccountUserContext) || {};
 
   useEffect(() => {
-    if (!hidden && myLoading !== marketToken && _.isEmpty(user)) {
+    if (!hidden && myLoading !== marketToken && _.isEmpty(userState)) {
       setMyLoading(marketToken);
       const values = queryString.parse(hash);
       const { is_obs: isObserver } = values;
@@ -62,7 +62,7 @@ function MarketInvite(props) {
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [hidden, marketToken, history, hash, marketState, myLoading, user]);
+  }, [hidden, marketToken, history, hash, marketState, myLoading, userState]);
 
   return (
     <Screen

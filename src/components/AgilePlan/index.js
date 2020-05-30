@@ -264,7 +264,8 @@ export const usePlanFormStyles = makeStyles(
         display: 'block'
       },
       '& > div': {
-        marginTop: 0
+        marginTop: 0,
+        width: '100%'
       }
     },
     optional: {
@@ -276,7 +277,10 @@ export const usePlanFormStyles = makeStyles(
     },
     overflowVisible: {
       overflow: 'visible'
-    }
+    },
+    disabled: {
+      color: theme.palette.text.disabled,
+    },
   }),
   { name: "PlanningAdd" }
 );
@@ -543,6 +547,7 @@ export function DaysEstimate(props) {
               selected={getStartDate()}
               onChange={handleDateChange}
               popperPlacement="bottom"
+              minDate={new Date()}
             />
           </span>
           {showHelper &&

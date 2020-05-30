@@ -103,8 +103,8 @@ function CreatingDialogStep(props) {
   const { dialogError } = dialogInfo;
   if (dialogError) {
     return (
-      <div>
-        <Button
+      <div className={classes.retryContainer}>
+        <Button className={classes.actionStartOver}
           onClick={() => setDialogInfo({dialogCreated: false, dialogError: false})}
         >
           Retry Creating Dialog

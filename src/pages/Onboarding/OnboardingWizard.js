@@ -107,6 +107,9 @@ export const wizardStyles = makeStyles(
         }
       },
       startOverContainer: {},
+      retryContainer: {
+        textAlign: 'center'
+      },
       actionContainer: {
         flex: 3,
         display: 'flex',
@@ -122,7 +125,11 @@ export const wizardStyles = makeStyles(
       actionStartOver: {
         backgroundColor: '#E85757',
         color: '#fff',
-        textTransform: 'capitalize'
+        textTransform: 'capitalize',
+        fontWeight: 'bold',
+        '&:hover': {
+          backgroundColor: '#ec7676'
+        }
       },
       actionPrimary: {
         backgroundColor: '#2D9CDB',

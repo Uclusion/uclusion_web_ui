@@ -93,8 +93,8 @@ function CreatingInitiativeStep (props) {
 
   if (initiativeError) {
     return (
-      <div>
-        <Button
+      <div className={classes.retryContainer}>
+        <Button className={classes.actionStartOver}
           onClick={() => setDialogInfo({initiativeCreated: false, initiativeError: false})}
         >
           Retry Creating Initiative

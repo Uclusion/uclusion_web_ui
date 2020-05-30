@@ -9,6 +9,7 @@ function TooltipIconButton(props) {
     onClick, size, id, icon, translationId, disabled, children
   } = props;
   const intl = useIntl();
+  const usedId = id || translationId;
   return (
     <>
       {!disabled && (
@@ -16,6 +17,7 @@ function TooltipIconButton(props) {
         title={intl.formatMessage({ id: translationId })}
       >
         <IconButton
+          id={usedId}
           onClick={onClick}
         >
           {React.cloneElement(icon, { size })}
@@ -49,7 +51,7 @@ TooltipIconButton.defaultProps = {
   disabled: false,
   size: 'small',
   onClick: () => {},
-
+  id: undefined,
 };
 
 export default TooltipIconButton;

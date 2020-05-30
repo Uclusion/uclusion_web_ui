@@ -71,10 +71,10 @@ export function Collaborators(props) {
         <div className={classes.flex1}>
           {!authorDisplay && (
             <Tooltip
-              id="adminManageCollaborators"
               title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
             >
               <IconButton
+                id="adminManageCollaborators"
                 onClick={() => navigate(history, `${formMarketManageLink(marketId)}#participation=true`)}
               >
                 <PersonAddIcon htmlColor={ACTION_BUTTON_COLOR} />

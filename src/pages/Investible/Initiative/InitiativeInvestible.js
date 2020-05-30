@@ -186,7 +186,7 @@ function InitiativeInvestible(props) {
   });
   const positiveVoters = marketPresences.filter((presence) => {
     const { investments } = presence;
-    const negInvestment = investments.find((investment) => {
+    const negInvestment = (investments || []).find((investment) => {
       const { quantity } = investment;
       return quantity > 0;
     });

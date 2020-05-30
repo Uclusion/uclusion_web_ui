@@ -12,7 +12,7 @@ import { formMarketLink, formMarketManageLink, navigate } from '../../../../util
 import { useHistory } from 'react-router'
 import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { CircularProgress, Typography } from '@material-ui/core'
+import { Button, CircularProgress, Typography } from '@material-ui/core';
 import { AllSequentialMap } from '../../../../utils/PromiseUtils'
 import { resetValues } from '../../onboardingReducer'
 
@@ -30,7 +30,7 @@ function CreatingDialogStep(props) {
     const { dialogName, dialogReason, dialogOptions, dialogExpiration, addOptionsSkipped } = formData;
 
     const { dialogCreated } = dialogInfo;
-    if (!dialogCreated && active) {
+    if (!dialogCreated && !dialogError && active) {
       const marketInfo = {
         name: dialogName,
         description: dialogReason,
@@ -90,12 +90,27 @@ function CreatingDialogStep(props) {
             const marketLink = formMarketLink(marketId);
             navigate(history, `${marketLink}#onboarded=true`);
           }
+        })
+        .catch(() => {
+          setDialogInfo({dialogError: true});
         });
     }
   }, [dialogInfo, active, diffDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, updateFormData, isHome, history]);
 
   if (!active) {
     return React.Fragment;
+  }
+  const { dialogError } = dialogInfo;
+  if (dialogError) {
+    return (
+      <div>
+        <Button
+          onClick={() => setDialogInfo({dialogCreated: false, dialogError: false})}
+        >
+          Retry Creating Dialog
+        </Button>
+      </div>
+    );
   }
 
   return (

@@ -19,7 +19,7 @@ import { addCommentToMarket } from '../../../../../contexts/CommentsContext/comm
 import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext'
 import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext'
 import { useIntl } from 'react-intl'
-import { CircularProgress, Typography } from '@material-ui/core'
+import { Button, CircularProgress, Typography } from '@material-ui/core';
 import { STORIES_SUB_TYPE } from '../../../../../constants/markets'
 import { resetValues } from '../../../onboardingReducer'
 
@@ -143,13 +143,31 @@ function CreatingWorkspaceStep (props) {
             const marketLink = formMarketLink(marketId);
             navigate(history, `${marketLink}#onboarded=true`);
           }
-        });
+        })
+        .catch(() => {
+          setWorkspaceInfo({workspaceError: true});
+        });;
     }
   }, [workspaceInfo, active, commentsDispatch, commentsState, diffDispatch, versionsDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, meetingName, workspaceDescription, updateFormData, isHome, history]);
 
   if (!active) {
     return React.Fragment;
   }
+
+  const { workspaceError } = workspaceInfo;
+
+  if (workspaceError) {
+    return (
+      <div>
+        <Button
+          onClick={() => setWorkspaceInfo({workspaceCreated: false, workspaceError: false})}
+        >
+          Retry Creating Workspace
+        </Button>
+      </div>
+    );
+  }
+
 
   return (
     <div>

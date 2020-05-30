@@ -24,10 +24,11 @@ function InitiativeExpirationStep(props) {
       initiativeExpiration: value,
     }));
   }
+
   function onNext() {
-  //  updateFormData(updateValues({
-  //    initiativeExpiration: value,
- //   }));
+    updateFormData(updateValues({
+      initiativeExpiration: value,
+    }));
   }
 
   return (

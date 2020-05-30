@@ -16,7 +16,7 @@ import { TODO_TYPE } from '../../../../../constants/comments'
 import { addCommentToMarket } from '../../../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext'
 import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext'
-import { CircularProgress, Typography } from '@material-ui/core'
+import { Button, CircularProgress, Typography } from '@material-ui/core';
 import InviteLinker from '../../../../Dialog/InviteLinker'
 import { PLANNING_TYPE, REQUIREMENTS_SUB_TYPE } from '../../../../../constants/markets'
 import { resetValues } from '../../../onboardingReducer'
@@ -32,8 +32,8 @@ function CreatingWorkspaceStep (props) {
  const [workspaceInfo, setWorkspaceInfo] = useState({});
   const history = useHistory();
   useEffect(() => {
-    const { workspaceCreated } = workspaceInfo;
-    if (!workspaceCreated && active) {
+    const { workspaceCreated, workspaceError } = workspaceInfo;
+    if (!workspaceCreated && !workspaceError && active) {
       const {
         workspaceName,
         workspaceDescription,
@@ -79,14 +79,29 @@ function CreatingWorkspaceStep (props) {
             const link = formMarketManageLink(marketId) + '#participation=true';
             navigate(history, link);
           }
+        })
+        .catch(() => {
+          setWorkspaceInfo({workspaceError: true});
         });
     }
   }, [workspaceInfo, active, commentsDispatch, commentsState, diffDispatch, versionsDispatch, formData, updateFormData, marketsDispatch, presenceDispatch, isHome, history]);
-  const { marketId, workspaceCreated, marketToken } = workspaceInfo;
+  const { marketId, workspaceCreated, marketToken, workspaceError } = workspaceInfo;
   const marketLink = formMarketLink(marketId);
 
   if (!active) {
     return React.Fragment;
+  }
+
+  if (workspaceError) {
+    return (
+      <div>
+        <Button
+          onClick={() => setWorkspaceInfo({workspaceCreated: false, workspaceError: false})}
+        >
+          Retry Creating Workspace
+        </Button>
+      </div>
+    );
   }
 
   return (

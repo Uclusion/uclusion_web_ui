@@ -25,6 +25,12 @@ function DialogExpirationStep(props) {
     }));
   }
 
+  function onNext() {
+    updateFormData(updateValues({
+      initiativeExpiration: value,
+    }));
+  }
+
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
@@ -34,7 +40,7 @@ function DialogExpirationStep(props) {
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'DialogWizardDialogExpirationPlaceHolder' })}</label>
       <ExpirationSelector value={value} onChange={onExpiresChange}/>
       <div className={classes.borderBottom}></div>
-      <StepButtons {...props} validForm={validForm}/>
+      <StepButtons {...props} validForm={validForm} onNext={onNext}/>
     </div>
   );
 }

@@ -19,7 +19,7 @@ import { addCommentToMarket } from '../../../../../contexts/CommentsContext/comm
 import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext'
 import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext'
 import { useIntl } from 'react-intl'
-import { Button, CircularProgress, Typography } from '@material-ui/core';
+import { Button, CircularProgress, Typography } from '@material-ui/core'
 import { STORIES_SUB_TYPE } from '../../../../../constants/markets'
 import { resetValues } from '../../../onboardingReducer'
 
@@ -40,8 +40,8 @@ function CreatingWorkspaceStep (props) {
 
   useEffect(() => {
 
-    const { workspaceCreated } = workspaceInfo;
-    if (!workspaceCreated && active) {
+    const { workspaceCreated, workspaceError } = workspaceInfo;
+    if (!workspaceCreated && !workspaceError && active) {
       const marketInfo = {
         name: meetingName,
         description: `<p>${workspaceDescription}</p>`,

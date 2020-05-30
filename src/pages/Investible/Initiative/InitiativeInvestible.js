@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -26,18 +26,19 @@ import CardActions from '@material-ui/core/CardActions'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
-import { TourContext } from '../../../contexts/TourContext/TourContext';
-import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer';
+import { TourContext } from '../../../contexts/TourContext/TourContext'
+import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer'
 import {
   INVITE_INITIATIVE_FAMILY_NAME,
-  INVITE_INITIATIVE_FIRST_VIEW, inviteInitiativeSteps
-} from '../../../components/Tours/InviteTours/initiative';
-import UclusionTour from '../../../components/Tours/UclusionTour';
-import { CognitoUserContext } from '../../../contexts/CongitoUserContext';
+  INVITE_INITIATIVE_FIRST_VIEW,
+} from '../../../components/Tours/InviteTours/initiative'
+import UclusionTour from '../../../components/Tours/UclusionTour'
+import { CognitoUserContext } from '../../../contexts/CongitoUserContext'
 import {
   ADMIN_INITIATIVE_FAMILY_NAME,
-  ADMIN_INITIATIVE_FIRST_VIEW, adminInitiativeSteps
-} from '../../../components/Tours/InviteTours/adminInitiative';
+  ADMIN_INITIATIVE_FIRST_VIEW,
+  adminInitiativeSteps
+} from '../../../components/Tours/InviteTours/adminInitiative'
 
 const useStyles = makeStyles(
   theme => ({

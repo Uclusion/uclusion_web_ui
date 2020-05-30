@@ -12,7 +12,7 @@ import { formMarketLink, formMarketManageLink, navigate } from '../../../../util
 import { useHistory } from 'react-router'
 import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { Button, CircularProgress, Typography } from '@material-ui/core';
+import { Button, CircularProgress, Typography } from '@material-ui/core'
 import { AllSequentialMap } from '../../../../utils/PromiseUtils'
 import { resetValues } from '../../onboardingReducer'
 
@@ -29,7 +29,7 @@ function CreatingDialogStep(props) {
   useEffect(() => {
     const { dialogName, dialogReason, dialogOptions, dialogExpiration, addOptionsSkipped } = formData;
 
-    const { dialogCreated } = dialogInfo;
+    const { dialogCreated, dialogError } = dialogInfo;
     if (!dialogCreated && !dialogError && active) {
       const marketInfo = {
         name: dialogName,

@@ -27,7 +27,7 @@ function DialogExpirationStep(props) {
 
   function onNext() {
     updateFormData(updateValues({
-      initiativeExpiration: value,
+      dialogExpiration: value,
     }));
   }
 

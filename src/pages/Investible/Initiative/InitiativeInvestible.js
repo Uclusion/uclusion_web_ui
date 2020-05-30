@@ -34,6 +34,10 @@ import {
 } from '../../../components/Tours/InviteTours/initiative';
 import UclusionTour from '../../../components/Tours/UclusionTour';
 import { CognitoUserContext } from '../../../contexts/CongitoUserContext';
+import {
+  ADMIN_INITIATIVE_FAMILY_NAME,
+  ADMIN_INITIATIVE_FIRST_VIEW, adminInitiativeSteps
+} from '../../../components/Tours/InviteTours/adminInitiative';
 
 const useStyles = makeStyles(
   theme => ({
@@ -188,11 +192,12 @@ function InitiativeInvestible(props) {
     return !_.isEmpty(negInvestment);
   });
   const metaClasses = useMetaDataStyles();
+  const tourFamily = isAdmin? ADMIN_INITIATIVE_FAMILY_NAME: INVITE_INITIATIVE_FAMILY_NAME;
+  const tourName = isAdmin? ADMIN_INITIATIVE_FIRST_VIEW : INVITE_INITIATIVE_FIRST_VIEW
 
   useEffect(() => {
-      tourDispatch(startTourFamily(INVITE_INITIATIVE_FAMILY_NAME));
-  }, [tourDispatch]);
-
+      tourDispatch(startTourFamily(ADMIN_INITIATIVE_FAMILY_NAME));
+  }, [tourDispatch, tourFamily]);
 
 
   if (!investibleId) {
@@ -209,9 +214,9 @@ function InitiativeInvestible(props) {
     >
       <UclusionTour
         hidden={hidden}
-        name={INVITE_INITIATIVE_FIRST_VIEW}
-        family={INVITE_INITIATIVE_FAMILY_NAME}
-        steps={inviteInitiativeSteps(cognitoUser)}
+        name={tourName}
+        family={tourFamily}
+        steps={adminInitiativeSteps(cognitoUser)}
         continuous
         hideBackButton
       />

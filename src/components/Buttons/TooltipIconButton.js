@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl'
 
 function TooltipIconButton(props) {
   const {
-    onClick, size, icon, translationId, disabled, children
+    onClick, size, id, icon, translationId, disabled, children
   } = props;
   const intl = useIntl();
   return (
@@ -42,12 +42,14 @@ TooltipIconButton.propTypes = {
   onClick: PropTypes.func,
   icon: PropTypes.element.isRequired,
   disabled: PropTypes.bool,
+  id: PropTypes.string,
 };
 
 TooltipIconButton.defaultProps = {
   disabled: false,
   size: 'small',
   onClick: () => {},
+
 };
 
 export default TooltipIconButton;

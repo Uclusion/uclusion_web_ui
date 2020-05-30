@@ -15,6 +15,7 @@ function EditMarketButton(props) {
 
   return (
     <TooltipIconButton
+      id="adminEdit"
       marketId={marketId}
       onClick={onClick}
       disabled={operationRunning}

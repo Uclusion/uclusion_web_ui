@@ -71,6 +71,7 @@ export function Collaborators(props) {
         <div className={classes.flex1}>
           {!authorDisplay && (
             <Tooltip
+              id="adminManageCollaborators"
               title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
             >
               <IconButton

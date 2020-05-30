@@ -12,7 +12,7 @@ export function inviteInitiativeSteps(variables) {
       disableBeacon: true,
       target: '#initiativeMain',
       title: `Welcome ${name}!`,
-      content: 'Uclusion Initiatives let you and your collaborators vote for a against a proposal.',
+      content: 'Uclusion Initiatives let you and your collaborators vote for or against a proposal.',
     },
     {
       disableBeacon: true,

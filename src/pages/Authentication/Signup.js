@@ -245,10 +245,12 @@ function Signup(props) {
     );
   }
 
+  const { name, email, password, repeat, terms, phone } = userState;
+
   if (authState !== 'signUp') {
     return <></>;
   }
-
+  
   if (postSignUp === 'USER_CREATED') {
     return (
       <Container component="main" maxWidth="xs">
@@ -258,7 +260,7 @@ function Signup(props) {
             <img width="35" height="35" src={`/images/${SIGNUP_LOGO}`} alt="Uclusion"/>
           </Avatar>
           <Typography component="h1" variant="h5" align="center">
-            {intl.formatMessage({ id: 'signupCreatedUser' })}
+            {intl.formatMessage({ id: 'signupCreatedUser' }, { email })}
           </Typography>
           {getResendButton()}
         </div>
@@ -306,7 +308,7 @@ function Signup(props) {
     );
   }
 
-  const { name, email, password, repeat, terms, phone } = userState;
+
   const phoneValid = _.isEmpty(phone) || phoneChecker.test(phone);
   const formInvalid = !phoneValid || !terms || _.isEmpty(name) || _.isEmpty(email) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (

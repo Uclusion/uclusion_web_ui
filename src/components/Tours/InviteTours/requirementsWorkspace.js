@@ -1,10 +1,6 @@
 export const INVITE_REQ_WORKSPACE_FAMILY_NAME = 'INVITE_REQ_WORKSPACE';
 export const INVITE_REQ_WORKSPACE_FIRST_VIEW = 'invite_req_workspace_first_view';
 
-export const INVITE_REQ_WORKSPACE_SEQUENCE = [
-  INVITE_REQ_WORKSPACE_FIRST_VIEW,
-];
-
 export function inviteRequirementsWorkspaceSteps(variables) {
   const { name } = variables;
   return [

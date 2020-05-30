@@ -1,9 +1,6 @@
 export const INVITE_STORIES_WORKSPACE_FAMILY_NAME = 'INVITE_STORIES_WORKSPACE';
 export const INVITE_STORIES_WORKSPACE_FIRST_VIEW = 'invite_stories_workspace_first_view';
 
-export const INVITE_STORIES_WORKSPACE_SEQUENCE = [
-  INVITE_STORIES_WORKSPACE_FIRST_VIEW,
-];
 
 export function inviteStoriesWorkspaceSteps(variables) {
   const { name } = variables;

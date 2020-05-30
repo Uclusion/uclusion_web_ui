@@ -250,7 +250,7 @@ function Signup(props) {
   if (authState !== 'signUp') {
     return <></>;
   }
-  
+
   if (postSignUp === 'USER_CREATED') {
     return (
       <Container component="main" maxWidth="xs">

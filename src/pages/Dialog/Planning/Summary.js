@@ -171,7 +171,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function Summary(props) {
-  const { market, investibleId, hidden, isChannel, activeMarket } = props;
+  const { market, investibleId, hidden, activeMarket } = props;
   const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
@@ -238,15 +238,13 @@ function Summary(props) {
               initiativeId={investibleId}
             />
           </CardActions>
-        {!isChannel && (
-          <dl className={metaClasses.root}>
-            {daysEstimate && (
-              <fieldset className={classes.fieldset}>
-                <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
-              </fieldset>
-            )}
-          </dl>
-        )}
+        <dl className={metaClasses.root}>
+          {daysEstimate && (
+            <fieldset className={classes.fieldset}>
+              <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
+            </fieldset>
+          )}
+        </dl>
         <dl className={metaClasses.root}>
           <div className={classes.assignmentContainer}>
             <FormattedMessage id="dialogParticipants" />
@@ -285,7 +283,6 @@ Summary.propTypes = {
   investibleDescription: PropTypes.string,
   investibleId: PropTypes.string,
   hidden: PropTypes.bool.isRequired,
-  isChannel: PropTypes.bool.isRequired,
   activeMarket: PropTypes.bool.isRequired,
   unassigned: PropTypes.array
 };

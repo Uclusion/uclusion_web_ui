@@ -58,7 +58,7 @@ import StepButtons from '../../Onboarding/StepButtons'
 import queryString from 'query-string'
 
 const useStyles = makeStyles(
-  theme => ({
+  () => ({
     wizardContainer: {
       background: '#efefef',
       padding: '24px 20px 156px',
@@ -219,7 +219,7 @@ function PlanningDialog(props) {
         steps={tourSteps}
         />
       <div id="workspaceMain">
-        <Summary market={market} hidden={hidden} isChannel={isChannel} activeMarket={activeMarket} />
+        <Summary market={market} hidden={hidden} activeMarket={activeMarket} />
       </div>
       {lockedBy && (
         <Typography>

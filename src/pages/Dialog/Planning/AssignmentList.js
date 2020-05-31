@@ -1,8 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import clsx from 'clsx';
-import { Checkbox, List, ListItem, ListItemIcon, ListItemText, ListSubheader, makeStyles, TextField, InputAdornment, IconButton } from '@material-ui/core'
+import clsx from 'clsx'
+import {
+  Checkbox,
+  IconButton,
+  InputAdornment,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
+  makeStyles,
+  TextField
+} from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import { useIntl } from 'react-intl'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -53,7 +64,7 @@ function AssignmentList(props) {
   const participantEntries = getSortedPresenceWithAssignable();
   const [checked, setChecked] = useState(getDefaultChecked());
   const [searchValue, setSearchValue] = useState(undefined);
-  const [participants, setParticipants] = useState(participantEntries)
+  const [participants, ] = useState(participantEntries)
   const [filteredNames, setFilteredNames] = useState(undefined);
   const [submitted, setSubmitted] = useState(getDefaultChecked());
 

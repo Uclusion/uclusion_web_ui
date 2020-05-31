@@ -15,6 +15,12 @@ const useStyles = makeStyles(
         },
         '& p': {
           width: '100%'
+        },
+        '& div': {
+          width: '100%'
+        },
+        '& span': {
+          width: '100%'
         }
       }
     }

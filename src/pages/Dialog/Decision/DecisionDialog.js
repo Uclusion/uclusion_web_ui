@@ -45,7 +45,7 @@ import {
   INVITE_DIALOG_FIRST_VIEW,
   inviteDialogSteps
 } from '../../../components/Tours/InviteTours/dialog'
-import { CognitoUserContext } from '../../../contexts/CongitoUserContext'
+import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer'
 import { TourContext } from '../../../contexts/TourContext/TourContext'
 import InviteLinker from '../InviteLinker'

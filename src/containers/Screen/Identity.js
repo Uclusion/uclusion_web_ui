@@ -6,7 +6,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import { useIntl } from 'react-intl'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import SignOut from '../../pages/Authentication/SignOut'
-import { CognitoUserContext } from '../../contexts/CongitoUserContext'
+import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext'
 import config from '../../config'
 
 const useStyles = makeStyles((theme) => ({

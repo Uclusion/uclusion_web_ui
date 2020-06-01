@@ -8,9 +8,10 @@ import { useIntl } from 'react-intl'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import {
+  getHiddenMarketDetailsForUser,
   getMarketDetailsForType,
   getNotHiddenMarketDetailsForUser,
-} from '../../contexts/MarketsContext/marketsContextHelper'
+} from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningDialogs from './PlanningDialogs'
 import DecisionDialogs from './DecisionDialogs'
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets'
@@ -62,6 +63,7 @@ function Home(props) {
     marketsState,
     marketPresencesState,
   );
+  const hiddenMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const decisionDetails = _.sortBy(getMarketDetailsForType(
     myNotHiddenMarketsState,
@@ -101,7 +103,7 @@ function Home(props) {
       onClick: () => setWizardActive(true),
     });
   }
-  const loading = operationInProgress && noMarkets;
+  const loading = operationInProgress && noMarkets && _.isEmpty(hiddenMarkets);
   
   return (
     <Screen

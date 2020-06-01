@@ -4,6 +4,7 @@ import { useHistory } from 'react-router'
 import { useIntl } from 'react-intl'
 import { makeStyles, withStyles } from '@material-ui/core/styles'
 import _ from 'lodash'
+import clsx from 'clsx'
 import { Checkbox, TextField } from '@material-ui/core'
 import Container from '@material-ui/core/Container'
 import CssBaseline from '@material-ui/core/CssBaseline'
@@ -34,8 +35,9 @@ const useStyles = makeStyles(theme => ({
     width: "100%"
   },
   formRoot: {
-    maxWidth: "1000px",
-    marginLeft: '20px',
+    maxWidth: "600px",
+    marginLeft: 'auto',
+    marginRight: 'auto',
     minWidth: '450px'
   },
   paper: {
@@ -121,6 +123,25 @@ const useStyles = makeStyles(theme => ({
     '& p': {
       margin: '10px'
     }
+  },
+  stack: {
+    flexDirection: 'column',
+    display: 'flex'
+  },
+  centerColumn: {
+    maxWidth: "600px",
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    minWidth: '450px'
+  },
+  marginTop: {
+    marginTop: '20px',
+  },
+  inviteText: {
+    fontSize: '3rem'
+  },
+  root: {
+
   }
 }));
 
@@ -329,7 +350,7 @@ function Signup(props) {
         <script src="https://apis.google.com/js/platform.js"></script>
       </Helmet>
       <CssBaseline/>
-      <dl className={classes.root}>
+      <dl className={clsx(myMarket ? classes.stack : classes.root)} >
         {action !== 'invite' && (
           <Iframe url="https://www.uclusion.com"
                   id="myId"
@@ -341,8 +362,8 @@ function Signup(props) {
                   position="relative"/>
         )}
         {action === 'invite' && myMarket && (
-          <div className={classes.paperNoTop}>
-            <svg style={{ verticalAlign: 'middle', marginBottom: '-100px' }}
+          <div className={clsx(classes.paperNoTop, classes.centerColumn)}>
+            <svg style={{ verticalAlign: 'middle', width: '140px', marginTop: '2rem', marginBottom: '-1rem' }}
                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
                 <path fill="#fff"
                       d="M888.67,328.66a43,43,0,0,1-34.38,42.12v43.84l-43-43H174.05a62.72,62.72,0,0,1-62.72-62.72V228.36a43,43,0,0,1,43-43H845.69a43,43,0,0,1,43,43Z"/>
@@ -364,30 +385,18 @@ function Signup(props) {
                 <path fill={LOGO_COLOR}
                       d="M845.69,171.05H154.31A57.38,57.38,0,0,0,97,228.36v80.56A77.06,77.06,0,0,0,174.05,386H805.37l38.78,38.78a14.32,14.32,0,0,0,24.46-10.13V381.17A57.4,57.4,0,0,0,903,328.66V228.36A57.38,57.38,0,0,0,845.69,171.05Zm43,157.61a43,43,0,0,1-34.38,42.12v43.84l-43-43H174.05a62.72,62.72,0,0,1-62.72-62.72V228.36a43,43,0,0,1,43-43H845.69a43,43,0,0,1,43,43Z"/>
               </svg>
-              <Typography component="h1" variant="h2" className={classes.centerText}>
+              <Typography component="h1" variant="h2" className={clsx(classes.inviteText, classes.centerText, classes.marginTop)}>
                 {intl.formatMessage({ id: 'signupInvite' }, { x: myMarket.created_by_name, y: myMarket.name })}
               </Typography>
-              <div className={classes.aboutText}>
-                <Typography variant="body1" className={classes.centerText}>
-                  Leverage agile frameworks to provide a robust synopsis for high level overviews. Iterative approaches to corporate strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world view of disruptive innovation via workplace diversity and empowerment.
-                </Typography>
-                <Typography variant="body1" className={classes.centerText}>
-                  Bring to the table win-win survival strategies to ensure proactive domination. At the end of the day, going forward, a new normal that has evolved from generation X is on the runway heading towards a streamlined cloud solution. User generated content in real-time will have multiple touchpoints for offshoring.
-                </Typography>
-                <Typography variant="body1" className={classes.centerText}>
-                  Capitalize on low hanging fruit to identify a ballpark value added activity to beta test. Override the digital divide with additional clickthroughs from DevOps. Nanotechnology immersion along the information highway will close the loop on focusing solely on the bottom line.
-                </Typography>
-              </div>
           </div>
         )}
         <div className={classes.formRoot}>
-          <div className={classes.paper}>
-            <Avatar className={classes.avatar}>
-              <img width="35" height="35" src={`/images/${SIGNUP_LOGO}`} alt="Uclusion"/>
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              {intl.formatMessage({ id: 'signupTitle' })}
-            </Typography>
+          <div className={myMarket? clsx(classes.paperNoTop, classes.marginTop) : classes.paper}>
+            { action !== 'invite' &&
+              <Typography component="h1" variant="h5">
+                {intl.formatMessage({ id: 'signupTitle' })}
+              </Typography>
+            }
           </div>
           <GithubLoginButton
             style={{

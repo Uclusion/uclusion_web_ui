@@ -21,6 +21,7 @@ import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
 import AddNewWizard from './Wizards/AddNewWizard'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -45,6 +46,7 @@ function Home(props) {
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [operationInProgress] = useContext(OperationInProgressContext);
   const classes = useStyles();
   const [wizardActive, setWizardActive] = useState(false);
 
@@ -99,6 +101,7 @@ function Home(props) {
       onClick: () => setWizardActive(true),
     });
   }
+  const loading = operationInProgress && noMarkets;
   
   return (
     <Screen
@@ -106,6 +109,7 @@ function Home(props) {
       tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       isHome
+      loading={loading}
       sidebarActions={ACTIONBAR_ACTIONS}
     >
       <AddNewWizard

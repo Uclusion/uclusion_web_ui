@@ -5,7 +5,6 @@
  * @param user
  */
 export function isFederated(user) {
-  console.error(user);
   // external users have an identities value in their user attributes
   if (!user) {
     return false;

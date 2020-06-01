@@ -140,8 +140,8 @@ const useStyles = makeStyles(theme => ({
   inviteText: {
     fontSize: '3rem'
   },
-  root: {
-
+  marginLeft: {
+    marginLeft: '20px'
   }
 }));
 
@@ -390,7 +390,7 @@ function Signup(props) {
               </Typography>
           </div>
         )}
-        <div className={classes.formRoot}>
+        <div className={myMarket ? classes.formRoot : clsx(classes.formRoot, classes.marginLeft)}>
           <div className={myMarket? clsx(classes.paperNoTop, classes.marginTop) : classes.paper}>
             { action !== 'invite' &&
               <Typography component="h1" variant="h5">

@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
-  Button,
   Card,
   Checkbox,
   FormControl,
@@ -16,7 +15,7 @@ import {
   ExpansionPanelSummary,
   ExpansionPanelDetails,
 } from '@material-ui/core';
-import _ from 'lodash';
+
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { updateUser } from '../../api/users';

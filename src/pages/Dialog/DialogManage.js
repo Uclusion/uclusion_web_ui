@@ -82,7 +82,7 @@ function DialogManage (props) {
       breadCrumbs={myBreadCrumbs}
       loading={loading}
     >
-      {(participation || marketType === PLANNING_TYPE) && (
+      {(participation || marketType === PLANNING_TYPE) && !removal && (
         <DismissableText textId="participationHelp"/>
       )}
       <Card elevation={0}>

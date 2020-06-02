@@ -362,7 +362,7 @@ function PlanningInvestible(props) {
       }
     }
     if (!isInNotDoing) {
-      if (isAssigned && inlineMarketId) {
+      if (isAssigned) {
         sidebarActions.push(<ExpandableAction
           id="link"
           key="link"

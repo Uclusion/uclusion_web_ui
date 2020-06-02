@@ -101,8 +101,8 @@ function UclusionTour(props) {
 
   useEffect(() => {
     const uiPrefCantRun = !hasUser || safeCompletedTours.includes(family);
-    const myTourFamlyActive = isTourFamilyRunning(tourState, family);
-    const iCanRun = !hidden && myTourFamlyActive && shouldRun && !isCompleted && !uiPrefCantRun;
+    const tourFamilyActive = isTourFamilyRunning(tourState, family);
+    const iCanRun = !hidden && tourFamilyActive && shouldRun && !isCompleted && !uiPrefCantRun;
     setRunTour(iCanRun);
     return () => {
     };

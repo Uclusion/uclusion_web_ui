@@ -11,7 +11,7 @@ import LogRocket from 'logrocket'
 import { defaultTheme } from '../../config/themes'
 import { ThemeProvider } from '@material-ui/core/styles'
 import { TourProvider } from '../../contexts/TourContext/TourContext'
-import { CognitoUserProvider } from '../../contexts/CongitoUserContext'
+import { CognitoUserProvider } from '../../contexts/CognitoUserContext/CongitoUserContext'
 import { AccountUserProvider } from '../../contexts/AccountUserContext/AccountUserContext'
 
 function App (props) {

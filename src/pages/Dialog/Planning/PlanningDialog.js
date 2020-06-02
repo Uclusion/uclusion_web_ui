@@ -39,7 +39,7 @@ import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import ViewArchiveActionButton from './ViewArchivesActionButton'
 import { TourContext } from '../../../contexts/TourContext/TourContext'
 import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer'
-import { CognitoUserContext } from '../../../contexts/CongitoUserContext'
+import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import {
   INVITE_STORIES_WORKSPACE_FAMILY_NAME,

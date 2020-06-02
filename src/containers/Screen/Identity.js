@@ -6,8 +6,9 @@ import MenuItem from '@material-ui/core/MenuItem'
 import { useIntl } from 'react-intl'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import SignOut from '../../pages/Authentication/SignOut'
-import { CognitoUserContext } from '../../contexts/CongitoUserContext'
+import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext'
 import config from '../../config'
+import { isFederated } from '../../contexts/CognitoUserContext/cognitoUserContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -44,6 +45,7 @@ const useStyles = makeStyles((theme) => ({
 function Identity () {
   const classes = useStyles();
   const user = useContext(CognitoUserContext);
+  const canChangeUserValues = !isFederated(user);
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const history = useHistory();
@@ -107,13 +109,13 @@ function Identity () {
               {intl.formatMessage({ id: 'changePreferencesHeader' })}
             </Typography>
           </MenuItem>
-          <MenuItem
+          { canChangeUserValues && (<MenuItem
             onClick={goTo('/changePassword')}
           >
             <Typography className={classes.name}>
               {intl.formatMessage({ id: 'changePasswordHeader' })}
             </Typography>
-          </MenuItem>
+          </MenuItem>)}
         {config.payments.enabled && (
           <MenuItem
             onClick={goTo('/billing')}

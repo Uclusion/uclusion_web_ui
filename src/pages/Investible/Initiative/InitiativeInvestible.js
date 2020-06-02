@@ -33,7 +33,7 @@ import {
   INVITE_INITIATIVE_FIRST_VIEW,
 } from '../../../components/Tours/InviteTours/initiative'
 import UclusionTour from '../../../components/Tours/UclusionTour'
-import { CognitoUserContext } from '../../../contexts/CongitoUserContext'
+import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import {
   ADMIN_INITIATIVE_FAMILY_NAME,
   ADMIN_INITIATIVE_FIRST_VIEW,

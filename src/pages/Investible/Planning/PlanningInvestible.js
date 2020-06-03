@@ -329,6 +329,7 @@ function PlanningInvestible(props) {
     const required = everyoneAssigned? 0 : myRequired !== undefined ? myRequired : 1;
     return _.size(myInvested) >= required;
   }
+  const stageChangeEnabled = !isInNotDoing && !isReadyFurtherWork;
 
   function getSidebarActions() {
     if (!activeMarket) {
@@ -391,9 +392,10 @@ function PlanningInvestible(props) {
     comment => comment.comment_type === TODO_TYPE && !comment.resolved
   );
   function getStageActions() {
-    if (inArchives) {
+    if (inArchives || !stageChangeEnabled) {
       return [];
     }
+
     return [
       <MenuItem
         key="voting"
@@ -865,28 +867,33 @@ function MarketMetaData(props) {
         </div>
         </div>
       )}
-      <span>
-        <FormattedMessage id="changeStage" />
-      </span>
-      <div className={classes.expansionControl} onChange={expansionChanged}>
-        <Button
-          className={classes.menuButton}
-          endIcon={<ExpandMoreIcon style={{marginRight: '16px'}} htmlColor={ACTION_BUTTON_COLOR} />}
-          aria-controls="stages-content"
-          id="stages-header"
-          onClick={handleClick}
-        >
-        <div className={classes.fontControl}>
-          <FormattedMessage id={stageLabel} />
-        </div>
-        </Button>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}>
-          {stageActions}
-        </Menu>
-      </div>
+      {!_.isEmpty(stageActions) &&
+      (
+        <React.Fragment>
+        <span>
+          <FormattedMessage id="changeStage"/>
+        </span>
+          <div className={classes.expansionControl} onChange={expansionChanged}>
+            <Button
+              className={classes.menuButton}
+              endIcon={<ExpandMoreIcon style={{ marginRight: '16px' }} htmlColor={ACTION_BUTTON_COLOR}/>}
+              aria-controls="stages-content"
+              id="stages-header"
+              onClick={handleClick}
+            >
+              <div className={classes.fontControl}>
+                <FormattedMessage id={stageLabel}/>
+              </div>
+            </Button>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}>
+              {stageActions}
+            </Menu>
+          </div>
+        </React.Fragment>
+      )}
       <MarketLinks links={children} hidden={hidden} actions={actions} />
     </dl>
   );

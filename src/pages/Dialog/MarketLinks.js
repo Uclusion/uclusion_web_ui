@@ -98,7 +98,7 @@ function MarketLinks (props) {
       const baseInviteLink = marketInfo ? `/invite/${marketInfo.marketToken}` : undefined;
       return {marketId, myPresence, baseLink, baseInviteLink, marketInfo, createdAt};
     });
-    const sortedLinks = _.orderBy(resolvedLinks, ['createdAt'], ['asc']);
+    const sortedLinks = _.orderBy(resolvedLinks, ['createdAt'], ['desc']);
     return sortedLinks.map((info, index) => {
       const {marketId, myPresence, baseLink, baseInviteLink, marketInfo} = info;
       return (

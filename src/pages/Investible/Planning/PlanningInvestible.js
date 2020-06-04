@@ -794,6 +794,10 @@ export const useMetaDataStyles = makeStyles(
         width: '100%',
         display: 'flex',
         flexDirection: 'column'
+      },
+      scrollContainer: {
+        maxHeight: '210px',
+        overflow: 'auto'
       }
     }
   },

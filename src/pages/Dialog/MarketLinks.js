@@ -151,7 +151,7 @@ function MarketLinks (props) {
     <Paper className={classes.container} id="summary">
       <div className={classes.capitalize}>
         <FormattedMessage id="marketLinksSection" />
-        <div className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer)}>
+        <div className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer, metaClasses.scrollContainer)}>
           {displayLinksList(links)}
           <List className={classes.sidebarContent}>
             {actions}

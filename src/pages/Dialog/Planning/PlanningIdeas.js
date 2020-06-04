@@ -334,7 +334,7 @@ function StageInvestible(props) {
 
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
-
+  const safeChangeDate = Date.parse(marketInfo.last_stage_change_date);
   return (
     <StageLink
       href={to}
@@ -346,7 +346,7 @@ function StageInvestible(props) {
       <Typography variant="subtitle2">{name}</Typography>
       <Typography variant="inherit">
         {updatedText}
-        <FormattedDate value={marketInfo.updated_at} />
+        <FormattedDate value={safeChangeDate} />
       </Typography>
     </StageLink>
   );

@@ -173,13 +173,13 @@ function CommentAdd (props) {
               ...info,
               stage: blockingStage.id,
               stage_name: blockingStage.name,
+              last_stage_change_date: Date.now().toString(),
             };
             const newInfos = _.unionBy([newInfo], market_infos, 'id');
             const newInvestible = {
               investible: investible,
               market_infos: newInfos
             };
-            console.error(newInvestible);
             // no diff here, so no diff dispatch
             addInvestible(investibleDispatch, ()=> {}, newInvestible);
           }

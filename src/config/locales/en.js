@@ -465,7 +465,7 @@ const messages = defineMessages({
   decisionDialogProposeExplanationLabel: 'Propose an option for consideration of being added to voting',
   decisionDialogExtendDaysLabel: 'Number of days to extend deadline?',
   decisionDialogNoInvestiblesWarning: 'No votable options',
-  childDialogExplanation: 'Click to create and link in an additional dialog.',
+  childDialogExplanation: 'Use if you need collaborators that are not in this workspace.',
   childPlanExplanation: 'Click to create and link in a child workspace relevant to this initiative.',
   decisionAddHelp: 'A Dialog gives you a timed box way to decide with others between options that you control.',
   backToOptionPoolWarning: 'Moving this option back to Proposed Options deletes all votes.',
@@ -621,11 +621,11 @@ const messages = defineMessages({
 
   // Change Preferences
   changePreferencesHeader: 'Change your notification preferences',
-  emailEnabledLabel: 'Send daily digest of notifications via email',
+  emailEnabledLabel: 'Send notifications via email',
   slackEnabledLabel: 'Send notifications via Slack',
   changePreferencesButton: 'Update Preferences',
-  slackDelayInputLabel: 'Minimum delay between notifications in Slack in minutes',
-  emailDelayInputLabel: 'Minimum delay between emails of notifications in minutes',
+  slackDelayInputLabel: 'How many minutes between Slack notifications?',
+  emailDelayInputLabel: 'How many hours between emails?',
 
   // your voting
   yourVotingVoteForThisPlanning: 'Vote for this story',

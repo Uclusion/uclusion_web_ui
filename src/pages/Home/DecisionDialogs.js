@@ -287,7 +287,7 @@ function DecisionDialogs(props) {
                 <Grid container>
                   <Grid item xs={12} md={6}>
                     <CardContent className={classes.cardContent}>
-                      {parentMarketId &&
+                      {parentName &&
                         <Link
                           href={formMarketLink(parentMarketId)}
                           variant="inherit"

@@ -25,6 +25,10 @@ import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
+import { getBlockedStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 
 function getPlaceHolderLabelId (type) {
   switch (type) {
@@ -95,6 +99,8 @@ function CommentAdd (props) {
   } = props;
   const [body, setBody] = useState('');
   const [commentsState, commentDispatch] = useContext(CommentsContext);
+  const [,investibleDispatch] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const [, versionsDispatch] = useContext(VersionsContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [openIssue, setOpenIssue] = useState(false);
@@ -151,9 +157,33 @@ function CommentAdd (props) {
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     const apiType = (type === REPLY_TYPE) ? undefined : type;
     const investibleId = (investible) ? investible.id : parentInvestible;
+    // what about not doing state?
+    const investibleBlocks = (investibleId && apiType === ISSUE_TYPE);
 
     return saveComment(marketId, investibleId, parentId, tokensRemoved, apiType, filteredUploads)
       .then((comment) => {
+        // move the investible to blocked state if it exists
+        if(investibleBlocks) {
+          const blockingStage = getBlockedStage(marketStagesState, marketId);
+          if (blockingStage) {
+            // TODO: this breaks if investible exists in more than one market
+            const { market_infos } = investible;
+            const [info] = market_infos;
+            const newInfo = {
+              ...info,
+              stage: blockingStage.id,
+              stage_name: blockingStage.name,
+              last_stage_change_date: Date.now().toString(),
+            };
+            const newInfos = _.unionBy([newInfo], market_infos, 'id');
+            const newInvestible = {
+              investible: investible,
+              market_infos: newInfos
+            };
+            // no diff here, so no diff dispatch
+            addInvestible(investibleDispatch, ()=> {}, newInvestible);
+          }
+        }
         addCommentToMarket(comment, commentsState, commentDispatch, versionsDispatch);
         return EMPTY_SPIN_RESULT;
       });

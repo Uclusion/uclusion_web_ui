@@ -8,9 +8,10 @@ import { useIntl } from 'react-intl'
 import Screen from '../../containers/Screen/Screen'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import {
+  getHiddenMarketDetailsForUser,
   getMarketDetailsForType,
   getNotHiddenMarketDetailsForUser,
-} from '../../contexts/MarketsContext/marketsContextHelper'
+} from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningDialogs from './PlanningDialogs'
 import DecisionDialogs from './DecisionDialogs'
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets'
@@ -21,6 +22,7 @@ import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
 import AddNewWizard from './Wizards/AddNewWizard'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 const useStyles = makeStyles(() => ({
     spacer: {
@@ -45,6 +47,7 @@ function Home(props) {
   const intl = useIntl();
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [operationInProgress] = useContext(OperationInProgressContext);
   const classes = useStyles();
   const [wizardActive, setWizardActive] = useState(false);
 
@@ -60,6 +63,7 @@ function Home(props) {
     marketsState,
     marketPresencesState,
   );
+  const hiddenMarkets = getHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const decisionDetails = _.sortBy(getMarketDetailsForType(
     myNotHiddenMarketsState,
@@ -99,6 +103,7 @@ function Home(props) {
       onClick: () => setWizardActive(true),
     });
   }
+  const loading = operationInProgress && noMarkets && _.isEmpty(hiddenMarkets);
   
   return (
     <Screen
@@ -106,6 +111,7 @@ function Home(props) {
       tabTitle={intl.formatMessage({ id: 'homeBreadCrumb' })}
       hidden={hidden}
       isHome
+      loading={loading}
       sidebarActions={ACTIONBAR_ACTIONS}
     >
       <AddNewWizard

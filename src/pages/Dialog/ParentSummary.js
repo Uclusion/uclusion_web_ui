@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { FormattedMessage } from 'react-intl'
 import { Link, Typography, } from '@material-ui/core'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences, } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { getMarketInfo } from '../../api/sso'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import clsx from 'clsx'
@@ -27,7 +26,6 @@ function ParentSummary(props) {
   const {
     market, hidden,
   } = props;
-  const intl = useIntl();
   const history = useHistory();
   const metaClasses = useMetaDataStyles();
   const classes = useStyles();
@@ -48,10 +46,6 @@ function ParentSummary(props) {
         const marketDetails = getMarket(marketState, parentMarketId);
         if (marketDetails) {
           setParentMarket(marketDetails);
-        } else {
-          getMarketInfo(parentMarketId).then((market) => {
-            setParentMarket(market);
-          });
         }
       } else if (hidden) {
         setParentLoaded(false);
@@ -60,11 +54,10 @@ function ParentSummary(props) {
   }, [parentMarketId, hidden, parentLoaded, marketState])
 
   function displayParentLink(parentMarketId, parentInvestibleId) {
-    const { name: parentMarketName, market_stage: parentMarketStage, invite_capability: marketToken } = parentMarket;
+    const { name: parentMarketName, market_stage: parentMarketStage } = parentMarket;
     const marketPresences = getMarketPresences(marketPresencesState, parentMarketId) || [];
     const myParentPresence = marketPresences.find((presence) => presence.current_user);
     const baseLink = parentInvestibleId ? formInvestibleLink(parentMarketId, parentInvestibleId) : formMarketLink(parentMarketId);
-    const baseInviteLink = marketToken ? `/invite/${marketToken}` : undefined;
     const inv = getInvestible(investiblesState, parentInvestibleId) || {};
     const { investible } = inv;
     const { name: parentInvestibleName } = investible || {};
@@ -87,23 +80,6 @@ function ParentSummary(props) {
               }}
             >
               {parentInvestibleName || parentMarketName}
-            </Link>
-          </Typography>
-        )}
-        {!myParentPresence && baseInviteLink && (
-          <Typography key={parentMarketId} component="li">
-            <Link
-              href={`${baseInviteLink}#is_obs=false`}
-              variant="inherit"
-              underline="always"
-              color="primary"
-              className={parentMarketStage === ACTIVE_STAGE ? classes.activeMarket : classes.inactiveMarket}
-              onClick={(event) => {
-                event.preventDefault()
-                navigate(history, `${baseInviteLink}#is_obs=false`)
-              }}
-            >
-              {intl.formatMessage({ id: 'marketParticipationLink' }, { x: parentMarketName })}
             </Link>
           </Typography>
         )}

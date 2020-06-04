@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react';
 import {
-  Button,
   Card,
   Checkbox,
   FormControl,
@@ -11,18 +10,23 @@ import {
   ListItemText,
   makeStyles,
   TextField,
-  Typography
-} from '@material-ui/core'
-import _ from 'lodash'
-import { useIntl } from 'react-intl'
-import PropTypes from 'prop-types'
-import { updateUser } from '../../api/users'
-import clsx from 'clsx'
-import config from '../../config'
-import Screen from '../../containers/Screen/Screen'
-import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+  Typography,
+  ExpansionPanel,
+  ExpansionPanelSummary,
+  ExpansionPanelDetails,
+} from '@material-ui/core';
+
+import { useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
+import { updateUser } from '../../api/users';
+import clsx from 'clsx';
+import config from '../../config';
+import Screen from '../../containers/Screen/Screen';
+import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -30,18 +34,18 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.disabled,
   },
   action: {
-    boxShadow: "none",
-    padding: "4px 16px",
-    textTransform: "none",
-    "&:hover": {
-      boxShadow: "none"
+    boxShadow: 'none',
+    padding: '4px 16px',
+    textTransform: 'none',
+    '&:hover': {
+      boxShadow: 'none'
     }
   },
   actionPrimary: {
-    backgroundColor: "#2D9CDB",
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#2D9CDB"
+    backgroundColor: '#2D9CDB',
+    color: 'white',
+    '&:hover': {
+      backgroundColor: '#2D9CDB'
     }
   },
   label: {
@@ -59,50 +63,53 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function ChangeNotificationPreferences(props) {
+function ChangeNotificationPreferences (props) {
   const { hidden } = props;
-  const [emailEnabled, setEmailEnabled] = useState(undefined);
-  const [slackEnabled, setSlackEnabled] = useState(undefined);
   const [userState] = useContext(AccountUserContext) || {};
   const { user } = userState;
-  const [slackDelay, setSlackDelay] = useState(30);
-  const [emailDelay, setEmailDelay] = useState(30);
+  const slackNotAvailable = !user || !user.is_slack_addressable;
+  const [emailEnabled, setEmailEnabled] = useState(user && user.email_enabled);
+  const [slackEnabled, setSlackEnabled] = useState(!slackNotAvailable && user && user.slack_enabled);
+
+  const [slackDelay, setSlackDelay] = useState(user && user.slack_delay);
+  const [emailDelay, setEmailDelay] = useState(user && user.email_delay);
   const intl = useIntl();
   const classes = useStyles();
 
-  useEffect(() => {
-    if (!_.isEmpty(user) && emailEnabled === undefined) {
-        setEmailEnabled(user.email_enabled);
-        setSlackEnabled(user.slack_enabled);
-        setEmailDelay(user.email_delay)
-        if (user.slack_delay) {
-          setSlackDelay(user.slack_delay);
-        }
-    }
-  }, [user, emailEnabled]);
 
-  function onSetPreferences() {
-    updateUser({ emailEnabled, slackEnabled, slackDelay, emailDelay });
+  function onSetPreferences () {
+    return updateUser({ emailEnabled, slackEnabled, slackDelay, emailDelay });
   }
 
-  function handleToggleEmail() {
+  function handleToggleEmail () {
     setEmailEnabled(!emailEnabled);
   }
 
-  function handleToggleSlack() {
-    setSlackEnabled(!slackEnabled);
+  function handleToggleSlack () {
+
+    if (!slackNotAvailable) {
+      setSlackEnabled(!slackEnabled);
+    }
   }
 
-  function handleChangeSlackDelay(event) {
+  function handleChangeSlackDelay (event) {
     const { value } = event.target;
-    setSlackDelay(parseInt(value, 10));
+    const parsed = parseInt(value, 10);
+    if (parsed && parsed > 0) {
+      setSlackDelay(parsed);
+    }
   }
 
-  function handleChangeEmailDelay(event) {
+  function handleChangeEmailDelay (event) {
     const { value } = event.target;
-    setEmailDelay(parseInt(value, 10));
+    const parsed = parseInt(value, 10);
+    if (parsed && parsed > 0) {
+      setEmailDelay(parsed * 60);
+    }
   }
 
+  const emailDelayInHours = Math.round(emailDelay / 60);
+  const advancedEnabled = slackEnabled || emailEnabled;
   const history = useHistory();
   const breadCrumbs = makeBreadCrumbs(history, [], true);
   return (
@@ -113,123 +120,147 @@ function ChangeNotificationPreferences(props) {
       breadCrumbs={breadCrumbs}
       loading={!user}
     >
-      <Grid container spacing={3} >
+      <Grid container spacing={3}>
         <Grid item md={6} xs={12}>
-          <Card elevation={0} style={{padding: '2rem'}}>
-          <Typography style={{paddingBottom: '1rem'}}>
-            {intl.formatMessage({ id: 'changePreferencesHeader' })}
-          </Typography>
+          <Card elevation={0} style={{ padding: '2rem' }}>
+            <Typography style={{ paddingBottom: '1rem' }}>
+              {intl.formatMessage({ id: 'changePreferencesHeader' })}
+            </Typography>
             {user && !user.is_slack_addressable && (
-            <a
-              href={config.add_to_slack_url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                alt="Add to Slack"
-                height="40"
-                width="139"
-                src="https://platform.slack-edge.com/img/add_to_slack.png"
-                srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
-              />
-            </a>
-          )}
-        
-      {user && (
-        <form
-          noValidate
-          autoComplete="off"
-            >
-            <Grid
-              container
-              direction="row"
-              justify="center"
-              alignItems="baseline"
-              style={{padding: '1rem', paddingBottom: '0'} }
-            >
-            <ListItem
-              key="email"
-              button
-              onClick={handleToggleEmail}
-            >
-              <ListItemIcon>
-                <Checkbox
-                  value={emailEnabled}
-                  checked={emailEnabled}
-                />
-              </ListItemIcon>
-              <ListItemText
-                className={classes.name}
+              <a
+                href={config.add_to_slack_url}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                {intl.formatMessage({ id: 'emailEnabledLabel' })}
-              </ListItemText>
-            </ListItem>
-            <ListItem
-              key="slack"
-              button
-              onClick={handleToggleSlack}
-            >
-              <ListItemIcon>
-                <Checkbox
-                  value={slackEnabled}
-                  checked={slackEnabled}
-                  disabled={!user || !user.is_slack_addressable}
+                <img
+                  alt="Add to Slack"
+                  height="40"
+                  width="139"
+                  src="https://platform.slack-edge.com/img/add_to_slack.png"
+                  srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
                 />
-              </ListItemIcon>
-              <ListItemText
-                className={user && user.is_slack_addressable ? classes.name : classes.disabled}
+              </a>
+            )}
+
+            {user && (
+              <form
+                noValidate
+                autoComplete="off"
               >
-                {intl.formatMessage({ id: 'slackEnabledLabel' })}
-              </ListItemText>
-            </ListItem>
-            </Grid>
+                <Grid
+                  container
+                  direction="row"
+                  justify="center"
+                  alignItems="baseline"
+                  style={{ padding: '1rem', paddingBottom: '0' }}
+                >
+                  <ListItem
+                    key="email"
+                    button
+                    onClick={handleToggleEmail}
+                  >
+                    <ListItemIcon>
+                      <Checkbox
+                        value={emailEnabled}
+                        checked={emailEnabled}
+                      />
+                    </ListItemIcon>
+                    <ListItemText
+                      className={classes.name}
+                    >
+                      {intl.formatMessage({ id: 'emailEnabledLabel' })}
+                    </ListItemText>
+                  </ListItem>
+                  <ListItem
+                    key="slack"
+                    button
+                    onClick={handleToggleSlack}
+                  >
+                    <ListItemIcon>
+                      <Checkbox
+                        value={slackEnabled}
+                        checked={slackEnabled}
+                        disabled={!user || !user.is_slack_addressable}
+                      />
+                    </ListItemIcon>
+                    <ListItemText
+                      className={user && user.is_slack_addressable ? classes.name : classes.disabled}
+                    >
+                      {intl.formatMessage({ id: 'slackEnabledLabel' })}
+                    </ListItemText>
+                  </ListItem>
+                </Grid>
+                {advancedEnabled &&
+                (<ExpansionPanel>
+                    <ExpansionPanelSummary
+                      expandIcon={<ExpandMoreIcon/>}
+                    >
+                      {intl.formatMessage({ id: 'advanced' })}
+                    </ExpansionPanelSummary>
+                    <ExpansionPanelDetails>
+                      <Grid
+                        container
+                        direction="row"
+                        justify="space-evenly"
+                        alignItems="stretch"
+                        style={{ padding: '1rem', paddingTop: '0' }}
+                      >
+                        {emailEnabled && (<FormControl fullWidth={true} margin="normal" className={classes.formControl}>
+                          <InputLabel htmlFor="emailDelay" shrink={true} className={classes.label}>
+                            {intl.formatMessage({ id: 'emailDelayInputLabel' })}
+                          </InputLabel>
+                          <TextField
+                            id="emailDelay"
+                            type="number"
+                            variant="outlined"
+                            disabled={!emailEnabled}
+                            onChange={handleChangeEmailDelay}
+                            value={emailDelayInHours}
+                          />
+                        </FormControl>)}
+                        {slackEnabled && (
+                          <FormControl fullWidth={true} margin="normal" className={classes.formControl}>
+                            <InputLabel htmlFor="slackDelay" shrink={true} className={classes.label}>
+                              {intl.formatMessage({ id: 'slackDelayInputLabel' })}
+                            </InputLabel>
+                            <TextField
+                              id="slackDelay"
+                              type="number"
+                              disabled={!slackEnabled}
+                              variant="outlined"
+                              onChange={handleChangeSlackDelay}
+                              value={slackDelay}
+                            />
+                          </FormControl>
+                        )}
+
+                      </Grid>
+                    </ExpansionPanelDetails>
+                  </ExpansionPanel>
+                )}
+              </form>
+            )}
             <Grid
               container
               direction="row"
               justify="space-evenly"
               alignItems="stretch"
-              style={{padding: '1rem', paddingTop: '0'} }
+              style={{ padding: '1rem', paddingTop: '3rem' }}
             >
-              <FormControl fullWidth={true} margin="normal" className={classes.formControl}>
-                <InputLabel htmlFor="emailDelay" shrink={true} className={classes.label}>
-                  {intl.formatMessage({ id: 'emailDelayInputLabel' })}
-                </InputLabel>
-                <TextField
-                  id="emailDelay"
-                  type="number"
-                  variant="outlined"
-                  onChange={handleChangeEmailDelay}
-                  value={emailDelay}
-                />
-              </FormControl>
-              <FormControl fullWidth={true} margin="normal" className={classes.formControl}>
-                <InputLabel htmlFor="slackDelay" shrink={true} className={classes.label}>
-                  {intl.formatMessage({ id: 'slackDelayInputLabel' })}
-                </InputLabel>
-                <TextField
-                  id="slackDelay"
-                  type="number"
-                  variant="outlined"
-                  onChange={handleChangeSlackDelay}
-                  value={slackDelay}
-                />
-              </FormControl>
-            <Button
-              variant="outlined"
-              fullWidth={true}
-              color="primary"
-              className={ clsx(
-                classes.action,
-                classes.actionPrimary
-              )}
-              onClick={onSetPreferences}
-            >
-              {intl.formatMessage({ id: 'changePreferencesButton' })}
-            </Button>
+              <SpinBlockingButton
+                variant="outlined"
+                fullWidth={true}
+                color="primary"
+                className={clsx(
+                  classes.action,
+                  classes.actionPrimary
+                )}
+                onClick={onSetPreferences}
+              >
+                {intl.formatMessage({ id: 'changePreferencesButton' })}
+              </SpinBlockingButton>
             </Grid>
-          </form>
-        )}
-      </Card>
+          </Card>
         </Grid>
       </Grid>
     </Screen>

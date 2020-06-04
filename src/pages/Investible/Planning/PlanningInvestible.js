@@ -490,6 +490,8 @@ function PlanningInvestible(props) {
   const proposedStage = getProposedOptionsStage(marketStagesState, inlineMarketId);
   const proposed = getInlineInvestiblesForStage(proposedStage);
   const inlineInvestibleComments = getMarketComments(commentsState, inlineMarketId);
+  const yourPresence = marketPresences.find((presence) => presence.current_user);
+  const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
   }
@@ -519,7 +521,7 @@ function PlanningInvestible(props) {
       {activeMarket && isInAccepted && isAssigned && (
         <DismissableText textId='planningInvestibleAcceptedHelp' />
       )}
-      {activeMarket && canVote && (
+      {!yourVote && activeMarket && canVote && (
         <DismissableText textId='planningInvestibleVotingHelp' />
       )}
       <Card elevation={0}>

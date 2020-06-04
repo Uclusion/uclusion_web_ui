@@ -338,14 +338,15 @@ function checkInProgressWarning(investibles, comments, inProgressStageId, userId
   const { investible, market_infos: marketInfos } = inProgressInvestible;
   const { id } = investible;
   const marketInfo = marketInfos.find(info => info.market_id === marketId);
-  const { days_estimate: daysEstimate, last_stage_changed_date: stageEntry, created_at: createdAt } = marketInfo;
+  const { days_estimate: daysEstimate, last_stage_change_date: stageEntry, created_at: createdAt } = marketInfo;
   if (Date.now() - Date.parse(stageEntry) < 86400000) {
     // Never any point bothering if less than a day in progress
     return false;
   }
   if (daysEstimate) {
     const dayEstimated = moment(createdAt).add(daysEstimate, 'days').toDate();
-    if (Date.now() <= dayEstimated) {
+    const today = new Date();
+    if (today <= dayEstimated) {
       // Also do not bother if we are before the date chosen for completion
       return false;
     }

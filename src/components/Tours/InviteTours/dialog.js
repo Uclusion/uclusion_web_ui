@@ -1,4 +1,3 @@
-export const INVITE_DIALOG_FAMILY_NAME = 'DIALOG_INVITE';
 export const INVITE_DIALOG_FIRST_VIEW = 'invite_dialog_first_view';
 
 export function inviteDialogSteps(variables) {

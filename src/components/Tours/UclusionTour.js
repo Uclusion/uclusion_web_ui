@@ -3,7 +3,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { TourContext } from '../../contexts/TourContext/TourContext';
 import {
-  isTourFamilyRunning,
+  isTourRunning,
   getCurrentStep,
   isTourCompleted,
   setCurrentStep,
@@ -19,7 +19,6 @@ import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContex
 function UclusionTour(props) {
   const {
     name,
-    family,
     shouldRun,
     hidden,
     ...rest
@@ -33,6 +32,7 @@ function UclusionTour(props) {
   const tourPreferences = userPreferences.tours || {};
   const { completedTours } = tourPreferences;
   const safeCompletedTours = _.isArray(completedTours)? completedTours : [];
+
   function storeTourCompleteInBackend(tourName){
     const newCompleted = [...safeCompletedTours, tourName];
     const newTourPreferences = {
@@ -62,7 +62,7 @@ function UclusionTour(props) {
         // the've finished, register complete
         // console.log(`Tour ${name} is complete`);
         completeTour(tourDispatch, name);
-        storeTourCompleteInBackend(family);
+        storeTourCompleteInBackend(name);
       }
       if (type === 'step:after') {
         setCurrentStep(tourDispatch, name, index + 1);
@@ -100,13 +100,13 @@ function UclusionTour(props) {
   const [runTour, setRunTour] = useState(false);
 
   useEffect(() => {
-    const uiPrefCantRun = !hasUser || safeCompletedTours.includes(family);
-    const tourFamilyActive = isTourFamilyRunning(tourState, family);
-    const iCanRun = !hidden && tourFamilyActive && shouldRun && !isCompleted && !uiPrefCantRun;
+    const uiPrefCantRun = !hasUser || safeCompletedTours.includes(name);
+    const tourActive = isTourRunning(tourState, name);
+    const iCanRun = !hidden && shouldRun && tourActive && !isCompleted && !uiPrefCantRun;
     setRunTour(iCanRun);
     return () => {
     };
-  }, [hasUser, safeCompletedTours, hidden, tourState, family, shouldRun, isCompleted]);
+  }, [hasUser, safeCompletedTours, hidden, tourState, shouldRun, isCompleted, name]);
 
   if (!runTour) {
     return <React.Fragment/>;
@@ -131,7 +131,6 @@ function UclusionTour(props) {
 
 UclusionTour.propTypes = {
   name: PropTypes.string.isRequired,
-  family: PropTypes.string.isRequired,
   shouldRun: PropTypes.bool,
   hidden: PropTypes.bool,
   continuous: PropTypes.bool,

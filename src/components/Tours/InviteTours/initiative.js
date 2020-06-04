@@ -1,4 +1,3 @@
-export const INVITE_INITIATIVE_FAMILY_NAME = 'INITIATIVE_INVITE';
 export const INVITE_INITIATIVE_FIRST_VIEW = 'invite_initiative_first_view';
 
 export function inviteInitiativeSteps(variables) {

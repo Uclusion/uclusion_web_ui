@@ -41,12 +41,11 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import {
-  INVITE_DIALOG_FAMILY_NAME,
   INVITE_DIALOG_FIRST_VIEW,
   inviteDialogSteps
 } from '../../../components/Tours/InviteTours/dialog'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
-import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer'
+import { startTour } from '../../../contexts/TourContext/tourContextReducer'
 import { TourContext } from '../../../contexts/TourContext/TourContext'
 import InviteLinker from '../InviteLinker'
 import StepButtons from '../../Onboarding/StepButtons'
@@ -208,7 +207,7 @@ function DecisionDialog(props) {
 
   useEffect(() => {
     if (!onboarded) {
-      tourDispatch(startTourFamily(INVITE_DIALOG_FAMILY_NAME));
+      tourDispatch(startTour(INVITE_DIALOG_FIRST_VIEW));
     }
   }, [onboarded, tourDispatch])
 
@@ -282,7 +281,6 @@ function DecisionDialog(props) {
       <UclusionTour
         hidden={hidden}
         name={INVITE_DIALOG_FIRST_VIEW}
-        family={INVITE_DIALOG_FAMILY_NAME}
         steps={inviteDialogSteps(user)}
       />
       <Card elevation={0} className={classes.root}>

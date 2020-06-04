@@ -1,28 +1,22 @@
-const MARK_TOUR_COMPLETED = 'MARK_COMPLETED';
+const MARK_TOUR_COMPLETED = 'MARK_TOUR_COMPLETED';
 const SET_TOUR_CURRENT_STEP = 'SET_TOUR_CURRENT_STEP';
-const START_TOUR_FAMILY = 'START_TOUR_FAMILY';
-const STOP_TOUR_FAMILY = 'STOP_TOUR_FAMILY';
+const START_TOUR = 'START_TOUR';
 
-export function startTourFamily(name) {
-  return {
-    type: START_TOUR_FAMILY,
-    name,
-  };
-}
-
-export function stopTourFamily(name) {
-  return {
-    type: STOP_TOUR_FAMILY,
-    name,
-  };
-}
-
-export function markTourPortionCompleted(name) {
+export function markTourCompleted(name) {
   return {
     type: MARK_TOUR_COMPLETED,
     name,
   };
 }
+
+
+export function startTour(name) {
+  return {
+    type: START_TOUR,
+    name,
+  };
+}
+
 
 export function setTourCurrentStep(name, currentStep) {
   return {
@@ -59,23 +53,12 @@ function setCurrentStep(state, action) {
   };
 }
 
-function markTourFamilyStopped(state, action) {
-  const { name } = state;
-  if (name === state.runningFamily) {
-    const newState = {
-      ...state,
-      runningFamily: undefined,
-    };
-    return newState;
-  }
-  return state;
-}
 
-function markTourFamilyStarted(state, action) {
+function markTourStarted(state, action) {
   const { name } = action;
   const newState = {
     ...state,
-    runningFamily: name,
+    runningTour: name,
   };
   return newState;
 }
@@ -87,10 +70,8 @@ export function reducer(state, action) {
       return markCompleted(state, action);
     case SET_TOUR_CURRENT_STEP:
       return setCurrentStep(state, action);
-    case START_TOUR_FAMILY:
-      return markTourFamilyStarted(state, action);
-    case STOP_TOUR_FAMILY:
-      return markTourFamilyStopped(state, action);
+    case START_TOUR:
+      return markTourStarted(state, action);
     default:
       return state;
   }

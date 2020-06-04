@@ -38,16 +38,14 @@ import clsx from 'clsx'
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestible'
 import ViewArchiveActionButton from './ViewArchivesActionButton'
 import { TourContext } from '../../../contexts/TourContext/TourContext'
-import { startTourFamily } from '../../../contexts/TourContext/tourContextReducer'
+import { startTour } from '../../../contexts/TourContext/tourContextReducer'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import {
-  INVITE_STORIES_WORKSPACE_FAMILY_NAME,
   INVITE_STORIES_WORKSPACE_FIRST_VIEW,
   inviteStoriesWorkspaceSteps
 } from '../../../components/Tours/InviteTours/storyWorkspace'
 import {
-  INVITE_REQ_WORKSPACE_FAMILY_NAME,
   INVITE_REQ_WORKSPACE_FIRST_VIEW,
   inviteRequirementsWorkspaceSteps
 } from '../../../components/Tours/InviteTours/requirementsWorkspace'
@@ -152,15 +150,14 @@ function PlanningDialog(props) {
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const storyWorkspace = isStoryWorkspace();
-  const tourFamily = storyWorkspace ? INVITE_STORIES_WORKSPACE_FAMILY_NAME : INVITE_REQ_WORKSPACE_FAMILY_NAME;
   const tourName = storyWorkspace ? INVITE_STORIES_WORKSPACE_FIRST_VIEW : INVITE_REQ_WORKSPACE_FIRST_VIEW;
   const tourSteps = storyWorkspace ? inviteStoriesWorkspaceSteps(cognitoUser)
     : inviteRequirementsWorkspaceSteps(cognitoUser);
   useEffect(() => {
     if (!onboarded) {
-      tourDispatch(startTourFamily(tourFamily));
+      tourDispatch(startTour(tourName));
     }
-  }, [onboarded, tourDispatch, tourFamily]);
+  }, [onboarded, tourDispatch, tourName]);
 
   const wizardStyle = wizardStyles();
   if (onboarded) {
@@ -214,7 +211,6 @@ function PlanningDialog(props) {
     >
       <UclusionTour
         name={tourName}
-        family={tourFamily}
         hidden={hidden}
         steps={tourSteps}
         />

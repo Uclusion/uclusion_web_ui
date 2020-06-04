@@ -1,4 +1,3 @@
-export const ADMIN_INITIATIVE_FAMILY_NAME = 'ADMIN_INITIATIVE_INVITE';
 export const ADMIN_INITIATIVE_FIRST_VIEW = 'admin_initiative_first_view';
 
 export function adminInitiativeSteps(variables) {

@@ -339,13 +339,8 @@ function checkInProgressWarning(investibles, comments, inProgressStageId, userId
   const { id } = investible;
   const marketInfo = marketInfos.find(info => info.market_id === marketId);
   const { days_estimate: daysEstimate, last_stage_changed_date: stageEntry, created_at: createdAt } = marketInfo;
-  const useDaysEstimate = daysEstimate || 1;
   if (Date.now() - Date.parse(stageEntry) < 86400000) {
     // Never any point bothering if less than a day in progress
-    return false;
-  }
-  if (Date.now() - Date.parse(stageEntry) < 86400000*useDaysEstimate - (Date.parse(stageEntry) - Date.parse(createdAt))) {
-    // Also do not bother if no in progress longer number of days said would take
     return false;
   }
   if (daysEstimate) {

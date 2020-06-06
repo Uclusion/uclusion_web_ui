@@ -6,7 +6,7 @@ import beginListening from './highligtedCommentContextMessages'
 const HighlightedCommentContext = React.createContext({});
 const THREAD_CONTEXT_NAMESPACE = 'thread_context';
 const HIGHLIGHT_DELAY = 300000;
-export const HIGHTLIGHT_ADD = 'ADD';
+export const HIGHLIGHT_ADD = 'ADD';
 export const HIGHLIGHT_REMOVE = 'REMOVE';
 export const EXPANDED = 'EXPANDED';
 
@@ -15,7 +15,8 @@ function HighlightedCommentProvider(props) {
   const [state, dispatch] = useReducer((state, action) => {
     const { type, commentId, level, newRepliesExpanded, newState } = action;
     const oldCommentState = state[commentId] || {};
-    if (type === HIGHTLIGHT_ADD) {
+    if (type === HIGHLIGHT_ADD) {
+
       setTimeout(() => {
         dispatch({ type: HIGHLIGHT_REMOVE, commentId });
       }, HIGHLIGHT_DELAY);

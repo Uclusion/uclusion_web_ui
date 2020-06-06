@@ -69,6 +69,9 @@ const useStyles = makeStyles(
         flexBasis: 'auto'
       }
     },
+    draft: {
+      color: "#E85757"
+    },
     actions: {
       justifyContent: 'flex-end',
       '& > button': {
@@ -147,6 +150,7 @@ function InitiativeInvestible(props) {
     hidden,
   } = props;
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+  const isDraft = !_.isEmpty(myPresence) && marketPresences.length === 1;
   const intl = useIntl();
   const history = useHistory();
   const classes = useStyles();
@@ -234,6 +238,11 @@ function InitiativeInvestible(props) {
         <Grid container className={classes.mobileColumn}>
           <Grid item md={9} xs={12}>
             <CardContent className={classes.content}>
+              {isDraft && activeMarket && (
+                <Typography className={classes.draft}>
+                  {intl.formatMessage({ id: "draft" })}
+                </Typography>
+              )}
               <Typography className={classes.title} variant="h3" component="h1">
                 {name}
               </Typography>

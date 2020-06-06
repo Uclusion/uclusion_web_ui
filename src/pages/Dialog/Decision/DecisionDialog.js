@@ -69,6 +69,9 @@ const useStyles = makeStyles(
         flexDirection: 'column'
       }
     },
+    draft: {
+      color: "#E85757"
+    },
     borderLeft: {
       borderLeft: '1px solid #e0e0e0',
       padding: '2rem',
@@ -164,6 +167,7 @@ function DecisionDialog(props) {
   const classes = useStyles();
   const metaClasses = useMetaDataStyles();
   const intl = useIntl();
+  const isDraft = !_.isEmpty(myPresence) && marketPresences.length === 1;
   const {
     is_admin: isAdmin,
   } = myPresence;
@@ -291,15 +295,20 @@ function DecisionDialog(props) {
         <Grid id="dialogMain" container className={classes.mobileColumn}>
           <Grid item xs={9}>
             <CardContent className={classes.content}>
-          {!isInline && (
-            <>
-              <Typography className={classes.title} variant="h3" component="h1">
-                {marketName}
-              </Typography>
-              <DescriptionOrDiff id={marketId} description={description}/>
-            </>
-          )}
-        </CardContent>
+              {isDraft && activeMarket && (
+                <Typography className={classes.draft}>
+                  {intl.formatMessage({ id: 'draft' })}
+                </Typography>
+              )}
+              {!isInline && (
+                <>
+                  <Typography className={classes.title} variant="h3" component="h1">
+                    {marketName}
+                  </Typography>
+                  <DescriptionOrDiff id={marketId} description={description}/>
+                </>
+              )}
+            </CardContent>
           </Grid>
           <Grid className={classes.borderLeft} item xs={3}>
             <CardActions className={classes.actions}>

@@ -1,5 +1,6 @@
 const OUR_FILE_PATTERN = /https\:\/\/\w+.cloudfront.net\/(\w{8}(-\w{4}){3}-\w{12})\/\w{8}(-\w{4}){3}-\w{12}.*/i;
 self.importScripts('localforage.min.js');
+//see https://davidwalsh.name/service-worker-claim
 self.addEventListener('install', (event) => {
   return self.skipWaiting();
 });

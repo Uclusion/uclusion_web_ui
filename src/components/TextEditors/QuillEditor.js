@@ -70,14 +70,29 @@ class QuillEditor extends React.PureComponent {
     this.state = { uploads: [], uploadInProgress: false };
     this.editorBox = React.createRef();
     this.editorContainer = React.createRef();
-    const {
+  }
+
+  addLinkFixer() {
+    const Link = Quill.import('formats/link');
+    var builtinSanitizer = Link.sanitize;
+    Link.sanitize = function (linkValue) {
+      // do nothing, since this implies user's already using a custom protocol
+      if (/^\w+:/.test(linkValue)) {
+        return builtinSanitizer.call(this, linkValue);
+      }
+      return builtinSanitizer.call(this, 'https://' + linkValue);
+    }
+  }
+
+  createEditor() {
+    const { onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc, setEditorDefaultFunc,
       marketId,
       placeholder,
       uploadDisabled,
       noToolbar,
       simple,
-      setOperationInProgress,
-    } = props;
+      setOperationInProgress
+    } = this.props;
     const defaultModules = {
       toolbar: [
         [{ font: [] }],
@@ -130,22 +145,6 @@ class QuillEditor extends React.PureComponent {
       theme: 'snow',
       bounds: '#editorbox'
     }
-  }
-
-  addLinkFixer() {
-    const Link = Quill.import('formats/link');
-    var builtinSanitizer = Link.sanitize;
-    Link.sanitize = function (linkValue) {
-      // do nothing, since this implies user's already using a custom protocol
-      if (/^\w+:/.test(linkValue)) {
-        return builtinSanitizer.call(this, linkValue);
-      }
-      return builtinSanitizer.call(this, 'https://' + linkValue);
-    }
-  }
-
-  createEditor() {
-    const { onChange, onStoreChange, setEditorClearFunc, setEditorFocusFunc, setEditorDefaultFunc } = this.props;
     this.editor = new Quill(this.editorBox.current, this.options);
     this.addLinkFixer();
     const debouncedOnChange = _.debounce((delta) => {

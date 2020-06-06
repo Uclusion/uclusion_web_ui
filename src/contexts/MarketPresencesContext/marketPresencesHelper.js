@@ -59,8 +59,8 @@ export function changeObserverStatus(state, dispatch, marketId, isObserver) {
 /** Used for quick add. Updates our investment with what data we know.
  * Has to be filled in later with an actual versions call
  */
-export function partialUpdateInvestment(dispatch, investmentPatch) {
-  dispatch(patchInvestment(investmentPatch))
+export function partialUpdateInvestment(dispatch, investmentPatch, allowMultiVote) {
+  dispatch(patchInvestment(investmentPatch, allowMultiVote))
 }
 
 export function marketHasOnlyCurrentUser(state, marketId){

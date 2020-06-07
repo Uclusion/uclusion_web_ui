@@ -145,6 +145,9 @@ class QuillEditor extends React.PureComponent {
       theme: 'snow',
       bounds: '#editorbox'
     }
+    if(window.outerWidth < 600){
+      this.options.modules.toolbar = false
+    }
     this.editor = new Quill(this.editorBox.current, this.options);
     this.addLinkFixer();
     const debouncedOnChange = _.debounce((delta) => {
@@ -205,10 +208,8 @@ class QuillEditor extends React.PureComponent {
     const { defaultValue } = this.props;
     this.editorBox.current.innerHTML = defaultValue;
     
-    if(window.outerWidth < 600){
-      this.options.modules.toolbar = false
-    }
     this.createEditor();
+
   }
 
   setUploadInProgress(value) {

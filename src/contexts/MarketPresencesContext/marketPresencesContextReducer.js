@@ -19,10 +19,11 @@ export function initializeState(newState) {
   };
 }
 
-export function patchInvestment(investmentPatch) {
+export function patchInvestment(investmentPatch, allowMultiVote) {
   return {
     type: PATCH_INVESTMENT,
     investmentPatch,
+    allowMultiVote
   };
 }
 
@@ -67,7 +68,7 @@ export function removeMarketsPresence(marketIds) {
 /** Functions that update the state **/
 
 function doPatchInvestment(state, action) {
-  const { investmentPatch } = action;
+  const { investmentPatch, allowMultiVote } = action;
   const {
     market_id,
     quantity,
@@ -89,7 +90,7 @@ function doPatchInvestment(state, action) {
     quantity,
     max_budget
   };
-  const newInvestments = _.unionBy([newInvestment], investments, 'investible_id');
+  const newInvestments = allowMultiVote ?  _.unionBy([newInvestment], investments, 'investible_id') : [newInvestment];
   const newPresence = {
     ...oldPresence,
     investments: newInvestments,

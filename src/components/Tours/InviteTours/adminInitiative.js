@@ -22,7 +22,7 @@ export function adminInitiativeSteps(variables) {
     {
       disableBeacon: true,
       target: '#adminManageCollaborators',
-      content: 'Lastly, collaborators can be added or removed here.',
+      content: 'Lastly, collaborators can be added here.',
     },
 
   ]

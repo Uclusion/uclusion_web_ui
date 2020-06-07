@@ -98,7 +98,7 @@ function MarketLinks (props) {
       const baseInviteLink = marketInfo ? `/invite/${marketInfo.marketToken}` : undefined;
       return {marketId, myPresence, baseLink, baseInviteLink, marketInfo, createdAt};
     });
-    const sortedLinks = _.orderBy(resolvedLinks, ['createdAt'], ['asc']);
+    const sortedLinks = _.orderBy(resolvedLinks, ['createdAt'], ['desc']);
     return sortedLinks.map((info, index) => {
       const {marketId, myPresence, baseLink, baseInviteLink, marketInfo} = info;
       return (
@@ -152,10 +152,10 @@ function MarketLinks (props) {
       <div className={classes.capitalize}>
         <FormattedMessage id="marketLinksSection" />
         <div className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer, metaClasses.scrollContainer)}>
-          {displayLinksList(links)}
           <List className={classes.sidebarContent}>
             {actions}
           </List>
+          {displayLinksList(links)}
         </div>
       </div>
     </Paper>

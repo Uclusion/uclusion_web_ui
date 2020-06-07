@@ -208,7 +208,7 @@ function AddEditVote(props) {
       addVersionRequirement(versionsDispatch, { id: comment.id, version: comment.version});
       refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
     }
-    partialUpdateInvestment(marketPresencesDispatch, investmentResult);
+    partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);
     onSave();
   }
 

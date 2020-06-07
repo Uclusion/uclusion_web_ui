@@ -54,6 +54,7 @@ import Header from '../../../containers/Header'
 import InviteLinker from '../InviteLinker'
 import StepButtons from '../../Onboarding/StepButtons'
 import queryString from 'query-string'
+import moment from 'moment'
 
 const useStyles = makeStyles(
   () => ({
@@ -337,10 +338,18 @@ function checkInProgressWarning(investibles, comments, inProgressStageId, userId
   const { investible, market_infos: marketInfos } = inProgressInvestible;
   const { id } = investible;
   const marketInfo = marketInfos.find(info => info.market_id === marketId);
-  const { days_estimate: daysEstimate, last_stage_changed_date: stageEntry } = marketInfo;
-  const useDaysEstimate = daysEstimate || 1;
-  if (Date.now() - Date.parse(stageEntry) < 86400000*useDaysEstimate) {
+  const { days_estimate: daysEstimate, last_stage_change_date: stageEntry, created_at: createdAt } = marketInfo;
+  if (Date.now() - Date.parse(stageEntry) < 86400000) {
+    // Never any point bothering if less than a day in progress
     return false;
+  }
+  if (daysEstimate) {
+    const dayEstimated = moment(createdAt).add(daysEstimate, 'days').toDate();
+    const today = new Date();
+    if (today <= dayEstimated) {
+      // Also do not bother if we are before the date chosen for completion
+      return false;
+    }
   }
   if (!comments) {
     return true;

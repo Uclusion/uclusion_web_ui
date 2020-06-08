@@ -9,7 +9,7 @@ import CreatingInitiativeStep from './CreatingInitiativeStep'
 
 function InitiativeWizard(props) {
 
-  const { hidden, onStartOver, isHome } = props;
+  const { hidden, onStartOver, isHome, onFinish } = props;
 
   const intl = useIntl();
   const stepProtoTypes = [
@@ -36,6 +36,7 @@ function InitiativeWizard(props) {
       hidden={hidden}
       isHome={isHome}
       title={intl.formatMessage({ id: 'DialogWizardTitle' })}
+      onFinish={onFinish}
       onStartOver={onStartOver}
       stepPrototypes={stepProtoTypes}
     />
@@ -47,11 +48,13 @@ InitiativeWizard.propTypes = {
   hidden: PropTypes.bool.isRequired,
   onStartOver: PropTypes.func,
   isHome: PropTypes.bool,
+  onFinish: PropTypes.func,
 };
 
 InitiativeWizard.defaultProps = {
   onStartOver: () => {},
   isHome: false,
+  onFinish: () => {},
 };
 
 export default InitiativeWizard;

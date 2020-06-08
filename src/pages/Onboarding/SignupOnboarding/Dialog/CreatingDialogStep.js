@@ -14,10 +14,10 @@ import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { Button, CircularProgress, Typography } from '@material-ui/core'
 import { AllSequentialMap } from '../../../../utils/PromiseUtils'
-import { resetValues } from '../../onboardingReducer'
+
 
 function CreatingDialogStep(props) {
-  const { formData, active, classes, updateFormData, isHome } = props;
+  const { formData, active, classes, updateFormData, isHome, onFinish } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -82,11 +82,12 @@ function CreatingDialogStep(props) {
           });
         })
         .then(() => {
-          updateFormData(resetValues());
           if(isHome) {
+            onFinish(formData);
             const link = formMarketManageLink(marketId) + '#participation=true';
             navigate(history, link);
           } else {
+            onFinish(formData);
             const marketLink = formMarketLink(marketId);
             navigate(history, `${marketLink}#onboarded=true`);
           }
@@ -95,7 +96,8 @@ function CreatingDialogStep(props) {
           setDialogInfo({dialogError: true});
         });
     }
-  }, [dialogInfo, active, diffDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, updateFormData, isHome, history]);
+  }, [dialogInfo, onFinish, active, diffDispatch, formData,
+    investiblesDispatch, marketsDispatch, presenceDispatch, updateFormData, isHome, history]);
 
   if (!active) {
     return React.Fragment;
@@ -130,6 +132,7 @@ CreatingDialogStep.propTypes = {
   active: PropTypes.bool,
   updateFormData: PropTypes.func,
   isHome: PropTypes.bool,
+  onFinish: PropTypes.func,
 };
 
 CreatingDialogStep.defaultProps = {
@@ -137,6 +140,7 @@ CreatingDialogStep.defaultProps = {
   active: false,
   updateFormData: () => {},
   isHome: false,
+  onFinish: () => {},
 };
 
 export default CreatingDialogStep;

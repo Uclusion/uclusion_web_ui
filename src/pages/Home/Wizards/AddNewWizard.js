@@ -29,13 +29,13 @@ function AddNewWizard(props) {
 
   switch (wizardToShow) {
     case 'storyWorkspace':
-      return <StoryWorkspaceWizard onStartOver={onStartOver} hidden={hidden} isHome />
+      return <StoryWorkspaceWizard onStartOver={onStartOver} hidden={hidden} onFinish={onFinish} isHome />
     case 'requirementsWorkspace':
-      return <RequirementsWorkspaceWizard onStartOver={onStartOver} hidden={hidden} isHome />
+      return <RequirementsWorkspaceWizard onStartOver={onStartOver} hidden={hidden} onFinish={onFinish} isHome />
     case 'dialog':
-      return <DialogWizard onStartOver={onStartOver} hidden={hidden} isHome />
+      return <DialogWizard onStartOver={onStartOver} hidden={hidden} onFinish={onFinish} isHome />
     case 'initiative':
-      return <InitiativeWizard onStartOver={onStartOver} hidden={hidden} isHome />
+      return <InitiativeWizard onStartOver={onStartOver} hidden={hidden} onFinish={onFinish} isHome />
     default:
       return (
         <OnboardingWizard

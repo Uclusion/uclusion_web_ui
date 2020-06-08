@@ -21,11 +21,10 @@ import { VersionsContext } from '../../../../../contexts/VersionsContext/Version
 import { useIntl } from 'react-intl'
 import { Button, CircularProgress, Typography } from '@material-ui/core'
 import { STORIES_SUB_TYPE } from '../../../../../constants/markets'
-import { resetValues } from '../../../onboardingReducer'
 
 function CreatingWorkspaceStep (props) {
   const intl = useIntl();
-  const { formData, active, classes, updateFormData, isHome } = props;
+  const { formData, active, classes, updateFormData, onFinish, isHome } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -135,20 +134,23 @@ function CreatingWorkspaceStep (props) {
           if (addedComment) {
             addCommentToMarket(addedComment, commentsState, commentsDispatch, versionsDispatch);
           }
-          updateFormData(resetValues());
           if(isHome) {
+            onFinish(formData);
             const link = formMarketManageLink(marketId) + '#participation=true';
             navigate(history, link);
           } else {
+            onFinish(formData);
             const marketLink = formMarketLink(marketId);
             navigate(history, `${marketLink}#onboarded=true`);
           }
         })
         .catch(() => {
           setWorkspaceInfo({workspaceError: true});
-        });;
+        });
     }
-  }, [workspaceInfo, active, commentsDispatch, commentsState, diffDispatch, versionsDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, meetingName, workspaceDescription, updateFormData, isHome, history]);
+  }, [workspaceInfo, active, commentsDispatch, commentsState, diffDispatch, onFinish,
+    versionsDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, meetingName,
+    workspaceDescription, updateFormData, isHome, history]);
 
   if (!active) {
     return React.Fragment;
@@ -186,6 +188,7 @@ CreatingWorkspaceStep.propTypes = {
   active: PropTypes.bool,
   updateFormData: PropTypes.func,
   isHome: PropTypes.bool,
+  onFinish: PropTypes.func,
 };
 
 CreatingWorkspaceStep.defaultProps = {
@@ -193,6 +196,7 @@ CreatingWorkspaceStep.defaultProps = {
   active: false,
   updateFormData: () => {},
   isHome: false,
+  onFinish: () => {},
 };
 
 

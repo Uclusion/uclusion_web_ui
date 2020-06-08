@@ -16,10 +16,10 @@ import { MarketPresencesContext } from '../../../../contexts/MarketPresencesCont
 import { CircularProgress, Typography, Button } from '@material-ui/core'
 import InviteLinker from '../../../Dialog/InviteLinker'
 import { INITIATIVE_TYPE } from '../../../../constants/markets'
-import { resetValues } from '../../onboardingReducer'
+
 
 function CreatingInitiativeStep (props) {
-  const { formData, active, classes, updateFormData, isHome } = props;
+  const { formData, active, classes, updateFormData, onFinish, isHome } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -72,8 +72,8 @@ function CreatingInitiativeStep (props) {
           });
         })
         .then(() => {
-          updateFormData(resetValues());
           if(isHome) {
+            onFinish(formData);
             const link = formMarketManageLink(marketId) + '#participation=true';
             navigate(history, link);
           }
@@ -83,7 +83,8 @@ function CreatingInitiativeStep (props) {
         })
       ;
     }
-  }, [initiativeInfo, active, diffDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, updateFormData, isHome, history]);
+  }, [initiativeInfo, active, diffDispatch, formData, investiblesDispatch,
+    marketsDispatch, presenceDispatch, updateFormData, isHome, history, onFinish]);
   const { marketId, initiativeCreated, marketToken, initiativeError } = initiativeInfo;
   const marketLink = formMarketLink(marketId);
 
@@ -143,6 +144,7 @@ CreatingInitiativeStep.propTypes = {
   active: PropTypes.bool,
   updateFormData: PropTypes.func,
   isHome: PropTypes.bool,
+  onFinish: PropTypes.func,
 };
 
 CreatingInitiativeStep.defaultProps = {
@@ -150,6 +152,7 @@ CreatingInitiativeStep.defaultProps = {
   active: false,
   updateFormData: () => {},
   isHome: false,
+  onFinish: () => {},
 };
 
 export default CreatingInitiativeStep;

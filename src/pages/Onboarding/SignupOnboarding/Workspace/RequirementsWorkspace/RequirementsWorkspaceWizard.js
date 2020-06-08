@@ -8,7 +8,7 @@ import TodoStep from './TodoStep'
 import CreatingWorkspaceStep from './CreatingWorkspaceStep'
 
 function RequirementsWorkspaceWizard (props) {
-  const { hidden, onStartOver, isHome } = props;
+  const { hidden, onStartOver, isHome, onFinish } = props;
   const intl = useIntl();
 
   const stepPrototypes = [
@@ -36,6 +36,7 @@ function RequirementsWorkspaceWizard (props) {
       title={intl.formatMessage({ id: 'WorkspaceWizardTitle' })}
       hidden={hidden}
       isHome={isHome}
+      onFinish={onFinish}
       onStartOver={onStartOver}
       stepPrototypes={stepPrototypes}
     />
@@ -46,11 +47,13 @@ RequirementsWorkspaceWizard.propTypes = {
   hidden: PropTypes.bool.isRequired,
   onStartOver: PropTypes.func,
   isHome: PropTypes.bool,
+  onFinish: PropTypes.func,
 };
 
 RequirementsWorkspaceWizard.defaultProps = {
   onStartOver: () => {},
   isHome: false,
+  onFinish: () => {},
 };
 
 export default RequirementsWorkspaceWizard;

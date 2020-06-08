@@ -10,7 +10,7 @@ import DialogExpirationStep from './DialogExpirationStep'
 
 function DialogWizard (props) {
 
-  const { hidden, onStartOver, isHome } = props;
+  const { hidden, onStartOver, isHome, onFinish } = props;
   const intl = useIntl();
 
 
@@ -41,6 +41,7 @@ function DialogWizard (props) {
     <OnboardingWizard
       hidden={hidden}
       isHome={isHome}
+      onFinish={onFinish}
       title={intl.formatMessage({ id: 'DialogWizardTitle' })}
       onStartOver={onStartOver}
       stepPrototypes={stepProtoTypes}
@@ -52,12 +53,14 @@ function DialogWizard (props) {
 DialogWizard.propTypes = {
   hidden: PropTypes.bool.isRequired,
   onStartOver: PropTypes.func,
+  onFinish: PropTypes.func,
   isHome: PropTypes.bool,
 };
 
 DialogWizard.defaultProps = {
   onStartOver: () => {},
   isHome: false,
+  onFinish: () => {},
 };
 
 export default DialogWizard;

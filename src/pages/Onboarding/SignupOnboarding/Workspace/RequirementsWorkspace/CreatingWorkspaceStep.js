@@ -19,11 +19,10 @@ import { VersionsContext } from '../../../../../contexts/VersionsContext/Version
 import { Button, CircularProgress, Typography } from '@material-ui/core';
 import InviteLinker from '../../../../Dialog/InviteLinker'
 import { PLANNING_TYPE, REQUIREMENTS_SUB_TYPE } from '../../../../../constants/markets'
-import { resetValues } from '../../../onboardingReducer'
 
 function CreatingWorkspaceStep (props) {
 //  const intl = useIntl();
-  const { formData, active, classes, updateFormData, isHome } = props;
+  const { formData, active, classes, updateFormData, onFinish, isHome } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
@@ -73,9 +72,10 @@ function CreatingWorkspaceStep (props) {
           }
         })
         .then(() => {
-          updateFormData(resetValues());
+
           //send them directly to the market invite if home
           if(isHome) {
+            onFinish(formData);
             const link = formMarketManageLink(marketId) + '#participation=true';
             navigate(history, link);
           }
@@ -84,7 +84,8 @@ function CreatingWorkspaceStep (props) {
           setWorkspaceInfo({workspaceError: true});
         });
     }
-  }, [workspaceInfo, active, commentsDispatch, commentsState, diffDispatch, versionsDispatch, formData, updateFormData, marketsDispatch, presenceDispatch, isHome, history]);
+  }, [workspaceInfo, active, commentsDispatch, commentsState, diffDispatch, onFinish,
+    versionsDispatch, formData, updateFormData, marketsDispatch, presenceDispatch, isHome, history]);
   const { marketId, workspaceCreated, marketToken, workspaceError } = workspaceInfo;
   const marketLink = formMarketLink(marketId);
 
@@ -143,6 +144,7 @@ CreatingWorkspaceStep.propTypes = {
   active: PropTypes.bool,
   updateFormData: PropTypes.func,
   isHome: PropTypes.bool,
+  onFinish: PropTypes.func,
 };
 
 CreatingWorkspaceStep.defaultProps = {
@@ -150,6 +152,7 @@ CreatingWorkspaceStep.defaultProps = {
   updateFormData: () => {},
   active: false,
   isHome: false,
+  onFinish: () => {},
 };
 
 

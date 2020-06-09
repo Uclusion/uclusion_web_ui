@@ -1,36 +1,38 @@
 export const INVITE_STORIES_WORKSPACE_FIRST_VIEW = 'invite_stories_workspace_first_view';
 
-
-export function inviteStoriesWorkspaceSteps(variables) {
+export function inviteStoriesWorkspaceSteps (variables) {
   const { name } = variables;
   return [
     {
       disableBeacon: true,
       target: '#workspaceMain',
       title: `Welcome ${name}!`,
+      placement: 'center',
       content: 'Uclusion Workspaces help you track story progress and decide what to work on next.',
     },
     {
       disableBeacon: true,
-      target: '#swimLanes',
-      content: 'Swim lanes under each assignee\'s name let you see at a glance what stage a story is at. Stories in \'Proposed\' should be voted for before they move to \'In Progress\'.',
+      target: '#adminManageCollaborators',
+      placement: 'left',
+      content: 'You can add others to the workspace with \'Manage collaborators\'.',
     },
-
+    {
+      disableBeacon: true,
+      target: '#swimLanes',
+      placement: 'top',
+      content: 'Swim lanes under each assignee\'s name let you see at a glance what stage a story is at. Click on a story in \'Proposed\' to vote whether or not you think that person should do it.',
+    },
     {
       disableBeacon: true,
       target: '#addStory',
+      placement: 'right',
       content: '\'Create Story\' lets you create a new story assigned to a member of your team.',
     },
     {
       disableBeacon: true,
       target: '#viewArchive',
-      content: '\'View Archive\' shows you the stories that have already been completed, or are not going to be done.',
-    },
-    {
-      disableBeacon: true,
-      target: '#commentAddArea',
-      content: 'Lastly, down here, Uclusion provides structure to communication. When you start a conversation, we\'ll handle notifying the right people.',
-    },
-
-  ]
+      placement: 'right',
+      content: 'Lastly, \'View Archive\' shows you the stories that have already been completed, or are not going to be done.',
+    }
+  ];
 }

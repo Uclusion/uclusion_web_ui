@@ -22,7 +22,7 @@ export function inviteDialogSteps(variables) {
     {
       disableBeacon: true,
       target: '#commentAddArea',
-        content: 'Lastly, structured discussion happens down here.',
+        content: 'Lastly, di.',
     }
   ];
 }

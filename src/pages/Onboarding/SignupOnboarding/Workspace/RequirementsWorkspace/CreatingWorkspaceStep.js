@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import StepButtons from '../../../StepButtons'
@@ -19,6 +19,7 @@ import { VersionsContext } from '../../../../../contexts/VersionsContext/Version
 import { Button, CircularProgress, Typography } from '@material-ui/core';
 import InviteLinker from '../../../../Dialog/InviteLinker'
 import { PLANNING_TYPE, REQUIREMENTS_SUB_TYPE } from '../../../../../constants/markets'
+import { updateValues } from '../../../onboardingReducer';
 
 function CreatingWorkspaceStep (props) {
 //  const intl = useIntl();
@@ -28,16 +29,20 @@ function CreatingWorkspaceStep (props) {
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [, versionsDispatch] = useContext(VersionsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
- const [workspaceInfo, setWorkspaceInfo] = useState({});
+
   const history = useHistory();
   useEffect(() => {
-    const { workspaceCreated, workspaceError } = workspaceInfo;
-    if (!workspaceCreated && !workspaceError && active) {
-      const {
-        workspaceName,
-        workspaceDescription,
-        workspaceDescriptionUploadedFiles
-      } = formData;
+    const {
+      workspaceName,
+      workspaceDescription,
+      workspaceDescriptionUploadedFiles,
+      workspaceCreated,
+      workspaceError,
+      started,
+      marketId,
+    } = formData;
+    if (!started && !workspaceCreated && !workspaceError && active) {
+      updateFormData(updateValues({started: true}));
       const processed = processTextAndFilesForSave(workspaceDescriptionUploadedFiles, workspaceDescription);
       const marketInfo = {
         name: workspaceName,
@@ -45,17 +50,17 @@ function CreatingWorkspaceStep (props) {
         uploaded_files: processed.uploadedFiles,
         market_sub_type: REQUIREMENTS_SUB_TYPE,
       };
-      let marketId;
-      let marketToken;
+      let createdMarketId;
+      let createdMarketToken;
       createPlanning(marketInfo)
         .then((marketDetails) => {
           const {
             market,
             presence,
           } = marketDetails;
-          marketId = market.id;
-          marketToken = market.invite_capability;
-          setWorkspaceInfo({ workspaceCreated: true, marketId, marketToken });
+          createdMarketId = market.id;
+          createdMarketToken = market.invite_capability;
+          updateFormData(updateValues({ workspaceCreated: true, marketId: createdMarketId, marketToken: createdMarketToken }));
           addMarketToStorage(marketsDispatch, diffDispatch, market);
           addPresenceToMarket(presenceDispatch, marketId, presence);
           const { todo, todoSkipped, todoUploadedFiles } = formData;
@@ -81,12 +86,12 @@ function CreatingWorkspaceStep (props) {
           }
         })
         .catch(() => {
-          setWorkspaceInfo({workspaceError: true});
+          updateFormData(updateValues({started: false, workspaceError: true}));
         });
     }
-  }, [workspaceInfo, active, commentsDispatch, commentsState, diffDispatch, onFinish,
+  }, [active, commentsDispatch, commentsState, diffDispatch, onFinish,
     versionsDispatch, formData, updateFormData, marketsDispatch, presenceDispatch, isHome, history]);
-  const { marketId, workspaceCreated, marketToken, workspaceError } = workspaceInfo;
+  const { marketId, workspaceCreated, marketToken, workspaceError } = formData;
   const marketLink = formMarketLink(marketId);
 
   if (!active) {
@@ -97,7 +102,7 @@ function CreatingWorkspaceStep (props) {
     return (
       <div className={classes.retryContainer}>
         <Button className={classes.actionStartOver}
-          onClick={() => setWorkspaceInfo({workspaceCreated: false, workspaceError: false})}
+          onClick={() => updateFormData(updateValues({workspaceCreated: false, workspaceError: false}))}
         >
           Retry Creating Workspace
         </Button>

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { createDecision } from '../../../../api/markets'
 import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper'
@@ -14,6 +14,7 @@ import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { Button, CircularProgress, Typography } from '@material-ui/core'
 import { AllSequentialMap } from '../../../../utils/PromiseUtils'
+import { updateValues } from '../../onboardingReducer';
 
 
 function CreatingDialogStep(props) {
@@ -22,22 +23,30 @@ function CreatingDialogStep(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
-
-  const [dialogInfo, setDialogInfo] = useState({});
   const history = useHistory();
 
   useEffect(() => {
-    const { dialogName, dialogReason, dialogOptions, dialogExpiration, addOptionsSkipped } = formData;
+    const {
+      dialogName,
+      dialogReason,
+      dialogOptions,
+      dialogExpiration,
+      addOptionsSkipped,
+      marketId,
+      started,
+      dialogCreated,
+      dialogError,
+    } = formData;
 
-    const { dialogCreated, dialogError } = dialogInfo;
-    if (!dialogCreated && !dialogError && active) {
+    if (!started && !dialogCreated && !dialogError && active) {
+      updateFormData(updateValues({started: true}));
       const marketInfo = {
         name: dialogName,
         description: dialogReason,
         expiration_minutes: dialogExpiration,
       };
-      let marketId;
-      let marketToken;
+      let createdMarketId;
+      let createdMarketToken;
       let inVotingStage;
       let createdStage;
       createDecision(marketInfo)
@@ -47,9 +56,9 @@ function CreatingDialogStep(props) {
             presence,
             stages,
           } = marketDetails;
-          marketId = market.id;
-          marketToken = market.invite_capability;
-          setDialogInfo({ dialogCreated: true, marketId, marketToken });
+          createdMarketId = market.id;
+          createdMarketToken = market.invite_capability;
+          updateFormData(updateValues({ dialogCreated: true, marketId: createdMarketId, marketToken: createdMarketToken }));
           addMarketToStorage(marketsDispatch, diffDispatch, market);
           addPresenceToMarket(presenceDispatch, marketId, presence);
           createdStage = stages.find((stage) => !stage.allows_investment);
@@ -83,9 +92,8 @@ function CreatingDialogStep(props) {
         })
         .then(() => {
           if(isHome) {
-            onFinish(formData);
             const link = formMarketManageLink(marketId) + '#participation=true';
-            navigate(history, link);
+            onFinish({...formData, marketLink: link});
           } else {
             onFinish(formData);
             const marketLink = formMarketLink(marketId);
@@ -93,21 +101,21 @@ function CreatingDialogStep(props) {
           }
         })
         .catch(() => {
-          setDialogInfo({dialogError: true});
+          updateFormData(updateValues({started: false, dialogError: true}));
         });
     }
-  }, [dialogInfo, onFinish, active, diffDispatch, formData,
+  }, [onFinish, active, diffDispatch, formData,
     investiblesDispatch, marketsDispatch, presenceDispatch, updateFormData, isHome, history]);
 
   if (!active) {
     return React.Fragment;
   }
-  const { dialogError } = dialogInfo;
+  const { dialogError } = formData;
   if (dialogError) {
     return (
       <div className={classes.retryContainer}>
         <Button className={classes.actionStartOver}
-          onClick={() => setDialogInfo({dialogCreated: false, dialogError: false})}
+          onClick={() => updateFormData(updateValues({started: false, dialogCreated: false, dialogError: false}))}
         >
           Retry Creating Dialog
         </Button>

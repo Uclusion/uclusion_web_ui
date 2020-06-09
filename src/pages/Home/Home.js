@@ -17,7 +17,7 @@ import DecisionDialogs from './DecisionDialogs'
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE, } from '../../constants/markets'
 import InitiativeDialogs from './InitiativeDialogs'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { navigate } from '../../utils/marketIdPathFunctions'
+import { formMarketManageLink, navigate } from '../../utils/marketIdPathFunctions';
 import { getDialogTypeIcon } from '../../components/Dialogs/dialogIconFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
 import { getAndClearRedirect, redirectToPath } from '../../utils/redirectUtils'
@@ -104,7 +104,14 @@ function Home(props) {
     });
   }
   const loading = operationInProgress && noMarkets && _.isEmpty(hiddenMarkets);
-  
+
+  function onWizardFinish (formData) {
+    const { marketId } = formData;
+    setWizardActive(false);
+    const link = formMarketManageLink(marketId) + '#participation=true';
+    navigate(history, link);
+  }
+
   return (
     <Screen
       title={intl.formatMessage({ 'id': 'homeBreadCrumb' })}
@@ -116,7 +123,7 @@ function Home(props) {
     >
       <AddNewWizard
         hidden={!wizardActive}
-        onFinish={() => setWizardActive(false)}
+        onFinish={onWizardFinish}
         onCancel={() => setWizardActive(false)} />
 
       {noMarkets && (

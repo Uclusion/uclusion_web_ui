@@ -113,7 +113,7 @@ function AddNewUsers (props) {
 
   function renderParticipantEntry (presenceEntry) {
     const {
-      user_id: id, name, isChecked,
+      user_id: id, name, isChecked, domain,
     } = presenceEntry[1];
     return (
       <ListItem
@@ -130,6 +130,11 @@ function AddNewUsers (props) {
           className={classes.name}
         >
           {name}
+        </ListItemText>
+        <ListItemText
+          className={classes.name}
+        >
+          {domain}
         </ListItemText>
       </ListItem>
     );

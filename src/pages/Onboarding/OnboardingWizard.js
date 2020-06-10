@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 import { Card, Container, makeStyles, Typography } from '@material-ui/core'
@@ -7,6 +7,7 @@ import { useIntl } from 'react-intl'
 import { generateReducer, getStoredData, resetValues } from './onboardingReducer'
 import { Helmet } from 'react-helmet'
 import Header from '../../containers/Header'
+import _ from 'lodash';
 
 export const wizardStyles = makeStyles(
   theme => {
@@ -260,6 +261,7 @@ function OnboardingWizard (props) {
   const reducer = generateReducer(title);
   const initialData = getStoredData(title) || {};
   const [formData, updateFormData] = useReducer(reducer, initialData);
+  const [operationStatus, setOperationStatus] = useState({});
   // setter passed through to a step to allow it to completely take over the wizard UI
   const [overrideUIContent, setOverrideUIContent] = useState(false);
   const intl = useIntl();
@@ -269,18 +271,33 @@ function OnboardingWizard (props) {
   };
 
   const [stepState, setStepState] = useState(initialStepState);
+  useEffect(() => {
+    // if we get hidden, set ourselves back to the start
+    if (hidden && (stepState.currentStep !== 0 || !_.isEmpty(formData) || !_.isEmpty(operationStatus))) {
+      // not a function because otherwise we'd have to have our own use callback
+      updateFormData(resetValues());
+      setStepState(initialStepState);
+      setOperationStatus({});
+    }
+  }, [hidden, updateFormData, formData, stepState, initialStepState, setStepState, operationStatus, setOperationStatus]);
 
-  function myOnStartOver () {
-    // zero all form data
+  function resetWizard() {
     updateFormData(resetValues());
     // reset the step state
     setStepState(initialStepState);
+    setOperationStatus({});
+  }
+
+  function myOnStartOver () {
+    // zero all form data
+    resetWizard();
     onStartOver();
   }
 
   function myOnFinish (formData) {
-    onFinish(formData);
+    const cloned = formData;
     updateFormData(resetValues());
+    onFinish(cloned);
     // reset the step state
     setStepState(initialStepState);
   }
@@ -325,6 +342,8 @@ function OnboardingWizard (props) {
       updateFormData,
       nextStep,
       previousStep,
+      operationStatus,
+      setOperationStatus,
       onStartOver: myOnStartOver,
       active: true,
       onFinish: myOnFinish,

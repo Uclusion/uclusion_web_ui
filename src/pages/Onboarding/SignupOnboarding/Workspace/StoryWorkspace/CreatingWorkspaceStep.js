@@ -21,11 +21,10 @@ import { VersionsContext } from '../../../../../contexts/VersionsContext/Version
 import { useIntl } from 'react-intl'
 import { Button, CircularProgress, Typography } from '@material-ui/core'
 import { STORIES_SUB_TYPE } from '../../../../../constants/markets'
-import { updateValues } from '../../../onboardingReducer';
 
 function CreatingWorkspaceStep (props) {
   const intl = useIntl();
-  const { formData, active, classes, updateFormData, onFinish, isHome } = props;
+  const { formData, active, classes, onFinish, isHome, operationStatus, setOperationStatus } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -38,9 +37,9 @@ function CreatingWorkspaceStep (props) {
 
   useEffect(() => {
 
-    const { workspaceCreated, workspaceError, started } = formData;
+    const { workspaceCreated, workspaceError, started } = operationStatus;
     if (!started && !workspaceCreated && !workspaceError && active) {
-      updateFormData(updateValues({started: true}));
+      setOperationStatus({started: true});
       const marketInfo = {
         name: meetingName,
         description: `<p>${workspaceDescription}</p>`,
@@ -61,7 +60,7 @@ function CreatingWorkspaceStep (props) {
           } = marketDetails;
           createdMarketId = market.id;
           createdMarketToken = market.invite_capability;
-          updateFormData(updateValues({ workspaceCreated: true, marketId: createdMarketId, marketToken: createdMarketToken }));
+          setOperationStatus({ workspaceCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
           myUserId = presence.id;
           addMarketToStorage(marketsDispatch, diffDispatch, market);
           addPresenceToMarket(presenceDispatch, createdMarketId, presence);
@@ -145,24 +144,24 @@ function CreatingWorkspaceStep (props) {
           }
         })
         .catch(() => {
-          updateFormData(updateValues({started: false, workspaceError: true}));
+          setOperationStatus({started: false, workspaceError: true});
         });
     }
   }, [active, commentsDispatch, commentsState, diffDispatch, onFinish,
     versionsDispatch, formData, investiblesDispatch, marketsDispatch, presenceDispatch, meetingName,
-    workspaceDescription, updateFormData, isHome, history]);
+    workspaceDescription, isHome, history, operationStatus, setOperationStatus]);
 
   if (!active) {
     return React.Fragment;
   }
 
-  const { workspaceError } = formData;
+  const { workspaceError } = operationStatus;
 
   if (workspaceError) {
     return (
       <div className={classes.retryContainer}>
         <Button className={classes.actionStartOver}
-                onClick={() => updateFormData(updateValues({workspaceCreated: false, workspaceError: false}))}
+                onClick={() => setOperationStatus({})}
         >
           Retry Creating Workspace
         </Button>
@@ -186,7 +185,8 @@ function CreatingWorkspaceStep (props) {
 CreatingWorkspaceStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
-  updateFormData: PropTypes.func,
+  operationStatus: PropTypes.object,
+  setOperationStatus: PropTypes.func,
   isHome: PropTypes.bool,
   onFinish: PropTypes.func,
 };
@@ -194,7 +194,8 @@ CreatingWorkspaceStep.propTypes = {
 CreatingWorkspaceStep.defaultProps = {
   formData: {},
   active: false,
-  updateFormData: () => {},
+  operationStatus: {},
+  setOperationStatus: () => {},
   isHome: false,
   onFinish: () => {},
 };

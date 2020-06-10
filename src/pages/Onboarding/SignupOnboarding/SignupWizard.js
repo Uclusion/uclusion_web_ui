@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import OnboardingWizard from '../OnboardingWizard';
 import { useIntl } from 'react-intl';
@@ -14,6 +14,12 @@ function SignupWizard(props) {
   const intl = useIntl();
 
   const [wizardToShow, setWizardToShow] = useState(null);
+
+  useEffect(() => {
+    if (wizardToShow && hidden) {
+      setWizardToShow(null);
+    }
+  }, [hidden, setWizardToShow, wizardToShow]);
 
   function onStartOver() {
     setWizardToShow(null);

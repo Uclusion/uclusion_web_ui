@@ -16,10 +16,9 @@ import { MarketPresencesContext } from '../../../../contexts/MarketPresencesCont
 import { CircularProgress, Typography, Button } from '@material-ui/core';
 import InviteLinker from '../../../Dialog/InviteLinker';
 import { INITIATIVE_TYPE } from '../../../../constants/markets';
-import { updateValues } from '../../onboardingReducer';
 
 function CreatingInitiativeStep (props) {
-  const { formData, active, classes, updateFormData, onFinish, isHome } = props;
+  const { formData, active, classes, operationStatus, setOperationStatus, onFinish, isHome } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -29,14 +28,16 @@ function CreatingInitiativeStep (props) {
 
   useEffect(() => {
     const {
+      initiativeCreated,
+      initiativeError,
+      started,
+    } = operationStatus;
+    const {
       initiativeName,
       initiativeDescription,
       initiativeDescriptionUploadedFiles,
       initiativeExpiration,
-      initiativeCreated,
-      initiativeError,
       marketId,
-      started,
     } = formData;
     const realUploadedFiles = initiativeDescriptionUploadedFiles || [];
     const {
@@ -44,7 +45,7 @@ function CreatingInitiativeStep (props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(realUploadedFiles, initiativeDescription);
     if (!started && !initiativeCreated && !initiativeError && active) {
-      updateFormData(updateValues({started: true}));
+      setOperationStatus({started: true});
       const marketInfo = {
         name: 'NA',
         description: 'NA',
@@ -71,21 +72,21 @@ function CreatingInitiativeStep (props) {
           return addDecisionInvestible(investibleInfo)
             .then((investible) => {
               addInvestible(investiblesDispatch, diffDispatch, investible);
-              updateFormData(updateValues({ initiativeCreated: true, marketId: createdMarketId, marketToken: createdMarketToken }));
+              setOperationStatus({ initiativeCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
             });
         })
         .catch(() => {
-          updateFormData(updateValues({ initiativeError: true, started: false}));
+          setOperationStatus({ initiativeError: true, started: false});
         });
     }
     if (active && initiativeCreated && !initiativeError) {
       onFinish(formData);
     }
   }, [ diffDispatch, formData, active, investiblesDispatch, onFinish, marketsDispatch,
-  updateFormData, presenceDispatch
+  operationStatus, setOperationStatus, presenceDispatch
   ]);
 
-  const { marketId, initiativeCreated, marketToken, initiativeError } = formData;
+  const { marketId, initiativeCreated, initiativeError, marketToken } = operationStatus;
   const marketLink = formMarketLink(marketId);
 
   if (!active) {
@@ -96,7 +97,7 @@ function CreatingInitiativeStep (props) {
     return (
       <div className={classes.retryContainer}>
         <Button className={classes.actionStartOver}
-                onClick={() => updateFormData(updateValues({ initiativeCreated: false, initiativeError: false }))}
+                onClick={() => setOperationStatus({})}
         >
           Retry Creating Initiative
         </Button>
@@ -142,7 +143,8 @@ function CreatingInitiativeStep (props) {
 CreatingInitiativeStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
-  updateFormData: PropTypes.func,
+  operationStatus: PropTypes.object,
+  setOperationStatus: PropTypes.func,
   isHome: PropTypes.bool,
   onFinish: PropTypes.func,
 };
@@ -150,7 +152,8 @@ CreatingInitiativeStep.propTypes = {
 CreatingInitiativeStep.defaultProps = {
   formData: {},
   active: false,
-  updateFormData: () => {},
+  operationStatus: {},
+  setOperationStatus: () => {},
   isHome: false,
   onFinish: () => {},
 };

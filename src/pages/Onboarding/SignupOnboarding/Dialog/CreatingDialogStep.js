@@ -14,11 +14,10 @@ import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { Button, CircularProgress, Typography } from '@material-ui/core'
 import { AllSequentialMap } from '../../../../utils/PromiseUtils'
-import { updateValues } from '../../onboardingReducer';
 
 
 function CreatingDialogStep(props) {
-  const { formData, active, classes, updateFormData, isHome, onFinish } = props;
+  const { formData, active, classes, operationStatus, setOperationStatus, isHome, onFinish } = props;
   const [, diffDispatch] = useContext(DiffContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -27,19 +26,22 @@ function CreatingDialogStep(props) {
 
   useEffect(() => {
     const {
+      started,
+      dialogCreated,
+      dialogError,
+    } = operationStatus;
+    const {
       dialogName,
       dialogReason,
       dialogOptions,
       dialogExpiration,
       addOptionsSkipped,
       marketId,
-      started,
-      dialogCreated,
-      dialogError,
+
     } = formData;
 
     if (!started && !dialogCreated && !dialogError && active) {
-      updateFormData(updateValues({started: true}));
+      setOperationStatus({started: true});
       const marketInfo = {
         name: dialogName,
         description: dialogReason,
@@ -58,7 +60,7 @@ function CreatingDialogStep(props) {
           } = marketDetails;
           createdMarketId = market.id;
           createdMarketToken = market.invite_capability;
-          updateFormData(updateValues({ dialogCreated: true, marketId: createdMarketId, marketToken: createdMarketToken }));
+          setOperationStatus({ dialogCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
           addMarketToStorage(marketsDispatch, diffDispatch, market);
           addPresenceToMarket(presenceDispatch, marketId, presence);
           createdStage = stages.find((stage) => !stage.allows_investment);
@@ -101,21 +103,21 @@ function CreatingDialogStep(props) {
           }
         })
         .catch(() => {
-          updateFormData(updateValues({started: false, dialogError: true}));
+          setOperationStatus({dialogError: true});
         });
     }
-  }, [onFinish, active, diffDispatch, formData,
-    investiblesDispatch, marketsDispatch, presenceDispatch, updateFormData, isHome, history]);
+  }, [onFinish, active, diffDispatch, formData, operationStatus, setOperationStatus,
+    investiblesDispatch, marketsDispatch, presenceDispatch, isHome, history]);
 
   if (!active) {
     return React.Fragment;
   }
-  const { dialogError } = formData;
+  const { dialogError } = operationStatus;
   if (dialogError) {
     return (
       <div className={classes.retryContainer}>
         <Button className={classes.actionStartOver}
-          onClick={() => updateFormData(updateValues({started: false, dialogCreated: false, dialogError: false}))}
+          onClick={() => setOperationStatus({})}
         >
           Retry Creating Dialog
         </Button>
@@ -138,7 +140,8 @@ function CreatingDialogStep(props) {
 CreatingDialogStep.propTypes = {
   formData: PropTypes.object,
   active: PropTypes.bool,
-  updateFormData: PropTypes.func,
+  operationStatus: PropTypes.object,
+  setOperationStatus: PropTypes.func,
   isHome: PropTypes.bool,
   onFinish: PropTypes.func,
 };
@@ -146,7 +149,8 @@ CreatingDialogStep.propTypes = {
 CreatingDialogStep.defaultProps = {
   formData: {},
   active: false,
-  updateFormData: () => {},
+  operationStatus: {},
+  setOperationStatus: () => {},
   isHome: false,
   onFinish: () => {},
 };

@@ -69,7 +69,7 @@ function ActionBar(props) {
             const className = !isAddNew? classes.button : addNewClass;
             const gridProps = !isAddNew? { xs: 3, justify: 'flex-end'} : {md:1, xs:3};
             return (
-              <Grid key={action.id} {...gridProps} container>
+              <Grid item key={action.id} {...gridProps} container>
                 <Button key={action.id} onClick={action.onClick} className={className}>
                   {action.openLabel}
                 </Button>

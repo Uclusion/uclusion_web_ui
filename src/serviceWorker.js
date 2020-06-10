@@ -38,7 +38,7 @@ export function register(config) {
 
 function registerValidSW(swUrl, config) {
   navigator.serviceWorker
-    .register(swUrl)
+    .register(swUrl, config)
     .then(registration => {
       registration.update();
       registration.onupdatefound = () => {
@@ -77,7 +77,6 @@ function registerValidSW(swUrl, config) {
       };
     })
     .catch(error => {
-      alert('Could not create service worker');
       console.error('Error during service worker registration:', error);
     });
 }

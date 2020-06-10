@@ -15,5 +15,6 @@ ReactDOM.render(
   </A2HSProvider>,
   document.getElementById('root')
 );
-
-serviceWorker.register()
+//register the service worker for the main app
+serviceWorker.register({scope: '/'});
+// now register it for the cdn

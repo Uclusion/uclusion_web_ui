@@ -787,7 +787,7 @@ const messages = defineMessages({
   OnboardingWizardSkip: 'Skip',
   OnboardingWizardCurrentStoryStepLabel: 'Current Story',
   OnboardingWizardCurrentStoryProgressStepLabel: 'Current Story Progress (Optional)',
-  OnboardingWizardNextStoryStepLabel: 'Next Story(Optional)',
+  OnboardingWizardNextStoryStepLabel: 'Next Story (Optional)',
   OnboardingWizardCurrentStoryNamePlaceHolder: 'Your current story\'s name',
   OnboardingWizardCurrentStoryDescriptionPlaceHolder: 'Your current story\'s description',
   OnboardingWizardNextStoryNamePlaceHolder: 'Your next story\'s name',

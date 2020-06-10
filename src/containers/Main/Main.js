@@ -49,7 +49,7 @@ function Main (props) {
                                       <InvestiblesProvider>
                                         <MarketPresencesProvider>
                                           <LocaleProvider>
-                                            <ToastContainer position="top-center"/>
+                                            <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
                                             <Elements stripe={stripePromise}>
                                               <AppWithAuth/>
                                             </Elements>

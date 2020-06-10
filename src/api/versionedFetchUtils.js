@@ -246,7 +246,7 @@ function doRefreshAccount (componentSignatures) {
  * @returns {null}
  */
 function doRefreshMarket (marketId, componentSignatures) {
-  console.debug(`Refreshing market ${marketId}`);
+  //console.debug(`Refreshing market ${marketId}`);
   const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   // console.log(fetchSignatures);
   const { markets, comments, marketPresences, marketStages, investibles } = fetchSignatures;

@@ -6,23 +6,27 @@ export function inviteDialogSteps(variables) {
     {
       disableBeacon: true,
       target: '#dialogMain',
+      placement: 'center',
       title: `Welcome ${name}!`,
       content: 'Uclusion Dialogs let you and your collaborators make a decision by voting for the options you prefer.',
     },
     {
       disableBeacon: true,
       target: '#option0',
+      placement: 'top',
       content: 'Click on an option to see its details and vote for it.',
     },
     {
       disableBeacon: true,
+      placement: 'left',
       target: '#proposeOption',
       content: 'Or you can create something different.'
     },
     {
       disableBeacon: true,
-      target: '#commentAddArea',
-        content: 'Lastly, di.',
+      placement: 'top',
+      target: '#commentAddLabelISSUE',
+      content: 'Lastly, creating a Blocking Issue will halt the decision until it is resolved.',
     }
   ];
 }

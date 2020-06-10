@@ -95,8 +95,8 @@ function CreatingDialogStep(props) {
             const link = formMarketManageLink(createdMarketId) + '#participation=true';
             onFinish({...formData, marketLink: link});
           } else {
-            onFinish(formData);
             const marketLink = formMarketLink(createdMarketId);
+            onFinish(formData);
             navigate(history, `${marketLink}#onboarded=true`);
           }
         })

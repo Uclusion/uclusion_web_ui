@@ -170,6 +170,7 @@ function CommentAddBox(props) {
                   <Tooltip key={`tip${commentType}`}
                            title={<FormattedMessage id={`${commentType.toLowerCase()}Tip`} />}>
                     <FormControlLabel
+                      id={`commentAddLabel${commentType}`}
                       key={commentType}
                       className={clsx(
                         commentType === ISSUE_TYPE

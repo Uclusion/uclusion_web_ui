@@ -76,7 +76,6 @@ function CreatingWorkspaceStep (props) {
           }
         })
         .then(() => {
-
           //send them directly to the market invite if home
           if(isHome) {
             onFinish(formData);

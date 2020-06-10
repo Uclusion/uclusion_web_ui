@@ -78,8 +78,7 @@ function CreatingInitiativeStep (props) {
           updateFormData(updateValues({ initiativeError: true, started: false}));
         });
     }
-    if (initiativeCreated && !initiativeError) {
-      alert('Finishing');
+    if (active && initiativeCreated && !initiativeError) {
       onFinish(formData);
     }
   }, [ diffDispatch, formData, active, investiblesDispatch, onFinish, marketsDispatch,

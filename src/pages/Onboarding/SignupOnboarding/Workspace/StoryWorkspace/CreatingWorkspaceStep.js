@@ -46,12 +46,12 @@ function CreatingWorkspaceStep (props) {
         description: `<p>${workspaceDescription}</p>`,
         market_sub_type: STORIES_SUB_TYPE,
       };
-      let marketId;
+      let createdMarketId;
       let investibleId;
       let inProgressStage;
       let inVotingStage;
       let myUserId;
-      let marketToken;
+      let createdMarketToken;
       createPlanning(marketInfo)
         .then((marketDetails) => {
           const {
@@ -59,12 +59,12 @@ function CreatingWorkspaceStep (props) {
             presence,
             stages,
           } = marketDetails;
-          marketId = market.id;
-          marketToken = market.invite_capability;
-          updateFormData(updateValues({ workspaceCreated: true, marketId, marketToken }));
+          createdMarketId = market.id;
+          createdMarketToken = market.invite_capability;
+          updateFormData(updateValues({ workspaceCreated: true, marketId: createdMarketId, marketToken: createdMarketToken }));
           myUserId = presence.id;
           addMarketToStorage(marketsDispatch, diffDispatch, market);
-          addPresenceToMarket(presenceDispatch, marketId, presence);
+          addPresenceToMarket(presenceDispatch, createdMarketId, presence);
           inVotingStage = stages.find((stage) => stage.allows_investment);
           inProgressStage = stages.find((stage) => stage.singular_only);
           // add the next story if you have it
@@ -74,7 +74,7 @@ function CreatingWorkspaceStep (props) {
             const processed = processTextAndFilesForSave(usedUploads, nextStoryDescription);
             // add the story
             const addInfo = {
-              marketId,
+              marketId: createdMarketId,
               name: nextStoryName,
               description: processed.text,
               uploadedFiles: processed.uploadedFiles,
@@ -98,7 +98,7 @@ function CreatingWorkspaceStep (props) {
           const realUploadedFiles = currentStoryUploadedFiles || [];
           const processed = processTextAndFilesForSave(realUploadedFiles, currentStoryDescription);
           const addInfo = {
-            marketId,
+            marketId: createdMarketId,
             name: currentStoryName,
             description: processed.text,
             uploadedFiles: processed.uploadedFiles,
@@ -112,7 +112,7 @@ function CreatingWorkspaceStep (props) {
         .then((investible) => {
           investibleId = investible.investible.id;
           const updateInfo = {
-            marketId,
+            marketId: createdMarketId,
             investibleId,
             stageInfo: {
               current_stage_id: inVotingStage.id,
@@ -125,7 +125,7 @@ function CreatingWorkspaceStep (props) {
           addInvestible(investiblesDispatch, diffDispatch, investible);
           const { currentStoryProgress, currentStoryProgressSkipped } = formData;
           if (!_.isEmpty(currentStoryProgress) && !currentStoryProgressSkipped) {
-            return saveComment(marketId, investibleId, undefined, currentStoryProgress, REPORT_TYPE, []);
+            return saveComment(createdMarketId, investibleId, undefined, currentStoryProgress, REPORT_TYPE, []);
           } else {
             return Promise.resolve(false);
           }
@@ -136,11 +136,11 @@ function CreatingWorkspaceStep (props) {
           }
           if(isHome) {
             onFinish(formData);
-            const link = formMarketManageLink(marketId) + '#participation=true';
+            const link = formMarketManageLink(createdMarketId) + '#participation=true';
             navigate(history, link);
           } else {
             onFinish(formData);
-            const marketLink = formMarketLink(marketId);
+            const marketLink = formMarketLink(createdMarketId);
             navigate(history, `${marketLink}#onboarded=true`);
           }
         })

@@ -39,7 +39,6 @@ function CreatingWorkspaceStep (props) {
       workspaceCreated,
       workspaceError,
       started,
-      marketId,
     } = formData;
     if (!started && !workspaceCreated && !workspaceError && active) {
       updateFormData(updateValues({started: true}));
@@ -62,11 +61,11 @@ function CreatingWorkspaceStep (props) {
           createdMarketToken = market.invite_capability;
           updateFormData(updateValues({ workspaceCreated: true, marketId: createdMarketId, marketToken: createdMarketToken }));
           addMarketToStorage(marketsDispatch, diffDispatch, market);
-          addPresenceToMarket(presenceDispatch, marketId, presence);
+          addPresenceToMarket(presenceDispatch, createdMarketId, presence);
           const { todo, todoSkipped, todoUploadedFiles } = formData;
           if (!_.isEmpty(todo) && !todoSkipped) {
             const processed = processTextAndFilesForSave(todoUploadedFiles, todo);
-            return saveComment(marketId, undefined, undefined, processed.text, TODO_TYPE, processed.uploadedFiles);
+            return saveComment(createdMarketId, undefined, undefined, processed.text, TODO_TYPE, processed.uploadedFiles);
           } else {
             return Promise.resolve(false);
           }
@@ -81,7 +80,7 @@ function CreatingWorkspaceStep (props) {
           //send them directly to the market invite if home
           if(isHome) {
             onFinish(formData);
-            const link = formMarketManageLink(marketId) + '#participation=true';
+            const link = formMarketManageLink(createdMarketId) + '#participation=true';
             navigate(history, link);
           }
         })

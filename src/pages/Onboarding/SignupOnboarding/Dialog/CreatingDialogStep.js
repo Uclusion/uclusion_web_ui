@@ -75,7 +75,7 @@ function CreatingDialogStep(props) {
             const realUploadedFiles = optionUploadedFiles || [];
             const processed = processTextAndFilesForSave(realUploadedFiles, optionDescription);
             const addInfo = {
-              marketId,
+              marketId: createdMarketId,
               name: optionName,
               description: processed.text,
               uploadedFiles: processed.uploadedFiles,
@@ -92,11 +92,11 @@ function CreatingDialogStep(props) {
         })
         .then(() => {
           if(isHome) {
-            const link = formMarketManageLink(marketId) + '#participation=true';
+            const link = formMarketManageLink(createdMarketId) + '#participation=true';
             onFinish({...formData, marketLink: link});
           } else {
             onFinish(formData);
-            const marketLink = formMarketLink(marketId);
+            const marketLink = formMarketLink(createdMarketId);
             navigate(history, `${marketLink}#onboarded=true`);
           }
         })

@@ -61,7 +61,7 @@ function CreatingInitiativeStep (props) {
           createdMarketId = market.id;
           createdMarketToken = market.invite_capability;
           const investibleInfo = {
-            marketId,
+            marketId: createdMarketId,
             uploadedFiles: filteredUploads,
             description: tokensRemoved,
             name: initiativeName,

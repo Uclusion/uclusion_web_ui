@@ -28,10 +28,10 @@ class TokenFetcher {
     return this.tokenStorageManager.getValidToken(this.tokenType, this.itemId)
       .then((token) => {
         if (token) {
-          console.log(`got token for ${this.tokenType} id ${this.itemId}`);
+          //console.log(`got token for ${this.tokenType} id ${this.itemId}`);
           return Promise.resolve(token);
         }
-        console.log(`refreshing token for ${this.tokenType} id ${this.itemId}`);
+        //console.log(`refreshing token for ${this.tokenType} id ${this.itemId}`);
         return this.getRefreshedToken(this.itemId);
       });
   }

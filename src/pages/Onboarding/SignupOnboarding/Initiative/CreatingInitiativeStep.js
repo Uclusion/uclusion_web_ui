@@ -1,21 +1,21 @@
-import React, { useContext, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import StepButtons from '../../StepButtons';
-import { createInitiative } from '../../../../api/markets';
-import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper';
-import { processTextAndFilesForSave } from '../../../../api/files';
-import { addDecisionInvestible } from '../../../../api/investibles';
-import { DiffContext } from '../../../../contexts/DiffContext/DiffContext';
-import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext';
-import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper';
-import { formMarketLink, navigate } from '../../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
-import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { CircularProgress, Typography, Button } from '@material-ui/core';
-import InviteLinker from '../../../Dialog/InviteLinker';
-import { INITIATIVE_TYPE } from '../../../../constants/markets';
+import React, { useContext, useEffect } from 'react'
+import PropTypes from 'prop-types'
+import StepButtons from '../../StepButtons'
+import { createInitiative } from '../../../../api/markets'
+import { addMarketToStorage } from '../../../../contexts/MarketsContext/marketsContextHelper'
+import { processTextAndFilesForSave } from '../../../../api/files'
+import { addDecisionInvestible } from '../../../../api/investibles'
+import { DiffContext } from '../../../../contexts/DiffContext/DiffContext'
+import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
+import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper'
+import { formInvestibleLink, navigate } from '../../../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
+import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { Button, CircularProgress, Typography } from '@material-ui/core'
+import InviteLinker from '../../../Dialog/InviteLinker'
+import { INITIATIVE_TYPE } from '../../../../constants/markets'
 
 function CreatingInitiativeStep (props) {
   const { formData, active, classes, operationStatus, setOperationStatus, onFinish, isHome } = props;
@@ -71,23 +71,26 @@ function CreatingInitiativeStep (props) {
           addPresenceToMarket(presenceDispatch, marketId, presence);
           return addDecisionInvestible(investibleInfo)
             .then((investible) => {
+              const { investible: myInvestible } = investible;
+              const { id } = myInvestible;
               addInvestible(investiblesDispatch, diffDispatch, investible);
-              setOperationStatus({ initiativeCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
+              setOperationStatus({ initiativeCreated: true, marketId: createdMarketId, investibleId: id,
+                marketToken: createdMarketToken });
             });
+        }).then(() => {
+          if(isHome) {
+            onFinish({...formData, marketId: createdMarketId});
+          }
         })
         .catch(() => {
           setOperationStatus({ initiativeError: true, started: false});
         });
     }
-    if (active && initiativeCreated && !initiativeError) {
-      onFinish(formData);
-    }
-  }, [ diffDispatch, formData, active, investiblesDispatch, onFinish, marketsDispatch,
-  operationStatus, setOperationStatus, presenceDispatch
-  ]);
+  }, [diffDispatch, formData, active, investiblesDispatch, onFinish, marketsDispatch, operationStatus,
+    setOperationStatus, presenceDispatch, isHome, history]);
 
-  const { marketId, initiativeCreated, initiativeError, marketToken } = operationStatus;
-  const marketLink = formMarketLink(marketId);
+  const { marketId, investibleId, initiativeCreated, initiativeError, marketToken } = operationStatus;
+  const marketLink = formInvestibleLink(marketId, investibleId);
 
   if (!active) {
     return React.Fragment;

@@ -8,13 +8,12 @@ import { DiffContext } from '../../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
 import { addInvestible } from '../../../../contexts/InvestibesContext/investiblesContextHelper'
-import { formMarketLink, formMarketManageLink, navigate } from '../../../../utils/marketIdPathFunctions'
+import { formMarketLink, navigate } from '../../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { Button, CircularProgress, Typography } from '@material-ui/core'
 import { AllSequentialMap } from '../../../../utils/PromiseUtils'
-
 
 function CreatingDialogStep(props) {
   const { formData, active, classes, operationStatus, setOperationStatus, isHome, onFinish } = props;
@@ -94,11 +93,9 @@ function CreatingDialogStep(props) {
         })
         .then(() => {
           if(isHome) {
-            const link = formMarketManageLink(createdMarketId) + '#participation=true';
-            onFinish({...formData, marketLink: link});
+            onFinish({...formData, marketId: createdMarketId});
           } else {
             const marketLink = formMarketLink(createdMarketId);
-            onFinish(formData);
             navigate(history, `${marketLink}#onboarded=true`);
           }
         })

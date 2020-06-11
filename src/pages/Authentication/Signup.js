@@ -165,7 +165,7 @@ function reducer(state, action) {
 
 function Signup(props) {
   const classes = useStyles();
-  const { authState, action, marketToken } = props;
+  const { authState, action, marketToken, onStateChange } = props;
   const empty = {
     name: '',
     email: '',
@@ -180,8 +180,7 @@ function Signup(props) {
   const [callActive, setCallActive] = useState(false);
   const intl = useIntl();
   const history = useHistory();
-  const { location } = history;
-  const { pathname, hash } = location;
+
   const [myLoading, setMyLoading] = useState(undefined);
   const [myMarket, setMyMarket] = useState(undefined);
   const SIGNUP_LOGO = 'Uclusion_Logo_White_Micro.png';
@@ -219,6 +218,8 @@ function Signup(props) {
   }
 
   function getRedirect(){
+    const { location } = history;
+    const { pathname, hash } = location;
     let redirect;
     if (pathname !== '/') {
       // we came here by some other link and need to log in
@@ -555,7 +556,12 @@ function Signup(props) {
               </SpinningButton>
               <Grid container justify="flex-end">
                 <Grid item>
-                  <Link href="/" variant="body2">
+                  <Link href="/" variant="body2"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      onStateChange('signIn');
+                    }}
+                  >
                     {intl.formatMessage({ id: 'signupHaveAccount' })}
                   </Link>
                 </Grid>
@@ -571,12 +577,14 @@ function Signup(props) {
 Signup.propTypes = {
   authState: PropTypes.string,
   action: PropTypes.string,
-  marketToken: PropTypes.string
+  marketToken: PropTypes.string,
+  onStateChange: PropTypes.func,
 };
 
 Signup.defaultProps = {
   authState: '',
   action: '',
-  marketToken: ''
+  marketToken: '',
+  onStateChange: () => {},
 };
 export default Signup;

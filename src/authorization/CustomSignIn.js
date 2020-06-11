@@ -16,6 +16,8 @@ import IconButton from '@material-ui/core/IconButton'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { Auth } from 'aws-amplify'
 import { Helmet } from 'react-helmet'
+import { withRouter } from 'react-router';
+import { setRedirect } from '../utils/redirectUtils';
 
 const useStyles = (theme) => ({
   paper: {
@@ -109,6 +111,23 @@ class CustomSignIn extends SignIn {
   state = {
     showPassword: false,
   }
+
+  setLoginRedirect(){
+    const { history } = this.props;
+    const { location } = history;
+    const { pathname, hash } = location;
+    let redirect;
+    if (pathname !== '/') {
+      // we came here by some other link and need to log in
+      redirect = pathname;
+      if (hash) {
+        redirect += hash;
+      }
+    }
+    if (redirect) {
+      setRedirect(redirect);
+    }
+  }
   constructor(props) {
     super(props);
     this._validAuthStates = ['signIn', 'signedOut', 'signedUp'];
@@ -151,10 +170,16 @@ class CustomSignIn extends SignIn {
             paddingRight: '0px'
           }}
           align="center"
-          onClick={() => Auth.federatedSignIn({provider: 'GithubLogin'})}>
+          onClick={() => {
+            this.setLoginRedirect();
+            Auth.federatedSignIn({provider: 'GithubLogin'})
+          }}>
             <div className={classes.textWrapper}>{intl.formatMessage({id: 'signInGithubSignIn'})}</div>
         </GithubLoginButton>
-        <div className={classes.googleButton} onClick={() => Auth.federatedSignIn({provider: 'Google'})}>
+        <div className={classes.googleButton} onClick={() => {
+          this.setLoginRedirect();
+          Auth.federatedSignIn({provider: 'Google'})
+        }}>
           <img className={classes.googleImg} alt="Sign in with Google" src={`/images/btn_google_dark_normal_ios.svg`} />
           <div className={classes.googleTextWrapper}>
             <div className={classes.googleText}>{intl.formatMessage({id: 'signInGoogleSignIn'})}</div>
@@ -248,4 +273,4 @@ class CustomSignIn extends SignIn {
   }
 }
 
-export default withStyles(useStyles)(injectIntl(CustomSignIn));
+export default withStyles(useStyles)(withRouter(injectIntl(CustomSignIn)));

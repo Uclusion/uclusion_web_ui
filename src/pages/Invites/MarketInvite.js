@@ -18,10 +18,6 @@ import { CircularProgress, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles((theme) => ({
-  hidden: {
-    display: 'none',
-  },
-  normal: {},
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -119,7 +115,7 @@ function MarketInvite(props) {
   }
   
   return (
-    <div className={hidden ? classes.hidden : classes.normal}>
+    <div>
     <Helmet
       defer={false}
     >

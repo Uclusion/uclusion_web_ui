@@ -1,4 +1,3 @@
-export const ADMIN_INITIATIVE_FIRST_VIEW = 'admin_initiative_first_view';
 
 export function adminInitiativeSteps(variables) {
   const { name } = variables;

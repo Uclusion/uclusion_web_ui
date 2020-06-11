@@ -1,5 +1,28 @@
-import { markTourCompleted, setTourCurrentStep } from './tourContextReducer';
-import _ from 'lodash';
+import { markTourCompleted, setTourCurrentStep } from './tourContextReducer'
+import _ from 'lodash'
+
+export const INVITE_DIALOG_FIRST_VIEW = 'invite_dialog_first_view';
+export const INVITE_STORIES_WORKSPACE_FIRST_VIEW = 'invite_stories_workspace_first_view';
+export const INVITE_REQ_WORKSPACE_FIRST_VIEW = 'invite_req_workspace_first_view';
+export const ADMIN_INITIATIVE_FIRST_VIEW = 'admin_initiative_first_view';
+export const INVITE_INITIATIVE_FIRST_VIEW = 'invite_initiative_first_view';
+
+export function getTourFamily(tourName) {
+  switch (tourName) {
+    case INVITE_DIALOG_FIRST_VIEW:
+      return [INVITE_DIALOG_FIRST_VIEW];
+    case INVITE_STORIES_WORKSPACE_FIRST_VIEW:
+      return [INVITE_STORIES_WORKSPACE_FIRST_VIEW, INVITE_REQ_WORKSPACE_FIRST_VIEW];
+    case INVITE_REQ_WORKSPACE_FIRST_VIEW:
+      return [INVITE_REQ_WORKSPACE_FIRST_VIEW];
+    case ADMIN_INITIATIVE_FIRST_VIEW:
+      return [ADMIN_INITIATIVE_FIRST_VIEW, INVITE_INITIATIVE_FIRST_VIEW];
+    case INVITE_INITIATIVE_FIRST_VIEW:
+      return [INVITE_INITIATIVE_FIRST_VIEW];
+    default:
+      return [];
+  }
+}
 
 export function completeTour(dispatch, name){
   dispatch(markTourCompleted(name));

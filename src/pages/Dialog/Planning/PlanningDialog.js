@@ -41,20 +41,18 @@ import { TourContext } from '../../../contexts/TourContext/TourContext'
 import { startTour } from '../../../contexts/TourContext/tourContextReducer'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import UclusionTour from '../../../components/Tours/UclusionTour'
-import {
-  INVITE_STORIES_WORKSPACE_FIRST_VIEW,
-  inviteStoriesWorkspaceSteps
-} from '../../../components/Tours/InviteTours/storyWorkspace'
-import {
-  INVITE_REQ_WORKSPACE_FIRST_VIEW,
-  inviteRequirementsWorkspaceSteps
-} from '../../../components/Tours/InviteTours/requirementsWorkspace'
+import { inviteStoriesWorkspaceSteps } from '../../../components/Tours/InviteTours/storyWorkspace'
+import { inviteRequirementsWorkspaceSteps } from '../../../components/Tours/InviteTours/requirementsWorkspace'
 import { wizardStyles } from '../../Onboarding/OnboardingWizard'
 import Header from '../../../containers/Header'
 import InviteLinker from '../InviteLinker'
 import StepButtons from '../../Onboarding/StepButtons'
 import queryString from 'query-string'
 import moment from 'moment'
+import {
+  INVITE_REQ_WORKSPACE_FIRST_VIEW,
+  INVITE_STORIES_WORKSPACE_FIRST_VIEW
+} from '../../../contexts/TourContext/tourContextHelper'
 
 const useStyles = makeStyles(
   () => ({

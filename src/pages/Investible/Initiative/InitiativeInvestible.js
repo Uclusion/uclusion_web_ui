@@ -28,15 +28,13 @@ import ExpandableAction from '../../../components/SidebarActions/Planning/Expand
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { TourContext } from '../../../contexts/TourContext/TourContext'
 import { startTour } from '../../../contexts/TourContext/tourContextReducer'
-import {
-  INVITE_INITIATIVE_FIRST_VIEW,
-} from '../../../components/Tours/InviteTours/initiative'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
+import { adminInitiativeSteps } from '../../../components/Tours/InviteTours/adminInitiative'
 import {
   ADMIN_INITIATIVE_FIRST_VIEW,
-  adminInitiativeSteps
-} from '../../../components/Tours/InviteTours/adminInitiative'
+  INVITE_INITIATIVE_FIRST_VIEW
+} from '../../../contexts/TourContext/tourContextHelper'
 
 const useStyles = makeStyles(
   theme => ({

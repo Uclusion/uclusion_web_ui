@@ -1,4 +1,3 @@
-export const INVITE_REQ_WORKSPACE_FIRST_VIEW = 'invite_req_workspace_first_view';
 
 export function inviteRequirementsWorkspaceSteps(variables) {
   const { name } = variables;

@@ -40,10 +40,7 @@ import { getInlineBreadCrumbs } from '../../Investible/Decision/DecisionInvestib
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
-import {
-  INVITE_DIALOG_FIRST_VIEW,
-  inviteDialogSteps
-} from '../../../components/Tours/InviteTours/dialog'
+import { inviteDialogSteps } from '../../../components/Tours/InviteTours/dialog'
 import { CognitoUserContext } from '../../../contexts/CognitoUserContext/CongitoUserContext'
 import { startTour } from '../../../contexts/TourContext/tourContextReducer'
 import { TourContext } from '../../../contexts/TourContext/TourContext'
@@ -52,6 +49,7 @@ import StepButtons from '../../Onboarding/StepButtons'
 import queryString from 'query-string'
 import { wizardStyles } from '../../Onboarding/OnboardingWizard'
 import Header from '../../../containers/Header'
+import { INVITE_DIALOG_FIRST_VIEW } from '../../../contexts/TourContext/tourContextHelper'
 
 const useStyles = makeStyles(
   theme => ({

@@ -1,4 +1,3 @@
-export const INVITE_STORIES_WORKSPACE_FIRST_VIEW = 'invite_stories_workspace_first_view';
 
 export function inviteStoriesWorkspaceSteps (variables) {
   const { name } = variables;

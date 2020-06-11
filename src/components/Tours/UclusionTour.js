@@ -1,20 +1,20 @@
-import React, { useContext, useEffect, useState } from 'react';
-import _ from 'lodash';
-import PropTypes from 'prop-types';
-import { TourContext } from '../../contexts/TourContext/TourContext';
+import React, { useContext, useEffect, useState } from 'react'
+import _ from 'lodash'
+import PropTypes from 'prop-types'
+import { TourContext } from '../../contexts/TourContext/TourContext'
 import {
-  isTourRunning,
+  completeTour,
   getCurrentStep,
+  getTourFamily,
   isTourCompleted,
-  setCurrentStep,
-  completeTour
-} from '../../contexts/TourContext/tourContextHelper';
-import ReactJoyride from 'react-joyride';
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
-import { updateUiPreferences } from '../../api/account';
-import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer';
-import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper';
-
+  isTourRunning,
+  setCurrentStep
+} from '../../contexts/TourContext/tourContextHelper'
+import ReactJoyride from 'react-joyride'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import { updateUiPreferences } from '../../api/account'
+import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
+import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
 
 function UclusionTour(props) {
   const {
@@ -34,7 +34,7 @@ function UclusionTour(props) {
   const safeCompletedTours = _.isArray(completedTours)? completedTours : [];
 
   function storeTourCompleteInBackend(tourName){
-    const newCompleted = [...safeCompletedTours, tourName];
+    const newCompleted = [...safeCompletedTours, ...getTourFamily(tourName)];
     const newTourPreferences = {
       ...tourPreferences,
       completedTours: newCompleted,

@@ -114,8 +114,12 @@ function MarketInvite(props) {
     }
   }, [hidden, marketToken, history, hash, marketState, myLoading, userState]);
 
+  if (hidden) {
+    return <React.Fragment/>
+  }
+  
   return (
-  <div className={hidden ? classes.hidden : classes.normal}>
+    <div className={hidden ? classes.hidden : classes.normal}>
     <Helmet
       defer={false}
     >

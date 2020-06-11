@@ -1,7 +1,10 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react'
 import {
   Card,
   Checkbox,
+  ExpansionPanel,
+  ExpansionPanelDetails,
+  ExpansionPanelSummary,
   FormControl,
   Grid,
   InputLabel,
@@ -11,22 +14,19 @@ import {
   makeStyles,
   TextField,
   Typography,
-  ExpansionPanel,
-  ExpansionPanelSummary,
-  ExpansionPanelDetails,
-} from '@material-ui/core';
-import _ from 'lodash';
-import { useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
-import { updateUser } from '../../api/users';
-import clsx from 'clsx';
-import config from '../../config';
-import Screen from '../../containers/Screen/Screen';
-import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
+} from '@material-ui/core'
+import _ from 'lodash'
+import { useIntl } from 'react-intl'
+import PropTypes from 'prop-types'
+import { updateUser } from '../../api/users'
+import clsx from 'clsx'
+import config from '../../config'
+import Screen from '../../containers/Screen/Screen'
+import { makeBreadCrumbs } from '../../utils/marketIdPathFunctions'
+import { useHistory } from 'react-router'
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 
 const useStyles = makeStyles((theme) => ({
   name: {},
@@ -83,7 +83,7 @@ function ChangeNotificationPreferences (props) {
       setSlackEnabled(!slackNotAvailable && user.slack_enabled)
       setEmailDelay(user.email_delay);
     }
-  }, [user, setEmailEnabled, setEmailDelay, setSlackEnabled, setSlackDelay]);
+  }, [user, setEmailEnabled, setEmailDelay, setSlackEnabled, setSlackDelay, slackNotAvailable]);
 
   function onSetPreferences () {
     return updateUser({ emailEnabled, slackEnabled, slackDelay, emailDelay });

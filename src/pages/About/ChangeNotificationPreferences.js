@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import {
   Card,
   Checkbox,
@@ -15,7 +15,7 @@ import {
   ExpansionPanelSummary,
   ExpansionPanelDetails,
 } from '@material-ui/core';
-
+import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { updateUser } from '../../api/users';
@@ -67,15 +67,23 @@ function ChangeNotificationPreferences (props) {
   const { hidden } = props;
   const [userState] = useContext(AccountUserContext) || {};
   const { user } = userState;
-  const slackNotAvailable = !user || !user.is_slack_addressable;
-  const [emailEnabled, setEmailEnabled] = useState(user && user.email_enabled);
-  const [slackEnabled, setSlackEnabled] = useState(!slackNotAvailable && user && user.slack_enabled);
 
-  const [slackDelay, setSlackDelay] = useState(user && user.slack_delay);
-  const [emailDelay, setEmailDelay] = useState(user && user.email_delay);
+  const [emailEnabled, setEmailEnabled] = useState(undefined);
+  const [slackEnabled, setSlackEnabled] = useState(undefined);
+  const [slackDelay, setSlackDelay] = useState(undefined);
+  const [emailDelay, setEmailDelay] = useState(undefined);
+  const slackNotAvailable = _.isEmpty(user) || !user.is_slack_addressable;
   const intl = useIntl();
   const classes = useStyles();
 
+  useEffect(() => {
+    if (!_.isEmpty(user)) {
+      setEmailEnabled(user.email_enabled)
+      setSlackDelay(user.slack_delay);
+      setSlackEnabled(!slackNotAvailable && user.slack_enabled)
+      setEmailDelay(user.email_delay);
+    }
+  }, [user, setEmailEnabled, setEmailDelay, setSlackEnabled, setSlackDelay]);
 
   function onSetPreferences () {
     return updateUser({ emailEnabled, slackEnabled, slackDelay, emailDelay });
@@ -118,7 +126,7 @@ function ChangeNotificationPreferences (props) {
       tabTitle={intl.formatMessage({ id: 'changePreferencesHeader' })}
       hidden={hidden}
       breadCrumbs={breadCrumbs}
-      loading={!user}
+      loading={_.isEmpty(user)}
     >
       <Grid container spacing={3}>
         <Grid item md={6} xs={12}>

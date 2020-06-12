@@ -16,6 +16,9 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { CircularProgress, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
+import { getMarketDetails } from '../../api/markets';
+import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper';
+import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -68,7 +71,8 @@ function MarketInvite(props) {
   const { hash } = location;
   const { marketId: marketToken } = decomposeMarketPath(pathname);
   const [myLoading, setMyLoading] = useState(undefined);
-  const [marketState] = useContext(MarketsContext);
+  const [marketState, marketsDispatch] = useContext(MarketsContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const [userState] = useContext(AccountUserContext) || {};
   const classes = useStyles();
 
@@ -79,29 +83,27 @@ function MarketInvite(props) {
       const { is_obs: isObserver } = values;
       getMarketFromInvite(marketToken, isObserver === 'true')
         .then((result) => {
-          const { is_new_capability: loggedIntoNewMarket, market_id: myMarketId } = result;
-          console.debug(`Logged into market ${myMarketId}`);
-          if (!loggedIntoNewMarket) {
-            navigate(history, formMarketLink(myMarketId));
-          } else {
-            registerListener(VERSIONS_HUB_CHANNEL, 'inviteListener', (data) => {
-              const { payload: { event, marketId: messageMarketId } } = data;
-              switch (event) {
-                case  NEW_MARKET: {
-                  if (messageMarketId === myMarketId) {
-                    console.log(`Redirecting us to market ${myMarketId}`);
-                    setTimeout(() => {
-                      navigate(history, formMarketLink(myMarketId));
-                    }, 500);
+          const { market_id: myMarketId, user } = result;
+          return new Promise((resolve, reject) => {
+            const maxRetries = 20;
+            let currentCount = 0;
+            const fetcher = () => {
+              getMarketDetails(marketId)
+                .then((details) => resolve(details))
+                .catch((error) => {
+                  if (currentCount < maxRetries) {
+                    currentCount += 1;
+                    setTimeout(fetcher, 3000);
+                  } else {
+                    reject(error);
                   }
-                  break;
-                }
-                default:
-                  // ignore
-                  break;
-              }
-            });
-          }
+                });
+            };
+            setTimeout(fetcher, 3000);
+          });
+        })
+        .then((details) => {
+          addMarketToStorage(marketsDispatch, diffDispatch, details, false);
         })
         .catch((error) => {
           console.error(error);

@@ -40,7 +40,7 @@ function AccountPoller (props) {
               toastErrorAndThrow(error, 'errorUserLoadFailed');
             }
             currentRetries += 1;
-            setTimeout(poller, 5  00); // try every second
+            setTimeout(poller, 500); // try every second
           });
       };
       poller();

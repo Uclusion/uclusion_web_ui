@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from 'react'
-import _ from 'lodash'
-import NoAccount from '../../pages/NoAccount/NoAccount'
-import Root from '../Root'
-import AppConfigProvider from '../../components/AppConfigProvider'
-import config from '../../config'
-import { WebSocketProvider } from '../../contexts/WebSocketContext'
-import { OnlineStateProvider } from '../../contexts/OnlineStateContext'
-import { Auth } from 'aws-amplify'
-import LogRocket from 'logrocket'
-import { defaultTheme } from '../../config/themes'
-import { ThemeProvider } from '@material-ui/core/styles'
-import { TourProvider } from '../../contexts/TourContext/TourContext'
-import { CognitoUserProvider } from '../../contexts/CognitoUserContext/CongitoUserContext'
-import { AccountUserProvider } from '../../contexts/AccountUserContext/AccountUserContext'
+import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
+import NoAccount from '../../pages/NoAccount/NoAccount';
+import Root from '../Root';
+import AppConfigProvider from '../../components/AppConfigProvider';
+import config from '../../config';
+import { WebSocketProvider } from '../../contexts/WebSocketContext';
+import { OnlineStateProvider } from '../../contexts/OnlineStateContext';
+import { Auth } from 'aws-amplify';
+import LogRocket from 'logrocket';
+import { defaultTheme } from '../../config/themes';
+import { ThemeProvider } from '@material-ui/core/styles';
+import { TourProvider } from '../../contexts/TourContext/TourContext';
+import { CognitoUserProvider } from '../../contexts/CognitoUserContext/CongitoUserContext';
+import { AccountUserProvider } from '../../contexts/AccountUserContext/AccountUserContext';
+import AccountPoller from '../Root/AccountPoller';
 
 function App (props) {
 
@@ -24,6 +25,7 @@ function App (props) {
       setUserAttributes(loginInfo);
       LogRocket.identify(loginInfo.userId, loginInfo);
     }
+
     if (authState === 'signedIn') {
       Auth.currentAuthenticatedUser()
         .then((user) => {
@@ -70,7 +72,9 @@ function App (props) {
             <AppConfigProvider appConfig={configs}>
               <ThemeProvider theme={defaultTheme}>
                 <TourProvider>
-                  <Root appConfig={configs}/>
+                  <AccountPoller>
+                    <Root appConfig={configs}/>
+                  </AccountPoller>
                 </TourProvider>
               </ThemeProvider>
             </AppConfigProvider>

@@ -41,7 +41,6 @@ export const getAccount = () => {
     .then((ssoInfo) => {
       const { idToken, ssoClient } = ssoInfo;
       return ssoClient.accountCognitoLogin(idToken)
-        .then((loginInfo) => loginInfo.account);
     })
 };
 

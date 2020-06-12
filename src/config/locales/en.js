@@ -723,6 +723,7 @@ const messages = defineMessages({
   errorUpdatePaymentFailed: 'There was a problem updating your payment card. Please try again.',
   errorHomeUserFetchFailed: 'There was a problem fetching your user. Please try again.',
   errorPreferenceUpdateFailed: 'There was a problem updating your preferences. Please try again.',
+  errorUserLoadFailed: 'We could not load your user. Please login again.',
   warningAlreadyInMarket: 'You are already a part of this market.',
 
   homeNoMarkets: "You don't have anything here, so you'll have to create a new Workspace, Dialog or Initiative to get going again.",

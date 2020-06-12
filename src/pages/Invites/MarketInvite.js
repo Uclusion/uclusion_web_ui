@@ -3,20 +3,14 @@ import { Helmet } from 'react-helmet'
 import { useIntl } from 'react-intl'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
-import _ from 'lodash'
 import Header from '../../containers/Header'
 import { decomposeMarketPath, formMarketLink, navigate, } from '../../utils/marketIdPathFunctions'
-import { VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext'
 import { getMarketFromInvite } from '../../api/uclusionClient'
-import { registerListener } from '../../utils/MessageBusUtils'
 import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
-import { NEW_MARKET } from '../../contexts/VersionsContext/versionsContextMessages'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
 import { CircularProgress, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { getMarketDetails } from '../../api/markets';
 import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 
@@ -73,45 +67,25 @@ function MarketInvite(props) {
   const [myLoading, setMyLoading] = useState(undefined);
   const [marketState, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [userState] = useContext(AccountUserContext) || {};
   const classes = useStyles();
 
   useEffect(() => {
-    if (!hidden && myLoading !== marketToken && !_.isEmpty(userState)) {
+    if (!hidden && myLoading !== marketToken) {
       setMyLoading(marketToken);
       const values = queryString.parse(hash);
       const { is_obs: isObserver } = values;
       getMarketFromInvite(marketToken, isObserver === 'true')
         .then((result) => {
-          const { market_id: myMarketId, user } = result;
-          return new Promise((resolve, reject) => {
-            const maxRetries = 20;
-            let currentCount = 0;
-            const fetcher = () => {
-              getMarketDetails(myMarketId)
-                .then((details) => resolve(details))
-                .catch((error) => {
-                  if (currentCount < maxRetries) {
-                    currentCount += 1;
-                    setTimeout(fetcher, 2000);
-                  } else {
-                    reject(error);
-                  }
-                });
-            };
-            setTimeout(fetcher, 1000);
-          });
-        })
-        .then((details) => {
-          addMarketToStorage(marketsDispatch, diffDispatch, details, false);
-          navigate(history, formMarketLink(details.id));
+          const { market } = result;
+          addMarketToStorage(marketsDispatch, diffDispatch, market, false);
+          navigate(history, formMarketLink(market.id));
         })
         .catch((error) => {
           console.error(error);
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [hidden, marketToken, history, hash, marketState, myLoading, userState]);
+  }, [hidden, marketToken, history, hash, marketState, myLoading, diffDispatch, marketsDispatch]);
 
   if (hidden) {
     return <React.Fragment/>

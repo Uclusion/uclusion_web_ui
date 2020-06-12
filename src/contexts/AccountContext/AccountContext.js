@@ -28,9 +28,10 @@ function AccountProvider (props) {
     if (isInitialization) {
       beginListening(dispatch);
       getAccount()
-        .then((newAccount) => {
-          updateAccount(dispatch, newAccount);
-          const { billing_customer_id: customerId } = newAccount;
+        .then((loginInfo) => {
+          const { account } = loginInfo
+          updateAccount(dispatch, account);
+          const { billing_customer_id: customerId } = account;
           if (!_.isEmpty(customerId)) {
             return getPaymentInfo()
               .then((paymentInfo) => {

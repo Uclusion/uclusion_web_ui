@@ -99,11 +99,12 @@ function MarketInvite(props) {
                   }
                 });
             };
-            setTimeout(fetcher, 3000);
+            setTimeout(fetcher, 1000);
           });
         })
         .then((details) => {
           addMarketToStorage(marketsDispatch, diffDispatch, details, false);
+          navigate(history, formMarketLink(details.id));
         })
         .catch((error) => {
           console.error(error);

@@ -88,7 +88,7 @@ function MarketInvite(props) {
             const maxRetries = 20;
             let currentCount = 0;
             const fetcher = () => {
-              getMarketDetails(marketId)
+              getMarketDetails(myMarketId)
                 .then((details) => resolve(details))
                 .catch((error) => {
                   if (currentCount < maxRetries) {

@@ -13,6 +13,7 @@ import { CircularProgress, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
+import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -77,8 +78,12 @@ function MarketInvite(props) {
       getMarketFromInvite(marketToken, isObserver === 'true')
         .then((result) => {
           const { market } = result;
+          const { id, version} = market
           addMarketToStorage(marketsDispatch, diffDispatch, market, false);
-          navigate(history, formMarketLink(market.id));
+          return refreshGlobalVersion([{id, version}])
+            .then(() => {
+              navigate(history, formMarketLink(id));
+            })
         })
         .catch((error) => {
           console.error(error);

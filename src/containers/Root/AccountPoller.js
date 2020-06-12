@@ -43,7 +43,7 @@ function AccountPoller (props) {
             setTimeout(poller, 500); // try every second
           });
       };
-      poller();
+      poller(); //TODO, make a version of startTimerChain that supports an error message and catches
     }
   }, [accountDispatch, userDispatch, setPollRunning, pollRunning, userLoaded]);
 

@@ -45,7 +45,13 @@ export class MatchError extends Error {
 
 let globalFetchPromiseChain = Promise.resolve(true);
 
-function startGlobalRefreshTimerChain() {
+/**
+ * Starts off a global refresh timer.
+ * @param additionalRequiredSignatures any signatures, in addition to those in the disk state,
+ * that are needed for this call to be considered valud
+ * @returns {Promise<unknown>}
+ */
+function startGlobalRefreshTimerChain(additionalRequiredSignatures) {
   return new Promise((resolve, reject) => {
     const execFunction = () => {
       const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
@@ -58,7 +64,10 @@ function startGlobalRefreshTimerChain() {
             requiredSignatures,
           } = state || {};
           currentHeldVersion = globalVersion;
-          return doVersionRefresh(currentHeldVersion, existingMarkets, requiredSignatures);
+          const neededSignatures = !_.isEmpty(additionalRequiredSignatures) ?
+            [...requiredSignatures, ...additionalRequiredSignatures] :
+            requiredSignatures;
+          return doVersionRefresh(currentHeldVersion, existingMarkets, neededSignatures);
         }).then((globalVersion) => {
           if (globalVersion !== currentHeldVersion) {
             // console.log('Got new version');
@@ -80,7 +89,13 @@ function startGlobalRefreshTimerChain() {
   });
 }
 
-export function refreshGlobalVersion () {
+/**
+ * Refreshes the global version
+ * @param additionalRequiredSignatures any signatures beyond those stored in the disk state, that we'll
+ * need to consider the fetch complete.
+ * @returns {Promise<*>}
+ */
+export function refreshGlobalVersion (additionalRequiredSignatures) {
   // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
   const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
   return disk.getState()
@@ -93,7 +108,7 @@ export function refreshGlobalVersion () {
       if (globalVersion === EMPTY_GLOBAL_VERSION || _.isEmpty(globalVersion) ) {
         globalFetchPromiseChain = globalFetchPromiseChain
           .then(() => {
-            return startGlobalRefreshTimerChain();
+            return startGlobalRefreshTimerChain(additionalRequiredSignatures);
           });
         return globalFetchPromiseChain;
       }

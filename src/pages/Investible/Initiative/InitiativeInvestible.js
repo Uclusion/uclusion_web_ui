@@ -195,7 +195,7 @@ function InitiativeInvestible(props) {
   });
   const metaClasses = useMetaDataStyles();
   const tourName = isAdmin? ADMIN_INITIATIVE_FIRST_VIEW : INVITE_INITIATIVE_FIRST_VIEW
-  const tourSteps = isAdmin? adminInitiativeSteps(cognitoUser) : inviteInitiativeSteps(congnitoUser);
+  const tourSteps = isAdmin? adminInitiativeSteps(cognitoUser) : inviteInitiativeSteps(cognitoUser);
   useEffect(() => {
       tourDispatch(startTour(tourName));
   }, [tourDispatch, tourName]);

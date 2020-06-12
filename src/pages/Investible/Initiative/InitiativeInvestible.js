@@ -35,6 +35,7 @@ import {
   ADMIN_INITIATIVE_FIRST_VIEW,
   INVITE_INITIATIVE_FIRST_VIEW
 } from '../../../contexts/TourContext/tourContextHelper'
+import { inviteInitiativeSteps } from '../../../components/Tours/InviteTours/initiative';
 
 const useStyles = makeStyles(
   theme => ({
@@ -194,7 +195,7 @@ function InitiativeInvestible(props) {
   });
   const metaClasses = useMetaDataStyles();
   const tourName = isAdmin? ADMIN_INITIATIVE_FIRST_VIEW : INVITE_INITIATIVE_FIRST_VIEW
-
+  const tourSteps = isAdmin? adminInitiativeSteps(cognitoUser) : inviteInitiativeSteps(congnitoUser);
   useEffect(() => {
       tourDispatch(startTour(tourName));
   }, [tourDispatch, tourName]);
@@ -215,7 +216,7 @@ function InitiativeInvestible(props) {
       <UclusionTour
         hidden={hidden}
         name={tourName}
-        steps={adminInitiativeSteps(cognitoUser)}
+        steps={tourSteps}
         continuous
         hideBackButton
       />

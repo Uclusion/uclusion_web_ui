@@ -93,7 +93,7 @@ function MarketInvite(props) {
                 .catch((error) => {
                   if (currentCount < maxRetries) {
                     currentCount += 1;
-                    setTimeout(fetcher, 3000);
+                    setTimeout(fetcher, 2000);
                   } else {
                     reject(error);
                   }

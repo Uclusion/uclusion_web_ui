@@ -25,7 +25,7 @@ function AccountPoller (props) {
   useEffect(() => {
     if (!userLoaded && !pollRunning) {
       setPollRunning(true);
-      const maxRetries = 20;
+      const maxRetries = 40;
       let currentRetries = 0;
       const poller = () => {
         getAccount()
@@ -40,7 +40,7 @@ function AccountPoller (props) {
               toastErrorAndThrow(error, 'errorUserLoadFailed');
             }
             currentRetries += 1;
-            setTimeout(poller, 1000); // try every second
+            setTimeout(poller, 5  00); // try every second
           });
       };
       poller();

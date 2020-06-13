@@ -7,7 +7,7 @@ export function inviteInitiativeSteps(variables) {
       target: '#initiativeMain',
       placement: 'center',
       title: `Welcome ${name}!`,
-      content: 'Uclusion Initiatives let you and your collaborators vote for or against a proposal.',
+      content: 'A Uclusion Initiative is an interactive way to collaborate on a proposal.',
     },
     {
       disableBeacon: true,
@@ -18,13 +18,13 @@ export function inviteInitiativeSteps(variables) {
       disableBeacon: true,
       target: '#pleaseVote',
       placement: 'top',
-      content: 'This section is where you can vote for or against the proposal.',
+      content: 'Vote here for or against with a certainty and reason. If the initiative changes you can change your vote.',
     },
     {
       disableBeacon: true,
       target: '#commentAddArea',
       placement: 'top',
-      content: 'Lastly, you can ask questions or provide suggestions down here.',
+      content: 'Lastly, you can ask questions or provide suggestions in this section.',
     },
   ]
 }

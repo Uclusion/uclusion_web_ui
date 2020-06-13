@@ -11,7 +11,7 @@ import queryString from 'query-string'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { CircularProgress, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper';
+import { addMarketToStorage, getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
 import {
@@ -22,6 +22,7 @@ import {
 import { VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import { registerListener, removeListener } from '../../utils/MessageBusUtils';
 import { NEW_MARKET } from '../../contexts/VersionsContext/versionsContextMessages';
+import _ from 'lodash';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -75,12 +76,18 @@ function MarketInvite(props) {
   const { marketId: marketToken } = decomposeMarketPath(pathname);
   const [myLoading, setMyLoading] = useState(undefined);
   const [marketState, marketsDispatch] = useContext(MarketsContext);
+  const [marketId, setMarketId] = useState(undefined);
   const [, versionsDispatch] = useContext(VersionsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const classes = useStyles();
 
   useEffect(() => {
-    if (!hidden && myLoading !== marketToken) {
+    // do we have the market in our state? Great, go there
+    const marketDetails = getMarket(marketState, marketId)
+    if (!hidden && !_.isEmpty(marketDetails)) {
+      navigate(history, formMarketLink(marketId));
+    }
+    if (!hidden && myLoading !== marketToken && _.isEmpty(marketId) && _.isEmpty(marketDetails)) {
       setMyLoading(marketToken);
       const values = queryString.parse(hash);
       const { is_obs: isObserver } = values;
@@ -88,6 +95,7 @@ function MarketInvite(props) {
         .then((result) => {
           const { market } = result;
           const { id, version} = market
+          setMarketId(id);
           addMarketToStorage(marketsDispatch, diffDispatch, market, false);
           addMinimumVersionRequirement(versionsDispatch, { id, version });
           /// add a listener to all places a market can show up, then kick off global version to make sure it gets filled
@@ -95,7 +103,6 @@ function MarketInvite(props) {
             console.log(`Redirecting us to market ${id}`);
             navigate(history, formMarketLink(id));
           }
-
           registerListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket', (data) => {
             const { payload: { event, marketId: messageMarketId } } = data;
             switch (event) {
@@ -130,7 +137,7 @@ function MarketInvite(props) {
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [hidden, marketToken, history, hash, marketState, myLoading, diffDispatch, marketsDispatch, versionsDispatch]);
+  }, [hidden, marketToken, history, hash, marketState, myLoading, diffDispatch, marketsDispatch, versionsDispatch, marketId]);
 
   if (hidden) {
     return <React.Fragment/>

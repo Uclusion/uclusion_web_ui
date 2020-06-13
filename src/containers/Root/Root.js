@@ -59,11 +59,12 @@ function Root() {
   const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
   const [userState] = useContext(AccountUserContext) || {};
-  const myAction = isNewUser(userState) && action !== 'invite' ? 'onboarding' : action;
-  // Putting this in useEffect did not take effect and since not promise or state based why should it be there?
+  const myAction = isNewUser(userState) && action !== 'invite' && action !== 'dialog' ? 'onboarding' : action;
+
   if (myAction === 'onboarding' && myAction !== action) {
     navigate(history, '/onboarding');
   }
+
   function hideHome() {
     return !pathname || pathname !== '/';
   }

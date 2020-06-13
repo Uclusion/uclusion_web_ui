@@ -21,7 +21,8 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
-import { addVersionRequirement } from '../../contexts/VersionsContext/versionsContextReducer';
+import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper';
+
 
 export const useLockedDialogStyles = makeStyles(
   theme => {
@@ -159,7 +160,7 @@ function DialogEdit(props) {
   }
 
   function onSave(market) {
-    addVersionRequirement(versionsDispatch, {id: market.id, version: market.version});
+    addMinimumVersionRequirement(versionsDispatch, {id: market.id, version: market.version});
     updateMarketInStorage(market);
     return localforage.removeItem(marketId)
       .finally(() => {

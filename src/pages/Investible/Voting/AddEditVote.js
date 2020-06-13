@@ -34,7 +34,7 @@ import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
 import InfoText from '../../../components/Descriptions/InfoText'
 import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext'
-import { addVersionRequirement } from '../../../contexts/VersionsContext/versionsContextReducer'
+import { addMinimumVersionRequirement } from '../../../contexts/VersionsContext/versionsContextHelper';
 
 const useStyles = makeStyles(
   theme => {
@@ -205,7 +205,7 @@ function AddEditVote(props) {
       removeComments(commentsDispatch, marketId, [commentId]);
     } else if (commentAction !== "NOOP") {
       const comments = getMarketComments(commentsState, marketId);
-      addVersionRequirement(versionsDispatch, { id: comment.id, version: comment.version});
+      addMinimumVersionRequirement(versionsDispatch, { id: comment.id, version: comment.version});
       refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
     }
     partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);

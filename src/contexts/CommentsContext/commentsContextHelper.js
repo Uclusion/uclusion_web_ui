@@ -7,7 +7,7 @@ import {
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
-import { addVersionRequirement } from '../VersionsContext/versionsContextReducer'
+import { addMinimumVersionRequirement } from '../VersionsContext/versionsContextHelper';
 
 export function getComment(state, marketId, commentId) {
   const marketComments = getMarketComments(state, marketId);
@@ -42,7 +42,7 @@ export function removeComments(dispatch, marketId, comments) {
 }
 
 export function addCommentToMarket(comment, state, dispatch, versionsDispatch) {
-  addVersionRequirement(versionsDispatch, { id: comment.id, version: comment.version});
+  addMinimumVersionRequirement(versionsDispatch, { id: comment.id, version: comment.version});
   let updates = [comment];
   const { reply_id: replyId, id, market_id: marketId } = comment;
   const comments = getMarketComments(state, marketId);

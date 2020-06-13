@@ -19,7 +19,7 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { canCreate, getAccount } from '../../contexts/AccountContext/accountContextHelper'
 import config from '../../config'
 import { SUBSCRIPTION_STATUS_CANCELED } from '../../constants/billing'
-import { addVersionRequirement } from '../../contexts/VersionsContext/versionsContextReducer';
+import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper';
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
 
 function DialogAdd(props) {
@@ -62,7 +62,7 @@ function DialogAdd(props) {
       presence,
     } = result;
     const { id: marketId, version } = market;
-    addVersionRequirement(versionsDispatch, {id: marketId, version});
+    addMinimumVersionRequirement(versionsDispatch, {id: marketId, version});
     addMarketToStorage(marketDispatch, diffDispatch, market);
     addPresenceToMarket(presenceDispatch, marketId, presence);
   }

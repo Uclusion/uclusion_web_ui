@@ -13,7 +13,15 @@ import { CircularProgress, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { addMarketToStorage } from '../../contexts/MarketsContext/marketsContextHelper';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
-import { refreshGlobalVersion } from '../../api/versionedFetchUtils';
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
+import {
+  addMinimumVersionRequirement,
+  PUSH_MARKETS_CHANNEL,
+  refreshVersions, VERSIONS_EVENT
+} from '../../contexts/VersionsContext/versionsContextHelper';
+import { VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
+import { registerListener, removeListener } from '../../utils/MessageBusUtils';
+import { NEW_MARKET } from '../../contexts/VersionsContext/versionsContextMessages';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,6 +75,7 @@ function MarketInvite(props) {
   const { marketId: marketToken } = decomposeMarketPath(pathname);
   const [myLoading, setMyLoading] = useState(undefined);
   const [marketState, marketsDispatch] = useContext(MarketsContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const classes = useStyles();
 
@@ -80,17 +89,48 @@ function MarketInvite(props) {
           const { market } = result;
           const { id, version} = market
           addMarketToStorage(marketsDispatch, diffDispatch, market, false);
-          return refreshGlobalVersion([{id, version}])
-            .then(() => {
-              navigate(history, formMarketLink(id));
-            })
+          addMinimumVersionRequirement(versionsDispatch, { id, version });
+          /// add a listener to all places a market can show up, then kick off global version to make sure it gets filled
+          function redirectToMarket() {
+            console.log(`Redirecting us to market ${id}`);
+            navigate(history, formMarketLink(id));
+          }
+
+          registerListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket', (data) => {
+            const { payload: { event, marketId: messageMarketId } } = data;
+            switch (event) {
+              case  NEW_MARKET:
+                if (messageMarketId === id) {
+                  removeListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket');
+                  redirectToMarket();
+                }
+                break;
+              default:
+              //console.debug(`Ignoring event`);
+            }
+          });
+          registerListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite', (data) => {
+            const { payload: { event, marketDetails } } = data;
+            switch (event) {
+              case VERSIONS_EVENT:
+                // console.debug(`Markets context responding to updated market event ${event}`);
+                if (marketDetails.id === id) {
+                  removeListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite');
+                  redirectToMarket()
+                }
+                break;
+              default:
+              // console.debug(`Ignoring identity event ${event}`);
+            }
+          });
+          return refreshVersions();
         })
         .catch((error) => {
           console.error(error);
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [hidden, marketToken, history, hash, marketState, myLoading, diffDispatch, marketsDispatch]);
+  }, [hidden, marketToken, history, hash, marketState, myLoading, diffDispatch, marketsDispatch, versionsDispatch]);
 
   if (hidden) {
     return <React.Fragment/>

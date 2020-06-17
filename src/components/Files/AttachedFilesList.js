@@ -50,14 +50,15 @@ function AttachedFilesList(props) {
    * @param link
    * @returns {*}
    */
-  function downloadFile(link) {
+  function downloadFile(link, originalName) {
     return getMarketLogin(marketId)
       .then((results) => {
         const { uclusion_token } = results;
         const newUrl = `${link}?authorization=${uclusion_token}`;
         const linkEl = document.createElement('a')
-        linkEl.target='_';
-        linkEl.href=newUrl;
+        linkEl.href = newUrl;
+        linkEl.target = '_';
+        linkEl.download = originalName;
         linkEl.click();
       });
   }
@@ -74,9 +75,10 @@ function AttachedFilesList(props) {
                 variant="inherit"
                 underline="always"
                 color="primary"
+                download={original_name}
                 onClick={(e) => {
                   e.preventDefault();
-                  downloadFile(linkToFile);
+                  downloadFile(linkToFile, original_name);
                 }}
                 className={classes.file}
               >

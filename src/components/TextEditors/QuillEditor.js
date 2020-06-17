@@ -29,16 +29,7 @@ Quill.register('modules/imageResize', ImageResize);
 Quill.register(CustomCodeBlock, true);
 
 function editorEmpty(contents) {
-  if (contents.length === 0) {
-    return true;
-  }
-  if (contents === '<p></p>') {
-    return true;
-  }
-  if (contents === '<p><br></p>') {
-    return true;
-  }
-  return false;
+  return (contents.length === 0 || contents === '<p></p>' || contents === '<p><br></p>');
 }
 
 
@@ -82,6 +73,14 @@ class QuillEditor extends React.PureComponent {
       }
       return builtinSanitizer.call(this, 'https://' + linkValue);
     }
+  }
+
+  /** The default UI for links sucks, This is a new one that's better
+   *
+   * @param value
+   */
+  renderLinkUI(value) {
+
   }
 
   createEditor() {
@@ -140,6 +139,9 @@ class QuillEditor extends React.PureComponent {
 
     this.options = {
       modules: this.modules,
+      handlers: {
+        link: this.renderLinkUI,
+      },
       placeholder,
       readOnly: false,
       theme: 'snow',

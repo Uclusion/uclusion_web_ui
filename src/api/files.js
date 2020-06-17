@@ -11,9 +11,10 @@ import { toastErrorAndThrow } from '../utils/userMessage';
 export function uploadFileToS3 (marketId, file) {
   const clientPromise = _.isEmpty(marketId) ? getAccountClient() : getMarketClient(marketId);
   const { type, size } = file;
-
+  // if we don't have a content type, use generic octet stream
+  const usedType = _.isEmpty(type)? 'application/octet-stream' : type;
   return clientPromise
-    .then((client) => client.investibles.getFileUploadData(type, size))
+    .then((client) => client.investibles.getFileUploadData(usedType, size))
     .then((data) => {
       const { metadata, presigned_post } = data;
       const { url, fields } = presigned_post;
@@ -77,3 +78,4 @@ export function processTextAndFilesForSave (uploadedFiles, text) {
   const newUploaded = filterUploadsUsedInText(uploadedFiles, text);
   return { uploadedFiles: newUploaded, text };
 }
+

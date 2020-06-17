@@ -32,6 +32,12 @@ export function manageMarket(marketId, expirationMinutes) {
     .catch((error) => toastErrorAndThrow(error, 'errorMarketExpirationExtendFailed'));
 }
 
+export function attachFilesToMarket(marketId, metadatas) {
+  return getMarketClient(marketId)
+    .then((client) => client.markets.addAttachments(metadatas))
+    .catch((error) => toastErrorAndThrow(error, 'errorMarketAttachFilesFailed'));
+}
+
 export function updateMarket(marketId, name, description, uploadedFiles, maxBudget,
   investmentExpiration, daysEstimate, votesRequired, allowMultiVote) {
   const updateOptions = {};

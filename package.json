@@ -39,6 +39,7 @@
     "react-custom-scrollbars": "^4.2.1",
     "react-datepicker": "^2.14.1",
     "react-dom": "^16.13.1",
+    "react-dropzone": "^11.0.1",
     "react-helmet": "^6.0.0",
     "react-iframe": "^1.8.0",
     "react-intl": "^4.5.3",

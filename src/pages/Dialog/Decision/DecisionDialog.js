@@ -50,6 +50,11 @@ import queryString from 'query-string'
 import { wizardStyles } from '../../Onboarding/OnboardingWizard'
 import Header from '../../../containers/Header'
 import { INVITE_DIALOG_FIRST_VIEW } from '../../../contexts/TourContext/tourContextHelper'
+import FileUploader from '../../../components/Files/FileUploader';
+import { attachFilesToMarket, updateMarket } from '../../../api/markets';
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import AttachedFilesList from '../../../components/Files/AttachedFilesList';
 
 const useStyles = makeStyles(
   theme => ({
@@ -170,6 +175,8 @@ function DecisionDialog(props) {
     is_admin: isAdmin,
   } = myPresence;
   const [, tourDispatch] = useContext(TourContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const underConsiderationStage = marketStages.find((stage) => stage.allows_investment);
   const proposedStage = marketStages.find((stage) => !stage.allows_investment);
   const history = useHistory();
@@ -213,6 +220,12 @@ function DecisionDialog(props) {
     }
   }, [onboarded, tourDispatch])
 
+  function onAttachFile(metadatas) {
+    return attachFilesToMarket(marketId, metadatas)
+      .then((market) => {
+        addMarketToStorage(marketsDispatch, diffDispatch, market, false);
+      })
+  }
 
   function getInvestiblesForStage(stage) {
     if (stage) {
@@ -380,6 +393,11 @@ function DecisionDialog(props) {
                 </div>
               </dl>
             )}
+            <dl className={metaClasses.root}>
+              <div className={clsx(metaClasses.group, metaClasses.assignments)}>
+              <AttachedFilesList marketId={marketId} attachedFiles={market.attached_files} onUpload={onAttachFile} />
+            </div>
+            </dl>
           </Grid>
         </Grid>
       </Card>

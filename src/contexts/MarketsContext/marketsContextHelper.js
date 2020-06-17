@@ -59,6 +59,13 @@ export function getHiddenMarketDetailsForUser(state, marketPresenceState) {
   return [];
 }
 
+/**
+ *
+ * @param dispatch
+ * @param diffDispatch
+ * @param marketDetails
+ * @param fromNetwork whether this is from versios or quick add
+ */
 export function addMarketToStorage(dispatch, diffDispatch, marketDetails, fromNetwork){
   const fixed = fixupItemForStorage(marketDetails);
   if (diffDispatch) {

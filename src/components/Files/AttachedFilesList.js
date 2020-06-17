@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+//import PropTypes from 'prop-types';
 import { Link, List, Paper, Typography } from '@material-ui/core';
 import { FormattedMessage } from 'react-intl';
 import clsx from 'clsx';
@@ -64,7 +64,7 @@ function AttachedFilesList(props) {
 
   function displayLinksList (filesList) {
     return filesList.map((file, index) => {
-      const {original_name, path, content_type} = file;
+      const {original_name, path} = file;
       const linkToFile = `${fileBaseUrl}/${path}`;
       return (
         <ul key={path}>

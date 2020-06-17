@@ -1,5 +1,5 @@
 import React from 'react';
-import _ from 'lodash';
+//import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { uploadFileToS3 } from '../../api/files';
 import { AllSequentialMap } from '../../utils/PromiseUtils';

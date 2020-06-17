@@ -50,8 +50,7 @@ import queryString from 'query-string'
 import { wizardStyles } from '../../Onboarding/OnboardingWizard'
 import Header from '../../../containers/Header'
 import { INVITE_DIALOG_FIRST_VIEW } from '../../../contexts/TourContext/tourContextHelper'
-import FileUploader from '../../../components/Files/FileUploader';
-import { attachFilesToMarket, updateMarket } from '../../../api/markets';
+import { attachFilesToMarket } from '../../../api/markets';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';

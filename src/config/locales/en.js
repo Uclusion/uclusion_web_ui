@@ -449,7 +449,7 @@ const messages = defineMessages({
   planningInvestibleAcceptedHelp: 'For help brainstorming how to do this story use Add Option to create a child dialog.',
   planningInvestibleVotingHelp: 'Vote how certain you are this story should be done or open an issue.',
   inlineAddLabel: 'Add Option',
-  uploadFiles: 'Upload Files',
+  uploadFiles: 'Attach New Files',
   inlineAddExplanation: 'Add a how to do this story option and collect votes on it.',
   deactivateInlineQuestion: 'Deactivate the dialog associated with this story?',
   deactivateDialogQuestion: 'Do you want to deactivate and stop any further work?',

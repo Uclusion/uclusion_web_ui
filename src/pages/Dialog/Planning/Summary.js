@@ -23,6 +23,11 @@ import ExpandableAction from '../../../components/SidebarActions/Planning/Expand
 import Collaborators from '../Collaborators'
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import AttachedFilesList from '../../../components/Files/AttachedFilesList';
+import { attachFilesToMarket } from '../../../api/markets';
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -185,14 +190,25 @@ function Summary(props) {
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId,
     created_at: createdAt,
+    attached_files: attachedFiles,
     children,
   } = market;
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, id) || [];
   const isDraft = marketHasOnlyCurrentUser(marketPresencesState, id);
   const myPresence =
     marketPresences.find(presence => presence.current_user) || {};
   const metaClasses = useMetaDataStyles();
+
+  function onAttachFile(metadatas) {
+    return attachFilesToMarket(id, metadatas)
+      .then((market) => {
+        addMarketToStorage(marketsDispatch, diffDispatch, market, false);
+      })
+  }
+
 
   return (
     <Card elevation={0} className={classes.root} id="summary">
@@ -268,6 +284,12 @@ function Summary(props) {
               navigate(history, `/dialogAdd#type=${DECISION_TYPE}&id=${id}`)
             }
           />]} />
+          <AttachedFilesList
+            key="files"
+            marketId={id}
+            attachedFiles={attachedFiles}
+            onUpload={onAttachFile} />
+
         </dl>
         </Grid>
       </Grid>

@@ -393,9 +393,11 @@ function DecisionDialog(props) {
               </dl>
             )}
             <dl className={metaClasses.root}>
-              <div className={clsx(metaClasses.group, metaClasses.assignments)}>
-              <AttachedFilesList marketId={marketId} attachedFiles={market.attached_files} onUpload={onAttachFile} />
-            </div>
+              <AttachedFilesList
+                key="files"
+                marketId={marketId}
+                attachedFiles={market.attached_files}
+                onUpload={onAttachFile} />
             </dl>
           </Grid>
         </Grid>

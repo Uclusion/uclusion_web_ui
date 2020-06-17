@@ -52,7 +52,7 @@ import moment from 'moment'
 import {
   INVITE_REQ_WORKSPACE_FIRST_VIEW,
   INVITE_STORIES_WORKSPACE_FIRST_VIEW
-} from '../../../contexts/TourContext/tourContextHelper'
+} from '../../../contexts/TourContext/tourContextHelper';
 
 const useStyles = makeStyles(
   () => ({

@@ -36,6 +36,11 @@ import {
   INVITE_INITIATIVE_FIRST_VIEW
 } from '../../../contexts/TourContext/tourContextHelper'
 import { inviteInitiativeSteps } from '../../../components/Tours/InviteTours/initiative';
+import AttachedFilesList from '../../../components/Files/AttachedFilesList';
+import { attachFilesToMarket } from '../../../api/markets';
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 
 const useStyles = makeStyles(
   theme => ({
@@ -158,6 +163,8 @@ function InitiativeInvestible(props) {
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const { investible, market_infos: marketInfos } = fullInvestible;
   const [, tourDispatch] = useContext(TourContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const cognitoUser = useContext(CognitoUserContext) || {};
   const { description, name } = investible;
   const {
@@ -170,6 +177,7 @@ function InitiativeInvestible(props) {
     market_type: marketType,
     parent_market_id: parentMarketId,
     parent_investible_id: parentInvestibleId,
+    attached_files: attachedFiles,
   } = market;
   const safeMarketInfos = marketInfos || [];
   const thisMarketInfo = safeMarketInfos.find((info) => info.market_id === marketId);
@@ -196,9 +204,19 @@ function InitiativeInvestible(props) {
   const metaClasses = useMetaDataStyles();
   const tourName = isAdmin? ADMIN_INITIATIVE_FIRST_VIEW : INVITE_INITIATIVE_FIRST_VIEW
   const tourSteps = isAdmin? adminInitiativeSteps(cognitoUser) : inviteInitiativeSteps(cognitoUser);
+
+  function onAttachFile(metadatas) {
+    return attachFilesToMarket(marketId, metadatas)
+      .then((market) => {
+        addMarketToStorage(marketsDispatch, diffDispatch, market, false);
+      })
+  }
+
+
   useEffect(() => {
       tourDispatch(startTour(tourName));
   }, [tourDispatch, tourName]);
+
 
 
   if (!investibleId) {
@@ -317,6 +335,11 @@ function InitiativeInvestible(props) {
                 openLabel={intl.formatMessage({ id: 'initiativePlanningParent' })}
                 onClick={() => navigate(history, `/dialogAdd#type=${PLANNING_TYPE}&investibleId=${investibleId}&id=${marketId}`)}
               />] : []} />
+              <AttachedFilesList
+                key="files"
+                marketId={marketId}
+                attachedFiles={attachedFiles}
+                onUpload={onAttachFile} />
             </dl>
           </Grid>
         </Grid>

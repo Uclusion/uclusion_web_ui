@@ -21,6 +21,13 @@ export function updateInvestible (updateInfo) {
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
 }
 
+export function attachFilesToInvestible(marketId, investibleId, metadatas) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.addAttachments(investibleId, metadatas))
+    .catch((error) => toastErrorAndThrow(error, 'errorInvestibleAttachFilesFailed'));
+
+}
+
 export function addDecisionInvestible (addInfo) {
   const {
     marketId,

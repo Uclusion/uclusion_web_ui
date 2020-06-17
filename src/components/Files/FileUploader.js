@@ -12,12 +12,14 @@ import { useIntl } from 'react-intl';
 function FileUploader(props) {
   const {
     marketId,
-    onUpload
+    onUpload,
+    setUploadInProgress,
   } = props;
 
   const intl = useIntl();
 
   function onDrop(files) {
+    setUploadInProgress(true);
     return AllSequentialMap(files,(file) => {
       // we'll assume a generic octet stream if it's not provided
       return uploadFileToS3(marketId, file)
@@ -30,6 +32,7 @@ function FileUploader(props) {
         });
     })
       .then((results) => {
+        setUploadInProgress(false);
         onUpload(results);
       });
   }
@@ -57,10 +60,12 @@ function FileUploader(props) {
 FileUploader.propTypes = {
   marketId: PropTypes.string.isRequired,
   onUpload: PropTypes.func,
+  setUploadInProgress: PropTypes.func,
 };
 
 FileUploader.defaultProps = {
   onUpload: () => {},
+  setUploadInProgress: () => {},
 };
 
 export default FileUploader;

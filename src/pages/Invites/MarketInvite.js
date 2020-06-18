@@ -90,7 +90,7 @@ function MarketInvite(props) {
           const { id, version} = market;
           setMarketId(id);
           addMarketToStorage(marketsDispatch, diffDispatch, market, false);
-          return pollForMarketLoad(id, version, versionsDispatch, history, true);
+          return pollForMarketLoad(id, version, versionsDispatch, history);
         })
         .catch((error) => {
           console.error(error);

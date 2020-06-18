@@ -23,7 +23,6 @@ import {
   getUclusionLocalStorageItem,
   setUclusionLocalStorageItem
 } from '../../components/utils'
-import { redirectToPath } from '../../utils/redirectUtils'
 import _ from 'lodash'
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
 
@@ -65,7 +64,6 @@ function AppWithAuth(props) {
   const messages = {
     ...getLocaleMessages(locale),
   };
-  const LOGIN = '/';
 
   registerListener(AUTH_HUB_CHANNEL, 'signinSignoutLocalClearingHandler', (data) => {
     const { payload } = (data || {});
@@ -76,16 +74,10 @@ function AppWithAuth(props) {
         const oldUserName = getUclusionLocalStorageItem('userName');
         if (oldUserName && oldUserName !== username) {
           // Only clear if there was a userName there otherwise window refresh during signup
-          clearUclusionLocalStorage();
-          new TokenStorageManager().clearTokenStorage();
+          clearUclusionLocalStorage().then(() => new TokenStorageManager().clearTokenStorage());
         }
         setUclusionLocalStorageItem('userName', username);
         break;
-      case 'signOut':
-        // First go to login so that url not exposed after logout
-        redirectToPath(history, LOGIN);
-        return new TokenStorageManager().clearTokenStorage()
-          .then(clearUclusionLocalStorage);
       default:
         // ignore
     }

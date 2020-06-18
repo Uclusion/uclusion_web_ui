@@ -123,7 +123,7 @@ export function refreshGlobalVersion () {
  * @param history
  * @returns {Promise<*>}
  */
-export function pollForMarketLoad(id, version, versionsDispatch, history, shouldRedirect) {
+export function pollForMarketLoad(id, version, versionsDispatch, history) {
   addMinimumVersionRequirement(versionsDispatch, { id, version });
   function redirectToMarket() {
     console.log(`Redirecting us to market ${id}`);
@@ -135,7 +135,7 @@ export function pollForMarketLoad(id, version, versionsDispatch, history, should
       case  NEW_MARKET:
         if (messageMarketId === id) {
           removeListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket');
-          if (shouldRedirect) {
+          if (history) {
             redirectToMarket();
           }
         }
@@ -151,7 +151,7 @@ export function pollForMarketLoad(id, version, versionsDispatch, history, should
         // console.debug(`Markets context responding to updated market event ${event}`);
         if (marketDetails.id === id) {
           removeListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite');
-          if (shouldRedirect) {
+          if (history) {
             redirectToMarket();
           }
         }

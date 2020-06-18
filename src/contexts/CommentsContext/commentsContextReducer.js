@@ -53,6 +53,12 @@ export function removeMarketsComments(marketIds) {
 // Required for quick add because version of parent comment has not changed
 function doOverwriteMarketComments(state, action) {
   const { marketId, comments } = action;
+  const { initializing } = state;
+  if (initializing) {
+    return {
+      [marketId]: comments,
+    };
+  }
   return {
     ...state,
     [marketId]: comments,

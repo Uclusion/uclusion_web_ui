@@ -1,8 +1,10 @@
-import React from 'react';
-import { Auth } from 'aws-amplify';
-import { Button, makeStyles } from '@material-ui/core';
-import { useIntl } from 'react-intl';
-import { toastError } from '../../utils/userMessage';
+import React from 'react'
+import { Auth } from 'aws-amplify'
+import { Button, makeStyles } from '@material-ui/core'
+import { useIntl } from 'react-intl'
+import { toastError } from '../../utils/userMessage'
+import { clearUclusionLocalStorage } from '../../components/utils'
+import TokenStorageManager from '../../authorization/TokenStorageManager'
 
 const useStyles = makeStyles( {
   action: {
@@ -19,7 +21,9 @@ function SignOut() {
 
   function onSignOut() {
     // See https://aws-amplify.github.io/docs/js/authentication
-    Auth.signOut()
+    clearUclusionLocalStorage()
+      .then(() => new TokenStorageManager().clearTokenStorage())
+      .then(() => Auth.signOut())
       .catch((error) => {
         console.error(error);
         toastError('errorSignOutFailed');

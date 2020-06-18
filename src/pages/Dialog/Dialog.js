@@ -119,7 +119,7 @@ function Dialog(props) {
           getMarketFromUrl(marketId).then((loginData) =>{
             const { market } = loginData;
             const { id, version} = market;
-            return pollForMarketLoad(id, version, versionsDispatch, history, false);
+            return pollForMarketLoad(id, version, versionsDispatch);
           }).catch((error) => {
             console.error(error);
             toastError('errorMarketFetchFailed');

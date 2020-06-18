@@ -30,13 +30,20 @@ import MoveBackToPoolActionButton from './MoveBackToPoolActionButton'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import CardActions from '@material-ui/core/CardActions';
 import clsx from 'clsx';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
 import { useMetaDataStyles } from '../Planning/PlanningInvestible';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import { attachFilesToInvestible } from '../../../api/investibles';
 
 const useStyles = makeStyles((theme) => ({
+  mobileColumn: {
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: 'column'
+    }
+  },
   root: {
     alignItems: "flex-start",
     display: "flex",
@@ -162,6 +169,8 @@ function DecisionInvestible(props) {
   const history = useHistory();
   const classes = useStyles();
   const metaClasses = useMetaDataStyles();
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
 
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
   is_inline: isInline, parent_investible_id: parentInvestibleId, parent_market_id: parentMarketId } = market;
@@ -240,8 +249,10 @@ function DecisionInvestible(props) {
     </dl>
     );
   }
-  function onAttachFile(metadatas){
 
+  function onAttachFiles(metadatas) {
+    return attachFilesToInvestible(marketId, investible.id, metadatas)
+      .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
   }
 
   if (!investibleId) {
@@ -306,7 +317,7 @@ function DecisionInvestible(props) {
                 key="files"
                 marketId={marketId}
                 attachedFiles={attachedFiles}
-                onUpload={onAttachFile} />
+                onUpload={onAttachFiles} />
             </dl>
           </Grid>
         </Grid>

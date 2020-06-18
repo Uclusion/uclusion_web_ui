@@ -52,7 +52,7 @@ import moment from 'moment'
 import {
   INVITE_REQ_WORKSPACE_FIRST_VIEW,
   INVITE_STORIES_WORKSPACE_FIRST_VIEW
-} from '../../../contexts/TourContext/tourContextHelper';
+} from '../../../contexts/TourContext/tourContextHelper'
 
 const useStyles = makeStyles(
   () => ({
@@ -214,7 +214,7 @@ function PlanningDialog(props) {
         steps={tourSteps}
         />
       <div id="workspaceMain">
-        <Summary market={market} hidden={hidden} activeMarket={activeMarket} />
+        <Summary market={market} hidden={hidden} activeMarket={activeMarket} inArchives={inArchives} />
       </div>
       {lockedBy && (
         <Typography>
@@ -222,7 +222,7 @@ function PlanningDialog(props) {
         </Typography>
       )}
       <dl className={clsx(metaClasses.root, metaClasses.flexRow)}>
-        {activeMarket && (
+        {!inArchives && (
           <div id="addStory" className={clsx(metaClasses.group, metaClasses.assignments)}>
             <InvestibleAddActionButton key="investibleadd" onClick={onClick} />
           </div>

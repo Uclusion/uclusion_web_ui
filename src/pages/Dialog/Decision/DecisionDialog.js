@@ -50,10 +50,10 @@ import queryString from 'query-string'
 import { wizardStyles } from '../../Onboarding/OnboardingWizard'
 import Header from '../../../containers/Header'
 import { INVITE_DIALOG_FIRST_VIEW } from '../../../contexts/TourContext/tourContextHelper'
-import { attachFilesToMarket } from '../../../api/markets';
-import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import AttachedFilesList from '../../../components/Files/AttachedFilesList';
+import { attachFilesToMarket } from '../../../api/markets'
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 
 const useStyles = makeStyles(
   theme => ({
@@ -325,6 +325,7 @@ function DecisionDialog(props) {
               <DialogActions
                 isAdmin={myPresence.is_admin}
                 isFollowing={myPresence.following}
+                isGuest={myPresence.market_guest}
                 marketStage={marketStage}
                 marketType={marketType}
                 parentMarketId={parentMarketId}
@@ -379,7 +380,7 @@ function DecisionDialog(props) {
               )}
               <ParentSummary market={market} hidden={hidden}/>
             </dl>
-            {activeMarket && (
+            {!inArchives && (
               <dl className={metaClasses.root}>
                 <div className={clsx(metaClasses.group, metaClasses.assignments)}>
                   <ExpandableAction

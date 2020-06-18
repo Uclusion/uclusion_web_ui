@@ -37,6 +37,7 @@ function DialogActions(props) {
     parentInvestibleId,
     isAdmin,
     isFollowing,
+    isGuest,
     initiativeId,
     hideEdit
   } = props;
@@ -88,7 +89,7 @@ function DialogActions(props) {
         );
       }
     }
-    if (activeMarket) {
+    if (activeMarket && !isGuest) {
       if (isFollowing) {
         actions.push(
           <ChangeToObserverButton key="change-to-observer" marketId={marketId} onClick={goHome}/>,
@@ -118,6 +119,7 @@ DialogActions.propTypes = {
   initiativeId: PropTypes.string,
   isAdmin: PropTypes.bool,
   isFollowing: PropTypes.bool,
+  isGuest: PropTypes.bool.isRequired,
 };
 
 DialogActions.defaultProps = {

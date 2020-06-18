@@ -32,6 +32,15 @@ export const getMarketFromInvite = (marketToken, isObserver) => {
   });
 };
 
+export const getMarketFromUrl = (marketId) => {
+  const ssoClient = client.constructSSOClient(config.api_configuration);
+  return ssoClient.then((sso) => {
+    const identitySource = new AmplifyIdentityTokenRefresher();
+    const tokenManager = new TokenFetcher(identitySource, sso, TOKEN_TYPE_MARKET, marketId, true);
+    return tokenManager.getIdentityBasedTokenAndInfo(true);
+  });
+};
+
 export const getAccountClient = () => {
   const ssoClient = client.constructSSOClient(config.api_configuration);
   return ssoClient.then((sso) => {

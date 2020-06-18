@@ -35,12 +35,12 @@ import {
   ADMIN_INITIATIVE_FIRST_VIEW,
   INVITE_INITIATIVE_FIRST_VIEW
 } from '../../../contexts/TourContext/tourContextHelper'
-import { inviteInitiativeSteps } from '../../../components/Tours/InviteTours/initiative';
-import AttachedFilesList from '../../../components/Files/AttachedFilesList';
-import { attachFilesToMarket } from '../../../api/markets';
-import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import { inviteInitiativeSteps } from '../../../components/Tours/InviteTours/initiative'
+import AttachedFilesList from '../../../components/Files/AttachedFilesList'
+import { attachFilesToMarket } from '../../../api/markets'
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -278,6 +278,7 @@ function InitiativeInvestible(props) {
                 parentMarketId={parentMarketId}
                 parentInvestibleId={parentInvestibleId}
                 isFollowing={myPresence.following}
+                isGuest={myPresence.market_guest}
                 marketId={marketId}
                 initiativeId={investibleId}
               />

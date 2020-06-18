@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
+import _ from 'lodash'
 import { useHistory } from 'react-router'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
@@ -18,6 +19,10 @@ import { getStages } from '../../contexts/MarketStagesContext/marketStagesContex
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { ACTIVE_STAGE, DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
+import { getMarketFromUrl } from '../../api/uclusionClient'
+import { pollForMarketLoad } from '../../api/versionedFetchUtils'
+import { toastError } from '../../utils/userMessage'
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 
 const styles = (theme) => ({
   root: {
@@ -68,6 +73,7 @@ function Dialog(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [, versionsDispatch] = useContext(VersionsContext);
   const investibles = getMarketInvestibles(investiblesState, marketId);
   const comments = getMarketComments(commentsState, marketId);
   const loadedMarket = getMarket(marketsState, marketId);
@@ -77,6 +83,7 @@ function Dialog(props) {
   const activeMarket = marketStage === ACTIVE_STAGE;
   const isInitialization = marketsState.initializing || investiblesState.initializing || marketPresencesState.initializing || marketStagesState.initializing;
   const marketStages = getStages(marketStagesState, marketId);
+  const [loadingMarketId, setLoadingMarketId] = useState(undefined);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const loading = !myPresence || !marketType || marketType === INITIATIVE_TYPE || (isInline && activeMarket);
@@ -101,15 +108,30 @@ function Dialog(props) {
           navigate(history, link);
         }
       }
-      else if (marketType === INITIATIVE_TYPE && Array.isArray(investibles) && investibles.length > 0) {
-        getInitiativeInvestible(investibles[0]);
+      else if (marketType === INITIATIVE_TYPE) {
+        if (Array.isArray(investibles) && investibles.length > 0) {
+          getInitiativeInvestible(investibles[0]);
+        }
+      } else if (_.isEmpty(loadedMarket)) {
+        if (!isInitialization && loadingMarketId !== marketId) {
+          setLoadingMarketId(marketId);
+          // Login with market id to create guest capability if necessary
+          getMarketFromUrl(marketId).then((loginData) =>{
+            const { market } = loginData;
+            const { id, version} = market;
+            return pollForMarketLoad(id, version, versionsDispatch, history, false);
+          }).catch((error) => {
+            console.error(error);
+            toastError('errorMarketFetchFailed');
+          });
+        }
       }
     }
 
     return () => {
     };
   }, [hidden, marketType, investibles, marketId, history, isInitialization, loadedMarket, marketStages,
-    marketPresences, isInline, activeMarket, parentMarketId, parentInvestibleId]);
+    marketPresences, isInline, activeMarket, parentMarketId, parentInvestibleId, loadingMarketId, versionsDispatch]);
 
   if (loading) {
     return (

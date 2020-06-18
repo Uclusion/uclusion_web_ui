@@ -336,6 +336,7 @@ function InitiativeDialogs(props) {
                     <DialogActions
                       isAdmin={myPresence.is_admin}
                       isFollowing={myPresence.following}
+                      isGuest={myPresence.market_guest}
                       marketStage={marketStage}
                       marketType={marketType}
                       parentMarketId={parentMarketId}

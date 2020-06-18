@@ -32,7 +32,8 @@ const useStyles = makeStyles( () => ({
 export function Collaborators(props) {
   const { marketPresences: unfilteredPresences, authorId, intl, authorDisplay, history, marketId } = props;
   const classes = useStyles();
-  const marketPresences = unfilteredPresences.filter((presence) => !presence.market_banned);
+  const marketPresences = unfilteredPresences.filter((presence) => (!presence.market_banned && !presence.market_guest));
+  const myPresence = marketPresences.find((presence) => presence.current_user);
   marketPresences.sort(function(a, b) {
     if (a.id === authorId) return -1;
     return 0;
@@ -69,7 +70,7 @@ export function Collaborators(props) {
         })}
         </ul>
         <div className={classes.flex1}>
-          {!authorDisplay && (
+          {!authorDisplay && myPresence && myPresence.following && (
             <Tooltip
               title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
             >

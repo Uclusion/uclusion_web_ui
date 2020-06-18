@@ -263,6 +263,7 @@ function PlanningDialogs(props) {
                         parentInvestibleId={parentInvestibleId}
                         isAdmin
                         isFollowing={myPresence.following}
+                        isGuest={myPresence.market_guest}
                         hideEdit={true}
                       />
                     </CardActions>

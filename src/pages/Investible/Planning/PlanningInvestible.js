@@ -483,7 +483,7 @@ function PlanningInvestible(props) {
     }
     return [];
   }
-  const canVote = !isAssigned && isInVoting;
+  const canVote = !isAssigned && isInVoting && !inArchives;
   const inlineMarketPresences = getMarketPresences(marketPresencesState, inlineMarketId);
   const underConsiderationStage = getInCurrentVotingStage(marketStagesState, inlineMarketId);
   const underConsideration = getInlineInvestiblesForStage(underConsiderationStage);
@@ -925,6 +925,8 @@ function Assignments(props) {
   const intl = useIntl();
   const marketInfo = getMarketInfo(investible, marketId) || {};
   const { assigned = [] } = marketInfo;
+  const myPresence = marketPresences.find((presence) => presence.current_user);
+  const isFollowing = myPresence && myPresence.following;
 
   return (
     <span className={classes.assignmentFlexRow}>
@@ -947,7 +949,7 @@ function Assignments(props) {
         })}
       </ul>
       <div className={classes.flex1}>
-        {isAdmin && (
+        {isAdmin && isFollowing && (
           <div className={classes.assignIconContainer}>
             <Tooltip
               title={intl.formatMessage({ id: 'storyAddParticipantsLabel' })}

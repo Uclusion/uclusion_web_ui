@@ -257,7 +257,7 @@ function DecisionInvestible(props) {
           {intl.formatMessage({ id: votingBlockedMessage })}
         </Typography>
       )}
-      {!inProposed && activeMarket && !hasIssueOrMarketIssue && (
+      {!inProposed && !inArchives && !hasIssueOrMarketIssue && (
         <YourVoting
           investibleId={investibleId}
           marketPresences={marketPresences}

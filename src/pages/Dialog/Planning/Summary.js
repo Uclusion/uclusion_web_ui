@@ -23,11 +23,11 @@ import ExpandableAction from '../../../components/SidebarActions/Planning/Expand
 import Collaborators from '../Collaborators'
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
-import AttachedFilesList from '../../../components/Files/AttachedFilesList';
-import { attachFilesToMarket } from '../../../api/markets';
-import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import AttachedFilesList from '../../../components/Files/AttachedFilesList'
+import { attachFilesToMarket } from '../../../api/markets'
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -176,7 +176,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function Summary(props) {
-  const { market, investibleId, hidden, activeMarket } = props;
+  const { market, investibleId, hidden, activeMarket, inArchives } = props;
   const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
@@ -234,18 +234,21 @@ function Summary(props) {
         </Grid>
         <Grid className={classes.borderLeft} item xs={3}>
           <CardActions className={classes.actions}>
-            <Tooltip
-              title={intl.formatMessage({ id: 'dialogRemoveParticipantsLabel' })}
-            >
-              <IconButton
-                onClick={() => navigate(history, `${formMarketManageLink(id)}#removal=true`)}
+            {!inArchives && (
+              <Tooltip
+                title={intl.formatMessage({ id: 'dialogRemoveParticipantsLabel' })}
               >
-                <PersonOutlineIcon />
-              </IconButton>
-            </Tooltip>
+                <IconButton
+                  onClick={() => navigate(history, `${formMarketManageLink(id)}#removal=true`)}
+                >
+                  <PersonOutlineIcon />
+                </IconButton>
+              </Tooltip>
+            )}
             <DialogActions
               isAdmin={myPresence.is_admin}
               isFollowing={myPresence.following}
+              isGuest={myPresence.market_guest}
               marketStage={marketStage}
               marketType={marketType}
               parentMarketId={parentMarketId}
@@ -274,7 +277,7 @@ function Summary(props) {
             </div>
           </div>
           <ParentSummary market={market} hidden={hidden}/>
-          <MarketLinks links={children || []} hidden={hidden} actions={[<ExpandableAction
+          <MarketLinks links={children || []} hidden={hidden} actions={inArchives ? [] : [<ExpandableAction
             id="link"
             key="link"
             icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR} />}
@@ -306,6 +309,7 @@ Summary.propTypes = {
   investibleId: PropTypes.string,
   hidden: PropTypes.bool.isRequired,
   activeMarket: PropTypes.bool.isRequired,
+  inArchives: PropTypes.bool.isRequired,
   unassigned: PropTypes.array
 };
 

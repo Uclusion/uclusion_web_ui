@@ -11,18 +11,11 @@ import queryString from 'query-string'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { CircularProgress, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { addMarketToStorage, getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { DiffContext } from '../../contexts/DiffContext/DiffContext';
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
-import {
-  addMinimumVersionRequirement,
-  PUSH_MARKETS_CHANNEL,
-  refreshVersions, VERSIONS_EVENT
-} from '../../contexts/VersionsContext/versionsContextHelper';
-import { VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
-import { registerListener, removeListener } from '../../utils/MessageBusUtils';
-import { NEW_MARKET } from '../../contexts/VersionsContext/versionsContextMessages';
-import _ from 'lodash';
+import { addMarketToStorage, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
+import { DiffContext } from '../../contexts/DiffContext/DiffContext'
+import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
+import _ from 'lodash'
+import { pollForMarketLoad } from '../../api/versionedFetchUtils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -94,43 +87,10 @@ function MarketInvite(props) {
       getMarketFromInvite(marketToken, isObserver === 'true')
         .then((result) => {
           const { market } = result;
-          const { id, version} = market
+          const { id, version} = market;
           setMarketId(id);
           addMarketToStorage(marketsDispatch, diffDispatch, market, false);
-          addMinimumVersionRequirement(versionsDispatch, { id, version });
-          /// add a listener to all places a market can show up, then kick off global version to make sure it gets filled
-          function redirectToMarket() {
-            console.log(`Redirecting us to market ${id}`);
-            navigate(history, formMarketLink(id));
-          }
-          registerListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket', (data) => {
-            const { payload: { event, marketId: messageMarketId } } = data;
-            switch (event) {
-              case  NEW_MARKET:
-                if (messageMarketId === id) {
-                  removeListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket');
-                  redirectToMarket();
-                }
-                break;
-              default:
-              //console.debug(`Ignoring event`);
-            }
-          });
-          registerListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite', (data) => {
-            const { payload: { event, marketDetails } } = data;
-            switch (event) {
-              case VERSIONS_EVENT:
-                // console.debug(`Markets context responding to updated market event ${event}`);
-                if (marketDetails.id === id) {
-                  removeListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite');
-                  redirectToMarket()
-                }
-                break;
-              default:
-              // console.debug(`Ignoring identity event ${event}`);
-            }
-          });
-          return refreshVersions();
+          return pollForMarketLoad(id, version, versionsDispatch, history, true);
         })
         .catch((error) => {
           console.error(error);

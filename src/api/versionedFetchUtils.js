@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { pushMessage } from '../utils/MessageBusUtils'
+import { pushMessage, registerListener, removeListener } from '../utils/MessageBusUtils'
 import { getVersions } from './summaries'
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
 import {
@@ -7,17 +7,20 @@ import {
   getFetchSignaturesForMarket,
   signatureMatcher,
   versionIsStale
-} from './versionSignatureUtils';
+} from './versionSignatureUtils'
 import {
+  addMinimumVersionRequirement,
   BANNED_LIST,
   PUSH_COMMENTS_CHANNEL,
-  PUSH_MARKETS_CHANNEL,
+  PUSH_HOME_USER_CHANNEL,
   PUSH_INVESTIBLES_CHANNEL,
+  PUSH_MARKETS_CHANNEL,
   PUSH_PRESENCE_CHANNEL,
   PUSH_STAGE_CHANNEL,
+  refreshVersions,
   REMOVED_MARKETS_CHANNEL,
-  VERSIONS_EVENT, PUSH_HOME_USER_CHANNEL
-} from '../contexts/VersionsContext/versionsContextHelper';
+  VERSIONS_EVENT
+} from '../contexts/VersionsContext/versionsContextHelper'
 import { fetchComments } from './comments'
 import { fetchInvestibles } from './marketInvestibles'
 import { LimitedParallelMap } from '../utils/PromiseUtils'
@@ -31,8 +34,9 @@ import {
 } from '../contexts/OperationInProgressContext/operationInProgressMessages'
 import config from '../config'
 import LocalForageHelper from '../utils/LocalForageHelper'
-import { EMPTY_GLOBAL_VERSION, VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer';
-import { getHomeAccountUser } from './sso';
+import { EMPTY_GLOBAL_VERSION, VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
+import { getHomeAccountUser } from './sso'
+import { formMarketLink, navigate } from '../utils/marketIdPathFunctions'
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -109,6 +113,54 @@ export function refreshGlobalVersion () {
       // we're already initialized, so go ahead and let them happen in parallel
       return startGlobalRefreshTimerChain();
     });
+}
+
+/**
+ * add a listener to all places a market can show up, then kick off global version to make sure it gets filled
+ * @param id
+ * @param version
+ * @param versionsDispatch
+ * @param history
+ * @returns {Promise<*>}
+ */
+export function pollForMarketLoad(id, version, versionsDispatch, history, shouldRedirect) {
+  addMinimumVersionRequirement(versionsDispatch, { id, version });
+  function redirectToMarket() {
+    console.log(`Redirecting us to market ${id}`);
+    navigate(history, formMarketLink(id));
+  }
+  registerListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket', (data) => {
+    const { payload: { event, marketId: messageMarketId } } = data;
+    switch (event) {
+      case  NEW_MARKET:
+        if (messageMarketId === id) {
+          removeListener(VERSIONS_HUB_CHANNEL, 'inviteListenerNewMarket');
+          if (shouldRedirect) {
+            redirectToMarket();
+          }
+        }
+        break;
+      default:
+      //console.debug(`Ignoring event`);
+    }
+  });
+  registerListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite', (data) => {
+    const { payload: { event, marketDetails } } = data;
+    switch (event) {
+      case VERSIONS_EVENT:
+        // console.debug(`Markets context responding to updated market event ${event}`);
+        if (marketDetails.id === id) {
+          removeListener(PUSH_MARKETS_CHANNEL, 'marketPushInvite');
+          if (shouldRedirect) {
+            redirectToMarket();
+          }
+        }
+        break;
+      default:
+      // console.debug(`Ignoring identity event ${event}`);
+    }
+  });
+  return refreshVersions();
 }
 
 /**

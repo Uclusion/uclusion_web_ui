@@ -78,7 +78,7 @@ import SubSection from '../../../containers/SubSection/SubSection'
 import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import CurrentVoting from '../../Dialog/Decision/CurrentVoting'
 import ProposedIdeas from '../../Dialog/Decision/ProposedIdeas'
-import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { addInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -90,6 +90,9 @@ import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import AttachedFilesList from '../../../components/Files/AttachedFilesList';
+import { attachFilesToInvestible } from '../../../api/investibles';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 
 const useStyles = makeStyles(
   theme => ({
@@ -844,18 +847,26 @@ function MarketMetaData(props) {
       stageLabel = 'changeStage'
   }
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, diffDispatch] = useContext(DiffContext);
 
-  const handleClick = (event) => {
+  function handleClick(event) {
     setAnchorEl(event.currentTarget);
     expansionChanged(true);
-  };
+  }
 
-  const handleClose = () => {
+  function handleClose() {
     setAnchorEl(null);
     expansionChanged(false)
-  };
-  const classes = useMetaDataStyles();
+  }
 
+  function onAttachFiles(metadatas) {
+    return attachFilesToInvestible(market.id, marketInvestible.investible.id, metadatas)
+      .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
+  }
+
+  const classes = useMetaDataStyles();
+  const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
   return (
     <dl className={classes.root}>
       {market.id && marketInvestible.investible && (
@@ -901,6 +912,7 @@ function MarketMetaData(props) {
         </React.Fragment>
       )}
       <MarketLinks links={children} hidden={hidden} actions={actions} />
+      <AttachedFilesList marketId={market.id} onUpload={onAttachFiles} attachedFiles={attachedFiles}/>
     </dl>
   );
 }

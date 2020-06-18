@@ -1,9 +1,10 @@
-import React from 'react';
-//import PropTypes from 'prop-types';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Link, List, Paper, Typography } from '@material-ui/core';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import clsx from 'clsx';
 import config from '../../config';
+import LoadingOverlay from 'react-loading-overlay'
 
 import { makeStyles } from '@material-ui/styles';
 import FileUploader from './FileUploader';
@@ -40,8 +41,10 @@ const useStyles = makeStyles((theme) => ({
 function AttachedFilesList(props) {
 
   const { marketId, attachedFiles, onUpload } = props;
+  const [uploadInProgress, setUploadInProgress] = useState(false);
   const metaClasses = useMetaDataStyles();
   const classes = useStyles();
+  const intl = useIntl();
 
   const fileBaseUrl = config.file_download_configuration.baseURL;
 
@@ -89,20 +92,38 @@ function AttachedFilesList(props) {
       )
     })
   }
-  const safeAttachedFiles = attachedFiles || [];
+
   return (
     <Paper className={classes.container} id="summary">
       <div className={classes.capitalize}>
-        <FormattedMessage id="attachedFilesSection" />
-        <div className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer, metaClasses.scrollContainer)}>
-          <List className={classes.sidebarContent}>
-            <FileUploader marketId={marketId} onUpload={onUpload}/>
-          </List>
-          {displayLinksList(safeAttachedFiles)}
+        <FormattedMessage id="attachedFilesSection"/>
+        <div
+          className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer, metaClasses.scrollContainer)}>
+          <LoadingOverlay
+            active={uploadInProgress}
+            spinner
+            text={intl.formatMessage({ id: 'uploadInProgress' })}
+          >
+            <List className={classes.sidebarContent}>
+              <FileUploader marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress}/>
+            </List>
+            {displayLinksList(attachedFiles)}
+          </LoadingOverlay>
         </div>
       </div>
     </Paper>
   );
 }
+
+AttachedFilesList.propTypes = {
+  onUpload: PropTypes.func,
+  attachedFiles: PropTypes.arrayOf(PropTypes.object),
+  marketId: PropTypes.string.isRequired,
+};
+
+AttachedFilesList.defaultProps = {
+  attachedFiles: [],
+  onUpload: () => {}
+};
 
 export default AttachedFilesList;

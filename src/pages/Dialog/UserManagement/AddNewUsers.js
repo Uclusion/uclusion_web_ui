@@ -42,7 +42,8 @@ function AddNewUsers (props) {
   }
 
   function extractUsersList () {
-    const addToMarketPresences = getMarketPresences(marketPresencesState, addToMarketId) || [];
+    const addToMarketPresencesRaw = getMarketPresences(marketPresencesState, addToMarketId) || [];
+    const addToMarketPresences = addToMarketPresencesRaw.filter((presence) => !presence.market_guest);
     const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
       const { external_id } = presence;
       return { ...acc, [external_id]: true };

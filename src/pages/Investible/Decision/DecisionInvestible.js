@@ -31,11 +31,26 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import CardActions from '@material-ui/core/CardActions';
+import clsx from 'clsx';
+import AttachedFilesList from '../../../components/Files/AttachedFilesList';
+import { useMetaDataStyles } from '../Planning/PlanningInvestible';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     alignItems: "flex-start",
-    display: "flex"
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "space-between"
+  },
+  actions: {
+    justifyContent: 'flex-end',
+    '& > button': {
+      marginRight: '-8px'
+    },
+    [theme.breakpoints.down('sm')]: {
+      justifyContent: 'center',
+    }
   },
   container: {
     padding: "3px 89px 21px 21px",
@@ -43,6 +58,21 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: "none",
     [theme.breakpoints.down("sm")]: {
       padding: "3px 21px 42px 21px"
+    }
+  },
+  borderLeft: {
+    borderLeft: '1px solid #e0e0e0',
+    padding: '2rem',
+    marginBottom: '-42px',
+    marginTop: '-42px',
+    [theme.breakpoints.down("xs")]: {
+      padding: '1rem 0',
+      marginTop: '1rem',
+      borderLeft: 'none',
+      borderTop: '1px solid #e0e0e0',
+      flexGrow: 'unset',
+      maxWidth: 'unset',
+      flexBasis: 'auto'
     }
   },
   title: {
@@ -77,6 +107,12 @@ const useStyles = makeStyles((theme) => ({
   votingCardContent: {
     margin: theme.spacing(2, 6),
     padding: 0
+  },
+  flexCenter: {
+    [theme.breakpoints.down("xs")]: {
+      alignItems: 'center',
+      padding: '20px'
+    }
   },
 }));
 
@@ -125,6 +161,7 @@ function DecisionInvestible(props) {
   const intl = useIntl();
   const history = useHistory();
   const classes = useStyles();
+  const metaClasses = useMetaDataStyles();
 
   const { name: marketName, id: marketId, market_stage: marketStage, allow_multi_vote: allowMultiVote,
   is_inline: isInline, parent_investible_id: parentInvestibleId, parent_market_id: parentMarketId } = market;
@@ -156,7 +193,7 @@ function DecisionInvestible(props) {
   const activeMarket = marketStage === ACTIVE_STAGE;
 
   const {
-    description, name, created_by: createdBy, locked_by: lockedBy,
+    description, name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
   } = investible;
   let lockedByName;
   if (lockedBy) {
@@ -203,6 +240,9 @@ function DecisionInvestible(props) {
     </dl>
     );
   }
+  function onAttachFile(metadatas){
+
+  }
 
   if (!investibleId) {
     // we have no usable data;
@@ -225,7 +265,10 @@ function DecisionInvestible(props) {
       {activeMarket && inProposed && isAdmin && (
         <DismissableText textId='decisionInvestibleProposedHelp' />
       )}
-      <Card elevation={0}>
+      <Card className={classes.root}
+            id="optionMain"
+            elevation={0}
+      >
         <CardType
           className={classes.cardType}
           label={`${intl.formatMessage({
@@ -234,13 +277,13 @@ function DecisionInvestible(props) {
           type={VOTING_TYPE}
           subtype={OPTION}
         />
-        {activeMarket && (
-          getActions()
-        )}
+        <Grid container className={classes.mobileColumn}>
+          <Grid item md={9} xs={12}>
+
         <CardContent className={classes.votingCardContent}>
-          <h1>
+          <Typography className={classes.title} variant="h3" component="h1">
             {name}
-          </h1>
+          </Typography>
           {lockedBy && (
             <Typography>
               {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
@@ -251,6 +294,22 @@ function DecisionInvestible(props) {
             description={description}
           />
         </CardContent>
+          </Grid>
+          <Grid className={classes.borderLeft} item md={3} xs={12}>
+            <CardActions className={classes.actions}>
+              {activeMarket && (
+                getActions()
+              )}
+            </CardActions>
+            <dl className={clsx(metaClasses.root, classes.flexCenter)}>
+              <AttachedFilesList
+                key="files"
+                marketId={marketId}
+                attachedFiles={attachedFiles}
+                onUpload={onAttachFile} />
+            </dl>
+          </Grid>
+        </Grid>
       </Card>
       {!inProposed && activeMarket && hasIssueOrMarketIssue && (
         <Typography>

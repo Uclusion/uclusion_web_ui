@@ -94,24 +94,24 @@ function AttachedFilesList(props) {
   }
 
   return (
-    <LoadingOverlay
-      active={uploadInProgress}
-      spinner
-      text={intl.formatMessage({ id: 'uploadInProgress' })}
-    >
-      <Paper className={classes.container} id="summary">
-        <div className={classes.capitalize}>
-          <FormattedMessage id="attachedFilesSection"/>
-          <div
-            className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer, metaClasses.scrollContainer)}>
+    <Paper className={classes.container} id="summary">
+      <div className={classes.capitalize}>
+        <FormattedMessage id="attachedFilesSection"/>
+        <div
+          className={clsx(metaClasses.group, metaClasses.assignments, metaClasses.linkContainer, metaClasses.scrollContainer)}>
+          <LoadingOverlay
+            active={uploadInProgress}
+            spinner
+            text={intl.formatMessage({ id: 'uploadInProgress' })}
+          >
             <List className={classes.sidebarContent}>
               <FileUploader marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress}/>
             </List>
             {displayLinksList(attachedFiles)}
-          </div>
+          </LoadingOverlay>
         </div>
-      </Paper>
-    </LoadingOverlay>
+      </div>
+    </Paper>
   );
 }
 

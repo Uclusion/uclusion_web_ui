@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { Link, List, Paper, Typography } from '@material-ui/core';
-import { FormattedMessage, useIntl } from 'react-intl';
-import clsx from 'clsx';
-import config from '../../config';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { Link, List, Paper, Typography } from '@material-ui/core'
+import { FormattedMessage, useIntl } from 'react-intl'
+import clsx from 'clsx'
+import config from '../../config'
 import LoadingOverlay from 'react-loading-overlay'
 
-import { makeStyles } from '@material-ui/styles';
-import FileUploader from './FileUploader';
-import { useMetaDataStyles } from '../../pages/Investible/Planning/PlanningInvestible';
-import { getMarketLogin } from '../../api/uclusionClient';
+import { makeStyles } from '@material-ui/styles'
+import FileUploader from './FileUploader'
+import { useMetaDataStyles } from '../../pages/Investible/Planning/PlanningInvestible'
+import { getMarketLogin } from '../../api/uclusionClient'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -67,7 +67,7 @@ function AttachedFilesList(props) {
   }
 
   function displayLinksList (filesList) {
-    return filesList.map((file, index) => {
+    return (filesList || []).map((file, index) => {
       const {original_name, path} = file;
       const linkToFile = `${fileBaseUrl}/${path}`;
       return (

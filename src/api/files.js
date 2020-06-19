@@ -10,11 +10,11 @@ import { toastErrorAndThrow } from '../utils/userMessage';
  */
 export function uploadFileToS3 (marketId, file) {
   const clientPromise = _.isEmpty(marketId) ? getAccountClient() : getMarketClient(marketId);
-  const { type, size } = file;
+  const { type, size, name } = file;
   // if we don't have a content type, use generic octet stream
   const usedType = _.isEmpty(type)? 'application/octet-stream' : type;
   return clientPromise
-    .then((client) => client.investibles.getFileUploadData(usedType, size))
+    .then((client) => client.investibles.getFileUploadData(usedType, size, name))
     .then((data) => {
       const { metadata, presigned_post } = data;
       const { url, fields } = presigned_post;
@@ -27,7 +27,12 @@ export function uploadFileToS3 (marketId, file) {
       body.append('file', file);
       const fetchParams = { method: 'POST', body };
       return fetch(url, fetchParams)
-        .then(() => metadata); // just want to give back the successful metadata
+        .then((response) => {
+          if(!response.ok) {
+            throw new Error("Upload failed");
+          }
+          return metadata;
+        }); // just want to give back the successful metadata
     })
     .catch((error) => {
       toastErrorAndThrow(error, 'errorFileUploadFailed');

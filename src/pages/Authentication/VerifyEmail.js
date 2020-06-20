@@ -10,7 +10,7 @@ import { verifyEmail } from '../../api/sso'
 import { setRedirect } from '../../utils/redirectUtils'
 import { ERROR, sendIntlMessageBase } from '../../utils/userMessage'
 import { useIntl } from 'react-intl'
-import { Auth } from 'aws-amplify'
+import { onSignOut } from '../../utils/userFunctions'
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -51,20 +51,21 @@ function VerifyEmail (props) {
         console.log(`Setting redirect to ${redirect}`);
         setRedirect(redirect);
       }
-      setVerificationState('VERIFIED');
     }
 
     if (code && !verificationState) {
+      setVerificationState('VERIFIED');
       verifyEmail(code)
         .then(result => {
           doRedirect(result);
           // we unconditionally sign out in case they are signed in to the user in another tab.
           // if it fails, we weren't logged in.
-          return Auth.signOut();
+          return onSignOut(false);
           // console.log(result);
         }).catch((error) => {
-        console.error(error);
-        sendIntlMessageBase(intl, ERROR, 'errorVerifyFailed');
+          console.error(error);
+          setVerificationState(undefined);
+          sendIntlMessageBase(intl, ERROR, 'errorVerifyFailed');
       });
     }
   }, [code, verificationState, history, intl, authState]);

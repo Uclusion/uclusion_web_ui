@@ -1,7 +1,11 @@
-import { VerticalBarSeries, XYPlot } from "react-vis";
-import React from "react";
-import { Card, Grid, Typography } from "@material-ui/core";
-import { INITIATIVE_TYPE } from '../constants/markets';
+import { VerticalBarSeries, XYPlot } from 'react-vis'
+import React from 'react'
+import { Card, Grid, Typography } from '@material-ui/core'
+import { INITIATIVE_TYPE } from '../constants/markets'
+import { clearUclusionLocalStorage } from '../components/utils'
+import TokenStorageManager from '../authorization/TokenStorageManager'
+import { Auth } from 'aws-amplify'
+import { toastError } from './userMessage'
 
 export function getFlags(user) {
   return (user && user.flags) || {};
@@ -9,6 +13,17 @@ export function getFlags(user) {
 
 export function getMarketInfo(investible, marketId) {
   return investible.market_infos.find((info) => info.market_id === marketId);
+}
+
+export function onSignOut(doReload=true) {
+  // See https://aws-amplify.github.io/docs/js/authentication
+  clearUclusionLocalStorage(doReload)
+    .then(() => new TokenStorageManager().clearTokenStorage())
+    .then(() => Auth.signOut())
+    .catch((error) => {
+      console.error(error);
+      toastError('errorSignOutFailed');
+    });
 }
 
 export function getVoteTotalsForUser(presence) {

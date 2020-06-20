@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import localforage from "localforage"
+import _ from 'lodash'
+import localforage from 'localforage'
 import { toastErrorAndThrow } from '../utils/userMessage'
 /*
 Keys under context ROOT (standard uclusion local storage) are cleared when the user logs in our out.
@@ -24,11 +24,13 @@ export function getUclusionLocalStorageItem(key) {
   return getStorageItem(ROOT, key);
 }
 
-export function clearUclusionLocalStorage() {
+export function clearUclusionLocalStorage(doReload=true) {
   localStorage.setItem(ROOT, '');
   return localforage.clear().then(() => {
-    console.info('Reloading after clearing cache');
-    window.location.reload(true);
+    if (doReload) {
+      console.info('Reloading after clearing cache');
+      window.location.reload(true);
+    }
   }).catch((error) => toastErrorAndThrow(error, 'errorClearFailed'));
 }
 

@@ -5,7 +5,6 @@ import { INITIATIVE_TYPE } from '../constants/markets'
 import { clearUclusionLocalStorage } from '../components/utils'
 import TokenStorageManager from '../authorization/TokenStorageManager'
 import { Auth } from 'aws-amplify'
-import { toastError } from './userMessage'
 
 export function getFlags(user) {
   return (user && user.flags) || {};
@@ -17,13 +16,9 @@ export function getMarketInfo(investible, marketId) {
 
 export function onSignOut(doReload=true) {
   // See https://aws-amplify.github.io/docs/js/authentication
-  clearUclusionLocalStorage(doReload)
+  return clearUclusionLocalStorage(doReload)
     .then(() => new TokenStorageManager().clearTokenStorage())
-    .then(() => Auth.signOut())
-    .catch((error) => {
-      console.error(error);
-      toastError('errorSignOutFailed');
-    });
+    .then(() => Auth.signOut());
 }
 
 export function getVoteTotalsForUser(presence) {

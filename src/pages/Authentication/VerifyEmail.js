@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react'
-import _ from 'lodash'
-import { useHistory } from 'react-router'
-import Container from '@material-ui/core/Container'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import Avatar from '@material-ui/core/Avatar'
-import Typography from '@material-ui/core/Typography'
-import { makeStyles } from '@material-ui/core/styles'
-import { verifyEmail } from '../../api/sso'
-import { setRedirect } from '../../utils/redirectUtils'
-import { ERROR, sendIntlMessageBase } from '../../utils/userMessage'
-import { useIntl } from 'react-intl'
-import { onSignOut } from '../../utils/userFunctions'
+import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
+import { useHistory } from 'react-router';
+import Container from '@material-ui/core/Container';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Avatar from '@material-ui/core/Avatar';
+import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
+import { verifyEmail } from '../../api/sso';
+import { setRedirect, redirectToPath } from '../../utils/redirectUtils';
+import { ERROR, sendIntlMessageBase } from '../../utils/userMessage';
+import { useIntl } from 'react-intl';
+import { onSignOut } from '../../utils/userFunctions';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -35,6 +35,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function VerifyEmail (props) {
+  const LOGIN = '/';
   const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
   const history = useHistory();
   const intl = useIntl();
@@ -45,28 +46,31 @@ function VerifyEmail (props) {
   const { authState } = props;
 
   useEffect(() => {
-    function doRedirect (result) {
+    function beginRedirecting (result) {
       const { redirect } = result;
       if (!_.isEmpty(redirect)) {
         console.log(`Setting redirect to ${redirect}`);
         setRedirect(redirect);
       }
+      redirectToPath(history, LOGIN);
     }
 
     if (code && !verificationState) {
       setVerificationState('VERIFIED');
       verifyEmail(code)
         .then(result => {
-          doRedirect(result);
           // we unconditionally sign out in case they are signed in to the user in another tab.
           // if it fails, we weren't logged in.
-          return onSignOut(false);
+          return onSignOut(false)
+            .then(() => beginRedirecting(result))
+            .catch(() => beginRedirecting(result));
           // console.log(result);
-        }).catch((error) => {
+        })
+        .catch((error) => {
           console.error(error);
           setVerificationState(undefined);
           sendIntlMessageBase(intl, ERROR, 'errorVerifyFailed');
-      });
+        });
     }
   }, [code, verificationState, history, intl, authState]);
 

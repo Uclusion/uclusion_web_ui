@@ -59,7 +59,7 @@ function NextStoryStep (props) {
     <div>
       <Typography variant="body1">
         Do you have a story you want to work on next? If so, enter it here and it will become a "Proposed" story
-        in your workspace. Others can vote on whether or not you should be doing it, <strong>BEFORE</strong> you start work.
+        in your workspace. Others can approve, <strong>BEFORE</strong> you start work.
         If you don't have one, that's OK, you can add it after the Workspace has been created.
       </Typography>
       <label className={classes.inputLabel}>Name your next story</label>

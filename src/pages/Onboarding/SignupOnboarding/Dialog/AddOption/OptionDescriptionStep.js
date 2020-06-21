@@ -50,7 +50,7 @@ function OptionDescriptionStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        An Option in a Uclusion Dialog is a choice your collaborators can vote for. Don't worry about getting the description perfect
+        An Option in a Uclusion Dialog is a choice your collaborators can approve. Don't worry about getting the description perfect
         since a collaborator can Ask a Question, make a Suggestion, or propose their own options.
       </Typography>
       <QuillEditor

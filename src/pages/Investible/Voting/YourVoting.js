@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import PropTypes from 'prop-types';
-import AddEditVote from './AddEditVote';
-import { useHistory } from 'react-router';
-import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { FormattedMessage, useIntl } from 'react-intl';
+import PropTypes from 'prop-types'
+import AddEditVote from './AddEditVote'
+import { useHistory } from 'react-router'
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
+import { FormattedMessage, useIntl } from 'react-intl'
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../../../constants/markets'
 import { Card, CardContent, FormControl, FormControlLabel, Radio, RadioGroup } from '@material-ui/core'
-import { useStyles } from '../../../containers/CommentBox/CommentAddBox';
+import { useStyles } from '../../../containers/CommentBox/CommentAddBox'
 
 const FOR = "FOR";
 const AGAINST = "AGAINST";
@@ -46,7 +46,7 @@ function YourVoting(props) {
 
   return (
     <div  id="pleaseVote">
-      <h2>{yourVote ? intl.formatMessage({ id: 'changeVote' }) : isDecision ? allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
+      <h2>{yourVote ? isInitiative ? intl.formatMessage({ id: 'changeVoteInitiative' }) : intl.formatMessage({ id: 'changeVote' }) : isDecision ? allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
         : intl.formatMessage({ id: 'addAVote' }) : isInitiative ? intl.formatMessage({ id: 'pleaseVote' })
         : intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
       {isInitiative && (

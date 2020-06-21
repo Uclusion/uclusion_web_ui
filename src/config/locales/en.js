@@ -306,7 +306,7 @@ const messages = defineMessages({
   breakLock: 'Break Lock',
   newStory: 'New Story',
   newOption: 'New Option',
-  noVoters: 'No Voters',
+  noVoters: 'No Approval',
   storyHelp: 'Need something assigned and approved that takes a day or longer? Use the Create Story button.',
   reassignWarning: 'Re-assigning will remove all approval.',
   // Issues
@@ -642,6 +642,7 @@ const messages = defineMessages({
   pleaseVote: 'Please vote',
   pleaseVoteStory: 'Input certainty on this assignment and effort',
   changeVote: 'Change approval',
+  changeVoteInitiative: 'Change vote',
   decisionInvestibleVotingSingleHelp: 'Help decide by voting for the best option or adding your own option.',
   decisionInvestibleVotingMultiHelp: 'Help decide by voting for options you like and adding any that are missing.',
   initiativeVotingHelp: 'Vote for or against this initiative and choose how certain you are of that vote.',

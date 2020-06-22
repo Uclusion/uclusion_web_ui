@@ -306,7 +306,7 @@ const messages = defineMessages({
   breakLock: 'Break Lock',
   newStory: 'New Story',
   newOption: 'New Option',
-  noVoters: 'No Approval',
+  noVoters: 'None',
   storyHelp: 'Need something assigned and approved that takes a day or longer? Use the Create Story button.',
   reassignWarning: 'Re-assigning will remove all approval.',
   // Issues

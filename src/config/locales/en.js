@@ -492,7 +492,7 @@ const messages = defineMessages({
 
   // DecisionInvestible
   decisionInvestibleYourVoting: 'Your Input',
-  decisionInvestibleOthersVoting: 'Current Approval',
+  decisionInvestibleOthersVoting: 'Approvals',
   decisionInvestibleDescription: 'Option - Description',
   decisionInvestibleDiscussion: 'Discussion',
   decisionInvestibleVotingBlockedMarket: 'Voting suspended until the open issue on this dialog is resolved',

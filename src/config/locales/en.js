@@ -637,8 +637,8 @@ const messages = defineMessages({
   voteFor: 'For',
   voteAgainst: 'Against',
   clearVotes: 'Your other approval will be cleared',
-  addAVote: 'Add an approval of your favorite option',
-  addMultiVote: 'Add an approval for all options you like',
+  addAVote: 'Approve your preferred option',
+  addMultiVote: 'Approve all options you consider desirable',
   pleaseVote: 'Please vote',
   pleaseVoteStory: 'Input certainty on this assignment and effort',
   changeVote: 'Change approval',
@@ -825,7 +825,7 @@ const messages = defineMessages({
   SignupWizardQuestion: 'What do you want to do?',
   SignupWizardRequirementsWorkspace: 'Determine requirements for a project',
   SignupWizardStoryWorkspace: 'Choose everyone\'s next story and track progress',
-  SignupWizardDialog: 'Make a group decision',
+  SignupWizardDialog: 'Collaborate on a decision',
   SignupWizardInitiative: 'Measure support for an idea',
 
   //DialogWizard

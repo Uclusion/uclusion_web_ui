@@ -23,6 +23,9 @@ import { addCommentToMarket } from '../../contexts/CommentsContext/commentsConte
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../constants/comments'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
+import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -59,6 +62,8 @@ function CommentEdit(props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, versionsDispatch] = useContext(VersionsContext);
   const [type, setType] = useState(commentType);
+  const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
 
   function onEditorChange(content) {
     setBody(content);
@@ -131,6 +136,7 @@ function CommentEdit(props) {
             onChange={onEditorChange}
             onS3Upload={onS3Upload}
             setOperationInProgress={setOperationRunning}
+            getUrlName={urlHelperGetName(marketState, investibleState)}
           />
         </CardContent>
         <CardActions className={classes.cardActions}>

@@ -1,18 +1,19 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import {
-  Button, Card, CardActions, CardContent, Checkbox, TextField, Typography,
-} from '@material-ui/core'
-import localforage from 'localforage';
-import _ from 'lodash';
+import React, { useContext, useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import { Button, Card, CardActions, CardContent, Checkbox, TextField, Typography, } from '@material-ui/core'
+import localforage from 'localforage'
+import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { updateMarket } from '../../../api/markets';
-import QuillEditor from '../../../components/TextEditors/QuillEditor';
-import { processTextAndFilesForSave } from '../../../api/files';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton';
-import CardType, { DECISION_TYPE } from '../../../components/CardType';
+import { updateMarket } from '../../../api/markets'
+import QuillEditor from '../../../components/TextEditors/QuillEditor'
+import { processTextAndFilesForSave } from '../../../api/files'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
+import CardType, { DECISION_TYPE } from '../../../components/CardType'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
+import { urlHelperGetName } from '../../../utils/marketIdPathFunctions'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 function DecisionDialogEdit(props) {
   const {
@@ -33,6 +34,8 @@ function DecisionDialogEdit(props) {
   const [validForm, setValidForm] = useState(true);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [multiVote, setMultiVote] = useState(allowMultiVote);
+  const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
 
   function toggleMultiVote() {
     setMultiVote(!multiVote);
@@ -130,6 +133,7 @@ function DecisionDialogEdit(props) {
           marketId={id}
           onS3Upload={onS3Upload}
           setOperationInProgress={setOperationRunning}
+          getUrlName={urlHelperGetName(marketState, investibleState)}
         />
       </CardContent>
       <CardActions className={classes.actions}>

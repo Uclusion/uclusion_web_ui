@@ -90,7 +90,8 @@ class QuillEditor extends React.PureComponent {
       uploadDisabled,
       noToolbar,
       simple,
-      setOperationInProgress
+      setOperationInProgress,
+      getUrlName
     } = this.props;
     const defaultModules = {
       toolbar: [
@@ -151,6 +152,7 @@ class QuillEditor extends React.PureComponent {
       this.options.modules.toolbar = false
     }
     this.editor = new Quill(this.editorBox.current, this.options);
+    this.editor.getUrlName = getUrlName;
     this.addLinkFixer();
     const debouncedOnChange = _.debounce((delta) => {
       const contents = this.editor.root.innerHTML;
@@ -201,7 +203,7 @@ class QuillEditor extends React.PureComponent {
 
   componentDidUpdate (prevProps, prevState, snapshot) {
     if (prevProps.marketId !== this.props.marketId) {
-      console.error("Swapped the market out from under me. This shouldn't happen");
+      console.debug('Updating Quill');
       this.createEditor();
     }
   }
@@ -272,6 +274,7 @@ QuillEditor.propTypes = {
   uploadDisabled: PropTypes.bool,
   noToolbar: PropTypes.bool,
   setOperationInProgress: PropTypes.func,
+  getUrlName: PropTypes.func.isRequired,
   intl: PropTypes.object.isRequired,
   id: PropTypes.string,
   setEditorClearFunc: PropTypes.func,

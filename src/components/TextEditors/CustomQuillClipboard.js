@@ -1,6 +1,6 @@
-import Quill from 'quill';
-import isUrl from 'is-url';
-import _ from 'lodash';
+import Quill from 'quill'
+import isUrl from 'is-url'
+import _ from 'lodash'
 
 const Clipboard = Quill.import('modules/clipboard');
 let BlockEmbed = Quill.import('blots/block/embed');
@@ -166,10 +166,16 @@ class CustomQuillClipboard extends Clipboard {
     const html = e.clipboardData.getData('text/html');
     let filteredHtml = stripImageTags(html);
     let text = e.clipboardData.getData('text/plain');
-    if (_.isEmpty(filteredHtml)){
+    const name = this.quill.getUrlName(text);
+    if (_.isEmpty(filteredHtml) || !_.isEmpty(name)){
       if(isUrl(text)){
         const encoded = encodeURI(text);
-        filteredHtml = `<a href="${encoded}">${text}</a>`;
+        if (name) {
+          filteredHtml = `<a target="_self" href="${encoded}">${name}</a>`;
+        }
+        else {
+          filteredHtml = `<a href="${encoded}">${text}</a>`;
+        }
         text = undefined;
       }
     }

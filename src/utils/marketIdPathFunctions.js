@@ -2,11 +2,13 @@ import { VIEW_EVENT, VISIT_CHANNEL } from '../contexts/NotificationsContext/Noti
 import { intl } from '../components/ContextHacks/IntlGlobalProvider'
 import { pushMessage } from './MessageBusUtils'
 import _ from 'lodash'
+import { getInvestible } from '../contexts/InvestibesContext/investiblesContextHelper'
+import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 
 /** Given the pathpart _without the hash or query params
  * will extract the action, the marketId and the investibleId
  * Assumes the pathpart has a leading /
- * @param pathpart
+ * @param path
  * @return {null}
  */
 export function decomposeMarketPath(path) {
@@ -115,6 +117,32 @@ export function formInviteLink(marketToken) {
   return url.toString();
 }
 
+export function urlHelperGetName(marketState, investibleState) {
+  return (url) => {
+    const urlParts = new URL(url);
+    if (urlParts.host === window.location.host) {
+      const { action, marketId, investibleId } = decomposeMarketPath(urlParts.pathname);
+      if (action === 'dialog') {
+        if (investibleId) {
+          const inv = getInvestible(investibleState, investibleId);
+          if (!_.isEmpty(inv)) {
+            const { investible } = inv;
+            const { name } = investible;
+            return name;
+          }
+        }
+        if (marketId) {
+          const market = getMarket(marketState, marketId);
+          if (!_.isEmpty(market)) {
+            const { name } = market;
+            return name;
+          }
+        }
+      }
+    }
+    return undefined;
+  }
+}
 
 export function formCommentLink(marketId, investibleId, commentId){
   const commentPart = `#c${commentId}`;

@@ -12,6 +12,7 @@ import {
   formMarketAddInvestibleLink,
   formMarketLink,
   navigate,
+  urlHelperGetName,
 } from '../../../utils/marketIdPathFunctions'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -22,6 +23,8 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { addParticipants } from '../../../api/users'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { useHistory } from 'react-router'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 function DecisionInvestibleAdd(props) {
   const {
@@ -58,6 +61,8 @@ function DecisionInvestibleAdd(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { name } = currentValues;
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -242,6 +247,7 @@ function DecisionInvestibleAdd(props) {
           setEditorClearFunc={(func) => {
             setEditorClearFunc(func);
           }}
+          getUrlName={urlHelperGetName(marketState, investibleState)}
         />
       </CardContent>
       <CardActions className={classes.actions}>

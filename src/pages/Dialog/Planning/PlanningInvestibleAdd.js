@@ -7,7 +7,7 @@ import localforage from 'localforage'
 import { addPlanningInvestible } from '../../../api/investibles'
 import QuillEditor from '../../../components/TextEditors/QuillEditor'
 import { processTextAndFilesForSave } from '../../../api/files'
-import { formInvestibleLink, formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { formInvestibleLink, formMarketLink, urlHelperGetName } from '../../../utils/marketIdPathFunctions'
 import AssignmentList from './AssignmentList'
 import SpinBlockingButton from '../../../components/SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -16,6 +16,8 @@ import queryString from 'query-string'
 import CardType, { STORY_TYPE } from '../../../components/CardType'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import DismissableText from '../../../components/Notifications/DismissableText'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -35,6 +37,8 @@ function PlanningInvestibleAdd(props) {
   const [daysEstimate, setDaysEstimate] = useState(storedDaysEstimate);
   const { name } = currentValues;
   const history = useHistory();
+  const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
 
   function getUrlAssignee() {
     const { location } = history;
@@ -175,6 +179,7 @@ function PlanningInvestibleAdd(props) {
             onS3Upload={onS3Upload}
             defaultValue={description}
             setOperationInProgress={setOperationRunning}
+            getUrlName={urlHelperGetName(marketState, investibleState)}
           />
         </CardContent>
         <CardActions className={classes.actions}>

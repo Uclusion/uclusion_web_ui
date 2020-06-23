@@ -10,6 +10,9 @@ import { processTextAndFilesForSave } from '../../../api/files'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import CardType, { VOTING_TYPE } from '../../../components/CardType'
+import { urlHelperGetName } from '../../../utils/marketIdPathFunctions'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 function InitiativeInvestibleEdit(props) {
   const {
@@ -28,6 +31,8 @@ function InitiativeInvestibleEdit(props) {
   const initialUploadedFiles = myInvestible.uploaded_files || [];
   const [uploadedFiles, setUploadedFiles] = useState(initialUploadedFiles);
   const [description, setDescription] = useState(storedDescription || initialDescription);
+  const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -120,6 +125,7 @@ function InitiativeInvestibleEdit(props) {
           onStoreChange={onStorageChange}
           defaultValue={description}
           setOperationInProgress={setOperationRunning}
+          getUrlName={urlHelperGetName(marketState, investibleState)}
         />
       </CardContent>
       <CardActions className={classes.actions}>

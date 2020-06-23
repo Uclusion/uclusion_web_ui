@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useContext } from 'react'
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
@@ -8,9 +9,9 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import { darken, makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField';
-import { FormattedMessage, useIntl } from 'react-intl';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import TextField from '@material-ui/core/TextField'
+import { FormattedMessage, useIntl } from 'react-intl'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import CardType, { AGILE_PLAN_TYPE } from '../../components/CardType'
 import QuillEditor from '../../components/TextEditors/QuillEditor'
@@ -19,6 +20,9 @@ import 'react-datepicker/dist/react-datepicker.css'
 import moment from 'moment'
 import { Typography } from '@material-ui/core'
 import clsx from 'clsx'
+import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 
 export const usePlanFormStyles = makeStyles(
   theme => ({
@@ -312,6 +316,8 @@ export function Form(props) {
     onVotesRequiredChange,
     createEnabled,
   } = props;
+  const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
   const [viewAdvanced, setViewAdvanced] = React.useState(false);
   const [validForm, setValidForm] = React.useState(true);
   React.useEffect(() => {
@@ -358,6 +364,7 @@ export function Form(props) {
           defaultValue={description}
           className={classes.fullWidth}
           setOperationInProgress={setOperationRunning}
+          getUrlName={urlHelperGetName(marketState, investibleState)}
         />
         <ExpansionPanel expanded={viewAdvanced}>
             <ExpansionPanelSummary

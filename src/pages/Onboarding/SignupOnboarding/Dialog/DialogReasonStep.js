@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import QuillEditor from '../../../../components/TextEditors/QuillEditor'
@@ -6,6 +6,9 @@ import { updateValues } from '../../onboardingReducer'
 import _ from 'lodash'
 import { useIntl } from 'react-intl'
 import StepButtons from '../../StepButtons'
+import { urlHelperGetName } from '../../../../utils/marketIdPathFunctions'
+import { MarketsContext } from '../../../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../../../contexts/InvestibesContext/InvestiblesContext'
 
 function DialogReasonStep (props) {
   const { updateFormData, formData, active, classes } = props;
@@ -13,6 +16,8 @@ function DialogReasonStep (props) {
   const { dialogReason, dialogReasonUploadedFiles } = formData;
   const [editorContents, setEditorContents] = useState(dialogReason || '');
   const intl = useIntl();
+  const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
 
   function onEditorChange (content) {
     setEditorContents(content);
@@ -49,6 +54,7 @@ function DialogReasonStep (props) {
         value={editorContents}
         onS3Upload={onS3Upload}
         placeholder={intl.formatMessage({ id: 'DialogWizardReasonPlaceHolder' })}
+        getUrlName={urlHelperGetName(marketState, investibleState)}
       />
       <div className={classes.borderBottom}></div>
       <StepButtons {...props}

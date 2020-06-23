@@ -34,7 +34,10 @@ import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
 import InfoText from '../../../components/Descriptions/InfoText'
 import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext'
-import { addMinimumVersionRequirement } from '../../../contexts/VersionsContext/versionsContextHelper';
+import { addMinimumVersionRequirement } from '../../../contexts/VersionsContext/versionsContextHelper'
+import { urlHelperGetName } from '../../../utils/marketIdPathFunctions'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 const useStyles = makeStyles(
   theme => {
@@ -129,6 +132,8 @@ function AddEditVote(props) {
   const warnClearVotes = !allowMultiVote && hasVoted && addMode;
   const defaultDefaultFunc = (newDefault) => {};
   const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
+  const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
 
   function toggleOpen() {
     setOpen(!open);
@@ -296,6 +301,7 @@ function AddEditVote(props) {
             setEditorDefaultFunc={(func) => {
               setEditorDefaultFunc(func);
             }}
+            getUrlName={urlHelperGetName(marketState, investibleState)}
           />
         </CardContent>
         <CardActions className={classes.actions}>

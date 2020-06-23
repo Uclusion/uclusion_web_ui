@@ -19,8 +19,9 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { addParticipants } from '../../api/users'
 import CardType from '../../components/CardType'
 import { usePlanFormStyles } from '../../components/AgilePlan'
-import { formMarketAddInvestibleLink } from '../../utils/marketIdPathFunctions'
+import { formMarketAddInvestibleLink, urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 
 function DecisionAdd(props) {
   const intl = useIntl();
@@ -44,6 +45,7 @@ function DecisionAdd(props) {
   const { name, expiration_minutes } = currentValues;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
   const [multiVote, setMultiVote] = useState(false);
 
   function toggleMultiVote() {
@@ -191,6 +193,7 @@ function DecisionAdd(props) {
             placeholder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
             defaultValue={description}
             setOperationInProgress={setOperationRunning}
+            getUrlName={urlHelperGetName(marketState, investibleState)}
           />
         </CardContent>
         <CardActions className={classes.actions}>

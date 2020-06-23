@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import { useIntl } from 'react-intl'
@@ -7,10 +7,15 @@ import StepButtons from '../../../StepButtons'
 import QuillEditor from '../../../../../components/TextEditors/QuillEditor'
 import { DaysEstimate } from '../../../../../components/AgilePlan'
 import { updateValues } from '../../../onboardingReducer'
+import { urlHelperGetName } from '../../../../../utils/marketIdPathFunctions'
+import { MarketsContext } from '../../../../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../../../../contexts/InvestibesContext/InvestiblesContext'
 
 function CurrentStoryProgressStep (props) {
   const { updateFormData, formData, active, classes } = props;
   const intl = useIntl();
+  const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
   const {
     currentStoryProgress,
     currentStoryEstimate,
@@ -69,6 +74,7 @@ function CurrentStoryProgressStep (props) {
         value={editorContents}
         simple
         onChange={onEditorChange}
+        getUrlName={urlHelperGetName(marketState, investibleState)}
       />
       <div className={classes.borderBottom}></div>
       <StepButtons {...props} validForm={validForm}

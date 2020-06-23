@@ -25,10 +25,12 @@ import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
-import { getBlockedStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { getBlockedStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { urlHelperGetName } from '../../utils/marketIdPathFunctions'
 
 function getPlaceHolderLabelId (type) {
   switch (type) {
@@ -99,7 +101,8 @@ function CommentAdd (props) {
   } = props;
   const [body, setBody] = useState('');
   const [commentsState, commentDispatch] = useContext(CommentsContext);
-  const [,investibleDispatch] = useContext(InvestiblesContext);
+  const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
+  const [marketState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, versionsDispatch] = useContext(VersionsContext);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -234,6 +237,7 @@ function CommentAdd (props) {
             // console.log('Setting focus func');
             setEditorFocusFunc(func);
           }}
+          getUrlName={urlHelperGetName(marketState, investibleState)}
         >
           <Button
             onClick={handleCancel}

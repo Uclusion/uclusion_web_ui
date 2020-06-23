@@ -16,8 +16,9 @@ import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { usePlanFormStyles } from '../../components/AgilePlan'
 import CardType, { VOTING_TYPE } from '../../components/CardType'
-import { formMarketManageLink } from '../../utils/marketIdPathFunctions'
+import { formMarketManageLink, urlHelperGetName } from '../../utils/marketIdPathFunctions'
 import DismissableText from '../../components/Notifications/DismissableText'
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 
 function InitiativeAdd(props) {
   const intl = useIntl();
@@ -37,6 +38,8 @@ function InitiativeAdd(props) {
   const [description, setDescription] = useState(storedDescription);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { name, expiration_minutes: expirationMinutes } = currentValues;
+  const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
 
   useEffect(() => {
     // Long form to prevent flicker
@@ -154,6 +157,7 @@ function InitiativeAdd(props) {
             placeholder={intl.formatMessage({ id: 'marketAddDescriptionDefault' })}
             defaultValue={description}
             setOperationInProgress={setOperationRunning}
+            getUrlName={urlHelperGetName(marketState, investibleState)}
           />
         </CardContent>
         <CardActions className={classes.actions}>

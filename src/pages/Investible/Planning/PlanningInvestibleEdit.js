@@ -19,6 +19,9 @@ import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { makeStyles } from '@material-ui/core/styles'
+import { urlHelperGetName } from '../../../utils/marketIdPathFunctions'
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 export const usePlanInvestibleStyles = makeStyles(
   theme => ({
@@ -58,6 +61,8 @@ function PlanningInvestibleEdit(props) {
   const [open, setOpen] = useState(false);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const [marketState] = useContext(MarketsContext);
+  const [investibleState] = useContext(InvestiblesContext);
   const hasVotes = marketPresences.find(presence => {
     const { investments } = presence;
     if (_.isEmpty(investments)) {
@@ -209,6 +214,7 @@ function PlanningInvestibleEdit(props) {
             onStoreChange={onStorageChange}
             defaultValue={description}
             setOperationInProgress={setOperationRunning}
+            getUrlName={urlHelperGetName(marketState, investibleState)}
           />
         </>
         )}

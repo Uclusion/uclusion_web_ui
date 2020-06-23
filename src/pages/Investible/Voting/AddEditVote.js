@@ -235,6 +235,9 @@ function AddEditVote(props) {
     setReasonText(body);
   }
   const lockedDialogClasses = useLockedDialogStyles();
+  const voteId = multiplier < 0 ? "saveReject" : "saveVote";
+  const updateVoteId = multiplier < 0 ? "updateReject" : "updateVote";
+  const removeVoteId = multiplier < 0 ? "removeReject" : "removeVote";
   return (
     <React.Fragment>
       <Card elevation={0}>
@@ -312,7 +315,7 @@ function AddEditVote(props) {
               onClick={onRemove}
               onSpinStop={onSave}
             >
-              {intl.formatMessage({ id: "removeVote" })}
+              {intl.formatMessage({ id: removeVoteId })}
             </SpinBlockingButton>
           )}
           {saveEnabled && !warnClearVotes && (
@@ -325,13 +328,13 @@ function AddEditVote(props) {
               hasSpinChecker
             >
               {addMode
-                ? intl.formatMessage({ id: "saveVote" })
-                : intl.formatMessage({ id: "updateVote" })}
+                ? intl.formatMessage({ id: voteId })
+                : intl.formatMessage({ id: updateVoteId })}
             </SpinBlockingButton>
           )}
           {saveEnabled && warnClearVotes && (
             <Button onClick={toggleOpen} className={classes.primaryAction}>
-              {intl.formatMessage({ id: "saveVote" })}
+              {intl.formatMessage({ id: voteId })}
             </Button>
           )}
         </CardActions>

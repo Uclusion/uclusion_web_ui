@@ -26,7 +26,7 @@ import { useLockedDialogStyles } from '../../pages/Dialog/DialogEdit'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
 import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 import { getBlockedStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
+import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
@@ -170,17 +170,19 @@ function CommentAdd (props) {
           const blockingStage = getBlockedStage(marketStagesState, marketId);
           if (blockingStage) {
             // TODO: this breaks if investible exists in more than one market
-            const { market_infos } = investible;
+            const rootInvestible = getInvestible(investibleState, investibleId)
+            const { market_infos } = rootInvestible;
             const [info] = market_infos;
             const newInfo = {
               ...info,
               stage: blockingStage.id,
               stage_name: blockingStage.name,
+              open_for_investment: false,
               last_stage_change_date: Date.now().toString(),
             };
             const newInfos = _.unionBy([newInfo], market_infos, 'id');
             const newInvestible = {
-              investible: investible,
+              investible: rootInvestible,
               market_infos: newInfos
             };
             // no diff here, so no diff dispatch

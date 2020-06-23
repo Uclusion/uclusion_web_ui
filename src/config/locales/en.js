@@ -703,6 +703,7 @@ const messages = defineMessages({
   errorMarketAttachFilesFailed: 'There was a problem attaching your files',
   errorInvestibleAttachFilesFailed: 'There was a problem attaching your files',
   errorInvestibleRemoveAttachedFilesFailed: 'There was a problem removing your files',
+  errorMarketRemoveAttachedFilesFailed: 'There was a problem removing your files',
   errorMarketShowFailed: 'There was a problem restoring the dialog',
   errorMarketHideFailed: 'There was a problem dismissing the dialog',
   errorCommentResolveFailed: 'There was a problem resolving',

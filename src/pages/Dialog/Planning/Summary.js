@@ -24,10 +24,11 @@ import Collaborators from '../Collaborators'
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
-import { attachFilesToMarket } from '../../../api/markets'
+import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { EMPTY_SPIN_RESULT } from '../../../constants/global';
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -209,6 +210,14 @@ function Summary(props) {
       })
   }
 
+  function onDeleteFile(path) {
+    return deleteAttachedFilesFromMarket(id, [path])
+      .then((market) => {
+        addMarketToStorage(marketsDispatch, diffDispatch, market, false);
+        return EMPTY_SPIN_RESULT;
+      })
+  }
+
 
   return (
     <Card elevation={0} className={classes.root} id="summary">
@@ -290,6 +299,8 @@ function Summary(props) {
           <AttachedFilesList
             key="files"
             marketId={id}
+            isAdmin={myPresence.is_admin}
+            onDeleteClick={onDeleteFile}
             attachedFiles={attachedFiles}
             onUpload={onAttachFile} />
 

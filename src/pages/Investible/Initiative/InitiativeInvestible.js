@@ -37,10 +37,11 @@ import {
 } from '../../../contexts/TourContext/tourContextHelper'
 import { inviteInitiativeSteps } from '../../../components/Tours/InviteTours/initiative'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
-import { attachFilesToMarket } from '../../../api/markets'
+import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import { EMPTY_SPIN_RESULT } from '../../../constants/global';
 
 const useStyles = makeStyles(
   theme => ({
@@ -212,6 +213,14 @@ function InitiativeInvestible(props) {
       })
   }
 
+  function onDeleteFile(path) {
+    return deleteAttachedFilesFromMarket(marketId, [path])
+      .then((market) => {
+        addMarketToStorage(marketsDispatch, diffDispatch, market, false);
+        return EMPTY_SPIN_RESULT;
+      });
+  }
+
 
   useEffect(() => {
       tourDispatch(startTour(tourName));
@@ -339,6 +348,8 @@ function InitiativeInvestible(props) {
               <AttachedFilesList
                 key="files"
                 marketId={marketId}
+                isAdmin={isAdmin}
+                onDeleteClick={onDeleteFile}
                 attachedFiles={attachedFiles}
                 onUpload={onAttachFile} />
             </dl>

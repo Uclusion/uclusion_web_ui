@@ -36,7 +36,8 @@ import clsx from 'clsx';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
 import { useMetaDataStyles } from '../Planning/PlanningInvestible';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { attachFilesToInvestible } from '../../../api/investibles';
+import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles';
+import { EMPTY_SPIN_RESULT } from '../../../constants/global';
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -250,6 +251,14 @@ function DecisionInvestible(props) {
     );
   }
 
+  function onDeleteFile(path) {
+    return deleteAttachedFilesFromInvestible(marketId, investible.id, [path])
+      .then((investible) => {
+        addInvestible(investiblesDispatch, diffDispatch, investible);
+        return EMPTY_SPIN_RESULT;
+      });
+  }
+
   function onAttachFiles(metadatas) {
     return attachFilesToInvestible(marketId, investible.id, metadatas)
       .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
@@ -316,6 +325,8 @@ function DecisionInvestible(props) {
               <AttachedFilesList
                 key="files"
                 marketId={marketId}
+                onDeleteClick={onDeleteFile}
+                isAdmin={isAdmin}
                 attachedFiles={attachedFiles}
                 onUpload={onAttachFiles} />
             </dl>

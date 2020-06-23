@@ -38,6 +38,12 @@ export function attachFilesToMarket(marketId, metadatas) {
     .catch((error) => toastErrorAndThrow(error, 'errorMarketAttachFilesFailed'));
 }
 
+export function deleteAttachedFilesFromMarket(marketId, files) {
+  return getMarketClient(marketId)
+    .then((client) => client.markets.deleteAttachments(files))
+    .catch((error) => toastErrorAndThrow(error, 'errorMarketRemoveAttachedFilesFailed'));
+}
+
 export function updateMarket(marketId, name, description, uploadedFiles, maxBudget,
   investmentExpiration, daysEstimate, votesRequired, allowMultiVote) {
   const updateOptions = {};

@@ -248,7 +248,7 @@ class QuillEditor extends React.PureComponent {
     };
 
     return (
-      <div ref={this.editorContainer} style={{maxWidth: '100%'}} id={id}>
+      <div ref={this.editorContainer} style={{maxWidth: '100%', zIndex: '2'}} id={id}>
 
         <LoadingOverlay
           active={uploadInProgress}

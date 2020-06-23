@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { Link, List, Paper, Typography } from '@material-ui/core'
+import { Link, List, ListItem, ListItemText, ListItemSecondaryAction, Paper } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
 import { FormattedMessage, useIntl } from 'react-intl'
 import clsx from 'clsx'
 import config from '../../config'
@@ -10,6 +11,7 @@ import { makeStyles } from '@material-ui/styles'
 import FileUploader from './FileUploader'
 import { useMetaDataStyles } from '../../pages/Investible/Planning/PlanningInvestible'
 import { getMarketLogin } from '../../api/uclusionClient'
+import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -20,7 +22,8 @@ const useStyles = makeStyles((theme) => ({
   },
 
   file: {
-    padding: '10px'
+    wordBreak: 'break-all',
+    padding: '0px'
   },
   sidebarContent: {
     display: 'flex',
@@ -40,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
 
 function AttachedFilesList(props) {
 
-  const { marketId, attachedFiles, onUpload } = props;
+  const { marketId, attachedFiles, onUpload, isAdmin, onDeleteClick } = props;
   const [uploadInProgress, setUploadInProgress] = useState(false);
   const metaClasses = useMetaDataStyles();
   const classes = useStyles();
@@ -71,8 +74,14 @@ function AttachedFilesList(props) {
       const {original_name, path} = file;
       const linkToFile = `${fileBaseUrl}/${path}`;
       return (
-        <ul key={path}>
-            <Typography key={index} component="li">
+        <ListItem
+          alignItems="flex-start"
+          key={path}
+          dense
+        >
+          <ListItemText
+            disableTypography
+          >
               <Link
                 href={linkToFile}
                 variant="inherit"
@@ -87,8 +96,21 @@ function AttachedFilesList(props) {
               >
                 {original_name}
               </Link>
-            </Typography>
-        </ul>
+          </ListItemText>
+          {isAdmin && (
+            <ListItemSecondaryAction>
+              <SpinningTooltipIconButton
+                marketId={marketId}
+                translationId="delete"
+                edge="end"
+                onClick={() => onDeleteClick(path)}
+                icon={<DeleteIcon/>}
+                aria-label="delete"
+                hasSpinChecker
+              />
+            </ListItemSecondaryAction>
+          )}
+        </ListItem>
       )
     })
   }
@@ -106,8 +128,8 @@ function AttachedFilesList(props) {
           >
             <List className={classes.sidebarContent}>
               <FileUploader marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress}/>
+              {displayLinksList(attachedFiles)}
             </List>
-            {displayLinksList(attachedFiles)}
           </LoadingOverlay>
         </div>
       </div>
@@ -119,11 +141,15 @@ AttachedFilesList.propTypes = {
   onUpload: PropTypes.func,
   attachedFiles: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
+  onDeleteClick: PropTypes.func,
+  isAdmin: PropTypes.bool,
 };
 
 AttachedFilesList.defaultProps = {
   attachedFiles: [],
-  onUpload: () => {}
+  onUpload: () => {},
+  isAdmin: false,
+  onDeleteClick: () => {},
 };
 
 export default AttachedFilesList;

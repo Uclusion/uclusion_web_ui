@@ -75,7 +75,7 @@ import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import SubSection from '../../../containers/SubSection/SubSection'
-import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
+import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../../constants/global';
 import CurrentVoting from '../../Dialog/Decision/CurrentVoting'
 import ProposedIdeas from '../../Dialog/Decision/ProposedIdeas'
 import { addInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -91,7 +91,7 @@ import { DaysEstimate } from '../../../components/AgilePlan'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
-import { attachFilesToInvestible } from '../../../api/investibles';
+import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 
 const useStyles = makeStyles(
@@ -860,6 +860,14 @@ function MarketMetaData(props) {
     expansionChanged(false)
   }
 
+  function onDeleteFile(path) {
+    return deleteAttachedFilesFromInvestible(market.id, marketInvestible.investible.id, [path])
+      .then((investible) => {
+        addInvestible(investiblesDispatch, diffDispatch, investible);
+        return EMPTY_SPIN_RESULT;
+      });
+  }
+
   function onAttachFiles(metadatas) {
     return attachFilesToInvestible(market.id, marketInvestible.investible.id, metadatas)
       .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
@@ -912,7 +920,12 @@ function MarketMetaData(props) {
         </React.Fragment>
       )}
       <MarketLinks links={children} hidden={hidden} actions={actions} />
-      <AttachedFilesList marketId={market.id} onUpload={onAttachFiles} attachedFiles={attachedFiles}/>
+      <AttachedFilesList
+        marketId={market.id}
+        onUpload={onAttachFiles}
+        isAdmin={isAdmin}
+        onDeleteClick={onDeleteFile}
+        attachedFiles={attachedFiles}/>
     </dl>
   );
 }

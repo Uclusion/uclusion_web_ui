@@ -25,7 +25,12 @@ export function attachFilesToInvestible(marketId, investibleId, metadatas) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.addAttachments(investibleId, metadatas))
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleAttachFilesFailed'));
+}
 
+export function deleteAttachedFilesFromInvestible(marketId, investibleId, paths) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.deleteAttachments(investibleId, paths))
+    .catch((error) => toastErrorAndThrow(error, 'errorInvestibleRemoveAttachedFilesFailed'));
 }
 
 export function addDecisionInvestible (addInfo) {

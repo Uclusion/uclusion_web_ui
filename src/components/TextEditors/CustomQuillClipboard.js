@@ -166,9 +166,9 @@ class CustomQuillClipboard extends Clipboard {
     const html = e.clipboardData.getData('text/html');
     let filteredHtml = stripImageTags(html);
     let text = e.clipboardData.getData('text/plain');
-    const name = this.quill.getUrlName(text);
-    if (_.isEmpty(filteredHtml) || !_.isEmpty(name)){
-      if(isUrl(text)){
+    if(isUrl(text)){
+      const name = this.quill.getUrlName(text);
+      if (_.isEmpty(filteredHtml) || !_.isEmpty(name)){
         const encoded = encodeURI(text);
         if (name) {
           filteredHtml = `<a target="_self" href="${encoded}">${name}</a>`;

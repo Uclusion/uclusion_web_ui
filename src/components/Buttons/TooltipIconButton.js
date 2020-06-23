@@ -18,6 +18,7 @@ function TooltipIconButton(props) {
       >
         <IconButton
           id={usedId}
+          {...props}
           onClick={onClick}
         >
           {React.cloneElement(icon, { size })}
@@ -28,6 +29,7 @@ function TooltipIconButton(props) {
       {disabled && (
       <IconButton
         disabled={disabled}
+        {...props}
         onClick={onClick}
       >
         {React.cloneElement(icon, { size })}

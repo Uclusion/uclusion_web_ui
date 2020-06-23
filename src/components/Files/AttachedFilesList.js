@@ -23,8 +23,10 @@ const useStyles = makeStyles((theme) => ({
 
   file: {
     wordBreak: 'break-all',
-    padding: '0px'
+
   },
+
+
   sidebarContent: {
     display: 'flex',
     justifyContent: 'center',
@@ -98,7 +100,7 @@ function AttachedFilesList(props) {
               </Link>
           </ListItemText>
           {isAdmin && (
-            <ListItemSecondaryAction>
+            <ListItemSecondaryAction className={classes.deleteButton}>
               <SpinningTooltipIconButton
                 marketId={marketId}
                 translationId="delete"

@@ -31,7 +31,7 @@ function DialogReasonStep (props) {
 
   function onS3Upload (metadatas) {
     const oldUploadedFiles = dialogReasonUploadedFiles || [];
-    const newUploadedFiles = _.uniqBy([...oldUploadedFiles, metadatas], 'path');
+    const newUploadedFiles = _.uniqBy([...oldUploadedFiles, ...metadatas], 'path');
     updateFormData(updateValues({
       dialogReasonUploadedFiles: newUploadedFiles
     }));

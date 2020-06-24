@@ -31,7 +31,7 @@ function InitialRequirementsStep (props) {
 
   function onS3Upload (metadatas) {
     const oldUploadedFiles = workspaceDescriptionUploadedFiles || [];
-    const newUploadedFiles = _.uniqBy([...oldUploadedFiles, metadatas], 'path');
+    const newUploadedFiles = _.uniqBy([...oldUploadedFiles, ...metadatas], 'path');
     updateFormData(updateValues({
       workspaceDescriptionUploadedFiles: newUploadedFiles
     }));

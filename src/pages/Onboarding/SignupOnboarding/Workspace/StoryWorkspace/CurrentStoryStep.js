@@ -41,7 +41,7 @@ function CurrentStoryStep (props) {
 
   function onS3Upload(metadatas) {
     const oldUploadedFiles = currentStoryUploadedFiles || []
-    const newUploadedFiles = _.uniqBy([...oldUploadedFiles, metadatas], 'path');
+    const newUploadedFiles = _.uniqBy([...oldUploadedFiles, ...metadatas], 'path');
     updateFormData(updateValues({
       currentStoryUploadedFiles: newUploadedFiles
     }));

@@ -33,7 +33,7 @@ function TodoStep (props) {
 
   function onS3Upload(metadatas) {
     const oldUploadedFiles = todoUploadedFiles || []
-    const newUploadedFiles = _.uniqBy([...oldUploadedFiles, metadatas], 'path');
+    const newUploadedFiles = _.uniqBy([...oldUploadedFiles, ...metadatas], 'path');
     updateFormData(updateValues({
       todoUploadedFiles: newUploadedFiles
     }));

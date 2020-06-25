@@ -45,11 +45,13 @@ function VerifyEmail (props) {
 
   useEffect(() => {
     function beginRedirecting (result) {
+      console.log('Beginning redirect');
       const { redirect } = result;
       if (!_.isEmpty(redirect)) {
         console.log(`Setting redirect to ${redirect}`);
         setRedirect(redirect);
       }
+      console.log('redirecting to LOGIN');
       window.location.pathname = LOGIN;
     }
 
@@ -60,8 +62,14 @@ function VerifyEmail (props) {
           // we unconditionally sign out in case they are signed in to the user in another tab.
           // if it fails, we weren't logged in.
           return onSignOut(false)
-            .then(() => beginRedirecting(result))
-            .catch(() => beginRedirecting(result));
+            .then(() => {
+              console.log("Signout succeeded, sending to redirect");
+              beginRedirecting(result)
+            })
+            .catch(() => {
+              console.log("Signout failed, sending to redirect");
+              beginRedirecting(result);
+            });
           // console.log(result);
         })
         .catch((error) => {

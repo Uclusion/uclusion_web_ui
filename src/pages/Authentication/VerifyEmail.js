@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import _ from 'lodash';
-import Container from '@material-ui/core/Container';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Avatar from '@material-ui/core/Avatar';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
-import { verifyEmail } from '../../api/sso';
-import { setRedirect } from '../../utils/redirectUtils';
-import { ERROR, sendIntlMessageBase } from '../../utils/userMessage';
-import { useIntl } from 'react-intl';
-import { onSignOut } from '../../utils/userFunctions';
+import React, { useEffect, useState } from 'react'
+import _ from 'lodash'
+import Container from '@material-ui/core/Container'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import Avatar from '@material-ui/core/Avatar'
+import Typography from '@material-ui/core/Typography'
+import { makeStyles } from '@material-ui/core/styles'
+import { verifyEmail } from '../../api/sso'
+import { setRedirect } from '../../utils/redirectUtils'
+import { ERROR, sendIntlMessageBase } from '../../utils/userMessage'
+import { useIntl } from 'react-intl'
+import { onSignOut } from '../../utils/userFunctions'
+import { Auth } from 'aws-amplify'
+import { Button } from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -55,23 +57,19 @@ function VerifyEmail (props) {
       window.location.pathname = LOGIN;
     }
 
-    if (code && !verificationState) {
+    if (!verificationState) {
+      // we unconditionally sign out in case they are signed in to the user in another tab.
+      // if it fails, we weren't logged in.
+      Auth.currentAuthenticatedUser().then(() => setVerificationState('MUST_LOGOUT'))
+        .catch(() => setVerificationState('READY_TO_PROCESS'))
+    }
+
+    if (code && verificationState === 'READY_TO_PROCESS') {
       setVerificationState('PROCESSING');
       verifyEmail(code)
         .then(result => {
-          setVerificationState('VERIFIED')
-          // we unconditionally sign out in case they are signed in to the user in another tab.
-          // if it fails, we weren't logged in.
-          return onSignOut(false)
-            .then(() => {
-              console.log("Signout succeeded, sending to redirect");
-              beginRedirecting(result)
-            })
-            .catch(() => {
-              console.log("Signout failed, sending to redirect");
-              beginRedirecting(result);
-            });
-          // console.log(result);
+          setVerificationState('VERIFIED');
+          return beginRedirecting(result);
         })
         .catch((error) => {
           console.error(error);
@@ -80,6 +78,20 @@ function VerifyEmail (props) {
         });
     }
   }, [code, verificationState, intl, authState]);
+
+  if (!verificationState || verificationState === 'MUST_LOGOUT') {
+    return (
+      <Button
+        variant="text"
+        fullWidth={true}
+        onClick={onSignOut}
+        className={classes.action}
+        disableRipple
+      >
+        {intl.formatMessage({ id: 'signOutButton' })}
+      </Button>
+    );
+  }
 
   if (!code || verificationState === 'ERROR') {
     return (

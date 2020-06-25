@@ -81,15 +81,31 @@ function VerifyEmail (props) {
 
   if (!verificationState || verificationState === 'MUST_LOGOUT') {
     return (
-      <Button
-        variant="text"
-        fullWidth={true}
-        onClick={onSignOut}
-        className={classes.action}
-        disableRipple
-      >
-        {intl.formatMessage({ id: 'signOutButton' })}
-      </Button>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline/>
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <img
+              width="35"
+              height="35"
+              src={`/images/${ALTERNATE_SIDEBAR_LOGO}`}
+              alt="Uclusion"
+            />
+          </Avatar>
+          <Typography component="h1" variant="h5" align="center">
+            You are already logged in - please logout if you want to verify as a different user.
+          </Typography>
+          <Button
+            variant="text"
+            fullWidth={true}
+            onClick={onSignOut}
+            className={classes.action}
+            disableRipple
+          >
+            {intl.formatMessage({ id: 'signOutButton' })}
+          </Button>
+        </div>
+      </Container>
     );
   }
 

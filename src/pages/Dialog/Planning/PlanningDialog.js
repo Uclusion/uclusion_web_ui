@@ -232,6 +232,9 @@ function PlanningDialog(props) {
         </div>
       </dl>
       {!isChannel && (
+        <DismissableText textId='stageHelp' />
+      )}
+      {!isChannel && (
         <div id="swimLanes">
           <InvestiblesByPerson
             comments={comments}

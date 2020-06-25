@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
-import { Link, Typography } from '@material-ui/core'
+import { Link, Tooltip, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import { red, yellow } from '@material-ui/core/colors'
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
@@ -46,15 +46,19 @@ function PlanningIdeas(props) {
     warnAccepted,
     activeMarket,
   } = props;
-
+  const intl = useIntl();
   const classes = usePlanningIdStyles();
 
   return (
     <dl className={classes.stages}>
       <div>
-        <dt className={classes.stageLabel}>
-          <FormattedMessage id="planningVotingStageLabel" />
-        </dt>
+        <Tooltip
+          title={intl.formatMessage({ id: 'planningVotingStageDescription' })}
+        >
+          <dt className={classes.stageLabel}>
+            <FormattedMessage id="planningVotingStageLabel" />
+          </dt>
+        </Tooltip>
         <VotingStage
           className={classes.stage}
           id={inDialogStageId}
@@ -65,9 +69,13 @@ function PlanningIdeas(props) {
         />
       </div>
       <div>
-        <dt className={classes.stageLabel}>
-          <FormattedMessage id="planningAcceptedStageLabel" />
-        </dt>
+        <Tooltip
+          title={intl.formatMessage({ id: 'planningAcceptedStageDescription' })}
+        >
+          <dt className={classes.stageLabel}>
+            <FormattedMessage id="planningAcceptedStageLabel" />
+          </dt>
+        </Tooltip>
         <AcceptedStage
           className={classes.stage}
           id={acceptedStageId}
@@ -77,9 +85,13 @@ function PlanningIdeas(props) {
         />
       </div>
       <div>
-        <dt className={classes.stageLabel}>
-          <FormattedMessage id="planningReviewStageLabel" />
-        </dt>
+        <Tooltip
+          title={intl.formatMessage({ id: 'planningReviewStageDescription' })}
+        >
+          <dt className={classes.stageLabel}>
+            <FormattedMessage id="planningReviewStageLabel" />
+          </dt>
+        </Tooltip>
         <ReviewStage
           className={classes.stage}
           id={inReviewStageId}
@@ -88,9 +100,13 @@ function PlanningIdeas(props) {
         />
       </div>
       <div>
-        <dt className={classes.stageLabel}>
-          <FormattedMessage id="planningBlockedStageLabel" />
-        </dt>
+        <Tooltip
+          title={intl.formatMessage({ id: 'planningBlockedStageDescription' })}
+        >
+          <dt className={classes.stageLabel}>
+            <FormattedMessage id="planningBlockedStageLabel" />
+          </dt>
+        </Tooltip>
         <BlockingStage
           className={classes.stage}
           id={inBlockingStageId}

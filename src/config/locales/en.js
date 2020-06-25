@@ -827,7 +827,7 @@ const messages = defineMessages({
   WorkspaceWizardMeetingPlaceHolder: 'Your Workspace Name',
   WorkspaceWizardMeetingStepLabel: 'Your Workspace',
   WorkspaceWizardCreatingWorkspaceStepLabel: 'Workspace Creation',
-  WorkspaceWizardWorkspaceDescription: 'Workspace for {meetingName}',
+  WorkspaceWizardWorkspaceDescription: 'Requirements for {meetingName} go here',
   WorkspaceWizardTakeMeToWorkspace: 'I\'ve shared the link, take me to my Workspace',
 
   //SignupWizard

@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
-import { useHistory } from 'react-router';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { verifyEmail } from '../../api/sso';
-import { setRedirect, redirectToPath } from '../../utils/redirectUtils';
+import { setRedirect } from '../../utils/redirectUtils';
 import { ERROR, sendIntlMessageBase } from '../../utils/userMessage';
 import { useIntl } from 'react-intl';
 import { onSignOut } from '../../utils/userFunctions';
@@ -37,7 +36,6 @@ const useStyles = makeStyles(theme => ({
 function VerifyEmail (props) {
   const LOGIN = '/';
   const ALTERNATE_SIDEBAR_LOGO = 'Uclusion_Logo_White_Micro.png';
-  const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
   const params = new URL(document.location).searchParams;
@@ -52,7 +50,7 @@ function VerifyEmail (props) {
         console.log(`Setting redirect to ${redirect}`);
         setRedirect(redirect);
       }
-      redirectToPath(history, LOGIN);
+      window.location.pathname = LOGIN;
     }
 
     if (code && !verificationState) {
@@ -72,7 +70,7 @@ function VerifyEmail (props) {
           sendIntlMessageBase(intl, ERROR, 'errorVerifyFailed');
         });
     }
-  }, [code, verificationState, history, intl, authState]);
+  }, [code, verificationState, intl, authState]);
 
   if (!code) {
     return (

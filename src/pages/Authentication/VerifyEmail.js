@@ -56,9 +56,10 @@ function VerifyEmail (props) {
     }
 
     if (code && !verificationState) {
-      setVerificationState('VERIFIED');
+      setVerificationState('PROCESSING');
       verifyEmail(code)
         .then(result => {
+          setVerificationState('VERIFIED')
           // we unconditionally sign out in case they are signed in to the user in another tab.
           // if it fails, we weren't logged in.
           return onSignOut(false)
@@ -74,13 +75,13 @@ function VerifyEmail (props) {
         })
         .catch((error) => {
           console.error(error);
-          setVerificationState(undefined);
+          setVerificationState('ERROR');
           sendIntlMessageBase(intl, ERROR, 'errorVerifyFailed');
         });
     }
   }, [code, verificationState, intl, authState]);
 
-  if (!code) {
+  if (!code || verificationState === 'ERROR') {
     return (
       <Container component="main" maxWidth="xs">
         <CssBaseline/>
@@ -96,28 +97,6 @@ function VerifyEmail (props) {
           <Typography component="h1" variant="h5" align="center">
             Sorry, we couldn't verify you.
             Please re-visit this page via a verification link from the email we sent.
-          </Typography>
-        </div>
-      </Container>
-    );
-  }
-
-  if (verificationState === 'ALREADY_EXISTS') {
-    return (
-      <Container component="main" maxWidth="xs">
-        <CssBaseline/>
-        <div className={classes.paper}>
-          <Avatar className={classes.avatar}>
-            <img
-              width="35"
-              height="35"
-              src={`/images/${ALTERNATE_SIDEBAR_LOGO}`}
-              alt="Uclusion"
-            />
-          </Avatar>
-          <Typography component="h1" variant="h5" align="center">
-            This email has already been verified. We will be redirecting you to
-            login shortly.
           </Typography>
         </div>
       </Container>

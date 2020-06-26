@@ -3,11 +3,12 @@ import { pushMessage, registerListener, removeListener } from '../utils/MessageB
 import { getVersions } from './summaries'
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
 import {
+  EMPTY_FETCH_SIGNATURES,
   getFetchSignaturesForAccount,
   getFetchSignaturesForMarket,
   signatureMatcher,
   versionIsStale
-} from './versionSignatureUtils'
+} from './versionSignatureUtils';
 import {
   addMinimumVersionRequirement,
   BANNED_LIST,
@@ -37,6 +38,7 @@ import LocalForageHelper from '../utils/LocalForageHelper'
 import { EMPTY_GLOBAL_VERSION, VERSIONS_CONTEXT_NAMESPACE } from '../contexts/VersionsContext/versionsContextReducer'
 import { getHomeAccountUser } from './sso'
 import { formMarketLink, navigate } from '../utils/marketIdPathFunctions'
+import { checkInStorage } from './storageIntrospector';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -235,46 +237,51 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets, requiredS
     pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
   }
   const callWithVersion = currentHeldVersion === 'INITIALIZATION' ? null : currentHeldVersion;
-  return getVersions(callWithVersion)
-    .then((versions) => {
-      const {
-        global_version, signatures: newSignatures, foreground: foregroundList,
-        banned: bannedList
-      } = versions;
-      const marketSignatures = newSignatures.filter((signature) => signature.market_id);
-      const accountSignatures = newSignatures.filter((signature) => signature.account_id);
-      // if the market signatures don't have the required signatures, just abort, this version has stale data
-      if (versionIsStale(marketSignatures, requiredSignatures)) {
-        console.log('Skipping stale version');
-        return currentHeldVersion;
-      }
-      if ((_.isEmpty(marketSignatures) && _.isEmpty(accountSignatures)) || _.isEmpty(global_version)) {
-        pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
-        return currentHeldVersion;
-      }
-      // don't refresh market's we're banned from
-      if (!_.isEmpty(bannedList)) {
-        pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
-      }
+  // if we have required signatures, check storage for them first
+  const chain = _.isEmpty(requiredSignatures)? Promise.resolve([]) : checkInStorage(EMPTY_FETCH_SIGNATURES, requiredSignatures);
+  return chain
+    .then((requiredVersions) => {
+      return getVersions(callWithVersion)
+        .then((versions) => {
+          const {
+            global_version, signatures: newSignatures, foreground: foregroundList,
+            banned: bannedList
+          } = versions;
+          const marketSignatures = newSignatures.filter((signature) => signature.market_id);
+          const accountSignatures = newSignatures.filter((signature) => signature.account_id);
+          // if the market signatures don't have the required signatures, just abort, this version has stale data
+          if (versionIsStale(marketSignatures, requiredVersions)) {
+            console.log('Skipping stale version');
+            return currentHeldVersion;
+          }
+          if ((_.isEmpty(marketSignatures) && _.isEmpty(accountSignatures)) || _.isEmpty(global_version)) {
+            pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+            return currentHeldVersion;
+          }
+          // don't refresh market's we're banned from
+          if (!_.isEmpty(bannedList)) {
+            pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
+          }
 
-     // split the market stuff into forground and background
-      newGlobalVersion = global_version;
-      const splitMS = splitIntoForegroundBackground(marketSignatures, foregroundList);
-      const { foreground, background } = splitMS;
-      const marketPromises = updateMarketsFromSignatures(foreground, existingMarkets, MAX_CONCURRENT_API_CALLS)
-        .then(() => {
-          pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
-          return updateMarketsFromSignatures(background, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS)
+          // split the market stuff into forground and background
+          newGlobalVersion = global_version;
+          const splitMS = splitIntoForegroundBackground(marketSignatures, foregroundList);
+          const { foreground, background } = splitMS;
+          const marketPromises = updateMarketsFromSignatures(foreground, existingMarkets, MAX_CONCURRENT_API_CALLS)
             .then(() => {
-              return newGlobalVersion;
+              pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+              return updateMarketsFromSignatures(background, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS)
+                .then(() => {
+                  return newGlobalVersion;
+                });
             });
+          // fetch the account before the market if we have to
+          if (!_.isEmpty(accountSignatures)) {
+            return updateAccountFromSignatures(accountSignatures, MAX_CONCURRENT_API_CALLS)
+              .then(() => marketPromises);
+          }
+          return marketPromises;
         });
-      // fetch the account before the market if we have to
-      if (!_.isEmpty(accountSignatures)){
-        return updateAccountFromSignatures(accountSignatures, MAX_CONCURRENT_API_CALLS)
-          .then(() => marketPromises);
-      }
-      return marketPromises;
     });
 }
 
@@ -306,10 +313,11 @@ function doRefreshAccount (componentSignatures) {
  * @param componentSignatures the component signatures telling us what we're looking for
  * @returns {null}
  */
-function doRefreshMarket (marketId, componentSignatures) {
-  //console.debug(`Refreshing market ${marketId}`);
-  const fetchSignatures = getFetchSignaturesForMarket(componentSignatures);
-  // console.log(fetchSignatures);
+async function doRefreshMarket (marketId, componentSignatures) {
+  const serverFetchSignatures = getFetchSignaturesForMarket(componentSignatures);
+  const notInStorageSignatures = await checkInStorage(serverFetchSignatures, []);
+  const { fetchSignatures } = notInStorageSignatures;
+  //console.error(fetchSignatures);
   const { markets, comments, marketPresences, marketStages, investibles } = fetchSignatures;
   let chain = null;
   if (!_.isEmpty(markets)) {

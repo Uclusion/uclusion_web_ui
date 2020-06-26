@@ -1,6 +1,14 @@
 import _ from 'lodash'
 
 const EMPTY_VERSION = { object_versions: [] };
+export const EMPTY_FETCH_SIGNATURES = {
+  comments: [],
+  markets: [],
+  marketPresences: [],
+  investibles: [],
+  marketStages: [],
+};
+
 
 /**
  * Returns if the version is stale. I.E. we have some required signatures
@@ -115,9 +123,9 @@ export function signatureMatcher (fetched, signatures) {
   }
   const unmatchedSignatures = _.difference(signatures, matchedSignatures);
   const allMatched = _.isEmpty(unmatchedSignatures);
-  if (!allMatched) {
-    console.warn(`Unmatched signatures ${JSON.stringify(unmatchedSignatures)}`);
-  }
+  //if (!allMatched) {
+    //console.warn(`Unmatched signatures ${JSON.stringify(unmatchedSignatures)}`);
+ // }
   return { matched, unmatchedSignatures, allMatched };
 }
 

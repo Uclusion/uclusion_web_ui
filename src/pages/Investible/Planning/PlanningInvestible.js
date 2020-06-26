@@ -75,10 +75,10 @@ import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import SubSection from '../../../containers/SubSection/SubSection'
-import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../../constants/global';
+import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import CurrentVoting from '../../Dialog/Decision/CurrentVoting'
 import ProposedIdeas from '../../Dialog/Decision/ProposedIdeas'
-import { addInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { addInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -90,9 +90,9 @@ import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton'
 import { DaysEstimate } from '../../../components/AgilePlan'
 import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
-import AttachedFilesList from '../../../components/Files/AttachedFilesList';
-import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import AttachedFilesList from '../../../components/Files/AttachedFilesList'
+import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles'
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 
 const useStyles = makeStyles(
   theme => ({
@@ -495,6 +495,7 @@ function PlanningInvestible(props) {
   const inlineInvestibleComments = getMarketComments(commentsState, inlineMarketId);
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
+  const todoWarning = isInVoting ? null : fullStage.allows_todos ? 'todoWarningPlanning' : 'todoWarningDone'
   function toggleAssign() {
     navigate(history, `${formInvestibleEditLink(marketId, investibleId)}#assign=true`);
   }
@@ -661,7 +662,7 @@ function PlanningInvestible(props) {
               investible={investible}
               marketId={marketId}
               issueWarningId="issueWarningPlanning"
-              todoWarningId={fullStage.allows_todos ? 'todoWarningPlanning' : 'todoWarningDone'}
+              todoWarningId={todoWarning}
             />
           )}
           <CommentBox

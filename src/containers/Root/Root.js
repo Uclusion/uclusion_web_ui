@@ -150,12 +150,13 @@ function Root() {
 
     let reloaded = false;
     for (let i = 0; i < perfEntries.length; i++) {
-      reloaded = perfEntries[i].type === 1;
+      reloaded = perfEntries[i].type === 'reload';
       if (reloaded) {
         break;
       }
     }
     if (reloaded) {
+      console.info('Reloading from versions API');
       // A push could have been missed and then have to rely on the user to refresh
       refreshVersions(reloaded);
       refreshNotifications();

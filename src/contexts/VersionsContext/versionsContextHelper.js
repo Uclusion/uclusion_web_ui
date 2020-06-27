@@ -25,8 +25,8 @@ export function getExistingMarkets (state) {
   return state.existingMarkets || [];
 }
 
-export function refreshVersions () {
-  return refreshGlobalVersion();
+export function refreshVersions (refreshCalled) {
+  return refreshGlobalVersion(refreshCalled);
 }
 
 export function refreshNotifications () {

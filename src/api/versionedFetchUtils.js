@@ -55,7 +55,7 @@ let globalFetchPromiseChain = Promise.resolve(true);
  * Starts off a global refresh timer.
  * @returns {Promise<unknown>}
  */
-function startGlobalRefreshTimerChain() {
+function startGlobalRefreshTimerChain(refreshAll) {
   return new Promise((resolve, reject) => {
     const execFunction = () => {
       const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
@@ -67,7 +67,8 @@ function startGlobalRefreshTimerChain() {
             globalVersion,
             requiredSignatures,
           } = state || {};
-          currentHeldVersion = globalVersion;
+          // if we're refreshing all we're going back to initialization state
+          currentHeldVersion = refreshAll? 'INITIALIZATION' : globalVersion;
           return doVersionRefresh(currentHeldVersion, existingMarkets, requiredSignatures);
         }).then((globalVersion) => {
           if (globalVersion !== currentHeldVersion) {
@@ -95,25 +96,25 @@ function startGlobalRefreshTimerChain() {
  * need to consider the fetch complete.
  * @returns {Promise<*>}
  */
-export function refreshGlobalVersion () {
+export function refreshGlobalVersion (refreshCalled) {
   // WAIT UNTIL VERSIONS CONTEXT LOAD COMPLETES BEFORE DOING ANY API CALL
   const disk = new LocalForageHelper(VERSIONS_CONTEXT_NAMESPACE);
   return disk.getState()
     .then((state) => {
       const { globalVersion } = state || {};
-      // if the global version is the empty global version or just empty
-      // then we're an initial login
+      // if the global version is the empty global version or just empty,
+      // or we're a refresh then we're requivalent to an initial login
       // and we can't let that happen in parallel as it's too costly
       // otherwise we can let things happen in parallel
-      if (globalVersion === EMPTY_GLOBAL_VERSION || _.isEmpty(globalVersion) ) {
+      if (refreshCalled || globalVersion === EMPTY_GLOBAL_VERSION || _.isEmpty(globalVersion) ) {
         globalFetchPromiseChain = globalFetchPromiseChain
           .then(() => {
-            return startGlobalRefreshTimerChain();
+            return startGlobalRefreshTimerChain(refreshCalled);
           });
         return globalFetchPromiseChain;
       }
       // we're already initialized, so go ahead and let them happen in parallel
-      return startGlobalRefreshTimerChain();
+      return startGlobalRefreshTimerChain(refreshCalled);
     });
 }
 
@@ -237,6 +238,7 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets, requiredS
     pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
   }
   const callWithVersion = currentHeldVersion === 'INITIALIZATION' ? null : currentHeldVersion;
+
   // if we have required signatures, check storage for them first
   const chain = _.isEmpty(requiredSignatures)? Promise.resolve([]) : checkInStorage(EMPTY_FETCH_SIGNATURES, requiredSignatures);
   return chain

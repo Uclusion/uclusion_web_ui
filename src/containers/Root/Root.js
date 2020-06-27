@@ -157,7 +157,7 @@ function Root() {
     }
     if (reloaded) {
       // A push could have been missed and then have to rely on the user to refresh
-      refreshVersions();
+      refreshVersions(reloaded);
       refreshNotifications();
     }
 

@@ -20,8 +20,6 @@ import { Dialog } from '../../components/Dialogs'
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
-import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper';
 
 
 export const useLockedDialogStyles = makeStyles(
@@ -96,7 +94,6 @@ function DialogEdit(props) {
   const { marketId } = decomposeMarketPath(pathname);
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [, versionsDispatch] = useContext(VersionsContext);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_type: marketType, locked_by: lockedBy } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
@@ -160,7 +157,6 @@ function DialogEdit(props) {
   }
 
   function onSave(market) {
-    addMinimumVersionRequirement(versionsDispatch, {id: market.id, version: market.version});
     updateMarketInStorage(market);
     return localforage.removeItem(marketId)
       .finally(() => {

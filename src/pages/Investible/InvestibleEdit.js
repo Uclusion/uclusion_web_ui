@@ -29,8 +29,6 @@ import clsx from 'clsx'
 import { LockedDialog, useLockedDialogStyles } from '../Dialog/DialogEdit'
 import queryString from 'query-string'
 import { EMPTY_SPIN_RESULT } from '../../constants/global'
-import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper'
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext'
 
 function InvestibleEdit (props) {
   const { hidden } = props;
@@ -43,7 +41,6 @@ function InvestibleEdit (props) {
   const isAssign = assign === 'true';
   const { marketId, investibleId } = decomposeMarketPath(pathname);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, versionsDispatch] = useContext(VersionsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const inv = getInvestible(investiblesState, investibleId);
   const fullInvestible = inv || { investible: { name: '' } };
@@ -142,18 +139,9 @@ function InvestibleEdit (props) {
   function onSave (result, stillEditing) {
     // the edit ony contains the investible data and assignments, not the full market infos
     if (result) {
-      const { fullInvestible, assignmentChanged } = result;
-      const { investible, market_infos: marketInfos } = fullInvestible;
+      const { fullInvestible} = result;
       localforage.removeItem(lockedInvestibleId)
         .then(() => {
-          if (assignmentChanged) {
-            const marketInfo = marketInfos.find((info) => info.market_id === marketId);
-            const { id, version } = marketInfo;
-            addMinimumVersionRequirement(versionsDispatch, { id, version });
-          } else {
-            const { id, version } = investible;
-            addMinimumVersionRequirement(versionsDispatch, { id, version });
-          }
           refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
         });
     }

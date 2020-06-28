@@ -19,8 +19,6 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { canCreate, getAccount } from '../../contexts/AccountContext/accountContextHelper'
 import config from '../../config'
 import { SUBSCRIPTION_STATUS_CANCELED } from '../../constants/billing'
-import { addMinimumVersionRequirement } from '../../contexts/VersionsContext/versionsContextHelper';
-import { VersionsContext } from '../../contexts/VersionsContext/VersionsContext';
 
 function DialogAdd(props) {
   const { hidden } = props;
@@ -32,7 +30,6 @@ function DialogAdd(props) {
   const intl = useIntl();
 
   const [, diffDispatch] = useContext(DiffContext);
-  const [, versionsDispatch] = useContext(VersionsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [, marketDispatch] = useContext(MarketsContext);
   const addTitleName = type === DECISION_TYPE ? 'addDecision' : type === PLANNING_TYPE ? 'addPlanning' : 'addInitiative';
@@ -61,8 +58,7 @@ function DialogAdd(props) {
       market,
       presence,
     } = result;
-    const { id: marketId, version } = market;
-    addMinimumVersionRequirement(versionsDispatch, {id: marketId, version});
+    const { id: marketId } = market;
     addMarketToStorage(marketDispatch, diffDispatch, market);
     addPresenceToMarket(presenceDispatch, marketId, presence);
   }

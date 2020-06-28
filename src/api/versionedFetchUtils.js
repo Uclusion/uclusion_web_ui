@@ -6,10 +6,8 @@ import {
   getFetchSignaturesForAccount,
   getFetchSignaturesForMarket,
   signatureMatcher,
-  versionIsStale
 } from './versionSignatureUtils'
 import {
-  addMinimumVersionRequirement,
   BANNED_LIST,
   PUSH_COMMENTS_CHANNEL,
   PUSH_HOME_USER_CHANNEL,
@@ -64,11 +62,10 @@ function startGlobalRefreshTimerChain(refreshAll) {
           const {
             existingMarkets,
             globalVersion,
-            requiredSignatures,
           } = state || {};
           // if we're refreshing all we're going back to initialization state
           currentHeldVersion = refreshAll? 'INITIALIZATION' : globalVersion;
-          return doVersionRefresh(currentHeldVersion, existingMarkets, requiredSignatures);
+          return doVersionRefresh(currentHeldVersion, existingMarkets);
         }).then((globalVersion) => {
           if (globalVersion !== currentHeldVersion) {
             // console.log('Got new version');
@@ -126,7 +123,6 @@ export function refreshGlobalVersion (refreshCalled) {
  * @returns {Promise<*>}
  */
 export function pollForMarketLoad(id, version, versionsDispatch, history) {
-  addMinimumVersionRequirement(versionsDispatch, { id, version });
   function redirectToMarket() {
     console.log(`Redirecting us to market ${id}`);
     navigate(history, formMarketLink(id));
@@ -225,11 +221,9 @@ function updateMarketsFromSignatures (marketSignatures, existingMarkets, maxConc
  * USed if you have some other control and want access to the promise chain
  * @param currentHeldVersion
  * @param existingMarkets
- * @oaram requiredSignatures we will ignore any global version fetched from the server,
- * that doesn't have signatures that match what we want
  * @returns {Promise<*>}
  */
-export function doVersionRefresh (currentHeldVersion, existingMarkets, requiredSignatures) {
+export function doVersionRefresh (currentHeldVersion, existingMarkets) {
   let newGlobalVersion = currentHeldVersion;
   const globalLockEnabled = config.globalLockEnabled === 'true' || !currentHeldVersion
     || currentHeldVersion === 'INITIALIZATION';
@@ -246,10 +240,6 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets, requiredS
       const marketSignatures = newSignatures.filter((signature) => signature.market_id);
       const accountSignatures = newSignatures.filter((signature) => signature.account_id);
       // if the market signatures don't have the required signatures, just abort, this version has stale data
-      if (versionIsStale(marketSignatures, requiredSignatures)) {
-        console.log('Skipping stale version');
-        return currentHeldVersion;
-      }
       if ((_.isEmpty(marketSignatures) && _.isEmpty(accountSignatures)) || _.isEmpty(global_version)) {
         pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
         return currentHeldVersion;
@@ -310,10 +300,9 @@ function doRefreshAccount (componentSignatures) {
  */
 async function doRefreshMarket (marketId, componentSignatures) {
   const serverFetchSignatures = getFetchSignaturesForMarket(componentSignatures);
-  const notInStorageSignatures = await checkInStorage(serverFetchSignatures, []);
-  const { fetchSignatures } = notInStorageSignatures;
+  const notInStorageSignatures = await checkInStorage(serverFetchSignatures);
   //console.error(fetchSignatures);
-  const { markets, comments, marketPresences, marketStages, investibles } = fetchSignatures;
+  const { markets, comments, marketPresences, marketStages, investibles } = notInStorageSignatures;
   let chain = null;
   if (!_.isEmpty(markets)) {
     chain = fetchMarketVersion(marketId, markets[0]); // can only be one market object per market:)

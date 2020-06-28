@@ -33,8 +33,6 @@ import { Dialog } from '../../../components/Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
 import { useLockedDialogStyles } from '../../Dialog/DialogEdit'
 import InfoText from '../../../components/Descriptions/InfoText'
-import { VersionsContext } from '../../../contexts/VersionsContext/VersionsContext'
-import { addMinimumVersionRequirement } from '../../../contexts/VersionsContext/versionsContextHelper'
 import { urlHelperGetName } from '../../../utils/marketIdPathFunctions'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
@@ -127,7 +125,6 @@ function AddEditVote(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const [, versionsDispatch] = useContext(VersionsContext);
   const [open, setOpen] = useState(false);
   const warnClearVotes = !allowMultiVote && hasVoted && addMode;
   const defaultDefaultFunc = (newDefault) => {};
@@ -210,7 +207,6 @@ function AddEditVote(props) {
       removeComments(commentsDispatch, marketId, [commentId]);
     } else if (commentAction !== "NOOP") {
       const comments = getMarketComments(commentsState, marketId);
-      addMinimumVersionRequirement(versionsDispatch, { id: comment.id, version: comment.version});
       refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
     }
     partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);

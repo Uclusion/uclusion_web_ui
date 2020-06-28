@@ -12,7 +12,6 @@ export const EMPTY_STATE = {
 export const MY_STORED_EMPTY_STATE = {
   globalVersion: 'INITIALIZATION',
   existingMarkets: '',
-  requiredSignatures: [],
   notificationVersion: {version: -1 },
 };
 
@@ -24,15 +23,7 @@ const INITIALIZE_LOADING = 'INITIALIZE_LOADING';
 const REMOVE_MARKET = 'REMOVE_MARKET';
 const REFRESH_NOTIFICATION = 'REFRESH_NOTIFICATION';
 const INITIALIZE_STATE_VERSIONS = 'INITIALIZE_STATE_VERSIONS';
-const ADD_VERSION_REQUIREMENT = 'ADD_VERSION_REQUIREMENT';
 const UPDATE_NOTIFICATION = 'UPDATE_NOTIFICATION';
-
-export function addVersionRequirement(requirement) {
-  return {
-    type: ADD_VERSION_REQUIREMENT,
-    requirement,
-  };
-}
 
 export function addNewMarket(marketId) {
   return {
@@ -83,15 +74,6 @@ export function updateNotificationVersion(notificationVersion) {
 
 /* Functions that mutate the state */
 
-function doAddVersionRequirement(state, action) {
-  const { requirement } = action;
-  const requiredSignatures = state.requiredSignatures || [];
-  const newRequiredSignatures = [...requiredSignatures, requirement];
-  return {
-    ...state,
-    requiredSignatures: newRequiredSignatures,
-  };
-}
 
 function doAddNewMarket(state, action) {
   const { marketId } = action;
@@ -162,9 +144,6 @@ function reducer(state, action) {
       break;
     case INITIALIZE_STATE:
       newState = EMPTY_STATE;
-      break;
-    case ADD_VERSION_REQUIREMENT:
-      newState = doAddVersionRequirement(state, action);
       break;
     default:
       newState = state;

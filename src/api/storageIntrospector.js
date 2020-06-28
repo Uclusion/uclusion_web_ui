@@ -12,12 +12,12 @@ import { MARKET_STAGES_CONTEXT_NAMESPACE } from '../contexts/MarketStagesContext
  **/
 
 /**
- * CHecks local storage for things that can satisfy the fetch, or version
- * signatures. Returns the set of market and version signatures that _can't_ be satisfied from local storage
+ * CHecks local storage for things that can satisfy the fetch signatures.
+ * Returns the set of signatures that _can't_ be satisfied from local storage
  * @param versionSignatures
  * @param fetchSignatures
  */
-export async function checkInStorage (fetchSignatures, versionSignatures) {
+export async function checkInStorage (fetchSignatures) {
   const {
     comments,
     markets,
@@ -25,83 +25,25 @@ export async function checkInStorage (fetchSignatures, versionSignatures) {
     investibles,
     marketStages,
   } = fetchSignatures;
-  // Convert to map form for speed of lookup
-  let requiredVersions = versionSignatures.reduce((acc, sig) => {
-    acc[sig.id] = sig.version;
-    return acc;
-  }, {});
-  const commentsMatches = await satisfyComments(comments, requiredVersions);
+  // using await here since it's less tedious and logically
+  // equivalent to doing chained thens
+  const commentsMatches = await satisfyComments(comments);
   // keep updating the required versions so it's an ever shrinking map
-  requiredVersions = commentsMatches.requiredVersions;
-  const investibleMatches = await satisfyInvestibles(investibles, requiredVersions);
-  requiredVersions = investibleMatches.requiredVersions;
-  const marketMatches = await satisfyMarkets(markets, requiredVersions);
-  requiredVersions = marketMatches.requiredVersions;
-  const presenceMatches = await satisfyMarketPresences(marketPresences, requiredVersions);
-  requiredVersions = presenceMatches.requiredVersions;
-  const stageMatches = await satisfyMarketStages(marketStages, requiredVersions);
-  requiredVersions = stageMatches.requiredVersions;
+  const investibleMatches = await satisfyInvestibles(investibles);
+  const marketMatches = await satisfyMarkets(markets);
+  const presenceMatches = await satisfyMarketPresences(marketPresences);
+  const stageMatches = await satisfyMarketStages(marketStages);
   const signaturesObject = {
-    comments: commentsMatches.unmatched,
-    investibles: investibleMatches.unmatched,
-    markets: marketMatches.unmatched,
-    marketPresences: presenceMatches.unmatched,
-    marketStages: stageMatches.unmatched,
+    comments: commentsMatches,
+    investibles: investibleMatches,
+    markets: marketMatches,
+    marketPresences: presenceMatches,
+    marketStages: stageMatches,
   };
-  const remainingVersionSignatures = Object.keys(requiredVersions).map((acc, key) => {
-    return [...acc, { id: key, version: versionSignatures[key] }];
-  }, []);
-  return {
-    fetchSignatures: signaturesObject,
-    versionSignatures: remainingVersionSignatures,
-  };
+  return signaturesObject;
 }
 
-/**
- * Takes a list of objects, a function to call on each object to extract something that
- * can be matched against a version signature, and a version signature map and returns
- * a version signature map that contains those objects NOT matched by the objects
- * @param objects the list of objects
- * @param matchableExtractor a function that converts an object to something that can be matched against
- * a version
- * @param versionsSignatureMap a mapping from object id to version number
- * @returns a version sisgnature map that contains entries corresponding to those versions that are NOT
- * matched by the objects
- */
-function matchVersionSignatures (objects, matchableExtractor, versionsSignatureMap) {
-  if (_.isEmpty(versionsSignatureMap)) {
-    return versionsSignatureMap; // no need to do anything
-  }
-  const newMap = { ...versionsSignatureMap };
-  objects.forEach((object) => {
-    const converted = matchableExtractor(object);
-    const { id, version } = converted;
-    const versionEntry = versionsSignatureMap[id];
-    if (versionEntry && (versionEntry === version)) {
-      delete newMap[id];
-    }
-  });
-  return newMap;
-}
-
-/**
- * Helper function to run the matches against the versions and the passed in fetch signatures
- * @param objects
- * @param fetchSignatures
- * @param matchableExtractor
- * @param versionsSignatureMap
- * @returns {{requiredVersions: *, unmatched: *}}
- */
-function matchSignatures (objects, fetchSignatures, matchableExtractor, versionsSignatureMap) {
-  const matchResult = signatureMatcher(objects, fetchSignatures);
-  const newVersionsSignatures = matchVersionSignatures(objects, matchableExtractor, versionsSignatureMap);
-  return {
-    unmatched: matchResult.unmatchedSignatures,
-    requiredVersions: newVersionsSignatures,
-  };
-}
-
-function satisfyComments (commentSignatures, versionsSignatureMap) {
+function satisfyComments (commentSignatures) {
   const helper = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
   return helper.getState()
     .then((commentsState) => {
@@ -114,46 +56,51 @@ function satisfyComments (commentSignatures, versionsSignatureMap) {
         }
         return list;
       }, []);
-      return matchSignatures(allComments, commentSignatures, (obj) => obj, versionsSignatureMap);
+      const matchResult = signatureMatcher(allComments, commentSignatures);
+      return matchResult.unmatchedSignatures;
     });
 }
 
-function satisfyInvestibles (investibleSignatures, versionsSignatureMap) {
+function satisfyInvestibles (investibleSignatures) {
   const helper = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
   return helper.getState()
     .then((investibleState) => {
       const usedState = investibleState || {};
       const allInvestibles = _.values(usedState);
-      return matchSignatures(allInvestibles, investibleSignatures, (obj) => obj.investible, versionsSignatureMap);
+      const matchResult = signatureMatcher(allInvestibles, investibleSignatures);
+      return matchResult.unmatchedSignatures;
     });
 }
 
-function satisfyMarkets (marketsSignatures, versionsSignatureMap) {
+function satisfyMarkets (marketsSignatures) {
   const helper = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
   return helper.getState()
     .then((marketsState) => {
       const usedState = marketsState || {};
       const allMarkets = usedState.marketDetails || [];
-      return matchSignatures(allMarkets, marketsSignatures, (obj) => obj, versionsSignatureMap);
+      const matchResult = signatureMatcher(allMarkets, marketsSignatures);
+      return matchResult.unmatchedSignatures;
     });
 }
 
-function satisfyMarketPresences (presenceSignatures, versionsSignatureMap) {
+function satisfyMarketPresences (presenceSignatures) {
   const helper = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
   return helper.getState()
     .then((mpState) => {
       const usedState = mpState || {};
-      const allPresences = _.values(usedState);
-      return matchSignatures(allPresences, presenceSignatures, (obj) => obj, versionsSignatureMap);
+      const allPresences = _.flatten(_.values(usedState));
+      const matchResult = signatureMatcher(allPresences, presenceSignatures);
+      return matchResult.unmatchedSignatures;
     });
 }
 
-function satisfyMarketStages (stageSignatures, versionsSignatureMap) {
+function satisfyMarketStages (stageSignatures) {
   const helper = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
   return helper.getState()
     .then((stagesState) => {
       const usedState = stagesState || {};
-      const allStages = _.values(usedState);
-      return matchSignatures(allStages, stageSignatures, (obj) => obj, versionsSignatureMap);
+      const allStages = _.flatten(_.values(usedState));
+      const matchResult = signatureMatcher(allStages, stageSignatures);
+      return matchResult.unmatchedSignatures;
     });
 }

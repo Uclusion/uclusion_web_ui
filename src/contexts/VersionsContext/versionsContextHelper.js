@@ -1,7 +1,6 @@
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { refreshGlobalVersion } from '../../api/versionedFetchUtils'
 import { NOTIFICATION_MESSAGE_EVENT, VERSIONS_HUB_CHANNEL } from '../WebSocketContext'
-import { addVersionRequirement } from './versionsContextReducer'
 import { getMessages } from '../../api/sso'
 import _ from 'lodash'
 import { NOTIFICATION_VERSION_UPDATE } from './versionsContextMessages'
@@ -60,11 +59,3 @@ function processNewNotification (newNotificationVersion, notificationVersion) {
   }
 }
 
-/**
- * Adds a versions requirment to the global fetch system. That is,
- * we'll ingore any global version that does not satisfy this requirement
- * @param requirement
- */
-export function addMinimumVersionRequirement (dispatch, requirement) {
-  dispatch(addVersionRequirement(requirement));
-}

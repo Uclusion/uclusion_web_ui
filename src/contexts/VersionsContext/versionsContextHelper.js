@@ -11,6 +11,7 @@ export const PUSH_MARKETS_CHANNEL = 'MarketsChannel';
 export const PUSH_COMMENTS_CHANNEL = 'CommentsChannel';
 export const PUSH_INVESTIBLES_CHANNEL = 'InvestiblesChannel';
 export const PUSH_PRESENCE_CHANNEL = 'PresenceChannel';
+// Channel used when you're banned. We purge your stuff from the local store if you are.
 export const REMOVED_MARKETS_CHANNEL = 'RemovedMarketsChannel';
 export const PUSH_STAGE_CHANNEL = 'MarketsStagesChannel';
 export const VERSIONS_EVENT = 'version_push';

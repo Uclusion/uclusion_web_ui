@@ -237,7 +237,11 @@ function DecisionDialog(props) {
   function getInvestiblesForStage(stage) {
     if (stage) {
       return investibles.reduce((acc, inv) => {
-        const { market_infos: marketInfos } = inv;
+        const { market_infos: marketInfos, investible } = inv;
+        // filter out "deleted" investibles
+        if (investible.deleted) {
+          return acc;
+        }
         for (let x = 0; x < marketInfos.length; x += 1) {
           if (marketInfos[x].stage === stage.id) {
             return [...acc, inv];

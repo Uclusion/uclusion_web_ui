@@ -27,7 +27,9 @@ export function getCommentRoot(state, marketId, commentId) {
 }
 
 export function getMarketComments(state, marketId) {
-  return state[marketId] || [];
+  const marketComments = state[marketId] || [];
+  const notDeleted = marketComments.filter((comment) => !comment.deleted);
+  return notDeleted;
 }
 
 /**

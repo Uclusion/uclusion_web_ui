@@ -68,7 +68,13 @@ function doOverwriteMarketComments(state, action) {
 function doRemoveCommentsFromMarket(state, action) {
   const { marketId, comments } = action;
   const oldMarketComments = state[marketId] || [];
-  const newMarketComments = oldMarketComments.filter((comment) => !comments.includes(comment.id));
+  const newMarketComments = oldMarketComments.map((comment) => {
+    const newComment = {...comment}
+    if (comments.includes(comment.id)) {
+      newComment.deleted = true;
+    }
+    return newComment;
+  });
   return {
     ...state,
     [marketId]: newMarketComments,

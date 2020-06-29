@@ -253,6 +253,7 @@ class QuillEditor extends React.PureComponent {
         <LoadingOverlay
           active={uploadInProgress}
           spinner
+          className="editor-wrapper"
           text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
         >
           <div ref={this.editorBox} id='editorbox' style={editorStyle} />

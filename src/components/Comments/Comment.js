@@ -123,10 +123,15 @@ const useCommentStyles = makeStyles(
       marginRight: "20px"
     },
     containerRed: {
-      boxShadow: "10px 5px 5px red"
+      boxShadow: "10px 5px 5px red",
+      overflow: "visible"
     },
     containerYellow: {
-      boxShadow: "10px 5px 5px yellow"
+      boxShadow: "10px 5px 5px yellow",
+      overflow: "visible"
+    },
+    container: {
+      overflow: "visible"
     },
     timeElapsed: {
       [theme.breakpoints.down('sm')]: {

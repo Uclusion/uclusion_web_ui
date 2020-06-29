@@ -42,6 +42,9 @@
 .ql-disabled .ql-editor {
     min-height: auto
 }
+.editor-wrapper {
+    z-index: 7;
+}
 #editorbox {
     border-top: 1px solid #ccc;
     border-bottom: 0;

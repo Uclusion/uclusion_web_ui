@@ -22,7 +22,7 @@ import CommentBox from '../../../containers/CommentBox/CommentBox'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import Screen from '../../../containers/Screen/Screen'
 import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments'
-import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../../constants/global';
+import { EMPTY_SPIN_RESULT, SECTION_TYPE_SECONDARY } from '../../../constants/global'
 import { ACTIVE_STAGE, DECISION_TYPE } from '../../../constants/markets'
 import UclusionTour from '../../../components/Tours/UclusionTour'
 import CardType from '../../../components/CardType'
@@ -50,7 +50,7 @@ import queryString from 'query-string'
 import { wizardStyles } from '../../Onboarding/OnboardingWizard'
 import Header from '../../../containers/Header'
 import { INVITE_DIALOG_FIRST_VIEW } from '../../../contexts/TourContext/tourContextHelper'
-import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets';
+import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
@@ -237,14 +237,13 @@ function DecisionDialog(props) {
   function getInvestiblesForStage(stage) {
     if (stage) {
       return investibles.reduce((acc, inv) => {
-        const { market_infos: marketInfos, investible } = inv;
-        // filter out "deleted" investibles
-        if (investible.deleted) {
-          return acc;
-        }
+        const { market_infos: marketInfos } = inv;
         for (let x = 0; x < marketInfos.length; x += 1) {
           if (marketInfos[x].stage === stage.id) {
-            return [...acc, inv];
+            // filter out "deleted" investibles
+            if (!marketInfos[x].deleted) {
+              return [...acc, inv];
+            }
           }
         }
         return acc;

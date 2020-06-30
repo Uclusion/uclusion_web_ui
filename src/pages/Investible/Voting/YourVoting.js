@@ -62,7 +62,7 @@ function YourVoting(props) {
               >
                 <FormControlLabel
                   key="for"
-                  className={`${classes.chipItem} ${classes.chipItemFor}`}
+                  className={`${type === FOR ? classes.selected : classes.unselected} ${classes.chipItem} ${classes.chipItemFor}`}
                   /* prevent clicking the label stealing focus */
                   onMouseDown={e => e.preventDefault()}
                   control={<Radio />}
@@ -72,7 +72,7 @@ function YourVoting(props) {
                 />
                 <FormControlLabel
                   key="against"
-                  className={`${classes.chipItem} ${classes.chipItemAgainst}`}
+                  className={`${type === AGAINST ? classes.selected : classes.unselected} ${classes.chipItem} ${classes.chipItemAgainst}`}
                   /* prevent clicking the label stealing focus */
                   onMouseDown={e => e.preventDefault()}
                   control={<Radio color="primary" />}

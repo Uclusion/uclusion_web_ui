@@ -2,11 +2,7 @@ import _ from 'lodash'
 import { pushMessage, registerListener, removeListener } from '../utils/MessageBusUtils'
 import { getVersions } from './summaries'
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
-import {
-  getFetchSignaturesForAccount,
-  getFetchSignaturesForMarket,
-  signatureMatcher,
-} from './versionSignatureUtils'
+import { getFetchSignaturesForAccount, getFetchSignaturesForMarket, signatureMatcher, } from './versionSignatureUtils'
 import {
   BANNED_LIST,
   PUSH_COMMENTS_CHANNEL,
@@ -307,19 +303,13 @@ async function doRefreshMarket (marketId, componentSignatures) {
   if (!_.isEmpty(markets)) {
     chain = fetchMarketVersion(marketId, markets[0]); // can only be one market object per market:)
   }
-  // When there is a deletion should receive an empty signature for that type
-  // TODO we don't handle rare case of admin deletes dialog investible and it was on two devices
   if (!_.isEmpty(comments)) {
     chain = chain ? chain.then(() => fetchMarketComments(marketId, comments)) : fetchMarketComments(marketId, comments);
-  } else if (componentSignatures.find((signature) => signature.type === 'comment')) {
-    // We are not keeping zero version around anymore so handle the rare case of last comment deleted
-    pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId, comments: [] });
   }
   if (!_.isEmpty(investibles)) {
     chain = chain ? chain.then(() => fetchMarketInvestibles(marketId, investibles)) : fetchMarketInvestibles(marketId, investibles);
   }
-  if (!_.isEmpty(marketPresences) || componentSignatures.find((signature) => signature.type === 'investment')) {
-    // Handle the case of the last investment being deleted by just refreshing users
+  if (!_.isEmpty(marketPresences)) {
     chain = chain ? chain.then(() => fetchMarketPresences(marketId, marketPresences || [])) : fetchMarketPresences(marketId, marketPresences || []);
   }
   if (!_.isEmpty(marketStages)) {

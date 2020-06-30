@@ -1,11 +1,11 @@
-import LocalForageHelper from '../utils/LocalForageHelper';
-import { COMMENTS_CONTEXT_NAMESPACE } from '../contexts/CommentsContext/CommentsContext';
-import { signatureMatcher } from './versionSignatureUtils';
-import _ from 'lodash';
-import { INVESTIBLES_CONTEXT_NAMESPACE } from '../contexts/InvestibesContext/InvestiblesContext';
-import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext';
-import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from '../contexts/MarketPresencesContext/MarketPresencesContext';
-import { MARKET_STAGES_CONTEXT_NAMESPACE } from '../contexts/MarketStagesContext/MarketStagesContext';
+import LocalForageHelper from '../utils/LocalForageHelper'
+import { COMMENTS_CONTEXT_NAMESPACE } from '../contexts/CommentsContext/CommentsContext'
+import { signatureMatcher } from './versionSignatureUtils'
+import _ from 'lodash'
+import { INVESTIBLES_CONTEXT_NAMESPACE } from '../contexts/InvestibesContext/InvestiblesContext'
+import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext'
+import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from '../contexts/MarketPresencesContext/MarketPresencesContext'
+import { MARKET_STAGES_CONTEXT_NAMESPACE } from '../contexts/MarketStagesContext/MarketStagesContext'
 
 /**
  Functions used during the fetch process to check what we have in local storage.
@@ -33,14 +33,13 @@ export async function checkInStorage (fetchSignatures) {
   const marketMatches = await satisfyMarkets(markets);
   const presenceMatches = await satisfyMarketPresences(marketPresences);
   const stageMatches = await satisfyMarketStages(marketStages);
-  const signaturesObject = {
+  return {
     comments: commentsMatches,
     investibles: investibleMatches,
     markets: marketMatches,
     marketPresences: presenceMatches,
     marketStages: stageMatches,
   };
-  return signaturesObject;
 }
 
 function satisfyComments (commentSignatures) {
@@ -56,8 +55,7 @@ function satisfyComments (commentSignatures) {
         }
         return list;
       }, []);
-      const matchResult = signatureMatcher(allComments, commentSignatures);
-      return matchResult.unmatchedSignatures;
+      return signatureMatcher(allComments, commentSignatures);
     });
 }
 
@@ -67,8 +65,7 @@ function satisfyInvestibles (investibleSignatures) {
     .then((investibleState) => {
       const usedState = investibleState || {};
       const allInvestibles = _.values(usedState);
-      const matchResult = signatureMatcher(allInvestibles, investibleSignatures);
-      return matchResult.unmatchedSignatures;
+      return signatureMatcher(allInvestibles, investibleSignatures);
     });
 }
 
@@ -78,8 +75,7 @@ function satisfyMarkets (marketsSignatures) {
     .then((marketsState) => {
       const usedState = marketsState || {};
       const allMarkets = usedState.marketDetails || [];
-      const matchResult = signatureMatcher(allMarkets, marketsSignatures);
-      return matchResult.unmatchedSignatures;
+      return signatureMatcher(allMarkets, marketsSignatures);
     });
 }
 
@@ -89,8 +85,7 @@ function satisfyMarketPresences (presenceSignatures) {
     .then((mpState) => {
       const usedState = mpState || {};
       const allPresences = _.flatten(_.values(usedState));
-      const matchResult = signatureMatcher(allPresences, presenceSignatures);
-      return matchResult.unmatchedSignatures;
+      return signatureMatcher(allPresences, presenceSignatures);
     });
 }
 
@@ -100,7 +95,6 @@ function satisfyMarketStages (stageSignatures) {
     .then((stagesState) => {
       const usedState = stagesState || {};
       const allStages = _.flatten(_.values(usedState));
-      const matchResult = signatureMatcher(allStages, stageSignatures);
-      return matchResult.unmatchedSignatures;
+      return signatureMatcher(allStages, stageSignatures);
     });
 }

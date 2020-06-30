@@ -2,11 +2,7 @@ import _ from 'lodash'
 import { pushMessage, registerListener, removeListener } from '../utils/MessageBusUtils'
 import { getVersions } from './summaries'
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
-import {
-  getFetchSignaturesForAccount,
-  getFetchSignaturesForMarket,
-  signatureMatcher,
-} from './versionSignatureUtils'
+import { getFetchSignaturesForAccount, getFetchSignaturesForMarket, signatureMatcher, } from './versionSignatureUtils'
 import {
   BANNED_LIST,
   PUSH_COMMENTS_CHANNEL,
@@ -300,29 +296,23 @@ function doRefreshAccount (componentSignatures) {
  */
 async function doRefreshMarket (marketId, componentSignatures) {
   const serverFetchSignatures = getFetchSignaturesForMarket(componentSignatures);
-  const notInStorageSignatures = await checkInStorage(serverFetchSignatures);
+  const fromStorage = await checkInStorage(serverFetchSignatures);
   //console.error(fetchSignatures);
-  const { markets, comments, marketPresences, marketStages, investibles } = notInStorageSignatures;
+  const { markets, comments, marketPresences, marketStages, investibles } = fromStorage;
   let chain = null;
-  if (!_.isEmpty(markets)) {
-    chain = fetchMarketVersion(marketId, markets[0]); // can only be one market object per market:)
+  if (!_.isEmpty(markets.unmatchedSignatures)) {
+    chain = fetchMarketVersion(marketId, markets.unmatchedSignatures[0]); // can only be one market object per market:)
   }
-  // When there is a deletion should receive an empty signature for that type
-  // TODO we don't handle rare case of admin deletes dialog investible and it was on two devices
-  if (!_.isEmpty(comments)) {
+  if (!_.isEmpty(comments.unmatchedSignatures)) {
     chain = chain ? chain.then(() => fetchMarketComments(marketId, comments)) : fetchMarketComments(marketId, comments);
-  } else if (componentSignatures.find((signature) => signature.type === 'comment')) {
-    // We are not keeping zero version around anymore so handle the rare case of last comment deleted
-    pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId, comments: [] });
   }
-  if (!_.isEmpty(investibles)) {
+  if (!_.isEmpty(investibles.unmatchedSignatures)) {
     chain = chain ? chain.then(() => fetchMarketInvestibles(marketId, investibles)) : fetchMarketInvestibles(marketId, investibles);
   }
-  if (!_.isEmpty(marketPresences) || componentSignatures.find((signature) => signature.type === 'investment')) {
-    // Handle the case of the last investment being deleted by just refreshing users
-    chain = chain ? chain.then(() => fetchMarketPresences(marketId, marketPresences || [])) : fetchMarketPresences(marketId, marketPresences || []);
+  if (!_.isEmpty(marketPresences.unmatchedSignatures)) {
+    chain = chain ? chain.then(() => fetchMarketPresences(marketId, marketPresences)) : fetchMarketPresences(marketId, marketPresences);
   }
-  if (!_.isEmpty(marketStages)) {
+  if (!_.isEmpty(marketStages.unmatchedSignatures)) {
     chain = chain ? chain.then(() => fetchMarketStages(marketId, marketStages)) : fetchMarketStages(marketId, marketStages);
   }
   return chain;
@@ -341,31 +331,36 @@ function fetchMarketVersion (marketId, marketSignature) {
     });
 }
 
-function fetchMarketComments (marketId, commentsSignatures) {
+function fetchMarketComments (marketId, allComments) {
+  const commentsSignatures = allComments.unmatchedSignatures;
   const commentIds = commentsSignatures.map((comment) => comment.id);
   return fetchComments(commentIds, marketId)
     .then((comments) => {
       const match = signatureMatcher(comments, commentsSignatures);
-      pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId, comments });
+      pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, marketId,
+        comments: allComments.matched.concat(comments)});
       if (!match.allMatched) {
         throw new MatchError('Comments didn\'t match');
       }
     });
 }
 
-function fetchMarketInvestibles (marketId, investiblesSignatures) {
+function fetchMarketInvestibles (marketId, allInvestibles) {
+  const investiblesSignatures = allInvestibles.unmatchedSignatures;
   const investibleIds = investiblesSignatures.map((inv) => inv.investible.id);
   return fetchInvestibles(investibleIds, marketId)
     .then((investibles) => {
       const match = signatureMatcher(investibles, investiblesSignatures);
-      pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId, investibles });
+      pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, marketId,
+        investibles: allInvestibles.matched.concat(investibles) });
       if (!match.allMatched) {
         throw new MatchError('Investibles didn\'t match');
       }
     });
 }
 
-function fetchMarketPresences (marketId, mpSignatures) {
+function fetchMarketPresences (marketId, allMp) {
+  const mpSignatures = allMp.unmatchedSignatures;
   return getMarketUsers(marketId)
     .then((users) => {
       const match = signatureMatcher(users, mpSignatures);
@@ -376,7 +371,8 @@ function fetchMarketPresences (marketId, mpSignatures) {
     });
 }
 
-function fetchMarketStages (marketId, msSignatures) {
+function fetchMarketStages (marketId, allMs) {
+  const msSignatures = allMs.unmatchedSignatures;
   return getMarketStages(marketId)
     .then((stages) => {
       const match = signatureMatcher(stages, msSignatures);

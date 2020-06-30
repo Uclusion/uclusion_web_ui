@@ -257,7 +257,7 @@ function Comment(props) {
   const showActions = !replyOpen || replies.length > 0;
   function getCommentHighlightStyle() {
     if (myHighlightedLevel) {
-      if (myHighlightedLevel === "YELLOW") {
+      if (myHighlightedLevel === "YELLOW" || myHighlightedLevel === "BLUE") {
         return classes.containerYellow;
       }
       return classes.containerRed;

@@ -5,7 +5,12 @@ export function addPresenceToMarket(dispatch, marketId, presence) {
 }
 
 export function getMarketPresences(state, marketId) {
-  return state[marketId];
+  const presences = state[marketId] || []
+  return presences.map((presence) => {
+    const { investments } = presence;
+    const filteredInvestments = (investments || []).filter((investment) => !investment.deleted);
+    return { ...presence, investments: filteredInvestments };
+  });
 }
 
 export function getMarketPresence(state, marketId, userId) {

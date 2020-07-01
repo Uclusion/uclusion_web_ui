@@ -16,6 +16,8 @@ import { MarketPresencesContext } from '../../../../contexts/MarketPresencesCont
 import { Button, CircularProgress, Typography } from '@material-ui/core'
 import InviteLinker from '../../../Dialog/InviteLinker'
 import { INITIATIVE_TYPE } from '../../../../constants/markets'
+import { pushMessage } from '../../../../utils/MessageBusUtils'
+import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper'
 
 function CreatingInitiativeStep (props) {
   const { formData, active, classes, operationStatus, setOperationStatus, onFinish, isHome } = props;
@@ -58,6 +60,7 @@ function CreatingInitiativeStep (props) {
           const {
             market,
             presence,
+            stages
           } = result;
           createdMarketId = market.id;
           createdMarketToken = market.invite_capability;
@@ -68,6 +71,7 @@ function CreatingInitiativeStep (props) {
             name: initiativeName,
           };
           addMarketToStorage(marketsDispatch, diffDispatch, market);
+          pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
           addPresenceToMarket(presenceDispatch, marketId, presence);
           return addDecisionInvestible(investibleInfo)
             .then((investible) => {

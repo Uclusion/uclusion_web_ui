@@ -19,6 +19,8 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { canCreate, getAccount } from '../../contexts/AccountContext/accountContextHelper'
 import config from '../../config'
 import { SUBSCRIPTION_STATUS_CANCELED } from '../../constants/billing'
+import { pushMessage } from '../../utils/MessageBusUtils'
+import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../contexts/VersionsContext/versionsContextHelper'
 
 function DialogAdd(props) {
   const { hidden } = props;
@@ -57,9 +59,11 @@ function DialogAdd(props) {
     const {
       market,
       presence,
+      stages
     } = result;
     const { id: marketId } = market;
     addMarketToStorage(marketDispatch, diffDispatch, market);
+    pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
     addPresenceToMarket(presenceDispatch, marketId, presence);
   }
 

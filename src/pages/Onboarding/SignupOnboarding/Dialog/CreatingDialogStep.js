@@ -14,6 +14,8 @@ import { addPresenceToMarket } from '../../../../contexts/MarketPresencesContext
 import { MarketPresencesContext } from '../../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { Button, CircularProgress, Typography } from '@material-ui/core'
 import { AllSequentialMap } from '../../../../utils/PromiseUtils'
+import { pushMessage } from '../../../../utils/MessageBusUtils'
+import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../contexts/VersionsContext/versionsContextHelper'
 
 function CreatingDialogStep(props) {
   const { formData, active, classes, operationStatus, setOperationStatus, isHome, onFinish } = props;
@@ -61,6 +63,7 @@ function CreatingDialogStep(props) {
           createdMarketToken = market.invite_capability;
           setOperationStatus({ dialogCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
           addMarketToStorage(marketsDispatch, diffDispatch, market);
+          pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId, stages });
           addPresenceToMarket(presenceDispatch, marketId, presence);
           createdStage = stages.find((stage) => !stage.allows_investment);
           inVotingStage = stages.find((stage) => stage.allows_investment);

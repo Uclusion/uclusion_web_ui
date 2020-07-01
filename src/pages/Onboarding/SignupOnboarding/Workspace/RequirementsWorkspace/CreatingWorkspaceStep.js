@@ -16,9 +16,11 @@ import { TODO_TYPE } from '../../../../../constants/comments'
 import { addCommentToMarket } from '../../../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../../../contexts/CommentsContext/CommentsContext'
 import { VersionsContext } from '../../../../../contexts/VersionsContext/VersionsContext'
-import { Button, CircularProgress, Typography } from '@material-ui/core';
+import { Button, CircularProgress, Typography } from '@material-ui/core'
 import InviteLinker from '../../../../Dialog/InviteLinker'
 import { PLANNING_TYPE, REQUIREMENTS_SUB_TYPE } from '../../../../../constants/markets'
+import { pushMessage } from '../../../../../utils/MessageBusUtils'
+import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../../../contexts/VersionsContext/versionsContextHelper'
 
 function CreatingWorkspaceStep (props) {
 //  const intl = useIntl();
@@ -57,11 +59,13 @@ function CreatingWorkspaceStep (props) {
           const {
             market,
             presence,
+            stages
           } = marketDetails;
           createdMarketId = market.id;
           createdMarketToken = market.invite_capability;
           setOperationStatus({ workspaceCreated: true, marketId: createdMarketId, marketToken: createdMarketToken });
           addMarketToStorage(marketsDispatch, diffDispatch, market);
+          pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, marketId: createdMarketId, stages });
           addPresenceToMarket(presenceDispatch, createdMarketId, presence);
           const { todo, todoSkipped, todoUploadedFiles } = formData;
           if (!_.isEmpty(todo) && !todoSkipped) {

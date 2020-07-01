@@ -244,7 +244,6 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
       if (!_.isEmpty(bannedList)) {
         pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
       }
-
       // split the market stuff into forground and background
       newGlobalVersion = global_version;
       const splitMS = splitIntoForegroundBackground(marketSignatures, foregroundList);
@@ -296,7 +295,7 @@ function doRefreshAccount (componentSignatures) {
  */
 async function doRefreshMarket (marketId, componentSignatures) {
   const serverFetchSignatures = getFetchSignaturesForMarket(componentSignatures);
-  const fromStorage = await checkInStorage(serverFetchSignatures);
+  const fromStorage = await checkInStorage(marketId, serverFetchSignatures);
   //console.error(fetchSignatures);
   const { markets, comments, marketPresences, marketStages, investibles } = fromStorage;
   let chain = null;

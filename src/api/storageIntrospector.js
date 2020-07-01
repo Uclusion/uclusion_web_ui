@@ -17,7 +17,7 @@ import { MARKET_STAGES_CONTEXT_NAMESPACE } from '../contexts/MarketStagesContext
  * @param versionSignatures
  * @param fetchSignatures
  */
-export async function checkInStorage (fetchSignatures) {
+export async function checkInStorage (marketId, fetchSignatures) {
   const {
     comments,
     markets,
@@ -25,14 +25,15 @@ export async function checkInStorage (fetchSignatures) {
     investibles,
     marketStages,
   } = fetchSignatures;
+  console.error(fetchSignatures);
   // using await here since it's less tedious and logically
   // equivalent to doing chained thens
-  const commentsMatches = await satisfyComments(comments);
+  const commentsMatches = await satisfyComments(marketId, comments);
   // keep updating the required versions so it's an ever shrinking map
   const investibleMatches = await satisfyInvestibles(investibles);
   const marketMatches = await satisfyMarkets(markets);
-  const presenceMatches = await satisfyMarketPresences(marketPresences);
-  const stageMatches = await satisfyMarketStages(marketStages);
+  const presenceMatches = await satisfyMarketPresences(marketId, marketPresences);
+  const stageMatches = await satisfyMarketStages(marketId, marketStages);
   return {
     comments: commentsMatches,
     investibles: investibleMatches,
@@ -42,20 +43,15 @@ export async function checkInStorage (fetchSignatures) {
   };
 }
 
-function satisfyComments (commentSignatures) {
+function satisfyComments (marketId, commentSignatures) {
   const helper = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
   return helper.getState()
     .then((commentsState) => {
       const usedState = commentsState || {};
       // Comments State is just a id, version pair, just like version signatures, so to check we just unpack every comment
-      const allComments = Object.keys(usedState).reduce((list, marketId) => {
-        const marketComments = commentsState[marketId];
-        if (_.isArray(marketComments)) {
-          return [...list, ...marketComments];
-        }
-        return list;
-      }, []);
-      return signatureMatcher(allComments, commentSignatures);
+      const marketComments = usedState[marketId];
+      const usedComments = _.isArray(marketComments)? marketComments : [];
+      return signatureMatcher(usedComments, commentSignatures);
     });
 }
 
@@ -79,22 +75,24 @@ function satisfyMarkets (marketsSignatures) {
     });
 }
 
-function satisfyMarketPresences (presenceSignatures) {
+function satisfyMarketPresences (marketId, presenceSignatures) {
   const helper = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
   return helper.getState()
     .then((mpState) => {
       const usedState = mpState || {};
-      const allPresences = _.flatten(_.values(usedState));
-      return signatureMatcher(allPresences, presenceSignatures);
+      const marketPresences = usedState[marketId];
+      const usedPresences = marketPresences || [];
+      console.error(presenceSignatures);
+      return signatureMatcher(usedPresences, presenceSignatures);
     });
 }
 
-function satisfyMarketStages (stageSignatures) {
+function satisfyMarketStages (marketId, stageSignatures) {
   const helper = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
   return helper.getState()
     .then((stagesState) => {
       const usedState = stagesState || {};
-      const allStages = _.flatten(_.values(usedState));
-      return signatureMatcher(allStages, stageSignatures);
+      const marketStages = usedState[marketId] || [];
+      return signatureMatcher(marketStages, stageSignatures);
     });
 }

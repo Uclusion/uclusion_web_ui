@@ -6,6 +6,7 @@ import { INVESTIBLES_CONTEXT_NAMESPACE } from '../contexts/InvestibesContext/Inv
 import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext'
 import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from '../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MARKET_STAGES_CONTEXT_NAMESPACE } from '../contexts/MarketStagesContext/MarketStagesContext'
+import { getMarketInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper'
 
 /**
  Functions used during the fetch process to check what we have in local storage.
@@ -14,7 +15,7 @@ import { MARKET_STAGES_CONTEXT_NAMESPACE } from '../contexts/MarketStagesContext
 /**
  * CHecks local storage for things that can satisfy the fetch signatures.
  * Returns the set of signatures that _can't_ be satisfied from local storage
- * @param versionSignatures
+ * @param marketId
  * @param fetchSignatures
  */
 export async function checkInStorage (marketId, fetchSignatures) {
@@ -29,7 +30,7 @@ export async function checkInStorage (marketId, fetchSignatures) {
   // equivalent to doing chained thens
   const commentsMatches = await satisfyComments(marketId, comments);
   // keep updating the required versions so it's an ever shrinking map
-  const investibleMatches = await satisfyInvestibles(investibles);
+  const investibleMatches = await satisfyInvestibles(marketId, investibles);
   const marketMatches = await satisfyMarkets(markets);
   const presenceMatches = await satisfyMarketPresences(marketId, marketPresences);
   const stageMatches = await satisfyMarketStages(marketId, marketStages);
@@ -54,13 +55,13 @@ function satisfyComments (marketId, commentSignatures) {
     });
 }
 
-function satisfyInvestibles (investibleSignatures) {
+function satisfyInvestibles (marketId, investibleSignatures) {
   const helper = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
   return helper.getState()
     .then((investibleState) => {
       const usedState = investibleState || {};
-      const allInvestibles = _.values(usedState);
-      return signatureMatcher(allInvestibles, investibleSignatures);
+      const marketInvestibles = getMarketInvestibles(usedState, marketId);
+      return signatureMatcher(marketInvestibles, investibleSignatures);
     });
 }
 

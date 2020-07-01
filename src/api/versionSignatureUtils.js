@@ -73,9 +73,10 @@ export function signatureMatcher (fetched, signatures) {
   for (let x = 0; x < fetched.length; x++) {
     const object = fetched[x];
     const matchingSignature = signatures.find((signature) => signatureMatches(signature, object));
-    // // console.log(matchingSignature);
+    // Since there is not hard delete all objects in the store are an automatic match
+    // otherwise quick added objects would be potentially removed
+    matched.push(object);
     if (matchingSignature) {
-      matched.push(object);
       matchedSignatures.push(matchingSignature);
     }
   }

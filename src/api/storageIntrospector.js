@@ -25,7 +25,6 @@ export async function checkInStorage (marketId, fetchSignatures) {
     investibles,
     marketStages,
   } = fetchSignatures;
-  console.error(fetchSignatures);
   // using await here since it's less tedious and logically
   // equivalent to doing chained thens
   const commentsMatches = await satisfyComments(marketId, comments);
@@ -82,7 +81,6 @@ function satisfyMarketPresences (marketId, presenceSignatures) {
       const usedState = mpState || {};
       const marketPresences = usedState[marketId];
       const usedPresences = marketPresences || [];
-      console.error(presenceSignatures);
       return signatureMatcher(usedPresences, presenceSignatures);
     });
 }

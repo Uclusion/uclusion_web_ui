@@ -12,6 +12,7 @@ export function inviteInitiativeSteps(variables) {
     {
       disableBeacon: true,
       target: '#initiativeMain',
+      placement: 'bottom',
       content: 'You can see what\'s proposed here in the description.',
     },
     {

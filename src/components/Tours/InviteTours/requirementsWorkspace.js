@@ -12,6 +12,7 @@ export function inviteRequirementsWorkspaceSteps(variables) {
     {
       disableBeacon: true,
       target: '#workspaceMain',
+      placement: 'bottom',
       content: 'The Workspace description will contain the requirements and can be edited by anyone.',
     },
     {

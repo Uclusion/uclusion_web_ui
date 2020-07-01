@@ -12,7 +12,7 @@ export function inviteDialogSteps(variables) {
     {
       disableBeacon: true,
       target: '#option0',
-      placement: 'top',
+      placement: 'right',
       content: 'Click on an option to see its details and vote for it.',
     },
     {

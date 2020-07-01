@@ -31,7 +31,7 @@ function YourVoting(props) {
   const { quantity } = yourVote || {};
   const myQuantity = quantity ? quantity : 0;
   const yourReason = comments.find((comment) => comment.created_by === userId);
-  const [type, setType] = useState(myQuantity < 0 ? AGAINST : FOR);
+  const [type, setType] = useState(myQuantity === 0 ? undefined : myQuantity < 0 ? AGAINST : FOR);
 
   function onTypeChange(event) {
     const { value } = event.target;
@@ -62,7 +62,7 @@ function YourVoting(props) {
               >
                 <FormControlLabel
                   key="for"
-                  className={`${type === FOR ? classes.selected : classes.unselected} ${classes.chipItem} ${classes.chipItemFor}`}
+                  className={`${type === FOR || type === undefined ? classes.selected : classes.unselected} ${classes.chipItem} ${classes.chipItemFor}`}
                   /* prevent clicking the label stealing focus */
                   onMouseDown={e => e.preventDefault()}
                   control={<Radio />}
@@ -72,7 +72,7 @@ function YourVoting(props) {
                 />
                 <FormControlLabel
                   key="against"
-                  className={`${type === AGAINST ? classes.selected : classes.unselected} ${classes.chipItem} ${classes.chipItemAgainst}`}
+                  className={`${type === AGAINST || type === undefined ? classes.selected : classes.unselected} ${classes.chipItem} ${classes.chipItemAgainst}`}
                   /* prevent clicking the label stealing focus */
                   onMouseDown={e => e.preventDefault()}
                   control={<Radio color="primary" />}

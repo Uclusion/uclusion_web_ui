@@ -132,6 +132,12 @@ const messages = defineMessages({
   done: 'Done',
   selectDate: 'Click to select a date',
   advanced: 'Advanced',
+  close: 'Close',
+
+  // Share story
+  shareButtonExplanation: 'Share a link to this story',
+  shareButtonTitle: 'Share',
+  inviteLinkerStory: 'This link grants read only access to this story and its workspace',
 
   // Support
   supportInfoText: 'Create bugs (but not feature requests) in <a>Uclusion issues</a> or send an email to <b>support</b> which includes the version and user ID above.',

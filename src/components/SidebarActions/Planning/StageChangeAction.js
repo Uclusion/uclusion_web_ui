@@ -150,7 +150,7 @@ function StageChangeAction(props) {
           /* slots */
           actions={
             <Button
-              className={clsx(classes.action, classes.actionCancel)}
+              className={clsx(lockedDialogClasses.action, lockedDialogClasses.actionCancel)}
               disableFocusRipple
               onClick={() => setOpen(false)}
               ref={autoFocusRef}

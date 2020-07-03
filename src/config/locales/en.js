@@ -302,7 +302,7 @@ const messages = defineMessages({
   maxBudgetHelp: 'Maximum estimate allowed for a story. Used to prevent stories from being too large.',
   voteExpirationHelp: 'How many days before approvals expire. Prevents very old approval from being used to move a story in progress.',
   reassignToMove: 'Re-assigning will move into voting.',
-  initiativePlanningParent: 'Create Child Workspace',
+  initiativePlanningParent: 'Create Workspace',
   marketLinksSection: 'links',
   attachedFilesSection: 'attached files',
   parentLinkSection: 'parent',

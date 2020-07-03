@@ -51,10 +51,10 @@ function InviteLinker(props) {
       case INITIATIVE_TYPE:
         return 'inviteLinkerDirectionsInitiative';
       default:
-        return 'inviteLinkerDirectionsDecision';
+        return 'inviteLinkerStory';
     }
   }
-  const link = formInviteLink(marketToken);
+  const link = marketType === 'story' ? marketToken : formInviteLink(marketToken);
   const icon = (
     <>
     <Divider className={classes.divider} orientation="vertical" />

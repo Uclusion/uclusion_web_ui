@@ -93,6 +93,7 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
 import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
+import ShareStoryButton from './ShareStoryButton'
 
 const useStyles = makeStyles(
   theme => ({
@@ -557,6 +558,7 @@ function PlanningInvestible(props) {
             <Grid className={classes.borderLeft} item xs={3}>
               <div className={classes.editRow}>
                 <dl className={classes.upperRightCard}>
+                  <ShareStoryButton />
                   {!inArchives && isAssigned && (
                     <MoveToNextVisibleStageActionButton
                       key="visible"

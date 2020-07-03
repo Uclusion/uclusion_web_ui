@@ -270,6 +270,9 @@ export const usePlanFormStyles = makeStyles(
       '& > div': {
         marginTop: 0,
         width: '100%'
+      },
+      '& .react-datepicker-popper': {
+        zIndex: 8
       }
     },
     optional: {

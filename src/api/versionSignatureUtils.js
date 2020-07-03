@@ -15,9 +15,10 @@ export const EMPTY_FETCH_SIGNATURES = {
  * checks for exact match for the objects value with that key
  * @param signature
  * @param object
+ * @param checkVersion Whether to include version in the calculation or not
  * @returns {boolean}
  */
-function signatureMatches (signature, object) {
+function signatureMatches (signature, object, checkVersion=true) {
   for (const key of Object.keys(signature)) {
     const signatureVersion = signature[key];
     //  // console.log(signatureVersion);
@@ -35,18 +36,22 @@ function signatureMatches (signature, object) {
       // we're not going to consider order, so we'll consider a match if
       // a least one of the objectVersion entries matches the signatureVersion
       keySatisfied = signatureVersion.reduce((acc, entry) => {
-        acc = acc && !!objectVersion.find((obj) => signatureMatches(entry, obj));
+        acc = acc && !!objectVersion.find((obj) => signatureMatches(entry, obj, checkVersion));
         return acc;
       }, true);
     } else if ('object' === typeof signatureVersion) {
       //    // console.log('Checking object signature');
-      keySatisfied = signatureMatches(signatureVersion, objectVersion);
+      keySatisfied = signatureMatches(signatureVersion, objectVersion, checkVersion);
     } else if (key.endsWith('id')) {
       //   // console.log('Checking exact id match');
       keySatisfied = objectVersion === signatureVersion;
     } else {
-      //    // console.log('Checking numeric version');
-      keySatisfied = objectVersion >= signatureVersion;
+      if (checkVersion) {
+        //    // console.log('Checking numeric version');
+        keySatisfied = objectVersion >= signatureVersion;
+      } else {
+        keySatisfied = true;
+      }
     }
     if (!keySatisfied) {
       //   // console.log('Key not satisifed');
@@ -73,11 +78,15 @@ export function signatureMatcher (fetched, signatures) {
   for (let x = 0; x < fetched.length; x++) {
     const object = fetched[x];
     const matchingSignature = signatures.find((signature) => signatureMatches(signature, object));
-    // Since there is not hard delete all objects in the store are an automatic match
-    // otherwise quick added objects would be potentially removed
-    matched.push(object);
+    const objectPresent = matchingSignature || signatures.find((signature) => signatureMatches(signature,
+      object, false));
     if (matchingSignature) {
+      matched.push(object);
       matchedSignatures.push(matchingSignature);
+    } else if (!objectPresent) {
+      // Since there is no hard delete all objects in the store and not in the signatures are an automatic match
+      // otherwise quick added objects would be potentially removed
+      matched.push(object);
     }
   }
   const unmatchedSignatures = _.difference(signatures, matchedSignatures);

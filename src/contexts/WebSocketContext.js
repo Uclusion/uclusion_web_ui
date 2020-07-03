@@ -11,8 +11,8 @@ import { VIEW_EVENT, VISIT_CHANNEL } from './NotificationsContext/NotificationsC
 import { registerListener, removeListener } from '../utils/MessageBusUtils'
 import { refreshNotifications, refreshVersions } from './VersionsContext/versionsContextHelper'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/utils'
-import { Auth } from 'aws-amplify'
 import { getNotifications } from '../api/summaries'
+import { onSignOut } from '../utils/userFunctions'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -39,7 +39,7 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
   if (cacheClearVersion && (!Number.isInteger(loginVersion) || loginVersion < cacheClearVersion)) {
     console.log(`Sign out with cache clear version ${cacheClearVersion} and login version ${loginVersion}`);
     const reloader = () => {
-      Auth.signOut().then(() => setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion))
+      onSignOut(false).then(() => setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion))
         .catch((error) => {
           console.error(error);
           toastError('errorSignOutFailed');
@@ -158,7 +158,7 @@ function WebSocketProvider(props) {
           switch (event) {
             case VIEW_EVENT: {
               const { isEntry } = message;
-              if (isEntry && (Date.now() - newSocket.getSocketLastSentTime()) > 5000) {
+              if (isEntry && (Date.now() - newSocket.getSocketLastSentTime()) > 30000) {
                 // console.debug('Pong and refresh');
                 // Otherwise if we miss a push out of luck until tab is closed
                 refreshVersions();

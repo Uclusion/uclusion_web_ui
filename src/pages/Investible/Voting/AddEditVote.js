@@ -304,7 +304,7 @@ function AddEditVote(props) {
           />
         </CardContent>
         <CardActions className={classes.actions}>
-          {!addMode && (
+          {multiplier && !addMode && (
             <SpinBlockingButton
               className={classes.secondaryAction}
               marketId={marketId}
@@ -314,7 +314,7 @@ function AddEditVote(props) {
               {intl.formatMessage({ id: removeVoteId })}
             </SpinBlockingButton>
           )}
-          {saveEnabled && !warnClearVotes && (
+          {multiplier && saveEnabled && !warnClearVotes && (
             <SpinBlockingButton
               className={classes.primaryAction}
               marketId={marketId}
@@ -328,7 +328,7 @@ function AddEditVote(props) {
                 : intl.formatMessage({ id: updateVoteId })}
             </SpinBlockingButton>
           )}
-          {saveEnabled && warnClearVotes && (
+          {multiplier && saveEnabled && warnClearVotes && (
             <Button onClick={toggleOpen} className={classes.primaryAction}>
               {intl.formatMessage({ id: voteId })}
             </Button>

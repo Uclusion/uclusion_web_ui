@@ -95,7 +95,7 @@ function YourVoting(props) {
         showBudget={showBudget}
         onSave={onVoteSave}
         storyMaxBudget={storyMaxBudget}
-        multiplier={type === FOR ? 1 : -1}
+        multiplier={ type === undefined ? undefined : type === FOR ? 1 : -1}
       />
     </div>
   );

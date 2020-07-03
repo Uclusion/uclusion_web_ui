@@ -206,7 +206,7 @@ const messages = defineMessages({
   certainty50: 'Somewhat Certain',
   certainty25: 'Somewhat Uncertain',
   certainty5: 'Uncertain',
-  maxBudgetValue: '{name}: {x} days',
+  maxBudgetValue: '{name}: {x}',
   certaintyQuestion: 'Rate Your Certainty',
   reasonQuestion: 'Why did you approve for this option?',
   saveVote: 'Approve',

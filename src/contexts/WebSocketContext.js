@@ -158,7 +158,7 @@ function WebSocketProvider(props) {
           switch (event) {
             case VIEW_EVENT: {
               const { isEntry } = message;
-              if (isEntry && (Date.now() - newSocket.getSocketLastSentTime()) > 5000) {
+              if (isEntry && (Date.now() - newSocket.getSocketLastSentTime()) > 30000) {
                 // console.debug('Pong and refresh');
                 // Otherwise if we miss a push out of luck until tab is closed
                 refreshVersions();

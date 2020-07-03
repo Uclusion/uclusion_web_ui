@@ -146,24 +146,12 @@ function Root() {
       broadcastView(marketId, investibleId, isEntry, action);
     }
 
-    const perfEntries = performance.getEntriesByType("navigation");
-
-    let reloaded = false;
-    for (let i = 0; i < perfEntries.length; i++) {
-      reloaded = perfEntries[i].type === 'reload';
-      if (reloaded) {
-        break;
-      }
-    }
-    if (reloaded) {
-      console.info('Reloading from versions API');
-      // A push could have been missed and then have to rely on the user to refresh
-      refreshVersions(reloaded);
-      refreshNotifications();
-    }
-
     if (!window.myListenerMarker) {
       window.myListenerMarker = true;
+      console.info('Reloading from versions API');
+      // A push could have been missed and then have to rely on the user to refresh
+      refreshVersions(true);
+      refreshNotifications();
       // console.debug('Adding listeners');
       window.addEventListener('load', () => {
         // console.debug('Load listener');

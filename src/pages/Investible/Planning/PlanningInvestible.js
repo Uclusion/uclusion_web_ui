@@ -599,7 +599,6 @@ function PlanningInvestible(props) {
                 marketPresences={marketPresences}
                 isAdmin={isAdmin}
                 toggleAssign={toggleAssign}
-                hidden={hidden}
                 children={children || []}
                 stageActions={getStageActions()}
                 expansionChanged={expansionChanged}
@@ -827,7 +826,6 @@ function MarketMetaData(props) {
     isAdmin,
     toggleAssign,
     children,
-    hidden,
     stageActions,
     expansionChanged,
     actions,
@@ -929,7 +927,7 @@ function MarketMetaData(props) {
           </div>
         </React.Fragment>
       )}
-      <MarketLinks links={children} hidden={hidden} actions={actions} />
+      <MarketLinks links={children} actions={actions} />
       <AttachedFilesList
         marketId={market.id}
         onUpload={onAttachFiles}
@@ -949,7 +947,6 @@ MarketMetaData.propTypes = {
   isAdmin: PropTypes.bool.isRequired,
   toggleAssign: PropTypes.func.isRequired,
   children: PropTypes.arrayOf(PropTypes.string).isRequired,
-  hidden: PropTypes.bool.isRequired,
   stageActions: PropTypes.array,
   expansionChanged: PropTypes.func.isRequired,
   actions: PropTypes.arrayOf(PropTypes.element).isRequired,

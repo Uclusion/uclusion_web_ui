@@ -24,11 +24,11 @@ import Collaborators from '../Collaborators'
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
-import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets';
+import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { EMPTY_SPIN_RESULT } from '../../../constants/global';
+import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 
 const useStyles = makeStyles(theme => ({
   section: {
@@ -286,7 +286,7 @@ function Summary(props) {
             </div>
           </div>
           <ParentSummary market={market} hidden={hidden}/>
-          <MarketLinks links={children || []} hidden={hidden} actions={inArchives ? [] : [<ExpandableAction
+          <MarketLinks links={children || []} actions={inArchives ? [] : [<ExpandableAction
             id="link"
             key="link"
             icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR} />}

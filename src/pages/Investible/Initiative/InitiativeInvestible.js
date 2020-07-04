@@ -37,11 +37,11 @@ import {
 } from '../../../contexts/TourContext/tourContextHelper'
 import { inviteInitiativeSteps } from '../../../components/Tours/InviteTours/initiative'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
-import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets';
+import { attachFilesToMarket, deleteAttachedFilesFromMarket } from '../../../api/markets'
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { EMPTY_SPIN_RESULT } from '../../../constants/global';
+import { EMPTY_SPIN_RESULT } from '../../../constants/global'
 
 const useStyles = makeStyles(
   theme => ({
@@ -337,7 +337,7 @@ function InitiativeInvestible(props) {
                   </div>
                 </>
               )}
-              <MarketLinks links={children || []} hidden={hidden} actions={activeMarket ? [<ExpandableAction
+              <MarketLinks links={children || []} actions={activeMarket ? [<ExpandableAction
                 id="link"
                 key="link"
                 icon={<InsertLinkIcon htmlColor={ACTION_BUTTON_COLOR} />}

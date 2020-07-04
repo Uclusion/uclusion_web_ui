@@ -209,7 +209,7 @@ function StageChangeAction(props) {
           title={
             <React.Fragment>
               <ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />
-              <FormattedMessage id="warningQuestion" />
+              <FormattedMessage id="warning" />
             </React.Fragment>
           }
         />

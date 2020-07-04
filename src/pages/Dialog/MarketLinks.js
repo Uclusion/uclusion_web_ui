@@ -49,32 +49,41 @@ const useStyles = makeStyles((theme) => ({
 
 function MarketLinks (props) {
   const {
-    links, hidden, actions
+    links, actions
   } = props
   const intl = useIntl();
   const history = useHistory();
   const classes = useStyles();
   const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [marketNameState, marketNamesDispatch] = useReducer((state, action) => {
-    const { marketId, marketToken, name, marketType, marketStage, isInline, createdAt } = action
-    return { ...state, [marketId]: { name, marketType, marketStage, isInline, createdAt, marketToken } }
+    const { marketId, marketToken, name, marketType, marketStage, isInline, createdAt } = action;
+    const newState= { ...state, [marketId]: { name, marketType, marketStage, isInline, createdAt, marketToken } };
+    if (Object.keys(newState).length === links.length) {
+      setLoading(false);
+    }
+    return newState;
   }, {})
+  let missingLinks = [];
+  if (Object.keys(marketNameState).length < links.length) {
+    missingLinks = links.filter((marketId) => {
+      const marketDetails = getMarket(marketState, marketId);
+      if (marketDetails) {
+        const {
+          name, market_type: marketType, market_stage: marketStage, is_inline: isInline,
+          created_at: createdAt
+        } = marketDetails;
+        marketNamesDispatch({ marketId, name, marketType, marketStage, isInline, createdAt });
+        return false;
+      }
+      return true;
+    })
+  }
 
   useEffect(() => {
-    if (!loaded && !hidden) {
-      setLoaded(true);
-      const missingLinks = links.filter((marketId) => {
-        const marketDetails = getMarket(marketState, marketId);
-        if (marketDetails) {
-          const { name, market_type: marketType, market_stage: marketStage, is_inline: isInline,
-          created_at: createdAt } = marketDetails;
-          marketNamesDispatch({ marketId, name, marketType, marketStage, isInline, createdAt });
-          return false;
-        }
-        return true;
-      })
+    if (!loading && missingLinks.length > 0) {
+      setLoading(true);
       AllSequentialMap(missingLinks, (marketId) => {
         return getMarketInfo(marketId).then((market) => {
           const { name, market_type: marketType, market_stage: marketStage, is_inline: isInline,
@@ -83,17 +92,15 @@ function MarketLinks (props) {
           return market;
         })
       })
-    } else if (hidden) {
-      setLoaded(false);
     }
-  }, [links, hidden, loaded, marketState])
+  }, [loading, missingLinks])
   const metaClasses = useMetaDataStyles();
   function displayLinksList (linksList) {
     const resolvedLinks = linksList.map((marketId) => {
       const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user);
       const baseLink = formMarketLink(marketId);
-      const marketInfo = [marketId] in marketNameState ? marketNameState[marketId] : undefined;
+      const marketInfo = marketNameState && [marketId] in marketNameState ? marketNameState[marketId] : undefined;
       const createdAt = marketInfo ? marketInfo.createdAt : undefined;
       const baseInviteLink = marketInfo ? `/invite/${marketInfo.marketToken}` : undefined;
       return {marketId, myPresence, baseLink, baseInviteLink, marketInfo, createdAt};
@@ -164,7 +171,6 @@ function MarketLinks (props) {
 
 MarketLinks.propTypes = {
   links: PropTypes.arrayOf(PropTypes.string).isRequired,
-  hidden: PropTypes.bool.isRequired,
   actions: PropTypes.arrayOf(PropTypes.element),
 }
 

@@ -258,6 +258,7 @@ function ChangeNotificationPreferences (props) {
               <SpinBlockingButton
                 variant="outlined"
                 fullWidth={true}
+                marketId=""
                 color="primary"
                 className={clsx(
                   classes.action,

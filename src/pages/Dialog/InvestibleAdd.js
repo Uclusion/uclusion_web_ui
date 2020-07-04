@@ -36,7 +36,9 @@ function InvestibleAdd(props) {
   const classes = usePlanFormStyles();
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_type: marketType, created_at: createdAt, parent_market_id: parentMarketId,
-    parent_investible_id: inlineParentInvestibleId, is_inline: isInline, } = renderableMarket;
+    parent_investible_id: inlineParentInvestibleId, is_inline: isInline, max_budget: storyMaxBudget,
+    allow_multi_vote: allowMultiVote
+  } = renderableMarket;
   const currentMarketName = (renderableMarket && renderableMarket.name) || '';
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
@@ -118,6 +120,8 @@ function InvestibleAdd(props) {
           createdAt={createdAt}
           storedState={storedState}
           classes={classes}
+          storyMaxBudget={storyMaxBudget}
+          allowMultiVote={allowMultiVote}
         />
       )}
     </Screen>

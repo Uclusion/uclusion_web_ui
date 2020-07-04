@@ -18,10 +18,19 @@ import { DaysEstimate } from '../../../components/AgilePlan'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import AddInitialVote from '../../Investible/Voting/AddInitialVote'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import {
+  getMarketPresences,
+  partialUpdateInvestment
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { updateInvestment } from '../../../api/marketInvestibles'
+import { getMarketComments, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 
 function PlanningInvestibleAdd(props) {
   const {
-    marketId, classes, onCancel, onSave, storedState, onSpinComplete, createdAt,
+    marketId, classes, onCancel, onSave, storedState, onSpinComplete, createdAt, storyMaxBudget, allowMultiVote
   } = props;
   const intl = useIntl();
   const { description: storedDescription, name: storedName, assignments: storedAssignments,
@@ -39,6 +48,15 @@ function PlanningInvestibleAdd(props) {
   const history = useHistory();
   const [marketState] = useContext(MarketsContext);
   const [investibleState] = useContext(InvestiblesContext);
+  const [presencesState] = useContext(MarketPresencesContext);
+  const presences = getMarketPresences(presencesState, marketId) || [];
+  const myPresence = presences.find((presence) => presence.current_user) || {};
+  const isAssigned = (assignments || []).includes(myPresence.id);
+  const [quantity, setQuantity] = useState(50);
+  const [maxBudget, setMaxBudget] = useState('');
+  const [reason, setReason] = useState('');
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
 
   function getUrlAssignee() {
     const { location } = history;
@@ -53,15 +71,15 @@ function PlanningInvestibleAdd(props) {
 
   useEffect(() => {
     // Long form to prevent flicker
-    if (name && !_.isEmpty(description)
-      && !_.isEmpty(assignments)) {
+    if (name && !_.isEmpty(description) && !_.isEmpty(assignments) && (isAssigned ||
+      (maxBudget > 0 && maxBudget <= storyMaxBudget))) {
       if (!validForm) {
         setValidForm(true);
       }
     } else if (validForm) {
       setValidForm(false);
     }
-  }, [name, description, assignments, validForm]);
+  }, [name, description, assignments, validForm, isAssigned, maxBudget, storyMaxBudget]);
 
   const itemKey = `add_investible_${marketId}`;
   function handleDraftState(newDraftState) {
@@ -75,6 +93,24 @@ function PlanningInvestibleAdd(props) {
       setCurrentValues(newValues);
       handleDraftState({ ...draftState, [field]: value });
     };
+  }
+
+  function onQuantityChange(event) {
+    const { value } = event.target;
+    setQuantity(parseInt(value, 10));
+  }
+
+  function onBudgetChange(event) {
+    const { value } = event.target;
+    if (value) {
+      setMaxBudget(parseInt(value, 10));
+    } else {
+      setMaxBudget('');
+    }
+  }
+
+  function onReasonChange(body) {
+    setReason(body);
   }
 
   function onAssignmentsChange(newAssignments) {
@@ -132,10 +168,34 @@ function PlanningInvestibleAdd(props) {
       const { investible } = inv;
       onSave(inv);
       const link = formInvestibleLink(marketId, investible.id);
-      return {
-        result: link,
-        spinChecker: () => Promise.resolve(true),
+      if (isAssigned) {
+        return {
+          result: link,
+          spinChecker: () => Promise.resolve(true),
+        };
+      }
+      const updateInfo = {
+        marketId,
+        investibleId: investible.id,
+        newQuantity: quantity,
+        currentQuantity: 0,
+        newReasonText: reason,
+        reasonNeedsUpdate: !_.isEmpty(reason),
+        maxBudget
       };
+      return updateInvestment(updateInfo).then(result => {
+        const { commentResult, investmentResult } = result;
+        const { commentAction, comment } = commentResult;
+        if (commentAction !== "NOOP") {
+          const comments = getMarketComments(commentsState, marketId);
+          refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
+        }
+        partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);
+        return {
+          result: link,
+          spinChecker: () => Promise.resolve(true),
+        };
+      });
     });
   }
 
@@ -182,6 +242,18 @@ function PlanningInvestibleAdd(props) {
             getUrlName={urlHelperGetName(marketState, investibleState)}
           />
         </CardContent>
+        {!isAssigned && (
+          <AddInitialVote
+            marketId={marketId}
+            storyMaxBudget={storyMaxBudget}
+            onBudgetChange={onBudgetChange}
+            onChange={onQuantityChange}
+            onEditorChange={onReasonChange}
+            newQuantity={quantity}
+            maxBudget={maxBudget}
+            body={reason}
+          />
+        )}
         <CardActions className={classes.actions}>
             <Button
               className={classes.actionSecondary}
@@ -219,9 +291,10 @@ PlanningInvestibleAdd.propTypes = {
   onCancel: PropTypes.func,
   onSpinComplete: PropTypes.func,
   onSave: PropTypes.func,
-  // eslint-disable-next-line react/forbid-prop-types
   marketPresences: PropTypes.arrayOf(PropTypes.object).isRequired,
   storedState: PropTypes.object.isRequired,
+  storyMaxBudget: PropTypes.number.isRequired,
+  allowMultiVote: PropTypes.bool.isRequired
 };
 
 PlanningInvestibleAdd.defaultProps = {

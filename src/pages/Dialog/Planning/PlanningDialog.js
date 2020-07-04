@@ -146,7 +146,10 @@ function PlanningDialog(props) {
 
   const furtherWorkStage = marketStages.find((stage) => (!stage.appears_in_context && !stage.allows_issues
     && !stage.appears_in_market_summary)) || {};
+  const requiresInputStage = marketStages.find((stage) => (!stage.appears_in_context && stage.allows_issues
+    && stage.allows_todos && !stage.appears_in_market_summary)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id);
+  const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id);
   const presenceMap = getPresenceMap(marketPresencesState, marketId);
   const storyWorkspace = isStoryWorkspace();
   const tourName = storyWorkspace ? INVITE_STORIES_WORKSPACE_FIRST_VIEW : INVITE_REQ_WORKSPACE_FIRST_VIEW;
@@ -249,6 +252,19 @@ function PlanningDialog(props) {
             activeMarket={activeMarket}
           />
         </div>
+      )}
+      {!_.isEmpty(requiresInputInvestibles) && (
+        <SubSection
+          type={SECTION_TYPE_SECONDARY}
+          title={intl.formatMessage({ id: 'requiresInputHeader' })}
+        >
+          <ArchiveInvestbiles
+            elevation={0}
+            marketId={marketId}
+            presenceMap={presenceMap}
+            investibles={requiresInputInvestibles}
+          />
+        </SubSection>
       )}
       {!_.isEmpty(furtherWorkInvestibles) && (
         <SubSection

@@ -7,6 +7,7 @@ import {
   getBlockedStage,
   getInCurrentVotingStage,
   getInReviewStage,
+  getRequiredInputStage,
   getVerifiedStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
@@ -18,6 +19,7 @@ function MoveToNextVisibleStageActionButton(props) {
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inVotingStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
   const inBlockedStage = getBlockedStage(marketStagesState, marketId) || {};
+  const inRequiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   let destinationStage;
   let destinationExplanation;
@@ -34,7 +36,7 @@ function MoveToNextVisibleStageActionButton(props) {
     destinationStage = verifiedStage;
     destinationLabel = 'planningInvestibleMoveToVerifiedLabel';
     destinationExplanation = 'planningInvestibleVerifiedExplanation';
-  } else if (currentStageId === inBlockedStage.id) {
+  } else if ((currentStageId === inBlockedStage.id)||(currentStageId === inRequiresInputStage.id)) {
     if (enoughVotes && acceptedStageAvailable) {
       destinationStage = acceptedStage;
       destinationExplanation = 'planningInvestibleAcceptedExplanation';

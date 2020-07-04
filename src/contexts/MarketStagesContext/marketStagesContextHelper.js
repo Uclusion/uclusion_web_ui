@@ -20,7 +20,8 @@ export function getAcceptedStage(state, marketId) {
 
 export function getInReviewStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (!stage.allows_investment && stage.appears_in_context && !stage.singular_only && !stage.allows_issues));
+  return marketStages.find((stage) => (!stage.allows_investment && stage.appears_in_context && !stage.singular_only
+    && !stage.allows_issues));
 }
 
 export function getBlockedStage(state, marketId) {
@@ -44,8 +45,14 @@ export function getFullStage(state, marketId, stageId) {
   return marketStages.find((stage) => stage.id === stageId);
 }
 
+export function getRequiredInputStage(state, marketId) {
+  const marketStages = getStages(state, marketId);
+  return marketStages.find((stage) => (!stage.appears_in_context && !stage.appears_in_market_summary
+    && stage.allows_issues && stage.allows_todos));
+}
+
 export function getNotDoingStage(state, marketId) {
   const marketStages = getStages(state, marketId);
   return marketStages.find((stage) => (!stage.appears_in_context && !stage.appears_in_market_summary
-  && stage.allows_issues));
+  && stage.allows_issues && !stage.allows_todos));
 }

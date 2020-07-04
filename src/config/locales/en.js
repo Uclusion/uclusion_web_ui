@@ -466,10 +466,10 @@ const messages = defineMessages({
   uploadFiles: 'Attach New Files',
   uploadInProgress: 'Uploading Files',
   inlineAddExplanation: 'Add a how to do this story option and collect approval on it.',
-  deactivateInlineQuestion: 'Deactivate the dialog associated with this story?',
+  deactivateInlineQuestion: 'Changing stage will deactivate any dialogs associated with this story.',
   deactivateDialogQuestion: 'Do you want to deactivate and stop any further work?',
   yesAndProceed: 'Change stage and deactivate',
-  noAndProceed: 'Change stage only',
+
   // Decision Dialog
   decisionDialogSummaryLabel: 'Background Information',
   decisionDialogCurrentVotingLabel: 'Options',
@@ -578,6 +578,7 @@ const messages = defineMessages({
   dialogArchivesVerifiedHeader: 'Verified',
   dialogArchivesLabel: 'Workspace Archive',
   readyFurtherWorkHeader: 'Ready for Further Work',
+  requiresInputHeader: 'Requires Input',
 
   // SignIn
   signInEmailLabel: 'Email',

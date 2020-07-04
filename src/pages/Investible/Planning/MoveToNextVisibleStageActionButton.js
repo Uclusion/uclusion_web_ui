@@ -58,6 +58,7 @@ function MoveToNextVisibleStageActionButton(props) {
       icon={<ArrowUpwardIcon />}
       translationId={destinationLabel}
       explanationId={destinationExplanation}
+      currentStageId={currentStageId}
       targetStageId={destinationStage.id}
       operationBlocked={hasTodos && (destinationStage === inReviewStage || destinationStage === verifiedStage)}
       blockedOperationTranslationId="mustRemoveTodosExplanation"

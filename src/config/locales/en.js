@@ -289,6 +289,7 @@ const messages = defineMessages({
   planningReviewStageDescription: 'Review is for stories that are complete except for verification.',
   planningVerifiedStageLabel: 'Verified',
   planningFurtherWorkStageLabel: 'Ready for Further Work',
+  requiresInputStageLabel: 'Requires Input',
   planningNotDoingStageLabel: 'Not Doing',
   planningInvestibleAssignments: 'assigned',
   planningInvestibleDecision: 'Add Dialog',

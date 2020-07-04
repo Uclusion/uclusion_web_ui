@@ -49,6 +49,7 @@ import {
   getInReviewStage,
   getNotDoingStage,
   getProposedOptionsStage,
+  getRequiredInputStage,
   getVerifiedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -68,6 +69,7 @@ import CardType, {
   IN_VERIFIED,
   IN_VOTING,
   NOT_DOING,
+  REQUIRES_INPUT,
   STORY_TYPE
 } from '../../../components/CardType'
 import clsx from 'clsx'
@@ -242,6 +244,8 @@ function PlanningInvestible(props) {
   const isInVerified = inVerifiedStage && stage === inVerifiedStage.id;
   const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId) || {};
   const isReadyFurtherWork = furtherWorkStage && stage === furtherWorkStage.id;
+  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
+  const isRequiresInput = requiresInputStage && stage === requiresInputStage.id;
   const inCurrentVotingStage = getInCurrentVotingStage(
     marketStagesState,
     marketId
@@ -289,7 +293,9 @@ function PlanningInvestible(props) {
     : isInVerified
     ? intl.formatMessage({ id: "planningVerifiedStageLabel" })
     : isReadyFurtherWork
-    ? intl.formatMessage({ id: "planningFurtherWorkStageLabel" }) :
+    ? intl.formatMessage({ id: "planningFurtherWorkStageLabel" })
+    : isRequiresInput
+    ? intl.formatMessage({ id: "requiresInputStageLabel" }) :
           intl.formatMessage({ id: "planningNotDoingStageLabel" });
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -506,7 +512,8 @@ function PlanningInvestible(props) {
         isInBlocked ? IN_BLOCKED :
           isInNotDoing ? NOT_DOING :
             isReadyFurtherWork ? FURTHER_WORK :
-              IN_VERIFIED;
+              isRequiresInput ? REQUIRES_INPUT :
+                IN_VERIFIED;
   function expansionChanged(event, expanded) {
     setChangeStagesExpanded(expanded);
   }
@@ -571,7 +578,7 @@ function PlanningInvestible(props) {
                       hasTodos={!_.isEmpty(todoComments)}
                     />
                   )}
-                  {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork) && (
+                  {!inArchives && (isAssigned || isInNotDoing || isInVoting || isReadyFurtherWork || isRequiresInput) && (
                     <EditMarketButton
                       labelId="edit"
                       marketId={marketId}

@@ -43,6 +43,7 @@ export const IN_REVIEW = "REVIEW";
 export const IN_BLOCKED = "BLOCKED";
 export const NOT_DOING = "STOPPED";
 export const FURTHER_WORK = "FURTHER_WORK";
+export const REQUIRES_INPUT = "REQUIRES_INPUT";
 export const IN_VERIFIED = "VERIFIED";
 export const OPTION = "OPTION";
 export const IN_VOTING= "DELIBERATION";
@@ -141,6 +142,7 @@ export default function CardType(props) {
     [NOT_DOING]: NotInterestedIcon,
     [IN_VERIFIED]: VerifiedUserIcon,
     [FURTHER_WORK]: WorkIcon,
+    [REQUIRES_INPUT]: GavelIcon,
     [OPTION]: StarRateIcon,
     [ASSIGN_TYPE]: PersonAddIcon,
     [DECISION_TYPE]: GavelIcon,
@@ -170,6 +172,7 @@ CardType.propTypes = {
     STORY_TYPE,
     IN_PROGRESS,
     FURTHER_WORK,
+    REQUIRES_INPUT,
     NOT_DOING,
     ASSIGN_TYPE,
     OPTION

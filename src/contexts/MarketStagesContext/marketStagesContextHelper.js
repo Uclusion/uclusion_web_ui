@@ -47,8 +47,7 @@ export function getFullStage(state, marketId, stageId) {
 
 export function getRequiredInputStage(state, marketId) {
   const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => (!stage.appears_in_context && !stage.appears_in_market_summary
-    && stage.allows_issues && stage.allows_todos));
+  return marketStages.find((stage) => (!stage.appears_in_context && stage.allows_issues && stage.allows_todos));
 }
 
 export function getNotDoingStage(state, marketId) {

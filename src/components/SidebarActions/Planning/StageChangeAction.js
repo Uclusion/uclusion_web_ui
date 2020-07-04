@@ -160,7 +160,7 @@ function StageChangeAction(props) {
     );
   }
 
-  if (currentStageId === getRequiredInputStage(marketStagesState, marketId)) {
+  if (currentStageId === (getRequiredInputStage(marketStagesState, marketId) || {}).id) {
     return (
       <>
         <TooltipIconButton disabled={operationRunning || disabled} icon={icon} onClick={handleOpen}

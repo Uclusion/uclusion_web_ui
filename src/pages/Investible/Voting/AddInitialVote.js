@@ -92,6 +92,7 @@ function AddInitialVote(props) {
   return (
     <Card elevation={0}>
       <CardContent className={classes.cardContent}>
+        <h2>{ intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
         <FormControl className={classes.certainty}>
           <FormLabel
             className={classes.certaintyLabel}

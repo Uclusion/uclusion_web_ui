@@ -347,7 +347,7 @@ function PlanningInvestible(props) {
     }
     const sidebarActions = [];
     if (isInVoting || isInAccepted) {
-      if (!inlineMarketId && isAssigned ) {
+      if (!inlineMarketId && isAssigned) {
         sidebarActions.push(
           <ExpandableAction
             id="newOption"
@@ -359,18 +359,18 @@ function PlanningInvestible(props) {
           />
         );
       }
-      else if (inlineMarketId) {
-        sidebarActions.push(
-          <ExpandableAction
-            id="newOption"
-            key="newOption"
-            label={intl.formatMessage({ id: 'inlineAddExplanation' })}
-            onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
-            icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR}/>}
-            openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
-          />
-        );
-      }
+    }
+    if (inlineMarketId) {
+      sidebarActions.push(
+        <ExpandableAction
+          id="newOption"
+          key="newOption"
+          label={intl.formatMessage({ id: 'inlineAddExplanation' })}
+          onClick={() => navigate(history, formMarketAddInvestibleLink(inlineMarketId))}
+          icon={<AddIcon htmlColor={ACTION_BUTTON_COLOR}/>}
+          openLabel={intl.formatMessage({ id: 'inlineAddLabel' })}
+        />
+      );
     }
     if (!isInNotDoing) {
       if (isAssigned) {

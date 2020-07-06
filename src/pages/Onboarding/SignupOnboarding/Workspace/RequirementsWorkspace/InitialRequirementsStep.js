@@ -46,9 +46,9 @@ function InitialRequirementsStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Uclusion Workspaces have a description which contains contextual information about the project, and is usually where requirements live.
-        For now put in any context or initial requirements you have. Every member of the workspace can edit and changes
-        automatically notify and display differences to the team.
+        Uclusion Workspaces have a description which contains contextual information, and is usually where project requirements live.
+        Or you might be using the Workspace for your team's base of operations or to discuss some topic important to your team.
+        Every member of the workspace can edit and changes automatically notify and display differences to the team.
       </Typography>
         <QuillEditor
           onChange={onEditorChange}

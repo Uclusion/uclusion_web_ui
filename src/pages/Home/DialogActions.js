@@ -14,12 +14,16 @@ import { useHistory } from 'react-router'
 import EditMarketButton from '../Dialog/EditMarketButton'
 import ChangeToObserverButton from '../Dialog/ChangeToObserverButton'
 import ChangeToParticipantButton from '../Dialog/ChangeToParticipantButton'
+import ShareStoryButton from '../Investible/Planning/ShareStoryButton'
 
 const useStyles = makeStyles(() => {
   return {
     buttonHolder: {
       display: 'flex',
       flexDirection: 'row-reverse',
+      '& > button': {
+        paddingRight: '15px'
+      }
     },
   };
 });
@@ -100,6 +104,8 @@ function DialogActions(props) {
         );
       }
     }
+
+    actions.push(<ShareStoryButton />)
 
     return actions;
   }

@@ -26,10 +26,10 @@ function WorkspaceNameStep (props) {
   return (
     <div>
       <Typography className={classes.introText} variant="body2">
-        Great! We're creating a structured environment to work on requirements together.
+        Great! We're creating a structured environment for group editing and discussion.
       </Typography>
       <Typography className={classes.introText} variant="body2">
-        First, we'll need a short, but descriptive name for your Workspace.
+        Your Workspace's name could be the name of a project, the name of your team or anything else you want to sync on.
       </Typography>
       <label className={classes.inputLabel} htmlFor="name">{intl.formatMessage({ id: 'WorkspaceWizardMeetingPlaceHolder' })}</label>
       <TextField

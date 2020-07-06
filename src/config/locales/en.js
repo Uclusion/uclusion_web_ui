@@ -135,9 +135,9 @@ const messages = defineMessages({
   close: 'Close',
 
   // Share story
-  shareButtonExplanation: 'Share a link to this story',
+  shareButtonExplanation: 'Share a read only link',
   shareButtonTitle: 'Share',
-  inviteLinkerStory: 'This link grants read only access to this story and its workspace',
+  inviteLinkerStory: 'This link grants read only access to this workspace. For collaboration use the button in the collaborators section.',
 
   // Support
   supportInfoText: 'Create bugs (but not feature requests) in <a>Uclusion issues</a> or send an email to <b>support</b> which includes the version and user ID above.',
@@ -820,15 +820,14 @@ const messages = defineMessages({
   OnboardingWizardCurrentStoryProgressPlaceHolder: 'Your progress so far',
 
   //RequirementsWorkspaceWizard
-  ReqWorkspaceWizardTitle: 'Your workspace',
-  ReqWorkspaceWizardNamePlaceHolder: 'Your workspace Name',
+  ReqWorkspaceWizardTitle: 'Your Workspace',
+  ReqWorkspaceWizardNamePlaceHolder: 'Your Workspace Name',
   ReqWorkspaceWizardNameStepLabel: 'Your Workspace',
-  ReqWorkspaceWizardRequirementsStepLabel: 'Initial Requirements',
-  ReqWorkspaceWizardInitialRequirementsPlaceHolder: 'Your initial requirements',
+  ReqWorkspaceWizardRequirementsStepLabel: 'Initial Content',
+  ReqWorkspaceWizardInitialRequirementsPlaceHolder: 'Your initial content',
   ReqWorkspaceWizardTodoStepLabel: 'What\'s still TODO?',
   ReqWorkspaceWizardTodoPlaceholder: 'Things TODO',
   ReqWorkspaceWizardCreatingworkspaceStepLabel: 'Creating Workspace',
-
 
   //StoryWorkspaceWizard
   WorkspaceWizardTitle: 'Your Workspace',
@@ -841,7 +840,7 @@ const messages = defineMessages({
   //SignupWizard
   SignupWizardTitle: 'What do you want to do?',
   SignupWizardQuestion: 'What do you want to do?',
-  SignupWizardRequirementsWorkspace: 'Determine requirements for a project',
+  SignupWizardRequirementsWorkspace: 'Document project requirements or team topics',
   SignupWizardStoryWorkspace: 'Choose everyone\'s next story and track progress',
   SignupWizardDialog: 'Collaborate on a decision',
   SignupWizardInitiative: 'Measure support for an idea',

@@ -7,7 +7,7 @@ import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 
 const useStyles = makeStyles( () => ({
     archived: {
-      color: '#ffffc4',
+      color: '#ffC000',
       fontSize: 14,
     },
     normal: {

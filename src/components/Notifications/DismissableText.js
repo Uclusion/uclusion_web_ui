@@ -6,6 +6,10 @@ import IconButton from '@material-ui/core/IconButton';
 import LiveHelpTwoToneIcon from '@material-ui/icons/LiveHelpTwoTone';
 import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
 import { makeStyles } from '@material-ui/styles';
+import { AccountUserContext } from '../../contexts/AccountUserContext/AccountUserContext'
+import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
+import { updateUiPreferences } from '../../api/account'
+import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -56,12 +60,33 @@ function DismissableText(props) {
   } = props;
   const classes = useStyles();
   const [dismissState, dispatchDismissState] = useContext(DismissTextContext);
+  const [userState, userDispatch] = useContext(AccountUserContext)
+  const hasUser = userIsLoaded(userState)
+  const userPreferences = getUiPreferences(userState) || {};
+  const previouslyDismissed = userPreferences.dismissedText || [];
+  const uiPrefCantShow = !hasUser || previouslyDismissed.includes(textId);
+
+  const cantShow = uiPrefCantShow || textId in dismissState;
+
+  function storeDismissedInBackend() {
+    const newDismissed = [...previouslyDismissed, textId];
+    const newPreferences = {
+      ...userPreferences,
+      dismissedText: newDismissed
+    };
+    updateUiPreferences(newPreferences)
+      .then((result) => {
+        const { user } = result;
+        userDispatch(accountUserRefresh(user));
+      });
+  }
 
   function dismiss() {
     dispatchDismissState({ type: DISMISS, id: textId });
+    storeDismissedInBackend();
   }
 
-  if (textId in dismissState) {
+  if (cantShow) {
     return React.Fragment;
   }
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react'
+import React, { useContext, useReducer, useState } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
@@ -8,7 +8,6 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { getMarketPresences, } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { AllSequentialMap } from '../../utils/PromiseUtils'
 import { getMarketInfo } from '../../api/sso'
 import clsx from 'clsx'
 import { useMetaDataStyles } from '../Investible/Planning/PlanningInvestible'
@@ -56,18 +55,14 @@ function MarketLinks (props) {
   const classes = useStyles();
   const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [loading, setLoading] = useState(false);
   const [marketNameState, marketNamesDispatch] = useReducer((state, action) => {
     const { marketId, marketToken, name, marketType, marketStage, isInline, createdAt } = action;
-    const newState= { ...state, [marketId]: { name, marketType, marketStage, isInline, createdAt, marketToken } };
-    if (Object.keys(newState).length === links.length) {
-      setLoading(false);
-    }
-    return newState;
-  }, {})
-  let missingLinks = [];
-  if (Object.keys(marketNameState).length < links.length) {
-    missingLinks = links.filter((marketId) => {
+    return { ...state, [marketId]: { name, marketType, marketStage, isInline, createdAt, marketToken } };
+  }, {});
+  const [initialized, setInitialized] = useState(false);
+  if (!initialized) {
+    setInitialized(true);
+    links.forEach((marketId) => {
       const marketDetails = getMarket(marketState, marketId);
       if (marketDetails) {
         const {
@@ -75,25 +70,17 @@ function MarketLinks (props) {
           created_at: createdAt
         } = marketDetails;
         marketNamesDispatch({ marketId, name, marketType, marketStage, isInline, createdAt });
-        return false;
-      }
-      return true;
-    })
-  }
-
-  useEffect(() => {
-    if (!loading && missingLinks.length > 0) {
-      setLoading(true);
-      AllSequentialMap(missingLinks, (marketId) => {
-        return getMarketInfo(marketId).then((market) => {
+      } else {
+        console.info(`Getting ${marketId} for market links`);
+        getMarketInfo(marketId).then((market) => {
           const { name, market_type: marketType, market_stage: marketStage, is_inline: isInline,
             created_at: createdAt, invite_capability: marketToken } = convertDates(market);
           marketNamesDispatch({ marketId, marketToken, name, marketType, marketStage, isInline, createdAt });
-          return market;
-        })
-      })
-    }
-  }, [loading, missingLinks])
+        });
+      }
+    });
+  }
+
   const metaClasses = useMetaDataStyles();
   function displayLinksList (linksList) {
     const resolvedLinks = linksList.map((marketId) => {

@@ -339,7 +339,6 @@ function PlanningInvestible(props) {
     const required = everyoneAssigned? 0 : myRequired !== undefined ? myRequired : 1;
     return _.size(myInvested) >= required;
   }
-  const stageChangeEnabled = !isInNotDoing && !isReadyFurtherWork;
 
   function getSidebarActions() {
     if (!activeMarket) {
@@ -402,8 +401,24 @@ function PlanningInvestible(props) {
     comment => comment.comment_type === TODO_TYPE && !comment.resolved
   );
   function getStageActions() {
-    if (inArchives || !stageChangeEnabled) {
+    if (inArchives || isInNotDoing) {
       return [];
+    }
+
+    if (isReadyFurtherWork) {
+      return [
+        <MenuItem
+          key="notdoing"
+        >
+          <MoveToNotDoingActionButton
+            investibleId={investibleId}
+            marketId={marketId}
+            currentStageId={stage}
+            isOpen={changeStagesExpanded}
+            disabled={isInNotDoing}
+          />
+        </MenuItem>
+      ];
     }
 
     return [

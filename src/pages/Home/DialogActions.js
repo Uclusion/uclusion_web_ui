@@ -104,9 +104,9 @@ function DialogActions(props) {
         );
       }
     }
-
-    actions.push(<ShareStoryButton />)
-
+    if (action === 'dialog') {
+      actions.push(<ShareStoryButton/>)
+    }
     return actions;
   }
 

@@ -178,6 +178,7 @@ function Signup(props) {
   const [userState, dispatch] = useReducer(reducer, empty);
   const [postSignUp, setPostSignUp] = useState(undefined);
   const [callActive, setCallActive] = useState(false);
+  const [wasBlurred, setWasBlurred] = useState(false);
   const intl = useIntl();
   const history = useHistory();
 
@@ -198,6 +199,10 @@ function Signup(props) {
         });
     }
   }, [marketToken, action, myLoading]);
+
+  function onPasswordBlurred() {
+    setWasBlurred(true);
+  }
   
   function handleChange(name) {
     return (event) => {
@@ -498,6 +503,8 @@ function Signup(props) {
                     InputProps={{
                       minLength: 6,
                     }}
+                    onBlur={onPasswordBlurred}
+                    error={wasBlurred && password.length < 6}
                     autoComplete="new-password"
                     label={intl.formatMessage({ id: 'signupPasswordLabel' })}
                     onChange={handleChange('password')}

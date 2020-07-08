@@ -1,131 +1,83 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
-import { useIntl } from 'react-intl';
-import { darken, makeStyles } from "@material-ui/core/styles";
-import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton';
-import { resendVerification } from '../../api/sso';
-import { CardActions, Typography } from '@material-ui/core'
-import Screen from '../../containers/Screen/Screen';
-import CardContent from '@material-ui/core/CardContent';
-import Card from '@material-ui/core/Card';
+import React, { useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import { useIntl } from 'react-intl'
+import { ERROR, sendIntlMessageBase } from '../../utils/userMessage'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import Typography from '@material-ui/core/Typography'
+import Container from '@material-ui/core/Container'
+import { makeStyles } from '@material-ui/core/styles'
+import { resendVerification } from '../../api/sso'
+import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton'
+import { Auth } from 'aws-amplify'
 
-const useStyles = makeStyles((theme) => {
-  return {
-    submit: {
-      backgroundColor: "#3f6b72",
-      color: "black",
-      "&:hover": {
-        backgroundColor: darken("#3f6b72", 0.04)
-      },
-      "&:focus": {
-        backgroundColor: darken("#3f6b72", 0.12)
-      }
-    },
-    actions: {
-      margin: theme.spacing(1, 0, 0, 0)
-    },
-    loadingDisplay: {
-      display: "flex",
-      flexWrap: "wrap",
-      padding: theme.spacing(6),
-      "& > *": {
-        "flex-grow": 1,
-        margin: theme.spacing(1, 0),
-        "&:first-child": {
-          marginTop: 0
-        },
-        "&:last-child": {
-          marginBottom: 0
-        }
-      }
-    },
-  };
-});
+const useStyles = makeStyles(theme => ({
+  paper: {
+    marginTop: theme.spacing(8),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  avatar: {
+    margin: theme.spacing(1),
+    backgroundColor: '#3f6b72',
+  },
+  submit: {
+    margin: theme.spacing(3, 0, 2),
+    backgroundColor: '#3f6b72',
+    color: '#fff',
+  },
+}));
 
 function NoAccount(props) {
-
-  const { email } = props;
+  const { email, authState } = props;
   const intl = useIntl();
   const classes = useStyles();
+  const [calledSignOut, setCalledSignout] = useState(false);
 
-  const [postResend, setPostResend] = useState(null);
+  useEffect(() => {
+    if (authState === 'signedIn' && !calledSignOut) {
+      console.info('Signing out with no account');
+      setCalledSignout(true);
+      Auth.signOut().catch((error) => {
+        console.error(error);
+        sendIntlMessageBase(intl, ERROR, 'errorVerifyFailed');
+      });
+    }
+  }, [authState, calledSignOut, intl]);
 
   function onResend() {
-    return resendVerification(email).then((result) => {
-      const { response } = result;
-      setPostResend(response);
-    });
+    return resendVerification(email);
   }
 
   function getResendButton() {
     return (
       <ApiBlockingButton
+        fullWidth
         variant="contained"
         className={classes.submit}
         onClick={onResend}
-        type="submit"
       >
         {intl.formatMessage({ id: 'signupResendCodeButton' })}
       </ApiBlockingButton>
     );
   }
 
-  function getPostReendContent() {
-    if (_.isEmpty(postResend)) {
-      return <React.Fragment/>;
-    }
-    if (postResend === 'ACCOUNT_EXISTS') {
-      return (
-        <Typography>
-          The email has now been verified. Please log out and log back in again.
-        </Typography>
-      );
-    }
-    if (postResend === 'VERIFICATION_RESENT') {
-      return (
-        <Typography>We have resent the verification link.
-          If you do not receive it please check your spam filter, or try
-          resending again.
-        </Typography>
-      );
-    }
-    return <React.Fragment/>;
-  }
-
   return (
-    <Screen
-      // TODO: meaningful title
-      tabTitle=""
-      title="Email not verified"
-      appEnabled={false}
-    >
-      <Card elevation={0}>
-        <CardContent className={classes.loadingDisplay}>
-          <Typography variant="h3">
-            Email not verified
-          </Typography>
-          <Typography>
-            Your email ({email}) has not been verified yet. In order to use Uclusion you must verify your email address via
-            the link we sent to your email. If you do not have that link, you may get a new one
-            by clicking Resend Link. After getting the link, you should close this tab.
-          </Typography>
-          <CardActions className={classes.actions}>
-            {getResendButton()}
-          </CardActions>
-          {getPostReendContent()}
-        </CardContent>
-      </Card>
-    </Screen>
+    <Container component="main" maxWidth="xs">
+      <CssBaseline/>
+      <div className={classes.paper}>
+        <Typography component="h1" variant="h5" align="center">
+          {intl.formatMessage({ id: 'signInNotVerified' }, { email })}
+        </Typography>
+        {getResendButton()}
+      </div>
+    </Container>
   );
 }
 
 NoAccount.propTypes = {
-  email: PropTypes.string,
-};
-
-NoAccount.defaultProps = {
-  email: '',
+  email: PropTypes.string.isRequired,
+  authState: PropTypes.string.isRequired,
 };
 
 export default NoAccount;

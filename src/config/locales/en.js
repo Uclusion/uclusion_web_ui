@@ -611,6 +611,7 @@ const messages = defineMessages({
   signupTermsOfUse: 'Beta Program Terms of Use',
   signupGithubSignup: 'Sign Up with GitHub',
   signupGoogleSignup: 'Sign Up with Google',
+  signInNotVerified: 'Your email ({email}) has not been verified yet. In order to use Uclusion you must verify your email address via the link we sent to your email. If you do not have that link, you may get a new one by clicking Resend Link.',
 
   // Forgot Password
   forgotPasswordHeader: 'Reset your password',

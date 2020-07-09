@@ -346,7 +346,7 @@ const messages = defineMessages({
   commentAddSelectIssueLabel: 'Please select a type',
   issueWarning: 'Opening an issue will halt voting on this dialog.',
   issueWarningInvestible: 'Opening an issue will halt voting on this option.',
-  issueWarningPlanning: 'Opening an issue will move this story to blocked and stop execution or voting.',
+  issueWarningPlanning: 'Opening an issue will move this story to blocked and stop execution and new approval.',
   todoWarningPlanning: 'Opening a TODO prevents this story from changing stages until resolved.',
   todoWarningDone: 'Opening a TODO moves this story to proposed.',
 

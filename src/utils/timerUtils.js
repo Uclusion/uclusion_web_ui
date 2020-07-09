@@ -1,3 +1,9 @@
+import { pushMessage } from './MessageBusUtils'
+import {
+  OPERATION_HUB_CHANNEL,
+  STOP_OPERATION
+} from '../contexts/OperationInProgressContext/operationInProgressMessages'
+
 /**
  * Calls the execFunction every waitTime for up to maxIterations time.
  * The first iteration occurs after 1 wait time period has lapsed
@@ -13,7 +19,10 @@ export function startTimerChain (waitTime, maxIterations, execFunction) {
     Promise.resolve(execFunction())
       .then((success) => {
         if (success || iterCount >= maxIterations) {
-          // console.log('Call succeeded, stoping chain');
+          if (!success) {
+            console.warn('Stopping global timer chain after max iterations');
+            pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
+          }
           return;
         }
         // console.log('Call failed, resuming chain');

@@ -70,9 +70,9 @@ function startGlobalRefreshTimerChain(refreshAll) {
           resolve(true);
           return Promise.resolve(true);
         }).catch((error) => {
+          console.error(error.message);
           // we'll log match problems, but raise the rest
           if (error instanceof MatchError) {
-            console.error(error.message);
             return false;
           } else {
             reject(error);

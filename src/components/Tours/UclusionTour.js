@@ -16,6 +16,24 @@ import { updateUiPreferences } from '../../api/account'
 import { accountUserRefresh } from '../../contexts/AccountUserContext/accountUserContextReducer'
 import { getUiPreferences, userIsLoaded } from '../../contexts/AccountUserContext/accountUserContextHelper'
 
+export function storeTourCompleteInBackend(tourName, safeCompletedTours, tourPreferences, userPreferences,
+  userDispatch){
+  const newCompleted = [...safeCompletedTours, ...getTourFamily(tourName)];
+  const newTourPreferences = {
+    ...tourPreferences,
+    completedTours: newCompleted,
+  };
+  const newPrefs = {
+    ...userPreferences,
+    tours: newTourPreferences,
+  };
+  updateUiPreferences(newPrefs)
+    .then((result) => {
+      const { user } = result;
+      userDispatch(accountUserRefresh(user));
+    });
+}
+
 function UclusionTour(props) {
   const {
     name,
@@ -33,23 +51,6 @@ function UclusionTour(props) {
   const { completedTours } = tourPreferences;
   const safeCompletedTours = _.isArray(completedTours)? completedTours : [];
 
-  function storeTourCompleteInBackend(tourName){
-    const newCompleted = [...safeCompletedTours, ...getTourFamily(tourName)];
-    const newTourPreferences = {
-      ...tourPreferences,
-      completedTours: newCompleted,
-    };
-    const newPrefs = {
-      ...userPreferences,
-      tours: newTourPreferences,
-    };
-    updateUiPreferences(newPrefs)
-      .then((result) => {
-        const { user } = result;
-        userDispatch(accountUserRefresh(user));
-      });
-  }
-
   function tourCallback(state) {
     const {
       status,
@@ -62,7 +63,8 @@ function UclusionTour(props) {
         // the've finished, register complete
         // console.log(`Tour ${name} is complete`);
         completeTour(tourDispatch, name);
-        storeTourCompleteInBackend(name);
+        storeTourCompleteInBackend(name, safeCompletedTours, tourPreferences, userPreferences,
+          userDispatch);
       }
       if (type === 'step:after') {
         setCurrentStep(tourDispatch, name, index + 1);

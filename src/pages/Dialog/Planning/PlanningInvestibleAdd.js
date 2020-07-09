@@ -27,6 +27,15 @@ import {
 import { updateInvestment } from '../../../api/marketInvestibles'
 import { getMarketComments, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
+import { TourContext } from '../../../contexts/TourContext/TourContext'
+import { AccountUserContext } from '../../../contexts/AccountUserContext/AccountUserContext'
+import {
+  completeTour,
+  INVITE_STORIES_WORKSPACE_FIRST_VIEW,
+  isTourCompleted
+} from '../../../contexts/TourContext/tourContextHelper'
+import { storeTourCompleteInBackend } from '../../../components/Tours/UclusionTour'
+import { getUiPreferences } from '../../../contexts/AccountUserContext/accountUserContextHelper'
 
 function PlanningInvestibleAdd(props) {
   const {
@@ -57,6 +66,13 @@ function PlanningInvestibleAdd(props) {
   const [reason, setReason] = useState('');
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [tourState, tourDispatch] = useContext(TourContext);
+  const isStoriesTourCompleted = isTourCompleted(tourState, INVITE_STORIES_WORKSPACE_FIRST_VIEW);
+  const [userState, userDispatch] = useContext(AccountUserContext);
+  const userPreferences = getUiPreferences(userState) || {};
+  const tourPreferences = userPreferences.tours || {};
+  const { completedTours } = tourPreferences;
+  const safeCompletedTours = _.isArray(completedTours)? completedTours : [];
 
   function getUrlAssignee() {
     const { location } = history;
@@ -150,6 +166,12 @@ function PlanningInvestibleAdd(props) {
   }
 
   function handleSave() {
+    if (!isStoriesTourCompleted) {
+      // If you are adding a story by yourself we don't want to force a story tour on you
+      completeTour(tourDispatch, INVITE_STORIES_WORKSPACE_FIRST_VIEW);
+      storeTourCompleteInBackend(INVITE_STORIES_WORKSPACE_FIRST_VIEW, safeCompletedTours, tourPreferences,
+        userPreferences, userDispatch);
+    }
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,

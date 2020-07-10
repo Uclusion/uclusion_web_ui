@@ -322,7 +322,7 @@ PlanningDialog.defaultProps = {
   comments: []
 };
 
-const useInvestiblesByPersonStyles = makeStyles(
+export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
     return {
       root: {
@@ -343,7 +343,7 @@ const useInvestiblesByPersonStyles = makeStyles(
   { name: "InvestiblesByPerson" }
 );
 
-function checkInProgressWarning(investibles, comments, inProgressStageId, userId, marketId) {
+export function checkInProgressWarning(investibles, comments, inProgressStageId, userId, marketId) {
   const inProgressInvestible = investibles.find((investible) => {
     const { market_infos: marketInfos } = investible;
     const marketInfo = marketInfos.find(info => info.market_id === marketId);

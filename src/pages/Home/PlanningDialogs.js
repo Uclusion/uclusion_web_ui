@@ -21,6 +21,7 @@ import { getMarketComments } from '../../contexts/CommentsContext/commentsContex
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getMarketInfo } from '../../utils/userFunctions'
 import { ACTIVE_STAGE } from '../../constants/markets'
+import InvestiblesByWorkspace from '../Dialog/Planning/InvestiblesByWorkspace'
 
 const useStyles = makeStyles(() => ({
   paper: {
@@ -79,6 +80,11 @@ const useStyles = makeStyles(() => ({
   },
   childText: {
     fontSize: '.825rem'
+  },
+  spacer: {
+    borderColor: '#ccc',
+    borderStyle: 'solid',
+    margin: '2rem 0'
   },
   lessPadding: {
     '&.MuiGrid-item': {
@@ -278,9 +284,15 @@ function PlanningDialogs(props) {
   }
 
   return (
-    <Grid container spacing={4}>
-      {getMarketItems()}
-    </Grid>
+    <>
+      <div id="swimLanes">
+        <InvestiblesByWorkspace workspaces={markets} />
+      </div>
+      <hr className={classes.spacer}/>
+      <Grid container spacing={4}>
+        {getMarketItems()}
+      </Grid>
+    </>
   );
 }
 

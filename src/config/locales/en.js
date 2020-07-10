@@ -658,6 +658,7 @@ const messages = defineMessages({
   addMultiVote: 'Approve all options you consider desirable',
   pleaseVote: 'Please vote',
   pleaseVoteStory: 'Input certainty on this assignment and effort',
+  voteDeletedStory: 'Your approval was deleted or expired. Save or modify to approve again.',
   changeVote: 'Change approval',
   changeVoteInitiative: 'Change vote',
   decisionInvestibleVotingSingleHelp: 'Help decide by voting for the best option or adding your own option.',

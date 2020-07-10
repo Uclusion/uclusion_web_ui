@@ -26,7 +26,8 @@ export function getVoteTotalsForUser(presence) {
   if (!investments) {
     return {};
   }
-  return investments.reduce((uInv, investment) => {
+  const realInvestments = investments.filter((investment) => !investment.deleted);
+  return realInvestments.reduce((uInv, investment) => {
     const { investible_id, quantity } = investment;
     return {
       ...uInv,

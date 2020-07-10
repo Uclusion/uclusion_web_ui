@@ -26,13 +26,20 @@ function YourVoting(props) {
   const { id: marketId, max_budget: storyMaxBudget, allow_multi_vote: allowMultiVote, market_type: marketType } = market;
   const isInitiative = marketType === INITIATIVE_TYPE;
   const isDecision = marketType === DECISION_TYPE;
-  const yourPresence = marketPresences.find((presence) => presence.current_user);
-  const yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
+  let yourPresence = marketPresences.find((presence) => presence.current_user);
+  let yourVote = yourPresence && yourPresence.investments.find((investment) => investment.investible_id === investibleId);
   const { quantity } = yourVote || {};
   const myQuantity = quantity ? quantity : 0;
   const yourReason = comments.find((comment) => comment.created_by === userId);
   const [type, setType] = useState(isInitiative && myQuantity === 0 ? undefined : myQuantity < 0 ? AGAINST : FOR);
-
+  if (isInitiative || isDecision) {
+    if (yourVote && yourVote.deleted) {
+      yourVote = undefined;
+    }
+    if (yourPresence && yourPresence.investments) {
+      yourPresence.investments = yourPresence.investments.map((investment) => !investment.deleted);
+    }
+  }
   function onTypeChange(event) {
     const { value } = event.target;
     setType(value);
@@ -46,7 +53,9 @@ function YourVoting(props) {
 
   return (
     <div  id="pleaseVote">
-      <h2>{yourVote ? isInitiative ? intl.formatMessage({ id: 'changeVoteInitiative' }) : intl.formatMessage({ id: 'changeVote' }) : isDecision ? allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
+      <h2>{yourVote ? isInitiative ? intl.formatMessage({ id: 'changeVoteInitiative' })
+        : yourVote.deleted ? intl.formatMessage({ id: 'voteDeletedStory' }) : intl.formatMessage({ id: 'changeVote' })
+        : isDecision ? allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
         : intl.formatMessage({ id: 'addAVote' }) : isInitiative ? intl.formatMessage({ id: 'pleaseVote' })
         : intl.formatMessage({ id: 'pleaseVoteStory' }) }</h2>
       {isInitiative && (

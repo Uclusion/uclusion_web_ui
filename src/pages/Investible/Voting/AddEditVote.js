@@ -114,10 +114,10 @@ function AddEditVote(props) {
   } = props;
   const intl = useIntl();
   const classes = useStyles();
-  const addMode = _.isEmpty(investment);
+  const addMode = _.isEmpty(investment) || investment.deleted;
   const { quantity, max_budget: initialMaxBudget } = investment;
   const [validForm, setValidForm] = useState(false);
-  const initialInvestment = addMode ? 50 : Math.abs(quantity);
+  const initialInvestment = !quantity ? 50 : Math.abs(quantity);
   const [newQuantity, setNewQuantity] = useState(initialInvestment);
   const [maxBudget, setMaxBudget] = useState(initialMaxBudget || '');
   const { body, id: reasonId } = reason;
@@ -126,7 +126,7 @@ function AddEditVote(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [open, setOpen] = useState(false);
-  const warnClearVotes = !allowMultiVote && hasVoted && addMode;
+  const warnClearVotes = !allowMultiVote && hasVoted && _.isEmpty(investment);
   const defaultDefaultFunc = (newDefault) => {};
   const [editorDefaultFunc, setEditorDefaultFunc] = useState(() => defaultDefaultFunc);
   const [marketState] = useContext(MarketsContext);
@@ -138,12 +138,11 @@ function AddEditVote(props) {
 
   // If new data comes in then reset
   useEffect(() => {
-    const addMode = _.isEmpty(investment);
     const {
       quantity: investmentQuantity,
       max_budget: investmentBudget
     } = investment;
-    const initialInvestment = addMode ? 50 : Math.abs(investmentQuantity);
+    const initialInvestment = !investmentQuantity ? 50 : Math.abs(investmentQuantity);
     setNewQuantity(initialInvestment);
     setMaxBudget(investmentBudget || '');
     setReasonText(body || '');

@@ -312,8 +312,8 @@ function PlanningInvestible(props) {
     }
     let found = false;
     investments.forEach(investment => {
-      const { investible_id: invId } = investment;
-      if (invId === investibleId) {
+      const { investible_id: invId, deleted } = investment;
+      if (invId === investibleId && !deleted) {
         found = true;
       }
     });

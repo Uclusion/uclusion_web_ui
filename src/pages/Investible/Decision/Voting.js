@@ -71,9 +71,10 @@ function Voting(props) {
           investible_id: invId,
           max_budget: maxBudget,
           updated_at: updatedAt,
+          deleted
         } = investment;
         // // console.debug(investment);
-        if (investibleId === invId) {
+        if (investibleId === invId && !deleted) {
           acc.push({ name, userId: id, quantity, maxBudget, updatedAt });
         }
       });

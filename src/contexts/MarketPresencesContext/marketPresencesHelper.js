@@ -7,7 +7,11 @@ export function addPresenceToMarket(dispatch, marketId, presence) {
 export function getMarketPresences(state, marketId) {
   const presences = state[marketId] || []
   return presences.map((presence) => {
-    const { investments } = presence;
+    const { investments, current_user: isCurrentUser } = presence;
+    if (isCurrentUser) {
+      // Need to show expired investments for planning investible
+      return presence;
+    }
     const filteredInvestments = (investments || []).filter((investment) => !investment.deleted);
     return { ...presence, investments: filteredInvestments };
   });

@@ -32,6 +32,9 @@ const useStyles = makeStyles(() => ({
     display: 'none',
   },
   add: {},
+  visible: {
+    overflow: 'visible'
+  },
   cardContent: {
     padding: 0,
   },
@@ -99,7 +102,7 @@ function CommentEdit(props) {
     <div
       className={classes.add}
     >
-      <Card elevation={0}>
+      <Card elevation={0} className={classes.visible} >
         <CardContent className={classes.cardContent}>
           <FormControl component="fieldset" className={classes.commentType}>
             <RadioGroup

@@ -648,6 +648,9 @@ const useThreadedReplyStyles = makeStyles(
       margin: 0,
       marginTop: 15,
       padding: 0
+    },
+    visible: {
+      overflow: 'visible'
     }
   },
   { name: "ThreadedReplies" }
@@ -674,6 +677,7 @@ function ThreadedReplies(props) {
         if (reply) {
           return (
             <ThreadedReply
+              className={classes.visible}
               comment={reply}
               key={`threadc${reply.id}`}
               highLightId={highLightId}
@@ -689,7 +693,7 @@ function ThreadedReplies(props) {
 
 function ThreadedReply(props) {
   const { comment, highLightId, enableEditing } = props;
-  return <Reply key={`keyc${comment.id}`} id={`c${comment.id}`} comment={comment} elevation={0} highLightId={highLightId}
+  return <Reply key={`keyc${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment} elevation={0} highLightId={highLightId}
                 enableEditing={enableEditing} />;
 }
 

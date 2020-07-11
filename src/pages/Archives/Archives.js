@@ -49,7 +49,7 @@ function Archives(props) {
       )}
       {!emptyArchives && (
         <>
-            <PlanningDialogs markets={planningDetails}/>
+            <PlanningDialogs markets={planningDetails} isArchives/>
             <hr className={classes.spacer}/>
             <DecisionDialogs markets={decisionDetails}/>
             <InitiativeDialogs markets={initiativeDetails}/>

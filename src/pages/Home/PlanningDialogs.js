@@ -97,7 +97,7 @@ function PlanningDialogs(props) {
   const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
-  const { markets } = props;
+  const { markets, isArchives } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -285,10 +285,14 @@ function PlanningDialogs(props) {
 
   return (
     <>
-      <div id="swimLanes">
-        <InvestiblesByWorkspace workspaces={markets} />
-      </div>
-      <hr className={classes.spacer}/>
+      {!isArchives && (
+        <>
+          <div id="swimLanes">
+            <InvestiblesByWorkspace workspaces={markets} />
+          </div>
+          <hr className={classes.spacer}/>
+        </>
+      )}
       <Grid container spacing={4}>
         {getMarketItems()}
       </Grid>
@@ -297,8 +301,12 @@ function PlanningDialogs(props) {
 }
 
 PlanningDialogs.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
   markets: PropTypes.arrayOf(PropTypes.object).isRequired,
+  isArchives: PropTypes.bool,
+};
+
+PlanningDialogs.defaultProps = {
+  isArchives: false,
 };
 
 export default PlanningDialogs;

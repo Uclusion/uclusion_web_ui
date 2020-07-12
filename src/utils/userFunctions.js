@@ -8,7 +8,7 @@ import { Auth } from 'aws-amplify'
 import { getMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesHelper'
 import _ from 'lodash'
 
-export function extractUsersList (marketPresencesState, addToMarketId) {
+export function extractUsersList (marketPresencesState, addToMarketId, workspaces) {
   const addToMarketPresencesRaw = getMarketPresences(marketPresencesState, addToMarketId) || [];
   const addToMarketPresences = addToMarketPresencesRaw.filter((presence) => !presence.market_guest);
   const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
@@ -21,18 +21,29 @@ export function extractUsersList (marketPresencesState, addToMarketId) {
       return {};
     }
     const macc = {};
-    marketPresences.forEach((presence) => {
-      const {
-        id: user_id, name, account_id, external_id, email, market_banned: banned, current_user
-      } = presence;
-      if (!banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
-        const emailSplit = email ? email.split('@') : ['', ''];
-        addToMarketPresencesHash[external_id] = true;
-        macc[user_id] = {
-          user_id, name, account_id, domain: emailSplit[1], isChecked: false, external_id, current_user
-        };
-      }
-    });
+    let included = true;
+    if (!_.isEmpty(workspaces)) {
+      included = false;
+      workspaces.forEach((workspace) => {
+        if (marketId === workspace.id) {
+          included = true;
+        }
+      })
+    }
+    if (included) {
+      marketPresences.forEach((presence) => {
+        const {
+          id: user_id, name, account_id, external_id, email, market_banned: banned, current_user
+        } = presence;
+        if (!banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
+          const emailSplit = email ? email.split('@') : ['', ''];
+          addToMarketPresencesHash[external_id] = true;
+          macc[user_id] = {
+            user_id, name, account_id, domain: emailSplit[1], isChecked: false, external_id, current_user
+          };
+        }
+      });
+    }
     return { ...acc, ...macc };
   }, {});
 }

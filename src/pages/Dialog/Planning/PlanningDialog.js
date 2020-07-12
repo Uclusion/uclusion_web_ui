@@ -337,7 +337,22 @@ export const useInvestiblesByPersonStyles = makeStyles(
       header: {
         backgroundColor: theme.palette.grey["300"],
         padding: theme.spacing(1)
-      }
+      },
+      menuButton: {
+        width: '100%',
+        padding: '12px'
+      },
+      expansionControl: {
+        backgroundColor: '#ecf0f1',
+        width: '30%'
+      },
+      fontControl: {
+        alignItems: "center",
+        textTransform: 'none',
+        marginRight: 'auto',
+        marginLeft: '5px',
+        fontWeight: 700
+      },
     };
   },
   { name: "InvestiblesByPerson" }

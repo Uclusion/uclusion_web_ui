@@ -5,6 +5,37 @@ import { INITIATIVE_TYPE } from '../constants/markets'
 import { clearUclusionLocalStorage } from '../components/utils'
 import TokenStorageManager from '../authorization/TokenStorageManager'
 import { Auth } from 'aws-amplify'
+import { getMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesHelper'
+import _ from 'lodash'
+
+export function extractUsersList (marketPresencesState, addToMarketId) {
+  const addToMarketPresencesRaw = getMarketPresences(marketPresencesState, addToMarketId) || [];
+  const addToMarketPresences = addToMarketPresencesRaw.filter((presence) => !presence.market_guest);
+  const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
+    const { external_id } = presence;
+    return { ...acc, [external_id]: true };
+  }, {});
+  return Object.keys(marketPresencesState).reduce((acc, marketId) => {
+    const marketPresences = marketPresencesState[marketId] || [];
+    if(_.isEmpty(marketPresences)) {
+      return {};
+    }
+    const macc = {};
+    marketPresences.forEach((presence) => {
+      const {
+        id: user_id, name, account_id, external_id, email, market_banned: banned, current_user
+      } = presence;
+      if (!banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
+        const emailSplit = email ? email.split('@') : ['', ''];
+        addToMarketPresencesHash[external_id] = true;
+        macc[user_id] = {
+          user_id, name, account_id, domain: emailSplit[1], isChecked: false, external_id, current_user
+        };
+      }
+    });
+    return { ...acc, ...macc };
+  }, {});
+}
 
 export function getFlags(user) {
   return (user && user.flags) || {};

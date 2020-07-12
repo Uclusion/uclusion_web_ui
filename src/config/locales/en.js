@@ -664,6 +664,9 @@ const messages = defineMessages({
   decisionInvestibleVotingSingleHelp: 'Help decide by voting for the best option or adding your own option.',
   decisionInvestibleVotingMultiHelp: 'Help decide by voting for options you like and adding any that are missing.',
   initiativeVotingHelp: 'Vote for or against this initiative and choose how certain you are of that vote.',
+  personChooserLabel: 'View Other Person\'s Assignments',
+  displaying: 'Displaying',
+  clear: 'Clear',
 
   // add participants
   addParticipantsNewPerson: 'Not on Uclusion? Send Invite',

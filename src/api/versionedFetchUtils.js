@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import { pushMessage, registerListener, removeListener } from '../utils/MessageBusUtils'
-import { getVersions } from './summaries'
+import { getChangedIds, getVersions } from './summaries'
 import { getMarketDetails, getMarketStages, getMarketUsers } from './markets'
 import { getFetchSignaturesForAccount, getFetchSignaturesForMarket, signatureMatcher, } from './versionSignatureUtils'
 import {
@@ -158,58 +158,48 @@ export function pollForMarketLoad(id, version, versionsDispatch, history) {
 }
 
 /**
- * Splits the market signatures into foreground and background lists
- * @param marketSignatures
- * @param foregroundList
- * @returns {{background: *, foreground: []}|{background: *, foreground: *}}
- */
-function splitIntoForegroundBackground (marketSignatures, foregroundList) {
-  if (_.isEmpty(foregroundList)) {
-    return { foreground: [], background: marketSignatures };
-  }
-  const foreground = marketSignatures.filter((ms) => foregroundList.includes(ms.market_id));
-  const background = marketSignatures.filter((ms) => !foregroundList.includes(ms.market_id));
-  return {
-    foreground,
-    background,
-  };
-}
-
-/**
  * Updates all the accounts from the passed in signatures
- * @param accountSignatures the signatures the account fetch has to match
+ * @param accountId the account ID we need to sync
  * @param maxConcurrencyCount the maximum number of api calls to make at once
  */
-function updateAccountFromSignatures (accountSignatures, maxConcurrencyCount=1) {
-  return LimitedParallelMap(accountSignatures, accountSignature => {
-    // we really only know how to update _our_ account
-    const { signatures: componentSignatures } = accountSignature;
-      return doRefreshAccount(componentSignatures);
-  }, maxConcurrencyCount)
+function updateAccountFromSignatures (accountId, maxConcurrencyCount = 1) {
+  return getVersions([accountId])
+    .then((accountSignatures) => {
+      return LimitedParallelMap(accountSignatures, accountSignature => {
+        // we really only know how to update _our_ account
+        const { signatures: componentSignatures } = accountSignature;
+        return doRefreshAccount(componentSignatures);
+      }, maxConcurrencyCount);
+    });
 }
-
 
 /**
  * Updates all our markets from the passed in signatures
- * @param marketSignatures the market signatures to drive the update
+ * @param marketIds the market ids to fetch signatures for
  * @param existingMarkets the list of markets we currently know about
  * @param maxConcurrentCount the maximum number of api calls to make at once
  * @returns {Promise<*>}
  */
-function updateMarketsFromSignatures (marketSignatures, existingMarkets, maxConcurrentCount) {
-  return LimitedParallelMap(marketSignatures, (marketSignature) => {
-    const { market_id: marketId, signatures: componentSignatures } = marketSignature;
-    let promise = doRefreshMarket(marketId, componentSignatures);
-    if (!_.isEmpty(promise)) {
-      // send a notification to the versions channel saying we have incoming stuff
-      // for this market
-      pushMessage(VERSIONS_HUB_CHANNEL, { event: MARKET_MESSAGE_EVENT, marketId });
-    }
-    if (!existingMarkets || !existingMarkets.includes(marketId)) {
-      pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
-    }
-    return promise;
-  }, maxConcurrentCount);
+function updateMarketsFromSignatures (marketIds, existingMarkets, maxConcurrentCount) {
+  return getVersions(marketIds)
+    .then((marketSignatures) => {
+      //console.error(marketSignatures);
+      return LimitedParallelMap(marketSignatures, (marketSignature) => {
+        //console.error("MarketSignature")
+        //console.error(marketSignature);
+        const { market_id: marketId, signatures: componentSignatures } = marketSignature;
+        let promise = doRefreshMarket(marketId, componentSignatures);
+        if (!_.isEmpty(promise)) {
+          // send a notification to the versions channel saying we have incoming stuff
+          // for this market
+          pushMessage(VERSIONS_HUB_CHANNEL, { event: MARKET_MESSAGE_EVENT, marketId });
+        }
+        if (!existingMarkets || !existingMarkets.includes(marketId)) {
+          pushMessage(VERSIONS_HUB_CHANNEL, { event: NEW_MARKET, marketId });
+        }
+        return promise;
+      }, maxConcurrentCount);
+    });
 }
 
 /**
@@ -227,16 +217,16 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
     pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION });
   }
   const callWithVersion = currentHeldVersion === 'INITIALIZATION' ? null : currentHeldVersion;
-  return getVersions(callWithVersion)
+  return getChangedIds(callWithVersion)
     .then((versions) => {
       const {
-        global_version, signatures: newSignatures, foreground: foregroundList,
+        global_version, foreground: foregroundList, account: accountId, background: backgroundList,
         banned: bannedList
       } = versions;
-      const marketSignatures = newSignatures.filter((signature) => signature.market_id);
-      const accountSignatures = newSignatures.filter((signature) => signature.account_id);
+    //  const marketSignatures = newSignatures.filter((signature) => signature.market_id);
+    ///  const accountSignatures = newSignatures.filter((signature) => signature.account_id);
       // if the market signatures don't have the required signatures, just abort, this version has stale data
-      if ((_.isEmpty(marketSignatures) && _.isEmpty(accountSignatures)) || _.isEmpty(global_version)) {
+      if ((_.isEmpty(foregroundList) && _.isEmpty(backgroundList) && _.isEmpty(accountId)) || _.isEmpty(global_version)) {
         pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
         return currentHeldVersion;
       }
@@ -244,21 +234,19 @@ export function doVersionRefresh (currentHeldVersion, existingMarkets) {
       if (!_.isEmpty(bannedList)) {
         pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
       }
-      // split the market stuff into forground and background
+      // split the market stuff into foreground and background
       newGlobalVersion = global_version;
-      const splitMS = splitIntoForegroundBackground(marketSignatures, foregroundList);
-      const { foreground, background } = splitMS;
-      const marketPromises = updateMarketsFromSignatures(foreground, existingMarkets, MAX_CONCURRENT_API_CALLS)
+     const marketPromises = updateMarketsFromSignatures(foregroundList, existingMarkets, MAX_CONCURRENT_API_CALLS)
         .then(() => {
           pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION });
-          return updateMarketsFromSignatures(background, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS)
+          return updateMarketsFromSignatures(backgroundList, existingMarkets, MAX_CONCURRENT_ARCHIVE_API_CALLS)
             .then(() => {
               return newGlobalVersion;
             });
         });
       // fetch the account before the market if we have to
-      if (!_.isEmpty(accountSignatures)) {
-        return updateAccountFromSignatures(accountSignatures, MAX_CONCURRENT_API_CALLS)
+      if (!_.isEmpty(accountId)) {
+        return updateAccountFromSignatures(accountId, MAX_CONCURRENT_API_CALLS)
           .then(() => marketPromises);
       }
       return marketPromises;

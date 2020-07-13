@@ -8,17 +8,21 @@ import { useInvestiblesByPersonStyles } from './PlanningDialog'
 import { getUserInvestibles } from './userUtils'
 import PropTypes from 'prop-types'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import {
+  getInvestiblesInStage,
+  getMarketInvestibles
+} from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { ACTIVE_STAGE } from '../../../constants/markets'
 import {
   getAcceptedStage,
   getBlockedStage,
   getInCurrentVotingStage,
-  getInReviewStage
+  getInReviewStage,
+  getRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { Button, Menu, MenuItem } from '@material-ui/core'
@@ -26,6 +30,9 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { extractUsersList } from '../../../utils/userFunctions'
+import SubSection from '../../../containers/SubSection/SubSection'
+import { SECTION_TYPE_SECONDARY } from '../../../constants/global'
+import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 
 function InvestiblesByWorkspace(props) {
   const {
@@ -104,11 +111,13 @@ function InvestiblesByWorkspace(props) {
         const inDialogStage = getInCurrentVotingStage(marketStagesState, market.id) || {};
         const inReviewStage = getInReviewStage(marketStagesState, market.id) || {};
         const inBlockingStage = getBlockedStage(marketStagesState, market.id) || {};
+        const requiresInputStage = getRequiredInputStage(marketStagesState, market.id) || {};
         const visibleStages = [
           inDialogStage.id,
           acceptedStage.id,
           inReviewStage.id,
-          inBlockingStage.id
+          inBlockingStage.id,
+          requiresInputStage.id
         ];
         const myInvestibles = getUserInvestibles(
           presence.id,
@@ -116,6 +125,7 @@ function InvestiblesByWorkspace(props) {
           investibles,
           visibleStages,
         );
+        const requiresInputInvestibles = getInvestiblesInStage(myInvestibles, requiresInputStage.id);
         if (_.isEmpty(myInvestibles)) {
           return React.Fragment;
         }
@@ -144,6 +154,19 @@ function InvestiblesByWorkspace(props) {
                   comments={comments}
                   presenceId={presence.id}
                 />
+              )}
+              {!_.isEmpty(requiresInputInvestibles) && (
+                <SubSection
+                  type={SECTION_TYPE_SECONDARY}
+                  title={intl.formatMessage({ id: 'requiresInputHeader' })}
+                >
+                  <ArchiveInvestbiles
+                    elevation={0}
+                    marketId={market.id}
+                    presenceMap={getPresenceMap(marketPresencesState, market.id)}
+                    investibles={requiresInputInvestibles}
+                  />
+                </SubSection>
               )}
             </CardContent>
           </Card>

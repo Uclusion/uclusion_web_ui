@@ -286,7 +286,7 @@ const messages = defineMessages({
   planningBlockedStageLabel: 'Blocked',
   planningBlockedStageDescription: 'A story will move to Blocked when a blocking issue is entered and cannot be moved out of Blocked until the issue is resolved.',
   planningReviewStageLabel: 'Review',
-  planningReviewStageDescription: 'Review is for stories that are complete except for verification.',
+  planningReviewStageDescription: 'Review is for stories that are complete except for verification. Stories with unresolved comments show red.',
   planningVerifiedStageLabel: 'Verified',
   planningFurtherWorkStageLabel: 'Ready for Further Work',
   requiresInputStageLabel: 'Requires Input',

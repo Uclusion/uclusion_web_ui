@@ -4,7 +4,7 @@ import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
 import PlanningIdeas from './PlanningIdeas'
-import { checkInProgressWarning, useInvestiblesByPersonStyles } from './PlanningDialog'
+import { useInvestiblesByPersonStyles } from './PlanningDialog'
 import { getUserInvestibles } from './userUtils'
 import PropTypes from 'prop-types'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -143,7 +143,6 @@ function InvestiblesByWorkspace(props) {
                   activeMarket={market.market_stage === ACTIVE_STAGE}
                   comments={comments}
                   presenceId={presence.id}
-                  warnAccepted={checkInProgressWarning(myInvestibles, comments, acceptedStage.id, presence.id, market.id)}
                 />
               )}
             </CardContent>

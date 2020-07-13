@@ -7,6 +7,7 @@ import { red, yellow } from '@material-ui/core/colors'
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
 import clsx from 'clsx'
+import { checkInProgressWarning, checkReviewWarning } from './PlanningDialog'
 
 const warningColor = red["400"];
 
@@ -43,12 +44,12 @@ function PlanningIdeas(props) {
     inReviewStageId,
     inBlockingStageId,
     presenceId,
-    warnAccepted,
     activeMarket,
+    comments
   } = props;
   const intl = useIntl();
   const classes = usePlanningIdStyles();
-
+  const warnAccepted = checkInProgressWarning(investibles, comments, acceptedStageId, presenceId, marketId);
   return (
     <dl className={classes.stages}>
       <div>
@@ -97,6 +98,7 @@ function PlanningIdeas(props) {
           id={inReviewStageId}
           investibles={investibles}
           marketId={marketId}
+          comments={comments}
         />
       </div>
       <div>
@@ -119,7 +121,7 @@ function PlanningIdeas(props) {
 }
 
 PlanningIdeas.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
+  comments: PropTypes.arrayOf(PropTypes.object),
   investibles: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
   acceptedStageId: PropTypes.string.isRequired,
@@ -174,12 +176,12 @@ function Stage(props) {
     marketId,
     updatedText,
     warnAccepted,
+    isReview,
   } = props;
 
-  // // console.log(comments);
   const stageInvestibles = investibles.filter(investible => {
     const { market_infos: marketInfos } = investible;
-    // // console.log(`Investible id is ${id}`);
+    // console.log(`Investible id is ${id}`);
     const marketInfo = marketInfos.find(info => info.market_id === marketId);
     if (process.env.NODE_ENV !== "production") {
       if (marketInfo === undefined) {
@@ -216,6 +218,7 @@ function Stage(props) {
                 marketId={marketId}
                 marketInfo={marketInfo}
                 updatedText={updatedText}
+                showWarning={isReview ? checkReviewWarning(investible, comments) : false}
               />
             </li>
           );
@@ -309,6 +312,7 @@ function ReviewStage(props) {
       updatedText={intl.formatMessage({
         id: "reviewingInvestiblesUpdatedAt"
       })}
+      isReview
       {...props}
     />
   );
@@ -344,7 +348,7 @@ function BlockingStage(props) {
 }
 
 function StageInvestible(props) {
-  const { investible, marketId, marketInfo, updatedText } = props;
+  const { investible, marketId, marketInfo, updatedText, showWarning } = props;
 
   const { id, name } = investible;
 
@@ -359,7 +363,7 @@ function StageInvestible(props) {
         navigate(history, to);
       }}
     >
-      <Typography variant="subtitle2">{name}</Typography>
+      <Typography color={showWarning ? 'error' : 'initial'} variant="subtitle2">{name}</Typography>
       <Typography variant="inherit">
         {updatedText}
         <FormattedDate value={safeChangeDate} />

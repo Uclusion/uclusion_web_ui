@@ -21,7 +21,15 @@ import {
   makeBreadCrumbs,
   navigate
 } from '../../../utils/marketIdPathFunctions'
-import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
+import {
+  ISSUE_TYPE,
+  JUSTIFY_TYPE,
+  QUESTION_TYPE,
+  REPLY_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE
+} from '../../../constants/comments'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { ACTIVE_STAGE, PLANNING_TYPE, STORIES_SUB_TYPE } from '../../../constants/markets'
@@ -393,6 +401,19 @@ export function checkInProgressWarning(investibles, comments, inProgressStageId,
   return _.isEmpty(progressReportCommentIn24);
 }
 
+export function checkReviewWarning(investible, comments) {
+  const { id } = investible;
+  if (_.isEmpty(comments)) {
+    return false;
+  }
+  const openComments = comments.find((comment) => {
+    const { investible_id: investibleId, comment_type: commentType, resolved } = comment;
+    return !resolved && id === investibleId && commentType !== REPORT_TYPE && commentType !== REPLY_TYPE
+      && commentType !== JUSTIFY_TYPE;
+  });
+  return !_.isEmpty(openComments);
+}
+
 function InvestiblesByPerson(props) {
   const {
     comments,
@@ -444,7 +465,6 @@ function InvestiblesByPerson(props) {
                 activeMarket={activeMarket}
                 comments={comments}
                 presenceId={presence.id}
-                warnAccepted={checkInProgressWarning(myInvestibles, comments, acceptedStage.id, presence.id, marketId)}
               />
             )}
         </CardContent>

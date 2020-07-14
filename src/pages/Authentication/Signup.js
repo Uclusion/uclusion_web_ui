@@ -23,6 +23,7 @@ import { setRedirect } from '../../utils/redirectUtils'
 import Iframe from 'react-iframe'
 import { GithubLoginButton } from 'react-social-login-buttons'
 import { toastError } from '../../utils/userMessage'
+import queryString from 'query-string'
 
 const useStyles = makeStyles(theme => ({
   outer: {
@@ -181,13 +182,20 @@ function Signup(props) {
   const [wasBlurred, setWasBlurred] = useState(false);
   const intl = useIntl();
   const history = useHistory();
-
+  const { location } = history;
+  const { search } = location;
+  const values = queryString.parse(search || '');
+  const { signUpWith } = values || {};
   const [myLoading, setMyLoading] = useState(undefined);
   const [myMarket, setMyMarket] = useState(undefined);
   const SIGNUP_LOGO = 'Uclusion_Logo_White_Micro.png';
   const LOGO_COLOR = '#3F6B72'
   useEffect(() => {
-    if (action === 'invite' && marketToken && myLoading !== marketToken) {
+    if (signUpWith === 'google') {
+      Auth.federatedSignIn({provider: 'Google'});
+    } else if (signUpWith === 'github') {
+      Auth.federatedSignIn({provider: 'GithubLogin'});
+    } else if (action === 'invite' && marketToken && myLoading !== marketToken) {
       setMyLoading(marketToken);
       console.info('Loading info');
       getMarketInfoForToken(marketToken)
@@ -198,7 +206,7 @@ function Signup(props) {
           toastError('errorMarketFetchFailed');
         });
     }
-  }, [marketToken, action, myLoading]);
+  }, [marketToken, action, myLoading, signUpWith]);
 
   function onPasswordBlurred() {
     setWasBlurred(true);

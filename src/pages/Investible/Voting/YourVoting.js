@@ -37,7 +37,7 @@ function YourVoting(props) {
       yourVote = undefined;
     }
     if (yourPresence && yourPresence.investments) {
-      yourPresence.investments = yourPresence.investments.map((investment) => !investment.deleted);
+      yourPresence.investments = yourPresence.investments.filter((investment) => !investment.deleted);
     }
   }
   function onTypeChange(event) {

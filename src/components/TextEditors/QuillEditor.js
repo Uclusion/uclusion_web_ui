@@ -181,10 +181,13 @@ class QuillEditor extends React.PureComponent {
       // this might not really work, zo C-Z will undo the clear, but it's still better than nothing
       this.editor.history.clear();
       this.editor.root.innerHTML='';
+      this.editor.setContents([{ insert: '' }]);
       if (newPlaceHolder) {
         const el = this.editorBox.current.firstChild;
         el.setAttribute('data-placeholder', newPlaceHolder);
       }
+      this.editorBox.current.children[0].click();
+      this.editor.focus();
     };
     setEditorClearFunc(editorClearFunc);
     const editorDefaultFunc = () => (newDefault) => {

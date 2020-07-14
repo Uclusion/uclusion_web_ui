@@ -8,6 +8,7 @@ import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
 import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
 import clsx from 'clsx'
 import { checkInProgressWarning, checkReviewWarning } from './PlanningDialog'
+import { DaysEstimate } from '../../../components/AgilePlan'
 
 const warningColor = red["400"];
 
@@ -177,6 +178,7 @@ function Stage(props) {
     updatedText,
     warnAccepted,
     isReview,
+    showCompletion,
   } = props;
 
   const stageInvestibles = investibles.filter(investible => {
@@ -219,6 +221,7 @@ function Stage(props) {
                 marketInfo={marketInfo}
                 updatedText={updatedText}
                 showWarning={isReview ? checkReviewWarning(investible, comments) : false}
+                showCompletion={showCompletion}
               />
             </li>
           );
@@ -296,6 +299,7 @@ function AcceptedStage(props) {
       updatedText={intl.formatMessage({
         id: "acceptedInvestiblesUpdatedAt"
       })}
+      showCompletion
       {...props}
     />
   );
@@ -348,10 +352,9 @@ function BlockingStage(props) {
 }
 
 function StageInvestible(props) {
-  const { investible, marketId, marketInfo, updatedText, showWarning } = props;
-
-  const { id, name } = investible;
-
+  const { investible, marketId, marketInfo, updatedText, showWarning, showCompletion } = props;
+  const { days_estimate: daysEstimate } = marketInfo;
+  const { id, name, created_at: createdAt } = investible;
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
   const safeChangeDate = Date.parse(marketInfo.last_stage_change_date);
@@ -368,6 +371,9 @@ function StageInvestible(props) {
         {updatedText}
         <FormattedDate value={safeChangeDate} />
       </Typography>
+      {showCompletion && daysEstimate && (
+        <DaysEstimate readOnly value={daysEstimate} createdAt={createdAt} />
+      )}
     </StageLink>
   );
 }
